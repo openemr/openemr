@@ -69,4 +69,6 @@ jobs:
         bats tests/bats/ci-scripts/recovery-smoketest-verify/
         bats tests/bats/ci-scripts/validate-flag-with-reason/
         bats tests/bats/ci-scripts/detect-upgrade-cell-skip/
+        bats tests/bats/ci-scripts/release-targets-queries/
+        bats tests/bats/ci-scripts/derive-from-version/
         bats tests/bats/ci-scripts/parse-artifact-version/

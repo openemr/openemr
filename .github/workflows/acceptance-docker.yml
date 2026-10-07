@@ -55,10 +55,10 @@ on:
   workflow_dispatch:
     inputs:
       from_tag:
-        description: 'Prior openemr Docker Hub tag (fresh + upgrade source)'
-        required: true
+        description: 'Prior openemr Docker Hub tag (fresh + upgrade source). Leave empty to auto-derive from the checkout''s sql/*-to-*_upgrade.sql filenames (per-rel-branch prior-shipped version — rel-820 → 8.1.1, rel-830 → 8.2.0, rel-840 → 8.3.0, etc.). Pass an explicit tag string to override (e.g. `latest` for the pre-fix behavior).'
+        required: false
         type: string
-        default: 'latest'
+        default: ''
       to_tag:
         description: 'Target openemr Docker Hub tag (fresh + upgrade target)'
         required: true
@@ -66,6 +66,10 @@ on:
         default: 'next'
       build_locally:
         description: 'Build target image from the PR docker/release/Dockerfile instead of pulling to_tag from Docker Hub (Phase 2.5 PR-image validation)'
+        type: boolean
+        default: false
+      require_upgrade_cell:
+        description: 'Fail the workflow if the upgrade-cell skip logic fires (used by release-prep/ship-time callers -- silently skipping the upgrade cell during release mode would publish an artifact whose auto-upgrade path was never validated).'
         type: boolean
         default: false
   # Phase 7c-docker-latest-gate: called by docker-build-release.yml as
@@ -84,15 +88,20 @@ on:
   workflow_call:
     inputs:
       from_tag:
-        description: 'Prior openemr Docker Hub tag. Defaults to latest.'
+        description: 'Prior openemr Docker Hub tag. Leave empty (default) to auto-derive from the checkout''s sql/*-to-*_upgrade.sql filenames.'
         required: false
         type: string
-        default: 'latest'
+        default: ''
       to_tag:
         description: 'Target openemr Docker Hub tag (typically a Phase 7c-docker gate candidate tag suffix; may also be next / a version-pinned tag / etc.).'
         required: false
         type: string
         default: 'next'
+      require_upgrade_cell:
+        description: 'Fail the workflow if the upgrade-cell skip logic fires. Callers wired for release mode (release-prep-time dispatch, ship-time acceptance gate) pass true so a silent skip -- which would publish an artifact whose auto-upgrade path was never validated -- becomes a loud failure instead. Direct dispatches / scheduled runs leave it false and keep the tolerant skip behavior.'
+        required: false
+        type: boolean
+        default: false
   push:
     # Skip pushes to release-mechanism bot branches (branch-cut/,
     # patch-prep/, release-prep/, release-finalize/). peter-evans/
@@ -201,6 +210,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       build_locally: ${{ steps.decide.outputs.build_locally }}
+      from_tag: ${{ steps.resolve-from-tag.outputs.from_tag }}
     steps:
     - uses: actions/checkout@v7
       with:
@@ -297,6 +307,115 @@ jobs:
           echo "==> docker/release/** unchanged between $BASE and $HEAD: build_locally=false"
           echo "build_locally=false" >> "$GITHUB_OUTPUT"
         fi
+
+    # Resolve from_tag for the acceptance matrix.
+    #
+    # Pre-fix: the matrix hardcoded `from_tag || 'latest'` as the
+    # fallback, which produced a legitimate test only on the rel
+    # branch that currently publishes `latest` (today rel-840 →
+    # 8.4.1). For every rel branch BELOW that (rel-820, rel-830),
+    # `from=latest=8.4.1 → to=own-candidate=8.2.0/8.3.0` is a
+    # downgrade — OpenEMR has no DB-downgrade machinery, so the
+    # auto-upgrade cell boots 8.4.1, swaps to 8.2.0 image, DB stays
+    # at 8.4.1, and the version-check test fails loud with
+    # "returned version 8.4.1 does not match expected 8.2.0".
+    # Observed on every rel-820/rel-830 docker-build-release.yml
+    # dispatch since rel-840 took `latest` on 2026-09-18.
+    #
+    # Post-fix: when the caller doesn't pass an explicit `from_tag`,
+    # derive the from-version from the checkout's own `sql/*-to-
+    # *_upgrade.sql` filenames (same signal driving the package
+    # side's `detect-acceptance-mode.sh::derive_from_version`;
+    # see .github/scripts/lib/derive-from-version.sh for the shared
+    # predicate). Each rel branch's checkout then produces its own
+    # prior-shipped version (rel-820 → 8.1.1, rel-830 → 8.2.0,
+    # rel-840 → 8.3.0, master during active cycle → whatever's in
+    # its sql/, between-cycles → caught by criterion 2 in
+    # detect-upgrade-cell-skip.sh before this value matters).
+    #
+    # Docker-vs-package note: this is sql-only (no shipped-versions-
+    # manifest intersect, unlike the package side). Docker Hub carries
+    # pre-production tags in addition to shipped releases, so a
+    # manifest intersect wouldn't correctly distinguish them anyway.
+    # Rare edge case where the derived version was never shipped
+    # (branch cut but never published): `docker pull openemr/openemr:
+    # <version>` in the acceptance cell's boot step fails loud naming
+    # the exact tag — no silent skip. See the lib header for the full
+    # "nothing-breaks-on-unreleased-version" invariant.
+    #
+    # Operator override: explicit `from_tag` input (workflow_dispatch
+    # or workflow_call) passes through unchanged. The default is now
+    # empty-string (used to be `'latest'`); callers who genuinely want
+    # the pre-fix `latest` behavior must pass `from_tag=latest`
+    # explicitly.
+    - id: resolve-from-tag
+      env:
+        INPUT_FROM_TAG: ${{ inputs.from_tag }}
+        INPUT_TO_TAG: ${{ inputs.to_tag || 'next' }}
+      run: |
+        set -euo pipefail
+        if [[ -n "${INPUT_FROM_TAG}" ]]; then
+          # Operator override path -- honor the exact value as a
+          # Docker Hub tag. No derivation, no shape check (the
+          # downstream docker pull is the shape gate).
+          echo "==> from_tag override: ${INPUT_FROM_TAG}"
+          echo "from_tag=${INPUT_FROM_TAG}" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        # Default path -- derive from the checkout.
+        # shellcheck source=./.github/scripts/lib/derive-from-version.sh
+        source .github/scripts/lib/derive-from-version.sh
+        if ! candidates=$(derive_from_version_sql_candidates "."); then
+          echo "::error::acceptance-docker.yml resolve-from-tag: sql-side derivation failed (see lib error above). Checkout is missing sql/ or has no well-formed sql/*-to-*_upgrade.sql filenames. If this is intentional (e.g., a rel branch that pre-dates the upgrade-file convention), pass an explicit from_tag on dispatch or document the per-branch default here." >&2
+          exit 1
+        fi
+        # Rabbit review guard: when to_tag is version-shaped (X.Y.Z),
+        # restrict candidates to those strictly LESS THAN it. Prevents
+        # a same-version-transition regression where sql files hint
+        # at a from-version equal to to_tag (e.g., a stray
+        # `8_4_1-to-8_5_0_upgrade.sql` in a checkout whose
+        # to_tag is also `8.4.1` would otherwise land on
+        # from=8.4.1=to and run a vacuous no-op "upgrade"). The
+        # existing exclude-version arg on the lib handles exact-
+        # match self-upgrades, but not the higher-than-to case
+        # (candidates [8.3.0, 8.4.1, 8.5.0] with exclude(8.4.1)
+        # still returns max=8.5.0). The strict-less-than filter
+        # here catches both.
+        #
+        # Non-version-shaped to_tag (default `next`, workflow_call
+        # candidate suffixes like `release-candidate-<run>-<attempt>`,
+        # smoketest `smoketest-canary-...`, operator-chosen floating
+        # names) can't be semver-compared and falls through to the
+        # unfiltered max-pick, which is correct for those shapes --
+        # a floating tag's actual image version is only known after
+        # boot, where the OCI-label/version.php resolver (Item 4)
+        # handles it.
+        if [[ "${INPUT_TO_TAG}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          # Prepend to_tag to the candidate list, sort unique, emit
+          # lines up to (but not including) the to_tag position. All
+          # emitted lines are strictly less than to_tag by sort -V
+          # order.
+          filtered=$(printf '%s\n%s\n' "${candidates}" "${INPUT_TO_TAG}" \
+            | sort -uV \
+            | awk -v ref="${INPUT_TO_TAG}" '$0 == ref { exit } { print }')
+          if [[ -z "${filtered}" ]]; then
+            cand_line=$(tr '\n' ' ' <<< "${candidates}")
+            echo "::error::acceptance-docker.yml resolve-from-tag: no sql-derived candidate is strictly less than version-shaped to_tag=${INPUT_TO_TAG}. Candidates from checkout: ${cand_line}. Either the checkout's sql files are missing an older upgrade path, or to_tag was set to a value below the checkout's own prior-shipped versions. Pass an explicit from_tag override if the test setup is intentional." >&2
+            exit 1
+          fi
+          echo "==> candidates filtered to < ${INPUT_TO_TAG}: $(tr '\n' ' ' <<< "${filtered}")"
+          candidates="${filtered}"
+        fi
+        # Take the highest remaining candidate as the from-version.
+        # The lib sorts ascending; tail -1 selects the max.
+        derived=$(printf '%s\n' "${candidates}" | tail -1)
+        echo "==> from_tag derived from checkout sql/: ${derived}"
+        # Docker Hub tag names: version tags are published as plain
+        # X.Y.Z strings alongside a dated-sibling X.Y.Z-YYYY-MM-DD.
+        # The plain form is sufficient for CI (an acceptance cell is
+        # ephemeral; immutability isn't a requirement here) and keeps
+        # the surface simple.
+        echo "from_tag=${derived}" >> "$GITHUB_OUTPUT"
 
   # Build the target image from the PR's docker/release/Dockerfile.
   # Runs only when detect-mode resolved build_locally=true.
@@ -410,7 +529,7 @@ jobs:
         include:
         - scenario: fresh-install-from
           description: 'Fresh install of from_tag'
-          image_tag: ${{ inputs.from_tag || 'latest' }}
+          image_tag: ${{ needs.detect-mode.outputs.from_tag }}
           test_group: post-install
         - scenario: fresh-install-to
           description: 'Fresh install of to_tag'
@@ -418,13 +537,13 @@ jobs:
           test_group: post-install
         - scenario: upgrade
           description: 'Upgrade from_tag -> to_tag'
-          image_tag: ${{ inputs.from_tag || 'latest' }}
+          image_tag: ${{ needs.detect-mode.outputs.from_tag }}
           # test_group runs first against from_tag (seeds any
           # persistence fixtures), then post-upgrade group runs
           # against to_tag after the image swap.
           test_group: post-install
     env:
-      FROM_TAG: ${{ inputs.from_tag || 'latest' }}
+      FROM_TAG: ${{ needs.detect-mode.outputs.from_tag }}
       TO_TAG: ${{ inputs.to_tag || 'next' }}
       # Pin project name so `docker compose down` preserves named
       # volumes reliably across the from_tag -> to_tag swap in the
@@ -614,6 +733,27 @@ jobs:
         TO_REV=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "openemr/openemr:${TO_TAG}" 2>/dev/null || echo "")
         export FROM_REV TO_REV
         RELEASE_TARGETS_PATH="${MASTER_RELEASE_TARGETS}" bash .github/scripts/detect-upgrade-cell-skip.sh
+
+    - name: Enforce upgrade-cell required (release-mode guardrail)
+      # Big-picture invariant: any caller in "release mode" (release-prep
+      # dispatch from release-prep.yml, or ship-time acceptance-gate from
+      # build-release.yml) passes require_upgrade_cell=true. If the skip
+      # logic then fires, we'd be publishing an artifact whose auto-
+      # upgrade path was never validated -- which defeats the whole
+      # gate. Fail loudly instead of silently skipping downstream steps.
+      # Direct dispatches / scheduled runs leave require_upgrade_cell
+      # false (default) and keep the tolerant skip behavior.
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip == 'true' && inputs.require_upgrade_cell
+      env:
+        SKIP_REASON: ${{ steps.detect_upgrade_skip.outputs.skip_reason }}
+      run: |
+        {
+          echo "::error::Upgrade cell would skip but require_upgrade_cell=true. This caller is in release mode -- silently skipping the upgrade validation is not acceptable."
+          echo "::error::Skip reason from detect-upgrade-cell-skip.sh:"
+          printf '%s\n' "${SKIP_REASON}" | sed 's/^/::error::  /'
+          echo "::error::Diagnose: (a) if the ship setup is wrong (from_tag/to_tag pointing at an image whose OCI revision is master when it shouldn't be, or between-cycles state active during release-mode), fix the setup. (b) if the skip criteria are genuinely wrong for a legitimate release-mode case, revisit .github/scripts/detect-upgrade-cell-skip.sh."
+        }
+        exit 1
 
     - name: Skip upgrade scenario (early notice)
       if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip == 'true'

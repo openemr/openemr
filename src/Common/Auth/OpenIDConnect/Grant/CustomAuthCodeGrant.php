@@ -17,7 +17,6 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
-use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
@@ -28,6 +27,7 @@ use Psr\Http\Message\ServerRequestInterface;
 class CustomAuthCodeGrant extends AuthCodeGrant
 {
     use SystemLoggerAwareTrait;
+    use ClientGrantTypeGuardTrait;
 
     private array $openEMRCodeChallengeVerifiers;
 
@@ -119,8 +119,15 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             }
         }
         $this->validateCodeChallengeMethod($request);
+        $authorizationRequest = parent::validateAuthorizationRequest($request);
+        // the client asking for a code must be registered for the authorization_code grant
+        $client = $authorizationRequest->getClient();
+        if (!($client instanceof ClientEntity)) {
+            throw OAuthServerException::invalidClient($request);
+        }
+        $this->assertClientMayUseGrant($client, $this->getIdentifier(), $logger, $authorizationRequest->getRedirectUri());
         $logger->debug("CustomAuthCodeGrant::validateAuthorizationRequest: validateAuthorizationRequest exit");
-        return parent::validateAuthorizationRequest($request);
+        return $authorizationRequest;
     }
 
     protected function validateRedirectUri(
@@ -200,20 +207,15 @@ class CustomAuthCodeGrant extends AuthCodeGrant
                 // Validate the JWT assertion
                 $this->jwtAuthService->validateJWTClientAssertion($request, $client);
 
-                // Validate client is authorized for this grant type
-                if (!$this->clientRepository->validateClient($clientId, null, $this->getIdentifier())) {
-                    $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
-                    throw OAuthServerException::invalidClient($request);
-                }
-
                 // Validate redirect URI if provided
                 $redirectUri = $this->getRequestParameter('redirect_uri', $request);
                 if ($redirectUri !== null) {
                     $this->validateRedirectUri($redirectUri, $client, $request);
                 }
 
+                // fall through to the enabled and grant-type checks below: returning here skipped
+                // them, so a disabled client could still exchange a code with private_key_jwt
                 $logger->debug('CustomAuthCodeGrant::validateClient: JWT authentication successful', ['client_id' => $clientId]);
-                return $client;
 
             } catch (OAuthServerException $e) {
                 $logger->error(
@@ -227,7 +229,13 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             $logger->debug('CustomAuthCodeGrant::validateClient: Using traditional client secret authentication');
             $client = parent::validateClient($request);
             if (!($client instanceof ClientEntity)) {
-                $logger->error("CustomAuthCodeGrant::validateClient: Client {client} returned was not a valid ClientEntity", ['client' => $client->getIdentifier()]);
+                // $client may be false / null / a non-ClientEntity, so
+                // don't dereference it here. Log the client_id from the
+                // request if we can get it.
+                $logger->error(
+                    "CustomAuthCodeGrant::validateClient: Client returned was not a valid ClientEntity",
+                    ['client' => $this->getRequestParameter('client_id', $request, null)]
+                );
                 throw OAuthServerException::invalidClient($request);
             }
         }
@@ -236,6 +244,7 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             $this->getSystemLogger()->error("CustomAuthCodeGrant::validateClient: Client {client} returned was not enabled", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
+        $this->assertClientMayUseGrant($client, $this->getIdentifier(), $logger);
         $this->getSystemLogger()->debug("CustomAuthCodeGrant::validateClient exit");
         return $client;
     }

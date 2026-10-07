@@ -28,7 +28,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class Module
 {
-    public function getAutoloaderConfig()
+    public function getAutoloaderConfig(): array
     {
         return [
             \Laminas\Loader\ClassMapAutoloader::class => [
@@ -82,11 +82,10 @@ class Module
 
     /**
      * @param $username
-     * @return array
      *
      * Load the list of patients that this user cannot access from our blacklist file
      */
-    public function getBlacklist($username)
+    public function getBlacklist($username): array
     {
         $blacklist = include __DIR__ . "/config/blacklist.php";
         $pids = [];

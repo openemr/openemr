@@ -23,7 +23,7 @@
     <script src="{{ webroot|attr }}/interface/forms/care_plan/careplan.js?v={{ v_js_includes|attr }}" type="text/javascript"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function () {
-            window.careplanForm.init({{ webroot|js_url }}, null, {
+            window.careplanForm.init({{ webroot|js_escape }}, null, {
                 confirmDelete: {{ 'Are you sure you want to delete this entry?'|xl|js_escape }}
             });
         });

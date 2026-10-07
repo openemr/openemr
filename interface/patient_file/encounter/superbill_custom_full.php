@@ -41,10 +41,10 @@ if (!($thisauthwrite || $thisauthview)) {
 $institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support');
 
 // Translation for form fields.
-function ffescape($field)
+function ffescape($field): string
 {
     $field = add_escape_custom($field);
-    return trim((string) $field);
+    return trim($field);
 }
 
 /** @var array<string, array<string, mixed>> $code_types */

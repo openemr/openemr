@@ -92,33 +92,56 @@ class ApiTestClient
         'patient/patient.read',
 
         'user/AllergyIntolerance.read',
+        'user/AllergyIntolerance.write',
+        'user/Appointment.write',
         'user/Binary.read',
         'user/CarePlan.read',
+        'user/CarePlan.write',
         'user/CareTeam.read',
+        'user/CareTeam.write',
         'user/Condition.read',
+        'user/Condition.write',
         'user/Coverage.read',
+        'user/Coverage.write',
         'user/Device.read',
+        'user/Device.write',
         'user/DiagnosticReport.read',
         'user/DocumentReference.$docref',
         'user/DocumentReference.read',
         'user/Encounter.read',
+        'user/Encounter.write',
         'user/Goal.read',
+        'user/Goal.write',
         'user/Immunization.read',
+        'user/Immunization.write',
         'user/Location.read',
         'user/Medication.read',
+        'user/Medication.write',
         'user/MedicationDispense.read',
         'user/MedicationRequest.read',
+        'user/MedicationRequest.write',
         'user/Observation.read',
+        'user/Observation.write',
         'user/OperationDefinition.read',
         'user/Organization.read',
         'user/Organization.write',
         'user/Patient.read',
         'user/Patient.write',
+        'user/Person.write',
         'user/Practitioner.read',
         'user/Practitioner.write',
         'user/PractitionerRole.read',
+        'user/PractitionerRole.write',
         'user/Procedure.read',
         'user/Provenance.read',
+        'user/Questionnaire.read',
+        'user/Questionnaire.write',
+        'user/QuestionnaireResponse.read',
+        'user/QuestionnaireResponse.write',
+        'user/RelatedPerson.read',
+        'user/RelatedPerson.write',
+        'user/ServiceRequest.read',
+        'user/ServiceRequest.write',
 
         'user/allergy.read',
         'user/allergy.write',
@@ -207,9 +230,15 @@ class ApiTestClient
      * If the request succeeds the token is set in the HTTP Authorization header.
      *
      * Credentials are optionally provided using the $credentials array. Supported
-     * keys include username,password,scopes. If credentials are not provided they will be parsed
-     * from environment variables or fallback to a reasonable default if the environment variable
+     * keys include username, password, scopes, client_id, and client_secret.
+     * If credentials are not provided they will be parsed from environment
+     * variables or fallback to a reasonable default if the environment variable
      * does not exist.
+     *
+     * When client_id is supplied explicitly, callers should also supply the
+     * corresponding client_secret in the credentials array; otherwise the
+     * stored secret from any prior DCR is discarded (so a reused instance
+     * cannot silently send a previous client's secret with a new client_id).
      *
      * @param array<string, string> $credentials The credentials used for authentication requests
      */
@@ -221,7 +250,17 @@ class ApiTestClient
             }
         } else {
             if (($credentials['client_id'] ?? '') !== '') {
+                // Reset the stored secret when the client identity changes so
+                // a reused instance does not accidentally send a previous
+                // client's secret with a new client_id. The caller can supply
+                // the matching secret via credentials['client_secret'].
+                if ($this->client_id !== $credentials['client_id']) {
+                    $this->client_secret = null;
+                }
                 $this->client_id = $credentials['client_id'];
+            }
+            if (array_key_exists('client_secret', $credentials)) {
+                $this->client_secret = $credentials['client_secret'];
             }
             $credentials["username"] = getenv("OE_USER", true) ?: "admin";
             $credentials["password"] = getenv("OE_PASS", true) ?: "pass";
@@ -239,6 +278,11 @@ class ApiTestClient
             "username" => $credentials["username"],
             "password" => $credentials["password"]
         ];
+        // Confidential clients registered with client_secret_post must present
+        // the secret in the token request body per RFC 6749 §4.3.
+        if ($this->client_secret !== null && $this->client_secret !== '') {
+            $authBody["client_secret"] = $this->client_secret;
+        }
         $this->headers = [
             "Accept" => "application/json",
             "Content-Type" => "application/x-www-form-urlencoded"
@@ -259,6 +303,28 @@ class ApiTestClient
         }
 
         return $authResponse;
+    }
+
+    /**
+     * setAuthToken() for callers that cannot proceed without a token.
+     *
+     * setAuthToken() ignores a non-200 from the token endpoint, so the client is left with no
+     * Authorization header and every later request answers 401 "The resource owner or
+     * authorization server denied the request." -- which reads as a scope or ACL problem in
+     * whatever the test asserts next rather than as a failed login. Throwing here puts the
+     * token endpoint's own status and body in the failure message.
+     *
+     * @param array<string, string> $credentials The credentials used for authentication requests
+     */
+    public function setAuthTokenOrFail(string $authURL, array $credentials = [], string $client = 'private'): void
+    {
+        $authResponse = $this->setAuthToken($authURL, $credentials, $client);
+        if ($authResponse->getStatusCode() !== 200) {
+            throw new \RuntimeException(
+                'OAuth token request failed with status ' . $authResponse->getStatusCode()
+                . '. Body: ' . $authResponse->getBody()->getContents()
+            );
+        }
     }
 
     private function getClient(string $authURL, string $client = 'private'): void
@@ -294,6 +360,8 @@ class ApiTestClient
         }
         // @codeCoverageIgnoreEnd
         $clientRepository->saveIsEnabled($clientEntity, true);
+        // setAuthToken uses the password grant, which only an administrator can allow for a client
+        $clientRepository->saveGrantTypes($clientEntity, ['authorization_code', 'password']);
     }
 
     /**

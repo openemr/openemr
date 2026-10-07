@@ -1,6 +1,6 @@
 services:
   redis-master:
-    image: redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
+    image: redis:8.10.2@sha256:c94085d298b738be22c9ccdc0ac3761fa6649df7dd82ad1d42367f3cb9714935
     container_name: redis-master
     command:
     - redis-server
@@ -24,7 +24,7 @@ services:
       timeout: 3s
       retries: 5
   redis-replica-1:
-    image: redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
+    image: redis:8.10.2@sha256:c94085d298b738be22c9ccdc0ac3761fa6649df7dd82ad1d42367f3cb9714935
     container_name: redis-replica-1
     command:
     - redis-server
@@ -44,7 +44,7 @@ services:
     - --replica-announce-ip
     - redis-replica-1
   redis-replica-2:
-    image: redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
+    image: redis:8.10.2@sha256:c94085d298b738be22c9ccdc0ac3761fa6649df7dd82ad1d42367f3cb9714935
     container_name: redis-replica-2
     command:
     - redis-server
@@ -64,7 +64,7 @@ services:
     - --replica-announce-ip
     - redis-replica-2
   sentinel-1:
-    image: redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
+    image: redis:8.10.2@sha256:c94085d298b738be22c9ccdc0ac3761fa6649df7dd82ad1d42367f3cb9714935
     container_name: sentinel-1
     entrypoint: ["/bin/sh", "-c"]
     command:
@@ -84,7 +84,7 @@ services:
       redis-master:
         condition: service_healthy
   sentinel-2:
-    image: redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
+    image: redis:8.10.2@sha256:c94085d298b738be22c9ccdc0ac3761fa6649df7dd82ad1d42367f3cb9714935
     container_name: sentinel-2
     entrypoint: ["/bin/sh", "-c"]
     command:
@@ -105,7 +105,7 @@ services:
         condition: service_healthy
   mysql:
     restart: always
-    image: mariadb:12.3.3@sha256:805c8e104bd563d5bfa24fadd3f31cd419ea859cb5277f32b5dbf2db714f9ed1
+    image: mariadb:12.3.3@sha256:2bdff1534a7e569fecaf4b10b66ad0d410806e382d9db29ba305448addda97c4
     command: ['mariadbd', '--character-set-server=utf8mb4', '--ssl-ca=/etc/ssl/ca.pem', '--ssl_cert=/etc/ssl/server-cert.pem', '--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - "${WT_MYSQL_PORT:-8320}:3306"
@@ -130,7 +130,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:c9d9b0100f51bdb37dd5abe5e960860f35267595865b5a23f3f8ee1547a743f1
+    image: openemr/openemr:flex@sha256:e353ddde81cbe9d6a399f03757dfdb3b20f89e46bb7eba262cc5b0da236c0628
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -258,7 +258,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:5f4b9a1f5aa30020003969e62387ee15e011e626514b4e1751e8976d49854617
+    image: phpmyadmin:5.2.3@sha256:7ebeef41095cbe071a00e3c85c8b44309f110eee546c7b3a6d1fcfe259d58e59
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
@@ -268,7 +268,7 @@ services:
         condition: service_healthy
   couchdb:
     restart: always
-    image: couchdb:3.5.2@sha256:8cf5f8442585c346d2717ff0ad95605731d2f19f67b8367840baa8d3b24ebc31
+    image: couchdb:3.5.2@sha256:5fc596110eac7f412173a7d9de14f70aa5d3e816790fb6e70642755d4a4cf464
     ports:
     - "${WT_COUCHDB_PORT:-5984}:5984"
     - "${WT_COUCHDB_SSL_PORT:-6984}:6984"
@@ -291,7 +291,7 @@ services:
       LDAP_TLS_KEY_FILENAME: server-key.pem
   mailpit:
     restart: unless-stopped
-    image: axllent/mailpit:v1.31.1@sha256:98b916bd3c8d61f7633a52d3ea2f58d00620cb01ca57ab59edde68c347a95365
+    image: axllent/mailpit:v1.31.4@sha256:b68349e3a014b90c5610bfb26b2ae36f3892d7b8cf25ee140c6c71c98d2fcf48
     ports:
     - "${WT_MAILPIT_UI_PORT:-8025}:8025"
     - "${WT_MAILPIT_SMTP_PORT:-1025}:1025"

@@ -17,7 +17,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../globals.php");
 
-function US_weight($pounds, $mode = 1)
+function US_weight($pounds, $mode = 1): string
 {
 
     if ($mode == 1) {

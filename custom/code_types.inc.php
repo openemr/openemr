@@ -768,7 +768,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
  * @param  string $desc_detail Can choose either the normal description('code_text') or the brief description('code_text_short').
  * @return string         Is of the form "description;description; etc.".
  */
-function lookup_code_descriptions($codes, $desc_detail = "code_text")
+function lookup_code_descriptions($codes, $desc_detail = "code_text"): string
 {
     global $code_types, $code_external_tables;
 
@@ -1022,9 +1022,8 @@ function multiple_code_set_search(?array $form_code_types, $search_term, $limit 
  * @param int $start Query start limit (for pagination)
  * @param int $number Query number returned (for pagination)
  * @param bool $return_only_one if true, then will only return one perfect matching item
- * @return mixed recordset/integer
  */
-function limit_query_string($limit = null, $start = null, $number = null, $return_only_one = false)
+function limit_query_string($limit = null, $start = null, $number = null, $return_only_one = false): string
 {
     if (!is_null($start) && !is_null($number)) {
         // For pagination of results

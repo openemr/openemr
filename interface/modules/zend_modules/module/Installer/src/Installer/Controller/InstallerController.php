@@ -39,10 +39,7 @@ class InstallerController extends AbstractActionController
         $this->listenerObject = new Listener();
     }
 
-    /**
-     * @return ViewModel
-     */
-    public function nolayout()
+    public function nolayout(): ViewModel
     {
         // Turn off the layout, i.e. only render the view script.
         $viewModel = new ViewModel();
@@ -362,7 +359,7 @@ class InstallerController extends AbstractActionController
      * @param unknown_type $data
      * @return string
      */
-    private function getContent($data)
+    private function getContent($data): string
     {
         $string = "";
         foreach ($data as $key => $value) {
@@ -381,11 +378,16 @@ class InstallerController extends AbstractActionController
         return $string;
     }
 
-    /**
-     * @return JsonModel
-     */
-    public function SaveHooksAction()
+    public function SaveHooksAction(): JsonModel
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny(
+                'Installer SaveHooksAction: admin/manage_modules',
+                format: AccessDeniedResponseFormat::Json
+            );
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $postArr = $request->getPost();
         //DELETE OLD HOOKS OF A MODULE
@@ -406,11 +408,13 @@ class InstallerController extends AbstractActionController
         return $arr;
     }
 
-    /**
-     * @return ViewModel
-     */
-    public function configureAction()
+    public function configureAction(): ViewModel
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny('Installer configureAction: admin/manage_modules');
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $modId = $request->getPost('mod_id');
 
@@ -481,10 +485,7 @@ class InstallerController extends AbstractActionController
         ]);
     }
 
-    /**
-     * @return JsonModel
-     */
-    public function saveConfigAction()
+    public function saveConfigAction(): JsonModel
     {
         if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
             AccessDeniedHelper::deny(
@@ -511,10 +512,7 @@ class InstallerController extends AbstractActionController
         return $return;
     }
 
-    /**
-     * @return JsonModel
-     */
-    public function DeleteAclAction()
+    public function DeleteAclAction(): JsonModel
     {
         if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
             AccessDeniedHelper::deny(
@@ -531,10 +529,7 @@ class InstallerController extends AbstractActionController
         return $arr;
     }
 
-    /**
-     * @return JsonModel
-     */
-    public function DeleteHooksAction()
+    public function DeleteHooksAction(): JsonModel
     {
         if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
             AccessDeniedHelper::deny(
@@ -736,10 +731,7 @@ class InstallerController extends AbstractActionController
         }
     }
 
-    /**
-     * @return array
-     */
-    public function UpgradeModuleSQL(int $modId)
+    public function UpgradeModuleSQL(int $modId): array
     {
         $Module = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
         $modType = $Module->type;

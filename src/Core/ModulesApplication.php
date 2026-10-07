@@ -116,7 +116,7 @@ class ModulesApplication
      * @param string $zendConfigurationPath
      * @return string[]
      */
-    public static function oemr_zend_load_modules_from_db($webRootPath, $zendConfigurationPath)
+    public static function oemr_zend_load_modules_from_db($webRootPath, $zendConfigurationPath): array
     {
         $zendConfigurationPathCheck = $zendConfigurationPath . DIRECTORY_SEPARATOR . "module";
         self::checkModuleScriptPathForEnabledModule(self::MODULE_TYPE_LAMINAS, $webRootPath, $zendConfigurationPathCheck);

@@ -479,7 +479,7 @@ exports.payersSectionHtmlHeader = {
                     key: "th",
                     text: leafLevel.input,
                     dataTransform: function () {
-                        return ['Payer Name', 'Group ID', 'Member ID', 'Elegibility Start Date', 'Elegibility End Date'];
+                        return ['Payer Name', 'Group ID', 'Member ID', 'Eligibility Start Date', 'Eligibility End Date'];
                     }
                 }]
             }]

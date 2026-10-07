@@ -1282,11 +1282,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/upload.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$provider$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Undefined variable\\: \\$pid$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/api.inc.php',
@@ -2022,11 +2017,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$tmp might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$elog might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EDI270.php',
@@ -2127,11 +2117,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$response might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/MfaUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$fhirScopes might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenCommand.php',
@@ -2190,11 +2175,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$table might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$catEntry might not be defined\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$action might not be defined\\.$#',

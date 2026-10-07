@@ -264,7 +264,10 @@ class Measure extends AbstractType
          */
     }
 
-    public function population_keys()
+    /**
+     * @return list<('DENEX' | 'DENEXCEP' | 'DENOM' | 'IPP' | 'MSRPOPL' | 'MSRPOPLEX' | 'NUMER' | 'NUMEX')>
+     */
+    public function population_keys(): array
     {
         // we could probably cache this call if we needed to optimize...
         $popKeys = [];
@@ -292,7 +295,7 @@ class Measure extends AbstractType
         return $serialized;
     }
 
-    public function getJsonArrayDefinition()
+    public function getJsonArrayDefinition(): bool
     {
         // get our populated measure if we have one or return the json.
         return $this->_measure || $this->jsonSerialize();

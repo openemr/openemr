@@ -47,7 +47,7 @@ class Documents extends AbstractPlugin
         return $document;
     }
 
-    public static function fetchXmlDocuments()
+    public static function fetchXmlDocuments(): array
     {
         $query = "SELECT doc.id
 	    FROM categories_to_documents AS cat_doc

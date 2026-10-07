@@ -20,9 +20,8 @@ class JWTRepository
      * for that jti.  If an expiration is provided it will return only jti records that are have not expired within the given time frame.
      * @param $jti string
      * @param int|null $expiration timestamp in milliseconds of when the jti should expire
-     * @return array
      */
-    public function getJwtGrantHistoryForJTI($jti, $expiration = null)
+    public function getJwtGrantHistoryForJTI($jti, $expiration = null): array
     {
         $sql = "select * FROM jwt_grant_history WHERE jti = ?";
         $params = [$jti];

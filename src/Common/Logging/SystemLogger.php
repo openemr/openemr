@@ -117,7 +117,7 @@ class SystemLogger implements LoggerInterface
      * @param $var
      * @return string
      */
-    private function escapeValue($var)
+    private function escapeValue($var): string
     {
         return errorLogEscape($var);
     }
