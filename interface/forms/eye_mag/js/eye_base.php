@@ -3496,7 +3496,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 echo '$(' . js_escape('#' . $optionId) . ').val(' . js_escape($title) . ').css("background-color","beige");
                                             ';
                                             }
-                                            function startsWith($str, $needle)
+                                            function startsWith($str, $needle): bool
                                             {
                                                 return str_starts_with((string) $str, (string) $needle);
                                             }

@@ -91,7 +91,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase implements INonPat
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
@@ -243,7 +243,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase implements INonPat
      * @param  array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!$fhirResource instanceof FHIROrganization) {
             // we use get class to get the sub class type.

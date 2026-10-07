@@ -47,7 +47,7 @@ class Savant3_Plugin_ahref extends Savant3_Plugin
      * @return string The <a href="">...</a> tag.
      *
      */
-    public function ahref($href, $text, $attr = null)
+    public function ahref($href, $text, $attr = null): string
     {
         $html = '<a href="';
 

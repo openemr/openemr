@@ -1665,9 +1665,9 @@ function send_json_values($PMSFH = ""): void
  *  to function at their base level.
  *
  * @param string $pid is the patient identifier
- * @return mixed array, access items as $PMSFH[0]
+ * @return array{array<string, mixed>} access items as $PMSFH[0]
  */
-function build_PMSFH($pid)
+function build_PMSFH($pid): array
 {
     global $form_id;
 
@@ -2013,11 +2013,13 @@ function build_PMSFH($pid)
     $query = "SELECT $given from " . $ROS_table . " where id = ?";
 
     $ROS = sqlStatement($query, [$form_id]);
+    $ros_display = [];
     while ($row = sqlFetchArray($ROS)) {
         foreach (explode(',', $given) as $item) {
-            $PMSFH['ROS'][$item]['display'] = $row[$item];
+            $ros_display[$item]['display'] = $row[$item];
         }
     }
+    $PMSFH['ROS'] = $ros_display;
 
     // translator will need to translate each item in $given
     $PMSFH['ROS']['ROSGENERAL']['short_title'] = xlt("GEN{{General}}");
@@ -2150,7 +2152,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
             "POH"        => xlt("POH"),
             "POS"        => xlt("POS"),
             "PMH"        => xlt("Past Medical History"),
-            default      => is_string($key) ? text($key) : '',
+            default      => text($key),
         };
         $header .= '    <table class="PMSFH_header">
                 <tr>
@@ -3104,7 +3106,7 @@ function display_QP($zone, $provider_id)
         return $QP_panel;
 }
 
-function canvas_select($zone, $encounter, $pid)
+function canvas_select($zone, $encounter, $pid): string
 {
     /* This will provide a way to scroll back through prior VISIT images, to copy forward to today's visit,
      * just like we do in the text fields.
@@ -3425,7 +3427,7 @@ function build_CODING_items($pid, $encounter)
  *  @param string $pid patient_id
  *  @return array
  */
-function document_engine($pid)
+function document_engine($pid): array
 {
     $categories = [];
     $my_name = [];
@@ -3505,7 +3507,7 @@ function document_engine($pid)
  *                They allow us to regroup the categories how we like them.
  *  @return array
  */
-function display($pid, $encounter, $category_value)
+function display($pid, $encounter, $category_value): array
 {
     global $form_folder;
     global $id;
@@ -4194,7 +4196,6 @@ function start_your_engines($FIELDS)
                                 $hit_PDR[$side] = '1';
                             } elseif (
                                 (stripos((string) $FIELDS[$location2], $PPDR) !== false) ||
-                                (stripos((string) $FIELDS[$location2], $PPDR) !== false) ||
                                 (stripos((string) $FIELDS[$location], $IRMA)  !== false) ||
                                 (stripos((string) $FIELDS[$location2], $IRMA) !== false) ||
                                 (stripos((string) $FIELDS[$location3], $IRMA) !== false)
@@ -4208,8 +4209,6 @@ function start_your_engines($FIELDS)
                             ) {
                                     $trace = "tr";
                                 if (
-                                    (stripos((string) $FIELDS[$location], $trace . " " . $BDR) !== false) ||
-                                    (stripos((string) $FIELDS[$location2], "+1 " . $BDR) !== false) ||
                                     (stripos((string) $FIELDS[$location], $trace . " " . $BDR) !== false) ||
                                     (stripos((string) $FIELDS[$location2], "+1 " . $BDR) !== false)
                                 ) {
@@ -4418,7 +4417,7 @@ function coding_carburetor($term, $field)
  *
  *  This function is not called directly but via the wrapper function start_your_engines().
  */
-function coding_engine($term, $code_found, $location, $side = '')
+function coding_engine($term, $code_found, $location, $side = ''): array
 {
     if (strpos((string) $code_found['code'], ":")) {
         [$code_type, $code] = explode(':', (string) $code_found['code']);
@@ -4454,7 +4453,7 @@ function coding_engine($term, $code_found, $location, $side = '')
  *  This is a function to sort an array of dates/times etc
  *  Anything strtotime() can recognize at least.
  */
-function cmp($a, $b)
+function cmp($a, $b): int
 {
     if ($a == $b) {
         return 0;
@@ -6399,7 +6398,7 @@ function in_array_r($needle, $haystack, $strict = false): bool
              * @param $provider_id = who is the patient's provider is only needed if there is no value anywhere else.
              * @return array (ODIOPTARGET AND OSIOPTARGET to be saved in this encounter
              */
-function getIOPTARGETS($pid, $id, $provider_id)
+function getIOPTARGETS($pid, $id, $provider_id): array
 {
     $ODIOPTARGET = '';
     $OSIOPTARGET = '';

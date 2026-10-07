@@ -22,7 +22,7 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
 class ExportOnsiteMailTableDefinition extends ExportTableDefinition
 {
     const TABLE_NAME = 'onsite_mail';
-    public function getRecords()
+    public function getRecords(): array
     {
         $selectQuery = $this->getSelectClause(); // make sure we only grab the clauses we allow
 

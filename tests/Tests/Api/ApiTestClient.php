@@ -121,6 +121,7 @@ class ApiTestClient
         'user/MedicationRequest.read',
         'user/MedicationRequest.write',
         'user/Observation.read',
+        'user/Observation.write',
         'user/Organization.read',
         'user/Organization.write',
         'user/Patient.read',
@@ -358,6 +359,8 @@ class ApiTestClient
         }
         // @codeCoverageIgnoreEnd
         $clientRepository->saveIsEnabled($clientEntity, true);
+        // setAuthToken uses the password grant, which only an administrator can allow for a client
+        $clientRepository->saveGrantTypes($clientEntity, ['authorization_code', 'password']);
     }
 
     /**

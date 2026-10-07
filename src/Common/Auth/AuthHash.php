@@ -132,7 +132,7 @@ class AuthHash
         }
     }
 
-    public function passwordHash(&$password)
+    public function passwordHash(&$password): string
     {
         // Process SHA512HASH algo separately, since uses crypt
         if ($this->algo == "SHA512HASH") {

@@ -11,22 +11,22 @@
 
 class AMC_304a extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304a";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         return "patients";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_304a_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_304a_Numerator();
     }

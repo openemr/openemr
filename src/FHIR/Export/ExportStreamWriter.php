@@ -106,7 +106,7 @@ class ExportStreamWriter
      * @return string The contents contained in the stream
      * @throws ExportException Thrown if the stream contents cannot be read.
      */
-    public function getContents()
+    public function getContents(): string
     {
         $this->flush();
 
@@ -136,7 +136,7 @@ class ExportStreamWriter
      * Checks if the max execution time for this writer has been reached and the writer will shut down.
      * @return bool
      */
-    public function willShutdown()
+    public function willShutdown(): bool
     {
         // TODO: we could register a shutdown function and check against that here if we wanted to truly ensure a
         // proper stream writing.

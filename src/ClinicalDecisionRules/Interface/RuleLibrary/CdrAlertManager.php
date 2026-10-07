@@ -39,7 +39,10 @@ class CdrAlertManager
     }
 
 
-    public function populate()
+    /**
+     * @return CdrResults[]
+     */
+    public function populate(): array
     {
         $cdra = [];
 

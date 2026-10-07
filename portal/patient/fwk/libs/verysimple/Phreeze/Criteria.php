@@ -443,7 +443,7 @@ class Criteria
         $this->InitMaps();
         return $this->_keymaps;
     }
-    public function GetFieldFromProp($propname)
+    public function GetFieldFromProp($propname): string
     {
         if (static::class == "Criteria") {
             throw new Exception("Phreeze is unable to determine field mapping.  The base Criteria class should only be used to query by primary key without sorting");

@@ -59,7 +59,7 @@ class ConnectionSetting
     /**
      * Returns an DSN array compatible with PEAR::DB
      */
-    public function GetDSN()
+    public function GetDSN(): array
     {
         return  [
                 'phptype' => $this->Type,
@@ -73,7 +73,7 @@ class ConnectionSetting
     /**
      * Returns an options array compatible with PEAR::DB
      */
-    public function GetOptions()
+    public function GetOptions(): array
     {
         return  [
                 'debug' => 2
@@ -85,7 +85,7 @@ class ConnectionSetting
     /**
      * Serialize to string
      */
-    public function Serialize()
+    public function Serialize(): string
     {
         return base64_encode(serialize($this));
     }

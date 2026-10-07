@@ -44,7 +44,7 @@ class UtilsService
     const UNKNOWNABLE_CODE_NULL_FLAVOR = "UNK";
     const UNKNOWNABLE_CODE_DATA_ABSENT = "unknown";
 
-    public static function createRelativeReference($type, $uuid, $displayName = null)
+    public static function createRelativeReference($type, $uuid, $displayName = null): FHIRReference
     {
         $reference = new FHIRReference();
         $reference->setType($type);
@@ -69,7 +69,7 @@ class UtilsService
         return $canonical;
     }
 
-    public static function parseCanonicalUrl(?string $url)
+    public static function parseCanonicalUrl(?string $url): array
     {
         $parsed_url = [
             'localResource' => false
@@ -165,7 +165,7 @@ class UtilsService
         return $diagnosisCode;
     }
 
-    public static function createDataMissingExtension()
+    public static function createDataMissingExtension(): FHIRExtension
     {
         // @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
         // for some reason in order to get this to work we have to wrap our inner exception
@@ -178,7 +178,7 @@ class UtilsService
         return $outerExtension;
     }
 
-    public static function getExtensionsByUrl($url, $object)
+    public static function getExtensionsByUrl($url, $object): array
     {
         if (method_exists($object, 'getExtension')) {
             $extensions = $object->getExtension();
@@ -354,7 +354,7 @@ class UtilsService
      * @param FHIRPeriod $period The object representing the period interval.
      * @return array Containing two keys of 'start' and 'end' representing the period.
      */
-    public static function getPeriodTimestamps(?FHIRPeriod $period)
+    public static function getPeriodTimestamps(?FHIRPeriod $period): array
     {
         $end = null;
         $start = null;
@@ -431,7 +431,7 @@ class UtilsService
         $severity_value,
         $code_value,
         $details_value = ''
-    ) {
+    ): FHIROperationOutcome {
         $resource = new FHIROperationOutcome();
         $issue = new FHIROperationOutcomeIssue();
         $severity = new FHIRIssueSeverity();

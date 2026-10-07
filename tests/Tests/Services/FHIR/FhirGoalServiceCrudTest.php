@@ -105,6 +105,25 @@ class FhirGoalServiceCrudTest extends TestCase
     }
 
     #[Test]
+    public function testInsertRejectsASoftDeletedEncounter(): void
+    {
+        // Deleting an encounter flags its newpatient forms row and leaves form_encounter in
+        // place; the write must treat it as gone rather than attach data to it.
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE forms SET deleted = 1 WHERE formdir = 'newpatient' AND encounter = "
+            . "(SELECT encounter FROM form_encounter WHERE uuid = ?)",
+            [UuidRegistry::uuidToBytes($this->encounterUuid)]
+        );
+
+        $this->fhirGoalFixture->setId(new FHIRId());
+        $result = $this->fhirGoalService->insert($this->fhirGoalFixture);
+        $this->assertFalse($result->isValid());
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('encounter', $messages);
+    }
+
+    #[Test]
     public function testInsert(): void
     {
         $this->fhirGoalFixture->setId(new FHIRId());
