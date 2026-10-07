@@ -18,6 +18,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\InfoTxt;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -219,8 +220,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                             <tr>
                                 <td colspan="2">
                                     <?php
-                                    $form_title_file = @file(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/$fname/info.txt");
-                                    $form_title = $form_title_file ? $form_title_file[0] : $fname;
+                                    $form_title = InfoTxt::read(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/$fname/info.txt")->name ?? $fname;
                                     $patientPortalCompliant = file_exists(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/" . $fname . "/patient_portal.php");
                                     ?>
                                     <?php

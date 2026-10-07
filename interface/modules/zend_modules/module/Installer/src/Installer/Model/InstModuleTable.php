@@ -21,6 +21,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\InfoTxt;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
@@ -237,10 +238,8 @@ class InstModuleTable
             $added = "";
             $typeSet = "";
 
-            if (file_exists(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/modules/$base/$added$directory/info.txt")) {
-                $lines = @file(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/modules/$base/$added$directory/info.txt");
-            }
-            $name = !empty($lines) ? $lines[0] : $directory;
+            $info = InfoTxt::read(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/modules/$base/$added$directory/info.txt");
+            $name = $info->name ?? $directory;
 
             $uiname = ucwords(strtolower((string) $directory));
             $section_id = 0;
