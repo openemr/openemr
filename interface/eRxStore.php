@@ -53,7 +53,7 @@ class eRxStore
     {
         $return = $this->getFacilityPrimary();
 
-        return $return['federal_ein'];
+        return $return['federal_ein'] ?? null;
     }
 
     /**
@@ -382,7 +382,7 @@ class eRxStore
     /**
      * Return user Id by user name
      * @param  string  $name Name of user to reference
-     * @return int Id of provided user name
+     * @return int|null Id of provided user name, or null when no user has it
      */
     public function selectUserIdByUserName($name)
     {
@@ -766,7 +766,7 @@ class eRxStore
 			WHERE pid = ?;',
             [$patientId]
         );
-        return $return['soap_import_status'];
+        return $return['soap_import_status'] ?? null;
     }
 
     /**
