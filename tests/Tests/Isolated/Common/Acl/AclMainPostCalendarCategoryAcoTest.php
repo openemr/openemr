@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Acl;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Tests\Isolated\CollectsPhpDiagnosticsTrait;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -27,6 +28,8 @@ use PHPUnit\Framework\TestCase;
 #[Group('isolated')]
 final class AclMainPostCalendarCategoryAcoTest extends TestCase
 {
+    use CollectsPhpDiagnosticsTrait;
+
     #[RunInSeparateProcess]
     #[PreserveGlobalState(false)]
     public function testMissingCategoryReturnsNullWithoutWarnings(): void
@@ -56,25 +59,5 @@ final class AclMainPostCalendarCategoryAcoTest extends TestCase
 
         self::assertSame([], $diagnostics, 'a matched row raises no diagnostics');
         self::assertSame('encounters|notes', $result, 'the guard must not swallow a real ACO');
-    }
-
-    /**
-     * @return list<string> every PHP diagnostic $call raised, as "line: message"
-     */
-    private static function diagnosticsFrom(callable $call): array
-    {
-        $diagnostics = [];
-        set_error_handler(static function (int $errno, string $errstr, string $errfile, int $errline) use (&$diagnostics): bool {
-            $diagnostics[] = $errline . ': ' . $errstr;
-            return true;
-        });
-
-        try {
-            $call();
-        } finally {
-            restore_error_handler();
-        }
-
-        return $diagnostics;
     }
 }
