@@ -448,7 +448,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 15,
+    'count' => 14,
     'path' => __DIR__ . '/../../interface/forms/misc_billing_options/new.php',
 ];
 $ignoreErrors[] = [
