@@ -443,7 +443,7 @@ class eRxStore
      * Insert new prescription as external sourced
      * @param  array   $prescriptionData Information for creating prescription: [PrescriptionDate, DrugName, DrugID, DrugInfo, DosageNumberDescription, Strength, Refills, PrescriptionNotes, SiteID, rxcui, PrescriptionGuid, ExternalPatientID]
      * @param int $encounter Id of encounter for prescription
-     * @param int $providerId Id of provider for prescription
+     * @param int|null $providerId Id of provider for prescription, or null when the prescriber is not a user
      * @param  string  $authUserId       Id of user creating prescription
      * @param int $formOptionId Option Id for prescription form
      * @param int $routeOptionId Option Id for prescription route
@@ -511,7 +511,7 @@ class eRxStore
     /**
      * Update prescription information as external sourced
      * @param  array   $prescriptionData Information for creating prescription: [DrugName, DrugID, DrugInfo, DosageNumberDescription, Strength, Refills, PrescriptionNotes, SiteID, rxcui, PrescriptionGuid, ExternalPatientID]
-     * @param int $providerId Id of provider for prescription
+     * @param int|null $providerId Id of provider for prescription, or null when the prescriber is not a user
      * @param  string  $authUserId       Id of user creating prescription
      * @param int $formOptionId Option Id for prescription form
      * @param int $routeOptionId Option Id for prescription route
