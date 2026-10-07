@@ -82,21 +82,22 @@ class EncounterListOptionType implements IOptionFormType
             return '';
         }
 
-        // Get encounters for the patient
-        $encounters = $this->getEncounterService()->getPatientEncounterListWithCategories($this->pid);
-        $count = count($encounters);
+        // Every encounter for the patient, most recent first. Display text is
+        // "2024-01-15 - Office Visit".
+        $options = EncounterOptions::fromEncounterList(
+            $this->getEncounterService()->getPatientEncounterListWithCategories($this->pid)
+        );
 
-        // Build the options list
+        // Keep a link to an encounter that is not among them (one belonging to
+        // another patient, or since removed) rather than letting the save drop it.
+        $selectedValue = is_scalar($currvalue) ? trim((string) $currvalue) : '';
+        if ($selectedValue !== '' && !EncounterOptions::contains($options, $selectedValue)) {
+            $options[] = ['value' => $selectedValue, 'label' => xl('Encounter') . ' ' . $selectedValue, 'date' => ''];
+        }
+
         $optionsList = [];
-        // go in reverse order so most recent encounter is first
-        for ($i = $count - 1; $i >= 0; $i--) {
-            // Create display text: "2024-01-15 14:30 - Office Visit"
-            $displayText = $encounters['dates'][$i] . ' - ' . $encounters['categories'][$i];
-            $optionValue = $encounters['ids'][$i];
-            // Only add if we have a valid option value
-            if (!empty($optionValue)) {
-                $optionsList[$optionValue] = $displayText;
-            }
+        foreach ($options as $option) {
+            $optionsList[$option['value']] = $option['label'];
         }
         $html = [];
         $html[] = "<select class=\"form-control " . attr($smallform) . "\" name=\"" . attr($field_id)
