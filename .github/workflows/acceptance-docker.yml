@@ -351,25 +351,63 @@ jobs:
     - id: resolve-from-tag
       env:
         INPUT_FROM_TAG: ${{ inputs.from_tag }}
+        INPUT_TO_TAG: ${{ inputs.to_tag || 'next' }}
       run: |
         set -euo pipefail
         if [[ -n "${INPUT_FROM_TAG}" ]]; then
-          # Operator override path — honor the exact value as a
+          # Operator override path -- honor the exact value as a
           # Docker Hub tag. No derivation, no shape check (the
           # downstream docker pull is the shape gate).
           echo "==> from_tag override: ${INPUT_FROM_TAG}"
           echo "from_tag=${INPUT_FROM_TAG}" >> "$GITHUB_OUTPUT"
           exit 0
         fi
-        # Default path — derive from the checkout.
+        # Default path -- derive from the checkout.
         # shellcheck source=./.github/scripts/lib/derive-from-version.sh
         source .github/scripts/lib/derive-from-version.sh
         if ! candidates=$(derive_from_version_sql_candidates "."); then
           echo "::error::acceptance-docker.yml resolve-from-tag: sql-side derivation failed (see lib error above). Checkout is missing sql/ or has no well-formed sql/*-to-*_upgrade.sql filenames. If this is intentional (e.g., a rel branch that pre-dates the upgrade-file convention), pass an explicit from_tag on dispatch or document the per-branch default here." >&2
           exit 1
         fi
-        # Take the highest candidate as the from-version. The lib
-        # sorts ascending; tail -1 selects the max.
+        # Rabbit review guard: when to_tag is version-shaped (X.Y.Z),
+        # restrict candidates to those strictly LESS THAN it. Prevents
+        # a same-version-transition regression where sql files hint
+        # at a from-version equal to to_tag (e.g., a stray
+        # `8_4_1-to-8_5_0_upgrade.sql` in a checkout whose
+        # to_tag is also `8.4.1` would otherwise land on
+        # from=8.4.1=to and run a vacuous no-op "upgrade"). The
+        # existing exclude-version arg on the lib handles exact-
+        # match self-upgrades, but not the higher-than-to case
+        # (candidates [8.3.0, 8.4.1, 8.5.0] with exclude(8.4.1)
+        # still returns max=8.5.0). The strict-less-than filter
+        # here catches both.
+        #
+        # Non-version-shaped to_tag (default `next`, workflow_call
+        # candidate suffixes like `release-candidate-<run>-<attempt>`,
+        # smoketest `smoketest-canary-...`, operator-chosen floating
+        # names) can't be semver-compared and falls through to the
+        # unfiltered max-pick, which is correct for those shapes --
+        # a floating tag's actual image version is only known after
+        # boot, where the OCI-label/version.php resolver (Item 4)
+        # handles it.
+        if [[ "${INPUT_TO_TAG}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          # Prepend to_tag to the candidate list, sort unique, emit
+          # lines up to (but not including) the to_tag position. All
+          # emitted lines are strictly less than to_tag by sort -V
+          # order.
+          filtered=$(printf '%s\n%s\n' "${candidates}" "${INPUT_TO_TAG}" \
+            | sort -uV \
+            | awk -v ref="${INPUT_TO_TAG}" '$0 == ref { exit } { print }')
+          if [[ -z "${filtered}" ]]; then
+            cand_line=$(tr '\n' ' ' <<< "${candidates}")
+            echo "::error::acceptance-docker.yml resolve-from-tag: no sql-derived candidate is strictly less than version-shaped to_tag=${INPUT_TO_TAG}. Candidates from checkout: ${cand_line}. Either the checkout's sql files are missing an older upgrade path, or to_tag was set to a value below the checkout's own prior-shipped versions. Pass an explicit from_tag override if the test setup is intentional." >&2
+            exit 1
+          fi
+          echo "==> candidates filtered to < ${INPUT_TO_TAG}: $(tr '\n' ' ' <<< "${filtered}")"
+          candidates="${filtered}"
+        fi
+        # Take the highest remaining candidate as the from-version.
+        # The lib sorts ascending; tail -1 selects the max.
         derived=$(printf '%s\n' "${candidates}" | tail -1)
         echo "==> from_tag derived from checkout sql/: ${derived}"
         # Docker Hub tag names: version tags are published as plain

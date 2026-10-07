@@ -404,8 +404,9 @@ job that produces the `pr-built` image the matrix cells then load.
   [`derive_from_version_sql_candidates`](../.github/scripts/lib/derive-from-version.sh);
   the package side layers a shipped-versions-manifest intersect
   on top (needed for tarball download guarantees from GitHub
-  Releases). See [Item 4 followup: per-row from_tag derivation on
-  docker side](#item-4-followup-per-row-from_tag-derivation-on-docker-side)
+  Releases). See the "Item 4 followup: per-row from_tag derivation
+  on docker side" entry under
+  [Refactor items (proposed, in priority order)](#refactor-items-proposed-in-priority-order)
   below for the shipped per-row shape.
 - Docker's `require_upgrade_cell` input (Item 4 followup) flips the
   auto-skip from silent to loud when the caller is in *release mode*

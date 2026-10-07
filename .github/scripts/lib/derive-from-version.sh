@@ -96,16 +96,31 @@ derive_from_version_sql_candidates() {
 
     # Enumerate sql/*-to-*_upgrade.sql (filenames like
     # `sql/8_1_0-to-8_1_1_upgrade.sql`) via find; strip directory
-    # prefix via sed `s|^.*/||`; strip `-to-<version>_upgrade.sql`
-    # suffix; swap underscores to dots; filter to strict X.Y.Z shape
-    # as defense against convention drift (a stray `8_1-to-8_2_0`
+    # prefix via sed `s|^.*/||`; strip the suffix ONLY when the
+    # destination is itself a strict X_Y_Z shape; swap underscores
+    # to dots; filter to strict X.Y.Z shape on the from-side too as
+    # defense against convention drift (a stray `8_1-to-8_2_0`
     # two-segment left-side would otherwise silently vanish into
-    # the next check with a confusing error). `|| true` on the
-    # pipeline because grep exits 1 when nothing matches; the
-    # empty-check below handles that path with a specific error.
+    # the next check with a confusing error).
+    #
+    # Both-sides X_Y_Z enforcement (fix for Rabbit review on the
+    # G50 PR): the previous suffix regex `-to-[0-9_]+_upgrade.sql`
+    # over-matched malformed destinations like
+    # `8_5_0-to-8_6_upgrade.sql` (two-component right-side) — the
+    # sed would strip and emit `8.5.0` as a candidate even though
+    # the upgrade file itself was malformed. Tightening the suffix
+    # to require `-to-X_Y_Z_upgrade.sql` means malformed
+    # destinations fail the sed match, the full basename
+    # falls through, the subsequent X.Y.Z grep on the full basename
+    # rejects it, and the empty-check surfaces "no well-formed
+    # files" cleanly.
+    #
+    # `|| true` on the pipeline because grep exits 1 when nothing
+    # matches; the empty-check below handles that path with a
+    # specific error.
     local candidates
     candidates=$(find "${sql_dir}" -maxdepth 1 -name '*-to-*_upgrade.sql' -type f 2>/dev/null \
-        | sed -E 's|^.*/||; s|-to-[0-9_]+_upgrade\.sql$||' \
+        | sed -E 's|^.*/||; s|-to-[0-9]+_[0-9]+_[0-9]+_upgrade\.sql$||' \
         | tr '_' '.' \
         | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
         | sort -uV || true)

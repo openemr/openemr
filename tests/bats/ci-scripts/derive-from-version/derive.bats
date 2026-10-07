@@ -276,11 +276,45 @@ teardown() {
     [[ "${output}" == *"no well-formed"* ]]
 }
 
+@test "malformed X_Y_Z shape (two-segment RIGHT: 8_5_0-to-8_6) -> rc=1 (dest-side protection)" {
+    # CodeRabbit review on PR #14440: the pre-tightening sed
+    # accepted any `-to-[0-9_]+_upgrade.sql` destination, so
+    # `8_5_0-to-8_6_upgrade.sql` (two-segment right-side) would
+    # strip cleanly, emit `8.5.0` as a candidate, and the file
+    # would appear well-formed from the derivation's perspective
+    # despite being malformed on disk. Both-sides X_Y_Z enforcement
+    # means the sed only strips when the destination is X_Y_Z;
+    # a malformed right-side causes the full basename to fall
+    # through to the grep, fail the X.Y.Z shape filter, and
+    # surface as "no well-formed".
+    local dir="${CWD}/malformed-dest"
+    mkdir -p "${dir}/sql"
+    touch "${dir}/sql/8_5_0-to-8_6_upgrade.sql"
+    run_candidates "${dir}"
+    [[ "${status}" -eq 1 ]]
+    [[ "${output}" == *"no well-formed"* ]]
+}
+
+@test "malformed X_Y_Z shape (four-segment right: 8_5_0-to-8_6_0_1) -> rc=1 (dest-side protection)" {
+    # Companion to the two-segment-right case: four-segment
+    # destinations also fail the strict X_Y_Z filter. Guards
+    # against a hypothetical patch-level filename convention
+    # that adds a fourth component silently drifting into
+    # over-matched candidates.
+    local dir="${CWD}/malformed-dest-4seg"
+    mkdir -p "${dir}/sql"
+    touch "${dir}/sql/8_5_0-to-8_6_0_1_upgrade.sql"
+    run_candidates "${dir}"
+    [[ "${status}" -eq 1 ]]
+    [[ "${output}" == *"no well-formed"* ]]
+}
+
 @test "mix of valid + malformed -> only valid returned (no silent-skip)" {
     local dir="${CWD}/mixed"
     mkdir -p "${dir}/sql"
-    touch "${dir}/sql/8_1_1-to-8_2_0_upgrade.sql"   # valid
-    touch "${dir}/sql/8_1-to-8_2_0_upgrade.sql"     # malformed (two-segment)
+    touch "${dir}/sql/8_1_1-to-8_2_0_upgrade.sql"   # valid both sides
+    touch "${dir}/sql/8_1-to-8_2_0_upgrade.sql"     # malformed (two-segment left)
+    touch "${dir}/sql/8_5_0-to-8_6_upgrade.sql"     # malformed (two-segment right)
     touch "${dir}/sql/foo-to-bar_upgrade.sql"       # malformed (non-numeric)
     run_candidates "${dir}"
     [[ "${status}" -eq 0 ]]
