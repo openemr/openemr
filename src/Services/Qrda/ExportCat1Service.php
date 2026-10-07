@@ -32,7 +32,7 @@ class ExportCat1Service
      *  - provider
      *  - submission_program
      */
-    public function export($measures = [], $options = [])
+    public function export($measures = [], $options = []): string
     {
         $measure_arr = MeasureService::fetchAllMeasuresArray($measures);
         $patientModels = $this->builder->build($this->request);

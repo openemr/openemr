@@ -697,6 +697,49 @@ class TwigTemplateRenderTest extends TestCase
             $fixtureDir . '/care-plan-actions.html',
         ];
 
+        yield 'reports/portal_lockout_tracker empty state' => [
+            'reports/portal_lockout_tracker/report.html.twig',
+            [
+                'showOnlyAutoBlocked' => false,
+                'formRefresh' => false,
+                'rows' => [],
+                'formCsrfToken' => 'test-csrf-token',
+                'counterCsrfToken' => 'test-counter-csrf-token',
+                'ajaxUrl' => '/library/ajax/login_counter_ip_tracker.php',
+            ],
+            $fixtureDir . '/portal-lockout-tracker-empty.html',
+        ];
+
+        yield 'reports/portal_lockout_tracker populated' => [
+            'reports/portal_lockout_tracker/report.html.twig',
+            [
+                'showOnlyAutoBlocked' => true,
+                'formRefresh' => true,
+                'rows' => [
+                    [
+                        'pid' => 42,
+                        'portal_login_username' => 'locked.user@example.com',
+                        'portal_fail_counter' => 7,
+                        'portal_last_fail' => '2026-01-05 09:00:00',
+                        'autoBlocked' => true,
+                        'autoBlockEnd' => '2026-01-05 10:00:00',
+                    ],
+                    [
+                        'pid' => 43,
+                        'portal_login_username' => 'someone',
+                        'portal_fail_counter' => 2,
+                        'portal_last_fail' => null,
+                        'autoBlocked' => false,
+                        'autoBlockEnd' => null,
+                    ],
+                ],
+                'formCsrfToken' => 'test-csrf-token',
+                'counterCsrfToken' => 'test-counter-csrf-token',
+                'ajaxUrl' => '/library/ajax/login_counter_ip_tracker.php',
+            ],
+            $fixtureDir . '/portal-lockout-tracker-populated.html',
+        ];
+
         yield 'forms/care_plan report' => [
             '/forms/care_plan/templates/care_plan_report.html.twig',
             [

@@ -18,8 +18,16 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 require_once($srcdir . "/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 
+// Match the sibling record_request.php gate on the transaction directory —
+// this script reads form_vitals and insurance data through the submitted
+// patient_id, so the patients/med ACL must clear before any lookup runs.
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Print Referral", xl("Print Referral"));
+}
 
 $template_file = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/referral_template.html";
 

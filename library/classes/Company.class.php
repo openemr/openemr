@@ -46,7 +46,7 @@ class Company extends ORDataObject
             $this->populate();
         }
     }
-    public function factory_company($foreign_id = "")
+    public function factory_company($foreign_id = ""): Address
     {
         $sqlArray = [];
 
@@ -67,7 +67,7 @@ class Company extends ORDataObject
         return $a;
     }
 
-    public function toString($html = false)
+    public function toString($html = false): string
     {
         $string = "\n"
         . "ID: " . $this->id . "\n"

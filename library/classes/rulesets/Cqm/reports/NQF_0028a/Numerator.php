@@ -9,7 +9,7 @@
 //
 class NQF_0028a_Numerator implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Numerator";
     }
@@ -37,7 +37,7 @@ class NQF_0028a_Numerator implements CqmFilterIF
         return false;
     }
 
-    private function getApplicableEncounters()
+    private function getApplicableEncounters(): array
     {
         return [
             Encounter::ENC_OFF_VIS,

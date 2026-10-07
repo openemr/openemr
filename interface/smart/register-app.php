@@ -485,7 +485,7 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                     <?php foreach ($scopes as $scope) : ?>
                         <label class="list-group-item m-0">
                             <input type="checkbox" class='app-scope' name="scope[<?php echo attr($scope); ?>]" value="<?php echo attr($scope); ?>" checked>
-                            <?php echo xlt($scope); ?>
+                            <?php echo text($scope); ?>
                         </label>
                     <?php endforeach; ?>
                     </div>
@@ -574,7 +574,7 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                     <div id="errorResponseContainer">
                     </div>
                     <div class="alert alert-danger">
-                        <p><?php xlt("An error occurred while registering your application"); ?></p>
+                        <p><?php echo xlt("An error occurred while registering your application"); ?></p>
                         <?php
                         // TODO: put in a link to the api documentation for the version of this system
                         ?>

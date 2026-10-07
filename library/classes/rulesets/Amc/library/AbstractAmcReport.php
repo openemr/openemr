@@ -113,8 +113,8 @@ abstract class AbstractAmcReport implements RsReportIF
         return $this->_amcPopulation;
     }
 
-    abstract public function createNumerator();
-    abstract public function createDenominator();
+    abstract public function createNumerator(): ?AmcFilterIF;
+    abstract public function createDenominator(): ?AmcFilterIF;
     abstract public function getObjectToCount();
 
     public function getAggregator()
@@ -300,7 +300,7 @@ abstract class AbstractAmcReport implements RsReportIF
         }
     }
 
-    private function collectObjects($patient, $object_label, $begin, $end)
+    private function collectObjects($patient, $object_label, $begin, $end): array
     {
 
         $results = [];
@@ -425,7 +425,7 @@ abstract class AbstractAmcReport implements RsReportIF
         return $results;
     }
 
-    private function collectTransitionOutObjects($patient, $begin, $end, $billing_facility, $provider_id)
+    private function collectTransitionOutObjects($patient, $begin, $end, $billing_facility, $provider_id): array
     {
 
         $results = [];

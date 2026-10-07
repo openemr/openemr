@@ -13,6 +13,7 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -30,7 +31,13 @@ $result3 = [];
 $result4 = [];
 $emptyRow = ['billing' => '', 'transaction' => '', 'pnotes' => '', 'forms' => ''];
 
-if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
+// Match the sibling authorizations.php gate — session must be flagged
+// userauthorized or have users.see_auth > 2 to run the mode=authorize action.
+$atemp = QueryUtils::querySingleRow("SELECT see_auth FROM users WHERE username = ?", [$session->get('authUser')]);
+$see_auth = is_array($atemp) ? ($atemp['see_auth'] ?? 0) : 0;
+$imauthorized = $session->get('userauthorized') || $see_auth > 2;
+
+if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
     CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     EventAuditLogger::getInstance()->newEvent("authorize", $session->get('authUser'), $session->get('authProvider'), 1, '', $_GET["pid"]);

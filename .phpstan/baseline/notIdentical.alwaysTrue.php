@@ -132,11 +132,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Health/Check/CacheCheck.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between array and null will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between int and null will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
@@ -200,6 +195,11 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between mixed and null will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\!\\=\\= between OpenEMR\\\\Cqm\\\\Qdm\\\\Patient and null will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/QdmBuilder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between mixed and null will always evaluate to true\\.$#',

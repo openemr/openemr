@@ -23,7 +23,7 @@ class SLEOB
     // claim ID and other stuff in the ERA.  This should be straightforward
     // except that some payers mangle the claim ID that we give them.
     //
-    public static function slInvoiceNumber(&$out)
+    public static function slInvoiceNumber(&$out): array
     {
         $invnumber = $out['our_claim_id'];
         $atmp = preg_split('/[ -]/', (string) $invnumber);
@@ -37,7 +37,7 @@ class SLEOB
         } elseif ($partCount == 3) {
             $pid = $atmp[0];
             $brow = sqlQuery("SELECT encounter FROM billing WHERE " .
-                "pid = '$pid' AND encounter = ? AND activity = 1", [$atmp[1]]);
+                "pid = ? AND encounter = ? AND activity = 1", [$pid, $atmp[1]]);
 
             $encounter = $brow['encounter'];
         } elseif ($partCount == 1) {

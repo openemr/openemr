@@ -21,7 +21,7 @@ class CcdaDocumentTemplateOids
     const CAREPLAN  = "2.16.840.1.113883.10.20.22.1.15";
     const CCDA_DOCUMENT_TEMPLATE_OIDS = [self::CCD, self::REFERRAL, self::TRANSFER_SUMMARY, self::CAREPLAN];
 
-    public static function isValidDocumentTemplateOid($oid)
+    public static function isValidDocumentTemplateOid($oid): bool
     {
         return in_array($oid, self::CCDA_DOCUMENT_TEMPLATE_OIDS);
     }

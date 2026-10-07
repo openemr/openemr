@@ -81,6 +81,9 @@
  * Section "nationnotes" (Nation Notes):
  *   nn_configure     Nation Notes
  *
+ * Section "camos" (CAMOS):
+ *   administer     CAMOS Template Curator (add/rename/delete shared template categories, subcategories, items, and content)
+ *
  * Section "patientportal" (Patient Portal):
  *   portal     Patient Portal
  *
@@ -273,7 +276,7 @@ class AclMain
      * $param String $section_identifier ACL Section id
      * @return bool
      */
-    public static function zhAclCheck($user_id, $section_identifier)
+    public static function zhAclCheck($user_id, $section_identifier): bool
     {
         $sql_user_acl = " SELECT
                         COUNT(allowed) AS count

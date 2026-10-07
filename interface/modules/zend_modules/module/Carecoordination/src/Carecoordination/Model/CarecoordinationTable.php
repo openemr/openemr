@@ -983,7 +983,7 @@ class CarecoordinationTable
      * @param $ymd
      * @return string
      */
-    public function formatDate($unformatted_date, $ymd = 1)
+    public function formatDate($unformatted_date, $ymd = 1): string
     {
         $day = substr((string) $unformatted_date, 6, 2);
         $month = substr((string) $unformatted_date, 4, 2);
@@ -1058,9 +1058,8 @@ class CarecoordinationTable
 
     /**
      * @param $lab_array
-     * @return array
      */
-    public function buildLabArray($lab_array)
+    public function buildLabArray($lab_array): array
     {
         // nothing to build if we are empty here.
         if (empty($lab_array)) {
@@ -2083,7 +2082,7 @@ class CarecoordinationTable
      * @param $type
      * @return string[]
      */
-    public function getCCDAComponents($type)
+    public function getCCDAComponents($type): array
     {
         $components = ['schematron' => 'Errors'];
         $query = "select * from ccda_components where ccda_type = ?";

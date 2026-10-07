@@ -9,7 +9,7 @@ use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Services\EncounterService;
 
 //function called to set the global session variable for encounter number
-function setencounter($enc)
+function setencounter($enc): int
 {
     return EncounterSessionUtil::setEncounter($enc);
 }

@@ -20,7 +20,7 @@ require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Abstract/Configu
 
 class Form_Configuration extends Abstract_Configuration implements ConfigurationIF
 {
-    public function getModule()
+    public function getModule(): string
     {
         return "form";
     }

@@ -21,6 +21,7 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Calendar\ConfiguredScheduleHours;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -94,6 +95,13 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 // seconds per time slot
 $slotsecs = OEGlobalsBag::getInstance()->getInt('calendar_interval') * 60;
 
+// Clinic day window from Admin -> Config -> Calendar (same as day/week grid).
+// schedule_end is exclusive for slot start/end fitting (Ending Hour 5 PM =>
+// last 30-min start is 4:30).
+[$scheduleStartHour, $scheduleEndHour] = ConfiguredScheduleHours::normalizeWindow(
+    OEGlobalsBag::getInstance()->getInt('schedule_start'),
+    OEGlobalsBag::getInstance()->getInt('schedule_end')
+);
 
 $catslots = 1;
 if ($input_catid) {
@@ -259,8 +267,12 @@ if (in_array($sdateStr, $holidays, true)) {
 if (isset($_REQUEST['cktime'])) {
     $cktime = 0 + $_REQUEST['cktime'];
     $ckindex = (int) ($cktime * 60 / $slotsecs);
+    $ckUtime = ($slotbase + $ckindex) * $slotsecs;
+    if (!ConfiguredScheduleHours::containsSlot($ckUtime, $evslots, $slotsecs, $scheduleStartHour, $scheduleEndHour)) {
+        $ckavail = false;
+    }
     for ($j = $ckindex; $j < $ckindex + $evslots; ++$j) {
-        if ($slots[$j] >= 4) {
+        if (($slots[$j] ?? 0) >= 4) {
             $ckavail = false;
             $isProv = false;
             if (isset($prov[$j])) {
@@ -388,6 +400,10 @@ if (isset($_REQUEST['cktime'])) {
                 }
 
                 $utime = ($slotbase + $i) * $slotsecs;
+                // Honor Admin -> Config -> Calendar start/end hours (e.g. no slots after 5 PM).
+                if (!ConfiguredScheduleHours::containsSlot($utime, $evslots, $slotsecs, $scheduleStartHour, $scheduleEndHour)) {
+                    continue;
+                }
                 $thisdate = date("Y-m-d", $utime);
                 if ($thisdate != $lastdate) {
                     // if a new day, start a new row

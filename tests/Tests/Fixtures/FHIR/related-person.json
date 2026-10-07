@@ -1,0 +1,45 @@
+[
+    {
+        "resourceType": "RelatedPerson",
+        "active": true,
+        "patient": {
+            "reference": "Patient/00000000-0000-0000-0000-000000000000"
+        },
+        "relationship": [
+            {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                        "code": "MTH",
+                        "display": "Mother"
+                    }
+                ]
+            }
+        ],
+        "name": [
+            {
+                "use": "official",
+                "family": "test-fixture-RelatedLast",
+                "given": ["test-fixture-RelatedFirst"]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "(555) 123-4567",
+                "use": "home"
+            }
+        ],
+        "address": [
+            {
+                "use": "home",
+                "line": ["test-fixture-123 Main St"],
+                "city": "Testville",
+                "state": "CA",
+                "postalCode": "90210"
+            }
+        ],
+        "gender": "female",
+        "birthDate": "1970-05-15"
+    }
+]

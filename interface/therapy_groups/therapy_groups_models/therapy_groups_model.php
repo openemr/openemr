@@ -29,7 +29,7 @@ class Therapy_Groups
 {
     const TABLE = 'therapy_groups';
 
-    public function getAllGroups()
+    public function getAllGroups(): array
     {
 
         $sql = 'SELECT * FROM ' . self::TABLE . ' ORDER BY ' . self::TABLE . '.group_start_date DESC;';
@@ -62,7 +62,7 @@ class Therapy_Groups
         return $groupId;
     }
 
-    public function updateGroup(array $groupData)
+    public function updateGroup(array $groupData): bool
     {
 
         $sql = "UPDATE " . self::TABLE . " SET ";
@@ -77,7 +77,7 @@ class Therapy_Groups
         return (bool) $result;
     }
 
-    public function existGroup($name, $startDate, $groupId = null)
+    public function existGroup($name, $startDate, $groupId = null): bool
     {
 
         $sql = "SELECT COUNT(*) AS count FROM " . self::TABLE . " WHERE group_name = ? AND group_start_date = ?";
@@ -112,9 +112,8 @@ class Therapy_Groups
      * @param $search_params
      * @param $result_columns
      * @param $column
-     * @return array
      */
-    public function getGroupData($search_params, $result_columns, $column, $onlyActive = true)
+    public function getGroupData($search_params, $result_columns, $column, $onlyActive = true): array
     {
         $sql = 'SELECT ' . $result_columns . ' FROM ' . self::TABLE . ' WHERE ' . $column . ' LIKE ? ';
         // status 20 is 'deleted'

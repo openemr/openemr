@@ -9,6 +9,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 $patient_data = array(
 	'sex'			=> $this->listenerObject->z_xlt('Sex'),
 	'pubpid' 		=> $this->listenerObject->z_xlt('External ID'),
@@ -17,6 +20,8 @@ $patient_data = array(
 	'state'			=> $this->listenerObject->z_xlt('State'),
 	'postal_code'   => $this->listenerObject->z_xlt('Postal Code'),
 );
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $date_format = \Application\Model\ApplicationTable::dateFormat();
 
@@ -40,6 +45,7 @@ $update = $this->listenerObject->z_xlt('Update');
     }
 </script>
 <form method="post" action="<?php echo $this->basePath() . '/ccr/revandapprove';?>">
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
     <input type="hidden" name="amid" value="<?php echo $this->escapeHtml($this->amid);?>">
     <input type="hidden" name="pid" value="<?php echo $this->escapeHtml($this->pid);?>">
     <input type="hidden" name="document_id" id="document_id" value="<?php echo $this->escapeHtml($this->document_id); ?>" >

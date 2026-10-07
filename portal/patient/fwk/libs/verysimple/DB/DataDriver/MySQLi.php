@@ -46,11 +46,11 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    public function GetServerType()
+    public function GetServerType(): string
     {
         return "MySQLi";
     }
-    public function Ping($connection)
+    public function Ping($connection): bool
     {
         return mysqli_ping($connection);
     }
@@ -139,7 +139,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    public function GetLastError($connection)
+    public function GetLastError($connection): string
     {
         return mysqli_error($connection);
     }
@@ -158,7 +158,7 @@ class DataDriverMySQLi implements IDataDriver
      * so that a database connection is not necessary in order to escape.
      * this way cached queries can be used without connecting to the DB server
      */
-    public function Escape($val)
+    public function Escape($val): string
     {
         return str_replace(self::$BAD_CHARS, self::$GOOD_CHARS, $val);
         // return mysqli_real_escape_string($val);
@@ -183,7 +183,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    public function GetTableNames($connection, $dbname, $ommitEmptyTables = false)
+    public function GetTableNames($connection, $dbname, $ommitEmptyTables = false): array
     {
         $sql = "SHOW TABLE STATUS FROM `" . $this->Escape($dbname) . "`";
         $rs = $this->Query($connection, $sql);
@@ -202,7 +202,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    public function Optimize($connection, $table)
+    public function Optimize($connection, $table): string
     {
         $result = "";
         $rs = $this->Query($connection, "optimize table `" . $this->Escape($table) . "`");

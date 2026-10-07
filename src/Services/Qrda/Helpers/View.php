@@ -44,7 +44,7 @@ trait View
         return $context->get('value');
     }
 
-    public function object_id()
+    public function object_id(): string
     {
         return substr(sha1(random_bytes(512)), -24);
     }

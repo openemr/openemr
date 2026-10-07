@@ -73,7 +73,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'ODMACULA\'\\|\'OSMACULA\' does not exist on string\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -83,7 +83,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'ODVESSELS\'\\|\'OSVESSELS\' does not exist on string\\.$#',
-    'count' => 8,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -137,7 +137,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'facility\' does not exist on array\\{result_data_type\\: string, comments\\: "\\\\n", document_id\\?\\: mixed, date\\: mixed, result_code\\: mixed, result_text\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\|array\\{result_data_type\\: string, comments\\: non\\-falsy\\-string, result\\: mixed, result_code\\: mixed, result_text\\: mixed, date\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\.$#',
+    'message' => '#^Offset \'facility\' does not exist on array\\{result_data_type\\: string, comments\\: "\\\\n", document_id\\?\\: mixed, date\\: string, result_code\\: mixed, result_text\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\|array\\{result_data_type\\: string, comments\\: non\\-falsy\\-string, result\\: mixed, result_code\\: mixed, result_text\\: mixed, date\\: string, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ReceiveHl7Results.php',
 ];
@@ -227,7 +227,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'field_name_value_array\' might not exist on array\\{approval_status\\: 1, type\\: 11, ip_address\\: mixed, field_name_value_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\<array\\>\\>, entry_identification_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\>\\}\\.$#',
+    'message' => '#^Offset \'field_name_value_array\' might not exist on array\\{approval_status\\: 1, type\\: 11, ip_address\\: mixed, field_name_value_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\<int, array\\<string, mixed\\>\\>\\>, entry_identification_array\\: non\\-empty\\-array\\<non\\-empty\\-array\\<int, int\\>\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
@@ -262,7 +262,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'facility\' does not exist on array\\{result_data_type\\: string, comments\\: "\\\\n", document_id\\?\\: mixed, date\\: mixed, result_code\\: mixed, result_text\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\|array\\{result_data_type\\: string, comments\\: non\\-falsy\\-string, result\\: mixed, result_code\\: mixed, result_text\\: mixed, date\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\.$#',
+    'message' => '#^Offset \'facility\' does not exist on array\\{result_data_type\\: string, comments\\: "\\\\n", document_id\\?\\: mixed, date\\: string, result_code\\: mixed, result_text\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\|array\\{result_data_type\\: string, comments\\: non\\-falsy\\-string, result\\: mixed, result_code\\: mixed, result_text\\: mixed, date\\: string, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
@@ -757,24 +757,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/EDI270.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'bal\' might not exist on array\\{chg\\: float\\|int, bal\\: float\\|int, code_type\\: mixed, code_value\\: mixed, modifier\\: mixed, code_text\\: mixed, dtl\\?\\: array\\<literal\\-string&non\\-falsy\\-string&numeric\\-string, array\\{chg\\: numeric\\-string\\}\\>\\}\\|array\\{chg\\: float\\|int, bal\\?\\: float\\|int\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/InvoiceSummary.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'dtl\' might not exist on array\\{chg\\: float\\|int, bal\\: float\\|int, code_type\\: mixed, code_value\\: mixed, modifier\\: mixed, code_text\\: mixed, dtl\\?\\: array\\<literal\\-string&non\\-falsy\\-string&numeric\\-string, array\\{chg\\: numeric\\-string\\}\\>\\}\\|array\\{chg\\: float\\|int, bal\\: float\\|int\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/InvoiceSummary.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, \'\'\\|numeric\\-string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthHash.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'actions\' might not exist on array\\{hasRestrictions\\: true, restrictions\\?\\: non\\-empty\\-array\\<array\\{label\\: \'Clinical Test\'\\|\'Encounter Diagnoses\'\\|\'Health Concerns\'\\|\'Laboratory\'\\|\'Problem List Items\'\\|\'Social Determinants…\'\\|\'Social History\'\\|\'Survey\'\\|\'Vital Signs\', value\\: \'http\\://hl7\\.org/fhir…\'\\|\'http\\://terminology…\', selected\\: true, actions\\: list\\{0\\?\\: \'c\'\\|\'d\'\\|\'r\'\\|\'s\'\\|\'u\', 1\\?\\: \'d\'\\|\'r\'\\|\'s\'\\|\'u\', 2\\?\\: \'d\'\\|\'s\'\\|\'u\', 3\\?\\: \'d\'\\|\'s\', 4\\?\\: \'s\'\\}\\}\\>\\}\\|array\\{name\\: mixed, description\\: string, context\\: mixed, version\\: mixed, actions\\: array\\{c\\: array\\{enabled\\: bool\\}, r\\: array\\{enabled\\: bool\\}, u\\: array\\{enabled\\: bool\\}, d\\: array\\{enabled\\: bool\\}, s\\: array\\{enabled\\: bool\\}\\}, restrictions\\: array\\<array\\{label\\: mixed, value\\: mixed, selected\\: true, actions\\: mixed\\}\\>, hasRestrictions\\: true, isUnrestricted\\: bool, \\.\\.\\.\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/ScopePermissionParser.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset 0 might not exist on array\\{\\}\\|array\\{non\\-empty\\-string\\}\\.$#',
@@ -795,11 +780,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'display\' might not exist on array\\{\\}\\|array\\{type\\: \'boolean\'\\|\'date\'\\|\'datetime\'\\|\'decimal\'\\|\'integer\'\\|\'quantity\'\\|\'string\'\\|\'time\'\\|\'uri\', display\\: mixed\\}\\|array\\{type\\: \'coding\', system\\: mixed, code\\: mixed, display\\: mixed\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 4 does not exist on array\\{non\\-falsy\\-string, non\\-empty\\-string, non\\-empty\\-string, non\\-empty\\-string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'type\' does not exist on non\\-empty\\-list\\<array\\<mixed\\>\\>\\.$#',
