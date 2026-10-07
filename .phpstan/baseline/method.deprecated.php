@@ -157,12 +157,6 @@ use setLogger\\(\\)$#',
     'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\RestControllers\\\\Subscriber\\\\ApiResponseLoggerListener\\:
-read from the \\-\\>logger property$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/RestControllers/Subscriber/ApiResponseLoggerListener.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\RestControllers\\\\Authorization\\\\SkipAuthorizationStrategy\\:
 use setLogger\\(\\)$#',
     'count' => 1,
