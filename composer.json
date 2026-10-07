@@ -94,6 +94,7 @@
         "nyholm/psr7-server": "^1.1.0",
         "omnipay/stripe": "^3.2.0",
         "openemr/mustache": "^2.15.2",
+        "openemr/oe-cqm-parsers": "^7.0.4",
         "paragonie/constant_time_encoding": "^3.1.3",
         "particle/validator": "^2.3.6",
         "pear/archive_tar": "^1.6.0",
@@ -169,6 +170,23 @@
         {
             "type": "git",
             "url": "https://github.com/openemr/oe-module-cqm"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "openemr/oe-cqm-parsers",
+                "version": "7.0.4",
+                "source": {
+                    "type": "git",
+                    "url": "https://github.com/openemr/oe-cqm-parsers.git",
+                    "reference": "7c6b2a95bb12529f9339ffdc17bf1fb54f1baaea"
+                },
+                "dist": {
+                    "type": "zip",
+                    "url": "https://api.github.com/repos/openemr/oe-cqm-parsers/zipball/7c6b2a95bb12529f9339ffdc17bf1fb54f1baaea",
+                    "reference": "7c6b2a95bb12529f9339ffdc17bf1fb54f1baaea"
+                }
+            }
         }
     ],
     "autoload": {
