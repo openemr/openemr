@@ -52,10 +52,13 @@ if ($signing && $signList !== '') {
   // in the sending form. While this will usually be all the reports linked to
   // the order it's possible for a new report to come in while viewing these,
   // and it would be very bad to sign results that nobody has seen!
+  // The report IDs come from the form, so also require that each belongs to
+  // the order whose access was checked above; otherwise IDs from another
+  // (possibly restricted) order could be signed through this one.
     foreach (explode(',', $signList) as $id) {
         QueryUtils::sqlStatementThrowException("UPDATE procedure_report SET " .
         "review_status = 'reviewed' WHERE " .
-        "procedure_report_id = ?", [$id]);
+        "procedure_report_id = ? AND procedure_order_id = ?", [$id, $orderid]);
     }
     if ($orderid) {
         QueryUtils::sqlStatementThrowException("UPDATE procedure_order SET " .
