@@ -207,11 +207,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$PMFSH on left side of \\?\\? is never defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$RX_TYPE on left side of \\?\\? is never defined\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -562,11 +557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$category on left side of \\?\\?\\= is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$mname on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/account/account.lib.php',
@@ -725,6 +715,11 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$type on left side of \\?\\? is never defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PhoneNumberService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$qdmPatient on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/QdmBuilder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$result on left side of \\?\\? always exists and is not nullable\\.$#',

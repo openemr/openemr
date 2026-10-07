@@ -1,0 +1,45 @@
+[
+    {
+        "resourceType": "MedicationRequest",
+        "status": "active",
+        "intent": "order",
+        "category": [
+            {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                        "code": "community",
+                        "display": "Home/Community"
+                    }
+                ]
+            }
+        ],
+        "medicationCodeableConcept": {
+            "coding": [
+                {
+                    "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                    "code": "1049502",
+                    "display": "test-fixture acetaminophen 325 MG Oral Tablet"
+                }
+            ],
+            "text": "test-fixture acetaminophen 325 MG Oral Tablet"
+        },
+        "authoredOn": "2024-01-15T09:00:00+00:00",
+        "dosageInstruction": [
+            {
+                "text": "Take 1 tablet by mouth every 6 hours as needed for pain"
+            }
+        ],
+        "dispenseRequest": {
+            "quantity": {
+                "value": 30,
+                "unit": "tablet"
+            }
+        },
+        "note": [
+            {
+                "text": "test-fixture medication request"
+            }
+        ]
+    }
+]

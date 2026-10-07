@@ -24,7 +24,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: AMC Full Report", xl("AMC Full Report"));
 }
 
-function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
+function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = []): array
 {
     $dataSheet = (json_decode((string) $data, true)) ?? [];
     $formatted = [];
@@ -75,7 +75,7 @@ function formatPatientReportData($report_id, &$data, $type_report, $amc_report_t
     return $formatted;
 }
 
-function collectItemizedPatientData($report_id, $itemized_test_id)
+function collectItemizedPatientData($report_id, $itemized_test_id): array
 {
     $has_results = true;
     $batchSize = 100; // we will do 100 results at a time so we don't overload the MySQL server

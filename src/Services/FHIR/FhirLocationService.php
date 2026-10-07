@@ -100,7 +100,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
      * Returns an array mapping FHIR Location Resource search parameters to OpenEMR Location search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
@@ -353,7 +353,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         return $patientFacilityType;
     }
 
-    private function hasAccessToUserLocationData()
+    private function hasAccessToUserLocationData(): bool
     {
         return AclMain::aclCheckCore('admin', 'users', $this->getSession()->get("authUser")) !== false;
     }

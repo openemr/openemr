@@ -58,10 +58,14 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
             # Check for --force flag once, used by fixtures that want to
             # branch on it. Looped separately from the per-name dispatch.
             force=0
+            site=""
             for arg in "$@"; do
                 if [ "$arg" = "--force" ]; then
                     force=1
                 fi
+                case "$arg" in
+                    --site=*) site="${arg#--site=}" ;;
+                esac
             done
             for arg in "$@"; do
                 case "$arg" in
@@ -135,6 +139,17 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
                             printf '{"name":"reports_force","status":"executed","nonce":"%s"}\n' "$n"
                         else
                             printf '{"name":"reports_force","status":"skipped","nonce":"%s"}\n' "$n"
+                        fi
+                        exit 0
+                        ;;
+                    --name=reports_site)
+                        # Reports the --site it was given in the status
+                        # ("executed" for site2, "skipped" without one)
+                        # so the test can confirm the spawner forwards it.
+                        if [ "$site" = "site2" ]; then
+                            printf '{"name":"reports_site","status":"executed","nonce":"%s"}\n' "$n"
+                        elif [ -z "$site" ]; then
+                            printf '{"name":"reports_site","status":"skipped","nonce":"%s"}\n' "$n"
                         fi
                         exit 0
                         ;;
@@ -386,6 +401,26 @@ class SymfonyBackgroundServiceSpawnerTest extends TestCase
             ['name' => 'reports_force', 'status' => 'skipped'],
             $withoutForce,
             '--force must NOT reach the child when the caller does not request it',
+        );
+    }
+
+    public function testSiteIsForwardedToChildProcess(): void
+    {
+        // A parent running for a non-default site must start its children
+        // for the same site; bin/console bootstraps `default` otherwise.
+        $withSite = (new SymfonyBackgroundServiceSpawner($this->fakeProjectDir, $this->logger, '/bin/sh', 'site2'))
+            ->spawn('reports_site', false, 60);
+        $withoutSite = $this->makeSpawner()->spawn('reports_site', false, 60);
+
+        $this->assertSame(
+            ['name' => 'reports_site', 'status' => 'executed'],
+            $withSite,
+            '--site must reach the child when the spawner has a site',
+        );
+        $this->assertSame(
+            ['name' => 'reports_site', 'status' => 'skipped'],
+            $withoutSite,
+            'no --site must reach the child when the spawner has none',
         );
     }
 

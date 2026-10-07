@@ -58,13 +58,13 @@ class Api
         return $esign;
     }
 
-    public function createEncounterSignable($encounterId)
+    public function createEncounterSignable($encounterId): Encounter_Signable
     {
         $signable = new Encounter_Signable($encounterId);
         return $signable;
     }
 
-    public function createESign(FactoryIF $factory)
+    public function createESign(FactoryIF $factory): ESign
     {
         $configuration = $factory->createConfiguration();
         $signable = $factory->createSignable();

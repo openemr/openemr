@@ -17,6 +17,19 @@ header('Content-Type: application/json');
 require_once("../../globals.php");
 require_once("translation_utilities.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!AclMain::aclCheckCore('admin', 'language')) {
+    AccessDeniedHelper::deny(
+        'commit_csv: admin/language',
+        format: AccessDeniedResponseFormat::Json
+    );
+}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
 $errmsg = '';
 
 if (!$errmsg && !isset($_REQUEST['translations'])) {

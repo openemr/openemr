@@ -1,5 +1,30 @@
 # CHANGELOG.md
 
+## [8.4.1](https://github.com/openemr/openemr/compare/v8_4_0...v8_4_1) - 2026-09-20
+
+### Minimum supported versions
+
+- **PHP** 8.3+
+- **MariaDB** 10.11+
+- **MySQL** 8.4+
+
+See the [tested CI matrix](https://github.com/openemr/openemr/tree/rel-840/ci) for all tested version combinations.
+
+### Fixed
+
+  - filter payment activity and align alert counts (rel-840 backport) ([#14109](https://github.com/openemr/openemr/pull/14109))
+  - prevent archive audit logging failure (rel-840 backport) ([#14116](https://github.com/openemr/openemr/pull/14116))
+  - restore staff demographics review (rel-840 backport) ([#14088](https://github.com/openemr/openemr/pull/14088))
+  - restrict secure message editor toolbar (rel-840 backport) ([#14057](https://github.com/openemr/openemr/pull/14057))
+
+### Changed
+
+  - Backport multiple eye form commits to rel-840 ([#14065](https://github.com/openemr/openemr/pull/14065))
+  - bump rel-840 version.php to 8.4.1dev ([#14066](https://github.com/openemr/openemr/pull/14066))
+  - correct rel-840 v_tag to -dev (release-prep expects the dash) ([#14067](https://github.com/openemr/openemr/pull/14067))
+  - load Phreeze via composer classmap (rel-840 backport) ([#14083](https://github.com/openemr/openemr/pull/14083))
+  - rel-840: fix(pt-search): Fix bind array mismatch in patient finder count query (#14003) ([#14060](https://github.com/openemr/openemr/pull/14060))
+
 ## [8.4.0](https://github.com/openemr/openemr/compare/v8_3_0...v8_4_0) - 2026-09-13
 
 ### Minimum supported versions

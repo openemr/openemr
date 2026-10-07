@@ -33,6 +33,7 @@ require_once(__DIR__ . "/options.inc.php");
 require_once(__DIR__ . "/appointment_status.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\HcpcsDrugDefaults;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -62,13 +63,7 @@ class FeeSheet
     public $payer_id;
 
   // Possible units of measure for NDC drug quantities.
-    public $ndc_uom_choices = [
-    'ML' => 'ML',
-    'GR' => 'Grams',
-    'ME' => 'Milligrams',
-    'F2' => 'I.U.',
-    'UN' => 'Units'
-    ];
+    public $ndc_uom_choices = HcpcsDrugDefaults::NDC_UOM_CHOICES;
 
   // Set by checkRelatedForContraception():
     public $line_contra_code     = '';
@@ -110,7 +105,7 @@ class FeeSheet
         $this->encounter = $encounter;
         // get provider field for pid's primary insurance from insurance_data to be added to billing row table as payer_id
         $primary_insurance = getInsuranceData($this->pid);
-        $this->payer_id = $primary_insurance['provider'];
+        $this->payer_id = $primary_insurance['provider'] ?? null;
 
         // IPPF doesn't want any payments to be made or displayed in the Fee Sheet.
         $this->ALLOW_COPAYS = empty(OEGlobalsBag::getInstance()->get('ippf_specific'));
@@ -185,7 +180,7 @@ class FeeSheet
   // Gets the provider from the encounter, logged-in user or patient demographics.
   // Adapted from work by Terry Hill.
   //
-    public function findProvider()
+    public function findProvider(): int
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -213,7 +208,7 @@ class FeeSheet
 
     // Close the designated visit, making sure it has no charges.
     //
-    public static function closeVisit($pid, $encounter)
+    public static function closeVisit($pid, $encounter): string
     {
         $tmp1 = sqlQuery(
             "SELECT SUM(ABS(fee)) AS sum FROM drug_sales WHERE " .
@@ -314,7 +309,7 @@ class FeeSheet
 
   // Compute a current checksum of this encounter's Fee Sheet data from the database.
   //
-    public function visitChecksum($saved = false)
+    public function visitChecksum($saved = false): int
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $rowb = sqlQuery(
@@ -456,6 +451,7 @@ class FeeSheet
         $justify     = $args['justify'] ?? '';
         $notecodes   = $args['notecodes'] ?? '';
         $fee         = isset($args['fee']) ? (0 + $args['fee']) : 0;
+        $fee_is_unit_price = false;
         // Price level should be unset only if adding a new line item.
         $pricelevel  = $args['pricelevel'] ?? $this->patient_pricelevel;
         $del         = !empty($args['del']);
@@ -463,7 +459,7 @@ class FeeSheet
         // If using line item billing and user wishes to default to a selected provider, then do so.
         if (OEGlobalsBag::getInstance()->getBoolean('default_fee_sheet_line_item_provider') && OEGlobalsBag::getInstance()->getBoolean('support_fee_sheet_line_item_provider')) {
             if ($provider_id == 0) {
-                $provider_id = (int) $this->findProvider();
+                $provider_id = $this->findProvider();
             }
         }
 
@@ -500,6 +496,7 @@ class FeeSheet
 
             if (!isset($args['fee'])) {
                 // Fees come from the prices table now.
+                $fee_is_unit_price = true;
                 $query = "SELECT pr_price, lo.option_id AS pr_level, lo.notes FROM list_options lo " .
                     " LEFT OUTER JOIN prices p ON lo.option_id=p.pr_level AND pr_id = ? AND pr_selector = '' " .
                     " WHERE lo.list_id='pricelevel' " .
@@ -539,6 +536,10 @@ class FeeSheet
 
         if (!$units) {
             $units = 1;
+        }
+        // The prices table holds a unit price; a line's fee is the total for its units.
+        if ($fee_is_unit_price && is_numeric($fee)) {
+            $fee *= $units;
         }
         $fee = sprintf('%01.2f', $fee);
 
@@ -826,7 +827,7 @@ class FeeSheet
   // Returns an error message if any product items cannot be filled.
   // You must call this before save().
   //
-    public function checkInventory(&$prod)
+    public function checkInventory(&$prod): string
     {
         $alertmsg = '';
         $insufficient = 0;
@@ -1456,7 +1457,7 @@ class FeeSheet
     // and in that case the return value is a LBFcontra form_id or -1 if none.
     // -1 could be returned if a non-LBFcontra form type recorded data that needs fixing.
     //
-    public function doContraceptionForm($ippfconmeth = null, $newmauser = null, $main_provid = 0)
+    public function doContraceptionForm($ippfconmeth = null, $newmauser = null, $main_provid = 0): int
     {
         if (!empty($ippfconmeth)) {
             /**********************************************************
@@ -1610,7 +1611,7 @@ class FeeSheet
 
     // Determine if the current user is allowed to see prices.
     //
-    public function pricesAuthorized()
+    public function pricesAuthorized(): bool
     {
         return AclMain::aclCheckCore('acct', 'disc') || AclMain::aclCheckCore('acct', 'bill');
     }

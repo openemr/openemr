@@ -49,7 +49,7 @@ function GetServiceOtherCounts(): array
 /**
  * Get Portal Alerts function
  *
- * @returns array of alerts count
+ * @return array<string, mixed> alert counts
  */
 function GetPortalAlertCounts(): array
 {
@@ -63,9 +63,9 @@ function GetPortalAlertCounts(): array
     $counts['mailCnt'] = $qrtn['count_mail'] ?: "0";
 
     $query = "SELECT Count(`m`.status) AS count_audits FROM onsite_portal_activity `m` " .
-        "WHERE `m`.status LIKE ?";
-    $qrtn = sqlQueryNoLog($query, ['%waiting%']);
-    $counts['auditCnt'] = $qrtn['count_audits'] ?: "0";
+        "WHERE `m`.status = ? AND `m`.require_audit = ?";
+    $qrtn = QueryUtils::querySingleRow($query, ['waiting', 1], false);
+    $counts['auditCnt'] = $qrtn['count_audits'] ?? "0";
 
     $query = "SELECT Count(`m`.id) AS count_chats FROM onsite_messages `m` " .
         "WHERE `m`.recip_id LIKE ? AND `m`.date > (CURRENT_DATE()-2) AND `m`.date < (CURRENT_DATE()+1)";
@@ -73,11 +73,12 @@ function GetPortalAlertCounts(): array
     $counts['chatCnt'] = $qrtn['count_chats'] ?: "0";
 
     $query = "SELECT Count(`m`.status) AS count_payments FROM onsite_portal_activity `m` " .
-        "WHERE `m`.status LIKE ? AND `m`.activity = ?";
-    $qrtn = sqlQueryNoLog($query, ['%waiting%', 'payment']);
-    $counts['paymentCnt'] = $qrtn['count_payments'] ?: "0";
+        "WHERE `m`.status = ? AND `m`.require_audit = ? AND `m`.activity = ?";
+    $qrtn = QueryUtils::querySingleRow($query, ['waiting', 1, 'payment'], false);
+    $counts['paymentCnt'] = $qrtn['count_payments'] ?? "0";
 
-    $counts['total'] = $counts['mailCnt'] + $counts['auditCnt'] + $counts['chatCnt'] + $counts['paymentCnt'];
+    // Payments are already included in auditCnt, so do not add them twice.
+    $counts['total'] = $counts['mailCnt'] + $counts['auditCnt'] + $counts['chatCnt'];
 
     return $counts;
 }
@@ -471,7 +472,7 @@ function logRemindersArray(): array
 
 //------------------------------------------
 // ----- HANDLE SENT TO FILTER
-    if (!empty($sentTo)) {
+    if (is_array($sentTo) && $sentTo !== []) {
         $where = ($where == '' ? '' : $where . ' AND ');
         $stCount = 0;
         foreach ($sentTo as $st) {
@@ -531,8 +532,10 @@ function logRemindersArray(): array
         $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?", [$drRow['pid']]);
         $pRow = sqlFetchArray($pSQL);
 
-        $prSQL = sqlStatement("SELECT u.fname pfname, u.mname pmname, u.lname plname FROM `users` u WHERE u.id = ?", [$drRow['dr_processed_by']]);
-        $prRow = sqlFetchArray($prSQL);
+        $prRow = QueryUtils::querySingleRow(
+            "SELECT u.fname pfname, u.mname pmname, u.lname plname FROM `users` u WHERE u.id = ?",
+            [$drRow['dr_processed_by']]
+        );
 
 // --------- fill the $reminders array
         $reminders[$i]['messageID'] = $drRow['dr_id'];

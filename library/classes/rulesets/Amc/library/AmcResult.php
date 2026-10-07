@@ -30,7 +30,7 @@ class AmcResult implements RsResultIF
         }
     }
 
-    public function format()
+    public function format(): array
     {
         $rowFormat = [
             'is_main' => true, // TO DO: figure out way to do this when multiple groups.

@@ -133,7 +133,7 @@ class C_Prescription extends Controller
         return $this->twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
-    public function edit_action($id = "", $patient_id = "")
+    public function edit_action($id = "", $patient_id = ""): string
     {
         if (!(($this->prescriptions[0] ?? null) instanceof Prescription)) {
             $this->prescriptions[0] = new Prescription($id);
@@ -580,11 +580,13 @@ class C_Prescription extends Controller
         echo ('<span class="large">' . $facilityAddr . '</span>');
         echo ("</td>\n");
         echo ("<td>\n");
-        echo ('<b><span class="large">' .  $p->provider->get_name_display() . '</span></b>' . '<br />');
+        $providerName = $p->provider->get_name_display();
+        echo ('<b><span class="large">' . text(is_string($providerName) ? $providerName : '') . '</span></b>' . '<br />');
 
         if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_DEA')) {
             if (OEGlobalsBag::getInstance()->getBoolean('rx_show_DEA')) {
-                echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id . '</span><br />');
+                $providerDea = $p->provider->federal_drug_id ?? null;
+                echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . text(is_string($providerDea) ? $providerDea : '') . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('DEA') . ':</span></b> ________________________<br />' );
             }
@@ -592,7 +594,8 @@ class C_Prescription extends Controller
 
         if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_NPI')) {
             if (OEGlobalsBag::getInstance()->getBoolean('rx_show_NPI')) {
-                echo ('<span class="large"><b>' . xl('NPI') . ':</b>' . $p->provider->npi . '</span><br />');
+                $providerNpi = $p->provider->npi ?? null;
+                echo ('<span class="large"><b>' . xl('NPI') . ':</b>' . text(is_string($providerNpi) ? $providerNpi : '') . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('NPI') . ':</span></b> ________________________<br />');
             }
@@ -600,7 +603,8 @@ class C_Prescription extends Controller
 
         if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_SLN')) {
             if (OEGlobalsBag::getInstance()->getBoolean('rx_show_SLN')) {
-                echo ('<span class="large"><b>' . xl('State Lic. #') . ':</b>' . $p->provider->state_license_number . '</span><br />');
+                $providerSln = $p->provider->state_license_number ?? null;
+                echo ('<span class="large"><b>' . xl('State Lic. #') . ':</b>' . text(is_string($providerSln) ? $providerSln : '') . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('State Lic. #') . ':</span></b> ________________________<br />');
             }
@@ -630,13 +634,14 @@ class C_Prescription extends Controller
         echo ("</td>\n");
         echo ("<td class='bordered'>\n");
         echo ('<b><span class="small">' . xl('Date of Birth') . '</span></b>' . '<br />');
-        echo ($p->patient->date_of_birth );
+        $patientDob = $p->patient->date_of_birth ?? null;
+        echo (text(is_string($patientDob) ? $patientDob : ''));
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
         echo ("<td class='bordered'>\n");
         echo ('<b><span class="small">' . xl('Medical Record #') . '</span></b>' . '<br />');
-        echo (str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
+        echo text(str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
@@ -769,7 +774,7 @@ class C_Prescription extends Controller
         echo("</html>\n");
     }
 
-    public function get_prescription_body_text($p)
+    public function get_prescription_body_text($p): string
     {
         $body = '<b>' . xlt('Rx') . ': ' . text($p->get_drug()) . ' ' . text($p->get_size()) . ' ' . text($p->get_unit_display());
         if ($p->get_form()) {
@@ -844,7 +849,7 @@ class C_Prescription extends Controller
         $d = $this->get_prescription_body_text($p);
         $patterns =  ['/\n/','/     /'];
         $replace =  ['<br />','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'];
-        $d = preg_replace($patterns, $replace, (string) $d);
+        $d = preg_replace($patterns, $replace, $d);
         echo ("<div class='scriptdiv'>\n" . $d . "</div>\n");
     }
 
@@ -1000,7 +1005,7 @@ class C_Prescription extends Controller
             }
 
             // we don't want any html in the plain text rendering
-            echo strip_tags((string) $this->get_prescription_body_text($p));
+            echo strip_tags($this->get_prescription_body_text($p));
         }
 
         $this->multiprintplain_footer();
@@ -1254,7 +1259,7 @@ class C_Prescription extends Controller
         return [$pdf, $p->patient];
     }
 
-    private function generateHtmlObjectForPrescriptionIds($id)
+    private function generateHtmlObjectForPrescriptionIds($id): array
     {
         ob_start();
         $this->multiprintcss_action($id);
@@ -1266,7 +1271,7 @@ class C_Prescription extends Controller
         return [$html, $prescription->patient];
     }
 
-    private function getDiagnosisCodesList(Prescription $prescription)
+    private function getDiagnosisCodesList(Prescription $prescription): array
     {
         $codeTypesService = $this->getCodeTypesService();
         $listsService = new PatientIssuesService();

@@ -170,7 +170,7 @@ class PatientIssuesService extends BaseService
     }
 
     // TODO: @adunsulag can this be merged with the search in ConditionService or move things to a common base class?
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT lists.*
                 ,medications.lists_medication_id

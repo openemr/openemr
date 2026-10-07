@@ -5,6 +5,7 @@
  *
  * @package   OpenEMR
  * @author    Eric Stern <erics@opencoreemr.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -13,6 +14,7 @@ namespace OpenEMR\PHPStan\Rules;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common;
+use PHPMailer\PHPMailer\PHPMailer;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Name;
@@ -26,14 +28,30 @@ use PHPStan\Rules\RuleErrorBuilder;
 class ForbiddenInstantiationsRule implements Rule
 {
     /**
-     * Map of forbidden classes to their suggested replacement
-     * @var array<class-string, string>
+     * Map of forbidden classes to their suggested replacement and a tip on where to look.
+     * @var array<class-string, array{suggestion: string, tip: string}>
      */
     private const FORBIDDEN_CLASSES = [
-        Common\Logging\SystemLogger::class => ServiceContainer::class . '::getLogger()',
-        Common\Crypto\CryptoGen::class => ServiceContainer::class . '::getCrypto()',
-        Common\Http\Psr17Factory::class => ServiceContainer::class . '::get{PsrType}Factory()',
-        Common\Twig\TwigContainer::class => ServiceContainer::class . '::getTwig()',
+        Common\Logging\SystemLogger::class => [
+            'suggestion' => ServiceContainer::class . '::getLogger()',
+            'tip' => 'See src/BC/ServiceContainer.php for service access patterns',
+        ],
+        Common\Crypto\CryptoGen::class => [
+            'suggestion' => ServiceContainer::class . '::getCrypto()',
+            'tip' => 'See src/BC/ServiceContainer.php for service access patterns',
+        ],
+        Common\Http\Psr17Factory::class => [
+            'suggestion' => ServiceContainer::class . '::get{PsrType}Factory()',
+            'tip' => 'See src/BC/ServiceContainer.php for service access patterns',
+        ],
+        Common\Twig\TwigContainer::class => [
+            'suggestion' => ServiceContainer::class . '::getTwig()',
+            'tip' => 'See src/BC/ServiceContainer.php for service access patterns',
+        ],
+        PHPMailer::class => [
+            'suggestion' => 'MyMailer, which resolves the configured EMAIL_METHOD/SMTP settings',
+            'tip' => 'See library/classes/postmaster.php',
+        ],
     ];
 
     /**
@@ -85,7 +103,7 @@ class ForbiddenInstantiationsRule implements Rule
             }
         }
 
-        $suggestion = self::FORBIDDEN_CLASSES[$className];
+        ['suggestion' => $suggestion, 'tip' => $tip] = self::FORBIDDEN_CLASSES[$className];
         $message = sprintf(
             'Direct instantiation of %s is discouraged. Use %s instead.',
             $className,
@@ -95,7 +113,7 @@ class ForbiddenInstantiationsRule implements Rule
         return [
             RuleErrorBuilder::message($message)
                 ->identifier('openemr.forbiddenInstantiation')
-                ->tip('See src/BC/ServiceContainer.php for service access patterns')
+                ->tip($tip)
                 ->build()
         ];
     }

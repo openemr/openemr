@@ -26,22 +26,22 @@
 
 class AMC_304h_STG2 extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304h_STG2";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         return "encounters_office_visit";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_304h_STG2_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_304h_STG2_Numerator();
     }

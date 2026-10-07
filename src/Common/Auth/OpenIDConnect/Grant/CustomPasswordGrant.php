@@ -27,6 +27,8 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CustomPasswordGrant extends PasswordGrant
 {
+    use ClientGrantTypeGuardTrait;
+
     private readonly LoggerInterface $logger;
 
     public function __construct(
@@ -87,8 +89,11 @@ class CustomPasswordGrant extends PasswordGrant
 
         if ($user instanceof UserEntityInterface === false) {
             $this->getEmitter()->emit(new RequestEvent(RequestEvent::USER_AUTHENTICATION_FAILED, $request));
+            // Inverted guard: the branch body dereferences $client, so it
+            // must run when $client IS a real ClientEntity, not when
+            // empty. Fall back to "undefined" otherwise.
             $clientVars = "undefined";
-            if (empty($client)) {
+            if ($client instanceof ClientEntity) {
                 $clientVars = ['id' => $client->getIdentifier(), 'name' => $client->getName(), 'redirectUri' => $client->getRedirectUri()];
             }
 
@@ -113,7 +118,13 @@ class CustomPasswordGrant extends PasswordGrant
     {
         $client = parent::validateClient($request);
         if (!($client instanceof ClientEntity)) {
-            $this->logger->error("Client {client} returned was not a valid ClientEntity", ['client' => $client->getIdentifier()]);
+            // $client may be false / null / a non-ClientEntity, so
+            // don't dereference it here. Log the client_id from the
+            // request if we can get it.
+            $this->logger->error(
+                "Client returned was not a valid ClientEntity",
+                ['client' => $this->getRequestParameter('client_id', $request, null)]
+            );
             throw OAuthServerException::invalidClient($request);
         }
 
@@ -121,6 +132,7 @@ class CustomPasswordGrant extends PasswordGrant
             $this->logger->error("Client {client} returned was not enabled", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
+        $this->assertClientMayUseGrant($client, $this->getIdentifier(), $this->logger);
         return $client;
     }
 }

@@ -2,11 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
@@ -35,21 +30,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../gacl/admin/edit_objects.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/era_payments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on list\\<string\\>\\|string\\.$#',
@@ -115,11 +95,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sql_upgrade.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ExternalClinicalDecisionSupport/RouteController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on mixed\\.$#',

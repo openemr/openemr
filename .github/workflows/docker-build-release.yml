@@ -103,6 +103,10 @@ on:
         description: 'Phase 7c-docker: gate publish on acceptance-docker.yml passing. Orchestrator sets true from each release-target row''s explicit `gate_with_acceptance` flag (Phase 12).'
         type: boolean
         default: false
+      require_upgrade_cell:
+        description: 'Pass-through to acceptance-docker.yml''s release-mode guardrail (Item 4 followup, #14215). Default true (loud-fail when the upgrade cell would skip -- the correct answer for actual ship moments). Orchestrator sets false for daily master-row dispatches during between-cycles state, where the floating-tag refresh has no shippable version-version pairing to validate and the skip is a legitimate "no meaningful signal" answer.'
+        type: boolean
+        default: true
       dry_run:
         description: 'Smoketest support (openemr/openemr#TBD): build + push the candidate tag but SKIP acceptance-gate + publish-and-cleanup. The candidate tag stays on Docker Hub so a downstream docker-acceptance-only.yml dispatch can consume it (analogous to tarball build-release.yml''s dry_run producing the release-output artifact without publishing to GitHub Releases). Requires gate_with_acceptance=true (non-gated path publishes directly from merge-manifest without producing a candidate).'
         type: boolean
@@ -566,6 +570,26 @@ jobs:
       # trigger. The former test_arm64 opt-in input was retired in
       # favor of always-on since ubuntu-24.04-arm runners are free
       # for public repos.)
+      # Release-mode guardrail (Item 4 followup, #14215): fail the
+      # gate if acceptance-docker's upgrade-cell skip logic fires. For
+      # real ship moments this stays true -- we're about to publish
+      # this candidate, so a silent skip of upgrade validation would
+      # ship an artifact whose auto-upgrade path was never exercised.
+      #
+      # The orchestrator flips this to false ONLY for its daily master-
+      # row dispatch when master is between-cycles (master's row
+      # carries `next`). In that window there's no shippable version-
+      # version pairing to validate -- the dispatch is a floating-tag
+      # refresh of `dev`/`next` -- and the upgrade-cell skip is a
+      # legitimate "no meaningful signal to produce" answer per
+      # criterion 2 in detect-upgrade-cell-skip.sh. Loud-failing in
+      # that shape would freeze `dev`/`next` publishes indefinitely
+      # (which is exactly what happened between 2026-09-23 and the
+      # fix landing). See the orchestrator's between-cycles step for
+      # the decision site; it uses the same master_row_carries_next
+      # predicate that drives criterion 2, so this stays a single-
+      # sourced signal.
+      require_upgrade_cell: ${{ inputs.require_upgrade_cell }}
     # acceptance-docker doesn't currently use org secrets, but forward
     # for future-proofing (matches build-release.yml -> acceptance-package
     # workflow_call shape).

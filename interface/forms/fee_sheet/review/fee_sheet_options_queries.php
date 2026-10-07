@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
+
 /**
  * Object representing the code,description and price for a fee sheet option
  * (typically a procedure code).
@@ -34,23 +36,23 @@ class fee_sheet_option
  */
 function load_fee_sheet_options(string $pricelevel): array
 {
-    $clFSO_code_type = 'substring_index(fso.fs_codes,"|",1)';
-    $clFSO_code = 'replace(substring_index(fso.fs_codes,"|",-2),"|","")';
+    // An entry's codes look like "TYPE|code[:modifiers]|[selector]", several joined by "~";
+    // the option offers its first code. The pieces are SQL expressions, not bound values.
+    $firstCode = "SUBSTRING_INDEX(fso.fs_codes, '~', 1)";
+    $codeType = "SUBSTRING_INDEX($firstCode, '|', 1)";
+    $code = "SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX($firstCode, '|', 2), '|', -1), ':', 1)";
 
-    $sql = "SELECT codes.code,code_types.ct_key as code_type,codes.code_text,pr_price,fso.fs_category
-        FROM fee_sheet_options as fso, code_types, codes
-        LEFT JOIN prices ON (codes.id=prices.pr_id AND prices.pr_level=?)
-        WHERE codes.code=?
-        AND code_types.ct_key=?
-        AND codes.code_type=code_types.ct_id
-        ORDER BY fso.fs_category,fso.fs_option";
-
-    $results = sqlStatement($sql, [$pricelevel, $clFSO_code, $clFSO_code]);
+    $sql = "SELECT codes.code, code_types.ct_key AS code_type, codes.code_text, pr_price, fso.fs_category
+        FROM fee_sheet_options AS fso, code_types, codes
+        LEFT JOIN prices ON (codes.id = prices.pr_id AND prices.pr_level = ?)
+        WHERE codes.code = $code
+        AND code_types.ct_key = $codeType
+        AND codes.code_type = code_types.ct_id
+        ORDER BY fso.fs_category, fso.fs_option";
 
     $retval = [];
-    while ($res = sqlFetchArray($results)) {
-        $fso = new fee_sheet_option($res['code'], $res['code_type'], $res['code_text'], $res['pr_price'], $res['fs_category']);
-        $retval[] = $fso;
+    foreach (QueryUtils::fetchRecords($sql, [$pricelevel]) as $res) {
+        $retval[] = new fee_sheet_option($res['code'], $res['code_type'], $res['code_text'], $res['pr_price'], $res['fs_category']);
     }
 
     return $retval;

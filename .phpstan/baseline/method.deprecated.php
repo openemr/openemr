@@ -39,7 +39,7 @@ read from the \\-\\>logger property$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Grant\\\\CustomRefreshTokenGrant\\:
 read from the \\-\\>logger property$#',
-    'count' => 9,
+    'count' => 7,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomRefreshTokenGrant.php',
 ];
 $ignoreErrors[] = [
@@ -57,7 +57,7 @@ read from the \\-\\>logger property$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository\\:
 read from the \\-\\>logger property$#',
-    'count' => 5,
+    'count' => 6,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
 ];
 $ignoreErrors[] = [
@@ -145,12 +145,6 @@ use setLogger\\(\\)$#',
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPractitionerRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method requestHasScope\\(\\) of class OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:
-use requestHasScopeEntity\\(\\) instead which receives a ScopeEntity object$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:
 use setLogger\\(\\)$#',
     'count' => 1,
@@ -201,7 +195,7 @@ use setLogger\\(\\)$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:
 read from the \\-\\>logger property$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
@@ -641,12 +635,6 @@ $ignoreErrors[] = [
 use setLogger\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormServiceUnitTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class Carecoordination\\\\Model\\\\CcdaServiceDocumentRequestor\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method requestHasScope\\(\\) of class OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:

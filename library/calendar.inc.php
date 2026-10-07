@@ -15,7 +15,7 @@ use OpenEMR\Services\HolidayService;
 // Returns an array of the facility ids and names that the user is allowed to access.
 // Access might be for inventory purposes ($inventory=true) or calendar purposes.
 //
-function getUserFacilities($uID, $orderby = 'id', $inventory = false)
+function getUserFacilities($uID, $orderby = 'id', $inventory = false): array
 {
     $restrict = $inventory ? OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') : OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility');
     if ($restrict) {
@@ -28,13 +28,13 @@ function getUserFacilities($uID, $orderby = 'id', $inventory = false)
     }
     if (!$restrict || empty($countrow['count'])) {
         $rez = sqlStatement(
-            "SELECT id, name, color FROM facility " .
+            "SELECT id, name, color, inactive FROM facility " .
             "ORDER BY $orderby"
         );
     } else {
         // This query gets facilities that the user is authorized to access.
         $rez = sqlStatement(
-            "SELECT f.id, f.name, f.color " .
+            "SELECT f.id, f.name, f.color, f.inactive " .
             "FROM facility AS f " .
             "JOIN users AS u ON u.id = ? " .
             "WHERE f.id = u.facility_id OR f.id IN " .
@@ -51,7 +51,7 @@ function getUserFacilities($uID, $orderby = 'id', $inventory = false)
 }
 
 // Returns an array of warehouse IDs for the given user and facility.
-function getUserFacWH($uID, $fID)
+function getUserFacWH($uID, $fID): array
 {
     $res = sqlStatement(
         "SELECT warehouse_id FROM users_facility WHERE tablename = ? " .

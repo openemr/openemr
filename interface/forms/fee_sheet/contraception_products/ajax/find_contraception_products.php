@@ -6,7 +6,7 @@ require_once("../../../../drugs/drugs.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 
-function find_contraceptive_methods($contraceptive_code)
+function find_contraceptive_methods($contraceptive_code): array
 {
     $retval = [];
     $code = "IPPFCM:" . $contraceptive_code;

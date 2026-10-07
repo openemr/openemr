@@ -42,7 +42,7 @@ class TimeUnit
         return array_values($map);
     }
 
-    private static function map()
+    private static function map(): array
     {
         $map = [
             'minute' => new TimeUnit('minute', xl('Minutes')),
