@@ -1067,6 +1067,10 @@
                     [
                         "admin",
                         "practice"
+                    ],
+                    [
+                        "admin",
+                        "super"
                     ]
                 ]
             },
