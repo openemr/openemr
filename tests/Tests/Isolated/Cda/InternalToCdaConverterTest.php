@@ -1508,6 +1508,101 @@ class InternalToCdaConverterTest extends TestCase
         self::assertFalse($policyCode->hasAttribute('code'));
     }
 
+    /**
+     * The Policy Reference act read policy/code/code, a child element the
+     * internal XML never carries, so every reference was emitted as 72.
+     */
+    public function testPolicyReferenceUsesRecordedCoverageType(): void
+    {
+        $xpath = $this->convertToXPath($this->payerInput(
+            '<code code="512" code_system="2.16.840.1.113883.3.221.5" code_system_name="Source of Payment Typology" name="" />',
+            '<code name="self" code="SELF" code_system="2.16.840.1.113883.5.111" code_system_name="HL7 RoleCode" />',
+        ));
+
+        $code = $this->singleElement($xpath, "//hl7:entryRelationship[@typeCode='REFR']/hl7:act[@moodCode='DEF']/hl7:code");
+        self::assertSame('512', $code->getAttribute('code'));
+    }
+
+    public function testPolicyReferenceUnknownCoverageTypeUsesNullFlavor(): void
+    {
+        $xpath = $this->convertToXPath($this->payerInput(
+            '<code code="" code_system="" code_system_name="" name="" />',
+            '<code name="self" code="SELF" code_system="2.16.840.1.113883.5.111" code_system_name="HL7 RoleCode" />',
+        ));
+
+        $code = $this->singleElement($xpath, "//hl7:entryRelationship[@typeCode='REFR']/hl7:act[@moodCode='DEF']/hl7:code");
+        self::assertSame('UNK', $code->getAttribute('nullFlavor'));
+        self::assertFalse($code->hasAttribute('code'), 'An unknown coverage type must not default to 72');
+    }
+
+    /**
+     * A care team member with no phone or start date carries nullFlavor. An
+     * empty TEL has no URL scheme and an empty TS is not a date.
+     */
+    public function testCareTeamMemberWithoutPhoneOrStartDateUsesNullFlavor(): void
+    {
+        $xpath = $this->convertToXPath(<<<'XML'
+            <CCDA>
+                <care_team>
+                    <is_active>active</is_active>
+                    <provider>
+                        <fname>Pat</fname>
+                        <lname>Nurse</lname>
+                        <role_code>nurse</role_code>
+                        <role_display>Nurse</role_display>
+                    </provider>
+                </care_team>
+            </CCDA>
+            XML);
+
+        $member = "//hl7:act[hl7:code/@code='85847-2']";
+
+        $telecom = $this->singleElement($xpath, $member . '/hl7:performer/hl7:assignedEntity/hl7:telecom');
+        self::assertSame('UNK', $telecom->getAttribute('nullFlavor'));
+        self::assertFalse($telecom->hasAttribute('value'), 'An unknown phone must not emit an empty value');
+        self::assertFalse($telecom->hasAttribute('use'));
+
+        $memberLow = $this->singleElement($xpath, $member . '/hl7:effectiveTime/hl7:low');
+        self::assertSame('UNK', $memberLow->getAttribute('nullFlavor'));
+        self::assertFalse($memberLow->hasAttribute('value'));
+
+        $teamLow = $this->singleElement($xpath, "//hl7:organizer[hl7:code/@code='86744-0']/hl7:effectiveTime/hl7:low");
+        self::assertSame('UNK', $teamLow->getAttribute('nullFlavor'));
+        self::assertFalse($teamLow->hasAttribute('value'));
+
+        $functionCode = $this->singleElement($xpath, $member . "/hl7:performer/*[local-name()='functionCode']");
+        self::assertSame('2.16.840.1.113883.6.101', $functionCode->getAttribute('codeSystem'));
+        self::assertSame(
+            'NUCC Health Care Provider Taxonomy',
+            $functionCode->getAttribute('codeSystemName'),
+            'The code system name must match the NUCC OID'
+        );
+    }
+
+    /**
+     * An unknown organization name is nullFlavor, never an empty <name/> or a
+     * placeholder.
+     */
+    public function testUnknownOrganizationNamesUseNullFlavor(): void
+    {
+        $xpath = $this->convertToXPath($this->payerInput(
+            '<code code="512" code_system="2.16.840.1.113883.3.221.5" code_system_name="Source of Payment Typology" name="" />',
+            '<code name="self" code="SELF" code_system="2.16.840.1.113883.5.111" code_system_name="HL7 RoleCode" />',
+        ));
+
+        $queries = [
+            '/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:representedOrganization/hl7:name',
+            '/hl7:ClinicalDocument/hl7:informationRecipient/hl7:intendedRecipient/hl7:receivedOrganization/hl7:name',
+            "//hl7:act[hl7:templateId/@root='2.16.840.1.113883.10.20.22.4.61']/hl7:performer[@typeCode='PRF']"
+                . '/hl7:assignedEntity/hl7:representedOrganization/hl7:name',
+        ];
+        foreach ($queries as $query) {
+            $name = $this->singleElement($xpath, $query);
+            self::assertSame('UNK', $name->getAttribute('nullFlavor'), $query);
+            self::assertSame('', $name->textContent, $query);
+        }
+    }
+
     private function payerInput(string $policyCode, string $participantCode): string
     {
         return <<<XML

@@ -601,6 +601,21 @@ class InternalToCdaConverter
         $root->appendChild($author);
     }
 
+    /**
+     * An organization name: the text when known, otherwise nullFlavor="UNK".
+     * An empty <name/> fails validateST, and a placeholder asserts a name the
+     * record does not hold.
+     */
+    private function createOrganizationName(string $name): DOMElement
+    {
+        if ($name !== '') {
+            return $this->createElement('name', $name);
+        }
+        $nameEl = $this->createElement('name');
+        $nameEl->setAttribute('nullFlavor', 'UNK');
+        return $nameEl;
+    }
+
     private function appendRepresentedOrganization(DOMElement $assignedAuthor): void
     {
         $repOrg = $this->createElement('representedOrganization');
@@ -615,7 +630,7 @@ class InternalToCdaConverter
         $repOrg->appendChild($id);
 
         $name = $this->xpathValue('/CCDA/encounter_provider/facility_name');
-        $repOrg->appendChild($this->createElement('name', $name !== '' ? $name : null));
+        $repOrg->appendChild($this->createOrganizationName($name));
 
         $phone = $this->xpathValue('/CCDA/encounter_provider/facility_phone');
         if ($phone !== '') {
@@ -708,7 +723,7 @@ class InternalToCdaConverter
         $intendedRecipient->appendChild($recipient);
 
         $receivedOrg = $this->createElement('receivedOrganization');
-        $receivedOrg->appendChild($this->createElement('name', $org !== '' ? $org : 'org'));
+        $receivedOrg->appendChild($this->createOrganizationName($org));
         $intendedRecipient->appendChild($receivedOrg);
 
         $infoRecipient->appendChild($intendedRecipient);
@@ -1216,7 +1231,11 @@ class InternalToCdaConverter
         }
         $effectiveTime = $this->createElement('effectiveTime');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $providerSince !== '' ? $this->formatDateTime($providerSince) : '');
+        if ($providerSince !== '') {
+            $low->setAttribute('value', $this->formatDateTime($providerSince));
+        } else {
+            $low->setAttribute('nullFlavor', 'UNK');
+        }
         $effectiveTime->appendChild($low);
         $organizer->appendChild($effectiveTime);
 
@@ -1262,7 +1281,11 @@ class InternalToCdaConverter
         $since = $this->xpathValue('provider_since', $provider);
         $effectiveTime = $this->createElement('effectiveTime');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $since !== '' ? $this->formatDateTime($since) : '');
+        if ($since !== '') {
+            $low->setAttribute('value', $this->formatDateTime($since));
+        } else {
+            $low->setAttribute('nullFlavor', 'UNK');
+        }
         $effectiveTime->appendChild($low);
         $act->appendChild($effectiveTime);
 
@@ -1283,7 +1306,7 @@ class InternalToCdaConverter
                 $functionCode->setAttribute('displayName', $roleDisplay);
             }
             $functionCode->setAttribute('codeSystem', '2.16.840.1.113883.6.101');
-            $functionCode->setAttribute('codeSystemName', 'SNOMED CT');
+            $functionCode->setAttribute('codeSystemName', 'NUCC Health Care Provider Taxonomy');
 
             $origText = $this->createElement('originalText');
             // Explicit namespace required: functionCode is in sdtc namespace, but
@@ -1323,8 +1346,12 @@ class InternalToCdaConverter
         // Telecom
         $phone = $this->xpathValue('telecom', $provider);
         $telecom = $this->createElement('telecom');
-        $telecom->setAttribute('use', 'WP');
-        $telecom->setAttribute('value', $phone !== '' ? 'tel:' . $phone : '');
+        if ($phone !== '') {
+            $telecom->setAttribute('use', 'WP');
+            $telecom->setAttribute('value', 'tel:' . $phone);
+        } else {
+            $telecom->setAttribute('nullFlavor', 'UNK');
+        }
         $assignedEntity->appendChild($telecom);
 
         // Assigned person
@@ -5023,7 +5050,7 @@ class InternalToCdaConverter
         // Organization
         $orgName = $this->xpathValue('policy/insurance/performer/organization/name', $payer);
         $repOrg = $this->createElement('representedOrganization');
-        $repOrg->appendChild($this->createElement('name', $orgName !== '' ? $orgName : null));
+        $repOrg->appendChild($this->createOrganizationName($orgName));
         $assignedEntity->appendChild($repOrg);
 
         $performer->appendChild($assignedEntity);
@@ -5277,14 +5304,15 @@ class InternalToCdaConverter
         $id->setAttribute('root', $policyId !== '' ? $policyId : $this->generateUuid());
         $act->appendChild($id);
 
-        // Code - policy type
-        $policyCode = $this->xpathValue('policy/code/code', $payer);
-        $code = $this->createElement('code');
-        $code->setAttribute('code', $policyCode !== '' ? $policyCode : '72');
-        $code->setAttribute('displayName', 'Health Insurance Plan Policy');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.3.221.5');
-        $code->setAttribute('codeSystemName', 'Source of Payment Typology');
-        $act->appendChild($code);
+        // Code - policy type. The internal XML carries it as an attribute on
+        // policy/code; the child-element path never matched, so every policy
+        // reference came out as 72. An unknown type is nullFlavor, not 72.
+        $act->appendChild($this->createPayerCode(
+            $this->xpathValue('policy/code/@code', $payer),
+            'Health Insurance Plan Policy',
+            '2.16.840.1.113883.3.221.5',
+            'Source of Payment Typology',
+        ));
 
         // Text - plan name
         if ($planName !== '') {

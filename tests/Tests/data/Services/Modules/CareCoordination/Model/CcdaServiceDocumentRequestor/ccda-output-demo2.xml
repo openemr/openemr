@@ -120,7 +120,7 @@
             </name>
         </informationRecipient>
         <receivedOrganization>
-            <name>org</name>
+            <name nullFlavor="UNK"/>
         </receivedOrganization>
     </intendedRecipient>
 </informationRecipient>
