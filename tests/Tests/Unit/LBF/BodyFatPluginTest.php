@@ -117,6 +117,23 @@ class BodyFatPluginTest extends TestCase
     }
 
     /**
+     * Under 25 months getPatientAge() returns a label such as "18 month"; the formula reads age in years.
+     *
+     * @param 'LBFathbf'|'LBFvbf' $form
+     */
+    #[Test]
+    #[DataProvider('formProvider')]
+    public function aPatientAgedInMonthsGetsAgeZero(string $form): void
+    {
+        $this->insertPatient((new \DateTimeImmutable('today'))->sub(new \DateInterval('P18M'))->format('Y-m-d'), 'Female');
+
+        $javascript = $this->renderJavascript($form);
+
+        $this->assertStringContainsString('var age = 0;', $javascript);
+        $this->assertStringContainsString('var sex = 1;', $javascript);
+    }
+
+    /**
      * @param 'LBFathbf'|'LBFvbf' $form
      */
     #[Test]
