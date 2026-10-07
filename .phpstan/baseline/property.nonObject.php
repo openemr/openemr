@@ -2802,11 +2802,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$children on mixed\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$acl_req on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/MenuRole.php',

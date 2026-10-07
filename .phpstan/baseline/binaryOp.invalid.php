@@ -12702,11 +12702,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/MedicalDevice/MedicalDevice.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/documents/custom…\' results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\\.\\./\\.\\./modules/\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',

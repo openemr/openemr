@@ -13817,16 +13817,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/MedicalDevice/MedicalDevice.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Menu\\\\MainMenuRole\\:\\:updateBlankForms\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Menu\\\\MainMenuRole\\:\\:updateVisitForms\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Menu\\\\MenuEvent\\:\\:setMenu\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/MenuEvent.php',

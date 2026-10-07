@@ -57352,31 +57352,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/MedicalDevice/MedicalDevice.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function array_push expects array, mixed given\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$dir_handle of function closedir expects resource\\|null, resource\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$dir_handle of function readdir expects resource\\|null, resource\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$menu of class OpenEMR\\\\Menu\\\\MenuEvent constructor expects array\\<mixed\\>, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$entry of static method OpenEMR\\\\Menu\\\\MenuItems\\:\\:validateEntry\\(\\) expects array\\|object, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Menu/MenuItems.php',

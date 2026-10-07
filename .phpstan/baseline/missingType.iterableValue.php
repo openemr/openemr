@@ -10082,11 +10082,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Menu\\\\MainMenuRole\\:\\:getMenu\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Menu\\\\MenuEvent\\:\\:getMenu\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/MenuEvent.php',
