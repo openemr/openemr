@@ -24,7 +24,7 @@ use OpenEMR\Pdf\Config_Mpdf;
 
 class PatientPortalPDFDocumentCreator
 {
-    public function createPdfObject($htmlIn)
+    public function createPdfObject($htmlIn): Mpdf
     {
         $config_mpdf = Config_Mpdf::getConfigMpdf();
         $pdf = new Mpdf($config_mpdf);

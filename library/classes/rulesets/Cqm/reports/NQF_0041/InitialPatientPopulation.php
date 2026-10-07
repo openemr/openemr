@@ -9,7 +9,7 @@
 //
 class NQF_0041_InitialPatientPopulation implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "NQF 0041 Initial Patient Population";
     }

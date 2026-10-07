@@ -13,7 +13,7 @@ function getTransById($id, $cols = "*")
     return $row;
 }
 
-function getTransByPid($pid, $cols = "*")
+function getTransByPid($pid, $cols = "*"): array
 {
     $res = sqlStatement("select " . escape_sql_column_name(process_cols_escape($cols), ['transactions']) . " from transactions where pid = ? " .
     "order by date DESC", [$pid]);

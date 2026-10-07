@@ -42,17 +42,17 @@ class Diagnosis extends ClinicalType
     const ACUTE_TONSILLITIS = 'diag_acute_tonsillitis';
     const LIMITED_LIFE = 'diag_limited_life_expectancy';
 
-    public function getListType()
+    public function getListType(): string
     {
         return 'medical_problem';
     }
 
-    public function getListColumn()
+    public function getListColumn(): string
     {
         return 'diagnosis';
     }
 
-    public function getListId()
+    public function getListId(): string
     {
         return 'Clinical_Rules_Diagnosis_Types';
     }

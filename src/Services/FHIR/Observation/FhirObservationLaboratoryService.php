@@ -77,7 +77,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $this->service = $service;
     }
 
-    public function getResourcePathForCode($code)
+    public function getResourcePathForCode($code): string
     {
         return "category=" . self::CATEGORY . "&code=" . $code;
     }
@@ -89,7 +89,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         return $query_vars['code'] ?? null;
     }
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return ($category === self::CATEGORY);
     }
@@ -105,7 +105,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [
             'patient' => $this->getPatientContextSearchField(),
@@ -208,9 +208,8 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
      *
      * @param $dataRecord The source OpenEMR data record
      * @param $encode     Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRObservation
     {
         $observation = new FHIRObservation();
         $meta = new FHIRMeta();

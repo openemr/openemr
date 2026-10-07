@@ -65,7 +65,7 @@ class FHIRSearchFieldFactory
      * @param $fhirSearchField
      * @return bool
      */
-    public function hasSearchField($fhirSearchField)
+    public function hasSearchField($fhirSearchField): bool
     {
         $fieldName = $this->extractSearchFieldName($fhirSearchField);
         return isset($this->resourceSearchParameters[$fieldName]);
@@ -81,7 +81,7 @@ class FHIRSearchFieldFactory
      * @param $fhirSearchField string The passed in parameter name for the search field the user agent sent.  Can contain search modifiers
      * @param $fhirSearchValues array The array of search values the user agent sent for the $fhirSearchField
      * @throws \InvalidArgumentException If the factory does not have a search definition for $fhirSearchField
-     * @return CompositeSearchField|DateSearchField|StringSearchField|TokenSearchField
+     * @return CompositeSearchField|DateSearchField|ReferenceSearchField|StringSearchField|TokenSearchField
      */
     public function buildSearchField($fhirSearchField, $fhirSearchValues)
     {
@@ -116,7 +116,7 @@ class FHIRSearchFieldFactory
      * @param $fhirSearchField
      * @return string
      */
-    private function extractSearchFieldName($fhirSearchField)
+    private function extractSearchFieldName($fhirSearchField): string
     {
         $fieldNameWithModifiers = explode(":", (string) $fhirSearchField);
         $fieldName = $fieldNameWithModifiers[0];
@@ -129,7 +129,7 @@ class FHIRSearchFieldFactory
      * @param $field string|ServiceField The name of the search field or a service field definition
      * @param $fhirSearchValues The values that will be searched on
      * @param string[] $modifiers Any search modifiers such as :exact or :contains
-     * @return DateSearchField|StringSearchField|TokenSearchField
+     * @return DateSearchField|ReferenceSearchField|StringSearchField|TokenSearchField
      */
     private function createFieldForType($type, $field, $fhirSearchValues, $modifiers = null)
     {
@@ -166,7 +166,7 @@ class FHIRSearchFieldFactory
             return new StringSearchField($fieldName, $fhirSearchValues, $modifier);
         }
     }
-    private function createTokenSearchField($fieldName, $fhirSearchValues, $modifier, $isUUID)
+    private function createTokenSearchField($fieldName, $fhirSearchValues, $modifier, $isUUID): TokenSearchField
     {
         $token = new TokenSearchField($fieldName, $fhirSearchValues, $isUUID);
         if (!empty($modifier)) {
@@ -175,7 +175,7 @@ class FHIRSearchFieldFactory
         return $token;
     }
 
-    private function createReferenceFieldType($fieldName, $fhirSearchValues, $modifiers, $isUUID)
+    private function createReferenceFieldType($fieldName, $fhirSearchValues, $modifiers, $isUUID): ReferenceSearchField
     {
         $referenceOptions = $this->resourceSearchParameters[$fieldName] ?? [];
 
@@ -201,7 +201,7 @@ class FHIRSearchFieldFactory
      * @throws \InvalidArgumentException if the URL does not match the server base URL
      * @return string
      */
-    private function resolveReferenceRelativeUrl($urlToResolve)
+    private function resolveReferenceRelativeUrl($urlToResolve): string
     {
         if (empty($this->getFhirUrlResolver())) {
             throw new \BadMethodCallException("FHIR URL Resolver is not properly setup.  This is a developer error");
@@ -219,9 +219,8 @@ class FHIRSearchFieldFactory
      * @param FhirSearchParameterDefinition $definition The search definition object
      * @param $fhirSearchField The name of the search definition
      * @param $fhirSearchValues The values that will be searched on for each of the composite fields.
-     * @return CompositeSearchField
      */
-    private function createCompositeFieldForMultipleMappedFields(FhirSearchParameterDefinition $definition, $fhirSearchField, $fhirSearchValues)
+    private function createCompositeFieldForMultipleMappedFields(FhirSearchParameterDefinition $definition, $fhirSearchField, $fhirSearchValues): CompositeSearchField
     {
         $isAnd = false; // when we are building our composite field here we want the UNION of values since the internal
         // we want to search across all of the mapped OpenEMR columns which is an intersection(logical OR) rather than
@@ -243,9 +242,8 @@ class FHIRSearchFieldFactory
      * Given a search field that may or may not contain FHIR modifiers (noted by a : after the field name) it will remove
      * all the modifiers and return them as an array of strings to the caller.
      * @param $fhirSearchField
-     * @return array
      */
-    private function extractFieldModifiers($fhirSearchField)
+    private function extractFieldModifiers($fhirSearchField): array
     {
         $fieldNameWithModifiers = explode(":", (string) $fhirSearchField);
         $fieldName = $fieldNameWithModifiers[0];
@@ -258,9 +256,8 @@ class FHIRSearchFieldFactory
      * @param FhirSearchParameterDefinition $definition  The definition for this FHIR composite search field
      * @param $fhirSearchField The name of the search field
      * @param $fhirSearchValues The values that were sent by the calling user agent.
-     * @return CompositeSearchField  The created composite search field.
      */
-    private function buildFHIRCompositeField(FhirSearchParameterDefinition $definition, $fhirSearchField, $fhirSearchValues)
+    private function buildFHIRCompositeField(FhirSearchParameterDefinition $definition, $fhirSearchField, $fhirSearchValues): CompositeSearchField
     {
 
         $composite = new CompositeSearchField($definition->getName(), $fhirSearchValues);

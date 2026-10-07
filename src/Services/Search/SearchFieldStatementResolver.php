@@ -78,9 +78,8 @@ class SearchFieldStatementResolver
      * Given a DateSearchField with a list of SearchFieldComparableValue objects in the search field a SQL query fragment
      * is generated that handles the date field searching.
      * @param DateSearchField $searchField
-     * @return SearchQueryFragment
      */
-    public static function resolveDateField(DateSearchField $searchField)
+    public static function resolveDateField(DateSearchField $searchField): SearchQueryFragment
     {
         $field = self::assertValidFieldIdentifier($searchField);
 
@@ -199,9 +198,8 @@ class SearchFieldStatementResolver
      * TODO: adunsulag this seems like a lot of duplicate code similar to the resolveTokenField... reference doesn't have
      * the modifiers like the token does so I'm not sure if we keep this duplicative code here or not.
      * @param ReferenceSearchField $searchField
-     * @return SearchQueryFragment
      */
-    public static function resolveReferenceField(ReferenceSearchField $searchField)
+    public static function resolveReferenceField(ReferenceSearchField $searchField): SearchQueryFragment
     {
         $field = self::assertValidFieldIdentifier($searchField);
 
@@ -231,9 +229,8 @@ class SearchFieldStatementResolver
     /**
      * Resolves a TokenSearchField to its corresponding value.
      * @param TokenSearchField $searchField
-     * @return SearchQueryFragment
      */
-    public static function resolveTokenField(TokenSearchField $searchField)
+    public static function resolveTokenField(TokenSearchField $searchField): SearchQueryFragment
     {
         $field = self::assertValidFieldIdentifier($searchField);
 
@@ -306,9 +303,8 @@ class SearchFieldStatementResolver
     /**
      * Given a search field and any modifier's it may have it converts it to the corresponding SearchQueryFragment
      * @param StringSearchField $searchField
-     * @return SearchQueryFragment
      */
-    public static function resolveStringSearchField(StringSearchField $searchField)
+    public static function resolveStringSearchField(StringSearchField $searchField): SearchQueryFragment
     {
         $field = self::assertValidFieldIdentifier($searchField);
 
@@ -350,7 +346,7 @@ class SearchFieldStatementResolver
      * @param $dateType
      * @return string
      */
-    public static function getDateFieldFormatForDateType($dateType)
+    public static function getDateFieldFormatForDateType($dateType): string
     {
         $format = "Y-m-d H:i:s.u"; // default format is datetime
         if ($dateType == DateSearchField::DATE_TYPE_DATE) {

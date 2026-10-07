@@ -101,6 +101,25 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
     }
 
     #[Test]
+    public function testInsertWithUnresolvableEncounterIsRejected(): void
+    {
+        // The encounter is optional, but one the client names has to exist; dropping it would
+        // save the prescription unlinked and still answer success. Unregistered for the same
+        // teardown reason as the subject test below.
+        $bogusEncounterUuid = $this->fixtureManager->getUnregisteredUuid();
+        $this->fhirMedicationRequestFixture->setId(new FHIRId());
+        $payload = $this->fhirMedicationRequestFixture->jsonSerialize();
+        $payload['encounter'] = ['reference' => 'Encounter/' . $bogusEncounterUuid];
+
+        $processingResult = $this->fhirMedicationRequestService->insert(new FHIRMedicationRequest($payload));
+        $this->assertFalse($processingResult->isValid());
+        $messages = $processingResult->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('encounter', $messages);
+        $this->assertSame([], $processingResult->getData());
+    }
+
+    #[Test]
     public function testInsertWithUnresolvableSubject(): void
     {
         // getUnregisteredUuid(), not UuidRegistry::createUuid(): createUuid() inserts a

@@ -83,7 +83,7 @@ class C_Document extends Controller
         $this->templateService = new DocumentTemplateService();
     }
 
-    public function upload_action($patient_id, $category_id)
+    public function upload_action($patient_id, $category_id): string
     {
         $category_name = $this->tree->get_node_name($category_id);
         $this->assign("category_id", $category_id);
@@ -437,7 +437,7 @@ class C_Document extends Controller
         return $this->list_action();
     }
 
-    public function view_action(?string $patient_id, $doc_id)
+    public function view_action(?string $patient_id, $doc_id): string
     {
         $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
@@ -923,10 +923,10 @@ class C_Document extends Controller
             //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
             //try to convert it if it has not yet been converted
             $originalUrl = $url;
-            if (strrpos((string) basename_international($url), '.') === false) {
+            if (strrpos(basename_international($url), '.') === false) {
                 $convertedFile = basename_international($url) . '_converted.jpg';
             } else {
-                $convertedFile = substr((string) basename_international($url), 0, strrpos((string) basename_international($url), '.')) . '_converted.jpg';
+                $convertedFile = substr(basename_international($url), 0, strrpos(basename_international($url), '.')) . '_converted.jpg';
             }
             $url = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/' . $from_pathname . '/' . $convertedFile;
             if (!is_file($url)) {
@@ -1303,7 +1303,9 @@ class C_Document extends Controller
             if ((int)$cur_pid > 0) {
                 $query = "select fname, lname from patient_data WHERE pid = ?";
                 $name = sqlQuery($query, [$cur_pid]);
-                $place_hld = $name['fname'] . ' ' . $name['lname'];
+                if (is_array($name)) {
+                    $place_hld = $name['fname'] . ' ' . $name['lname'];
+                }
             }
         }
         if (!AclMain::aclCheckCore('patients', 'docs')) {
@@ -1527,7 +1529,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    public function image_procedure_action(?string $patient_id, $document_id)
+    public function image_procedure_action(?string $patient_id, $document_id): string
     {
         // Anti-IDOR: only permit tagging a document the caller can already access.
         $this->authorizeDocumentWrite($patient_id, $document_id);
@@ -1554,7 +1556,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    public function clear_procedure_tag_action(?string $patient_id, $document_id)
+    public function clear_procedure_tag_action(?string $patient_id, $document_id): string
     {
         // Anti-IDOR: only permit clearing tags on a document the caller can access.
         $this->authorizeDocumentWrite($patient_id, $document_id);
@@ -1598,7 +1600,7 @@ class C_Document extends Controller
     }
 
 //clear encounter tag public function
-    public function clear_encounter_tag_action(?string $patient_id, $document_id)
+    public function clear_encounter_tag_action(?string $patient_id, $document_id): string
     {
         // Anti-IDOR: only permit clearing the encounter tag on a document the
         // caller can already access.

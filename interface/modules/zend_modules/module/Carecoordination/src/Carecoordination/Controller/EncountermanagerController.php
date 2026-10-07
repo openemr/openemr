@@ -231,10 +231,8 @@ class EncountermanagerController extends AbstractActionController
 
     /**
      * Action handle for previewing a ccda document.  Given the id of a document in
-     *
-     * @return ViewModel
      */
-    public function previewDocumentAction()
+    public function previewDocumentAction(): ViewModel
     {
 
         $request = $this->getRequest();
@@ -308,10 +306,7 @@ class EncountermanagerController extends AbstractActionController
         return $this->getEncountermanagerTable()->getCcdaAsHTML($content);
     }
 
-    /**
-     * @return ViewModel
-     */
-    public function downloadAction()
+    public function downloadAction(): ViewModel
     {
         $id = $this->getRequest()->getQuery('id');
         // Validate that id is numeric to prevent path traversal

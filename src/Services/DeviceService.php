@@ -31,7 +31,7 @@ class DeviceService extends BaseService
         UuidRegistry::createMissingUuidsForTables([self::DEVICE_TABLE, self::PATIENT_TABLE]);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         $sql = "
             select l.*

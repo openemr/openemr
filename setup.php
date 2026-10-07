@@ -71,7 +71,7 @@ if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
     die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
 }
 
-function recursive_writable_directory_test($dir)
+function recursive_writable_directory_test($dir): int
 {
     // first, collect the directory and subdirectories
     $ri = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));

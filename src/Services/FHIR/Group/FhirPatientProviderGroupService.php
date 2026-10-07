@@ -42,7 +42,7 @@ class FhirPatientProviderGroupService extends FhirServiceBase implements IPatien
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -65,7 +65,7 @@ class FhirPatientProviderGroupService extends FhirServiceBase implements IPatien
         return $this->service->searchPatientProviderGroups($openEMRSearchParameters);
     }
 
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRGroup
     {
         $fhirGroup = new FHIRGroup();
         $fhirMeta = new FHIRMeta();

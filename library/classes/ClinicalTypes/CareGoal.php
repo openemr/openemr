@@ -13,7 +13,7 @@ class CareGoal extends ClinicalType
 {
     const FOLLOW_UP_PLAN_BMI_MGMT = 'flwup_bmi_mgmt';
 
-    public function getListId()
+    public function getListId(): string
     {
         return 'Clinical_Rules_Care_Goal_Types';
     }

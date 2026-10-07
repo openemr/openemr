@@ -70,7 +70,7 @@ class PrescriptionPatient extends ORDataObject
     {
         return $this->lname;
     }
-    public function get_name_display()
+    public function get_name_display(): string
     {
         return $this->fname . " " . $this->lname;
     }
