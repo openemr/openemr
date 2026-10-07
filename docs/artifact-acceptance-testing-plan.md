@@ -225,7 +225,11 @@ Composer wiring: `autoload-dev` PSR-4 entry mapping
 
 ```yaml
 inputs:
-  from_tag        # default: latest
+  from_tag        # default: empty -> derive per-row from checkout's
+                  #                   sql/*-to-*_upgrade.sql filenames
+                  #                   (resolve-from-tag step in
+                  #                   detect-mode job); explicit tag
+                  #                   string overrides. See G50.
   to_tag          # default: next
   # Optionally: build_locally: bool -- for PR validation of Dockerfile
   #             changes, build from the PR's docker/release/Dockerfile
@@ -364,11 +368,11 @@ job that produces the `pr-built` image the matrix cells then load.
 
 | # | Trigger | Artifact source | Expected-version source | Matrix |
 |---|---------|-----------------|-------------------------|--------|
-| 1 | `schedule` (09:00 UTC daily) | Docker Hub `openemr/openemr:latest` (from) + `:next` (to) | OCI label `org.opencontainers.image.version` on the running image (X.Y.Z prefix); `version.php` fallback | Default (fresh-install-from + fresh-install-to + upgrade) |
+| 1 | `schedule` (09:00 UTC daily) | Docker Hub `openemr/openemr:<from_tag>` (from) + `:next` (to); `from_tag` resolved per-row by `detect-mode`'s `resolve-from-tag` step via [`derive_from_version_sql_candidates`](../.github/scripts/lib/derive-from-version.sh) from the checkout's own `sql/*-to-*_upgrade.sql` filenames (rel-820 → `8.1.1`, rel-830 → `8.2.0`, rel-840 → `8.3.0`, master during active cycle → prior shipped) | OCI label `org.opencontainers.image.version` on the running image (X.Y.Z prefix); `version.php` fallback | Default (fresh-install-from + fresh-install-to + upgrade) |
 | 2 | `push` (see paths + branch exclusions below) | Same as (1) unless `docker/release/**` diff triggers `build_locally=true` → `pr-built` image via `build-image` job | Same OCI-first path (OCI label may be empty on `pr-built` → `version.php` fallback fires) | Default → adds `build-image` when build_locally |
 | 3 | `pull_request` (same paths as push) | Same detection as (2) | Same | Same |
-| 4 | `workflow_dispatch` | Docker Hub OR `pr-built` per operator input | Same OCI-first path | Default (operator picks tags) |
-| 5 | `workflow_call` (from `docker-build-release.yml` Phase 7c-docker gate + `docker-acceptance-only.yml` recovery) | Caller-supplied `pr-built` image (docker-load'd from build-image artifact) | Same | Default |
+| 4 | `workflow_dispatch` | Docker Hub OR `pr-built` per operator input; `from_tag` honors an explicit operator string, otherwise derives per (1) | Same OCI-first path | Default (operator picks tags) |
+| 5 | `workflow_call` (from `docker-build-release.yml` Phase 7c-docker gate + `docker-acceptance-only.yml` recovery) | Caller-supplied `pr-built` image (docker-load'd from build-image artifact); `from_tag` empty-default → derives per (1), caller may override | Same | Default |
 
 *Push/PR paths filter:* `.github/workflows/acceptance-docker.yml`, `.github/docker/acceptance-docker-compose.yml`, `tests/Acceptance/**`, `composer.json`, `composer.lock`, `docker/release/**`.
 
@@ -388,8 +392,22 @@ job that produces the `pr-built` image the matrix cells then load.
 - Docker's `upgrade` scenario has an [auto-skip
   path](../.github/scripts/detect-upgrade-cell-skip.sh) for
   between-cycles master state (Item 4); package has no equivalent
-  because tarball upgrades resolve `from_version` from
-  `sql/*-to-*_upgrade.sql`, which always includes a valid ancestor.
+  because package-side upgrade machinery is sql-only
+  (`sql_upgrade.php` + `sql/*-to-*_upgrade.sql`), while docker's
+  adds `fsupgrade-N.sh` + docker-version bump scaffolding that
+  must be cross-propagated to master at branch-cut time. During
+  between-cycles (master carries `next`, no rel-XXX in active dev
+  cycle yet), that docker-specific scaffolding doesn't exist on
+  master, so the upgrade cell targeting master's dev image can't
+  produce a reliable signal and skips. Both sides now share the
+  sql-side `from_version` derivation via
+  [`derive_from_version_sql_candidates`](../.github/scripts/lib/derive-from-version.sh);
+  the package side layers a shipped-versions-manifest intersect
+  on top (needed for tarball download guarantees from GitHub
+  Releases). See the "Item 4 followup: per-row from_tag derivation
+  on docker side" entry under
+  [Refactor items (proposed, in priority order)](#refactor-items-proposed-in-priority-order)
+  below for the shipped per-row shape.
 - Docker's `require_upgrade_cell` input (Item 4 followup) flips the
   auto-skip from silent to loud when the caller is in *release mode*
   — set true by `release-prep.yml`'s dispatch, `docker-build-
@@ -3004,6 +3022,14 @@ The workflow steps now compose `docker inspect` / `docker compose exec` (both ne
 **Guardrail against false-skip regressions** — the predicate's BATS corpus at [`tests/bats/ci-scripts/release-targets-queries/`](../tests/bats/ci-scripts/release-targets-queries/) explicitly covers both directions: positive cases (master carries `next` in various list positions, with surrounding whitespace, alongside other floating tags) and the negative wall (master carries `dev` only, `next-dev` hyphenated, `nothing-next` suffix, `nextbuild` concatenation, master row missing `docker_tags` entirely, no master row at all, a rel-XXX row carries `next` but master doesn't). The negative cases exist because a false positive in this predicate silently stands down the release-mode guardrail on a day when loud-fail is the correct answer; the test wall is what prevents a future predicate change (wider match, different anchor) from drifting into that failure mode without a visible test flip. The existing [`detect-upgrade-cell-skip`](../tests/bats/ci-scripts/detect-upgrade-cell-skip/) BATS suite stays unchanged — the extracted predicate preserves its external behavior and all 18 cases still pass.
 
 **Signal single-sourcing**: both consumers (acceptance side via criterion 2, orchestrator side via per-row enrichment) read `master_row_carries_next`. A future contract change (predicate semantics, match rule, or row-identity concept) propagates to both call sites at once, so false-positive and false-negative behavior cannot drift between them. The lib file is byte-identical-synced with the same `exclude-branches: [rel-800]` as its first caller (G45/G47 pattern); `release-targets.yml` itself remains master-authoritative and is NOT synced, which is why rel-branch callers of `detect-upgrade-cell-skip.sh` must fetch master's copy explicitly (see `acceptance-docker.yml`'s "release-targets.yml is master-authoritative" step for the pattern — the orchestrator doesn't need this dance because it only runs from master).
+
+**Item 4 followup: per-row from_tag derivation on docker side** — **SHIPPED (openemr/openemr#TBD, 2026-10-06)**. The orchestrator between-cycles tolerance above fixed master's row; two rel-branch rows (rel-820, rel-830) were ALSO failing their orchestrator-dispatched acceptance gates but for a different reason — the upgrade cell's `from_tag` defaulted to the literal string `'latest'`, which currently resolves to rel-840's build (`8.4.1`). For rel-820's build (`8.2.0`) the "upgrade" cell was attempting `8.4.1 → 8.2.0`, a downgrade; OpenEMR has no DB-downgrade machinery, so the DB stayed at `8.4.1` while code advanced to `8.2.0`, and the version-check test loudly failed with `/api/version returned '8.4.1' does not match expected '8.2.0'`. rel-830 hit the same shape (`8.4.1 → 8.3.0`). rel-840 passed vacuously via a degenerate self-upgrade (`from=latest=8.4.1 → to=self=8.4.1`, no-op "upgrade" + matching version). Fix: port the sql-file-based `from_version` derivation already in `detect-acceptance-mode.sh::derive_from_version` (package side, openemr/openemr#13573) to the docker side as a shared lib, and have `acceptance-docker.yml`'s detect-mode job resolve `from_tag` per-row from the checkout's own `sql/*-to-*_upgrade.sql` filenames. Each rel branch's acceptance now exercises its actual intended upgrade path (rel-820 → 8.1.1→8.2.0, rel-830 → 8.2.0→8.3.0, rel-840 → 8.3.0→8.4.1 replacing the degenerate self-upgrade). Master's row during active cycle derives similarly (from the branch-cut-added `sql/<prior>-to-<master-version>_upgrade.sql`); during between-cycles, criterion 2 of `detect-upgrade-cell-skip.sh` still fires first and skips the cell (fsupgrade machinery not cross-propagated yet). PR-triggered acceptance runs on rel branches during release cycles continue to execute the upgrade cell — the invariant is preserved and strengthened (every row now has a legitimate upgrade path, not just the one that holds `latest`).
+
+**Docker-vs-package asymmetry — why no manifest intersect on the docker side.** The package-side derivation intersects sql candidates with a shipped-versions manifest so tarball downloads from GitHub Releases can't 404 (openemr/openemr#13573 rationale). On the docker side, Docker Hub carries pre-production tags alongside shipped releases (`openemr/openemr:8.5.0` currently points at master's dev build), so a manifest intersect wouldn't distinguish shipped from pre-shipped tags anyway. The docker side uses sql-only derivation: if the derived version was never actually published (rare — a rel branch that cut but never shipped), the downstream `docker pull openemr/openemr:<version>` fails loud naming the exact tag. The "nothing-breaks-on-unreleased-version" invariant depends on that loud-pull-fail; the lib header documents it, and the BATS corpus covers the sql-side derivation shape without expecting the manifest filter.
+
+**Guardrail against false-skip regressions on the derivation.** The new BATS corpus at [`tests/bats/ci-scripts/derive-from-version/`](../tests/bats/ci-scripts/derive-from-version/) is weighted toward negative-case coverage because the primary failure mode to prevent is **upgrade cell skip when it should run** — a false "no derivation possible" result would cause the acceptance gate to skip or hard-fail an otherwise-valid upgrade test. The corpus explicitly covers each release-cycle shape (rel-820/830/840 fixtures, master active-cycle, master between-cycles), the exclude-version recovery mode (to-equals-max case), and bad-input cases (missing `sql/`, empty `sql/`, non-upgrade files only, malformed `X_Y_Z-to-A_B_C` filenames). The existing `detect-acceptance-mode.sh` 36-test BATS corpus is preserved unchanged — the refactor factors the sql-parse logic into the lib while keeping the package side's manifest-intersect + exclude-after-intersect wrapper, so external behavior and all error-message shapes stay identical.
+
+**Signal single-sourcing (part 2)**: both consumers (package via `detect-acceptance-mode.sh::derive_from_version`, docker via `acceptance-docker.yml::resolve-from-tag`) now read `derive_from_version_sql_candidates` from the shared lib. The sql-side enumeration is one implementation; package layers manifest-intersect + to-exclude on top for its stronger "tarball-must-exist-on-Releases" guarantee; docker consumes the sql result directly. Same lib, two legitimate different wrappings — no duplication, consistent signal.
 
 **Item 5 (hygiene): "Invocation contexts" reference section in this doc** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**. New [Invocation contexts reference](#invocation-contexts-reference) section added above between "What lives where (concrete)" and "What stays unchanged". Four subsections: trigger contexts (per-workflow trigger × artifact × version × matrix), scenario → step sequence, group → tests → scenario cells, `AcceptanceContext` env contract. Also closes Friction point #6 (no mapping-doc reference table). The pre-Item-1..4 "Current-state snapshot" tables under this section were superseded and trimmed to a pointer.
 
