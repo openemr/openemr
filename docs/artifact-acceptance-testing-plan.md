@@ -225,7 +225,11 @@ Composer wiring: `autoload-dev` PSR-4 entry mapping
 
 ```yaml
 inputs:
-  from_tag        # default: latest
+  from_tag        # default: empty -> derive per-row from checkout's
+                  #                   sql/*-to-*_upgrade.sql filenames
+                  #                   (resolve-from-tag step in
+                  #                   detect-mode job); explicit tag
+                  #                   string overrides. See G50.
   to_tag          # default: next
   # Optionally: build_locally: bool -- for PR validation of Dockerfile
   #             changes, build from the PR's docker/release/Dockerfile
@@ -364,11 +368,11 @@ job that produces the `pr-built` image the matrix cells then load.
 
 | # | Trigger | Artifact source | Expected-version source | Matrix |
 |---|---------|-----------------|-------------------------|--------|
-| 1 | `schedule` (09:00 UTC daily) | Docker Hub `openemr/openemr:latest` (from) + `:next` (to) | OCI label `org.opencontainers.image.version` on the running image (X.Y.Z prefix); `version.php` fallback | Default (fresh-install-from + fresh-install-to + upgrade) |
+| 1 | `schedule` (09:00 UTC daily) | Docker Hub `openemr/openemr:<from_tag>` (from) + `:next` (to); `from_tag` resolved per-row by `detect-mode`'s `resolve-from-tag` step via [`derive_from_version_sql_candidates`](../.github/scripts/lib/derive-from-version.sh) from the checkout's own `sql/*-to-*_upgrade.sql` filenames (rel-820 → `8.1.1`, rel-830 → `8.2.0`, rel-840 → `8.3.0`, master during active cycle → prior shipped) | OCI label `org.opencontainers.image.version` on the running image (X.Y.Z prefix); `version.php` fallback | Default (fresh-install-from + fresh-install-to + upgrade) |
 | 2 | `push` (see paths + branch exclusions below) | Same as (1) unless `docker/release/**` diff triggers `build_locally=true` → `pr-built` image via `build-image` job | Same OCI-first path (OCI label may be empty on `pr-built` → `version.php` fallback fires) | Default → adds `build-image` when build_locally |
 | 3 | `pull_request` (same paths as push) | Same detection as (2) | Same | Same |
-| 4 | `workflow_dispatch` | Docker Hub OR `pr-built` per operator input | Same OCI-first path | Default (operator picks tags) |
-| 5 | `workflow_call` (from `docker-build-release.yml` Phase 7c-docker gate + `docker-acceptance-only.yml` recovery) | Caller-supplied `pr-built` image (docker-load'd from build-image artifact) | Same | Default |
+| 4 | `workflow_dispatch` | Docker Hub OR `pr-built` per operator input; `from_tag` honors an explicit operator string, otherwise derives per (1) | Same OCI-first path | Default (operator picks tags) |
+| 5 | `workflow_call` (from `docker-build-release.yml` Phase 7c-docker gate + `docker-acceptance-only.yml` recovery) | Caller-supplied `pr-built` image (docker-load'd from build-image artifact); `from_tag` empty-default → derives per (1), caller may override | Same | Default |
 
 *Push/PR paths filter:* `.github/workflows/acceptance-docker.yml`, `.github/docker/acceptance-docker-compose.yml`, `tests/Acceptance/**`, `composer.json`, `composer.lock`, `docker/release/**`.
 
@@ -388,8 +392,21 @@ job that produces the `pr-built` image the matrix cells then load.
 - Docker's `upgrade` scenario has an [auto-skip
   path](../.github/scripts/detect-upgrade-cell-skip.sh) for
   between-cycles master state (Item 4); package has no equivalent
-  because tarball upgrades resolve `from_version` from
-  `sql/*-to-*_upgrade.sql`, which always includes a valid ancestor.
+  because package-side upgrade machinery is sql-only
+  (`sql_upgrade.php` + `sql/*-to-*_upgrade.sql`), while docker's
+  adds `fsupgrade-N.sh` + docker-version bump scaffolding that
+  must be cross-propagated to master at branch-cut time. During
+  between-cycles (master carries `next`, no rel-XXX in active dev
+  cycle yet), that docker-specific scaffolding doesn't exist on
+  master, so the upgrade cell targeting master's dev image can't
+  produce a reliable signal and skips. Both sides now share the
+  sql-side `from_version` derivation via
+  [`derive_from_version_sql_candidates`](../.github/scripts/lib/derive-from-version.sh);
+  the package side layers a shipped-versions-manifest intersect
+  on top (needed for tarball download guarantees from GitHub
+  Releases). See [Item 4 followup: per-row from_tag derivation on
+  docker side](#item-4-followup-per-row-from_tag-derivation-on-docker-side)
+  below for the shipped per-row shape.
 - Docker's `require_upgrade_cell` input (Item 4 followup) flips the
   auto-skip from silent to loud when the caller is in *release mode*
   — set true by `release-prep.yml`'s dispatch, `docker-build-
