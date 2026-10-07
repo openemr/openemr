@@ -14,6 +14,7 @@ namespace OpenEMR\Tests\Isolated\Services\FHIR\Traits;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -31,9 +32,9 @@ class FhirServiceBaseEmptyTraitTest extends TestCase
     public static function writeMethodProvider(): array
     {
         return [
-            'parseFhirResource' => [fn(FhirProvenanceService $service) => $service->parseFhirResource(new FHIRProvenance())],
-            'insertOpenEMRRecord' => [fn(FhirProvenanceService $service) => $service->insertOpenEMRRecord([])],
-            'updateOpenEMRRecord' => [fn(FhirProvenanceService $service) => $service->updateOpenEMRRecord('id', [])],
+            'parseFhirResource' => [fn(FhirProvenanceService $service): array => $service->parseFhirResource(new FHIRProvenance())],
+            'insertOpenEMRRecord' => [fn(FhirProvenanceService $service): ProcessingResult => $service->insertOpenEMRRecord([])],
+            'updateOpenEMRRecord' => [fn(FhirProvenanceService $service): ProcessingResult => $service->updateOpenEMRRecord('id', [])],
         ];
     }
 
