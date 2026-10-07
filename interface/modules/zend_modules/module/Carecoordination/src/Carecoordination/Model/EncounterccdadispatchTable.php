@@ -29,7 +29,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CareTeamService;
-use OpenEMR\Services\Cda\TemperatureConversion;
+use OpenEMR\Services\Cda\VitalSignConversion;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\ContactRelationService;
@@ -3078,11 +3078,13 @@ class EncounterccdadispatchTable
                 , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $first_encounter);
-            $convWeightValue = number_format($row['weight'] * 0.45359237, 2);
-            $convHeightValue = number_format(round($row['height'] * 2.54, 1), 2);
-            // Rounding the Fahrenheit offset before converting put 98.6 [degF] at
-            // 37.2 Cel, and an unrecorded temperature (stored as 0) at -17.8 Cel.
-            $convTempValue = TemperatureConversion::fahrenheitToCelsius($row['temperature']);
+            // An unrecorded measurement is stored as 0. Converted, it became a
+            // real-looking 0.00 kg, 0.00 cm or -17.8 Cel; it now stays empty,
+            // as the imperial branch below already leaves it. The temperature is
+            // also converted before rounding (98.6 [degF] had become 37.2 Cel).
+            $convWeightValue = VitalSignConversion::poundsToKilograms($row['weight']);
+            $convHeightValue = VitalSignConversion::inchesToCentimetres($row['height']);
+            $convTempValue = VitalSignConversion::fahrenheitToCelsius($row['temperature']);
             if (OEGlobalsBag::getInstance()->get('units_of_measurement') == 2 || OEGlobalsBag::getInstance()->get('units_of_measurement') == 4) {
                 $weight_value = $convWeightValue;
                 $weight_unit = 'kg';

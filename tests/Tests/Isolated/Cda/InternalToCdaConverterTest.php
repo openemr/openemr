@@ -1291,24 +1291,24 @@ class InternalToCdaConverterTest extends TestCase
      */
     public function testExportedPatientFilesProduceAnUnstructuredDocument(): void
     {
-        $input = <<<'XML'
-            <CCDA>
-                <created_time_timezone>20210723</created_time_timezone>
-                <patient><fname>Test</fname><lname>Patient</lname></patient>
-                <patient_files>
-                    <component>
-                        <nonXMLBody>
-                            <text category="Lab Report" name="labs.pdf" hash="abc123" mediaType="application/pdf" representation="B64" compression="ZL">eJwrSS0uAQAEXQHB</text>
-                        </nonXMLBody>
-                    </component>
-                    <component>
-                        <nonXMLBody>
-                            <text category="Imaging" name="xray.png" hash="def456" mediaType="image/png" representation="B64" compression="ZL">eJwrSS0uAQAEXQHB</text>
-                        </nonXMLBody>
-                    </component>
-                </patient_files>
-            </CCDA>
-            XML;
+        $input = <<<'XML_WRAP'
+        <CCDA>
+            <created_time_timezone>20210723</created_time_timezone>
+            <patient><fname>Test</fname><lname>Patient</lname></patient>
+            <patient_files>
+                <component>
+                    <nonXMLBody>
+                        <text category="Lab Report" name="labs.pdf" hash="abc123" mediaType="application/pdf" representation="B64" compression="ZL">eJwrSS0uAQAEXQHB</text>
+                    </nonXMLBody>
+                </component>
+                <component>
+                    <nonXMLBody>
+                        <text category="Imaging" name="xray.png" hash="def456" mediaType="image/png" representation="B64" compression="ZL">eJwrSS0uAQAEXQHB</text>
+                    </nonXMLBody>
+                </component>
+            </patient_files>
+        </CCDA>
+        XML_WRAP;
 
         $converter = new InternalToCdaConverter();
         $dom = $this->loadDom($converter->convertUnstructured($input));
