@@ -18,14 +18,18 @@
 namespace OpenEMR\Pdf;
 
 use HTMLPurifier_Config;
+use HTMLPurifier_URIDefinition;
 use Mpdf\Mpdf;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
+use OpenEMR\Pdf\SameOriginUriFilter;
 
 class PatientPortalPDFDocumentCreator
 {
     public function createPdfObject($htmlIn): Mpdf
     {
+        $html = is_string($htmlIn) ? $htmlIn : '';
         $config_mpdf = Config_Mpdf::getConfigMpdf();
         $pdf = new Mpdf($config_mpdf);
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -33,29 +37,42 @@ class PatientPortalPDFDocumentCreator
             $pdf->SetDirectionality('rtl');
         }
 
-        // snatch style tags content to insert after content purified
-        $style_flag = preg_match('#<\s*?style\b[^>]*>(.*?)</style\b[^>]*>#s', (string) $htmlIn, $style_matches);
-        $style = str_replace('<style type="text/css">', '<style>', $style_matches);
-        $pos = stripos((string) $htmlIn, "<style>");
-        $pos1 = stripos((string) $htmlIn, "</style>");
+        $allowedHostSpec = self::allowedHostSpec();
+        if ($allowedHostSpec !== '') {
+            // Allow http(s) fetches for same-host resources (e.g. /barcode.php); block file:// and php://.
+            // Pin mPDF's base path to the trusted host so relative references resolve there,
+            // not against the request's HTTP_HOST.
+            $pdf->whitelistStreamWrappers = ['http', 'https'];
+            $pdf->SetBasePath('http://' . $allowedHostSpec . '/');
+        } else {
+            // No trusted host configured — refuse every stream wrapper so hostless relative
+            // references cannot be resolved against the request's HTTP_HOST.
+            $pdf->whitelistStreamWrappers = [];
+        }
 
-        // purify html
+        // Keep every inline <style> block but drop any url() / @import values that leave the current host.
+        $styleBlock = '';
+        if (preg_match_all('#<\s*style\b[^>]*>(.*?)</\s*style\s*>#s', $html, $styleMatches) > 0) {
+            foreach ($styleMatches[1] as $styleContent) {
+                $styleBlock .= '<style>' . self::sanitizeCss($styleContent, $allowedHostSpec) . '</style>';
+            }
+            $html = preg_replace('#<\s*style\b[^>]*>.*?</\s*style\s*>#s', '', $html) ?? $html;
+        }
+
         $config = HTMLPurifier_Config::createDefault();
         $config->set('URI.AllowedSchemes', ['data' => true, 'http' => true, 'https' => true]);
+        $uriDefinition = $config->getDefinition('URI', true);
+        assert($uriDefinition instanceof HTMLPurifier_URIDefinition);
+        $uriDefinition->addFilter(new SameOriginUriFilter($allowedHostSpec), $config);
         $purify = new \HTMLPurifier($config);
-        $htmlIn = $purify->purify($htmlIn);
-        // need to create custom stylesheet for templates
-        // also our styles_pdf.scss isn't being compiled!!!
-        // replace existing style tag in template after purifies removes! why!!!
-        // e,g this scheme gets removed <html><head><body> etc
+        $html = $purify->purify($html);
+
         $stylesheet = "<style>.signature {vertical-align: middle;max-height:65px; height:65px !important;width:auto !important;}</style>";
-        if ($pos !== false && $pos1 !== false && !empty($style[0] ?? '')) {
-            $stylesheet = str_replace('</style>', $stylesheet, $style[0]);
-        }
-        $htmlIn = "<!DOCTYPE html><html><head>" . $stylesheet . "</head><body>$htmlIn</body></html>";
-        $pdf->writeHtml($htmlIn);
+        $html = "<!DOCTYPE html><html><head>" . $styleBlock . $stylesheet . "</head><body>$html</body></html>";
+        $pdf->writeHtml($html);
         return $pdf;
     }
+
     public function createPdfDocument($cpid, $formFilename, $documentCategory, $htmlIn): \Document
     {
 
@@ -73,5 +90,103 @@ class PatientPortalPDFDocumentCreator
         } else {
             throw new \RuntimeException("Failed to create document: " . $rc);
         }
+    }
+
+    /**
+     * Resolve the host[:port] spec the PDF renderer trusts for http(s) resource references.
+     * Only the `pdf_allowed_host` global is trusted; when blank, remote fetches are rejected
+     * across the board (the request's SERVER_NAME is attacker-controllable in default Apache
+     * UseCanonicalName Off configurations).
+     */
+    private static function allowedHostSpec(): string
+    {
+        return OEGlobalsBag::getInstance()->getString('pdf_allowed_host', '');
+    }
+
+    /**
+     * Strip url() and @import references that leave the current host:port.
+     */
+    private static function sanitizeCss(string $css, string $allowedHostSpec): string
+    {
+        // url(...) wrapper form. Match either a quoted value (which may contain `)` characters)
+        // or an unquoted value up to the first `)`.
+        $css = (string) preg_replace_callback(
+            '#url\s*\(\s*((?:"[^"]*"|\'[^\']*\'|[^)]*))\s*\)#i',
+            static function (array $m) use ($allowedHostSpec): string {
+                $raw = trim($m[1]);
+                $len = strlen($raw);
+                if (
+                    $len >= 2
+                    && (($raw[0] === '"' && $raw[$len - 1] === '"') || ($raw[0] === "'" && $raw[$len - 1] === "'"))
+                ) {
+                    $raw = substr($raw, 1, -1);
+                } elseif (str_contains($raw, '"') || str_contains($raw, "'")) {
+                    return 'url("")';
+                }
+                return self::isAllowedResourceUrl($raw, $allowedHostSpec) ? $m[0] : 'url("")';
+            },
+            $css
+        );
+        // @import "..." / '...'  (quoted-string).
+        $css = (string) preg_replace_callback(
+            '#@import\s+(["\'])([^"\']*)\1\s*;?#i',
+            static fn(array $m): string => self::isAllowedResourceUrl(trim($m[2]), $allowedHostSpec) ? $m[0] : '',
+            $css
+        );
+        // @import <url>;  (bare, no url() wrapper, no quotes).
+        $css = (string) preg_replace_callback(
+            '#@import\s+(?!url\()(?!["\'])([^\s;]+)\s*;?#i',
+            static fn(array $m): string => self::isAllowedResourceUrl(trim($m[1]), $allowedHostSpec) ? $m[0] : '',
+            $css
+        );
+        return $css;
+    }
+
+    private static function isAllowedResourceUrl(string $url, string $allowedHostSpec): bool
+    {
+        if ($url === '' || str_starts_with($url, 'data:')) {
+            return true;
+        }
+        $parts = parse_url($url);
+        if (!is_array($parts)) {
+            return false;
+        }
+        // Reject embedded credentials outright (user:pass@host authority spoofing).
+        if (isset($parts['user']) || isset($parts['pass'])) {
+            return false;
+        }
+        $hasScheme = isset($parts['scheme']);
+        $hasHost = isset($parts['host']);
+        if (!$hasScheme) {
+            // Pure relative URL (no scheme, no authority) resolves against mPDF's base path,
+            // which createPdfObject() pins to the trusted host.
+            if (!$hasHost) {
+                return true;
+            }
+            // Protocol-relative "//host[:port]/path" — require same-host:port match.
+            return self::hostPortMatches($parts['host'], $parts['port'] ?? null, 'http', $allowedHostSpec);
+        }
+        if (!$hasHost) {
+            return false;
+        }
+        if (strcasecmp($parts['scheme'], 'http') !== 0 && strcasecmp($parts['scheme'], 'https') !== 0) {
+            return false;
+        }
+        return self::hostPortMatches($parts['host'], $parts['port'] ?? null, $parts['scheme'], $allowedHostSpec);
+    }
+
+    private static function hostPortMatches(string $host, mixed $port, string $scheme, string $allowedSpec): bool
+    {
+        if ($allowedSpec === '' || $host === '') {
+            return false;
+        }
+        [$allowedHost, $allowedPort] = SameOriginUriFilter::splitHostPort($allowedSpec);
+        if (strcasecmp($host, $allowedHost) !== 0) {
+            return false;
+        }
+        $default = strcasecmp($scheme, 'https') === 0 ? 443 : 80;
+        $uriPort = is_numeric($port) ? (int) $port : $default;
+        $expected = $allowedPort ?? $default;
+        return $uriPort === $expected;
     }
 }
