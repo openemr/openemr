@@ -125,19 +125,22 @@ run_testsuite() {
     . ci/ciLibrary.source
     # Stay in repo root - we have write permissions here and COMPOSE_FILE is set
 
-    # Run PHPUnit tests with coverage if enabled
+    # Run PHPUnit tests with coverage if enabled. main() calls this function
+    # as a condition, which turns off set -e inside it, so a failing phpunit
+    # wouldn't stop it; keep phpunit's exit status and return it.
+    local -a coverage_args=()
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
-        phpunit --testsuite certification \
-                --coverage-clover coverage.inferno-phpunit.clover.xml \
-                --log-junit junit-inferno.xml \
-                -c "${OPENEMR_DIR}/phpunit.xml"
-    else
-        phpunit --testsuite certification \
-                --log-junit junit-inferno.xml \
-                -c "${OPENEMR_DIR}/phpunit.xml"
+        coverage_args=( --coverage-clover coverage.inferno-phpunit.clover.xml )
     fi
+    local status=0
+    # shellcheck disable=SC2310  # the status is kept and returned below
+    phpunit --testsuite certification \
+            "${coverage_args[@]}" \
+            --log-junit junit-inferno.xml \
+            -c "${OPENEMR_DIR}/phpunit.xml" || status=$?
 
-    echo 'Certification Tests Executed'
+    echo "Certification Tests Executed (exit code ${status})"
+    return "${status}"
 }
 
 collect_inferno_coverage() {
@@ -219,13 +222,16 @@ main() {
     check_inferno
     initialize_openemr
 
-    # Run the test suite and capture exit code
-    # shellcheck disable=SC2310
-    if ! run_testsuite; then
-        local exit_code=$?
+    # Run the test suite and capture exit code. (After "if ! run_testsuite",
+    # $? is the negated status, 0, so capture it with || instead.)
+    local exit_code=0
+    # shellcheck disable=SC2310  # run_testsuite returns phpunit's status itself
+    run_testsuite || exit_code=$?
+    if (( exit_code != 0 )); then
         echo "FAILURE: Inferno certification tests failed with exit code: ${exit_code}"
         # Still try to collect coverage even on failure
         if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+            # shellcheck disable=SC2310  # best effort; the test failure decides the exit code
             collect_inferno_coverage || echo "Warning: Coverage collection failed"
         fi
         exit "${exit_code}"
