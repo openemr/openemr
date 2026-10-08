@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Modules\FaxSMS;
 
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
@@ -37,7 +38,7 @@ class ServiceOtherCountsTest extends TestCase
         $globals->set('oefax_enable_fax', 1);
         $globals->set('oefax_enable_sms', 1);
 
-        self::assertFalse(class_exists('OpenEMR\\Modules\\FaxSMS\\Controller\\AppDispatch'));
+        self::assertFalse(class_exists(AppDispatch::class));
 
         // Compare by key: the order the function builds the keys in is not
         // part of its contract.

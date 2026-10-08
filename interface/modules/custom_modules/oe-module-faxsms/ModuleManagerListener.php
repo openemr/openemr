@@ -4,8 +4,8 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\AbstractModuleActionListener;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
-use OpenEMR\Modules\FaxSMS\ModuleLifecycleState;
 use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
+use OpenEMR\Modules\FaxSMS\ModuleLifecycleState;
 
 /**
  * Class to be called from Laminas Module Manager for reporting management actions.
@@ -122,6 +122,8 @@ class ModuleManagerListener extends AbstractModuleActionListener
     /**
      * Stop the reminder tasks while the module is disabled (their code cannot
      * load), remembering which ones were running so enable() can restart them.
+     * A snapshot already on file is kept: a repeated disable would otherwise
+     * record the tasks as off, since the first disable stopped them.
      */
     private function suspendReminderTasks(): void
     {
@@ -130,8 +132,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
             ModuleLifecycleState::REMINDER_TASKS
         ));
         QueryUtils::sqlStatementThrowException(
-            "INSERT INTO `module_faxsms_credentials` (`auth_user`, `vendor`, `credentials`) VALUES (0, ?, ?)
-                ON DUPLICATE KEY UPDATE `credentials` = VALUES(`credentials`), `updated` = NOW()",
+            "INSERT IGNORE INTO `module_faxsms_credentials` (`auth_user`, `vendor`, `credentials`) VALUES (0, ?, ?)",
             [self::PERSISTED_TASKS_VENDOR, json_encode($active)]
         );
         QueryUtils::sqlStatementThrowException(
@@ -142,7 +143,8 @@ class ModuleManagerListener extends AbstractModuleActionListener
 
     /**
      * Restart the reminder tasks that were running when the module was
-     * disabled. Tasks that were already off stay off.
+     * disabled. Tasks that were already off stay off. The snapshot is then
+     * removed so the next disable records a fresh one.
      */
     private function restoreReminderTasks(): void
     {
@@ -157,6 +159,10 @@ class ModuleManagerListener extends AbstractModuleActionListener
                 [$name]
             );
         }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM `module_faxsms_credentials` WHERE `auth_user` = 0 AND `vendor` = ?",
+            [self::PERSISTED_TASKS_VENDOR]
+        );
     }
 
     /**

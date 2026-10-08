@@ -19,6 +19,7 @@ class EtherFaxClient
 {
     const EFAX_API_URL = 'https://na.connect.etherfax.net/rest/3.0/api';
     const DEFAULT_TIMEOUT = 30;
+    const CONNECT_TIMEOUT = 10;
     const HTTP_OK = 200;
     private static $timeZone;
     protected $auth;
@@ -137,6 +138,8 @@ class EtherFaxClient
             // request it
             $response = $client->request('GET', $uri, [
                 'debug' => false,
+                'connect_timeout' => self::CONNECT_TIMEOUT,
+                'timeout' => $this->timeout,
                 'headers' => [
                     'accept' => 'application/json',
                     'Authorization' => $this->auth,
