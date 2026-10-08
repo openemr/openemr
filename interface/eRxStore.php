@@ -47,7 +47,7 @@ class eRxStore
 
     /**
      * Return the Federal EIN established with the primary business entity
-     * @return string Federal EIN for the primary business entity
+     * @return string|null Federal EIN for the primary business entity, or null when there is none
      */
     public function selectFederalEin()
     {
@@ -756,7 +756,7 @@ class eRxStore
     /**
      * Return patient import status using patient Id
      * @param int $patientId Id of patient
-     * @return int Import status for specified patient: [1 = Prescription Press, 2 = Prescription Import, 3 = Allergy Press, 4 = Allergy Import]
+     * @return int|null Import status for specified patient: [1 = Prescription Press, 2 = Prescription Import, 3 = Allergy Press, 4 = Allergy Import], or null when the patient is not found
      */
     public function getPatientImportStatusByPatientId($patientId)
     {
