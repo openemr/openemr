@@ -28,7 +28,7 @@ final class MetricCount
     public static function fromValue(mixed $value): int
     {
         if (is_int($value)) {
-            return $value;
+            return max(0, $value);
         }
         if (is_string($value) && $value !== '' && ctype_digit($value)) {
             return (int) $value;
