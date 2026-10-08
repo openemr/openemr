@@ -630,29 +630,38 @@ class AuthorizationController implements LoggerAwareInterface
             $params['client_name'] = $client['client_name'];
             $params['redirect_uris'] = $redirectUri === '' ? [] : explode('|', $redirectUri);
 
+            // Build the response payload (including addDSIInformation which
+            // can throw) BEFORE rotating the stored registration_token.
+            // Otherwise an exception from payload assembly would invalidate
+            // the caller's current token on the server side with no new
+            // token delivered in the response.
+            $newRegToken = $this->getClientRepository()->generateRegistrationAccessToken();
+            $params['registration_access_token'] = $newRegToken;
+            $params['registration_client_uri'] = $this->authBaseFullUrl . '/client/' . $uri_path;
+            $this->addDSIInformation($params, $client);
+            $responseJson = json_encode($params);
+
             // Rotate the registration_access_token on every successful read.
             // RFC 7592 §3 says the client treats the response as the new
             // current configuration, so returning a freshly minted RAT in
             // the response body makes a one-time disclosure of the stored
-            // RAT self-healing on next use. Legacy clients that cache the
-            // old value will get a 403 on their next read and can trigger
-            // a fresh DCR; this is the same posture as rotating a session
-            // token after login.
-            $newRegToken = $this->getClientRepository()->generateRegistrationAccessToken();
+            // RAT self-healing on next use. The UPDATE's WHERE clause
+            // includes the current token value so two concurrent reads
+            // using the same stored token cannot both succeed — the second
+            // update affects zero rows and the request is rejected.
             QueryUtils::sqlStatementThrowException(
-                "UPDATE `oauth_clients` SET `registration_token` = ? WHERE `client_id` = ?",
-                [$newRegToken, $client['client_id']]
+                "UPDATE `oauth_clients` SET `registration_token` = ? WHERE `client_id` = ? AND `registration_token` = ?",
+                [$newRegToken, $client['client_id'], $storedToken]
             );
-            $params['registration_access_token'] = $newRegToken;
-            $params['registration_client_uri'] = $this->authBaseFullUrl . '/client/' . $uri_path;
+            if (QueryUtils::affectedRows() !== 1) {
+                throw new OAuthServerException('Invalid registration token', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
+            }
 
-            // need to grab dsi information
-            $this->addDSIInformation($params, $client);
             $response->withHeader("Cache-Control", "no-store");
             $response->withHeader("Pragma", "no-cache");
             $response->withHeader('Content-Type', 'application/json');
             $body = $response->getBody();
-            $body->write(json_encode($params));
+            $body->write($responseJson);
 
             $this->session->invalidate();
             return $response->withStatus(Response::HTTP_OK)->withBody($body);

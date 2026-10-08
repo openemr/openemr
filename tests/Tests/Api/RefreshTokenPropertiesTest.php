@@ -116,11 +116,9 @@ class RefreshTokenPropertiesTest extends TestCase
                 'client_secret' => $clientSecret,
             ],
         ]);
-        $this->assertNotSame(
-            200,
-            $secondRefresh['status'],
-            'Reusing a refresh_token that has already been exchanged must be rejected (RFC 6749 §10.4). '
-            . 'Response body: ' . $secondRefresh['body']
+        $this->assertOAuthRejection(
+            $secondRefresh,
+            'Reusing a refresh_token that has already been exchanged must be rejected (RFC 6749 §10.4).'
         );
     }
 
@@ -147,12 +145,29 @@ class RefreshTokenPropertiesTest extends TestCase
                 'client_secret' => $clientSecretB,
             ],
         ]);
-        $this->assertNotSame(
-            200,
-            $response['status'],
-            'A refresh_token issued to client A must not be redeemable by client B. '
-            . 'Response body: ' . $response['body']
+        $this->assertOAuthRejection(
+            $response,
+            'A refresh_token issued to client A must not be redeemable by client B.'
         );
+    }
+
+    /**
+     * Asserts a token-endpoint response has an OAuth2 rejection shape:
+     * a 4xx status AND a JSON body carrying an `error` field. A plain
+     * `assertNotSame(200, ...)` would also pass on 404/500 responses
+     * from an endpoint that is simply broken, masking a regression.
+     *
+     * @param array{status: int, body: string} $response
+     */
+    private function assertOAuthRejection(array $response, string $context): void
+    {
+        $this->assertGreaterThanOrEqual(400, $response['status'], $context . ' Response body: ' . $response['body']);
+        $this->assertLessThan(500, $response['status'], $context . ' Response body: ' . $response['body']);
+        $body = json_decode($response['body'], true);
+        $this->assertIsArray($body, $context . ' Response body is not JSON: ' . $response['body']);
+        $this->assertArrayHasKey('error', $body, $context . ' Response body has no `error` field: ' . $response['body']);
+        $this->assertIsString($body['error']);
+        $this->assertNotSame('', $body['error']);
     }
 
     /**
