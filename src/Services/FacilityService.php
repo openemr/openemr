@@ -327,7 +327,7 @@ class FacilityService extends BaseService
         $sql .= $query['set'];
         $sql .= " WHERE id = ?";
         array_push($query['bind'], $data['id']);
-        $result = sqlStatement(
+        $result = QueryUtils::sqlStatementThrowException(
             $sql,
             $query['bind']
         );
@@ -343,7 +343,7 @@ class FacilityService extends BaseService
         $query = $this->buildInsertColumns($data);
         $sql = " INSERT INTO facility SET ";
         $sql .= $query['set'];
-        $facilityId = sqlInsert(
+        $facilityId = QueryUtils::sqlInsert(
             $sql,
             $query['bind']
         );
@@ -360,7 +360,7 @@ class FacilityService extends BaseService
         $sql .= " facility=?";
         $sql .= " WHERE facility_id=?";
 
-        return sqlStatement($sql, [$facility_name, $facility_id]);
+        return QueryUtils::sqlStatementThrowException($sql, [$facility_name, $facility_id]);
     }
 
     /**
