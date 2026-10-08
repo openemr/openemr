@@ -15,6 +15,8 @@
       .catch(function () { return { ok: false, error: 'Could not reach OpenEMR.' }; });
   }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  /** Insert HTML built from escaped values, sanitized again by OpenEMR's DOMPurify. */
+  function put(el, html) { el.replaceChildren(window.DOMPurify.sanitize(html, { RETURN_DOM_FRAGMENT: true })); }
   function msg(text, kind) { var m = $('g-msg'); if (!text) { m.className = 'alert d-none'; return; } m.className = 'alert alert-' + (kind || 'info'); m.textContent = text; }
   function show(id) { ['g-connect', 'g-home', 'g-review'].forEach(function (s) { $(s).classList.toggle('d-none', s !== id); }); }
   var none = function (t) { return !t || /^none mentioned\.?$/i.test(String(t).trim()); };
@@ -28,7 +30,7 @@
       $('g-patient').textContent = j.patientName || '';
       if (!j.connected) { $('g-account').textContent = ''; return show('g-connect'); }
       var a = j.account || {};
-      $('g-account').innerHTML = esc(a.email || '') + (a.plan ? ' · ' + esc(a.plan) : '');
+      $('g-account').textContent = (a.email || '') + (a.plan ? ' · ' + a.plan : '');
       if (a.access && !a.access.ok) msg(a.access.error, 'warning');
       show('g-home');
       $('g-record').disabled = !j.encounter || (a.access && !a.access.ok);
@@ -67,12 +69,12 @@
   function list() {
     api('visits').then(function (j) {
       var vs = (j.visits || []).sort(function (a, b) { return (b.thisEncounter ? 1 : 0) - (a.thisEncounter ? 1 : 0); });
-      $('g-list').innerHTML = vs.length ? vs.map(function (v) {
+      put($('g-list'), vs.length ? vs.map(function (v) {
         return '<li class="list-group-item list-group-item-action d-flex" data-id="' + esc(v.id) + '" style="cursor:pointer"><div><b>' + esc(v.label || 'Visit') + '</b>' +
           (v.thisEncounter ? ' <span class="badge badge-info">this encounter</span>' : '') + (v.appliedAt ? ' <span class="badge badge-success">added</span>' : '') +
-          '<div class="small text-muted">' + new Date(v.startedAt).toLocaleString() + ' · ' + (v.mode === 'in_person' ? 'in person' : 'telehealth') + (v.faceMin != null ? ' · ' + v.faceMin + ' min' : '') + '</div></div>' +
-          '<span class="ml-auto badge badge-' + (v.status === 'ready' ? 'success' : v.status === 'error' ? 'danger' : 'warning') + ' align-self-center">' + (STATUS[v.status] || v.status) + '</span></li>';
-      }).join('') : '<li class="list-group-item text-muted small">No drafts in the last 48 hours.</li>';
+          '<div class="small text-muted">' + new Date(v.startedAt).toLocaleString() + ' · ' + (v.mode === 'in_person' ? 'in person' : 'telehealth') + (v.faceMin != null ? ' · ' + esc(v.faceMin) + ' min' : '') + '</div></div>' +
+          '<span class="ml-auto badge badge-' + (v.status === 'ready' ? 'success' : v.status === 'error' ? 'danger' : 'warning') + ' align-self-center">' + esc(STATUS[v.status] || v.status) + '</span></li>';
+      }).join('') : '<li class="list-group-item text-muted small">No drafts in the last 48 hours.</li>');
       $('g-list').querySelectorAll('[data-id]').forEach(function (li) { li.onclick = function () { openVisit(li.dataset.id); }; });
     });
   }
@@ -120,18 +122,18 @@
       var total = face + (parseInt($('g-t-prep').value, 10) || 0) + (parseInt($('g-t-doc').value, 10) || 0);
       $('g-t-total').textContent = total + ' min';
       var c = timeCode(total, v.patientType);
-      $('g-t-code').innerHTML = c ? 'Total time supports <b>' + c + '</b> (' + esc(v.patientType) + ' patient), if it beats the MDM level.' : '';
+      put($('g-t-code'), c ? 'Total time supports <b>' + c + '</b> (' + esc(v.patientType) + ' patient), if it beats the MDM level.' : '');
     };
     $('g-t-prep').oninput = recalc; $('g-t-doc').oninput = recalc; recalc();
 
-    $('g-problems').innerHTML = (r.diagnoses || []).map(function (d, i) {
+    put($('g-problems'), (r.diagnoses || []).map(function (d, i) {
       return '<div class="g-row"><input type="checkbox" data-pr="' + i + '"' + (d.icd10 ? ' checked' : '') + '><div>' + esc(d.description) + ' <b>' + esc(d.icd10 || '') + '</b>' +
         (d.icd10_suggested ? ' <span class="g-flag">code looked up — check</span>' : (!d.certain ? ' <span class="g-flag">check</span>' : '')) + '</div></div>';
-    }).join('') || '<p class="small text-muted mb-0">None.</p>';
-    $('g-allergies').innerHTML = (r.allergies || []).map(function (a, i) {
+    }).join('') || '<p class="small text-muted mb-0">None.</p>');
+    put($('g-allergies'), (r.allergies || []).map(function (a, i) {
       return '<div class="g-row"><input type="checkbox" data-al="' + i + '" checked><div>' + esc(a.substance) + (a.reaction ? ' — ' + esc(a.reaction) : '') + (a.severity ? ' (' + esc(a.severity) + ')' : '') + (!a.certain ? ' <span class="g-flag">check</span>' : '') + '</div></div>';
-    }).join('') || '<p class="small text-muted mb-0">No new allergies reported.</p>';
-    $('g-rx').innerHTML = (r.prescriptions || []).map(function (x, i) {
+    }).join('') || '<p class="small text-muted mb-0">No new allergies reported.</p>');
+    put($('g-rx'), (r.prescriptions || []).map(function (x, i) {
       var flag = (x.missing && x.missing.length ? 'Not stated: ' + x.missing.join(', ') + '. ' : '') + (!x.certain ? 'Unclear in the recording. ' : '') + (x.action && x.action !== 'new' ? String(x.action).toUpperCase() + '. ' : '');
       return '<div class="g-row"><input type="checkbox" data-rx="' + i + '"' + (x.action === 'stop' ? '' : ' checked') + '><div class="g-rx-grid">' +
         '<input class="form-control form-control-sm" data-f="drug" value="' + esc(x.drug) + '" title="Drug">' +
@@ -140,16 +142,16 @@
         '<input class="form-control form-control-sm" data-f="quantity" value="' + esc(x.quantity) + '" placeholder="Qty" title="Quantity">' +
         '<input class="form-control form-control-sm" data-f="refills" value="' + esc(x.refills) + '" placeholder="Refills" title="Refills"></div></div>' +
         (flag ? '<div class="g-flag mb-1">' + esc(flag) + (x.rxcui ? '' : 'No RxNorm match. ') + '</div>' : '');
-    }).join('') || '<p class="small text-muted mb-0">No prescriptions decided in this visit.</p>';
+    }).join('') || '<p class="small text-muted mb-0">No prescriptions decided in this visit.</p>');
     $('g-basis').textContent = r.billing_basis || '';
-    $('g-billing').innerHTML = (r.billing || []).map(function (b, i) {
+    put($('g-billing'), (r.billing || []).map(function (b, i) {
       return '<div class="g-row"><input type="checkbox" data-bi="' + i + '"' + (b.confidence === 'low' ? '' : ' checked') + '><div><b>' + esc(b.code) + (b.modifiers ? '-' + esc(b.modifiers) : '') + '</b> ' + esc(b.description) +
         ' <span class="badge badge-' + (b.confidence === 'high' ? 'success' : b.confidence === 'low' ? 'danger' : 'warning') + '">' + esc(b.confidence) + '</span>' +
         '<div class="small">' + esc(b.rationale) + '</div><div class="small text-muted">Document: ' + esc(b.documentation_needed) + '</div></div></div>';
-    }).join('') || '<p class="small text-muted mb-0">None.</p>';
+    }).join('') || '<p class="small text-muted mb-0">None.</p>');
     var un = r.unclear || [];
     $('g-unclear-card').classList.toggle('d-none', !un.length);
-    $('g-unclear').innerHTML = un.map(function (u) { return '<li>' + esc(u.field) + ': heard “' + esc(u.as_heard) + '”' + (u.best_guess ? ' — best guess ' + esc(u.best_guess) : '') + '</li>'; }).join('');
+    put($('g-unclear'), un.map(function (u) { return '<li>' + esc(u.field) + ': heard “' + esc(u.as_heard) + '”' + (u.best_guess ? ' — best guess ' + esc(u.best_guess) : '') + '</li>'; }).join(''));
   }
 
   // ---------------------------------------------------------------- apply

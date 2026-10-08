@@ -14,8 +14,14 @@
       .catch(function () { return { ok: false, error: 'Could not reach OpenEMR.' }; });
   }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  /** Insert HTML built from escaped values, sanitized again by OpenEMR's DOMPurify. */
+  function put(el, html) {
+    var table = el.tagName === 'TABLE';   // rows only parse inside a table
+    var frag = window.DOMPurify.sanitize(table ? '<table>' + html + '</table>' : html, { RETURN_DOM_FRAGMENT: true });
+    el.replaceChildren.apply(el, table ? Array.prototype.slice.call(frag.firstChild ? frag.firstChild.childNodes : []) : [frag]);
+  }
   function msg(t, kind) { var m = $('g-msg'); if (!t) { m.className = 'alert d-none'; return; } m.className = 'alert alert-' + (kind || 'info'); m.textContent = t; }
-  function bubble(html, who) { var d = document.createElement('div'); d.className = 'g-bubble ' + (who === 'me' ? 'g-me' : 'g-ai'); d.innerHTML = html; $('a-thread').appendChild(d); $('a-thread').scrollTop = 1e9; return d; }
+  function bubble(html, who) { var d = document.createElement('div'); d.className = 'g-bubble ' + (who === 'me' ? 'g-me' : 'g-ai'); put(d, html); $('a-thread').appendChild(d); $('a-thread').scrollTop = 1e9; return d; }
 
   /** The model's light formatting (bold, bullets) as HTML, after escaping. */
   function md(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/^\s*[-*] /gm, '• '); }
@@ -73,10 +79,10 @@
     $('a-send').disabled = true;
     api('assistant-chat', { messages: history }).then(function (j) {
       $('a-send').disabled = false;
-      if (!j.ok) { wait.innerHTML = '<span class="text-danger">' + esc(j.error) + '</span>'; history.pop(); return; }
+      if (!j.ok) { put(wait, '<span class="text-danger">' + esc(j.error) + '</span>'); history.pop(); return; }
       history.push({ role: 'assistant', content: j.reply + (j.changes && j.changes.length ? '\n[Proposed ' + j.changes.length + ' change(s).]' : '') });
-      wait.innerHTML = md(j.reply) + (j.questions && j.questions.length ? '<ul class="mb-0 mt-2">' + j.questions.map(function (q) { return '<li>' + md(q) + '</li>'; }).join('') + '</ul>' : '') +
-        (j.chargeCents != null ? '<div class="g-why mt-1">This request: $' + (Number(j.chargeCents) / 100).toFixed(2) + '</div>' : '');
+      put(wait, md(j.reply) + (j.questions && j.questions.length ? '<ul class="mb-0 mt-2">' + j.questions.map(function (q) { return '<li>' + md(q) + '</li>'; }).join('') + '</ul>' : '') +
+        (j.chargeCents != null ? '<div class="g-why mt-1">This request: $' + (Number(j.chargeCents) / 100).toFixed(2) + '</div>' : ''));
       if (j.changes && j.changes.length) plan(wait, j);
     });
   };
@@ -86,13 +92,13 @@
     j.changes.forEach(function (c, i) { (groups[c.group || 'Changes'] = groups[c.group || 'Changes'] || []).push([c, i]); });
     var box = document.createElement('div');
     box.className = 'g-plan';
-    box.innerHTML = Object.keys(groups).map(function (g) {
+    put(box, Object.keys(groups).map(function (g) {
       return '<h6>' + esc(g) + '</h6>' + groups[g].map(function (p) {
         var c = p[0], i = p[1];
         return '<div class="g-change' + (c.allowed ? '' : ' g-no') + '"><input type="checkbox" data-i="' + i + '"' + (c.allowed ? ' checked' : ' disabled') + '><div>' + describe(c) +
           '<div class="g-why">' + esc(c.why) + (c.allowed ? '' : ' — needs an administrator') + '</div><div class="g-pick" data-pick="' + i + '"></div></div></div>';
       }).join('');
-    }).join('') + '<button class="btn btn-sm btn-primary mt-2">Approve checked</button> <span class="small text-muted">You can undo afterwards.</span>';
+    }).join('') + '<button class="btn btn-sm btn-primary mt-2">Approve checked</button> <span class="small text-muted">You can undo afterwards.</span>');
     container.appendChild(box);
     // Appointments: find the patient here, in OpenEMR, and let the user choose.
     j.changes.forEach(function (c, i) {
@@ -100,9 +106,9 @@
       var slot = box.querySelector('[data-pick="' + i + '"]');
       api('assistant-find-patient', { name: c.args.patient_name, dob: c.args.patient_dob || '' }).then(function (r) {
         var ps = r.patients || [];
-        slot.innerHTML = ps.length ? ps.map(function (p, k) {
+        put(slot, ps.length ? ps.map(function (p, k) {
           return '<label class="d-block small mb-0"><input type="radio" name="pick' + i + '" value="' + esc(p.pid) + '"' + (ps.length === 1 && k === 0 ? ' checked' : '') + '> ' + esc(p.fname + ' ' + p.lname) + ' · DOB ' + esc(p.DOB) + '</label>';
-        }).join('') : '<span class="text-danger small">No patient found with that name. Register them first, or say the full name.</span>';
+        }).join('') : '<span class="text-danger small">No patient found with that name. Register them first, or say the full name.</span>');
         if (!ps.length) box.querySelector('[data-i="' + i + '"]').checked = false;
       });
     });
@@ -133,11 +139,11 @@
   }
 
   function paintLog(rows) {
-    $('a-log').innerHTML = '<tr><th>When</th><th>Who</th><th>Change</th><th></th></tr>' + rows.map(function (r) {
+    put($('a-log'), '<tr><th>When</th><th>Who</th><th>Change</th><th></th></tr>' + rows.map(function (r) {
       var a = {}; try { a = JSON.parse(r.args) || {}; } catch (e) { /* ignore */ }
       return '<tr><td>' + esc(r.at) + '</td><td>' + esc(r.username || '') + '</td><td>' + describe({ op: r.op, args: a }) + '</td><td>' +
         (r.undone_at ? '<span class="text-muted">undone</span>' : '<button class="btn btn-sm btn-link p-0" data-undo="' + esc(r.id) + '">Undo</button>') + '</td></tr>';
-    }).join('');
+    }).join(''));
     $('a-log').querySelectorAll('[data-undo]').forEach(function (b) {
       b.onclick = function () { api('assistant-undo', { logId: Number(b.dataset.undo) }).then(function (r) { msg(r.ok ? 'Undone.' : r.error, r.ok ? 'success' : 'danger'); load(); }); };
     });

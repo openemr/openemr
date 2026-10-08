@@ -22,7 +22,7 @@ $base = \Exetazo\Grapheus\Compat::moduleUrl();
 <html>
 <head>
     <title><?php echo xlt('Grapheus Assistant'); ?></title>
-    <?php Header::setupHeader(); ?>
+    <?php Header::setupHeader(['dompurify']); ?>
     <link rel="stylesheet" href="<?php echo attr($base); ?>/assets/grapheus.css?v=2">
 </head>
 <body class="body_top">
