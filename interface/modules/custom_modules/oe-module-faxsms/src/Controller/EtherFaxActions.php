@@ -82,13 +82,20 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
     }
 
     /**
-     * @return string
+     * Count of inbound faxes waiting to be read, for the main menu badge.
+     *
+     * Read live from the EtherFax inbox (unread), the same thing the other
+     * fax vendors report, so the count is current without downloading the
+     * faxes. If the account cannot be reached, the count of faxes already
+     * in the local queue is returned instead.
      */
     public function fetchReminderCount(): string
     {
-        // removed polling API to download pending faxes.
-        // this is better served in a background task.
-        return json_encode($this->fetchQueueCount());
+        if ($this->authenticate()) {
+            return (string)$this->client->getUnreadFaxCount();
+        }
+
+        return (string)$this->fetchQueueCount();
     }
 
     /**

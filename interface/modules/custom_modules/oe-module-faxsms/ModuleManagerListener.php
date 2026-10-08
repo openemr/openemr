@@ -1,8 +1,10 @@
 <?php
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\AbstractModuleActionListener;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
+use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
 
 /**
  * Class to be called from Laminas Module Manager for reporting management actions.
@@ -79,6 +81,14 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     private function install($modId, $currentActionStatus): mixed
     {
+        // Register the SMS and email reminder tasks so they are listed in
+        // background services from the start. They are created inactive; an
+        // admin turns them on from the module's notification services page.
+        // Registration keeps an existing task's on/off state on reinstall.
+        $taskManager = new NotificationTaskManager();
+        $taskManager->manageService('sms');
+        $taskManager->manageService('email');
+
         return $currentActionStatus;
     }
 
@@ -123,6 +133,19 @@ class ModuleManagerListener extends AbstractModuleActionListener
         }
         // save new disabled settings.
         $this->service->saveModuleListenerGlobals($globals);
+        // The loop above only changes the in-memory globals; $globals still
+        // holds the enabled values, so the flags stayed on in the database and
+        // main.php kept polling the disabled module. Store them as off. The
+        // values persisted above are what enable() restores.
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `globals` SET `gl_value` = '0' WHERE `gl_name` IN ('oefax_enable_sms', 'oefax_enable_fax')",
+            []
+        );
+        // Stop the reminder tasks; their code cannot load while the module is disabled.
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `background_services` SET `active` = '0' WHERE `name` IN ('Notification_SMS_Task', 'Notification_Email_Task')",
+            []
+        );
         return $currentActionStatus;
     }
 
