@@ -27,6 +27,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\RawPostParser;
 use OpenEMR\Common\Http\RawPostParserException;
+use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -960,22 +961,20 @@ function writeFieldLine($linedata): void
     echo "<select id='fld[" . attr($fld_line_no) . "][edit_options]' name='fld[" . attr($fld_line_no) . "][edit_options][]' class='typeAddons optin' size='3' multiple data-set='" .
     attr(trim((string) $linedata['edit_options'])) . "' ></select></td>\n";
 
-    if ($linedata['data_type'] == 31) {
-        echo "  <td class='text-center optcell'>";
-        echo "<textarea name='fld[" . attr($fld_line_no) . "][desc]' rows='3' cols='35' class='form-control form-control-sm optin'>" .
-           text($linedata['description']) . "</textarea>";
-        echo "</td>\n";
-    } else {
-        echo "  <td class='text-center optcell'>";
-        echo "<input type='text' name='fld[" . attr($fld_line_no) . "][desc]' value='" .
-        attr($linedata['description']) . "' size='20' class='form-control form-control-sm optin' />";
-        echo "</td>\n";
-      // if not english and showing layout labels, then show the translation of Description
-        if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $session->get('language_choice') > 1) {
-            $descStr = is_string($linedata['description'] ?? null) ? $linedata['description'] : '';
-            echo "<td class='text-center translation'>" . text(xl_layout_label($descStr)) . "</td>\n";
-        }
-    }
+    // Description translation cell must match the header for every data type,
+    // including Static Text (31).
+    $descStr = is_string($linedata['description'] ?? null) ? $linedata['description'] : '';
+    $includeDescTranslation = LayoutsUtils::includeDescriptionTranslation(
+        OEGlobalsBag::getInstance()->getBoolean('translate_layout'),
+        $session->get('language_choice')
+    );
+    echo LayoutsUtils::descriptionEditorCellsHtml(
+        $linedata['data_type'] ?? null,
+        $linedata['description'] ?? null,
+        $fld_line_no,
+        $includeDescTranslation,
+        $includeDescTranslation ? xl_layout_label($descStr) : ''
+    );
     echo "  <td class='text-center optcell' title='" . xla('Value given to this field when a new record is created') . "'>";
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][default]' value='" .
         attr($linedata['default_value']) . "' size='10' maxlength='255' class='form-control form-control-sm optin' />";
@@ -1704,7 +1703,12 @@ if ($layout_id) {
           <th><?php echo xlt('Options'); ?></th>
           <th><?php echo xlt('Description'); ?></th>
                 <?php // if not english and showing layout label translations, then show translation header for description
-                if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $language_choice > 1) { ?>
+                // Same predicate writeFieldLine() uses, so the header and every
+                // row agree on whether this column exists.
+                if (LayoutsUtils::includeDescriptionTranslation(
+                    OEGlobalsBag::getInstance()->getBoolean('translate_layout'),
+                    $language_choice
+                )) { ?>
                     <th><?php echo xlt('Translation'); ?><span class='help' title='<?php echo xla('The translation of description in current language'); ?>'>&nbsp;(?)</span></th>
                 <?php } ?>
           <th><?php echo xlt('Default'); ?><span class='help' title='<?php echo xla('Value given to this field when a new record is created'); ?>'>&nbsp;(?)</span></th>

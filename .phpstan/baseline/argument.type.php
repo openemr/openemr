@@ -17568,7 +17568,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, \\(float\\|int\\) given\\.$#',
-    'count' => 45,
+    'count' => 43,
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
 ];
 $ignoreErrors[] = [
@@ -17578,7 +17578,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 34,
+    'count' => 33,
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
 ];
 $ignoreErrors[] = [
@@ -17603,7 +17603,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 16,
+    'count' => 15,
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
 ];
 $ignoreErrors[] = [

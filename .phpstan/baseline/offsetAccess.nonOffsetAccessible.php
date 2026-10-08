@@ -23258,7 +23258,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'description\' on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
 ];
 $ignoreErrors[] = [
