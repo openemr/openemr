@@ -22,7 +22,6 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256 as RsaSha256Signer;
 use Lcobucci\JWT\Token\Builder as JwtTokenBuilder;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Database\QueryUtils;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -48,12 +47,33 @@ class AuthorizationLogoutTest extends TestCase
             'http_errors' => false,
         ]);
 
-        // Hit the OIDC discovery endpoint once per test to (a) obtain the
-        // exact `issuer` string the server will later require on
-        // id_token_hint verification and (b) ensure the apache process
-        // (which runs this request) has materialised the OAuth2 keypair
-        // under its own ownership before this test's helper reads the
-        // private key from disk.
+        // Hit the DCR endpoint (and discard the result) to force the
+        // server to materialise the OAuth2 keypair under its own
+        // ownership before the signing helper reads the private key
+        // from disk. Discovery is a lighter touch, but on CI's `php -S`
+        // runner it does not reliably route through
+        // AuthorizationController's constructor path, so the keys may
+        // not exist when the signing helper runs. DCR exercises the
+        // path end-to-end.
+        $probe = $this->http->post('/oauth2/default/registration', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'application_type' => 'private',
+                'redirect_uris' => ['https://probe.example/cb'],
+                'client_name' => 'AuthorizationLogoutTest-key-warm-' . bin2hex(random_bytes(3)),
+                'token_endpoint_auth_method' => 'client_secret_post',
+                'contacts' => ['warm@test.example'],
+                'scope' => 'openid',
+            ],
+        ]);
+        $probeData = json_decode((string) $probe->getBody(), true);
+        if (is_array($probeData) && isset($probeData['client_id']) && is_string($probeData['client_id'])) {
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
+                [$probeData['client_id']]
+            );
+        }
+
         $discovery = json_decode(
             (string) $this->http->get('/oauth2/default/.well-known/openid-configuration')->getBody(),
             true
@@ -456,17 +476,23 @@ class AuthorizationLogoutTest extends TestCase
 
     /**
      * Loads the server's OAuth2 signing material and the server-reported
-     * issuer. Instantiating OAuth2KeyConfig auto-creates the key pair on
-     * first use so this is safe to call on a stack that has not completed
-     * an OAuth2 flow yet (e.g. CI's `php -S` runner). The passphrase
-     * lives encrypted in the keys table alongside the private key file.
+     * issuer. setUp has already forced the server to materialise the
+     * key pair via a DCR request, so by the time this helper runs the
+     * key file is present and owned by whatever process the server
+     * runs as. We never instantiate OAuth2KeyConfig from test code:
+     * its constructor can rewrite the DB entries + key files if it
+     * decides state is inconsistent, which invalidates any state built
+     * by earlier tests in the same process.
      *
      * @return array{0: RsaSha256Signer, 1: InMemory, 2: string}
      */
     private function loadLogoutJwtMaterial(): array
     {
-        $siteDir = $_SERVER['OE_SITE_DIR'] ?? '/var/www/localhost/htdocs/openemr/sites/default';
-        $oauth2Key = new OAuth2KeyConfig($siteDir);
+        $siteDir = $GLOBALS['OE_SITE_DIR']
+            ?? $_SERVER['OE_SITE_DIR']
+            ?? '/var/www/localhost/htdocs/openemr/sites/default';
+        $this->assertIsString($siteDir);
+        $privateKeyPath = rtrim($siteDir, '/') . '/documents/certificates/oaprivate.key';
         $crypto = ServiceContainer::getCrypto();
         $encryptedPassphrase = QueryUtils::fetchSingleValue(
             "SELECT `value` FROM `keys` WHERE `name` = ?",
@@ -476,10 +502,8 @@ class AuthorizationLogoutTest extends TestCase
         $passphrase = is_string($encryptedPassphrase)
             ? $crypto->decryptFromDatabase($encryptedPassphrase)
             : '';
-        $privateKeyLocation = $oauth2Key->getPrivateKeyLocation();
-        $this->assertIsString($privateKeyLocation);
         $signer = new RsaSha256Signer();
-        $privateKey = InMemory::file($privateKeyLocation, $passphrase);
+        $privateKey = InMemory::file($privateKeyPath, $passphrase);
         return [$signer, $privateKey, $this->jwtIssuer];
     }
 
