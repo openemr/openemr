@@ -586,9 +586,12 @@ class AuthorizationController implements LoggerAwareInterface
                     throw new OAuthServerException('No Access Code', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
                 }
             }
-            // TODO: @adunsulag this was the server path but can't we just have it be getPathInfo()?
-            $pathInfoValue = $request->server->get('PATH_INFO');
-            $pathInfo = is_string($pathInfoValue) ? $pathInfoValue : '';
+            // Use Symfony's getPathInfo() rather than the raw $_SERVER['PATH_INFO']
+            // superglobal: the latter is only populated by apache/nginx's own
+            // rewriters, while a front-controller setup (e.g. public/index.php
+            // under `php -S`) does not set it. getPathInfo() returns the same
+            // value apache would produce and works consistently across servers.
+            $pathInfo = $request->getPathInfo();
             $pos = strpos($pathInfo, '/client/');
             if ($pos === false) {
                 throw new OAuthServerException('Invalid path', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
