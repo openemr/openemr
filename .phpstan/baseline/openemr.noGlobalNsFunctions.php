@@ -9,12 +9,12 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Function isServiceEnabled may not be defined in the global namespace\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../ccdaservice/ccda_gateway.php',
+    'path' => __DIR__ . '/../../portal/ccda_gateway.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function sendZipDownload may not be defined in the global namespace\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../ccdaservice/ccda_gateway.php',
+    'path' => __DIR__ . '/../../portal/ccda_gateway.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function createCCR may not be defined in the global namespace\\.$#',

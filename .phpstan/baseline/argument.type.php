@@ -79,12 +79,12 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$pid of method OpenEMR\\\\Services\\\\CDADocumentService\\:\\:generateCCDHtml\\(\\) expects int\\|string, mixed given\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../ccdaservice/ccda_gateway.php',
+    'path' => __DIR__ . '/../../portal/ccda_gateway.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$pid of method OpenEMR\\\\Services\\\\CDADocumentService\\:\\:generateCCDZip\\(\\) expects int\\|string, mixed given\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../ccdaservice/ccda_gateway.php',
+    'path' => __DIR__ . '/../../portal/ccda_gateway.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$pid of function transmitCCD expects int, mixed given\\.$#',
@@ -10930,21 +10930,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function intval expects array\\|bool\\|float\\|GMP\\|int\\|resource\\|SimpleXMLElement\\|string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaGlobalsConfiguration.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function trim expects string, string\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$length of function substr expects int\\|null, array\\|int\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$port of function socket_connect expects int\\|null, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$pid of method OpenEMR\\\\Services\\\\PatientService\\:\\:findByPid\\(\\) expects int, mixed given\\.$#',

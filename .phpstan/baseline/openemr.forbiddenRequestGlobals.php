@@ -14,7 +14,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../ccdaservice/ccda_gateway.php',
+    'path' => __DIR__ . '/../../portal/ccda_gateway.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_GET is forbidden\\. Use Symfony\'s Request object instead\\.$#',
