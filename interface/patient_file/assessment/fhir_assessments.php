@@ -24,6 +24,9 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\Services\Questionnaire\AvailabilityContext;
+use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 
 $pid = PatientSessionUtil::getPid();
 $authorized = AclMain::aclCheckCore('patients', 'med');
@@ -117,24 +120,15 @@ $assessmentHistory = [];
 $latestAssessmentByQuestionnaire = [];
 
 if ($authorized && $pid > 0) {
-    $questionnaireRecords = QueryUtils::fetchRecordsNoLog(
-        "SELECT
-            qr.id,
-            qr.name,
-            qr.version,
-            qr.profile,
-            qr.type,
-            qr.code_display,
-            qr.category,
-            qr.questionnaire,
-            lo.title AS category_title
-         FROM questionnaire_repository qr
-         LEFT JOIN list_options lo
-            ON lo.list_id = 'Observation_Types'
-            AND lo.option_id = qr.category
-            AND lo.activity = 1
-         WHERE qr.active = 1
-         ORDER BY COALESCE(lo.seq, 999999), COALESCE(lo.title, qr.category), qr.name"
+    // Which questionnaires belong on this dashboard is an assignment question, not a
+    // property of the repository row, so it is answered in one place for every surface.
+    $questionnaireRecords = (new QuestionnaireAvailabilityService())->getAvailableQuestionnaires(
+        new AvailabilityContext(
+            QuestionnaireSurface::Dashboard,
+            pid: $pid,
+            encounter: is_numeric($currentEncounterValue) ? (int)$currentEncounterValue : null,
+            facility: $assessmentPositiveInt($activeSession->get('facilityId')),
+        )
     );
 
     foreach ($questionnaireRecords as $questionnaireRecord) {

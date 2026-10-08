@@ -234,3 +234,46 @@ UPDATE `oauth_clients` SET `grant_types` = 'authorization_code' WHERE `grant_typ
 UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|client_credentials') WHERE `is_confidential` = 1 AND `scope` LIKE '%system/%' AND ((`jwks` IS NOT NULL AND `jwks` <> '') OR (`jwks_uri` IS NOT NULL AND `jwks_uri` <> '')) AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|client_credentials|%';
 UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|password') WHERE `client_id` IN (SELECT `client_id` FROM `oauth_trusted_user` WHERE `grant_type` = 'password') AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|password|%';
 #EndIf
+
+#IfNotTable content_assignments
+CREATE TABLE `content_assignments` (
+  `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `resource_type` varchar(63) NOT NULL DEFAULT 'questionnaire' COMMENT 'questionnaire today; document_template and others later',
+  `resource_id` bigint(21) UNSIGNED NOT NULL COMMENT 'fk into the resource_type table, e.g. questionnaire_repository.id',
+  `surface` varchar(31) NOT NULL COMMENT 'dashboard, encounter, portal, smart',
+  `category` varchar(64) DEFAULT NULL COMMENT 'narrow to one questionnaire category; NULL means any',
+  `facility` int(11) DEFAULT NULL COMMENT 'fk to facility.id; NULL means any',
+  `provider` int(11) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id; NULL means any',
+  `visit_category` varchar(64) DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=visit_category; NULL means any',
+  `client_id` varchar(255) DEFAULT NULL COMMENT 'oauth client for surface=smart; NULL means any',
+  `acl_section` varchar(64) DEFAULT NULL COMMENT 'ACL section required; NULL falls back to the surface default',
+  `acl_level` varchar(31) DEFAULT NULL COMMENT 'ACL level required; NULL falls back to the surface default',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `seq` int(11) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_by` int(10) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id',
+  `updated_by` int(10) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id',
+  PRIMARY KEY (`id`),
+  KEY `lookup` (`resource_type`,`surface`,`active`),
+  KEY `resource` (`resource_type`,`resource_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- Backfill from current state so an upgraded site sees exactly what it saw before.
+-- Every active questionnaire was on the dashboard; every registry-registered one was
+-- available in every encounter. Both become unscoped assignment rows.
+#IfNotRow2D content_assignments resource_type questionnaire surface dashboard
+INSERT INTO `content_assignments` (`resource_type`, `resource_id`, `surface`, `active`, `seq`)
+SELECT 'questionnaire', `id`, 'dashboard', 1, 0
+  FROM `questionnaire_repository`
+ WHERE `active` = 1;
+#EndIf
+
+#IfNotRow2D content_assignments resource_type questionnaire surface encounter
+INSERT INTO `content_assignments` (`resource_type`, `resource_id`, `surface`, `active`, `seq`)
+SELECT 'questionnaire', `form_foreign_id`, 'encounter', 1, 0
+  FROM `registry`
+ WHERE `directory` = 'questionnaire_assessments'
+   AND `form_foreign_id` > 0;
+#EndIf
