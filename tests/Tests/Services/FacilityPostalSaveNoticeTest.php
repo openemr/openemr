@@ -21,24 +21,36 @@ use PHPUnit\Framework\TestCase;
 class FacilityPostalSaveNoticeTest extends TestCase
 {
     /**
-     * @return array<string, array{string, bool, bool, string}>
+     * @return array<string, array{string, bool, bool, string, string, int}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function noticeProvider(): array
     {
+        $billing = FacilityService::FACILITY_SAVED_BILLING_POSTAL;
+        $service = FacilityService::FACILITY_SAVED_SERVICE_POSTAL;
+        $both = FacilityService::FACILITY_SAVED_BOTH_POSTAL;
+
         return [
-            'billing five digits' => ['12345', true, false, FacilityService::FACILITY_SAVED_BILLING_POSTAL],
-            'service five digits' => ['12345', false, true, FacilityService::FACILITY_SAVED_SERVICE_POSTAL],
-            'both roles' => ['12345', true, true, FacilityService::FACILITY_SAVED_BOTH_POSTAL],
-            'empty postal' => ['', true, false, FacilityService::FACILITY_SAVED_BILLING_POSTAL],
-            'zip plus 4 is nine digits' => ['12345-6789', true, true, ''],
-            'nine digits' => ['123456789', false, true, ''],
-            'letters after nine digits' => ['123456789abc', true, false, ''],
-            'digits with a space' => ['12345 6789', true, true, ''],
-            'foreign short still notices' => ['K1A 0B1', false, true, FacilityService::FACILITY_SAVED_SERVICE_POSTAL],
-            'foreign nine digits is quiet' => ['123456789', true, false, ''],
-            'not a service or billing location' => ['12345', false, false, ''],
+            'billing five digits' => ['12345', true, false, $billing, '', 1],
+            'service five digits' => ['12345', false, true, $service, '', 1],
+            'both roles' => ['12345', true, true, $both, '', 1],
+            'empty postal' => ['', true, false, $billing, '', 1],
+            'zip plus 4 is nine digits' => ['12345-6789', true, true, '', '', 1],
+            'nine digits' => ['123456789', false, true, '', '', 1],
+            'letters after nine digits' => ['123456789abc', true, false, '', '', 1],
+            'digits with a space' => ['12345 6789', true, true, '', '', 1],
+            'unlabeled canadian shape uses the us rule' => ['K1A 0B1', false, true, $service, '', 1],
+            'canada stays quiet' => ['K1A 0B1', false, true, '', 'Canada', 1],
+            'ca stays quiet' => ['K1A0B1', true, false, '', 'CA', 1],
+            'ireland stays quiet' => ['D02 AF30', true, true, '', 'Ireland', 353],
+            'ie stays quiet' => ['D02AF30', true, false, '', 'IE', 353],
+            'blank country outside north america stays quiet' => ['12345', true, false, '', '', 353],
+            'united states still notices' => ['12345', true, false, $billing, 'United States', 1],
+            'usa abbreviation still notices' => ['12345', false, true, $service, 'U.S.A.', 44],
+            'us code still notices' => ['12345', true, true, $both, 'US', 1],
+            'foreign nine digits is quiet' => ['123456789', true, false, '', '', 1],
+            'not a service or billing location' => ['12345', false, false, '', 'Canada', 1],
         ];
     }
 
@@ -46,9 +58,15 @@ class FacilityPostalSaveNoticeTest extends TestCase
      * The save dialog says the row was stored.
      */
     #[DataProvider('noticeProvider')]
-    public function testSaveNoticeFollowsTheFacilityRole(string $postal, bool $billing, bool $service, string $expected): void
-    {
-        $notice = FacilityService::facilityPostalSaveNotice($postal, $billing, $service);
+    public function testSaveNoticeFollowsTheFacilityRole(
+        string $postal,
+        bool $billing,
+        bool $service,
+        string $expected,
+        string $country,
+        int $phoneCountryCode,
+    ): void {
+        $notice = FacilityService::facilityPostalSaveNotice($postal, $billing, $service, $country, $phoneCountryCode);
         $this->assertSame($expected, $notice);
         if ($notice === '') {
             return;
