@@ -570,6 +570,9 @@ XML;
     {
         $results = [];
         foreach ($individual_results as $population_set_key => $individual_result) {
+            if (!is_array($individual_result)) {
+                continue;
+            }
             $individual_result['population_set_key'] = $population_set_key;
             $individual_result['patient_id'] = $patient_id;
             $results[] = new IndividualResult($individual_result, $measure);

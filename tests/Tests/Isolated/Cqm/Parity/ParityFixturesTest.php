@@ -89,6 +89,33 @@ class ParityFixturesTest extends TestCase
         }
     }
 
+    /**
+     * Seeds exist because random patients miss a measure's populations, so a
+     * seeded fixture must carry every seed and reach its initial population.
+     */
+    #[DataProvider('seedProvider')]
+    public function testSeedsReachTheirMeasureInitialPopulation(string $measure, int $seedCount): void
+    {
+        $fixture = ParityFixture::fromFile(self::fixturesDir() . "/$measure.json");
+
+        $seeds = array_filter(
+            $fixture->patients,
+            static fn (array $patient): bool => str_contains(self::pubpid($patient), '-seed-')
+        );
+        $this->assertCount($seedCount, $seeds, "$measure is missing seed patients; capture it again.");
+
+        $inPopulation = 0;
+        foreach ($seeds as $seed) {
+            foreach ($fixture->results[ParityFixture::patientId($seed)] as $result) {
+                if (($result->populations['IPP'] ?? 0) > 0) {
+                    $inPopulation++;
+                    break;
+                }
+            }
+        }
+        $this->assertSame($seedCount, $inPopulation, "Every $measure seed should reach the initial population.");
+    }
+
     #[DataProvider('fixtureProvider')]
     public function testPopulationResultsRespectTheHierarchy(string $path): void
     {
@@ -132,6 +159,36 @@ class ParityFixturesTest extends TestCase
             $cases[basename($path, '.json')] = [$path];
         }
         return $cases;
+    }
+
+    /**
+     * @return array<string, array{string, int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function seedProvider(): array
+    {
+        $cases = [];
+        foreach (glob(__DIR__ . '/seeds/' . self::REPORTING_YEAR . '/*.json') ?: [] as $path) {
+            $json = file_get_contents($path);
+            $data = $json === false ? null : json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            $patients = is_array($data) ? ($data['patients'] ?? null) : null;
+            if (!is_array($patients)) {
+                throw new \UnexpectedValueException("Seed file $path has no patient list");
+            }
+            $cases[basename($path, '.json')] = [basename($path, '.json'), count($patients)];
+        }
+        return $cases;
+    }
+
+    /**
+     * @param array<mixed> $patient
+     */
+    private static function pubpid(array $patient): string
+    {
+        $extended = $patient['extendedData'] ?? null;
+        $pubpid = is_array($extended) ? ($extended['pubpid'] ?? null) : null;
+        return is_string($pubpid) ? $pubpid : '';
     }
 
     private static function parentOf(string $population, string $scoring): ?string

@@ -7,6 +7,11 @@
  * them through cqm-execution with the options OpenEMR sends, and writes the
  * patients and results to one JSON fixture per measure.
  *
+ * Measures whose populations random patients rarely reach also get seed
+ * patients, written by hand in seeds/<year>/<measure>.json. Each seed names
+ * the measure's data criteria and value sets; seeds are always kept and also
+ * serve as bases for the generated variations.
+ *
  * The engine is called directly and awaited. The oe-cqm-service HTTP wrapper
  * calls the async Calculator.calculate() without awaiting it and so answers
  * every request with {}, which cannot serve as a reference.
@@ -272,7 +277,7 @@ function patientFactory(measure, valueSets) {
         }
     };
 
-    const wrap = (birth, elements) => {
+    const wrap = (birth, elements, pubpid = null) => {
         patientCount += 1;
         const id = nextId();
         return {
@@ -282,11 +287,12 @@ function patientFactory(measure, valueSets) {
             qdmVersion: '5.6',
             birthDatetime: iso(birth),
             dataElements: elements,
-            extendedData: { pubpid: `${measure.cms_id}-${String(patientCount).padStart(3, '0')}` },
+            extendedData: { pubpid: pubpid ?? `${measure.cms_id}-${String(patientCount).padStart(3, '0')}` },
         };
     };
 
-    const demographics = (birth) => {
+    // A seed is exactly what its file says, so it never gets a random death.
+    const demographics = (birth, mayExpire = true) => {
         const elements = [];
         const add = (el) => {
             const id = nextId();
@@ -309,7 +315,7 @@ function patientFactory(measure, valueSets) {
             qdmVersion: '5.6',
         });
         const expired = demographicCriteria('QDM::PatientCharacteristicExpired');
-        if (expired.length > 0 && chance(0.1)) {
+        if (mayExpire && expired.length > 0 && chance(0.1)) {
             add({
                 _type: 'QDM::PatientCharacteristicExpired',
                 expiredDatetime: iso(when()),
@@ -320,7 +326,105 @@ function patientFactory(measure, valueSets) {
         return elements;
     };
 
+    const valueSetNamed = (name, where) => {
+        const vs = valueSets.find((v) => v.display_name === name && v.concepts.length > 0);
+        if (!vs) {
+            throw new Error(`${measure.cms_id} seed: no value set or code named "${name}" (${where})`);
+        }
+        return vs;
+    };
+    // A seed's codes are the first concept of the named value set or direct reference code.
+    const firstCode = (name, where) => {
+        const c = valueSetNamed(name, where).concepts[0];
+        return { code: c.code, system: c.code_system_oid };
+    };
+    const SEED_KEYS = new Set(['ref', 'type', 'valueSet', 'result', 'clazz', 'diagnoses', 'relatedTo', ...PERIOD_KEYS, ...DATETIME_KEYS]);
+
+    const seedElement = (item, where) => {
+        for (const key of Object.keys(item)) {
+            if (!SEED_KEYS.has(key)) {
+                throw new Error(`${measure.cms_id} seed: unknown key "${key}" (${where})`);
+            }
+        }
+        const type = `QDM::${item.type}`;
+        const vs = valueSetNamed(item.valueSet, where);
+        const criterion = measure.source_data_criteria.find((c) => c._type === type && c.codeListId === vs.oid);
+        if (!criterion) {
+            throw new Error(`${measure.cms_id} seed: the measure has no ${item.type} criterion for "${item.valueSet}" (${where})`);
+        }
+        const el = {};
+        for (const [k, v] of Object.entries(criterion)) {
+            const empty = v === null || (Array.isArray(v) && v.length === 0);
+            if (!empty && !['_id', 'id', 'codeListId', 'description', 'hqmfOid', 'qrdaOid'].includes(k)) {
+                el[k] = v;
+            }
+        }
+        el.dataElementCodes = [firstCode(item.valueSet, where)];
+        for (const key of PERIOD_KEYS) {
+            if (key in item) {
+                el[key] = { low: item[key][0], high: item[key][1], lowClosed: true, highClosed: true };
+            }
+        }
+        for (const key of DATETIME_KEYS) {
+            if (key in item) {
+                el[key] = item[key];
+            }
+        }
+        if ('authorDatetime' in criterion && !('authorDatetime' in item)) {
+            el.authorDatetime = item.relevantDatetime ?? item.relevantPeriod?.[0] ?? item.prevalencePeriod?.[0] ?? null;
+        }
+        if ('result' in item) {
+            el.result = item.result !== null && typeof item.result === 'object' && 'code' in item.result
+                ? firstCode(item.result.code, where)
+                : item.result;
+        }
+        if ('clazz' in item) {
+            el.clazz = firstCode(item.clazz.code, where);
+        }
+        if ('diagnoses' in item) {
+            el.diagnoses = item.diagnoses.map((d) => ({
+                _type: 'QDM::DiagnosisComponent',
+                code: firstCode(d.code, where),
+                rank: d.rank ?? null,
+                presentOnAdmissionIndicator: null,
+            }));
+        }
+        const id = nextId();
+        return { ...el, id, _id: id };
+    };
+
     return {
+        /** Builds a hand-written seed patient (see seeds/). */
+        seed(spec, index) {
+            const where = `${measure.cms_id} seed ${index + 1}`;
+            const birth = Date.parse(spec.birthDatetime);
+            const elements = demographics(birth, false);
+            if (spec.sex) {
+                const sex = elements.find((el) => el._type === 'QDM::PatientCharacteristicSex');
+                sex.dataElementCodes = [{ code: spec.sex, system: '2.16.840.1.113883.5.1' }];
+            }
+            const refs = new Map();
+            const pending = [];
+            for (const item of spec.elements) {
+                const el = seedElement(item, where);
+                if (item.ref) {
+                    refs.set(item.ref, el.id);
+                }
+                if (item.relatedTo) {
+                    pending.push([el, item.relatedTo]);
+                }
+                elements.push(el);
+            }
+            for (const [el, names] of pending) {
+                el.relatedTo = names.map((ref) => {
+                    if (!refs.has(ref)) {
+                        throw new Error(`${where}: relatedTo names unknown ref "${ref}"`);
+                    }
+                    return refs.get(ref);
+                });
+            }
+            return wrap(birth, elements, `${measure.cms_id}-seed-${index + 1}`);
+        },
         create() {
             const ageYears = chance(0.15) ? rand() * 18 : 18 + rand() * 75;
             const birth = Math.floor((PERIOD_START - ageYears * 365.25 * DAY) / 60000) * 60000;
@@ -436,11 +540,20 @@ function features(summary) {
     return out;
 }
 
-/** Greedily keeps the patients that add the most uncovered outcomes, in generation order. */
-function selectByCoverage(candidates, summaries) {
+/**
+ * Keeps the seeds, then greedily the patients that add the most uncovered
+ * outcomes, in generation order.
+ */
+function selectByCoverage(candidates, summaries, seeds) {
     const covered = new Set();
     const featureSets = new Map(candidates.map((p) => [p._id, features(summaries.get(p._id))]));
     const chosen = new Set();
+    for (const seed of seeds) {
+        chosen.add(seed._id);
+        for (const f of featureSets.get(seed._id).keys()) {
+            covered.add(f);
+        }
+    }
     while (chosen.size < KEEP) {
         let best = null;
         let bestGain = 0;
@@ -529,7 +642,20 @@ async function captureMeasure(dir) {
     const fresh = Array.from({ length: POOL }, () => factory.create());
     const summaries = await calculate(measure, valueSets, fresh);
 
-    let candidates = fresh;
+    const seedFile = path.join(path.dirname(module.filename), 'seeds', year, `${name}.json`);
+    const seeds = fs.existsSync(seedFile)
+        ? JSON.parse(fs.readFileSync(seedFile, 'utf8')).patients.map((spec, i) => factory.seed(spec, i))
+        : [];
+    if (seeds.length > 0) {
+        // A seed is written by hand, so an engine error is a mistake to fix, not a patient to drop.
+        const raw = await engine(measure, valueSets, seeds);
+        for (const seed of seeds) {
+            const byKey = raw[seed._id] || {};
+            summaries.set(seed._id, Object.fromEntries(Object.entries(byKey).map(([k, r]) => [k, summarize(r)])));
+        }
+    }
+
+    let candidates = [...fresh, ...seeds];
     const pickBase = mulberry32(hashString(`${name}:bases`));
     for (let g = 0; g < GENERATIONS; g++) {
         const reached = candidates.filter((p) => summaries.has(p._id) && Object.values(summaries.get(p._id)).some(reachedDenominator));
@@ -548,7 +674,7 @@ async function captureMeasure(dir) {
         candidates = [...candidates, ...changed];
     }
 
-    const patients = selectByCoverage(candidates.filter((p) => summaries.has(p._id)), summaries);
+    const patients = selectByCoverage(candidates.filter((p) => summaries.has(p._id)), summaries, seeds);
     const results = Object.fromEntries(patients.map((p) => [p._id, summaries.get(p._id)]));
     const engineError = patients.length === 0
         ? (failures.find((f) => f.measure === measure.cms_id)?.error ?? 'no results')
