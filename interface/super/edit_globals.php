@@ -190,7 +190,14 @@ function checkBackgroundServices(): void
                         } else {
                             $fldvalue = trim($_POST["form_$i"] ?? '');
                         }
-                        setUserSetting($label, $fldvalue, $authUserID, false);
+                        // An encrypted value that could not be decrypted was shown empty;
+                        // leaving it empty keeps the stored value rather than clearing it.
+                        $keepUndecryptable = $fldvalue === ''
+                            && in_array($fldtype, ['encrypted', 'encrypted_hash'], true)
+                            && CurrentRequest::get()->request->getString("undecryptable_$i") === '1';
+                        if (!$keepUndecryptable) {
+                            setUserSetting($label, $fldvalue, $authUserID, false);
+                        }
                         if (($_POST["toggle_$i"] ?? '') == "YES") {
                             removeUserSetting($label);
                         }
@@ -272,11 +279,21 @@ function checkBackgroundServices(): void
                             }
                         }
 
+                        // An encrypted value that could not be decrypted was shown empty;
+                        // leaving it empty keeps the stored value rather than clearing it.
+                        $keepUndecryptable = $fldvalue === ''
+                            && in_array($fldtype, ['encrypted', 'encrypted_hash'], true)
+                            && $postedGlobals->getString("undecryptable_$i") === '1';
+
                         // We rely on the fact that set of keys in globals.inc.php === set of keys in `globals` table!
                         if (
-                            !isset($old_globals[$fldid]) // if the key not found in database - update database
-                            ||
-                            (isset($old_globals[$fldid]) && $old_globals[$fldid]['gl_value'] !== $fldvalue) // if the value in database is different
+                            !$keepUndecryptable
+                            &&
+                            (
+                                !isset($old_globals[$fldid]) // if the key not found in database - update database
+                                ||
+                                (isset($old_globals[$fldid]) && $old_globals[$fldid]['gl_value'] !== $fldvalue) // if the value in database is different
+                            )
                         ) {
                             // special treatment for some vars
                             switch ($fldid) {
@@ -584,8 +601,11 @@ function checkBackgroundServices(): void
                                                     echo "  <input type='password' class='form-control' name='form_$i' id='form_$i' " .
                                                         "maxlength='255' value='" . attr($fldvalueDecrypted) . "' />\n";
                                                     if ($decryptFailed) {
+                                                        // Tells the save handler to keep the stored value if this
+                                                        // field is left empty, instead of overwriting it with ''.
+                                                        echo "  <input type='hidden' name='undecryptable_" . attr((string)$i) . "' value='1' />\n";
                                                         echo "  <small class='form-text text-danger'>" .
-                                                            xlt('The stored value could not be decrypted. Enter a new value and save.') . "</small>\n";
+                                                            xlt('The stored value could not be decrypted. Enter a new value and save, or leave it empty to keep the stored value.') . "</small>\n";
                                                     }
                                                     if ($userMode) {
                                                         try {
