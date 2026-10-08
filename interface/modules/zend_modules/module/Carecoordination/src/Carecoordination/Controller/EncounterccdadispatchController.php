@@ -307,8 +307,8 @@ class EncounterccdadispatchController extends AbstractActionController
             }
         } catch (CcdaServiceConnectionException $exception) {
             http_response_code(StatusCode::INTERNAL_SERVER_ERROR);
-            echo xlt("Failed to connect to ccdaservice. Verify your environment is setup correctly by following the instructions in the ccdaservice's Readme file");
-            ServiceContainer::getLogger()->error("Connection error with ccda service", ['exception' => $exception]);
+            echo xlt("Failed to generate the C-CDA document. Verify that C-CDA documents are enabled in Globals and check the log for details.");
+            ServiceContainer::getLogger()->error("C-CDA generation failed", ['exception' => $exception]);
             die();
         }
 

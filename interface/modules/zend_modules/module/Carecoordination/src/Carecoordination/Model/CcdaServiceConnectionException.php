@@ -1,7 +1,9 @@
 <?php
 
 /**
- * CcdaServiceConnectionException is thrown when there is an error in talking to the node ccda service.
+ * CcdaServiceConnectionException is thrown when a C-CDA document cannot be generated: generation is
+ * disabled in Globals, or the in-process converter failed. The name predates the removal of the node
+ * ccda service and is kept so existing catch blocks continue to work.
  *
  * @package openemr
  * @link      https://www.open-emr.org
