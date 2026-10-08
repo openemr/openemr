@@ -715,6 +715,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-${{ matrix.suite }}.xml
+        disable_search: true
         flags: ${{ matrix.suite == 'redis-failover' && 'redis' || matrix.suite }}-${{ needs.setup.outputs.coverage_flag }}
         report_type: test_results
 
@@ -729,6 +730,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}.clover.xml
+        disable_search: true
         flags: ${{ matrix.suite == 'redis-failover' && 'redis' || matrix.suite }}-${{ needs.setup.outputs.coverage_flag }}
 
     # API/E2E test file coverage (collected by PHPUnit, not auto_prepend.php).
@@ -739,6 +741,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}-tests.clover.xml
+        disable_search: true
         flags: ${{ matrix.suite }}-tests-${{ needs.setup.outputs.coverage_flag }}
 
     ##

@@ -802,7 +802,7 @@
                 {% if ccdaOk %}
                     {% include "portal/partial/_nav_icon.html.twig"
                         with {
-                        url: web_root ~ "/ccdaservice/ccda_gateway.php?action=view&csrf_token_form=" ~ csrfUtils|attr_url
+                        url: web_root ~ "/portal/ccda_gateway.php?action=view&csrf_token_form=" ~ csrfUtils|attr_url
                         , icon: "notes-medical"
                         , navText: "View Summary of Care"|xl
                         , id: "view-summary-go"
@@ -810,7 +810,7 @@
                     } %}
                     {% include "portal/partial/_nav_icon.html.twig"
                         with {
-                        url: web_root ~ "/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form=" ~ csrfUtils|attr_url
+                        url: web_root ~ "/portal/ccda_gateway.php?action=dl&csrf_token_form=" ~ csrfUtils|attr_url
                         , icon: "download"
                         , navText: "Download Summary of Care"|xl
                         , id: "download-summary-go"
