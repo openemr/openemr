@@ -236,19 +236,10 @@ UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|password') WH
 #EndIf
 
 -- Address Book NPI requirement. NPI is US-only (CMS/NPPES). New installs use
--- the globals.inc.php default of on. Upgrades insert the flag off, then turn
--- it on when Units for Visit Forms is already US-primary or US-only (1 or 3).
--- Metric sites (2 or 4) and sites with no units row stay off. Both statements
--- stay inside #IfNotRow so a later run does not turn the setting back on
--- after a site has switched it off.
+-- the globals.inc.php default of on. Upgrades insert the flag off and leave
+-- it off. Units for Visit Forms is not a country, so this upgrade does not
+-- turn the setting on. A site that wants it enables it explicitly. The insert
+-- stays inside #IfNotRow so a later run does not add the row again.
 #IfNotRow globals gl_name addrbook_require_npi
 INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES ('addrbook_require_npi', 0, '0');
-
-UPDATE `globals` g
-INNER JOIN `globals` u
-    ON u.gl_name = 'units_of_measurement'
-    AND u.gl_index = 0
-    AND u.gl_value IN ('1', '3')
-SET g.gl_value = '1'
-WHERE g.gl_name = 'addrbook_require_npi' AND g.gl_index = 0;
 #EndIf
