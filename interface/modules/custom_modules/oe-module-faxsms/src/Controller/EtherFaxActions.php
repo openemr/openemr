@@ -86,13 +86,17 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
      *
      * Read live from the EtherFax inbox (unread), the same thing the other
      * fax vendors report, so the count is current without downloading the
-     * faxes. If the account cannot be reached, the count of faxes already
-     * in the local queue is returned instead.
+     * faxes. If the account cannot be reached or the inbox request fails,
+     * the count of faxes already in the local queue is returned instead.
+     * A real unread count of 0 is returned as 0.
      */
     public function fetchReminderCount(): string
     {
         if ($this->authenticate()) {
-            return (string)$this->client->getUnreadFaxCount();
+            $unread = $this->client->getUnreadFaxCount();
+            if ($unread !== null) {
+                return (string)$unread;
+            }
         }
 
         return (string)$this->fetchQueueCount();

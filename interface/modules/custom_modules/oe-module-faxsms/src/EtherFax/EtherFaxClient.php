@@ -306,9 +306,10 @@ class EtherFaxClient
     /**
      * Gets the number of unread faxes.
      *
-     * @return int
+     * Returns null when the request fails, so callers can tell a failed
+     * request from an inbox that really has no unread faxes.
      */
-    public function getUnreadFaxCount(): int
+    public function getUnreadFaxCount(): ?int
     {
         // get unread fax count
         $response = $this->clientHttpGet('/inbox?a=unread');
@@ -318,7 +319,7 @@ class EtherFaxClient
             return (int)($obj->{'UnreadFaxes'});
         }
 
-        return 0;
+        return null;
     }
 
     /**

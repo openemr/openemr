@@ -4,6 +4,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\AbstractModuleActionListener;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
+use OpenEMR\Modules\FaxSMS\ModuleLifecycleState;
 use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
 
 /**
@@ -26,6 +27,12 @@ use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
 
 class ModuleManagerListener extends AbstractModuleActionListener
 {
+    /**
+     * module_faxsms_credentials vendor key that records which reminder tasks
+     * were active when the module was disabled.
+     */
+    private const PERSISTED_TASKS_VENDOR = '_persisted_tasks';
+
     public $service;
     private $authUser;
 
@@ -107,8 +114,49 @@ class ModuleManagerListener extends AbstractModuleActionListener
             $globals = $this->service->getVendorGlobals();
         }
         $this->service->saveModuleListenerGlobals($globals);
+        $this->restoreReminderTasks();
 
         return $currentActionStatus;
+    }
+
+    /**
+     * Stop the reminder tasks while the module is disabled (their code cannot
+     * load), remembering which ones were running so enable() can restart them.
+     */
+    private function suspendReminderTasks(): void
+    {
+        $active = ModuleLifecycleState::taskNames(QueryUtils::fetchRecords(
+            "SELECT `name` FROM `background_services` WHERE `active` = 1 AND `name` IN (?, ?)",
+            ModuleLifecycleState::REMINDER_TASKS
+        ));
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `module_faxsms_credentials` (`auth_user`, `vendor`, `credentials`) VALUES (0, ?, ?)
+                ON DUPLICATE KEY UPDATE `credentials` = VALUES(`credentials`), `updated` = NOW()",
+            [self::PERSISTED_TASKS_VENDOR, json_encode($active)]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `background_services` SET `active` = 0 WHERE `name` IN (?, ?)",
+            ModuleLifecycleState::REMINDER_TASKS
+        );
+    }
+
+    /**
+     * Restart the reminder tasks that were running when the module was
+     * disabled. Tasks that were already off stay off.
+     */
+    private function restoreReminderTasks(): void
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = 0 AND `vendor` = ?",
+            [self::PERSISTED_TASKS_VENDOR]
+        );
+        $stored = is_array($row) ? ($row['credentials'] ?? null) : null;
+        foreach (ModuleLifecycleState::tasksToRestore($stored) as $name) {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `background_services` SET `active` = 1 WHERE `name` = ?",
+                [$name]
+            );
+        }
     }
 
     /**
@@ -141,11 +189,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
             "UPDATE `globals` SET `gl_value` = '0' WHERE `gl_name` IN ('oefax_enable_sms', 'oefax_enable_fax')",
             []
         );
-        // Stop the reminder tasks; their code cannot load while the module is disabled.
-        QueryUtils::sqlStatementThrowException(
-            "UPDATE `background_services` SET `active` = '0' WHERE `name` IN ('Notification_SMS_Task', 'Notification_Email_Task')",
-            []
-        );
+        $this->suspendReminderTasks();
         return $currentActionStatus;
     }
 

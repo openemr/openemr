@@ -169,12 +169,7 @@ class BootstrapService
         // The stored JSON is in the row's credentials column. This used to be
         // read from a global of that name, which never exists, so nothing was
         // ever restored and enable() fell back to the current globals.
-        $json = is_array($row) ? ($row['credentials'] ?? null) : null;
-        if (!is_string($json)) {
-            return [];
-        }
-        $settings = json_decode($json, true);
-        return is_array($settings) ? $settings : [];
+        return ModuleLifecycleState::decodeSettings(is_array($row) ? ($row['credentials'] ?? null) : null);
     }
 
     public static function getUserPermission($user_id, $service)
