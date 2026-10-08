@@ -140,6 +140,7 @@ final class ApiUseMetricsTest extends TestCase
             'empty string' => ['', 0],
             // ctype_digit rejects these, and a count can be neither.
             'a negative string' => ['-1', 0],
+            'a negative int' => [-1, 0],
             'a decimal string' => ['1.5', 0],
             'not a number' => ['many', 0],
             'a bool' => [true, 0],

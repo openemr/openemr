@@ -166,18 +166,23 @@ class RealWorldTesting
             $period
         );
 
+        // Grouped on a binary cast because the installer's default collation is
+        // utf8mb4_general_ci, under which GROUP BY would fold `Patient` and
+        // `patient` into one row. The loop this replaced keyed a PHP array, which
+        // is byte-exact, so the cast preserves that.
+        //
         // `request <> '0'` preserves the previous empty() test, which treated the
-        // string '0' as absent. Ordering by resource replaces the old insertion
-        // order, which was whatever the unordered scan happened to return.
+        // string '0' as absent. Ordering replaces the old insertion order, which
+        // was whatever the unordered scan happened to return.
         $resourceRows = QueryUtils::fetchRecords(
-            "SELECT al.`request` AS `resource`, COUNT(*) AS `request_count`
+            "SELECT CAST(al.`request` AS BINARY) AS `resource`, COUNT(*) AS `request_count`
              FROM `log` AS l
              INNER JOIN `api_log` AS al ON l.`id` = al.`log_id`
              WHERE l.`date` >= ? AND l.`date` <= ?
                AND l.`success` IS NOT NULL AND l.`success` <> 0
                AND al.`request` <> '' AND al.`request` <> '0'
-             GROUP BY al.`request`
-             ORDER BY al.`request`",
+             GROUP BY CAST(al.`request` AS BINARY)
+             ORDER BY CAST(al.`request` AS BINARY)",
             $period
         );
 

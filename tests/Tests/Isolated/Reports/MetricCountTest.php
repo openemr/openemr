@@ -45,6 +45,10 @@ final class MetricCountTest extends TestCase
     public function testRejectsAValueThatIsNotACount(): void
     {
         // A count cannot be negative or fractional, so these are not coerced.
+        // Both forms matter: the driver returns strings, but a caller may pass
+        // an int, and the two branches must agree.
+        self::assertSame(0, MetricCount::fromValue(-5));
+        self::assertSame(0, MetricCount::fromValue(PHP_INT_MIN));
         self::assertSame(0, MetricCount::fromValue('-5'));
         self::assertSame(0, MetricCount::fromValue('2.5'));
         self::assertSame(0, MetricCount::fromValue('twelve'));
