@@ -2,8 +2,9 @@
 
 namespace OpenEMR\RestControllers\Subscriber;
 
-use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Auth\OpenIDConnect\CORSAllowedOriginRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -11,6 +12,19 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class CORSListener implements EventSubscriberInterface
 {
+    private CORSAllowedOriginRegistry $registry;
+
+    public function setAllowedOriginRegistry(CORSAllowedOriginRegistry $registry): void
+    {
+        $this->registry = $registry;
+    }
+
+    public function getAllowedOriginRegistry(): CORSAllowedOriginRegistry
+    {
+        $this->registry ??= new CORSAllowedOriginRegistry();
+        return $this->registry;
+    }
+
     /**
      * @inheritDoc
      */
@@ -29,13 +43,15 @@ class CORSListener implements EventSubscriberInterface
             return;
         }
 
-        if (!$event->getRequest()->headers->has('Origin')) {
+        $request = $event->getRequest();
+        if (!$request->headers->has('Origin')) {
             return; // No CORS headers if no Origin header is present
         }
-        $request = $event->getRequest();
         if ($request->getMethod() === 'OPTIONS') {
-            // If the request is an OPTIONS request, we can return an initial response.
-            $response = $this->getInitialResponse($request);
+            // Short-circuit the preflight here. Downstream listeners never
+            // see the OPTIONS request, so headers added by onKernelResponse
+            // do not reach it; set the preflight headers here instead.
+            $response = $this->buildPreflightResponse($request);
             $event->setResponse($response);
             return;
         }
@@ -50,29 +66,34 @@ class CORSListener implements EventSubscriberInterface
             return; // No CORS headers if no Origin header is present
         }
 
-        // we have to allow public API clients to have CROSS ORIGIN access
-        // we could tighten things up by restricting confidential clients to not have CORS, but that limits us
-        // @TODO: review security implications if we need to tighten this up
-        $origins = $request->getHeader('Origin');
-        $response->headers->set("Access-Control-Allow-Origin", $origins[0]);
+        // Vary: Origin regardless of allow-list outcome, so a shared cache
+        // never serves a response built for one origin to a request from
+        // a different one.
+        $response->headers->set('Vary', 'Origin', false);
+
+        $origin = (string) $request->headers->get('Origin', '');
+        $allowed = $this->getAllowedOriginRegistry()->isAllowed($origin);
+        if ($allowed) {
+            $response->headers->set('Access-Control-Allow-Origin', $origin);
+            $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        }
         $event->setResponse($response);
     }
 
-    private function getInitialResponse(HttpRestRequest $request): Response
+    private function buildPreflightResponse(Request $request): Response
     {
-        // This method is intended to return an initial response.
-        // Implementation details would depend on the specific requirements of the application.
-        // For example, you might want to return a default response or an error response.
-        $response = new Response('', Response::HTTP_OK, [
-            'Access-Control-Allow-Credentials' => 'true',
-            "Access-Control-Allow-Headers" => "origin, authorization, accept, content-type, content-encoding, x-requested-with",
-            "Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE, PATCH, TRACE, OPTIONS"
-        ]);
-        $origins = $request->getHeader('Origin');
-        // TODO: @adunsulag should we allow all origins or just the first one?
-        $response->headers->set("Access-Control-Allow-Origin", $origins[0]);
-        $response->setContent('');
-        $response->setStatusCode(Response::HTTP_OK);
-        return $response;
+        $origin = (string) $request->headers->get('Origin', '');
+        $allowed = $this->getAllowedOriginRegistry()->isAllowed($origin);
+
+        $headers = [
+            'Vary' => 'Origin',
+            'Access-Control-Allow-Headers' => 'origin, authorization, accept, content-type, content-encoding, x-requested-with',
+            'Access-Control-Allow-Methods' => 'GET, HEAD, POST, PUT, DELETE, PATCH, TRACE, OPTIONS',
+        ];
+        if ($allowed) {
+            $headers['Access-Control-Allow-Origin'] = $origin;
+            $headers['Access-Control-Allow-Credentials'] = 'true';
+        }
+        return new Response('', Response::HTTP_OK, $headers);
     }
 }

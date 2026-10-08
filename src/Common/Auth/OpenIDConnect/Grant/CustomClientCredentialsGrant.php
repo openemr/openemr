@@ -202,6 +202,17 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
             $this->getSystemLogger()->error("CustomClientCredentialsGrant->validateClient() client returned was not a valid ClientEntity ", ['client' => $clientId]);
             throw OAuthServerException::invalidClient($request);
         }
+
+        // Mirror the enabled-flag check performed by the other three custom
+        // grants (CustomAuthCodeGrant, CustomPasswordGrant, CustomRefreshTokenGrant).
+        if (!$client->isEnabled()) {
+            $this->logger?->error(
+                "CustomClientCredentialsGrant->validateClient() client was not enabled",
+                ['client' => $client->getIdentifier()]
+            );
+            throw OAuthServerException::invalidClient($request);
+        }
+
         // validate everything to do with the JWT...
         // Check if JWT authentication service is available and request has JWT assertion
         if (!isset($this->jwtAuthService)) {

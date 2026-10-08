@@ -51,8 +51,12 @@ class SkipAuthorizationStrategy implements IAuthorizationStrategy
         if (str_starts_with($pathInfo, $sitePath)) {
             $pathInfo = substr($pathInfo, strlen($sitePath));
         }
+        // Predicate intent: the incoming path matches a configured skip-route
+        // either exactly or as a deeper child path. Appending "/" to the route
+        // when probing the deeper-child case prevents a path like
+        // "/fhir/metadata-fake" from matching a configured "/fhir/metadata".
         foreach ($this->skipRoutes as $route) {
-            if (str_starts_with($route, $pathInfo)) {
+            if ($pathInfo === $route || str_starts_with($pathInfo, rtrim($route, '/') . '/')) {
                 return true;
             }
         }
