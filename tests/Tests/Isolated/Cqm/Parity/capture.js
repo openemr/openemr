@@ -650,7 +650,10 @@ async function captureMeasure(dir) {
         // A seed is written by hand, so an engine error is a mistake to fix, not a patient to drop.
         const raw = await engine(measure, valueSets, seeds);
         for (const seed of seeds) {
-            const byKey = raw[seed._id] || {};
+            const byKey = raw[seed._id];
+            if (!byKey || Object.keys(byKey).length === 0) {
+                throw new Error(`${name} seed ${seed.extendedData.pubpid}: the engine returned no result`);
+            }
             summaries.set(seed._id, Object.fromEntries(Object.entries(byKey).map(([k, r]) => [k, summarize(r)])));
         }
     }
