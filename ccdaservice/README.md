@@ -10,7 +10,10 @@ The directory keeps its name so existing installs, CI and Docker setups that
 install the CQM dependencies from this path continue to work.
 
 ## Install or update
-Stop any running node processes first, then from `openemr/ccdaservice` run:
+If the CQM service is running, stop it first. It listens on `127.0.0.1:6660`
+and shuts down cleanly with `curl http://127.0.0.1:6660/shutdown`. Other Node
+applications on the server do not need to be stopped. Then from
+`openemr/ccdaservice` run:
 - `npm ci --omit=dev`
 
 Latest version tested is node v24.1.0.
