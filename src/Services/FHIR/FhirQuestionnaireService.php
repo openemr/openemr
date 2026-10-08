@@ -153,9 +153,8 @@ class FhirQuestionnaireService extends FhirServiceBase implements
      * Healthcare resources often need to provide an AUDIT trail of who last touched a resource and when was it modified.
      * The ownership and AUDIT trail in FHIR is done via the Provenance record.
      * @param FHIRDomainResource $dataRecord The record we are generating a provenance from
-     * @param bool $encode Whether to serialize the record or not
      */
-    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|false
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         // we don't return any provenance authorship for this custom resource
         // if we did return it, we would fill out the following record
@@ -165,14 +164,7 @@ class FhirQuestionnaireService extends FhirServiceBase implements
         }
         // provenance will just be the organization as we don't keep track of the user at the individual FHIR resource level
         // note we do track this internally in OpenEMR but FHIR R4 doesn't expose this as far as I can tell.
-        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
-        if ($fhirProvenance === null) {
-            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
-            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
-            // available" and continues (see issue #13054).
-            return false;
-        }
-        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+        return $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
     }
 
     /**

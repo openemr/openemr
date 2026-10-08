@@ -92,36 +92,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/IFhirExportableResourceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\FhirProvenanceService\\|string\\|null is not subtype of native type OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationAdvanceDirectiveService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\FhirProvenanceService\\|string\\|null is not subtype of native type OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationEmployerService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\FhirProvenanceService\\|string\\|null is not subtype of native type OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationHistorySdohService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\FhirProvenanceService\\|string\\|null is not subtype of native type OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationObservationFormService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\FhirProvenanceService\\|string\\|null is not subtype of native type OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationPatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\FHIR\\\\FhirProvenanceService\\|string\\|null is not subtype of native type OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationQuestionnaireItemService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type string is incompatible with native type bool\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ImageUtilities/HandleImageService.php',

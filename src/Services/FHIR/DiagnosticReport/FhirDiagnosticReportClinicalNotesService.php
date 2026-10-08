@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR\DiagnosticReport;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDiagnosticReport;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
@@ -234,10 +235,8 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRDiagnosticReport)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -248,11 +247,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
             $performer = current($dataRecord->getPerformer());
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
-        }
+        return $fhirProvenance;
     }
 
 
