@@ -92,7 +92,16 @@ function set_category() {
     if (s.selectedIndex >= 0) {
         var catid = s.options[s.selectedIndex].value;
         f.form_title.value = s.options[s.selectedIndex].text;
-        f.form_duration.value = addEditEventConfig.durations[catid];
+        var minutes = addEditEventConfig.durations[catid];
+        f.form_duration.value = minutes;
+        var allDay = String(minutes) === '1440';
+        var allDayRadio = document.getElementById('rballday1');
+        var timedRadio = document.getElementById('rballday2');
+        if (allDayRadio && timedRadio) {
+            allDayRadio.checked = allDay;
+            timedRadio.checked = !allDay;
+            set_allday();
+        }
         set_display();
     }
 }
