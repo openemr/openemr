@@ -102,7 +102,8 @@ CREATE TABLE `api_log` (
   `request_body` longtext,
   `response` longtext,
   `created_time` timestamp NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `log_id` (`log_id`)
 ) ENGINE = InnoDB;
 
 -- --------------------------------------------------------

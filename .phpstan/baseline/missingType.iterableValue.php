@@ -10387,16 +10387,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Reports/AMC/Trackers/AMCItemTracker.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Reports\\\\RealWorldTesting\\:\\:metric2\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Reports/RealWorldTesting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Reports\\\\RealWorldTesting\\:\\:metric5\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Reports/RealWorldTesting.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\Authorization\\\\BearerTokenAuthorizationStrategy\\:\\:isValidRequestForUserRole\\(\\) has parameter \\$oauthScopes with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
