@@ -30,6 +30,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\CurrentRequest;
@@ -569,11 +570,29 @@ function checkBackgroundServices(): void
                                                     echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                         "maxlength='255' value='" . attr($fldvalue) . "' />\n";
                                                 } elseif (($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED) || ($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED_HASH)) {
-                                                    $fldvalueDecrypted = $cryptoGen->decryptFromDatabase(is_string($fldvalue) ? $fldvalue : null);
+                                                    // A stored value that cannot be decrypted (for example after the
+                                                    // site's encryption keys changed) must not stop this page from
+                                                    // rendering: this page is the only place the value can be replaced.
+                                                    // Show the field empty with a notice so a new value can be saved.
+                                                    $decryptFailed = false;
+                                                    try {
+                                                        $fldvalueDecrypted = $cryptoGen->decryptFromDatabase(is_string($fldvalue) ? $fldvalue : null);
+                                                    } catch (CryptoGenException) {
+                                                        $fldvalueDecrypted = '';
+                                                        $decryptFailed = true;
+                                                    }
                                                     echo "  <input type='password' class='form-control' name='form_$i' id='form_$i' " .
                                                         "maxlength='255' value='" . attr($fldvalueDecrypted) . "' />\n";
+                                                    if ($decryptFailed) {
+                                                        echo "  <small class='form-text text-danger'>" .
+                                                            xlt('The stored value could not be decrypted. Enter a new value and save.') . "</small>\n";
+                                                    }
                                                     if ($userMode) {
-                                                        $globalTitle = $cryptoGen->decryptFromDatabase(is_string($globalValue) ? $globalValue : null);
+                                                        try {
+                                                            $globalTitle = $cryptoGen->decryptFromDatabase(is_string($globalValue) ? $globalValue : null);
+                                                        } catch (CryptoGenException) {
+                                                            $globalTitle = '';
+                                                        }
                                                     }
                                                     $fldvalueDecrypted = '';
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_PASS) {
