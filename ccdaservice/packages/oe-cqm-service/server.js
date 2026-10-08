@@ -79,7 +79,7 @@ app.get('/version', function (request, response) {
  * @bodyparam patients - an array of cqm-models based patients to calculate for.
  * @bodyparam options - optional params for things like generating pretty results.
  */
-app.post('/calculate', function (request, response) {
+app.post('/calculate', async function (request, response) {
   // Certain params are required for this action, make sure they exist.
   let missing = []
   REQUIRED_PARAMS.forEach(function (param) {
@@ -110,12 +110,16 @@ app.post('/calculate', function (request, response) {
   const patientsObj = JSON.parse(patients)
   const optionsObj = JSON.parse(options)
   try {
-    results = calculator.calculate(measureObj, patientsObj, valueSetsObj, optionsObj);
+    // Calculator.calculate() is async since cqm-execution 4.4.0. Without the
+    // await, response.json() serialized the pending promise as {} and a
+    // rejected calculation went unhandled, which terminates Node.
+    const results = await calculator.calculate(measureObj, patientsObj, valueSetsObj, optionsObj);
     logger.log({ level: 'info', message: 'GET /calculate. measure: ' + measureObj['cms_id'] + ' patient_count: ' + patientsObj.length });
     response.json(results);
   } catch(error) {
     logger.log({ level: 'error', message: `GET /calculate. error in the calculation engine: ${error} headers: ${JSON.stringify(request.headers)}` });
-    response.status(500).send({'error in the calculation engine': error});
+    // An Error serializes to {}; send its text so the caller sees the failure.
+    response.status(500).send({'error in the calculation engine': String(error)});
 
   }
 
