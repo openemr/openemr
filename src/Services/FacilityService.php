@@ -72,10 +72,21 @@ class FacilityService extends BaseService
      * Postal notice for the facility screen. Empty when the dialog should stay quiet.
      *
      * Digits are kept by Claim::x12Zip(). Nine digits stay quiet.
+     * The check is the US claim rule. It runs for the United States, and for a
+     * blank country when the telephone country code is 1. Another country
+     * stays quiet. This screen does not warn for a different postal format.
      */
-    public static function facilityPostalSaveNotice(string $postal, bool $billingLocation, bool $serviceLocation): string
-    {
+    public static function facilityPostalSaveNotice(
+        string $postal,
+        bool $billingLocation,
+        bool $serviceLocation,
+        string $country = '',
+        int $phoneCountryCode = 1,
+    ): string {
         if (!$billingLocation && !$serviceLocation) {
+            return '';
+        }
+        if (!self::unitedStatesClaimPostal($country, $phoneCountryCode)) {
             return '';
         }
         $digits = preg_replace('/[^0-9]/', '', $postal) ?? '';
@@ -90,6 +101,23 @@ class FacilityService extends BaseService
         }
 
         return self::FACILITY_SAVED_SERVICE_POSTAL;
+    }
+
+    /**
+     * Whether the nine-digit claim notice applies to this facility.
+     *
+     * A blank country follows the telephone country code. Code 1 is the
+     * North American default. A named country applies only for the United States.
+     */
+    private static function unitedStatesClaimPostal(string $country, int $phoneCountryCode): bool
+    {
+        $country = trim($country);
+        if ($country === '') {
+            return $phoneCountryCode === 1;
+        }
+        $letters = strtoupper(preg_replace('/[^A-Za-z]/', '', $country) ?? '');
+
+        return in_array($letters, ['US', 'USA', 'UNITEDSTATES', 'UNITEDSTATESOFAMERICA'], true);
     }
 
     /**
