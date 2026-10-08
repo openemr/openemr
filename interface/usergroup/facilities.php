@@ -24,6 +24,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
@@ -50,7 +51,8 @@ $echoFacilitySaveDialogResult = function (bool $saved, string $sentence): void {
     echo FacilityService::facilitySaveDialogBody($saved, $sentence);
 };
 
-$facilityPostalSentence = fn (string $postal, bool $billing, bool $service): string => match (FacilityService::facilityPostalSaveNotice($postal, $billing, $service)) {
+$phoneCountryCode = OEGlobalsBag::getInstance()->getInt('phone_country_code');
+$facilityPostalSentence = fn (string $postal, bool $billing, bool $service, string $country): string => match (FacilityService::facilityPostalSaveNotice($postal, $billing, $service, $country, $phoneCountryCode)) {
     FacilityService::FACILITY_SAVED_BILLING_POSTAL => xl(FacilityService::FACILITY_SAVED_BILLING_POSTAL),
     FacilityService::FACILITY_SAVED_SERVICE_POSTAL => xl(FacilityService::FACILITY_SAVED_SERVICE_POSTAL),
     FacilityService::FACILITY_SAVED_BOTH_POSTAL => xl(FacilityService::FACILITY_SAVED_BOTH_POSTAL),
@@ -110,7 +112,8 @@ if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST
     $sentence = $facilityPostalSentence(
         $values['postal_code'] ?? '',
         ($values['billing_location'] ?? '') === '1',
-        ($values['service_location'] ?? '') === '1'
+        ($values['service_location'] ?? '') === '1',
+        $values['country_code'] ?? ''
     );
     $echoFacilitySaveDialogResult(true, $sentence);
     exit(); // sjp 12/20/17 for ajax save
@@ -137,7 +140,8 @@ if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility
         $sentence = $facilityPostalSentence(
             $values['postal_code'] ?? '',
             ($values['billing_location'] ?? '') === '1',
-            ($values['service_location'] ?? '') === '1'
+            ($values['service_location'] ?? '') === '1',
+            $values['country_code'] ?? ''
         );
     }
     $echoFacilitySaveDialogResult($saved, $sentence);
