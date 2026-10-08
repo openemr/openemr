@@ -126,6 +126,123 @@ class LbfSavePathTest extends TestCase
         $this->assertSame(self::PID, $this->patientId());
     }
 
+
+    #[Test]
+    public function testAHistoryFieldIsStoredAndReadBack(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO history_data (pid, tobacco) VALUES (?, ?)',
+            [self::PID, 'old']
+        );
+        $this->layoutField('tobacco', 'H', 60, 2, '');
+        $this->postForm([
+            'form_reason' => 'ZZ visit',
+            'form_tobacco' => 'ZZ tobacco',
+            'bn_save' => 'Save',
+        ]);
+        $GLOBALS['pid'] = self::PID;
+
+        $row = QueryUtils::querySingleRow(
+            'SELECT tobacco FROM history_data WHERE pid = ? ORDER BY id DESC LIMIT 1',
+            [self::PID]
+        );
+        $this->assertIsArray($row);
+        $this->assertSame('ZZ tobacco', $row['tobacco']);
+        $this->assertSame('ZZ tobacco', \lbf_current_value($this->storedField('tobacco', 'H'), 0, self::ENCOUNTER));
+    }
+
+    #[Test]
+    public function testAnEmployerFieldIsStored(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO employer_data (pid, occupation, date) VALUES (?, ?, NOW())',
+            [self::PID, 'old']
+        );
+        $this->layoutField('em_occupation', 'D', 70, 2, '');
+        $this->postForm([
+            'form_em_occupation' => 'ZZ nurse',
+            'bn_save' => 'Save',
+        ]);
+
+        $row = QueryUtils::querySingleRow(
+            'SELECT occupation FROM employer_data WHERE pid = ? ORDER BY date DESC LIMIT 1',
+            [self::PID]
+        );
+        $this->assertIsArray($row);
+        $this->assertSame('ZZ nurse', $row['occupation']);
+    }
+
+    #[Test]
+    public function testASharedValueIsStoredAndReadBack(): void
+    {
+        $this->layoutField('ShareNote', 'E', 80, 2, '');
+        $this->postForm([
+            'form_ShareNote' => 'ZZ shared',
+            'bn_save' => 'Save',
+        ]);
+        $GLOBALS['pid'] = self::PID;
+
+        $row = QueryUtils::querySingleRow(
+            'SELECT field_value FROM shared_attributes WHERE pid = ? AND encounter = ? AND field_id = ?',
+            [self::PID, self::ENCOUNTER, 'ShareNote']
+        );
+        $this->assertIsArray($row);
+        $this->assertSame('ZZ shared', $row['field_value']);
+        $this->assertSame('ZZ shared', \lbf_current_value($this->storedField('ShareNote', 'E'), 0, self::ENCOUNTER));
+    }
+
+    #[Test]
+    public function testAVisitAndPatientValueAreReadBackFromTheirTables(): void
+    {
+        $this->postForm([
+            'form_reason' => 'ZZ visit',
+            'form_city' => 'ZZ city',
+            'bn_save' => 'Save',
+        ]);
+        $GLOBALS['pid'] = self::PID;
+
+        $this->assertSame('ZZ visit', \lbf_current_value($this->storedField('reason', 'V'), 0, self::ENCOUNTER));
+        $this->assertSame('ZZ city', \lbf_current_value($this->storedField('city', 'D'), 0, self::ENCOUNTER));
+        $this->assertSame('*?*', \lbf_current_value($this->storedField('not_a_column', 'D'), 0, self::ENCOUNTER));
+    }
+
+    #[Test]
+    public function testASecondSaveDoesNotOpenAnotherForm(): void
+    {
+        $this->postForm([
+            'form_reason' => 'ZZ visit',
+            'form_Note' => 'ZZ note',
+            'bn_save' => 'Save',
+        ]);
+        $this->postForm([
+            'form_reason' => 'ZZ visit 2',
+            'form_Note' => 'ZZ note 2',
+            'bn_save' => 'Save',
+        ], $this->formId());
+
+        $row = QueryUtils::querySingleRow(
+            'SELECT COUNT(*) AS c FROM forms WHERE pid = ? AND formdir = ? AND deleted = 0',
+            [self::PID, self::FORM]
+        );
+        $this->assertIsArray($row);
+        $this->assertSame(1, $this->whole($row['c'] ?? null));
+    }
+
+    #[Test]
+    public function testABareCheckboxAndADateAreParsed(): void
+    {
+        $_POST = [
+            'form_Plain' => 'on',
+            'form_When' => '2024-06-03',
+        ];
+
+        $this->assertSame('Yes', \get_layout_form_value($this->field('Plain', 21, '')));
+        $this->assertSame(
+            \DateToYYYYMMDD('2024-06-03'),
+            \get_layout_form_value($this->field('When', 4, ''))
+        );
+    }
+
     /**
      * @param array<string, mixed> $fields
      */
@@ -258,6 +375,19 @@ class LbfSavePathTest extends TestCase
         $this->fail('The id was not a whole number.');
     }
 
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function storedField(string $fieldId, string $source): array
+    {
+        return [
+            'form_id' => self::FORM,
+            'field_id' => $fieldId,
+            'source' => $source,
+        ];
+    }
+
     private function removeFixtures(): void
     {
         QueryUtils::sqlStatementThrowException(
@@ -268,5 +398,8 @@ class LbfSavePathTest extends TestCase
         QueryUtils::sqlStatementThrowException('DELETE FROM form_encounter WHERE pid = ? AND encounter = ?', [self::PID, self::ENCOUNTER]);
         QueryUtils::sqlStatementThrowException('DELETE FROM patient_data WHERE pid = ?', [self::PID]);
         QueryUtils::sqlStatementThrowException('DELETE FROM layout_options WHERE form_id = ?', [self::FORM]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM history_data WHERE pid = ?', [self::PID]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM employer_data WHERE pid = ?', [self::PID]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM shared_attributes WHERE pid = ?', [self::PID]);
     }
 }
