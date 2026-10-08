@@ -11,6 +11,12 @@
  *  - the portal went through document_templates / document_template_profiles
  *  - SMART was gated on a single global rather than bound per questionnaire
  *
+ * On `content_assignments`.`category`: it narrows an assignment to questionnaires whose
+ * own `questionnaire_repository`.`category` matches, which lets an administrator say
+ * "every SDOH questionnaire is offered in the portal" in one row rather than one row per
+ * questionnaire. It is a property of the resource, not of the caller, which is why it has
+ * no counterpart in AvailabilityContext.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -44,6 +50,7 @@ class QuestionnaireAvailabilityService
      * other content can be assigned through the same table without a migration.
      */
     public const RESOURCE_TYPE = 'questionnaire';
+
 
     /**
      * Questionnaire ids available on this surface, in assignment order.
@@ -165,13 +172,22 @@ class QuestionnaireAvailabilityService
     {
         [$where, $binds] = $this->buildScopeClause($context);
 
-        $sql = 'SELECT `id`, `resource_id`, `surface`, `acl_section`, `acl_level`, `seq`
-                FROM `' . self::TABLE_NAME . '`
-                WHERE `resource_type` = ?
-                  AND `surface` = ?
-                  AND `active` = 1
+        // Joined to the repository for two reasons: an assignment must not outlive the
+        // questionnaire being deactivated, and an assignment scoped to a category is
+        // matched against the questionnaire's own category. Keeping both here means
+        // getAvailableIds() and getAvailableQuestionnaires() can never disagree.
+        $sql = 'SELECT ca.`id`, ca.`resource_id`, ca.`surface`, ca.`acl_section`,
+                       ca.`acl_level`, ca.`seq`
+                FROM `' . self::TABLE_NAME . '` ca
+                INNER JOIN `questionnaire_repository` qr
+                    ON qr.`id` = ca.`resource_id`
+                   AND qr.`active` = 1
+                WHERE ca.`resource_type` = ?
+                  AND ca.`surface` = ?
+                  AND ca.`active` = 1
+                  AND (ca.`category` IS NULL OR ca.`category` = \'\' OR ca.`category` = qr.`category`)
                   ' . $where . '
-                ORDER BY `seq`, `id`';
+                ORDER BY ca.`seq`, ca.`id`';
 
         $rows = QueryUtils::fetchRecordsNoLog(
             $sql,
@@ -257,7 +273,7 @@ class QuestionnaireAvailabilityService
             if ($value === null || $value === '') {
                 continue;
             }
-            $clauses[] = 'AND (`' . $column . '` IS NULL OR `' . $column . '` = ?)';
+            $clauses[] = 'AND (ca.`' . $column . '` IS NULL OR ca.`' . $column . '` = ?)';
             $binds[] = $value;
         }
 

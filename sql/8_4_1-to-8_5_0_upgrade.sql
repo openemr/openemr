@@ -261,19 +261,35 @@ CREATE TABLE `content_assignments` (
 #EndIf
 
 -- Backfill from current state so an upgraded site sees exactly what it saw before.
--- Every active questionnaire was on the dashboard; every registry-registered one was
--- available in every encounter. Both become unscoped assignment rows.
-#IfNotRow2D content_assignments resource_type questionnaire surface dashboard
+-- Every active questionnaire was on the dashboard; every enabled registry-registered one
+-- was available in every encounter. Both become unscoped assignment rows.
+--
+-- Idempotent per questionnaire rather than per surface: a NOT EXISTS on the individual
+-- row means a re-run completes a partial backfill instead of skipping every remaining
+-- questionnaire as soon as one assignment is present. DISTINCT because a questionnaire
+-- can hold more than one matching registry row.
 INSERT INTO `content_assignments` (`resource_type`, `resource_id`, `surface`, `active`, `seq`)
-SELECT 'questionnaire', `id`, 'dashboard', 1, 0
-  FROM `questionnaire_repository`
- WHERE `active` = 1;
-#EndIf
+SELECT DISTINCT 'questionnaire', qr.`id`, 'dashboard', 1, 0
+  FROM `questionnaire_repository` qr
+ WHERE qr.`active` = 1
+   AND NOT EXISTS (
+       SELECT 1 FROM `content_assignments` ca
+        WHERE ca.`resource_type` = 'questionnaire'
+          AND ca.`resource_id` = qr.`id`
+          AND ca.`surface` = 'dashboard'
+   );
 
-#IfNotRow2D content_assignments resource_type questionnaire surface encounter
+-- registry.state = 1 matches QuestionnaireService::fetchEncounterQuestionnaireForm, so a
+-- form that was registered and later disabled does not get an active assignment.
 INSERT INTO `content_assignments` (`resource_type`, `resource_id`, `surface`, `active`, `seq`)
-SELECT 'questionnaire', `form_foreign_id`, 'encounter', 1, 0
-  FROM `registry`
- WHERE `directory` = 'questionnaire_assessments'
-   AND `form_foreign_id` > 0;
-#EndIf
+SELECT DISTINCT 'questionnaire', r.`form_foreign_id`, 'encounter', 1, 0
+  FROM `registry` r
+ WHERE r.`directory` = 'questionnaire_assessments'
+   AND r.`form_foreign_id` > 0
+   AND r.`state` = 1
+   AND NOT EXISTS (
+       SELECT 1 FROM `content_assignments` ca
+        WHERE ca.`resource_type` = 'questionnaire'
+          AND ca.`resource_id` = r.`form_foreign_id`
+          AND ca.`surface` = 'encounter'
+   );

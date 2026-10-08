@@ -89,8 +89,8 @@ class QuestionnaireAvailabilityIsolatedTest extends TestCase
         );
 
         // NULL on the assignment means "any facility" and must still match
-        $this->assertStringContainsString('`facility` IS NULL', $clause);
-        $this->assertStringContainsString('`facility` = ?', $clause);
+        $this->assertStringContainsString('ca.`facility` IS NULL', $clause);
+        $this->assertStringContainsString('ca.`facility` = ?', $clause);
         $this->assertSame([3], $binds);
     }
 
@@ -133,6 +133,23 @@ class QuestionnaireAvailabilityIsolatedTest extends TestCase
             'null visit category' => [null],
             'empty visit category' => [''],
         ];
+    }
+
+    /**
+     * The scope clause must qualify its columns, because the assignment query joins
+     * questionnaire_repository and both tables carry a `category` column.
+     */
+    public function testScopeColumnsAreTableQualified(): void
+    {
+        [$clause] = $this->scopeClause(new AvailabilityContext(
+            QuestionnaireSurface::Encounter,
+            visitCategory: 'office_visit',
+            facility: 3,
+        ));
+
+        $this->assertStringContainsString('ca.`facility`', $clause);
+        $this->assertStringContainsString('ca.`visit_category`', $clause);
+        $this->assertStringNotContainsString('(`facility`', $clause);
     }
 
     public function testWithVisitCategoryLeavesTheOriginalUntouched(): void
