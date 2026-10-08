@@ -8,7 +8,9 @@
  * @author    Eldho Chacko <eldho@zhservices.com>
  * @author    Paul Simon K <paul@zhservices.com>
  * @author    Ian Jardine ( github.com/epsdky ) ( Modified calendar_arrived )
+ * @author    Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @copyright Copyright (c) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2026 Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
@@ -17,6 +19,7 @@ require_once(__DIR__ . '/patient_tracker.inc.php');
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\AppointmentService;
 
 //===============================================================================
 //This section handles the events of payment screen.
@@ -45,7 +48,7 @@ function calendar_arrived($form_pid)
     } elseif ($appt_count == 1) {
         $enc = todaysEncounterCheck($form_pid);
         if ($appts[0]['pc_recurrtype'] == 0) {
-            sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus = '@' WHERE pc_eid = ?", [$appts[0]['pc_eid']]);
+            AppointmentService::persistAppointmentStatus($appts[0]['pc_eid'], '@');
         } else {
             update_event($appts[0]['pc_eid']);
         }
