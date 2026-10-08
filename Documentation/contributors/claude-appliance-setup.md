@@ -534,7 +534,7 @@ echo "y" | openemr-cmd worktree remove test-appliance
 
 > **Why `remove` here and not `down`?** This is a human-driven setup verification — the test worktree has no purpose afterwards. `worktree remove` (default, without `--keep-volumes`) runs `docker compose down --volumes`, which deletes the ~10 branch-scoped named volumes that openemr-cmd creates per worktree (`openemr-<slug>_db`, `_assets`, `_themes`, `_sites`, `_nodemodules`, `_vendor`, `_ccdanodemodules`, `_ccdanodemodules2`, `_logs`, `_couchdb`, plus `_mailpit` on non-light envs). Each worktree's volumes are fully namespaced — nothing is shared between worktrees — so removing `test-appliance` cleans up only its own volumes and leaves any other worktrees untouched. Using `worktree down --keep-volumes` here would orphan those volumes on disk indefinitely.
 >
-> Note: `CLAUDE.md` instructs *agents* never to run `openemr-cmd worktree remove`. This step is run by you, the human setting up the appliance, before any agent ever attaches.
+> Note: `AGENTS.md` instructs *agents* never to run `openemr-cmd worktree remove`. This step is run by you, the human setting up the appliance, before any agent ever attaches.
 
 ---
 
@@ -599,7 +599,7 @@ That's it — go to town.
 
 ### Running multiple sessions in parallel
 
-Open a second terminal on the host, repeat steps 2 and 3 there. Run as many concurrent sessions as you want — each just needs to drive its worktrees via `openemr-cmd worktree` per the rules in [`CLAUDE.md`](../../CLAUDE.md). `openemr-cmd` assigns each worktree a distinct port offset and namespaces its Docker volumes, so parallel stacks do not collide — whether a session works one worktree at a time or several.
+Open a second terminal on the host, repeat steps 2 and 3 there. Run as many concurrent sessions as you want — each just needs to drive its worktrees via `openemr-cmd worktree` per the rules in [`AGENTS.md`](../../AGENTS.md). `openemr-cmd` assigns each worktree a distinct port offset and namespaces its Docker volumes, so parallel stacks do not collide — whether a session works one worktree at a time or several.
 
 > **Why `--dangerously-skip-permissions` is acceptable here.** Claude Code's per-action permission prompts are the guardrail for agents running directly on your host. Inside this appliance the LXC + NAT boundary is the security model — see the [threat model](#threat-model) section at the top for what that does and does not protect. Outside this context, leave the prompts on.
 
@@ -607,7 +607,7 @@ Open a second terminal on the host, repeat steps 2 and 3 there. Run as many conc
 
 ## Service quick reference
 
-Full port-derivation formulas (any offset) live in [`CLAUDE.md`](../../CLAUDE.md#working-in-a-git-worktree). This table shows the offset-1/2/3 examples for the services `openemr-cmd` brings up on each worktree:
+Full port-derivation formulas (any offset) live in [`AGENTS.md`](../../AGENTS.md#working-in-a-git-worktree). This table shows the offset-1/2/3 examples for the services `openemr-cmd` brings up on each worktree:
 
 | Service | Worktree 1 | Worktree 2 | Worktree 3 |
 |---------|-----------|-----------|-----------|
