@@ -22,6 +22,7 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256 as RsaSha256Signer;
 use Lcobucci\JWT\Token\Builder as JwtTokenBuilder;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Database\QueryUtils;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -454,16 +455,18 @@ class AuthorizationLogoutTest extends TestCase
     }
 
     /**
-     * Loads the server's OAuth2 signing material. The keys are expected to
-     * exist on disk already (setUp warms them via a discovery request so
-     * that apache owns them). The passphrase lives encrypted in the keys
-     * table alongside the private key file.
+     * Loads the server's OAuth2 signing material and the server-reported
+     * issuer. Instantiating OAuth2KeyConfig auto-creates the key pair on
+     * first use so this is safe to call on a stack that has not completed
+     * an OAuth2 flow yet (e.g. CI's `php -S` runner). The passphrase
+     * lives encrypted in the keys table alongside the private key file.
      *
      * @return array{0: RsaSha256Signer, 1: InMemory, 2: string}
      */
     private function loadLogoutJwtMaterial(): array
     {
-        $privateKeyPath = '/var/www/localhost/htdocs/openemr/sites/default/documents/certificates/oaprivate.key';
+        $siteDir = $_SERVER['OE_SITE_DIR'] ?? '/var/www/localhost/htdocs/openemr/sites/default';
+        $oauth2Key = new OAuth2KeyConfig($siteDir);
         $crypto = ServiceContainer::getCrypto();
         $encryptedPassphrase = QueryUtils::fetchSingleValue(
             "SELECT `value` FROM `keys` WHERE `name` = ?",
@@ -473,8 +476,10 @@ class AuthorizationLogoutTest extends TestCase
         $passphrase = is_string($encryptedPassphrase)
             ? $crypto->decryptFromDatabase($encryptedPassphrase)
             : '';
+        $privateKeyLocation = $oauth2Key->getPrivateKeyLocation();
+        $this->assertIsString($privateKeyLocation);
         $signer = new RsaSha256Signer();
-        $privateKey = InMemory::file($privateKeyPath, $passphrase);
+        $privateKey = InMemory::file($privateKeyLocation, $passphrase);
         return [$signer, $privateKey, $this->jwtIssuer];
     }
 
