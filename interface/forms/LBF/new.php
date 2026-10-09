@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\LayoutColumnUpdate;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -231,6 +232,30 @@ if (
     !empty($_POST['bn_save_checkout']) ||
     !empty($_POST['bn_save_close'])
 ) {
+    $columnRows = QueryUtils::fetchRecords(
+        "SELECT field_id, source, data_type FROM layout_options "
+        . "WHERE form_id = ? AND uor > 0 AND field_id != '' AND "
+        . "edit_options != 'H' AND edit_options NOT LIKE '%0%' "
+        . "ORDER BY group_id, seq",
+        [$formname]
+    );
+    foreach ($columnRows as $checkRow) {
+        $dataType = $checkRow['data_type'] ?? null;
+        if ($dataType === 31 || $dataType === '31') {
+            continue;
+        }
+        $checkId = $checkRow['field_id'] ?? null;
+        if (!is_string($checkId)) {
+            throw new \OpenEMR\Common\Database\SqlQueryException('', 'The layout column cannot be saved.');
+        }
+        $checkSource = $checkRow['source'] ?? null;
+        if ($checkSource === 'D' && !str_starts_with($checkId, 'em_')) {
+            LayoutColumnUpdate::patientStatement($checkId);
+        } elseif ($checkSource === 'V') {
+            LayoutColumnUpdate::encounterStatement($checkId);
+        }
+    }
+
     $newid = 0;
     if (!$formid) {
         // Creating a new form. Get the new form_id by inserting and deleting a dummy row.
