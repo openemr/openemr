@@ -24,9 +24,9 @@ require_once __DIR__ . '/../../../../library/appointments.inc.php';
 
 class RepeatSeriesWalkTest extends TestCase
 {
-    private const PID = 99055001;
+    private int $pid = 0;
 
-    private const TITLE = 'phpunit-repeat-walk';
+    private string $title = '';
 
     private int $categoryId;
 
@@ -37,6 +37,8 @@ class RepeatSeriesWalkTest extends TestCase
      */
     protected function setUp(): void
     {
+        $this->pid = random_int(800_000_000, 899_999_999);
+        $this->title = 'phpunit-repeat-walk-' . $this->pid;
         $category = QueryUtils::querySingleRow('SELECT pc_catid FROM openemr_postcalendar_categories ORDER BY pc_catid LIMIT 1');
         $provider = QueryUtils::querySingleRow('SELECT id FROM users ORDER BY id LIMIT 1');
         $this->categoryId = $this->requiredId(is_array($category) ? ($category['pc_catid'] ?? null) : null);
@@ -44,7 +46,7 @@ class RepeatSeriesWalkTest extends TestCase
         $this->removeFixtures();
         QueryUtils::sqlStatementThrowException(
             "INSERT INTO patient_data (pid, fname, lname, DOB, sex, pubpid) VALUES (?, 'ZZ', 'Repeat', '1980-01-01', 'Male', ?)",
-            [self::PID, 'ZZ' . self::PID]
+            [$this->pid, 'ZZ' . $this->pid]
         );
     }
 
@@ -159,7 +161,23 @@ class RepeatSeriesWalkTest extends TestCase
     }
 
     /**
-     * @param array<string, string> $spec
+     * A weekday stored as an integer still lands on that weekday.
+     */
+    #[Test]
+    public function testAMonthlyWeekdayStoredAsAnIntegerStillLands(): void
+    {
+        $this->insertSeries('2', '0', '0', '2024-01-09', '2024-12-31', [
+            'event_repeat_on_num' => 2,
+            'event_repeat_on_day' => 2,
+            'event_repeat_on_freq' => 1,
+        ]);
+
+        $this->assertCount(1, $this->rowsOn('2024-06-01', '2024-06-30'));
+        $this->assertCount(12, $this->rowsOn('2024-01-01', '2024-12-31'));
+    }
+
+    /**
+     * @param array<string, int|string> $spec
      */
     private function insertSeries(
         string $recurrType,
@@ -184,8 +202,8 @@ class RepeatSeriesWalkTest extends TestCase
             [
                 $this->categoryId,
                 $this->providerId,
-                self::PID,
-                self::TITLE,
+                $this->pid,
+                $this->title,
                 $start,
                 $end,
                 '09:00:00',
@@ -202,7 +220,7 @@ class RepeatSeriesWalkTest extends TestCase
      */
     private function rowsOn(string $from, string $to): array
     {
-        return fetchEvents($from, $to, ' AND e.pc_title = ?', null, false, 0, [self::TITLE]);
+        return fetchEvents($from, $to, ' AND e.pc_title = ?', null, false, 0, [$this->title]);
     }
 
     /**
@@ -228,11 +246,11 @@ class RepeatSeriesWalkTest extends TestCase
     {
         QueryUtils::sqlStatementThrowException(
             'DELETE FROM openemr_postcalendar_events WHERE pc_title = ?',
-            [self::TITLE]
+            [$this->title]
         );
         QueryUtils::sqlStatementThrowException(
             'DELETE FROM patient_data WHERE pid = ?',
-            [self::PID]
+            [$this->pid]
         );
     }
 }

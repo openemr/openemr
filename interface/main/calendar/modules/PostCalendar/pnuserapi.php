@@ -1586,6 +1586,9 @@ function &postcalendar_userapi_pcGetEvents($args)
  */
 function calculateEvents($days, $events, $viewtype)
 {
+    if (!is_array($days) || !is_array($events)) {
+        return [];
+    }
   //
     $date = postcalendar_getDate();
     $cy = substr($date, 0, 4);
@@ -1633,14 +1636,18 @@ function calculateEvents($days, $events, $viewtype)
             //  Events that do not repeat only have a startday
             //==============================================================
             case NO_REPEAT:
-                if (isset($days[$event['eventDate']])) {
-                    array_push($days[$event['eventDate']], $event);
+                $eventDateKey = $event['eventDate'] ?? null;
+                if (!is_string($eventDateKey)) {
+                    break;
+                }
+                if (isset($days[$eventDateKey])) {
+                    array_push($days[$eventDateKey], $event);
                     if ($viewtype == "week") {
                         //echo "non repeating date eventdate: $eventD  startime:$eventS block #: " . getBlockTime($eventS) ."<br />";
-                        fillBlocks($eventD, $days);
+                        fillBlocks($eventDateKey, $days);
                         //echo "for $eventD loading " . getBlockTime($eventS) . "<br /><br />";
                         $gbt = getBlockTime($eventS);
-                        $days[$eventD]['blocks'][$gbt][$eventD][] = $event;
+                        $days[$eventDateKey]['blocks'][$gbt][$eventDateKey][] = $event;
                         //echo "event is: " . print_r($days[$eventD]['blocks'][$gbt],true) . " <br />";
                         //echo "begin printing blocks for $eventD<br />";
                         //print_r($days[$eventD]['blocks']);
@@ -1709,7 +1716,11 @@ function calculateEvents($days, $events, $viewtype)
                             fillBlocks($occurance, $days);
                             //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
                             $gbt = getBlockTime($eventS);
-                            $days[$occurance]['blocks'][$gbt][$occurance][] = $event;
+                            $dayRow = $days[$occurance];
+                            if (is_array($dayRow) && isset($dayRow['blocks']) && is_array($dayRow['blocks'])) {
+                                $dayRow['blocks'][$gbt][$occurance][] = $event;
+                                $days[$occurance] = $dayRow;
+                            }
                             //echo "begin printing blocks for $eventD<br />";
                             //print_r($days[$occurance]['blocks']);
                             //echo "end printing blocks<br />";
@@ -1818,12 +1829,16 @@ function calculateEvents($days, $events, $viewtype)
 
 function fillBlocks($td, $ar): void
 {
-    if (strlen((string) $td) > 0 && !isset($ar[$td]['blocks'])) {
+    if (!is_array($ar) || (!is_string($td) && !is_int($td))) {
+        return;
+    }
+    $td = (string) $td;
+    if ($td !== '' && !isset($ar[$td]['blocks'])) {
             $ar[$td]['blocks'] = [];
         for ($j = 0; $j < 48; $j++) {
-            $ar[strval($td)]['blocks'][strval($j)] = [];
+            $ar[$td]['blocks'][strval($j)] = [];
         }
 
-            $ar[strval($td)]['blocks']["all_day"] = [];
+            $ar[$td]['blocks']["all_day"] = [];
     }
 }
