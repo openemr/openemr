@@ -125,9 +125,12 @@ jobs:
         fi
 
         # HEAD is this PR merged with the current base branch, so a number
-        # another PR has already taken shows up here as not bumped.
-        base_v_database=$(git show "$base_ref":version.php | grep -oP '\$v_database\s*=\s*\K[0-9]+' || echo "0")
-        head_v_database=$(grep -oP '\$v_database\s*=\s*\K[0-9]+' version.php || echo "0")
+        # another PR has already taken shows up here as not bumped. Both values
+        # come from the AST parser the alignment step uses, so a commented-out
+        # `$v_database = N;` can't be read as the assignment.
+        git show "$base_ref":version.php > "$RUNNER_TEMP/base-version.php"
+        base_v_database=$(php bin/get-v-database.php "$RUNNER_TEMP/base-version.php")
+        head_v_database=$(php bin/get-v-database.php version.php)
 
         if (( head_v_database > base_v_database )); then
           {
