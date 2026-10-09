@@ -100,9 +100,11 @@ function set_category() {
         if (allDayRadio && timedRadio) {
             allDayRadio.checked = allDay;
             timedRadio.checked = !allDay;
-            set_allday();
         }
         set_display();
+        if (allDayRadio && timedRadio) {
+            set_allday();
+        }
     }
 }
 
