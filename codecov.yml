@@ -32,6 +32,11 @@ coverage:
       default:
         target: 50%       # New code must have at least 50% coverage (was 0%)
         threshold: 5%     # Flexibility for config/migration/generated files
+        # The certification tests only run in the Inferno job, which is skipped
+        # on fork PRs, so their changed lines can't be covered there. They're
+        # still counted in coverage; only this check skips them.
+        paths:
+        - "!tests/Tests/Certification/"
 
 # Carry forward coverage for flags not uploaded on a given commit.
 # PRs and pushes to master each collect coverage from a single config;
