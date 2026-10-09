@@ -27,20 +27,20 @@ final readonly class AvailabilityContext
         public QuestionnaireSurface $surface,
         public ?int $pid = null,
         public ?int $encounter = null,
-        public ?string $visitCategory = null,
+        public ?int $visitCategoryId = null,
         public ?int $facility = null,
         public ?int $provider = null,
         public ?string $clientId = null,
     ) {
     }
 
-    public function withVisitCategory(?string $visitCategory): self
+    public function withVisitCategoryId(?int $visitCategoryId): self
     {
         return new self(
             $this->surface,
             $this->pid,
             $this->encounter,
-            $visitCategory,
+            $visitCategoryId,
             $this->facility,
             $this->provider,
             $this->clientId,

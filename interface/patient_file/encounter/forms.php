@@ -35,6 +35,7 @@ use ESign\Api;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -43,6 +44,9 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Services\EncounterService;
+use OpenEMR\Services\Questionnaire\AvailabilityContext;
+use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 use OpenEMR\Services\UserService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -525,7 +529,36 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
 <body>
 <nav>
     <?php //DYNAMIC FORM RETRIEVAL
-    $reg = getFormsByCategory();
+    // Which questionnaires this encounter may use is an assignment question, answered in
+    // one place for every surface. Non-questionnaire forms are returned untouched.
+    //
+    // A null scope means "cannot answer for this axis", which matches every assignment
+    // rather than only the unscoped ones — a group encounter has no form_encounter row,
+    // and must not silently lose its questionnaires because of it.
+    $encounterAvailabilityPid = is_numeric($pid) ? (int)$pid : null;
+    $encounterAvailabilityEncounterRaw = OEGlobalsBag::getInstance()->get('encounter');
+    $encounterAvailabilityEncounter = is_numeric($encounterAvailabilityEncounterRaw)
+        ? (int)$encounterAvailabilityEncounterRaw
+        : null;
+    $encounterAvailabilityVisitCategoryId = null;
+    if ($encounterAvailabilityEncounter !== null && $attendant_type === 'pid') {
+        $encounterVisitCat = QueryUtils::fetchSingleValue(
+            "SELECT `pc_catid` FROM `form_encounter` WHERE `encounter` = ?",
+            'pc_catid',
+            [$encounterAvailabilityEncounter]
+        );
+        $encounterAvailabilityVisitCategoryId = is_numeric($encounterVisitCat)
+            ? (int)$encounterVisitCat
+            : null;
+    }
+    $questionnaireAvailability = new QuestionnaireAvailabilityService();
+    $questionnaireContext = new AvailabilityContext(
+        QuestionnaireSurface::Encounter,
+        pid: $encounterAvailabilityPid,
+        encounter: $encounterAvailabilityEncounter,
+        visitCategoryId: $encounterAvailabilityVisitCategoryId,
+    );
+    $reg = $questionnaireAvailability->filterEncounterFormRows(getFormsByCategory(), $questionnaireContext);
     $old_category = '';
     $DivId = 1;
 
@@ -546,9 +579,12 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
     if (!$encounterLocked) {
         // Convert the flat list of menu items into a multi-dimensional array based on the category
         // decide what will be displayed (name or nickname)
-        $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
+        $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) use ($questionnaireAvailability, $questionnaireContext) {
             $menuArray = $menuEvent->getMenuData();
-            $reg = getFormsByCategory();
+            $reg = $questionnaireAvailability->filterEncounterFormRows(
+                getFormsByCategory(),
+                $questionnaireContext
+            );
             // Check sensitivity from the appropriate table based on encounter type
             $sensitivityQuery = ($attendant_type ?? 'pid') === 'pid'
                 ? "SELECT sensitivity FROM form_encounter WHERE encounter = ?"

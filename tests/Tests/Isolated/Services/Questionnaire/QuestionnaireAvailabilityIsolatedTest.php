@@ -98,13 +98,13 @@ class QuestionnaireAvailabilityIsolatedTest extends TestCase
     {
         [$clause, $binds] = $this->scopeClause(new AvailabilityContext(
             QuestionnaireSurface::Encounter,
-            visitCategory: 'office_visit',
+            visitCategoryId: 5,
             facility: 3,
             provider: 7,
         ));
 
         $this->assertSame(3, substr_count($clause, '?'));
-        $this->assertSame([3, 7, 'office_visit'], $binds);
+        $this->assertSame([3, 7, 5], $binds);
     }
 
     /**
@@ -112,10 +112,10 @@ class QuestionnaireAvailabilityIsolatedTest extends TestCase
      * cannot answer for an axis should see every row, not just the unscoped ones.
      */
     #[DataProvider('emptyScopeProvider')]
-    public function testUnknownScopesAreNotNarrowed(?string $visitCategory): void
+    public function testUnknownScopesAreNotNarrowed(?int $visitCategoryId): void
     {
         [$clause, $binds] = $this->scopeClause(
-            new AvailabilityContext(QuestionnaireSurface::Encounter, visitCategory: $visitCategory)
+            new AvailabilityContext(QuestionnaireSurface::Encounter, visitCategoryId: $visitCategoryId)
         );
 
         $this->assertSame('', $clause);
@@ -123,7 +123,7 @@ class QuestionnaireAvailabilityIsolatedTest extends TestCase
     }
 
     /**
-     * @return array<string, array{?string}>
+     * @return array<string, array{?int}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
@@ -131,7 +131,7 @@ class QuestionnaireAvailabilityIsolatedTest extends TestCase
     {
         return [
             'null visit category' => [null],
-            'empty visit category' => [''],
+            'zero visit category' => [0],
         ];
     }
 
@@ -143,22 +143,58 @@ class QuestionnaireAvailabilityIsolatedTest extends TestCase
     {
         [$clause] = $this->scopeClause(new AvailabilityContext(
             QuestionnaireSurface::Encounter,
-            visitCategory: 'office_visit',
+            visitCategoryId: 5,
             facility: 3,
         ));
 
         $this->assertStringContainsString('ca.`facility`', $clause);
-        $this->assertStringContainsString('ca.`visit_category`', $clause);
+        $this->assertStringContainsString('ca.`visit_category_id`', $clause);
         $this->assertStringNotContainsString('(`facility`', $clause);
+    }
+
+    /**
+     * The registry is shared by every encounter form in OpenEMR. Rows this service does
+     * not speak for must survive untouched, and must not trigger an availability lookup
+     * at all — an install with no questionnaires registered should pay nothing for this.
+     */
+    public function testNonQuestionnaireFormRowsPassThroughUnchanged(): void
+    {
+        $rows = [
+            ['directory' => 'vitals', 'name' => 'Vitals', 'form_foreign_id' => null],
+            ['directory' => 'newpatient', 'name' => 'New Encounter'],
+            ['directory' => 'procedure_order', 'name' => 'Procedure Order'],
+        ];
+
+        $filtered = (new QuestionnaireAvailabilityService())->filterEncounterFormRows(
+            $rows,
+            new AvailabilityContext(QuestionnaireSurface::Encounter)
+        );
+
+        $this->assertCount(3, $filtered);
+        $this->assertSame(
+            ['vitals', 'newpatient', 'procedure_order'],
+            array_column($filtered, 'directory')
+        );
+    }
+
+    public function testMalformedFormRowsAreDropped(): void
+    {
+        $filtered = (new QuestionnaireAvailabilityService())->filterEncounterFormRows(
+            ['not an array', ['directory' => 'vitals']],
+            new AvailabilityContext(QuestionnaireSurface::Encounter)
+        );
+
+        $this->assertCount(1, $filtered);
+        $this->assertSame('vitals', $filtered[0]['directory']);
     }
 
     public function testWithVisitCategoryLeavesTheOriginalUntouched(): void
     {
         $base = new AvailabilityContext(QuestionnaireSurface::Encounter, pid: 11, encounter: 22);
-        $narrowed = $base->withVisitCategory('telehealth');
+        $narrowed = $base->withVisitCategoryId(7);
 
-        $this->assertNull($base->visitCategory);
-        $this->assertSame('telehealth', $narrowed->visitCategory);
+        $this->assertNull($base->visitCategoryId);
+        $this->assertSame(7, $narrowed->visitCategoryId);
         $this->assertSame(11, $narrowed->pid);
         $this->assertSame(22, $narrowed->encounter);
         $this->assertSame(QuestionnaireSurface::Encounter, $narrowed->surface);

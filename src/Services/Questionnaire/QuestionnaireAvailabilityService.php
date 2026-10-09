@@ -56,6 +56,12 @@ class QuestionnaireAvailabilityService
      */
     public const RESOURCE_TYPE = 'questionnaire';
 
+    /**
+     * Every questionnaire registered as an encounter form shares this registry directory
+     * and is told apart by `registry`.`form_foreign_id`.
+     */
+    public const ENCOUNTER_FORM_DIRECTORY = 'questionnaire_assessments';
+
 
     /**
      * Questionnaire ids available on this surface, in assignment order.
@@ -141,6 +147,49 @@ class QuestionnaireAvailabilityService
     public function isAvailable(int $questionnaireId, AvailabilityContext $context): bool
     {
         return in_array($questionnaireId, $this->getAvailableIds($context), true);
+    }
+
+    /**
+     * Drop questionnaire rows from an encounter form list that this encounter may not use.
+     *
+     * Rows for every other form type pass through untouched. The registry is shared by
+     * all of OpenEMR's encounter forms and this service speaks only for questionnaires,
+     * so anything it does not recognise is none of its business.
+     *
+     * The availability lookup is deferred until a questionnaire row actually turns up,
+     * so an installation with no questionnaires registered pays no query for this.
+     *
+     * @param iterable<mixed> $rows registry rows as getFormsByCategory() returns them
+     * @return list<array<string, mixed>>
+     */
+    public function filterEncounterFormRows(iterable $rows, AvailabilityContext $context): array
+    {
+        /** @var array<int, int>|null $available */
+        $available = null;
+        $filtered = [];
+
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $typed = [];
+            foreach ($row as $column => $value) {
+                $typed[(string)$column] = $value;
+            }
+
+            if (($typed['directory'] ?? null) !== self::ENCOUNTER_FORM_DIRECTORY) {
+                $filtered[] = $typed;
+                continue;
+            }
+
+            $available ??= array_flip($this->getAvailableIds($context));
+            $foreignId = self::asInt($typed['form_foreign_id'] ?? null);
+            if ($foreignId > 0 && isset($available[$foreignId])) {
+                $filtered[] = $typed;
+            }
+        }
+
+        return $filtered;
     }
 
     /**
@@ -275,12 +324,17 @@ class QuestionnaireAvailabilityService
         $scopes = [
             'facility' => $context->facility,
             'provider' => $context->provider,
-            'visit_category' => $context->visitCategory,
+            'visit_category_id' => $context->visitCategoryId,
             'client_id' => $context->clientId,
         ];
 
         foreach ($scopes as $column => $value) {
-            if ($value === null || $value === '') {
+            // 0 means unknown, not a real scope. Every id this narrows by is an
+            // auto-increment starting at 1, and callers coerce with is_numeric() ? (int) :
+            // null, so a missing or malformed value arrives here as 0. Narrowing on it
+            // would match only assignments scoped to a category or facility that cannot
+            // exist, silently hiding every questionnaire.
+            if ($value === null || $value === '' || $value === 0) {
                 continue;
             }
             $clauses[] = 'AND (ca.`' . $column . '` IS NULL OR ca.`' . $column . '` = ?)';
