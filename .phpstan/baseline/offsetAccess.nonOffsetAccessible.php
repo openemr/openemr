@@ -9772,18 +9772,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'0\'\\|\'1\'\\|\'10\'\\|\'11\'\\|\'12\'\\|\'13\'\\|\'14\'\\|\'15\'\\|\'16\'\\|\'17\'\\|\'18\'\\|\'19\'\\|\'2\'\\|\'20\'\\|\'21\'\\|\'22\'\\|\'23\'\\|\'24\'\\|\'25\'\\|\'26\'\\|\'27\'\\|\'28\'\\|\'29\'\\|\'3\'\\|\'30\'\\|\'31\'\\|\'32\'\\|\'33\'\\|\'34\'\\|\'35\'\\|\'36\'\\|\'37\'\\|\'38\'\\|\'39\'\\|\'4\'\\|\'40\'\\|\'41\'\\|\'42\'\\|\'43\'\\|\'44\'\\|\'45\'\\|\'46\'\\|\'47\'\\|\'5\'\\|\'6\'\\|\'7\'\\|\'8\'\\|\'9\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'all_day\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'blocks\' on mixed\\.$#',
-    'count' => 8,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
@@ -9798,7 +9788,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'eventDate\' on mixed\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
@@ -9869,11 +9859,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 8,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
