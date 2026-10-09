@@ -59,7 +59,7 @@ function write_code_info($codetype, $code, $selector, $pricelevel): void
             if (
                 $has_inventory && (
                 (strlen((string) $defaultwh) == 0 && $lrow['is_default']           ) ||
-                (strlen((string) $defaultwh)  > 0 && $lrow['option_id'] == $default))
+                (strlen((string) $defaultwh)  > 0 && $lrow['option_id'] == $defaultwh))
             ) {
                 $wh .= " selected";
             } else {
