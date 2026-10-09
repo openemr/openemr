@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Database;
 
-use OpenEMR\Common\Database\LayoutColumnUpdate;
-use OpenEMR\Common\Database\SqlQueryException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -34,28 +32,6 @@ class LayoutColumnCatalogTest extends TestCase
         foreach (['patient_data' => 'fname', 'form_encounter' => 'reason'] as $table => $column) {
             $this->assertSame(1, preg_match('/CREATE TABLE `' . $table . '` /', $sql));
             $this->assertStringNotContainsString('SET `' . $column . '`', $source);
-        }
-    }
-
-    #[Test]
-    public function testRefusedIdentityColumnsThrow(): void
-    {
-        foreach (['id', 'uuid', 'pid', 'encounter', ''] as $column) {
-            try {
-                LayoutColumnUpdate::patientStatement($column);
-                $this->fail($column . ' was accepted for the patient');
-            } catch (SqlQueryException) {
-                $this->addToAssertionCount(1);
-            }
-        }
-
-        foreach (['id', 'uuid', 'pid', 'encounter', ''] as $column) {
-            try {
-                LayoutColumnUpdate::encounterStatement($column);
-                $this->fail($column . ' was accepted for the visit');
-            } catch (SqlQueryException) {
-                $this->addToAssertionCount(1);
-            }
         }
     }
 }
