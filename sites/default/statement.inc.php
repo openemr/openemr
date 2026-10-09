@@ -973,23 +973,29 @@ function osp_create_HTML_statement($stmt)
 
     // The encounter's own service location and billing facility. A service-location
     // row chosen by the patient is not the statement's remit address.
+    $encounterId = null;
+    if (is_array($stmt)) {
+        $encounterId = $stmt['fid'] ?? null;
+    }
     $row = QueryUtils::querySingleRow(
         "SELECT f.name, f.street, f.city, f.state, f.postal_code, f.attn, f.phone, "
         . "f.mail_street, f.mail_street2, f.mail_city, f.mail_state, f.mail_zip "
         . "FROM form_encounter fe JOIN facility f ON fe.facility_id = f.id WHERE fe.id = ?",
-        [$stmt['fid']]
+        [$encounterId]
     ) ?: [];
     $billing = QueryUtils::querySingleRow(
         "SELECT f.name, f.street, f.city, f.state, f.postal_code, f.attn, f.phone, "
         . "f.mail_street, f.mail_street2, f.mail_city, f.mail_state, f.mail_zip "
         . "FROM form_encounter fe JOIN facility f ON fe.billing_facility = f.id WHERE fe.id = ?",
-        [$stmt['fid']]
+        [$encounterId]
     ) ?: [];
-    $clinic_name = (string) ($row['name'] ?? '');
-    $clinic_addr = (string) ($row['street'] ?? '');
-    $clinic_csz = (string) ($row['city'] ?? '') . ', ' . (string) ($row['state'] ?? '') . ', ' . (string) ($row['postal_code'] ?? '');
-    $billing_contact = (string) ($billing['attn'] ?? '');
-    $billing_phone = (string) ($billing['phone'] ?? '');
+    $clinic_name = StatementEnvelope::stmtString($row, 'name');
+    $clinic_addr = StatementEnvelope::stmtString($row, 'street');
+    $clinic_csz = StatementEnvelope::stmtString($row, 'city')
+        . ', ' . StatementEnvelope::stmtString($row, 'state')
+        . ', ' . StatementEnvelope::stmtString($row, 'postal_code');
+    $billing_contact = StatementEnvelope::stmtString($billing, 'attn');
+    $billing_phone = StatementEnvelope::stmtString($billing, 'phone');
     $remit_name = StatementEnvelope::stmtString($billing, 'name');
     [$remit_addr, $remit_csz] = StatementEnvelope::facilityRemitAddr($billing);
 
