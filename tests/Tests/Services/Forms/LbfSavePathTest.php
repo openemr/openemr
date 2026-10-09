@@ -84,8 +84,8 @@ class LbfSavePathTest extends TestCase
         ]);
 
         $this->assertStringNotContainsString('query failed', strtolower($body));
-        $this->assertSame('ZZ visit', $this->encounterValue('reason'));
-        $this->assertSame('ZZ city', $this->patientValue('city'));
+        $this->assertSame('ZZ visit', $this->encounterReason());
+        $this->assertSame('ZZ city', $this->patientCity());
         $this->assertSame('ZZ note', $this->noteValue());
         $this->assertSame(self::PID, $this->patientId());
     }
@@ -107,8 +107,8 @@ class LbfSavePathTest extends TestCase
             'bn_save' => 'Save',
         ], $formId);
 
-        $this->assertSame('ZZ visit 2', $this->encounterValue('reason'));
-        $this->assertSame('ZZ city 2', $this->patientValue('city'));
+        $this->assertSame('ZZ visit 2', $this->encounterReason());
+        $this->assertSame('ZZ city 2', $this->patientCity());
         $this->assertNull($this->noteValue());
     }
 
@@ -116,14 +116,21 @@ class LbfSavePathTest extends TestCase
     public function testARefusedColumnStopsTheSaveAndLeavesTheRowKey(): void
     {
         $this->layoutField('pid', 'D', 1, 2, '');
-        $this->postForm([
+        $body = $this->postForm([
             'form_pid' => '1',
             'form_reason' => 'ZZ should not land',
             'bn_save' => 'Save',
         ]);
 
-        $this->assertSame('before', $this->encounterValue('reason'));
+        $this->assertStringContainsString('An error has occurred.', $body);
+        $this->assertSame('before', $this->encounterReason());
         $this->assertSame(self::PID, $this->patientId());
+        $row = QueryUtils::querySingleRow(
+            'SELECT COUNT(*) AS c FROM forms WHERE pid = ? AND formdir = ? AND deleted = 0',
+            [self::PID, self::FORM]
+        );
+        $this->assertIsArray($row);
+        $this->assertSame(0, $this->whole($row['c'] ?? null));
     }
 
 
@@ -310,7 +317,7 @@ class LbfSavePathTest extends TestCase
         ];
     }
 
-    private function encounterValue(string $column): string
+    private function encounterReason(): string
     {
         $row = QueryUtils::querySingleRow(
             'SELECT reason FROM form_encounter WHERE pid = ? AND encounter = ?',
@@ -323,7 +330,7 @@ class LbfSavePathTest extends TestCase
         return $value;
     }
 
-    private function patientValue(string $column): string
+    private function patientCity(): string
     {
         $row = QueryUtils::querySingleRow('SELECT city FROM patient_data WHERE pid = ?', [self::PID]);
         $this->assertIsArray($row);
