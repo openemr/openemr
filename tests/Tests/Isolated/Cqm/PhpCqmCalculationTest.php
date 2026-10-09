@@ -58,6 +58,39 @@ class PhpCqmCalculationTest extends TestCase
         ], PhpCqmCalculation::differences($expected, $actual));
     }
 
+    public function testMissingZeroOrEmptyResultIsADifference(): void
+    {
+        $expected = ['p1' => ['PopulationSet_1' => ['IPP' => 0, 'observation_values' => []]]];
+        $this->assertSame([
+            ['patient' => 'p1', 'populationSet' => 'PopulationSet_1', 'population' => 'IPP', 'expected' => 0, 'actual' => null],
+            ['patient' => 'p1', 'populationSet' => 'PopulationSet_1', 'population' => 'observation_values', 'expected' => [], 'actual' => null],
+        ], PhpCqmCalculation::differences($expected, []));
+        $this->assertCount(1, PhpCqmCalculation::differences($expected, ['p1' => ['PopulationSet_1' => ['observation_values' => []]]]));
+    }
+
+    public function testComparisonIsStrictExceptForNumberTypes(): void
+    {
+        $expected = ['p1' => ['PopulationSet_1' => ['IPP' => 1, 'DENOM' => 0, 'observation_values' => [30, 1.5]]]];
+        $this->assertSame([], PhpCqmCalculation::differences($expected, ['p1' => ['PopulationSet_1' => ['IPP' => 1.0, 'DENOM' => 0, 'observation_values' => [30.0, 1.5]]]]));
+        $this->assertCount(3, PhpCqmCalculation::differences($expected, ['p1' => ['PopulationSet_1' => ['IPP' => true, 'DENOM' => null, 'observation_values' => ['30', 1.5]]]]));
+    }
+
+    public function testCountByPopulationLeavesOutPatients(): void
+    {
+        $expected = [
+            'p1' => ['PopulationSet_1' => ['IPP' => 1, 'NUMER' => 1]],
+            'p2' => ['PopulationSet_1' => ['IPP' => 1, 'NUMER' => 0]],
+        ];
+        $actual = [
+            'p1' => ['PopulationSet_1' => ['IPP' => 1, 'NUMER' => 0]],
+            'p2' => ['PopulationSet_1' => ['IPP' => 0, 'NUMER' => 1]],
+        ];
+        $this->assertSame(
+            ['PopulationSet_1' => ['NUMER' => 2, 'IPP' => 1]],
+            PhpCqmCalculation::countByPopulation(PhpCqmCalculation::differences($expected, $actual))
+        );
+    }
+
     public function testDifferencesStopAtTheLimit(): void
     {
         $expected = [];

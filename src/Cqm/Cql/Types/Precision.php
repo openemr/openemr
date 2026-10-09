@@ -30,7 +30,7 @@ enum Precision: string
 
     public static function fromElm(string $name): self
     {
-        return self::from(strtolower($name));
+        return self::tryFrom(strtolower($name)) ?? throw new \UnexpectedValueException("Unknown precision $name");
     }
 
     /**

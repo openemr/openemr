@@ -176,15 +176,21 @@ class CqmCalculator
             $logger->error('eCQM shadow calculation: the PHP engine failed', ['measure' => $measure['cms_id'] ?? null, 'exception' => $e]);
             return;
         }
-        $differences = PhpCqmCalculation::differences($serviceResults, $phpResults);
+        $differences = PhpCqmCalculation::differences($serviceResults, $phpResults, PHP_INT_MAX);
         if ($differences === []) {
             $logger->info('eCQM shadow calculation: the PHP engine matches', ['measure' => $measure['cms_id'] ?? null, 'patients' => count($serviceResults)]);
             return;
         }
+        // Counts only: which populations a patient falls in is clinical data.
         $logger->warning('eCQM shadow calculation: the PHP engine differs from the service', [
             'measure' => $measure['cms_id'] ?? null,
             'patients' => count($serviceResults),
-            'differences' => $differences,
+            'differences' => count($differences),
+            'byPopulation' => PhpCqmCalculation::countByPopulation($differences),
+        ]);
+        $logger->debug('eCQM shadow calculation: differences by patient', [
+            'measure' => $measure['cms_id'] ?? null,
+            'differences' => array_slice($differences, 0, 25),
         ]);
     }
 

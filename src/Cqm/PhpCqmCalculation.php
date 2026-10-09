@@ -43,7 +43,8 @@ final class PhpCqmCalculation
 
     /**
      * Where two engines' results differ: one line per patient, population
-     * set and population, at most $limit of them.
+     * set and population, at most $limit of them. A population the other
+     * engine has no result for is a difference.
      *
      * @param array<mixed> $expected the authoritative engine's results
      * @param array<mixed> $actual the other engine's results
@@ -66,8 +67,9 @@ final class PhpCqmCalculation
                     if (!array_key_exists($key, $result)) {
                         continue;
                     }
-                    $otherValue = is_array($other) ? ($other[$key] ?? null) : null;
-                    if ($result[$key] != $otherValue) {
+                    $present = is_array($other) && array_key_exists($key, $other);
+                    $otherValue = $present ? $other[$key] : null;
+                    if (!$present || !self::same($result[$key], $otherValue)) {
                         $differences[] = [
                             'patient' => (string) $patientId,
                             'populationSet' => (string) $setId,
@@ -83,6 +85,47 @@ final class PhpCqmCalculation
             }
         }
         return $differences;
+    }
+
+    /**
+     * How many differences each population set and population has, without
+     * the patients they belong to.
+     *
+     * @param list<array{patient: string, populationSet: string, population: string, expected: mixed, actual: mixed}> $differences
+     * @return array<string, array<string, int>>
+     */
+    public static function countByPopulation(array $differences): array
+    {
+        $counts = [];
+        foreach ($differences as $difference) {
+            $set = $difference['populationSet'];
+            $population = $difference['population'];
+            $counts[$set][$population] = ($counts[$set][$population] ?? 0) + 1;
+        }
+        return $counts;
+    }
+
+    /**
+     * Strict equality, except that an integer and a float of the same value
+     * match (JSON decoding can give either).
+     */
+    private static function same(mixed $a, mixed $b): bool
+    {
+        if ((is_int($a) || is_float($a)) && (is_int($b) || is_float($b))) {
+            return (float) $a === (float) $b;
+        }
+        if (is_array($a) && is_array($b)) {
+            if (array_keys($a) !== array_keys($b)) {
+                return false;
+            }
+            foreach ($a as $key => $value) {
+                if (!self::same($value, $b[$key])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return $a === $b;
     }
 
     /**

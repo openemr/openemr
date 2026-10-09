@@ -49,7 +49,8 @@ class PhpEngineParityTest extends TestCase
                         $differences[] = "$patientId $key $population: expected $count, got " . json_encode($actual[$population] ?? null);
                     }
                 }
-                if ($expected->observationValues !== [] && ($actual['observation_values'] ?? []) != $expected->observationValues) {
+                $actualObservations = $actual['observation_values'] ?? [];
+                if (($expected->observationValues !== [] || $actualObservations !== []) && $actualObservations != $expected->observationValues) {
                     $differences[] = "$patientId $key observation_values differ";
                 }
                 $finals = [];
