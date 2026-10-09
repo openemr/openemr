@@ -243,20 +243,20 @@ final class CqlDateTime extends CqlTemporal implements \Stringable
         if (!$other instanceof self) {
             return null;
         }
-        [$aLow, $aHigh] = $this->zonedRange();
-        [$bLow, $bHigh] = $other->zonedRange();
+        [$thisStart, $thisEnd] = $this->zonedRange();
+        [$otherStart, $otherEnd] = $other->zonedRange();
         // Days and coarser ignore offsets so they count calendar days.
         if (in_array($unit, [Precision::Year, Precision::Month, Precision::Week, Precision::Day], true)) {
-            [$aLow, $aHigh, $bLow, $bHigh] = array_map(
+            [$thisStart, $thisEnd, $otherStart, $otherEnd] = array_map(
                 static fn (ZonedInstant $i): ZonedInstant => $i->toUtcKeepingLocalTime(),
-                [$aLow, $aHigh, $bLow, $bHigh],
+                [$thisStart, $thisEnd, $otherStart, $otherEnd],
             );
         }
-        [$aLow, $aHigh, $bLow, $bHigh] = array_map(
+        [$thisStart, $thisEnd, $otherStart, $otherEnd] = array_map(
             static fn (ZonedInstant $i): ZonedInstant => $i->truncate($unit),
-            [$aLow, $aHigh, $bLow, $bHigh],
+            [$thisStart, $thisEnd, $otherStart, $otherEnd],
         );
-        return new Uncertainty($bLow->wholeUnitsSince($aHigh, $unit), $bHigh->wholeUnitsSince($aLow, $unit));
+        return new Uncertainty($otherStart->wholeUnitsSince($thisEnd, $unit), $otherEnd->wholeUnitsSince($thisStart, $unit));
     }
 
     /**
@@ -275,9 +275,9 @@ final class CqlDateTime extends CqlTemporal implements \Stringable
             ? $this->withMillisecond(0) : $this;
         $b = $other->second !== null && $other->millisecond === null && $unit !== Precision::Millisecond
             ? $other->withMillisecond(0) : $other;
-        [$aLow, $aHigh] = $a->zonedRange();
-        [$bLow, $bHigh] = $b->zonedRange();
-        return new Uncertainty($bLow->wholeUnitsSince($aHigh, $unit), $bHigh->wholeUnitsSince($aLow, $unit));
+        [$thisStart, $thisEnd] = $a->zonedRange();
+        [$otherStart, $otherEnd] = $b->zonedRange();
+        return new Uncertainty($otherStart->wholeUnitsSince($thisEnd, $unit), $otherEnd->wholeUnitsSince($thisStart, $unit));
     }
 
     public function getDateTime(): self

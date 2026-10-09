@@ -88,9 +88,9 @@ final class CqlDate extends CqlTemporal implements \Stringable
         if (!$other instanceof self) {
             return null;
         }
-        [$aLow, $aHigh] = array_map(static fn (ZonedInstant $i): ZonedInstant => $i->truncate($unit), $this->zonedRange());
-        [$bLow, $bHigh] = array_map(static fn (ZonedInstant $i): ZonedInstant => $i->truncate($unit), $other->zonedRange());
-        return new Uncertainty($bLow->wholeUnitsSince($aHigh, $unit), $bHigh->wholeUnitsSince($aLow, $unit));
+        [$thisStart, $thisEnd] = array_map(static fn (ZonedInstant $i): ZonedInstant => $i->truncate($unit), $this->zonedRange());
+        [$otherStart, $otherEnd] = array_map(static fn (ZonedInstant $i): ZonedInstant => $i->truncate($unit), $other->zonedRange());
+        return new Uncertainty($otherStart->wholeUnitsSince($thisEnd, $unit), $otherEnd->wholeUnitsSince($thisStart, $unit));
     }
 
     public function durationBetween(mixed $other, Precision $unit): ?Uncertainty
@@ -101,9 +101,9 @@ final class CqlDate extends CqlTemporal implements \Stringable
         if (!$other instanceof self) {
             return null;
         }
-        [$aLow, $aHigh] = $this->zonedRange();
-        [$bLow, $bHigh] = $other->zonedRange();
-        return new Uncertainty($bLow->wholeUnitsSince($aHigh, $unit), $bHigh->wholeUnitsSince($aLow, $unit));
+        [$thisStart, $thisEnd] = $this->zonedRange();
+        [$otherStart, $otherEnd] = $other->zonedRange();
+        return new Uncertainty($otherStart->wholeUnitsSince($thisEnd, $unit), $otherEnd->wholeUnitsSince($thisStart, $unit));
     }
 
     /**

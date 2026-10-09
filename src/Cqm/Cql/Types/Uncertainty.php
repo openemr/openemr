@@ -67,13 +67,13 @@ final readonly class Uncertainty
     public function lessThan(mixed $other): ?bool
     {
         $other = self::from($other);
-        $bestCase = $this->low === null || $other->high === null
+        $optimistic = $this->low === null || $other->high === null
             ? true
             : self::compare('before', $this->low, $other->high);
-        $worstCase = $this->high === null || $other->low === null
+        $pessimistic = $this->high === null || $other->low === null
             ? false
             : self::compare('before', $this->high, $other->low);
-        return $bestCase === $worstCase ? $bestCase : null;
+        return $optimistic === $pessimistic ? $optimistic : null;
     }
 
     public function greaterThan(mixed $other): ?bool
