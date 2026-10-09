@@ -323,14 +323,14 @@ class FacilityService extends BaseService
     {
         $dataBeforeUpdate = $this->getById($data['id']);
         $query = $this->buildUpdateColumns($data);
-        $sql = " UPDATE facility SET ";
-        $sql .= $query['set'];
-        $sql .= " WHERE id = ?";
-        array_push($query['bind'], $data['id']);
-        $result = QueryUtils::sqlStatementThrowException(
-            $sql,
-            $query['bind']
-        );
+        $set = $query['set'] ?? null;
+        $binds = $query['bind'] ?? null;
+        if (!is_string($set) || !is_array($binds)) {
+            throw new \LogicException('The facility columns could not be saved');
+        }
+        $sql = " UPDATE facility SET " . $set . " WHERE id = ?";
+        $binds[] = $data['id'];
+        $result = QueryUtils::sqlStatementThrowException($sql, $binds);
 
         $facilityUpdatedEvent = new FacilityUpdatedEvent($dataBeforeUpdate, $data);
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityUpdatedEvent, FacilityUpdatedEvent::EVENT_HANDLE);
@@ -341,12 +341,13 @@ class FacilityService extends BaseService
     public function insertFacility($data)
     {
         $query = $this->buildInsertColumns($data);
-        $sql = " INSERT INTO facility SET ";
-        $sql .= $query['set'];
-        $facilityId = QueryUtils::sqlInsert(
-            $sql,
-            $query['bind']
-        );
+        $set = $query['set'] ?? null;
+        $binds = $query['bind'] ?? null;
+        if (!is_string($set) || !is_array($binds)) {
+            throw new \LogicException('The facility columns could not be saved');
+        }
+        $sql = " INSERT INTO facility SET " . $set;
+        $facilityId = QueryUtils::sqlInsert($sql, $binds);
 
         $facilityCreatedEvent = new FacilityCreatedEvent(array_merge($data, ['id' => $facilityId]));
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityCreatedEvent, FacilityCreatedEvent::EVENT_HANDLE);
