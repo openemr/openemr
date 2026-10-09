@@ -200,7 +200,7 @@ trait FhirObservationTrait
             $performer = UtilsService::createRelativeReference($performerType, $performerUuid, $performerDisplay);
         } else {
             $performer = new FHIRReference();
-            $performer->addExtension(UtilsService::createDataMissingExtension());
+            $performer->addExtension(UtilsService::createDataAbsentReasonExtension());
         }
         $observation->addPerformer($performer);
     }
