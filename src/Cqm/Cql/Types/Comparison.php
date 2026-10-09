@@ -37,7 +37,7 @@ final class Comparison
         } elseif ($b instanceof Uncertainty) {
             $a = Uncertainty::from($a);
         }
-        if ($a instanceof CqlTemporal || $a instanceof Uncertainty) {
+        if ($a instanceof CqlTemporal || $a instanceof Uncertainty || $a instanceof Interval) {
             return $a->equals($b);
         }
         if (self::isNumber($a)) {
@@ -212,6 +212,11 @@ final class Comparison
                 continue;
             }
             $result = $compare($aValues[$key], $bValues[$key]);
+            if ($result === null && $aValues[$key] instanceof Quantity && $bValues[$key] !== null && !$bValues[$key] instanceof Quantity) {
+                // cql-execution's Quantity equality gives undefined, not
+                // null, for a non-quantity, which fails the comparison.
+                return false;
+            }
             if ($result === null) {
                 $undecided = true;
             } elseif ($result === false) {

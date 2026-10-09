@@ -98,8 +98,8 @@ final readonly class Uncertainty
 
     /**
      * cql-execution's ordering inside an Uncertainty: values of different
-     * kinds are not comparable, date-likes use their own methods, and
-     * anything else compares with the language operators.
+     * kinds are not comparable, dates and quantities use their own
+     * methods, and anything else compares with the language operators.
      *
      * @param 'before'|'after'|'sameOrBefore'|'sameOrAfter' $operation
      */
@@ -108,8 +108,12 @@ final readonly class Uncertainty
         if (!self::sameKind($a, $b)) {
             return null;
         }
-        if ($a instanceof CqlTemporal) {
+        if ($a instanceof CqlTemporal || $a instanceof Quantity) {
             return $a->{$operation}($b);
+        }
+        if (is_object($a)) {
+            // Other objects compare as their string form, "[object Object]".
+            return $operation === 'sameOrBefore' || $operation === 'sameOrAfter';
         }
         if (is_string($a) && is_string($b)) {
             // JavaScript orders strings by character, never numerically.

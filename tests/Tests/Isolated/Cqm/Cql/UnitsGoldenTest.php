@@ -17,8 +17,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Cqm\Cql;
 
 use OpenEMR\Cqm\Cql\Types\Comparison;
-use OpenEMR\Cqm\Cql\Types\CqlDate;
-use OpenEMR\Cqm\Cql\Types\CqlDateTime;
 use OpenEMR\Cqm\Cql\Types\CqlTemporal;
 use OpenEMR\Cqm\Cql\Types\Quantity;
 use OpenEMR\Cqm\Cql\Types\Ratio;
@@ -32,6 +30,8 @@ use PHPUnit\Framework\TestCase;
 
 class UnitsGoldenTest extends TestCase
 {
+    use GoldenCodec;
+
     /** @var list<array{string, list<mixed>, mixed}>|null */
     private static ?array $cases = null;
 
@@ -80,28 +80,7 @@ class UnitsGoldenTest extends TestCase
      */
     private static function cases(): array
     {
-        if (self::$cases === null) {
-            $files = glob(__DIR__ . '/fixtures/units/*.json') ?: [];
-            if ($files === []) {
-                throw new \RuntimeException('No golden files in fixtures/units');
-            }
-            $cases = [];
-            foreach ($files as $file) {
-                $json = file_get_contents($file);
-                $data = $json === false ? null : json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-                if (!is_array($data) || !is_array($data['cases'] ?? null)) {
-                    throw new \UnexpectedValueException("Malformed golden file $file");
-                }
-                foreach ($data['cases'] as $case) {
-                    if (!is_array($case) || !is_string($case[0] ?? null) || !is_array($case[1] ?? null)) {
-                        throw new \UnexpectedValueException('Malformed golden case');
-                    }
-                    $cases[] = [$case[0], array_values($case[1]), $case[2] ?? null];
-                }
-            }
-            self::$cases = $cases;
-        }
-        return self::$cases;
+        return self::$cases ??= self::loadGoldenCases(__DIR__ . '/fixtures/units');
     }
 
     /**
@@ -110,13 +89,7 @@ class UnitsGoldenTest extends TestCase
     private static function evaluate(string $op, array $args): mixed
     {
         try {
-            // A plain loop: array_map with a first-class callable here
-            // crashes PHP 8.3.6 when a decoded argument throws.
-            $decoded = [];
-            foreach ($args as $arg) {
-                $decoded[] = self::decode($arg);
-            }
-            return self::encode(self::call($op, $decoded));
+            return self::encode(self::call($op, self::decodeAll($args)));
         } catch (\InvalidArgumentException | \UnexpectedValueException | \LogicException) {
             // The ports throw these where JavaScript throws an Error.
             return ['error' => true];
@@ -173,77 +146,6 @@ class UnitsGoldenTest extends TestCase
         }
         [$parsed, $valid] = Ucum::instance()->specifiedUnit($unit);
         return [$valid, $parsed];
-    }
-
-    /** Rebuilds numbers, quantities, ratios and dates; anything else is as written. */
-    private static function decode(mixed $value): mixed
-    {
-        if (is_string($value) && str_starts_with($value, '#')) {
-            return JavaScript::toNumber(substr($value, 1));
-        }
-        if (is_string($value) && preg_match('/^(dt|d)\|/', $value, $kind) === 1) {
-            $parts = explode('|', $value);
-            $int = static fn (string $v): ?int => $v === '' ? null : (int) $v;
-            if ($kind[1] === 'd') {
-                return new CqlDate($int($parts[1]), $int($parts[2]), $int($parts[3]));
-            }
-            return new CqlDateTime(
-                $int($parts[1]),
-                $int($parts[2]),
-                $int($parts[3]),
-                $int($parts[4]),
-                $int($parts[5]),
-                $int($parts[6]),
-                $int($parts[7]),
-                $parts[8] === '' ? null : (float) $parts[8],
-            );
-        }
-        if (is_array($value) && array_key_exists('q', $value) && is_array($value['q'])) {
-            return new Quantity(self::number(self::decode($value['q'][0] ?? null)), self::nullableString($value['q'][1] ?? null));
-        }
-        if (is_array($value) && array_key_exists('r', $value) && is_array($value['r'])) {
-            return new Ratio(self::quantity(self::decode($value['r'][0] ?? null)), self::quantity(self::decode($value['r'][1] ?? null)));
-        }
-        return $value;
-    }
-
-    private static function encode(mixed $value): mixed
-    {
-        if (is_int($value) || is_float($value)) {
-            return '#' . JavaScript::numberToString($value);
-        }
-        if (is_array($value)) {
-            return array_map(self::encode(...), $value);
-        }
-        if ($value instanceof UcumUnit) {
-            return ['u' => [
-                $value->csCode,
-                '#' . JavaScript::numberToString($value->magnitude),
-                $value->dim,
-                $value->cnv,
-                '#' . JavaScript::numberToString($value->cnvPfx),
-                $value->isSpecial,
-                $value->isArbitrary,
-                $value->moleExp,
-                $value->equivalentExp,
-            ]];
-        }
-        if ($value instanceof Quantity) {
-            return ['q' => ['#' . JavaScript::numberToString($value->value), $value->unit]];
-        }
-        if ($value instanceof Ratio) {
-            return ['r' => [self::encode($value->numerator), self::encode($value->denominator)]];
-        }
-        if ($value instanceof CqlDateTime) {
-            $fields = [$value->year, $value->month, $value->day, $value->hour, $value->minute, $value->second, $value->millisecond];
-            $offset = $value->timezoneOffset;
-            $offsetText = $offset === null ? '' : ($offset == floor($offset) ? (string) (int) $offset : (string) $offset);
-            return implode('|', ['dt', ...array_map(static fn (?int $f): string => (string) $f, $fields), $offsetText]);
-        }
-        if ($value instanceof CqlDate) {
-            return implode('|', ['d', (string) $value->year, (string) $value->month, (string) $value->day]);
-        }
-        return $value;
     }
 
     private static function quantity(mixed $value): Quantity
