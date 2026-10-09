@@ -7,7 +7,8 @@
 # 3. Both values must match
 #
 # Additionally, if database.sql has schema changes and v_database was bumped,
-# at least one upgrade SQL file should also be modified.
+# at least one upgrade SQL file should also be modified, and any statement
+# added to an upgrade SQL file requires v_database to be bumped.
 #
 # This prevents database migrations from being silently skipped on upgrades.
 name: Database Version Check
@@ -106,6 +107,56 @@ jobs:
           echo
           printf 'Both `version.php` and `sql/database.sql` declare v_database = %s\n' "$php_version"
         } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Check v_database bump for upgrade SQL
+      run: |
+        base_ref="origin/${{ github.base_ref }}"
+
+        # Existing installs are offered an upgrade when $v_database differs
+        # from the database's, so a statement added to an upgrade file without
+        # a bump is not offered to an install already on that number. This applies
+        # to data changes as well as DDL. Blank and comment-only lines don't count.
+        added=$(git diff "$base_ref"...HEAD -- 'sql/*-to-*_upgrade.sql' \
+          | grep '^+' | grep -v '^+++' | grep -vE '^\+[[:space:]]*(--.*)?$' || true)
+
+        if [[ -z "$added" ]]; then
+          echo '::notice::No statements added to upgrade SQL — skipping v_database bump check.'
+          exit 0
+        fi
+
+        # HEAD is this PR merged with the current base branch, so a number
+        # another PR has already taken shows up here as not bumped.
+        base_v_database=$(git show "$base_ref":version.php | grep -oP '\$v_database\s*=\s*\K[0-9]+' || echo "0")
+        head_v_database=$(grep -oP '\$v_database\s*=\s*\K[0-9]+' version.php || echo "0")
+
+        if (( head_v_database > base_v_database )); then
+          {
+            echo '## ✅ Upgrade SQL comes with a v_database bump'
+            echo
+            printf 'v_database %s → %s\n' "$base_v_database" "$head_v_database"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+        fi
+
+        {
+          echo '## ⚠️ Upgrade SQL changed but v_database was not bumped'
+          echo
+          echo 'This PR adds statements to an upgrade SQL file, but `$v_database` is'
+          printf '**%s** on both the base branch and this PR merged with it.\n' "$base_v_database"
+          echo
+          echo 'Existing installations are offered an upgrade when `$v_database` changes,'
+          echo 'so without a bump an install already at that number is not prompted to'
+          echo 'run these statements. If this PR did bump it, another PR has since merged'
+          echo 'with the same number.'
+          echo
+          echo '### How to fix'
+          echo
+          printf 'Set `$v_database` to **%s** in both:\n' "$((base_v_database + 1))"
+          echo
+          echo '- `version.php`'
+          echo '- `sql/database.sql` header comment'
+        } >> "$GITHUB_STEP_SUMMARY"
+        exit 1
 
     - name: Check for missing upgrade SQL
       run: |
