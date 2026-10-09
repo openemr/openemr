@@ -64,6 +64,15 @@ final class RepeatAdvance
     public static function onDate(mixed $nth, mixed $dayOfWeek, mixed $month, mixed $year): ?string
     {
         $remaining = self::wholeNumber($nth);
+        if (is_int($dayOfWeek)) {
+            $dayOfWeek = (string) $dayOfWeek;
+        }
+        if (is_int($month)) {
+            $month = (string) $month;
+        }
+        if (is_int($year)) {
+            $year = (string) $year;
+        }
         if ($remaining === null || !is_string($dayOfWeek) || !is_string($month) || !is_string($year)) {
             return null;
         }
