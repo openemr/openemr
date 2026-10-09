@@ -29,6 +29,9 @@ final class Comparison
         if ($a === null || $b === null) {
             return null;
         }
+        if ($a instanceof Quantity || $a instanceof Ratio) {
+            return $a->equals($b);
+        }
         if ($a instanceof Uncertainty) {
             $b = Uncertainty::from($b);
         } elseif ($b instanceof Uncertainty) {
@@ -66,7 +69,11 @@ final class Comparison
         if ($a instanceof Code || $a instanceof Concept || $a instanceof ValueSet) {
             return $a->hasMatch($b);
         }
-        if ($a instanceof CqlTemporal) {
+        if ($a instanceof Quantity) {
+            // Quantity equivalence is Quantity equality.
+            return $a->equals($b);
+        }
+        if ($a instanceof CqlTemporal || $a instanceof Ratio) {
             return $a->equivalent($b);
         }
         if (is_array($a) && is_array($b)) {
@@ -124,6 +131,9 @@ final class Comparison
             || ($a instanceof CqlDate && $b instanceof CqlDate)
         ) {
             return $a->{$operation}($b, $precision);
+        }
+        if ($a instanceof Quantity && $b instanceof Quantity) {
+            return $a->{$operation}($b);
         }
         $uncertain = match ($operation) {
             'before' => 'lessThan',
