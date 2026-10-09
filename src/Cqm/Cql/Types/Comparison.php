@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Cqm\Cql\Types;
 
+use OpenEMR\Cqm\Cql\Qdm\QdmObject;
+
 final class Comparison
 {
     private static ?\Collator $collator = null;
@@ -194,11 +196,13 @@ final class Comparison
      */
     private static function compareObjects(object $a, object $b, \Closure $compare): ?bool
     {
-        if ($a::class !== $b::class) {
+        // Tuples and QDM records are all plain objects to cql-execution.
+        $plain = static fn (object $o): bool => $o instanceof Tuple || $o instanceof QdmObject;
+        if ($a::class !== $b::class && !($plain($a) && $plain($b))) {
             return false;
         }
-        $aValues = $a instanceof Tuple ? $a->elements : get_object_vars($a);
-        $bValues = $b instanceof Tuple ? $b->elements : get_object_vars($b);
+        $aValues = self::objectValues($a);
+        $bValues = self::objectValues($b);
         $aKeys = array_keys($aValues);
         $bKeys = array_keys($bValues);
         sort($aKeys);
@@ -224,6 +228,18 @@ final class Comparison
             }
         }
         return $undecided ? null : true;
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    private static function objectValues(object $value): array
+    {
+        return match (true) {
+            $value instanceof Tuple => $value->elements,
+            $value instanceof QdmObject => $value->fields,
+            default => get_object_vars($value),
+        };
     }
 
     private static function isNumber(mixed $value): bool

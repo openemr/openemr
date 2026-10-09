@@ -96,6 +96,23 @@ final class CqlMath
     }
 
     /**
+     * Cuts a decimal to 8 places by its string form; a number written
+     * with an exponent is left as it is.
+     */
+    public static function limitDecimalPrecision(float $value): float
+    {
+        $text = JavaScript::numberToString($value);
+        if (str_contains($text, 'e')) {
+            return $value;
+        }
+        $parts = explode('.', $text);
+        if (isset($parts[1]) && strlen($parts[1]) > 8) {
+            $text = $parts[0] . '.' . substr($parts[1], 0, 8);
+        }
+        return JavaScript::parseFloat($text);
+    }
+
+    /**
      * Rounds a number to 10^exponent the way cql-execution's decimalAdjust
      * does: by shifting the decimal exponent of its string form, rounding,
      * and shifting back. Infinite and NaN values give NaN.

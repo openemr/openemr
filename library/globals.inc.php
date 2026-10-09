@@ -2671,6 +2671,17 @@ $GLOBALS_METADATA = [
             xl('Enter the eCQM Performance Period year. For example 2025')
         ],
 
+        'cqm_calculation_engine' => [
+            xl('eCQM Calculation Engine'),
+            [
+                'node' => xl('Node.js service'),
+                'shadow' => xl('Node.js service, checked by the PHP engine'),
+                'php' => xl('PHP engine'),
+            ],
+            'node',
+            xl('Which engine calculates eCQMs. The checked mode reports with the Node.js service, also runs the PHP engine, and logs any difference.')
+        ],
+
         'enable_amc' => [
             xl('Enable AMC Reporting'),
             'bool',                           // data type

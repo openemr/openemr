@@ -1,0 +1,116 @@
+<?php
+
+/**
+ * Runs the PHP CQL engine over every parity fixture and requires the
+ * results cqm-execution recorded: each patient's population counts,
+ * observation values and the final outcome of every statement, for every
+ * population set and stratification.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Isolated\Cqm\Parity;
+
+use OpenEMR\Cqm\Cql\Engine\MeasureCalculator;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+
+class PhpEngineParityTest extends TestCase
+{
+    private const REPORTING_YEAR = '2025';
+
+    #[DataProvider('fixtureProvider')]
+    public function testPhpEngineMatchesCqmExecution(string $path): void
+    {
+        $fixture = ParityFixture::fromFile($path);
+        if ($fixture->engineError !== null) {
+            $this->markTestSkipped("cqm-execution cannot run {$fixture->measure}, so there is nothing to match.");
+        }
+        $dir = self::measuresDir() . "/{$fixture->measure}";
+        $calculator = new MeasureCalculator(self::readJson("$dir/{$fixture->measure}.json"), self::listOfArrays(self::readJson("$dir/value_sets.json")));
+        $results = $calculator->calculate($fixture->patients, $fixture->reportingYear . '0101000000');
+
+        $differences = [];
+        foreach ($fixture->results as $patientId => $byKey) {
+            foreach ($byKey as $key => $expected) {
+                $actual = $results[$patientId][$key] ?? null;
+                if (!is_array($actual)) {
+                    $differences[] = "$patientId $key: no result";
+                    continue;
+                }
+                foreach ($expected->populations as $population => $count) {
+                    if (($actual[$population] ?? null) !== $count) {
+                        $differences[] = "$patientId $key $population: expected $count, got " . json_encode($actual[$population] ?? null);
+                    }
+                }
+                if ($expected->observationValues !== [] && ($actual['observation_values'] ?? []) != $expected->observationValues) {
+                    $differences[] = "$patientId $key observation_values differ";
+                }
+                $finals = [];
+                foreach (is_array($actual['statement_results'] ?? null) ? $actual['statement_results'] : [] as $statement) {
+                    if (!is_array($statement)) {
+                        continue;
+                    }
+                    $library = $statement['library_name'] ?? null;
+                    $name = $statement['statement_name'] ?? null;
+                    if (is_string($library) && is_string($name)) {
+                        $finals[$library][$name] = $statement['final'] ?? null;
+                    }
+                }
+                foreach ($expected->statements as $library => $byName) {
+                    foreach ($byName as $name => $final) {
+                        $got = $finals[$library][$name] ?? null;
+                        if ($got !== $final->value) {
+                            $differences[] = "$patientId $key $library.\"$name\": expected {$final->value}, got " . json_encode($got);
+                        }
+                    }
+                }
+            }
+        }
+        $this->assertSame([], array_slice($differences, 0, 20), "The PHP engine differs from cqm-execution on {$fixture->measure}");
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function fixtureProvider(): array
+    {
+        $cases = [];
+        foreach (glob(__DIR__ . '/fixtures/' . self::REPORTING_YEAR . '/*.json') ?: [] as $path) {
+            $cases[basename($path, '.json')] = [$path];
+        }
+        return $cases;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private static function readJson(string $path): array
+    {
+        $json = file_get_contents($path);
+        $data = $json === false ? null : json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        return is_array($data) ? $data : throw new \RuntimeException("Unreadable $path");
+    }
+
+    /**
+     * @param array<mixed> $data
+     * @return list<array<mixed>>
+     */
+    private static function listOfArrays(array $data): array
+    {
+        return array_values(array_filter($data, is_array(...)));
+    }
+
+    private static function measuresDir(): string
+    {
+        return dirname(__DIR__, 5) . '/vendor/openemr/oe-cqm-parsers/' . self::REPORTING_YEAR . '_reporting_period/json_measures';
+    }
+}

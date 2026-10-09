@@ -12,7 +12,11 @@ namespace OpenEMR\Services\Qdm;
 
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\LazyOpenStream;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Cqm\CqmCalculationEngine;
 use OpenEMR\Cqm\CqmServiceManager;
+use OpenEMR\Cqm\PhpCqmCalculation;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\MedicationOrder;
 use OpenEMR\Cqm\Qdm\SubstanceOrder;
@@ -108,7 +112,7 @@ class CqmCalculator
             }
         }
 
-        $json_models = json_encode($patients);
+        $json_models = json_encode($patients, JSON_THROW_ON_ERROR);
         $patientStream = Psr7\Utils::streamFor($json_models);
 
         // Convert to assoc array before converting back to json to send
@@ -125,8 +129,69 @@ class CqmCalculator
         ];
         $optionsStream = Psr7\Utils::streamFor(json_encode($options));
 
+        $engine = CqmCalculationEngine::fromSetting(OEGlobalsBag::getInstance()->getString('cqm_calculation_engine', 'node'));
+        if ($engine === CqmCalculationEngine::Php) {
+            if (!is_array($measure_array)) {
+                throw new \UnexpectedValueException('The measure is not a JSON object');
+            }
+            return $this->calculateWithPhp($json_models, $measure_array, $measureFiles['valueSets'], $options['effectiveDate']);
+        }
         $results = $this->client->calculate($patientStream, $measureFileStream, $valueSetFileStream, $optionsStream);
+        if ($engine === CqmCalculationEngine::Shadow && is_array($results) && is_array($measure_array)) {
+            $this->compareWithPhp($results, $json_models, $measure_array, $measureFiles['valueSets'], $options['effectiveDate']);
+        }
         return $results;
+    }
+
+    /**
+     * The PHP engine's results, or a one-message list (as the service gives
+     * when it fails) when it cannot calculate the measure.
+     *
+     * @param array<mixed> $measure
+     * @return array<mixed>
+     */
+    private function calculateWithPhp(string $patientsJson, array $measure, string $valueSetsPath, string $effectiveDate): array
+    {
+        try {
+            return (new PhpCqmCalculation())->calculate($patientsJson, $measure, $this->readValueSets($valueSetsPath), $effectiveDate);
+        } catch (\JsonException | \LogicException | \RuntimeException $e) {
+            ServiceContainer::getLogger()->error('PHP eCQM engine failed', ['measure' => $measure['cms_id'] ?? null, 'exception' => $e]);
+            return ['PHP eCQM calculation failed'];
+        }
+    }
+
+    /**
+     * Shadow mode: the service's results stand; the PHP engine runs on the
+     * same input and any difference or failure is logged.
+     *
+     * @param array<mixed> $serviceResults
+     * @param array<mixed> $measure
+     */
+    private function compareWithPhp(array $serviceResults, string $patientsJson, array $measure, string $valueSetsPath, string $effectiveDate): void
+    {
+        $logger = ServiceContainer::getLogger();
+        try {
+            $phpResults = (new PhpCqmCalculation())->calculate($patientsJson, $measure, $this->readValueSets($valueSetsPath), $effectiveDate);
+        } catch (\JsonException | \LogicException | \RuntimeException $e) {
+            $logger->error('eCQM shadow calculation: the PHP engine failed', ['measure' => $measure['cms_id'] ?? null, 'exception' => $e]);
+            return;
+        }
+        $differences = PhpCqmCalculation::differences($serviceResults, $phpResults);
+        if ($differences === []) {
+            $logger->info('eCQM shadow calculation: the PHP engine matches', ['measure' => $measure['cms_id'] ?? null, 'patients' => count($serviceResults)]);
+            return;
+        }
+        $logger->warning('eCQM shadow calculation: the PHP engine differs from the service', [
+            'measure' => $measure['cms_id'] ?? null,
+            'patients' => count($serviceResults),
+            'differences' => $differences,
+        ]);
+    }
+
+    private function readValueSets(string $path): string
+    {
+        $json = file_get_contents($path);
+        return $json === false ? throw new \RuntimeException('Unable to read the measure value sets') : $json;
     }
 
     public function getMeasure()
