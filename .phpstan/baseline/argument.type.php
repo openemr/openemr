@@ -77,16 +77,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../apis/routes/_rest_routes_standard.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$pid of method OpenEMR\\\\Services\\\\CDADocumentService\\:\\:generateCCDHtml\\(\\) expects int\\|string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../ccdaservice/ccda_gateway.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$pid of method OpenEMR\\\\Services\\\\CDADocumentService\\:\\:generateCCDZip\\(\\) expects int\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccdaservice/ccda_gateway.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$pid of function transmitCCD expects int, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../ccr/createCCR.php',
@@ -4893,11 +4883,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$options of method OpenEMR\\\\Billing\\\\MiscBillingOptions\\:\\:generateDateQualifierSelect\\(\\) expects array, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/misc_billing_options/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$default of method OpenEMR\\\\Billing\\\\MiscBillingOptions\\:\\:genReferringProviderSelect\\(\\) expects int, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/misc_billing_options/new.php',
 ];
@@ -10935,21 +10920,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function intval expects array\\|bool\\|float\\|GMP\\|int\\|resource\\|SimpleXMLElement\\|string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaGlobalsConfiguration.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function trim expects string, string\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$length of function substr expects int\\|null, array\\|int\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$port of function socket_connect expects int\\|null, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$pid of method OpenEMR\\\\Services\\\\PatientService\\:\\:findByPid\\(\\) expects int, mixed given\\.$#',
@@ -23375,6 +23345,16 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#6 \\$assigned_to of function addPnote expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$pid of method OpenEMR\\\\Services\\\\CDADocumentService\\:\\:generateCCDHtml\\(\\) expects int\\|string, mixed given\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/ccda_gateway.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$pid of method OpenEMR\\\\Services\\\\CDADocumentService\\:\\:generateCCDZip\\(\\) expects int\\|string, mixed given\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/ccda_gateway.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$catid of function portal_doOneDay expects int\\|string, mixed given\\.$#',
