@@ -11,11 +11,16 @@
  *  - the portal went through document_templates / document_template_profiles
  *  - SMART was gated on a single global rather than bound per questionnaire
  *
- * On `content_assignments`.`category`: it narrows an assignment to questionnaires whose
- * own `questionnaire_repository`.`category` matches, which lets an administrator say
- * "every SDOH questionnaire is offered in the portal" in one row rather than one row per
- * questionnaire. It is a property of the resource, not of the caller, which is why it has
- * no counterpart in AvailabilityContext.
+ * An assignment names its target one of two ways, and never both:
+ *
+ *  - `resource_id` set: the row applies to that one questionnaire.
+ *  - `resource_id` NULL and `category` set: the row applies to every questionnaire whose
+ *    own `questionnaire_repository`.`category` matches, so "offer every SDOH
+ *    questionnaire in the portal" is one row rather than one per questionnaire, and a
+ *    questionnaire imported later into that category is covered without a new row.
+ *
+ * Category is a property of the resource rather than of the caller, which is why it has
+ * no counterpart in AvailabilityContext. A row with neither set matches nothing.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -172,20 +177,25 @@ class QuestionnaireAvailabilityService
     {
         [$where, $binds] = $this->buildScopeClause($context);
 
-        // Joined to the repository for two reasons: an assignment must not outlive the
-        // questionnaire being deactivated, and an assignment scoped to a category is
-        // matched against the questionnaire's own category. Keeping both here means
-        // getAvailableIds() and getAvailableQuestionnaires() can never disagree.
-        $sql = 'SELECT ca.`id`, ca.`resource_id`, ca.`surface`, ca.`acl_section`,
+        // The join carries two rules. An assignment never outlives its questionnaire being
+        // deactivated, and an assignment targets EITHER one questionnaire by id OR every
+        // questionnaire in a category. resource_id is therefore read from the repository
+        // side, since a category-wide row has none of its own.
+        $sql = 'SELECT ca.`id`, qr.`id` AS `resource_id`, ca.`surface`, ca.`acl_section`,
                        ca.`acl_level`, ca.`seq`
                 FROM `' . self::TABLE_NAME . '` ca
                 INNER JOIN `questionnaire_repository` qr
-                    ON qr.`id` = ca.`resource_id`
-                   AND qr.`active` = 1
+                    ON qr.`active` = 1
+                   AND (
+                        ca.`resource_id` = qr.`id`
+                     OR (ca.`resource_id` IS NULL
+                         AND ca.`category` IS NOT NULL
+                         AND ca.`category` <> \'\'
+                         AND ca.`category` = qr.`category`)
+                   )
                 WHERE ca.`resource_type` = ?
                   AND ca.`surface` = ?
                   AND ca.`active` = 1
-                  AND (ca.`category` IS NULL OR ca.`category` = \'\' OR ca.`category` = qr.`category`)
                   ' . $where . '
                 ORDER BY ca.`seq`, ca.`id`';
 
