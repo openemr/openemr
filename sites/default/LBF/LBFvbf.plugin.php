@@ -10,14 +10,15 @@
 // This provides enhancement functions for the LBFvbf visit form,
 // "Vitals and Body Fat".  It is invoked by interface/forms/LBF/new.php.
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
+
 // The purpose of this function is to create JavaScript for the <head>
 // section of the page.  This in turn defines desired javaScript
 // functions.
 //
 function LBFvbf_javascript(): void
 {
-    global $formid;
-
     echo "// Compute Body Mass Index.
 function vbfComputeBMI() {
  var f = document.forms[0];
@@ -132,10 +133,14 @@ function vbf_temperature_f_changed() {
 ";
 
   // Compute patient age and sex.
-    $ptrow = sqlQuery("SELECT DOB, sex FROM patient_data WHERE " .
-    "pid = ? LIMIT 1", [$pid]);
-    $pt_age = 0 + getpatientAge($ptrow['DOB']);
-    $pt_sex = strtoupper(substr((string) $ptrow['sex'], 0, 1)) == 'F' ? 1 : 0;
+    $ptrow = QueryUtils::querySingleRow(
+        "SELECT DOB, sex FROM patient_data WHERE pid = ? LIMIT 1",
+        [OEGlobalsBag::getInstance()->getInt('pid')]
+    ) ?: [];
+    $age = getPatientAge($ptrow['DOB'] ?? null);
+    $pt_age = is_int($age) ? $age : 0;
+    $sex = $ptrow['sex'] ?? null;
+    $pt_sex = is_string($sex) && strtoupper(substr($sex, 0, 1)) === 'F' ? 1 : 0;
 
     echo "// Compute Body Fat Percentage.
 function vbfComputeBF() {

@@ -11267,16 +11267,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/verify_session.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between 0 and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../sites/default/LBF/LBFathbf.plugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between 0 and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../sites/default/LBF/LBFvbf.plugin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between literal\\-string&non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../sites/default/config.php',
