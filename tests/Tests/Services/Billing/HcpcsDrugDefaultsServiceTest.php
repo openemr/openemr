@@ -136,4 +136,19 @@ class HcpcsDrugDefaultsServiceTest extends TestCase
         $this->assertNull(HcpcsDrugDefaults::forDrug($inactive, self::CODE));
     }
 
+    public function testChoicesListActiveRelatedDrugsByName(): void
+    {
+        $second = $this->addDrug('ZZTEST Bbb 80 mg/mL', 'HCPCS:' . self::CODE, '0009-3475-03', 80);
+        $first = $this->addDrug('ZZTEST Aaa 40 mg/mL', 'CPT4:96372;HCPCS:' . self::CODE, '0009-3073-01', 40);
+        $this->addDrug('ZZTEST inactive', 'HCPCS:' . self::CODE, '0009-0000-01', 10, active: 0);
+        $this->addDrug('ZZTEST other code', 'HCPCS:' . self::CODE . '0', '0009-0000-02', 10);
+
+        $choices = HcpcsDrugDefaults::choicesByCode();
+
+        $this->assertSame([
+            ['id' => $first, 'label' => 'ZZTEST Aaa 40 mg/mL (0009-3073-01)'],
+            ['id' => $second, 'label' => 'ZZTEST Bbb 80 mg/mL (0009-3475-03)'],
+        ], $choices[self::CODE] ?? null);
+    }
+
 }

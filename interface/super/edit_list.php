@@ -20,11 +20,11 @@ require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Billing\HcpcsDrugDefaults;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -373,12 +373,6 @@ function getCodeDescriptions($codes)
                 "code_type = ? AND " .
                 "code = ? ORDER BY modifier LIMIT 1", [$code_types[$code_type]['id'], $code]);
             $desc = "$code_type:$code " . ucfirst(strtolower($row['code_text'] ?? ''));
-            // A HCPCS entry can name the inventory drug to take the NDC and units from.
-            if ($code_type == 'HCPCS' && ctype_digit($selector)) {
-                $drug = QueryUtils::querySingleRow("SELECT name FROM drugs WHERE drug_id = ?", [$selector]);
-                $drugName = is_array($drug) && is_string($drug['name'] ?? null) ? $drug['name'] : $selector;
-                $desc .= " (" . xl('Drug') . ": " . $drugName . ")";
-            }
         }
         $desc = str_replace('~', ' ', $desc);
         if (!empty($modifier ?? '')) {
@@ -609,18 +603,10 @@ function writeFSLine($category, $option, $codes): void
         attr($option) . "' size='20' maxlength='63' class='optin' />";
     echo "</td>\n";
 
+    // displayCodes() draws the codes from the hidden fields, as it does after
+    // adding or deleting one, with a drug choice for HCPCS codes.
     echo "  <td align='left' class='optcell'>";
-    echo "   <div id='codelist_" . attr($opt_line_no) . "'>";
-    if (strlen((string) $descs)) {
-        $arrdescs = explode('~', (string) $descs);
-        $i = 0;
-        foreach ($arrdescs as $desc) {
-            echo "<a href='' onclick='return delete_code(" . attr($opt_line_no) . ",$i)' title='" . xla('Delete') . "'>";
-            echo "[x]&nbsp;</a>" . text($desc) . "<br />";
-            ++$i;
-        }
-    }
-    echo "</div>";
+    echo "   <div id='codelist_" . attr($opt_line_no) . "'></div>";
     echo "<a href='' onclick='return select_code(" . attr($opt_line_no) . ")'>";
     echo "[" . xlt('Add') . "]</a>";
 
@@ -628,6 +614,7 @@ function writeFSLine($category, $option, $codes): void
         attr($codes) . "' />";
     echo "<input type='hidden' name='opt[" . attr($opt_line_no) . "][descs]' value='" .
         attr($descs) . "' />";
+    echo "<script>displayCodes(" . (int) $opt_line_no . ");</script>";
     echo "</td>\n";
 
     echo " </tr>\n";
@@ -917,6 +904,10 @@ function writeITLine($it_array): void
         var current_sel_name = '';
         var current_sel_clin_term = '';
 
+        // The active inventory drugs related to each HCPCS code, so a Fee Sheet
+        // entry can say which product its line takes the NDC and units from.
+        var hcpcsDrugChoices = <?php echo json_encode($list_id == 'feesheet' ? HcpcsDrugDefaults::choicesByCode() : [], JSON_THROW_ON_ERROR); ?>;
+
         // Given a line number, redisplay its descriptive list of codes.
         // This is for Fee Sheet administration. The descriptions are plain
         // text (code and drug names), so they're added as text, not HTML.
@@ -929,6 +920,7 @@ function writeITLine($it_array): void
                 return;
             }
             var arrdescs = descs.split('~');
+            var arrcodes = f['opt[' + lino + '][codes]'].value.split('~');
             for (let i = 0; i < arrdescs.length; ++i) {
                 var a = document.createElement('a');
                 a.href = '';
@@ -937,8 +929,51 @@ function writeITLine($it_array): void
                     return delete_code(lino, i);
                 };
                 a.textContent = '[x]\u00a0';
-                div.append(a, arrdescs[i], document.createElement('br'));
+                div.append(a, arrdescs[i]);
+                var choice = drugChoice(lino, i, arrcodes[i] || '');
+                if (choice) {
+                    div.append(' ', choice);
+                }
+                div.append(document.createElement('br'));
             }
+        }
+
+        // A dropdown of the inventory drugs related to a Fee Sheet entry's HCPCS
+        // code ("HCPCS|J1010|<drug_id>"), or null when the code has none. "Default"
+        // leaves the choice to the fee sheet (the related drug in stock, then by name).
+        function drugChoice(lino, seqno, codestring) {
+            var parts = codestring.split('|');
+            if (parts[0] !== 'HCPCS') {
+                return null;
+            }
+            var choices = hcpcsDrugChoices[parts[1].split(':')[0]];
+            if (!choices) {
+                return null;
+            }
+            var select = document.createElement('select');
+            select.className = 'form-control form-control-sm d-inline-block w-auto';
+            select.title = <?php echo xlj('Inventory drug for this code'); ?>;
+            select.add(new Option(<?php echo xlj('Drug: default'); ?>, ''));
+            for (const choice of choices) {
+                select.add(new Option(choice.label, choice.id));
+            }
+            select.value = parts[2] || '';
+            if (select.selectedIndex < 0) {
+                select.selectedIndex = 0;
+            }
+            select.onchange = function () {
+                set_drug(lino, seqno, select.value);
+            };
+            return select;
+        }
+
+        // Store the chosen drug as the selector of the entry's code.
+        function set_drug(lino, seqno, drugId) {
+            var celem = document.forms[0]['opt[' + lino + '][codes]'];
+            var arrcodes = celem.value.split('~');
+            var parts = arrcodes[seqno].split('|');
+            arrcodes[seqno] = parts[0] + '|' + parts[1] + '|' + drugId;
+            celem.value = arrcodes.join('~');
         }
 
         // Helper function to remove a Fee Sheet code.
