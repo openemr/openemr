@@ -147,8 +147,6 @@ class QueryPaginationTest extends TestCase
         $pagination->setSearchUri('/api/patient');
 
         $links = $pagination->getLinks();
-        $this->assertArrayHasKey('first', $links);
-        $this->assertIsString($links['first']);
         $this->assertStringContainsString('_offset=0', $links['first']);
         $this->assertStringContainsString('_count=10', $links['first']);
         $this->assertArrayNotHasKey('previous', $links);
@@ -162,13 +160,9 @@ class QueryPaginationTest extends TestCase
         $pagination->setHasMoreData(true);
 
         $links = $pagination->getLinks();
-        $this->assertArrayHasKey('first', $links);
         $this->assertArrayHasKey('previous', $links);
         $this->assertArrayHasKey('next', $links);
 
-        $this->assertIsString($links['first']);
-        $this->assertIsString($links['previous']);
-        $this->assertIsString($links['next']);
         $this->assertStringContainsString('_offset=0', $links['first']);
         $this->assertStringContainsString('_offset=10', $links['previous']);
         $this->assertStringContainsString('_offset=30', $links['next']);
@@ -181,7 +175,6 @@ class QueryPaginationTest extends TestCase
         $pagination->setHasMoreData(false);
 
         $links = $pagination->getLinks();
-        $this->assertArrayHasKey('first', $links);
         $this->assertArrayHasKey('previous', $links);
         $this->assertArrayNotHasKey('next', $links);
     }
@@ -216,7 +209,6 @@ class QueryPaginationTest extends TestCase
 
         $links = $pagination->getLinks();
         $this->assertArrayHasKey('previous', $links);
-        $this->assertIsString($links['previous']);
         $this->assertStringContainsString('_offset=0', $links['previous']);
     }
 }

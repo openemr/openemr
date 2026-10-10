@@ -16,6 +16,9 @@ use OpenEMR\Common\Database\QueryPagination;
 
 class SearchQueryConfig
 {
+    /**
+     * @var list<SearchFieldOrder>
+     */
     private array $searchFieldOrders;
     private QueryPagination $pagination;
 
@@ -34,14 +37,14 @@ class SearchQueryConfig
     }
 
     /**
-     * @return array
+     * @return list<SearchFieldOrder>
      */
     public function getSearchFieldOrders(): array
     {
         return $this->searchFieldOrders;
     }
 
-    public function addSearchFieldOrder(SearchFieldOrder $searchFieldOrder)
+    public function addSearchFieldOrder(SearchFieldOrder $searchFieldOrder): void
     {
         $this->searchFieldOrders[] = $searchFieldOrder;
     }
