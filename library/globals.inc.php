@@ -3076,6 +3076,13 @@ $GLOBALS_METADATA = [
             xl('Website link for the Patient Portal.')
         ],
 
+        'pdf_allowed_host' => [
+            xl('Patient Portal PDF Renderer Allowed Host'),
+            'text',                           // data type
+            '',                               // default — blank blocks all remote http(s) fetches
+            xl('Hostname the patient-portal PDF renderer accepts http(s) resource references for (barcodes, letterhead images, inline CSS url() values). Set this to the canonical hostname (e.g. openemr.hospital.local). When left blank the renderer rejects all remote http(s) resources, which disables same-host barcodes and letterhead images.')
+        ],
+
         'portal_css_header' => [
             xl('Portal Default Theme'),
             [

@@ -126,6 +126,11 @@ if (filter_input(INPUT_POST, 'print_pdf') || filter_input(INPUT_POST, 'print_htm
     if (!CsrfUtils::verifyCsrfToken(filter_input(INPUT_POST, 'csrf_token_form') ?? '', session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
+    // Allowlist of prescription IDs that belong to the current patient.
+    $allowedRxIds = [];
+    foreach (Prescription::prescriptions_factory($session->get('pid')) as $allowedRx) {
+        $allowedRxIds[(string) $allowedRx->id] = true;
+    }
     $camos_content = [];
     $postData = filter_input_array(INPUT_POST) ?: [];
     foreach ($postData as $key => $val) {
@@ -146,7 +151,11 @@ if (filter_input(INPUT_POST, 'print_pdf') || filter_input(INPUT_POST, 'print_htm
         }
 
         if (str_starts_with((string) $key, 'chrx_')) {
-            $rx = new Prescription(substr((string) $key, 5));
+            $rxId = substr((string) $key, 5);
+            if (!isset($allowedRxIds[$rxId])) {
+                continue;
+            }
+            $rx = new Prescription($rxId);
             //$content = $rx->drug.' '.$rx->form.' '.$rx->dosage;
             $content = ''
             . text($rx->drug) . ' '
