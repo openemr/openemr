@@ -9,15 +9,18 @@
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Tony McCormick <tony@mi-squared.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = $session->get('pid', 0);
+$sessionPid = $session->get('pid', 0);
+$pid = is_numeric($sessionPid) ? (int) $sessionPid : 0;
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/report.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
@@ -37,6 +40,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Pdf\Config_Mpdf;
+use OpenEMR\Services\ActiveMedicationListService;
 use OpenEMR\Services\FacilityService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -426,6 +430,61 @@ function getContent()
                         }
 
                         echo "</div>\n"; // end of billing DIV
+                    } elseif ($val == "medications") {
+                        if (AclMain::aclCheckCore('patients', 'med')) {
+                            echo "<hr />";
+                            echo "<div class='text medications'>\n";
+                            print "<h4>" . xlt('Medications') . ":</h4>";
+                            $medListService = new ActiveMedicationListService();
+                            $activeMeds = $medListService->getActiveList($pid);
+                            $inactiveMeds = $medListService->getInactiveList($pid, $activeMeds);
+                            $medDate = static function (?string $d): string {
+                                if ($d === null) {
+                                    return '';
+                                }
+                                $formatted = oeFormatShortDate($d);
+                                return is_string($formatted) ? $formatted : '';
+                            };
+                            echo "<span class='font-weight-bold'>" . xlt('Active') . ":</span><br />";
+                            if ($activeMeds === []) {
+                                echo "<span>" . xlt('None{{Issues}}') . "</span><br />\n";
+                            } else {
+                                echo "<div class='table-responsive'><table class='table'>";
+                                echo "<tr><td class='font-weight-bold'>" . xlt('Medication') . "</td>";
+                                echo "<td class='font-weight-bold'>" . xlt('Dose') . "</td>";
+                                echo "<td class='font-weight-bold'>" . xlt('Start') . "</td>";
+                                echo "<td class='font-weight-bold'>" . xlt('End') . "</td>";
+                                echo "<td class='font-weight-bold'>" . xlt('Comments') . "</td></tr>\n";
+                                foreach ($activeMeds as $med) {
+                                    echo "<tr><td class='text'>" . text($med['title']) . "</td>";
+                                    echo "<td class='text'>" . text($med['dose']) . "</td>";
+                                    echo "<td class='text'>" . text($medDate($med['start'])) . "</td>";
+                                    echo "<td class='text'>" . text($medDate($med['end'])) . "</td>";
+                                    echo "<td class='text'>" . text($med['comments']) . "</td></tr>\n";
+                                }
+                                echo "</table></div>";
+                            }
+                            echo "<span class='font-weight-bold'>" . xlt('Inactive') . ":</span><br />";
+                            if ($inactiveMeds === []) {
+                                echo "<span>" . xlt('None{{Issues}}') . "</span><br />\n";
+                            } else {
+                                echo "<div class='table-responsive'><table class='table'>";
+                                echo "<tr><td class='font-weight-bold'>" . xlt('Medication') . "</td>";
+                                echo "<td class='font-weight-bold'>" . xlt('Dose') . "</td>";
+                                echo "<td class='font-weight-bold'>" . xlt('Start') . "</td>";
+                                echo "<td class='font-weight-bold'>" . xlt('End') . "</td>";
+                                echo "<td class='font-weight-bold'>" . xlt('Comments') . "</td></tr>\n";
+                                foreach ($inactiveMeds as $med) {
+                                    echo "<tr><td class='text'>" . text($med['title']) . "</td>";
+                                    echo "<td class='text'>" . text($med['dose']) . "</td>";
+                                    echo "<td class='text'>" . text($medDate($med['start'])) . "</td>";
+                                    echo "<td class='text'>" . text($medDate($med['end'])) . "</td>";
+                                    echo "<td class='text'>" . text($med['comments']) . "</td></tr>\n";
+                                }
+                                echo "</table></div>";
+                            }
+                            echo "</div>\n";
+                        }
                     } elseif ($val == "immunizations") {
                         if (AclMain::aclCheckCore('patients', 'med')) {
                             echo "<hr />";
