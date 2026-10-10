@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\Isolated\Validators;
 
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ImmunizationValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ImmunizationValidatorTest extends TestCase
@@ -95,7 +96,7 @@ class ImmunizationValidatorTest extends TestCase
     public function testInsertRejectsFutureAdministeredDate(): void
     {
         $result = $this->validator->validate(
-            ['patient_id' => 1, 'cvx_code' => '197', 'administered_date' => '2999-01-15 14:30:00'],
+            ['patient_id' => 1, 'cvx_code' => '197', 'administered_date' => '2999-01-15'],
             BaseValidator::DATABASE_INSERT_CONTEXT
         );
 
@@ -103,6 +104,27 @@ class ImmunizationValidatorTest extends TestCase
         $messages = $result->getValidationMessages();
         $this->assertIsArray($messages);
         $this->assertArrayHasKey('administered_date', $messages);
+    }
+
+    #[DataProvider('administeredDateProvider')]
+    public function testIsAdministeredDateInFuture(string $date, bool $expected): void
+    {
+        $this->assertSame($expected, ImmunizationValidator::isAdministeredDateInFuture($date));
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function administeredDateProvider(): array
+    {
+        return [
+            'past datetime' => ['2000-01-15 14:30:00', false],
+            'future date' => ['2999-01-15', true],
+            'unparsable date' => ['not-a-date', false],
+            'overflow date' => ['2024-02-31', false],
+        ];
     }
 
     public function testUpdateRequiresUuid(): void
