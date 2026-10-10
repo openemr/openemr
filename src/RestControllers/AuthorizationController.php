@@ -1216,7 +1216,7 @@ class AuthorizationController implements LoggerAwareInterface
         $requiredSmartScopes = $scopeRepository->fhirRequiredSmartScopes();
         $identityClaimScopes = array_values(array_filter(
             $scopeRepository->getServerScopeList()->getOpenIDConnectScopes(),
-            static fn(mixed $identityScope): bool => is_string($identityScope) && !in_array($identityScope, $requiredSmartScopes, true)
+            static fn(string $identityScope): bool => !in_array($identityScope, $requiredSmartScopes, true)
         ));
 
         foreach ($scopes as $scope) {

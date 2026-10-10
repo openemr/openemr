@@ -196,6 +196,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     }
 
 
+    /** @return list<string> */
     public function fhirRequiredSmartScopes(): array
     {
         return $this->getServerScopeList()->requiredSmartOnFhirScopes();
@@ -243,7 +244,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $scopeValidatorFactory->buildScopeValidatorArray($currentServerScopes);
     }
 
-    public function lookupDescriptionForScope($scope): string
+    public function lookupDescriptionForScope(string $scope): string
     {
         $requiredSmart = [
             "openid" => xl("Permission to retrieve information about the current logged-in user"),
@@ -264,14 +265,14 @@ class ScopeRepository implements ScopeRepositoryInterface
         if (isset($requiredSmart[$scope])) {
             return $requiredSmart[$scope];
         }
-        $scope = ScopeEntity::createFromString($scope);
-        if (empty($scope->getResource())) {
+        $scopeEntity = ScopeEntity::createFromString($scope);
+        if (empty($scopeEntity->getResource())) {
             // pass the scope string, not the entity: the lookup is keyed by identifier
-            return $this->getServerScopeList()->lookupDescriptionForFullScopeString($scope->getIdentifier());
-        } elseif (!empty($scope->getOperation())) {
-            return $this->lookupDescriptionForResourceOperation($scope);
+            return $this->getServerScopeList()->lookupDescriptionForFullScopeString($scope);
+        } elseif (!empty($scopeEntity->getOperation())) {
+            return $this->lookupDescriptionForResourceOperation($scopeEntity);
         } else {
-            return $this->lookupDescriptionForSmartScope($scope);
+            return $this->lookupDescriptionForSmartScope($scopeEntity);
         }
     }
 
