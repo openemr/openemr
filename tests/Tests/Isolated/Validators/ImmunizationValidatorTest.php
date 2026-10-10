@@ -92,6 +92,19 @@ class ImmunizationValidatorTest extends TestCase
         $this->assertTrue($result->isValid());
     }
 
+    public function testInsertRejectsFutureAdministeredDate(): void
+    {
+        $result = $this->validator->validate(
+            ['patient_id' => 1, 'cvx_code' => '197', 'administered_date' => '2999-01-15 14:30:00'],
+            BaseValidator::DATABASE_INSERT_CONTEXT
+        );
+
+        $this->assertFalse($result->isValid());
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('administered_date', $messages);
+    }
+
     public function testUpdateRequiresUuid(): void
     {
         $result = $this->validator->validate(
