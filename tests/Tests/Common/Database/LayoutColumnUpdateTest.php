@@ -22,6 +22,9 @@ use PHPUnit\Framework\TestCase;
 class LayoutColumnUpdateTest extends TestCase
 {
     #[Test]
+    /**
+     * The visit reason column is quoted once in the update.
+     */
     public function testAVisitReasonIsQuotedOnce(): void
     {
         $statement = LayoutColumnUpdate::encounterStatement('reason');
@@ -35,6 +38,9 @@ class LayoutColumnUpdateTest extends TestCase
     }
 
     #[Test]
+    /**
+     * The patient name column is quoted once in the update.
+     */
     public function testAPatientNameIsQuotedOnce(): void
     {
         $statement = LayoutColumnUpdate::patientStatement('fname');
@@ -47,6 +53,9 @@ class LayoutColumnUpdateTest extends TestCase
     }
 
     #[Test]
+    /**
+     * A column the live table does not have is refused.
+     */
     public function testAnUnknownColumnIsRefused(): void
     {
         $this->expectException(SqlQueryException::class);
