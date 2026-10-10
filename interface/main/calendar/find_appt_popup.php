@@ -503,6 +503,14 @@ if (!$ckavail) {
     // already-used branches share this logic -- extracted into a
     // single $submitParentJs so the three confirm variants only
     // differ in their prompt string.
+    // CodeRabbit note on this PR: logging the caught error + the
+    // unresolved-parent case to the browser console closes the
+    // diagnostic loop with the PantherAcceptanceTestCase failure-
+    // capture hook added in the same PR (that hook writes the
+    // browser console log to tmp/acceptance-failure-artifacts/
+    // on test failure, so if the opener-chain fallback here
+    // doesn't resolve the real parent, the artifact bundle names
+    // exactly why).
     $submitParentJs = <<<'JS'
             try {
                 var _parentWin = (typeof opener !== 'undefined' && opener && opener.document)
@@ -513,8 +521,18 @@ if (!$ckavail) {
                 }
                 if (_parentWin && _parentWin.document && _parentWin.document.forms[0]) {
                     _parentWin.document.forms[0].submit();
+                } else if (window.console && typeof window.console.warn === 'function') {
+                    window.console.warn(
+                        'find_appt_popup: parent window could not be resolved; '
+                        + 'confirmed save was NOT propagated to the opener form. '
+                        + 'opener=' + (typeof opener) + ' top.get_opener=' + (typeof (top && top.get_opener))
+                    );
                 }
-            } catch (_e) {}
+            } catch (_e) {
+                if (window.console && typeof window.console.error === 'function') {
+                    window.console.error('find_appt_popup confirm submit failed', _e);
+                }
+            }
             dlgclose();
 JS;
     if (AclMain::aclCheckCore('patients', 'appt', '', 'write')) {
