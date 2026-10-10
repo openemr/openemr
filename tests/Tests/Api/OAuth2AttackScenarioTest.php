@@ -123,6 +123,43 @@ class OAuth2AttackScenarioTest extends TestCase
     }
 
     #[Test]
+    public function testDcrRejectsWebSchemeWithoutHost(): void
+    {
+        // parse_url('https:relative-path') yields a scheme ('https') but no
+        // host; the controller must still reject it because an http/https
+        // URI without a host is not a valid callback target.
+        $resp = $this->dcr(['redirect_uris' => ['https:relative-path']]);
+        $this->assertRejected($resp, 'DCR must reject an http/https redirect_uri with no host');
+    }
+
+    #[Test]
+    public function testDcrRejectsNonWebSchemeWithoutDot(): void
+    {
+        // RFC 8252 §7.1 private-use URI schemes should be a reverse domain
+        // name (e.g. `com.example.app`) and therefore contain a period.
+        // A non-web scheme with no period is not a valid native-app
+        // callback and must be rejected.
+        $resp = $this->dcr(['redirect_uris' => ['foo:/path']]);
+        $this->assertRejected($resp, 'DCR must reject a non-web redirect_uri whose scheme is not a reverse-domain form');
+    }
+
+    #[Test]
+    public function testDcrAcceptsRfc8252PrivateUseSchemeRedirectUri(): void
+    {
+        // RFC 8252 §7.1 private-use URI scheme — scheme is a reverse domain
+        // name, no host component. Must be accepted so native-app clients
+        // can register.
+        $resp = $this->dcr([
+            'redirect_uris' => ['com.openemr.attacktest:/oauth2redirect/example-provider'],
+        ]);
+        $this->assertSame(
+            200,
+            $resp['status'],
+            'DCR must accept an RFC 8252 private-use scheme redirect_uri. Body: ' . $resp['body']
+        );
+    }
+
+    #[Test]
     public function testDcrRejectsUnsupportedTokenEndpointAuthMethod(): void
     {
         $resp = $this->dcr(['token_endpoint_auth_method' => 'telepathic_hum']);

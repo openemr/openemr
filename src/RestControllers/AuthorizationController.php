@@ -476,13 +476,33 @@ class AuthorizationController implements LoggerAwareInterface
                     );
                 }
                 $parsed = parse_url($redirectUri);
-                if (
-                    !is_array($parsed)
-                    || !isset($parsed['scheme']) || $parsed['scheme'] === ''
-                    || !isset($parsed['host']) || $parsed['host'] === ''
-                ) {
+                if (!is_array($parsed) || !isset($parsed['scheme']) || $parsed['scheme'] === '') {
                     throw new OAuthServerException(
-                        'redirect_uri must be an absolute URL with a scheme and host',
+                        'redirect_uri must be an absolute URL with a scheme',
+                        0,
+                        'invalid_redirect_uri'
+                    );
+                }
+                $scheme = strtolower($parsed['scheme']);
+                if ($scheme === 'http' || $scheme === 'https') {
+                    // Web redirect URIs must have a host; without it a form
+                    // like `https:relative-path` would be stored and
+                    // attempted at redirect time.
+                    if (!isset($parsed['host']) || $parsed['host'] === '') {
+                        throw new OAuthServerException(
+                            'web redirect_uri must have a non-empty host',
+                            0,
+                            'invalid_redirect_uri'
+                        );
+                    }
+                } elseif (!str_contains($scheme, '.')) {
+                    // RFC 8252 §7.1 private-use URI schemes for native apps
+                    // should be a reverse domain name under the client's
+                    // control (e.g. `com.example.app`) and therefore contain
+                    // at least one period. A non-web scheme with no period
+                    // is not a valid private-use URI either; reject.
+                    throw new OAuthServerException(
+                        'redirect_uri scheme must be http, https, or a reverse-domain private-use scheme (RFC 8252 §7.1)',
                         0,
                         'invalid_redirect_uri'
                     );
