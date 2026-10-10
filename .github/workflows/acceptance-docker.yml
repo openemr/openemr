@@ -985,6 +985,23 @@ jobs:
           -f .github/docker/acceptance-docker-compose.yml \
           logs openemr || true
 
+    # On any acceptance-cell failure, upload the per-test artifacts
+    # written by PantherAcceptanceTestCase::onNotSuccessfulTest()
+    # (screenshot.png + page-source.html + browser-console.json +
+    # context.txt). Hash check avoids a warning + spurious artifact
+    # when the failure happened before any Panther client was alive
+    # (e.g., docker-compose boot timeout, chromedriver install fail)
+    # and the hook never ran. Mirrors the pattern test.yml uses for
+    # e2e's selenium-videos upload.
+    - name: Upload failure artifacts
+      if: ${{ !cancelled() && failure() && hashFiles('tmp/acceptance-failure-artifacts/**') != '' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: acceptance-docker-failure-${{ matrix.scenario }}-${{ matrix.runs_on }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+        path: tmp/acceptance-failure-artifacts/
+        if-no-files-found: ignore
+        retention-days: 14
+
     - name: Teardown
       if: always()
       run: |
