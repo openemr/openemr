@@ -75,9 +75,7 @@ class TwigContainer
         ));
 
         $coreExtension = $twigEnv->getExtension(CoreExtension::class);
-        // set our default date() twig render function if no format is specified
-        // we set our default date format to be the localized version of our dates and our time formats
-        // by default Twig uses 'F j, Y H:i' for the format which doesn't match our OpenEMR dates as configured from the globals
+        // Match OpenEMR's localized date and time formats when a value contains a time.
         $dateFormat = DateFormatterUtils::getShortDateFormat() . " " . DateFormatterUtils::getTimeFormat();
         $coreExtension->setDateFormat($dateFormat);
 
