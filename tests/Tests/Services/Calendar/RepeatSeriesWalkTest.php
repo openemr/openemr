@@ -177,6 +177,21 @@ class RepeatSeriesWalkTest extends TestCase
     }
 
     /**
+     * A monthly series whose month step is zero stays on its first month.
+     */
+    #[Test]
+    public function testAMonthlySeriesWithNoMonthStepIsNotExpanded(): void
+    {
+        $this->insertSeries('2', '0', '0', '2024-01-09', '2024-12-31', [
+            'event_repeat_on_num' => '2',
+            'event_repeat_on_day' => '2',
+            'event_repeat_on_freq' => '0',
+        ]);
+
+        $this->assertSame([], $this->rowsOn('2024-06-01', '2024-06-30'));
+    }
+
+    /**
      * @param array<string, int|string> $spec
      */
     private function insertSeries(

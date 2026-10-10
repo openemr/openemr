@@ -6727,11 +6727,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$eventsByDays of method OpenEMR\\\\Events\\\\Appointments\\\\CalendarUserGetEventsFilter\\:\\:setEventsByDays\\(\\) expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$facility of method OpenEMR\\\\Services\\\\UserService\\:\\:getUsersForCalendar\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',

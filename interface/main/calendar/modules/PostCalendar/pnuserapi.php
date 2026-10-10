@@ -1580,8 +1580,10 @@ function &postcalendar_userapi_pcGetEvents($args)
 
 /**
  * Fill the requested days with events, including a repeat series.
+ *
+ * @return mixed[]
  */
-function calculateEvents($days, $events, $viewtype)
+function calculateEvents($days, $events, $viewtype): array
 {
     if (!is_array($days) || !is_array($events)) {
         return [];
@@ -1681,7 +1683,7 @@ function calculateEvents($days, $events, $viewtype)
                 $nd = $esD;
                 $occurance = Date_Calc::dateFormat($nd, $nm, $ny, '%Y-%m-%d');
                 while ($occurance < $start_date) {
-                    $nextOccurance = \OpenEMR\Common\Calendar\RepeatAdvance::nextDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurance);
+                    $nextOccurance = \OpenEMR\Common\Calendar\RepeatAdvance::nextDate($nd, $nm, $ny, $rfreq, $rtype, $occurance);
                     if ($nextOccurance === null) {
                         $occurance = null;
                         break;
@@ -1698,7 +1700,7 @@ function calculateEvents($days, $events, $viewtype)
                             foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", (string) $occurance) == $exception) {
+                                if (preg_replace("/-/", "", $occurance) == $exception) {
                                     $excluded = true;
                                 }
                             }
@@ -1713,18 +1715,34 @@ function calculateEvents($days, $events, $viewtype)
                             fillBlocks($occurance, $days);
                             //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
                             $gbt = getBlockTime($eventS);
-                            $dayRow = $days[$occurance];
-                            if (is_array($dayRow) && isset($dayRow['blocks']) && is_array($dayRow['blocks'])) {
-                                $dayRow['blocks'][$gbt][$occurance][] = $event;
-                                $days[$occurance] = $dayRow;
+                            $dayRow = $days[$occurance] ?? null;
+                            if (!is_array($dayRow)) {
+                                $dayRow = [];
                             }
+                            $blocks = $dayRow['blocks'] ?? null;
+                            if (!is_array($blocks)) {
+                                $blocks = [];
+                            }
+                            $slot = $blocks[$gbt] ?? null;
+                            if (!is_array($slot)) {
+                                $slot = [];
+                            }
+                            $listed = $slot[$occurance] ?? null;
+                            if (!is_array($listed)) {
+                                $listed = [];
+                            }
+                            $listed[] = $event;
+                            $slot[$occurance] = $listed;
+                            $blocks[$gbt] = $slot;
+                            $dayRow['blocks'] = $blocks;
+                            $days[$occurance] = $dayRow;
                             //echo "begin printing blocks for $eventD<br />";
                             //print_r($days[$occurance]['blocks']);
                             //echo "end printing blocks<br />";
                         }
                     }
 
-                    $nextOccurance = \OpenEMR\Common\Calendar\RepeatAdvance::nextDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurance);
+                    $nextOccurance = \OpenEMR\Common\Calendar\RepeatAdvance::nextDate($nd, $nm, $ny, $rfreq, $rtype, $occurance);
                     if ($nextOccurance === null) {
                         break;
                     }
