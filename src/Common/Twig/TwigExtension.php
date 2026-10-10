@@ -348,7 +348,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 $dateString = trim($date);
                 $dateHasTime = $dateString === ''
                     || strtolower($dateString) === 'now'
-                    || str_contains($dateString, ':')
                     || date_parse($dateString)['hour'] !== false;
             }
             if (
