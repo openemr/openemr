@@ -21,6 +21,9 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AuthorizationControllerDuplicateConsentTest extends TestCase
 {
+    /**
+     * A repeated consent submission after its authorization request was consumed is ignored.
+     */
     public function testMissingAuthorizationSessionReturnsNoContent(): void
     {
         $controllerReflection = new \ReflectionClass(AuthorizationController::class);
