@@ -82,7 +82,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
      *
      * @return array The search parameters
      */
-    public function getSearchParams()
+    public function getSearchParams(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),

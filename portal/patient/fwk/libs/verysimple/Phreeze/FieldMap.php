@@ -46,7 +46,7 @@ class FieldMap
      *
      * @param string $type
      */
-    public static function GetConstantFromType($type)
+    public static function GetConstantFromType($type): string
     {
         $const = 'FM_TYPE_' . strtoupper($type);
         return (defined($const)) ? $const : 'FM_TYPE_UNKNOWN';
@@ -73,7 +73,7 @@ class FieldMap
      *
      * @return bool
      */
-    public function IsEnum()
+    public function IsEnum(): bool
     {
         return $this->FieldType == FM_TYPE_ENUM;
     }
@@ -91,7 +91,7 @@ class FieldMap
     /**
      * Return true if this column is a numeric type
      */
-    public function IsNumeric()
+    public function IsNumeric(): bool
     {
         return (in_array($this->FieldType, [FM_TYPE_DECIMAL, FM_TYPE_INT, FM_TYPE_SMALLINT, FM_TYPE_TINYINT, FM_TYPE_MEDIUMINT, FM_TYPE_BIGINT, FM_TYPE_FLOAT]));
     }

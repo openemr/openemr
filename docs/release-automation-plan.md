@@ -427,21 +427,40 @@ surface: the `acceptance-only.yml` recovery workflow chain.
 **Trigger.** Nightly cron at 02:00 UTC + `workflow_dispatch` for
 on-demand runs after landing recovery-workflow refactors. Master-only.
 
-**What it checks.** Reads `.github/release-targets.yml`'s `latest` row
-(same source-of-truth `docker-release-orchestrator.yml` uses) to
-identify the current-shipped rel-line and `openemr_version_ref` tag.
-Dispatches `build-release.yml` with `dry_run=true` and the tag itself
-as `version_branch` — `actions/checkout` resolves the ref, so the
-source is the exact commit that was shipped, independent of any
-post-release drift on the rel-branch tip. Then chains that fresh
-source into two `acceptance-only.yml` runs, both with `no_publish=true` —
-variant A with `skip_acceptance=true` (exercises the skip-acceptance
-routing that a real recovery would use), variant B with the full
-acceptance matrix. The rel-branch name is passed to those acceptance
-dispatches as metadata only (mimics real recovery inputs; the value
-flows to the publish job which is gated off). Bonus: exercises
-`build-release.yml` itself, which otherwise was in the same
-"first-run-on-real-ship" category as the recovery workflows.
+**What it checks.** Two parallel jobs exercising the tarball + docker
+recovery paths:
+
+- **`smoketest` (tarball).** Reads `.github/release-targets.yml`'s
+  `latest` row (same source-of-truth `docker-release-orchestrator.yml`
+  uses) to identify the current-shipped rel-line and
+  `openemr_version_ref` tag. Dispatches `build-release.yml` with
+  `dry_run=true` and the tag itself as `version_branch` —
+  `actions/checkout` resolves the ref, so the source is the exact
+  commit that was shipped, independent of any post-release drift on
+  the rel-branch tip. Then chains that fresh source into two
+  `acceptance-only.yml` runs, both with `no_publish=true` — variant A
+  with `skip_acceptance=true`, variant B with the full acceptance
+  matrix. Bonus: exercises `build-release.yml` itself, which otherwise
+  was in the same "first-run-on-real-ship" category as the recovery
+  workflows.
+
+- **`smoketest-docker` (docker sibling).** Dispatches
+  `docker-build-release.yml` fresh with `dry_run=true +
+  gate_with_acceptance=true` as the source. `dry_run` (added
+  specifically for the smoketest) skips both `acceptance-gate` and
+  `publish-and-cleanup` in docker-build-release, so the built
+  candidate tag stays on Docker Hub for docker-acceptance-only to
+  consume (analogous to how build-release preserves the
+  release-output workflow-run artifact on the tarball side; note
+  that build-release's tarball equivalent is `dry_run=true +
+  skip_acceptance_gate=true` since G43's 2026-09-19 decoupling —
+  dry_run alone stopped skipping acceptance on that side). `docker_tags` is set to a
+  globally-unique `smoketest-canary-<runid>-<timestamp>` value so any
+  accidental publish (in case dry_run gating regresses) would push
+  the canary rather than clobber real tags. Then chains that source
+  into two `docker-acceptance-only.yml` runs, both with
+  `no_publish=true` — variant A with `skip_acceptance=true`, variant
+  B with the full acceptance matrix.
 
 **Why it exists.** [G35](release-mechanism-gaps.md#g35--first-ship-of-840-surfaced-3-latent-acceptance-recovery-bugs-in-cascade--discovered-2026-09-13-all-shipped-2026-09-13)'s
 systemic lesson: `acceptance-only.yml` had been untouched since
@@ -453,25 +472,22 @@ instead of at the next ship. See [G36](release-mechanism-gaps.md#g36--recovery-p
 for the full design + four-layer guardrail model that prevents
 stomping on the real release the smoketest targets.
 
-**Zero side effects on real releases.** Four layers of defense against
-modifying real release artifacts (see G36 for details): `dry_run` +
-`no_publish` per dispatch, tag-exists + Release-exists preconditions
-before dispatch, server-side "already exists" rejection on the operations
-`dry_run`/`no_publish` would gate, and a runtime post-verification step
-(hard-fails the smoketest if the tag SHA or Release-state hash drifted
-during the run). Workflow-run artifacts (openemr-release-candidate-X.Y.Z)
-are scoped to the smoketest's run_id, no collision with real Release
-assets.
+**Zero side effects on real releases.** Four layers of defense
+against modifying real release artifacts (see G36 for details):
+`dry_run`/`no_publish` per dispatch, tag-exists + Release-exists
+preconditions before dispatch, server-side "already exists" rejection
+on the operations those flags gate (tarball only — docker has no L3
+since Docker Hub accepts arbitrary re-push), and runtime post-
+verification hard-failing the smoketest if any real release artifact
+drifted during the run. The docker job's post-verification uses a
+publish-job-status check + canary-tag-absent check instead of a
+Docker Hub digest baseline (avoids false-positives from the nightly
+orchestrator's legitimate re-push of the target rel-line's tags).
 
 **Noise-handling.** One red in isolation is data, not signal (transient
 API 5xx / Docker Hub 502 flakes). Two-plus reds on consecutive nights
 from the same failure class = investigate + likely file a G-entry. See
 the workflow header for the full policy.
-
-**Docker sibling deferred.** `docker-acceptance-only.yml` equivalent
-coverage still open — `docker-build-release.yml` has no `dry_run` mode
-so the chained-fresh-source approach doesn't transfer directly. See
-G36's "Followup opportunities" section.
 
 ## Lifecycle: rel-NNN0 cut event
 
@@ -641,8 +657,8 @@ mutators would produce churn PRs.
 | `SqlUpgradeSkeletonMutator` | branch-cut (master), patch-prep (rel + master) | Scaffold `sql/X_Y_Z-to-X_Y_Z+N_upgrade.sql`. |
 | `MasterSqlPatchBridgeMutator` | patch-prep (master) | Rename bridge file to track new patch. |
 | `BranchCutReleaseTargetsMutator` | branch-cut (master) | Insert row for new rel branch. |
-| `PatchPrepReleaseTargetsMutator` | patch-prep (master) | Insert new dev row (`docker_tags: <version>,next`) for the patch + drop any prior `unreleased: true` placeholder for the branch. |
-| `PostReleaseTargetsMutator` | release-prep (master, release-finalize) | Pin rel row + slot shuffle + drop placeholder. |
+| `PatchPrepReleaseTargetsMutator` | patch-prep (master) | Insert new dev row (`docker_tags: <version>,next` + `openemr_version_ref: <relBranch>` + `gate_with_acceptance: true`) for the patch + drop any prior `unreleased: true` placeholder for the branch + strip `next` from master row (see G39/G44). |
+| `PostReleaseTargetsMutator` | release-prep (master, release-finalize) | Pin rel row + slot shuffle + drop placeholder + backfill `gate_with_acceptance: true` on promoted row if missing (defense-in-depth for pre-G44 patch-prep-inserted rows; see G44). |
 
 Adding a new lifecycle event (or a new mutation to an existing one) is
 a matter of writing one class implementing `MutatorInterface`, adding

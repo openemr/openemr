@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Minimal synthetic QRDA III skeleton used only to exercise the schematron
+  code path. Not a valid clinical document — will produce many validator
+  errors. The parity test only asserts PHP and Node produce the same error
+  set on this input, not that it validates.
+-->
+<ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns="urn:hl7-org:v3"
+                  xmlns:voc="urn:hl7-org:v3/voc"
+                  xmlns:sdtc="urn:hl7-org:sdtc">
+    <realmCode code="US"/>
+    <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+    <!-- US Realm Header -->
+    <templateId root="2.16.840.1.113883.10.20.22.1.1" extension="2015-08-01"/>
+    <!-- QRDA Category III report -->
+    <templateId root="2.16.840.1.113883.10.20.27.1.1" extension="2017-08-01"/>
+    <!-- QRDA Category III report - CMS -->
+    <templateId root="2.16.840.1.113883.10.20.27.1.2" extension="2022-05-01"/>
+    <id root="00000000-0000-0000-0000-000000000001"/>
+    <code code="55184-6" codeSystem="2.16.840.1.113883.6.1"
+          codeSystemName="LOINC" displayName="Quality Reporting Document Architecture Calculated Summary Report"/>
+    <title>QRDA Category III Test Document</title>
+    <effectiveTime value="20230101000000-0500"/>
+    <confidentialityCode code="N" codeSystem="2.16.840.1.113883.5.25"/>
+    <languageCode code="en-US"/>
+    <setId root="00000000-0000-0000-0000-000000000002"/>
+    <versionNumber value="1"/>
+    <recordTarget>
+        <patientRole>
+            <id nullFlavor="NA"/>
+        </patientRole>
+    </recordTarget>
+    <author>
+        <time value="20230101000000-0500"/>
+        <assignedAuthor>
+            <id nullFlavor="NA"/>
+        </assignedAuthor>
+    </author>
+    <custodian>
+        <assignedCustodian>
+            <representedCustodianOrganization>
+                <id nullFlavor="NA"/>
+                <name>Test Org</name>
+            </representedCustodianOrganization>
+        </assignedCustodian>
+    </custodian>
+    <component>
+        <structuredBody>
+            <component>
+                <section>
+                    <templateId root="2.16.840.1.113883.10.20.27.2.1" extension="2022-05-01"/>
+                    <code code="55187-9" codeSystem="2.16.840.1.113883.6.1"/>
+                    <title>Measure Section</title>
+                    <text>See QRDA III test skeleton.</text>
+                </section>
+            </component>
+        </structuredBody>
+    </component>
+</ClinicalDocument>

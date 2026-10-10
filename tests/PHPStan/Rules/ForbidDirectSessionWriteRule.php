@@ -69,7 +69,7 @@ class ForbidDirectSessionWriteRule implements Rule
         'interface/usergroup/mfa_totp.php',
         'interface/globals.php',
         'setup.php',
-        'ccdaservice/',
+        'portal/ccda_gateway.php',
         // Files with $sessionAllowWrite = true
         'interface/reports/appointments_report.php',
         // CLI command uses standalone mock session (not factory session)

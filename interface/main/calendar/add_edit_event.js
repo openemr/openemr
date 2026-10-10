@@ -127,7 +127,7 @@ function set_allday() {
     f.form_hour.disabled = timeDisabled;
     f.form_minute.disabled = timeDisabled;
     if (addEditEventConfig.timeDisplayFormat == 1 && f.form_ampm) {
-        f.form_ampm.disabled = durationDisabled;
+        f.form_ampm.disabled = timeDisabled;
     }
     f.form_duration.disabled = durationDisabled;
 }
@@ -280,5 +280,17 @@ function find_available(extra) {
     url.searchParams.set('startdate', formDate.value);
     url.searchParams.set('evdur', document.forms[0].form_duration.value);
     url.searchParams.set('eid', addEditEventConfig.eid);
-    dlgopen(url.pathname + url.search + extra, '', 725, 200, '', title);
+    // Pass an explicit winname ('find_appt_popup') rather than the
+    // empty-string default so dlgclose() called from inside the popup
+    // can identify its own modal via window.name. With an empty
+    // winname, dlgclose falls back to searching its own document +
+    // parent document for .dialogModal, but for iframe-mode dlgopen
+    // the .dialogModal wrapper is appended to top's body (see
+    // library/dialog.js `where = top` at ~line 556), not to the
+    // popup's own document or its immediate parent. Empty winname ->
+    // dlgclose can't find the dialog -> logs "Unable to find dialog"
+    // and bails -> popup persists as blank modal titled
+    // "Available Appointments Calendar" after the parent form save
+    // completed.
+    dlgopen(url.pathname + url.search + extra, 'find_appt_popup', 725, 200, '', title);
 }

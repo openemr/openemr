@@ -148,7 +148,7 @@ class HttpRestParsedRoute
      * @param $path
      * @return string
      */
-    private function getRouteMatchExpression($path)
+    private function getRouteMatchExpression($path): string
     {
         // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
         return "@^" . preg_replace('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_\$\:]+)', preg_quote((string) $path)) . "$@D";

@@ -32,6 +32,9 @@ class PrepaymentBalanceServiceTest extends TestCase
     /** @var list<int> Session ids created by a test, torn down afterwards. */
     private array $sessionIds = [];
 
+    /** @var list<int> Extra patient_data rows created by a test, torn down afterwards. */
+    private array $extraPids = [];
+
     private int $pid;
 
     protected function setUp(): void
@@ -64,6 +67,11 @@ class PrepaymentBalanceServiceTest extends TestCase
         }
         $this->sessionIds = [];
 
+        foreach ($this->extraPids as $extraPid) {
+            QueryUtils::sqlStatementThrowException("DELETE FROM patient_data WHERE pid = ?", [$extraPid]);
+        }
+        $this->extraPids = [];
+
         QueryUtils::sqlStatementThrowException("DELETE FROM patient_data WHERE pid = ?", [$this->pid]);
     }
 
@@ -86,6 +94,28 @@ class PrepaymentBalanceServiceTest extends TestCase
     {
         $sessionId = $this->createPrepayment(500.00);
         $this->distribute($sessionId, 200.00);
+
+        $balance = $this->findSession($sessionId);
+
+        $this->assertNotNull($balance);
+        $this->assertSame(200.00, $balance->applied);
+        $this->assertSame(300.00, $balance->unapplied);
+    }
+
+    /**
+     * edit_payment.php takes the pid to credit from each distribution row, so
+     * one prepayment session can be applied across several patients (e.g. a
+     * family). Aggregating applied money by (session_id, pid) instead of by
+     * session_id alone would exclude those distributions and overstate
+     * unapplied -- the wrong direction for a report about refund liability.
+     */
+    #[Test]
+    public function distributionsToAnotherPatientStillCountAsApplied(): void
+    {
+        $otherPid = $this->createAdditionalPatient();
+
+        $sessionId = $this->createPrepayment(500.00);
+        $this->distributeTo($otherPid, $sessionId, 200.00);
 
         $balance = $this->findSession($sessionId);
 
@@ -275,10 +305,22 @@ class PrepaymentBalanceServiceTest extends TestCase
 
     private function distribute(int $sessionId, float $amount): void
     {
+        $this->distributeTo($this->pid, $sessionId, $amount);
+    }
+
+    /**
+     * Posts a distribution against an arbitrary pid, as edit_payment.php does
+     * when the Distribute panel is used to apply a payment to a family
+     * member other than the one who paid.
+     */
+    private function distributeTo(int $pid, int $sessionId, float $amount): void
+    {
+        // ar_activity's primary key is (pid, encounter, sequence_no), so the
+        // next sequence number is derived per pid, not per session.
         $nextSeq = $this->fetchInt(
             "SELECT COALESCE(MAX(sequence_no), 0) + 1 AS seq FROM ar_activity WHERE pid = ? AND encounter = 0",
             'seq',
-            [$this->pid]
+            [$pid]
         );
 
         QueryUtils::sqlStatementThrowException(
@@ -287,8 +329,24 @@ class PrepaymentBalanceServiceTest extends TestCase
                  post_user, session_id, memo, pay_amount, adj_amount, modified_time, follow_up,
                  account_code, deleted)
              VALUES (?, 0, ?, '', '', '', 0, NOW(), 1, ?, '', ?, 0, NOW(), '', 'PP', NULL)",
-            [$this->pid, $nextSeq, $sessionId, $amount]
+            [$pid, $nextSeq, $sessionId, $amount]
         );
+    }
+
+    private function createAdditionalPatient(): int
+    {
+        $pid = $this->fetchInt(
+            "SELECT COALESCE(MAX(pid), 0) + 1 AS next FROM patient_data",
+            'next',
+            []
+        );
+        QueryUtils::sqlInsert(
+            "INSERT INTO patient_data (pid, lname, fname, mname) VALUES (?, ?, ?, ?)",
+            [$pid, 'Prepay', 'OtherFixture', '']
+        );
+        $this->extraPids[] = $pid;
+
+        return $pid;
     }
 
     /**

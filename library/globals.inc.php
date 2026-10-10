@@ -84,6 +84,7 @@ use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\Globals\GlobalAppearanceEnum;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
+use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
 
 // OS-dependent stuff.
@@ -97,7 +98,7 @@ if (stristr(PHP_OS, 'WIN')) {
     $backup_log_dir = '/tmp';
 }
 
-function getDefaultRenderListOptions()
+function getDefaultRenderListOptions(): array
 {
     return [
         RenderFormFieldHelper::SHOW_ON_NEW_ONLY => xl('Show on New Form Only'),
@@ -165,7 +166,7 @@ $USER_SPECIFIC_GLOBALS = ['default_top_pane',
 
 // Gets array of time zones supported by PHP.
 //
-function gblTimeZones()
+function gblTimeZones(): array
 {
     $zones = timezone_identifiers_list();
     $arr = ['' => xl('Unassigned')];
@@ -2216,6 +2217,13 @@ $GLOBALS_METADATA = [
             xl('Time (seconds) to Reset Maximum Failed Login Attempts Counter From IP Address (0 for no reset).')
         ],
 
+        'clear_ip_counter_on_auth_success' => [
+            xl('Clear IP Failed-Login Counter on Successful Authentication'),
+            'bool',                           // data type
+            '1',                              // default ON — preserves pre-8.5.0 behaviour
+            xl('When enabled (default), a successful login (staff, portal, or MFA) zeros the per-IP failed-login counter for that IP. This matches the pre-8.5.0 behaviour and is convenient in shared-NAT environments where legitimate users would otherwise accumulate strikes across a day. When disabled, the per-IP counter decays only via its own time-based reset window, so a valid login on one account cannot clear an in-progress lockout being accumulated against another account from the same IP — recommended for higher-security deployments. If disabled AND the reset window is also 0 (never auto-reset), an administrator can clear both per-IP counters via the IP Tracker report (Reports → Administrative → IP Tracker).')
+        ],
+
         'portal_onetime_max_pin_attempts' => [
             xl('Portal One-Time Token Maximum PIN Attempts'),
             'num',                            // data type
@@ -3468,6 +3476,14 @@ $GLOBALS_METADATA = [
             xl('Enable MedEx Communication Service')
         ],
 
+        'medex_cancelled_apptstatus' => [
+            xl('MedEx Cancelled Appointment Statuses'),
+            GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR,
+            '%;x',
+            xl('Appointment statuses that mean the appointment is cancelled or rescheduled. MedEx sends no reminders for these appointments and withdraws messages already queued. Add any custom statuses your practice uses for this.'),
+            [GlobalSetting::DATA_TYPE_OPTION_LIST_ID => 'apptstat'],
+        ],
+
         'erx_enable' => [
             xl('Enable Ensora eRx Service'),
             'bool',
@@ -3584,7 +3600,7 @@ $GLOBALS_METADATA = [
         ],
 
         'ccda_alt_service_enable' => [
-            xl('Enable C-CDA Service'),
+            xl('Enable C-CDA Documents'),
             [
                 0 => xl('Off'),
                 1 => xl('Care Coordination Only'),
@@ -3592,7 +3608,7 @@ $GLOBALS_METADATA = [
                 3 => xl('Both'),
             ],
             '0',
-            xl('Enable C-CDA Service')
+            xl('Where C-CDA documents can be generated: the Care Coordination module, the patient portal, or both.')
         ],
 
         'phimail_enable' => [

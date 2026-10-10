@@ -61,6 +61,18 @@ This file configures the kind that requires initialization.
     <testsuite name="api">
       <directory>tests/Tests/Api</directory>
     </testsuite>
+    <!--
+    "webui" suite: in-container HTTP integration tests that drive OpenEMR's
+    web UI form endpoints (/interface/*, /portal/*) via a real HTTP client
+    (Guzzle) + DOM crawler, running against a container built from PR
+    source. Setup and teardown MUST NOT touch the DB directly — drive
+    admin-UI or user-UI HTTP flows the way a real browser would. See
+    tests/Tests/WebUi/README.md for the placement rationale (why not api,
+    why not e2e, why not acceptance) and the HTTP-only convention.
+    -->
+    <testsuite name="webui">
+      <directory>tests/Tests/WebUi</directory>
+    </testsuite>
     <testsuite name="fixtures">
       <directory>tests/Tests/Fixtures</directory>
     </testsuite>

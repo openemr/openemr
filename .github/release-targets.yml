@@ -116,8 +116,8 @@
   gate_with_acceptance: true
 
 - branch: rel-840
-  docker_tags: 8.4.0,latest
-  openemr_version_ref: v8_4_0
+  docker_tags: 8.4.1,latest
+  openemr_version_ref: v8_4_1
   gate_with_acceptance: true
 
 - branch: rel-830

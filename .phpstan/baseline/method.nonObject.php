@@ -152,16 +152,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_InsuranceCompany.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method get_id\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_InsuranceNumbers.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_name\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_InsuranceNumbers.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method persist\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../controllers/C_InsuranceNumbers.class.php',
@@ -768,7 +758,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 92,
+    'count' => 91,
     'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
 ];
 $ignoreErrors[] = [
@@ -902,11 +892,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getID\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method CompleteTrans\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_justify.php',
@@ -1025,16 +1010,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/login/login.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getData\\(\\) on bool\\|OpenEMR\\\\Validators\\\\ProcessingResult\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method hasData\\(\\) on bool\\|OpenEMR\\\\Validators\\\\ProcessingResult\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getPageId\\(\\) on mixed\\.$#',
@@ -1277,38 +1252,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method createExportPatientJob\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/public/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method createExportPatientPopulationJob\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/public/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getExportSizeSettings\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/public/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getExportTaskForStatusUpdate\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/public/index.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getJSON\\(\\) on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/public/index.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method render\\(\\) on mixed\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/public/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method runExportTask\\(\\) on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/public/index.php',
 ];
 $ignoreErrors[] = [
@@ -1700,11 +1650,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method fromQuery\\(\\) on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getVariables\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method layout\\(\\) on Laminas\\\\View\\\\Renderer\\\\RendererInterface\\|null\\.$#',
@@ -2697,11 +2642,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/Encounter/Log.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getData\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Signable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getHtml\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Form/Button.php',
@@ -2712,18 +2652,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/Form/Button.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getHtml\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Controller.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getParam\\(\\) on mixed\\.$#',
     'count' => 14,
-    'path' => __DIR__ . '/../../library/ESign/Form/Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method sign\\(\\) on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Form/Controller.php',
 ];
 $ignoreErrors[] = [
@@ -2894,11 +2824,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method MoveNext\\(\\) on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTimestamp\\(\\) on DateTime\\|false\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
@@ -3137,11 +3062,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/library/AbstractCqmReport.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method test\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/library/AbstractCqmReport.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method GetCredentials\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/smtp/login_sasl_client.php',
@@ -3248,17 +3168,17 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method edih_delimiters\\(\\) on mixed\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method edih_envelopes\\(\\) on mixed\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method edih_envelopes\\(\\) on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method edih_filename\\(\\) on mixed\\.$#',
-    'count' => 6,
+    'count' => 4,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
@@ -3268,17 +3188,17 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method edih_segments\\(\\) on mixed\\.$#',
-    'count' => 6,
+    'count' => 4,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method edih_type\\(\\) on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method edih_x12_transaction\\(\\) on mixed\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
@@ -3335,11 +3255,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/import_template.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method Output\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/lib/doc_lib.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method isSuccessful\\(\\) on mixed\\.$#',
@@ -3660,11 +3575,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method GetWhere\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTraceAsString\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method GetDataPage\\(\\) on mixed\\.$#',
@@ -4302,11 +4212,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method route\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/ControllerRouter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method display\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervals.php',
@@ -4480,11 +4385,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/Validation/UniqueID.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method containsScope\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method build\\(\\) on mixed\\.$#',
@@ -4842,11 +4742,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Patient/Cards/InsuranceViewCard.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method Output\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Pdf/PatientPortalPDFDocumentCreator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method delete\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AllergyIntoleranceRestController.php',
@@ -4925,11 +4820,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getUserRole\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method containsScope\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getClient\\(\\) on mixed\\.$#',
@@ -5717,16 +5607,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/TokenIntrospectionRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getData\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method hasErrors\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method fetch\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/VersionRestController.php',
@@ -5907,16 +5787,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ContactTelecomService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getData\\(\\) on bool\\|OpenEMR\\\\Validators\\\\ProcessingResult\\|null\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../src/Services/EncounterService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method hasData\\(\\) on bool\\|OpenEMR\\\\Validators\\\\ProcessingResult\\|null\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../src/Services/EncounterService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getAll\\(\\) on mixed\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
@@ -6002,11 +5872,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportLaboratoryService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method setDisplay\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportLaboratoryService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method format\\(\\) on DateTime\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Document/BaseDocumentDownloader.php',
@@ -6042,11 +5907,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getValues\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method hasData\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
@@ -6079,11 +5939,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getSupportedSearchParams\\(\\) on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDiagnosticReportService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getValues\\(\\) on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDiagnosticReportService.php',
 ];
 $ignoreErrors[] = [
@@ -6139,11 +5994,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getSupportedSearchParams\\(\\) on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocumentReferenceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getValues\\(\\) on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocumentReferenceService.php',
 ];
 $ignoreErrors[] = [
@@ -6207,11 +6057,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationDispenseService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getValues\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationDispenseService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method hasData\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationDispenseService.php',
@@ -6239,11 +6084,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getSupportedSearchParams\\(\\) on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getValues\\(\\) on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
 ];
 $ignoreErrors[] = [
@@ -6342,11 +6182,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getValues\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method hasData\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireService.php',
@@ -6372,11 +6207,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceBase.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getPagination\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceBase.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method hasErrors\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceBase.php',
@@ -6390,11 +6220,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getCode\\(\\) on class\\-string\\|object\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirSpecimenService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method hasData\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirValueSetService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method searchPatientProviderGroups\\(\\) on mixed\\.$#',
@@ -6472,11 +6297,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method setDisplay\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method search\\(\\) on OpenEMR\\\\Services\\\\QuestionnaireService\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Questionnaire/FhirQuestionnaireFormService.php',
@@ -6494,11 +6314,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getExtension\\(\\) on class\\-string\\|object\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getReference\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRReference\\|null\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
 ];
 $ignoreErrors[] = [
@@ -6535,11 +6350,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method validate\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method validateId\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method insert\\(\\) on mixed\\.$#',
@@ -6582,24 +6392,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/JWTClientAuthenticationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getPagination\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setTotalCount\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method calculate\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method add_data_element\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/QdmBuilder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getBoundValues\\(\\) on mixed\\.$#',
@@ -7072,48 +6867,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
-    'count' => 14,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
-    'count' => 5,
+    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
@@ -7127,312 +6887,32 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
-    'count' => 18,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
-    'count' => 24,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
-    'count' => 42,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FrontPaymentCssContrastTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FrontPaymentCssContrastTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FrontPaymentCssContrastTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FrontPaymentCssContrastTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FrontPaymentCssContrastTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
-    'count' => 18,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
-    'count' => 42,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/KkEditGlobalsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/KkEditGlobalsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/KkEditGlobalsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/KkEditGlobalsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/KkEditGlobalsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
+    'message' => '#^Cannot call method clear\\(\\) on Facebook\\\\WebDriver\\\\WebDriverElement\\|null\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method clear\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method executeScript\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method filterXPath\\(\\) on mixed\\.$#',
+    'message' => '#^Cannot call method click\\(\\) on Facebook\\\\WebDriver\\\\WebDriverElement\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method filter\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getElement\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method isSelected\\(\\) on mixed\\.$#',
+    'message' => '#^Cannot call method filterXPath\\(\\) on Symfony\\\\Component\\\\Panther\\\\DomCrawler\\\\Crawler\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method sendKeys\\(\\) on mixed\\.$#',
+    'message' => '#^Cannot call method filter\\(\\) on Symfony\\\\Component\\\\Panther\\\\DomCrawler\\\\Crawler\\|null\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method switchTo\\(\\) on mixed\\.$#',
+    'message' => '#^Cannot call method isSelected\\(\\) on Facebook\\\\WebDriver\\\\WebDriverElement\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method sendKeys\\(\\) on Facebook\\\\WebDriver\\\\WebDriverElement\\|null\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
 ];
@@ -7525,31 +7005,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method setValidationMessages\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/HandleProcessingResultTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getHeader\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method patientSelectConfirm\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setClientRepository\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setPatientContextSearchController\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/SMART/SMARTAuthorizationControllerTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getAbatementDateTime\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCondition\\|string\\.$#',
@@ -7785,11 +7240,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method collectCodeTypes\\(\\) on mixed\\.$#',
     'count' => 16,
     'path' => __DIR__ . '/../../tests/Tests/Services/CodeTypesServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getData\\(\\) on bool\\|OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/EncounterServiceTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
@@ -8228,7 +7678,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getValue\\(\\) on mixed\\.$#',
-    'count' => 7,
+    'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPatientServiceMappingTest.php',
 ];
 $ignoreErrors[] = [
@@ -8313,7 +7763,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getDisplay\\(\\) on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationAdvanceDirectiveServiceUSCore8Test.php',
 ];
 $ignoreErrors[] = [
@@ -8333,7 +7783,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getReference\\(\\) on mixed\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationAdvanceDirectiveServiceUSCore8Test.php',
 ];
 $ignoreErrors[] = [
@@ -8557,21 +8007,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormServiceIntegrationTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method C14N\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method format\\(\\) on DateTimeImmutable\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method item\\(\\) on DOMNodeList\\<DOMNameSpaceNode\\|DOMNode\\>\\|false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method installPatientFixtures\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/PatientServiceTest.php',
@@ -8615,21 +8050,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method _action_summary\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getIdentifier\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrantTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setJwksUri\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrantTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setJwks\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrantTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getIdentifier\\(\\) on mixed\\.$#',

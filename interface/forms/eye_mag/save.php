@@ -42,6 +42,8 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\CopyMode;
+use OpenEMR\Forms\EyeMag\PmsfhPanel;
+use OpenEMR\Forms\EyeMag\SqlFragment;
 use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\PatientIssuesService;
@@ -62,12 +64,17 @@ $pid = $session->get('pid');
 // this object gets the values the browser actually sent.
 $request = Request::createFromGlobals();
 
-// Whitelist the mode before any downstream branch (lock flow, ACL check,
-// mutation dispatch) runs. An unknown mode does not have a valid dispatch
-// target and must not enter the pre-dispatch flow -- reject early.
+// Validate the mode before any downstream branch (lock flow, ACL check,
+// mutation dispatch) runs. An unrecognized mode has no valid dispatch target
+// and must not enter the pre-dispatch flow -- reject early.
+//
+// An absent mode is allowed: several eye_mag AJAX endpoints send no mode and
+// dispatch on their own parameter instead (AJAX_PREFS, canvas, copy/copy-forward).
+// All of them run after the ACL check below, so they are gated the same way the
+// moded paths are.
 $requestMode = $request->request->get('mode', $request->query->get('mode', ''));
 $allowedModes = ['new', 'update', 'retrieve', 'show_PDF'];
-if (!in_array($requestMode, $allowedModes, true)) {
+if ($requestMode !== '' && !in_array($requestMode, $allowedModes, true)) {
     AccessDeniedHelper::denyWithTemplate("Unsupported mode for Eye Form Save", xl("Eye Form"));
 }
 
@@ -88,7 +95,8 @@ $id = $_REQUEST['id'] ?? '';
 $encounter = $_REQUEST['encounter'] ?? '';
 
 $AJAX_PREFS = $_REQUEST['AJAX_PREFS'] ?? '';
-if ($encounter == "" && !$id && !$AJAX_PREFS && (($_REQUEST['mode'] != "retrieve") or ($_REQUEST['mode'] == "show_PDF"))) {
+$PMSFH_SAVE = ($_REQUEST['PMSFH_save'] ?? '') === '1';
+if ($encounter == "" && !$id && !$AJAX_PREFS && !$PMSFH_SAVE && (($requestMode != "retrieve") or ($requestMode == "show_PDF"))) {
     echo "Sorry Charlie..."; //should lead to a database of errors for explanation.
     exit;
 }
@@ -557,22 +565,24 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         exit;
     }
 
-    /*** START CODE to DEAL WITH PMSFH/ISUUE_TYPES  ****/
-    if (($_REQUEST['PMSFH_save'] ?? '') == '1') {
+    /*** START CODE to DEAL WITH PMSFH/ISSUE_TYPES  ****/
+    if ($PMSFH_SAVE) {
         $PMSFH ??= null;
         if (!$PMSFH) {
             $PMSFH = build_PMSFH($pid);
         }
+        $PMSFH = is_array($PMSFH) ? $PMSFH : [];
 
-        $issue = $_REQUEST['issue'];
+        $issue = $_REQUEST['issue'] ?? '';
         $deletion = $_REQUEST['deletion'] ?? '';
-        $form_save = $_REQUEST['form_save'];
+        $form_save = $_REQUEST['form_save'] ?? '';
         $pid = $session->get('pid');
         $encounter = $session->get('encounter');
-        $form_id = $_REQUEST['form_id'];
-        $form_type = $_REQUEST['form_type'];
+        $form_id = $_REQUEST['form_id'] ?? '';
+        $form_type = is_string($_REQUEST['form_type'] ?? null) ? $_REQUEST['form_type'] : '';
+        $panelType = $form_type;
         $r_PMSFH = $_REQUEST['r_PMSFH'] ?? '';
-        if ($deletion == 1) {
+        if ($deletion == 1 && $issue !== '') {
             eye_mag_row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) . "'");
             eye_mag_row_delete("lists", "id = '" . add_escape_custom($issue) . "'");
             $PMSFH = build_PMSFH($pid);
@@ -662,7 +672,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                     $subtype = "eye";
                 } elseif (($form_type == "Medication") || ($form_type == "Eye Meds")) {
                     $form_type = "medication";
-                    if ($_REQUEST['form_eye_subtype']) {
+                    if (($_REQUEST['form_eye_subtype'] ?? '') !== '') {
                         $subtype = "eye";
                         //we always want a default begin date
                         //if it is empty, fill it with today
@@ -694,36 +704,30 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                  *  Check the PMSFH array first by title.
                  *  If not present in PMSFH, check the DB to be sure.
                  */
-                foreach ($PMSFH[$form_type] as $item) {
+                foreach (($PMSFH[0][$panelType] ?? []) as $item) {
                     if ($item['title'] == $_REQUEST['form_title']) {
                         $issue = $item['issue'];
                     }
                 }
 
                 if (!$issue) {
-                    if ($subtype == '') {
-                        $query = "SELECT id,pid from lists where title=? and type=? and pid=?";
-                        $issue2 = sqlQuery($query, [$_REQUEST['form_title'], $form_type, $pid]);
-                        $issue = $issue2['id'];
-                    } else {
-                        $query = "SELECT id,pid from lists where title=? and type=? and pid=? and subtype=?";
-                        $issue2 = sqlQuery($query, [$_REQUEST['form_title'], $form_type, $pid, $subtype]);
-                        $issue = $issue2['id'];
-                    }
+                    $panel = PmsfhPanel::tryFrom($panelType);
+                    $subtypeCond = $panel
+                        ? $panel->subtypeFilter()->condition()
+                        : new SqlFragment('AND subtype = ?', [$subtype]);
+                    // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- $subtypeCond->sql is one of four literals from SubtypeFilter::condition(); $panelType only selects the case and all values stay parameterized
+                    $query = "SELECT id,pid from lists where title=? and type=? and pid=? {$subtypeCond->sql}";
+                    $issue = QueryUtils::fetchSingleValue(
+                        $query,
+                        'id',
+                        [$_REQUEST['form_title'], $form_type, $pid, ...$subtypeCond->params]
+                    ) ?? 0;
                 }
 
                 $issue = 0 + $issue;
-                if ($_REQUEST['form_reinjury_id'] == "") {
-                    $form_reinjury_id = "0";
-                }
-
-                if ($_REQUEST['form_injury_grade'] == "") {
-                    $form_injury_grade = "0";
-                }
-
-                if ($_REQUEST['form_outcome'] == '') {
-                    $_REQUEST['form_outcome'] = '0';
-                }
+                $form_reinjury_id = ($_REQUEST['form_reinjury_id'] ?? '') === '' ? '0' : $_REQUEST['form_reinjury_id'];
+                $form_injury_grade = ($_REQUEST['form_injury_grade'] ?? '') === '' ? '' : $_REQUEST['form_injury_grade'];
+                $form_outcome = ($_REQUEST['form_outcome'] ?? '') === '' ? '0' : $_REQUEST['form_outcome'];
 
                 if ($issue != '0') { //if this issue already exists we are updating it...
                     // TODO: @adunsulag at some point update eye_mag to use PatientIssuesService for all lists management
@@ -762,12 +766,12 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                             $_REQUEST['form_diagnosis'],
                             $_REQUEST['form_occur'],
                             $_REQUEST['form_classification'],
-                            $_REQUEST['form_reinjury_id'],
+                            $form_reinjury_id,
                             $_REQUEST['form_referredby'],
-                            $_REQUEST['form_injury_grade'],
+                            $form_injury_grade,
                             $form_injury_part,
                             $form_injury_type,
-                            $_REQUEST['form_outcome'],
+                            $form_outcome,
                             $_REQUEST['form_destination'],
                             $_REQUEST['form_reaction'],
                             $subtype,
@@ -811,11 +815,11 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                             empty($form_return) ? null : $form_return,
                             $_REQUEST['form_diagnosis'],
                             $_REQUEST['form_occur'],
-                            $_REQUEST['form_clasification'],
+                            $_REQUEST['form_classification'],
                             $_REQUEST['form_referredby'],
                             $session->get('authUser'),
                             $session->get('authProvider'),
-                            empty($_REQUEST['form_outcome']) ? null : $_REQUEST['form_outcome'],
+                            $form_outcome,
                             $_REQUEST['form_destination'],
                             $_REQUEST['form_reaction'],
                             $subtype,
@@ -893,7 +897,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         echo "Pharmacy updated";
         exit;
     }
-    /*** END CODE to DEAL WITH PMSFH/ISUUE_TYPES  ****/
+    /*** END CODE to DEAL WITH PMSFH/ISSUE_TYPES  ****/
     //Update the visit status for this appointment (from inside the Coding Engine)
     //we also have to update the flow board...  They are not linked automatically.
     //Flow board counts items for each events so we need to insert new item and update total for the event, via pc_eid...

@@ -64,7 +64,7 @@ trait Cat1View
         }
     }
 
-    public function code_and_codesystem(Mustache_Context $context)
+    public function code_and_codesystem(Mustache_Context $context): string
     {
         $oid = $context->find('system');
         $code = $context->find('code');
@@ -82,7 +82,7 @@ trait Cat1View
         }
     }
 
-    public function primary_code_and_codesystem(Mustache_Context $context)
+    public function primary_code_and_codesystem(Mustache_Context $context): string
     {
         $codes = $context->find('dataElementCodes');
         $oid = $codes[0]['system'] || $codes[0]['codeSystem'];
@@ -110,13 +110,13 @@ trait Cat1View
         return $translation_list;
     }
 
-    public function value_as_float(Mustache_Context $context)
+    public function value_as_float(Mustache_Context $context): float
     {
         $value = $context->find('value');
         return floatval($value);
     }
 
-    public function dose_quantity_value(Mustache_Context $context)
+    public function dose_quantity_value(Mustache_Context $context): string
     {
         $value = $this->value_as_float($context);
         $unit = $context->find('unit');
@@ -154,7 +154,7 @@ trait Cat1View
         return $result_string;
     }
 
-    public function result_value_as_string($result)
+    public function result_value_as_string($result): string
     {
         // Result could be a code or value, but if we have neither, we return null/UNK
         if (empty($result['code']) && empty($result['value'])) {
@@ -183,7 +183,7 @@ trait Cat1View
         return !empty($authorDateTime) || !empty($dispenserId);
     }
 
-    private function get_code_system_for_oid($oid)
+    private function get_code_system_for_oid($oid): string
     {
         $codesService = new CodeTypesService();
         return $codesService->getCodeSystemNameFromSystem($oid);

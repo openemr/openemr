@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -62,6 +62,11 @@ class ClientEntity implements ClientEntityInterface
 
 
     private int $dsiType;
+
+    /**
+     * @var list<string> OAuth2 grant types the client registered for (oauth_clients.grant_types)
+     */
+    private array $grantTypes = [];
 
     const DSI_TYPE_NONE = 0;
 
@@ -156,11 +161,33 @@ class ClientEntity implements ClientEntityInterface
     }
 
     /**
+     * @return list<string> the grant types stored for this client; empty when none were recorded
+     */
+    public function getGrantTypes(): array
+    {
+        return $this->grantTypes;
+    }
+
+    /**
+     * @param string|array<array-key, mixed>|null $grantTypes pipe-delimited string (as stored) or list
+     */
+    public function setGrantTypes(string|array|null $grantTypes): void
+    {
+        if (is_string($grantTypes)) {
+            $grantTypes = explode('|', $grantTypes);
+        }
+        $this->grantTypes = array_values(array_filter(
+            $grantTypes ?? [],
+            static fn(mixed $grantType): bool => is_string($grantType) && $grantType !== ''
+        ));
+    }
+
+    /**
      * Checks if a given entity
      * @param $scope
      * @return bool
      */
-    public function hasScope($scope)
+    public function hasScope($scope): bool
     {
         return in_array($scope, $this->scopes);
     }
@@ -171,7 +198,7 @@ class ClientEntity implements ClientEntityInterface
      * @params $launchParams string A URL query string params to append to the launch uri.
      * @return string
      */
-    public function getLaunchUri($launchParams = '')
+    public function getLaunchUri($launchParams = ''): string
     {
         $launchParams ??= '';
         return $this->launchUri . $launchParams;
@@ -283,17 +310,17 @@ class ClientEntity implements ClientEntityInterface
         $this->skipEHRLaunchAuthorizationFlow = $shouldSkip;
     }
 
-    public function hasDSI()
+    public function hasDSI(): bool
     {
         return $this->dsiType != self::DSI_TYPE_NONE;
     }
 
-    public function hasPredictiveDSI()
+    public function hasPredictiveDSI(): bool
     {
         return self::DSI_TYPE_PREDICTIVE == $this->dsiType;
     }
 
-    public function hasEvidenceDSI()
+    public function hasEvidenceDSI(): bool
     {
         return self::DSI_TYPE_EVIDENCE == $this->dsiType;
     }

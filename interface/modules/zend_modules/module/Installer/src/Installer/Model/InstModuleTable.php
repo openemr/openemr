@@ -21,6 +21,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\InfoTxt;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
@@ -237,10 +238,8 @@ class InstModuleTable
             $added = "";
             $typeSet = "";
 
-            if (file_exists(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/modules/$base/$added$directory/info.txt")) {
-                $lines = @file(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/modules/$base/$added$directory/info.txt");
-            }
-            $name = !empty($lines) ? $lines[0] : $directory;
+            $info = InfoTxt::read(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/modules/$base/$added$directory/info.txt");
+            $name = $info->name ?? $directory;
 
             $uiname = ucwords(strtolower((string) $directory));
             $section_id = 0;
@@ -312,10 +311,8 @@ class InstModuleTable
 
     /**
      * get the list of all modules
-     *
-     * @return array
      */
-    public function getInstalledModules()
+    public function getInstalledModules(): array
     {
         $all = [];
         $sql = "select * from modules where mod_active = 1 order by mod_ui_order asc";
@@ -333,9 +330,8 @@ class InstModuleTable
     /**
      * @param int    $id
      * @param string $cols -- This field is unused! TODO: remove this field
-     * @return InstModule
      */
-    public function getRegistryEntry($id, $cols = "")
+    public function getRegistryEntry($id, $cols = ""): InstModule
     {
         $sql = "SELECT mod_directory, sql_version, acl_version,type FROM modules WHERE mod_id = ?";
         $results = QueryUtils::fetchRecords($sql, [$id]);
@@ -399,7 +395,7 @@ class InstModuleTable
      * @param int    $id  Module PK
      * @param string $mod Status
      */
-    public function unRegister($id)
+    public function unRegister($id): string
     {
         if ($id) {
             $sql = "DELETE FROM modules WHERE mod_id = ?";
@@ -417,8 +413,9 @@ class InstModuleTable
      * Function to get ACL objects for module
      *
      * @param int $mod_id Module PK
+     * @return InstModule[]
      */
-    public function getSettings($type, $mod_id)
+    public function getSettings($type, $mod_id): array
     {
         if ($type == 'ACL') {
             $type = 1;
@@ -446,8 +443,9 @@ class InstModuleTable
 
     /**
      * Function to get Oemr User Group
+     * @return InstModule[]
      */
-    public function getOemrUserGroup()
+    public function getOemrUserGroup(): array
     {
         $all = [];
         $sql = "SELECT * FROM gacl_aro_groups AS gag
@@ -468,8 +466,9 @@ class InstModuleTable
 
     /**
      * Function to get Oemr User Group and Aro Map
+     * @return non-empty-array<mixed>[]
      */
-    public function getOemrUserGroupAroMap()
+    public function getOemrUserGroupAroMap(): array
     {
         $all = [];
         $sql = "SELECT group_id,u.id AS id,CONCAT_WS(' ',CONCAT_WS(',',u.lname,u.fname),u.mname) AS user,u.username
@@ -493,7 +492,7 @@ class InstModuleTable
     /**
      * Function to get Active Users
      */
-    public function getActiveUsers()
+    public function getActiveUsers(): array
     {
         $all = [];
         $sql = "SELECT id,username,CONCAT_WS(' ',fname,mname,lname) AS USER
@@ -509,7 +508,7 @@ class InstModuleTable
         return $all;
     }
 
-    public function getTabSettings($mod_id)
+    public function getTabSettings($mod_id): array
     {
         $all = [];
         $sql = "SELECT fld_type,COUNT(*) AS cnt
@@ -528,7 +527,7 @@ class InstModuleTable
     /**
      *Function To Get Active ACL for this Module
      */
-    public function getActiveACL($mod_id)
+    public function getActiveACL($mod_id): array
     {
         $arr = [];
 
@@ -560,8 +559,9 @@ class InstModuleTable
 
     /**
      *Function To Get Saved Hooks For this Module
+     * @return InstModule[]
      */
-    public function getActiveHooks($mod_id)
+    public function getActiveHooks($mod_id): array
     {
         $all = [];
         $sql = "SELECT msh.*,ms.menu_name FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
@@ -649,7 +649,7 @@ class InstModuleTable
         }
     }
 
-    public function checkDependencyOnEnable($mod_id)
+    public function checkDependencyOnEnable($mod_id): array
     {
         $retArray = [];
         $modDirectory = $this->getModuleDirectory($mod_id);
@@ -687,7 +687,7 @@ class InstModuleTable
     }
 
 
-    public function checkDependencyOnDisable($mod_id)
+    public function checkDependencyOnDisable($mod_id): array
     {
         $retArray = [];
         $depFlag = "0";
@@ -737,7 +737,7 @@ class InstModuleTable
         return $retArray;
     }
 
-    public function getDependencyModules($mod_id)
+    public function getDependencyModules($mod_id): string
     {
         $modDirname = $this->getModuleDirectory($mod_id);
         $ret_str = "";
@@ -773,7 +773,7 @@ class InstModuleTable
         return $depModulesArr;
     }
 
-    public function getModuleStatusByDirectoryName($moduleDir)
+    public function getModuleStatusByDirectoryName($moduleDir): string
     {
         $sql = "SELECT mod_active,mod_directory FROM modules WHERE mod_directory = ? ";
         $res = QueryUtils::fetchRecords($sql, [trim((string) $moduleDir)]);
@@ -790,7 +790,7 @@ class InstModuleTable
         }
     }
 
-    public function getHangers()
+    public function getHangers(): array
     {
         return [
             'reports' => "Reports",
@@ -815,7 +815,7 @@ class InstModuleTable
         }
     }
 
-    public function checkModuleHookExists($mod_id, $hookId)
+    public function checkModuleHookExists($mod_id, $hookId): string
     {
         $sql = "SELECT obj_name FROM modules_settings WHERE mod_id = ? AND fld_type = '3' AND obj_name = ? ";
         $res = QueryUtils::fetchRecords($sql, [$mod_id, $hookId]);
@@ -969,7 +969,7 @@ class InstModuleTable
         return $obj;
     }
 
-    public function getSetupObject($moduleDirectory)
+    public function getSetupObject($moduleDirectory): array
     {
         $className = str_replace('[module_name]', $moduleDirectory, '[module_name]\Controller\SetupController');
         $setup = [];
@@ -1017,9 +1017,9 @@ class InstModuleTable
      * validateNickName
      *
      * @param String $name nickname
-     * @return bool Nickname available or not.
+     * @return int Number of modules already using the nickname.
      **/
-    public function validateNickName($name)
+    public function validateNickName($name): int
     {
         $sql = "SELECT * FROM `modules` WHERE mod_nick_name = ? ";
         $result = QueryUtils::fetchRecords($sql, [$name]);
@@ -1032,7 +1032,7 @@ class InstModuleTable
      * @param  $moduleDirectory The directory path of the module
      * @return bool
      */
-    private function existsModuleConfigFile($moduleDirectory)
+    private function existsModuleConfigFile($moduleDirectory): bool
     {
         $filePath = $this->getModuleConfigFilePathForDirectory($moduleDirectory);
         return file_exists($filePath ?? '');

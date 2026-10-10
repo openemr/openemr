@@ -205,19 +205,37 @@ class ScopeEntity implements ScopeEntityInterface
         return self::arrayHasContext(array_filter($scopes, static fn($s): bool => $s !== ''), $context);
     }
 
-    public function getContext()
+    public function getContext(): ?string
     {
         return $this->context;
     }
 
-    public function getResource()
+    public function getResource(): ?string
     {
         return $this->resource;
     }
 
-    public function getOperation()
+    public function getOperation(): ?string
     {
         return $this->operation;
+    }
+
+    /**
+     * SMART contexts whose scopes carry CRUDS permissions on a resource.
+     */
+    private const PERMISSION_CONTEXTS = ['patient', 'user', 'system'];
+
+    /**
+     * True for a CRUDS resource scope such as patient/Observation.rs or user/Patient.write:
+     * a patient/user/system context, a resource, and no operation ($export, $docref, ...).
+     * Launch and API scopes also parse with a "resource" (launch/patient, api:oemr) but carry
+     * no permissions, so they are excluded here.
+     */
+    public function isResourcePermissionScope(): bool
+    {
+        return in_array($this->context, self::PERMISSION_CONTEXTS, true)
+            && $this->resource !== null && $this->resource !== ''
+            && ($this->operation === null || $this->operation === '');
     }
 
     public function addScopePermissions(ScopeEntity $otherScope)
@@ -240,6 +258,58 @@ class ScopeEntity implements ScopeEntityInterface
         $this->permissions->addConstraints($otherPermissions->getConstraints());
     }
 
+    /**
+     * True when this scope carries a query constraint such as ?category=... .
+     */
+    public function hasConstraints(): bool
+    {
+        return $this->permissions->getConstraints() !== [];
+    }
+
+    /**
+     * Constraint equality independent of key order, value order and the string-vs-array
+     * shape that ScopePermissionObject::addConstraints() can produce.
+     */
+    public function hasSameConstraintsAs(ScopeEntity $otherScope): bool
+    {
+        $mine = self::normalizeConstraints($this->permissions->getConstraints());
+        $theirs = self::normalizeConstraints($otherScope->getPermissions()->getConstraints());
+        // a constraint that is not a string or list of strings (e.g. category[a][]=x) is never
+        // equal to anything, so it cannot be matched against a registered constraint
+        return $mine !== null && $theirs !== null && $mine === $theirs;
+    }
+
+    /**
+     * @param array<string, mixed> $constraints
+     * @return array<string, list<string>>|null null when any value is not a string or a flat list of strings
+     */
+    private static function normalizeConstraints(array $constraints): ?array
+    {
+        $normalized = [];
+        foreach ($constraints as $key => $value) {
+            $values = is_array($value) ? $value : [$value];
+            $strings = [];
+            foreach ($values as $item) {
+                if (!is_string($item)) {
+                    return null;
+                }
+                $strings[] = $item;
+            }
+            sort($strings);
+            $normalized[$key] = $strings;
+        }
+        ksort($normalized);
+        return $normalized;
+    }
+
+    /**
+     * Permission containment only. Constraints are deliberately NOT compared here: the
+     * resource server uses this to answer "does the token grant *some* access to this
+     * endpoint" and a category-restricted token must still reach the unconstrained
+     * endpoint (ResourceConstraintFilterer then applies the category). For "may this
+     * scope be granted" decisions use ResourceScopeEntityList::grantsScope(), which is
+     * constraint-aware.
+     */
     public function containsScope(ScopeEntity $otherScope): bool
     {
         if ($this->getIdentifier() === $otherScope->getIdentifier()) {

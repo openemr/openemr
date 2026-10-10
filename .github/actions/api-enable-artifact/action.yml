@@ -1,0 +1,37 @@
+# Bootstrap the OpenEMR REST API on the currently-running acceptance
+# artifact via the admin panel (Administration -> Globals -> Connectors).
+#
+# Extracted (Item 3 of the post-8.4.0 acceptance-surface refactor -- see
+# docs/artifact-acceptance-testing-plan.md) so acceptance-package.yml
+# and acceptance-docker.yml can invoke the api-enable step without
+# repeating the OPENEMR_ENABLE_API_BOOTSTRAP env + the api-enable.php
+# invocation shape. Also positions the workflow to close the historical
+# "docker workflow missing api-enable-post-upgrade" gap by making the
+# per-scenario api-enable an easy one-liner rather than a repeated env+
+# run block.
+#
+# Called by:
+#   - acceptance-package.yml fresh-install scenario (pre-api-enabled tests)
+#   - acceptance-package.yml upgrade scenario (post-upgrade, pre-api-enabled
+#     tests)
+#   - acceptance-docker.yml fresh-install-{from,to} scenarios (pre-api-
+#     enabled tests)
+#
+# api-enable.php refuses to run without OPENEMR_ENABLE_API_BOOTSTRAP=1
+# (defence-in-depth guard on the CLI script itself -- see the script
+# for the full rationale). The composite sets that env at the step
+# level so callers don't have to remember it.
+name: API-enable acceptance artifact
+description: >-
+  Bootstrap the REST API on the running acceptance artifact via
+  `php tests/Acceptance/bin/api-enable.php` with the required opt-in
+  env set.
+
+runs:
+  using: composite
+  steps:
+  - name: Bootstrap API via admin panel
+    shell: bash
+    env:
+      OPENEMR_ENABLE_API_BOOTSTRAP: '1'
+    run: php tests/Acceptance/bin/api-enable.php

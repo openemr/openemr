@@ -120,7 +120,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * Returns an array mapping FHIR Patient Resource search parameters to OpenEMR Patient search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         // @see https://www.hl7.org/fhir/patient.html#search
         return  [
@@ -770,7 +770,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * @param array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         // TODO: ONC certification only deals with READ operations, the mapping of FHIR values such as language,ethnicity
         // etc are NOT being done here and so the creation/updating of resources is currently NOT correct, this will

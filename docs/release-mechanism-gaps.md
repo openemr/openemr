@@ -9,7 +9,7 @@ cycles that exercised the migrated automation (8.2.0 from rel-820,
 the Quick context below), and the affected entries carry the
 then-current framing preserved as historical context.
 
-**Last updated:** 2026-09-13
+**Last updated:** 2026-09-20
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
@@ -63,9 +63,20 @@ acceptance-testing owns the *verification that they work*.
     end-to-end automated ship via `ship-release.yml`. Surfaced 7
     latent preflight-deadlock gates + a merge-API permission bug;
     see [G33](#g33--first-automated-ship-830-surfaced-7-latent-preflight-deadlock-gates-in-cascade--discovered-2026-08-17-through-08-18-all-shipped-2026-08-18).
-- **Next expected release event:** an `8.3.1` or `8.4.1` patch
-  (patch-cadence — no fixed date; happens when the QA team signs
-  off + ship-release.yml is triggered for either rel branch).
+- **Most recent release:** `8.4.1` shipped 2026-09-20 from `rel-840`
+  — first patch-cadence exercise of the automated ship pipeline.
+  Patch-prep PRs merged 2026-09-17 (openemr/openemr#14071 rel-side
+  + openemr/openemr#14072 master-side); release-prep + release-finalize
+  draft pair regenerated 2026-09-19 with the G41 fix applied. Cut
+  phase surfaced 5 gaps (G38 / G39 / G40 / G41 / G42); ship day
+  itself surfaced 4 more (G43 dry-run acceptance skip caught the day
+  before, G44 patch-prep row-template `gate_with_acceptance` omission
+  caught during finalize-diff review, G45 preflight script missing
+  from byte-identical manifest — publish job exit 127 mid-ship, G46
+  acceptance-docker concurrency-race cancelled docker publish —
+  recovered via docker-acceptance-only.yml). All 4 ship-day gaps
+  had fixes landed same day; 8.4.1 tarball + zip + docker images
+  + release-amendment + docs + announcement all live.
 - **Canonical runbook:** `docs/RELEASE_PROCESS.md` in
   `openemr/openemr` is the release manager's day-to-day reference.
   This doc is the follow-up gap log — things surfaced during automation
@@ -2804,7 +2815,7 @@ Historical context: 8.3.0 shipped 2026-08-18 via a straight-through `ship-releas
 - **#13294 root cause.** Extracted inline validation into shared scripts + BATS-tested the scripts thoroughly, but the workflows calling those scripts weren't re-verified for the workspace-availability precondition. actionlint validates workflow syntax but doesn't cross-reference script existence against checkout presence — a class of workflow-shape invariant that no existing lint enforced. Added `lint-workflow-checkout-needed.py` in the same fix batch to close that gap.
 - **`EXPECTED_WORKFLOW_PATH` single-value assumption.** `acceptance-only.yml` was designed for the workflow_dispatch flow (manual re-run of a specific build-release.yml run), not the tag-triggered flow that ship-release uses in production. Both produce the same artifact shape — but the recovery-path validator didn't know that. Not a "bug" from the recovery-path author's perspective (they built for the intended use case) — surfaced only when the recovery path was first invoked from the tag-triggered pipeline.
 
-**Systemic lesson:** every recovery-workflow path is itself first-exercised on the ship where it's needed. Neither `acceptance-only.yml` nor `docker-acceptance-only.yml` had been dispatched end-to-end between the Phase 10e-2 refactor (2026-07-30) and this 8.4.0 ship — so the two blocker hotfixes (#13972 missing checkout, #13973 single-path hardcoding) surfaced together with the root-cause bug they were needed to work around. Pattern extends G31 / G33 / G34: **any code path that fires only in "the release didn't go smoothly" scenarios should be periodically exercised outside a real ship to keep it warm.** Followup addressed 2026-09-15 — see [G36](#g36--recovery-path-smoketest-proactive-warm-up-of-the-recovery-workflow-chain--shipped-2026-09-15) for the tarball-side implementation. Docker-side sibling (equivalent smoketest against `docker-acceptance-only.yml`) is still deferred — `docker-build-release.yml` has no `dry_run` equivalent today so the tarball-side chained-fresh-source approach doesn't transfer directly.
+**Systemic lesson:** every recovery-workflow path is itself first-exercised on the ship where it's needed. Neither `acceptance-only.yml` nor `docker-acceptance-only.yml` had been dispatched end-to-end between the Phase 10e-2 refactor (2026-07-30) and this 8.4.0 ship — so the two blocker hotfixes (#13972 missing checkout, #13973 single-path hardcoding) surfaced together with the root-cause bug they were needed to work around. Pattern extends G31 / G33 / G34: **any code path that fires only in "the release didn't go smoothly" scenarios should be periodically exercised outside a real ship to keep it warm.** Followup addressed 2026-09-15 for both surfaces — see [G36](#g36--recovery-path-smoketest-proactive-warm-up-of-the-recovery-workflow-chain--shipped-2026-09-15) for the full design; the tarball-side implementation is described in the initial G36 entry and the docker-side sibling (parallel `smoketest-docker` job that dispatches `docker-build-release.yml --dry_run` for a preserved-candidate source, then chains into `docker-acceptance-only.yml`) is documented in G36's "Docker sibling smoketest (SHIPPED 2026-09-15)" subsection.
 
 ### G36 — Recovery-path smoketest: proactive warm-up of the recovery-workflow chain  *(SHIPPED 2026-09-15)*
 
@@ -2852,11 +2863,506 @@ For a real release to be stomped, ALL FOUR layers would need to fail simultaneou
 - **One red in isolation is NOT action.** Transient GitHub API 5xx (e.g. HTTP 500 on `POST /actions/workflows/.../dispatches` — observed in run 34952209883) and Docker Hub 502 flakes exist. Single-retry patterns on dispatch calls tolerate most; when they don't, one red night is data, not signal.
 - **Two-plus reds on consecutive nights from the same failure class = investigate + likely file / promote to a G-entry.** This is where the smoketest earns its keep — catching the real regressions before they hurt the next ship.
 
+**Docker sibling smoketest (SHIPPED 2026-09-15):**
+
+Added as the `smoketest-docker` job parallel to the tarball `smoketest` job in `.github/workflows/recovery-path-smoketest.yml`. Extends the recovery-path warm-up coverage from tarball (`acceptance-only.yml`) to docker (`docker-acceptance-only.yml`) — same G35 systemic-lesson motivation, same L1/L2/L4 guardrail model with two docker-specific differences.
+
+**Design iteration:** an initial attempt (openemr/openemr#14035) tried to reuse the last successful nightly `docker-build-release` run as source, avoiding a docker-side `dry_run` mode. That first PR shipped and was immediately reverted when manual verification failed — the reuse approach hit `docker-acceptance-only.yml`'s `verify-dockerhub-tag-exists` guardrail: `docker-build-release`'s successful publish path deletes the candidate tag as part of the `cleanup-candidate` job, so every successful nightly run has already cleaned up its candidate. No preserved candidate = no source for the smoketest. The redesign (this PR, openemr/openemr#TBD) added a proper `dry_run` mode to `docker-build-release.yml` that skips both `acceptance-gate` + `publish-and-cleanup` so the candidate stays, and the smoketest dispatches docker-build-release fresh with that mode — directly analogous to how the tarball job dispatches `build-release.yml --dry_run` for its source.
+
+**Design:**
+
+- **Fresh docker-build-release dispatch per smoketest run.** `dry_run=true + gate_with_acceptance=true` produces a candidate on Docker Hub (via merge-manifest's multi-arch imagetools create) then SKIPS acceptance-gate + publish-and-cleanup. Candidate stays available for docker-acceptance-only to consume. `docker_tags` is set to a globally-unique `smoketest-canary-<runid>-<timestamp>` value so any accidental publish (in case dry_run gating regresses) would push the canary rather than clobber real tags. Same snapshot-before-dispatch pattern as tarball for run-ID capture.
+
+- **Two variants (mirrors tarball):** variant A (`skip_acceptance=true + no_publish=true`) fast fail-fast on skip-acceptance routing; variant B (`no_publish=true` only) full docker acceptance matrix.
+
+- **L3 does NOT exist for docker.** Docker Hub accepts arbitrary re-push (unlike git tag / GitHub Release which server-side reject "already exists"). L4 is therefore more load-bearing here. Two signals used instead of the tarball's digest-baseline approach:
+
+  - **L4a (publish-job-status check):** assert the `publish` job in each dispatched `docker-acceptance-only` run has conclusion=`skipped` (proving the `if: inputs.no_publish != true` gate held). Direct signal on the gate we're relying on, immune to Docker Hub state churn.
+  - **L4b (canary-tag-absent check):** query Docker Hub for the canary tag post-run; if it exists, publish leaked → hard FAIL. Deterministic + no orchestrator race (canary name is unique per smoketest run, cannot collide with real orchestrator activity on `8.4.0` / `latest`).
+
+  Digest-baseline was rejected because the nightly orchestrator LEGITIMATELY re-pushes `8.4.0` + `latest` every day (fresh Alpine base, dep updates), so baseline-vs-verify comparison would false-positive on orchestrator overlap. The canary approach sidesteps the race entirely.
+
+**docker-build-release.yml `dry_run` gating:**
+- `acceptance-gate`: `if: inputs.gate_with_acceptance && !inputs.dry_run` — skip so smoketest can run docker-acceptance-only itself (avoids duplicating ~40 min of matrix work)
+- `publish-and-cleanup`: same gating — skip so the candidate stays on Docker Hub for downstream consumption
+- Validation step at top of `prep` job: `dry_run=true` without `gate_with_acceptance=true` fails loudly (non-gated path publishes directly, no candidate produced)
+
+**Cleanup step:** unconditional delete-if-present of BOTH the candidate tag AND the canary tag from Docker Hub via `.github/scripts/dockerhub-delete-tag.sh` (same script the docker publish path's cleanup-candidate job uses). Runs with `if: always()` so even a mid-run failure hits cleanup. Rationale:
+
+- **Candidate tag (`release-candidate-<runid>-<attempt>`)** — the dispatched dry-run docker-build-release DID push this to Docker Hub as its handoff point between merge-manifest and (skipped) publish/cleanup. Under normal ship flow, publish-and-cleanup's cleanup-candidate step would delete it on green publish — but the smoketest sets `no_publish=true` which skips publish-and-cleanup entirely. So the smoketest takes over that cleanup responsibility.
+- **Canary tag (`smoketest-canary-<runid>-<timestamp>`)** — should never have been pushed (publish gated off by no_publish), so the delete is a defensive no-op on green runs; on a red run from L4b (canary was found on Docker Hub, indicating the no_publish gate silently regressed) this deletes the stray.
+
+Each delete's non-zero status is downgraded to a warning rather than hard-failing the smoketest — a Docker Hub cleanup API flake shouldn't red-flag an otherwise green recovery-workflow validation.
+
+**Bonus: L4a also added to the tarball job** for consistency (belt-and-suspenders — the existing "state unchanged" hash-based check plus this direct publish-job-status assertion).
+
+Cascade of PRs that shipped the docker sibling: openemr/openemr#14035 (initial attempt, reverted in same PR chain), openemr/openemr#TBD (this PR — revert + `dry_run` mode + re-add smoketest job).
+
 **Followup opportunities (deferred):**
 
-- **Docker sibling smoketest.** Extend the smoketest to also exercise `docker-acceptance-only.yml`. Blocked by needing something equivalent to `dry_run` on `docker-build-release.yml` — that workflow always pushes to Docker Hub. Options: add a `dry_run` mode there, or use a chained approach against an existing shipped docker source-run. Not started; the tarball-side smoketest is enough to catch the "recovery-workflow refactor between ships" class of regression on its own for now.
 - **First observed regression → promote noise-handling policy to a G-entry.** The current policy is documented in the workflow header + this gap entry, but if we ever hit the "two consecutive same-class reds" trigger, that investigation deserves its own gap entry with the specific regression + fix.
 - **Retire the "hardcoded 8.2.0 fallback" in `detect-acceptance-mode.sh`.** #14018's `derive_from_version` filter incidentally fixed the degenerate case for that fallback path (the fallback would previously have returned `from=8.2.0`= `to=8.2.0`). Fallback is likely vestigial in practice (no known caller hits it), but removing it or replacing with a loud error would be cleaner than leaving both the fallback and the degeneracy-fix in place.
+
+### G37 — Audit of G36 smoketest scripts caught 2 latent bugs + 1 design gap  *(SHIPPED 2026-09-16)*
+
+**STATUS: SHIPPED 2026-09-16** across two PRs (openemr/openemr#14045 refactor + BATS extraction that surfaced the bugs during CodeRabbit review; follow-up PR for the reusable caller-must-gate contract + preflight validation). All findings were caught by static audit rather than by a failing nightly run — this entry documents the pattern for future reference: "first-green nightly run" is not the same as "audit-clean" and both are worth doing.
+
+**Trigger event:** refactor of `.github/workflows/recovery-path-smoketest.yml`'s inline safety-gate + baseline-capture + guardrail-verify bash blocks into three shared scripts under `.github/scripts/` (`assert-release-shipped.sh`, `recovery-smoketest-baseline.sh`, `recovery-smoketest-verify.sh`) with 36 total BATS tests. The refactor was pure code-organization + testability, but writing the tests + running them against the same mock payloads the CI reviewer exercised revealed the two latent bugs; the third finding was a design observation surfaced during a defense-in-depth audit of the surrounding workflow guards.
+
+**Findings + fixes:**
+
+1. **`set -euo pipefail` masked mapped exit codes in baseline + verify scripts.** Both scripts used `x=$(cmd | filter | filter)` capture assignments (`git ls-remote | awk`, `gh release view --jq '@json' | sha256sum | awk`, `gh run view --jq ... | head -1`). Under `set -euo pipefail`, a nonzero exit from `cmd` propagates through the pipeline and terminates the whole assignment BEFORE any custom error-handling branch can differentiate exit codes.
+
+   - **In baseline.sh:** the script's documented contract was "exit 2 on git failure, exit 3 on gh failure." A real git or gh failure would instead terminate at the assignment with the pipeline's exit code and lose the diagnostic.
+   - **In verify.sh:** worse impact — the script's documented contract was "aggregate all failures via FAILED=1 sentinel, then exit 2 at end." An early set-e termination skipped the sentinel AND all later checks AND the exit-2 aggregate. Callers `if: always()` still ran verify but verify's own internal aggregation was silently broken.
+
+   **Fix:** wrap each capture in `if ! output=$(...); then ...; fi`. In baseline, that branch emits the mapped diagnostic + exit code. In verify, that branch sets a sentinel value + `FAILED=1` and continues so subsequent checks still run. Also swapped `| head -1` for jq `[...] | first // empty` to eliminate SIGPIPE risk under pipefail. All three code paths (`git ls-remote`, `gh release view` for hash, `gh run view` for publish-status) now guarded consistently.
+
+2. **`downloadCount` in Release-hash caused L4a false-positive on every run.** `gh release view --json ... assets` returns each asset with `downloadCount` (CLI field name; REST API name is `download_count`) which increments on every asset download. The smoketest itself downloads the tarball as part of install-check → downloadCount bumps → sha256 of the emitted JSON differs from baseline → L4a "release state unchanged" check would false-positive.
+
+   **Fix:** strip `downloadCount` from each asset via `--jq '.assets |= map(del(.downloadCount))'` in BOTH baseline capture and verify comparison so the projection is identical on both sides. All other asset fields (`name`, `size`, `digest`, `contentType`, `url`, etc.) retained — those only change via `gh release upload --clobber`, which is the mutation the guardrail defends against. Regression test proves downloadCount-only changes don't alter the hash, and a companion sanity test proves an asset-digest change still DOES alter it.
+
+   **Why the nightly hadn't caught this:** the initial G36 nightly runs happened to use payloads where downloadCount had stabilized between baseline capture and verify (small time window; asset not being pulled by real users). Only sustained real-world use would have exposed the drift — and by then the guardrail would look flaky rather than broken. Reference memory added: `reference_gh_release_view_downloadcount.md`.
+
+3. **Reusable publish workflows had no self-defense; caller-must-gate contract was undocumented.** `.github/workflows/reusable-publish-release.yml` + `.github/workflows/reusable-docker-publish.yml` have no `dry_run` / `no_publish` input of their own. Every step below is unconditionally destructive (git tag push + `gh release create` in the tarball reusable; `docker buildx imagetools create` alias onto all real Docker Hub tags in the docker reusable). Safety of the whole L1 guard layer depends entirely on the two current call sites gating `uses:` at the job level. Current callers (`build-release.yml` publish job, `acceptance-only.yml` publish job, `docker-build-release.yml` publish-and-cleanup job, `docker-acceptance-only.yml` publish-and-cleanup job) all gate correctly, but the dependency on caller-side gating was undocumented — a future new caller could invoke either reusable from an ungated context and stomp real release artifacts the instant the workflow fires.
+
+   **Fix:** header-comment "CALLER-MUST-GATE contract" section added to both reusables explicitly documenting the requirement + linking to each current caller's gate pattern for reference; plus a preflight step at the top of each reusable's job that fails loudly if any required input is empty (`[[ -z "${INPUT}" ]] && exit 1`). The preflight closes the runtime side: even if a future caller wires the reusable with an empty candidate_tag / artifact_name, the destructive ops never fire.
+
+**Systemic lesson:** the recovery-path smoketest itself SHIPPED green (G36's `First fully-green end-to-end smoketest run: 34952720263`), and BATS tests all passed against the mock payloads — but the mock payloads had the same wrong-expectation bug that the real script had (both hashed the raw payload without stripping downloadCount, so both matched trivially in test). Two lessons for future recovery-path-adjacent work:
+
+- **"First-green nightly run" and "audit-clean" are different signals.** A workflow that runs successfully end-to-end has proven only that its happy path completes; it hasn't proven its error paths or its guardrails behave correctly under real drift. Post-ship code audit — reading the shipped scripts with a fresh critical eye + asking "under what conditions would this check silently pass when it shouldn't" — is a separate line of defense from "does the workflow go green."
+- **Mock payloads inherit the script's blind spots.** BATS test coverage of `sha256(json_payload)` doesn't catch the projection bug because the mock emits the same json_payload the real gh would, and both hash-under-test use the same buggy jq expression. Catch this class by adding tests that flex the FIELDS being hashed (e.g. "downloadCount-only change must not alter hash") rather than only "hash is deterministic across identical inputs."
+
+Both lessons apply beyond the recovery-path smoketest: any future guardrail-workflow that computes a mutation-detection hash over an external system's payload should include a fields-that-should-be-ignored test AND an audit-style read after first-green.
+
+**Cross-check on the guard model (audit output, not a fix):** the defense-in-depth model documented in G36 remains firmly in place — 5 layers (L1 input flags on each destructive job, L2 preflight `assert-release-shipped.sh`, L3 canary-tag substitution passing `docker_tags=${CANARY_TAG}` so even a regressed L1 gate would only clobber a synthetic tag never real ones, L4a runtime state-unchanged verify, L4b canary-tag-absent check on Docker Hub) verified against actual file:line references in the smoketest workflow. The two latent bugs above only weakened L4a's diagnostics + false-positive rate; they did not create a new stomp path. Fix #3 (preflight in reusables) adds a small hardening to L1's fail-closed behavior at the reusable layer.
+
+### G38 — Split-fix on the version.php trigger PR trips patch-prep-automation's delta gates  *(noted 2026-09-16)*
+
+**STATUS: DOCUMENTED 2026-09-16** — not a code bug; the delta gates in `patch-prep-automation.yml` are correct as designed. Documenting the operator-side pattern that trips them so the next patch cycle doesn't repeat, plus recording the workflow_dispatch recovery path.
+
+**Trigger event:** 8.4.1 patch cycle start on rel-840 (2026-09-16). The `version.php` bump PR (#14066) landed with `$v_patch = '1'` + `$v_tag = 'dev'` (missing the leading hyphen). Follow-up PR #14067 corrected `$v_tag` to `'-dev'`. Neither push individually satisfied `patch-prep-automation.yml`'s dev-cycle-entry gate:
+
+- **#14066 push** (patch 0→1, tag='dev'): early-exit with `after $v_tag is 'dev', not '-dev'; not a dev-cycle entry, skipping.`
+- **#14067 push** (patch stayed 1, tag corrected to '-dev'): early-exit with `$v_patch did not increase by exactly one (before=1 after=1); skipping to avoid scaffolding for a skipped patch.`
+
+`release-prep.yml` had the same shape of skip on #14066 (`Branch rel-840 is not in an active dev cycle ($v_tag='dev', expected '-dev'); nothing to prep.`) — that surfaced first because release-prep runs on every rel-branch push, whereas patch-prep-automation only fires when `version.php` is in the diff.
+
+**Why the gates are strict:**
+
+Only `patch-prep-automation.yml` has the three delta gates that must ALL fire on a SINGLE push:
+
+1. `$v_patch` incremented by exactly one.
+2. `$v_tag = '-dev'` (with leading hyphen; distinguishes dev-cycle entry from release-prep's mid-flight `-dev` strip event that also touches `$v_patch` in some flows).
+3. Major + minor unchanged.
+
+`release-prep.yml` has a simpler gate: post-state `$v_tag = '-dev'` on the current tree (no before/after delta). Same hyphen requirement, different failure mode — release-prep re-fires cleanly on any subsequent rel-branch push whose `version.php` finally reaches `$v_tag='-dev'`, whereas patch-prep only fires when a single push crosses BOTH gates at once.
+
+Splitting a fix across two PRs violates patch-prep's single-push convention because neither PR carries both conditions. Release-prep isn't affected by the split (as long as one of the PRs eventually lands `$v_tag='-dev'`) — that's why #14067 re-fired release-prep successfully while patch-prep still had to be manually dispatched.
+
+**Recovery:** dispatch `patch-prep-automation.yml` manually with explicit inputs — the workflow_dispatch path bypasses the delta gates entirely and just opens the 2 patch-prep PRs:
+
+```bash
+gh workflow run patch-prep-automation.yml --repo openemr/openemr --ref master \
+  -f rel-branch=rel-840 \
+  -f target-version=8.4.1 \
+  -f prev-version=8.4.0
+```
+
+Exercised 2026-09-16 (openemr/openemr run 35160554535); opened PRs #14071 (rel-side) + #14072 (master-side) successfully. `release-prep.yml` had already re-fired successfully on the #14067 corrective push because its gate is simpler (post-state `$v_tag='-dev'` is sufficient, no delta requirement).
+
+**Prevention:** [Quick action 2](../docs/RELEASE_PROCESS.md#2-start-a-new-patch-release-cycle-on-an-existing-rel-branch) in `RELEASE_PROCESS.md` updated to spell out the single-PR + hyphen requirements explicitly, with a pointer to this gap for the recovery pattern.
+
+**Design choice worth remembering (why NOT weaken the gates):**
+
+The delta gates could technically be relaxed — e.g., accept two consecutive pushes as long as their combined state matches (patch++ AND tag='-dev') — but doing so would trade a rare operator inconvenience (split-fix, easily recovered via workflow_dispatch) for a fragile "combined state" tracking mechanism that would need to reason about push order, intervening pushes, force-pushes to the rel branch, and cross-run state. The delta gate is deliberately strict because "one clean push per patch-cycle entry" is the operator convention worth enforcing, and the workflow_dispatch escape hatch is already present for the exception cases.
+
+### G39 — `PatchPrepReleaseTargetsMutator` didn't strip `next` from master row  *(SHIPPED 2026-09-16)*
+
+**STATUS: SHIPPED 2026-09-16** — code fix + 4 new BATS-adjacent PHPUnit tests. Also opens a small doc question about the finalize-time `next` re-add being load-bearing across the ship→patch-prep sequence (see "Design note" below).
+
+**Trigger event:** 8.4.1 patch cycle start on rel-840 (2026-09-16). Master-side patch-prep PR #14072 correctly added the new `- branch: rel-840 / docker_tags: 8.4.1,next / openemr_version_ref: rel-840` row but left the master row's existing `docker_tags: 8.5.0,dev,next` untouched. Result: **two rows claiming `next`** — master (8.5.0 dev) AND rel-840 (8.4.1 patch dev). Docker Hub's `next` tag can only point at one image at a time; the orchestrator's next run would push both, whichever ran last wins, and the tag would flap between them on each subsequent cycle.
+
+**Why it went latent this long:** patch-prep-automation.yml shipped 2026-07-01 via workstream 6 (see [G12](#g12--patch-cycle-bootstrap-on-rel--requires-manual-sql-skeleton--docker-scaffolding--master-file-rename--workstream-6-design)). Between then and now the only patch-cycle exercise was the 8.1.1 transition — but rel-810 was the current-latest at that point (no post-shipping `next` on master's row), so the strip was a no-op regardless. This is the first patch-cycle where a `latest` had shifted OFF the rel line during a prior finalize, leaving master carrying `next` post-finalize.
+
+**Diff between PatchPrep + BranchCut mutators (before fix):**
+
+`BranchCutReleaseTargetsMutator::bumpMasterDockerTags` (already correct) does three things to the master row on branch-cut events: (1) bump the bare `X.Y.0` version tag's minor, (2) drop `next`, (3) keep `dev`. That's how rel-840 branch-cut PR #13926 correctly transitioned master's `docker_tags: 8.4.0,dev,next` → `docker_tags: 8.5.0,dev` (next moved to the new rel-840 row).
+
+`PatchPrepReleaseTargetsMutator` (before this fix) only did two things: (1) insert the new dev row for the patch cycle, (2) drop any `unreleased: true` placeholder rows for the target branch. Never touched the master row's docker_tags — which is fine when master doesn't have `next` to begin with, but wrong when it does (as post-finalize state has).
+
+**Fix (this PR):** add `stripNextFromMasterRow()` to `PatchPrepReleaseTargetsMutator` (mirrors `BranchCutReleaseTargetsMutator::bumpMasterDockerTags` minus the version-bump; just the strip half). Called between insert-new-dev-row and the final YAML sanity check. Idempotent: no-op if master row has no `next` (protects the historical patch-prep cases where the strip wasn't load-bearing). 4 new PHPUnit tests: strips-when-present, idempotent-when-absent, idempotent-across-reruns, comments-and-ordering-preserved.
+
+**Recovery for #14072 specifically:** #14072 was already open when this gap was found. Fix landed AFTER the PR was opened; two paths considered:
+- (a) Merge #14072 as-is, then follow-up PR to strip `next` from master. Simple, one-off.
+- (b) Wait for this fix to land, then re-dispatch `patch-prep-automation.yml --ref master` with the same rel-branch/target/prev inputs — the workflow force-pushes to the existing `patch-prep/rel-840-master` branch on peter-evans re-run, so #14072 gets regenerated with the strip applied.
+
+**Chose (b), exercised 2026-09-16** (run 35174594744): master row went from `docker_tags: 8.5.0,dev,next` → `docker_tags: 8.5.0,dev`, rel-840 dev row correctly retained `docker_tags: 8.4.1,next`. Only one row claiming `next` post-fix. #14072 subsequently merged 2026-09-17.
+
+**Design note (open question, worth remembering):** the `next` re-add on the master row happens at finalize time via `PostReleaseTargetsMutator` (fires on release-finalize/<rel-branch> merge; put `next` back on master since no rel branch is currently claiming it post-ship). That's followed by the operator's next-patch-cycle bump PR (which triggers patch-prep-automation), which now strips it again. The re-add + strip pair essentially cancels out over the ship→patch-prep window. Two design alternatives worth considering later:
+
+1. Drop the finalize-time re-add. Between ship and next-patch-prep, `next` is "unclaimed" — which is arguably the correct semantic (no active dev cycle claiming it). But it does mean a docker orchestrator tick in that window would push nothing tagged `next`, leaving the last-shipped image without that alias for potentially days. Not great for `docker pull openemr/openemr:next` users.
+2. Have finalize add `next` to the JUST-SHIPPED rel row (alongside `latest`) instead of to master. That row already carries `latest`; adding `next` there means "this image is both the latest published AND the current forward-looking tip until the next patch cycle starts." Then patch-prep only needs to move `next` off THAT row when the new patch dev row takes over, not off master. Slightly different mental model but eliminates the master-row bounce.
+
+Neither is in scope for this fix; the current cancel-out behavior is correct as long as both mutators are in sync. Filed here so a future release-targets refactor can revisit.
+
+### G40 — Docker Upgrade Process test's recreate wait_for_healthy clocked out 5s before Apache started  *(SHIPPED 2026-09-17)*
+
+**STATUS: SHIPPED 2026-09-17** — timeout bump from 600s to 1200s on the recreate-boot `wait_for_healthy` call in `docker/container_benchmarking/test_suite.sh`. Does NOT weaken the test — the upgrade + Apache start completed correctly on the failing run, the 600s window just no longer fit.
+
+**Trigger event:** Master-side patch-prep PR openemr/openemr#14072 (8.4.1 dev cycle on rel-840, adding `fsupgrade-15.sh`). Container Functionality release check failed with `Container did not become healthy after recreate` on both attempts of both matrix cells. Container health log showed `curl: (7) Failed to connect to localhost:80` right up to the 600s deadline, then the test's own captured stdout showed:
+
+```
+Completed: Processing fsupgrade-15.sh upgrade script
+Version marker updated to: 15
+OpenEMR upgrade completed successfully
+[TIMING] Total script execution time: 605.0s before Apache start
+Starting Apache!
+[Thu Sep 17 03:26:07] Apache/2.4.68 configured -- resuming normal operations
+```
+
+Missed the 600s window by 5s despite the upgrade succeeding.
+
+**Root cause:** `test_suite.sh:1442` sets `sites/default/docker-version=1` deliberately (worst-case starting point) so openemr.sh walks EVERY `fsupgrade-N.sh` from 2 up to the current `/root/docker-version`. That's the point of the test — catch accidental regressions on ANY prior fsupgrade script, not just the one the PR added. Total pre-Apache time therefore grows linearly with N (14 scripts currently, ~5s each on the runner + SQL upgrade + SSL/cert/config setup = ~600s at N=15). Every future patch cycle adds another script and pushes further past the threshold. Sites=1 is intentional and worth keeping (confirmed 2026-09-17); the timeout was the load-bearing wrong value.
+
+**Fix (this PR):** two changes, both scoped to the recreate step:
+
+1. Bump the recreate-boot `wait_for_healthy` timeout from 600s to 1200s (only that one call site — the sibling `wait_for_healthy` calls that don't run the full upgrade cascade stay at 600s).
+2. Bump the openemr healthcheck's `start_period` in the recreate compose override from 10m (base) to 20m (matches the wait_for_healthy budget). Without this, `wait_for_healthy` would return early on Docker's `unhealthy` verdict — the base healthcheck's `start_period: 10m + interval: 1m * retries: 3` produces `unhealthy` ~13m after startup if Apache isn't up, and wait_for_healthy short-circuits on that state (`test_suite.sh:151-154`). Keeping start_period >= max_wait means the container can only be `starting` or `healthy` for the whole window. Healthcheck fields kept explicitly in sync with the base (retries, interval, timeout, etc.) rather than relying on compose partial-merge semantics.
+
+Adds a long inline comment on both changes documenting why THIS wait is bigger than the others, the sites=1 rationale, the paired healthcheck + wait_for_healthy budget requirement, and the "1200s = a real regression" tripwire.
+
+**Why the G34 fix wasn't enough:** G34 fixed the `check_upgrade` guard failure on branch-cut PRs where `/root/docker-version` was AHEAD of the git-cloned code copy (bind-mount override pins them equal across the recreate wipe). That fix works correctly — the upgrade DOES run on #14072. The remaining problem was orthogonal: the upgrade itself takes longer than the healthcheck timeout. G34 unblocked the guard; G40 gives the guard's downstream work enough time to finish.
+
+**Design note (informed by 2026-09-17 review):** the sites=1 choice trades runtime for regression coverage. Alternatives considered + rejected: (a) sites=N-1 → test only the newest script — fast (~5s) but loses coverage of prior scripts; (b) hybrid where PR-triggered runs use sites=N-1 and a weekly cron uses sites=1 — more infrastructure without a demonstrated need. Sites=1 is worst-case-realistic (any user upgrading from an old install hits this path). Keeping it, paying the ~600s per PR for now. If this cost becomes onerous, hybrid is the escape hatch.
+
+**Prevention:** none needed — the timeout accommodates ~40 more patch cycles at the current per-script cost before hitting 1200s again. If it does hit, the inline comment names the next step (investigate real slowdown or bump timeout further).
+
+**Outcome (2026-09-17):** #14081 (G40 fix) landed; #14072 close/reopened to force fresh CI against master with the bump applied (fresh Functionality release run 35182676471 succeeded). #14072 then merged the same day. Post-CodeRabbit review a second commit landed within the same PR that also extends the recreate compose override's healthcheck `start_period` from 10m to 20m (paired with the wait_for_healthy budget), sidestepping a latent early-return on Docker's `unhealthy` verdict that would have capped the extended wait at ~13m.
+
+### G41 — `PostReleaseTargetsMutator` didn't strip `latest` from a prior-patch row on the same rel branch  *(SHIPPED 2026-09-18)*
+
+**STATUS: SHIPPED 2026-09-18** — code fix + 2 new PHPUnit tests. Same class of oversight as G39 (sibling mutator with a missed-strip case on the multi-row pattern).
+
+**Trigger event:** Master-side release-finalize PR openemr/openemr#14069 (auto-generated for 8.4.1 on rel-840). The diff correctly transitioned the new 8.4.1 row's tags from `8.4.1,next` → `8.4.1,latest` + `openemr_version_ref: rel-840 → v8_4_1`, but **left the prior 8.4.0 row's `latest` intact** — so master's `release-targets.yml` would end up with two rows claiming `latest` (8.4.0 and 8.4.1). Docker Hub can only point `latest` at one image at a time; the orchestrator's next tick would push both, and the tag would flap between them on every subsequent cycle.
+
+**Root cause:** `PostReleaseTargetsMutator::shuffleSlots` Step 1 loop (the "drop `latest` from any other row" pass) used `$row['branch'] === $relBranch` as the skip condition, which incorrectly protected EVERY row on the current rel branch — including prior patch rows carried forward via the multi-row pattern (openemr/openemr#12656). Original intent was "skip the just-shipped row"; the mutator identifies that specific row earlier via the `openemr_version_ref` check (matching either the rel-branch tip or an active version tag for that branch) and stores it as `$relRow`, but the loop's skip condition didn't reference `$relRow`.
+
+**Why it went latent this long:** none of the prior patch-ship exercises produced a multi-row-same-branch state at finalize time. 8.2.0 shipped 2026-07-08 (rel-820 had only one row). 8.3.0 shipped 2026-08-18 (rel-830 had only one row). 8.4.0 shipped 2026-09-13 (rel-840 fresh cut; only one row). 8.4.1 was the first patch release since the multi-row pattern landed — and its patch-prep left both `8.4.1,next` (new) and `8.4.0,latest` (kept alive per multi-row semantics) on rel-840, which is exactly the shape the Step 1 loop bug-protected.
+
+**Fix (this PR):** one-line change replacing the skip condition — `$row['branch'] === $relBranch` → `$row === $relRow`. Row-object identity comparison (both `$rows` and `$relRow` are the same associative arrays from `indexRows()`, so PHP's `===` on arrays performs strict element-wise comparison — sufficient here since indexRows produces stable structures). 2 new PHPUnit tests: (a) mirrors the real rel-840 scenario and asserts only one row carries `latest` after finalize; (b) idempotency across reruns.
+
+**Recovery for #14069 specifically:** #14069 is auto-generated by release-prep.yml's finalize path (fires on release-finalize/<rel-branch> merge OR on rel-branch push that force-pushes the paired conductor branch). Same recovery shape as G39's #14072 case:
+- (a) Merge #14069 as-is, then follow-up PR to strip `latest` from the 8.4.0 row. Simple, one-off.
+- (b) Wait for this fix to land, then trigger release-prep.yml on rel-840 (either by pushing to rel-840 or by workflow_dispatch) — peter-evans force-pushes the existing `release-finalize/rel-840` branch, so #14069 gets regenerated with the strip applied. **Recommended** — matches G39's pattern.
+
+**Same class of oversight as G39:** G39 was the sibling patch-prep mutator missing a strip of `next` from the master row when the multi-row pattern kept `next` there through finalize. G41 is the sibling finalize mutator missing a strip of `latest` from a prior-patch rel-branch row when the multi-row pattern keeps that row alive. Both are "the strip loop only skipped the *actively-being-updated* row's *branch*, not the row itself." The two fixes rhyme.
+
+**Followup consideration (deferred):** worth a repo-wide audit of any release-targets mutator with a `$row['branch'] === $relBranch`-shaped skip condition, in case any others have the same shape latent for a future multi-row scenario. `BranchCutReleaseTargetsMutator::bumpMasterDockerTags` doesn't use this pattern (it targets master-only) so it's fine. Only `PostReleaseTargetsMutator` (fixed here) and `PatchPrepReleaseTargetsMutator` (fixed in G39) have the risk shape and both are now covered.
+
+**Outcome (2026-09-19):** #14111 landed 2026-09-18. A subsequent PR to rel-840 fired release-prep.yml which regenerated #14069 with the strip applied (run 35431909596). Diff verified: master row's `docker_tags: 8.5.0,dev,next` retained (finalize-time re-add per the design note), rel-840's `8.4.1,next` correctly promoted to `8.4.1,latest` + `openemr_version_ref: v8_4_1`, rel-840's `8.4.0,latest` correctly stripped to `8.4.0` (only one row claiming `latest` post-fix). No manual follow-up strip PR needed.
+
+### G42 — Acknowledgements page mishandled co-authors: uncounted trailers, GitHub-noreply duplicates, bot-filter miss  *(SHIPPED 2026-09-19)*
+
+**STATUS: SHIPPED 2026-09-19** across three PRs in openemr/website-openemr: #220 (co-author trailer counting), #221 (GitHub username → real-name canonicalization + `openemr-release-bot` in NON_HUMAN_NAMES). All three surfaced on the 8.4.1 release-docs cycle; the release-docs generator lives in openemr/website-openemr but the doc entry is captured here because it's a release-mechanism concern.
+
+**Trigger event:** Release-docs PR openemr/website-openemr#219 (auto-generated 8.4.1 acknowledgements page). First-generation content showed three related bugs:
+
+```
+- Brady Miller (6 commits)
+- bradymiller (6 commits)          ← duplicate of Brady Miller via noreply-email co-author trailers
+- Jerry Padgett (4 commits)
+- Stephen Waite (2 commits)
+- openemr-release-bot (2 commits)  ← bot slipped filter via bare-name co-author trailer
+- Eric Stern (1 commit)
+- kojiromike (1 commit)             ← GitHub username instead of real name (Michael A. Smith)
+```
+
+**Root causes (three related surfaces):**
+
+1. **Co-authored-by trailers weren't counted at all.** The generator's `git log --format=%aE%x09%aN` fetched only primary author fields. Co-authors on commits (via `Co-authored-by:` trailers, the GitHub-standard multi-author syntax) got zero credit. Fixed openemr/website-openemr#220 by widening the format to include `%(trailers:key=Co-authored-by,valueonly=true,unfold=true,separator=%x1e)` and emitting one record per co-author for full per-commit credit.
+
+2. **Duplicate rows from GitHub noreply co-authors.** Once co-authors were counted, primary commits `Brady Miller <brady.g.miller@gmail.com>` + co-author trailers `bradymiller <278968+bradymiller@users.noreply.github.com>` on the same person appeared as two rows because email-based grouping + case-insensitive name merge both missed the connection. Fixed openemr/website-openemr#221 with a `GitHubUserResolver` that extracts the username from noreply-email format (`<id>+<username>@users.noreply.github.com` or bare `<username>@users.noreply.github.com`) and canonicalizes to the user's GitHub profile display name via `GET /users/{username}`. One API call per unique username (deduplicated); fails gracefully to username fallback on any API error.
+
+3. **`openemr-release-bot` (no `[bot]` suffix) slipped the filter.** Bot primary commits are `openemr-release-bot[bot]` (caught by `str_ends_with '[bot]'`). But conductor-generated commits carry a `Co-authored-by: openemr-release-bot <release-bot@openemr.invalid>` trailer — no `[bot]` suffix, non-GitHub-noreply email so the username-canonicalization path can't help either. Fixed by adding `openemr-release-bot` to `NON_HUMAN_NAMES` (in the same #221 PR).
+
+**Systemic lesson:** the acknowledgements generator receives strings from an external source (git commit metadata, incl. hand-crafted trailer values) that don't necessarily match its internal dedup + filter models. Three variations of the same class of mismatch surfaced together on the first patch-cycle exercise. Future release-doc changes involving new metadata sources should: (a) canonicalize to a stable identity early in the pipeline before dedup, (b) include per-source integration tests exercising realistic trailer / noreply / bot-name shapes, (c) document what the canonicalization is + isn't handling so future contributors don't need to re-derive the failure modes.
+
+**Outcome (2026-09-19):** all three PRs merged. Release-docs regenerated post-fix (run 35432004291) — page now shows clean 5-row list with Brady Miller correctly at 13 commits (primary 6 + co-author 6 merged + 1 from a subsequent backport PR), Michael A. Smith replacing `kojiromike`, and `openemr-release-bot` dropped. Full expected shape rendered.
+
+**Followup consideration (deferred):** any co-author using a personal email (not a GitHub noreply) that DOES differ from their primary spelling would still slip through the API canonicalization path. Would require either a project-level `.mailmap` file (git-native canonicalization; would need generator-side application to trailer values since git's `%(trailers:...)` doesn't apply mailmap) or continued hand-curation via `NON_HUMAN_NAMES`. Not currently needed — nothing in the 8.4.1 range triggered this — but worth remembering for future non-noreply co-author-based duplicates.
+
+### G43 — `build-release.yml`'s acceptance-gate was tied to `dry_run` so ship-release dry-run silently skipped the acceptance matrix  *(SHIPPED 2026-09-19)*
+
+**STATUS: SHIPPED 2026-09-19** as a single PR that decouples the acceptance-gate skip from `dry_run` and updates the one existing caller that legitimately wants to skip acceptance to use the new dedicated flag.
+
+**Trigger event:** the 8.4.1 ship-release dry-run (run 35470821033, 2026-09-19) completed in ~4 min — just preflight + package build. The `Acceptance gate` sub-job was SKIPPED. Brady flagged: "accept should not skip" — dry-run is meant as a full rehearsal, so exercising the acceptance matrix IS the point. Skipping it means dry-run only exercises the preflight + build step, not the full ship path that real ship depends on.
+
+**Root cause:** `build-release.yml`'s acceptance-gate job carried `if: '!inputs.dry_run'`. Two callers, two intents conflated:
+
+- **`ship-release.yml`** dry-run-build job — wants acceptance-gate TO run (full rehearsal semantic).
+- **`recovery-path-smoketest.yml`** source-artifact dispatch — wants acceptance-gate SKIPPED (already runs its own variant-A + variant-B acceptance-only matrices downstream; running it here duplicates ~30 min of work).
+
+Both callers passed `dry_run=true` (the appropriate publish suppression). The acceptance-gate skip was a second concern piggybacked on the same flag — historically justified by "the acceptance gate exists to prevent broken tarballs from reaching the GitHub releases page, so it's redundant when publish is skipped" (per the file's own header comment). That reasoning holds for the smoketest (which explicitly delegates acceptance downstream) but not for ship-release's dry-run (whose whole point is a full rehearsal).
+
+**Fix (this PR):** decouple with a new `skip_acceptance_gate` input on `build-release.yml` (default `false`). Change acceptance-gate `if:` from `!inputs.dry_run` → `!inputs.skip_acceptance_gate`. Update `recovery-path-smoketest.yml`'s build-release dispatch to explicitly pass `skip_acceptance_gate=true`. Ship-release's dry-run-build call doesn't pass `skip_acceptance_gate` (so acceptance-gate runs).
+
+**Runtime impact:** ship-release `mode=dry-run` runtime goes from ~4 min → ~30-40 min (full acceptance matrix). That's the intended trade-off — high-confidence rehearsal is the point.
+
+**Safety analysis (critical — no stomp-guard regression):** the smoketest's 5-layer guardrail model is completely orthogonal to the acceptance-gate skip. The change cannot weaken any layer:
+
+- **L1 (input flags):** build-release's `publish` job stays gated on `!inputs.dry_run` (unchanged). Whether acceptance-gate runs or not is invisible to publish's dry-run gate.
+- **L2 (preflight):** `assert-release-shipped.sh` unchanged.
+- **L3 (canary substitution):** docker-only, unchanged.
+- **L4a (runtime verify):** `recovery-smoketest-verify.sh` checks `publish-job-status=skipped` on the acceptance-only run IDs (variant A + variant B). Doesn't inspect build-release's internal jobs — build-release's acceptance-gate status is invisible to the L4a check.
+- **L4b (canary tag absent):** docker-only, unchanged.
+
+Worst-case regression scenarios traced:
+1. Workflow lands without smoketest update: smoketest's build-release would run acceptance-gate (~30 min extra work). No stomp risk — publish still gated by `dry_run=true`. Cost is only runtime.
+2. Smoketest update lands without workflow change: GHA rejects "unknown input `skip_acceptance_gate`". Loud fail, no silent stomp.
+3. Someone removes `skip_acceptance_gate=true` from smoketest: same as (1). Loud runtime cost, no stomp.
+
+Both edits land in the same PR to eliminate window (1)/(2).
+
+**Cross-check on `docker-build-release.yml`:** untouched — its `dry_run` input has a different semantic (smoketest-support: skip acceptance-gate + publish-and-cleanup, preserve candidate tag for downstream consumption). Docker smoketest continues to use `docker-build-release.yml` dry_run as-is. Unrelated to this fix.
+
+**Systemic lesson:** flag-purpose conflation (one boolean serving two independent concerns) is a common workflow-YAML failure mode. When two callers use the same input for different reasons ("suppress publish" vs "skip acceptance work already covered downstream"), split into two independent inputs even if all current callers happen to want both. The alternative — one caller silently getting the wrong behavior — is exactly what happened here for ~6 months of ship-release dry-runs.
+
+### G44 — `PatchPrepReleaseTargetsMutator` row template omitted `gate_with_acceptance: true`; every patch-cycle docker publish would silently skip acceptance  *(SHIPPED 2026-09-20)*
+
+**STATUS: SHIPPED 2026-09-20** across two mutator changes in the same PR + defense-in-depth backfill at finalize. Fourth stomp-adjacent mutator gap in the 8.4.1 patch-cycle series (G39/G41/G44 = 3-of-3 mutator families had a "missed field" bug the pattern surfaced).
+
+**Trigger event:** review of the regenerated openemr/openemr#14069 finalize diff for 8.4.1 (2026-09-20, hours before ship). The promoted rel-840 row read:
+```yaml
+- branch: rel-840
+  docker_tags: 8.4.1,latest
+  openemr_version_ref: v8_4_1
+```
+No `gate_with_acceptance: true`. The 8.4.0 row above it (`- branch: rel-840 / docker_tags: 8.4.0 / openemr_version_ref: v8_4_0 / gate_with_acceptance: true`) HAS the field because branch-cut inserted it; patch-prep-inserted rows didn't.
+
+**Root cause:** `PatchPrepReleaseTargetsMutator::renderRelRowLines()` emitted a 3-line row template (`- branch: / docker_tags: X.Y.P,next / openemr_version_ref: <relBranch>`). `BranchCutReleaseTargetsMutator`'s equivalent template is 4 lines — it includes `gate_with_acceptance: true`. `PostReleaseTargetsMutator`'s promotion pipeline (`pinRelBranchVersionRef` + `shuffleSlots`) doesn't touch the field either — it flows patch-prep's row shape forward without adding anything.
+
+**Downstream effect:** `docker-release-orchestrator.yml` reads `.github/release-targets.yml`, fans out one `docker-build-release.yml` dispatch per row, and passes `gate_with_acceptance=<row's value>`. A row without the field → `gate_with_acceptance=false` → docker-build-release takes the **non-gated publish path** that pushes directly to final tags **without running the acceptance-gate matrix**. Every patch-cycle docker publish (not just 8.4.1) would silently skip acceptance. Stomp-adjacent — the docker image ships but with zero pre-publish acceptance signal.
+
+**Fix (this PR — two changes, defense in depth):**
+
+1. **`PatchPrepReleaseTargetsMutator::renderRelRowLines`** — add `  gate_with_acceptance: true` to the row template. Matches branch-cut. Future patch-preps insert rows correctly.
+
+2. **`PostReleaseTargetsMutator::ensureGateWithAcceptanceOnShippedRow`** (new step) — after promotion, backfill `gate_with_acceptance: true` on the just-shipped row if missing. Covers rows inserted by pre-G44 patch-prep (the 8.4.1 case specifically) so re-firing release-prep produces a correct finalize PR. Idempotent (no-op when field already present, e.g. branch-cut-inserted rows).
+
+Legacy rel branches (`rel-800`, `rel-704`) predate the acceptance-package infrastructure and would break docker orchestration if `gate_with_acceptance: true` were added (workflow_call would fail to resolve the missing reusable). Excluded via a `LEGACY_REL_BRANCHES_WITHOUT_ACCEPTANCE` constant.
+
+**Recovery for #14069 specifically:** #14069 was already open. Re-fire release-prep.yml on rel-840 (push or workflow_dispatch) after this fix lands. PostRelease's new backfill step will add `gate_with_acceptance: true` to the promoted row. Peter-evans force-pushes `release-finalize/rel-840` → #14069 regenerates with the field. Same recovery pattern as G39/G41.
+
+**Timing:** flagged during the 8.4.1 dry-run review, hours before real ship. This fix is a ship blocker — without it, 8.4.1's docker publish silently skips acceptance.
+
+**Cross-check — this is the third mutator with a "missed field" bug in the 8.4.1 cut cycle:**
+- G39: `PatchPrepReleaseTargetsMutator` didn't strip `next` from master row
+- G41: `PostReleaseTargetsMutator` didn't strip `latest` from prior-patch row on same branch
+- G44 (this): `PatchPrepReleaseTargetsMutator` row template omitted `gate_with_acceptance: true`; `PostReleaseTargetsMutator` didn't add it during promotion
+
+**Systemic lesson:** the mutator family shares a common bug shape — they were originally written for the branch-cut case (fresh new rel branch → simple state), then extended for the patch-cycle case (multi-row + carried-forward-fields → complex state). Each extension missed a case that the branch-cut version handled implicitly. All three fixes have the same shape: "when the mutator emits/promotes a row, ensure all the fields the branch-cut equivalent emits are present." Future mutator changes for release-targets.yml manipulation should audit against `BranchCutReleaseTargetsMutator`'s row templates as the canonical shape; anything the branch-cut mutator sets should be set (or preserved) by every downstream mutator.
+
+Consider (deferred): a `RelRowTemplate` shared class or trait that all three mutators reference, so template changes propagate consistently. Would eliminate the "missed field" bug class entirely by construction. Not in scope here — the three fixes together close the immediate hole, and the shared class is a bigger refactor worth doing when we're not on a ship deadline.
+
+### G45 — `assert-inputs-nonempty.sh` (G37 preflight) not in byte-identical manifest; 8.4.1 publish crashed exit 127  *(SHIPPED 2026-09-20)*
+
+**STATUS: SHIPPED 2026-09-20.** First real end-to-end exercise of ship-release full-auto/semi-auto pipeline on a rel branch surfaced the gap. First hit at 8.4.1 ship on 2026-09-20 06:26:38 UTC — the publish job of build-release-on-tag run 35493672033 exited 127 with `.github/scripts/assert-inputs-nonempty.sh: No such file or directory` **after** all 8 acceptance cells passed and the annotated tag `v8_4_1` was already minted by release-prep's finalize job. Zero data loss (tag exists; GH Release object never created; packages sitting as run artifacts).
+
+**Root cause:** G37 (#14050) added `.github/scripts/assert-inputs-nonempty.sh` as a belt-and-suspenders preflight guard on `reusable-publish-release.yml`'s destructive tag-push + release-create steps — protecting against empty `VERSION`/`RELEASE_TAG`/`VERSION_BRANCH`/`ARTIFACT_NAME` inputs slipping past `required: true` (which validates declaration, not non-empty value). The script landed on master. The **manifest entry for byte-identical sync was omitted**. Rel-840 (and rel-820/830) got the reusable workflow via existing manifest entry, but not the script the workflow's preflight step calls. When `reusable-publish-release.yml` ran under `build-release-on-tag.yml` on rel-840, checkout replaced the workspace with rel-840's tree, the script was absent, and the shell run failed with exit 127 before the preflight could execute.
+
+Ironic dimension: the preflight added specifically to catch publish-input bugs was itself the one thing not deployed where it runs.
+
+**Fix (this PR):** one-line addition to `.github/byte-identical.yml`, patterned exactly on the existing `create-release-tag.sh` entry (Phase 10e-5) — same runtime-resolution rationale, same `exclude-branches: [rel-800]` (that branch predates the release-mechanism entirely and doesn't carry `reusable-publish-release.yml`).
+
+**Recovery for 8.4.1 specifically:** merge this PR → sync-byte-identical.yml fires on master push → auto-generates sync PR to rel-840 (and rel-820, rel-830) carrying the missing script → merge that sync PR → re-run the failed Publish job on run 35493672033. GH Actions "re-run failed jobs" reuses the artifact uploaded by build-package (still cached), so no rebuild + no re-acceptance. Just publish (~2min). `create-release-tag.sh` is idempotent on the (tag-exists + release-doesn't) case, which is exactly the post-failure state — it'll create the GH Release object + upload package assets.
+
+**Cross-check — no sibling manifest gaps in the same PR:** grepped `reusable-publish-release.yml` for every `.github/scripts/…` reference; `assert-inputs-nonempty.sh` is the only one missing from the manifest. `create-release-tag.sh` is already there (Phase 10e-5). No other scripts called from that reusable.
+
+**Systemic lesson:** every new script called from a reusable-workflow that a rel branch's `checkout@v* → uses: ./…` pipeline can hit needs a matching manifest entry. The load-time-vs-runtime-resolution distinction (workflow YAML parsed at dispatch time from the target branch's tree, but `run:` shell scripts resolved at execution time from the same tree) means both categories carry the same "must exist on branch" requirement — but the failure modes are different (missing workflow → workflow-not-found at dispatch, refuses to start; missing script → runtime shell failure mid-job). The failure mode difference makes the script case easier to miss during author review. Consider (deferred): a `validate-byte-identical.sh`-style check that greps every `.github/workflows/reusable-*.yml` for `.github/scripts/…` references and asserts each is present in the manifest. Would prevent this exact bug class by construction. Not in scope here — the one-line fix is what the ship needs today; the reviewer-tool is a follow-up when we're not on a live ship.
+
+### G46 — `acceptance-docker.yml` concurrency-group collision cancelled 8.4.1 docker publish mid-ship  *(SHIPPED 2026-09-20)*
+
+**STATUS: SHIPPED 2026-09-20.** Third ship-day-of-8.4.1 gap surfaced in the finalize-merge → docker cascade. Immediately after the manual Finalize PR merge fired `docker-release-orchestrator.yml`, the 6-row per-branch fanout raced against a single concurrency group inside `acceptance-docker.yml`. The 8.4.1,latest row (the whole reason for the ship) drew the short straw: its acceptance-gate started at 08:22:50 UTC on run 35498659392 and was cancelled 17 seconds later when a competitor row's acceptance-gate entered the same group. `publish-and-cleanup` skipped as a consequence. Docker Hub had the preserved candidate tag; final tags (`8.4.1`, `8.4.1-2026-09-20`, `latest`) never got aliased.
+
+**Root cause:** `.github/workflows/acceptance-docker.yml` concurrency group was:
+
+```yaml
+group: acceptance-docker-${{ github.ref }}-${{ github.event_name == 'schedule' && 'schedule' || 'ondemand' }}
+cancel-in-progress: ${{ github.event_name != 'schedule' }}
+```
+
+Reusable-workflow calls inherit the caller's `github.ref` and `github.event_name`. When `docker-release-orchestrator.yml` fires on Finalize-merge push, orchestrator's `event_name` = push, `ref` = master. Both propagate through `docker-build-release.yml` and into `acceptance-docker.yml`. Every per-row acceptance-gate collapses into the same `acceptance-docker-refs/heads/master-ondemand` group with `cancel-in-progress: true` — one active at a time, newest wins.
+
+Coin-flip race, not deterministic cascade: whichever rows happened to have acceptance-gate windows that didn't overlap a competitor's arrival survived (8.2.0 + 8.5.0,dev,next succeeded on 2026-09-20); rows whose windows did overlap cancelled (8.4.1,latest + 8.4.0 + 8.3.0 all failed).
+
+**Scope of exposure:**
+
+- **Push-triggered orchestrator (Finalize-merge fanout): AFFECTED.** This is what bit us today. Prior ships (8.3.0 / 8.4.0) had the same structural exposure but drew a luckier race.
+- **Daily scheduled orchestrator (06:15 UTC):** NOT affected. `event_name = schedule` → `cancel-in-progress: false` → parallel row calls queue serially instead of cancelling. All rows complete (~1h × N — the ~07:15 buffer in `reference_rel_branch_build_duration.md` reflects this serialization).
+- **Daily release-mechanism-smoketest:** NOT affected. Uses `dry_run: true` on `docker-build-release.yml` → acceptance-gate `if: gate_with_acceptance && !dry_run` = false → `acceptance-docker.yml` never called → no group participation.
+
+**Fix (this PR):** differentiate the group by `inputs.to_tag` when set — unique per-row candidate suffix on the `workflow_call` path (from `docker-build-release.yml` on original ship, or from `docker-acceptance-only.yml` on recovery). Direct PR/push/schedule triggers leave `inputs.to_tag` empty and fall back to the pre-G46 bucket, preserving existing behavior (PR runs still cancel their own older commits; schedule runs still queue). `cancel-in-progress` line unchanged.
+
+```yaml
+group: acceptance-docker-${{ github.ref }}-${{ inputs.to_tag || (github.event_name == 'schedule' && 'schedule' || 'ondemand') }}
+cancel-in-progress: ${{ github.event_name != 'schedule' }}
+```
+
+**Recovery for 8.4.1 (already applied 2026-09-20 08:34-08:44):** dispatched `docker-acceptance-only.yml` with `source_run_id=35498659392` + `candidate_tag=release-candidate-35498659392-1` + `docker_tags=8.4.1,latest`. Ran full acceptance-docker matrix against the preserved candidate (no rebuild), published on green via `reusable-docker-publish.yml`, cleaned up candidate. Total time ~10 min. Design-intent recovery — Phase 10c's whole rationale is preserving the candidate for exactly this failure class.
+
+**Cross-check on the multi-run cascade:** verified 8.2.0 (35498689225) and 8.5.0,dev,next (35498665668) actually did publish (`Publish + cleanup / Publish: success` + `Cleanup candidate tag: success`) — their acceptance-gate windows didn't overlap a competitor. Confirms the coin-flip framing: this bug won't cancel every row in a fanout, just the losers of the race.
+
+**Systemic lesson:** reusable-workflow concurrency needs to think about the SHAPE of parallel calls, not just the direct-trigger case. `acceptance-docker.yml`'s original concurrency block was designed for direct triggers (PR, push, schedule) where one workflow per ref is the natural granularity. The workflow_call fanout pattern (multiple simultaneous calls per ref, differentiated by input) requires the input to feed the group key too. Broader implication: audit every reusable workflow with concurrency for the same latent-race shape — if the reusable takes a `workflow_call` input that identifies which "thing" is being processed (candidate tag, package version, artifact ID), that input should be part of the group when set. Deferred: enumerate all `.github/workflows/reusable-*.yml` concurrency blocks and check each against its `workflow_call` inputs for the same shape gap. Not in scope here.
+
+### G47 — Item 3's two new composite actions were not added to `.github/byte-identical.yml`, broke every acceptance cell on the next sync PR to rel branches  *(SHIPPED 2026-09-22)*
+
+**STATUS: SHIPPED 2026-09-22.** Second same-shape recurrence of the G45 gap in ~2 days -- new files referenced by an already-synced workflow but themselves not added to the manifest, so the reference resolves on master (where the files live) but fails on rel branches (where sync carried the reference but not the target).
+
+**Trigger event:** Item 3 (openemr/openemr#14168) added two composite actions (`.github/actions/run-acceptance-group/`, `.github/actions/api-enable-artifact/`) and modified `acceptance-package.yml` + `acceptance-docker.yml` to reference them via `uses: ./.github/actions/<name>`. The modified workflows are already in `.github/byte-identical.yml` and sync to rel branches on every master push. The next auto-sync PRs (openemr/openemr#14169 rel-840, #14170 rel-830, #14171 rel-820, all opened 2026-09-22) failed EVERY acceptance cell with:
+
+```
+##[error]Can't find 'action.yml', 'action.yaml' or 'Dockerfile' under
+'/home/runner/work/openemr/openemr/.github/actions/run-acceptance-group'.
+Did you forget to run actions/checkout before running your local action?
+```
+
+Same shape on both fresh-install and wizard-install cells, both tar and zip variants, both amd64 and arm64 -- consistent across every acceptance-package + acceptance-docker cell that invoked a composite. The workflow reference resolved but the target action file didn't exist on the rel-branch checkout.
+
+**Root cause:** Item 3's PR added the two composite dirs but didn't add corresponding entries to `.github/byte-identical.yml`. Same class of gap as G45 (assert-inputs-nonempty.sh script was added to master, referenced by a synced workflow, but manifest entry was missed). The bug shape: **when adding a file that an already-synced workflow references via `uses:` or `run:` a path-relative reference, always add the new file to the manifest in the same PR.**
+
+**Fix (this PR):** two-line manifest addition patterned exactly on the existing `.github/actions/generate-app-token/**` entry (Phase 10b). `exclude-branches: [rel-800]` because rel-800 doesn't carry the acceptance-package or acceptance-docker callers (acceptance-surface section already excludes it), so the composites would be dormant there with no invoker.
+
+**Recovery for the failing sync PRs:** merge this fix → sync-byte-identical.yml fires on master push → force-updates the existing sync PRs (peter-evans force-pushes) with the composite dirs included → their acceptance cells then have the composites to invoke → re-runs pass.
+
+**Cross-check for related manifest gaps in Item 3's PR:** Item 3 added exactly two composite dirs, both under `.github/actions/`. No other new files. Both now in this PR's manifest entry. No sibling gap.
+
+**Systemic lesson (repeat from G45, worth restating):** the pattern is "any new file at any path that an already-synced workflow references at runtime must land in the same PR as its manifest entry." G45 caught the script variant; G47 catches the composite-action-directory variant. Every future PR that adds a file to `.github/actions/` or `.github/scripts/` and touches a workflow that references it should audit the manifest. Deferred (still): the `validate-byte-identical.sh`-style check that greps every synced workflow for `uses: ./` and `run: .github/` references and asserts each is present in the manifest -- would prevent this bug class entirely by construction. Item 3 was the first observable "gap keeps recurring even though the pattern is documented" moment; the tool-side check keeps looking like the right answer.
+
+### G48 — `sync-byte-identical.yml` same-path checkouts leak sparse-checkout config; broke sync PRs twice in three days  *(SHIPPED 2026-09-23)*
+
+**STATUS: SHIPPED 2026-09-23.** `sync-byte-identical.yml` ran two `actions/checkout@v7` steps at the default `path: .` -- the first sparse-checked `.github/actions/generate-app-token` so the token-mint step could resolve `uses: ./.github/actions/generate-app-token`, the second full-checked-out the rel branch to apply master's FILES_ALL. `actions/checkout@v7`'s second-invocation `git sparse-checkout disable` on the same path only *partially* clears state -- residual sparse config lingers and blocks downstream git ops that touch paths outside the last sparse definition. Two consecutive sync failures traced to this before the fix landed:
+
+**Failure 1 (2026-09-20, sync run 35502912896):** peter-evans/create-pull-request's `git add -- <every FILES_ALL path as literal arg>` staged the full manifest across all rel branches. Every path outside `.github/actions/generate-app-token/` (i.e. essentially all of them: docker workflows, release-prep scripts, `tests/Acceptance/**` globs, everything else) matched "outside your sparse-checkout definition" and was silently dropped from the index. Peter-evans then committed the empty index and opened sync PRs with **empty diffs**. Not caught pre-merge because the sync workflow's job conclusion was still `failure` on a downstream step -- the empty-diff PRs never had a chance to auto-merge -- but the pattern (job red for cryptic reasons + no-op sync PR) was misleading for the operator investigating.
+
+**Failure 2 (2026-09-23, sync run 35811755599, Item 6 acceptance-dir reorg push):** `sync-byte-identical.sh`'s rename-sweep tried `git rm tests/Acceptance/AaLoginAcceptanceTest.php` (the old flat path being retired by master's reorg into `tests/Acceptance/Ui/` subdirs). Same sparse constraint fired: "outside your sparse-checkout definition, so will not be updated in the index." The rename-sweep aborted the whole sync script, so the Item 6 reorg + Item 5 doc changes didn't propagate to rel-820 / rel-830 / rel-840 on that push. (rel-800 was excluded from Items 5+6 by manifest design.)
+
+**Root cause (confirmed via run 35816164197 log analysis):** `actions/checkout@v7`'s post-restore step calls `git sparse-checkout disable`, but the disable evidently doesn't invalidate the `.git/info/sparse-checkout` file completely for subsequent operations. Git commands that consult that file (`git rm`, `git add`, `git checkout master -- <path>` for new paths in some conditions) still see the residual pattern and refuse to touch paths outside it. Empirically flaky -- run 35816248725 (fired on the docs-sweep merge between the two fixes) happened to have all four cells succeed at the actual sync work (only the "Post Mint App token" cleanup step failed), and the sync PRs #14200 (rel-840, merged) + #14201 (rel-830, later merged) + #14202 (rel-820, later merged) opened correctly with the Item 5+6 content -- so the failure mode isn't 100% deterministic across `path`-shared re-checkouts.
+
+**Fix arc (two PRs):**
+
+1. **openemr/openemr#14199 (first attempt, correct pattern, wrong composition):** moved the composite-action checkout to its own `path: master-composite` subdir with `sparse-checkout: .github/actions/generate-app-token` still set. Intent was to isolate the sparse config in `master-composite/.git/info/sparse-checkout` so it physically couldn't touch the rel-branch tree at `./`. But `actions/checkout@v7`'s `path: <subdir>` + non-cone-mode `sparse-checkout: <pattern>` don't compose as expected: the sparse config gets written and the checkout step reports success, but the file listed in the pattern doesn't end up at `<subdir>/<pattern>/action.yml`. The Mint App token step then failed with "Can't find 'action.yml' under `/master-composite/.github/actions/generate-app-token`" on the fix-merge sync run (35816164197). Added a regression canary step (`git sparse-checkout list` post-rel-checkout; fails with a descriptive error if non-empty) which stays in place.
+
+2. **openemr/openemr#14203 (real fix):** dropped `sparse-checkout` entirely from the composite-action checkout. `path: master-composite` remains, plus a `ref: master` pin (Rabbit-caught) that makes the master-authoritative intent explicit and protects against workflow_dispatch fired from a non-master ref. A full shallow clone into `master-composite/` is a few seconds of runner time; the sparse-config surface is eliminated at the source rather than worked around; the composite action file lands at the expected path. Followed the pattern already used across `branch-cut-automation.yml` / `patch-prep-automation.yml` / `release-amendment.yml` (`path: master-checkout` / `path: rel-checkout`, no sparse-checkout).
+
+**Recovery for the failing sync PRs:** the two intermediate PRs (#14201 rel-830, #14202 rel-820) that opened during the flaky success window merged after re-running their flaky acceptance checks (unrelated Bb-shape UI-test + api-enable POST-then-verify timing flakes). rel-840's PR #14200 auto-landed with the same flaky-then-passing pattern. All three rel branches now carry Item 5+6.
+
+**Systemic lessons:**
+
+- **Same-path multi-checkout with sparse-checkout is unsafe on actions/checkout@v7.** When a workflow needs two checkouts in one job and one of them wants a partial tree, give each checkout its own `path: <subdir>`. Don't rely on `actions/checkout` to clear inherited sparse config on a re-checkout at the same path -- the disable command only partially works and the residual state leaks in ways that surface far downstream (peter-evans, sync-script git ops, other consumers).
+- **`path: <subdir>` + `sparse-checkout: <pattern>` don't compose in v7.** If you need `path:`, do a full shallow clone; the runtime cost is negligible and it eliminates the composition surface.
+- **Regression canaries at layer boundaries pay off.** The `git sparse-checkout list` guard added in #14199 (retained through the final design) fires within seconds of any future re-introduction of the leak, instead of surfacing hours later as a misleading downstream failure (empty sync PR, rename-sweep abort). Same shape as G43's "make gate independent from `dry_run`" and G37's preflight-gate philosophy: assert the invariant at the layer that's actually affected.
+
+**Fix-arc extension (2026-09-23, post-original-G48):** #14199 + #14203 (composite-isolation via `path: master-composite`) eliminated the sparse leak but introduced a cosmetic post-cleanup failure. `actions/checkout@v7` at the default path runs its OWN `Deleting the contents of '<workspace>'` at setup, independent of the `clean: true/false` flag -- it wipes `master-composite/` before the composite action's post-phase can reload its `action.yml` for token revocation. Every sync run since #14203 marked jobs as `failure` at the Post Mint App token step even though actual sync work succeeded, firing spurious "Run failed" emails per trigger. #14216 tried `clean: false` on the rel-branch checkout -- didn't help because the workspace-deletion isn't gated on `clean:`. **Final resolution (openemr/openemr#14226): rewrite to a single-checkout pattern.** Since Phase 10b propagated `generate-app-token` to every rel branch (including rel-800) and byte-identical sync keeps that copy in step with master's, use the rel-branch's own composite at `./.github/actions/generate-app-token` after the (single) checkout. Master-authoritative-by-construction, no `master-composite/` subdir, no wipe surface, no post-cleanup path-not-found. The sparse-checkout canary is retained as defense-in-depth against any future workflow edit re-introducing the leak pattern.
+
+**Additional systemic lesson from the extended fix arc:** `actions/checkout@v7` at the default path wipes the workspace at setup even when the caller expects existing content to survive. Any workflow that populates a workspace-level directory before an unrelated `actions/checkout` at the same path will lose it -- and `clean: false` doesn't help because the wipe isn't gated on `clean:`. Use a distinct `path: <subdir>` for the second checkout OR (better, when possible) restructure to a single checkout. The composite-isolation pattern the middle-chapter fix reached for works for the sparse leak concern but stumbles when the isolated dir needs to survive a co-located re-checkout.
+
+### G49 — `docker-release-orchestrator.yml` fan-out hardcoded release-mode treatment, freezing `:dev`/`:next`/`:8.5.0` for 13 days during between-cycles *(SHIPPED 2026-10-06)*
+
+**STATUS: SHIPPED 2026-10-06.** G49 is an incomplete-coverage sibling to the Item 4 followup (openemr/openemr#14215, 2026-09-23) that landed the `require_upgrade_cell` guardrail. The guardrail flipped `acceptance-docker.yml`'s silent-skip to loud-fail for release-mode callers, matching the design intent that between-cycles state is brief (patch-prep PRs strip `next` from master within days). Of the three release-mode callers that got the flag set to `true` -- `release-prep.yml`, `docker-build-release.yml`'s acceptance-gate `workflow_call`, `docker-acceptance-only.yml`'s recovery `workflow_call` -- the second one is also called indirectly by `docker-release-orchestrator.yml`'s daily cron (06:00 UTC `schedule`), not just by real ship moments. The orchestrator's master-row dispatch hits the same release-mode gate as a real ship, so between-cycles turned into "every daily run loud-fails, no `:dev`/`:next`/`:8.5.0` publish happens."
+
+**Observed window:** 8.4.1 shipped 2026-09-20, finalize-time `PostReleaseTargetsMutator` added `next` back to master's row (`docker_tags: 8.5.0,dev,next`). First orchestrator run after #14215 landed was 2026-09-24; the gate's criterion-2 check (`detect-upgrade-cell-skip.sh`: `to_tag` revision=master AND master carries `next`) fired, `require_upgrade_cell=true` upgraded that to loud-fail, docker-build-release.yml exit 1. Daily reproduction through 2026-10-06. No patch-prep PR for 8.4.2 fired in that window (would have called `PatchPrepReleaseTargetsMutator::stripNextFromMasterRow` — G39's fix — and unblocked publishes immediately), no rel-850 branch-cut either, so master's row sat holding `next` for 13 days with the registry's `openemr/openemr:dev`, `:next`, `:8.5.0` tags frozen at the Sep 23 digest the whole time.
+
+**Diagnostic signal:** `rel-840` row (`docker_tags: 8.4.1,latest`) kept publishing cleanly daily -- `latest` moved on 2026-10-05 to a fresh digest -- which ruled out "the orchestrator stopped firing" or "the acceptance gate is universally broken." `rel-820` + `rel-830` were also loud-failing but for an unrelated upstream-mock reason, which obscured the pattern until the `openemr/openemr:flex` story (`docker/development-easy` compose pin at `c9d9b010…` for 18 days despite daily nightly `Flex 3.24 Dockers Build` success) made the content-addressed-dedup-ruled-out angle inescapable.
+
+**Fix: single-sourced predicate across both consumers.** G49 extracts the criterion-2 "is master's row carrying `next`" awk+grep check from `detect-upgrade-cell-skip.sh` into `.github/scripts/lib/release-targets-queries.sh::master_row_carries_next` and plumbs the orchestrator's compute-matrix step through it:
+
+1. **Lib** (`.github/scripts/lib/release-targets-queries.sh`): pure predicate function, exit 0 (yes) / 1 (no) / 2 (bad input). No side effects, no stdout, no `$GITHUB_OUTPUT` writes. Callers interpret the exit code and own their narration (skip-reason heredoc, step-summary line, dispatch flag).
+2. **Refactor** (`.github/scripts/detect-upgrade-cell-skip.sh`): replaces the inline awk+grep at criterion 2 body with `source` of the lib + `master_row_carries_next` call. External behavior unchanged; the pre-existing 18 BATS cases all still pass.
+3. **New input** (`.github/workflows/docker-build-release.yml`): `require_upgrade_cell: boolean (default true)` on `workflow_dispatch`, passed through to the inner `acceptance-docker.yml` `workflow_call` where the Item-4-followup guardrail reads it. Default preserves today's hardcoded release-mode treatment for every caller that doesn't pass the flag.
+4. **Orchestrator wiring** (`.github/workflows/docker-release-orchestrator.yml`): compute-matrix step grows a sparse-checkout entry for the lib, sources it, calls `master_row_carries_next` against the master-authoritative `release-targets.yml` (orchestrator runs from master only, so the sparse checkout is master's authoritative copy -- no cross-branch fetch needed), and enriches each matrix row with `require_upgrade_cell: true/false`. Non-master rows always get `true`. Master's row flips to `false` only when the predicate fires. Fan-out dispatch grows a `REQUIRE_UPGRADE_CELL_ARGS=()` array that passes `-f require_upgrade_cell=false` only when the enriched value is `false`, following the same "omit on default" pattern as `GATE_ARGS` so branches whose `docker-build-release.yml` predates the input (rel-800) can't be rejected with HTTP 422.
+5. **BATS corpus** (`tests/bats/ci-scripts/release-targets-queries/`): 20 cases on the predicate. Positive: master carries `next` in various list positions (first, last, middle, alone, with/without surrounding spaces), master carries `next` even if another rel row also does. Negative wall (the regression protection): master carries `dev` only, master carries `next-dev` / `nothing-next` / `nextbuild` / `prenext` (word-boundary false-match protection), master row missing `docker_tags` entirely (scope-close protection -- naive patterns leak into next row's tags), no master row at all, master has `dev` while rel-XXX row carries `next` (correct active-dev-cycle state). Bad-shape: unreadable path, empty-string arg, missing arg, directory path. The negative wall is load-bearing: a false positive here silently stands down the release-mode guardrail on a day it should fire, so this is the test corpus that prevents future predicate changes from drifting into that failure mode without a visible test flip.
+
+**Signal single-sourcing is the architectural win.** Both `acceptance-docker.yml`'s criterion-2 gate (via `detect-upgrade-cell-skip.sh`) and `docker-release-orchestrator.yml`'s per-row flag read the same `master_row_carries_next`. A future contract change -- wider match pattern, different anchor rule, different row-identity concept -- propagates to both call sites at once; false-positive and false-negative behavior cannot drift between them. The lib file is byte-identical-synced with the same `exclude-branches: [rel-800]` as its first caller (G45/G47 pattern); `release-targets.yml` itself remains master-authoritative and is NOT in the manifest, which is why rel-branch callers of `detect-upgrade-cell-skip.sh` must fetch master's copy explicitly (`acceptance-docker.yml:604-617` has the `git show origin/master:…` pattern) -- the orchestrator skips that dance because it only runs from master.
+
+**Why G49 is a gap entry and not just a plan-doc Item 4 followup:** this hit production and froze three production tags for 13 days. #14215 shipped the correct behavior for the three invocation shapes it enumerated; the orchestrator's daily-cron shape was absent from that enumeration because it dispatches `docker-build-release.yml` by `gh workflow run` rather than by `workflow_call`, so the call-site search didn't surface it. Same category as G44 (patch-prep row-template missing `gate_with_acceptance: true`) and G45 (preflight script missing from byte-identical manifest) -- gaps that are visible-in-hindsight once you widen the search from "the caller surface at the time" to "every current caller including the ones that invoke indirectly."
+
+**Systemic lessons:**
+
+- **A guardrail is only as complete as its caller census.** When adding a release-mode-only flag, enumerate every caller including indirect ones. For `docker-build-release.yml` specifically, the orchestrator's `gh workflow run` is just as much a caller as any `workflow_call`. The three callers #14215 wired (`release-prep`, build-release acceptance-gate, acceptance-only recovery) were the direct `workflow_call` surface; the orchestrator fan-out was the fourth. A grep for `docker-build-release.yml` or `gh workflow run docker-build-release.yml` across `.github/workflows/` catches both call shapes.
+- **Default-true inputs mask the gap.** `docker-build-release.yml`'s new `require_upgrade_cell` defaults to `true` to preserve today's behavior for every caller that doesn't pass it explicitly. That's correct backward compatibility -- but it also means a workflow that was "always loud-fail hardcoded" and a workflow that "omits the flag entirely" look identical from the receiving side. The orchestrator (and any future caller that wants tolerant-skip) must positively assert `false`; omission is "give me release-mode behavior." Document that semantic at every call site that reasons about it.
+- **False-positive negative tests are mandatory, not optional, for guardrail predicates.** Positive tests prove the signal fires when it should; negative tests prove it doesn't fire when it shouldn't. For a guardrail that governs "ship vs. don't ship," a false positive silently stands down the guardrail on a day it should fire -- which is strictly worse than a false negative (ships blocked but visible). G49's BATS corpus has 14 negative cases to 6 positives for exactly this reason; keep that ratio inverted when adding new predicates.
+- **The symptom took three artifacts to be diagnosable.** `:latest` moved fine (rel-840 ships cleanly), `:flex` moved fine on days the Flex 3.24 build produced a new digest (content-addressed dedup accounted for the gaps), `:dev`/`:next`/`:8.5.0` sat still for 13 days. Looking at any ONE of the three in isolation would surface a plausible but wrong hypothesis (`:flex` → "nightly builds are no-op content-wise", `:latest` → "patch cadence is slow", `:dev` → "release cadence is slow"). All three together pointed at a shared gate-level failure that only hit the master-authored rows. Diagnosis improves with more comparators.
+
+### G50 — `acceptance-docker.yml` upgrade cell defaulted `from_tag=latest`, breaking rel-820/rel-830 since 2026-09-18 and weakening rel-840's signal to a degenerate self-upgrade *(SHIPPED 2026-10-06)*
+
+**STATUS: SHIPPED 2026-10-06.** G50 is a sibling to G49 — surfaced during the same diagnostic that broke the orchestrator's between-cycles freeze. While G49 was master's row loud-failing on criterion 2 of `detect-upgrade-cell-skip.sh`, G50 was two OTHER rows (rel-820 shipping `8.2.0`, rel-830 shipping `8.3.0`) failing their orchestrator-dispatched acceptance gates for a different reason: the upgrade cell's `from_tag` defaulted to the literal string `'latest'`, which currently resolves to rel-840's build (`v8_4_1` OCI revision, `8.4.1`). The cell was therefore attempting:
+
+- rel-820: boot `8.4.1`, swap to `8.2.0`-shaped image, DB stays at `8.4.1` (no DB-downgrade machinery exists), code advances to `8.2.0`, `/api/version` returns `8.4.1`, test expects `8.2.0` → **loud failure** with `/apis/default/api/version returned version '8.4.1' does not match expected '8.2.0'`.
+- rel-830: same shape (`8.4.1 → 8.3.0`, downgrade).
+- rel-840: `from=latest=8.4.1 → to=self=8.4.1`, degenerate self-upgrade. Vacuously passes — the "upgrade" is a no-op reinstall, DB stays at `8.4.1`, test expects `8.4.1`, assertion matches. **Weak signal**: the upgrade machinery (fsupgrade-N + docker-version bump + sql_upgrade.php) is never exercised; passing proves only that boot-stop-boot works.
+
+**Trigger event:** rel-840 took `latest` on 2026-09-18 (`PostReleaseTargetsMutator` + G41 fix). Before that, `latest` was on rel-820 (which shipped it), so rel-820's upgrade cell was itself a degenerate self-upgrade (vacuous pass, same as rel-840 today). Once `latest` moved to rel-840, every rel below it got the downgrade shape. Observed failing on every scheduled + dispatched run from 2026-09-19 through 2026-10-06, masked initially by G49's noisier master-row failures.
+
+**Why the rel-840 degenerate-pass was invisible for so long:** The acceptance gate reports "upgrade cell PASS" when the test suite exits 0, regardless of whether the test actually exercised the upgrade machinery. A degenerate self-upgrade satisfies the version-check assertion vacuously; the business + api-enabled tests still run against the "upgraded" (= reinstalled) artifact, so the broader signal (does the app work after boot-stop-boot) isn't completely absent. But the specific signal the cell was designed to produce — "does the DB-upgrade path from a prior shipped version complete cleanly" — was never tested on rel-840 while it held `latest`.
+
+**Fix: port `derive_from_version` from the package side (openemr/openemr#13573) to the docker side as a shared lib.**
+
+1. **New lib** `.github/scripts/lib/derive-from-version.sh` with `derive_from_version_sql_candidates(checkout_dir, [exclude_version])`. Pure function: enumerates `<checkout_dir>/sql/*-to-*_upgrade.sql` filenames, extracts each "from" segment, filters to strict `X.Y.Z` shape, de-duplicates, sorts ascending by semver, emits as newline-separated list. Optional exclude-version argument for the recovery-mode "to-equals-max" case. Returns rc=1 with actionable `::error::` on missing/empty `sql/` or no well-formed filenames.
+2. **Refactor** `.github/scripts/detect-acceptance-mode.sh` (package side) to source the lib and call `derive_from_version_sql_candidates` for the sql-side signal. Keeps its own `fetch_shipped_versions` + manifest-intersect + exclude-after-intersect wrapper so the package side's "tarball must exist on GitHub Releases" guarantee stays intact. External behavior preserved: all 36 pre-existing BATS cases pass unchanged (the refactor adds a `derive_from_version:` echo mirroring the historical error prefix so BATS asserts don't need updating).
+3. **New step** in `acceptance-docker.yml`'s `detect-mode` job: `resolve-from-tag` sources the lib, honors an explicit `inputs.from_tag` as an operator override, otherwise derives from the checkout and emits the max candidate as `needs.detect-mode.outputs.from_tag`. The acceptance matrix (`fresh-install-from` + `upgrade` scenarios + `FROM_TAG` env) consumes the resolved value instead of the pre-fix `inputs.from_tag || 'latest'` fallback.
+4. **Input default change**: `inputs.from_tag` default was `'latest'`, now `''` (empty-means-derive). Operators who genuinely want the pre-fix `latest` behavior pass `-f from_tag=latest` explicitly. Direct-pull overrides (any tag string) continue to work unchanged.
+5. **BATS corpus** at `tests/bats/ci-scripts/derive-from-version/`: 23 cases. 10 positive (each release-cycle shape explicitly covered — rel-820, rel-830, rel-840, master-active-cycle, master-between-cycles, single-candidate, dupes, semver-sort-regression, distractor-sql-files-ignored). 5 exclude-version cases (max, middle, non-existent, only-candidate-fail-loud, empty-string-no-op). 8 negative-wall (missing `sql/`, missing checkout dir, empty `sql/`, non-upgrade files, malformed `X_Y_Z-to-A_B_C` shape, mix of valid+malformed, no-args-defaults-to-cwd, checkout-is-a-file). Ratio weighted toward negative because the primary failure mode to prevent is **upgrade cell skip when it should run** — a false "no derivation possible" result would cause the acceptance gate to skip or hard-fail an otherwise-valid upgrade test on a PR-triggered rel-branch dispatch, which is exactly the invariant that must not break.
+
+**Why sql-only on docker, no manifest intersect:** Docker Hub carries pre-production tags alongside shipped releases (`openemr/openemr:8.5.0` currently points at master's dev build), so a manifest intersect wouldn't correctly distinguish them. In the rare case where a derived version was never actually published (branch cut but never shipped), the downstream `docker pull openemr/openemr:<version>` in the acceptance cell's boot step fails loud naming the exact tag — no silent skip. The "nothing-breaks-on-unreleased-version" invariant depends on that loud-pull-fail; the lib header documents it and the design intentionally accepts "sql derivation may pick a version that wasn't ever shipped" as a known imperfection in the ultra-rare case (openemr's current practice makes this effectively impossible — every rel branch cut is published).
+
+**Signal single-sourcing (part 2, after G49's master_row_carries_next).** Both derive consumers (package via `detect-acceptance-mode.sh::derive_from_version`, docker via `acceptance-docker.yml::resolve-from-tag`) now read `derive_from_version_sql_candidates` from the shared lib. The sql-side enumeration is one implementation; package layers manifest-intersect + exclude on top; docker uses the raw result. Same lib, two legitimate different wrappings — no duplicated enumeration logic, no risk that a future filename-convention change (unlikely but possible) would silently break only one of the two paths.
+
+**Systemic lessons:**
+
+- **A "ship-time" default that becomes wrong on cycle rotation is harder to notice than a hardcoded wrong value.** `from_tag=latest` was correct when `latest` was pinned to the rel branch under test (rel-820 shipping `latest` from 2026-07-30 through 2026-09-18). Once rotation moved `latest` to a newer rel (rel-840, 2026-09-18), the default silently became wrong for every older rel. There's no CI check "does `from_tag` resolve to a version compatible with to_tag" because the matrix was authored when such a check wasn't needed. **Design implication: when a workflow-level default references a floating tag or any value that varies by cycle state, add a validator step that cross-checks the resolved value against the row's own identity.** The new `resolve-from-tag` step is effectively that check: it refuses to default to a floating tag at all, deriving a cycle-stable value from the row's own checkout instead.
+- **"Degenerate pass" tests are more dangerous than loud failures.** rel-840's self-upgrade silently masked a real signal gap for 20 days (2026-09-18 → 2026-10-06); rel-820/830's loud failures were visible every day. The loud failures were the operator-forcing-function that surfaced the whole class of problem. Prefer tests that fail-loud-on-nothing-happening to tests that pass-when-nothing-happens.
+- **Port the known-working pattern across cousin workflows.** The package side had already solved this exact signal (openemr/openemr#13573, 2026-07) via `derive_from_version` + manifest intersect. The docker side didn't inherit the pattern because the two workflows were authored at different times by different review cycles. Same category of oversight as G49 (require_upgrade_cell shipped on 3 callers, missed the orchestrator). **Design implication: when adding a workflow-level mechanism, grep for every cousin workflow that could use it before marking the item shipped.** The acceptance-package.yml `from_version` derivation would have been one grep for `derive_from_version` away.
+- **PR-triggered dispatches on rel branches during release cycles were the critical invariant to preserve.** Every rel-XXX during an active release cycle produces PRs (patch-prep, release-prep, release-finalize, dependency bumps, backports) that fire `acceptance-docker.yml` via the pull_request trigger. Each of those runs MUST exercise the upgrade cell with a legitimate from-version → the row's own version, because that's the signal "did this PR break the shipped-user upgrade path." Pre-fix, rel-820/rel-830 PRs loud-failed on the downgrade; rel-840 PRs vacuously passed on the self-upgrade. Post-fix, every PR exercises the real upgrade path. The BATS corpus explicitly covers each per-row shape (rel-820, rel-830, rel-840, master-active-cycle, master-between-cycles) so future refactors to the derivation can't silently flip any row's PR dispatch from "real upgrade test" to "no test."
+
+### G51 — `AppointmentPersistenceAcceptanceTest` flake surfaced sibling opener-chain bug to #14325, plus no on-failure diagnostic capture across acceptance suite  *(SHIPPED 2026-10-09)*
+
+**STATUS: SHIPPED 2026-10-09.** G51 is partially a sibling-bug followup to the Oct 1 openemr/openemr#14325 fix and partially a diagnostic-infrastructure gap closure. Investigating `AppointmentPersistenceAcceptanceTest::testSeedsAndFlowBoardShowsAppointmentInPostInstall`'s flake pattern surfaced both halves.
+
+**Observed:** ~1-2 failures per day across both acceptance workflows, accounting for roughly half of all docker-side acceptance failures. Error signature: `Facebook\WebDriver\Exception\TimeoutException` (no message) from `WebDriverWait.php:71`, stack trace pointing at `UiSeedingTrait.php:1397` (the `invisibilityOfElementLocated` wait after `createCalendarEvent`'s Save click). Confirmed instances on both pre-#14325 commits (expected — #14325 was the fix) AND post-#14325 commits (`master` 2026-10-08, `ci-docker-accept-from-version-per-row` 2026-10-07), meaning #14325 was partial.
+
+**Half 1 — sibling opener-chain bug in find_appt_popup.php (#14325 twin):** `interface/main/calendar/find_appt_popup.php:486-505` contains three confirm branches (holiday, provider-not-available, slot-already-used) with the same unguarded shape #14325 patched on `add_edit_event.php`:
+
+```javascript
+if (confirm('...')) {
+    opener.top.restoreSession();
+    opener.document.forms[0].submit();
+    dlgclose();  // only fires if nothing above threw
+}
+```
+
+The `opener` reference here comes through `include_opener.js:21-24`'s fallback: `if (!opener) opener = top.get_opener(window.name)`. That fallback runs at the iframe's include_opener.js **load time** -- which races with `dialog.js:678`'s `top.set_opener(winname, window)` in the parent frame. The two run in independent script contexts (parent frame vs iframe JS execution); the iframe can parse its include_opener.js *before* the parent's set_opener call completes in some scheduling windows, leaving `opener` undefined in the iframe. Any one of the three member accesses in the confirm branch then throws, `dlgclose()` never fires, the modalframe stays open, and the acceptance harness times out on `invisibilityOfElementLocated`. This file hasn't changed since 2017-2019 -- the race has existed forever but only showed up as a tolerable flake until the acceptance harness started asserting against it in July 2026.
+
+**Fix:** apply the #14325 pattern (try/catch + always-dlgclose + robust opener resolution). All three branches share a `$submitParentJs` heredoc that wraps the restore + submit chain in try/catch and resolves the parent window via `(opener && opener.document) ? opener : top.get_opener(window.name)` -- re-resolving at use-time instead of load-time avoids the race regardless of which script ran first. `dlgclose()` always fires. The alert-only branches (ACL-less read-only path, no form submission) stay unchanged.
+
+**Half 2 — no on-failure diagnostic capture across acceptance suite.** The flake surfaced an infrastructure gap: `PantherAcceptanceTestCase` had `tearDown()` quit-the-client discipline but no `onNotSuccessfulTest()` hook. When a test timed out, the only signal was the `TimeoutException` stack trace -- not enough to tell whether `dlgclose()` actually fired, whether the save response arrived, whether a native dialog ate the save click, or whether an entirely different browser-side error fired. Every re-investigation of this flake over the past six weeks started from scratch because the previous failure left no reproducible evidence.
+
+**Fix:** `PantherAcceptanceTestCase::onNotSuccessfulTest()` override captures four artifacts to `tmp/acceptance-failure-artifacts/<class>__<method>/`:
+- `screenshot.png` — `Client::takeScreenshot`
+- `page-source.html` — `Client::getPageSource`
+- `browser-console.json` — `WebDriver::manage()->getLog('browser')` (JS errors from an opener-chain throw land here with file:line, so the exact throw path next time this flake class fires becomes obvious)
+- `context.txt` — URL, title, exception shape, stack trace, timestamp
+
+Each capture isolated in its own `catch (WebDriverException | \JsonException)` so a dead WebDriver session can't block the others. Hook always re-throws the original `Throwable` so PHPUnit sees the real failure unmasked. Both `acceptance-docker.yml` and `acceptance-package.yml` grew an `actions/upload-artifact@v7` step with `if: ${{ !cancelled() && failure() && hashFiles('tmp/acceptance-failure-artifacts/**') != '' }}` -- same pattern `test.yml` uses for e2e's selenium-videos upload. Hash check avoids a warning + spurious empty artifact when the failure happened before any Panther client was alive (compose boot timeout, chromedriver install fail) and the hook never ran.
+
+**Why screenshot + DOM + console instead of video:** `.github/actions/setup-chromedriver-multiarch` wires acceptance to host-level Chrome + ChromeDriver, not a selenium grid service -- so e2e's `selenium/video` sidecar pattern doesn't drop in cleanly (that sidecar needs a grid container to attach to via `DISPLAY_CONTAINER_NAME: selenium`). For this specific flake class (single-moment wait timeout, not time-sequence state transitions), the signal density of a screenshot + DOM + console log AT the moment of failure beats a 30-second video of a mostly-static modal. The browser console log is the critical new signal: it names the exact throwing script location + line.
+
+**Systemic lessons:**
+
+- **Code bugs that only surface via acceptance tests predate the acceptance tests themselves.** The find_appt_popup.php code hasn't changed since 2017-2019. The race has existed since then. The ONLY thing that changed in 2026 is that AppointmentPersistenceAcceptanceTest started asserting on the modal-close completion -- which exposed the latent race. **Design implication: when adding an acceptance test that drives a legacy UI path, expect to find latent races in the UI code it exercises.** Those races aren't regressions caused by the test; they're bugs the test is now newly surfacing. Treat them as test-side wins (previously-silent-breakage is now loud-breakage) and fix the UI code, not the test.
+- **Partial fixes to a bug class should audit for sibling instances.** openemr/openemr#14325 patched `add_edit_event.php`'s response-path unguarded-opener-chain. The sibling in `find_appt_popup.php` was a `grep -rn 'opener\.top\.restoreSession' interface/` away. **Design implication: when the fix is "wrap the opener chain in try/catch so dlgclose() always fires," grep for every unguarded opener-chain in interface/ at the time of the fix.** G51 would have been part of #14325 with a 60-second grep.
+- **Failure diagnostics are infrastructure, not per-test polish.** The e2e side had `UserAddTrait::captureForceRefreshDiagnostics` for one specific force-refresh failure mode. The acceptance side had nothing. Both suites use Panther; both suites deserve the same baseline capture surface. **Design implication: when adopting a test framework for a new suite, port the diagnostic infrastructure alongside the framework.** The acceptance suite was authored July-September 2026 and hit its first flake months later with no capture infrastructure in place; retrofitting now was a 150-line method on the base class, trivial to have included at authoring time.
+- **"Degenerate pass" tests mask flakes until a test with a real assertion fires alongside them.** AppointmentPersistence specifically asserts that an appointment persists through install → upgrade. Earlier acceptance tests mostly checked that pages rendered without errors; a modal that fails to close silently (login still works, pages still render) could pass. Only the persist assertion catches "DB write didn't happen because modal save didn't propagate." **Design implication: audit the assertion density of each acceptance test. If a test only asserts "page rendered," it's a smoke test, not an acceptance test. Real acceptance signal requires post-condition assertions on persisted state.**
 
 ## Followup opportunities (not yet gap-numbered)
 

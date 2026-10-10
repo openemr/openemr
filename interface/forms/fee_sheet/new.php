@@ -21,6 +21,7 @@ require_once("codes.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\HcpcsDrugDefaults;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
@@ -1640,18 +1641,21 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     $modifier = '';
                                                 }
                                                 $ndc_info = '';
-                                                // If HCPCS, find last NDC string used for this code.
+                                                $units = null;
+                                                // If HCPCS, take the NDC and units from the related inventory drug,
+                                                // else the last NDC string used for this code.
                                                 if ($newtype == 'HCPCS' && $ndc_applies) {
-                                                    $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
-                                                    "code_type = ? AND code = ? AND ndc_info LIKE 'N4%' " .
-                                                    "ORDER BY date DESC LIMIT 1", [$newtype, $code]);
-                                                    if (!empty($tmp)) {
-                                                        $ndc_info = $tmp['ndc_info'];
-                                                    } else {
-                                                        $tmp = sqlQuery("SELECT ndc_number FROM drugs WHERE " .
-                                                            "related_code = ? AND active = 1", [$newtype . ":" . $code]);
+                                                    $drugDefaults = HcpcsDrugDefaults::forCode($code);
+                                                    if ($drugDefaults !== null) {
+                                                        $ndc_info = $drugDefaults->ndcInfo;
+                                                        $units = $drugDefaults->units;
+                                                    }
+                                                    if ($ndc_info === '') {
+                                                        $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
+                                                        "code_type = ? AND code = ? AND ndc_info LIKE 'N4%' " .
+                                                        "ORDER BY date DESC LIMIT 1", [$newtype, $code]);
                                                         if (!empty($tmp)) {
-                                                            $ndc_info = $tmp['ndc_number'];
+                                                            $ndc_info = $tmp['ndc_info'];
                                                         }
                                                     }
                                                 }
@@ -1660,6 +1664,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                      'code' => $code,
                                                      'modifier' => trim($modifier),
                                                      'ndc_info' => $ndc_info,
+                                                     'units' => $units,
                                                 ]);
                                             }
                                         }

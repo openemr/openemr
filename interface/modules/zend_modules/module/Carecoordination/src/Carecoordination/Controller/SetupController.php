@@ -143,7 +143,7 @@ class SetupController extends AbstractActionController
     *
     * @return string
     */
-    public function getTitle()
+    public function getTitle(): string
     {
         $title = "Mapper";
         return $title;
