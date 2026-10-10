@@ -234,3 +234,13 @@ UPDATE `oauth_clients` SET `grant_types` = 'authorization_code' WHERE `grant_typ
 UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|client_credentials') WHERE `is_confidential` = 1 AND `scope` LIKE '%system/%' AND ((`jwks` IS NOT NULL AND `jwks` <> '') OR (`jwks_uri` IS NOT NULL AND `jwks_uri` <> '')) AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|client_credentials|%';
 UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|password') WHERE `client_id` IN (SELECT `client_id` FROM `oauth_trusted_user` WHERE `grant_type` = 'password') AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|password|%';
 #EndIf
+
+-- Financial Review Date (Demographics > Stats) was a text field on a datetime
+-- column: clicking it opened no date picker, and a date typed any way other
+-- than YYYY-MM-DD was stored as 0000-00-00, because OpenEMR saves with strict
+-- mode off (#12856). Make it a date field, as Date Deceased already is. Only
+-- where it is still the stock text type, so a site that changed it keeps its
+-- choice.
+#IfRow3D layout_options form_id DEM field_id financial_review data_type 2
+UPDATE `layout_options` SET `data_type` = 4 WHERE `form_id` = 'DEM' AND `field_id` = 'financial_review' AND `data_type` = 2;
+#EndIf
