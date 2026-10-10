@@ -1,0 +1,63 @@
+{
+    "patients": [
+        {
+            "note": "Nonelective admission in March 2025 for ischemic stroke with atrial fibrillation coded on the stay, anticoagulant at discharge: denominator and numerator.",
+            "birthDatetime": "1948-02-01T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Nonelective Inpatient Encounter",
+                    "relevantPeriod": [
+                        "2025-03-01T10:00:00.000+00:00",
+                        "2025-03-05T14:00:00.000+00:00"
+                    ],
+                    "diagnoses": [
+                        {
+                            "code": "Ischemic Stroke",
+                            "rank": 1
+                        },
+                        {
+                            "code": "Atrial Fibrillation or Flutter",
+                            "rank": 2
+                        }
+                    ]
+                },
+                {
+                    "type": "MedicationDischarge",
+                    "valueSet": "Anticoagulant Therapy",
+                    "authorDatetime": "2025-03-05T12:00:00.000+00:00"
+                }
+            ]
+        },
+        {
+            "note": "Ischemic stroke admission in July 2025 with atrial flutter diagnosed in 2023, no anticoagulant at discharge: denominator, not numerator.",
+            "birthDatetime": "1941-10-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Atrial Fibrillation or Flutter",
+                    "prevalencePeriod": [
+                        "2023-04-01T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Nonelective Inpatient Encounter",
+                    "relevantPeriod": [
+                        "2025-07-10T10:00:00.000+00:00",
+                        "2025-07-14T14:00:00.000+00:00"
+                    ],
+                    "diagnoses": [
+                        {
+                            "code": "Ischemic Stroke",
+                            "rank": 1
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

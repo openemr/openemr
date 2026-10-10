@@ -1,0 +1,55 @@
+{
+    "patients": [
+        {
+            "note": "Bladder cancer staged cT1 in January 2025 before the diagnosis began, office visit in March, BCG given in March: denominator and numerator.",
+            "birthDatetime": "1952-02-01T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "ProcedurePerformed",
+                    "valueSet": "Tumor staging (tumor staging)",
+                    "relevantDatetime": "2025-01-25T09:00:00.000+00:00",
+                    "result": {"code": "American Joint Committee on Cancer cT1 (qualifier value)"}
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Bladder Cancer for Urology Care",
+                    "prevalencePeriod": ["2025-02-01T08:00:00.000+00:00", null]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": ["2025-03-03T09:00:00.000+00:00", "2025-03-03T09:30:00.000+00:00"]
+                },
+                {
+                    "type": "MedicationAdministered",
+                    "valueSet": "BCG Bacillus Calmette Guerin for Urology Care",
+                    "relevantDatetime": "2025-03-10T09:00:00.000+00:00"
+                }
+            ]
+        },
+        {
+            "note": "Bladder cancer staged cTis in November 2024 with no BCG: denominator, not numerator.",
+            "birthDatetime": "1947-06-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "ProcedurePerformed",
+                    "valueSet": "Tumor staging (tumor staging)",
+                    "relevantDatetime": "2024-11-12T09:00:00.000+00:00",
+                    "result": {"code": "American Joint Committee on Cancer cTis (qualifier value)"}
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Bladder Cancer for Urology Care",
+                    "prevalencePeriod": ["2024-11-20T08:00:00.000+00:00", null]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": ["2025-04-07T09:00:00.000+00:00", "2025-04-07T09:30:00.000+00:00"]
+                }
+            ]
+        }
+    ]
+}

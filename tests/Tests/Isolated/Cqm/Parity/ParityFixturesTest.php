@@ -25,8 +25,6 @@ use PHPUnit\Framework\TestCase;
 
 class ParityFixturesTest extends TestCase
 {
-    private const REPORTING_YEAR = '2025';
-
     /**
      * Population => the population it is a subset of, for proportion and
      * continuous variable measures. Ratio measures draw the numerator from the
@@ -42,12 +40,13 @@ class ParityFixturesTest extends TestCase
         'MSRPOPLEX' => 'MSRPOPL',
     ];
 
-    public function testEveryInstalledMeasureHasAFixture(): void
+    #[DataProvider('yearProvider')]
+    public function testEveryInstalledMeasureHasAFixture(string $year): void
     {
-        $installed = array_map(basename(...), glob(self::measuresDir() . '/*', GLOB_ONLYDIR) ?: []);
+        $installed = array_map(basename(...), glob(self::measuresDir($year) . '/*', GLOB_ONLYDIR) ?: []);
         $captured = array_map(
             static fn (string $path): string => basename($path, '.json'),
-            glob(self::fixturesDir() . '/*.json') ?: []
+            glob(self::fixturesDir($year) . '/*.json') ?: []
         );
         sort($installed);
         sort($captured);
@@ -60,9 +59,9 @@ class ParityFixturesTest extends TestCase
     public function testFixtureBelongsToTheInstalledMeasure(string $path): void
     {
         $fixture = ParityFixture::fromFile($path);
-        $measure = self::installedMeasure($fixture->measure);
+        $measure = self::installedMeasure($fixture->reportingYear, $fixture->measure);
 
-        $this->assertSame(self::REPORTING_YEAR, $fixture->reportingYear);
+        $this->assertSame(basename(dirname($path)), $fixture->reportingYear, 'The fixture is filed under another reporting year.');
         $this->assertSame($measure['hqmf_id'] ?? null, $fixture->hqmfId, 'The fixture was captured from another version of the measure.');
         if ($fixture->engineError !== null) {
             $this->assertSame([], $fixture->patients, 'A measure the engine cannot run has no reference results.');
@@ -76,7 +75,7 @@ class ParityFixturesTest extends TestCase
     public function testEveryPatientHasAResultForEveryPopulationSet(string $path): void
     {
         $fixture = ParityFixture::fromFile($path);
-        $expectedKeys = self::resultKeys(self::installedMeasure($fixture->measure));
+        $expectedKeys = self::resultKeys(self::installedMeasure($fixture->reportingYear, $fixture->measure));
 
         $patientIds = array_map(ParityFixture::patientId(...), $fixture->patients);
         $this->assertCount(count($patientIds), array_unique($patientIds), 'Patient ids repeat.');
@@ -94,9 +93,9 @@ class ParityFixturesTest extends TestCase
      * seeded fixture must carry every seed and reach its initial population.
      */
     #[DataProvider('seedProvider')]
-    public function testSeedsReachTheirMeasureInitialPopulation(string $measure, int $seedCount): void
+    public function testSeedsReachTheirMeasureInitialPopulation(string $year, string $measure, int $seedCount): void
     {
-        $fixture = ParityFixture::fromFile(self::fixturesDir() . "/$measure.json");
+        $fixture = ParityFixture::fromFile(self::fixturesDir($year) . "/$measure.json");
 
         $seeds = array_filter(
             $fixture->patients,
@@ -120,7 +119,7 @@ class ParityFixturesTest extends TestCase
     public function testPopulationResultsRespectTheHierarchy(string $path): void
     {
         $fixture = ParityFixture::fromFile($path);
-        $scoring = self::installedMeasure($fixture->measure)['measure_scoring'] ?? null;
+        $scoring = self::installedMeasure($fixture->reportingYear, $fixture->measure)['measure_scoring'] ?? null;
         $this->assertIsString($scoring);
 
         foreach ($fixture->results as $patientId => $byKey) {
@@ -148,6 +147,24 @@ class ParityFixturesTest extends TestCase
     }
 
     /**
+     * The reporting years that have fixtures.
+     *
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function yearProvider(): array
+    {
+        $cases = [];
+        foreach (glob(__DIR__ . '/fixtures/*', GLOB_ONLYDIR) ?: [] as $dir) {
+            $cases[basename($dir)] = [basename($dir)];
+        }
+        return $cases;
+    }
+
+    /**
+     * Every fixture of every reporting year, as "2025/CMS122v13".
+     *
      * @return array<string, array{string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
@@ -155,28 +172,29 @@ class ParityFixturesTest extends TestCase
     public static function fixtureProvider(): array
     {
         $cases = [];
-        foreach (glob(self::fixturesDir() . '/*.json') ?: [] as $path) {
-            $cases[basename($path, '.json')] = [$path];
+        foreach (glob(__DIR__ . '/fixtures/*/*.json') ?: [] as $path) {
+            $cases[basename(dirname($path)) . '/' . basename($path, '.json')] = [$path];
         }
         return $cases;
     }
 
     /**
-     * @return array<string, array{string, int}>
+     * @return array<string, array{string, string, int}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function seedProvider(): array
     {
         $cases = [];
-        foreach (glob(__DIR__ . '/seeds/' . self::REPORTING_YEAR . '/*.json') ?: [] as $path) {
+        foreach (glob(__DIR__ . '/seeds/*/*.json') ?: [] as $path) {
+            $year = basename(dirname($path));
             $json = file_get_contents($path);
             $data = $json === false ? null : json_decode($json, true, 512, JSON_THROW_ON_ERROR);
             $patients = is_array($data) ? ($data['patients'] ?? null) : null;
             if (!is_array($patients)) {
                 throw new \UnexpectedValueException("Seed file $path has no patient list");
             }
-            $cases[basename($path, '.json')] = [basename($path, '.json'), count($patients)];
+            $cases[$year . '/' . basename($path, '.json')] = [$year, basename($path, '.json'), count($patients)];
         }
         return $cases;
     }
@@ -236,9 +254,9 @@ class ParityFixturesTest extends TestCase
     /**
      * @return array<mixed>
      */
-    private static function installedMeasure(string $name): array
+    private static function installedMeasure(string $year, string $name): array
     {
-        $path = self::measuresDir() . "/$name/$name.json";
+        $path = self::measuresDir($year) . "/$name/$name.json";
         $json = file_get_contents($path);
         if ($json === false) {
             throw new \RuntimeException("Measure $name is not installed");
@@ -250,13 +268,13 @@ class ParityFixturesTest extends TestCase
         return $measure;
     }
 
-    private static function measuresDir(): string
+    private static function measuresDir(string $year): string
     {
-        return dirname(__DIR__, 5) . '/vendor/openemr/oe-cqm-parsers/' . self::REPORTING_YEAR . '_reporting_period/json_measures';
+        return dirname(__DIR__, 5) . "/vendor/openemr/oe-cqm-parsers/{$year}_reporting_period/json_measures";
     }
 
-    private static function fixturesDir(): string
+    private static function fixturesDir(string $year): string
     {
-        return __DIR__ . '/fixtures/' . self::REPORTING_YEAR;
+        return __DIR__ . "/fixtures/$year";
     }
 }

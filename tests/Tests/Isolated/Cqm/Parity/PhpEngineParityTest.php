@@ -24,8 +24,6 @@ use PHPUnit\Framework\TestCase;
 
 class PhpEngineParityTest extends TestCase
 {
-    private const REPORTING_YEAR = '2025';
-
     #[DataProvider('fixtureProvider')]
     public function testPhpEngineMatchesCqmExecution(string $path): void
     {
@@ -33,7 +31,7 @@ class PhpEngineParityTest extends TestCase
         if ($fixture->engineError !== null) {
             $this->markTestSkipped("cqm-execution cannot run {$fixture->measure}, so there is nothing to match.");
         }
-        $dir = self::measuresDir() . "/{$fixture->measure}";
+        $dir = self::measuresDir($fixture->reportingYear) . "/{$fixture->measure}";
         $results = (new PhpCqmCalculation())->calculate(
             json_encode($fixture->patients, JSON_THROW_ON_ERROR),
             self::readJson("$dir/{$fixture->measure}.json"),
@@ -87,6 +85,8 @@ class PhpEngineParityTest extends TestCase
     }
 
     /**
+     * Every fixture of every reporting year, as "2025/CMS122v13".
+     *
      * @return array<string, array{string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
@@ -94,8 +94,8 @@ class PhpEngineParityTest extends TestCase
     public static function fixtureProvider(): array
     {
         $cases = [];
-        foreach (glob(__DIR__ . '/fixtures/' . self::REPORTING_YEAR . '/*.json') ?: [] as $path) {
-            $cases[basename($path, '.json')] = [$path];
+        foreach (glob(__DIR__ . '/fixtures/*/*.json') ?: [] as $path) {
+            $cases[basename(dirname($path)) . '/' . basename($path, '.json')] = [$path];
         }
         return $cases;
     }
@@ -115,8 +115,8 @@ class PhpEngineParityTest extends TestCase
         return $json === false ? throw new \RuntimeException("Unreadable $path") : $json;
     }
 
-    private static function measuresDir(): string
+    private static function measuresDir(string $year): string
     {
-        return dirname(__DIR__, 5) . '/vendor/openemr/oe-cqm-parsers/' . self::REPORTING_YEAR . '_reporting_period/json_measures';
+        return dirname(__DIR__, 5) . "/vendor/openemr/oe-cqm-parsers/{$year}_reporting_period/json_measures";
     }
 }
