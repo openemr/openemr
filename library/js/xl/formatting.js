@@ -23,7 +23,10 @@
         } else if (!(date instanceof Date)) {
             date = new Date(date);
         }
-        let jsGlobals = window.top.jsGlobals || {};
+        // window.top can be momentarily null while a reused tab iframe re-navigates
+        // and the frame tree has not yet reconnected to the top browsing context;
+        // fall back to the current window so this read never throws.
+        let jsGlobals = (window.top || window).jsGlobals || {};
         let date_display_format = displayFormatSetting !== undefined ? displayFormatSetting : jsGlobals['date_display_format'];
         let timezone = jsGlobals['timezone'] || undefined; // default to undefined to choose local timezone if its not set
         let defaultLocale = 'en-US';
@@ -38,7 +41,10 @@
 
     }
     function DateFormatRead(mode = 'legacy') {
-        let jsGlobals = window.top.jsGlobals || {};
+        // window.top can be momentarily null while a reused tab iframe re-navigates
+        // and the frame tree has not yet reconnected to the top browsing context;
+        // fall back to the current window so this read never throws.
+        let jsGlobals = (window.top || window).jsGlobals || {};
         let date_display_format = jsGlobals['date_display_format'];
         //For the 3 supported date format,the javascript code also should be twicked to display the date as per it.
         //Output of this function is given to 'ifFormat' parameter of the 'Calendar.setup'.
@@ -71,7 +77,10 @@
     }
 
     function TimeFormatRead(seconds = false) {
-        let jsGlobals = window.top.jsGlobals || {};
+        // window.top can be momentarily null while a reused tab iframe re-navigates
+        // and the frame tree has not yet reconnected to the top browsing context;
+        // fall back to the current window so this read never throws.
+        let jsGlobals = (window.top || window).jsGlobals || {};
         let date_display_format = jsGlobals['time_display_format'];
         const format = typeof date_display_format !== 'undefined' ? date_display_format : 0;
 
@@ -87,4 +96,10 @@
     oeFormatters.TimeFormatRead = TimeFormatRead;
     oeFormatters.DateFormatRead = DateFormatRead;
     oeFormatters.I18NDateFormat = I18NDateFormat;
-})(window.top.oeFormatters = window.top.oeFormatters || {});
+})(function () {
+    // window.top can be momentarily null while a reused tab iframe re-navigates and
+    // the frame tree has not yet reconnected to the top browsing context. Fall back to
+    // the current window so registering the shared formatters never throws at load.
+    var topWindow = window.top || window;
+    return topWindow.oeFormatters = topWindow.oeFormatters || {};
+}());
