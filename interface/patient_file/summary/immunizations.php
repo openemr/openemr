@@ -25,6 +25,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\Validators\ImmunizationValidator;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Immunizations", xl("Immunizations"));
@@ -59,7 +60,15 @@ if (isset($_GET['mode'])) {
      */
 
     if ($_GET['mode'] == "add") {
-        $sql = "REPLACE INTO immunizations set
+        $submittedAdministeredDate = trim((string) ($_GET['administered_date'] ?? ''));
+        if ($submittedAdministeredDate !== '' && !ImmunizationValidator::isAdministeredDateValid($submittedAdministeredDate)) {
+            $administered_date = $submittedAdministeredDate;
+            $administeredDateError = xlt('Date & Time Administered is invalid.');
+        } elseif (ImmunizationValidator::isAdministeredDateInFuture($submittedAdministeredDate)) {
+            $administered_date = $submittedAdministeredDate;
+            $administeredDateError = xlt('Date & Time Administered cannot be in the future.');
+        } else {
+            $sql = "REPLACE INTO immunizations set
             id = ?,
             uuid = ?,
             administered_date = if(?,?,NULL),
@@ -88,7 +97,7 @@ if (isset($_GET['mode'])) {
             reason_description = ?,
             ordering_provider = ?,
             encounter_id = ?";
-        $sqlBindArray = [
+            $sqlBindArray = [
             trim((string) $_GET['id']),
             UuidRegistry::isValidStringUUID($_GET['uuid']) ? UuidRegistry::uuidToBytes($_GET['uuid']) : null,
             trim((string) $_GET['administered_date']), trim((string) $_GET['administered_date']),
@@ -116,15 +125,16 @@ if (isset($_GET['mode'])) {
             trim($_GET['reason_description'] ?? ''),
             trim((string) $_GET['ordered_by_id']),
             trim((string) $_GET['encounter_id'])
-        ];
-        $newid = sqlInsert($sql, $sqlBindArray);
-        $administered_date = date('Y-m-d H:i');
-        $education_date = date('Y-m-d');
-        $immunization_id = $cvx_code = $manufacturer = $lot_number = $administered_by_id = $note = $id = $ordered_by_id = "";
-        $administered_by = $vis_date = "";
-        $newid = $_GET['id'] ?: $newid;
-        if (OEGlobalsBag::getInstance()->getBoolean('observation_results_immunization')) {
-            saveImmunizationObservationResults($newid, $_GET);
+            ];
+            $newid = sqlInsert($sql, $sqlBindArray);
+            $administered_date = date('Y-m-d H:i');
+            $education_date = date('Y-m-d');
+            $immunization_id = $cvx_code = $manufacturer = $lot_number = $administered_by_id = $note = $id = $ordered_by_id = "";
+            $administered_by = $vis_date = "";
+            $newid = $_GET['id'] ?: $newid;
+            if (OEGlobalsBag::getInstance()->getBoolean('observation_results_immunization')) {
+                saveImmunizationObservationResults($newid, $_GET);
+            }
         }
     } elseif ($_GET['mode'] == "delete") {
         // log the event
@@ -414,6 +424,9 @@ tr.selected {
                     <?php
                     if (!empty($isAddedError)) {
                         echo "<p class='text-danger font-weight-bold'>" . xlt("Entered in Error") . "</p>";
+                    }
+                    if (isset($administeredDateError)) {
+                        echo "<div class='alert alert-danger' role='alert'>" . $administeredDateError . "</div>";
                     }
                     ?>
 
