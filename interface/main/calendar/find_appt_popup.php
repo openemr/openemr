@@ -481,12 +481,64 @@ $(function () {
 
 <?php
 if (!$ckavail) {
+    // Shared confirm-branch body: resolve the parent window robustly
+    // (opener can be undefined-at-load if the iframe parses its
+    // include_opener.js before dialog.js's `top.set_opener(winname,
+    // window)` completes -- that's a timing race, not a semantic
+    // guarantee), restore the parent session, submit the parent
+    // form, then unconditionally dlgclose(). The try/catch + always-
+    // close shape mirrors the openemr/openemr#14325 fix on
+    // add_edit_event.php's response path: a null/undefined-opener
+    // throw must not block dlgclose() from firing, because that's
+    // the exact modal-persists symptom the acceptance harness
+    // AppointmentPersistenceAcceptanceTest exists to catch.
+    //
+    // Parent-window resolution: window.opener in dlgopen iframe
+    // context goes through include_opener.js's fallback chain
+    // (`opener = top.get_opener(window.name)` at script-load time).
+    // We ALSO re-resolve via top.get_opener(window.name) at
+    // use-time, inside the try, so a load-time race that left
+    // opener undefined has a second chance to find the real parent.
+    // Both the holiday and the provider-not-available / slot-
+    // already-used branches share this logic -- extracted into a
+    // single $submitParentJs so the three confirm variants only
+    // differ in their prompt string.
+    // CodeRabbit note on this PR: logging the caught error + the
+    // unresolved-parent case to the browser console closes the
+    // diagnostic loop with the PantherAcceptanceTestCase failure-
+    // capture hook added in the same PR (that hook writes the
+    // browser console log to tmp/acceptance-failure-artifacts/
+    // on test failure, so if the opener-chain fallback here
+    // doesn't resolve the real parent, the artifact bundle names
+    // exactly why).
+    $submitParentJs = <<<'JS'
+            try {
+                var _parentWin = (typeof opener !== 'undefined' && opener && opener.document)
+                    ? opener
+                    : ((top && typeof top.get_opener === 'function') ? top.get_opener(window.name) : null);
+                if (_parentWin && _parentWin.top && typeof _parentWin.top.restoreSession === 'function') {
+                    _parentWin.top.restoreSession();
+                }
+                if (_parentWin && _parentWin.document && _parentWin.document.forms[0]) {
+                    _parentWin.document.forms[0].submit();
+                } else if (window.console && typeof window.console.warn === 'function') {
+                    window.console.warn(
+                        'find_appt_popup: parent window could not be resolved; '
+                        + 'confirmed save was NOT propagated to the opener form. '
+                        + 'opener=' + (typeof opener) + ' top.get_opener=' + (typeof (top && top.get_opener))
+                    );
+                }
+            } catch (_e) {
+                if (window.console && typeof window.console.error === 'function') {
+                    window.console.error('find_appt_popup confirm submit failed', _e);
+                }
+            }
+            dlgclose();
+JS;
     if (AclMain::aclCheckCore('patients', 'appt', '', 'write')) {
         if ($is_holiday) { ?>
             if (confirm(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>)) {
-                opener.top.restoreSession();
-                opener.document.forms[0].submit();
-                dlgclose();
+            <?php echo $submitParentJs; ?>
             } <?php
         } else {
             //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
@@ -497,9 +549,7 @@ if (!$ckavail) {
                 if (confirm(<?php echo xlj('This appointment slot is already used, use it anyway?'); ?>)) {
                 <?php
             } ?>
-            opener.top.restoreSession();
-            opener.document.forms[0].submit();
-            dlgclose();
+            <?php echo $submitParentJs; ?>
         }
             <?php
         }
