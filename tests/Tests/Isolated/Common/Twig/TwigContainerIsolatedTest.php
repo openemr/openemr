@@ -75,5 +75,13 @@ class TwigContainerIsolatedTest extends TestCase
             '{{ srcdir }} - {{ rootdir }} - {{ webroot }} - {{ assets_dir }}',
             'srcdir_value - rootdir_value - webroot_value - assets_dir_value'
         ];
+
+        yield [
+            [
+                'date_display_format' => 0,
+            ],
+            "{{ '2003-04-03'|date }} - {{ '2003-04-03 00:00:00'|date('Y-m-d H:i') }}",
+            '2003-04-03 - 2003-04-03 00:00'
+        ];
     }
 }
