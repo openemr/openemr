@@ -10,12 +10,6 @@ OpenEMR provides a comprehensive **FHIR R4** implementation compliant with US Co
 **Administration → Config → Connectors**
 - ☑ Enable OpenEMR Standard FHIR REST API
 
-FHIR resource writes are disabled by default. To allow resource create, update,
-patch, and delete requests, also select **Enable FHIR Resource Writes (EXPERIMENTAL)**
-on the same tab. When disabled, these requests return HTTP 403. Reads, searches
-(including POST searches), `DocumentReference/$docref`, and bulk export remain
-available. This setting does not affect the standard REST API or patient portal API.
-
 ### 2. FHIR Base URL
 Replace `default` with your multi-site tenant if applicable see ([Multi-Tenancy Guide](Documentation/api/DEVELOPER_GUIDE.md#multisite-support)):
 ```

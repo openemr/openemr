@@ -3253,13 +3253,6 @@ $GLOBALS_METADATA = [
             xl('Enable OpenEMR Standard FHIR RESTful API.')
         ],
 
-        GlobalConnectorsEnum::REST_FHIR_WRITE->value => [
-            xl('Enable FHIR Resource Writes (EXPERIMENTAL)'),
-            'bool',
-            '0',
-            xl('Allow FHIR resource create, update, patch, and delete requests. Disabled by default pending audit. FHIR reads, searches, document retrieval, and bulk export remain available.')
-        ],
-
         GlobalConnectorsEnum::SMART_TEST_LAUNCHES_ENABLE->value => [
             xl('Enable OpenEMR SMART ON FHIR Context Test Launches (Turn on only if you know what you are doing)'),
             'bool',

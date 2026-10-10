@@ -17,7 +17,6 @@ enum GlobalConnectorsEnum: string
 {
     case SITE_ADDRESS_OAUTH = 'site_addr_oath';
     case REST_FHIR_API = 'rest_fhir_api';
-    case REST_FHIR_WRITE = 'rest_fhir_write';
     case REST_SYSTEM_SCOPES_API = 'rest_system_scopes_api';
     case REST_API = 'rest_api';
     case REST_PORTAL_API = 'rest_portal_api';
