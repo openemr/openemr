@@ -89,6 +89,13 @@ class ForbiddenInstantiationsRule implements Rule
         $classReflection = $scope->getClassReflection();
         if ($classReflection !== null) {
             $currentClass = $classReflection->getName();
+            // Constructor tests must exercise the real container rather than the shared service.
+            if (
+                $className === Common\Twig\TwigContainer::class
+                && $currentClass === \OpenEMR\Tests\Isolated\Common\Twig\TwigContainerIsolatedTest::class
+            ) {
+                return [];
+            }
             if (in_array($currentClass, self::EXEMPT_CLASSES, true)) {
                 return [];
             }

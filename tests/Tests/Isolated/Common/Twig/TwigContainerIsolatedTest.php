@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Twig\Loader\FilesystemLoader;
 
 #[Group('isolated')]
 #[Group('twig')]
@@ -29,6 +30,7 @@ class TwigContainerIsolatedTest extends TestCase
         $GLOBALS['date_display_format'] ??= 0;
     }
 
+    /** @param array<string, string> $globals */
     #[Test]
     #[DataProvider('renderDataProvider')]
     public function renderTest(
@@ -48,7 +50,51 @@ class TwigContainerIsolatedTest extends TestCase
         $this->assertEquals($expectedRenderedHtml, $template->render());
     }
 
-    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
+    #[Test]
+    #[DataProvider('additionalPathDataProvider')]
+    public function constructorPreservesAdditionalPathHandling(?string $path, bool $includePath): void
+    {
+        $container = new TwigContainer($path);
+        $loader = $container->getTwig()->getLoader();
+        self::assertInstanceOf(FilesystemLoader::class, $loader);
+
+        $expectedPaths = [OEGlobalsBag::getInstance()->getProjectDir() . '/templates'];
+        if ($includePath) {
+            $expectedPaths[] = $path;
+        }
+        self::assertSame($expectedPaths, $loader->getPaths());
+    }
+
+    /**
+     * @return iterable<string, array{?string, bool}>
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function additionalPathDataProvider(): iterable
+    {
+        yield 'null' => [null, false];
+        yield 'empty string' => ['', false];
+        yield 'zero string' => ['0', false];
+        yield 'custom directory' => [__DIR__, true];
+    }
+
+    #[Test]
+    public function addedPathsPreserveTheirOrder(): void
+    {
+        $container = new TwigContainer(__DIR__);
+        $container->addPath(dirname(__DIR__));
+        $loader = $container->getTwig()->getLoader();
+        self::assertInstanceOf(FilesystemLoader::class, $loader);
+        self::assertSame([
+            OEGlobalsBag::getInstance()->getProjectDir() . '/templates',
+            __DIR__,
+            dirname(__DIR__),
+        ], $loader->getPaths());
+    }
+
+    /**
+     * @return iterable<array{array<string, string>, string, string}>
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
     public static function renderDataProvider(): iterable
     {
         yield [
