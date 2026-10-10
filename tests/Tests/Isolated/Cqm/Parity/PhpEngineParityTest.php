@@ -49,6 +49,10 @@ class PhpEngineParityTest extends TestCase
                     $differences[] = "$patientId $key: no result";
                     continue;
                 }
+                // The fields of cqm-models' IndividualResult the service returned
+                if (($actual['patient_id'] ?? null) !== $patientId || !array_key_exists('measure_id', $actual) || !is_array($actual['observation_values'] ?? null) || ($actual['state'] ?? null) !== 'complete') {
+                    $differences[] = "$patientId $key: result fields differ from the service's";
+                }
                 foreach ($expected->populations as $population => $count) {
                     if (($actual[$population] ?? null) !== $count) {
                         $differences[] = "$patientId $key $population: expected $count, got " . json_encode($actual[$population] ?? null);

@@ -7,11 +7,12 @@
  * stratification, population counts with their exclusion rules, and
  * statement results.
  *
- * The results have the shape the cqm-execution service returns: by patient
- * id, then population set or stratification id, the population counts,
- * observation_values when the measure has observations, and the statement
- * results with their final outcome. Raw statement values and clause results
- * are not included.
+ * The results have the shape the cqm-execution service returned (as
+ * cqm-models IndividualResult documents): by patient id, then population set
+ * or stratification id, the population counts, observation_values, the
+ * population relevance, the statement results with their relevance and
+ * final outcome, patient_id, measure_id and state. Pretty-printed statement
+ * values and clause results are not included; nothing in OpenEMR reads them.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -81,10 +82,12 @@ final readonly class MeasureCalculator
                 $populationResults = self::handlePopulationValues($populationResults, $this->scoring());
                 $relevance = self::populationRelevance($populationResults, $this->scoring());
                 $result = $populationResults;
+                // cqm-models' IndividualResult defaults observation_values to an empty list.
+                $result['observation_values'] ??= [];
                 $result['population_relevance'] = $relevance;
                 $result['statement_results'] = $this->statementResults($localIds, $this->statementRelevance($relevance, $populationSet));
-                $result['patient'] = $patient->id;
-                $result['measure'] = $measure['_id'] ?? null;
+                $result['patient_id'] = $patient->id;
+                $result['measure_id'] = $measure['_id'] ?? null;
                 $result['state'] = 'complete';
                 $results[$patient->id][self::text($populationSet['population_set_id'] ?? '')] = $result;
             }

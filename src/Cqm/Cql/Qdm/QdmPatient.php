@@ -43,7 +43,9 @@ final class QdmPatient
     public function __construct(array $patient)
     {
         $id = $patient['_id'] ?? $patient['id'] ?? null;
-        $this->id = is_scalar($id) ? (string) $id : '';
+        $id = is_scalar($id) ? (string) $id : '';
+        // mongoose casts a 24-digit hex _id to an ObjectId, which prints in lower case.
+        $this->id = preg_match('/^[0-9a-fA-F]{24}$/', $id) === 1 ? strtolower($id) : $id;
         $birth = $patient['birthDatetime'] ?? null;
         $this->birthDatetime = $birth === null ? null : self::castOrNull('DateTime', $birth);
         $elements = [];

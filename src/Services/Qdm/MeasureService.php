@@ -26,7 +26,7 @@ class MeasureService
     }
 
     /**
-     * @return string[]
+     * @return array<string, string> measure name => measure directory
      */
     public static function fetchMeasureOptions(): array
     {
