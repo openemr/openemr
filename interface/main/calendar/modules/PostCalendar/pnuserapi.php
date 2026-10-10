@@ -1578,12 +1578,16 @@ function &postcalendar_userapi_pcGetEvents($args)
     return $eventsByDays;
 }
 
-//===========================
-// Given an array of events, an array of days, and a view type
-// fill days with events (recurring is the challenge)
-//===========================
-function calculateEvents($days, $events, $viewtype)
+/**
+ * Fill the requested days with events, including a repeat series.
+ *
+ * @return mixed[]
+ */
+function calculateEvents($days, $events, $viewtype): array
 {
+    if (!is_array($days) || !is_array($events)) {
+        return [];
+    }
   //
     $date = postcalendar_getDate();
     $cy = substr($date, 0, 4);
@@ -1631,14 +1635,18 @@ function calculateEvents($days, $events, $viewtype)
             //  Events that do not repeat only have a startday
             //==============================================================
             case NO_REPEAT:
-                if (isset($days[$event['eventDate']])) {
-                    array_push($days[$event['eventDate']], $event);
+                $eventDateKey = $event['eventDate'] ?? null;
+                if (!is_string($eventDateKey)) {
+                    break;
+                }
+                if (isset($days[$eventDateKey])) {
+                    array_push($days[$eventDateKey], $event);
                     if ($viewtype == "week") {
                         //echo "non repeating date eventdate: $eventD  startime:$eventS block #: " . getBlockTime($eventS) ."<br />";
-                        fillBlocks($eventD, $days);
+                        fillBlocks($eventDateKey, $days);
                         //echo "for $eventD loading " . getBlockTime($eventS) . "<br /><br />";
                         $gbt = getBlockTime($eventS);
-                        $days[$eventD]['blocks'][$gbt][$eventD][] = $event;
+                        $days[$eventDateKey]['blocks'][$gbt][$eventDateKey][] = $event;
                         //echo "event is: " . print_r($days[$eventD]['blocks'][$gbt],true) . " <br />";
                         //echo "begin printing blocks for $eventD<br />";
                         //print_r($days[$eventD]['blocks']);
@@ -1675,11 +1683,16 @@ function calculateEvents($days, $events, $viewtype)
                 $nd = $esD;
                 $occurance = Date_Calc::dateFormat($nd, $nm, $ny, '%Y-%m-%d');
                 while ($occurance < $start_date) {
-                    $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurance);
+                    $nextOccurance = \OpenEMR\Common\Calendar\RepeatAdvance::nextDate($nd, $nm, $ny, $rfreq, $rtype, $occurance);
+                    if ($nextOccurance === null) {
+                        $occurance = null;
+                        break;
+                    }
+                    $occurance = $nextOccurance;
+                    [$ny, $nm, $nd] = explode('-', $occurance);
                 }
 
-                while ($occurance <= $stop) {
+                while ($occurance !== null && $occurance <= $stop) {
                     if (isset($days[$occurance])) {
                         // check for date exceptions before pushing the event into the days array -- JRM
                         $excluded = false;
@@ -1687,7 +1700,7 @@ function calculateEvents($days, $events, $viewtype)
                             foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", (string) $occurance) == $exception) {
+                                if (preg_replace("/-/", "", $occurance) == $exception) {
                                     $excluded = true;
                                 }
                             }
@@ -1702,15 +1715,39 @@ function calculateEvents($days, $events, $viewtype)
                             fillBlocks($occurance, $days);
                             //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
                             $gbt = getBlockTime($eventS);
-                            $days[$occurance]['blocks'][$gbt][$occurance][] = $event;
+                            $dayRow = $days[$occurance] ?? null;
+                            if (!is_array($dayRow)) {
+                                $dayRow = [];
+                            }
+                            $blocks = $dayRow['blocks'] ?? null;
+                            if (!is_array($blocks)) {
+                                $blocks = [];
+                            }
+                            $slot = $blocks[$gbt] ?? null;
+                            if (!is_array($slot)) {
+                                $slot = [];
+                            }
+                            $listed = $slot[$occurance] ?? null;
+                            if (!is_array($listed)) {
+                                $listed = [];
+                            }
+                            $listed[] = $event;
+                            $slot[$occurance] = $listed;
+                            $blocks[$gbt] = $slot;
+                            $dayRow['blocks'] = $blocks;
+                            $days[$occurance] = $dayRow;
                             //echo "begin printing blocks for $eventD<br />";
                             //print_r($days[$occurance]['blocks']);
                             //echo "end printing blocks<br />";
                         }
                     }
 
-                    $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurance);
+                    $nextOccurance = \OpenEMR\Common\Calendar\RepeatAdvance::nextDate($nd, $nm, $ny, $rfreq, $rtype, $occurance);
+                    if ($nextOccurance === null) {
+                        break;
+                    }
+                    $occurance = $nextOccurance;
+                    [$ny, $nm, $nd] = explode('-', $occurance);
                 }
                 break;
 
@@ -1753,26 +1790,28 @@ function calculateEvents($days, $events, $viewtype)
                 // since $nd has no influence past the mktime functions - epsdky 2016.
 
                 // make us current
+                $monthWalk = true;
                 while ($ny < $cy) {
-                    $occurance = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    [$ny, $nm, $nd] = explode('-', $occurance);
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, sprintf('%04d-%02d', (int) $ny, (int) $nm));
+                    if ($nextMonth === null) {
+                        $monthWalk = false;
+                        break;
+                    }
+                    [$ny, $nm, $nd] = explode('-', $nextMonth);
                 }
 
                 // populate the event array
-                while ($ny <= $cy) {
-                    $dnum = $rnum; // get day event repeats on
-                    do {
-                        $occurance = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
-                    } while ($occurance === -1);
+                while ($monthWalk && $ny <= $cy) {
+                    $occurance = \OpenEMR\Common\Calendar\RepeatAdvance::onDate($rnum, $rday, $nm, $ny);
 
-                    if (isset($days[$occurance]) && $occurance <= $stop) {
+                    if (is_string($occurance) && isset($days[$occurance]) && $occurance <= $stop) {
                         // check for date exceptions before pushing the event into the days array -- JRM
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", (string) $occurance) == $exception) {
+                                if (preg_replace("/-/", "", $occurance) == $exception) {
                                     $excluded = true;
                                 }
                             }
@@ -1791,8 +1830,11 @@ function calculateEvents($days, $events, $viewtype)
                         }
                     }
 
-                    $occurance = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    [$ny, $nm, $nd] = explode('-', $occurance);
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, sprintf('%04d-%02d', (int) $ny, (int) $nm));
+                    if ($nextMonth === null) {
+                        break;
+                    }
+                    [$ny, $nm, $nd] = explode('-', $nextMonth);
                 }
                 break;
         } // <- end of switch($event['recurrtype'])
@@ -1802,12 +1844,16 @@ function calculateEvents($days, $events, $viewtype)
 
 function fillBlocks($td, $ar): void
 {
-    if (strlen((string) $td) > 0 && !isset($ar[$td]['blocks'])) {
+    if (!is_array($ar) || (!is_string($td) && !is_int($td))) {
+        return;
+    }
+    $td = (string) $td;
+    if ($td !== '' && !isset($ar[$td]['blocks'])) {
             $ar[$td]['blocks'] = [];
         for ($j = 0; $j < 48; $j++) {
-            $ar[strval($td)]['blocks'][strval($j)] = [];
+            $ar[$td]['blocks'][strval($j)] = [];
         }
 
-            $ar[strval($td)]['blocks']["all_day"] = [];
+            $ar[$td]['blocks']["all_day"] = [];
     }
 }
