@@ -15,6 +15,7 @@
  */
 
 require_once(__DIR__ . "/../../interface/globals.php");
+require_once("$srcdir/dated_reminder_functions.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionTracker;
@@ -42,11 +43,19 @@ if (!empty($_POST['isServicesOther'])) {
     $total_counts = array_merge($total_counts, $other_count);
 }
 //Collect number of due reminders
-$dueReminders = GetDueReminderCount(5, (new DateTimeImmutable('today'))->getTimestamp());
+$dueReminders = GetDueReminderCount(5, strtotime(date('Y/m/d')));
 //Collect number of active messages
 $activeMessages = getPnotesByUser("1", "no", $session->get('authUser'), true);
 // Below for Message Button count display.
 $totalNumber = $dueReminders + $activeMessages;
-$total_counts['reminderText'] = ($totalNumber > 0 ? text((string)$totalNumber) : '');
+$total_counts['reminderText'] = ($totalNumber > 0 ? text((int)$totalNumber) : '');
+
+// Background repeater requests include skip_timeout_reset=1, so this read does
+// not extend the session. An unavailable tracker value is deliberately omitted
+// rather than being interpreted as an expired session.
+$sessionSecondsRemaining = SessionTracker::getSessionSecondsRemaining();
+if ($sessionSecondsRemaining !== null) {
+    $total_counts['sessionSecondsRemaining'] = $sessionSecondsRemaining;
+}
 
 echo json_encode($total_counts);

@@ -63,6 +63,34 @@ class SessionTracker
         return false;
     }
 
+    /**
+     * Return the server-authoritative number of seconds before the active session expires.
+     *
+     * A null result means the tracker value is unavailable and must not be interpreted as expiry.
+     */
+    public static function getSessionSecondsRemaining(): ?int
+    {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $sessionUuid = $session->get('session_database_uuid');
+        if (empty($sessionUuid)) {
+            return null;
+        }
+
+        $sessionTracker = sqlQueryNoLog(
+            "SELECT GREATEST(0, ? - TIMESTAMPDIFF(SECOND, `last_updated`, NOW())) AS `seconds_remaining` " .
+            "FROM `session_tracker` WHERE `uuid` = ?",
+            [
+                OEGlobalsBag::getInstance()->getInt('timeout'),
+                $sessionUuid,
+            ]
+        );
+        if (!isset($sessionTracker['seconds_remaining']) || !is_numeric($sessionTracker['seconds_remaining'])) {
+            return null;
+        }
+
+        return max(0, (int) $sessionTracker['seconds_remaining']);
+    }
+
     public static function updateSessionExpiration(): void
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
