@@ -112,6 +112,12 @@ class ImmunizationValidatorTest extends TestCase
         $this->assertSame($expected, ImmunizationValidator::isAdministeredDateInFuture($date));
     }
 
+    #[DataProvider('administeredDateValidityProvider')]
+    public function testIsAdministeredDateValid(string $date, bool $expected): void
+    {
+        $this->assertSame($expected, ImmunizationValidator::isAdministeredDateValid($date));
+    }
+
     /**
      * @return array<string, array{string, bool}>
      *
@@ -122,6 +128,23 @@ class ImmunizationValidatorTest extends TestCase
         return [
             'past datetime' => ['2000-01-15 14:30:00', false],
             'future date' => ['2999-01-15', true],
+            'unparsable date' => ['not-a-date', false],
+            'overflow date' => ['2024-02-31', false],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function administeredDateValidityProvider(): array
+    {
+        return [
+            'date only' => ['2024-01-15', true],
+            'date and time' => ['2024-01-15 14:30', true],
+            'date and seconds' => ['2024-01-15 14:30:00', true],
+            'empty date' => ['', false],
             'unparsable date' => ['not-a-date', false],
             'overflow date' => ['2024-02-31', false],
         ];

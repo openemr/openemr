@@ -18,7 +18,18 @@ use Particle\Validator\Validator;
  */
 class ImmunizationValidator extends BaseValidator
 {
+    public static function isAdministeredDateValid(string $date): bool
+    {
+        return self::parseAdministeredDate($date) !== null;
+    }
+
     public static function isAdministeredDateInFuture(string $date): bool
+    {
+        $administeredDate = self::parseAdministeredDate($date);
+        return $administeredDate !== null && $administeredDate > new \DateTimeImmutable();
+    }
+
+    private static function parseAdministeredDate(string $date): ?\DateTimeImmutable
     {
         foreach (['!Y-m-d H:i:s', '!Y-m-d H:i', '!Y-m-d'] as $format) {
             $administeredDate = \DateTimeImmutable::createFromFormat($format, $date);
@@ -27,11 +38,11 @@ class ImmunizationValidator extends BaseValidator
                 $administeredDate !== false
                 && ($parseErrors === false || ($parseErrors['warning_count'] === 0 && $parseErrors['error_count'] === 0))
             ) {
-                return $administeredDate > new \DateTimeImmutable();
+                return $administeredDate;
             }
         }
 
-        return false;
+        return null;
     }
 
     /**

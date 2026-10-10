@@ -61,7 +61,10 @@ if (isset($_GET['mode'])) {
 
     if ($_GET['mode'] == "add") {
         $submittedAdministeredDate = trim((string) ($_GET['administered_date'] ?? ''));
-        if (ImmunizationValidator::isAdministeredDateInFuture($submittedAdministeredDate)) {
+        if ($submittedAdministeredDate !== '' && !ImmunizationValidator::isAdministeredDateValid($submittedAdministeredDate)) {
+            $administered_date = $submittedAdministeredDate;
+            $administeredDateError = xlt('Date & Time Administered is invalid.');
+        } elseif (ImmunizationValidator::isAdministeredDateInFuture($submittedAdministeredDate)) {
             $administered_date = $submittedAdministeredDate;
             $administeredDateError = xlt('Date & Time Administered cannot be in the future.');
         } else {
