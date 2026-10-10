@@ -6907,11 +6907,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method calculate\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method installFixtures\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/CarePlanFixtureManager.php',

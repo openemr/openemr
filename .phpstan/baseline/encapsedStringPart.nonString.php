@@ -2942,11 +2942,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/SinglePatientApi/CapabilityStatementTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$measure \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$measureResult\\[\'pubpid\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
@@ -2958,11 +2953,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$pid \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$setName \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
 ];
