@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 548
+-- v_database: 549
 --
 
 --
@@ -14411,6 +14411,30 @@ CREATE TABLE `form_questionnaire_assessments` (
   `lform_response` longtext,
   `category` VARCHAR(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `content_assignments`;
+CREATE TABLE `content_assignments` (
+  `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `resource_type` varchar(63) NOT NULL DEFAULT 'questionnaire' COMMENT 'questionnaire today; document_template and others later',
+  `resource_id` bigint(21) UNSIGNED DEFAULT NULL COMMENT 'fk into the resource_type table, e.g. questionnaire_repository.id. NULL with a category set means every resource in that category',
+  `surface` varchar(31) NOT NULL COMMENT 'dashboard, encounter, portal, smart',
+  `category` varchar(64) DEFAULT NULL COMMENT 'with resource_id set, unused; with resource_id NULL, assigns every resource whose own category matches',
+  `facility` int(11) DEFAULT NULL COMMENT 'fk to facility.id; NULL means any',
+  `provider` int(11) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id; NULL means any',
+  `visit_category` varchar(64) DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=visit_category; NULL means any',
+  `client_id` varchar(255) DEFAULT NULL COMMENT 'oauth client for surface=smart; NULL means any',
+  `acl_section` varchar(64) DEFAULT NULL COMMENT 'ACL section required; NULL falls back to the surface default',
+  `acl_level` varchar(31) DEFAULT NULL COMMENT 'ACL level required; NULL falls back to the surface default',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `seq` int(11) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_by` int(10) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id',
+  `updated_by` int(10) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id',
+  PRIMARY KEY (`id`),
+  KEY `lookup` (`resource_type`,`surface`,`active`),
+  KEY `resource` (`resource_type`,`resource_id`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `onetime_auth`;
