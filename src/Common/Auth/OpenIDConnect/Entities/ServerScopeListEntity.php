@@ -15,12 +15,16 @@ class ServerScopeListEntity
 {
     private bool $systemScopesEnabled = false;
 
+    /** @var list<string> */
     private array $v1ResourceFhirScopes = [];
 
+    /** @var list<string> */
     private array $v2ResourceFhirScopes = [];
 
+    /** @var list<string> */
     private array $v1ApiScopes = [];
 
+    /** @var list<string> */
     private array $v2ApiScopes = [];
 
     public function __construct()
@@ -42,6 +46,7 @@ class ServerScopeListEntity
         $this->v2ApiScopes = [];
     }
 
+    /** @return list<string> */
     public function requiredSmartOnFhirScopes(): array
     {
         $requiredSmart = [
@@ -69,9 +74,10 @@ class ServerScopeListEntity
     }
 
 
+    /** @return list<string> */
     public function fhirResourceScopesV1(): array
     {
-        if (empty($this->v1ResourceFhirScopes)) {
+        if ($this->v1ResourceFhirScopes === []) {
             $fhirReadResources = [
                 'AllergyIntolerance',
                 'Appointment',
@@ -166,9 +172,10 @@ class ServerScopeListEntity
         return $this->v1ResourceFhirScopes;
     }
 
+    /** @return list<string> */
     public function fhirResourceScopesV2(): array
     {
-        if (empty($this->v2ResourceFhirScopes)) {
+        if ($this->v2ResourceFhirScopes === []) {
             $resources = [
                 'AllergyIntolerance',
                 'CarePlan',
@@ -280,9 +287,10 @@ class ServerScopeListEntity
         return $this->v2ResourceFhirScopes;
     }
 
+    /** @return list<string> */
     public function apiScopes(): array
     {
-        if (empty($this->v1ApiScopes)) {
+        if ($this->v1ApiScopes === []) {
             $this->v1ApiScopes = [
                 "patient/patient.read",
                 "patient/appointment.read",
@@ -336,9 +344,10 @@ class ServerScopeListEntity
         return $this->v1ApiScopes;
     }
 
+    /** @return list<string> */
     public function getV2ApiScopes(): array
     {
-        if (empty($this->v2ApiScopes)) {
+        if ($this->v2ApiScopes === []) {
             // if the scope format changes... we want to keep these separate
             // yet, its not as efficient to do so many implodes.
             $userResources = [
@@ -390,6 +399,7 @@ class ServerScopeListEntity
         return $this->v2ApiScopes;
     }
 
+    /** @return list<string> */
     public function getOpenIDConnectScopes(): array
     {
         return [
@@ -411,6 +421,11 @@ class ServerScopeListEntity
         ];
     }
 
+    /**
+     * array_combine() uses identifiers as keys, so integer-like strings can become integer keys.
+     *
+     * @return list<array-key>
+     */
     public function getAllSupportedScopesList(): array
     {
 
@@ -424,7 +439,7 @@ class ServerScopeListEntity
         return array_keys(array_combine($allScopes, $allScopes));
     }
 
-    public function lookupDescriptionForFullScopeString($scope): string
+    public function lookupDescriptionForFullScopeString(string $scope): string
     {
         $requiredSmart = [
             "openid" => xl("Permission to retrieve information about the current logged-in user"),
@@ -440,12 +455,7 @@ class ServerScopeListEntity
         return $requiredSmart[$scope] ?? "";
     }
 
-    /**
-     * @param $resource
-     * @param $context
-     * @return string
-     */
-    public function lookupDescriptionForResourceScope($resource, $context): string
+    public function lookupDescriptionForResourceScope(?string $resource, ?string $context): string
     {
         $description = "";
         $description .= match ($resource) {
