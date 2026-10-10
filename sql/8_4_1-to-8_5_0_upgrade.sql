@@ -234,3 +234,12 @@ UPDATE `oauth_clients` SET `grant_types` = 'authorization_code' WHERE `grant_typ
 UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|client_credentials') WHERE `is_confidential` = 1 AND `scope` LIKE '%system/%' AND ((`jwks` IS NOT NULL AND `jwks` <> '') OR (`jwks_uri` IS NOT NULL AND `jwks_uri` <> '')) AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|client_credentials|%';
 UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|password') WHERE `client_id` IN (SELECT `client_id` FROM `oauth_trusted_user` WHERE `grant_type` = 'password') AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|password|%';
 #EndIf
+
+-- Address Book NPI requirement. NPI is US-only (CMS/NPPES). New installs use
+-- the globals.inc.php default of on. Upgrades insert the flag off and leave
+-- it off. Units for Visit Forms is not a country, so this upgrade does not
+-- turn the setting on. A site that wants it enables it explicitly. The insert
+-- stays inside #IfNotRow so a later run does not add the row again.
+#IfNotRow globals gl_name addrbook_require_npi
+INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES ('addrbook_require_npi', 0, '0');
+#EndIf
