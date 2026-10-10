@@ -7,7 +7,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jonathan Moore <Jdcmoore@aol.com>
+ * @author    Marcello Costagliola <marcello.costagliola1@gmail.com>
  * @copyright Copyright (c) 2022 Jonathan Moore <Jdcmoore@aol.com>
+ * @copyright Copyright (c) 2026 Marcello Costagliola <marcello.costagliola1@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -301,5 +303,96 @@ class PatientTransactionService extends BaseService
         } catch (\Throwable $ex) {
             return $ex;
         }
+    }
+
+    /**
+     * Full row from `transactions` merged with every `lbt_data` field for the transaction
+     * (field_id => field_value). Null when no transaction has the given id.
+     *
+     * Moved from library/transactions.inc.php (getTransById).
+     *
+     * @return array<mixed>|null
+     */
+    public static function getTransById(int|string $id, string $cols = '*'): ?array
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT " . escape_sql_column_name(process_cols_escape($cols), ['transactions']) . " FROM `transactions` WHERE `id` = ?",
+            [$id]
+        );
+        if (!is_array($row)) {
+            return null;
+        }
+
+        $fields = QueryUtils::fetchRecords("SELECT `field_id`, `field_value` FROM `lbt_data` WHERE `form_id` = ?", [$id]);
+        foreach ($fields as $field) {
+            $fieldId = $field['field_id'] ?? null;
+            if (is_string($fieldId) || is_int($fieldId)) {
+                $row[$fieldId] = $field['field_value'] ?? null;
+            }
+        }
+
+        return $row;
+    }
+
+    /**
+     * Every transaction for a patient, most recent date first, each row merged with its
+     * `lbt_data` fields (field_id => field_value).
+     *
+     * Moved from library/transactions.inc.php (getTransByPid).
+     *
+     * @return list<array<mixed>>
+     */
+    public static function getTransByPid(int|string $pid, string $cols = '*'): array
+    {
+        $rows = QueryUtils::fetchRecords(
+            "SELECT " . escape_sql_column_name(process_cols_escape($cols), ['transactions']) . " FROM `transactions` WHERE `pid` = ? ORDER BY `date` DESC",
+            [$pid]
+        );
+
+        $all = [];
+        foreach ($rows as $row) {
+            $fields = QueryUtils::fetchRecords("SELECT `field_id`, `field_value` FROM `lbt_data` WHERE `form_id` = ?", [$row['id'] ?? null]);
+            foreach ($fields as $field) {
+                $fieldId = $field['field_id'] ?? null;
+                if (is_string($fieldId) || is_int($fieldId)) {
+                    $row[$fieldId] = $field['field_value'] ?? null;
+                }
+            }
+            $all[] = $row;
+        }
+
+        return $all;
+    }
+
+    /**
+     * Creates a transaction row and its `body` lbt_data field, returning the new transaction id.
+     *
+     * Moved from library/transactions.inc.php (newTransaction).
+     */
+    public static function newTransaction(int|string $pid, string $body, string $title, string $user, string $groupname, int|string $authorized = '0'): int
+    {
+        $id = QueryUtils::sqlInsert(
+            "INSERT INTO `transactions` (`date`, `title`, `pid`, `user`, `groupname`, `authorized`) VALUES (NOW(), ?, ?, ?, ?, ?)",
+            [$title, $pid, $user, $groupname, $authorized]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `lbt_data` (`form_id`, `field_id`, `field_value`) VALUES (?, ?, ?)",
+            [$id, 'body', $body]
+        );
+
+        return $id;
+    }
+
+    /**
+     * Sets a transaction's `authorized` flag.
+     *
+     * Moved from library/transactions.inc.php (authorizeTransaction).
+     */
+    public static function authorizeTransaction(int|string $id, int|string $authorized = '1'): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `transactions` SET `authorized` = ? WHERE `id` = ?",
+            [$authorized, $id]
+        );
     }
 }
