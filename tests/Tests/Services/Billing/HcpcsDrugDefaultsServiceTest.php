@@ -142,6 +142,8 @@ class HcpcsDrugDefaultsServiceTest extends TestCase
         $first = $this->addDrug('ZZTEST Aaa 40 mg/mL', 'CPT4:96372;HCPCS:' . self::CODE, '0009-3073-01', 40);
         $this->addDrug('ZZTEST inactive', 'HCPCS:' . self::CODE, '0009-0000-01', 10, active: 0);
         $this->addDrug('ZZTEST other code', 'HCPCS:' . self::CODE . '0', '0009-0000-02', 10);
+        // A token with a stray space isn't matched by forDrug(), so it isn't offered either.
+        $spaced = $this->addDrug('ZZTEST Ccc spaced', 'CPT4:96372; HCPCS:' . self::CODE, '0009-0000-03', 10);
 
         $choices = HcpcsDrugDefaults::choicesByCode();
 
@@ -149,6 +151,7 @@ class HcpcsDrugDefaultsServiceTest extends TestCase
             ['id' => $first, 'label' => 'ZZTEST Aaa 40 mg/mL (0009-3073-01)'],
             ['id' => $second, 'label' => 'ZZTEST Bbb 80 mg/mL (0009-3475-03)'],
         ], $choices[self::CODE] ?? null);
+        $this->assertNull(HcpcsDrugDefaults::forDrug($spaced, self::CODE));
     }
 
 }

@@ -98,8 +98,9 @@ final readonly class HcpcsDrugDefaults
             $name = is_string($row['name'] ?? null) ? $row['name'] : '';
             $ndc = is_string($row['ndc_number'] ?? null) ? trim($row['ndc_number']) : '';
             $label = $ndc === '' ? $name : "$name ($ndc)";
+            // The same tokens FIND_IN_SET matches in forCode() and forDrug(), untrimmed, so
+            // every drug offered here is one the fee sheet will resolve.
             foreach (preg_split('/[;,]/', $related) ?: [] as $entry) {
-                $entry = trim($entry);
                 if (str_starts_with($entry, 'HCPCS:') && strlen($entry) > 6) {
                     $choices[substr($entry, 6)][] = ['id' => (int) $drugId, 'label' => $label];
                 }
