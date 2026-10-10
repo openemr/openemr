@@ -27,6 +27,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Procedure\LatestResultSelector;
 
 // Check if the given string already exists in the $aNotes array.
 // If not, stores it as a new entry.
@@ -594,9 +595,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                             // When two reports have the same date, use the result date to decide which is "latest".
                             if (
                                 isset($finals[$key]) &&
-                                $row['date_report'] == $finals[$key][0]['date_report'] &&
-                                !empty($rrow['date']) && !empty($finals[$key][1]['date']) &&
-                                $rrow['date'] < $finals[$key][1]['date']
+                                LatestResultSelector::keepsEarlierReport($finals[$key][0], $finals[$key][1], $row, $rrowset)
                             ) {
                                 $finals[$key][2] = true; // see comment below
                                 continue;
