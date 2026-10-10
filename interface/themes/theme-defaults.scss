@@ -52,6 +52,7 @@ span.bold {
 /* $nav_bg_line */
 
 .body_filler {
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   background-color: lighten($yellow, 30%) !important;
 }
 
@@ -154,6 +155,7 @@ ul.tabNav {
     }
   }
 
+  /* stylelint-disable-next-line no-descending-specificity */
   a {
     color: $white;
     padding: 8px 10px;
@@ -197,6 +199,7 @@ ul.tabNav {
 }
 
 #sddm li a:hover {
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   background: darken($light, 15%);
 }
 
@@ -207,7 +210,9 @@ ul.tabNav {
   padding: 0;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 #sddm div a {
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   color: darken($primary, 15%);
 }
 
@@ -222,6 +227,7 @@ ul.tabNav {
 
 .text-area {
   background-color: $white;
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
   border: 1px solid $black;
   height: 100px;
   overflow: auto;
@@ -232,7 +238,9 @@ ul.tabNav {
 .example_menu {
   @include font-size('0.7rem');
 
+  /* stylelint-disable-next-line no-descending-specificity */
   ul a:hover {
+    /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
     background: darken($light, 15%);
     text-decoration: underline;
   }
@@ -252,6 +260,7 @@ ul.tabNav {
 
 .sidebar {
   @include font-size('0.95rem');
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   background-color: lighten($light, 10%);
 
   .submenu {
@@ -260,6 +269,7 @@ ul.tabNav {
 }
 
 .alert-danger-custom {
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   background-color: lighten($danger, 20%) !important;
   color: $white !important;
 }
@@ -289,21 +299,26 @@ div.category-display {
 
 /* openrmr5.0.2 edit_globals vertical menu */
 #theform input[type='text'] {
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
   border: 1px solid $gray-400;
   margin: 0;
 }
 
 #oe-nav-ul {
   &.tabNav {
+    /* stylelint-disable-next-line declaration-property-value-no-unknown */
     background: rgba($black, 0.05) !important;
 
     li.current {
       color: $primary;
     }
 
+    /* stylelint-disable-next-line no-descending-specificity */
     a {
       background: $light;
+      /* stylelint-disable-next-line declaration-property-value-no-unknown */
       border-bottom: 1px solid $gray-400;
+      /* stylelint-disable-next-line declaration-property-value-no-unknown */
       border-left: 2px solid $primary;
 
       &:hover {
@@ -332,6 +347,7 @@ div.category-display {
 
 /* main.php expandable search */
 #search_globals {
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   background: lighten($gray-200, 10%) !important;
 }
 
@@ -339,15 +355,18 @@ div.category-display {
 
 /* bootstrap navbar */
 .navbar-collapse.collapse.in {
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   background-color: lighten($light, 20%) !important;
   color: $body-color !important;
 }
 
+/* stylelint-disable no-descending-specificity */
 .navbar-light .navbar-nav > li > a:focus,
 .navbar-light .navbar-nav > li > a:hover {
   background-color: $gray-200 !important;
   color: $gray-800 !important;
 }
+/* stylelint-enable no-descending-specificity */
 
 /* bootstrap navbar */
 
@@ -363,6 +382,7 @@ div.category-display {
 /* vertical main menu */
 
 .appMenu_small .menuSection > .menuEntries {
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
   box-shadow: 3px 5px 8px $gray;
   left: 40px;
 }
