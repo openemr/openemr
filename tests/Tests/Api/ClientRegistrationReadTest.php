@@ -26,9 +26,11 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Api;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise\Utils as PromiseUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 
 class ClientRegistrationReadTest extends TestCase
 {
@@ -96,6 +98,42 @@ class ClientRegistrationReadTest extends TestCase
             $registration['registration_access_token']
         );
         $this->assertSame(403, $readResponse['status']);
+    }
+
+    #[Test]
+    public function testTwoConcurrentReadsWithSameTokenCannotBothSucceed(): void
+    {
+        $registration = $this->registerClient();
+        $staleToken = $registration['registration_access_token'];
+        $path = parse_url($registration['registration_client_uri'], PHP_URL_PATH);
+        $this->assertIsString($path);
+
+        // Fire both reads before awaiting either so their SELECTs can both
+        // observe the same pre-rotation registration_token value. The
+        // controller's rotation UPDATE pins the WHERE clause to the current
+        // token, so at most one of the two UPDATEs matches a row — the other
+        // request gets 403 from the affected-rows check. This is the
+        // atomicity guarantee that prevents one-shot RAT double-redemption.
+        $promiseA = $this->http->getAsync($path, [
+            'headers' => ['Authorization' => 'Bearer ' . $staleToken],
+        ]);
+        $promiseB = $this->http->getAsync($path, [
+            'headers' => ['Authorization' => 'Bearer ' . $staleToken],
+        ]);
+        $responses = PromiseUtils::unwrap(['a' => $promiseA, 'b' => $promiseB]);
+        $this->assertInstanceOf(ResponseInterface::class, $responses['a']);
+        $this->assertInstanceOf(ResponseInterface::class, $responses['b']);
+
+        $statuses = [
+            $responses['a']->getStatusCode(),
+            $responses['b']->getStatusCode(),
+        ];
+        sort($statuses);
+        $this->assertSame(
+            [200, 403],
+            $statuses,
+            'Exactly one of two concurrent reads with the same registration token must succeed; the other must be rejected with 403'
+        );
     }
 
     #[Test]

@@ -396,15 +396,28 @@ rules:
 - id: openemr-oauth2-nonconstant-time-secret-compare
   patterns:
   - pattern-either:
-    - pattern: $A !== $B
-    - pattern: $A === $B
-  - metavariable-pattern:
-      metavariable: $A
-      pattern-either:
-      - pattern: $X['registration_token']
-      - pattern: $X['client_secret']
-      - pattern: $X->getRegistrationToken()
-      - pattern: $X->getClientSecret()
+    - patterns:
+      - pattern-either:
+        - pattern: $A !== $B
+        - pattern: $A === $B
+      - metavariable-pattern:
+          metavariable: $A
+          pattern-either:
+          - pattern: $X['registration_token']
+          - pattern: $X['client_secret']
+          - pattern: $X->getRegistrationToken()
+          - pattern: $X->getClientSecret()
+    - patterns:
+      - pattern-either:
+        - pattern: $A !== $B
+        - pattern: $A === $B
+      - metavariable-pattern:
+          metavariable: $B
+          pattern-either:
+          - pattern: $X['registration_token']
+          - pattern: $X['client_secret']
+          - pattern: $X->getRegistrationToken()
+          - pattern: $X->getClientSecret()
   message: >-
     Non-constant-time string compare on an OAuth2 credential value.
     Replace === / !== with hash_equals() to prevent timing side-channels.

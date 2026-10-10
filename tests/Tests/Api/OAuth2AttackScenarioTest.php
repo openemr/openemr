@@ -431,11 +431,25 @@ class OAuth2AttackScenarioTest extends TestCase
     {
         $resp = $this->rawGet('/oauth2/default/jwk', []);
         $this->assertSame(200, $resp['status']);
-        $this->assertStringNotContainsStringIgnoringCase(
-            '"d":',
-            $resp['body'],
-            'JWK response must not contain RSA private-exponent `d` — only public key material (n, e) should be published'
-        );
+        $decoded = json_decode($resp['body'], true);
+        $this->assertIsArray($decoded, 'JWK response must be valid JSON');
+        $this->assertArrayHasKey('keys', $decoded);
+        $this->assertIsArray($decoded['keys']);
+        // RFC 7518 §6 defines these as the private fields for RSA and EC keys.
+        // Checking the decoded structure (rather than a substring match on the
+        // body) catches whitespace variants like `"d" :` and private fields
+        // whose names happen to collide with substrings in other field values.
+        $privateFields = ['d', 'p', 'q', 'dp', 'dq', 'qi'];
+        foreach ($decoded['keys'] as $index => $key) {
+            $this->assertIsArray($key, "JWK entry $index must be an object");
+            foreach ($privateFields as $privateField) {
+                $this->assertArrayNotHasKey(
+                    $privateField,
+                    $key,
+                    "JWK entry $index must not expose private key field `$privateField`"
+                );
+            }
+        }
         $this->assertStringNotContainsStringIgnoringCase('BEGIN PRIVATE KEY', $resp['body']);
     }
 
@@ -445,7 +459,16 @@ class OAuth2AttackScenarioTest extends TestCase
         $resp = $this->rawPostForm('/oauth2/default/token', [
             'client_id' => 'anything',
         ]);
-        $this->assertGreaterThanOrEqual(400, $resp['status']);
+        $this->assertGreaterThanOrEqual(
+            400,
+            $resp['status'],
+            'Token endpoint must reject a request with no grant_type'
+        );
+        $this->assertLessThan(
+            500,
+            $resp['status'],
+            'Rejection must be a client-error 4xx, not a server failure that happens to satisfy the "not 200" check'
+        );
         $this->assertStringNotContainsString(
             '/vendor/',
             $resp['body'],

@@ -476,9 +476,13 @@ class AuthorizationController implements LoggerAwareInterface
                     );
                 }
                 $parsed = parse_url($redirectUri);
-                if (!is_array($parsed) || !isset($parsed['scheme']) || $parsed['scheme'] === '') {
+                if (
+                    !is_array($parsed)
+                    || !isset($parsed['scheme']) || $parsed['scheme'] === ''
+                    || !isset($parsed['host']) || $parsed['host'] === ''
+                ) {
                     throw new OAuthServerException(
-                        'redirect_uri must be an absolute URL with a scheme',
+                        'redirect_uri must be an absolute URL with a scheme and host',
                         0,
                         'invalid_redirect_uri'
                     );
@@ -1701,8 +1705,23 @@ class AuthorizationController implements LoggerAwareInterface
         // authorization code which is normally only sent for new tokens
         // by the authorization grant flow.
         $code = $request->getParsedBody()['code'] ?? null;
+        // RFC 6749 §4: grant_type is REQUIRED on the token endpoint. Without
+        // it, assigning to the typed string $grantType property below throws
+        // TypeError and bubbles out as an HTTP 500, which both leaks a
+        // framework-level failure to the client and bypasses the standard
+        // OAuth2 error-response contract. Convert the missing-input case
+        // into the RFC-mandated invalid_request response here.
+        $grantTypeInput = $request->getParsedBody()['grant_type'] ?? null;
+        if (!is_string($grantTypeInput) || $grantTypeInput === '') {
+            return (new OAuthServerException(
+                'The grant_type parameter is required',
+                3,
+                'invalid_request',
+                Response::HTTP_BAD_REQUEST
+            ))->generateHttpResponse($response);
+        }
         // grantType could be authorization_code, password or refresh_token.
-        $this->grantType = $request->getParsedBody()['grant_type'];
+        $this->grantType = $grantTypeInput;
         $this->logger->debug("AuthorizationController->oauthAuthorizeToken() grant type received", ['grant_type' => $this->grantType]);
         if ($this->grantType === 'authorization_code') {
             // re-populate from saved session cache populated in authorizeUser().

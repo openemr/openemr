@@ -141,9 +141,35 @@ class BearerTokenRejectionPropertiesTest extends TestCase
     {
         $http = $this->buildClient();
         [$clientId, $clientSecret] = $this->registerPasswordGrantClient($http, 'ReadOnlyFhir');
-        // Request only user/Patient.read — explicitly NOT user/Patient.write.
-        $tokens = $this->passwordGrant($http, $clientId, $clientSecret, 'user/Patient.read');
+        // Request the FHIR access scope + user/Patient.read, but explicitly
+        // NOT user/Patient.write. The api:fhir scope is required to reach
+        // the FHIR routes at all; without it a POST failure could be caused
+        // by the FHIR-access gate rather than the Patient.write scope check,
+        // which would make this test's failure attribution ambiguous.
+        $tokens = $this->passwordGrant(
+            $http,
+            $clientId,
+            $clientSecret,
+            'api:fhir user/Patient.read'
+        );
         $this->assertIsString($tokens['access_token']);
+
+        // Establish that the token can reach FHIR for an allowed operation
+        // before testing that it is denied for a disallowed one. A GET to
+        // /fhir/Patient under user/Patient.read must not be rejected by any
+        // auth layer.
+        $readResp = $http->get($this->baseUrl . '/apis/default/fhir/Patient', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $tokens['access_token'],
+                'Accept' => 'application/fhir+json',
+            ],
+        ]);
+        $this->assertSame(
+            200,
+            $readResp->getStatusCode(),
+            'FHIR Patient GET with user/Patient.read must succeed. Status: '
+                . $readResp->getStatusCode() . ' body: ' . (string) $readResp->getBody()
+        );
 
         // Attempt a FHIR Patient POST (create), which requires user/Patient.write.
         $resp = $http->post($this->baseUrl . '/apis/default/fhir/Patient', [
@@ -156,17 +182,15 @@ class BearerTokenRejectionPropertiesTest extends TestCase
                 'name' => [['family' => 'ScopeTestDoNotPersist']],
             ]),
         ]);
-        $this->assertGreaterThanOrEqual(
-            400,
+        // Scope-insufficient writes are rejected with 401 (missing/invalid
+        // scope at bearer validation) or 403 (scope present but not allowed
+        // for the resource/operation). Any other status — a 5xx, a 404, or
+        // a 201 — would mean the test is passing for the wrong reason.
+        $this->assertContains(
             $resp->getStatusCode(),
-            'POST to /fhir/Patient with a read-only scope must not succeed. Status: '
+            [401, 403],
+            'POST to /fhir/Patient with a read-only scope must be denied with 401/403. Status: '
                 . $resp->getStatusCode() . ' body: ' . (string) $resp->getBody()
-        );
-        $this->assertNotSame(
-            201,
-            $resp->getStatusCode(),
-            'POST to /fhir/Patient with a read-only scope must not create a Patient. Status: '
-                . $resp->getStatusCode()
         );
     }
 
