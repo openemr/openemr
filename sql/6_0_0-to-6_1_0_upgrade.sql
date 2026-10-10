@@ -286,11 +286,6 @@ ALTER TABLE `documents` ADD COLUMN `foreign_reference_id` bigint(20) default NUL
                         ADD COLUMN `foreign_reference_table` VARCHAR(40) default NULL;
 ALTER TABLE `documents` ADD KEY `foreign_reference` (`foreign_reference_id`, `foreign_reference_table`);
 
-#IfNotRow background_services name WenoExchange
-INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
-('WenoExchange', 'Weno Log Sync', 0, 0, '2021-01-18 11:25:10', 0, 'start_weno', '/library/weno_log_sync.php', 100);
-#EndIf
-
 #IfNotRow2D list_options list_id Eye_Defaults_for_GENERAL option_id ODVITREOUS
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,option_value,mapping,notes,codes,toggle_setting_1,toggle_setting_2,activity,subtype) VALUES ('Eye_Defaults_for_GENERAL', 'ODVITREOUS', 'clear', 504, 0, 0,'', 'RETINA','', 0, 0, 1,'');
 #EndIf
