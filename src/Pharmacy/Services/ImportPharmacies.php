@@ -12,8 +12,8 @@
 
 namespace OpenEMR\Pharmacy\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\oeHttp;
-use OpenEMR\Common\ORDataObject\Address;
 use Pharmacy;
 
 /**
@@ -31,9 +31,8 @@ class ImportPharmacies
      * @param $state
      * @return int Number of pharmacies imported
      */
-    public function importPharmacies($city, $state): int
+    public function importPharmacies(string $city, string $state): int
     {
-        $address = new Address();
 
         $query = [
             'number' => '',
@@ -74,33 +73,38 @@ class ImportPharmacies
 
         $pharmacyObj = json_decode((string) $body, true, 512, 0);
         $i = 0;
-        foreach ($pharmacyObj as $value) {
-            foreach ($value as $show) {
-                /*********************Skip duplicates*******************/
-                $npi = $show['number'];
-                if (self::entryCheck($npi) === true) {
+        foreach (is_array($pharmacyObj) ? $pharmacyObj : [] as $value) {
+            foreach (is_array($value) ? $value : [] as $show) {
+                if (!is_array($show)) {
                     continue;
                 }
-               /*************Check Zip Code Length**********************/
-                $zipCode = $show['addresses'][0]['postal_code'];
-                if (strlen((string) $zipCode) > 5) {
-                    $zip = substr((string) $zipCode, 0, -4);
+                $record = NppesPharmacy::fromResult($show);
+                if ($record === null) {
+                    continue;
                 }
-                /******************************************************/
-                $identifiers = $show['identifiers'];
-                $ncpdp = self::findNcpdp($identifiers);
+                /*********************Skip duplicates*******************/
+                if (self::entryCheck($record->npi) === true) {
+                    continue;
+                }
 
                 $pharmacy = new Pharmacy();
                 $pharmacy->set_id();
-                $pharmacy->set_name($show['basic']['name']);
-                $pharmacy->set_ncpdp($ncpdp);
-                $pharmacy->set_npi($show['number']);
-                $pharmacy->set_address_line1($show['addresses'][0]['address_1']);
-                $pharmacy->set_city($show['addresses'][0]['city']);
-                $pharmacy->set_state($show['addresses'][0]['state']);
-                $pharmacy->set_zip($zip);
-                $pharmacy->set_fax($show['addresses'][0]['fax_number']);
-                $pharmacy->set_phone($show['addresses'][0]['telephone_number']);
+                $pharmacy->set_name($record->name);
+                $pharmacy->set_ncpdp($record->ncpdp);
+                $pharmacy->set_npi($record->npi);
+                $pharmacy->set_address_line1($record->addressLine1);
+                $pharmacy->set_city($record->city);
+                $pharmacy->set_state($record->state);
+                $pharmacy->set_zip($record->zip);
+                // Pharmacy::set_number() takes a non-nullable string, so only
+                // set a number the registry actually holds: about a fifth of
+                // results carry no fax.
+                if ($record->fax !== null) {
+                    $pharmacy->set_fax($record->fax);
+                }
+                if ($record->phone !== null) {
+                    $pharmacy->set_phone($record->phone);
+                }
                 $pharmacy->persist();
                 ++$i;
             }
@@ -110,33 +114,12 @@ class ImportPharmacies
     }
 
     /**
-     * @param $identifiers
-     * @return mixed
-     */
-    private function findNcpdp($identifiers)
-    {
-        foreach ($identifiers as $value) {
-            if ($value['desc'] == 'Other') {
-                return $value['identifier'];
-            }
-        }
-        return null;
-    }
-
-    /**
      * Look to see if the pharmacy is in the database already.
-     * @param $npi
-     * @return bool
-     *
      */
-    private function entryCheck($npi): bool
+    private function entryCheck(string $npi): bool
     {
         $sql = "SELECT count(*) AS num FROM pharmacies WHERE npi = ?";
-        $query = sqlQuery($sql, [$npi]);
-        if ($query['num'] > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        $count = QueryUtils::fetchSingleValue($sql, 'num', [$npi]);
+        return is_numeric($count) && (int) $count > 0;
     }
 }
