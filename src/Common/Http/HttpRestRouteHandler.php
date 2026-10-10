@@ -19,6 +19,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,6 +60,17 @@ class HttpRestRouteHandler
             foreach ($routes as $routePath => $routeCallback) {
                 $parsedRoute = new HttpRestParsedRoute($dispatchRestRequestMethod, $dispatchRestRequestPath, $routePath);
                 if ($parsedRoute->isValid()) {
+                    // Enforce this for both OAuth and local-session API callers, including module routes.
+                    if (
+                        $dispatchRestRequest->isFhir()
+                        && !$this->globalsBag->getBoolean(GlobalConnectorsEnum::REST_FHIR_WRITE->value)
+                        && in_array($dispatchRestRequestMethod, ['POST', 'PUT', 'PATCH', 'DELETE'], true)
+                        && !$dispatchRestRequest->isFhirSearchRequest()
+                        // These existing operations support document retrieval and bulk export, not resource CRUD.
+                        && !in_array($routePath, ['POST /fhir/DocumentReference/$docref', 'DELETE /fhir/$bulkdata-status'], true)
+                    ) {
+                        throw new HttpException(Response::HTTP_FORBIDDEN, 'FHIR resource writes are disabled by configuration.');
+                    }
                     // if our requested resource is a patient context ie patient/<resource>.<permission> then
                     // we want to mark the request as a patient request and make sure we restrict requests
                     // TODO: @adunsulag this will have problems if there are multiple scope contexts for a resource,
