@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 
+use InvalidArgumentException;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\Traits\ClientTrait;
 use League\OAuth2\Server\Entities\Traits\EntityTrait;
@@ -144,6 +145,42 @@ class ClientEntity implements ClientEntityInterface
     {
         return $this->scopes;
     }
+
+    /**
+     * FHIR resource write scopes requested at registration, for administrator review.
+     * This is informational and does not change client authorization.
+     *
+     * @return list<string>
+     */
+    public function getFhirWriteScopes(): array
+    {
+        if (!is_array($this->scopes) || !in_array('api:fhir', $this->scopes, true)) {
+            return [];
+        }
+
+        $writeScopes = [];
+        foreach ($this->scopes as $scopeString) {
+            // Standard API resource names are lowercase; FHIR names start with a capital letter.
+            if (
+                !is_string($scopeString)
+                || preg_match('/^(?:patient|user|system)\/(?:[A-Z][A-Za-z0-9]*|\*)\./', $scopeString) !== 1
+            ) {
+                continue;
+            }
+            try {
+                $scope = ScopeEntity::createFromString($scopeString);
+            } catch (InvalidArgumentException) {
+                // A malformed stored scope should not prevent administrators from reviewing a client.
+                continue;
+            }
+            $permissions = $scope->getPermissions();
+            if ($scope->isResourcePermissionScope() && ($permissions->create || $permissions->update || $permissions->delete)) {
+                $writeScopes[] = $scopeString;
+            }
+        }
+        return $writeScopes;
+    }
+
     public function setScopes($scopes)
     {
         // clear out the scopes if our scopes are empty

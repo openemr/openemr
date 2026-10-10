@@ -42,6 +42,12 @@
                         {% endif %}
                     </td>
                     <td>
+                        {% if clientNavigationRecord.client.getFhirWriteScopes()|length > 0 %}
+                            <div class="alert alert-warning p-2" role="alert">
+                                <strong>{{ "FHIR write scopes requested"|xlt }}</strong><br />
+                                {{ "FHIR resource writes are experimental and pending audit. Review this client's write scopes before enabling it."|xlt }}
+                            </div>
+                        {% endif %}
                         {% if clientNavigationRecord.scopeCount <= 0 %}
                             {{ "No Scopes"|xlt }}
                         {% else %}

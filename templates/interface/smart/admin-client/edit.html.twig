@@ -35,6 +35,18 @@
             </h2>
         </div>
         <div class="card-body">
+            {% set fhirWriteScopes = client.getFhirWriteScopes() %}
+            {% if fhirWriteScopes|length > 0 %}
+                <div class="alert alert-warning" role="alert">
+                    <strong>{{ "FHIR write scopes requested"|xlt }}</strong>
+                    <p>{{ "FHIR resource writes are experimental and pending audit. These scopes request permission to create, update, or delete clinical data. Review them before enabling this client."|xlt }}</p>
+                    <ul class="mb-0">
+                        {% for scope in fhirWriteScopes %}
+                            <li>{{ scope|text }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
             <div class="row">
                 <div class="col-6">
                     {% if requestMessage is not empty %}
