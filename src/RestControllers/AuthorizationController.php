@@ -453,6 +453,37 @@ class AuthorizationController implements LoggerAwareInterface
             if (!$data->has('redirect_uris')) {
                 throw new OAuthServerException('redirect_uris is invalid', 0, 'invalid_redirect_uri');
             }
+            // Validate each redirect_uri: must be a non-empty string
+            // parseable as an absolute URL with a scheme. RFC 7591 §2
+            // requires each entry be a valid URI, and the auth-code flow
+            // later issues a 302 to the value, so an unvalidated input
+            // like `/relative/path` or `"not-a-url"` would be stored
+            // and attempted at redirect time.
+            $redirectUris = $data->all('redirect_uris');
+            if ($redirectUris === []) {
+                throw new OAuthServerException(
+                    'redirect_uris must be a non-empty array',
+                    0,
+                    'invalid_redirect_uri'
+                );
+            }
+            foreach ($redirectUris as $redirectUri) {
+                if (!is_string($redirectUri) || trim($redirectUri) === '') {
+                    throw new OAuthServerException(
+                        'redirect_uri must be a non-empty string',
+                        0,
+                        'invalid_redirect_uri'
+                    );
+                }
+                $parsed = parse_url($redirectUri);
+                if (!is_array($parsed) || !isset($parsed['scheme']) || $parsed['scheme'] === '') {
+                    throw new OAuthServerException(
+                        'redirect_uri must be an absolute URL with a scheme',
+                        0,
+                        'invalid_redirect_uri'
+                    );
+                }
+            }
             if ($data->has('post_logout_redirect_uris') && !$data->has('post_logout_redirect_uris')) {
                 throw new OAuthServerException('post_logout_redirect_uris is invalid', 0, 'invalid_client_metadata');
             }
