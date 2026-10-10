@@ -75,8 +75,8 @@ class TwigContainer
         ));
 
         $coreExtension = $twigEnv->getExtension(CoreExtension::class);
-        // Default to the localized date format; templates can request a time explicitly when needed.
-        $dateFormat = DateFormatterUtils::getShortDateFormat();
+        // Match OpenEMR's localized date and time formats when a value contains a time.
+        $dateFormat = DateFormatterUtils::getShortDateFormat() . " " . DateFormatterUtils::getTimeFormat();
         $coreExtension->setDateFormat($dateFormat);
 
         if ($this->kernel) {
