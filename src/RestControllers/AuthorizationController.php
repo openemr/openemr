@@ -1366,6 +1366,12 @@ class AuthorizationController implements LoggerAwareInterface
     public function authorizeUser(HttpRestRequest $request): ResponseInterface
     {
         $response = $this->createServerResponse();
+        $requestData = $this->session->get('authRequestSerial', $this->authRequestSerial);
+        if (!is_string($requestData) || trim($requestData) === '') {
+            $this->logger->warning('authorizeUser() ignored a consent submission without an authorization request');
+            return $response->withStatus(Response::HTTP_NO_CONTENT);
+        }
+
         $authRequest = $this->deserializeUserSession();
         // The client restored by deserializeUserSession() carries no registration, so look it up.
         // It can have been deleted or disabled since the consent page was shown; say so plainly
@@ -1400,6 +1406,7 @@ class AuthorizationController implements LoggerAwareInterface
             $authorization = parse_url($redirect, PHP_URL_QUERY);
             // stash appropriate session for token endpoint.
             $this->session->remove('authRequestSerial');
+            $this->authRequestSerial = '';
             $this->session->remove('claims');
             $csrf_private_key = $this->session->get('csrf_private_key'); // switcheroo so this does not end up in the session cache
             $this->session->remove('csrf_private_key');
