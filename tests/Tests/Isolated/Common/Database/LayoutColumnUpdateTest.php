@@ -27,6 +27,9 @@ class LayoutColumnUpdateTest extends TestCase
      */
     #[Test]
     #[DataProvider('refusedPatientColumns')]
+    /**
+     * A patient identity column is refused before a statement is built.
+     */
     public function testAPatientIdentityColumnIsRefused(string $column): void
     {
         $this->expectException(SqlQueryException::class);
@@ -38,6 +41,9 @@ class LayoutColumnUpdateTest extends TestCase
      */
     #[Test]
     #[DataProvider('refusedVisitColumns')]
+    /**
+     * A visit identity column is refused before a statement is built.
+     */
     public function testAVisitIdentityColumnIsRefused(string $column): void
     {
         $this->expectException(SqlQueryException::class);
@@ -48,6 +54,9 @@ class LayoutColumnUpdateTest extends TestCase
      * A field id that already contains a backtick is refused.
      */
     #[Test]
+    /**
+     * A field id that already contains a backtick is refused.
+     */
     public function testABacktickInTheFieldIdIsRefused(): void
     {
         $this->expectException(SqlQueryException::class);
