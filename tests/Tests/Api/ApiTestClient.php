@@ -141,6 +141,7 @@ class ApiTestClient
         'user/RelatedPerson.write',
         'user/ServiceRequest.read',
         'user/ServiceRequest.write',
+        'user/Specimen.read',
 
         'user/allergy.read',
         'user/allergy.write',
