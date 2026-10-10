@@ -57697,16 +57697,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Reports/AMC/Trackers/AMCItemTracker.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key of function array_key_exists expects int\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Reports/RealWorldTesting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, array given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Reports/RealWorldTesting.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$processingResult of static method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:handleProcessingResult\\(\\) expects OpenEMR\\\\Validators\\\\ProcessingResult, mixed given\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../src/RestControllers/AllergyIntoleranceRestController.php',

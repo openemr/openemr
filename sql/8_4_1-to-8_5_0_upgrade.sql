@@ -234,3 +234,17 @@ UPDATE `oauth_clients` SET `grant_types` = 'authorization_code' WHERE `grant_typ
 UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|client_credentials') WHERE `is_confidential` = 1 AND `scope` LIKE '%system/%' AND ((`jwks` IS NOT NULL AND `jwks` <> '') OR (`jwks_uri` IS NOT NULL AND `jwks_uri` <> '')) AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|client_credentials|%';
 UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|password') WHERE `client_id` IN (SELECT `client_id` FROM `oauth_trusted_user` WHERE `grant_type` = 'password') AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|password|%';
 #EndIf
+
+-- Index `api_log`.`log_id`, which is a join key in two places and had no index.
+--
+-- `api_log` is joined on `log_id` by the audit log viewer (Reports > Logs, via
+-- EventAuditLogger) and by the Real World Testing API metric. With no index,
+-- MariaDB resolves the viewer's LEFT JOIN as a block-nested-loop over the whole
+-- table; measured on 20,060 rows it reports type=ALL with a join buffer, and
+-- with the index it reports type=ref at one row per outer row.
+--
+-- `api_log` holds one row per API request, so it is far smaller than `log`, and
+-- InnoDB builds a secondary index online (ALGORITHM=INPLACE, LOCK=NONE).
+#IfNotIndex api_log log_id
+CREATE INDEX `log_id` ON `api_log` (`log_id`);
+#EndIf

@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 548
+-- v_database: 549
 --
 
 --
@@ -102,7 +102,8 @@ CREATE TABLE `api_log` (
   `request_body` longtext,
   `response` longtext,
   `created_time` timestamp NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `log_id` (`log_id`)
 ) ENGINE = InnoDB;
 
 -- --------------------------------------------------------
