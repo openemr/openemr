@@ -19,7 +19,7 @@
 .small span.text,
 span.required,
 span.bold {
-  @include font-size("1rem");
+  @include font-size('1rem');
 }
 
 .link,
@@ -28,15 +28,15 @@ span.bold {
 .link_selected,
 .link_selected:visited,
 .items {
-  @include font-size("0.7rem");
+  @include font-size('0.7rem');
 }
 
 .title {
-  @include font-size("1.5rem");
+  @include font-size('1.5rem');
 }
 
 .title_bar {
-  @include font-size("1.13rem");
+  @include font-size('1.13rem');
 }
 
 .bgcolor2 {
@@ -59,11 +59,11 @@ span.bold {
 
 #addressbook_list tr.search,
 #addressbook_list .inputtext {
-  @include font-size("0.9rem");
+  @include font-size('0.9rem');
 }
 
-[href~="deleter"],
-[onclick~="delete"] {
+[href~='deleter'],
+[onclick~='delete'] {
   background: $danger !important;
 }
 
@@ -83,7 +83,7 @@ span.bold {
 
 #documents_list td,
 #documents_list a {
-  @include font-size("0.8rem");
+  @include font-size('0.8rem');
 }
 
 .body_title table tr td {
@@ -94,27 +94,27 @@ span.bold {
 #HIS .groupname,
 #HIS .label_custom,
 #HIS .data {
-  @include font-size("0.9rem");
+  @include font-size('0.9rem');
 }
 
-/*=============================================================
+/* =============================================================
  * Patient Past Encounters and Documents
  * seen in the patient encounter screen
- *============================================================*/
+ *============================================================ */
 #patient_pastenc #tooltipdiv {
-  @include font-size("0.9rem");
+  @include font-size('0.9rem');
 }
 
-/*=============================================================
+/* =============================================================
  * Report - Custom
  * seen as the patient report (custom_report.php)
- *============================================================*/
+ *============================================================ */
 #report_custom h1 {
-  @include font-size("1.2rem");
+  @include font-size('1.2rem');
 }
 
 #report_custom .encounter h1 {
-  @include font-size("1.4rem");
+  @include font-size('1.4rem');
 }
 
 #addressbook_list {
@@ -177,14 +177,14 @@ ul.tabNav {
 .showborder_head th,
 .shownoborder td,
 .showborder_long tr td {
-  @include font-size("0.9rem");
+  @include font-size('0.9rem');
 }
 
 /**
 * Drug lookup
 **/
 .drug_lookup {
-  @include font-size("0.8rem");
+  @include font-size('0.8rem');
 }
 
 #sddm li {
@@ -230,7 +230,7 @@ ul.tabNav {
 }
 
 .example_menu {
-  @include font-size("0.7rem");
+  @include font-size('0.7rem');
 
   ul a:hover {
     background: darken($light, 15%);
@@ -239,7 +239,7 @@ ul.tabNav {
 }
 
 .error-message {
-  @include font-size("0.8rem");
+  @include font-size('0.8rem');
 }
 
 .attach-input {
@@ -251,11 +251,11 @@ ul.tabNav {
 }
 
 .sidebar {
-  @include font-size("0.95rem");
+  @include font-size('0.95rem');
   background-color: lighten($light, 10%);
 
   .submenu {
-    @include font-size("0.9rem");
+    @include font-size('0.9rem');
   }
 }
 
@@ -264,7 +264,7 @@ ul.tabNav {
   color: $white !important;
 }
 
-/* to align feesheet buttons*/
+/* to align feesheet buttons */
 div.category-display {
   margin-left: 25px !important;
 }
@@ -278,16 +278,17 @@ div.category-display {
   margin-top: 25px;
 }
 
-/*~~openemr5 tabs menu, user and logout icon~~*/
+/* ~~openemr5 tabs menu, user and logout icon~~ */
 #menu_icon,
 #logout_icon,
 #user_icon {
   color: $gray-600 !important;
 }
 
-/*~~openemr5 tabs menu , user and logout icon~~*/
-/*openrmr5.0.2 edit_globals vertical menu*/
-#theform input[type="text"] {
+/* ~~openemr5 tabs menu , user and logout icon~~ */
+
+/* openrmr5.0.2 edit_globals vertical menu */
+#theform input[type='text'] {
   border: 1px solid $gray-400;
   margin: 0;
 }
@@ -327,14 +328,16 @@ div.category-display {
   color: $primary;
 }
 
-/*openrmr5.0.2 edit_globals vertical menu*/
-/*main.php expandable search*/
+/* openrmr5.0.2 edit_globals vertical menu */
+
+/* main.php expandable search */
 #search_globals {
   background: lighten($gray-200, 10%) !important;
 }
 
-/*main.php expandable search*/
-/*bootstrap navbar */
+/* main.php expandable search */
+
+/* bootstrap navbar */
 .navbar-collapse.collapse.in {
   background-color: lighten($light, 20%) !important;
   color: $body-color !important;
@@ -346,24 +349,27 @@ div.category-display {
   color: $gray-800 !important;
 }
 
-/*bootstrap navbar */
-/*openemr 5 patient-finder*/
-@media screen and (max-width: 750px) {
+/* bootstrap navbar */
+
+/* openemr 5 patient-finder */
+@media screen and (width <= 750px) {
   #pt_table {
-    @include font-size("1.2rem");
+    @include font-size('1.2rem');
   }
 }
 
-/*openemr 5 patient-finder*/
-/*vertical main menu */
+/* openemr 5 patient-finder */
+
+/* vertical main menu */
 
 .appMenu_small .menuSection > .menuEntries {
   box-shadow: 3px 5px 8px $gray;
   left: 40px;
 }
 
-/*vertical main menu */
-/*search any*/
+/* vertical main menu */
+
+/* search any */
 *.oe-expandable-search .any-search-legacy {
   background: $white !important;
 }
