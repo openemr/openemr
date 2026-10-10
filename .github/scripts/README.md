@@ -14,6 +14,7 @@ from testing or reuse.
 | [`create-release-tag.sh`](create-release-tag.sh) | [`.github/workflows/reusable-publish-release.yml`](../workflows/reusable-publish-release.yml) | [`tests/bats/ci-scripts/create-release-tag/`](../../tests/bats/ci-scripts/create-release-tag/) (BATS, git + gh mocked via PATH shim) |
 | [`extract-changelog-section.sh`](extract-changelog-section.sh) | [`.github/workflows/release-amendment.yml`](../workflows/release-amendment.yml) | [`tests/bats/ci-scripts/extract-changelog-section/`](../../tests/bats/ci-scripts/extract-changelog-section/) (BATS, synthetic CHANGELOG fixtures) |
 | [`build-release-body.sh`](build-release-body.sh) | [`.github/workflows/release-amendment.yml`](../workflows/release-amendment.yml) | [`tests/bats/ci-scripts/build-release-body/`](../../tests/bats/ci-scripts/build-release-body/) (BATS, byte-size boundaries + anchor-slug variations) |
+| [`upgrade-parity.sh`](upgrade-parity.sh) (+ [`upgrade-parity-run.php`](upgrade-parity-run.php)) | [`.github/workflows/upgrade-parity.yml`](../workflows/upgrade-parity.yml) | Runs on itself whenever the workflow or these scripts change; no BATS (needs MySQL and OpenEMR's upgrade service) |
 
 ## Running the tests locally
 
