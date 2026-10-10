@@ -61,7 +61,7 @@ if (isset($_POST["mode"])) {
     if ($_POST["mode"] == "DeletePaymentDistribution") {
         CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
         $DeletePaymentDistributionId = (isset($_POST['DeletePaymentDistributionId']) ? trim((string) $_POST['DeletePaymentDistributionId']) : '');
-        $DeletePaymentDistributionIdArray = explode('/', $DeletePaymentDistributionId);
+        $DeletePaymentDistributionIdArray = array_map('rawurldecode', explode('/', $DeletePaymentDistributionId));
         $payment_id = $DeletePaymentDistributionIdArray[0];
         $PId = $DeletePaymentDistributionIdArray[1];
         $Encounter = $DeletePaymentDistributionIdArray[2];
@@ -977,7 +977,7 @@ $ResultSearchSub = sqlStatement(
 
                                 <tr class="border-dark" bgcolor='<?php echo attr($bgcolor); ?>' class="text" id="trCharges<?php echo attr($CountIndex); ?>">
                                     <td align="left">
-                                        <a href="#" onclick="javascript:return DeletePaymentDistribution(<?php echo attr_js($payment_id . '/' . $PId . '/' . $Encounter . '/' . $Code . '/' . $Modifier . '/' . $Codetype); ?>);"><img border="0" src="../pic/Delete.gif"></a>
+                                        <a href="#" onclick="javascript:return DeletePaymentDistribution(<?php echo attr_js(implode('/', array_map('rawurlencode', [(string) $payment_id, (string) $PId, (string) $Encounter, (string) $Code, (string) $Modifier, (string) $Codetype]))); ?>);"><img border="0" src="../pic/Delete.gif"></a>
                                     </td>
                                     <td align="left">
                                         <?php echo text($NameDB); ?><input name="HiddenPId<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($PId); ?>" />
