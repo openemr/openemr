@@ -28,6 +28,11 @@ final class ForbiddenInstantiationsRuleTest extends RuleTestCase
         return new ForbiddenInstantiationsRule();
     }
 
+    public function testAllowsTwigContainerConstructorTests(): void
+    {
+        $this->analyse([__DIR__ . '/../Common/Twig/TwigContainerIsolatedTest.php'], []);
+    }
+
     public function testFlagsPhpMailerAndLeavesOtherInstantiationsAlone(): void
     {
         $this->analyse(

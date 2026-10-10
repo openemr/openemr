@@ -28,6 +28,8 @@ class TwigContainer
 {
     /**
      * Paths in /templates
+     *
+     * @var list<string>
      */
     private array $paths = [];
 
@@ -36,8 +38,8 @@ class TwigContainer
     /**
      * Create a new Twig superclass holding a twig environment
      *
-     * @var string|null $path   Additional path to add to $fileroot/templates string
-     * @var Kernel|null $kernel An instance of Kernel to test if the environment is dev vs prod
+     * @param string|null $path   Additional path to add to $fileroot/templates string
+     * @param Kernel|null $kernel An instance of Kernel to test if the environment is dev vs prod
      */
     public function __construct(?string $path = null, ?Kernel $kernel = null)
     {
@@ -51,7 +53,7 @@ class TwigContainer
             : $globalsBag->getProjectDir();
         $this->paths[] = $templateRoot . '/templates';
 
-        if (!empty($path)) {
+        if ($path !== null && $path !== '' && $path !== '0') {
             $this->addPath($path);
         }
     }

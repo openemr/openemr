@@ -27727,11 +27727,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/System/System.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$paths of class Twig\\\\Loader\\\\FilesystemLoader constructor expects array\\<string\\>\\|string, array given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Twig/TwigContainer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$arrOeUiSettings of class OpenEMR\\\\OeUI\\\\OemrUI constructor expects array, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Twig/TwigExtension.php',
