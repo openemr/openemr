@@ -32,6 +32,9 @@ final class LayoutColumnUpdate
         'encounter',
     ];
 
+    /**
+     * Quoted update for one patient column, bound to the patient id.
+     */
     public static function patientStatement(string $fieldId): string
     {
         return self::statement(
@@ -42,6 +45,9 @@ final class LayoutColumnUpdate
         );
     }
 
+    /**
+     * Quoted update for one visit column, bound to the patient and visit.
+     */
     public static function encounterStatement(string $fieldId): string
     {
         return self::statement(
@@ -52,6 +58,12 @@ final class LayoutColumnUpdate
         );
     }
 
+    /**
+     * Quote one live column and place it between the fixed SQL pieces.
+     *
+     * An empty name, an identity column, or a name the table does not
+     * have is refused before any SQL is returned.
+     */
     private static function statement(string $table, string $fieldId, string $before, string $after): string
     {
         if ($fieldId === '' || in_array($fieldId, self::IDENTITY, true) || str_contains($fieldId, '`')) {
