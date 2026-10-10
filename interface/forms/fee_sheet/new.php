@@ -1643,9 +1643,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 $ndc_info = '';
                                                 $units = null;
                                                 // If HCPCS, take the NDC and units from the related inventory drug,
-                                                // else the last NDC string used for this code.
+                                                // else the last NDC string used for this code. A custom fee sheet
+                                                // list entry can name the drug ("HCPCS|J1010|<drug_id>") when
+                                                // several products share the code.
                                                 if ($newtype == 'HCPCS' && $ndc_applies) {
-                                                    $drugDefaults = HcpcsDrugDefaults::forCode($code);
+                                                    $drugId = filter_var($newsel, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                                                    $drugDefaults = (is_int($drugId) ? HcpcsDrugDefaults::forDrug($drugId, $code) : null)
+                                                        ?? HcpcsDrugDefaults::forCode($code);
                                                     if ($drugDefaults !== null) {
                                                         $ndc_info = $drugDefaults->ndcInfo;
                                                         $units = $drugDefaults->units;
