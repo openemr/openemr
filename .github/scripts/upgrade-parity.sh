@@ -39,7 +39,7 @@ q() {
 
 # Which release, and which upgrade file. The highest from-version among the
 # upgrade files is the one this checkout's newest upgrade file starts at.
-# shellcheck source=lib/derive-from-version.sh
+# shellcheck source=./.github/scripts/lib/derive-from-version.sh
 source .github/scripts/lib/derive-from-version.sh
 from=$(derive_from_version_sql_candidates . | tail -n 1)
 upgrade=$(find sql -maxdepth 1 -name "${from//./_}-to-*_upgrade.sql" | sort | tail -n 1)
@@ -62,7 +62,9 @@ git show "${tag}:sql/database.sql" | q parity_upgraded
 php .github/scripts/upgrade-parity-run.php "${upgrade}"
 
 # Timestamps from today or yesterday (UTC) were written by the load itself.
-loaded="($(date -u +%F)|$(date -u -d yesterday +%F)) [0-9]{2}:[0-9]{2}:[0-9]{2}"
+today=$(date -u +%F)
+yesterday=$(date -u -d yesterday +%F)
+loaded="(${today}|${yesterday}) [0-9]{2}:[0-9]{2}:[0-9]{2}"
 
 schema() {
     q -e "SELECT 'table', table_name, engine, table_collation
@@ -78,7 +80,11 @@ schema() {
 # schema comparison reports the rest), auto-increment ids left out. The client
 # reads /dev/null so it can't consume the table list the loop is reading.
 rows() {
-    local table cols
+    local table cols table_list
+    # Captured first, so a failed query stops the script instead of reading as no tables.
+    table_list=$(q -e "SELECT f.table_name FROM information_schema.tables f
+                         JOIN information_schema.tables u ON u.table_schema = 'parity_upgraded' AND u.table_name = f.table_name
+                        WHERE f.table_schema = 'parity_fresh' ORDER BY 1")
     while read -r table; do
         cols=$(q -e "SET SESSION group_concat_max_len = 1000000;
                      SELECT GROUP_CONCAT(CONCAT('\`', f.column_name, '\`') ORDER BY f.ordinal_position)
@@ -89,9 +95,7 @@ rows() {
                         AND f.extra NOT LIKE '%auto_increment%'" < /dev/null)
         [[ -n "${cols}" && "${cols}" != NULL ]] || continue
         q -e "SELECT ${cols} FROM \`$1\`.\`${table}\`" < /dev/null | sed -E "s/${loaded}/<load-time>/g" | LC_ALL=C sort | sed "s/^/${table}\t/"
-    done < <(q -e "SELECT f.table_name FROM information_schema.tables f
-                     JOIN information_schema.tables u ON u.table_schema = 'parity_upgraded' AND u.table_name = f.table_name
-                    WHERE f.table_schema = 'parity_fresh' ORDER BY 1")
+    done <<< "${table_list}"
 }
 
 for db in parity_fresh parity_upgraded; do
@@ -129,7 +133,9 @@ fi
     echo '## ⚠️ Upgrade does not match a fresh install'
     echo
     echo "Upgrading \`${tag}\` with \`${upgrade}\` gives a different database from this checkout's \`sql/database.sql\`."
+    # shellcheck disable=SC2016  # the backticks are Markdown, not command substitution
     echo 'Usually a change to `sql/database.sql` needs the same change in the upgrade file, or the reverse.'
+    # shellcheck disable=SC2016  # the backticks are Markdown, not command substitution
     echo 'Lines starting `-` exist only in a fresh install; `+` only after upgrading.'
     for part in schema rows; do
         if [[ -s "${work}/${part}.diff" ]]; then
