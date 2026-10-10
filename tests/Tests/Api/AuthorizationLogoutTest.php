@@ -14,7 +14,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Api;
 
+use DateTimeImmutable;
 use GuzzleHttp\Client;
+use Lcobucci\JWT\Encoding\ChainedFormatter;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256 as RsaSha256Signer;
+use Lcobucci\JWT\Token\Builder as JwtTokenBuilder;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -28,6 +35,7 @@ class AuthorizationLogoutTest extends TestCase
     private const LOGOUT_URI_WITH_QUERY = 'https://has-query.example?extra=1';
 
     private Client $http;
+    private string $jwtIssuer;
 
     protected function setUp(): void
     {
@@ -38,6 +46,41 @@ class AuthorizationLogoutTest extends TestCase
             'allow_redirects' => false,
             'http_errors' => false,
         ]);
+
+        // Hit the DCR endpoint (and discard the result) to force the
+        // server to materialise the OAuth2 keypair under its own
+        // ownership before the signing helper reads the private key
+        // from disk. Discovery is a lighter touch, but on CI's `php -S`
+        // runner it does not reliably route through
+        // AuthorizationController's constructor path, so the keys may
+        // not exist when the signing helper runs. DCR exercises the
+        // path end-to-end.
+        $probe = $this->http->post('/oauth2/default/registration', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'application_type' => 'private',
+                'redirect_uris' => ['https://probe.example/cb'],
+                'client_name' => 'AuthorizationLogoutTest-key-warm-' . bin2hex(random_bytes(3)),
+                'token_endpoint_auth_method' => 'client_secret_post',
+                'contacts' => ['warm@test.example'],
+                'scope' => 'openid',
+            ],
+        ]);
+        $probeData = json_decode((string) $probe->getBody(), true);
+        if (is_array($probeData) && isset($probeData['client_id']) && is_string($probeData['client_id'])) {
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
+                [$probeData['client_id']]
+            );
+        }
+
+        $discovery = json_decode(
+            (string) $this->http->get('/oauth2/default/.well-known/openid-configuration')->getBody(),
+            true
+        );
+        $this->jwtIssuer = (is_array($discovery) && is_string($discovery['issuer'] ?? null))
+            ? $discovery['issuer']
+            : 'https://localhost/oauth2/default';
 
         QueryUtils::sqlStatementThrowException(
             'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
@@ -264,15 +307,15 @@ class AuthorizationLogoutTest extends TestCase
 
     /**
      * All the "not-logged-in branch" tests above use `sub = nobody`, so no
-     * matching `oauth_trusted_user` row is found and the controller takes the
-     * not-logged-in branch. The tests below seed a matching trust row so the
-     * controller enters the trusted-user branch — the branch that actually
-     * calls `deleteTrustedUserById`.
+     * matching `oauth_trusted_user` row is found and the controller takes
+     * the not-logged-in branch. The tests below seed a matching trust row
+     * so the controller enters the trusted-user branch — the branch that
+     * actually calls `deleteTrustedUserById`.
      *
-     * Not covered here: signature-verified `id_token_hint` (expired token,
-     * tampered signature). `AuthorizationController::decodeToken()` currently
-     * does no signature verification, so a bad-signature token behaves
-     * identically to a good one. That gap tracks separately.
+     * Signature-verification coverage lives below in the
+     * testLogoutRejects* series: the controller now parses the hint via
+     * lcobucci/jwt with a SignedWith + IssuedBy assert before any claim
+     * is trusted.
      */
     #[Test]
     public function testLogoutTrustedUserBranchDeletesTrustRowAndRedirects(): void
@@ -328,20 +371,140 @@ class AuthorizationLogoutTest extends TestCase
         );
     }
 
-    private function makeUnsignedJwt(string $sub = 'nobody', string $nonce = '', string $aud = self::TEST_CLIENT_ID): string
+    #[Test]
+    public function testLogoutRejectsHintSignedByUnrelatedKey(): void
     {
+        // A JWT whose claims look right but is signed by a key the server
+        // did not issue must be refused — the whole point of the signature
+        // check. Build a JWT shape by hand with alg=none, which is the
+        // classic forgery form the pre-fix controller accepted.
         $header = $this->b64url('{"alg":"none","typ":"JWT"}');
         $payload = $this->b64url((string) json_encode([
-            'aud' => $aud,
-            'sub' => $sub,
-            'nonce' => $nonce,
+            'iss' => 'https://localhost/oauth2/default',
+            'aud' => self::TEST_CLIENT_ID,
+            'sub' => 'nobody',
+            'nonce' => '',
         ]));
-        return $header . '.' . $payload . '.sig';
+        $forged = $header . '.' . $payload . '.not-a-real-signature';
+
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $forged,
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+    }
+
+    #[Test]
+    public function testLogoutRejectsHintSignedForDifferentIssuer(): void
+    {
+        // A JWT correctly signed by the server's private key but minted
+        // with the wrong `iss` claim must be refused. Protects against a
+        // scenario where an id_token issued by a sibling OAuth2 server
+        // sharing the same key material would otherwise be honored here.
+        [$signer, $privateKey, $_realIssuer] = $this->loadLogoutJwtMaterial();
+        $now = new DateTimeImmutable();
+        $wrongIssuerToken = (new JwtTokenBuilder(new JoseEncoder(), ChainedFormatter::default()))
+            ->issuedBy('https://not-this-server.example/oauth2/default')
+            ->permittedFor(self::TEST_CLIENT_ID)
+            ->relatedTo('nobody')
+            ->issuedAt($now)
+            ->expiresAt($now->modify('+1 hour'))
+            ->withClaim('nonce', '')
+            ->getToken($signer, $privateKey)
+            ->toString();
+
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $wrongIssuerToken,
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+    }
+
+    #[Test]
+    public function testLogoutRejectsHintThatIsNotAJwt(): void
+    {
+        // A hint that isn't a JWT at all must be refused with a parse
+        // error, not a 500 or a stack trace. Was previously an echo of
+        // whatever the json_decode produced on a bare base64 string.
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => 'this-is-not-a-jwt',
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
     }
 
     private function b64url(string $data): string
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+
+    /**
+     * Mints a JWT signed with the live server's OAuth2 private key and the
+     * same claim shape as a real id_token (issuer matches
+     * site_addr_oath + /oauth2/default, aud = client_id, sub, nonce).
+     *
+     * Called `makeUnsignedJwt` historically; preserved as the common
+     * fixture helper for all happy-path logout tests, now actually signed
+     * so the controller's signature-verification path accepts it.
+     */
+    private function makeUnsignedJwt(string $sub = 'nobody', string $nonce = '', string $aud = self::TEST_CLIENT_ID): string
+    {
+        [$signer, $privateKey, $issuer] = $this->loadLogoutJwtMaterial();
+        $now = new DateTimeImmutable();
+        return (new JwtTokenBuilder(new JoseEncoder(), ChainedFormatter::default()))
+            ->issuedBy($issuer)
+            ->permittedFor($aud)
+            ->relatedTo($sub)
+            ->issuedAt($now)
+            ->expiresAt($now->modify('+1 hour'))
+            ->withClaim('nonce', $nonce)
+            ->getToken($signer, $privateKey)
+            ->toString();
+    }
+
+    /**
+     * Loads the server's OAuth2 signing material and the server-reported
+     * issuer. setUp has already forced the server to materialise the
+     * key pair via a DCR request, so by the time this helper runs the
+     * key file is present and owned by whatever process the server
+     * runs as. We never instantiate OAuth2KeyConfig from test code:
+     * its constructor can rewrite the DB entries + key files if it
+     * decides state is inconsistent, which invalidates any state built
+     * by earlier tests in the same process.
+     *
+     * @return array{0: RsaSha256Signer, 1: InMemory, 2: string}
+     */
+    private function loadLogoutJwtMaterial(): array
+    {
+        $siteDir = $GLOBALS['OE_SITE_DIR']
+            ?? $_SERVER['OE_SITE_DIR']
+            ?? '/var/www/localhost/htdocs/openemr/sites/default';
+        $this->assertIsString($siteDir);
+        $privateKeyPath = rtrim($siteDir, '/') . '/documents/certificates/oaprivate.key';
+        $crypto = ServiceContainer::getCrypto();
+        $encryptedPassphrase = QueryUtils::fetchSingleValue(
+            "SELECT `value` FROM `keys` WHERE `name` = ?",
+            'value',
+            ['oauth2passphrase']
+        );
+        $passphrase = is_string($encryptedPassphrase)
+            ? $crypto->decryptFromDatabase($encryptedPassphrase)
+            : '';
+        $signer = new RsaSha256Signer();
+        $privateKey = InMemory::file($privateKeyPath, $passphrase);
+        return [$signer, $privateKey, $this->jwtIssuer];
     }
 
     private function seedTrustedUser(string $userId, string $nonce = ''): void

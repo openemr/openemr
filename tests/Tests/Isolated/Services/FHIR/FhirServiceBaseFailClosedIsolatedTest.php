@@ -110,6 +110,57 @@ class FhirServiceBaseFailClosedIsolatedTest extends TestCase
             'When createOpenEMRSearchParameters() throws, searchForOpenEMRRecords() must not be reached.'
         );
     }
+
+    /**
+     * Regression gate for the generic trait's compartment binding
+     * behavior at ResourceServiceSearchTrait::createOpenEMRSearchParameters:96-110.
+     * When a caller supplies `patient=<X>` AND the token carries a bind,
+     * the trait emits the bound-patient value under its FHIR field name
+     * ('patient') while the caller's value remains under the mapped
+     * service field name ('puuid'). The two coexist in the resulting
+     * parameter map; a service's search layer AND-combines them, which
+     * on any cross-patient attempt yields an empty result set because
+     * no record satisfies both WHERE conditions simultaneously.
+     *
+     * (Hot services such as FhirObservationService / FhirConditionService
+     * also pre-overwrite the caller's value in fhirSearchParameters
+     * before this trait method is invoked — see FhirObservationService.php
+     * line 113. This test exercises only the generic trait path.)
+     *
+     * The property pinned here: the bound value is present under 'patient'
+     * so the AND-combination enforces the compartment. A refactor that
+     * dropped the trait-level emission would need to be caught before it
+     * eliminated this fence.
+     */
+    public function testCompartmentBindEmitsBoundPatientFieldAlongsideCallerSuppliedField(): void
+    {
+        $service = new FailClosedTestCompartmentService();
+        $attackerPuuid = 'cafecafe-cafe-cafe-cafe-cafecafecafe';
+        $service->getAll(
+            ['patient' => $attackerPuuid],
+            self::FAKE_PATIENT_UUID
+        );
+
+        $this->assertTrue($service->searchWasReached);
+        $this->assertArrayHasKey(
+            'patient',
+            $service->lastSearchParams,
+            "The trait must emit the bound patient under its FHIR field name ('patient'). "
+            . "A refactor that stopped emitting this would eliminate the AND-combine fence "
+            . "and let the caller-supplied value flow through alone."
+        );
+        $boundField = $service->lastSearchParams['patient'];
+        $this->assertInstanceOf(\OpenEMR\Services\Search\ISearchField::class, $boundField);
+        $values = $boundField->getValues();
+        $this->assertCount(1, $values);
+        $value = $values[0];
+        $this->assertInstanceOf(\OpenEMR\Services\Search\ReferenceSearchValue::class, $value);
+        $this->assertSame(
+            self::FAKE_PATIENT_UUID,
+            (string) $value,
+            "The 'patient' key must carry the token-bound patient UUID."
+        );
+    }
 }
 
 /**

@@ -354,7 +354,7 @@ class TokenIntrospectionRestController {
                     } catch (CryptoGenException) {
                         throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
                     }
-                    if ($decryptedSecret !== $clientSecret) {
+                    if (!is_string($clientSecret) || !hash_equals($decryptedSecret, $clientSecret)) {
                         throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
                     }
                 }

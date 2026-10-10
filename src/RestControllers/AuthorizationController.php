@@ -20,6 +20,15 @@ use DateInterval;
 use DateTimeImmutable;
 use Exception;
 use JsonException;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256 as RsaSha256Signer;
+use Lcobucci\JWT\Token\Parser as JwtParser;
+use Lcobucci\JWT\UnencryptedToken;
+use Lcobucci\JWT\Validation\Constraint\IssuedBy;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
+use Lcobucci\JWT\Validation\Validator as JwtValidator;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptTrait;
@@ -444,6 +453,61 @@ class AuthorizationController implements LoggerAwareInterface
             if (!$data->has('redirect_uris')) {
                 throw new OAuthServerException('redirect_uris is invalid', 0, 'invalid_redirect_uri');
             }
+            // Validate each redirect_uri: must be a non-empty string
+            // parseable as an absolute URL with a scheme. RFC 7591 §2
+            // requires each entry be a valid URI, and the auth-code flow
+            // later issues a 302 to the value, so an unvalidated input
+            // like `/relative/path` or `"not-a-url"` would be stored
+            // and attempted at redirect time.
+            $redirectUris = $data->all('redirect_uris');
+            if ($redirectUris === []) {
+                throw new OAuthServerException(
+                    'redirect_uris must be a non-empty array',
+                    0,
+                    'invalid_redirect_uri'
+                );
+            }
+            foreach ($redirectUris as $redirectUri) {
+                if (!is_string($redirectUri) || trim($redirectUri) === '') {
+                    throw new OAuthServerException(
+                        'redirect_uri must be a non-empty string',
+                        0,
+                        'invalid_redirect_uri'
+                    );
+                }
+                $parsed = parse_url($redirectUri);
+                if (!is_array($parsed) || !isset($parsed['scheme']) || $parsed['scheme'] === '') {
+                    throw new OAuthServerException(
+                        'redirect_uri must be an absolute URL with a scheme',
+                        0,
+                        'invalid_redirect_uri'
+                    );
+                }
+                $scheme = strtolower($parsed['scheme']);
+                if ($scheme === 'http' || $scheme === 'https') {
+                    // Web redirect URIs must have a host; without it a form
+                    // like `https:relative-path` would be stored and
+                    // attempted at redirect time.
+                    if (!isset($parsed['host']) || $parsed['host'] === '') {
+                        throw new OAuthServerException(
+                            'web redirect_uri must have a non-empty host',
+                            0,
+                            'invalid_redirect_uri'
+                        );
+                    }
+                } elseif (!str_contains($scheme, '.')) {
+                    // RFC 8252 §7.1 private-use URI schemes for native apps
+                    // should be a reverse domain name under the client's
+                    // control (e.g. `com.example.app`) and therefore contain
+                    // at least one period. A non-web scheme with no period
+                    // is not a valid private-use URI either; reject.
+                    throw new OAuthServerException(
+                        'redirect_uri scheme must be http, https, or a reverse-domain private-use scheme (RFC 8252 §7.1)',
+                        0,
+                        'invalid_redirect_uri'
+                    );
+                }
+            }
             if ($data->has('post_logout_redirect_uris') && !$data->has('post_logout_redirect_uris')) {
                 throw new OAuthServerException('post_logout_redirect_uris is invalid', 0, 'invalid_client_metadata');
             }
@@ -577,9 +641,12 @@ class AuthorizationController implements LoggerAwareInterface
                     throw new OAuthServerException('No Access Code', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
                 }
             }
-            // TODO: @adunsulag this was the server path but can't we just have it be getPathInfo()?
-            $pathInfoValue = $request->server->get('PATH_INFO');
-            $pathInfo = is_string($pathInfoValue) ? $pathInfoValue : '';
+            // Use Symfony's getPathInfo() rather than the raw $_SERVER['PATH_INFO']
+            // superglobal: the latter is only populated by apache/nginx's own
+            // rewriters, while a front-controller setup (e.g. public/index.php
+            // under `php -S`) does not set it. getPathInfo() returns the same
+            // value apache would produce and works consistently across servers.
+            $pathInfo = $request->getPathInfo();
             $pos = strpos($pathInfo, '/client/');
             if ($pos === false) {
                 throw new OAuthServerException('Invalid path', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
@@ -589,8 +656,24 @@ class AuthorizationController implements LoggerAwareInterface
             if (!$client) {
                 throw new OAuthServerException('Invalid client', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
             }
-            if ($client['registration_access_token'] !== $token) {
+            // Constant-time compare so the response time doesn't vary with
+            // the position of the first differing byte of the stored token.
+            // The DB column is `registration_token` (not `registration_access_token`,
+            // which is the DCR response-body field name).
+            $storedToken = $client['registration_token'] ?? null;
+            if (!is_string($storedToken) || !is_string($token) || !hash_equals($storedToken, $token)) {
                 throw new OAuthServerException('Invalid registration token', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
+            }
+            // Mirror the enabled-flag check performed by the grant classes:
+            // a disabled client should not be able to retrieve its own
+            // credentials through this read endpoint any more than it
+            // can mint tokens through /token.
+            $isEnabled = $client['is_enabled'] ?? 0;
+            $enabled = is_int($isEnabled)
+                ? $isEnabled
+                : (is_string($isEnabled) && ctype_digit($isEnabled) ? (int) $isEnabled : 0);
+            if ($enabled !== 1) {
+                throw new OAuthServerException('Invalid client', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
             }
             $params['client_id'] = $client['client_id'];
             try {
@@ -605,13 +688,38 @@ class AuthorizationController implements LoggerAwareInterface
             $params['client_name'] = $client['client_name'];
             $params['redirect_uris'] = $redirectUri === '' ? [] : explode('|', $redirectUri);
 
-            // need to grab dsi information
+            // Build the response payload (including addDSIInformation which
+            // can throw) BEFORE rotating the stored registration_token.
+            // Otherwise an exception from payload assembly would invalidate
+            // the caller's current token on the server side with no new
+            // token delivered in the response.
+            $newRegToken = $this->getClientRepository()->generateRegistrationAccessToken();
+            $params['registration_access_token'] = $newRegToken;
+            $params['registration_client_uri'] = $this->authBaseFullUrl . '/client/' . $uri_path;
             $this->addDSIInformation($params, $client);
+            $responseJson = json_encode($params);
+
+            // Rotate the registration_access_token on every successful read.
+            // RFC 7592 §3 says the client treats the response as the new
+            // current configuration, so returning a freshly minted RAT in
+            // the response body makes a one-time disclosure of the stored
+            // RAT self-healing on next use. The UPDATE's WHERE clause
+            // includes the current token value so two concurrent reads
+            // using the same stored token cannot both succeed — the second
+            // update affects zero rows and the request is rejected.
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `oauth_clients` SET `registration_token` = ? WHERE `client_id` = ? AND `registration_token` = ?",
+                [$newRegToken, $client['client_id'], $storedToken]
+            );
+            if (QueryUtils::affectedRows() !== 1) {
+                throw new OAuthServerException('Invalid registration token', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
+            }
+
             $response->withHeader("Cache-Control", "no-store");
             $response->withHeader("Pragma", "no-cache");
             $response->withHeader('Content-Type', 'application/json');
             $body = $response->getBody();
-            $body->write(json_encode($params));
+            $body->write($responseJson);
 
             $this->session->invalidate();
             return $response->withStatus(Response::HTTP_OK)->withBody($body);
@@ -1617,8 +1725,23 @@ class AuthorizationController implements LoggerAwareInterface
         // authorization code which is normally only sent for new tokens
         // by the authorization grant flow.
         $code = $request->getParsedBody()['code'] ?? null;
+        // RFC 6749 §4: grant_type is REQUIRED on the token endpoint. Without
+        // it, assigning to the typed string $grantType property below throws
+        // TypeError and bubbles out as an HTTP 500, which both leaks a
+        // framework-level failure to the client and bypasses the standard
+        // OAuth2 error-response contract. Convert the missing-input case
+        // into the RFC-mandated invalid_request response here.
+        $grantTypeInput = $request->getParsedBody()['grant_type'] ?? null;
+        if (!is_string($grantTypeInput) || $grantTypeInput === '') {
+            return (new OAuthServerException(
+                'The grant_type parameter is required',
+                3,
+                'invalid_request',
+                Response::HTTP_BAD_REQUEST
+            ))->generateHttpResponse($response);
+        }
         // grantType could be authorization_code, password or refresh_token.
-        $this->grantType = $request->getParsedBody()['grant_type'];
+        $this->grantType = $grantTypeInput;
         $this->logger->debug("AuthorizationController->oauthAuthorizeToken() grant type received", ['grant_type' => $this->grantType]);
         if ($this->grantType === 'authorization_code') {
             // re-populate from saved session cache populated in authorizeUser().
@@ -1718,6 +1841,72 @@ class AuthorizationController implements LoggerAwareInterface
         return json_decode(HttpUtils::base64url_decode($token), true);
     }
 
+    /**
+     * Parses an OIDC id_token_hint, verifies its signature against the
+     * server's OAuth2 public key, verifies the issuer matches this
+     * server's auth-base URL, and returns the full claims array.
+     *
+     * @return array<string, mixed>
+     * @throws OAuthServerException
+     */
+    private function parseAndVerifyIdTokenHint(string $idToken): array
+    {
+        try {
+            $token = (new JwtParser(new JoseEncoder()))->parse($idToken);
+        } catch (\Throwable $e) {
+            $this->logger->debug(
+                'AuthorizationController->parseAndVerifyIdTokenHint() parse failure',
+                ['error' => $e->getMessage()]
+            );
+            throw new OAuthServerException(
+                'Id token hint could not be parsed',
+                0,
+                'invalid_request',
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        if (!$token instanceof UnencryptedToken) {
+            throw new OAuthServerException(
+                'Id token hint has an unsupported shape',
+                0,
+                'invalid_request',
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $publicKeyContents = @file_get_contents($this->publicKey);
+        if (!is_string($publicKeyContents) || $publicKeyContents === '') {
+            $this->logger->error(
+                'AuthorizationController->parseAndVerifyIdTokenHint() OAuth2 public key not readable',
+                ['path' => $this->publicKey]
+            );
+            throw new OAuthServerException(
+                'Id token hint cannot be verified',
+                0,
+                'invalid_request',
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+        try {
+            (new JwtValidator())->assert(
+                $token,
+                new SignedWith(new RsaSha256Signer(), InMemory::plainText($publicKeyContents)),
+                new IssuedBy($this->authBaseFullUrl),
+            );
+        } catch (RequiredConstraintsViolated $e) {
+            $this->logger->debug(
+                'AuthorizationController->parseAndVerifyIdTokenHint() constraint violation',
+                ['violations' => array_map(static fn ($v): string => (string) $v, $e->violations())]
+            );
+            throw new OAuthServerException(
+                'Id token hint failed verification',
+                0,
+                'invalid_request',
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        return $token->claims()->all();
+    }
+
     public function userSessionLogout(HttpRestRequest $request): ResponseInterface
     {
         $message = '';
@@ -1730,10 +1919,26 @@ class AuthorizationController implements LoggerAwareInterface
             }
             $post_logout_url = $request->query->get('post_logout_redirect_uri', '');
             $state = $request->query->get('state', '');
-            $token_parts = explode('.', $id_token);
-            $id_payload = $this->decodeToken($token_parts[1]);
 
-            $client_id = is_string($id_payload['aud'] ?? null) ? $id_payload['aud'] : '';
+            // Parse the id_token_hint via the same JWT library the issuing path
+            // uses (IdTokenSMARTResponse signs with Rsa\Sha256). Reject the
+            // hint if the signature doesn't match the server's OAuth2 public
+            // key or if the issuer does not match this server's auth-base URL.
+            // Expiration is deliberately not enforced: OIDC RP-Initiated
+            // Logout §4 permits a hint whose id_token has already expired.
+            $id_payload = $this->parseAndVerifyIdTokenHint($id_token);
+
+            // The verified parser may deliver `aud` as either a string or
+            // a single-element array per JWT serialization choices; the
+            // raw json_decode call this replaced produced a string. Normalize.
+            $aud = $id_payload['aud'] ?? null;
+            if (is_string($aud)) {
+                $client_id = $aud;
+            } elseif (is_array($aud) && isset($aud[0]) && is_string($aud[0])) {
+                $client_id = $aud[0];
+            } else {
+                $client_id = '';
+            }
             $user = $id_payload['sub'];
             $id_nonce = $id_payload['nonce'] ?? '';
             $trustedUser = $this->trustedUser($client_id, $user);

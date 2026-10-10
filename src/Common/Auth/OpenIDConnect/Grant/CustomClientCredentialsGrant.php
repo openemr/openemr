@@ -202,6 +202,25 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
             $this->getSystemLogger()->error("CustomClientCredentialsGrant->validateClient() client returned was not a valid ClientEntity ", ['client' => $clientId]);
             throw OAuthServerException::invalidClient($request);
         }
+
+        // Mirror the enabled-flag check performed by the other three custom
+        // grants (CustomAuthCodeGrant, CustomPasswordGrant, CustomRefreshTokenGrant).
+        if (!$client->isEnabled()) {
+            // SystemLoggerAwareTrait::getSystemLogger() is deprecated with a
+            // "read from the ->logger property" notice, so the modernized
+            // path is $this->logger?->error, not the sibling grants'
+            // getSystemLogger() calls. The nullsafe is intentional: the
+            // trait's own getSystemLogger() lazily materializes a
+            // SystemLogger when ->logger is null, but once this class
+            // migrates to constructor-injected logging the trait will go
+            // away entirely.
+            $this->logger?->error(
+                "CustomClientCredentialsGrant->validateClient() client was not enabled",
+                ['client' => $client->getIdentifier()]
+            );
+            throw OAuthServerException::invalidClient($request);
+        }
+
         // validate everything to do with the JWT...
         // Check if JWT authentication service is available and request has JWT assertion
         if (!isset($this->jwtAuthService)) {
