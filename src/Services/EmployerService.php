@@ -127,8 +127,12 @@ class EmployerService extends BaseService
         $createdBy = $session->get('authUserID'); // we don't let anyone else but the current user be the createdBy
         $new['created_by'] = $createdBy;
 
-        if (!$create) {
-            $old = $this->getMostRecentEmployerData($pid);
+        // A patient can have no employer_data row yet: imported, or created
+        // outside the Add New Patient form. Merging into nothing used to
+        // discard every submitted value, so save them as the first row, as a
+        // create does.
+        $old = $create ? false : $this->getMostRecentEmployerData($pid);
+        if ($old !== false) {
             $valuesToSave = [];
             foreach ($old as $key => $oldValue) {
                 $newValue = empty($new[$key]) ? '' : $new[$key];
