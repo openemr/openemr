@@ -43867,11 +43867,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qrda/Population.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'uptime\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',

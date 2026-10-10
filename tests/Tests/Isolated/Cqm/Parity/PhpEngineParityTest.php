@@ -1,10 +1,11 @@
 <?php
 
 /**
- * Runs the PHP CQL engine over every parity fixture and requires the
- * results cqm-execution recorded: each patient's population counts,
- * observation values and the final outcome of every statement, for every
- * population set and stratification.
+ * Runs the PHP CQL engine, through the entry point eCQM reporting uses,
+ * over every parity fixture and requires the results cqm-execution
+ * recorded: each patient's population counts, observation values and the
+ * final outcome of every statement, for every population set and
+ * stratification.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -17,7 +18,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Cqm\Parity;
 
-use OpenEMR\Cqm\Cql\Engine\MeasureCalculator;
+use OpenEMR\Cqm\PhpCqmCalculation;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -33,8 +34,12 @@ class PhpEngineParityTest extends TestCase
             $this->markTestSkipped("cqm-execution cannot run {$fixture->measure}, so there is nothing to match.");
         }
         $dir = self::measuresDir() . "/{$fixture->measure}";
-        $calculator = new MeasureCalculator(self::readJson("$dir/{$fixture->measure}.json"), self::listOfArrays(self::readJson("$dir/value_sets.json")));
-        $results = $calculator->calculate($fixture->patients, $fixture->reportingYear . '0101000000');
+        $results = (new PhpCqmCalculation())->calculate(
+            json_encode($fixture->patients, JSON_THROW_ON_ERROR),
+            self::readJson("$dir/{$fixture->measure}.json"),
+            self::readFile("$dir/value_sets.json"),
+            $fixture->reportingYear . '0101000000'
+        );
 
         $differences = [];
         foreach ($fixture->results as $patientId => $byKey) {
@@ -96,18 +101,14 @@ class PhpEngineParityTest extends TestCase
      */
     private static function readJson(string $path): array
     {
-        $json = file_get_contents($path);
-        $data = $json === false ? null : json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode(self::readFile($path), true, 512, JSON_THROW_ON_ERROR);
         return is_array($data) ? $data : throw new \RuntimeException("Unreadable $path");
     }
 
-    /**
-     * @param array<mixed> $data
-     * @return list<array<mixed>>
-     */
-    private static function listOfArrays(array $data): array
+    private static function readFile(string $path): string
     {
-        return array_values(array_filter($data, is_array(...)));
+        $json = file_get_contents($path);
+        return $json === false ? throw new \RuntimeException("Unreadable $path") : $json;
     }
 
     private static function measuresDir(): string
