@@ -341,3 +341,67 @@ rules:
     likelihood: LOW
     impact: MEDIUM
     confidence: MEDIUM
+
+  # Same finding as p/php tainted-sql-string, with OpenEMR's column whitelist
+  # treated as a sanitizer. escape_sql_column_name() returns a backtick-quoted
+  # name that exists on the named table, or it throws. The stock rule is
+  # excluded in .github/workflows/semgrep.yml so this copy is the one that runs.
+- id: tainted-sql-string
+  languages:
+  - php
+  severity: ERROR
+  message: >-
+    User data flows into this manually-constructed SQL string. User data can
+    be safely inserted into SQL strings using prepared statements. A column
+    name has to come from escape_sql_column_name(), which whitelists it
+    against the live table and quotes it.
+  metadata:
+    cwe:
+    - "CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')"
+    owasp:
+    - A01:2017 - Injection
+    - A03:2021 - Injection
+    category: security
+    technology:
+    - php
+    cwe2022-top25: true
+    cwe2021-top25: true
+    subcategory:
+    - vuln
+    likelihood: HIGH
+    impact: MEDIUM
+    confidence: MEDIUM
+  mode: taint
+  pattern-sanitizers:
+  - pattern-either:
+    - pattern: mysqli_real_escape_string(...)
+    - pattern: real_escape_string(...)
+    - pattern: $MYSQLI->real_escape_string(...)
+    - pattern: escape_sql_column_name(...)
+  pattern-sources:
+  - patterns:
+    - pattern-either:
+      - pattern: $_GET
+      - pattern: $_POST
+      - pattern: $_COOKIE
+      - pattern: $_REQUEST
+  pattern-sinks:
+  - pattern-either:
+    - patterns:
+      - pattern: |
+          sprintf($SQLSTR, ...)
+      - metavariable-regex:
+          metavariable: $SQLSTR
+          regex: (?is).*\b(select|delete|insert|create|update|alter|drop)\b.*
+    - patterns:
+      - pattern: |
+          "...$EXPR..."
+      - metavariable-regex:
+          metavariable: $EXPR
+          regex: (?is).*\b(select|delete|insert|create|update|alter|drop)\b.*
+    - patterns:
+      - pattern: |
+          "$SQLSTR".$EXPR
+      - metavariable-regex:
+          metavariable: $SQLSTR
+          regex: (?is).*\b(select|delete|insert|create|update|alter|drop)\b.*

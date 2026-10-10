@@ -60,6 +60,7 @@ jobs:
           --exclude '*.mustache' \
           --exclude-rule php.lang.security.injection.echoed-request.echoed-request \
           --exclude-rule php.lang.security.injection.printed-request.printed-request \
+          --exclude-rule php.lang.security.injection.tainted-sql-string.tainted-sql-string \
           --sarif \
           --output=semgrep-results.sarif \
           .
@@ -91,6 +92,7 @@ jobs:
           --exclude '*.mustache' \
           --exclude-rule php.lang.security.injection.echoed-request.echoed-request \
           --exclude-rule php.lang.security.injection.printed-request.printed-request \
+          --exclude-rule php.lang.security.injection.tainted-sql-string.tainted-sql-string \
           --baseline-commit="$BASE_SHA" \
           --sarif \
           --output=semgrep-results.sarif \
