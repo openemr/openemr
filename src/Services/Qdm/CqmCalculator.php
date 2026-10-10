@@ -41,12 +41,12 @@ class CqmCalculator
     /**
      * @param  QdmRequestInterface $request
      * @param  Measure $measure
-     * @param  $effectiveDate
-     * @param  $effectiveEndDate
+     * @param  $effectiveDate the measurement period start; the period is the year from it, as with the Node service
      * @return array<string, array<string, array<string, mixed>>> results by patient id and population set id
-     * @throws \JsonException|\RuntimeException|\LogicException when the measure cannot be calculated
+     * @throws MeasureCalculationException when the engine cannot calculate the measure
+     * @throws \JsonException|\RuntimeException when the measure files or patients cannot be read
      */
-    public function calculateMeasure($patients, Measure $measure, $effectiveDate, $effectiveEndDate)
+    public function calculateMeasure($patients, Measure $measure, $effectiveDate)
     {
         $this->measure = $measure;
         $measureFiles = MeasureService::fetchMeasureFiles($measure->measure_path);
@@ -109,7 +109,17 @@ class CqmCalculator
         if ($effectiveTime === false) {
             throw new \UnexpectedValueException('Unreadable measurement period start');
         }
-        return (new PhpCqmCalculation())->calculate($patientsJson, $measureData, $valueSetsJson, date('YmdHi', $effectiveTime) . '00');
+        try {
+            return (new PhpCqmCalculation())->calculate($patientsJson, $measureData, $valueSetsJson, date('YmdHi', $effectiveTime) . '00');
+        } catch (\RuntimeException | \LogicException $e) {
+            // e.g. CQL the engine cannot run, as cqm-execution cannot: "no function with matching signature"
+            $measureId = match (true) {
+                is_string($measure->cms_id) && $measure->cms_id !== '' => $measure->cms_id,
+                is_string($measure->hqmf_id) => $measure->hqmf_id,
+                default => 'unknown',
+            };
+            throw new MeasureCalculationException($measureId, $e);
+        }
     }
 
     public function getMeasure()

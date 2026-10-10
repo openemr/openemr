@@ -95,13 +95,13 @@ class MeasureResultsTest extends TestCase
 
             // Calculate as QRDA reporting does: the patient from the database, the Measure model
             // and CqmCalculator. The measurement period runs a year from effectiveDate, as in
-            // reporting; effectiveEndDate is not used.
+            // reporting, so effectiveEndDate is not passed.
             $request = new QdmRequestOne($pid);
             $builder = new QdmBuilder();
             $models = $builder->build($request);
             $measureModel = new Measure(MeasureService::fetchMeasureJson($measurePath));
             $measureModel->measure_path = $measurePath;
-            $response = (new CqmCalculator())->calculateMeasure($models, $measureModel, $measureResult['effectiveDate'], $measureResult['effectiveEndDate']);
+            $response = (new CqmCalculator())->calculateMeasure($models, $measureModel, $measureResult['effectiveDate']);
 
             // Check response result against our measure map
             foreach ($response as $populationSets) {

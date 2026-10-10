@@ -518,7 +518,7 @@ XML;
     private function request_for($patients, Measure $measure): array
     {
 
-        $results = $this->calculator->calculateMeasure($patients, $measure, $this->effectiveDate, $this->effectiveDateEnd);
+        $results = $this->calculator->calculateMeasure($patients, $measure, $this->effectiveDate);
         $final_results = [];
         foreach ($results as $patient_id => $result) {
             // we will deviate here as we don't need the patient as we aren't saving any data for cypress with the patient
@@ -571,6 +571,10 @@ XML;
         $results = [];
         foreach ($individual_results as $population_set_key => $individual_result) {
             if (!is_array($individual_result)) {
+                ServiceContainer::getLogger()->warning('Skipping a malformed calculation result', [
+                    'measure' => $measure->cms_id,
+                    'population_set_key' => $population_set_key,
+                ]);
                 continue;
             }
             $individual_result['population_set_key'] = $population_set_key;
