@@ -343,11 +343,17 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     ): string {
         if ($format === null && !($date instanceof \DateInterval)) {
             $format = DateFormatterUtils::getShortDateFormat();
+            $dateHasTime = false;
+            if (is_string($date)) {
+                $dateString = trim($date);
+                $dateHasTime = $dateString === ''
+                    || strtolower($dateString) === 'now'
+                    || str_contains($dateString, ':')
+                    || date_parse($dateString)['hour'] !== false;
+            }
             if (
                 !is_string($date)
-                || trim($date) === ''
-                || strtolower(trim($date)) === 'now'
-                || str_contains($date, ':')
+                || $dateHasTime
             ) {
                 $format .= ' ' . DateFormatterUtils::getTimeFormat();
             }
