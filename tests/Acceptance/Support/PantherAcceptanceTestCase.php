@@ -256,23 +256,26 @@ abstract class PantherAcceptanceTestCase extends TestCase
      */
     private function resolveFailureArtifactsDir(): ?string
     {
-        // From tests/Acceptance/Support/ (this file) up four levels
-        // puts us at the repo root. Same shape UserAddTrait uses.
-        $repoRoot = dirname(__DIR__, 3);
-        $candidate = $repoRoot . '/tmp/acceptance-failure-artifacts';
+        // From tests/Acceptance/Support/ (this file) up three levels
+        // puts us at the repo root. tmp/acceptance-failure-artifacts/
+        // is the single visible-to-CI location: both
+        // acceptance-docker.yml and acceptance-package.yml upload
+        // exactly that path on failure. No sys_get_temp_dir
+        // fallback — CodeRabbit review on PR flagged that writing to
+        // the fallback would silently drop the artifacts (workflow
+        // uploader only globs tmp/acceptance-failure-artifacts/**).
+        // If we can't write to the preferred location, we return null
+        // and skip the capture rather than write artifacts the uploader
+        // won't collect.
+        $candidate = dirname(__DIR__, 3) . '/tmp/acceptance-failure-artifacts';
         if (is_dir($candidate) && is_writable($candidate)) {
             return $candidate;
         }
         if (!is_dir($candidate) && @mkdir($candidate, 0o777, true) && is_writable($candidate)) {
             return $candidate;
         }
-        $fallback = sys_get_temp_dir() . '/openemr-acceptance-failure-artifacts';
-        if (!is_dir($fallback) && !@mkdir($fallback, 0o777, true)) {
-            fwrite(STDERR, "[acceptance-failure-capture] Could not create artifacts dir (tried {$candidate} and {$fallback})\n");
-            return null;
-        }
-        fwrite(STDERR, "[acceptance-failure-capture] Falling back to {$fallback} (preferred {$candidate} unwritable)\n");
-        return $fallback;
+        fwrite(STDERR, "[acceptance-failure-capture] Could not create artifacts dir at {$candidate}; skipping capture.\n");
+        return null;
     }
 
     protected function tearDown(): void
