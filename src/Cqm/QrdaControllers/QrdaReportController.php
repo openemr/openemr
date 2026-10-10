@@ -305,7 +305,7 @@ class QrdaReportController
                 // Leave the measure out and say so in the zip, so the other measures still export
                 ServiceContainer::getLogger()->error('QRDA III measure not calculated', ['measure' => $e->measureId, 'exception' => $e]);
                 file_put_contents(
-                    $zip_directory . DIRECTORY_SEPARATOR . $measure_id . '_NOT_CALCULATED.txt',
+                    $zip_directory . DIRECTORY_SEPARATOR . $e->measureId . '_NOT_CALCULATED.txt',
                     $e->measureId . ': ' . xl('this measure cannot be calculated by the eCQM calculation engine') . "\n"
                 );
                 continue;

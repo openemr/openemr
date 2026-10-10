@@ -46,9 +46,7 @@ class CqmCalculatorTest extends TestCase
         $results = (new CqmCalculator())->calculateMeasure([self::patient()], self::measure('CMS122v13'), '2025-01-01 00:00:00');
 
         $this->assertCount(1, $results);
-        $populationSets = reset($results);
-        $this->assertIsArray($populationSets);
-        $this->assertSame(0, $populationSets['PopulationSet_1']['IPP'] ?? null);
+        $this->assertSame(0, array_values($results)[0]['PopulationSet_1']['IPP'] ?? null);
     }
 
     private static function measure(string $name): Measure

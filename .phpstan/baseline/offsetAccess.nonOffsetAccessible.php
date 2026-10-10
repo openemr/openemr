@@ -45367,11 +45367,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'effectiveEndDate\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'measure\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',

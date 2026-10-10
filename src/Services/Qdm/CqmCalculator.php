@@ -113,12 +113,7 @@ class CqmCalculator
             return (new PhpCqmCalculation())->calculate($patientsJson, $measureData, $valueSetsJson, date('YmdHi', $effectiveTime) . '00');
         } catch (\RuntimeException | \LogicException $e) {
             // e.g. CQL the engine cannot run, as cqm-execution cannot: "no function with matching signature"
-            $measureId = match (true) {
-                is_string($measure->cms_id) && $measure->cms_id !== '' => $measure->cms_id,
-                is_string($measure->hqmf_id) => $measure->hqmf_id,
-                default => 'unknown',
-            };
-            throw new MeasureCalculationException($measureId, $e);
+            throw new MeasureCalculationException($measure->cms_id !== '' ? $measure->cms_id : $measure->hqmf_id, $e);
         }
     }
 

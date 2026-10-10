@@ -86,6 +86,7 @@ class MeasureObservationTest extends TestCase
         $excluded = self::calculate($measure, 2, true);
 
         $this->assertSame(['IPP' => true, 'MSRPOPL' => true, 'MSRPOPLEX' => true, 'observation_values' => true], $observed['population_relevance']);
+        $this->assertIsArray($excluded['population_relevance']);
         $this->assertFalse($excluded['population_relevance']['observation_values']);
     }
 
