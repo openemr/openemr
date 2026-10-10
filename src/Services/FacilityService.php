@@ -289,6 +289,12 @@ class FacilityService extends BaseService
         return ["facility_address" => ""];
     }
 
+    /**
+     * Facility row for one encounter, from the encounter service location.
+     *
+     * @param mixed $encounterId
+     * @return mixed
+     */
     public function getFacilityForEncounter($encounterId)
     {
         $record = $this->get([
@@ -319,6 +325,13 @@ class FacilityService extends BaseService
         return is_array($row);
     }
 
+    /**
+     * Replace the stored facility columns and tell listeners it changed.
+     *
+     * The column list has to be an array before the update is sent.
+     *
+     * @param array<string, mixed> $data
+     */
     public function updateFacility($data)
     {
         $dataBeforeUpdate = $this->getById($data['id']);
@@ -338,6 +351,14 @@ class FacilityService extends BaseService
         return $result;
     }
 
+    /**
+     * Store a new facility and tell listeners it was created.
+     *
+     * The column list has to be an array before the insert is sent.
+     *
+     * @param array<string, mixed> $data
+     * @return int|string
+     */
     public function insertFacility($data)
     {
         $query = $this->buildInsertColumns($data);
@@ -355,6 +376,12 @@ class FacilityService extends BaseService
         return $facilityId;
     }
 
+    /**
+     * Rename the facility stored on users who belong to this facility.
+     *
+     * @param mixed $facility_name
+     * @param mixed $facility_id
+     */
     public function updateUsersFacility($facility_name, $facility_id)
     {
         $sql = " UPDATE users SET";

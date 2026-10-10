@@ -52,6 +52,9 @@ $echoFacilitySaveDialogResult = function (bool $saved, string $sentence): void {
 };
 
 $phoneCountryCode = OEGlobalsBag::getInstance()->getInt('phone_country_code');
+/**
+ * Sentence for this facility's postal code, or empty when no notice applies.
+ */
 $facilityPostalSentence = fn (string $postal, bool $billing, bool $service, string $country): string => match (FacilityService::facilityPostalSaveNotice($postal, $billing, $service, $country, $phoneCountryCode)) {
     FacilityService::FACILITY_SAVED_BILLING_POSTAL => xl(FacilityService::FACILITY_SAVED_BILLING_POSTAL),
     FacilityService::FACILITY_SAVED_SERVICE_POSTAL => xl(FacilityService::FACILITY_SAVED_SERVICE_POSTAL),
