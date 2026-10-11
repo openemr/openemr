@@ -32,7 +32,7 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
             ,'diagnosis' => [
                 'A01.1' => [
                     'code' => 'A01.1',
-                    'system' => FhirCodeSystemConstants::HL7_ICD10,
+                    'system' => FhirCodeSystemConstants::HL7_ICD10_CM,
                     'description' => 'Typhoid meningitis'
                 ]
             ]
@@ -62,7 +62,7 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
 
         $coding = $fhirResource->getCode()->getCoding()[0];
         $this->assertEquals('I10.', $coding->getCode());
-        $this->assertEquals(FhirCodeSystemConstants::HL7_ICD10, $coding->getSystem());
+        $this->assertEquals(FhirCodeSystemConstants::HL7_ICD10_CM, $coding->getSystem());
         $this->assertEquals('Essential (primary) hypertension', $coding->getDisplay());
         $this->assertEquals('Essential (primary) hypertension', $fhirResource->getCode()->getText());
     }
@@ -80,7 +80,7 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         $codings = $fhirResource->getCode()->getCoding();
         $this->assertCount(2, $codings);
         $systems = [(string)$codings[0]->getSystem(), (string)$codings[1]->getSystem()];
-        $this->assertContains(FhirCodeSystemConstants::HL7_ICD10, $systems);
+        $this->assertContains(FhirCodeSystemConstants::HL7_ICD10_CM, $systems);
         $this->assertContains(FhirCodeSystemConstants::SNOMED_CT, $systems);
     }
 
@@ -130,7 +130,7 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         $this->assertNotEmpty($fhirResource->getCode(), "Expected code to be set in FHIRCondition resource.");
         $this->assertNotEmpty($fhirResource->getCode()->getCoding(), "Expected code.coding to be set in FHIRCondition resource.");
         $this->assertEquals('A01.1', $fhirResource->getCode()->getCoding()[0]->getCode(), "Expected code to match OpenEMR diagnosis.");
-        $this->assertEquals(FhirCodeSystemConstants::HL7_ICD10, $fhirResource->getCode()->getCoding()[0]->getSystem(), "Expected code system to be 'ICD10'.");
+        $this->assertEquals(FhirCodeSystemConstants::HL7_ICD10_CM, $fhirResource->getCode()->getCoding()[0]->getSystem(), "Expected code system to be 'ICD10'.");
 
         // subject
         $this->assertNotEmpty($fhirResource->getSubject(), "Expected subject to be set in FHIRCondition resource.");
