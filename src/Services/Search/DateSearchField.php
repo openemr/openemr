@@ -5,7 +5,7 @@
  * data contained in the OpenEMR system.  The search field will take in an array of values that are in the ISO8601 format
  * and parse them.  Fuzzy matching is supporting from left to right matching (in order of specificity ie a fuzzy search on
  * month must be preceded by year).  If a time component is specified both hours and minutes are required with seconds
- * being optional.  Currently Timezone parsing is not supported.
+ * being optional.  A value with no timezone is read in the server's timezone.
  *
  * In order to support fuzzy matching (equality, greater than, greater than or equal to, etc) each value being searched
  * on is converted into a DatePeriod with a start and end date component.
@@ -38,7 +38,7 @@ class DateSearchField extends BasicSearchField
     // This line is licensed under the MIT license and was last accessed on April 20th 2021
     // This line was updated on July 6th 2023 to support the fractional seconds (represented in milliseconds) component of the ISO8601 standard
     // per the https://build.fhir.org/search.html#date parameter format yyyy-mm-ddThh:mm:ss.ssss[Z|(+|-)hh:mm]
-    private const COMPARATOR_MATCH = "/^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(\.\d{1,9})?(Z|(\+|-)(\d{2}):(\d{2}))?$/";
+    private const COMPARATOR_MATCH = "/^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(?:(:\d{2})(\.\d{1,9})?)?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/";
 
     // php's DATE_ATOM does not handle milliseconds so we have to add them in manually
     public const DATE_ATOM_MILLISECONDS = 'Y-m-d\TH:i:s.uP';
@@ -138,11 +138,6 @@ class DateSearchField extends BasicSearchField
         }
         if (empty($matches[self::COMPARATOR_INDEX_YEAR])) {
             throw new \InvalidArgumentException("Date format requires the year to be specified");
-        }
-
-        // TODO: @adunsulag how did this ever trigger? seconds is optional, this forces seconds to be used...
-        if (!empty($matches[5]) && empty($matches[6])) {
-            throw new \InvalidArgumentException("Date format requires minutes to be specified if an hour is provided");
         }
 
         $comparator = $matches[self::COMPARATOR_INDEX_COMPARATOR] ?? SearchComparator::EQUALS;
