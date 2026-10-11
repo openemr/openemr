@@ -87,6 +87,7 @@
         "lbf_report",
         "listingCDRReminderLog",
         "lookup_code_descriptions",
+        "manage_tracker_status",
         "note",
         "opcache_invalidate",
         "privQuery",
@@ -110,6 +111,7 @@
         "sqlStatementCdrEngine",
         "sqlStatementNoLog",
         "sqlStatementThrowException",
+        "todaysEncounterCheck",
         "ub04Dispose",
         "ub04_dispose"
     ],
