@@ -57612,11 +57612,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/PaymentProcessing/Sphere/SphereRevert.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$html of method HTMLPurifier\\:\\:purify\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Pdf/PatientPortalPDFDocumentCreator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$patient_id of method Document\\:\\:createDocument\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Pdf/PatientPortalPDFDocumentCreator.php',
