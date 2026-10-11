@@ -581,15 +581,16 @@ class OAuth2AttackScenarioTest extends TestCase
     #[Test]
     public function testCorsResponseDoesNotEmitAllowOriginWhenClientIsDisabled(): void
     {
-        // getOriginsForClient's WHERE clause filters on is_enabled = 1.
-        // A disabled client's redirect_uris must not resolve to an
-        // Allow-Origin match even if the token was issued while the
-        // client was still enabled. Exercises the admin-disabled-
-        // mid-session case where the token is still live but the
-        // client has been administratively revoked -- the response
-        // body still goes to the caller (the bearer strategy's own
-        // revocation check is separate), but no cross-origin JS can
-        // read it.
+        // Admin-disabled client with a still-live token: the Bearer
+        // strategy checks $client->isEnabled() during authorizeRequest
+        // and throws accessDenied before setting the clientId request
+        // attribute. The CORS listener therefore never consults
+        // getOriginsForClient at all -- clientId is unset, so the
+        // "clientId must be a non-empty string" branch in
+        // onKernelResponse short-circuits before the registry lookup.
+        // Response is 401 and no Allow-Origin header is emitted,
+        // which is what prevents the attacker's JS from reading the
+        // 401 body cross-origin.
         $origin = 'https://disabled-client-origin.example';
         [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
             'DisabledClient',
@@ -606,16 +607,15 @@ class OAuth2AttackScenarioTest extends TestCase
             'Origin' => $origin,
             'Authorization' => 'Bearer ' . $tokens['access_token'],
         ]);
-        // The bearer-token flow may or may not reject disabled-client
-        // tokens on this specific endpoint depending on how deep the
-        // revocation check runs; this test's assertion is scoped to
-        // the CORS header, not the status. Whether the status is 200
-        // or 401, Allow-Origin must not be set for a disabled client.
+        $this->assertSame(
+            401,
+            $resp['status'],
+            'Bearer strategy must reject a token whose client is disabled. Body: ' . $resp['body']
+        );
         $this->assertArrayNotHasKey(
             'access-control-allow-origin',
             array_change_key_case($resp['headers']),
-            'Allow-Origin must not be emitted for a request authenticated under a disabled client. Status: '
-            . $resp['status']
+            'Allow-Origin must not be emitted for a request whose client is disabled upstream of the CORS gate'
         );
     }
 
