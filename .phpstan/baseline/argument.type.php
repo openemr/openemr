@@ -68768,7 +68768,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, array given\\.$#',
-    'count' => 1,
+    'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
 ];
 $ignoreErrors[] = [
@@ -68778,7 +68778,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$scopeConfirmationPage of method OpenEMR\\\\Tests\\\\Api\\\\AuthorizationGrantFlowTest\\:\\:requestTestScopeConfirmationPageEndpoint\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
 ];
 $ignoreErrors[] = [

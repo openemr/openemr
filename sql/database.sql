@@ -14173,6 +14173,15 @@ KEY `accounts_id` (`user_id`),
 KEY `clients_id` (`client_id`)
 ) ENGINE=InnoDB;
 
+DROP TABLE IF EXISTS `oauth_auth_code_revocations`;
+CREATE TABLE `oauth_auth_code_revocations` (
+`code_id` varchar(80) NOT NULL,
+`client_id` varchar(80) DEFAULT NULL COMMENT 'client the code was issued to, kept for operator traceability',
+`revoked_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+PRIMARY KEY (`code_id`),
+KEY `idx_revoked_at` (`revoked_at`)
+) ENGINE=InnoDB;
+
 DROP TABLE IF EXISTS `x12_remote_tracker`;
 CREATE TABLE `x12_remote_tracker` (
 `id` bigint(20) NOT NULL AUTO_INCREMENT,

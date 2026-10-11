@@ -445,6 +445,46 @@ class AuthorizationLogoutTest extends TestCase
         $this->assertFalse($response->hasHeader('Location'));
     }
 
+    #[Test]
+    public function testLogoutRejectsHintWithTamperedSignature(): void
+    {
+        // Build a correctly-signed JWT, then flip bytes in the
+        // signature portion. Structurally valid but cryptographically
+        // invalid. The post-#14475 signature-verifying flow must
+        // reject this at the signature check, not fall through to
+        // claim validation.
+        [$signer, $privateKey, $realIssuer] = $this->loadLogoutJwtMaterial();
+        $now = new DateTimeImmutable();
+        $validToken = (new JwtTokenBuilder(new JoseEncoder(), ChainedFormatter::default()))
+            ->issuedBy($realIssuer)
+            ->permittedFor(self::TEST_CLIENT_ID)
+            ->relatedTo('nobody')
+            ->issuedAt($now)
+            ->expiresAt($now->modify('+1 hour'))
+            ->withClaim('nonce', '')
+            ->getToken($signer, $privateKey)
+            ->toString();
+
+        $parts = explode('.', $validToken);
+        $this->assertCount(3, $parts, 'A valid lcobucci JWT has exactly three dot-separated parts');
+        // Flip the last 10 chars of the signature so the structural shape
+        // and header+payload are untouched but the signature is wrong.
+        $sig = $parts[2];
+        $this->assertGreaterThan(10, strlen($sig));
+        $sig = substr($sig, 0, -10) . strtr(substr($sig, -10), 'abcABC123', 'ZYXzyx987');
+        $tamperedToken = $parts[0] . '.' . $parts[1] . '.' . $sig;
+
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $tamperedToken,
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+    }
+
     private function b64url(string $data): string
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
