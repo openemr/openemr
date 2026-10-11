@@ -137,11 +137,33 @@ class AuthorizationListener implements EventSubscriberInterface
      * @return RestApiSecurityCheckEvent
      * @throws AccessDeniedException
      */
+    /**
+     * Routes that have no fine-grained resource/permission to gate on and
+     * are protected entirely by the Bearer strategy's api:oemr scope check.
+     * Listed here so the dispatcher's resource-level scope check (which would
+     * otherwise require a non-existent `user/version.s` scope) is skipped
+     * for them. Keep this list very narrow -- adding to it bypasses the
+     * dispatcher's authorization logic.
+     *
+     * @var list<string>
+     */
+    private const BEARER_ONLY_STANDARD_API_PATHS = [
+        '/api/version',
+        '/api/product',
+    ];
+
     public function onRestApiSecurityCheck(RestApiSecurityCheckEvent $event): RestApiSecurityCheckEvent
     {
         $request = $event->getRestRequest();
         if ($event->shouldSkipSecurityCheck()) {
             // If the event indicates that security checks should be skipped, we don't do any further processing.
+            return $event;
+        }
+        if (in_array($request->getRequestPathWithoutSite(), self::BEARER_ONLY_STANDARD_API_PATHS, true)) {
+            // Bearer strategy has already enforced api:oemr for /api/* routes
+            // on the way in; the resource-level check that would otherwise
+            // run would just produce a false 401 because no `user/version.*`
+            // or `user/product.*` scope is defined in the scope repository.
             return $event;
         }
         $restRequest = $event->getRestRequest();
