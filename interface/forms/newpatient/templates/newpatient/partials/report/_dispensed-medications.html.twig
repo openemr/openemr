@@ -10,7 +10,6 @@
         <th>{{ "Dosage Instructions"|xlt }}</th>
     </tr>
     </thead>
-    {% if e.dispensedMedications is not empty %}
     <tbody>
     {% for med in e.dispensedMedications %}
             <tr>
@@ -23,11 +22,4 @@
             </tr>
     {% endfor %}
     </tbody>
-    {% else %}
-        <tbody>
-        <tr>
-            <td colspan="5"><p class="text-muted">{{ "No medications dispensed during this encounter."|xlt }}</p></td>
-        </tr>
-        </tbody>
-    {% endif %}
 </table>
