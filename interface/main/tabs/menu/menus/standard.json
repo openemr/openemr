@@ -642,7 +642,7 @@
                 "requirement": 1,
                 "acl_req": [
                     "patients",
-                    "lab"
+                    "sign"
                 ]
             },
             {
@@ -654,7 +654,7 @@
                 "requirement": 1,
                 "acl_req": [
                     "patients",
-                    "lab"
+                    "sign"
                 ]
             },
             {
@@ -678,7 +678,7 @@
                 "requirement": 0,
                 "acl_req": [
                     "patients",
-                    "lab"
+                    "sign"
                 ]
             },
             {
@@ -1058,7 +1058,7 @@
                         "requirement": 0,
                         "acl_req": [
                             "admin",
-                            "practice"
+                            "super"
                         ]
                     }
                 ],
@@ -1067,6 +1067,10 @@
                     [
                         "admin",
                         "practice"
+                    ],
+                    [
+                        "admin",
+                        "super"
                     ]
                 ]
             },
@@ -1573,7 +1577,7 @@
                         "requirement": 0,
                         "acl_req": [
                             "patients",
-                            "appt"
+                            "med"
                         ],
                         "global_req": "!disable_chart_tracker"
                     },
