@@ -1453,44 +1453,38 @@ class SQLUpgradeService implements ISQLUpgradeService
         $this->flush_echo();
 
         // we need to grab all of the uuid mappings for care team and join them with patient_data
-        $committed = false;
         try {
-            QueryUtils::startTransaction();
-            $fromClause = "FROM patient_data pd
-                LEFT JOIN uuid_mapping um ON um.target_uuid = pd.uuid AND um.resource='CareTeam'
-                WHERE (pd.care_team_provider != '' AND pd.care_team_provider IS NOT NULL) OR (pd.care_team_facility != '' AND pd.care_team_facility IS NOT NULL)";
+            // commits both passes together, or rolls both back and rethrows
+            QueryUtils::inTransaction(function (): void {
+                $fromClause = "FROM patient_data pd
+                    LEFT JOIN uuid_mapping um ON um.target_uuid = pd.uuid AND um.resource='CareTeam'
+                    WHERE (pd.care_team_provider != '' AND pd.care_team_provider IS NOT NULL) OR (pd.care_team_facility != '' AND pd.care_team_facility IS NOT NULL)";
 
-            $sql = "
-                SELECT pd.pid, pd.care_team_provider, pd.care_team_facility, IFNULL(pd.care_team_status, 'active') AS care_team_status,
-                um.uuid AS care_team_uuid, pd.last_updated, pd.created_by, pd.updated_by " . $fromClause;
-            $records = QueryUtils::fetchRecords($sql, [], true);
-            $this->createCareTeamRecordsList($records);
-            $this->cleanupCareTeamUUIDMappingsForPatientData();
+                $sql = "
+                    SELECT pd.pid, pd.care_team_provider, pd.care_team_facility, IFNULL(pd.care_team_status, 'active') AS care_team_status,
+                    um.uuid AS care_team_uuid, pd.last_updated, pd.created_by, pd.updated_by " . $fromClause;
+                $records = QueryUtils::fetchRecords($sql, [], true);
+                $this->createCareTeamRecordsList($records);
+                $this->cleanupCareTeamUUIDMappingsForPatientData();
 
-            // now do patient history
-            $fromClause = "FROM patient_history ph
-                LEFT JOIN uuid_mapping um ON um.target_uuid = ph.uuid AND um.resource='CareTeam' AND um.`table` = 'patient_data'
-                WHERE (ph.care_team_provider != '' AND ph.care_team_provider IS NOT NULL) OR (ph.care_team_facility != '' AND ph.care_team_facility IS NOT NULL)";
-            $sql = "
-                SELECT ph.pid, ph.care_team_provider, ph.care_team_facility, 'inactive' AS care_team_status,
-                um.uuid AS care_team_uuid, ph.date AS last_updated, ph.created_by, ph.created_by AS updated_by
-            " . $fromClause;
-            $records = QueryUtils::fetchRecords($sql, [], true);
-            $this->createCareTeamRecordsList($records);
-            $this->cleanupCareTeamUUIDMappingsForPatientHistory();
-            QueryUtils::commitTransaction();
-            $committed = true;
+                // now do patient history
+                $fromClause = "FROM patient_history ph
+                    LEFT JOIN uuid_mapping um ON um.target_uuid = ph.uuid AND um.resource='CareTeam' AND um.`table` = 'patient_data'
+                    WHERE (ph.care_team_provider != '' AND ph.care_team_provider IS NOT NULL) OR (ph.care_team_facility != '' AND ph.care_team_facility IS NOT NULL)";
+                $sql = "
+                    SELECT ph.pid, ph.care_team_provider, ph.care_team_facility, 'inactive' AS care_team_status,
+                    um.uuid AS care_team_uuid, ph.date AS last_updated, ph.created_by, ph.created_by AS updated_by
+                " . $fromClause;
+                $records = QueryUtils::fetchRecords($sql, [], true);
+                $this->createCareTeamRecordsList($records);
+                $this->cleanupCareTeamUUIDMappingsForPatientHistory();
+            });
         } catch (\Throwable $exception) {
             $this->echo("<p class='text-danger'>Care Teams v1 to v2 migration failed: " .
                 text($exception->getMessage()) . "<br />Upgrading will continue.<br /></p>\n");
             $this->flush_echo();
             if ($this->isThrowExceptionOnError()) {
                 throw $exception;
-            }
-        } finally {
-            // we let errors percolate up
-            if (!$committed) {
-                QueryUtils::rollbackTransaction();
             }
         }
     }
