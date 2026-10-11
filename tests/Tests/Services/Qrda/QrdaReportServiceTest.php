@@ -33,10 +33,10 @@ class QrdaReportServiceTest extends TestCase {
 
     public function testGenerateCategoryIIIXml(): void
     {
-        $measureFolder = __DIR__ . '/../../../../ccdaservice/node_modules/oe-cqm-parsers/2024_reporting_period/json_measures/CMS122v12';
+        $measureFolder = __DIR__ . '/../../../../vendor/openemr/oe-cqm-parsers/2024_reporting_period/json_measures/CMS122v12';
         $measureFile = $measureFolder . '/CMS122v12.json';
         if (!file_exists($measureFile)) {
-            $this->fail("Measure file {$measureFile} does not exist. Make sure the oe-cqm-parsers module is installed.");
+            $this->fail("Measure file {$measureFile} does not exist. Make sure composer has installed openemr/oe-cqm-parsers.");
             return;
         }
 

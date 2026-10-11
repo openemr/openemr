@@ -43462,11 +43462,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qdm/IndividualResult.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'patient_id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/IndividualResult.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'statement_name\' on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/Qdm/IndividualResult.php',
@@ -43484,11 +43479,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'DENEX\'\\|\'DENEXCEP\'\\|\'DENOM\'\\|\'IPP\'\\|\'MSRPOPL\'\\|\'MSRPOPLEX\'\\|\'NUMER\'\\|\'NUMEX\' on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/Measure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'cms_id\' on mixed\\.$#',
-    'count' => 9,
     'path' => __DIR__ . '/../../src/Services/Qdm/Measure.php',
 ];
 $ignoreErrors[] = [
@@ -43837,16 +43827,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qrda/ExportCat3Service.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'patient_id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/ExportCat3Service.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'population_set_key\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/ExportCat3Service.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'state\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Qrda/ExportCat3Service.php',
@@ -43880,11 +43860,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Qrda/Population.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'uptime\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
@@ -45358,41 +45333,36 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'DENEX\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'DENEXCEP\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'DENOM\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'IPP\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'NUMER\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'NUMEX\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'effectiveDate\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'effectiveEndDate\' on mixed\\.$#',
+    'message' => '#^Cannot access offset \'DENEXCEP\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'DENOM\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'IPP\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'NUMER\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'NUMEX\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'effectiveDate\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
 ];
@@ -45418,11 +45388,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'skip\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
 ];

@@ -8,7 +8,6 @@
     "express": "^4.22.3",
     "logform": "1.10.0",
     "luxon": "1.28.1",
-    "oe-cqm-parsers": "openemr/oe-cqm-parsers#ecqm-v7.0.4",
     "regexp-clone": "1.2.0",
     "sliced": "1.0.1",
     "winston": "3.19.0"
