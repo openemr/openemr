@@ -2228,7 +2228,7 @@ class CdaTemplateImportDispose
             ServiceContainer::getLogger()->error(
                 'Error inserting insurance data: {validationErrors} {internalErrors}',
                 [
-                    'internalErrors' => $id_data->getInternalErrors(), 'validationErrors' => $id_data->getValidationMessages()
+                    'internalErrors' => $id_data?->getInternalErrors(), 'validationErrors' => $id_data?->getValidationMessages()
                 ]
             );
         }

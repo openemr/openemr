@@ -113,7 +113,7 @@ class InsuranceService extends BaseService
         return $processingResult;
     }
 
-    public function getOne($uuid)
+    public function getOne($uuid): ProcessingResult
     {
 
         $processingResult = new ProcessingResult();
@@ -139,10 +139,10 @@ class InsuranceService extends BaseService
         if (!empty($type)) {
             return sqlQuery("Select `id` From `insurance_data` Where pid = ? And type = ?", [$pid, $type])['id'] ?? null;
         }
-        return $this->getOne($pid) !== false;
+        return QueryUtils::fetchSingleValue("SELECT `id` FROM `insurance_data` WHERE `pid` = ? LIMIT 1", 'id', [$pid]) !== null;
     }
 
-    public function update($data)
+    public function update($data): ProcessingResult
     {
         $validationResult = $this->coverageValidator->validate($data, CoverageValidator::DATABASE_UPDATE_CONTEXT);
         if (!$validationResult->isValid()) {
@@ -476,7 +476,7 @@ class InsuranceService extends BaseService
             // write in its result rather than throwing, so an unchecked result
             // would let a half-finished swap reach commitTransaction().
             $srcUpdateResult = $this->update($srcInsurance);
-            if (!$srcUpdateResult instanceof ProcessingResult || $srcUpdateResult->hasErrors()) {
+            if ($srcUpdateResult->hasErrors()) {
                 throw new \InvalidArgumentException("Failed to update insurance policy with uuid: $insuranceUuid");
             }
 
@@ -485,7 +485,7 @@ class InsuranceService extends BaseService
                     $targetInsurance["date"] = $resetStartDate;
                 }
                 $targetDateResult = $this->update($targetInsurance);
-                if (!$targetDateResult instanceof ProcessingResult || $targetDateResult->hasErrors()) {
+                if ($targetDateResult->hasErrors()) {
                     throw new \InvalidArgumentException("Failed to update insurance policy with uuid: $insuranceUuid");
                 }
             }
