@@ -21,7 +21,7 @@
     {{ setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']) }}
 
     <script>
-        const webRoot = {{ global.web_root|json_encode|raw }};
+        const webRoot = {{ webRoot|json_encode|raw }};
         top.webroot_url = webRoot;
         let provider = 0;
 
