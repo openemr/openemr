@@ -194,9 +194,8 @@ class DateSearchField extends BasicSearchField
         }
 
         if (!empty($matches[self::COMPARATOR_INDEX_MILLISECONDS])) {
-            // remove the '.'
-            $milliseconds = intval(substr($matches[self::COMPARATOR_INDEX_MILLISECONDS], 1));
-            $milliseconds = min([max([$milliseconds, 0]), 999]);
+            // remove the '.' and read the digits as a fraction of a second, so '.5' is 500 milliseconds
+            $milliseconds = intval(str_pad(substr($matches[self::COMPARATOR_INDEX_MILLISECONDS], 1, 3), 3, '0'));
             $lowerBoundRange['ms'] = $milliseconds;
             $upperBoundRange['ms'] = $milliseconds;
         }
@@ -224,7 +223,7 @@ class DateSearchField extends BasicSearchField
         // Not sure how we want to handle timezone
         // we create a DateTime object as not all search fields are a DateTime so we go as precise as we can
         // and let the services go more imprecise if needed.
-        $stringDate = sprintf("%d-%02d-%02dT%02d:%02d:%02d.%04d%s", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s'], $datetime['ms'], $datetime['tz']);
+        $stringDate = sprintf("%d-%02d-%02dT%02d:%02d:%02d.%03d%s", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s'], $datetime['ms'], $datetime['tz']);
         // 'n' & 'j' don't have leading zeros
         $dateValue = \DateTime::createFromFormat(self::DATE_ATOM_MILLISECONDS, $stringDate);
         return $dateValue;
