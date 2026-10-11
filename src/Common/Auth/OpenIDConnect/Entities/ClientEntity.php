@@ -154,7 +154,7 @@ class ClientEntity implements ClientEntityInterface
      */
     public function getFhirWriteScopes(): array
     {
-        if (!is_array($this->scopes) || !in_array('api:fhir', $this->scopes, true)) {
+        if (!is_array($this->scopes)) {
             return [];
         }
 
