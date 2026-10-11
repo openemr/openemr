@@ -1873,7 +1873,7 @@ class AuthorizationController implements LoggerAwareInterface
                 Response::HTTP_BAD_REQUEST
             );
         }
-        $publicKeyContents = @file_get_contents($this->publicKey);
+        $publicKeyContents = file_get_contents($this->publicKey);
         if (!is_string($publicKeyContents) || $publicKeyContents === '') {
             $this->logger->error(
                 'AuthorizationController->parseAndVerifyIdTokenHint() OAuth2 public key not readable',
