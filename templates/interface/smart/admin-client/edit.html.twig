@@ -66,19 +66,14 @@
                 <div class="col-6">
                     <label>{{ "Scopes"|xlt }}</label>
                     {% if fhirWriteScopes|length > 0 %}
-                        <details class="border-left border-warning pl-2 mb-3">
-                            <summary>{{ "FHIR write scopes requested"|xlt }}</summary>
-                            <p class="small text-muted mt-2 mb-2">{{ "FHIR resource writes are experimental and pending audit. Review these create, update, or delete permissions before enabling this client."|xlt }}</p>
-                            <ul class="small mb-0">
-                                {% for scope in fhirWriteScopes %}
-                                    <li>{{ scope|text }}</li>
-                                {% endfor %}
-                            </ul>
-                        </details>
+                        <div class="border border-warning rounded px-2 py-1 mb-2 small text-warning" role="note">
+                            <i class="fa fa-exclamation-triangle mr-1" aria-hidden="true"></i>
+                            {{ "Caution: FHIR writes are experimental and pending audit. Review these permissions before enabling this client."|xlt }}
+                        </div>
                     {% endif %}
                     <ul>
                         {% for scope in scopes %}
-                            <li>
+                            <li{% if scope in fhirWriteScopes %} class="text-warning"{% endif %}>
                                 {{ scope|text }}
                             </li>
                         {% endfor %}

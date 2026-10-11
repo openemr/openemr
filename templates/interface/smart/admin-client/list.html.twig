@@ -28,7 +28,7 @@
                     <td>
                         <a class="btn {{ hasFhirWriteScopes ? 'btn-warning' : 'btn-primary' }} btn-sm" href="{{ clientNavigationRecord.link|attr }}" onclick="top.restoreSession()">{{ "Edit"|xlt }}</a>
                         {% if hasFhirWriteScopes %}
-                            <small class="d-block text-muted mt-1">{{ "FHIR writes"|xlt }}</small>
+                            <small class="d-block text-warning mt-1">{{ "FHIR writes"|xlt }}</small>
                         {% endif %}
                     </td>
                     <td>
