@@ -101,12 +101,13 @@
     }
     function build_main_menu(objects)
     {
-        var menu=app_view_model.application_data.menu;
-        menu.removeAll();
+        // Build every entry before replacing the menu, so a bad entry leaves the old menu in place.
+        var entries=[];
         for(var menuIdx=0;menuIdx<objects.length;menuIdx++)
         {
-            process_menu_object(objects[menuIdx],menu);
+            process_menu_object(objects[menuIdx],entries);
         }
+        app_view_model.application_data.menu(entries);
     }
     var menu_objects={{ menu_restrictions|json_encode }};
     app_view_model.application_data.menu=ko.observableArray();
@@ -116,11 +117,14 @@
      * Rebuild the main menu from the server without reloading OpenEMR, for a
      * module whose menu entries depend on something the user just changed.
      * Call it from any frame as top.refreshMainMenu(). Resolves to true when
-     * the menu was replaced, false when it couldn't be fetched (the menu is
-     * then left as it was).
+     * the menu was replaced, false when it couldn't be fetched or built (the
+     * menu is then left as it was). When refreshes overlap, only the last one
+     * started is applied; the earlier ones resolve true without changing the menu.
      */
+    var main_menu_refreshes=0;
     window.refreshMainMenu=function()
     {
+        var refresh=++main_menu_refreshes;
         restoreSession();
         var request=new FormData();
         request.append("csrf_token_form", csrf_token_js);
@@ -134,7 +138,9 @@
             }
             return response.json();
         }).then(function(objects) {
-            build_main_menu(objects);
+            if (refresh===main_menu_refreshes) {
+                build_main_menu(objects);
+            }
             return true;
         }).catch(function(error) {
             console.error("refreshMainMenu: " + error);
