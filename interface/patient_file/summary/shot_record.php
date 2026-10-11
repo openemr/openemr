@@ -113,7 +113,7 @@ function convertToDataArray($data_array): array
     return $data;
 }
 
-function printPDF($res, $res2, $data, $title): void
+function printPDF($res, $res2, $data, string $title): void
 {
 
     $pdf = new Cezpdf("LETTER");
@@ -128,7 +128,14 @@ function printPDF($res, $res2, $data, $title): void
 
     $opts = ['maxWidth' => 550, 'fontSize' => 8];
 
-    $pdf->ezTable($data, "", $title, $opts);
+    // Cezpdf::ezTable() reads the column names from the first row, so an
+    // empty list throws a TypeError and the page fails with a 500.
+    if ($data === []) {
+        $pdf->ezText($title, 0, ['justification' => 'center']);
+        $pdf->ezText("\n" . xl('No immunizations on file'));
+    } else {
+        $pdf->ezTable($data, "", $title, $opts);
+    }
     $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________", "", ['justification' => 'right']);
     $pdf->ezStream();
 }
