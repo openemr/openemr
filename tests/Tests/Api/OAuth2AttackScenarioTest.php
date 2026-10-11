@@ -438,6 +438,187 @@ class OAuth2AttackScenarioTest extends TestCase
         );
     }
 
+    #[Test]
+    public function testCorsResponseEmitsAllowOriginForBearerAuthFromTokensOwnClientRegisteredOrigin(): void
+    {
+        // Legitimate flow: a SMART app presents its own token, from the
+        // origin its own client registered. Response must emit
+        // Access-Control-Allow-Origin so the app's JS can read the body.
+        $smartAppOrigin = 'https://smart-app-regression.example';
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'SmartAppOwnOrigin',
+            ['redirect_uris' => [$smartAppOrigin . '/cb']]
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:oemr');
+
+        $resp = $this->rawGet('/apis/default/api/version', [
+            'Origin' => $smartAppOrigin,
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+        ]);
+        $this->assertSame(200, $resp['status'], 'Bearer-auth GET must succeed. Body: ' . $resp['body']);
+        $headers = array_change_key_case($resp['headers']);
+        $this->assertArrayHasKey(
+            'access-control-allow-origin',
+            $headers,
+            'Legitimate bearer-auth response from the token-owning client\'s registered origin must emit Allow-Origin'
+        );
+        $this->assertContains(
+            $smartAppOrigin,
+            $headers['access-control-allow-origin'],
+            'Allow-Origin must echo the request Origin exactly'
+        );
+    }
+
+    #[Test]
+    public function testCorsResponseDoesNotEmitAllowOriginForOriginRegisteredUnderDifferentClient(): void
+    {
+        // The core per-client scoping gate. Two separately-registered
+        // clients: the "victim" SMART app whose redirect_uri is
+        // smart-app-regression.example, and an attacker-registered
+        // client whose redirect_uri is attacker-regression-cors.example.
+        // Both origins land in the global union. A request bearing the
+        // victim app's token with Origin: attacker's-origin must NOT
+        // receive Allow-Origin -- an attacker's origin cannot be
+        // paired with a different client's token in a response.
+        $smartAppOrigin = 'https://smart-app-regression-victim.example';
+        $attackerOrigin = 'https://attacker-regression-cors.example';
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'VictimApp',
+            ['redirect_uris' => [$smartAppOrigin . '/cb']]
+        );
+        // Attacker's DCR -- unauth per RFC 7591, by design.
+        $this->dcr([
+            'client_name' => 'OAuth2AttackScenarioTest-AttackerCorsOrigin-' . bin2hex(random_bytes(3)),
+            'redirect_uris' => [$attackerOrigin . '/cb'],
+            'scope' => 'openid api:oemr',
+        ]);
+
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:oemr');
+        $resp = $this->rawGet('/apis/default/api/version', [
+            'Origin' => $attackerOrigin,
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+        ]);
+        $this->assertSame(
+            200,
+            $resp['status'],
+            'Bearer auth itself must succeed; the gate is response-side Allow-Origin, not auth. Body: ' . $resp['body']
+        );
+        $this->assertArrayNotHasKey(
+            'access-control-allow-origin',
+            array_change_key_case($resp['headers']),
+            'Allow-Origin must not reflect an origin registered under a DIFFERENT OAuth2 client. Received headers: '
+            . json_encode(array_keys($resp['headers']))
+        );
+    }
+
+    #[Test]
+    public function testCorsResponseDoesNotEmitAllowOriginForRegisteredOriginOnUnauthenticatedRequest(): void
+    {
+        // Register a client so its redirect_uri's origin lands in the
+        // global union. Then hit a protected endpoint WITHOUT a bearer
+        // token. The pre-fix behaviour would reflect the registered
+        // origin into Allow-Origin on the 401 response, which was a
+        // reflection oracle if the request also carried a session
+        // cookie. The per-client gate keys off clientId, which is unset
+        // for unauthenticated requests, so Allow-Origin is suppressed.
+        $origin = 'https://registered-but-unauth-cors.example';
+        $this->dcr([
+            'client_name' => 'OAuth2AttackScenarioTest-RegisteredUnauth-' . bin2hex(random_bytes(3)),
+            'redirect_uris' => [$origin . '/cb'],
+            'scope' => 'openid',
+        ]);
+
+        $resp = $this->rawGet('/apis/default/api/version', ['Origin' => $origin]);
+        $this->assertSame(
+            401,
+            $resp['status'],
+            'Unauthenticated request to /api/version must still be rejected with 401'
+        );
+        $this->assertArrayNotHasKey(
+            'access-control-allow-origin',
+            array_change_key_case($resp['headers']),
+            'Allow-Origin must not be emitted on unauthenticated responses even if the Origin is in the global union'
+        );
+    }
+
+    #[Test]
+    public function testCorsResponseMatchesAnyOfClientsMultipleRegisteredOrigins(): void
+    {
+        // oauth_clients.redirect_uri stores one or more URIs separated
+        // by "|". A client with two redirect_uris must receive
+        // Allow-Origin for requests from EITHER origin, as long as the
+        // request is bearer-authenticated under that same client's
+        // token. Exercises the explode('|', ...) path in
+        // CORSAllowedOriginRegistry::getOriginsForClient().
+        $firstOrigin = 'https://multi-origin-first.example';
+        $secondOrigin = 'https://multi-origin-second.example';
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'MultiOriginClient',
+            ['redirect_uris' => [$firstOrigin . '/cb', $secondOrigin . '/cb']]
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:oemr');
+
+        foreach ([$firstOrigin, $secondOrigin] as $origin) {
+            $resp = $this->rawGet('/apis/default/api/version', [
+                'Origin' => $origin,
+                'Authorization' => 'Bearer ' . $tokens['access_token'],
+            ]);
+            $this->assertSame(200, $resp['status'], "Bearer-auth GET from $origin must succeed. Body: " . $resp['body']);
+            $headers = array_change_key_case($resp['headers']);
+            $this->assertArrayHasKey(
+                'access-control-allow-origin',
+                $headers,
+                "Allow-Origin must be emitted for request from $origin — client registered both origins"
+            );
+            $this->assertContains(
+                $origin,
+                $headers['access-control-allow-origin'],
+                "Allow-Origin for request from $origin must echo that exact origin"
+            );
+        }
+    }
+
+    #[Test]
+    public function testCorsResponseDoesNotEmitAllowOriginWhenClientIsDisabled(): void
+    {
+        // getOriginsForClient's WHERE clause filters on is_enabled = 1.
+        // A disabled client's redirect_uris must not resolve to an
+        // Allow-Origin match even if the token was issued while the
+        // client was still enabled. Exercises the admin-disabled-
+        // mid-session case where the token is still live but the
+        // client has been administratively revoked -- the response
+        // body still goes to the caller (the bearer strategy's own
+        // revocation check is separate), but no cross-origin JS can
+        // read it.
+        $origin = 'https://disabled-client-origin.example';
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'DisabledClient',
+            ['redirect_uris' => [$origin . '/cb']]
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:oemr');
+        // Administratively disable the client.
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `oauth_clients` SET `is_enabled` = 0 WHERE `client_id` = ?',
+            [$cid]
+        );
+
+        $resp = $this->rawGet('/apis/default/api/version', [
+            'Origin' => $origin,
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+        ]);
+        // The bearer-token flow may or may not reject disabled-client
+        // tokens on this specific endpoint depending on how deep the
+        // revocation check runs; this test's assertion is scoped to
+        // the CORS header, not the status. Whether the status is 200
+        // or 401, Allow-Origin must not be set for a disabled client.
+        $this->assertArrayNotHasKey(
+            'access-control-allow-origin',
+            array_change_key_case($resp['headers']),
+            'Allow-Origin must not be emitted for a request authenticated under a disabled client. Status: '
+            . $resp['status']
+        );
+    }
+
     // ----- Information-disclosure invariants -----
 
     #[Test]
@@ -591,9 +772,13 @@ class OAuth2AttackScenarioTest extends TestCase
      *
      * @return array{0: string, 1: string}
      */
-    private function dcrConfidentialPasswordGrantClient(string $tag): array
+    /**
+     * @param array<string, mixed> $overrides
+     * @return array{0: string, 1: string}
+     */
+    private function dcrConfidentialPasswordGrantClient(string $tag, array $overrides = []): array
     {
-        [$cid, $csec, $_body] = $this->dcrFull($tag);
+        [$cid, $csec, $_body] = $this->dcrFull($tag, $overrides);
         QueryUtils::sqlStatementThrowException(
             'UPDATE `oauth_clients` SET `grant_types` = ?, `is_enabled` = 1 WHERE `client_id` = ?',
             ['password', $cid]
@@ -602,14 +787,36 @@ class OAuth2AttackScenarioTest extends TestCase
     }
 
     /**
+     * @return array{access_token: string}
+     */
+    private function passwordGrantForTest(string $clientId, string $clientSecret, string $scope): array
+    {
+        $resp = $this->postTokenRaw([
+            'grant_type' => 'password',
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret,
+            'scope' => $scope,
+            'user_role' => 'users',
+            'username' => 'admin',
+            'password' => 'pass',
+        ]);
+        $this->assertSame(200, $resp['status'], 'password-grant must succeed. Body: ' . $resp['body']);
+        $body = json_decode($resp['body'], true);
+        $this->assertIsArray($body);
+        $this->assertIsString($body['access_token'] ?? null);
+        return ['access_token' => $body['access_token']];
+    }
+
+    /**
+     * @param array<string, mixed> $overrides
      * @return array{0: string, 1: string, 2: string}
      */
-    private function dcrFull(string $tag): array
+    private function dcrFull(string $tag, array $overrides = []): array
     {
-        $resp = $this->dcr([
+        $resp = $this->dcr(array_merge([
             'client_name' => 'OAuth2AttackScenarioTest-' . $tag . '-' . bin2hex(random_bytes(3)),
             'scope' => 'openid api:oemr offline_access',
-        ]);
+        ], $overrides));
         $this->assertSame(200, $resp['status'], 'DCR for the attack-suite fixture must succeed. Body: ' . $resp['body']);
         $data = json_decode($resp['body'], true);
         $this->assertIsArray($data);
