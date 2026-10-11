@@ -54,6 +54,16 @@ class OAuth2AttackScenarioTest extends TestCase
     protected function setUp(): void
     {
         $this->baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: 'https://localhost';
+        // Capture the original password-grant global BEFORE any skip path:
+        // PHPUnit still runs tearDown() for a test skipped from setUp().
+        // Without this, a skip here would leave the "was-set" flag false,
+        // and tearDown() would then remove a value an earlier test may
+        // have established, mutating global state across tests in the
+        // same PHPUnit process.
+        $globals = OEGlobalsBag::getInstance();
+        $this->originalPasswordGrantSettingWasSet = $globals->has('oauth_password_grant');
+        $this->originalPasswordGrantSetting = $globals->get('oauth_password_grant');
+
         if (getenv('OPENEMR_ALLOW_OAUTH_HTTPS_SKIP') === '1') {
             $this->markTestSkipped('Skipping per OPENEMR_ALLOW_OAUTH_HTTPS_SKIP=1');
         }
@@ -64,9 +74,6 @@ class OAuth2AttackScenarioTest extends TestCase
             }
             $this->markTestSkipped('OAuth flow requires a real webserver');
         }
-        $globals = OEGlobalsBag::getInstance();
-        $this->originalPasswordGrantSettingWasSet = $globals->has('oauth_password_grant');
-        $this->originalPasswordGrantSetting = $globals->get('oauth_password_grant');
         $globals->set('oauth_password_grant', 3);
     }
 

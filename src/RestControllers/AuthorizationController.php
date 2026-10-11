@@ -715,14 +715,21 @@ class AuthorizationController implements LoggerAwareInterface
                 throw new OAuthServerException('Invalid registration token', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
             }
 
-            $response->withHeader("Cache-Control", "no-store");
-            $response->withHeader("Pragma", "no-cache");
-            $response->withHeader('Content-Type', 'application/json');
+            // PSR-7 messages are immutable; withHeader() returns a new
+            // instance. The DCR client-read response body carries the
+            // client_secret and the freshly rotated registration_access_token,
+            // so the no-store + Content-Type headers must actually be
+            // installed on the response that gets returned.
             $body = $response->getBody();
             $body->write($responseJson);
 
             $this->session->invalidate();
-            return $response->withStatus(Response::HTTP_OK)->withBody($body);
+            return $response
+                ->withStatus(Response::HTTP_OK)
+                ->withHeader("Cache-Control", "no-store")
+                ->withHeader("Pragma", "no-cache")
+                ->withHeader('Content-Type', 'application/json')
+                ->withBody($body);
         } catch (OAuthServerException $exception) {
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
