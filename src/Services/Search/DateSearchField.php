@@ -194,10 +194,10 @@ class DateSearchField extends BasicSearchField
         }
 
         if (!empty($matches[self::COMPARATOR_INDEX_MILLISECONDS])) {
-            // remove the '.' and read the digits as a fraction of a second, so '.5' is 500 milliseconds
-            $milliseconds = intval(str_pad(substr($matches[self::COMPARATOR_INDEX_MILLISECONDS], 1, 3), 3, '0'));
-            $lowerBoundRange['ms'] = $milliseconds;
-            $upperBoundRange['ms'] = $milliseconds;
+            // remove the '.' and read the digits as a fraction of a second, so '.5' covers .500 to .599
+            $fraction = substr($matches[self::COMPARATOR_INDEX_MILLISECONDS], 1, 3);
+            $lowerBoundRange['ms'] = intval(str_pad($fraction, 3, '0'));
+            $upperBoundRange['ms'] = intval(str_pad($fraction, 3, '9'));
         }
 
         // we need to handle the timezone component if they send it, otherwise it defaults to the local timezone
