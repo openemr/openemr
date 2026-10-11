@@ -518,6 +518,34 @@ class OAuth2AttackScenarioTest extends TestCase
         );
     }
 
+    #[Test]
+    public function testVersionEndpointRequiresAuthentication(): void
+    {
+        // The /api/version OpenAPI annotation declares openemr_auth as a
+        // required security scheme and documents a 401 response. The runtime
+        // must match that contract rather than silently returning the
+        // installed-version row to any unauthenticated caller.
+        $resp = $this->rawGet('/apis/default/api/version', []);
+        $this->assertSame(
+            401,
+            $resp['status'],
+            'GET /apis/default/api/version must require authentication to match its OpenAPI contract'
+        );
+    }
+
+    #[Test]
+    public function testProductEndpointRequiresAuthentication(): void
+    {
+        // Same contract as /api/version — the OpenAPI annotation declares
+        // openemr_auth as required and 401 as a documented response.
+        $resp = $this->rawGet('/apis/default/api/product', []);
+        $this->assertSame(
+            401,
+            $resp['status'],
+            'GET /apis/default/api/product must require authentication to match its OpenAPI contract'
+        );
+    }
+
     // ----- Shared helpers -----
 
     /**

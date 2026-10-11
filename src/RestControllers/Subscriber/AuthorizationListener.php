@@ -88,11 +88,17 @@ class AuthorizationListener implements EventSubscriberInterface
             $this->addAuthorizationStrategy(new LocalApiAuthorizationController($this->getLogger(), $this->getGlobalsBag()));
             $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
             $skipAuthorizationStrategy->setSystemLogger($this->getLogger());
+            // The three /fhir/ routes below are discovery/conformance surfaces
+            // that FHIR R4 + SMART-on-FHIR + the Bulk Data IG expect clients
+            // to reach before holding an access token: CapabilityStatement at
+            // /metadata, SMART discovery at .well-known, and OperationDefinition
+            // resources whose canonicals are referenced from /metadata.
+            // Keep this list to those three — do not add convenience /api/
+            // endpoints here; their OpenAPI annotations declare
+            // openemr_auth as required and the runtime must match.
             $skipAuthorizationStrategy->addSkipRoute('/fhir/metadata');
             $skipAuthorizationStrategy->addSkipRoute('/fhir/.well-known/smart-configuration');
             $skipAuthorizationStrategy->addSkipRoute('/fhir/OperationDefinition');
-            $skipAuthorizationStrategy->addSkipRoute('/api/version');
-            $skipAuthorizationStrategy->addSkipRoute('/api/product');
             $this->addAuthorizationStrategy($skipAuthorizationStrategy);
             // TODO: @adunsulag not sure I like instantiating the ServerConfig here, perhaps we need to do this in a different way?
             $serverConfig = new ServerConfig();
