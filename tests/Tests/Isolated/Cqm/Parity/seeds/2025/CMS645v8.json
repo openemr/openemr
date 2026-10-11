@@ -8,13 +8,19 @@
                 {
                     "type": "Diagnosis",
                     "valueSet": "Prostate Cancer",
-                    "prevalencePeriod": ["2024-06-01T08:00:00.000+00:00", null]
+                    "prevalencePeriod": [
+                        "2024-06-01T08:00:00.000+00:00",
+                        null
+                    ]
                 },
                 {
                     "type": "MedicationOrder",
                     "valueSet": "Androgen deprivation therapy for Urology Care",
                     "authorDatetime": "2025-01-15T09:00:00.000+00:00",
-                    "relevantPeriod": ["2025-01-15T09:00:00.000+00:00", "2026-01-15T09:00:00.000+00:00"]
+                    "relevantPeriod": [
+                        "2025-01-15T09:00:00.000+00:00",
+                        "2026-01-15T09:00:00.000+00:00"
+                    ]
                 },
                 {
                     "type": "ProcedureOrder",
@@ -29,7 +35,10 @@
                 {
                     "type": "EncounterPerformed",
                     "valueSet": "Office Visit",
-                    "relevantPeriod": ["2025-03-10T09:00:00.000+00:00", "2025-03-10T09:30:00.000+00:00"]
+                    "relevantPeriod": [
+                        "2025-03-10T09:00:00.000+00:00",
+                        "2025-03-10T09:30:00.000+00:00"
+                    ]
                 }
             ]
         },
@@ -41,13 +50,19 @@
                 {
                     "type": "Diagnosis",
                     "valueSet": "Prostate Cancer",
-                    "prevalencePeriod": ["2024-10-01T08:00:00.000+00:00", null]
+                    "prevalencePeriod": [
+                        "2024-10-01T08:00:00.000+00:00",
+                        null
+                    ]
                 },
                 {
                     "type": "MedicationOrder",
                     "valueSet": "Androgen deprivation therapy for Urology Care",
                     "authorDatetime": "2025-02-01T09:00:00.000+00:00",
-                    "relevantPeriod": ["2025-02-01T09:00:00.000+00:00", "2026-02-01T09:00:00.000+00:00"]
+                    "relevantPeriod": [
+                        "2025-02-01T09:00:00.000+00:00",
+                        "2026-02-01T09:00:00.000+00:00"
+                    ]
                 },
                 {
                     "type": "ProcedureOrder",
@@ -57,7 +72,10 @@
                 {
                     "type": "EncounterPerformed",
                     "valueSet": "Office Visit",
-                    "relevantPeriod": ["2025-05-12T09:00:00.000+00:00", "2025-05-12T09:30:00.000+00:00"]
+                    "relevantPeriod": [
+                        "2025-05-12T09:00:00.000+00:00",
+                        "2025-05-12T09:30:00.000+00:00"
+                    ]
                 }
             ]
         }
