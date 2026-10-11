@@ -557,11 +557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$category on left side of \\?\\?\\= is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$mname on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/account/account.lib.php',

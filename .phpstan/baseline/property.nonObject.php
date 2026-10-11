@@ -2802,11 +2802,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$children on mixed\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$acl_req on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/MenuRole.php',
@@ -3790,11 +3785,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$hcfa_date_quals on mixed\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/MiscBillingOptionsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$parentElement on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$nodeName on DOMElement\\|null\\.$#',

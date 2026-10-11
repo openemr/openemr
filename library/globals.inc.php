@@ -3600,7 +3600,7 @@ $GLOBALS_METADATA = [
         ],
 
         'ccda_alt_service_enable' => [
-            xl('Enable C-CDA Service'),
+            xl('Enable C-CDA Documents'),
             [
                 0 => xl('Off'),
                 1 => xl('Care Coordination Only'),
@@ -3608,7 +3608,7 @@ $GLOBALS_METADATA = [
                 3 => xl('Both'),
             ],
             '0',
-            xl('Enable C-CDA Service')
+            xl('Where C-CDA documents can be generated: the Care Coordination module, the patient portal, or both.')
         ],
 
         'phimail_enable' => [

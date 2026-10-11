@@ -988,12 +988,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$base \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$directory \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [

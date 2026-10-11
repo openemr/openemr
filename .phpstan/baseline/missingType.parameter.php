@@ -9707,16 +9707,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaGenerator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\CcdaGenerator\\:\\:socket_get\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaGenerator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\CcdaServiceDocumentRequestor\\:\\:socket_get\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Model\\\\CcdaServiceRequestModelGenerator\\:\\:create_data\\(\\) has parameter \\$components with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceRequestModelGenerator.php',
@@ -31380,16 +31370,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\MedicalDevice\\\\MedicalDevice\\:\\:fullOutputJavascript\\(\\) has parameter \\$showUdi with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/MedicalDevice/MedicalDevice.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Menu\\\\MainMenuRole\\:\\:updateBlankForms\\(\\) has parameter \\$menu_list with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Menu\\\\MainMenuRole\\:\\:updateVisitForms\\(\\) has parameter \\$menu_list with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Menu\\\\MenuRole\\:\\:menuAclCheck\\(\\) has parameter \\$arr with no type specified\\.$#',

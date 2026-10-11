@@ -119,9 +119,181 @@ abstract class PantherAcceptanceTestCase extends TestCase
 
     protected ?Client $client = null;
 
+    /**
+     * On-failure diagnostic capture. PHPUnit 11's lifecycle runs
+     * `tearDown()` BEFORE `onNotSuccessfulTest()` (see
+     * `vendor/phpunit/phpunit/src/Framework/TestCase.php` around
+     * line 611 for `invokeAfterTestHookMethods()` and line 672 for
+     * the trailing `onNotSuccessfulTest()`), so a hook on the
+     * latter would see a client already quit by this class's
+     * tearDown. Capture lives in `tearDown()` instead, gated on
+     * `$this->status()->isError() || isFailure()`, running BEFORE
+     * the client quit so screenshots, DOM, and the browser console
+     * log can still read from a live WebDriver session.
+     *
+     * Artifacts land under
+     * `tmp/acceptance-failure-artifacts/<class>__<method>/` and
+     * get uploaded by both `acceptance-docker.yml` and
+     * `acceptance-package.yml` as workflow artifacts on failure.
+     *
+     * Each capture (screenshot, page source, console log, context)
+     * is wrapped in its own `catch (WebDriverException |
+     * \JsonException)` so a dead/stale WebDriver session on one
+     * capture can't block the others, and nothing here throws
+     * past the hook. Shape mirrors
+     * `tests/Tests/E2e/User/UserAddTrait.php::captureForceRefreshDiagnostics`
+     * on the E2e side (same signal primitives: PNG + HTML + console
+     * log JSON), lifted to the base class so every Panther-driven
+     * acceptance test gets it uniformly rather than each test
+     * reimplementing capture ad-hoc.
+     *
+     * Primary motivation: the AppointmentPersistenceAcceptanceTest
+     * modal-close timeout flake. The console log is the critical
+     * signal — JS errors from an opener-chain throw land there
+     * with file:line, and the find_appt_popup.php guard added in
+     * this same PR now explicitly `console.error`s the caught
+     * `_e` on the throwing path so the artifact will carry the
+     * exact throw site the next time the flake class resurfaces.
+     */
+    private function captureFailureArtifacts(): void
+    {
+        if ($this->client === null) {
+            return;
+        }
+
+        $artifactsDir = $this->resolveFailureArtifactsDir();
+        if ($artifactsDir === null) {
+            return;
+        }
+
+        $classShort = (new \ReflectionClass(static::class))->getShortName();
+        $method = $this->name();
+        $safeMethod = preg_replace('/[^A-Za-z0-9_-]+/', '-', $method) ?? 'unknown';
+        $capturesDir = sprintf('%s/%s__%s', $artifactsDir, $classShort, $safeMethod);
+        if (!is_dir($capturesDir) && !@mkdir($capturesDir, 0o777, true)) {
+            fwrite(STDERR, "[acceptance-failure-capture] Could not mkdir {$capturesDir}; skipping captures.\n");
+            return;
+        }
+
+        $writtenAny = false;
+
+        // Screenshot.
+        try {
+            $path = $capturesDir . '/screenshot.png';
+            $this->client->takeScreenshot($path);
+            $writtenAny = true;
+        } catch (WebDriverException | \JsonException $e) {
+            fwrite(STDERR, "[acceptance-failure-capture] screenshot failed: {$e->getMessage()}\n");
+        }
+
+        // Page source (full HTML).
+        try {
+            $path = $capturesDir . '/page-source.html';
+            $source = $this->client->getPageSource();
+            if (file_put_contents($path, $source) !== false) {
+                $writtenAny = true;
+            }
+        } catch (WebDriverException | \JsonException $e) {
+            fwrite(STDERR, "[acceptance-failure-capture] page source failed: {$e->getMessage()}\n");
+        }
+
+        // Browser console log (JS errors land here -- the exact signal
+        // the modal-close timeout flake needs to pinpoint which throw
+        // in the opener-refresh chain fired).
+        try {
+            $path = $capturesDir . '/browser-console.json';
+            $entries = $this->client->getWebDriver()->manage()->getLog('browser');
+            $encoded = json_encode($entries, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
+            if (file_put_contents($path, $encoded) !== false) {
+                $writtenAny = true;
+            }
+        } catch (WebDriverException | \JsonException $e) {
+            fwrite(STDERR, "[acceptance-failure-capture] browser console log failed: {$e->getMessage()}\n");
+        }
+
+        // Context metadata. Pulls the status-message off PHPUnit's
+        // current TestStatus for exception message / class / stack.
+        // tearDown-time capture doesn't receive the Throwable directly
+        // (unlike an onNotSuccessfulTest hook would), so status() is
+        // the authoritative source here.
+        try {
+            $path = $capturesDir . '/context.txt';
+            $lines = [];
+            $lines[] = 'test: ' . static::class . '::' . $method;
+            $lines[] = 'timestamp: ' . (new \DateTimeImmutable())->format(\DateTimeImmutable::ATOM);
+            try {
+                $lines[] = 'current_url: ' . $this->client->getCurrentURL();
+            } catch (WebDriverException | \JsonException $e) {
+                $lines[] = 'current_url: <unavailable: ' . $e->getMessage() . '>';
+            }
+            try {
+                $lines[] = 'title: ' . $this->client->getTitle();
+            } catch (WebDriverException | \JsonException $e) {
+                $lines[] = 'title: <unavailable: ' . $e->getMessage() . '>';
+            }
+            $status = $this->status();
+            $lines[] = 'status: ' . ($status->isError() ? 'error' : ($status->isFailure() ? 'failure' : 'other'));
+            $lines[] = 'status_message: ' . $status->message();
+            if (file_put_contents($path, implode("\n", $lines)) !== false) {
+                $writtenAny = true;
+            }
+        } catch (WebDriverException | \JsonException $e) {
+            fwrite(STDERR, "[acceptance-failure-capture] context metadata failed: {$e->getMessage()}\n");
+        }
+
+        if ($writtenAny) {
+            fwrite(STDERR, "[acceptance-failure-capture] artifacts written to {$capturesDir}/\n");
+        }
+    }
+
+    /**
+     * Resolve a writable directory for failure artifacts. Pattern mirrors
+     * the E2e side's `UserAddTrait::resolveDiagnosticsDir` (prefer repo-
+     * root writable path, fall back to system temp). Prefer the
+     * tmp/acceptance-failure-artifacts/ path because both
+     * acceptance-docker.yml and acceptance-package.yml upload that
+     * exact path as a workflow artifact on failure.
+     */
+    private function resolveFailureArtifactsDir(): ?string
+    {
+        // From tests/Acceptance/Support/ (this file) up three levels
+        // puts us at the repo root. tmp/acceptance-failure-artifacts/
+        // is the single visible-to-CI location: both
+        // acceptance-docker.yml and acceptance-package.yml upload
+        // exactly that path on failure. No sys_get_temp_dir
+        // fallback — CodeRabbit review on PR flagged that writing to
+        // the fallback would silently drop the artifacts (workflow
+        // uploader only globs tmp/acceptance-failure-artifacts/**).
+        // If we can't write to the preferred location, we return null
+        // and skip the capture rather than write artifacts the uploader
+        // won't collect.
+        $candidate = dirname(__DIR__, 3) . '/tmp/acceptance-failure-artifacts';
+        if (is_dir($candidate) && is_writable($candidate)) {
+            return $candidate;
+        }
+        if (!is_dir($candidate) && @mkdir($candidate, 0o777, true) && is_writable($candidate)) {
+            return $candidate;
+        }
+        fwrite(STDERR, "[acceptance-failure-capture] Could not create artifacts dir at {$candidate}; skipping capture.\n");
+        return null;
+    }
+
     protected function tearDown(): void
     {
-        if ($this->client !== null) {
+        $client = $this->client;
+        if ($client !== null) {
+            // On error/failure, capture diagnostic artifacts BEFORE
+            // quitting the client so screenshot / DOM / console log
+            // can still be read from a live WebDriver session. See
+            // captureFailureArtifacts() header for the full rationale
+            // on why this lives here rather than onNotSuccessfulTest.
+            // Pin the client in a local var first so phpstan knows the
+            // nullable field hasn't been reassigned by the capture call.
+            $status = $this->status();
+            if ($status->isError() || $status->isFailure()) {
+                $this->captureFailureArtifacts();
+            }
+
             // Panther leaves a Chrome subprocess + ChromeDriver session
             // dangling if not explicitly quit. Local runs accumulate
             // zombies; CI runners recycle so it doesn't matter there,
@@ -131,7 +303,7 @@ abstract class PantherAcceptanceTestCase extends TestCase
             // still null out the client so a bare Throwable doesn't
             // mask the real test outcome as a teardown error.
             try {
-                $this->client->quit();
+                $client->quit();
             } catch (WebDriverException) {
                 // Driver session already gone; nothing left to clean up.
                 // Narrowed from \Throwable per openemr.forbiddenCatchType
