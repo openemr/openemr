@@ -957,6 +957,10 @@ class CarecoordinationController extends AbstractActionController
         // make sure we only have our documents folder and our ccda file
         $this->sanitizeZip($tmpFileName);
         $z->open($tmpFileName);
+        if (!\OpenEMR\Common\Zip\ZipExtractionGuard::isSafe($z)) {
+            $z->close();
+            throw new \RuntimeException('CCDA import archive exceeds extraction limits');
+        }
         $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
         $catId = $category_details[0]['id'] ?? null;
         if (empty($catId)) {

@@ -17,10 +17,10 @@ namespace OpenEMR\Common\Filesystem;
 
 /**
  * Resolve a file path relative to a base directory, ensuring the result
- * is a regular file that stays within the base directory.
+ * is a regular `.php` file that stays within the base directory.
  *
- * Rejects `.`, `..`, NUL bytes, and paths that resolve outside the base
- * directory via symlinks or traversal sequences.
+ * Rejects `.`, `..`, NUL bytes, non-`.php` suffixes, and paths that resolve
+ * outside the base directory via symlinks or traversal sequences.
  */
 final class SafeIncludeResolver
 {
@@ -39,6 +39,10 @@ final class SafeIncludeResolver
         }
 
         if (self::containsUnsafeSegment($relativePath)) {
+            return false;
+        }
+
+        if (!str_ends_with(strtolower($relativePath), '.php')) {
             return false;
         }
 

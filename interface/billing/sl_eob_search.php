@@ -29,6 +29,7 @@
 
 
 use Mpdf\Mpdf;
+use OpenEMR\Billing\EraFilenameValidator;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Billing\Statement\PatientCreditEncounters;
@@ -41,6 +42,7 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Common\Zip\ZipExtractionGuard;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
@@ -985,14 +987,20 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                     if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
                                         $zip = new ZipArchive();
                                         if ($zip->open($tmp_name) === true) {
-                                            $contents = $zip->getFromIndex(0);
-                                            $zip->close();
-                                            if ($contents === false) {
-                                                $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
+                                            if (!ZipExtractionGuard::isSafe($zip)) {
+                                                $zip->close();
+                                                $alertmsg .= xl("ZIP archive exceeds extraction limits") . " ";
                                                 $shouldParseEra = false;
-                                            } elseif (file_put_contents($tmp_name, $contents) === false) {
-                                                $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
-                                                $shouldParseEra = false;
+                                            } else {
+                                                $contents = $zip->getFromIndex(0);
+                                                $zip->close();
+                                                if ($contents === false) {
+                                                    $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
+                                                    $shouldParseEra = false;
+                                                } elseif (file_put_contents($tmp_name, $contents) === false) {
+                                                    $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
+                                                    $shouldParseEra = false;
+                                                }
                                             }
                                         } else {
                                             $alertmsg .= xl("Unable to open ZIP archive") . " ";
@@ -1008,19 +1016,31 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                         }
                                     }
                                     echo "-->\n";
-                                    $erafullname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.edi";
-                                    $edihname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/history/f835/$eraname.835";
-
-                                    if (is_file($erafullname)) {
-                                        $alertmsg .= "Warning: Set $eraname was already uploaded ";
-                                        if (is_file(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.html")) {
-                                            $alertmsg .= "and processed. ";
-                                        } else {
-                                            $alertmsg .= "but not yet processed. ";
+                                    $siteDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+                                    $eraDir = $siteDir . '/documents/era';
+                                    $historyDir = $siteDir . '/documents/edi/history/f835';
+                                    $erafullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $eraname, '.edi');
+                                    $edihname = is_dir($historyDir)
+                                        ? EraFilenameValidator::resolveWithinDirectory($historyDir, $eraname, '.835')
+                                        : null;
+                                    $htmlfullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $eraname, '.html');
+                                    if ($erafullname === null || $htmlfullname === null) {
+                                        $alertmsg .= xl("Invalid ERA file name.") . " ";
+                                        $eraname = '';
+                                    } else {
+                                        if (is_file($erafullname)) {
+                                            $alertmsg .= "Warning: Set $eraname was already uploaded ";
+                                            if (is_file($htmlfullname)) {
+                                                $alertmsg .= "and processed. ";
+                                            } else {
+                                                $alertmsg .= "but not yet processed. ";
+                                            }
+                                        }
+                                        rename($tmp_name, $erafullname);
+                                        if ($edihname !== null) {
+                                            copy($erafullname, $edihname);
                                         }
                                     }
-                                    rename($tmp_name, $erafullname);
-                                    copy($erafullname, $edihname);
                                 }
                             } // End 835 upload
 
@@ -1260,7 +1280,7 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                     <div class="form-row text-left position-override oe-show-hide" id="statement-download">
                         <div class="btn-group" role="group">
                             <?php
-                            if ($eracount) { ?>
+                            if ($eracount && $eraname !== '') { ?>
                                 <button type="button" class="btn btn-secondary btn-save" name="Submit" onclick='processERA()' value="<?php echo xla('Process ERA File'); ?>">
                                     <?php echo xlt('Process ERA File'); ?></button>
                                 <?php
