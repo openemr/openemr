@@ -658,9 +658,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
 
         $this->applyDefaults($updatedOpenEMRRecord);
 
-        $result = $this->coverageService->update($updatedOpenEMRRecord);
-
-        return $result instanceof ProcessingResult ? $result : new ProcessingResult();
+        return $this->coverageService->update($updatedOpenEMRRecord);
     }
 
     /**
