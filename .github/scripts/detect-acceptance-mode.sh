@@ -83,6 +83,14 @@
 
 set -euo pipefail
 
+# Sql-side enumeration of from-version candidates is shared with the
+# docker side (acceptance-docker.yml upgrade cell) via a lib so the
+# two consumers can't drift. See the lib header for the full
+# rationale + the "docker is sql-only, package adds manifest
+# intersect" invariant.
+# shellcheck source=/dev/null
+source "$(dirname -- "${BASH_SOURCE[0]}")/lib/derive-from-version.sh"
+
 # Last to_version resolved by emit_to_version. emit_expected_version
 # reads this on the non-build_locally path so the "expected" value
 # tracks the same label the acceptance job's TO_VERSION env sees.
@@ -276,42 +284,25 @@ fetch_shipped_versions() {
 # config maintenance. See openemr/openemr#13573 for the full
 # symptom trace.
 derive_from_version() {
+    # Sql-side enumeration is now in a shared lib so the docker side
+    # (acceptance-docker.yml upgrade cell) can read the same signal
+    # without duplicating the sql-parse logic. The lib's return=1
+    # paths cover sql/-missing + no-well-formed-filenames; it emits
+    # its own actionable ::error:: on stderr (lib function name as
+    # prefix). We additionally emit a `derive_from_version:`-prefixed
+    # line that mirrors the historical shape this function used to
+    # emit inline, so existing BATS assertions + any log-grep
+    # tooling keyed on `derive_from_version:` keep working. The
+    # layered output also gives operators both the raw signal
+    # (lib's error) and the function-level context (ours) when
+    # diagnosing a failure.
     local candidates
-    # Guard the `find` on directory existence first — under `set -e`
-    # a bare `find sql` when sql/ doesn't exist returns 1 and would
-    # tear down the whole script before our empty-result check
-    # below could emit a useful error message. Same shape as the
-    # `[[ ! -f ]]` guards elsewhere in this script.
-    if [[ ! -d sql ]]; then
-        echo "::error::derive_from_version: no sql/*-to-*_upgrade.sql files found in checkout" >&2
-        exit 1
-    fi
-    # Enumerate `sql/*-to-*_upgrade.sql` (filenames like
-    # `sql/8_1_0-to-8_1_1_upgrade.sql`) via `find` rather than `ls`
-    # (shellcheck SC2012; also more robust to non-alphanumeric
-    # names should the convention ever drift). Strip the `sql/`
-    # prefix and the `-to-<version>_upgrade.sql` suffix to get the
-    # from-version in underscore-shape (`8_1_1`), swap underscores
-    # to dots.
-    # Post-strip grep filters out any candidate that isn't in strict
-    # X.Y.Z shape — defense against a hypothetical drift in the
-    # sql/*-to-*_upgrade.sql filename convention (e.g., a stray
-    # `sql/8_1-to-8_2_0_upgrade.sql` two-segment left-side would
-    # otherwise slip through to the manifest intersect and silently
-    # exclude itself with a confusing "no candidate matched" error).
-    # Explicit shape enforcement here surfaces the drift cleanly at
-    # the enumeration step.
-    #
-    # `|| true` on the pipeline because grep exits 1 when nothing
-    # matches (all candidates malformed). The empty-check below
-    # handles that case with a specific error message.
-    candidates=$(find sql -maxdepth 1 -name '*-to-*_upgrade.sql' -type f 2>/dev/null \
-        | sed -E 's|^sql/||; s|-to-[0-9_]+_upgrade\.sql$||' \
-        | tr '_' '.' \
-        | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
-        | sort -uV || true)
-    if [[ -z "${candidates}" ]]; then
-        echo "::error::derive_from_version: no well-formed sql/*-to-*_upgrade.sql files found in checkout (expected X_Y_Z-to-A_B_C shape)" >&2
+    if ! candidates=$(derive_from_version_sql_candidates "."); then
+        if [[ ! -d sql ]]; then
+            echo "::error::derive_from_version: no sql/*-to-*_upgrade.sql files found in checkout" >&2
+        else
+            echo "::error::derive_from_version: no well-formed sql/*-to-*_upgrade.sql files found in checkout (expected X_Y_Z-to-A_B_C shape)" >&2
+        fi
         exit 1
     fi
     # Fetch the shipped-versions manifest and intersect. See
