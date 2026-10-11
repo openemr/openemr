@@ -20,10 +20,13 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PhoneNumberService;
+use OpenEMR\Services\SpreadSheetService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Immunization Registry", xl("Immunization Registry"));
@@ -253,6 +256,16 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
     echo($content);
     exit;
 }
+
+// EXPORT SPREADSHEET
+// Rerun the report query with the submitted filters; with no rows, fall through and show the report.
+if (CurrentRequest::get()->request->getString('form_export') === 'true') {
+    $spreadsheet = new SpreadSheetService(QueryUtils::fetchRecords($query, $sqlBindArray), [], 'immunizations');
+    if ($spreadsheet->buildSpreadsheet()) {
+        $spreadsheet->downloadSpreadsheet('Xls');
+        exit;
+    }
+}
 ?>
 <html>
 <head>
@@ -445,7 +458,6 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
                     $res = sqlStatement($query, $sqlBindArray);
 
                     while ($row = sqlFetchArray($res)) {
-                        $rows[] = $row;
                         ?>
                         <tr>
                             <td>
@@ -487,25 +499,11 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
     <script>
 
         function exportData() {
-            let data = <?php echo json_encode($rows ?? ''); ?>;
-            let csrf_token = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
-            const params = new URLSearchParams({
-                data: data,
-                csrf_token_form: csrf_token
-            });
-            dlgopen(
-                "../../library/ajax/immunization_export.php?" + params,
-                'Export',
-                'modal-xs',
-                300,
-                false,
-                'Export',
-                {
-                    buttons: [
-                        {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
-                    ]
-                }
-            );
+            // The server reruns the query with the current filters and answers with the file.
+            $('#form_get_hl7').attr('value', 'false');
+            $('#form_export').attr('value', 'true');
+            $('#theform').submit();
+            $('#form_export').attr('value', '');
             return false;
         }
     </script>
