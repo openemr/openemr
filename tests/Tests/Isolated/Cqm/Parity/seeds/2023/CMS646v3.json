@@ -1,0 +1,71 @@
+{
+    "patients": [
+        {
+            "note": "Bladder cancer diagnosed and staged T1 the same day in January 2023, office visit in March, BCG given in March: denominator and numerator.",
+            "birthDatetime": "1950-02-01T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "ProcedurePerformed",
+                    "valueSet": "Tumor staging (tumor staging)",
+                    "relevantDatetime": "2023-01-25T09:00:00.000+00:00",
+                    "result": {
+                        "code": "T1: Urinary tract tumor invades subepithelial connective tissue (finding)"
+                    }
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Bladder Cancer for Urology Care",
+                    "prevalencePeriod": [
+                        "2023-01-25T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2023-03-03T09:00:00.000+00:00",
+                        "2023-03-03T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "MedicationAdministered",
+                    "valueSet": "BCG Bacillus Calmette Guerin for Urology Care",
+                    "relevantDatetime": "2023-03-10T09:00:00.000+00:00"
+                }
+            ]
+        },
+        {
+            "note": "Bladder cancer diagnosed and staged Tis the same day in February 2023, with no BCG: denominator, not numerator.",
+            "birthDatetime": "1945-06-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "ProcedurePerformed",
+                    "valueSet": "Tumor staging (tumor staging)",
+                    "relevantDatetime": "2023-02-06T09:00:00.000+00:00",
+                    "result": {
+                        "code": "Tis: Carcinoma in situ (flat tumor of urinary bladder) (finding)"
+                    }
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Bladder Cancer for Urology Care",
+                    "prevalencePeriod": [
+                        "2023-02-06T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2023-04-07T09:00:00.000+00:00",
+                        "2023-04-07T09:30:00.000+00:00"
+                    ]
+                }
+            ]
+        }
+    ]
+}

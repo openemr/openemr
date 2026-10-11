@@ -1,0 +1,87 @@
+{
+    "patients": [
+        {
+            "note": "Heart failure with moderate or severe LVSD since 2023, office visits in March and June 2024, beta blocker ordered at the June visit: denominator and numerator.",
+            "birthDatetime": "1954-01-01T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Heart Failure",
+                    "prevalencePeriod": [
+                        "2022-05-01T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Moderate or Severe LVSD",
+                    "prevalencePeriod": [
+                        "2023-02-01T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2024-03-04T09:00:00.000+00:00",
+                        "2024-03-04T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2024-06-10T09:00:00.000+00:00",
+                        "2024-06-10T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "MedicationOrder",
+                    "valueSet": "Beta Blocker Therapy for LVSD",
+                    "authorDatetime": "2024-06-10T09:15:00.000+00:00"
+                }
+            ]
+        },
+        {
+            "note": "The same history and visits with no beta blocker: denominator, not numerator.",
+            "birthDatetime": "1958-07-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Heart Failure",
+                    "prevalencePeriod": [
+                        "2022-05-01T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Moderate or Severe LVSD",
+                    "prevalencePeriod": [
+                        "2023-02-01T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2024-03-04T09:00:00.000+00:00",
+                        "2024-03-04T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2024-06-10T09:00:00.000+00:00",
+                        "2024-06-10T09:30:00.000+00:00"
+                    ]
+                }
+            ]
+        }
+    ]
+}
