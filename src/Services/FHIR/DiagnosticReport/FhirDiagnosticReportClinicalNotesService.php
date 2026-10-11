@@ -110,12 +110,11 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
         $id->setValue($dataRecord['uuid']);
         $report->setId($id);
 
+        // form_clinical_notes.date is optional; an undated note leaves effective[x] out.
         if (!empty($dataRecord['date'])) {
             $date = UtilsService::getLocalDateAsUTC($dataRecord['date']);
             $report->setEffectiveDateTime(new FHIRDateTime($date));
             $report->setIssued(new FHIRInstant($date));
-        } else {
-            $report->setDate(UtilsService::createDataMissingExtension());
         }
 
         if (!empty($dataRecord['euuid'])) {
