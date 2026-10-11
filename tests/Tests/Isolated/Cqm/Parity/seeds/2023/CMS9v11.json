@@ -1,0 +1,79 @@
+{
+    "patients": [
+        {
+            "note": "Single live term newborn (39 weeks) born in hospital in May 2023, fed breast milk only during the two-day stay: denominator and numerator.",
+            "birthDatetime": "2023-05-10T07:30:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Encounter Inpatient",
+                    "relevantPeriod": [
+                        "2023-05-10T08:00:00.000+00:00",
+                        "2023-05-12T12:00:00.000+00:00"
+                    ],
+                    "diagnoses": [
+                        {
+                            "code": "Single Live Born Newborn Born in Hospital",
+                            "rank": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "AssessmentPerformed",
+                    "valueSet": "Gestational age--at birth",
+                    "relevantDatetime": "2023-05-10T09:00:00.000+00:00",
+                    "result": {
+                        "value": 39,
+                        "unit": "wk"
+                    }
+                },
+                {
+                    "type": "SubstanceAdministered",
+                    "valueSet": "Human Milk",
+                    "relevantDatetime": "2023-05-10T10:00:00.000+00:00"
+                }
+            ]
+        },
+        {
+            "note": "The same newborn in September 2023, also given formula during the stay: denominator, not numerator.",
+            "birthDatetime": "2023-09-04T07:30:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Encounter Inpatient",
+                    "relevantPeriod": [
+                        "2023-09-04T08:00:00.000+00:00",
+                        "2023-09-06T12:00:00.000+00:00"
+                    ],
+                    "diagnoses": [
+                        {
+                            "code": "Single Live Born Newborn Born in Hospital",
+                            "rank": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "AssessmentPerformed",
+                    "valueSet": "Gestational age--at birth",
+                    "relevantDatetime": "2023-09-04T09:00:00.000+00:00",
+                    "result": {
+                        "value": 39,
+                        "unit": "wk"
+                    }
+                },
+                {
+                    "type": "SubstanceAdministered",
+                    "valueSet": "Human Milk",
+                    "relevantDatetime": "2023-09-04T10:00:00.000+00:00"
+                },
+                {
+                    "type": "SubstanceAdministered",
+                    "valueSet": "Dietary Intake Other than Human Milk",
+                    "relevantDatetime": "2023-09-05T10:00:00.000+00:00"
+                }
+            ]
+        }
+    ]
+}

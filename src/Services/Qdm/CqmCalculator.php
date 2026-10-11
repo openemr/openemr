@@ -10,9 +10,7 @@
 
 namespace OpenEMR\Services\Qdm;
 
-use GuzzleHttp\Psr7;
-use GuzzleHttp\Psr7\LazyOpenStream;
-use OpenEMR\Cqm\CqmServiceManager;
+use OpenEMR\Cqm\PhpCqmCalculation;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\MedicationOrder;
 use OpenEMR\Cqm\Qdm\SubstanceOrder;
@@ -21,18 +19,7 @@ use OpenEMR\Services\Qrda\Util\DateHelper;
 
 class CqmCalculator
 {
-    protected $client;
     protected $measure;
-
-    /**
-     * CqmCalculator constructor.
-     *
-     * @param $client
-     */
-    public function __construct()
-    {
-        $this->client = CqmServiceManager::makeCqmClient();
-    }
 
     protected function findCodeByOid($valueSetArray, $oid_code)
     {
@@ -54,16 +41,20 @@ class CqmCalculator
     /**
      * @param  QdmRequestInterface $request
      * @param  Measure $measure
-     * @param  $effectiveDate
-     * @param  $effectiveEndDate
-     * @return \Psr\Http\Message\StreamInterface|array
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @param  $effectiveDate the measurement period start; the period is the year from it, as with the Node service
+     * @return array<string, array<string, array<string, mixed>>> results by patient id and population set id
+     * @throws MeasureCalculationException when the engine cannot calculate the measure
+     * @throws \JsonException|\RuntimeException when the measure files or patients cannot be read
      */
-    public function calculateMeasure($patients, Measure $measure, $effectiveDate, $effectiveEndDate)
+    public function calculateMeasure($patients, Measure $measure, $effectiveDate)
     {
         $this->measure = $measure;
         $measureFiles = MeasureService::fetchMeasureFiles($measure->measure_path);
-        $valueSetArray = json_decode(file_get_contents($measureFiles['valueSets']), true);
+        $valueSetsJson = file_get_contents($measureFiles['valueSets']);
+        if ($valueSetsJson === false) {
+            throw new \RuntimeException('Unable to read the measure value sets');
+        }
+        $valueSetArray = json_decode($valueSetsJson, true);
         // Fix somethings that the cqm calculator needs before we create JSON out of the patient models.
         foreach ($patients as $patient) {
             $patient->birthDatetime = DateHelper::format_datetime_cqm($patient->birthDatetime);
@@ -108,25 +99,22 @@ class CqmCalculator
             }
         }
 
-        $json_models = json_encode($patients);
-        $patientStream = Psr7\Utils::streamFor($json_models);
-
-        // Convert to assoc array before converting back to json to send
-        $measure_array = json_decode(json_encode($measure), true);
-        $json_measure = json_encode($measure_array);
-        $measureFileStream = Psr7\Utils::streamFor($json_measure);
-        $valueSetFileStream = new LazyOpenStream($measureFiles['valueSets'], 'r');
-        $options = [
-            'doPretty' => true,
-            'includeClauseResults' => true,
-            'requestDocument' => true,
-            'effectiveDate' => date('YmdHi', strtotime((string) $effectiveDate)) . '00',
-            'effectiveDateEnd' => null // !empty($effectiveEndDate) ? date('YmdHi', strtotime($effectiveEndDate)) . '00' : null
-        ];
-        $optionsStream = Psr7\Utils::streamFor(json_encode($options));
-
-        $results = $this->client->calculate($patientStream, $measureFileStream, $valueSetFileStream, $optionsStream);
-        return $results;
+        $patientsJson = json_encode($patients, JSON_THROW_ON_ERROR);
+        // The measure as the JSON object the calculator reads
+        $measureData = json_decode(json_encode($measure, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+        if (!is_array($measureData)) {
+            throw new \UnexpectedValueException('The measure is not a JSON object');
+        }
+        $effectiveTime = strtotime((string) $effectiveDate);
+        if ($effectiveTime === false) {
+            throw new \UnexpectedValueException('Unreadable measurement period start');
+        }
+        try {
+            return (new PhpCqmCalculation())->calculate($patientsJson, $measureData, $valueSetsJson, date('YmdHi', $effectiveTime) . '00');
+        } catch (\RuntimeException | \LogicException $e) {
+            // e.g. CQL the engine cannot run, as cqm-execution cannot: "no function with matching signature"
+            throw new MeasureCalculationException($measure->cms_id !== '' ? $measure->cms_id : $measure->hqmf_id, $e);
+        }
     }
 
     public function getMeasure()

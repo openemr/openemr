@@ -15582,11 +15582,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ProductRegistrationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\CqmCalculator\\:\\:calculateMeasure\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\IndividualResult\\:\\:collect_observations\\(\\) has parameter \\$observation_hash with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/IndividualResult.php',

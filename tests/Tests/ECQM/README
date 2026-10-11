@@ -1,6 +1,22 @@
 The MeasureResultsTest runs by comparing data in the measure_result_map.csv to the results that are calculated dynamically
-by the test.
+by the test, through the same path QRDA reporting uses: the patient from the database, the Measure model and the PHP
+eCQM engine in CqmCalculator.
 
 XML QRDA input files come from Cypress https://cypressdemo.healthit.gov
 
-Import the test files using care coordination module, then you can run the tests.
+Import the test files using the care coordination module, or from the command line (as a user other than root):
+
+    php bin/console openemr:ccda-newpatient-import --document=/path/to/patient.xml
+
+then you can run the tests:
+
+    vendor/bin/phpunit -c phpunit.xml --testsuite ECQM
+
+Each row of measure_result_map.csv is one patient (matched by pubpid, the id from the QRDA document), one measure and
+one population set, with the expected population counts from Cypress. The measure must be in the measure bundle for the
+eCQM Performance Period global (Admin > Config > CDR). The measurement period runs one year from effectiveDate, as in
+reporting; effectiveEndDate is not used. Set skip to 1 to leave a row out.
+
+To see what OpenEMR calculates for patients already in the database:
+
+    php bin/console openemr:cqm-calculate --measure=CMS122v13 --by-patient

@@ -20,13 +20,13 @@ class MeasureService
         $reporting_year .= '_reporting_period';
 
         return [
-            'openemr/oe-cqm-parsers' => "/ccdaservice/node_modules/oe-cqm-parsers/$reporting_year/json_measures",
+            'openemr/oe-cqm-parsers' => "/vendor/openemr/oe-cqm-parsers/$reporting_year/json_measures",
             'contrib' => '/contrib/ecqm/EP-EC-eCQM-2020-05'
         ];
     }
 
     /**
-     * @return string[]
+     * @return array<string, string> measure name => measure directory
      */
     public static function fetchMeasureOptions(): array
     {

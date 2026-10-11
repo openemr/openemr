@@ -185,9 +185,7 @@ class ResultsCalculator
 
     public function increment_sup_info($patient_sup, $pop, array &$single_measure_result_hash)
     {
-        if (!is_array($single_measure_result_hash['supplemental_data'][$pop])) {
-            $single_measure_result_hash['supplemental_data'][$pop] = ['RACE' => [], 'ETHNICITY' => [], 'SEX' => [], 'PAYER' => []];
-        }
+        $single_measure_result_hash['supplemental_data'][$pop] ??= ['RACE' => [], 'ETHNICITY' => [], 'SEX' => [], 'PAYER' => []];
         foreach ($patient_sup as $sup_type => $code) {
             $this->add_or_increment_code($pop, $sup_type, $code, $single_measure_result_hash);
         }
@@ -207,6 +205,9 @@ class ResultsCalculator
 
     public function add_or_increment_code($pop, $sup_type, $code, array &$single_measure_result_hash)
     {
+        // A patient without this characteristic counts under '', which is what
+        // a null key became implicitly before PHP 8.5 deprecated null array keys.
+        $code ??= '';
         if (!empty($single_measure_result_hash['supplemental_data'][$pop][$sup_type][$code])) {
             $single_measure_result_hash['supplemental_data'][$pop][$sup_type][$code] += 1;
         } else {

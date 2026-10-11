@@ -13,10 +13,12 @@
 namespace OpenEMR\Cqm\QrdaControllers;
 
 use DOMDocument;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Qdm\MeasureCalculationException;
 use OpenEMR\Services\Qrda\QrdaReportService;
 use XSLTProcessor;
 
@@ -297,7 +299,17 @@ class QrdaReportController
         foreach ($measures as $measure) {
             $measure_id = is_array($measure) ? $measure['measure_id'] : $measure;
 
-            $xml = $this->getCategoryIIIReport($pids, $measure_id, $options);
+            try {
+                $xml = $this->getCategoryIIIReport($pids, $measure_id, $options);
+            } catch (MeasureCalculationException $e) {
+                // Leave the measure out and say so in the zip, so the other measures still export
+                ServiceContainer::getLogger()->error('QRDA III measure not calculated', ['measure' => $e->measureId, 'exception' => $e]);
+                file_put_contents(
+                    $zip_directory . DIRECTORY_SEPARATOR . $e->measureId . '_NOT_CALCULATED.txt',
+                    $e->measureId . ': ' . xl('this measure cannot be calculated by the eCQM calculation engine') . "\n"
+                );
+                continue;
+            }
 
             if (empty($xml)) {
                 continue;
@@ -464,12 +476,20 @@ class QrdaReportController
 
             // Stream download to browser
             $this->streamXmlDownload($filename, $xml);
+        } catch (MeasureCalculationException $e) {
+            // A consolidated report covers every measure, so one that cannot be calculated stops it
+            ServiceContainer::getLogger()->error('Consolidated QRDA III measure not calculated', ['measure' => $e->measureId, 'exception' => $e]);
+            http_response_code(422);
+            echo text(
+                xl('Error generating consolidated QRDA III report') . ': ' . $e->measureId . ' '
+                . xl('cannot be calculated by the eCQM calculation engine. Remove it from the selection and try again.')
+            );
         } catch (\Throwable $e) {
             error_log("Consolidated QRDA III download failed: " . $e->getMessage());
 
             // Send error response
             http_response_code(500);
-            echo "Error generating consolidated QRDA III report: " . $e->getMessage();
+            echo text(xl('Error generating consolidated QRDA III report. See the error log for details.'));
             exit;
         }
     }

@@ -27,6 +27,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Kernel;
@@ -67,6 +68,8 @@ class ClientAdminController
 
     private AccessTokenRepository $accessTokenRepository;
 
+    private EventAuditLogger $eventAuditLogger;
+
     private string $webroot;
 
     /**
@@ -85,6 +88,11 @@ class ClientAdminController
     public function setTwig(Environment $twig): void
     {
         $this->twig = $twig;
+    }
+
+    public function setEventAuditLogger(EventAuditLogger $eventAuditLogger): void
+    {
+        $this->eventAuditLogger = $eventAuditLogger;
     }
 
     public function setExternalCDRController(RouteController $controller): void
@@ -408,9 +416,29 @@ class ClientAdminController
      */
     private function handleEnabledAction(ClientEntity $client, bool $isEnabled, string $successMessage): Response
     {
+        $wasEnabled = $client->isEnabled();
         $client->setIsEnabled($isEnabled);
         try {
             $this->clientRepo->saveIsEnabled($client, $isEnabled);
+            $writeScopes = $client->getFhirWriteScopes();
+            if ($writeScopes !== []) {
+                $this->eventAuditLogger ??= EventAuditLogger::getInstance();
+                $this->eventAuditLogger->newEvent(
+                    'oauth2',
+                    $this->session->get('authUser', ''),
+                    $this->session->get('authProvider', ''),
+                    1,
+                    json_encode([
+                        'action' => $isEnabled ? 'enable_fhir_write_client' : 'disable_fhir_write_client',
+                        'client_id' => $client->getIdentifier(),
+                        'client_name' => $client->getName(),
+                        'admin_user_id' => $this->session->get('authUserID', 0),
+                        'previously_enabled' => $wasEnabled,
+                        'enabled' => $isEnabled,
+                        'fhir_write_scopes' => $writeScopes,
+                    ], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)
+                );
+            }
             $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $successMessage]]);
             return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
         } catch (\Throwable $ex) {
