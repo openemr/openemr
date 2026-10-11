@@ -98,7 +98,11 @@ class AuthorizationListener implements EventSubscriberInterface
             // openemr_auth as required and the runtime must match.
             $skipAuthorizationStrategy->addSkipRoute('/fhir/metadata');
             $skipAuthorizationStrategy->addSkipRoute('/fhir/.well-known/smart-configuration');
-            $skipAuthorizationStrategy->addSkipRoute('/fhir/OperationDefinition');
+            // Prefix form so /fhir/OperationDefinition/{op} named-operation
+            // descriptors (currently just $bulkdata-status) are reachable
+            // alongside the collection. Narrow this to OperationDefinition —
+            // addSkipRoute() exact-match is the default for everything else.
+            $skipAuthorizationStrategy->addSkipRoutePrefix('/fhir/OperationDefinition');
             $this->addAuthorizationStrategy($skipAuthorizationStrategy);
             // TODO: @adunsulag not sure I like instantiating the ServerConfig here, perhaps we need to do this in a different way?
             $serverConfig = new ServerConfig();

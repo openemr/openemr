@@ -12,9 +12,19 @@ class SkipAuthorizationStrategy implements IAuthorizationStrategy
     use SystemLoggerAwareTrait;
 
     /**
-     * @var string[] List of routes to skip authorization for
+     * @var string[] Routes to skip authorization for on an exact-path match only.
      */
     private array $skipRoutes = [];
+
+    /**
+     * @var string[] Routes to skip authorization for on an exact-path match or
+     *               on a deeper child path (route + "/..."). Used for FHIR
+     *               resource prefixes that have named operations under them,
+     *               e.g. /fhir/OperationDefinition and
+     *               /fhir/OperationDefinition/$bulkdata-status. Keep this list
+     *               narrow — exact-match via addSkipRoute() is the default.
+     */
+    private array $skipRoutePrefixes = [];
 
     private bool $skipOptionsMethod = true;
 
@@ -41,6 +51,19 @@ class SkipAuthorizationStrategy implements IAuthorizationStrategy
         $this->skipRoutes[] = $route;
     }
 
+    /**
+     * Register a route whose exact path AND any deeper child path should
+     * skip authorization. Reserved for FHIR resource prefixes that have
+     * named operations under them (e.g. /fhir/OperationDefinition and its
+     * /fhir/OperationDefinition/$op children). Prefer addSkipRoute() for
+     * everything else so a new skip entry does not accidentally expose a
+     * sub-tree.
+     */
+    public function addSkipRoutePrefix(string $route): void
+    {
+        $this->skipRoutePrefixes[] = $route;
+    }
+
     public function shouldProcessRequest(HttpRestRequest $request): bool
     {
         if ($request->getMethod() === 'OPTIONS' && $this->skipOptionsMethod) {
@@ -51,12 +74,18 @@ class SkipAuthorizationStrategy implements IAuthorizationStrategy
         if (str_starts_with($pathInfo, $sitePath)) {
             $pathInfo = substr($pathInfo, strlen($sitePath));
         }
-        // Predicate intent: the incoming path matches a configured skip-route
-        // either exactly or as a deeper child path. Appending "/" to the route
-        // when probing the deeper-child case prevents a path like
-        // "/fhir/metadata-fake" from matching a configured "/fhir/metadata".
         foreach ($this->skipRoutes as $route) {
-            if ($pathInfo === $route || str_starts_with($pathInfo, rtrim($route, '/') . '/')) {
+            if ($pathInfo === $route) {
+                return true;
+            }
+        }
+        // Prefix match: exact path OR any deeper child. Appending "/" when
+        // probing the deeper-child case prevents a sibling like
+        // "/fhir/OperationDefinition-fake" from matching the configured
+        // "/fhir/OperationDefinition".
+        foreach ($this->skipRoutePrefixes as $route) {
+            $normalized = rtrim($route, '/');
+            if ($pathInfo === $normalized || str_starts_with($pathInfo, $normalized . '/')) {
                 return true;
             }
         }
