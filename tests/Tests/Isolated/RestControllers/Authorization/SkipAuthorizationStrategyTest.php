@@ -23,14 +23,132 @@ class SkipAuthorizationStrategyTest extends TestCase
         $this->assertTrue($skipAuthorizationStrategy->shouldProcessRequest($request), "Options should be skipped when flag is set");
     }
 
-    public function testAddSkipRoute(): void
+    // Tests below use the same path shape as the existing passing test:
+    // the configured skip-route includes the full post-dispatch prefix
+    // and the request path includes the same prefix. This isolates the
+    // tests from Symfony's path-info rewriting and exercises only the
+    // comparison direction + prefix-boundary logic.
+
+    public function testAddSkipRouteExactPathMatches(): void
     {
-        $this->markTestIncomplete("Test is incomplete");
+        $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
+        $skipAuthorizationStrategy->addSkipRoute("/apis/default/fhir/metadata");
+        $request = HttpRestRequest::create("/apis/default/fhir/metadata", "GET");
+        $this->assertTrue(
+            $skipAuthorizationStrategy->shouldProcessRequest($request),
+            "An exact match on the configured skip-route should return true"
+        );
     }
 
-    public function testShouldProcessRequest(): void
+    public function testAddSkipRouteDoesNotMatchDeeperChildPath(): void
     {
-        $this->markTestIncomplete("Test is incomplete");
+        $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
+        $skipAuthorizationStrategy->addSkipRoute("/apis/default/fhir/metadata");
+        // addSkipRoute() is exact-match-only. A deeper child path must not
+        // match -- a future author adding a convenience route via this API
+        // should not accidentally expose a sub-tree.
+        $request = HttpRestRequest::create("/apis/default/fhir/metadata/foo", "GET");
+        $this->assertFalse(
+            $skipAuthorizationStrategy->shouldProcessRequest($request),
+            "addSkipRoute() must not match a deeper child path -- that is addSkipRoutePrefix()'s job"
+        );
+    }
+
+    public function testAddSkipRoutePrefixExactPathMatches(): void
+    {
+        $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
+        $skipAuthorizationStrategy->addSkipRoutePrefix("/apis/default/fhir/OperationDefinition");
+        $request = HttpRestRequest::create("/apis/default/fhir/OperationDefinition", "GET");
+        $this->assertTrue(
+            $skipAuthorizationStrategy->shouldProcessRequest($request),
+            "addSkipRoutePrefix() must still match the exact configured path"
+        );
+    }
+
+    public function testAddSkipRoutePrefixDeeperChildPathMatches(): void
+    {
+        $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
+        $skipAuthorizationStrategy->addSkipRoutePrefix("/apis/default/fhir/OperationDefinition");
+        $request = HttpRestRequest::create(
+            "/apis/default/fhir/OperationDefinition/\$bulkdata-status",
+            "GET"
+        );
+        $this->assertTrue(
+            $skipAuthorizationStrategy->shouldProcessRequest($request),
+            "addSkipRoutePrefix() must match deeper child paths"
+        );
+    }
+
+    public function testAddSkipRoutePrefixSiblingPathWithSharedPrefixDoesNotMatch(): void
+    {
+        $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
+        $skipAuthorizationStrategy->addSkipRoutePrefix("/apis/default/fhir/OperationDefinition");
+        // Sibling path sharing a leading substring but not a slash boundary
+        // must not match the prefix either -- /OperationDefinition-fake is
+        // not a child of /OperationDefinition.
+        $request = HttpRestRequest::create(
+            "/apis/default/fhir/OperationDefinition-fake",
+            "GET"
+        );
+        $this->assertFalse(
+            $skipAuthorizationStrategy->shouldProcessRequest($request),
+            "addSkipRoutePrefix() must not match a sibling path sharing a leading substring"
+        );
+    }
+
+    public function testAddSkipRouteShorterPrefixDoesNotMatch(): void
+    {
+        $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
+        $skipAuthorizationStrategy->addSkipRoute("/apis/default/fhir/metadata");
+        // A path that is a shorter prefix of the configured skip-route must
+        // not match. Locks the comparison direction so a future refactor
+        // cannot reintroduce the inverted-argument behavior.
+        $request = HttpRestRequest::create("/apis/default/fhir", "GET");
+        $this->assertFalse(
+            $skipAuthorizationStrategy->shouldProcessRequest($request),
+            "A shorter prefix of the configured skip-route must not match"
+        );
+
+        $request = HttpRestRequest::create("/apis/default", "GET");
+        $this->assertFalse(
+            $skipAuthorizationStrategy->shouldProcessRequest($request),
+            "An even shorter prefix must not match"
+        );
+    }
+
+    public function testAddSkipRouteSiblingPathWithSharedPrefixDoesNotMatch(): void
+    {
+        $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
+        $skipAuthorizationStrategy->addSkipRoute("/apis/default/fhir/metadata");
+        // A sibling path that shares a leading substring with the configured
+        // skip-route must not match. /fhir/metadata-fake is not a child of
+        // /fhir/metadata.
+        $request = HttpRestRequest::create("/apis/default/fhir/metadata-fake", "GET");
+        $this->assertFalse(
+            $skipAuthorizationStrategy->shouldProcessRequest($request),
+            "A sibling path sharing a leading substring must not match"
+        );
+    }
+
+    public function testShouldProcessRequestWithNoConfiguredRoutes(): void
+    {
+        $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
+        $request = HttpRestRequest::create("/apis/default/fhir/metadata", "GET");
+        $this->assertFalse(
+            $skipAuthorizationStrategy->shouldProcessRequest($request),
+            "No skip-routes configured means every request falls through to auth"
+        );
+    }
+
+    public function testShouldProcessRequestWithUnrelatedPath(): void
+    {
+        $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
+        $skipAuthorizationStrategy->addSkipRoute("/apis/default/fhir/metadata");
+        $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");
+        $this->assertFalse(
+            $skipAuthorizationStrategy->shouldProcessRequest($request),
+            "A path unrelated to any configured skip-route must not match"
+        );
     }
 
     public function testAuthorizeRequestWithValidSkippedPath(): void
