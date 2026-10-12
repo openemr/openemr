@@ -77,4 +77,52 @@ class EncryptedGlobalValueTest extends TestCase
     {
         self::assertSame($expected, EncryptedGlobalValue::keepStoredValue($fieldType, $submitted, $flag));
     }
+
+    public function testFindUndecryptableNamesFailuresAndCountsStoredValues(): void
+    {
+        $crypto = $this->createStub(CryptoInterface::class);
+        $crypto->method('decryptFromDatabase')->willReturnCallback(
+            static fn (?string $value): string => $value === 'bad' ? throw new CryptoGenException('Decryption failed') : 'secret'
+        );
+
+        $result = EncryptedGlobalValue::findUndecryptable($crypto, [
+            'smtp_pass' => 'good',
+            'gateway_key' => 'bad',
+            'never_set' => '',
+            'missing' => null,
+            'other_key' => 'bad',
+        ]);
+
+        self::assertSame(['total' => 3, 'failed' => ['gateway_key', 'other_key']], $result);
+    }
+
+    public function testFindUndecryptableWithNothingStored(): void
+    {
+        $crypto = $this->createMock(CryptoInterface::class);
+        $crypto->expects(self::never())->method('decryptFromDatabase');
+
+        self::assertSame(['total' => 0, 'failed' => []], EncryptedGlobalValue::findUndecryptable($crypto, ['a' => '', 'b' => null]));
+    }
+
+    /**
+     * @return array<string, array{int, int, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function keysLikelyChangedProvider(): array
+    {
+        return [
+            'every stored value fails' => [3, 3, true],
+            'some stored values fail' => [1, 3, false],
+            'the only stored value fails' => [1, 1, false],
+            'nothing fails' => [0, 3, false],
+            'nothing stored' => [0, 0, false],
+        ];
+    }
+
+    #[DataProvider('keysLikelyChangedProvider')]
+    public function testKeysLikelyChanged(int $failed, int $total, bool $expected): void
+    {
+        self::assertSame($expected, EncryptedGlobalValue::keysLikelyChanged($failed, $total));
+    }
 }

@@ -411,6 +411,60 @@ function checkBackgroundServices(): void
                 <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             </div>
         </div>
+        <?php
+        // A stored secret that cannot be decrypted usually means the site's encryption keys
+        // changed, which is serious and reaches beyond this page. The fields below still render
+        // so a value can be replaced, so say it here where it is seen on every tab, and log it.
+        $encryptedStored = [];
+        $encryptedTitles = [];
+        foreach ($GLOBALS_METADATA as $grparr) {
+            foreach ($grparr as $fldid => $fldarr) {
+                $isEncrypted = $fldarr[1] === GlobalSetting::DATA_TYPE_ENCRYPTED || $fldarr[1] === GlobalSetting::DATA_TYPE_ENCRYPTED_HASH;
+                if ($isEncrypted && (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS))) {
+                    $encryptedStored[$fldid] = null;
+                    $encryptedTitles[$fldid] = $fldarr[0];
+                }
+            }
+        }
+        if ($encryptedStored !== []) {
+            $encryptedNames = array_keys($encryptedStored);
+            $placeholders = implode(',', array_fill(0, count($encryptedNames), '?'));
+            foreach (QueryUtils::fetchRecords("SELECT `gl_name`, `gl_value` FROM `globals` WHERE `gl_index` = 0 AND `gl_name` IN ($placeholders)", $encryptedNames) as $row) {
+                $encryptedStored[$row['gl_name']] = $row['gl_value'];
+            }
+            if ($userMode) {
+                // A user's own setting is shown in place of the global one.
+                $userLabels = array_map(static fn ($name): string => 'global:' . $name, $encryptedNames);
+                foreach (QueryUtils::fetchRecords("SELECT `setting_label`, `setting_value` FROM `user_settings` WHERE `setting_user` = ? AND `setting_label` IN ($placeholders)", [$session->get('authUserID'), ...$userLabels]) as $row) {
+                    $encryptedStored[substr((string) $row['setting_label'], strlen('global:'))] = $row['setting_value'];
+                }
+            }
+        }
+        $undecryptable = EncryptedGlobalValue::findUndecryptable($cryptoGen, $encryptedStored);
+        if ($undecryptable['failed'] !== []) {
+            $undecryptableCount = count($undecryptable['failed']);
+            ServiceContainer::getLogger()->error('Encrypted settings cannot be decrypted in the Config editor', [
+                'failed' => $undecryptableCount,
+                'stored' => $undecryptable['total'],
+                'settings' => $undecryptable['failed'],
+                'userMode' => $userMode,
+            ]);
+            ?>
+        <div class="row">
+            <div class="col-sm-12 px-0">
+                <div class="alert alert-danger" role="alert" id="undecryptable-alert">
+                    <h5 class="alert-heading"><?php echo xlt('Stored encrypted settings could not be decrypted'); ?>: <?php echo text($undecryptableCount . ' / ' . $undecryptable['total']); ?></h5>
+                    <?php if (EncryptedGlobalValue::keysLikelyChanged($undecryptableCount, $undecryptable['total'])) { ?>
+                    <p class="font-weight-bold"><?php echo xlt('None of the stored encrypted settings can be decrypted. This points to missing or replaced encryption keys, not to a single damaged value.'); ?></p>
+                    <?php } ?>
+                    <p><?php echo xlt('This usually means the encryption keys of this site were changed or were not carried over during an upgrade or migration. Other encrypted data, such as encrypted documents, will then be unreadable too.'); ?></p>
+                    <p><?php echo xlt('Restore the original encryption keys before entering new values. A marked setting that is left empty keeps its stored value, so it works again once the keys are restored. Enter a new value only if the original keys cannot be recovered.'); ?></p>
+                    <p class="mb-0"><?php echo xlt('Affected settings'); ?>:
+                        <?php echo text(implode(', ', array_map(static fn (string $name): string => xl((string) ($encryptedTitles[$name] ?? $name)), $undecryptable['failed']))); ?></p>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
         <div class="row">
             <div class="col-sm-12 px-0">
                 <?php if ($userMode) { ?>

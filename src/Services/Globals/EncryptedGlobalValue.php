@@ -9,6 +9,10 @@
  * the page must not overwrite the stored value with an empty one unless the
  * administrator enters a replacement.
  *
+ * An undecryptable value usually means the site's encryption keys changed,
+ * which also makes other encrypted data unreadable, so the editor reports
+ * the failure in a page-level alert and in the log rather than quietly.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -69,5 +73,40 @@ final class EncryptedGlobalValue
         return $submittedValue === ''
             && in_array($fieldType, self::ENCRYPTED_TYPES, true)
             && $undecryptableFlag === '1';
+    }
+
+    /**
+     * Check which stored encrypted values cannot be decrypted.
+     *
+     * Empty and non-string values hold nothing to decrypt and are not counted.
+     *
+     * @param iterable<string, mixed> $storedByName Stored value by setting name.
+     * @return array{total: int, failed: list<string>} The number of stored
+     *         values checked and the names of those that cannot be decrypted.
+     */
+    public static function findUndecryptable(CryptoInterface $crypto, iterable $storedByName): array
+    {
+        $total = 0;
+        $failed = [];
+        foreach ($storedByName as $name => $stored) {
+            if (!is_string($stored) || $stored === '') {
+                continue;
+            }
+            $total++;
+            if (self::decryptForEdit($crypto, $stored) === null) {
+                $failed[] = (string) $name;
+            }
+        }
+        return ['total' => $total, 'failed' => $failed];
+    }
+
+    /**
+     * Whether the failures point to missing or replaced encryption keys
+     * rather than one damaged value: more than one value is stored and none
+     * of them can be decrypted.
+     */
+    public static function keysLikelyChanged(int $failed, int $total): bool
+    {
+        return $total > 1 && $failed === $total;
     }
 }
