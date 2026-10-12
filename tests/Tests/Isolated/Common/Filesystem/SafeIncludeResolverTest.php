@@ -132,6 +132,27 @@ class SafeIncludeResolverTest extends TestCase
         $this->assertFalse(SafeIncludeResolver::resolve($projectRoot, 'src/Common/Filesystem/SafeIncludeResolver.php/'));
     }
 
+    public function testResolveReturnsFalseForPhpSymlinkTargetingNonPhp(): void
+    {
+        $tmp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'openemr-sir-' . uniqid('', true);
+        mkdir($tmp);
+        $target = $tmp . '/payload.edi';
+        $link = $tmp . '/legit.php';
+        file_put_contents($target, "<?php echo 'ran'; ?>");
+        try {
+            if (!@symlink($target, $link)) {
+                $this->markTestSkipped('Unable to create symlink in this environment.');
+            }
+            $this->assertFalse(SafeIncludeResolver::resolve($tmp, 'legit.php'));
+        } finally {
+            if (is_link($link)) {
+                unlink($link);
+            }
+            @unlink($target);
+            @rmdir($tmp);
+        }
+    }
+
     public function testResolveReturnsFalseForSymlinkPointingOutsideBaseDir(): void
     {
         $projectRoot = dirname(__DIR__, 5);

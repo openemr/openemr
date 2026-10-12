@@ -64,6 +64,12 @@ final class SafeIncludeResolver
             return false;
         }
 
+        // Re-check suffix on the resolved path to catch a `.php` symlink that
+        // targets a non-script file.
+        if (!str_ends_with(strtolower($realPath), '.php')) {
+            return false;
+        }
+
         return $realPath;
     }
 
