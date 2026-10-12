@@ -427,6 +427,19 @@ if (
         }
         $rcnt++;
     }
+    // Invoices whose statement count and date are bumped once their patient's
+    // statement is actually produced; a Due Pt run that nets to nothing leaves
+    // them untouched.
+    $pendingStatementUpdates = [];
+    $recordStatementRun = function (array $encounterIds) use ($today): void {
+        foreach ($encounterIds as $encounterId) {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE form_encounter SET last_stmt_date = ?, stmt_count = stmt_count + 1 WHERE id = ?",
+                [$today, $encounterId]
+            );
+        }
+    };
+
     // This loops once for each invoice/encounter.
     //
     for ($rcnt = 0; $row = $rows[$rcnt] ?? null; $rcnt++) {
@@ -512,11 +525,9 @@ if (
         $rowEncounter = is_numeric($row['encounter']) ? (int) $row['encounter'] : 0;
         StatementLines::append($stmt, $rowPid, $rowEncounter, $svcdate, (is_numeric($duncount) ? (int) $duncount : 0) + 1);
 
-        // Record that this statement was run.
+        // Record that this statement was run, once it is produced below.
         if (!$DEBUG && empty($_REQUEST['form_without'])) {
-            sqlStatement("UPDATE form_encounter SET " .
-                "last_stmt_date = ?, stmt_count = stmt_count + 1 " .
-                "WHERE id = ?", [$today, $row['id']]);
+            $pendingStatementUpdates[] = $row['id'];
         }
         $inv_count += 1;
 
@@ -538,6 +549,8 @@ if (
             $pvoice[] = $stmt;
             // we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
             if ($inv_pid[$inv_count] != $inv_pid[$inv_count + 1]) {
+                $recordStatementRun($pendingStatementUpdates);
+                $pendingStatementUpdates = [];
                 fwrite($fhprint, (string) make_statement($stmt));
                 if (!notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE, $stmt['pid'] . "-" . $stmt['encounter'])) {
                     $alertmsg = xlt('Notification FAILED');
@@ -555,9 +568,13 @@ if (
                 $amountDue = is_numeric($stmt['amount'] ?? null) ? (float) $stmt['amount'] : 0.0;
                 if ($_REQUEST['form_category'] == 'Due Pt' && $amountDue <= 0) {
                     // Nothing is due once the patient's credits are netted against the
-                    // checked invoices, so no statement goes out.
+                    // checked invoices, so no statement goes out and its invoices are
+                    // not counted as statemented.
                     $stmt = [];
+                    $pendingStatementUpdates = [];
                 } else {
+                    $recordStatementRun($pendingStatementUpdates);
+                    $pendingStatementUpdates = [];
                     $tmp = make_statement($stmt);
                     if (!empty($_REQUEST['form_email']) && $tmp !== '') {
                         try {
