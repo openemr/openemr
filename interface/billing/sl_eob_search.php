@@ -549,13 +549,14 @@ if (
             $pvoice[] = $stmt;
             // we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
             if ($inv_pid[$inv_count] != $inv_pid[$inv_count + 1]) {
-                $recordStatementRun($pendingStatementUpdates);
-                $pendingStatementUpdates = [];
                 fwrite($fhprint, (string) make_statement($stmt));
                 if (!notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE, $stmt['pid'] . "-" . $stmt['encounter'])) {
                     $alertmsg = xlt('Notification FAILED');
                     break;
                 }
+                // Count the invoices as statemented only once the portal has the statement.
+                $recordStatementRun($pendingStatementUpdates);
+                $pendingStatementUpdates = [];
 
                 $pvoice = [];
                 flush();
