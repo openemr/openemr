@@ -129,11 +129,20 @@ jobs:
         fi
 
         # Confirm the project-wide pointer moved. best_release.json is
-        # what SourceForge's download button reads.
-        best=$(curl -sf -A 'openemr-release-bot' \
-          https://sourceforge.net/projects/openemr/best_release.json)
+        # what SourceForge's download button reads; it can lag the PUT by
+        # a little, so give it a few minutes before calling it a failure.
+        ok=""
+        for _ in $(seq 1 6); do
+          best=$(curl -sf -A 'openemr-release-bot' \
+            https://sourceforge.net/projects/openemr/best_release.json || true)
+          if printf '%s' "$best" | grep -qF "$TARBALL"; then
+            ok=1
+            break
+          fi
+          sleep 30
+        done
         echo "best_release.json: $best"
-        if ! printf '%s' "$best" | grep -q "$TARBALL"; then
-          echo "::error::best_release.json does not point at $TARBALL yet; check https://sourceforge.net/projects/openemr/files/"
+        if [ -z "$ok" ]; then
+          echo "::error::best_release.json does not point at $TARBALL after 3 minutes; check https://sourceforge.net/projects/openemr/files/"
           exit 1
         fi
