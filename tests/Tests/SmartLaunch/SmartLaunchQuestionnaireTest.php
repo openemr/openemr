@@ -193,17 +193,31 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
             'full flow should land on the SMART app index.php with a launch id',
         );
 
-        // Pull the patient banner text to prove the app made its initial
-        // bearer-token Patient read against the FHIR API. The banner
-        // includes DOB in YYYY-MM-DD form — matching that pattern is
-        // enough to confirm "we got a patient record back from FHIR,"
-        // without coupling to any specific demo-data patient name.
         $this->panther->waitFor('body', 10);
         $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+
+        // Patient read: the banner DOB in YYYY-MM-DD form proves the
+        // app made its initial bearer-token Patient GET against the
+        // FHIR API. Matching the format rather than a specific demo-
+        // data patient name keeps the assertion stable across demo-data
+        // changes.
         $this->assertMatchesRegularExpression(
             '/\bDOB:\s*\d{4}-\d{2}-\d{2}\b/',
             $bodyText,
             'app index.php should render a patient banner with DOB — proof that bearer-token Patient read succeeded',
+        );
+
+        // Questionnaire search: index.php renders a "Choose a
+        // questionnaire" picker populated from a bearer-token
+        // Questionnaire GET. The demo-data install ships no
+        // Questionnaire resources, so the picker renders empty — the
+        // "No questionnaires are available" copy only reaches the DOM
+        // on a successful (empty) FHIR search; a 401/403/500 would
+        // short-circuit it with an error banner instead.
+        $this->assertStringContainsString(
+            'Choose a questionnaire',
+            $bodyText,
+            'app index.php should render the Questionnaire picker — proof that bearer-token Questionnaire search succeeded',
         );
     }
 }

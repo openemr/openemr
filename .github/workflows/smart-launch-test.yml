@@ -2,10 +2,10 @@
 # SMART-launch smoke (openemr/openemr#14529).
 #
 # Boots ci/smart-launch/compose.yml (flex image + MariaDB + Selenium),
-# stages the pinned-SHA release of openemr/oe-smart-questionnaire into
-# the openemr container, enables REST + FHIR globals, DCRs a client,
-# and runs tests/Tests/SmartLaunch/SmartLaunchQuestionnaireTest.php
-# which drives the full standalone SMART launch via Panther. See
+# stages upstream master of openemr/oe-smart-questionnaire into the
+# openemr container, enables REST + FHIR globals, DCRs a client, and
+# runs tests/Tests/SmartLaunch/SmartLaunchQuestionnaireTest.php, which
+# drives the full standalone SMART launch via Panther. See
 # ci/smart-launch/run.sh for the orchestrator and the issue body for
 # the "why inferno-pattern rather than acceptance-side" rationale.
 #
@@ -14,10 +14,9 @@
 # later. Also triggered when the SMART-launch surface itself changes
 # (ci/smart-launch/**, tests/Tests/SmartLaunch/**, this workflow).
 #
-# Pin bump: ci/smart-launch/pin.sh. The sibling smart-launch-drift-check
-# workflow files an issue when upstream master drifts ahead of the pin;
-# bump explicitly after a maintainer confirms the new revision still
-# green-passes this smoke.
+# No pin: the smoke always pulls upstream master. Trading off occasional
+# transient red (an unrelated upstream merge breaking the smoke) against
+# the maintenance tax of pin-bump review cycles.
 
 name: SMART Launch Smoke
 

@@ -51,36 +51,31 @@ initialize_openemr() {
 }
 
 stage_smart_questionnaire_app() {
-    echo 'Staging oe-smart-questionnaire pinned-SHA tarball (pre-compose)'
+    echo 'Staging oe-smart-questionnaire master tarball (pre-compose)'
     local repo_root stage_dir
     repo_root="$(git rev-parse --show-toplevel)"
     stage_dir="${repo_root}/ci/smart-launch/stage"
-    # Can't use a shellcheck source= directive here because the path
-    # resolves through a runtime-set variable; SC1091 is a dynamic-path
-    # info note, not a real issue (pin.sh is in-tree next to this script).
-    # shellcheck disable=SC1091
-    . "${repo_root}/ci/smart-launch/pin.sh"
-    local tarball="${stage_dir}/pin.tar.gz"
+    local tarball="${stage_dir}/upstream.tar.gz"
     local appdir="${stage_dir}/app"
 
-    # Bind pin as a local so a stale env (or a pin.sh that forgot to set
-    # the variable) fails loudly here instead of silently fetching an
-    # empty-URL tarball. The sourced pin.sh declaration is marked
-    # SC2034-disable there because this is the only consumer and shellcheck
-    # cannot statically follow the source path.
-    local pin="${SMART_QUESTIONNAIRE_PIN:?pin.sh must set SMART_QUESTIONNAIRE_PIN}"
+    # Clear contents of appdir without removing the dir itself, and
+    # without removing the committed .gitkeep stub. The compose stack
+    # bind-mounts appdir, and removing-then-recreating racily can leave
+    # docker holding a stale inode. .gitkeep stays so a local run
+    # doesn't leave it as a staged deletion in `git status`.
+    find "${appdir}" -mindepth 1 ! -name .gitkeep -delete
 
-    # Clear contents of appdir without removing the dir itself — the
-    # compose stack bind-mounts the dir path, and removing-then-recreating
-    # racily can leave docker holding a stale inode.
-    find "${appdir}" -mindepth 1 -delete
-
-    # GitHub's tarball endpoint returns a repo tarball at the SHA. The
-    # top-level directory inside the archive is
-    # openemr-oe-smart-questionnaire-<short-sha>/ which strip-components=1
+    # Pulls upstream master's tip. No pin — rolling-latest trades off
+    # pin maintenance for occasional transient CI red from upstream
+    # churn, which we accept over the per-bump review tax. If upstream
+    # breaks compat, this smoke flags it on the next PR.
+    #
+    # GitHub's tarball endpoint returns the repo tarball at the ref.
+    # The top-level directory inside the archive is
+    # openemr-oe-smart-questionnaire-<short-sha>/, which strip-components=1
     # peels off, leaving public/, src/, bin/, etc. directly under appdir.
     curl -sSfL \
-        "https://api.github.com/repos/openemr/oe-smart-questionnaire/tarball/${pin}" \
+        "https://api.github.com/repos/openemr/oe-smart-questionnaire/tarball/master" \
         -o "${tarball}"
     tar -xzf "${tarball}" --strip-components=1 -C "${appdir}"
     rm -f "${tarball}"
