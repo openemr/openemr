@@ -43,6 +43,9 @@ class DateSearchField extends BasicSearchField
     // php's DATE_ATOM does not handle milliseconds so we have to add them in manually
     public const DATE_ATOM_MILLISECONDS = 'Y-m-d\TH:i:s.uP';
 
+    // the same format for a value that has no timezone
+    private const DATE_LOCAL_MILLISECONDS = 'Y-m-d\TH:i:s.u';
+
     private const COMPARATOR_INDEX_FULL = 0;
 
     private const COMPARATOR_INDEX_COMPARATOR = 1;
@@ -146,8 +149,8 @@ class DateSearchField extends BasicSearchField
             throw new \InvalidArgumentException("Invalid comparator found for value " . $value);
         }
 
-        $lowerBoundRange = ['y' => $matches[self::COMPARATOR_INDEX_YEAR], 'm' => 1, 'd' => 1, 'H' => 0, 'i' => 0, 's' => 0, 'ms' => 0, 'tz' => date('P')];
-        $upperBoundRange = ['y' => $matches[self::COMPARATOR_INDEX_YEAR], 'm' => 12, 'd' => 31, 'H' => 23, 'i' => 59, 's' => 59, 'ms' => 999, 'tz' => date('P')];
+        $lowerBoundRange = ['y' => $matches[self::COMPARATOR_INDEX_YEAR], 'm' => 1, 'd' => 1, 'H' => 0, 'i' => 0, 's' => 0, 'ms' => 0];
+        $upperBoundRange = ['y' => $matches[self::COMPARATOR_INDEX_YEAR], 'm' => 12, 'd' => 31, 'H' => 23, 'i' => 59, 's' => 59, 'ms' => 999];
 
         // month
         if (!empty($matches[self::COMPARATOR_INDEX_MONTH])) {
@@ -200,14 +203,11 @@ class DateSearchField extends BasicSearchField
             $upperBoundRange['ms'] = intval(str_pad($fraction, 3, '9'));
         }
 
-        // we need to handle the timezone component if they send it, otherwise it defaults to the local timezone
-        if (!empty($matches[self::COMPARATOR_INDEX_TIMEZONE])) {
-            $lowerBoundRange['tz'] = $matches[self::COMPARATOR_INDEX_TIMEZONE];
-            $upperBoundRange['tz'] = $matches[self::COMPARATOR_INDEX_TIMEZONE];
-        }
+        // a value with no timezone component is in the server timezone
+        $timezone = $matches[self::COMPARATOR_INDEX_TIMEZONE];
 
-        $startRange = $this->createDateTimeFromArray($lowerBoundRange);
-        $endRange = $this->createDateTimeFromArray($upperBoundRange);
+        $startRange = $this->createDateTimeFromArray($lowerBoundRange, $timezone);
+        $endRange = $this->createDateTimeFromArray($upperBoundRange, $timezone);
         if ($startRange === false || $endRange === false) {
             throw new \InvalidArgumentException("Invalid ISO8601 date");
         }
@@ -218,14 +218,16 @@ class DateSearchField extends BasicSearchField
         return new SearchFieldComparableValue($datePeriod, $comparator);
     }
 
-    private function createDateTimeFromArray(array $datetime)
+    private function createDateTimeFromArray(array $datetime, ?string $timezone)
     {
         // Not sure how we want to handle timezone
         // we create a DateTime object as not all search fields are a DateTime so we go as precise as we can
         // and let the services go more imprecise if needed.
-        $stringDate = sprintf("%d-%02d-%02dT%02d:%02d:%02d.%03d%s", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s'], $datetime['ms'], $datetime['tz']);
-        // 'n' & 'j' don't have leading zeros
-        $dateValue = \DateTime::createFromFormat(self::DATE_ATOM_MILLISECONDS, $stringDate);
-        return $dateValue;
+        $stringDate = sprintf("%d-%02d-%02dT%02d:%02d:%02d.%03d", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s'], $datetime['ms']);
+        if ($timezone === null) {
+            // a named timezone gives the offset in force on the searched date, which a fixed offset does not
+            return \DateTime::createFromFormat(self::DATE_LOCAL_MILLISECONDS, $stringDate, new \DateTimeZone(date_default_timezone_get()));
+        }
+        return \DateTime::createFromFormat(self::DATE_ATOM_MILLISECONDS, $stringDate . $timezone);
     }
 }
