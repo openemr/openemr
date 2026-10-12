@@ -1113,12 +1113,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and 1 results in an error\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and mixed results in an error\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
@@ -1133,7 +1133,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\-" between mixed and mixed results in an error\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
