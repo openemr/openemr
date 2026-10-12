@@ -4,8 +4,8 @@
 # SMART-launch smoke orchestrator (openemr/openemr#14529).
 #
 # Boots the ci/smart-launch compose stack, installs openemr via
-# install_configure (shared with inferno), stages the pinned-SHA release
-# of openemr/oe-smart-questionnaire into the openemr container, enables
+# install_configure (shared with inferno), stages upstream master of
+# openemr/oe-smart-questionnaire into the openemr container, enables
 # OpenEMR's REST + FHIR API globals, loads demo data (patients the
 # `launch/patient` scope requires), registers an OAuth client via the
 # app's own `bin/register.php`, enables that client, and runs the
@@ -126,19 +126,57 @@ configure_smart_questionnaire_in_container() {
     echo 'SMART app reachable inside the stack'
 }
 
-set_site_addr_oath() {
-    echo 'Setting site_addr_oath to https://openemr'
+set_smoke_globals() {
+    echo 'Setting smoke-specific globals (site_addr_oath + smart_context_test_launches)'
     # install_configure already enabled rest_api / rest_fhir_api /
     # rest_portal_api / oauth_password_grant / rest_system_scopes_api
-    # (see ciLibrary.source). The one global it does not set is
-    # site_addr_oath — the OAuth2 issuer URL — because dev workflows
-    # use whatever the local host-port maps to. For this smoke we
-    # need the issuer URL to match what both the browser (via
-    # selenium) and the SMART app's server-side PHP use to reach
-    # OpenEMR, which is the compose-network service alias.
+    # (see ciLibrary.source). Two globals it does not set that this
+    # smoke needs:
+    #   - site_addr_oath: the OAuth2 issuer URL. For this smoke it
+    #     must match what both the browser (via selenium) and the SMART
+    #     app's server-side PHP use to reach OpenEMR — the compose-
+    #     network service alias.
+    #   - smart_context_test_launches: toggles the "Test Launches" card
+    #     on interface/patient_file/assessment/fhir_assessments.php
+    #     which renders the EHR-launch buttons (patient / encounter /
+    #     main-tab / appointment intents). The EHR-launch test posts to
+    #     interface/smart/ehr-launch-client.php with the client_id +
+    #     csrf_token + intent those buttons expose; off-by-default
+    #     elsewhere so no production footprint from flipping it here.
     docker compose exec -T mysql mariadb -u root --password=root openemr -e "
         INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('site_addr_oath', 0, 'https://openemr')
           ON DUPLICATE KEY UPDATE gl_value=VALUES(gl_value);
+        INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('smart_context_test_launches', 0, '1')
+          ON DUPLICATE KEY UPDATE gl_value=VALUES(gl_value);
+    "
+}
+
+seed_smoke_questionnaire() {
+    echo 'Seeding a minimal Questionnaire fixture for the write-round-trip test'
+    # The write-round-trip test needs a Questionnaire to pick on the
+    # app's index.php. The demo-data load ships no Questionnaire rows,
+    # so insert a minimal one with a single required-string item. The
+    # row is picked up by the FHIR Questionnaire search the app runs
+    # after landing on index.php, and the string item renders as a
+    # plain <input type=text> that the test fills + submits.
+    #
+    # Fixed questionnaire_id='smart-smoke-q' + name='smart-smoke-
+    # questionnaire' so the test can match by stable identifier. UUID
+    # is MySQL-generated per run (not written to the FHIR body
+    # overrides — the service layer uses the row's binary uuid).
+    docker compose exec -T mysql mariadb -u root --password=root openemr -e "
+        INSERT INTO questionnaire_repository
+          (uuid, questionnaire_id, name, version, type, active, status, questionnaire)
+        VALUES (
+          UNHEX(REPLACE(UUID(),'-','')),
+          'smart-smoke-q',
+          'smart-smoke-questionnaire',
+          1,
+          'Questionnaire',
+          1,
+          'active',
+          '{\"resourceType\":\"Questionnaire\",\"id\":\"smart-smoke-q\",\"url\":\"http://example.com/q/smart-smoke\",\"version\":\"1.0.0\",\"name\":\"smartsmoke\",\"title\":\"SMART Launch Smoke Questionnaire\",\"status\":\"active\",\"item\":[{\"linkId\":\"1\",\"type\":\"string\",\"text\":\"How are you feeling?\",\"required\":true}]}'
+        );
     "
 }
 
@@ -201,7 +239,8 @@ main() {
     stage_smart_questionnaire_app
     initialize_openemr
     configure_smart_questionnaire_in_container
-    set_site_addr_oath
+    set_smoke_globals
+    seed_smoke_questionnaire
     register_smart_client
 
     if [[ "${SMART_LAUNCH_DRY_RUN:-}" == '1' ]]; then
