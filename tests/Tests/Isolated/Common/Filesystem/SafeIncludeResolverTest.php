@@ -132,6 +132,19 @@ class SafeIncludeResolverTest extends TestCase
         $this->assertFalse(SafeIncludeResolver::resolve($projectRoot, 'src/Common/Filesystem/SafeIncludeResolver.php/'));
     }
 
+    public function testResolveAcceptsNonPhpWhenSuffixCheckDisabled(): void
+    {
+        $projectRoot = dirname(__DIR__, 5);
+        $resolved = SafeIncludeResolver::resolve($projectRoot, 'composer.json', requirePhpSuffix: false);
+        $this->assertSame(realpath($projectRoot . '/composer.json'), $resolved);
+    }
+
+    public function testResolveReturnsFalseForTraversalEvenWhenSuffixCheckDisabled(): void
+    {
+        $projectRoot = dirname(__DIR__, 5);
+        $this->assertFalse(SafeIncludeResolver::resolve($projectRoot . '/src', '../composer.json', requirePhpSuffix: false));
+    }
+
     public function testResolveReturnsFalseForPhpSymlinkTargetingNonPhp(): void
     {
         $tmp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'openemr-sir-' . uniqid('', true);

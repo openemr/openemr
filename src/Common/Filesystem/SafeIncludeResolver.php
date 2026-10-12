@@ -17,10 +17,12 @@ namespace OpenEMR\Common\Filesystem;
 
 /**
  * Resolve a file path relative to a base directory, ensuring the result
- * is a regular `.php` file that stays within the base directory.
+ * is a regular file that stays within the base directory.
  *
- * Rejects `.`, `..`, NUL bytes, non-`.php` suffixes, and paths that resolve
- * outside the base directory via symlinks or traversal sequences.
+ * Rejects `.`, `..`, NUL bytes, and paths that resolve outside the base
+ * directory via symlinks or traversal sequences. By default also rejects
+ * non-`.php` suffixes — callers that resolve non-script files (navigation
+ * targets, static assets) must pass `$requirePhpSuffix = false`.
  */
 final class SafeIncludeResolver
 {
@@ -29,9 +31,13 @@ final class SafeIncludeResolver
      *
      * @param string $baseDir Absolute path to the trusted base directory
      * @param string $relativePath Untrusted relative path (e.g. "formdir/report.php")
+     * @param bool $requirePhpSuffix When true (default), the input and the resolved
+     *     target must both end in `.php`. Pass false only when the caller is
+     *     checking existence of non-script files (e.g. navigation URL targets)
+     *     and the result will not be passed to `require` / `include`.
      * @return string|false The resolved real path, or false if validation fails
      */
-    public static function resolve(string $baseDir, string $relativePath): string|false
+    public static function resolve(string $baseDir, string $relativePath, bool $requirePhpSuffix = true): string|false
     {
         $realBaseDir = realpath($baseDir);
         if ($realBaseDir === false) {
@@ -42,7 +48,7 @@ final class SafeIncludeResolver
             return false;
         }
 
-        if (!str_ends_with(strtolower($relativePath), '.php')) {
+        if ($requirePhpSuffix && !str_ends_with(strtolower($relativePath), '.php')) {
             return false;
         }
 
@@ -66,7 +72,7 @@ final class SafeIncludeResolver
 
         // Re-check suffix on the resolved path to catch a `.php` symlink that
         // targets a non-script file.
-        if (!str_ends_with(strtolower($realPath), '.php')) {
+        if ($requirePhpSuffix && !str_ends_with(strtolower($realPath), '.php')) {
             return false;
         }
 
