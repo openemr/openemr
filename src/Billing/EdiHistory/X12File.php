@@ -247,7 +247,7 @@ class X12File
      *
      * @return string
      */
-    public function edih_message()
+    public function edih_message(): string
     {
         $str_html = '<p>' . PHP_EOL;
         if (count($this->message)) {
@@ -287,7 +287,7 @@ class X12File
      * @param string $filetext   the file contents
      * @return string            zero length on failure
      */
-    public function edih_x12_scan($filetext)
+    public function edih_x12_scan($filetext): string
     {
         $hasval = '';
         $ftxt = ( $filetext && is_string($filetext) ) ? trim($filetext) : $filetext;
@@ -1455,7 +1455,7 @@ class X12File
                 $stpos = strrpos((string) $f_str, $seg_st, ($trpos - strlen((string) $f_str)));
                 $sepos = strpos((string) $f_str, $dt . 'SE' . $de, $stpos);
                 $sepos = strpos((string) $f_str, (string) $dt, $sepos + 1);
-                $segidx =  ($prskeys) ? substr_count((string) $f_str, (string) $dt, 0, $st_pos + 2) + 1 : 0;
+                $segidx =  ($prskeys) ? substr_count((string) $f_str, (string) $dt, 0, $stpos + 2) + 1 : 0;
                 $srchstr = substr((string) $f_str, $stpos + 1, $sepos - $stpos);
             }
 

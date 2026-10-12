@@ -82,7 +82,7 @@ class VitalsService extends BaseService
         $this->shouldConvertVitalMeasurements = $shouldConvert;
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         $sqlSelect = "
                     SELECT patients.pid

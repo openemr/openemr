@@ -42,7 +42,7 @@ class NQF_0028b_Numerator implements CqmFilterIF
         return false;
     }
 
-    private function getApplicableEncounters()
+    private function getApplicableEncounters(): array
     {
         return [
             Encounter::ENC_OFF_VIS,

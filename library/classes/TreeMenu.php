@@ -552,7 +552,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
     * @access public
     * @return string The HTML for the menu
     */
-    public function toHTML()
+    public function toHTML(): string
     {
         static $count = 0;
         $menuObj     = 'objTreeMenu_' . ++$count;
@@ -598,7 +598,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
     *
     * @access private
     */
-    public function _nodeToHTML($nodeObj, $prefix, $return = 'newNode', $currentDepth = 0, $maxDepthPrefix = null)
+    public function _nodeToHTML($nodeObj, $prefix, $return = 'newNode', $currentDepth = 0, $maxDepthPrefix = null): string
     {
         $prefix = empty($maxDepthPrefix) ? $prefix : $maxDepthPrefix;
 
@@ -712,7 +712,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     /**
     * Returns the HTML generated
     */
-    public function toHTML()
+    public function toHTML(): string
     {
         static $count = 0;
         $nodeHTML = '';
@@ -738,7 +738,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     *
     * @access private
     */
-    public function _nodeToHTML($node, $prefix = '')
+    public function _nodeToHTML($node, $prefix = ''): string
     {
         $html = sprintf('<option value="%s">%s%s</option>', attr($node->id), $prefix, text($node->text));
 

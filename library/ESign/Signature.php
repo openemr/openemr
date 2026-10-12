@@ -56,7 +56,7 @@ class Signature implements SignatureIF
         $this->_verification = new Utils_Verification();
     }
 
-    public function getClass()
+    public function getClass(): string
     {
         $class = "";
         if ($this->isLock() === true) {

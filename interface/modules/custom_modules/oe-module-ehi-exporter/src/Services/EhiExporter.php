@@ -536,7 +536,7 @@ class EhiExporter
         }
     }
 
-    private function getCsvFileContents(ExportState $state, string $tableName)
+    private function getCsvFileContents(ExportState $state, string $tableName): string
     {
         // now we need to decrypt the contents and add them to the export.
         $filePath = $state->getTempSysDir() . DIRECTORY_SEPARATOR . $tableName . '.csv';
@@ -647,7 +647,7 @@ class EhiExporter
         }
     }
 
-    private function writeCsvFile($jobTask, &$records, $tableName, $outputLocation, array $overrideHeaderColumns = [])
+    private function writeCsvFile($jobTask, &$records, $tableName, $outputLocation, array $overrideHeaderColumns = []): int
     {
         $uuidDefinition = UuidRegistry::getUuidTableDefinitionForTable($tableName);
         $convertUuid = !empty($uuidDefinition);
@@ -722,7 +722,7 @@ class EhiExporter
         $exportedResult->exportedDocumentCount = $docCount;
     }
 
-    public function getExportSizeSettings()
+    public function getExportSizeSettings(): array
     {
         $maxDocSize = QueryUtils::fetchSingleValue("select max(size) as size FROM documents WHERE foreign_id != 0", 'size', []);
         $totalPatients = QueryUtils::fetchSingleValue("select count(*) as cnt FROM patient_data", 'cnt', []);

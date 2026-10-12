@@ -21,7 +21,7 @@ trait Cat3View
          */
     }
 
-    public function population_value(\Mustache_Context $context)
+    public function population_value(\Mustache_Context $context): float
     {
         $value = $context->find('value');
         return round($value);

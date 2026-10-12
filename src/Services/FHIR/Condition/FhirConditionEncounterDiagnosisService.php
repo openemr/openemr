@@ -354,7 +354,7 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
     }
     // end AI Generated
 
-    public function getSupportedVersions()
+    public function getSupportedVersions(): array
     {
         return [self::PROFILE_VERSION_NONE, '6.1.0', self::PROFILE_VERSION_7_0_0, self::PROFILE_VERSION_8_0_0];
     }

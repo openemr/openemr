@@ -251,7 +251,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         return $request;
     }
 
-    private function getClientEntityForTest()
+    private function getClientEntityForTest(): ClientEntity
     {
         $clientEntity = new ClientEntity();
         $clientEntity->setIdentifier(self::TEST_CLIENT_ID);
@@ -298,7 +298,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         return $jsonData;
     }
 
-    private function createJWTForKeys($iss, $aud)
+    private function createJWTForKeys($iss, $aud): string
     {
 
         $configuration = Configuration::forAsymmetricSigner(

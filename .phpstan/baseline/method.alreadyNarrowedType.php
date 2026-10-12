@@ -167,6 +167,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with \'OpenEMR\\\\\\\\Services\\\\\\\\Search\\\\\\\\SearchQueryConfig\' and OpenEMR\\\\Services\\\\Search\\\\SearchQueryConfig will always evaluate to true\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Search/SearchQueryConfigTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Telemetry/GeoTelemetryTest.php',
@@ -268,7 +273,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with OpenEMR\\\\Validators\\\\ProcessingResult and \'Processing result…\' will always evaluate to true\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Services/EncounterServiceTest.php',
 ];
 $ignoreErrors[] = [

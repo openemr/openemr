@@ -199,7 +199,7 @@ class ThumbnailGenerator
      * Return file name for thumbnail (adding 'th_')
      * @param $file_name
      */
-    private function get_thumb_name($file_name)
+    private function get_thumb_name($file_name): string
     {
         return 'th_' . $file_name;
     }

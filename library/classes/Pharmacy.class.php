@@ -299,7 +299,7 @@ class Pharmacy extends ORDataObject
         return $res['state'];
     }
 
-    public function toString($html = false)
+    public function toString($html = false): string
     {
         $phoneDisplay = ($this->phone_numbers[0] ?? null)?->formatLocal() ?? '';
         $string = "\n"
@@ -319,7 +319,7 @@ class Pharmacy extends ORDataObject
         return $count['numberof'];
     }
 
-    public function getPageno()
+    public function getPageno(): int
     {
         return $this->pageno = 1;
     }

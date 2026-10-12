@@ -22,7 +22,7 @@ class RuleCriteriaLifestyle extends RuleCriteria
     {
     }
 
-    public function getRequirements()
+    public function getRequirements(): string
     {
         $requirements = xl("Value") . ": ";
         if (is_null($this->matchValue)) {
@@ -34,7 +34,7 @@ class RuleCriteriaLifestyle extends RuleCriteria
         return $requirements;
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         $label = xl_layout_label($this->getLayoutLabel($this->type, "HIS"));
         return xl("Lifestyle") . " - " . $label;

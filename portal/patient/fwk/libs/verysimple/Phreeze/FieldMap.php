@@ -46,7 +46,7 @@ class FieldMap
      *
      * @param string $type
      */
-    public static function GetConstantFromType($type)
+    public static function GetConstantFromType($type): string
     {
         $const = 'FM_TYPE_' . strtoupper($type);
         return (defined($const)) ? $const : 'FM_TYPE_UNKNOWN';

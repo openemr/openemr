@@ -117,11 +117,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TeleHealthRemoteRegistrationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Services\\\\TeleHealthRemoteRegistrationService\\:\\:\\$apiPassword \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TeleHealthRemoteRegistrationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Services\\\\TeleHealthRemoteRegistrationService\\:\\:\\$apiURL \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TeleHealthRemoteRegistrationService.php',
@@ -1077,6 +1072,86 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$bibliographic_citation \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$developer \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$funding_source \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$linked_referential_cds \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$patient_dob_usage \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$patient_ethnicity_usage \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$patient_gender_identity_usage \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$patient_health_status_usage \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$patient_language_usage \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$patient_race_usage \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$patient_sex_usage \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$patient_sexual_orientation_usage \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$patient_sodh_usage \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$release \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$title \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$web_reference \\(string\\) does not accept array\\<string\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$bibliographic_citation \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/Rule.php',
@@ -1417,16 +1492,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Contact.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\ORDataObject\\\\ContactAddress\\:\\:\\$_address \\(OpenEMR\\\\Common\\\\ORDataObject\\\\Address\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\ORDataObject\\\\ContactAddress\\:\\:\\$_contact \\(OpenEMR\\\\Common\\\\ORDataObject\\\\Contact\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\ORDataObject\\\\ContactAddress\\:\\:\\$_use \\(string\\) does not accept string\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
@@ -1662,11 +1727,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:\\$grantType \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:\\$oaEncryptionKey \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
@@ -1790,11 +1850,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\PhoneNumberService\\:\\:\\$foreignId \\(int\\) does not accept mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/PhoneNumberService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\Qdm\\\\IndividualResult\\:\\:\\$patient_id \\(OpenEMR\\\\Cqm\\\\Qdm\\\\Identifier\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/IndividualResult.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Qdm\\\\PopulationSet\\:\\:\\$observations \\(array\\) does not accept mixed\\.$#',

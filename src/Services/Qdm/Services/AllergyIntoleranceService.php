@@ -18,7 +18,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class AllergyIntoleranceService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT pid, begdate, enddate, `date`, diagnosis
                 FROM lists
@@ -27,7 +27,7 @@ class AllergyIntoleranceService extends AbstractQdmService implements QdmService
         return $sql;
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): AllergyIntolerance
     {
         $record = $recordObj->getData();
         $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());

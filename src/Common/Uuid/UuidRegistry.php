@@ -291,7 +291,7 @@ class UuidRegistry
         }
     }
 
-    private function createMissingUuids()
+    private function createMissingUuids(): int
     {
         try {
             QueryUtils::startTransaction();
@@ -330,7 +330,7 @@ class UuidRegistry
      * Converts a UUID byte value to a string representation
      * @return string the UUID string value
      */
-    public static function uuidToString($uuidBytes)
+    public static function uuidToString($uuidBytes): string
     {
         return Uuid::fromBytes($uuidBytes)->toString();
     }
@@ -339,7 +339,7 @@ class UuidRegistry
      * Converts a UUID string to a bytes representation
      * @return string the UUID bytes value
      */
-    public static function uuidToBytes($uuidString)
+    public static function uuidToBytes($uuidString): string
     {
         return Uuid::fromString($uuidString)->getBytes();
     }
@@ -407,7 +407,7 @@ class UuidRegistry
         return $this->getUnusedUuidBatch($limit);
     }
 
-    private function createMissingUuidsForTableWithId()
+    private function createMissingUuidsForTableWithId(): int
     {
         $counter = 0;
         $count = $this->getTableCountWithMissingUuids();
@@ -445,7 +445,7 @@ class UuidRegistry
      *      assigned this group uuid. (see completePartialMissingUuidsForVerticalTable() function)
      * @return int
      */
-    private function createMissingUuidsForVerticalTable()
+    private function createMissingUuidsForVerticalTable(): int
     {
         $counter = 0;
 
@@ -493,7 +493,7 @@ class UuidRegistry
      *      assigned this group uuid. (this function)
      * @return int
      */
-    private function completePartialMissingUuidsForVerticalTable()
+    private function completePartialMissingUuidsForVerticalTable(): int
     {
         $counter = 0;
 

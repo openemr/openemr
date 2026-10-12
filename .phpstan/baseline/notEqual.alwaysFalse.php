@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/audit_log_tamper_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\!\\= between 0 and 0 will always evaluate to false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/fpdf/fpdf.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\!\\= between 1 and 1 will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthHash.php',

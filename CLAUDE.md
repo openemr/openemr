@@ -179,6 +179,13 @@ openemr-cmd phpunit-isolated        # in container (alias: pit)
 composer phpunit-isolated           # on host (requires PHP + Composer + vendor/)
 ```
 
+### Coverage includes test code
+
+Coverage deliberately counts test code as well as application code: seeing
+which test lines ran reveals tests that are skipped, never reach their
+assertions, or don't run at all. Don't exclude `tests/` from PHPUnit
+`<source>` or `codecov.yml` to improve coverage numbers.
+
 ### Data providers: mark as `@codeCoverageIgnore`
 
 PHPUnit data provider methods execute *before* coverage instrumentation

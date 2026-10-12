@@ -132,7 +132,6 @@ final class DocumentViewDeleteLinkTest extends TestCase
     public function testDeleteLinkCarriesThePatientTheDocumentIsFiledUnder(): void
     {
         $html = $this->createDocumentController()->view_action((string) self::DOC_PATIENT_ID, $this->documentId);
-        $this->assertIsString($html);
 
         // deleter.php denies the delete unless document_pid matches documents.foreign_id.
         $this->assertStringContainsString(
@@ -147,7 +146,6 @@ final class DocumentViewDeleteLinkTest extends TestCase
     public function testNoDeleteLinkWhenThePageHasNoPatient(): void
     {
         $html = $this->createDocumentController()->view_action(null, $this->documentId);
-        $this->assertIsString($html);
 
         // document_pid 0 never matches a document filed under a patient, so deleter.php would refuse the delete.
         $this->assertStringContainsString("&document_pid=' + encodeURIComponent(\"0\")", $html);

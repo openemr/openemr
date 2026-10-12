@@ -200,7 +200,7 @@ class CodeTypesService
      * @param $code
      * @return array
      */
-    public function parseCode($code)
+    public function parseCode($code): array
     {
         $parsedCode = $code;
         $parsedType = null;

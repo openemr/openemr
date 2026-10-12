@@ -59,7 +59,6 @@ class SMARTLaunchTokenTest extends TestCase
         $serialized = $token->serialize();
 
         $this->assertNotEmpty($serialized, "Token serialization should be a valid value");
-        $this->assertTrue(is_string($serialized), "Token serialization should be set to a string");
 
         $deserializedToken = SMARTLaunchToken::deserializeToken($serialized);
         $this->assertEquals($patientUUID, $deserializedToken->getPatient(), "Patient UUID should be set from deserialization");

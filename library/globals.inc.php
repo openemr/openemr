@@ -98,7 +98,7 @@ if (stristr(PHP_OS, 'WIN')) {
     $backup_log_dir = '/tmp';
 }
 
-function getDefaultRenderListOptions()
+function getDefaultRenderListOptions(): array
 {
     return [
         RenderFormFieldHelper::SHOW_ON_NEW_ONLY => xl('Show on New Form Only'),
@@ -3076,6 +3076,13 @@ $GLOBALS_METADATA = [
             xl('Website link for the Patient Portal.')
         ],
 
+        'pdf_allowed_host' => [
+            xl('Patient Portal PDF Renderer Allowed Host'),
+            'text',                           // data type
+            '',                               // default — blank blocks all remote http(s) fetches
+            xl('Origin the patient-portal PDF renderer accepts http(s) resource references for (barcodes, letterhead images, inline CSS url() values). Formats accepted: `host` (either scheme, default port), `host:port`, `http://host`, `https://host:port`. When left blank the renderer rejects all remote http(s) resources, which disables same-host barcodes and letterhead images.')
+        ],
+
         'portal_css_header' => [
             xl('Portal Default Theme'),
             [
@@ -3600,7 +3607,7 @@ $GLOBALS_METADATA = [
         ],
 
         'ccda_alt_service_enable' => [
-            xl('Enable C-CDA Service'),
+            xl('Enable C-CDA Documents'),
             [
                 0 => xl('Off'),
                 1 => xl('Care Coordination Only'),
@@ -3608,7 +3615,7 @@ $GLOBALS_METADATA = [
                 3 => xl('Both'),
             ],
             '0',
-            xl('Enable C-CDA Service')
+            xl('Where C-CDA documents can be generated: the Care Coordination module, the patient portal, or both.')
         ],
 
         'phimail_enable' => [

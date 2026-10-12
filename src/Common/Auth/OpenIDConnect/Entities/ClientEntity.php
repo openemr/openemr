@@ -198,7 +198,7 @@ class ClientEntity implements ClientEntityInterface
      * @params $launchParams string A URL query string params to append to the launch uri.
      * @return string
      */
-    public function getLaunchUri($launchParams = '')
+    public function getLaunchUri($launchParams = ''): string
     {
         $launchParams ??= '';
         return $this->launchUri . $launchParams;

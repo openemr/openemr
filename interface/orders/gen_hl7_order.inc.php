@@ -384,7 +384,7 @@ function default_gen_hl7_order(int $orderid): Hl7OrderResult
  * @param  string  $out   The HL7 text to be sent.
  * @return string         Error text, or empty if no errors.
  */
-function default_send_hl7_order($ppid, $out)
+function default_send_hl7_order($ppid, $out): string
 {
     global $srcdir;
 

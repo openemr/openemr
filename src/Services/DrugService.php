@@ -186,7 +186,7 @@ class DrugService extends BaseService
         return $this->getOne($uuid);
     }
 
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT
                 drug_table.drug_id,

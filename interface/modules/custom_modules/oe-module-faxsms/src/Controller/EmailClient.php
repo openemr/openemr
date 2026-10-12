@@ -198,7 +198,7 @@ class EmailClient extends AppDispatch implements EmailChannelInterface
     /**
      * @return string
      */
-    public function getCallLogs()
+    public function getCallLogs(): string
     {
         return xlt('Not Implemented');
     }

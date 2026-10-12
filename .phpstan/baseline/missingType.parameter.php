@@ -9707,16 +9707,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaGenerator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\CcdaGenerator\\:\\:socket_get\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaGenerator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\CcdaServiceDocumentRequestor\\:\\:socket_get\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Model\\\\CcdaServiceRequestModelGenerator\\:\\:create_data\\(\\) has parameter \\$components with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceRequestModelGenerator.php',
@@ -13653,6 +13643,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method ESign\\\\SignableIF\\:\\:sign\\(\\) has parameter \\$amendment with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/ESign/SignableIF.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method ESign\\\\SignableIF\\:\\:sign\\(\\) has parameter \\$lock with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/SignableIF.php',
 ];
@@ -31377,16 +31372,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/MedicalDevice/MedicalDevice.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Menu\\\\MainMenuRole\\:\\:updateBlankForms\\(\\) has parameter \\$menu_list with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Menu\\\\MainMenuRole\\:\\:updateVisitForms\\(\\) has parameter \\$menu_list with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Menu\\\\MenuRole\\:\\:menuAclCheck\\(\\) has parameter \\$arr with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/MenuRole.php',
@@ -38867,11 +38852,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\CqmCalculator\\:\\:calculateMeasure\\(\\) has parameter \\$effectiveEndDate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\CqmCalculator\\:\\:calculateMeasure\\(\\) has parameter \\$patients with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
@@ -38885,11 +38865,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\CqmCalculator\\:\\:findCodeByOid\\(\\) has parameter \\$valueSetArray with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\IndividualResult\\:\\:__construct\\(\\) has parameter \\$_result with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/IndividualResult.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\IndividualResult\\:\\:compare_observations\\(\\) has parameter \\$calculated with no type specified\\.$#',

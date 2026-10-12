@@ -79,7 +79,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      * Returns an array mapping FHIR Practitioner Resource search parameters to OpenEMR Practitioner search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),

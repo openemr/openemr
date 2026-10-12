@@ -73,9 +73,8 @@ class ListService
      * the search criteria as well as the last updated date of the sublist.
      * @param $search
      * @param $isAndCondition
-     * @return ProcessingResult
      */
-    public function searchLists($search, $isAndCondition = true)
+    public function searchLists($search, $isAndCondition = true): ProcessingResult
     {
         // TODO: @adunsulag this is copy-pasta from BaseService... need to investigate if we can just have ListService extend BaseService
         $processingResult = new ProcessingResult();

@@ -57,9 +57,8 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
 
     /**
      * @param RuleCriteriaType $ruleCriteriaType
-     * @return ?RuleCriteria
      */
-    public function build($ruleCriteriaType, $value, $methodDetail)
+    public function build($ruleCriteriaType, $value, $methodDetail): ?RuleCriteria
     {
         $exploded = explode("::", (string) $value);
 
@@ -92,7 +91,7 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
      *
      * @param RuleCriteriaType $criteriaType
      */
-    public function newInstance($ruleCriteriaType)
+    public function newInstance($ruleCriteriaType): ?RuleCriteria
     {
         if ($ruleCriteriaType->code == 'issue') {
             return new RuleCriteriaMedicalIssue(xl("Medical Issue"));

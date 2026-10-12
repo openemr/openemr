@@ -177,7 +177,7 @@ function doWait(e){
                     <select name='form_lab_id' id='form_lab_id' class='form-control'>
                         <option value="0"><?php echo xlt('All Labs'); ?></option>
                         <?php
-                        $ppres = sqlStatement("SELECT ppid, name, npi FROM procedure_providers ORDER BY name, ppid");
+                        $ppres = sqlStatement("SELECT ppid, name, npi FROM procedure_providers WHERE active = 1 ORDER BY name, ppid");
                         while ($pprow = sqlFetchArray($ppres)) {
                             echo "<option value='" . attr($pprow['ppid']) . "'";
                             if ($pprow['ppid'] == $processing_lab) {

@@ -30,6 +30,16 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v7
 
+    - name: Check Codecov flags
+      # Every CI config needs its own Codecov flag (see ci/codecov_flags.sh).
+      run: |
+        shopt -s nullglob
+        shopt -s extglob
+        dirs=( ci/!(compose-shared-*)/docker-compose.yml )
+        dirs=( "${dirs[@]%/docker-compose.yml}" )
+        dirs=( "${dirs[@]#ci/}" )
+        ci/parse_docker_dir.sh "${dirs[@]}" | ci/codecov_flags.sh
+
     - name: Collect Docker Dirs
       id: docker-dirs
       ##
@@ -46,7 +56,7 @@ jobs:
           jq -rc 'map({
             docker_dir: .output.docker_dir,
             php: .output.php,
-            display_name: ("PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)" + (if .output.redis_sentinel_enabled == "true" then (" - Redis Sentinel" + (if (.output.docker_dir | endswith("_mtls")) then " mTLS" elif (.output.docker_dir | endswith("_tls")) then " TLS" else "" end)) else "" end)),
+            display_name: ("PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)" + (if .output.redis_sentinel_enabled == "true" then (" - Redis Sentinel" + (if (.output.docker_dir | endswith("_mtls")) then " mTLS" elif (.output.docker_dir | endswith("_tls")) then " TLS" else "" end)) else "" end) + (if (.output.docker_dir | endswith("_upgrade")) then " - Upgrade from 5.0.0" else "" end)),
             save_composer_cache: .output.save_composer_cache,
             save_node_cache: .output.save_node_cache
           }) | "configs=\(.)"' >> "$GITHUB_OUTPUT"

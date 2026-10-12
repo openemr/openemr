@@ -21,6 +21,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\InfoTxt;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
@@ -237,10 +238,8 @@ class InstModuleTable
             $added = "";
             $typeSet = "";
 
-            if (file_exists(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/modules/$base/$added$directory/info.txt")) {
-                $lines = @file(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/modules/$base/$added$directory/info.txt");
-            }
-            $name = !empty($lines) ? $lines[0] : $directory;
+            $info = InfoTxt::read(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/modules/$base/$added$directory/info.txt");
+            $name = $info->name ?? $directory;
 
             $uiname = ucwords(strtolower((string) $directory));
             $section_id = 0;
@@ -331,9 +330,8 @@ class InstModuleTable
     /**
      * @param int    $id
      * @param string $cols -- This field is unused! TODO: remove this field
-     * @return InstModule
      */
-    public function getRegistryEntry($id, $cols = "")
+    public function getRegistryEntry($id, $cols = ""): InstModule
     {
         $sql = "SELECT mod_directory, sql_version, acl_version,type FROM modules WHERE mod_id = ?";
         $results = QueryUtils::fetchRecords($sql, [$id]);
@@ -739,7 +737,7 @@ class InstModuleTable
         return $retArray;
     }
 
-    public function getDependencyModules($mod_id)
+    public function getDependencyModules($mod_id): string
     {
         $modDirname = $this->getModuleDirectory($mod_id);
         $ret_str = "";
@@ -792,7 +790,7 @@ class InstModuleTable
         }
     }
 
-    public function getHangers()
+    public function getHangers(): array
     {
         return [
             'reports' => "Reports",
@@ -1019,9 +1017,9 @@ class InstModuleTable
      * validateNickName
      *
      * @param String $name nickname
-     * @return bool Nickname available or not.
+     * @return int Number of modules already using the nickname.
      **/
-    public function validateNickName($name)
+    public function validateNickName($name): int
     {
         $sql = "SELECT * FROM `modules` WHERE mod_nick_name = ? ";
         $result = QueryUtils::fetchRecords($sql, [$name]);

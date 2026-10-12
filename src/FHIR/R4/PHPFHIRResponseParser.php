@@ -280,9 +280,8 @@ class PHPFHIRResponseParser
 
     /**
      * @param mixed $input
-     * @return \InvalidArgumentException
      */
-    private function _createNonStringArgumentException($input)
+    private function _createNonStringArgumentException($input): \InvalidArgumentException
     {
         return new \InvalidArgumentException(sprintf(
             '%s::parse - Argument 1 expected to be string, %s seen.',

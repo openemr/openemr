@@ -46,9 +46,8 @@ class ReferenceSearchValue implements \Stringable
      * Parses a relative URL to create the reference search value.  For example for a relative url such as Patient/23
      * return a reference search value with Patient as the resource and 23 as the id.
      * @param $relativeUri string the URI to parse
-     * @return ReferenceSearchValue
      */
-    public static function createFromRelativeUri($relativeUri, $isUuid = false)
+    public static function createFromRelativeUri($relativeUri, $isUuid = false): ReferenceSearchValue
     {
         $id = $relativeUri;
         $resource = null;

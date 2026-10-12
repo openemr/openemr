@@ -744,7 +744,7 @@ class ImmunizationController extends AbstractActionController
      * @param string $ethnicity
      * @return string
      */
-    public function format_ethnicity($ethnicity)
+    public function format_ethnicity($ethnicity): string
     {
         return match ($ethnicity) {
             "hisp_or_latin" => "H^Hispanic or Latino^HL70189",
@@ -758,7 +758,7 @@ class ImmunizationController extends AbstractActionController
      * @param string $a
      * @return string
      */
-    public function tr($a)
+    public function tr($a): string
     {
         return (str_replace(' ', '^', $a));
     }

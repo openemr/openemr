@@ -120,7 +120,7 @@ class UuidMapping
         });
     }
 
-    private static function createMissingResourceUuidsStep($resource, $table, $resourcePath = null)
+    private static function createMissingResourceUuidsStep($resource, $table, $resourcePath = null): int
     {
         $counter = 0;
 

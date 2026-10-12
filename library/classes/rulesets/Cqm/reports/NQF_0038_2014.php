@@ -25,7 +25,7 @@
 
 class NQF_0038_2014 extends AbstractCqmReport
 {
-    public function createPopulationCriteria()
+    public function createPopulationCriteria(): CqmPopulationCrtiteriaFactory
     {
          return new NQF_0038_2014_PopulationCriteria();
     }

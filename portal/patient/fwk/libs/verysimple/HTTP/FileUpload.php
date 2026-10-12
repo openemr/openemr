@@ -28,7 +28,7 @@ class FileUpload
      * @param string $fieldname
      * @return string
      */
-    public function ToXML($base64 = true)
+    public function ToXML($base64 = true): string
     {
         return "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n" . "<file>\r\n" . "<name>" . $this->Name . "</name>\r\n" . "<size>" . $this->Size . "</size>\r\n" . "<type>" . $this->Type . "</type>\r\n" . "<Extension>" . $this->Extension . "</Extension>\r\n" . "<encoding>" . ($base64 ? "base64" : "none") . "</encoding>\r\n" . "<data>" . ($base64 ? base64_encode((string) $this->Data) : $this->Data) . "</data>\r\n" . "</file>";
     }

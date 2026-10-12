@@ -182,7 +182,7 @@ function postcalendar_removeScriptTags($in)
     return preg_replace("/<script.*?>(.*?)<\/script>/", "", ($in ?? ''));
 }
 
-function postcalendar_getDate($format = 'Ymd')
+function postcalendar_getDate($format = 'Ymd'): string
 {
     [$Date, $jumpday, $jumpmonth, $jumpyear, $jumpdate] =
         pnVarCleanFromInput('Date', 'jumpday', 'jumpmonth', 'jumpyear', 'jumpdate');
@@ -216,7 +216,7 @@ function postcalendar_getDate($format = 'Ymd')
     return date($format, mktime(0, 0, 0, $m, $d, $y));
 }
 
-function &postcalendar_today($format = 'Ymd')
+function &postcalendar_today($format = 'Ymd'): string
 {
     $time = time();
     $date = date($format, $time);
@@ -230,7 +230,7 @@ function &postcalendar_today($format = 'Ymd')
  * sets up any necessary javascript for the page
  * @return string javascript to insert into the page
  */
-function postcalendar_userapi_pageSetup()
+function postcalendar_userapi_pageSetup(): string
 {
     $output = '';
     // load the DHTML JavaScript code and insert it into the page
@@ -685,7 +685,7 @@ function findFirstInDay($day, $date): array
     return $times;
 }
 
-function dtSec($date, $time)
+function dtSec($date, $time): string
 {
     return date("U", strtotime($date . " " . $time));
 }
@@ -696,7 +696,7 @@ function dtSecDur($date, $time, $dur)
     return $time_sec + $dur;
 }
 
-function postcalendar_footer()
+function postcalendar_footer(): string
 {
     // lets get the module's information
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
@@ -758,7 +758,7 @@ function sort_byTimeD($a, $b)
  *    @param mixed $s string text to clean
  *    @return string cleaned up text
  */
-function pc_clean($s)
+function pc_clean($s): string
 {
     $display_type = substr((string) $s, 0, 6);
     if ($display_type == ':text:') {

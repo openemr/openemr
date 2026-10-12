@@ -1371,7 +1371,7 @@ $language_direction = $session->get('language_direction'); // fetch before the <
     });
     <?php
     if ($alertmsg) {
-        echo "alert(" . js_escape((string) $alertmsg) . ");\n";
+        echo "alert(" . js_escape($alertmsg) . ");\n";
     }
     ?>
     $(function () {

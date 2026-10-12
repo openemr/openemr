@@ -71,7 +71,6 @@ class EDI270Test extends TestCase
     public function testCreateSTReturnsCorrectSegment(): void
     {
         $result = EDI270::createST($this->row, $this->X12info, $this->segTer, $this->compEleSep);
-        $this->assertIsString($result);
 
         $this->assertStringStartsWith('ST*270*', $result);
         $this->assertStringEndsWith('~', $result);
@@ -87,7 +86,6 @@ class EDI270Test extends TestCase
     public function testCreateBHTReturnsCorrectStructure(): void
     {
         $result = EDI270::createBHT($this->row, $this->X12info, $this->segTer, $this->compEleSep);
-        $this->assertIsString($result);
 
         $this->assertStringStartsWith('BHT*0022*13*PROVTest600*', $result);
         $this->assertStringEndsWith('~', $result);

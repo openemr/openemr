@@ -51,7 +51,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),

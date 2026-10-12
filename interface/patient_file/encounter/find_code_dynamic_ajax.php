@@ -175,7 +175,7 @@ function feSearchSort($search = '', $column = 0, $reverse = false): array
     return $arr;
 }
 
-function genFieldIdString($row)
+function genFieldIdString($row): string
 {
     return 'CID|' . json_encode($row);
 }

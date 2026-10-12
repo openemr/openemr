@@ -213,7 +213,7 @@ class SMARTLaunchToken
         return $this->appContext;
     }
 
-    public function serialize()
+    public function serialize(): string
     {
         $context = [];
         $encounter = $this->getEncounter();

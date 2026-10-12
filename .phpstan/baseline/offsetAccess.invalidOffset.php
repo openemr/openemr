@@ -98,7 +98,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 73,
+    'count' => 70,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -180,6 +180,11 @@ $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Invalid array key type float\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
@@ -268,7 +273,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 7,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportTableDefinition.php',
 ];
 $ignoreErrors[] = [
@@ -1280,11 +1285,6 @@ $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 11,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Subscriber/UuidMappingEventsSubscriber.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',

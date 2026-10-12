@@ -30,12 +30,12 @@ class Form_Factory implements FactoryIF
     {
     }
 
-    public function createConfiguration()
+    public function createConfiguration(): ConfigurationIF
     {
         return new Form_Configuration();
     }
 
-    public function createSignable()
+    public function createSignable(): SignableIF
     {
         $signable = null;
         if (str_starts_with((string) $this->_formDir, 'LBF')) {
@@ -47,12 +47,12 @@ class Form_Factory implements FactoryIF
         return $signable;
     }
 
-    public function createButton()
+    public function createButton(): ButtonIF
     {
         return new Form_Button($this->_formId, $this->_formDir, $this->_encounterId);
     }
 
-    public function createLog()
+    public function createLog(): LogIF
     {
         return new Form_Log($this->_formId, $this->_formDir, $this->_encounterId);
     }

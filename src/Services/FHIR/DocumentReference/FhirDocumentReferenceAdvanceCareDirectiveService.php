@@ -79,7 +79,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase i
         return false;
     }
 
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),

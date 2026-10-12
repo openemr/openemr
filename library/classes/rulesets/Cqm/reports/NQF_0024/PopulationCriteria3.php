@@ -14,7 +14,7 @@ class NQF_0024_PopulationCriteria3 implements CqmPopulationCrtiteriaFactory
         return "Population Criteria 3";
     }
 
-    public function createInitialPatientPopulation()
+    public function createInitialPatientPopulation(): CqmFilterIF
     {
         return new NQF_0024_InitialPatientPopulation3();
     }
@@ -28,17 +28,17 @@ class NQF_0024_PopulationCriteria3 implements CqmPopulationCrtiteriaFactory
         return $nums;
     }
 
-    public function createDenominator()
+    public function createDenominator(): CqmFilterIF
     {
         return new NQF_0024_Denominator();
     }
 
-    public function createExclusion()
+    public function createExclusion(): CqmFilterIF
     {
         return new ExclusionsNone();
     }
 
-    public function createDenominatorException()
+    public function createDenominatorException(): CqmFilterIF
     {
         return new ExceptionsNone();
     }

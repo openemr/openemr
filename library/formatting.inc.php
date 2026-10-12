@@ -60,7 +60,7 @@ function oeFormatDateTime($datetime, $formatTime = "global", $seconds = false): 
  * @param $timestamp
  * @return string
  */
-function oeTimestampFormatDateTime($timestamp)
+function oeTimestampFormatDateTime($timestamp): string
 {
     if (!$timestamp) {
         $timestamp = strtotime(date('Y-m-d H:i'));
@@ -167,7 +167,7 @@ function DateToYYYYMMDD($DateValue)
     return DateFormatterUtils::DateToYYYYMMDD($DateValue);
 }
 
-function TimeToHHMMSS($TimeValue)
+function TimeToHHMMSS($TimeValue): string
 {
     if (trim((string) $TimeValue) == '') {
         return '';
@@ -178,7 +178,7 @@ function TimeToHHMMSS($TimeValue)
 }
 
 
-function DateTimeToYYYYMMDDHHMMSS($DateTimeValue)
+function DateTimeToYYYYMMDDHHMMSS($DateTimeValue): string
 {
     //This function accepts a timestamp in any of the selected formats, and as per the global setting, converts it to the yyyy-mm-dd hh:mm:ss format.
 

@@ -151,7 +151,7 @@ function getHiddenDashboardCards(): array
     return $hiddenList;
 }
 
-function print_as_money($money)
+function print_as_money($money): string
 {
     preg_match("/(\d*)\.?(\d*)/", (string) $money, $moneymatches);
     $tmp = wordwrap(strrev($moneymatches[1]), 3, ",", 1);
@@ -284,7 +284,7 @@ function isEnforceSigninEmailPortal(): bool
     return false;
 }
 
-function deceasedDays($days_deceased)
+function deceasedDays($days_deceased): string
 {
     $deceased_days = intval($days_deceased['days_deceased'] ?? '');
     if ($deceased_days == 0) {

@@ -21,12 +21,12 @@ class AMC_302e extends AbstractAmcReport
         return "patients";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_302e_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_302e_Numerator();
     }

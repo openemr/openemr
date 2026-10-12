@@ -1145,10 +1145,8 @@ class Savant3 implements \Stringable
      *          Whether or not to include a backtrace, default
      *          true.
      *
-     * @return object Savant3_Error
-     *
      */
-    public function error($code, $info = [], $level = E_USER_ERROR, $trace = true)
+    public function error($code, $info = [], $level = E_USER_ERROR, $trace = true): Savant3_Error
     {
         $autoload = $this->__config ['autoload'];
 
@@ -1207,10 +1205,8 @@ class Savant3 implements \Stringable
                 include_once __DIR__ . '/Savant3/Error.php';
             }
 
-            // now compare the parentage
-            $is = $obj instanceof Savant3_Error;
-            $sub = is_subclass_of($obj, 'Savant3_Error');
-            return ($is || $sub);
+            // now compare the parentage (instanceof also covers subclasses)
+            return $obj instanceof Savant3_Error;
         }
     }
 }

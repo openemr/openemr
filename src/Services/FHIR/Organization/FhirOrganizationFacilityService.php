@@ -91,7 +91,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase implements INonPat
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),

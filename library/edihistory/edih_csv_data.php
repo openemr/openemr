@@ -44,7 +44,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
  * @param bool $err_only
  * @return string
  */
-function edih_csv_process_html($data_ar, $err_only = false)
+function edih_csv_process_html($data_ar, $err_only = false): string
 {
     //
     $str_html = '';
@@ -210,7 +210,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
  *
  * @return string
  */
-function edih_list_denied_claims($filetype, $filename, $trace = '')
+function edih_list_denied_claims($filetype, $filename, $trace = ''): string
 {
     //
     $str_html = '';
@@ -288,7 +288,7 @@ function edih_list_denied_claims($filetype, $filename, $trace = '')
  *
  * @return string
  */
-function edih_claim_history($encounter)
+function edih_claim_history($encounter): string
 {
     //
     if ($encounter) {

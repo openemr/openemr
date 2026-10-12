@@ -72,7 +72,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 global $gbl_lab, $gbl_lab_title, $gbl_client_acct;
 $eReqForm = '';
-function saveEreq($pid, $form_id, $mpdfData)
+function saveEreq($pid, $form_id, $mpdfData): string
 {
     $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", ["LabCorp"]);
     if (!$category['id']) {

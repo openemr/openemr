@@ -94,10 +94,8 @@ class BaseService implements BaseServiceInterface
 
     /**
      * Get the name of our base database table
-     *
-     * @return mixed
      */
-    public function getTable()
+    public function getTable(): string
     {
         return $this->table;
     }
@@ -355,7 +353,7 @@ class BaseService implements BaseServiceInterface
      * @param $condition              - Boolean to check AND | OR
      * @return string of (AND | OR) Operator
      */
-    public static function sqlCondition($condition)
+    public static function sqlCondition($condition): string
     {
         return (string) $condition ? ' AND ' : ' OR ';
     }
@@ -424,9 +422,9 @@ class BaseService implements BaseServiceInterface
      *
      * @param string $idField                   - Name of Primary Id Field
      * @param string $table                     - Name of Table
-     * @return string Generated Id
+     * @return int Generated Id
      */
-    public function getFreshId($idField, $table)
+    public function getFreshId($idField, $table): int
     {
         $resultId = sqlQuery("SELECT MAX($idField)+1 AS $idField FROM $table");
         return $resultId[$idField] === null ? 1 : intval($resultId[$idField]);
@@ -467,9 +465,8 @@ class BaseService implements BaseServiceInterface
      * @param array<string, ISearchField> $search Hashmap of string => ISearchField
      *                                             where the key is the field name of the search field
      * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
-     * @return ProcessingResult The results of the search.
      */
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         try {
@@ -579,7 +576,7 @@ class BaseService implements BaseServiceInterface
         return $result;
     }
 
-    protected function getSelectJoinClauses()
+    protected function getSelectJoinClauses(): string
     {
         $joins = $this->getSelectJoinTables();
         $clause = '';

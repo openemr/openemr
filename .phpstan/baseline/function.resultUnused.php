@@ -2,11 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Call to function attr\\(\\) on a separate line has no effect\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/public/routes.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function rtrim\\(\\) on a separate line has no effect\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/MedEx/API.php',

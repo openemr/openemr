@@ -38,12 +38,12 @@ class AMC_315g_2c extends AbstractAmcReport
         return "patients";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_315g_2c_Denominator($this->_billingFacilityId, $this->_providerId);
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_315g_2c_Numerator();
     }

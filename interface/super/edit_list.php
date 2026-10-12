@@ -338,7 +338,7 @@ $opt_line_no = 0;
 // Given a string of multiple instances of code_type|code|selector,
 // make a description for each.
 // @TODO Instead should use a function from custom/code_types.inc.php and need to remove casing functions
-function getCodeDescriptions($codes)
+function getCodeDescriptions($codes): string
 {
     global $code_types;
     $arrcodes = explode('~', (string) $codes);
@@ -624,7 +624,7 @@ function writeFSLine($category, $option, $codes): void
 /**
  * Helper functions for writeITLine() and writeCTLine().
  */
-function ctGenCell($opt_line_no, $data_array, $name, $size, $maxlength, $title = '')
+function ctGenCell($opt_line_no, $data_array, $name, $size, $maxlength, $title = ''): string
 {
     $value = $data_array[$name] ?? '';
     $s = "  <td";
@@ -639,7 +639,7 @@ function ctGenCell($opt_line_no, $data_array, $name, $size, $maxlength, $title =
     return $s;
 }
 
-function ctGenCbox($opt_line_no, $data_array, $name, $title = '')
+function ctGenCbox($opt_line_no, $data_array, $name, $title = ''): string
 {
     $checked = empty($data_array[$name]) ? '' : 'checked ';
     $s = "  <td";
@@ -653,7 +653,7 @@ function ctGenCbox($opt_line_no, $data_array, $name, $title = '')
     return $s;
 }
 
-function ctSelector($opt_line_no, $data_array, $name, $option_array, $title = '')
+function ctSelector($opt_line_no, $data_array, $name, $option_array, $title = ''): string
 {
     $value = $data_array[$name] ?? '';
     $s = "  <td title='" . attr($title) . "'>";

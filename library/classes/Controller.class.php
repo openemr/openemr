@@ -315,7 +315,7 @@ class Controller extends Smarty implements ControllerInterface
         return '';
     }
 
-    public function _link($action = "default", $inlining = false)
+    public function _link($action = "default", $inlining = false): string
     {
          $url_parts = explode("&", (string) $_SERVER['REQUEST_URI']);
          $link = array_shift($url_parts);

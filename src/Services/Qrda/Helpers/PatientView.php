@@ -102,7 +102,7 @@ trait PatientView
         }
     }
 
-    public function familyName(Mustache_Context $context)
+    public function familyName(Mustache_Context $context): string
     {
         $family = $context->find('patientName');
         if (is_object($family)) {

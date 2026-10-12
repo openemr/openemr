@@ -43,7 +43,7 @@ class AllergyIntoleranceService extends BaseService
         $this->allergyIntoleranceValidator = new AllergyIntoleranceValidator();
     }
 
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         // we inner join on lists itself so we can grab our uuids, we do this so we can search on each of the uuids
         // such as allergy_uuid, practitioner_uuid,organization_uuid, etc.  You can't use an 'AS' clause in a select
@@ -369,10 +369,8 @@ class AllergyIntoleranceService extends BaseService
      *
      * @param $puuid - The patient uuid identifier in string format used for update.
      * @param $uuid - The allergy uuid identifier in string format used for update.
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
      */
-    public function delete($puuid, $uuid)
+    public function delete($puuid, $uuid): ProcessingResult
     {
         $processingResult = new ProcessingResult();
 

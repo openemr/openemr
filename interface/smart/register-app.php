@@ -574,7 +574,7 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                     <div id="errorResponseContainer">
                     </div>
                     <div class="alert alert-danger">
-                        <p><?php xlt("An error occurred while registering your application"); ?></p>
+                        <p><?php echo xlt("An error occurred while registering your application"); ?></p>
                         <?php
                         // TODO: put in a link to the api documentation for the version of this system
                         ?>

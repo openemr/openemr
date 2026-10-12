@@ -565,8 +565,8 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
             return $processingResult;
         }
 
-        $savedResponseId = is_array($saved) ? ($saved['response_id'] ?? null) : null;
-        if (!is_array($saved) || !is_string($savedResponseId)) {
+        $savedResponseId = $saved['response_id'];
+        if (!is_string($savedResponseId)) {
             $processingResult->setInternalErrors("Server Error in saving QuestionnaireResponse resource");
             return $processingResult;
         }

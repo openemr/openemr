@@ -272,7 +272,7 @@ class DornGenHl7Order extends GenHl7OrderBase
     an individual OBX segment nested beneath the OBR segment of the corresponding
     ordered test or imaging service.
     */
-    private function createObx($setId, $valueType, $observationIdent, $observationValue, $units, $interpretationCodes, $observationResultStatus, $producersReference, $observationType, $observationValueAbsentReason)
+    private function createObx($setId, $valueType, $observationIdent, $observationValue, $units, $interpretationCodes, $observationResultStatus, $producersReference, $observationType, $observationValueAbsentReason): string
     {
         $fields = [
             $this->buildHL7Field($setId),
@@ -321,7 +321,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         The DG1 segment is required and may appear one or more times for each OBR
         segment.
     */
-    private function createDg1($setId, $diagCode, $diagDesc, $diagType)
+    private function createDg1($setId, $diagCode, $diagDesc, $diagType): string
     {
         $diagDesc = $this->replaceNewLine($diagDesc);
         $fields = [

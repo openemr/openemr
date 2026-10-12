@@ -182,7 +182,7 @@ class smtp_class
         return(1);
     }
 
-    public Function ConnectToHost($domain, $port, $resolve_message)
+    public Function ConnectToHost($domain, $port, $resolve_message): string
     {
         if ($this->ssl) {
             $version=explode(".",function_exists("phpversion") ? phpversion() : "3.0.7");
@@ -307,7 +307,7 @@ class smtp_class
 
     /* Public methods */
 
-    public Function Connect($domain="")
+    public Function Connect($domain=""): int
     {
         if (strcmp((string) $this->state,"Disconnected")) {
             $this->error="connection is already established";
@@ -380,11 +380,11 @@ class smtp_class
             $this->error="could not determine the SMTP to connect";
             return(0);
         }
-        for ($host=0, $error="not connected";strlen((string) $error) && $host<count($hosts);$host++) {
+        for ($host=0, $error="not connected";strlen($error) && $host<count($hosts);$host++) {
             $domain=$hosts[$host];
             $error=$this->ConnectToHost($domain, $this->host_port, "Resolving SMTP server domain \"$domain\"...");
         }
-        if (strlen((string) $error)) {
+        if (strlen($error)) {
             $this->error=$error;
             return(0);
         }
@@ -620,7 +620,7 @@ class smtp_class
         else $output=preg_replace("#(^|\n)\\.#m","\\1..",(string) preg_replace("#\r([^\n]|\$)#m","\r\n\\1",(string) preg_replace("#(^|[^\r])\n#m","\\1\r\n",(string) preg_replace("#\n\n|\r\r#m","\r\n\r\n",(string) $data))));
     }
 
-    public Function SendData($data)
+    public Function SendData($data): int
     {
         if (strcmp((string) $this->state,"SendingData")) {
             $this->error="connection is not in the sending data state";

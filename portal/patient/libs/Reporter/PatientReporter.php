@@ -124,7 +124,7 @@ class PatientReporter extends Reporter
     * @param Criteria $criteria
     * @return string SQL statement
     */
-    public static function GetCustomQuery($criteria)
+    public static function GetCustomQuery($criteria): string
     {
         $sql = "select
 			 `patient_data`.`id` as Id
@@ -203,7 +203,7 @@ class PatientReporter extends Reporter
     * @param Criteria $criteria
     * @return string SQL statement
     */
-    public static function GetCustomCountQuery($criteria)
+    public static function GetCustomCountQuery($criteria): string
     {
         $sql = "select count(1) as counter from `patient_data`";
 

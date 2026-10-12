@@ -34,7 +34,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
     ) {
     }
 
-    public function getRequirements()
+    public function getRequirements(): string
     {
         $requirements = "";
         if ($this->value) {
@@ -49,7 +49,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         return $requirements;
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->table . "." . $this->column;
     }

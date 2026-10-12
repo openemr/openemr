@@ -42,7 +42,7 @@ use OpenEMR\Core\OEGlobalsBag;
  * @param bool $verifyFinalDelivery Whether to force receipt confirmation that the message was delivered.  Can cause message delivery failures if recipient system does not support the option.
  * @return string result of operation
  */
-function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
+function transmitMessage($message, $recipient, $verifyFinalDelivery = false): string
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $reqBy = $session->get('authUser');

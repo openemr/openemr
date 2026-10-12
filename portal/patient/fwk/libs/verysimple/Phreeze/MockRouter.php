@@ -51,7 +51,7 @@ class MockRouter implements IRouter
     /**
      * @inheritdocs
      */
-    public function GetRoute($uri = "")
+    public function GetRoute($uri = ""): array
     {
         return [];
     }

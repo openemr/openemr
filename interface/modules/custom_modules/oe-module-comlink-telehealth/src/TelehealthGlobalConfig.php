@@ -140,7 +140,7 @@ class TelehealthGlobalConfig
         return $this->getGlobalSetting(self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS) == '1';
     }
 
-    public function getFHIRPath()
+    public function getFHIRPath(): string
     {
         // this is the internal fhir path not the one accessible from the globals config
         $webroot = $this->getGlobalSetting('webroot');
@@ -282,7 +282,7 @@ class TelehealthGlobalConfig
         return $setting;
     }
 
-    public function getRegistrationAPIPassword()
+    public function getRegistrationAPIPassword(): string
     {
         $encryptedValue = $this->getGlobalSetting(self::COMLINK_VIDEO_API_USER_PASSWORD);
         return $this->cryptoGen->decryptFromDatabase(is_string($encryptedValue) ? $encryptedValue : null);
@@ -413,7 +413,7 @@ class TelehealthGlobalConfig
         return $settings;
     }
 
-    public function renderFooterBox($fldid, $fldarray)
+    public function renderFooterBox($fldid, $fldarray): string
     {
         $emailNotificationsConfigured = $this->isEmailNotificationsConfigured();
         $isThirdPartyConfigurationSetup = $this->isThirdPartyConfigurationSetup();

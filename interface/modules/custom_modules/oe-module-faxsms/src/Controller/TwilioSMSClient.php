@@ -227,7 +227,7 @@ class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
     /**
      * @return string
      */
-    public function getCallLogs()
+    public function getCallLogs(): string
     {
         return xlt('Not Implemented');
     }

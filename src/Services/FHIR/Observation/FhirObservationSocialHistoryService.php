@@ -81,7 +81,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         $this->service = new SocialHistoryService();
     }
 
-    public function getResourcePathForCode($code)
+    public function getResourcePathForCode($code): string
     {
         return "category=" . self::CATEGORY . "&code=" . $code;
     }
@@ -115,7 +115,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [
             'patient' => $this->getPatientContextSearchField(),
@@ -255,7 +255,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         }
     }
 
-    private function getDescriptionForCode($code)
+    private function getDescriptionForCode($code): string
     {
         $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
         if (isset($codeMapping)) {

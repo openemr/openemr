@@ -508,7 +508,7 @@ class FhirOperationExportRestController
         return $this->getResultForResourceDocument($resource, $document);
     }
 
-    private function getResultForResourceDocument($resource, \Document $document)
+    private function getResultForResourceDocument($resource, \Document $document): array
     {
         return [
             'url' => $this->request->getApiBaseFullUrl() . '/fhir/Binary/' . $document->get_id()
@@ -707,9 +707,8 @@ class FhirOperationExportRestController
     /**
      * Given an error outcome text create a Fhir Outcome issue for the error and return it.
      * @param $text
-     * @return FHIROperationOutcome
      */
-    private function createOperationOutcomeError($text)
+    private function createOperationOutcomeError($text): FHIROperationOutcome
     {
         $issue = new FHIROperationOutcomeIssue();
         $issueType = new FHIRIssueType();

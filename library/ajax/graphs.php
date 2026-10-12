@@ -39,7 +39,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 }
 
 // Conversion functions/constants
-function convertFtoC($a)
+function convertFtoC($a): float
 {
     return ($a - 32) * 0.5556;
 }

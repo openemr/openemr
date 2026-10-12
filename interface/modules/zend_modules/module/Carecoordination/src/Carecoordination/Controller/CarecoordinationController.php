@@ -60,10 +60,8 @@ class CarecoordinationController extends AbstractActionController
 
     /**
      * delete an audit record
-     *
-     * @return ViewModel
      */
-    public function deleteAuditAction()
+    public function deleteAuditAction(): ViewModel
     {
         $request = $this->getRequest();
         $amid = $request->getPost('am_id') ?? null;
@@ -86,7 +84,7 @@ class CarecoordinationController extends AbstractActionController
     /*
     * Upload CCDA file
     */
-    public function uploadAction()
+    public function uploadAction(): ViewModel
     {
         $request = $this->getRequest();
         $action = $request->getPost('action');
@@ -223,9 +221,8 @@ class CarecoordinationController extends AbstractActionController
     * Function to import the data CCDA file to audit tables.
     *
     * @param    document_id     integer value
-    * @return \Laminas\View\Model\JsonModel
     */
-    public function importAction()
+    public function importAction(): JsonModel
     {
         $request = $this->getRequest();
         if ($request->getQuery('document_id')) {

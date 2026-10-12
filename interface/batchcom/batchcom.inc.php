@@ -36,7 +36,7 @@ function check_select($select, $array): bool
     return array_search($select, $array) or 0 === array_search($select, $array);
 }
 
-function where_or_and($and)
+function where_or_and($and): string
 {
     if ($and == '') {
         $and = 'WHERE ';

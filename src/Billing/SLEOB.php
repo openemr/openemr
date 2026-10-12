@@ -23,7 +23,7 @@ class SLEOB
     // claim ID and other stuff in the ERA.  This should be straightforward
     // except that some payers mangle the claim ID that we give them.
     //
-    public static function slInvoiceNumber(&$out)
+    public static function slInvoiceNumber(&$out): array
     {
         $invnumber = $out['our_claim_id'];
         $atmp = preg_split('/[ -]/', (string) $invnumber);

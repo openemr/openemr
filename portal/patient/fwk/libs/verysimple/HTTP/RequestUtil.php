@@ -102,7 +102,7 @@ class RequestUtil
      *
      * @return string URL path with trailing slash
      */
-    public static function GetServerRootUrl()
+    public static function GetServerRootUrl(): string
     {
         $url = self::GetCurrentURL(false);
         $parts = explode('/', $url);
@@ -120,7 +120,7 @@ class RequestUtil
      *
      * @return string URL path with trailing slash
      */
-    public static function GetBaseURL()
+    public static function GetBaseURL(): string
     {
         $url = self::GetCurrentURL(false);
         $slash = strripos($url, "/");
@@ -281,7 +281,7 @@ class RequestUtil
      *          true to append post variables to the querystring as GET parameters Default is false
      * @return string URL
      */
-    public static function GetCurrentURL($include_querystring = true, $append_post_vars = false)
+    public static function GetCurrentURL($include_querystring = true, $append_post_vars = false): string
     {
         if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
             $server_protocol = $_SERVER['HTTP_X_FORWARDED_PROTO'];
@@ -553,7 +553,7 @@ class RequestUtil
      *          whether to include the time in addition to date
      * @return string
      */
-    public static function GetAsDate($fieldname, $default = "date('Y-m-d')", $includetime = false)
+    public static function GetAsDate($fieldname, $default = "date('Y-m-d')", $includetime = false): string
     {
         $returnVal = self::Get($fieldname, $default);
 
@@ -596,7 +596,7 @@ class RequestUtil
      *          default value = today
      * @return string
      */
-    public static function GetAsDateTime($fieldname, $default = "date('Y-m-d H:i:s')")
+    public static function GetAsDateTime($fieldname, $default = "date('Y-m-d H:i:s')"): string
     {
         return self::GetAsDate($fieldname, $default, true);
     }

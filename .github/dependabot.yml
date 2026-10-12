@@ -205,6 +205,19 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
+  cooldown:
+    # Dependabot's hosted service applies a 3-day default cooldown to every
+    # Docker digest refresh, delaying the digest-bump PR after each image
+    # re-push. For images we build and push ourselves (openemr/openemr,
+    # openemr/dev-ldap, openemr/dev-php-fpm) the 3-day quarantine is pure
+    # friction — the "wait for the maintainer to notice a bad build" window
+    # the default is designed to protect against is a window WE control.
+    # Exclude our own images so CI picks up each flex / dev-php-fpm rebuild
+    # on the next scheduled scan. Third-party images in the CI matrix
+    # (mariadb, mysql, couchdb, redis, axllent/mailpit, alpine) keep the
+    # 3-day cooldown as a buffer against upstream mistakes.
+    exclude:
+    - openemr/*
   ignore:
     # Block major/minor bumps for version-pinned images only — each CI
     # directory intentionally tests a specific database + PHP version.
@@ -255,6 +268,19 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
+  cooldown:
+    # Dependabot's hosted service applies a 3-day default cooldown to every
+    # Docker digest refresh. For our self-pushed images (openemr/openemr,
+    # openemr/dev-ldap) the 3-day quarantine delays the digest-bump PR for
+    # 72 hours after each rebuild, which is friction with no safety payoff
+    # since the "upstream might ship a bad build" window the default
+    # protects against is a window we control. Exclude our own images so
+    # dev stacks pick up each flex rebuild on the next scheduled scan.
+    # Third-party images (mariadb, couchdb, redis, selenium, mailpit,
+    # phpmyadmin) keep the 3-day cooldown as a buffer against bad upstream
+    # pushes.
+    exclude:
+    - openemr/*
   ignore:
   - dependency-name: mariadb
     update-types: [version-update:semver-major]
@@ -293,6 +319,14 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
+  cooldown:
+    # Same rationale as the CI and dev-env blocks above: skip the 3-day
+    # default cooldown on our own images (openemr/openemr,
+    # openemr/dev-ldap, openemr/dev-php-fpm) so the insane matrix picks up
+    # each new rebuild on the next scheduled scan. Third-party images keep
+    # the 3-day buffer.
+    exclude:
+    - openemr/*
   ignore:
   - dependency-name: mariadb
     update-types: [version-update:semver-major, version-update:semver-minor]

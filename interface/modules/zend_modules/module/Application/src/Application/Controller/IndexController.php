@@ -40,10 +40,8 @@ class IndexController extends AbstractActionController
      /**
      * Function ajaxZXL
      * All JS Messages to xl Translation
-     *
-     * @return \Laminas\View\Model\JsonModel
      */
-    public function ajaxZxlAction()
+    public function ajaxZxlAction(): JsonModel
     {
         $request  = $this->getRequest();
         $message  = $request->getPost()->msg;
@@ -67,7 +65,7 @@ class IndexController extends AbstractActionController
         return $result;
     }
 
-    public function autoSuggestAction()
+    public function autoSuggestAction(): ViewModel
     {
         $request      = $this->getRequest();
         $post         = $request->getPost();

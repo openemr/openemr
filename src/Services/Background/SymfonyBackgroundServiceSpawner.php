@@ -3,8 +3,8 @@
 /**
  * Default BackgroundServiceProcessSpawner implementation. Launches each
  * service via `php bin/console background:services run --name=<name>
- * --json` using symfony/process and parses a single JSON result line
- * from the child's stdout.
+ * --json [--site=<site>]` using symfony/process and parses a single JSON
+ * result line from the child's stdout.
  *
  * @package   OpenEMR
  *
@@ -95,11 +95,19 @@ final readonly class SymfonyBackgroundServiceSpawner implements BackgroundServic
      *                                where the constant is "", not the
      *                                CLI path). Test fixtures inject an
      *                                explicit binary (e.g. /bin/sh).
+     * @param string|null $site       Site the child runs against (the
+     *                                multisite directory name under
+     *                                sites/). Without it, bin/console
+     *                                bootstraps `default`, so a parent
+     *                                running for another site would run
+     *                                that site's services against the
+     *                                default site's database.
      */
     public function __construct(
         private string $projectDir,
         ?LoggerInterface $logger = null,
         ?string $phpBinary = null,
+        private ?string $site = null,
     ) {
         $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->phpBinary = $phpBinary !== null && $phpBinary !== ''
@@ -139,6 +147,9 @@ final readonly class SymfonyBackgroundServiceSpawner implements BackgroundServic
             '--name=' . $name,
             '--json',
         ];
+        if ($this->site !== null && $this->site !== '') {
+            $args[] = '--site=' . $this->site;
+        }
         if ($force) {
             $args[] = '--force';
         }

@@ -145,7 +145,7 @@ class ServerConfig
         $this->webServerRoot = $webServerRoot;
     }
 
-    public function getPublicRestKey()
+    public function getPublicRestKey(): string
     {
         // TODO: @adunsulag we have redundancy here in OAuth2KeyConfig and ServerConfig.  We should probably merge these.
         $site = $this->getSiteId() ?? "default";

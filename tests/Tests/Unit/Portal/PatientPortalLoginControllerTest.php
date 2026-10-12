@@ -70,9 +70,6 @@ class PatientPortalLoginControllerTest extends TestCase
     private function seededAuth(string $passwordPlain = 'goodpass'): array
     {
         $hash = (new AuthHash())->passwordHash($passwordPlain);
-        if (!is_string($hash)) {
-            $this->fail('AuthHash::passwordHash unexpectedly returned non-string in test fixture'); // @codeCoverageIgnore
-        }
         return [
             'id' => 7,
             'pid' => self::PID,

@@ -17,7 +17,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class DeviceAppliedService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT
                     O.patient_id AS pid,
@@ -38,7 +38,7 @@ class DeviceAppliedService extends AbstractQdmService implements QdmServiceInter
         return 'O.patient_id';
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): DeviceApplied
     {
         $record = $recordObj->getData();
         $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());

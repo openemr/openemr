@@ -63,7 +63,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
      * Returns an array mapping FHIR Immunization Resource search parameters to OpenEMR Immunization search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),

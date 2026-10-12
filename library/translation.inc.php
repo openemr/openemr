@@ -37,7 +37,7 @@ if (!(function_exists('xl'))) {
      * @return string The translated string
      */
     #[NoDiscard]
-    function xl($constant)
+    function xl($constant): string
     {
         // Translation engine disabled: skip the cache/DB lookup for performance,
         // but still run xlCleanup() so {{context}} markers (and newline/quote
@@ -255,7 +255,7 @@ function getLanguageTitle($val)
  * @author Amiel <amielel@matrix.co.il>
  */
 #[NoDiscard]
-function getLanguageDir($lang_id)
+function getLanguageDir($lang_id): string
 {
     // validate language id
     $lang_id = empty($lang_id) ? 1 : $lang_id;

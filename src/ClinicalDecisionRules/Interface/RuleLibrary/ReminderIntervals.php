@@ -73,7 +73,7 @@ class ReminderIntervals
         return null;
     }
 
-    public function displayDetails($type)
+    public function displayDetails($type): string
     {
         $details = $this->getDetailFor($type);
         $display = "";

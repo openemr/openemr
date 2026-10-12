@@ -90,7 +90,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),

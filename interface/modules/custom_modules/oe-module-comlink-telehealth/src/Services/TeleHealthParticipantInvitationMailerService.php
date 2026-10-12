@@ -57,7 +57,7 @@ class TeleHealthParticipantInvitationMailerService
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function getMailerInvitationForManualSend($patient, $session, $thirdPartyLaunchAction)
+    public function getMailerInvitationForManualSend($patient, $session, $thirdPartyLaunchAction): array
     {
         $data = $this->getInvitationData($patient, $session, $thirdPartyLaunchAction);
         $htmlMsg = $this->twig->render('comlink/emails/telehealth-invitation-existing.html.twig', $data);

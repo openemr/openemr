@@ -98,7 +98,6 @@ class DateHelperTest extends TestCase
     {
         // Verify YYYYMMDD format
         $result = DateHelper::format_date('2024-03-10');
-        $this->assertIsString($result);
         $this->assertMatchesRegularExpression('/^\d{8}$/', $result);
     }
 

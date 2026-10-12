@@ -157,7 +157,7 @@ class CommonPlugin extends AbstractPlugin
     * $this->escapeHtml() cannot be used in any files other than view.
     * This function will enable a user to use escapeHtml in any files like controller model etc.
     */
-    public static function escape($string)
+    public static function escape($string): string
     {
         return htmlspecialchars((string) $string, ENT_QUOTES);
     }

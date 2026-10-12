@@ -36,7 +36,7 @@ class PatientTrackerService extends BaseService
      * @param bool $allow_sec
      * @return string
      */
-    public static function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false)
+    public static function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false): string
     {
 
         $tracker_time_calc = strtotime((string) $tracker_to_time) - strtotime((string) $tracker_from_time);

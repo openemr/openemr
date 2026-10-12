@@ -1091,11 +1091,10 @@ class TeleconferenceRoomController
 
     /**
      * @param $queryVars
-     * @return mixed
      * @throws AccessDeniedException
      * @throws TelehealthProvisioningServiceRequestException
      */
-    public function renderWaitingRoom($queryVars)
+    public function renderWaitingRoom($queryVars): string
     {
         if ($this->isPatient) {
             $this->initalizeAppointmentForTelehealth($queryVars['eid']);
@@ -1205,11 +1204,10 @@ class TeleconferenceRoomController
 
     /**
      * @param $queryVars
-     * @return mixed
      * @throws AccessDeniedException
      * @throws TelehealthProvisioningServiceRequestException
      */
-    public function renderConferenceRoom($queryVars)
+    public function renderConferenceRoom($queryVars): string
     {
         $data = $this->isPatient ? $this->getPatientSettings($queryVars) : $this->getProviderSettings($queryVars);
 //        $apptRepo = new AppointmentService();
@@ -1448,7 +1446,7 @@ class TeleconferenceRoomController
      * @param $password
      * @return string
      */
-    private function getApiKeyForPassword($password)
+    private function getApiKeyForPassword($password): string
     {
         $decrypted = $this->telehealthUserRepo->decryptPassword($password);
         return TelehealthAuthUtils::getFormattedPassword($decrypted);

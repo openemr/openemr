@@ -21,12 +21,12 @@ class AMC_304g extends AbstractAmcReport
         return "patients";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_304g_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_304g_Numerator();
     }

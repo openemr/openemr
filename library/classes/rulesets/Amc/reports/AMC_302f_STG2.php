@@ -35,12 +35,12 @@ class AMC_302f_STG2 extends AbstractAmcReport
         return "patients";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_302f_STG2_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_302f_STG2_Numerator();
     }

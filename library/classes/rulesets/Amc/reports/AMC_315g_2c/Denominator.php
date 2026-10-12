@@ -97,7 +97,7 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
     /*
      * This function lets us have language translation as well as interpreting any specific rule item data that is needed.
      */
-    private function parseDetailsToString($details)
+    private function parseDetailsToString($details): string
     {
         $newDetails = '';
         $type = $details['type'] ?? '';

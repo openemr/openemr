@@ -65,7 +65,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
      * @return array The search parameters
      */
     // In FhirCarePlanService.php - Update loadSearchParameters()
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [
             'patient' => $this->getPatientContextSearchField(),

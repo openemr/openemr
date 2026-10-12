@@ -1,4 +1,9 @@
 ignore:
+# Test code is deliberately counted in coverage. Seeing which test lines ran
+# shows a test that is skipped, never reaches its assertions, or doesn't run
+# at all, so don't ignore tests/ to raise the patch or project numbers.
+# Only test-tree code that PHPUnit never runs belongs in this list.
+#
 # claimrevolution/oe-module-claimrev-connect is a Composer dependency relocated
 # into this path by the oe-module-installer-plugin during `composer install`.
 # Third-party code, not maintained in this repo — exclude from coverage.
@@ -29,10 +34,505 @@ coverage:
         threshold: 5%     # Flexibility for config/migration/generated files
 
 # Carry forward coverage for flags not uploaded on a given commit.
-# PRs only collect coverage from one config (apache_82_118) while the
-# nightly scheduled run uploads all configs to master HEAD — without
-# carryforward, codecov/project compares a single-config head total
-# against a full-matrix base total and reports a phantom drop.
+# PRs and pushes to master each collect coverage from a single config;
+# the nightly scheduled run uploads all configs to master HEAD (which
+# config each event uses is set by enable_coverage in
+# .github/workflows/test-all.yml). Without carryforward,
+# codecov/project compares a single-config head total against a
+# full-matrix base total and reports a phantom drop.
+# Each CI config must upload under its own flag: a fresh upload replaces
+# everything carried forward under that flag, so configs sharing a flag
+# overwrite each other's coverage instead of adding to it.
 flag_management:
   default_rules:
     carryforward: true
+  # Retired flags: no CI config uploads these any more, so without this they
+  # would be carried forward indefinitely and keep stale coverage in every
+  # total. Codecov keeps their history (flags are only soft-deleted).
+  # When CI stops uploading a flag (a config is removed or renamed), add it
+  # here.
+  individual_flags:
+  - name: api-php8.2-apache-mariadb-11.8.8
+    carryforward: false
+  - name: api-php8.3-apache-mariadb-11.8.8
+    carryforward: false
+  - name: api-php8.3-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: api-php8.3-apache-mariadb-12.3.3
+    carryforward: false
+  - name: api-php8.3-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: api-php8.3-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: api-php8.3-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: api-php8.3-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: api-php8.4-apache-mariadb-11.8.8
+    carryforward: false
+  - name: api-php8.4-apache-mariadb-12.3.3
+    carryforward: false
+  - name: api-php8.4-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: api-php8.4-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-10.11.18
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-10.11.19
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-10.6.27
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-11.4.12
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-11.4.13
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-11.8.8
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-11.8.9
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-12.2.2
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-12.3.3
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-12.3.3-rs
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-12.3.3-rst
+    carryforward: false
+  - name: api-php8.5-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: api-php8.5-apache-mysql-5.7.44
+    carryforward: false
+  - name: api-php8.5-apache-mysql-8.0.46
+    carryforward: false
+  - name: api-php8.5-apache-mysql-8.4.11
+    carryforward: false
+  - name: api-php8.5-apache-mysql-9.3.0
+    carryforward: false
+  - name: api-php8.5-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: api-php8.6-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: api-php8.7-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: api-tests-php8.2-apache-mariadb-11.8.8
+    carryforward: false
+  - name: api-tests-php8.2-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: api-tests-php8.3-apache-mariadb-11.8.8
+    carryforward: false
+  - name: api-tests-php8.3-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: api-tests-php8.3-apache-mariadb-12.3.3
+    carryforward: false
+  - name: api-tests-php8.3-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: api-tests-php8.3-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: api-tests-php8.3-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: api-tests-php8.3-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: api-tests-php8.4-apache-mariadb-11.8.8
+    carryforward: false
+  - name: api-tests-php8.4-apache-mariadb-12.3.3
+    carryforward: false
+  - name: api-tests-php8.4-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: api-tests-php8.4-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-10.11.18
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-10.11.19
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-10.6.27
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-10.6.28
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-11.4.12
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-11.4.13
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-11.8.8
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-11.8.9
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-12.2.2
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-12.3.3
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-12.3.3-rs
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-12.3.3-rst
+    carryforward: false
+  - name: api-tests-php8.5-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: api-tests-php8.5-apache-mysql-5.7.44
+    carryforward: false
+  - name: api-tests-php8.5-apache-mysql-8.0.46
+    carryforward: false
+  - name: api-tests-php8.5-apache-mysql-8.4.11
+    carryforward: false
+  - name: api-tests-php8.5-apache-mysql-9.3.0
+    carryforward: false
+  - name: api-tests-php8.5-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: api-tests-php8.5-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: api-tests-php8.6-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: api-tests-php8.7-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: certification
+    carryforward: false
+  - name: e2e-php8.2-apache-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-php8.2-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-php8.3-apache-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-php8.3-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: e2e-php8.3-apache-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-php8.3-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: e2e-php8.3-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: e2e-php8.3-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-php8.3-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-php8.4-apache-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-php8.4-apache-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-php8.4-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-php8.4-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-10.11.18
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-10.11.19
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-10.6.27
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-10.6.28
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-11.4.12
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-11.4.13
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-11.8.9
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-12.2.2
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-12.3.3-rs
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-12.3.3-rst
+    carryforward: false
+  - name: e2e-php8.5-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: e2e-php8.5-apache-mysql-5.7.44
+    carryforward: false
+  - name: e2e-php8.5-apache-mysql-8.0.46
+    carryforward: false
+  - name: e2e-php8.5-apache-mysql-8.4.11
+    carryforward: false
+  - name: e2e-php8.5-apache-mysql-9.3.0
+    carryforward: false
+  - name: e2e-php8.5-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-php8.5-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-php8.6-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-php8.7-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-tests-php8.2-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: e2e-tests-php8.2-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-tests-php8.3-apache-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-tests-php8.3-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: e2e-tests-php8.3-apache-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-tests-php8.3-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: e2e-tests-php8.3-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: e2e-tests-php8.3-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-tests-php8.3-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-tests-php8.4-apache-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-tests-php8.4-apache-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-tests-php8.4-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-tests-php8.4-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-10.11.18
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-10.11.19
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-10.6.27
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-11.4.12
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-11.4.13
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-11.8.9
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-12.2.2
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-12.3.3-rs
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-12.3.3-rst
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mysql-5.7.44
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mysql-8.0.46
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mysql-8.4.11
+    carryforward: false
+  - name: e2e-tests-php8.5-apache-mysql-9.3.0
+    carryforward: false
+  - name: e2e-tests-php8.5-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-tests-php8.5-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-tests-php8.6-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: e2e-tests-php8.7-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: email-php8.2-apache-mariadb-11.8.8
+    carryforward: false
+  - name: email-php8.2-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: email-php8.3-apache-mariadb-11.8.8
+    carryforward: false
+  - name: email-php8.3-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: email-php8.3-apache-mariadb-12.3.3
+    carryforward: false
+  - name: email-php8.3-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: email-php8.3-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: email-php8.3-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: email-php8.3-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: email-php8.4-apache-mariadb-11.8.8
+    carryforward: false
+  - name: email-php8.4-apache-mariadb-12.3.3
+    carryforward: false
+  - name: email-php8.4-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: email-php8.4-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-10.11.18
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-10.11.19
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-10.6.27
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-10.6.28
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-11.4.12
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-11.4.13
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-11.8.8
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-11.8.9
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-12.2.2
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-12.3.3
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-12.3.3-rs
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-12.3.3-rst
+    carryforward: false
+  - name: email-php8.5-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: email-php8.5-apache-mysql-5.7.44
+    carryforward: false
+  - name: email-php8.5-apache-mysql-8.0.46
+    carryforward: false
+  - name: email-php8.5-apache-mysql-8.4.11
+    carryforward: false
+  - name: email-php8.5-apache-mysql-9.3.0
+    carryforward: false
+  - name: email-php8.5-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: email-php8.5-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: email-php8.6-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: email-php8.7-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: http
+    carryforward: false
+  - name: inferno
+    carryforward: false
+  - name: isolated-php8.2
+    carryforward: false
+  - name: php8.5
+    carryforward: false
+  - name: phpunit
+    carryforward: false
+  - name: redis-failover-php8.3-apache-mariadb-12.3.3
+    carryforward: false
+  - name: redis-failover-php8.5-apache-mariadb-12.3.3
+    carryforward: false
+  - name: redis-php8.3-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: redis-php8.5-apache-mariadb-12.3.3-rs
+    carryforward: false
+  - name: redis-php8.5-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: redis-php8.5-apache-mariadb-12.3.3-rst
+    carryforward: false
+  - name: services-php8.2-apache-mariadb-11.8.8
+    carryforward: false
+  - name: services-php8.2-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: services-php8.3-apache-mariadb-11.8.8
+    carryforward: false
+  - name: services-php8.3-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: services-php8.3-apache-mariadb-12.3.3
+    carryforward: false
+  - name: services-php8.3-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: services-php8.3-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: services-php8.3-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: services-php8.3-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: services-php8.4-apache-mariadb-11.8.8
+    carryforward: false
+  - name: services-php8.4-apache-mariadb-12.3.3
+    carryforward: false
+  - name: services-php8.4-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: services-php8.4-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-10.11.18
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-10.11.19
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-10.6.27
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-11.4.12
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-11.4.13
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-11.8.8
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-11.8.9
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-12.2.2
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-12.3.3
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-12.3.3-rs
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-12.3.3-rst
+    carryforward: false
+  - name: services-php8.5-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: services-php8.5-apache-mysql-5.7.44
+    carryforward: false
+  - name: services-php8.5-apache-mysql-8.0.46
+    carryforward: false
+  - name: services-php8.5-apache-mysql-8.4.11
+    carryforward: false
+  - name: services-php8.5-apache-mysql-9.3.0
+    carryforward: false
+  - name: services-php8.5-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: services-php8.5-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: services-php8.6-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: services-php8.7-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: webui-php8.3-apache-mariadb-12.3.3
+    carryforward: false
+  - name: webui-php8.3-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: webui-php8.3-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: webui-php8.3-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: webui-php8.4-apache-mariadb-12.3.3
+    carryforward: false
+  - name: webui-php8.4-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: webui-php8.5-apache-mariadb-10.11.19
+    carryforward: false
+  - name: webui-php8.5-apache-mariadb-11.4.13
+    carryforward: false
+  - name: webui-php8.5-apache-mariadb-11.8.9
+    carryforward: false
+  - name: webui-php8.5-apache-mariadb-12.3.3
+    carryforward: false
+  - name: webui-php8.5-apache-mariadb-12.3.3-rs
+    carryforward: false
+  - name: webui-php8.5-apache-mariadb-12.3.3-rsm
+    carryforward: false
+  - name: webui-php8.5-apache-mariadb-12.3.3-rst
+    carryforward: false
+  - name: webui-php8.5-apache-mariadb-12.3.3-upg
+    carryforward: false
+  - name: webui-php8.5-apache-mysql-8.4.11
+    carryforward: false
+  - name: webui-php8.5-apache-mysql-9.3.0
+    carryforward: false
+  - name: webui-php8.5-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: webui-php8.6-nginx-mariadb-12.3.3
+    carryforward: false
+  - name: webui-php8.7-nginx-mariadb-12.3.3
+    carryforward: false

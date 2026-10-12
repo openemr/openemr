@@ -110,7 +110,7 @@ class PatientAccessOnsiteService
         $this->twig = $twig;
     }
 
-    public function saveCredentials($pid, $pwd, $userName, $loginUsername, $forced_reset_disable)
+    public function saveCredentials($pid, $pwd, $userName, $loginUsername, $forced_reset_disable): array
     {
         $trustedEmail = $this->getTrustedEmailForPid($pid);
         $clear_pass = $pwd;
@@ -269,7 +269,7 @@ class PatientAccessOnsiteService
         return $trustedEmail;
     }
 
-    public function getRandomPortalPassword()
+    public function getRandomPortalPassword(): string
     {
         return RandomGenUtils::generatePortalPassword();
     }

@@ -182,10 +182,8 @@ class EncounterService extends BaseService
      * @param bool   $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param string $puuidBindValue - Optional puuid to only allow visibility of the patient with this puuid.
      * @param array  $options        - Optional array of sql clauses like LIMIT, ORDER, etc
-     * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
-     *                               payload.
      */
-    public function search($search = [], $isAndCondition = true, $puuidBindValue = '', $options = [])
+    public function search($search = [], $isAndCondition = true, $puuidBindValue = '', $options = []): ProcessingResult
     {
         $limit = $options['limit'] ?? null;
         $sqlBindArray = [];
@@ -626,7 +624,7 @@ class EncounterService extends BaseService
         return $updatedRecords;
     }
 
-    public function insertVital($pid, $eid, $data)
+    public function insertVital($pid, $eid, $data): array
     {
         // Strip any user-supplied id to prevent IDOR — insert must always
         // create a new record, never update an existing one.

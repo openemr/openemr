@@ -18,7 +18,9 @@ use Ccr\Model\CcrTable;
 use Documents\Controller\DocumentsController;
 use Documents\Plugin\Documents;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Stdlib\Parameters;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class CcrController extends AbstractActionController
@@ -250,10 +252,16 @@ class CcrController extends AbstractActionController
         $pid                = $request->getQuery('pid') ?: $request->getPost('pid', null);
         $document_id        = $request->getQuery('document_id') ?: $request->getPost('document_id', null);
 
-        if ($request->getPost('setval') == 'approve') {
-            $this->getCcrTable()->insertApprovedData($_REQUEST);
+        $setval = $request->getPost('setval');
+        if ($setval === 'approve' || $setval === 'discard') {
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        }
+        if ($setval == 'approve') {
+            $post = $request->getPost();
+            $postData = $post instanceof Parameters ? $post->toArray() : [];
+            $this->getCcrTable()->insertApprovedData($postData);
             return $this->redirect()->toRoute('ccr', ['action' => 'index']);
-        } elseif ($request->getPost('setval') == 'discard') {
+        } elseif ($setval == 'discard') {
             $this->getCcrTable()->discardCCRData(['audit_master_id' => $audit_master_id]);
             return $this->redirect()->toRoute('ccr', ['action' => 'index']);
         }

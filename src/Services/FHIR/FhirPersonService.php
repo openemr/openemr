@@ -76,7 +76,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * Returns an array mapping FHIR Practitioner Resource search parameters to OpenEMR Practitioner search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             // not sure if this a token or not

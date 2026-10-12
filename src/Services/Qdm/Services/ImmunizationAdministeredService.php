@@ -24,14 +24,14 @@ class ImmunizationAdministeredService extends AbstractQdmService implements QdmS
         return 'patient_id';
     }
 
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT patient_id, patient_id AS pid, administered_date, cvx_code, refusal_reason, reason_code
                 FROM immunizations";
         return $sql;
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): ImmunizationAdministered
     {
         $record = $recordObj->getData();
         $model = new ImmunizationAdministered([

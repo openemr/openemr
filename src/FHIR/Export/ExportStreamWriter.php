@@ -106,7 +106,7 @@ class ExportStreamWriter
      * @return string The contents contained in the stream
      * @throws ExportException Thrown if the stream contents cannot be read.
      */
-    public function getContents()
+    public function getContents(): string
     {
         $this->flush();
 

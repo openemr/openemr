@@ -46,7 +46,7 @@ class SearchQueryConfig
         $this->searchFieldOrders[] = $searchFieldOrder;
     }
 
-    public static function createFhirConfigFromSearchParams($queryParams)
+    public static function createFhirConfigFromSearchParams($queryParams): SearchQueryConfig
     {
         $config = new SearchQueryConfig();
         $config->pagination = new QueryPagination(intval($queryParams['_count'] ?? 0), intval($queryParams['_offset'] ?? 0));
@@ -61,7 +61,7 @@ class SearchQueryConfig
         return $config;
     }
 
-    public static function createConfigFromQueryParams($queryParams)
+    public static function createConfigFromQueryParams($queryParams): SearchQueryConfig
     {
         $config = new SearchQueryConfig();
         // some clients use _limit, but currently FHIR TU uses _maxresults for the same purpose, so we will handle both

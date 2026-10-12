@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../apis/routes/_rest_routes_standard.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccdaservice/ccda_gateway.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Direct access to \\$_GET is forbidden\\. Use Symfony\'s Request object instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCR.php',
@@ -2048,7 +2043,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 8,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
 $ignoreErrors[] = [
@@ -3815,6 +3810,11 @@ $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
     'count' => 59,
     'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/ccda_gateway.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object instead\\.$#',

@@ -101,13 +101,10 @@ if ($mode !== 'new' && !$isRegistering) {
             null,
             true
         );
-        if (!is_array($savedResponse)) {
-            throw new RuntimeException(xlt('QuestionnaireResponse save failed.'));
-        }
         $_POST['response_id'] = $savedResponse['response_id'] ?? null;
         $qrid = $_POST['response_id'];
 
-        if ($responseMeta === '' || ($savedResponse['new'] ?? false)) {
+        if ($responseMeta === '' || $savedResponse['new']) {
             $saved = $responseService->fetchQuestionnaireResponseById(
                 $savedResponse['id'],
                 $savedResponse['response_id'] ?? null

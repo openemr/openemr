@@ -34,9 +34,8 @@ class RuleCriteriaSexBuilder extends RuleCriteriaBuilder
 
     /**
      * @param RuleCriteriaType $ruleCriteriaType
-     * @return RuleCriteria
      */
-    public function build($ruleCriteriaType, $value, $methodDetail)
+    public function build($ruleCriteriaType, $value, $methodDetail): RuleCriteria
     {
         return new RuleCriteriaSex($value);
     }
@@ -45,7 +44,7 @@ class RuleCriteriaSexBuilder extends RuleCriteriaBuilder
      *
      * @param RuleCriteriaType $criteriaType
      */
-    public function newInstance($criteriaType)
+    public function newInstance($criteriaType): RuleCriteria
     {
         return new RuleCriteriaSex('Male');
     }

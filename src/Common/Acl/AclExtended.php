@@ -103,7 +103,7 @@ class AclExtended
     }
 
     // Sort squads by their order value.  Used only by aclGetSquads().
-    private static function aclSquadCompare($a, $b)
+    private static function aclSquadCompare($a, $b): int
     {
         if ($a[2] == $b[2]) {
             // If order value is the same, sort by squad name.
@@ -513,7 +513,7 @@ class AclExtended
     //   $acl_title = title of acl (string)
     //   $return_value = return value of acl (string)
     //
-    private static function aclCountAcos($acl_title, $return_value)
+    private static function aclCountAcos($acl_title, $return_value): int
     {
         $gacl = self::collectGaclApiObject();
         $acl_id = $gacl->search_acl(false, false, false, false, $acl_title, false, false, false, $return_value);
@@ -542,7 +542,7 @@ class AclExtended
     // This generates an HTML options list for all ACOs.
     // The caller inserts this between <select> and </select> tags.
     //
-    public static function genAcoHtmlOptions($default = '')
+    public static function genAcoHtmlOptions($default = ''): string
     {
         $acoArray = self::genAcoArray();
         $s = '';
@@ -601,7 +601,7 @@ class AclExtended
     // Returns acl listings(including return value) via xml message.
     //   $err = error strings (array)
     //
-    public static function aclListingsXml($err)
+    public static function aclListingsXml($err): string
     {
         $gacl = self::collectGaclApiObject();
 
@@ -646,7 +646,7 @@ class AclExtended
     //   $return_value = return value (string)
     //   $err = error strings (array)
     //
-    public static function acoListingsXml($group, $return_value, $err)
+    public static function acoListingsXml($group, $return_value, $err): string
     {
         $gacl = self::collectGaclApiObject();
 
@@ -749,7 +749,7 @@ class AclExtended
     // Returns listing of all possible return values via xml message.
     //   $err = error strings (array)
     //
-    public static function returnValuesXml($err)
+    public static function returnValuesXml($err): string
     {
         $gacl = self::collectGaclApiObject();
         $returns = [];

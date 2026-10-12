@@ -305,7 +305,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $description;
     }
 
-    private function lookupDescriptionForResourceOperation(ScopeEntity $scope)
+    private function lookupDescriptionForResourceOperation(ScopeEntity $scope): string
     {
         $resource = $scope->getResource();
         return match ($scope->getOperation()) {

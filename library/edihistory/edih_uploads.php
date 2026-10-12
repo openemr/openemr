@@ -52,7 +52,7 @@ function edih_upload_reindex(array $_files, $top = true): array
  * @param int $code
  * @return string
  */
-function edih_upload_err_message($code)
+function edih_upload_err_message($code): string
 {
     //
     $message = match ($code) {
@@ -498,7 +498,7 @@ function edih_upload_files()
  * @param bool $err_only -- whether to only report errors (ignored)
  * @return string    html formatted messages
  */
-function edih_sort_upload($files_array, $html_out = true, $err_only = true)
+function edih_sort_upload($files_array, $html_out = true, $err_only = true): string
 {
     //
     $prc_htm = '';

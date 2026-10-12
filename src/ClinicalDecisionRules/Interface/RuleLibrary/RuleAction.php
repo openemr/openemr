@@ -34,7 +34,7 @@ class RuleAction
     {
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return RuleTemplateExtension::getLabel($this->category, 'rule_action_category') . " - " . RuleTemplateExtension::getLabel($this->item, 'rule_action');
     }

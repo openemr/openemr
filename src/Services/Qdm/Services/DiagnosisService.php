@@ -17,7 +17,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class DiagnosisService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT pid, begdate, enddate, `date`, diagnosis
                 FROM lists
@@ -26,7 +26,7 @@ class DiagnosisService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): Diagnosis
     {
         $record = $recordObj->getData();
         $qdmModel = new Diagnosis([

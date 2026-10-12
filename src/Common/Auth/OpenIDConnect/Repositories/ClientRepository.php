@@ -125,12 +125,12 @@ class ClientRepository implements ClientRepositoryInterface
         return $result !== false;
     }
 
-    public function generateClientId()
+    public function generateClientId(): string
     {
         return HttpUtils::base64url_encode(random_bytes(32));
     }
 
-    public function generateClientSecret()
+    public function generateClientSecret(): string
     {
         return HttpUtils::base64url_encode(random_bytes(64));
     }
@@ -303,12 +303,12 @@ class ClientRepository implements ClientRepositoryInterface
         return $client;
     }
 
-    public function generateRegistrationAccessToken()
+    public function generateRegistrationAccessToken(): string
     {
         return HttpUtils::base64url_encode(random_bytes(32));
     }
 
-    public function generateRegistrationClientUriPath()
+    public function generateRegistrationClientUriPath(): string
     {
         return HttpUtils::base64url_encode(random_bytes(16));
     }

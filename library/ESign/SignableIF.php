@@ -23,5 +23,5 @@ interface SignableIF extends VerifiableIF
 {
     public function getSignatures();
     public function isLocked();
-    public function sign($userId, $amendment = null);
+    public function sign($userId, $lock = false, $amendment = null);
 }

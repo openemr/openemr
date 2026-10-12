@@ -983,7 +983,7 @@ class CarecoordinationTable
      * @param $ymd
      * @return string
      */
-    public function formatDate($unformatted_date, $ymd = 1)
+    public function formatDate($unformatted_date, $ymd = 1): string
     {
         $day = substr((string) $unformatted_date, 6, 2);
         $month = substr((string) $unformatted_date, 4, 2);

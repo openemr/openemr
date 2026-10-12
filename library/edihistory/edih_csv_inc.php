@@ -113,7 +113,7 @@ function csv_edihist_log($msg_str)
  *
  * @return string
  */
-function csv_log_html($logname = '')
+function csv_log_html($logname = ''): string
 {
     check_file_dir_name($logname);
     $html_str = "<div class='filetext'>" . PHP_EOL . "<ol class='logview'>" . PHP_EOL;
@@ -263,7 +263,7 @@ function csv_log_manage($list = true)
  * @param bool $open
  * @return string
  */
-function csv_notes_file($content = '', $open = true)
+function csv_notes_file($content = '', $open = true): string
 {
     //
     $str_html = '';
@@ -1066,7 +1066,7 @@ function edih_format_telephone($str_val)
  * @param string $pref      if 'US' (default) anything else means YYYY-MM-DD
  * @return string           the date with slashes
  */
-function edih_format_date($str_val, $pref = "Y-m-d")
+function edih_format_date($str_val, $pref = "Y-m-d"): string
 {
     // Backfill: the canonical implementation lives in the autoloadable
     // OpenEMR\Billing\EdiHistory\EdiFormat so namespaced code can reuse it.
@@ -1080,7 +1080,7 @@ function edih_format_date($str_val, $pref = "Y-m-d")
  * @param string $str_val   the amount string
  * @return string           the telephone number with dashes
  */
-function edih_format_money($str_val)
+function edih_format_money($str_val): string
 {
     // Backfill: the canonical implementation lives in the autoloadable
     // OpenEMR\Billing\EdiHistory\EdiFormat so namespaced code can reuse it.
@@ -1238,7 +1238,7 @@ function csv_table_header($file_type, $csv_type)
  *
  * @return string
  */
-function csv_convert_bytes($bytes)
+function csv_convert_bytes($bytes): string
 {
     $sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     if ($bytes == 0) {

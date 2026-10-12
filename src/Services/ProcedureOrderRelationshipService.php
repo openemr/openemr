@@ -365,7 +365,7 @@ class ProcedureOrderRelationshipService
      * @param int   $userId
      * @return int Number of relationships added
      */
-    public function batchAddRelationships($procedureOrderId, $relationshipsArray, $userId = null)
+    public function batchAddRelationships($procedureOrderId, $relationshipsArray, $userId = null): int
     {
         if (empty($relationshipsArray)) {
             return 0;

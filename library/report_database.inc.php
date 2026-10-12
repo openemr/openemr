@@ -225,7 +225,7 @@ function collectReportDatabase($report_id): array
  * @param int $report_id Report id
  * @return  string               Status report (PENDING, COMPLETE, or return a string with progress)
  */
-function getStatusReportDatabase($report_id)
+function getStatusReportDatabase($report_id): string
 {
 
   // Collect the pertinent rows of data

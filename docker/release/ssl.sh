@@ -104,11 +104,21 @@ if [[ "${DOMAIN:-}" != "" ]]; then
 
         # Stop Apache (it will be started again by openemr.sh)
         /usr/sbin/httpd -k stop
+        echo "Let's Encrypt certificate obtained"
+    fi
 
-        # Schedule automatic renewal via cron (runs daily at 23:01)
-        # The renewal uses graceful restart to avoid downtime
+    # ========================================================================
+    # SCHEDULE CERTIFICATE RENEWAL
+    # ========================================================================
+    # Schedule automatic renewal via cron (runs daily at 23:01). The renewal
+    # uses graceful restart to avoid downtime. This runs on every start, not
+    # only when the certificate is first obtained: the certificate is usually
+    # kept in a volume but /etc/crontabs isn't, so a recreated container would
+    # otherwise never renew it. The job is added once, so restarts don't
+    # repeat it.
+    if [[ -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]] && ! grep -qF 'certbot renew' /etc/crontabs/root 2>/dev/null; then
         echo "1 23  *   *   *   certbot renew -q --post-hook \"httpd -k graceful\"" >> /etc/crontabs/root
-        echo "Let's Encrypt certificate obtained and renewal scheduled"
+        echo "Let's Encrypt certificate renewal scheduled"
     fi
 
     # ========================================================================

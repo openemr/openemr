@@ -59,7 +59,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [
         'patient' => $this->getPatientContextSearchField(),
@@ -78,9 +78,8 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
      *
      * @param $dataRecord The source OpenEMR data record
      * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDevice
     {
         $device = new FHIRDevice();
 
