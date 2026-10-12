@@ -467,11 +467,22 @@ class AuthorizationLogoutTest extends TestCase
 
         $parts = explode('.', $validToken);
         $this->assertCount(3, $parts, 'A valid lcobucci JWT has exactly three dot-separated parts');
-        // Flip the last 10 chars of the signature so the structural shape
-        // and header+payload are untouched but the signature is wrong.
+        // Flip a middle character so the decoded signature bytes change
+        // while the structural shape and header+payload remain intact.
+        // Mutating a middle base64url character is reliable because
+        // every middle character carries full 6-bit significance;
+        // tail characters can be padding bits that round-trip through
+        // base64 decoding/encoding unchanged, which would leave the
+        // signature valid and the test spuriously green.
         $sig = $parts[2];
-        $this->assertGreaterThan(10, strlen($sig));
-        $sig = substr($sig, 0, -10) . strtr(substr($sig, -10), 'abcABC123', 'ZYXzyx987');
+        $midpoint = intdiv(strlen($sig), 2);
+        $this->assertGreaterThan(0, $midpoint);
+        $originalChar = $sig[$midpoint];
+        // Pick a replacement that is guaranteed different from the
+        // original and still a valid base64url character.
+        $replacement = $originalChar === 'A' ? 'B' : 'A';
+        $sig[$midpoint] = $replacement;
+        $this->assertNotSame($parts[2], $sig, 'Tamper must actually change the signature');
         $tamperedToken = $parts[0] . '.' . $parts[1] . '.' . $sig;
 
         $response = $this->http->get(self::LOGOUT_ENDPOINT, [
