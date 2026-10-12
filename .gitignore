@@ -18,8 +18,6 @@ node_modules
 !/public/assets/modified
 /.docs/.out/*
 
-# ccda service build
-
 # dev editor configs
 /.idea/*
 /.vscode/*
