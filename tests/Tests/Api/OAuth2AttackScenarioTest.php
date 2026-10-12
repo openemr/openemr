@@ -880,6 +880,11 @@ class OAuth2AttackScenarioTest extends TestCase
         $body = json_decode($resp['body'], true);
         $this->assertIsArray($body);
         $this->assertIsString($body['access_token'] ?? null);
+        $this->assertNotSame(
+            '',
+            $body['access_token'],
+            'access_token must not be an empty string -- an empty token would make downstream deny-path tests pass vacuously'
+        );
         return ['access_token' => $body['access_token']];
     }
 
