@@ -19,6 +19,15 @@
 # Optional env: SMART_LAUNCH_DRY_RUN=1 to skip the phpunit step and leave
 #   the stack up for inspection.
 #
+# Local iteration: this orchestrator brings up its own dedicated compose
+# stack (openemr + mysql + selenium), so it doesn't share state with a
+# dev-easy worktree. For faster iteration on just the test file against
+# an already-up stack, drive phpunit directly inside the worktree's
+# openemr container — the stack needs selenium, so use
+# `openemr-cmd worktree add <branch> -b --start --env easy` (NOT
+# easy-light, which drops Selenium/CouchDB/Mailpit and leaves this
+# smoke unable to reach the WebDriver endpoint it depends on).
+#
 # @package   OpenEMR
 # @link      https://www.open-emr.org
 # @author    Brady Miller <brady.g.miller@gmail.com>
