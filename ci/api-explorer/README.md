@@ -59,12 +59,15 @@ workaround in `run.sh` / `driver.php` — not a scramble.
 ## Reproducing locally
 
 ```bash
-openemr-cmd worktree add my-smoke -b --start --env easy-light
+openemr-cmd worktree add my-smoke -b --start --env easy
 ci/api-explorer/run.sh
 ```
 
-The `easy-light` env (no Selenium / CouchDB / Mailpit) is enough for this
-smoke; the full `easy` env works too.
+Use the full `easy` env to match what CI boots (`docker/development-easy`
+is the `easy` stack); keeping local and CI aligned means a local pass
+reproduces the same shape CI runs. The smoke itself only needs mysql +
+openemr running — it never touches Selenium, CouchDB, or Mailpit — but
+the extra containers do not meaningfully affect the smoke.
 
 ## Files
 
