@@ -15,7 +15,9 @@
  */
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Rx\CredentialValidator;
 
 require_once(__DIR__ . '/globals.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxGlobals.php');
@@ -24,6 +26,10 @@ require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxXMLBu
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxPage.php');
 
 set_time_limit(0);
+
+// Buffer page output so subscription (full-document Twig) paths can discard the
+// eRx.php <html> shell and emit a single document instead of nested HTML.
+ob_start();
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -66,8 +72,16 @@ if (count($missingExtensions) > 0) {
             <?php foreach ($missingExtensions as $missingExtension) {
                 echo '<li>' . text($missingExtension) . '</li>';
             } ?>
-        <ul>
+        </ul>
     <?php
+} elseif (!CredentialValidator::hasRequiredCredentials($GLOBALS)) {
+    // Full Twig document (extends core/base) — drop the eRx.php shell first.
+    ob_end_clean();
+    $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+    echo $twig->render('eRx/ensora_subscription.html.twig', [
+        'errorType' => 'missing_credentials',
+    ]);
+    exit;
 } else {
     $messages = $eRxPage->buildXML();
 
@@ -79,7 +93,7 @@ if (count($missingExtensions) > 0) {
             <?php foreach ($messages['demographics'] as $message) {
                 echo '<li>' . text($message) . '</li>';
             } ?>
-        <ul>
+        </ul>
         <p><?php echo xlt('You will be automatically redirected to Demographics. You may make the necessary corrections and navigate to Ensora again.'); ?></p>
         <?php
 
@@ -99,7 +113,7 @@ if (count($missingExtensions) > 0) {
             <?php foreach ($messages['empty'] as $message) {
                 echo '<li>' . text($message) . '</li>';
             } ?>
-        <ul>
+        </ul>
         <?php
     } else {
         if (count($messages['warning']) > 0) {
@@ -110,7 +124,7 @@ if (count($missingExtensions) > 0) {
             <?php foreach ($messages['warning'] as $message) {
                 echo '<li>' . text($message) . '</li>';
             } ?>
-        <ul>
+        </ul>
         <p><strong><?php echo xlt('This will not prevent you from going to the e-Prescriptions site.'); ?></strong></p>
             <?php
 
@@ -125,14 +139,25 @@ if (count($missingExtensions) > 0) {
         $errors = $eRxPage->checkError($xml);
 
         if (count($errors) > 0) {
-            ?>
+            if (CredentialValidator::isAuthenticationError($xml)) {
+                // Full Twig document (extends core/base) — drop the eRx.php shell first.
+                ob_end_clean();
+                $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+                echo $twig->render('eRx/ensora_subscription.html.twig', [
+                    'errorType' => 'authentication_failed',
+                ]);
+                exit;
+            } else {
+                // Other errors - display error messages
+                ?>
         <strong><?php echo xlt('Ensora call failed'); ?></strong>
         <ul>
-            <?php foreach ($errors as $message) {
-                echo '<li>' . text($message) . '</li>';
-            } ?>
-        <ul>
-            <?php
+                <?php foreach ($errors as $message) {
+                    echo '<li>' . text($message) . '</li>';
+                } ?>
+        </ul>
+                <?php
+            }
         } else {
             $eRxPage->updatePatientData();
 
@@ -157,3 +182,9 @@ if (count($missingExtensions) > 0) {
 ?>
     </body>
 </html>
+<?php
+// Flush the buffered eRx page for non-subscription paths that did not already
+// call ob_end_flush() / ob_end_clean() above.
+if (ob_get_level() > 0) {
+    ob_end_flush();
+}
