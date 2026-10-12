@@ -204,11 +204,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirAllergyIntoleranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
 $ignoreErrors[] = [

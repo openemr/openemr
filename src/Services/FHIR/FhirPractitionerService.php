@@ -305,7 +305,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      * @param array $openEmrRecord OpenEMR practitioner record
      * @return ProcessingResult
      */
-    public function insertOpenEMRRecord($openEmrRecord)
+    public function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
         // practitioners HAVE to have a username
         if (!isset($openEmrRecord['username'])) {
@@ -324,7 +324,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
      * @return ProcessingResult
      */
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         $processingResult = $this->practitionerService->update($fhirResourceId, $updatedOpenEMRRecord);
         return $processingResult;

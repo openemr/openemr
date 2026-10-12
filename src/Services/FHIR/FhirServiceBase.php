@@ -161,9 +161,9 @@ abstract class FhirServiceBase implements
      * Parses a FHIR Resource, returning the equivalent OpenEMR record.
      *
      * @param FHIRDomainResource $fhirResource The source FHIR resource
-     * @return array a mapped OpenEMR data record (array)
+     * @return array a mapped OpenEMR data record
      */
-    abstract public function parseFhirResource(FHIRDomainResource $fhirResource);
+    abstract public function parseFhirResource(FHIRDomainResource $fhirResource): array;
 
     /**
      * Inserts a FHIR resource into the system.
@@ -178,9 +178,8 @@ abstract class FhirServiceBase implements
 
     /**
      * Inserts an OpenEMR record into the system.
-     * @return ProcessingResult The OpenEMR processing result.
      */
-    abstract protected function insertOpenEMRRecord($openEmrRecord);
+    abstract protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult;
 
     /**
      * Inserts a FHIR resource into the system.
@@ -212,9 +211,8 @@ abstract class FhirServiceBase implements
      * Updates an existing OpenEMR record.
      * @param string $fhirResourceId  The OpenEMR record's FHIR Resource ID.
      * @param array $updatedOpenEMRRecord The "updated" OpenEMR record.
-     * @return mixed The OpenEMR Service Result
      */
-    abstract protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord);
+    abstract protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult;
 
     /**
      * Performs a FHIR Resource lookup by FHIR Resource ID
@@ -381,12 +379,10 @@ abstract class FhirServiceBase implements
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param mixed $dataRecord The source OpenEMR data record
-     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return FHIRProvenance|string|false|null the FHIR Resource (or its encoding, per $encode). A falsy
-     *         return (false/null) indicates no Provenance could be constructed for the resource;
+     * @return ?FHIRProvenance null when no Provenance could be constructed for the resource;
      *         getAll() treats this as "no provenance available" and continues.
      */
-    abstract public function createProvenanceResource($dataRecord, $encode = false);
+    abstract public function createProvenanceResource($dataRecord): ?FHIRProvenance;
 
     /*
     * public function to return search params

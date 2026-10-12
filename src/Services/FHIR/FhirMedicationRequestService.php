@@ -558,19 +558,12 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         return null;
     }
 
-    public function createProvenanceResource($dataRecord = [], $encode = false): FHIRProvenance|string|false
+    public function createProvenanceResource($dataRecord = []): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRMedicationRequest)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord, $dataRecord->getRequester());
-        if ($fhirProvenance === null) {
-            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
-            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
-            // available" and continues (see issue #13054).
-            return false;
-        }
-        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+        return $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord, $dataRecord->getRequester());
     }
 
     /**

@@ -17,6 +17,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCarePlan;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -1079,7 +1080,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
     /**
      * Create provenance resource for care plan
      */
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRCarePlan)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -1087,9 +1088,6 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         $provenanceService = new FhirProvenanceService();
         $provenance = $provenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getAuthor());
 
-        if ($encode) {
-            return json_encode($provenance);
-        }
         return $provenance;
     }
 

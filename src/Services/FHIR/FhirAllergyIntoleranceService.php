@@ -5,6 +5,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCategory;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCriticality;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
@@ -78,25 +79,14 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['modifydate']);
     }
 
-    /**
-     * Parses an OpenEMR allergyIntolerance record, returning the equivalent FHIR AllergyIntolerance Resource
-     *
-     * @param array $dataRecord The source OpenEMR data record
-     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
-     * @return FHIRAllergyIntolerance
-     */
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRAllergyIntolerance)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getRecorder());
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
-        }
+        return $fhirProvenance;
     }
 
     /**
@@ -450,7 +440,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
-    protected function insertOpenEMRRecord($openEmrRecord)
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
         if (!is_array($openEmrRecord)) {
             throw new \InvalidArgumentException('Expected a parsed OpenEMR AllergyIntolerance record array');
@@ -466,7 +456,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      * @param array $updatedOpenEMRRecord The updated OpenEMR record
      * @return ProcessingResult
      */
-    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         // The patient the caller asserts has to be the allergy's actual owner. parseFhirResource()
         // sets puuid only when AllergyIntolerance.patient resolves, and without it update() has

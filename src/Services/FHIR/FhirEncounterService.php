@@ -24,6 +24,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -468,7 +469,7 @@ class FhirEncounterService extends FhirServiceBase implements
      * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
-    protected function insertOpenEMRRecord($openEmrRecord)
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
         if (!is_array($openEmrRecord)) {
             throw new \InvalidArgumentException('Expected a parsed OpenEMR Encounter record array');
@@ -519,7 +520,7 @@ class FhirEncounterService extends FhirServiceBase implements
      * @param array<array-key, mixed> $updatedOpenEMRRecord The updated OpenEMR record
      * @return ProcessingResult
      */
-    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         $puuid = $updatedOpenEMRRecord['puuid'] ?? '';
         unset($updatedOpenEMRRecord['puuid']);
@@ -603,7 +604,7 @@ class FhirEncounterService extends FhirServiceBase implements
         );
     }
 
-    public function createProvenanceResource($dataRecord = [], $encode = false)
+    public function createProvenanceResource($dataRecord = []): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIREncounter)) {
             throw new \BadMethodCallException("Data record should be correct instance class");

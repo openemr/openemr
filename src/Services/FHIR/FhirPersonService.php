@@ -380,7 +380,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
     {
         return $this->userService->search($openEMRSearchParameters);
     }
-    public function createProvenanceResource($dataRecord = [], $encode = false): never
+    public function createProvenanceResource($dataRecord = []): never
     {
         // TODO: If Required in Future
         throw new \BadMethodCallException("provenance record is not supported in this resource");

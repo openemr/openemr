@@ -1192,34 +1192,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Return type \\(OpenEMR\\\\Services\\\\FHIR\\\\DiagnosticReport\\\\the\\) of method OpenEMR\\\\Services\\\\FHIR\\\\DiagnosticReport\\\\FhirDiagnosticReportClinicalNotesService\\:\\:createProvenanceResource\\(\\) should be covariant with return type \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|false\\|null\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:createProvenanceResource\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportClinicalNotesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\the\\) of method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\FhirClinicalNotesService\\:\\:createProvenanceResource\\(\\) should be covariant with return type \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|false\\|null\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:createProvenanceResource\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirClinicalNotesService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Return type \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRDocumentReference\\|string\\) of method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\FhirDocumentReferenceAdvanceCareDirectiveService\\:\\:parseOpenEMRRecord\\(\\) should be covariant with return type \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:parseOpenEMRRecord\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirDocumentReferenceAdvanceCareDirectiveService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Return type \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRAllergyIntolerance\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirAllergyIntoleranceService\\:\\:createProvenanceResource\\(\\) should be compatible with return type \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|false\\|null\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:createProvenanceResource\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirAllergyIntoleranceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirAllergyIntoleranceService\\:\\:loadSearchParameters\\(\\) should be covariant with return type \\(array\\<string, OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:loadSearchParameters\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirAllergyIntoleranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(OpenEMR\\\\Services\\\\FHIR\\\\the\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirAppointmentService\\:\\:createProvenanceResource\\(\\) should be covariant with return type \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|false\\|null\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:createProvenanceResource\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirAppointmentService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirCarePlanService\\:\\:loadSearchParameters\\(\\) should be covariant with return type \\(array\\<string, OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:loadSearchParameters\\(\\)$#',
@@ -1245,11 +1225,6 @@ $ignoreErrors[] = [
     'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirCoverageService\\:\\:loadSearchParameters\\(\\) should be covariant with return type \\(array\\<string, OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:loadSearchParameters\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(OpenEMR\\\\Services\\\\FHIR\\\\the\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirDeviceService\\:\\:createProvenanceResource\\(\\) should be covariant with return type \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|false\\|null\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:createProvenanceResource\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirEncounterService\\:\\:loadSearchParameters\\(\\) should be covariant with return type \\(array\\<string, OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:loadSearchParameters\\(\\)$#',
@@ -1417,19 +1392,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Organization/FhirOrganizationProcedureProviderService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Return type \\(OpenEMR\\\\Services\\\\FHIR\\\\Procedure\\\\the\\) of method OpenEMR\\\\Services\\\\FHIR\\\\Procedure\\\\FhirProcedureOEProcedureService\\:\\:createProvenanceResource\\(\\) should be covariant with return type \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|false\\|null\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:createProvenanceResource\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureOEProcedureService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\Procedure\\\\FhirProcedureOEProcedureService\\:\\:loadSearchParameters\\(\\) should be covariant with return type \\(array\\<string, OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:loadSearchParameters\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureOEProcedureService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(OpenEMR\\\\Services\\\\FHIR\\\\Procedure\\\\the\\) of method OpenEMR\\\\Services\\\\FHIR\\\\Procedure\\\\FhirProcedureSurgeryService\\:\\:createProvenanceResource\\(\\) should be covariant with return type \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string\\|false\\|null\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:createProvenanceResource\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureSurgeryService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\Procedure\\\\FhirProcedureSurgeryService\\:\\:loadSearchParameters\\(\\) should be covariant with return type \\(array\\<string, OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:loadSearchParameters\\(\\)$#',

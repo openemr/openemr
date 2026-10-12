@@ -142,13 +142,13 @@ class FhirOrganizationFacilityService extends FhirServiceBase implements INonPat
      * @param  $updatedOpenEMRRecord //The "updated" OpenEMR record.
      * @return ProcessingResult
      */
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         $processingResult = $this->facilityService->update($fhirResourceId, $updatedOpenEMRRecord);
         return $processingResult;
     }
 
-    protected function insertOpenEMRRecord($openEmrRecord)
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
         $processingResult = $this->facilityService->insert($openEmrRecord);
         return $processingResult;
