@@ -1,0 +1,88 @@
+{
+    "patients": [
+        {
+            "note": "Five-day inpatient stay in April 2024, creatinine 0.9 and 0.95 mg/dL on the first day and 2.2 mg/dL on day four: denominator and numerator (creatinine more than doubled after 48 hours).",
+            "birthDatetime": "1954-03-01T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Encounter Inpatient",
+                    "relevantPeriod": [
+                        "2024-04-01T08:00:00.000+00:00",
+                        "2024-04-06T12:00:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "LaboratoryTestPerformed",
+                    "valueSet": "Creatinine Mass Per Volume",
+                    "relevantDatetime": "2024-04-01T10:00:00.000+00:00",
+                    "result": {
+                        "value": 0.9,
+                        "unit": "mg/dL"
+                    }
+                },
+                {
+                    "type": "LaboratoryTestPerformed",
+                    "valueSet": "Creatinine Mass Per Volume",
+                    "relevantDatetime": "2024-04-01T20:00:00.000+00:00",
+                    "result": {
+                        "value": 0.95,
+                        "unit": "mg/dL"
+                    }
+                },
+                {
+                    "type": "LaboratoryTestPerformed",
+                    "valueSet": "Creatinine Mass Per Volume",
+                    "relevantDatetime": "2024-04-04T10:00:00.000+00:00",
+                    "result": {
+                        "value": 2.2,
+                        "unit": "mg/dL"
+                    }
+                }
+            ]
+        },
+        {
+            "note": "The same stay with a stable creatinine of 1.0 mg/dL on day four: denominator, not numerator.",
+            "birthDatetime": "1959-08-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Encounter Inpatient",
+                    "relevantPeriod": [
+                        "2024-09-08T08:00:00.000+00:00",
+                        "2024-09-12T12:00:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "LaboratoryTestPerformed",
+                    "valueSet": "Creatinine Mass Per Volume",
+                    "relevantDatetime": "2024-09-08T10:00:00.000+00:00",
+                    "result": {
+                        "value": 0.8,
+                        "unit": "mg/dL"
+                    }
+                },
+                {
+                    "type": "LaboratoryTestPerformed",
+                    "valueSet": "Creatinine Mass Per Volume",
+                    "relevantDatetime": "2024-09-08T22:00:00.000+00:00",
+                    "result": {
+                        "value": 0.85,
+                        "unit": "mg/dL"
+                    }
+                },
+                {
+                    "type": "LaboratoryTestPerformed",
+                    "valueSet": "Creatinine Mass Per Volume",
+                    "relevantDatetime": "2024-09-11T10:00:00.000+00:00",
+                    "result": {
+                        "value": 1.0,
+                        "unit": "mg/dL"
+                    }
+                }
+            ]
+        }
+    ]
+}
