@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "658e41dc8c35d6da81e6012785d629b3",
+    "content-hash": "82adcb99d11944edd772bbc7a838727f",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -6617,6 +6617,21 @@
                 "source": "https://github.com/openemr/mustache.php/tree/v2.15.2"
             },
             "time": "2022-03-03T14:53:09+00:00"
+        },
+        {
+            "name": "openemr/oe-cqm-parsers",
+            "version": "7.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/openemr/oe-cqm-parsers.git",
+                "reference": "7c6b2a95bb12529f9339ffdc17bf1fb54f1baaea"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/openemr/oe-cqm-parsers/zipball/7c6b2a95bb12529f9339ffdc17bf1fb54f1baaea",
+                "reference": "7c6b2a95bb12529f9339ffdc17bf1fb54f1baaea"
+            },
+            "type": "library"
         },
         {
             "name": "openemr/oe-module-installer-plugin",

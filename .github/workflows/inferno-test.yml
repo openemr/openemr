@@ -341,6 +341,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-inferno.xml
+        disable_search: true
         flags: inferno-certification-php${{ matrix.php-version }}
         report_type: test_results
 
@@ -354,6 +355,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.inferno-phpunit.clover.xml
+        disable_search: true
         flags: inferno-phpunit-php${{ matrix.php-version }}
 
     - name: Hide PHPUnit coverage from subsequent uploads
@@ -366,6 +368,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.inferno-http.clover.xml
+        disable_search: true
         flags: inferno-http-php${{ matrix.php-version }}
 
     - name: Hide HTTP coverage from subsequent uploads
