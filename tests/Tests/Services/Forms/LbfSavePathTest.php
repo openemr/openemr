@@ -33,9 +33,18 @@ class LbfSavePathTest extends TestCase
     /** @var array<mixed> */
     private array $savedPost = [];
 
+    private bool $hadPid = false;
+
+    private mixed $savedPid = null;
+
+    /**
+     * Save the request and the patient id, then build this run's rows.
+     */
     protected function setUp(): void
     {
         $this->savedPost = $_POST;
+        $this->hadPid = array_key_exists('pid', $GLOBALS);
+        $this->savedPid = $GLOBALS['pid'] ?? null;
         $this->removeFixtures();
         QueryUtils::sqlStatementThrowException(
             "INSERT INTO patient_data (pid, fname, lname, DOB, sex, pubpid, city) VALUES (?, 'ZZ', 'Layout', '1980-01-01', 'Male', ?, 'before')",
@@ -53,18 +62,23 @@ class LbfSavePathTest extends TestCase
     }
 
     /**
-     * Restore the request and delete the rows this run inserted.
+     * Restore the request and the patient id, then delete the rows this run inserted.
      */
     protected function tearDown(): void
     {
         $_POST = $this->savedPost;
+        if ($this->hadPid) {
+            $GLOBALS['pid'] = $this->savedPid;
+        } else {
+            unset($GLOBALS['pid']);
+        }
         $this->removeFixtures();
     }
 
-    #[Test]
     /**
      * Posted text is trimmed, flags are joined, and pipes are removed.
      */
+    #[Test]
     public function testPostedValuesAreTrimmedJoinedAndClearedOfPipes(): void
     {
         $_POST = [
@@ -79,10 +93,10 @@ class LbfSavePathTest extends TestCase
         $this->assertSame('', \get_layout_form_value($this->field('Note')));
     }
 
-    #[Test]
     /**
      * The save stores the visit, the patient, and the form field.
      */
+    #[Test]
     public function testThePageSavesVisitPatientAndFormFields(): void
     {
         $body = $this->postForm([
@@ -99,10 +113,10 @@ class LbfSavePathTest extends TestCase
         $this->assertSame(self::PID, $this->patientId());
     }
 
-    #[Test]
     /**
      * A blank form field removes the stored value.
      */
+    #[Test]
     public function testAnEmptyFormFieldDeletesTheStoredValue(): void
     {
         $this->postForm([
@@ -124,10 +138,10 @@ class LbfSavePathTest extends TestCase
         $this->assertNull($this->noteValue());
     }
 
-    #[Test]
     /**
      * A refused column stops the save before a form row is created.
      */
+    #[Test]
     public function testARefusedColumnStopsTheSaveAndLeavesTheRowKey(): void
     {
         $this->layoutField('pid', 'D', 1, 2, '');
@@ -149,10 +163,10 @@ class LbfSavePathTest extends TestCase
     }
 
 
-    #[Test]
     /**
      * A history field is stored and read back.
      */
+    #[Test]
     public function testAHistoryFieldIsStoredAndReadBack(): void
     {
         QueryUtils::sqlStatementThrowException(
@@ -176,10 +190,10 @@ class LbfSavePathTest extends TestCase
         $this->assertSame('ZZ tobacco', \lbf_current_value($this->storedField('tobacco', 'H'), 0, self::ENCOUNTER));
     }
 
-    #[Test]
     /**
      * An employer field is stored.
      */
+    #[Test]
     public function testAnEmployerFieldIsStored(): void
     {
         QueryUtils::sqlStatementThrowException(
@@ -200,10 +214,10 @@ class LbfSavePathTest extends TestCase
         $this->assertSame('ZZ nurse', $row['occupation']);
     }
 
-    #[Test]
     /**
      * A shared layout value is stored and read back.
      */
+    #[Test]
     public function testASharedValueIsStoredAndReadBack(): void
     {
         $this->layoutField('ShareNote', 'E', 80, 2, '');
@@ -222,10 +236,10 @@ class LbfSavePathTest extends TestCase
         $this->assertSame('ZZ shared', \lbf_current_value($this->storedField('ShareNote', 'E'), 0, self::ENCOUNTER));
     }
 
-    #[Test]
     /**
      * Visit and patient values are read back from their tables.
      */
+    #[Test]
     public function testAVisitAndPatientValueAreReadBackFromTheirTables(): void
     {
         $this->postForm([
@@ -240,10 +254,10 @@ class LbfSavePathTest extends TestCase
         $this->assertSame('*?*', \lbf_current_value($this->storedField('not_a_column', 'D'), 0, self::ENCOUNTER));
     }
 
-    #[Test]
     /**
      * A second save updates the same form.
      */
+    #[Test]
     public function testASecondSaveDoesNotOpenAnotherForm(): void
     {
         $this->postForm([
@@ -265,10 +279,10 @@ class LbfSavePathTest extends TestCase
         $this->assertSame(1, $this->whole($row['c'] ?? null));
     }
 
-    #[Test]
     /**
      * A bare checkbox and a date are stored in their field shapes.
      */
+    #[Test]
     public function testABareCheckboxAndADateAreParsed(): void
     {
         $_POST = [
@@ -289,7 +303,7 @@ class LbfSavePathTest extends TestCase
     private function postForm(array $fields, int $formId = 0): string
     {
         $cookies = new CookieJar();
-        $base = 'http://127.0.0.1';
+        $base = $this->appBase();
         $this->request($cookies, $base . '/interface/login/login.php?site=default');
         $this->request($cookies, $base . '/interface/main/main_screen.php?auth=login&site=default', [
             'authUser' => 'admin',
@@ -318,12 +332,31 @@ class LbfSavePathTest extends TestCase
             'cookies' => $cookies,
             'http_errors' => false,
             'allow_redirects' => true,
+            'verify' => false,
         ]);
         $response = $fields === []
             ? $client->get($url)
             : $client->post($url, ['form_params' => $fields]);
 
         return (string) $response->getBody();
+    }
+
+
+    /**
+     * Web root for this run.
+     *
+     * CI nginx is a different container from PHP, named by
+     * OPENEMR_BASE_URL_API. Apache leaves that unset and serves
+     * https://localhost, which is the suite default.
+     */
+    private function appBase(): string
+    {
+        $base = getenv('OPENEMR_BASE_URL_API');
+        if (!is_string($base) || $base === '') {
+            $base = 'https://localhost';
+        }
+
+        return rtrim($base, '/');
     }
 
     /**
