@@ -81,5 +81,5 @@ the extra containers do not meaningfully affect the smoke.
 
 [`sjpadgett/oe-module-api-explorer`](https://github.com/sjpadgett/oe-module-api-explorer)
 is maintained by Jerry Padgett. OpenEMR CI depending on it is deliberately a
-cross-repo arrangement — the pin + drift-check are the mitigation for the
-usual "someone else's merge breaks our CI" failure mode.
+cross-repo arrangement — see "Upstream tracking" above for how the smoke
+handles divergence.
