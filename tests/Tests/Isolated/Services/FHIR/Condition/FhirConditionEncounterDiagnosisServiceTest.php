@@ -32,7 +32,7 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
             ,'diagnosis' => [
                 'A01.1' => [
                     'code' => 'A01.1',
-                    'system' => FhirCodeSystemConstants::HL7_ICD10,
+                    'system' => FhirCodeSystemConstants::HL7_ICD10_CM,
                     'description' => 'Typhoid meningitis'
                 ]
             ]
@@ -50,6 +50,40 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
             ,'occurrence' => 0
         ];
     }
+    public function testParseOpenEMRRecordWithUnparsedDiagnosisString(): void
+    {
+        // Services that query lists.diagnosis directly pass the stored string
+        $record = $this->getDefaultOpenEMRRecord();
+        $record['diagnosis'] = 'ICD10:I10.';
+        $record['title'] = 'Essential (primary) hypertension';
+
+        $fhirResource = (new FhirConditionEncounterDiagnosisService())->parseOpenEMRRecord($record);
+        $this->assertInstanceOf(FHIRCondition::class, $fhirResource);
+
+        $coding = $fhirResource->getCode()->getCoding()[0];
+        $this->assertEquals('I10.', $coding->getCode());
+        $this->assertEquals(FhirCodeSystemConstants::HL7_ICD10_CM, $coding->getSystem());
+        $this->assertEquals('Essential (primary) hypertension', $coding->getDisplay());
+        $this->assertEquals('Essential (primary) hypertension', $fhirResource->getCode()->getText());
+    }
+
+    public function testParseOpenEMRRecordKeepsSameCodeFromDifferentSystems(): void
+    {
+        // A code value can repeat across systems; both codings must survive
+        $record = $this->getDefaultOpenEMRRecord();
+        $record['diagnosis'] = 'ICD10:123;SNOMED:123';
+        $record['title'] = 'Shared code value';
+
+        $fhirResource = (new FhirConditionEncounterDiagnosisService())->parseOpenEMRRecord($record);
+        $this->assertInstanceOf(FHIRCondition::class, $fhirResource);
+
+        $codings = $fhirResource->getCode()->getCoding();
+        $this->assertCount(2, $codings);
+        $systems = [(string)$codings[0]->getSystem(), (string)$codings[1]->getSystem()];
+        $this->assertContains(FhirCodeSystemConstants::HL7_ICD10_CM, $systems);
+        $this->assertContains(FhirCodeSystemConstants::SNOMED_CT, $systems);
+    }
+
     public function testParseOpenEMRRecord(): void
     {
         $record = $this->getDefaultOpenEMRRecord();
@@ -96,7 +130,7 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         $this->assertNotEmpty($fhirResource->getCode(), "Expected code to be set in FHIRCondition resource.");
         $this->assertNotEmpty($fhirResource->getCode()->getCoding(), "Expected code.coding to be set in FHIRCondition resource.");
         $this->assertEquals('A01.1', $fhirResource->getCode()->getCoding()[0]->getCode(), "Expected code to match OpenEMR diagnosis.");
-        $this->assertEquals(FhirCodeSystemConstants::HL7_ICD10, $fhirResource->getCode()->getCoding()[0]->getSystem(), "Expected code system to be 'ICD10'.");
+        $this->assertEquals(FhirCodeSystemConstants::HL7_ICD10_CM, $fhirResource->getCode()->getCoding()[0]->getSystem(), "Expected code system to be 'ICD10'.");
 
         // subject
         $this->assertNotEmpty($fhirResource->getSubject(), "Expected subject to be set in FHIRCondition resource.");
