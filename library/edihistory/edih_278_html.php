@@ -759,8 +759,8 @@ function edih_278_transaction_html($obj278, $bht03)
                     }
 
                     if ($elem01 && $ct > 2) {
-                        for ($i = 2; $i < $ct; $i++) {
-                            $elem01 .= ' ' . $ar01[$i];
+                        for ($j = 2; $j < $ct; $j++) {
+                            $elem01 .= ' ' . $ar01[$j];
                         }
                     }
                 } elseif (isset($sar[1]) && $sar[1]) {
@@ -802,8 +802,8 @@ function edih_278_transaction_html($obj278, $bht03)
                     }
 
                     if ($elem01 && count($ar01) > 2) {
-                        for ($i = 2; $i < $ct; $i++) {
-                            $elem01 .= ' ' . $ar01[$i];
+                        for ($j = 2; $j < $ct; $j++) {
+                            $elem01 .= ' ' . $ar01[$j];
                         }
                     }
                 } elseif (isset($sar[1]) && $sar[1]) {
@@ -811,11 +811,11 @@ function edih_278_transaction_html($obj278, $bht03)
                 }
 
                 $elem02 = (isset($sar[2]) && $sar[2]) ? edih_format_money($sar[2]) : "";
-                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('SV103', $ar01[3]) : "";
+                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('SV103', $sar[3]) : "";
                 $elem04 = (isset($sar[4]) && $sar[4]) ? $sar[4] : "";
                 $elem05 = (isset($sar[5]) && $sar[5]) ? $sar[5] : "";
                 $elem06 = (isset($sar[6]) && $sar[6]) ? edih_format_money($sar[6]) : "";
-                $elem10 = (isset($sar[20]) && $sar[20]) ? $cd27x->get_271_code('SV120', $ar01[20]) : "";
+                $elem10 = (isset($sar[20]) && $sar[20]) ? $cd27x->get_271_code('SV120', $sar[20]) : "";
                 //
                 $svc_html .= ($elem01) ? "<tr class='" . attr($cls) . "'><td><em>Inst Service</em></td><td colspan=3>" . text($elem01 . " " . $elem02) . "</td></tr>" . PHP_EOL : "";
                 $svc_html .= ($elem03 || $elem04) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem03 . " " . $elem04 . " " . $elem05 . " " . $elem06) . "</td></tr>" . PHP_EOL : "";
