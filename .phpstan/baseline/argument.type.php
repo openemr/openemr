@@ -17673,7 +17673,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, \\(float\\|int\\) given\\.$#',
-    'count' => 32,
+    'count' => 31,
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
 $ignoreErrors[] = [
