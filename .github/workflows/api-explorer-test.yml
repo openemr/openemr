@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   smoke:
-    name: Round-trip smoke (JWT client_credentials)
+    name: Round-trip smoke (JWT + confidential auth-code + public PKCE)
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -68,6 +68,16 @@ jobs:
 
     - name: Run oe-module-api-explorer smoke
       run: ci/api-explorer/run.sh
+
+    - name: Upload driver-browser post-mortem on failure
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: api-explorer-driver-browser-postmortem
+        path: |
+          tmp/driver-browser-*.png
+          tmp/driver-browser-*.html
+        if-no-files-found: ignore
 
     - name: Dump docker logs on failure
       if: ${{ failure() }}
