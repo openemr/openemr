@@ -777,7 +777,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             $medRequestResource->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
         } else {
             $fhirReference = new FHIRReference();
-            $fhirReference->addExtension(UtilsService::createDataMissingExtension());
+            $fhirReference->addExtension(UtilsService::createDataAbsentReasonExtension());
             $medRequestResource->setSubject($fhirReference);
         }
     }
