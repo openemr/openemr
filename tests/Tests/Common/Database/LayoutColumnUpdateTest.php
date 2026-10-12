@@ -21,10 +21,10 @@ use PHPUnit\Framework\TestCase;
 
 class LayoutColumnUpdateTest extends TestCase
 {
-    #[Test]
     /**
      * The visit reason column is quoted once in the update.
      */
+    #[Test]
     public function testAVisitReasonIsQuotedOnce(): void
     {
         $statement = LayoutColumnUpdate::encounterStatement('reason');
@@ -37,10 +37,10 @@ class LayoutColumnUpdateTest extends TestCase
         $this->assertStringNotContainsString('``', $statement);
     }
 
-    #[Test]
     /**
      * The patient name column is quoted once in the update.
      */
+    #[Test]
     public function testAPatientNameIsQuotedOnce(): void
     {
         $statement = LayoutColumnUpdate::patientStatement('fname');
@@ -52,10 +52,10 @@ class LayoutColumnUpdateTest extends TestCase
         $this->assertStringNotContainsString('``', $statement);
     }
 
-    #[Test]
     /**
      * A column the live table does not have is refused.
      */
+    #[Test]
     public function testAnUnknownColumnIsRefused(): void
     {
         $this->expectException(SqlQueryException::class);

@@ -28,8 +28,6 @@ class LbfCreateAndEditTest extends TestCase
 
     private const FORM = 'LBFZZMade';
 
-    private const BASE = 'http://127.0.0.1';
-
     /**
      * Build a patient and an empty layout for this run.
      */
@@ -54,10 +52,10 @@ class LbfCreateAndEditTest extends TestCase
         $this->removeFixtures();
     }
 
-    #[Test]
     /**
      * A new layout accepts a field and saves a visit value.
      */
+    #[Test]
     public function testALayoutCanBeCreatedEditedAndSaved(): void
     {
         $cookies = $this->login();
@@ -102,10 +100,10 @@ class LbfCreateAndEditTest extends TestCase
         $this->assertSame('ZZ third', $this->noteValue());
     }
 
-    #[Test]
     /**
      * A group with no property row still stores the field.
      */
+    #[Test]
     public function testAGroupWithoutPropertiesStillSaves(): void
     {
         $cookies = $this->login();
@@ -132,8 +130,8 @@ class LbfCreateAndEditTest extends TestCase
     private function login(): CookieJar
     {
         $cookies = new CookieJar();
-        $this->request($cookies, self::BASE . '/interface/login/login.php?site=default');
-        $this->request($cookies, self::BASE . '/interface/main/main_screen.php?auth=login&site=default', [
+        $this->request($cookies, $this->appBase() . '/interface/login/login.php?site=default');
+        $this->request($cookies, $this->appBase() . '/interface/main/main_screen.php?auth=login&site=default', [
             'authUser' => 'admin',
             'clearPass' => 'pass',
             'new_login_session_management' => '1',
@@ -141,7 +139,7 @@ class LbfCreateAndEditTest extends TestCase
         ]);
         $this->request(
             $cookies,
-            self::BASE . '/interface/patient_file/encounter/encounter_top.php?set_pid=' . self::PID . '&set_encounter=' . self::ENCOUNTER
+            $this->appBase() . '/interface/patient_file/encounter/encounter_top.php?set_pid=' . self::PID . '&set_encounter=' . self::ENCOUNTER
         );
 
         return $cookies;
@@ -152,8 +150,8 @@ class LbfCreateAndEditTest extends TestCase
      */
     private function createLayout(CookieJar $cookies, string $title): void
     {
-        $page = $this->request($cookies, self::BASE . '/interface/super/edit_layout_props.php');
-        $this->request($cookies, self::BASE . '/interface/super/edit_layout_props.php', [
+        $page = $this->request($cookies, $this->appBase() . '/interface/super/edit_layout_props.php');
+        $this->request($cookies, $this->appBase() . '/interface/super/edit_layout_props.php', [
             'csrf_token_form' => $this->token($page),
             'form_submit' => 'Submit',
             'form_form_id' => self::FORM,
@@ -186,8 +184,8 @@ class LbfCreateAndEditTest extends TestCase
      */
     private function addGroup(CookieJar $cookies, string $name): void
     {
-        $page = $this->request($cookies, self::BASE . '/interface/super/edit_layout.php?layout_id=' . self::FORM);
-        $this->request($cookies, self::BASE . '/interface/super/edit_layout.php?layout_id=' . self::FORM, [
+        $page = $this->request($cookies, $this->appBase() . '/interface/super/edit_layout.php?layout_id=' . self::FORM);
+        $this->request($cookies, $this->appBase() . '/interface/super/edit_layout.php?layout_id=' . self::FORM, [
             'csrf_token_form' => $this->token($page),
             'formaction' => 'addgroup',
             'layout_id' => self::FORM,
@@ -214,8 +212,8 @@ class LbfCreateAndEditTest extends TestCase
         string $dataType,
         string $groupId
     ): void {
-        $page = $this->request($cookies, self::BASE . '/interface/super/edit_layout.php?layout_id=' . self::FORM);
-        $this->request($cookies, self::BASE . '/interface/super/edit_layout.php?layout_id=' . self::FORM, [
+        $page = $this->request($cookies, $this->appBase() . '/interface/super/edit_layout.php?layout_id=' . self::FORM);
+        $this->request($cookies, $this->appBase() . '/interface/super/edit_layout.php?layout_id=' . self::FORM, [
             'csrf_token_form' => $this->token($page),
             'formaction' => 'addfield',
             'layout_id' => self::FORM,
@@ -244,8 +242,8 @@ class LbfCreateAndEditTest extends TestCase
      */
     private function renameField(CookieJar $cookies, string $fieldId, string $title): void
     {
-        $page = $this->request($cookies, self::BASE . '/interface/super/edit_layout.php?layout_id=' . self::FORM);
-        $this->request($cookies, self::BASE . '/interface/super/edit_layout.php?layout_id=' . self::FORM, [
+        $page = $this->request($cookies, $this->appBase() . '/interface/super/edit_layout.php?layout_id=' . self::FORM);
+        $this->request($cookies, $this->appBase() . '/interface/super/edit_layout.php?layout_id=' . self::FORM, [
             'csrf_token_form' => $this->token($page),
             'formaction' => 'save',
             'layout_id' => self::FORM,
@@ -282,7 +280,7 @@ class LbfCreateAndEditTest extends TestCase
     {
         return $this->request(
             $cookies,
-            self::BASE . '/interface/forms/LBF/new.php?formname=' . self::FORM . '&id=' . $formId,
+            $this->appBase() . '/interface/forms/LBF/new.php?formname=' . self::FORM . '&id=' . $formId,
             $fields
         );
     }
@@ -296,12 +294,31 @@ class LbfCreateAndEditTest extends TestCase
             'cookies' => $cookies,
             'http_errors' => false,
             'allow_redirects' => true,
+            'verify' => false,
         ]);
         $response = $fields === []
             ? $client->get($url)
             : $client->post($url, ['form_params' => $fields]);
 
         return (string) $response->getBody();
+    }
+
+
+    /**
+     * Web root for this run.
+     *
+     * CI nginx is a different container from PHP, named by
+     * OPENEMR_BASE_URL_API. Apache leaves that unset and serves
+     * https://localhost, which is the suite default.
+     */
+    private function appBase(): string
+    {
+        $base = getenv('OPENEMR_BASE_URL_API');
+        if (!is_string($base) || $base === '') {
+            $base = 'https://localhost';
+        }
+
+        return rtrim($base, '/');
     }
 
     /**
