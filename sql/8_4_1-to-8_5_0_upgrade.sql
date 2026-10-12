@@ -234,3 +234,10 @@ UPDATE `oauth_clients` SET `grant_types` = 'authorization_code' WHERE `grant_typ
 UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|client_credentials') WHERE `is_confidential` = 1 AND `scope` LIKE '%system/%' AND ((`jwks` IS NOT NULL AND `jwks` <> '') OR (`jwks_uri` IS NOT NULL AND `jwks_uri` <> '')) AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|client_credentials|%';
 UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|password') WHERE `client_id` IN (SELECT `client_id` FROM `oauth_trusted_user` WHERE `grant_type` = 'password') AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|password|%';
 #EndIf
+
+-- 6.0.0-to-6.1.0 seeded a WenoExchange background service pointing at /library/weno_log_sync.php
+-- and start_weno(), neither of which exists in core. The Weno module registers its own
+-- WenoExchange row (scripts/weno_log_sync.php, downloadWenoPrescriptionLog) when it is installed.
+#IfRow2D background_services name WenoExchange require_once /library/weno_log_sync.php
+DELETE FROM `background_services` WHERE `name` = 'WenoExchange' AND `require_once` = '/library/weno_log_sync.php';
+#EndIf
