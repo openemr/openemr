@@ -732,6 +732,37 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       openemr-cmd change-webroot-openemr
       ```
+## AI Agent Development Environment
+
+If you contribute with the help of AI coding agents (Claude Code, Codex, and
+similar), you may want a sandboxed environment that lets agents work against
+OpenEMR — each in its own git worktree with its own Docker stack — while
+keeping the rest of your host filesystem and host Docker daemon inaccessible
+to the agent. The directory you mount remains shared with the agent.
+
+The repository's [`CLAUDE.md`](CLAUDE.md) documents the universal rules every
+agent environment must satisfy: required tools, the git directory layout, and
+the golden rules for worktree and stack lifecycle. Any environment that meets
+those rules will work.
+
+Reference configurations:
+
+| Configuration | Isolation | Host requirements | Guide |
+|---|---|---|---|
+| Docker Sandboxes (`sbx`) | microVM per agent, own kernel and Docker daemon | Ubuntu 24.04+, KVM, a Docker account | [Setup guide](Documentation/contributors/docker-sandboxes-setup.md) |
+| LXC appliance | Jailed LXC container, NAT networking, own Docker daemon | Linux host with LXC | [Setup guide](Documentation/contributors/claude-appliance-setup.md) |
+
+Other approaches — devcontainers, full VMs, and remote development hosts — work
+too. These guides are starting points, not requirements.
+
+Whichever you choose, two things are worth doing regardless:
+
+- **Scope the agent's credentials.** Give it a token limited to your own fork
+  rather than one that inherits your access to upstream repositories or to
+  organization accounts.
+- **Keep the permission prompts on unless the environment is a real boundary.**
+  Skipping approval prompts is reasonable inside an isolated sandbox. It is not
+  reasonable on a host with access to production systems or patient data.
 
 ## Working without Docker
 
