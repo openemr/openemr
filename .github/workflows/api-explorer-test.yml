@@ -17,13 +17,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
-env:
-  # Pinned commit on sjpadgett/oe-module-api-explorer. The companion
-  # api-explorer-drift-check.yml compares this value against upstream main
-  # weekly and files an issue when they diverge; bumping it in response is a
-  # normal, reviewed PR -- never a silent drift.
-  EXPLORER_SHA: a601116d1f7de24b8a6b552d4527b1667f42f620
-
 jobs:
   smoke:
     name: Round-trip smoke (JWT client_credentials)
@@ -74,8 +67,6 @@ jobs:
       run: docker compose up --detach --wait
 
     - name: Run oe-module-api-explorer smoke
-      env:
-        EXPLORER_SHA: ${{ env.EXPLORER_SHA }}
       run: ci/api-explorer/run.sh
 
     - name: Dump docker logs on failure

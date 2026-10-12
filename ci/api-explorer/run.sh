@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 #
 # Runs the oe-module-api-explorer round-trip smoke against an already-booted
-# development-easy stack. Clones the explorer at the pinned SHA, waits for
-# OpenEMR to be responsive, seeds demo data + globals, and invokes the Guzzle
-# driver inside the openemr container.
+# development-easy stack. Clones the explorer at the current main HEAD, waits
+# for OpenEMR to be responsive, seeds demo data + globals, and invokes the
+# Guzzle driver inside the openemr container.
 #
 # Env:
-#   EXPLORER_SHA           -- oe-module-api-explorer commit to pin at (required)
 #   OPENEMR_READY_TIMEOUT  -- seconds to wait for OpenEMR to respond (default 300)
 #
 # Exits 0 on green, nonzero on any failure (the workflow dumps docker logs
@@ -14,14 +13,13 @@
 
 set -euo pipefail
 
-: "${EXPLORER_SHA:?EXPLORER_SHA must point at a pinned oe-module-api-explorer commit}"
 ready_timeout="${OPENEMR_READY_TIMEOUT:-300}"
 
 repo_root="$(git rev-parse --show-toplevel)"
 cd "${repo_root}"
 
 # --------------------------------------------------------------------------
-# 1. Clone the explorer at the pinned SHA into devtools/ on the host side.
+# 1. Clone the explorer at current main HEAD into devtools/ on the host side.
 #    The dev-easy compose bind-mounts the openemr root into the container,
 #    so devtools/oe-module-api-explorer appears at /var/www/.../devtools
 #    inside the openemr container.
@@ -29,9 +27,8 @@ cd "${repo_root}"
 stage="$(mktemp -d)"
 trap 'rm -rf "${stage}"' EXIT
 
-echo "==> Cloning oe-module-api-explorer @ ${EXPLORER_SHA}"
-git clone --quiet https://github.com/sjpadgett/oe-module-api-explorer.git "${stage}/explorer"
-git -C "${stage}/explorer" checkout --quiet "${EXPLORER_SHA}"
+echo "==> Cloning oe-module-api-explorer (main HEAD)"
+git clone --quiet --depth 1 https://github.com/sjpadgett/oe-module-api-explorer.git "${stage}/explorer"
 rm -rf "${stage}/explorer/.git"
 
 mkdir -p devtools

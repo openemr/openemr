@@ -9,7 +9,7 @@ read with a system scope.
 ## What the smoke does
 
 1. Boots `docker/development-easy` with `docker compose up --wait`.
-2. Clones `sjpadgett/oe-module-api-explorer` at a **pinned commit SHA** into
+2. Clones `sjpadgett/oe-module-api-explorer` at the current `main` HEAD into
    `devtools/oe-module-api-explorer/` (the explorer loads
    `../../interface/globals.php` and must sit two levels below the OpenEMR
    root; it is **not** an `interface/modules/custom_modules/` module).
@@ -46,21 +46,21 @@ app" as you can get in CI.
 - No conformance surface. If the explorer added bulk `$export` or FHIR write
   coverage to this smoke, it would still be a smoke, not Inferno.
 
-## Updating the pin
+## Upstream tracking
 
-`EXPLORER_SHA` lives at the top of `.github/workflows/api-explorer-test.yml`.
-The drift-check workflow files a tracking issue weekly when the pin lags
-upstream `main`; opening a bump PR is a normal reviewed change — never
-auto-merged.
-
-If upstream makes a breaking change the smoke catches, the right fix is
-usually a conversation with the module maintainer, not a hasty pin bump.
+The smoke clones `main` HEAD on every run — no SHA pin, no drift-check
+infrastructure. Trade-off: upstream merges can break OpenEMR CI without
+warning, but the module and OpenEMR are maintained by overlapping
+contributors so divergence is typically caught and discussed in-channel
+before it lands. If a breaking upstream merge does break the smoke, the
+fix is a conversation with the module maintainer plus (if needed) a
+workaround in `run.sh` / `driver.php` — not a scramble.
 
 ## Reproducing locally
 
 ```bash
 openemr-cmd worktree add my-smoke -b --start --env easy-light
-EXPLORER_SHA=<40-char-hex> ci/api-explorer/run.sh
+ci/api-explorer/run.sh
 ```
 
 The `easy-light` env (no Selenium / CouchDB / Mailpit) is enough for this
