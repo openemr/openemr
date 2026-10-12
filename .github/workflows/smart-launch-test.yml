@@ -29,13 +29,11 @@ on:
     branches:
     - master
     - rel-*
-    paths:
-    - '.github/workflows/smart-launch-test.yml'
-    - 'ci/smart-launch/**'
-    - 'tests/Tests/SmartLaunch/**'
-    - 'phpunit.xml'
-    - 'composer.json'
-    - 'composer.lock'
+    # Deliberately no paths filter: the whole point of per-PR coverage
+    # is catching OAuth2 / SMART / FHIR regressions in src/**, so a
+    # narrow path filter would silently skip the exact PRs this smoke
+    # exists to vet. Matches inferno-test.yml and the sibling
+    # api-explorer-test.yml.
 
 permissions:
   contents: read
