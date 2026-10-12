@@ -30,6 +30,9 @@ class LbfCreateAndEditTest extends TestCase
 
     private const BASE = 'http://127.0.0.1';
 
+    /**
+     * Build a patient and an empty layout for this run.
+     */
     protected function setUp(): void
     {
         $this->removeFixtures();
@@ -43,12 +46,18 @@ class LbfCreateAndEditTest extends TestCase
         );
     }
 
+    /**
+     * Remove the layout, form, and patient this run created.
+     */
     protected function tearDown(): void
     {
         $this->removeFixtures();
     }
 
     #[Test]
+    /**
+     * A new layout accepts a field and saves a visit value.
+     */
     public function testALayoutCanBeCreatedEditedAndSaved(): void
     {
         $cookies = $this->login();
@@ -94,6 +103,9 @@ class LbfCreateAndEditTest extends TestCase
     }
 
     #[Test]
+    /**
+     * A group with no property row still stores the field.
+     */
     public function testAGroupWithoutPropertiesStillSaves(): void
     {
         $cookies = $this->login();
@@ -114,6 +126,9 @@ class LbfCreateAndEditTest extends TestCase
         $this->assertSame('ZZ loose', $this->fieldValue('Loose'));
     }
 
+    /**
+     * Open a logged-in session.
+     */
     private function login(): CookieJar
     {
         $cookies = new CookieJar();
@@ -132,6 +147,9 @@ class LbfCreateAndEditTest extends TestCase
         return $cookies;
     }
 
+    /**
+     * Create the layout used by this run.
+     */
     private function createLayout(CookieJar $cookies, string $title): void
     {
         $page = $this->request($cookies, self::BASE . '/interface/super/edit_layout_props.php');
@@ -163,6 +181,9 @@ class LbfCreateAndEditTest extends TestCase
         $this->assertSame($title, $row['grp_title']);
     }
 
+    /**
+     * Add one group to that layout.
+     */
     private function addGroup(CookieJar $cookies, string $name): void
     {
         $page = $this->request($cookies, self::BASE . '/interface/super/edit_layout.php?layout_id=' . self::FORM);
@@ -182,6 +203,9 @@ class LbfCreateAndEditTest extends TestCase
         $this->assertSame('1', $row['grp_group_id']);
     }
 
+    /**
+     * Add one field to that group.
+     */
     private function addField(
         CookieJar $cookies,
         string $fieldId,
@@ -215,6 +239,9 @@ class LbfCreateAndEditTest extends TestCase
         ]);
     }
 
+    /**
+     * Change a field title.
+     */
     private function renameField(CookieJar $cookies, string $fieldId, string $title): void
     {
         $page = $this->request($cookies, self::BASE . '/interface/super/edit_layout.php?layout_id=' . self::FORM);
@@ -277,6 +304,9 @@ class LbfCreateAndEditTest extends TestCase
         return (string) $response->getBody();
     }
 
+    /**
+     * Read the CSRF token from a layout page.
+     */
     private function token(string $page): string
     {
         if (preg_match('/name="csrf_token_form" value="([^"]+)"/', $page, $match) !== 1) {
@@ -286,11 +316,17 @@ class LbfCreateAndEditTest extends TestCase
         return html_entity_decode($match[1], ENT_QUOTES);
     }
 
+    /**
+     * Read the saved note for this patient.
+     */
     private function noteValue(): string
     {
         return $this->fieldValue('ZZNote');
     }
 
+    /**
+     * Read one saved layout value for this patient.
+     */
     private function fieldValue(string $fieldId): string
     {
         $row = QueryUtils::querySingleRow(
@@ -304,6 +340,9 @@ class LbfCreateAndEditTest extends TestCase
         return $value;
     }
 
+    /**
+     * Read the encounter reason stored for this patient.
+     */
     private function encounterReason(): string
     {
         $row = QueryUtils::querySingleRow(
@@ -317,6 +356,9 @@ class LbfCreateAndEditTest extends TestCase
         return $value;
     }
 
+    /**
+     * Count the forms this run left for the patient.
+     */
     private function formCount(): int
     {
         $row = QueryUtils::querySingleRow(
@@ -328,6 +370,9 @@ class LbfCreateAndEditTest extends TestCase
         return $this->whole($row['c'] ?? null);
     }
 
+    /**
+     * Read the form id this run saved.
+     */
     private function formId(): int
     {
         $row = QueryUtils::querySingleRow(
@@ -339,6 +384,9 @@ class LbfCreateAndEditTest extends TestCase
         return $this->whole($row['form_id'] ?? null);
     }
 
+    /**
+     * Return a whole number from a database cell.
+     */
     private function whole(mixed $value): int
     {
         if (is_int($value)) {
@@ -350,6 +398,9 @@ class LbfCreateAndEditTest extends TestCase
         $this->fail('The id was not a whole number.');
     }
 
+    /**
+     * Delete the rows this run inserted.
+     */
     private function removeFixtures(): void
     {
         QueryUtils::sqlStatementThrowException(

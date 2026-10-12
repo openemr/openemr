@@ -52,6 +52,9 @@ class LbfSavePathTest extends TestCase
         $this->layoutField('Lines', '', 50, 22, 'yesno');
     }
 
+    /**
+     * Restore the request and delete the rows this run inserted.
+     */
     protected function tearDown(): void
     {
         $_POST = $this->savedPost;
@@ -59,6 +62,9 @@ class LbfSavePathTest extends TestCase
     }
 
     #[Test]
+    /**
+     * Posted text is trimmed, flags are joined, and pipes are removed.
+     */
     public function testPostedValuesAreTrimmedJoinedAndClearedOfPipes(): void
     {
         $_POST = [
@@ -74,6 +80,9 @@ class LbfSavePathTest extends TestCase
     }
 
     #[Test]
+    /**
+     * The save stores the visit, the patient, and the form field.
+     */
     public function testThePageSavesVisitPatientAndFormFields(): void
     {
         $body = $this->postForm([
@@ -91,6 +100,9 @@ class LbfSavePathTest extends TestCase
     }
 
     #[Test]
+    /**
+     * A blank form field removes the stored value.
+     */
     public function testAnEmptyFormFieldDeletesTheStoredValue(): void
     {
         $this->postForm([
@@ -113,6 +125,9 @@ class LbfSavePathTest extends TestCase
     }
 
     #[Test]
+    /**
+     * A refused column stops the save before a form row is created.
+     */
     public function testARefusedColumnStopsTheSaveAndLeavesTheRowKey(): void
     {
         $this->layoutField('pid', 'D', 1, 2, '');
@@ -135,6 +150,9 @@ class LbfSavePathTest extends TestCase
 
 
     #[Test]
+    /**
+     * A history field is stored and read back.
+     */
     public function testAHistoryFieldIsStoredAndReadBack(): void
     {
         QueryUtils::sqlStatementThrowException(
@@ -159,6 +177,9 @@ class LbfSavePathTest extends TestCase
     }
 
     #[Test]
+    /**
+     * An employer field is stored.
+     */
     public function testAnEmployerFieldIsStored(): void
     {
         QueryUtils::sqlStatementThrowException(
@@ -180,6 +201,9 @@ class LbfSavePathTest extends TestCase
     }
 
     #[Test]
+    /**
+     * A shared layout value is stored and read back.
+     */
     public function testASharedValueIsStoredAndReadBack(): void
     {
         $this->layoutField('ShareNote', 'E', 80, 2, '');
@@ -199,6 +223,9 @@ class LbfSavePathTest extends TestCase
     }
 
     #[Test]
+    /**
+     * Visit and patient values are read back from their tables.
+     */
     public function testAVisitAndPatientValueAreReadBackFromTheirTables(): void
     {
         $this->postForm([
@@ -214,6 +241,9 @@ class LbfSavePathTest extends TestCase
     }
 
     #[Test]
+    /**
+     * A second save updates the same form.
+     */
     public function testASecondSaveDoesNotOpenAnotherForm(): void
     {
         $this->postForm([
@@ -236,6 +266,9 @@ class LbfSavePathTest extends TestCase
     }
 
     #[Test]
+    /**
+     * A bare checkbox and a date are stored in their field shapes.
+     */
     public function testABareCheckboxAndADateAreParsed(): void
     {
         $_POST = [
@@ -293,6 +326,9 @@ class LbfSavePathTest extends TestCase
         return (string) $response->getBody();
     }
 
+    /**
+     * Insert one layout option for this form.
+     */
     private function layoutField(string $fieldId, string $source, int $seq, int $dataType, string $listId): void
     {
         QueryUtils::sqlStatementThrowException(
@@ -317,6 +353,9 @@ class LbfSavePathTest extends TestCase
         ];
     }
 
+    /**
+     * Read the encounter reason stored for this patient.
+     */
     private function encounterReason(): string
     {
         $row = QueryUtils::querySingleRow(
@@ -330,6 +369,9 @@ class LbfSavePathTest extends TestCase
         return $value;
     }
 
+    /**
+     * Read the patient city stored for this run.
+     */
     private function patientCity(): string
     {
         $row = QueryUtils::querySingleRow('SELECT city FROM patient_data WHERE pid = ?', [self::PID]);
@@ -340,6 +382,9 @@ class LbfSavePathTest extends TestCase
         return $value;
     }
 
+    /**
+     * Read the patient id this run created.
+     */
     private function patientId(): int
     {
         $row = QueryUtils::querySingleRow('SELECT pid FROM patient_data WHERE fname = ? AND lname = ?', ['ZZ', 'Layout']);
@@ -347,6 +392,9 @@ class LbfSavePathTest extends TestCase
         return $this->whole($row['pid'] ?? null);
     }
 
+    /**
+     * Read the saved note, or null when it is absent.
+     */
     private function noteValue(): ?string
     {
         $row = QueryUtils::querySingleRow(
@@ -361,6 +409,9 @@ class LbfSavePathTest extends TestCase
         return is_string($value) ? $value : null;
     }
 
+    /**
+     * Read the form id this run saved.
+     */
     private function formId(): int
     {
         $row = QueryUtils::querySingleRow(
@@ -371,6 +422,9 @@ class LbfSavePathTest extends TestCase
         return $this->whole($row['form_id'] ?? null);
     }
 
+    /**
+     * Return a whole number from a database cell.
+     */
     private function whole(mixed $value): int
     {
         if (is_int($value)) {
@@ -395,6 +449,9 @@ class LbfSavePathTest extends TestCase
         ];
     }
 
+    /**
+     * Delete the rows this run inserted.
+     */
     private function removeFixtures(): void
     {
         QueryUtils::sqlStatementThrowException(
