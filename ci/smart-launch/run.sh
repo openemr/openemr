@@ -136,7 +136,7 @@ set_site_addr_oath() {
     # need the issuer URL to match what both the browser (via
     # selenium) and the SMART app's server-side PHP use to reach
     # OpenEMR, which is the compose-network service alias.
-    docker compose exec -T mysql mysql -u root --password=root openemr -e "
+    docker compose exec -T mysql mariadb -u root --password=root openemr -e "
         INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('site_addr_oath', 0, 'https://openemr')
           ON DUPLICATE KEY UPDATE gl_value=VALUES(gl_value);
     "
@@ -154,7 +154,7 @@ register_smart_client() {
     # OpenEMR registers all clients disabled. Flip is_enabled=1 so the
     # SMART launch can actually use it. Match on client_name (the only
     # stable identifier we have — register.php chooses the client_id).
-    docker compose exec -T mysql mysql -u root --password=root openemr -e "
+    docker compose exec -T mysql mariadb -u root --password=root openemr -e "
         UPDATE oauth_clients SET is_enabled=1
          WHERE client_name LIKE 'OpenEMR SMART Questionnaire smoke%';
     "
