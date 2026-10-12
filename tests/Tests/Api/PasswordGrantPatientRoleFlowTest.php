@@ -134,6 +134,7 @@ class PasswordGrantPatientRoleFlowTest extends TestCase
             $body['access_token'] ?? null,
             'Response must carry a non-empty access_token'
         );
+        $this->assertNotSame('', $body['access_token'], 'access_token must not be an empty string');
         $this->assertSame('Bearer', $body['token_type'] ?? null);
     }
 
