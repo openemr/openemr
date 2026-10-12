@@ -19,10 +19,10 @@ use PHPUnit\Framework\TestCase;
 
 class LayoutColumnCatalogTest extends TestCase
 {
-    #[Test]
     /**
      * The quoter calls the live column escaper.
      */
+    #[Test]
     public function testTheQuoterUsesTheLiveTable(): void
     {
         $source = (string) file_get_contents(dirname(__DIR__, 5) . '/src/Common/Database/LayoutColumnUpdate.php');
