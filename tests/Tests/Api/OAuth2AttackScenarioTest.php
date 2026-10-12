@@ -328,6 +328,7 @@ class OAuth2AttackScenarioTest extends TestCase
         $body = json_decode($resp['body'], true);
         $this->assertIsArray($body);
         $this->assertIsString($body['access_token'] ?? null, 'Response must carry a non-empty access_token');
+        $this->assertNotSame('', $body['access_token'], 'access_token must not be an empty string');
     }
 
     #[Test]
