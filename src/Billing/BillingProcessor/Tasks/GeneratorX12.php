@@ -74,7 +74,8 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
                 $log,
                 $this->encounter_claim,
                 false,
-                $hlCount
+                $hlCount,
+                payerId: $claim->getPayorId() ?: null
             )
         );
         $this->appendToLog($log);

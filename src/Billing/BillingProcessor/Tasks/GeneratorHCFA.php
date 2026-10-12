@@ -63,7 +63,7 @@ class GeneratorHCFA extends AbstractGenerator implements GeneratorInterface, Gen
         // Do the actual claim processing
         $log = 'HCFA ' . $claim->action . ' ';
         $hcfa = new Hcfa1500();
-        $lines = $hcfa->genHcfa1500($claim->getPid(), $claim->getEncounter(), $log);
+        $lines = $hcfa->genHcfa1500($claim->getPid(), $claim->getEncounter(), $log, $claim->getPayorId() ?: null);
         $this->appendToLog($log);
         $this->batch->append_claim($lines, true);
     }

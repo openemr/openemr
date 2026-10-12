@@ -247,7 +247,8 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             $is_last_claim,
             $HLCount,
             $edicount,
-            $patSegmentCount
+            $patSegmentCount,
+            $claim->getPayorId() ?: null
         ));
         // edi count is passed by reference and incremented in the genX12837P function, and we need to set it back here
         $this->edi_counts[$claim->getPartner()] = $edicount;
