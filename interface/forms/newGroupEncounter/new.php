@@ -24,6 +24,7 @@ $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 
 
 $viewmode = false;
+$disabled = '';
 if (AclMain::aclCheckCore("groups", "glog", '', 'write')) {
     require_once("common.php");
 } else {
