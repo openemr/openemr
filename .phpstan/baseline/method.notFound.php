@@ -347,11 +347,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:getHeader\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Subscriber/CORSListener.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:getRequestMethod\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Subscriber/TelemetryListener.php',
