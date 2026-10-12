@@ -32,6 +32,11 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 
+if (php_sapi_name() !== 'cli') {
+    echo 'Only php cli can execute a command';
+    exit(1);
+}
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 $baseUrl = getenv('EXPLORER_BASE_URL') ?: 'https://openemr';
