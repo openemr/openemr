@@ -1,0 +1,30 @@
+{
+    "patients": [
+        {
+            "note": "Elective inpatient stay in May 2025 with general anesthesia on the day of admission: initial population.",
+            "birthDatetime": "1960-02-10T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Elective Inpatient Encounter",
+                    "relevantPeriod": [
+                        "2025-05-01T08:00:00.000+00:00",
+                        "2025-05-05T12:00:00.000+00:00"
+                    ],
+                    "clazz": {
+                        "code": "Elective (qualifier value)"
+                    }
+                },
+                {
+                    "type": "ProcedurePerformed",
+                    "valueSet": "General and Neuraxial Anesthesia",
+                    "relevantPeriod": [
+                        "2025-05-01T10:00:00.000+00:00",
+                        "2025-05-01T12:00:00.000+00:00"
+                    ]
+                }
+            ]
+        }
+    ]
+}
