@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+#
+# Runs the oe-module-api-explorer round-trip smoke against an already-booted
+# development-easy stack. Clones the explorer at the pinned SHA, waits for
+# OpenEMR to be responsive, seeds demo data + globals, and invokes the Guzzle
+# driver inside the openemr container.
+#
+# Env:
+#   EXPLORER_SHA           -- oe-module-api-explorer commit to pin at (required)
+#   OPENEMR_READY_TIMEOUT  -- seconds to wait for OpenEMR to respond (default 300)
+#
+# Exits 0 on green, nonzero on any failure (the workflow dumps docker logs
+# on exit).
+
+set -euo pipefail
+
+: "${EXPLORER_SHA:?EXPLORER_SHA must point at a pinned oe-module-api-explorer commit}"
+ready_timeout="${OPENEMR_READY_TIMEOUT:-300}"
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "${repo_root}"
+
+# --------------------------------------------------------------------------
+# 1. Clone the explorer at the pinned SHA into devtools/ on the host side.
+#    The dev-easy compose bind-mounts the openemr root into the container,
+#    so devtools/oe-module-api-explorer appears at /var/www/.../devtools
+#    inside the openemr container.
+# --------------------------------------------------------------------------
+stage="$(mktemp -d)"
+trap 'rm -rf "${stage}"' EXIT
+
+echo "==> Cloning oe-module-api-explorer @ ${EXPLORER_SHA}"
+git clone --quiet https://github.com/sjpadgett/oe-module-api-explorer.git "${stage}/explorer"
+git -C "${stage}/explorer" checkout --quiet "${EXPLORER_SHA}"
+rm -rf "${stage}/explorer/.git"
+
+mkdir -p devtools
+rm -rf devtools/oe-module-api-explorer
+mv "${stage}/explorer" devtools/oe-module-api-explorer
+mkdir -p devtools/oe-module-api-explorer/clients_keys
+
+# --------------------------------------------------------------------------
+# 2. CI-only explorer config: single 'docker' site reachable at https://openemr
+#    inside the compose network. The explorer disables TLS verification by
+#    design for self-signed dev certificates (SECURITY.md), which is why the
+#    driver can talk to https://openemr without pre-trusting the cert.
+# --------------------------------------------------------------------------
+cat > devtools/oe-module-api-explorer/config.local.php <<'EOF'
+<?php
+
+return [
+    'sites' => [
+        'docker' => 'https://openemr',
+    ],
+    'default_site' => 'docker',
+    'app_url' => 'https://openemr/devtools/oe-module-api-explorer',
+];
+EOF
+
+# --------------------------------------------------------------------------
+# 3. Wait for OpenEMR to be responsive. The dev-easy compose up --wait only
+#    gates on the container's healthcheck, which some versions mark healthy
+#    before apache finishes starting.
+# --------------------------------------------------------------------------
+echo "==> Waiting for OpenEMR to respond (timeout ${ready_timeout}s)"
+start="$(date +%s)"
+until openemr-cmd e 'curl -skf -o /dev/null https://localhost/'; do
+    now="$(date +%s)"
+    if (( now - start >= ready_timeout )); then
+        echo "::error::OpenEMR did not become responsive within ${ready_timeout}s"
+        exit 1
+    fi
+    sleep 5
+done
+echo "    responsive"
+
+# --------------------------------------------------------------------------
+# 4. In-container setup: chown + chmod the explorer dir so apache can write
+#    clients_keys/, seed demo data via drid (patients the FHIR Patient read
+#    expects), then re-seed the globals the explorer needs (drid rewrites
+#    site_addr_oath so this must happen AFTER drid).
+# --------------------------------------------------------------------------
+echo "==> Fixing explorer file ownership + permissions"
+openemr-cmd e 'chown -R apache:apache /var/www/localhost/htdocs/openemr/devtools'
+openemr-cmd e 'chmod 775 /var/www/localhost/htdocs/openemr/devtools/oe-module-api-explorer/clients_keys'
+
+echo "==> Seeding demo data (drid)"
+openemr-cmd drid >/dev/null
+
+echo "==> Seeding globals"
+openemr-cmd e 'mariadb -h mysql -u openemr -popenemr openemr < /var/www/localhost/htdocs/openemr/ci/api-explorer/seed-globals.sql'
+
+# --------------------------------------------------------------------------
+# 5. Run the Guzzle driver. Exits 0 on success; the workflow uploads docker
+#    logs on failure for post-mortem.
+# --------------------------------------------------------------------------
+echo "==> Running driver"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver.php'
