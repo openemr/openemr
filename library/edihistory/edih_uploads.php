@@ -445,7 +445,7 @@ function edih_upload_files()
                 foreach ($f_upl as $tp => $fz) {
                     if ($tp == 'reject') {
                         if (isset($f_ar['reject']) && is_array($fz)) {
-                            array_merge($f_ar['reject'], $fz);
+                            $f_ar['reject'] = array_merge($f_ar['reject'], $fz);
                         } else {
                             $f_ar['reject'] = (is_array($fz)) ? $fz : [];
                         }
