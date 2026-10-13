@@ -6,8 +6,10 @@
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @author Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2009-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2026 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -253,6 +255,15 @@ class Claim
      * are removed. Any other character blanks the value.
      */
     public function x12NpiDigits(string $npi): string
+    {
+        return self::npiDigits($npi);
+    }
+
+    /**
+     * Digits for NM109. Edge whitespace is trimmed, then hyphens and spaces
+     * are removed. Any other character blanks the value.
+     */
+    public static function npiDigits(string $npi): string
     {
         $npi = trim($npi);
         if (preg_match('/[^0-9 -]/', $npi) === 1) {

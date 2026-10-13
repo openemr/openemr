@@ -6,7 +6,9 @@
  * @package OpenEMR
  * @link    https://www.open-emr.org
  * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @author  Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2017-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,6 +24,24 @@ class X125010837I
     }
 
     public $ub04id = [];
+
+
+    /**
+     * Digits for a UB04 physician NPI before it is written to NM109.
+     *
+     * Qualifier fields are not passed here. A value that is not an NPI is blank.
+     */
+    public static function physicianNpi(mixed $value): string
+    {
+        if (is_int($value)) {
+            $value = strval($value);
+        }
+        if (!is_string($value)) {
+            return '';
+        }
+
+        return Claim::npiDigits($value);
+    }
 
     public static function generateX12837I($pid, $encounter, $x12_partner, &$log, $ub04id)
     {
@@ -669,8 +689,9 @@ class X125010837I
             ++$edicount;
             // Loop 2310A Attending Physician
             $out .= "NM1" . "*71" . "*1" . "*" . $ub04id[388] . "*" . $ub04id[389] . "*" . "*";
-            if ($ub04id[379]) { // NPI
-                $out .= "*" . "XX" . "*" . $ub04id[379];
+            $attendingNpi = self::physicianNpi($ub04id[379] ?? null);
+            if ($attendingNpi !== '') {
+                $out .= "*" . "XX" . "*" . $attendingNpi;
             } else {
                 $out .= "*" . "*";
                 $log .= "*** Attending Physician has no NPI.\n";
@@ -691,8 +712,9 @@ class X125010837I
 
             $out .= "NM1" . // Loop 2310B operating Physician
                 "*72" . "*1" . "*" . $ub04id[400] . "*" . $ub04id[400] . "*" . "*";
-            if ($ub04id[390]) {
-                $out .= "*" . "XX" . "*" . $ub04id[390];
+            $operatingNpi = self::physicianNpi($ub04id[390] ?? null);
+            if ($operatingNpi !== '') {
+                $out .= "*" . "XX" . "*" . $operatingNpi;
             } else {
                 $out .= "*" . "*";
                 $log .= "*** Operating Physician has no NPI qualifier.\n";
@@ -713,8 +735,10 @@ class X125010837I
 
             $out .= "NM1" . // Loop 2310C other operating Physician
                 "*73" . "*1" . "*" . $ub04id[413] . "*" . $ub04id[414] . "*" . "*";
-            if ($ub04id[405]) {
-                $out .= "*" . $ub04id[405] . "*" . $ub04id[406];
+            $otherQualifier = $ub04id[405] ?? null;
+            $otherNpi = self::physicianNpi($ub04id[406] ?? null);
+            if (is_string($otherQualifier) && $otherQualifier !== '' && $otherNpi !== '') {
+                $out .= "*" . $otherQualifier . "*" . $otherNpi;
             } else {
                 $out .= "*" . "*";
                 $log .= "*** Other Operating Physician has no NPI.\n";
@@ -732,8 +756,9 @@ class X125010837I
 
             $out .= "NM1" . // Loop 2310C other operating Physician
                 "*73" . "*1" . "*" . $ub04id[427] . "*" . $ub04id[428] . "*" . "*";
-            if ($ub04id[420]) {
-                $out .= "*" . $ub04id[419] . "*" . $ub04id[420];
+            $secondOtherNpi = self::physicianNpi($ub04id[420] ?? null);
+            if ($secondOtherNpi !== '') {
+                $out .= "*" . $ub04id[419] . "*" . $secondOtherNpi;
             } else {
                 $out .= "*" . "*";
                 $log .= "*** Other Operating Physician has no NPI.\n";
