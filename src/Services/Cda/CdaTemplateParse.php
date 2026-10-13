@@ -1180,6 +1180,7 @@ class CdaTemplateParse
                 '2710-2' => 'oxygen_saturation',
                 '9279-1' => 'respiration',
                 '3141-9' => 'weight',
+                '29463-7' => 'weight', // Body weight, the FHIR and US Core vital signs code
                 '39156-5' => 'BMI'
             ];
 
