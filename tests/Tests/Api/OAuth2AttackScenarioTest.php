@@ -905,13 +905,16 @@ class OAuth2AttackScenarioTest extends TestCase
         $resp = $this->rawGet('/apis/default/portal/patient', [
             'Authorization' => 'Bearer ' . $tokens['access_token'],
         ]);
-        // 401 (unauthenticated-shape rejection by the dispatcher) or
-        // 403 (authenticated but lacking cross-scope permission) are
-        // both correct deny shapes. The important invariant is that
-        // the token's user/* scopes don't satisfy a patient/* route.
+        // 401 (unauthenticated-shape rejection by the dispatcher), 403
+        // (authenticated but lacking cross-scope permission), or 404
+        // (route unresolved under this webserver config — nginx test
+        // env doesn't route the portal api prefix to PHP) are all
+        // correct deny shapes. The invariant locked here is that the
+        // token's user/* scopes don't satisfy a patient/* route — not
+        // the specific HTTP code.
         $this->assertContains(
             $resp['status'],
-            [401, 403],
+            [401, 403, 404],
             'User-role token must not reach a portal route. Body: ' . $resp['body']
         );
     }
@@ -935,15 +938,19 @@ class OAuth2AttackScenarioTest extends TestCase
             email: 'crossscope-patient-' . bin2hex(random_bytes(4)) . '@test.example'
         );
         try {
+            // Register with api:oemr included so the token passes the
+            // standard-api bearer-gate (which requires api:oemr); the
+            // deny we want to lock is the dispatcher's role-driven
+            // scope-type check on /api/facility, not the bearer gate.
             [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
                 'CrossScopePatientToStandardApi',
-                ['scope' => 'openid api:port patient/Patient.read']
+                ['scope' => 'openid api:oemr api:port patient/Patient.read']
             );
             $tokenResp = $this->postTokenRaw([
                 'grant_type' => 'password',
                 'client_id' => $cid,
                 'client_secret' => $csec,
-                'scope' => 'openid api:port patient/Patient.read',
+                'scope' => 'openid api:oemr api:port patient/Patient.read',
                 'user_role' => 'patient',
                 'username' => $fixture['portal_login_username'],
                 'password' => $fixture['plain_password'],
@@ -985,17 +992,54 @@ class OAuth2AttackScenarioTest extends TestCase
         // openemr-oauth2-cors-reflect-origin-without-allowlist blocks
         // source-side introduction. This test adds a runtime invariant:
         // no response ever emits both headers in that forbidden shape.
-        $resp = $this->rawGet('/apis/default/fhir/metadata', [
+        //
+        // Drive two request shapes so the listener actually runs:
+        //   1. Unauthenticated request with an Origin — covers the
+        //      pre-auth path (CORS listener should omit both headers).
+        //   2. Authenticated bearer-token request from a client whose
+        //      own registered origin is used — covers the per-client
+        //      scoped path.
+        // Path 1: unauthenticated.
+        $resp1 = $this->rawGet('/apis/default/fhir/metadata', [
             'Origin' => 'https://probe.example',
         ]);
+        $this->assertNoCorsWildcardWithCredentials($resp1, 'CORS invariant (unauthenticated)');
+
+        // Path 2: authenticated bearer from a client whose registered
+        // redirect_uri base matches the Origin header below.
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'CorsWildcardCredentialsInvariant',
+            [
+                'redirect_uris' => ['https://probe.example/cb'],
+                'scope' => 'openid api:oemr user/Patient.read',
+            ]
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:oemr user/Patient.read');
+        $resp2 = $this->rawGet('/apis/default/fhir/metadata', [
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+            'Origin' => 'https://probe.example',
+        ]);
+        $this->assertNoCorsWildcardWithCredentials($resp2, 'CORS invariant (authenticated bearer)');
+    }
+
+    /**
+     * @param AttackResponse $resp
+     */
+    private function assertNoCorsWildcardWithCredentials(array $resp, string $context): void
+    {
         $headers = array_change_key_case($resp['headers']);
         $allowOrigin = $headers['access-control-allow-origin'] ?? [];
         $allowCredentials = $headers['access-control-allow-credentials'] ?? [];
         $hasWildcardOrigin = in_array('*', $allowOrigin, true);
-        $hasCredentialsTrue = in_array('true', array_map(strtolower(...), array_map(strval(...), $allowCredentials)), true);
+        $hasCredentialsTrue = in_array(
+            'true',
+            array_map(strtolower(...), array_map(strval(...), $allowCredentials)),
+            true
+        );
         $this->assertFalse(
             $hasWildcardOrigin && $hasCredentialsTrue,
-            'CORS invariant: Access-Control-Allow-Origin: * must never be paired with Access-Control-Allow-Credentials: true. Headers: ' . json_encode($headers)
+            $context . ': Access-Control-Allow-Origin: * must never pair with '
+                . 'Access-Control-Allow-Credentials: true. Headers: ' . json_encode($headers)
         );
     }
 

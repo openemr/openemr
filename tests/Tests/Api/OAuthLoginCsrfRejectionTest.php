@@ -206,9 +206,19 @@ class OAuthLoginCsrfRejectionTest extends TestCase
             $postLogin->getStatusCode(),
             'Missing csrf_token_form must re-render login (200), not proceed to consent'
         );
-        $consentButton = (new Crawler((string) $postLogin->getBody()))
+        $body = (string) $postLogin->getBody();
+        $rerenderedLoginForm = (new Crawler($body))
+            ->filterXPath('//form[@id="userLogin"]')
+            ->count() > 0;
+        $consentButton = (new Crawler($body))
             ->filterXPath('//*[@name="proceed"]')
             ->count();
+        $this->assertGreaterThan(
+            0,
+            (int) $rerenderedLoginForm,
+            'Response should re-render the login form after missing-CSRF rejection '
+                . '(a generic error page would spuriously satisfy the consent-button check)'
+        );
         $this->assertSame(
             0,
             $consentButton,

@@ -285,9 +285,10 @@ class AuthorizationGrantPublicClientPkceTest extends TestCase
         $data = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id']);
+        $this->clientId = $data['client_id'];
 
         $authResp = $http->get($this->baseUrl . '/oauth2/default/authorize?' . http_build_query([
-            'client_id' => $data['client_id'],
+            'client_id' => $this->clientId,
             'redirect_uri' => self::REDIRECT_URI,
             'response_type' => 'code',
             'scope' => 'openid fhirUser',

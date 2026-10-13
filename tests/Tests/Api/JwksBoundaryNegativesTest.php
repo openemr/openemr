@@ -321,6 +321,9 @@ class JwksBoundaryNegativesTest extends TestCase
             'JWT auth against a client with malformed JWKS JSON must return 401. '
                 . 'Body: ' . (string) $response->getBody()
         );
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame('invalid_client', $body['error'] ?? null);
     }
 
     #[Test]
@@ -379,6 +382,9 @@ class JwksBoundaryNegativesTest extends TestCase
             'JWT auth against a client with empty JWKS keys array must return 401. '
                 . 'Body: ' . (string) $response->getBody()
         );
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame('invalid_client', $body['error'] ?? null);
     }
 
     private function buildClient(): Client
