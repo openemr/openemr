@@ -3,8 +3,12 @@
 End-to-end smoke that exercises OpenEMR's OAuth2 + FHIR surface from a real
 third-party client (`sjpadgett/oe-module-api-explorer`). Runs on every PR; its
 job is to catch regressions in the OAuth2 code path that in-tree unit and
-isolated tests cannot see — real DCR, real JWT assertion, real FHIR Patient
-read with a system scope.
+isolated tests cannot see — real RFC 7591 DCR, real token endpoint for the
+`client_credentials` and `authorization_code` grants (both confidential and
+public-with-PKCE), real FHIR Patient read from a bearer-authenticated client.
+Refresh-token and SMART launch are not covered here; refresh-token has no
+dedicated flow in this smoke, and SMART launch is covered by the sibling
+`oe-smart-questionnaire` smoke.
 
 ## What the smoke does
 
@@ -20,27 +24,30 @@ read with a system scope.
 5. Seeds the globals the explorer requires: `site_addr_oath`, `rest_api`,
    `rest_fhir_api`, `rest_system_scopes_api`. (Must run **after** `drid` —
    drid rewrites `site_addr_oath`.)
-6. Runs the Guzzle driver, which:
-   - Fetches `oeApiExplorer.php` once to initialize the PHP session.
-   - Fetches `client_register.php?regen=1`, which calls OpenEMR's DCR
-     endpoint to register four clients (confidential auth-code, public PKCE,
-     JWT client-credentials, SMART EHR launch) and enables them in the DB.
-   - Fetches `oeApiExplorer.php` with the request form's query shape to run a
-     JWT client-credentials grant + `GET /fhir/Patient` round-trip inside the
-     explorer's own PHP (no browser — the JWT grant is server-to-server).
-   - Asserts the response HTML carries a FHIR `Bundle` with `total >= 1`.
+6. Runs **`driver.php`** (Guzzle, no browser): initializes the explorer's
+   session, triggers `client_register.php` to register all four clients
+   (confidential auth-code, public PKCE, JWT client-credentials, SMART EHR
+   launch) via DCR, then runs the JWT client-credentials grant +
+   `GET /fhir/Patient` round-trip server-to-server inside the explorer's PHP.
+   Asserts a FHIR `Bundle` with `total >= 1`.
+7. Runs **`driver-browser.php`** (Panther/Selenium, browser): drives the
+   explorer's confidential authorization-code flow (login + consent click-
+   through + token exchange + FHIR fetch) and then the public PKCE flow.
+   Confidential: asserts a FHIR `Bundle` with `total >= 1`. Public PKCE: the
+   explorer registers its public client with `patient/*` scopes only, so the
+   admin login's user-role token hits a 401 on bulk FHIR Patient search by
+   design — the smoke accepts that as "OAuth round-trip succeeded, FHIR
+   access was scope-limited" and still passes. Any OAuth-protocol regression
+   (DCR, authorize, PKCE verifier, token exchange) rises as a hard failure.
 
-The smoke runs in ~30s on top of the stack boot. It exercises paths unit
-tests cannot reach (RFC 7591 DCR with inline JWKS, JWT assertion generation
-and validation, system-scope FHIR reads) from a client the server has no
-awareness of until registration time, which is as close to "real external
-app" as you can get in CI.
+Total runtime ~2-3 min on top of the stack boot. The smoke exercises paths
+unit tests cannot reach (RFC 7591 DCR, JWT assertion generation + validation,
+system-scope FHIR reads, authorize + consent UI, PKCE verifier at the token
+endpoint) from a client the server has no awareness of until registration
+time, which is as close to "real external app" as you can get in CI.
 
 ## What the smoke does **not** do
 
-- No authorization-code / consent-UI click-through. That path is covered
-  in-tree by `tests/Acceptance/Support/OAuth2/AuthCodeFlow.php` already and
-  the browser-driven version would need Selenium + 5+ minute runtime.
 - No SMART-launch coverage. The sibling smoke (`oe-smart-questionnaire`,
   acceptance-side) owns that path.
 - No conformance surface. If the explorer added bulk `$export` or FHIR write
@@ -54,7 +61,7 @@ warning, but the module and OpenEMR are maintained by overlapping
 contributors so divergence is typically caught and discussed in-channel
 before it lands. If a breaking upstream merge does break the smoke, the
 fix is a conversation with the module maintainer plus (if needed) a
-workaround in `run.sh` / `driver.php` — not a scramble.
+workaround in `run.sh` / `driver*.php` — not a scramble.
 
 ## Reproducing locally
 
@@ -65,16 +72,21 @@ ci/api-explorer/run.sh
 
 Use the full `easy` env to match what CI boots (`docker/development-easy`
 is the `easy` stack); keeping local and CI aligned means a local pass
-reproduces the same shape CI runs. The smoke itself only needs mysql +
-openemr running — it never touches Selenium, CouchDB, or Mailpit — but
-the extra containers do not meaningfully affect the smoke.
+reproduces the same shape CI runs. The browser driver needs Selenium, which
+`easy` composes in; `easy-light` drops it and the browser driver will fail
+to connect.
+
+On a failed browser flow, `driver-browser.php` writes a screenshot and page
+source to `tmp/driver-browser-<client>.{png,html}`. The CI workflow uploads
+those as the `api-explorer-driver-browser-postmortem` artifact.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `run.sh` | Entry point: clone the explorer, seed demo data + globals, invoke the driver. |
-| `driver.php` | Guzzle round-trip against the explorer's three request paths. |
+| `run.sh` | Entry point: clone the explorer, seed demo data + globals, invoke both drivers. |
+| `driver.php` | Guzzle round-trip: DCR + JWT client-credentials FHIR Patient read. |
+| `driver-browser.php` | Panther/Selenium round-trip: confidential auth-code + public PKCE flows. |
 | `seed-globals.sql` | REPLACE INTO globals rows the explorer requires. Keys backed by `src/Services/Globals/GlobalConnectorsEnum.php`. |
 
 ## Credits

@@ -88,8 +88,14 @@ echo "==> Seeding globals"
 openemr-cmd e 'mariadb -h mysql -u openemr -popenemr openemr < /var/www/localhost/htdocs/openemr/ci/api-explorer/seed-globals.sql'
 
 # --------------------------------------------------------------------------
-# 5. Run the Guzzle driver. Exits 0 on success; the workflow uploads docker
-#    logs on failure for post-mortem.
+# 5. Run the Guzzle driver (JWT client-credentials path -- fast, server-to-
+#    server, no browser), then the Panther driver (confidential auth-code +
+#    public PKCE paths -- browser login + consent click-through). Exits
+#    nonzero on any failure; the workflow uploads docker logs + driver-
+#    browser screenshots on failure for post-mortem.
 # --------------------------------------------------------------------------
-echo "==> Running driver"
+echo "==> Running driver (JWT)"
 openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver.php'
+
+echo "==> Running driver-browser (confidential auth-code + public PKCE)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-browser.php'
