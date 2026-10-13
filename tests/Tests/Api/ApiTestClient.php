@@ -112,6 +112,7 @@ class ApiTestClient
         'user/Encounter.write',
         'user/Goal.read',
         'user/Goal.write',
+        'user/Group.read',
         'user/Immunization.read',
         'user/Immunization.write',
         'user/Location.read',
