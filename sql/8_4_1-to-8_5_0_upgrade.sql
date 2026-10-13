@@ -309,3 +309,18 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('ecqm_2026_reporting','CMS1206v3','Excessive Radiation Dose or Inadequate Image Quality for Diagnostic Computed Tomography (CT) in Adults (Facility OQR)',690,0,'This measure is an episode of care measure that provides a standardized method for monitoring the performance of diagnostic CT to discourage unnecessarily high radiation doses, a risk factor for cancer, while preserving image quality. This measure is expressed as a percentage of CT exams that are out-of-range based on having either excessive radiation dose or inadequate image quality relative to evidence-based thresholds based on the clinical indication for the exam. All diagnostic CT exams of specified anatomic sites performed in hospital non-inpatient care settings (including emergency settings) are eligible. This eCQM requires the use of additional software to access primary data elements stored within radiology electronic health records and translate them into data elements that can be ingested by this eCQM. Additional details are included in the Guidance field.');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('ecqm_2026_reporting','CMS1218v2','Hospital Harm - Postoperative Respiratory Failure',700,0,'This measure assesses the number of elective inpatient hospitalizations for patients aged 18 years and older without an obstetrical condition who have a procedure resulting in postoperative respiratory failure (PRF)');
 #EndIf
+
+-- AuthCodeRepository's revokeAuthCode / isAuthCodeRevoked methods now
+-- persist their state here so an already-exchanged authorization code
+-- is rejected on subsequent presentation. Rows age out naturally with
+-- the authorization-code TTL -- a stale row keeps rejecting a code
+-- that would already be rejected on expiry, so cleanup is optional.
+#IfNotTable oauth_auth_code_revocations
+CREATE TABLE `oauth_auth_code_revocations` (
+    `code_id` varchar(80) NOT NULL,
+    `client_id` varchar(80) DEFAULT NULL COMMENT 'client the code was issued to, kept for operator traceability',
+    `revoked_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`code_id`),
+    KEY `idx_revoked_at` (`revoked_at`)
+) ENGINE=InnoDB;
+#EndIf

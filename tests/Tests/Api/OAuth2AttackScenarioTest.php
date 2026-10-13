@@ -301,6 +301,53 @@ class OAuth2AttackScenarioTest extends TestCase
         $this->assertRejected($resp, 'Password grant must reject when user_role (patient) does not match the registered user (staff admin)');
     }
 
+    #[Test]
+    public function testPasswordGrantAcceptsClientSecretBasicAuth(): void
+    {
+        // RFC 6749 §2.3.1: `client_secret_basic` presents client
+        // credentials in the Authorization header. Every other
+        // password-grant test in this suite uses `client_secret_post`
+        // (credentials in the form body). This locks the Basic auth
+        // path so a future refactor cannot silently drop it.
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'ClientSecretBasicAccept',
+            ['token_endpoint_auth_method' => 'client_secret_basic']
+        );
+        $resp = $this->postTokenRawWithBasicAuth($cid, $csec, [
+            'grant_type' => 'password',
+            'scope' => 'openid api:oemr',
+            'user_role' => 'users',
+            'username' => 'admin',
+            'password' => 'pass',
+        ]);
+        $this->assertSame(
+            200,
+            $resp['status'],
+            'Basic-auth password grant must succeed when the client registered with client_secret_basic. Body: ' . $resp['body']
+        );
+        $body = json_decode($resp['body'], true);
+        $this->assertIsArray($body);
+        $this->assertIsString($body['access_token'] ?? null, 'Response must carry a non-empty access_token');
+        $this->assertNotSame('', $body['access_token'], 'access_token must not be an empty string');
+    }
+
+    #[Test]
+    public function testPasswordGrantRejectsBasicAuthWithWrongSecret(): void
+    {
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'ClientSecretBasicRejectWrong',
+            ['token_endpoint_auth_method' => 'client_secret_basic']
+        );
+        $resp = $this->postTokenRawWithBasicAuth($cid, $csec . 'tamper', [
+            'grant_type' => 'password',
+            'scope' => 'openid api:oemr',
+            'user_role' => 'users',
+            'username' => 'admin',
+            'password' => 'pass',
+        ]);
+        $this->assertRejected($resp, 'Basic-auth password grant must reject a wrong client_secret');
+    }
+
     // ----- Refresh-token deny-paths -----
 
     #[Test]
@@ -407,6 +454,38 @@ class OAuth2AttackScenarioTest extends TestCase
         $body = json_decode($resp['body'], true);
         $this->assertIsArray($body);
         $this->assertFalse($body['active'] ?? null, 'Introspection without client_id must report active:false');
+    }
+
+    #[Test]
+    public function testIntrospectionReportsInactiveWhenAuthenticatingClientDidNotMintTheToken(): void
+    {
+        // RFC 7662 lets the introspection endpoint treat a token not
+        // issued to the authenticating client as if it were unknown.
+        // Prevents a confidential client from probing other clients'
+        // tokens by presenting them for introspection with its own
+        // credentials.
+        [$cidA, $csecA] = $this->dcrConfidentialPasswordGrantClient('IntrospectCrossClientMinter');
+        [$cidB, $csecB] = $this->dcrConfidentialPasswordGrantClient('IntrospectCrossClientProber');
+        $tokens = $this->passwordGrantForTest($cidA, $csecA, 'openid api:oemr');
+
+        // Client B presents client A's access token under B's own
+        // client credentials.
+        $resp = $this->rawPostForm('/oauth2/default/introspect', [
+            'client_id' => $cidB,
+            'client_secret' => $csecB,
+            'token' => $tokens['access_token'],
+        ]);
+        $this->assertSame(
+            200,
+            $resp['status'],
+            'Introspection probing another client\'s token must still return 200 per RFC 7662 shape. Body: ' . $resp['body']
+        );
+        $body = json_decode($resp['body'], true);
+        $this->assertIsArray($body);
+        $this->assertFalse(
+            $body['active'] ?? null,
+            'Introspection must report active=false for a token issued to a different client. Body: ' . $resp['body']
+        );
     }
 
     // ----- CORS enforcement -----
@@ -770,9 +849,6 @@ class OAuth2AttackScenarioTest extends TestCase
     /**
      * DCR + enable password grant + fix is_enabled=1 (admin-UI equivalent).
      *
-     * @return array{0: string, 1: string}
-     */
-    /**
      * @param array<string, mixed> $overrides
      * @return array{0: string, 1: string}
      */
@@ -804,6 +880,11 @@ class OAuth2AttackScenarioTest extends TestCase
         $body = json_decode($resp['body'], true);
         $this->assertIsArray($body);
         $this->assertIsString($body['access_token'] ?? null);
+        $this->assertNotSame(
+            '',
+            $body['access_token'],
+            'access_token must not be an empty string -- an empty token would make downstream deny-path tests pass vacuously'
+        );
         return ['access_token' => $body['access_token']];
     }
 
@@ -832,6 +913,25 @@ class OAuth2AttackScenarioTest extends TestCase
     private function postTokenRaw(array $form): array
     {
         return $this->rawPostForm('/oauth2/default/token', $form);
+    }
+
+    /**
+     * @param array<string, string> $form
+     * @return AttackResponse
+     */
+    private function postTokenRawWithBasicAuth(string $clientId, string $clientSecret, array $form): array
+    {
+        $response = $this->buildClient()->post($this->baseUrl . '/oauth2/default/token', [
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode($clientId . ':' . $clientSecret),
+            ],
+            'form_params' => $form,
+        ]);
+        return [
+            'status' => $response->getStatusCode(),
+            'body' => (string) $response->getBody(),
+            'headers' => $response->getHeaders(),
+        ];
     }
 
     /**
