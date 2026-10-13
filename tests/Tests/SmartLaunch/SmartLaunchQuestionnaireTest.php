@@ -44,6 +44,14 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
     private const APP_BASE = 'https://openemr/smart-questionnaire';
     private const FHIR_BASE = 'https://openemr/apis/default/fhir';
 
+    /**
+     * Title of the fixture Questionnaire run.sh's seed_smoke_questionnaire
+     * inserts into questionnaire_repository. Kept in sync with the JSON
+     * blob in run.sh — a drift there without updating this constant
+     * fails the write-round-trip test on the picker-click step.
+     */
+    private const SEEDED_QUESTIONNAIRE_TITLE = 'SMART Launch Smoke Questionnaire';
+
     private Client $panther;
 
     protected function setUp(): void
@@ -122,6 +130,351 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
     #[Test]
     public function testStandaloneLaunchReachesAppWithPatientContext(): void
     {
+        $pickedPatientName = $this->driveStandaloneLaunchToAppIndex();
+
+        $this->panther->waitFor('body', 10);
+        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+
+        // Patient read: the banner DOB in YYYY-MM-DD form proves the
+        // app made its initial bearer-token Patient GET against the
+        // FHIR API. Matching the format rather than a specific demo-
+        // data patient name keeps the assertion stable across demo-data
+        // changes.
+        $this->assertMatchesRegularExpression(
+            '/\bDOB:\s*\d{4}-\d{2}-\d{2}\b/',
+            $bodyText,
+            'app index.php should render a patient banner with DOB — proof that bearer-token Patient read succeeded',
+        );
+
+        // Patient context survived the OAuth round-trip: the banner
+        // name matches the patient we picked on the Stage-3 patient-
+        // select screen. Catches "context switched mid-flow" regressions
+        // (which the DOB-pattern match alone would miss — any patient's
+        // DOB would satisfy the format).
+        $this->assertStringContainsString(
+            $pickedPatientName,
+            $bodyText,
+            "picked patient '{$pickedPatientName}' should appear in the app's banner — context dropped between patient-select and index.php",
+        );
+
+        // Questionnaire search: index.php renders a "Choose a
+        // questionnaire" picker populated from a bearer-token
+        // Questionnaire GET. ci/smart-launch/run.sh seeds a single
+        // fixture Questionnaire so the picker is non-empty here —
+        // asserting the seeded title in the picker catches both the
+        // "FHIR search failed entirely" regression and the "search
+        // returned but the app filtered our fixture out" regression.
+        $this->assertStringContainsString(
+            self::SEEDED_QUESTIONNAIRE_TITLE,
+            $bodyText,
+            'app index.php should list the seeded Questionnaire — proof that bearer-token Questionnaire search returned real data',
+        );
+    }
+
+    /**
+     * launch.php with an iss that was never registered via DCR must
+     * reject the launch before contacting the issuer at all. Without
+     * this check the app would 302 the user's browser to an attacker-
+     * supplied authorize endpoint, happily sending credentials and
+     * code to whoever named a URL in the `iss` query param. The
+     * upstream app refuses in Config::clientFor and renders a 400
+     * "Launch failed · This app is not registered with …" page.
+     *
+     * The page is rendered server-side; Panther can only see the
+     * resulting DOM, not the HTTP status code. Title + body copy are
+     * what we assert against instead.
+     */
+    #[Test]
+    public function testLaunchWithUnknownIssuerIsRejectedByTheApp(): void
+    {
+        $unknownIssuer = 'https://unknown.example/apis/default/fhir';
+        $this->panther->request(
+            'GET',
+            self::APP_BASE . '/launch.php?iss=' . rawurlencode($unknownIssuer),
+        );
+        $this->panther->waitFor('body', 10);
+
+        $this->assertStringContainsString(
+            'Launch failed',
+            $this->panther->getTitle(),
+            'launch.php with an unregistered iss should render the "Launch failed" error page',
+        );
+        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+        $this->assertStringContainsString(
+            'This app is not registered with',
+            $bodyText,
+            'rejection page should include the "not registered" copy from Config::clientFor',
+        );
+        $this->assertStringContainsString(
+            $unknownIssuer,
+            $bodyText,
+            'rejection page should echo the rejected iss so the operator sees what was passed',
+        );
+    }
+
+    /**
+     * launch.php with no params renders a picker of registered servers
+     * for standalone launch. ci/smart-launch/run.sh registers one client
+     * against the compose-internal openemr issuer, so the picker should
+     * list exactly that issuer as a clickable link.
+     *
+     * This exercises the "clients registered" branch of launch.php's
+     * no-iss handler — the complement to the "none registered" branch
+     * the app shows before `bin/register.php` runs.
+     */
+    #[Test]
+    public function testLaunchWithoutIssuerRendersRegisteredServerPicker(): void
+    {
+        $this->panther->request('GET', self::APP_BASE . '/launch.php');
+        $this->panther->waitFor('body', 10);
+        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+
+        $this->assertStringContainsString(
+            'Choose a server for a standalone launch',
+            $bodyText,
+            'no-iss launch should render the server picker copy — missing it means we hit the "no clients registered" branch unexpectedly',
+        );
+        $this->assertStringContainsString(
+            self::FHIR_BASE,
+            $bodyText,
+            'server picker should list the issuer run.sh registered (' . self::FHIR_BASE . ')',
+        );
+    }
+
+    /**
+     * Full OAuth round-trip plus FHIR Questionnaire write: launch →
+     * authorize → login → patient-select → consent → index.php →
+     * pick the seeded Questionnaire → Start new → fill the required
+     * item → Complete. The app's api.php?action=save endpoint runs
+     * server-side with the bearer token minted during the OAuth
+     * exchange and POSTs a `QuestionnaireResponse` to OpenEMR's FHIR
+     * API, so a successful save proves the bearer-token FHIR WRITE
+     * path works end-to-end (the standalone-launch test only exercises
+     * reads).
+     *
+     * Signals of a successful save we assert against:
+     *   - #sq-status badge shows "completed"
+     *   - #sq-alert banner contains "Saved as completed"
+     *   - #sq-working line names the created QuestionnaireResponse
+     *     by FHIR id (format: `QuestionnaireResponse/<uuid>`) —
+     *     this is the strongest signal because it means the FHIR POST
+     *     returned the stamped resource with a server-issued id
+     */
+    #[Test]
+    public function testStandaloneLaunchCompletesQuestionnaireWriteRoundTrip(): void
+    {
+        $this->driveStandaloneLaunchToAppIndex();
+
+        // Open the seeded Questionnaire from the picker.
+        $this->panther->waitFor('a.list-group-item', 10);
+        $picker = $this->panther->findElement(WebDriverBy::cssSelector('a.list-group-item'));
+        $this->assertStringContainsString(
+            self::SEEDED_QUESTIONNAIRE_TITLE,
+            $picker->getText(),
+            'seeded Questionnaire should appear as the first (only) picker item',
+        );
+        $picker->click();
+
+        // Start a new response (switches the form from read-only to
+        // editable state; required inputs are rendered live by the
+        // bundled openemr_questionnaire.js runtime).
+        $this->panther->waitFor('button#sq-new', 15);
+        $this->panther->findElement(WebDriverBy::id('sq-new'))->click();
+        $this->panther->waitFor('input.form-control', 10);
+
+        // Fill the single required string item. sendKeys alone is not
+        // enough — the runtime watches for input/change/blur events to
+        // mark the field answered. Dispatch all three explicitly so the
+        // response passes the client-side "required items filled" gate
+        // on Complete.
+        $input = $this->panther->findElement(WebDriverBy::cssSelector('input.form-control'));
+        $input->sendKeys('Doing great');
+        $this->panther->executeScript(
+            'arguments[0].dispatchEvent(new Event("input", {bubbles: true}));'
+            . 'arguments[0].dispatchEvent(new Event("change", {bubbles: true}));'
+            . 'arguments[0].blur();',
+            [$input],
+        );
+
+        // Click Complete — fires POST api.php?action=save which the
+        // app's PHP forwards to OpenEMR's FHIR API as a POST
+        // QuestionnaireResponse with the bearer token minted earlier.
+        $this->panther->findElement(WebDriverBy::id('sq-complete'))->click();
+
+        // Wait for the status badge to flip to "completed". The runtime
+        // only updates the badge after the server returns 200 with the
+        // stamped FHIR resource, so this is a terminal success signal.
+        $this->panther->wait(20)->until(
+            static fn (WebDriver $d): bool => str_contains(
+                $d->findElement(WebDriverBy::id('sq-status'))->getText(),
+                'completed',
+            ),
+        );
+
+        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+        $this->assertStringContainsString(
+            'Saved as completed',
+            $bodyText,
+            '#sq-alert should confirm the save landed — missing it means api.php returned non-2xx',
+        );
+        $this->assertMatchesRegularExpression(
+            '~QuestionnaireResponse/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}~',
+            $bodyText,
+            '#sq-working should name the created QuestionnaireResponse by FHIR uuid — proof the POST returned a stamped resource',
+        );
+    }
+
+    /**
+     * EHR-launch variant: instead of the browser hitting launch.php
+     * cold with an iss, the user is already signed into OpenEMR with
+     * a patient open, clicks a "Launch SMART App" button from
+     * `interface/patient_file/assessment/fhir_assessments.php`, and
+     * OpenEMR mints a `launch=<opaque>` token encoding the patient
+     * context. The SMART app's launch.php sees `launch=` set and
+     * threads that through authorize/token so the token response
+     * includes a `patient` field — meaning the SMART app skips its
+     * standalone-launch patient-select UI entirely.
+     *
+     * The unique regression this test catches: a break anywhere in
+     * SmartLaunchController's launch-token mint, the authorize
+     * endpoint's launch-param handling, or the token endpoint's
+     * patient-claim passthrough would surface as the SMART app
+     * stopping at patient-select (because its PHP sees no patient
+     * context in the token response) rather than going straight to
+     * index.php. The assertion checks for both: no patient-select
+     * screen, AND index.php lands with the preselected patient's
+     * data in the banner.
+     *
+     * The flow bypasses the dlgopen() modal the fhir_assessments.php
+     * UI uses by posting the `interface/smart/ehr-launch-client.php`
+     * URL directly (same client_id + csrf_token + intent the dropdown
+     * buttons use). Equivalent round-trip; cheaper DOM navigation.
+     */
+    #[Test]
+    public function testEhrLaunchSkipsPatientSelectAndLandsOnApp(): void
+    {
+        // Sign into OpenEMR as admin.
+        $this->panther->request('GET', self::OPENEMR_BASE . '/interface/login/login.php?site=default');
+        $this->panther->waitFor('form', 10);
+        $this->panther->findElement(WebDriverBy::name('authUser'))->sendKeys('admin');
+        $this->panther->findElement(WebDriverBy::name('clearPass'))->sendKeys('pass');
+        $this->panther->executeScript('document.forms[0].submit();');
+        $this->panther->wait(15)->until(
+            static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/interface/main/tabs/main.php'),
+        );
+
+        // Set a patient as the active chart context. demographics.php
+        // honors ?set_pid=N and writes `pid` into $_SESSION. pid=1 is
+        // the first demo patient the installer seeds via demoData.
+        $this->panther->request(
+            'GET',
+            self::OPENEMR_BASE . '/interface/patient_file/summary/demographics.php?set_pid=1',
+        );
+        $this->panther->waitFor('body', 10);
+
+        // Load fhir_assessments.php — it renders the Launch-SMART-App
+        // buttons when smart_context_test_launches is on (run.sh
+        // enables that global). Pull client_id + csrf from the first
+        // patient-intent button.
+        $this->panther->request(
+            'GET',
+            self::OPENEMR_BASE . '/interface/patient_file/assessment/fhir_assessments.php',
+        );
+        $this->panther->waitFor('.smart-context-launch', 10);
+        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector('.smart-context-launch'));
+        $clientId = $launchBtn->getAttribute('data-client-id');
+        $intent = $launchBtn->getAttribute('data-intent');
+        $this->assertNotEmpty(
+            $clientId,
+            'fhir_assessments.php .smart-context-launch button must expose data-client-id',
+        );
+        $this->assertSame(
+            'patient.demographics.dialog',
+            $intent,
+            'first launch button should carry the patient-demographics intent',
+        );
+        // CSRF is set as a JS var at page scope — pulling it out of
+        // the DOM source is simpler than extracting from a
+        // DOMElement/attribute, and matches the shape the fhir_
+        // assessments.php page uses when it posts to ehr-launch-client.
+        if (preg_match('/smartLaunchCsrfToken\s*=\s*[\'"]([^\'"]+)/', $this->panther->getPageSource(), $m) !== 1) {
+            $this->fail('smartLaunchCsrfToken not found in fhir_assessments.php page source');
+        }
+        $csrf = $m[1];
+
+        // Fire the EHR launch. ehr-launch-client.php mints the opaque
+        // launch token, 302s to the SMART app's launch_uri with
+        // ?iss=&launch=; the SMART app threads the launch through
+        // authorize/token so patient context is already set when the
+        // browser lands on index.php.
+        $this->panther->request('GET', self::OPENEMR_BASE . '/interface/smart/ehr-launch-client.php?' . http_build_query([
+            'client_id' => $clientId,
+            'csrf_token' => $csrf,
+            'intent' => $intent,
+        ]));
+
+        // Authorize endpoint reauth: even though we're already signed
+        // in as admin, OpenEMR re-prompts for the api user role.
+        $this->panther->waitFor('form#userLogin', 15);
+        $this->panther->findElement(WebDriverBy::name('username'))->sendKeys('admin');
+        $this->panther->findElement(WebDriverBy::name('password'))->sendKeys('pass');
+        $loginForm = $this->panther->findElement(WebDriverBy::id('userLogin'));
+        $this->panther->executeScript(
+            "document.getElementById('userLogin').requestSubmit("
+            . "document.querySelector('form#userLogin button[type=\"submit\"], form#userLogin input[type=\"submit\"]'));",
+        );
+        $this->panther->wait(15)->until(WebDriverExpectedCondition::stalenessOf($loginForm));
+
+        // Core EHR-launch assertion: patient-select never renders
+        // because OpenEMR mints the launch token with patient already
+        // set, so the token response includes `patient` and the SMART
+        // app's standalone-launch picker is bypassed. The next page
+        // after login should be scope-authorize-confirm, not
+        // smart/patient-select.
+        $this->assertStringNotContainsString(
+            '/smart/patient-select',
+            $this->panther->getCurrentURL(),
+            'EHR launch should NOT prompt for patient-select (patient context should flow via launch token)',
+        );
+        $this->assertStringContainsString(
+            '/scope-authorize-confirm',
+            $this->panther->getCurrentURL(),
+            'EHR launch should land directly on consent after login',
+        );
+
+        // Approve consent + wait for app landing.
+        $this->panther->findElement(WebDriverBy::name('proceed'))->click();
+        $this->panther->wait(20)->until(
+            static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/smart-questionnaire/index.php?lid='),
+        );
+
+        // Note on no banner-DOB assertion: EHR-launched SMART apps per
+        // SMART-App-Launch 2.x spec receive `need_patient_banner: false`
+        // in the token response (the EHR already displays the patient
+        // banner in its own chrome, so the app suppresses its own).
+        // The SMART app honors that and skips the banner — proving the
+        // read-the-DOB check that works for standalone launches fails
+        // here even though patient context IS passing. Use the picker
+        // + Questionnaire-read assertion instead, which exercises the
+        // bearer-token FHIR path end-to-end.
+        $this->panther->waitFor('body', 10);
+        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+        $this->assertStringContainsString(
+            self::SEEDED_QUESTIONNAIRE_TITLE,
+            $bodyText,
+            'EHR-launched app should list the seeded Questionnaire — proof the bearer token minted via launch-token path and Questionnaire search succeeded',
+        );
+    }
+
+    /**
+     * Shared launch flow for the standalone tests: GET launch.php →
+     * follow OpenEMR authorize → login as admin → pick the first demo
+     * patient → approve the pre-checked consent → wait for
+     * `index.php?lid=…` to render. Returns the picked patient's
+     * display name so callers can assert the context survived.
+     */
+    private function driveStandaloneLaunchToAppIndex(): string
+    {
         // Stage 1 — launch.php → authorize → login page.
         $this->panther->request(
             'GET',
@@ -147,8 +500,7 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
         );
         $this->panther->wait(15)->until(WebDriverExpectedCondition::stalenessOf($loginForm));
 
-        // Stage 3 — patient-select screen (shown because the v1 scope
-        // profile requests `launch/patient`). The buttons set a hidden
+        // Stage 3 — patient-select screen. The buttons set a hidden
         // patient_id input via JS and submit; a plain click is enough.
         $this->panther->waitFor('button.patient-btn', 15);
         $pickBtn = $this->panther->findElement(WebDriverBy::cssSelector('button.patient-btn'));
@@ -156,6 +508,14 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
         $this->assertNotEmpty(
             $pickedPatientUuid,
             'patient-select button must expose data-patient-id so the pick submission knows which patient',
+        );
+        // Capture the row's first <td> (patient name) for the caller.
+        $pickedPatientName = trim($this->panther->findElement(WebDriverBy::xpath(
+            '//button[@data-patient-id="' . $pickedPatientUuid . '"]/ancestor::tr/td[1]',
+        ))->getText());
+        $this->assertNotEmpty(
+            $pickedPatientName,
+            'patient-select row should have a non-empty name td — demo data regression?',
         );
         $pickBtn->click();
         $this->panther->wait(15)->until(WebDriverExpectedCondition::stalenessOf($pickBtn));
@@ -174,14 +534,11 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
             'consent screen must expose a proceed control — missing means the page is not the OpenEMR consent screen',
         );
         $proceed[0]->click();
-        // Wait until we leave /oauth2/ paths — either landed on
-        // /smart-questionnaire/callback.php mid-exchange or already
-        // on index.php after the server-side code→token exchange.
         $this->panther->wait(20)->until(
             static fn (WebDriver $d): bool => !str_contains($d->getCurrentURL(), '/oauth2/'),
         );
 
-        // Stage 5 + 6 — the server-side token exchange in callback.php
+        // Stage 5 + 6 — server-side token exchange in callback.php
         // happens transparently; the final URL should be
         // /smart-questionnaire/index.php?lid=<launch id>.
         $this->panther->wait(20)->until(
@@ -193,31 +550,6 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
             'full flow should land on the SMART app index.php with a launch id',
         );
 
-        $this->panther->waitFor('body', 10);
-        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
-
-        // Patient read: the banner DOB in YYYY-MM-DD form proves the
-        // app made its initial bearer-token Patient GET against the
-        // FHIR API. Matching the format rather than a specific demo-
-        // data patient name keeps the assertion stable across demo-data
-        // changes.
-        $this->assertMatchesRegularExpression(
-            '/\bDOB:\s*\d{4}-\d{2}-\d{2}\b/',
-            $bodyText,
-            'app index.php should render a patient banner with DOB — proof that bearer-token Patient read succeeded',
-        );
-
-        // Questionnaire search: index.php renders a "Choose a
-        // questionnaire" picker populated from a bearer-token
-        // Questionnaire GET. The demo-data install ships no
-        // Questionnaire resources, so the picker renders empty — the
-        // "No questionnaires are available" copy only reaches the DOM
-        // on a successful (empty) FHIR search; a 401/403/500 would
-        // short-circuit it with an error banner instead.
-        $this->assertStringContainsString(
-            'Choose a questionnaire',
-            $bodyText,
-            'app index.php should render the Questionnaire picker — proof that bearer-token Questionnaire search succeeded',
-        );
+        return $pickedPatientName;
     }
 }
