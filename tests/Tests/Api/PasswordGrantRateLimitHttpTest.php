@@ -49,6 +49,14 @@ class PasswordGrantRateLimitHttpTest extends TestCase
     /** @var array<string, mixed>|null */
     private ?array $originalUserLockoutRow = null;
 
+    private string $clientIp = '127.0.0.1';
+    /** @var array<string, mixed>|null null when no ip_tracking row existed pre-test */
+    private ?array $originalIpTrackingRow = null;
+    private bool $ipTrackingRowSnapshotted = false;
+
+    /** @var list<string> accumulator for teardown failure messages */
+    private array $tearDownFailures = [];
+
     protected function setUp(): void
     {
         $this->baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: 'https://localhost';
@@ -104,6 +112,31 @@ class PasswordGrantRateLimitHttpTest extends TestCase
                 [self::TARGET_USERNAME]
             );
         }
+
+        // The two wrong-password attempts below also bump
+        // ip_tracking.ip_login_fail_counter for the request IP.
+        // Snapshot that row and reset the counter so (a) the per-IP
+        // threshold cannot preempt the per-account lockout we want to
+        // test, and (b) the counter doesn't bleed into unrelated tests
+        // sharing 127.0.0.1 (the default REMOTE_ADDR in CLI runs).
+        $this->ipTrackingRowSnapshotted = true;
+        $ipRow = QueryUtils::querySingleRow(
+            "SELECT `total_ip_login_fail_counter`, `ip_login_fail_counter`, "
+                . "`ip_last_login_fail`, `ip_auto_block_emailed`, "
+                . "`mfa_login_fail_counter`, `mfa_last_login_fail` "
+                . "FROM `ip_tracking` WHERE `ip_string` = ?",
+            [$this->clientIp]
+        );
+        if (is_array($ipRow)) {
+            /** @var array<string, mixed> $ipRow */
+            $this->originalIpTrackingRow = $ipRow;
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `ip_tracking` SET `ip_login_fail_counter` = 0, "
+                    . "`ip_last_login_fail` = NULL, `ip_auto_block_emailed` = 0 "
+                    . "WHERE `ip_string` = ?",
+                [$this->clientIp]
+            );
+        }
     }
 
     protected function tearDown(): void
@@ -133,6 +166,36 @@ class PasswordGrantRateLimitHttpTest extends TestCase
                     ]
                 );
             }
+        });
+        $this->safeRun(function (): void {
+            if (!$this->ipTrackingRowSnapshotted) {
+                return;
+            }
+            if ($this->originalIpTrackingRow === null) {
+                // No row before the test; delete anything AuthUtils
+                // inserted during the wrong-password loop.
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM `ip_tracking` WHERE `ip_string` = ?",
+                    [$this->clientIp]
+                );
+                return;
+            }
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `ip_tracking` SET `total_ip_login_fail_counter` = ?, "
+                    . "`ip_login_fail_counter` = ?, `ip_last_login_fail` = ?, "
+                    . "`ip_auto_block_emailed` = ?, "
+                    . "`mfa_login_fail_counter` = ?, `mfa_last_login_fail` = ? "
+                    . "WHERE `ip_string` = ?",
+                [
+                    $this->originalIpTrackingRow['total_ip_login_fail_counter'],
+                    $this->originalIpTrackingRow['ip_login_fail_counter'],
+                    $this->originalIpTrackingRow['ip_last_login_fail'],
+                    $this->originalIpTrackingRow['ip_auto_block_emailed'],
+                    $this->originalIpTrackingRow['mfa_login_fail_counter'],
+                    $this->originalIpTrackingRow['mfa_last_login_fail'],
+                    $this->clientIp,
+                ]
+            );
         });
         $this->safeRun(function (): void {
             $this->restoreGlobal(
@@ -166,6 +229,20 @@ class PasswordGrantRateLimitHttpTest extends TestCase
                 unset($GLOBALS['oauth_password_grant']);
             }
         });
+
+        // Report any accumulated cleanup failures by failing tearDown.
+        // Running every cleanup first (above) means stale shared state
+        // is minimised regardless; failing here surfaces the regression
+        // instead of silently passing a test that leaked DB state.
+        if ($this->tearDownFailures !== []) {
+            $failures = $this->tearDownFailures;
+            $this->tearDownFailures = [];
+            self::fail(
+                "tearDown cleanup had " . count($failures) . " failure(s); "
+                . "shared state may be stale for later tests:\n  - "
+                . implode("\n  - ", $failures)
+            );
+        }
     }
 
     private function safeRun(callable $cleanup): void
@@ -173,11 +250,12 @@ class PasswordGrantRateLimitHttpTest extends TestCase
         try {
             $cleanup();
         } catch (SqlQueryException $e) {
-            // Swallow and continue: subsequent restorations are more
-            // important than surfacing a single DB failure here, and
-            // phpunit still reports the test outcome. Narrowed to
+            // Record and continue: subsequent restorations are more
+            // important than aborting here, and phpunit will see the
+            // aggregated failure at the end of tearDown. Narrowed to
             // SqlQueryException so unrelated errors (TypeError,
             // ErrorException, parse errors) still propagate.
+            $this->tearDownFailures[] = $e->getMessage();
             fwrite(STDERR, '[' . static::class . "::tearDown] cleanup step failed: " . $e->getMessage() . "\n");
         }
     }
