@@ -2467,11 +2467,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\$payer_claim_number of static method OpenEMR\\\\Billing\\\\SLEOB\\:\\:arPostPayment\\(\\) expects string\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\$prev of function getOldDetail expects array, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
@@ -2552,11 +2547,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$pid of function get_patient_balance expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$stream of function fclose expects resource, resource\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
@@ -2629,11 +2619,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$use_include_path of function readfile expects bool, string given\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\.\\.\\.\\$values of function sprintf expects bool\\|float\\|int\\|string\\|null, mixed given\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
@@ -4458,7 +4443,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 70,
+    'count' => 71,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
@@ -4473,7 +4458,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 20,
+    'count' => 19,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
@@ -17673,7 +17658,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, \\(float\\|int\\) given\\.$#',
-    'count' => 32,
+    'count' => 31,
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
 $ignoreErrors[] = [
@@ -57612,11 +57597,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/PaymentProcessing/Sphere/SphereRevert.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$html of method HTMLPurifier\\:\\:purify\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Pdf/PatientPortalPDFDocumentCreator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$patient_id of method Document\\:\\:createDocument\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Pdf/PatientPortalPDFDocumentCreator.php',
@@ -58620,16 +58600,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#4 \\$group of method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:recordLogItem\\(\\) expects string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Subscriber/ApiResponseLoggerListener.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$request of method OpenEMR\\\\RestControllers\\\\Subscriber\\\\CORSListener\\:\\:getInitialResponse\\(\\) expects OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest, Symfony\\\\Component\\\\HttpFoundation\\\\Request given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Subscriber/CORSListener.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$values of method Symfony\\\\Component\\\\HttpFoundation\\\\ResponseHeaderBag\\:\\:set\\(\\) expects array\\<string\\>\\|string\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Subscriber/CORSListener.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$path of function realpath expects string, mixed given\\.$#',
@@ -67352,16 +67322,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$timestamp of function date expects int\\|null, int\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$array of function array_filter expects array, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/IndividualResult.php',
@@ -67373,11 +67333,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$population_set_key of method OpenEMR\\\\Services\\\\Qdm\\\\Measure\\:\\:population_set_for_key\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/IndividualResult.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$properties of method OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\AbstractType\\:\\:__construct\\(\\) expects array, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/IndividualResult.php',
 ];
@@ -68813,7 +68768,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, array given\\.$#',
-    'count' => 1,
+    'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
 ];
 $ignoreErrors[] = [
@@ -68823,7 +68778,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$scopeConfirmationPage of method OpenEMR\\\\Tests\\\\Api\\\\AuthorizationGrantFlowTest\\:\\:requestTestScopeConfirmationPageEndpoint\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
 ];
 $ignoreErrors[] = [

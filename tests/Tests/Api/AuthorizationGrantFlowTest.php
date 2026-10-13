@@ -99,6 +99,165 @@ class AuthorizationGrantFlowTest extends TestCase
         );
     }
 
+    public function testTokenExchangeRejectsWrongClientSecret(): void
+    {
+        // Confidential-client auth-code exchange: the registered
+        // client's secret is required at /token. Presenting a wrong
+        // secret must return a 4xx client-authentication error, not
+        // mint a token.
+        $flow = $this->obtainAuthorizationCode();
+        $resp = $this->exchangeAuthorizationCode($flow, [
+            'client_secret_override' => $flow['client_secret'] . 'tamper',
+        ]);
+        $this->assertGreaterThanOrEqual(400, $resp['status'], 'Response body: ' . $resp['body']);
+        $this->assertLessThan(500, $resp['status'], 'Rejection must be a 4xx client-error, not 5xx. Body: ' . $resp['body']);
+    }
+
+    public function testTokenExchangeRejectsRedirectUriMismatch(): void
+    {
+        // RFC 6749 §4.1.3: redirect_uri at /token MUST match the
+        // redirect_uri originally sent to /authorize. A mismatch
+        // defeats the "same browser flow" binding and must be
+        // rejected.
+        $flow = $this->obtainAuthorizationCode();
+        $resp = $this->exchangeAuthorizationCode($flow, [
+            'redirect_uri_override' => 'http://attacker-regression.example/cb',
+        ]);
+        $this->assertGreaterThanOrEqual(400, $resp['status'], 'Response body: ' . $resp['body']);
+        $this->assertLessThan(500, $resp['status'], 'Rejection must be a 4xx client-error. Body: ' . $resp['body']);
+    }
+
+    public function testSecondExchangeOfSameCodeIsRejected(): void
+    {
+        // Once an authorization code has been exchanged, presenting it
+        // a second time must be rejected. Locks the AuthCodeRepository
+        // revoke/isRevoked contract -- the first exchange calls
+        // revokeAuthCode, which records the code's identifier, and the
+        // second exchange's isAuthCodeRevoked lookup finds it.
+        $flow = $this->obtainAuthorizationCode();
+        $first = $this->exchangeAuthorizationCode($flow);
+        $this->assertSame(
+            Response::HTTP_OK,
+            $first['status'],
+            'First exchange of a fresh authorization_code must succeed. Body: ' . $first['body']
+        );
+        $second = $this->exchangeAuthorizationCode($flow);
+        $this->assertGreaterThanOrEqual(400, $second['status'], 'Response body: ' . $second['body']);
+        $this->assertLessThan(500, $second['status'], 'Second exchange must be rejected with 4xx. Body: ' . $second['body']);
+    }
+
+    public function testTokenExchangeRejectsCodeFromDifferentClient(): void
+    {
+        // Cross-client authorization-code reuse: client A obtains a
+        // code, client B presents its own credentials with A's code.
+        // RFC 6749 §4.1.3 binds the authorization code to the client
+        // it was issued to, so B's attempt must fail even though B's
+        // credentials themselves are valid.
+        $flow = $this->obtainAuthorizationCode();
+
+        $kernelB = $this->createTestKernel();
+        $scopes = (new ServerScopeListEntity())->getAllSupportedScopesList();
+        $scopesString = implode(' ', $scopes);
+        [$cidB, $csecB] = $this->requestTestRegistrationEndpoint($kernelB, $flow['redirect_uri'], $scopesString);
+        $this->assertIsString($cidB);
+        $this->assertIsString($csecB);
+
+        $resp = $this->exchangeAuthorizationCode($flow, [
+            'client_id_override' => $cidB,
+            'client_secret_override' => $csecB,
+        ]);
+        $this->assertGreaterThanOrEqual(400, $resp['status'], 'Response body: ' . $resp['body']);
+        $this->assertLessThan(500, $resp['status'], 'Rejection must be a 4xx client-error. Body: ' . $resp['body']);
+    }
+
+    /**
+     * Walks the full authorization-code grant flow (DCR → authorize →
+     * login → patient select → consent → code generation) and returns
+     * the state needed for a subsequent /token exchange: client_id,
+     * client_secret, the fresh authorization_code, the redirect_uri,
+     * and the OEHttpKernel so the exchange helper can reuse it.
+     *
+     * Each deny-path test calls this once to arrive at a valid
+     * pre-exchange state, then diverges at exchangeAuthorizationCode().
+     *
+     * @return array{client_id: string, client_secret: string, code: string, redirect_uri: string, scopes_string: string, kernel: OEHttpKernel}
+     */
+    protected function obtainAuthorizationCode(): array
+    {
+        $scopes = (new ServerScopeListEntity())->getAllSupportedScopesList();
+        $scopesString = implode(' ', $scopes);
+        $redirectUri = 'http://localhost:8080/oauth2/callback';
+        $kernel = $this->createTestKernel();
+
+        [$cid, $csec] = $this->requestTestRegistrationEndpoint($kernel, $redirectUri, $scopesString);
+        $this->assertIsString($cid);
+        $this->assertIsString($csec);
+
+        $session = $this->getMockSession();
+        $session->set('nonce', 'test_nonce');
+        $loginLocation = $this->requestTestAuthorizeEndpoint($session, $scopesString, $cid, $kernel);
+        $patientSelectPage = $this->requestTestLoginFlow($loginLocation, $session, $kernel);
+        $this->assertStringEndsWith(SMARTAuthorizationController::PATIENT_SELECT_PATH, $patientSelectPage);
+        $scopeConfirmationPage = $this->requestTestPatientSelectionFlow($patientSelectPage, $session, $kernel);
+        $this->requestTestScopeConfirmationPageEndpoint($session, $scopeConfirmationPage, $kernel);
+        $location = $this->requestTestAuthorizationCodeEndpoint($session, $scopesString, $kernel, $redirectUri);
+
+        $parts = parse_url($location);
+        $this->assertIsArray($parts);
+        $this->assertArrayHasKey('query', $parts);
+        parse_str((string) $parts['query'], $query);
+        $this->assertArrayHasKey('code', $query);
+        $this->assertIsString($query['code']);
+        $this->assertNotSame('', $query['code']);
+
+        return [
+            'client_id' => $cid,
+            'client_secret' => $csec,
+            'code' => $query['code'],
+            'redirect_uri' => $redirectUri,
+            'scopes_string' => $scopesString,
+            'kernel' => $kernel,
+        ];
+    }
+
+    /**
+     * Submit the authorization_code grant to /token with optional
+     * overrides. Overrides supported:
+     *   - client_id_override: replace the client_id presented in the
+     *     Basic auth header.
+     *   - client_secret_override: replace the client_secret in the
+     *     Basic auth header.
+     *   - redirect_uri_override: replace the redirect_uri in the
+     *     form body.
+     *   - code_override: replace the code in the form body.
+     *
+     * @param array{client_id: string, client_secret: string, code: string, redirect_uri: string, scopes_string: string, kernel: OEHttpKernel} $flow
+     * @param array<string, string> $overrides
+     * @return array{status: int, body: string}
+     */
+    protected function exchangeAuthorizationCode(array $flow, array $overrides = []): array
+    {
+        $clientId = $overrides['client_id_override'] ?? $flow['client_id'];
+        $clientSecret = $overrides['client_secret_override'] ?? $flow['client_secret'];
+        $redirectUri = $overrides['redirect_uri_override'] ?? $flow['redirect_uri'];
+        $code = $overrides['code_override'] ?? $flow['code'];
+
+        $tokenRequest = HttpRestRequest::create('/oauth2/default/token', 'POST', [
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+            'redirect_uri' => $redirectUri,
+        ], [], [], [
+            'HTTP_AUTHORIZATION' => 'Basic ' . base64_encode($clientId . ':' . $clientSecret),
+        ]);
+        $session = $this->getMockSession();
+        $authController = $this->getAuthorizationController($session, $flow['kernel']);
+        $response = $authController->oauthAuthorizeToken($tokenRequest);
+        return [
+            'status' => $response->getStatusCode(),
+            'body' => (string) $response->getBody(),
+        ];
+    }
+
     public function testScopeAuthorizeConfirmWithMissingClientIdRendersErrorPage(): void
     {
         $session = $this->getMockSession();

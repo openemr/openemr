@@ -28,7 +28,6 @@ return RectorConfig::configure()
         __DIR__ . '/acl_upgrade.php',
         __DIR__ . '/admin.php',
         __DIR__ . '/apis',
-        __DIR__ . '/ccdaservice',
         __DIR__ . '/ccr',
         __DIR__ . '/cli',
         __DIR__ . '/config',
