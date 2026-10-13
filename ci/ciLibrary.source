@@ -218,11 +218,6 @@ post_build_cleanup() {
     rm -fr node_modules
 }
 
-ccda_build() (
-    cd ccdaservice
-    npm ci
-)
-
 configure_coverage() {
     # Check which coverage driver is available (pcov is faster)
     # shellcheck disable=SC2310  # Intentionally checking exit code in condition

@@ -3311,7 +3311,7 @@ class EncounterccdadispatchTable
     /**
      * Generates an unstructured component template for each patient document to be exported.
      * The resulting template is structured for direct placement into the unstructured
-     * document by the ccda service.
+     * document by the C-CDA generator.
      * BTW HL7 spec doesn't allow but one component per unstructured document so
      * this will break spec. However, we'll keep it our little secret as this is off by default.
      * User can turn on during exports for OpenEMR to OpenEMR transfer of patients.

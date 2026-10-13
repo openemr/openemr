@@ -16,8 +16,13 @@
  * calls the async Calculator.calculate() without awaiting it and so answers
  * every request with {}, which cannot serve as a reference.
  *
- * Usage, from a checkout whose ccdaservice has node_modules installed:
- *   node capture.js <ccdaservice/node_modules> <json_measures dir> <year> <out dir> [patients per measure] [measure...]
+ * Usage:
+ *   node capture.js <node_modules> <json_measures dir> <year> <out dir> [patients per measure] [measure...]
+ *
+ * The reference engine is not part of OpenEMR. Install the versions the
+ * fixtures were made with anywhere, e.g.
+ *   npm install --prefix /tmp/cqm-reference cqm-execution@4.4.3 cqm-models@4.3.2
+ * and pass /tmp/cqm-reference/node_modules as <node_modules>.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

@@ -8,7 +8,12 @@
  *
  * Run with TZ=UTC (dates are added to quantities).
  *
- * Usage: TZ=UTC node golden-units.js <ccdaservice/node_modules> <output directory> [seed] [scale]
+ * Usage: TZ=UTC node golden-units.js <node_modules> <output directory> [seed] [scale]
+ *
+ * The reference engine is not part of OpenEMR. Install the versions the
+ * fixtures were made with anywhere, e.g.
+ *   npm install --prefix /tmp/cqm-reference cqm-execution@4.4.3 cqm-models@4.3.2
+ * and pass /tmp/cqm-reference/node_modules as <node_modules>.
  *
  * Numbers are written as "#" and JavaScript's own string form, so the
  * comparison is exact and covers NaN and Infinity; a quantity is

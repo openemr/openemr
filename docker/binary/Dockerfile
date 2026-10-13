@@ -49,7 +49,7 @@ RUN apk --no-cache upgrade
 # apache2-utils (utilities), bash (shell), certbot (Let's Encrypt), curl (HTTP client),
 # dcron (scheduled tasks), imagemagick (image processing),
 # mariadb-client (database client), mariadb-connector-c (DB connector), ncurses (terminal),
-# nodejs/npm (JavaScript runtime for CQM service), openssl/openssl-dev (cryptography), perl (interpreter),
+# openssl/openssl-dev (cryptography), perl (interpreter),
 # rsync (file sync), shadow (user management), su-exec (lightweight privilege-drop
 # tool used by run_php_as_apache to invoke OpenEMR CLI scripts as the apache user
 # without an intermediate shell — busybox `su` rescans options across the whole
@@ -67,8 +67,6 @@ RUN apk add --no-cache \
     mariadb-client \
     mariadb-connector-c \
     ncurses \
-    nodejs \
-    npm \
     openssl \
     openssl-dev \
     perl \
