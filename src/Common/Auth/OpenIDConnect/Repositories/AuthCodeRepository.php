@@ -33,11 +33,25 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
 
     public function revokeAuthCode($codeId)
     {
-        // No-op by design: league calls this AFTER isAuthCodeRevoked
-        // has already succeeded, which means the atomic INSERT below
-        // has already recorded the identifier. A redundant INSERT
-        // here would just hit the primary-key constraint and be
-        // ignored. Keeping this empty avoids an extra round-trip.
+        // The atomic claim already happened in isAuthCodeRevoked below,
+        // so there is no revocation work left here. Use the hook as
+        // an opportunistic cleanup point instead: league calls this
+        // exactly once per successful code exchange, which matches
+        // the rate at which isAuthCodeRevoked adds rows -- so pruning
+        // here keeps oauth_auth_code_revocations bounded without a
+        // separate cron. The 1-hour window is far longer than the
+        // authorization-code TTL plus any clock-skew margin and
+        // offers a small forensic lookback during incident response.
+        // Failure is tolerated: a transient DB hiccup just means the
+        // next successful exchange will prune.
+        try {
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM `oauth_auth_code_revocations` WHERE `revoked_at` < DATE_SUB(NOW(), INTERVAL 1 HOUR)',
+                []
+            );
+        } catch (SqlQueryException) {
+            // best-effort
+        }
     }
 
     public function isAuthCodeRevoked($codeId)
@@ -68,12 +82,17 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
                 [(string) $codeId]
             );
             return false;
-        } catch (SqlQueryException) {
-            // Duplicate key or any other insert failure: treat as
-            // revoked. Any failure here means we cannot vouch for
-            // the code being single-use, so we must reject rather
-            // than issue a potentially-second token.
-            return true;
+        } catch (SqlQueryException $e) {
+            // Only treat the duplicate-key constraint as "revoked" --
+            // that is the race-safe signal that another exchange
+            // already claimed the code. Re-throw anything else so an
+            // infrastructure failure (connection drop, disk full, etc.)
+            // reaches the server-error path rather than being silently
+            // reported as a revoked authorization code.
+            if (str_contains($e->sqlError, 'Duplicate entry')) {
+                return true;
+            }
+            throw $e;
         }
     }
 
