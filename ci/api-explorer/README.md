@@ -3,8 +3,12 @@
 End-to-end smoke that exercises OpenEMR's OAuth2 + FHIR surface from a real
 third-party client (`sjpadgett/oe-module-api-explorer`). Runs on every PR; its
 job is to catch regressions in the OAuth2 code path that in-tree unit and
-isolated tests cannot see — real RFC 7591 DCR, real token endpoint for every
-non-SMART grant, real FHIR Patient read from a bearer-authenticated client.
+isolated tests cannot see — real RFC 7591 DCR, real token endpoint for the
+`client_credentials` and `authorization_code` grants (both confidential and
+public-with-PKCE), real FHIR Patient read from a bearer-authenticated client.
+Refresh-token and SMART launch are not covered here; refresh-token has no
+dedicated flow in this smoke, and SMART launch is covered by the sibling
+`oe-smart-questionnaire` smoke.
 
 ## What the smoke does
 
