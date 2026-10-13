@@ -546,6 +546,97 @@ class CdaTemplateParseTest extends TestCase
     }
 
     // ──────────────────────────────────────────────────────────────────────
+    // fetchSocialHistoryData
+    // ──────────────────────────────────────────────────────────────────────
+
+    /**
+     * A Smoking Status observation (template 2.16.840.1.113883.10.20.22.4.78).
+     *
+     * @param array<mixed> $templateId
+     * @param array<mixed> $effectiveTime
+     * @return array<string, mixed>
+     */
+    private static function smokingStatus(array $templateId, array $effectiveTime, string $code = '8517006'): array
+    {
+        return [
+            'observation' => [
+                'templateId' => $templateId,
+                'id' => ['root' => 'sh-root', 'extension' => 'sh-ext'],
+                'code' => ['code' => '72166-2'],
+                'effectiveTime' => $effectiveTime,
+                'value' => ['code' => $code, 'displayName' => 'Ex-smoker (finding)'],
+            ],
+        ];
+    }
+
+    public function testFetchSocialHistoryDataStoresTheFirstSmokingStatus(): void
+    {
+        $this->parser->fetchSocialHistoryData(self::smokingStatus(
+            ['root' => '2.16.840.1.113883.10.20.22.4.78'],
+            ['low' => ['value' => '20200101'], 'high' => ['value' => '20240121']],
+        ));
+
+        $this->assertSame([
+            'extension' => 'sh-ext',
+            'root' => 'sh-root',
+            'status' => '8517006',
+            'begdate' => '20200101',
+            'enddate' => '20240121',
+            'value' => 'Ex-smoker (finding)',
+        ], $this->getFieldRecord('social_history', 0)['smoking']);
+        $this->assertSame(0, $this->getEntryId('social_history', 0));
+    }
+
+    public function testFetchSocialHistoryDataReadsEveryTemplateIdAndAPointInTime(): void
+    {
+        // Synthea and C-CDA R2.1: the template with and without its version, and an effectiveTime value.
+        $this->parser->fetchSocialHistoryData(self::smokingStatus(
+            [['root' => '2.16.840.1.113883.10.20.22.4.78'], ['root' => '2.16.840.1.113883.10.20.22.4.78', 'extension' => '2014-06-09']],
+            ['value' => '20240121152238'],
+        ));
+
+        $smoking = $this->getFieldRecord('social_history', 0)['smoking'];
+        $this->assertIsArray($smoking);
+        $this->assertSame('8517006', $smoking['status']);
+        $this->assertSame('20240121152238', $smoking['begdate']);
+        $this->assertNull($smoking['enddate']);
+    }
+
+    public function testFetchSocialHistoryDataGivesASecondSmokingStatusItsOwnEntry(): void
+    {
+        $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => '20200101']));
+        $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => '20240121'], '266919005'));
+
+        $this->assertEntityCount('social_history', 2);
+        $first = $this->getFieldRecord('social_history', 0)['smoking'];
+        $second = $this->getFieldRecord('social_history', 2)['smoking'];
+        $this->assertIsArray($first);
+        $this->assertIsArray($second);
+        $this->assertSame('8517006', $first['status']);
+        $this->assertSame('266919005', $second['status']);
+    }
+
+    public function testFetchSocialHistoryDataSkipsTemplatesItDoesNotMap(): void
+    {
+        // Tobacco Use (4.85) and an entry with no templateId are not imported.
+        $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.85'], ['value' => '20200101']));
+        $this->parser->fetchSocialHistoryData(self::smokingStatus([], ['value' => '20200101']));
+
+        $this->assertSame([], $this->getTemplateData());
+    }
+
+    public function testFetchSocialHistoryDataSkipsAnEntryWithNoValueCode(): void
+    {
+        $entry = self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => '20200101']);
+        $observation = $entry['observation'];
+        $this->assertIsArray($observation);
+        $observation['value'] = ['nullFlavor' => 'UNK'];
+        $this->parser->fetchSocialHistoryData(['observation' => $observation]);
+
+        $this->assertSame([], $this->getTemplateData());
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
     // Helpers
     // ──────────────────────────────────────────────────────────────────────
 
