@@ -32,6 +32,10 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
     use SystemLoggerAwareTrait;
     use ClientGrantTypeGuardTrait;
 
+    /**
+     * Error code league/oauth2-server gives OAuthServerException::invalidRefreshToken().
+     */
+    private const INVALID_REFRESH_TOKEN_ERROR_CODE = 8;
 
     /**
      * @var JWTClientAuthenticationService
@@ -100,6 +104,41 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
             }
         }
         return parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);
+    }
+
+    /**
+     * Report an unusable refresh token as a 400 invalid_grant error (RFC 6749 section 5.2).
+     *
+     * league/oauth2-server 8.x reports an expired, revoked, undecryptable or other client's
+     * refresh token as a 401 invalid_request error (OAuthServerException::invalidRefreshToken(),
+     * error code 8); 9.0.0 changed that factory to 400 invalid_grant. Spec-compliant clients
+     * watch for invalid_grant to know the refresh token is dead and the user must sign in again.
+     *
+     * @param ServerRequestInterface $request
+     * @param string                 $clientId
+     *
+     * @throws OAuthServerException
+     *
+     * @return array<mixed>
+     */
+    protected function validateOldRefreshToken(ServerRequestInterface $request, $clientId)
+    {
+        try {
+            return parent::validateOldRefreshToken($request, $clientId);
+        } catch (OAuthServerException $exception) {
+            if ($exception->getCode() !== self::INVALID_REFRESH_TOKEN_ERROR_CODE) {
+                throw $exception;
+            }
+            throw new OAuthServerException(
+                $exception->getMessage(),
+                self::INVALID_REFRESH_TOKEN_ERROR_CODE,
+                'invalid_grant',
+                400,
+                $exception->getHint(),
+                null,
+                $exception
+            );
+        }
     }
 
     /**
