@@ -225,14 +225,18 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         if ($HLCount > 1) {
             $idx = $HLCount - 2;
             $prior_claim = $batch->getClaims()[$idx];
-            $priorX12ClaimSelfInsured = (
-                new Claim(
+            // Build the preceding claim for the payer it was generated for; that
+            // payer is at index 0, so its subscriber relationship is the one the
+            // preceding claim's hierarchy used.
+            if (
+                $prior_claim instanceof BillingClaim
+                && !(new Claim(
                     $prior_claim->getPid(),
                     $prior_claim->getEncounter(),
-                    $prior_claim->getPartner()
-                )
-                )->isSelfOfInsured($prior_claim->getPayorType() - 1);
-            if (!$priorX12ClaimSelfInsured) {
+                    $prior_claim->getPartner(),
+                    $prior_claim->getPayorId() ?: null
+                ))->isSelfOfInsured(0)
+            ) {
                 $patSegmentCount++;
             }
         }
