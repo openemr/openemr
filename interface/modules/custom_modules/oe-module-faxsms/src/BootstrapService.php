@@ -12,8 +12,8 @@
 
 namespace OpenEMR\Modules\FaxSMS;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * Companion to event bootstrapping
@@ -147,24 +147,29 @@ class BootstrapService
         $vendor = '_persisted';
         $authId = 0;
         $content = json_encode($settings);
-        $sql = "INSERT INTO `module_faxsms_credentials` (`id`, `auth_user`, `vendor`, `credentials`)
-            VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `auth_user`= ?, `vendor` = ?, `credentials`= ?, `updated` = NOW()";
+        // id is AUTO_INCREMENT: leave it out of the insert so MySQL assigns it.
+        // An existing row is matched by the unique (auth_user, vendor) key.
+        $sql = "INSERT INTO `module_faxsms_credentials` (`auth_user`, `vendor`, `credentials`)
+            VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `credentials` = ?, `updated` = NOW()";
 
-        return sqlQuery($sql, ['', $authId, $vendor, $content, $authId, $vendor, $content]);
+        return sqlQuery($sql, [$authId, $vendor, $content, $content]);
     }
 
     /**
-     * @return array
+     * Settings saved by persistSetupSettings() when the module was disabled.
+     *
+     * @return array<mixed>
      */
     public function fetchPersistedSetupSettings(): array
     {
-        $vendor = '_persisted';
-        $authUserId = 0;
-        $globals = sqlQuery("SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$authUserId, $vendor]) ?? [];
-        if (is_string(OEGlobalsBag::getInstance()->get('credentials'))) {
-            return json_decode(OEGlobalsBag::getInstance()->get('credentials'), true) ?? [];
-        }
-        return [];
+        $row = QueryUtils::querySingleRow(
+            "SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?",
+            [0, '_persisted']
+        );
+        // The stored JSON is in the row's credentials column. This used to be
+        // read from a global of that name, which never exists, so nothing was
+        // ever restored and enable() fell back to the current globals.
+        return ModuleLifecycleState::decodeSettings(is_array($row) ? ($row['credentials'] ?? null) : null);
     }
 
     public static function getUserPermission($user_id, $service)

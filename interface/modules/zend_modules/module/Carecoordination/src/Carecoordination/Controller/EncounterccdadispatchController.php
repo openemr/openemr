@@ -283,7 +283,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 }
             } else {
                 // oddly, we send an empty string for our components here if there is no combination,
-                // I don't know how this is even valid as the ccda node service fails if there is no encounters section in the component.
+                // I don't know how this is even valid as the former Node C-CDA service failed if there was no encounters section in the component.
                 // Probably should nullFlavor encounter section in generator and still render document. Looking into sjp
                 $result = $ccdaGenerator->generate(
                     $this->patient_id,
@@ -307,8 +307,8 @@ class EncounterccdadispatchController extends AbstractActionController
             }
         } catch (CcdaServiceConnectionException $exception) {
             http_response_code(StatusCode::INTERNAL_SERVER_ERROR);
-            echo xlt("Failed to connect to ccdaservice. Verify your environment is setup correctly by following the instructions in the ccdaservice's Readme file");
-            ServiceContainer::getLogger()->error("Connection error with ccda service", ['exception' => $exception]);
+            echo xlt("Failed to generate the C-CDA document. Verify that C-CDA documents are enabled in Globals and check the log for details.");
+            ServiceContainer::getLogger()->error("C-CDA generation failed", ['exception' => $exception]);
             die();
         }
 

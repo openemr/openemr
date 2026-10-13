@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "658e41dc8c35d6da81e6012785d629b3",
+    "content-hash": "c8833427f28419b4e056592e26ed01f1",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -2107,16 +2107,16 @@
         },
         {
             "name": "giggsey/libphonenumber-for-php",
-            "version": "9.0.40",
+            "version": "9.0.41",
             "source": {
                 "type": "git",
                 "url": "https://github.com/giggsey/libphonenumber-for-php.git",
-                "reference": "685a8c7cacb034dd06283234ae0284ce3e12c9dd"
+                "reference": "9b954c5020364210dd4f2f15f881c0ddf2a78862"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/685a8c7cacb034dd06283234ae0284ce3e12c9dd",
-                "reference": "685a8c7cacb034dd06283234ae0284ce3e12c9dd",
+                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/9b954c5020364210dd4f2f15f881c0ddf2a78862",
+                "reference": "9b954c5020364210dd4f2f15f881c0ddf2a78862",
                 "shasum": ""
             },
             "require": {
@@ -2179,7 +2179,7 @@
                 "issues": "https://github.com/giggsey/libphonenumber-for-php/issues",
                 "source": "https://github.com/giggsey/libphonenumber-for-php"
             },
-            "time": "2026-09-24T12:34:12+00:00"
+            "time": "2026-10-08T08:51:49+00:00"
         },
         {
             "name": "giggsey/locale",
@@ -6619,6 +6619,21 @@
             "time": "2022-03-03T14:53:09+00:00"
         },
         {
+            "name": "openemr/oe-cqm-parsers",
+            "version": "7.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sjpadgett/ecqm-bundle-builder.git",
+                "reference": "bfd49442973fba45ac588abc1279126fcfe84cca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sjpadgett/ecqm-bundle-builder/zipball/bfd49442973fba45ac588abc1279126fcfe84cca",
+                "reference": "bfd49442973fba45ac588abc1279126fcfe84cca"
+            },
+            "type": "library"
+        },
+        {
             "name": "openemr/oe-module-installer-plugin",
             "version": "0.1.5",
             "source": {
@@ -9681,16 +9696,16 @@
         },
         {
             "name": "smarty/smarty",
-            "version": "v4.5.7",
+            "version": "v4.5.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/smarty-php/smarty.git",
-                "reference": "838d6ad1c635f8a6bafc08d791b8af18d8304b3a"
+                "reference": "042d310bdfbc67aa9138418d838d689b34f4c87e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/838d6ad1c635f8a6bafc08d791b8af18d8304b3a",
-                "reference": "838d6ad1c635f8a6bafc08d791b8af18d8304b3a",
+                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/042d310bdfbc67aa9138418d838d689b34f4c87e",
+                "reference": "042d310bdfbc67aa9138418d838d689b34f4c87e",
                 "shasum": ""
             },
             "require": {
@@ -9741,7 +9756,7 @@
             "support": {
                 "forum": "https://github.com/smarty-php/smarty/discussions",
                 "issues": "https://github.com/smarty-php/smarty/issues",
-                "source": "https://github.com/smarty-php/smarty/tree/v4.5.7"
+                "source": "https://github.com/smarty-php/smarty/tree/v4.5.8"
             },
             "funding": [
                 {
@@ -9749,7 +9764,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-06-29T08:48:56+00:00"
+            "time": "2026-10-04T21:31:15+00:00"
         },
         {
             "name": "steverhoades/oauth2-openid-connect-server",
@@ -14696,16 +14711,16 @@
         },
         {
             "name": "phpmyadmin/sql-parser",
-            "version": "6.0.0",
+            "version": "6.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpmyadmin/sql-parser.git",
-                "reference": "75397801ef687ef6b850e907a40c60b9d6b755db"
+                "reference": "ae022ff35c8107110fb73baf96c16c3ae71b9b95"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpmyadmin/sql-parser/zipball/75397801ef687ef6b850e907a40c60b9d6b755db",
-                "reference": "75397801ef687ef6b850e907a40c60b9d6b755db",
+                "url": "https://api.github.com/repos/phpmyadmin/sql-parser/zipball/ae022ff35c8107110fb73baf96c16c3ae71b9b95",
+                "reference": "ae022ff35c8107110fb73baf96c16c3ae71b9b95",
                 "shasum": ""
             },
             "require": {
@@ -14782,7 +14797,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2025-10-31T22:05:33+00:00"
+            "time": "2026-10-07T15:34:04+00:00"
         },
         {
             "name": "phpstan/extension-installer",
@@ -18681,5 +18696,5 @@
         "ext-zlib": "8.3",
         "php": "8.3"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
