@@ -30,6 +30,7 @@ class X125010837I
      * Digits for a UB04 physician NPI before it is written to NM109.
      *
      * Qualifier fields are not passed here. A value that is not an NPI is blank.
+     * A zero placeholder is blank.
      */
     public static function physicianNpi(mixed $value): string
     {
@@ -40,7 +41,26 @@ class X125010837I
             return '';
         }
 
-        return Claim::npiDigits($value);
+        $digits = Claim::npiDigits($value);
+        if ($digits === '0') {
+            return '';
+        }
+
+        return $digits;
+    }
+
+    /**
+     * Qualifier text for a UB04 physician NM108.
+     *
+     * The text is not rewritten. A zero placeholder is absent.
+     */
+    public static function physicianQualifier(mixed $value): string
+    {
+        if (!is_string($value) || $value === '' || $value === '0') {
+            return '';
+        }
+
+        return $value;
     }
 
     public static function generateX12837I($pid, $encounter, $x12_partner, &$log, $ub04id)
@@ -735,9 +755,9 @@ class X125010837I
 
             $out .= "NM1" . // Loop 2310C other operating Physician
                 "*73" . "*1" . "*" . $ub04id[413] . "*" . $ub04id[414] . "*" . "*";
-            $otherQualifier = $ub04id[405] ?? null;
+            $otherQualifier = self::physicianQualifier($ub04id[405] ?? null);
             $otherNpi = self::physicianNpi($ub04id[406] ?? null);
-            if (is_string($otherQualifier) && $otherQualifier !== '' && $otherNpi !== '') {
+            if ($otherQualifier !== '' && $otherNpi !== '') {
                 $out .= "*" . $otherQualifier . "*" . $otherNpi;
             } else {
                 $out .= "*" . "*";
