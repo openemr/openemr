@@ -73,69 +73,91 @@ class PasswordGrantRateLimitHttpTest extends TestCase
             $this->markTestSkipped($message);
         }
 
-        $globals = OEGlobalsBag::getInstance();
-        $this->originalPasswordGrantBagWasSet = $globals->has('oauth_password_grant');
-        $this->originalPasswordGrantBagSetting = $globals->get('oauth_password_grant');
-        $globals->set('oauth_password_grant', 3);
-        $this->persistGlobal(
-            'oauth_password_grant',
-            '3',
-            $this->originalPasswordGrantGlobalRow,
-            $this->passwordGrantGlobalRowWasInserted
-        );
+        // PHPUnit 11.5 skips tearDown() when setUp() throws. Any state
+        // mutation that lands before a later setup step fails would
+        // leak into subsequent tests. Wrap the state-mutating section
+        // so a mid-setUp failure triggers rollback via tearDown().
+        try {
+            $globals = OEGlobalsBag::getInstance();
+            $this->originalPasswordGrantBagWasSet = $globals->has('oauth_password_grant');
+            $this->originalPasswordGrantBagSetting = $globals->get('oauth_password_grant');
+            $globals->set('oauth_password_grant', 3);
+            $this->persistGlobal(
+                'oauth_password_grant',
+                '3',
+                $this->originalPasswordGrantGlobalRow,
+                $this->passwordGrantGlobalRowWasInserted
+            );
 
-        $this->originalMaxFailedBagWasSet = $globals->has('password_max_failed_logins');
-        $this->originalMaxFailedBagSetting = $globals->getInt('password_max_failed_logins');
-        $globals->set('password_max_failed_logins', 2);
-        $this->persistGlobal(
-            'password_max_failed_logins',
-            '2',
-            $this->originalMaxFailedGlobalRow,
-            $this->maxFailedGlobalRowWasInserted
-        );
+            $this->originalMaxFailedBagWasSet = $globals->has('password_max_failed_logins');
+            $this->originalMaxFailedBagSetting = $globals->getInt('password_max_failed_logins');
+            $globals->set('password_max_failed_logins', 2);
+            $this->persistGlobal(
+                'password_max_failed_logins',
+                '2',
+                $this->originalMaxFailedGlobalRow,
+                $this->maxFailedGlobalRowWasInserted
+            );
 
-        $row = QueryUtils::querySingleRow(
-            "SELECT `login_fail_counter`, `last_login_fail`, `auto_block_emailed` "
-                . "FROM `users_secure` WHERE BINARY `username` = ?",
-            [self::TARGET_USERNAME]
-        );
-        if (is_array($row)) {
-            /** @var array<string, mixed> $row */
-            $this->originalUserLockoutRow = $row;
-            // Start from a known-clean counter so the test's lockout
-            // threshold is reached deterministically regardless of
-            // ambient state.
-            QueryUtils::sqlStatementThrowException(
-                "UPDATE `users_secure` SET `login_fail_counter` = 0, "
-                    . "`last_login_fail` = NULL, `auto_block_emailed` = 0 "
-                    . "WHERE BINARY `username` = ?",
+            $row = QueryUtils::querySingleRow(
+                "SELECT `login_fail_counter`, `last_login_fail`, `auto_block_emailed` "
+                    . "FROM `users_secure` WHERE BINARY `username` = ?",
                 [self::TARGET_USERNAME]
             );
-        }
+            if (is_array($row)) {
+                /** @var array<string, mixed> $row */
+                $this->originalUserLockoutRow = $row;
+                // Start from a known-clean counter so the test's
+                // lockout threshold is reached deterministically
+                // regardless of ambient state.
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE `users_secure` SET `login_fail_counter` = 0, "
+                        . "`last_login_fail` = NULL, `auto_block_emailed` = 0 "
+                        . "WHERE BINARY `username` = ?",
+                    [self::TARGET_USERNAME]
+                );
+            }
 
-        // The two wrong-password attempts below also bump
-        // ip_tracking.ip_login_fail_counter for the request IP.
-        // Snapshot that row and reset the counter so (a) the per-IP
-        // threshold cannot preempt the per-account lockout we want to
-        // test, and (b) the counter doesn't bleed into unrelated tests
-        // sharing 127.0.0.1 (the default REMOTE_ADDR in CLI runs).
-        $this->ipTrackingRowSnapshotted = true;
-        $ipRow = QueryUtils::querySingleRow(
-            "SELECT `total_ip_login_fail_counter`, `ip_login_fail_counter`, "
-                . "`ip_last_login_fail`, `ip_auto_block_emailed`, "
-                . "`mfa_login_fail_counter`, `mfa_last_login_fail` "
-                . "FROM `ip_tracking` WHERE `ip_string` = ?",
-            [$this->clientIp]
-        );
-        if (is_array($ipRow)) {
-            /** @var array<string, mixed> $ipRow */
-            $this->originalIpTrackingRow = $ipRow;
-            QueryUtils::sqlStatementThrowException(
-                "UPDATE `ip_tracking` SET `ip_login_fail_counter` = 0, "
-                    . "`ip_last_login_fail` = NULL, `ip_auto_block_emailed` = 0 "
-                    . "WHERE `ip_string` = ?",
+            // The two wrong-password attempts below also bump
+            // ip_tracking.ip_login_fail_counter for the request IP.
+            // Snapshot that row and reset the counter so (a) the
+            // per-IP threshold cannot preempt the per-account lockout
+            // we want to test, and (b) the counter doesn't bleed into
+            // unrelated tests sharing 127.0.0.1 (the default
+            // REMOTE_ADDR in CLI runs).
+            $ipRow = QueryUtils::querySingleRow(
+                "SELECT `total_ip_login_fail_counter`, `ip_login_fail_counter`, "
+                    . "`ip_last_login_fail`, `ip_auto_block_emailed`, "
+                    . "`mfa_login_fail_counter`, `mfa_last_login_fail` "
+                    . "FROM `ip_tracking` WHERE `ip_string` = ?",
                 [$this->clientIp]
             );
+            // Only flip the snapshotted flag AFTER the SELECT returns
+            // — otherwise a failed SELECT would make tearDown think it
+            // owns a cleanup it never performed.
+            $this->ipTrackingRowSnapshotted = true;
+            if (is_array($ipRow)) {
+                /** @var array<string, mixed> $ipRow */
+                $this->originalIpTrackingRow = $ipRow;
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE `ip_tracking` SET `ip_login_fail_counter` = 0, "
+                        . "`ip_last_login_fail` = NULL, `ip_auto_block_emailed` = 0 "
+                        . "WHERE `ip_string` = ?",
+                    [$this->clientIp]
+                );
+            }
+        } catch (SqlQueryException $setUpFailure) {
+            try {
+                $this->tearDown();
+            } catch (\Throwable $rollbackFailure) {
+                throw new \RuntimeException(
+                    'setUp failed; rollback via tearDown also failed: '
+                        . $rollbackFailure->getMessage(),
+                    0,
+                    $setUpFailure
+                );
+            }
+            throw $setUpFailure;
         }
     }
 
