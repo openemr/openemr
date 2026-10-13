@@ -304,7 +304,7 @@ function echoServiceLines(): void
 
             if (!empty($code_types[$codetype]['claim']) && empty($code_types[$codetype]['diag'])) {
                 echo "  <td class='billcell text-center' $usbillstyle><input type='text' class='form-control form-control-sm' name='bill[" . attr($lino) . "][notecodes]' " .
-                "value='" . text($li['notecodes']) . "' maxlength='10' size='8' /></td>\n";
+                "value='" . attr($li['notecodes']) . "' maxlength='10' size='8' /></td>\n";
             } else {
                 echo "  <td class='billcell text-center' $usbillstyle></td>\n";
             }
