@@ -46,6 +46,11 @@ class PasswordGrantRateLimitHttpTest extends TestCase
     private ?string $originalMaxFailedGlobalRow = null;
     private bool $maxFailedGlobalRowWasInserted = false;
 
+    private mixed $originalIpMaxFailedBagSetting = null;
+    private bool $originalIpMaxFailedBagWasSet = false;
+    private ?string $originalIpMaxFailedGlobalRow = null;
+    private bool $ipMaxFailedGlobalRowWasInserted = false;
+
     /** @var array<string, mixed>|null */
     private ?array $originalUserLockoutRow = null;
 
@@ -97,6 +102,22 @@ class PasswordGrantRateLimitHttpTest extends TestCase
                 '2',
                 $this->originalMaxFailedGlobalRow,
                 $this->maxFailedGlobalRowWasInserted
+            );
+
+            // Disable the per-IP gate for this test. AuthUtils runs the
+            // IP check BEFORE the password check; a deployment with a
+            // low ip_max_failed_logins could reject the final
+            // correct-password request through the IP path, letting
+            // the test pass even if the per-account lockout we're
+            // actually verifying regressed.
+            $this->originalIpMaxFailedBagWasSet = $globals->has('ip_max_failed_logins');
+            $this->originalIpMaxFailedBagSetting = $globals->getInt('ip_max_failed_logins');
+            $globals->set('ip_max_failed_logins', 0);
+            $this->persistGlobal(
+                'ip_max_failed_logins',
+                '0',
+                $this->originalIpMaxFailedGlobalRow,
+                $this->ipMaxFailedGlobalRowWasInserted
             );
 
             $row = QueryUtils::querySingleRow(
@@ -221,6 +242,13 @@ class PasswordGrantRateLimitHttpTest extends TestCase
         });
         $this->safeRun(function (): void {
             $this->restoreGlobal(
+                'ip_max_failed_logins',
+                $this->originalIpMaxFailedGlobalRow,
+                $this->ipMaxFailedGlobalRowWasInserted
+            );
+        });
+        $this->safeRun(function (): void {
+            $this->restoreGlobal(
                 'password_max_failed_logins',
                 $this->originalMaxFailedGlobalRow,
                 $this->maxFailedGlobalRowWasInserted
@@ -232,6 +260,15 @@ class PasswordGrantRateLimitHttpTest extends TestCase
                 $this->originalPasswordGrantGlobalRow,
                 $this->passwordGrantGlobalRowWasInserted
             );
+        });
+        $this->safeRun(function (): void {
+            $globals = OEGlobalsBag::getInstance();
+            if ($this->originalIpMaxFailedBagWasSet) {
+                $globals->set('ip_max_failed_logins', $this->originalIpMaxFailedBagSetting);
+            } else {
+                $globals->remove('ip_max_failed_logins');
+                unset($GLOBALS['ip_max_failed_logins']);
+            }
         });
         $this->safeRun(function (): void {
             $globals = OEGlobalsBag::getInstance();
