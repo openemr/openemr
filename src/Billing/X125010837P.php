@@ -1288,8 +1288,12 @@ class X125010837P
             $out .= $claim->x12Zip($claim->payerZip($ins));
             $out .= "~\n";
 
-            // Segment DTP*573 (Claim Check or Remittance Date).
-            $otherPayerAdjudicationDate = $claim->otherPayerAdjudicationDate($ins);
+            // Segment DTP*573 (Claim Check or Remittance Date). Used only when this
+            // payer's adjudication is not reported by service line in loop 2430,
+            // which carries its own DTP*573.
+            $otherPayerAdjudicationDate = $claim->hasLineAdjudication($ins)
+                ? ''
+                : $claim->otherPayerAdjudicationDate($ins);
             if ($otherPayerAdjudicationDate) {
                 ++$edicount;
                 $out .= "DTP" .
