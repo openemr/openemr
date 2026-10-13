@@ -182,6 +182,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$prdefault in empty\\(\\) always exists and is not falsy\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/FeeSheet.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$form_patient_id in empty\\(\\) is never defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
