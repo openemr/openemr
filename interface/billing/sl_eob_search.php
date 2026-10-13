@@ -309,7 +309,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
             if (stristr($OneLine, "\014") == true && !feof($file)) {
                 $pdf->ezNewPage();
                 $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
-                str_replace("\014", "", $OneLine);
+                $OneLine = str_replace("\014", "", $OneLine);
             }
 
             if (
