@@ -813,6 +813,192 @@ class OAuth2AttackScenarioTest extends TestCase
         );
     }
 
+    // ----- Bulk FHIR scope-downgrade regression gates -----
+
+    #[Test]
+    public function testPatientExportDeniesNarrowerScopeToken(): void
+    {
+        // A token holding user/Patient.read but not user/Patient.$export
+        // must not authorize the bulk Patient export. Locks the
+        // dispatcher's operation-level scope enforcement
+        // (ScopeEntity::containsScope line 324 rejects on operation
+        // mismatch).
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'PatientExportScopeDowngrade',
+            ['scope' => 'openid api:fhir user/Patient.read']
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:fhir user/Patient.read');
+        $resp = $this->rawGet('/apis/default/fhir/Patient/$export', [
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+            'Accept' => 'application/fhir+ndjson',
+            'Prefer' => 'respond-async',
+        ]);
+        $this->assertSame(
+            401,
+            $resp['status'],
+            'Patient $export must deny a token lacking the $export operation scope. Body: ' . $resp['body']
+        );
+    }
+
+    #[Test]
+    public function testGroupExportDeniesNarrowerScopeToken(): void
+    {
+        // A token holding user/Group.read but not user/Group.$export
+        // must not authorize bulk Group export.
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'GroupExportScopeDowngrade',
+            ['scope' => 'openid api:fhir user/Group.read']
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:fhir user/Group.read');
+        $resp = $this->rawGet('/apis/default/fhir/Group/anything/$export', [
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+            'Accept' => 'application/fhir+ndjson',
+            'Prefer' => 'respond-async',
+        ]);
+        $this->assertSame(
+            401,
+            $resp['status'],
+            'Group $export must deny a token lacking the $export operation scope. Body: ' . $resp['body']
+        );
+    }
+
+    #[Test]
+    public function testSystemExportDeniesNarrowerScopeToken(): void
+    {
+        // A token holding user/Patient.read (a narrow resource scope)
+        // must not authorize the system-wide /fhir/$export, which the
+        // dispatcher resolves to a wildcard-resource $export permission.
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'SystemExportScopeDowngrade',
+            ['scope' => 'openid api:fhir user/Patient.read']
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:fhir user/Patient.read');
+        $resp = $this->rawGet('/apis/default/fhir/$export', [
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+            'Accept' => 'application/fhir+ndjson',
+            'Prefer' => 'respond-async',
+        ]);
+        $this->assertSame(
+            401,
+            $resp['status'],
+            'System-wide $export must deny a token lacking the $export operation scope. Body: ' . $resp['body']
+        );
+    }
+
+    // ----- Cross-scope lateral escalation regression gates -----
+
+    #[Test]
+    public function testUserRoleTokenCannotReachPortalRoute(): void
+    {
+        // A users-role bearer token holds user/* scopes. Portal routes
+        // (/apis/{site}/portal/*) are built with patient/* scope lookups
+        // under the dispatcher's role-driven logic. The user-role token
+        // must not satisfy the portal route's scope check — the
+        // dispatcher derives scopeType from user_role, so there is no
+        // path by which a user-role token's user/* scopes could be
+        // consulted against a portal patient-role route.
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'CrossScopeUserToPortal',
+            ['scope' => 'openid api:oemr api:port user/Patient.read']
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:port user/Patient.read');
+        $resp = $this->rawGet('/apis/default/portal/patient', [
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+        ]);
+        // 401 (unauthenticated-shape rejection by the dispatcher) or
+        // 403 (authenticated but lacking cross-scope permission) are
+        // both correct deny shapes. The important invariant is that
+        // the token's user/* scopes don't satisfy a patient/* route.
+        $this->assertContains(
+            $resp['status'],
+            [401, 403],
+            'User-role token must not reach a portal route. Body: ' . $resp['body']
+        );
+    }
+
+    #[Test]
+    public function testPatientRoleTokenCannotReachStandardApiRoute(): void
+    {
+        // A patient-role bearer token holds patient/* scopes. Standard
+        // /api/* routes require the dispatcher to build user/* lookups,
+        // which won't match patient/* scopes. The dispatcher's role-
+        // driven scope-type derivation makes this architecturally
+        // impossible; this test locks that invariant.
+        //
+        // Build a portal patient fixture (needed because the password
+        // grant with user_role=patient requires it) and mint a
+        // patient-role token.
+        $portalFixtures = new \OpenEMR\Tests\Fixtures\PortalPatientFixtureManager();
+        $fixture = $portalFixtures->installPortalPatient(
+            portalLoginUsername: 'crossscope-patient-' . bin2hex(random_bytes(4)),
+            plainPassword: 'CrossScopePortalPassword1!',
+            email: 'crossscope-patient-' . bin2hex(random_bytes(4)) . '@test.example'
+        );
+        try {
+            [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+                'CrossScopePatientToStandardApi',
+                ['scope' => 'openid api:port patient/Patient.read']
+            );
+            $tokenResp = $this->postTokenRaw([
+                'grant_type' => 'password',
+                'client_id' => $cid,
+                'client_secret' => $csec,
+                'scope' => 'openid api:port patient/Patient.read',
+                'user_role' => 'patient',
+                'username' => $fixture['portal_login_username'],
+                'password' => $fixture['plain_password'],
+                'email' => $fixture['email'],
+            ]);
+            $this->assertSame(200, $tokenResp['status'], 'Patient-role token must mint. Body: ' . $tokenResp['body']);
+            $body = json_decode($tokenResp['body'], true);
+            $this->assertIsArray($body);
+            $accessToken = $body['access_token'] ?? null;
+            $this->assertIsString($accessToken);
+
+            // Patient-role token tries /api/facility (a standard-api
+            // route requiring user-role authorization).
+            $resp = $this->rawGet('/apis/default/api/facility', [
+                'Authorization' => 'Bearer ' . $accessToken,
+            ]);
+            // 401 (unauthenticated-shape) or 403 (authenticated but
+            // lacking cross-scope permission) are both correct deny
+            // shapes.
+            $this->assertContains(
+                $resp['status'],
+                [401, 403],
+                'Patient-role token must not reach a standard /api route. Body: ' . $resp['body']
+            );
+        } finally {
+            $portalFixtures->removePortalPatientFixtures();
+        }
+    }
+
+    // ----- CORS wildcard+credentials invariant -----
+
+    #[Test]
+    public function testCorsResponseDoesNotCombineWildcardAllowOriginWithCredentials(): void
+    {
+        // CORS forbids `Access-Control-Allow-Origin: *` paired with
+        // `Access-Control-Allow-Credentials: true`. The response-side
+        // listener emits the request's Origin (never `*`) and only when
+        // the authenticated client's scope allows it. The semgrep rule
+        // openemr-oauth2-cors-reflect-origin-without-allowlist blocks
+        // source-side introduction. This test adds a runtime invariant:
+        // no response ever emits both headers in that forbidden shape.
+        $resp = $this->rawGet('/apis/default/fhir/metadata', [
+            'Origin' => 'https://probe.example',
+        ]);
+        $headers = array_change_key_case($resp['headers']);
+        $allowOrigin = $headers['access-control-allow-origin'] ?? [];
+        $allowCredentials = $headers['access-control-allow-credentials'] ?? [];
+        $hasWildcardOrigin = in_array('*', $allowOrigin, true);
+        $hasCredentialsTrue = in_array('true', array_map(strtolower(...), array_map(strval(...), $allowCredentials)), true);
+        $this->assertFalse(
+            $hasWildcardOrigin && $hasCredentialsTrue,
+            'CORS invariant: Access-Control-Allow-Origin: * must never be paired with Access-Control-Allow-Credentials: true. Headers: ' . json_encode($headers)
+        );
+    }
+
     // ----- Shared helpers -----
 
     /**

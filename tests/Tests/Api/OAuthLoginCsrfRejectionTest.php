@@ -166,6 +166,56 @@ class OAuthLoginCsrfRejectionTest extends TestCase
         );
     }
 
+    #[Test]
+    public function testOAuthLoginPostWithMissingCsrfTokenIsRejected(): void
+    {
+        // The sibling test above sends a bogus csrf_token_form value. This
+        // test exercises the "field omitted entirely" shape — ensures the
+        // guard handles missing-key as rejection rather than falling
+        // through to a null/empty comparison.
+        $http = $this->buildClient();
+        $clientId = $this->registerConfidentialClient($http);
+        $this->clientId = $clientId;
+
+        $authUrl = '/oauth2/default/authorize?' . http_build_query([
+            'client_id' => $clientId,
+            'redirect_uri' => self::REDIRECT_URI,
+            'response_type' => 'code',
+            'scope' => 'openid api:oemr',
+            'state' => 'csrf-missing-state',
+        ]);
+        $loginPage = $http->get($this->baseUrl . $authUrl);
+        $this->assertSame(200, $loginPage->getStatusCode());
+        $crawler = new Crawler((string) $loginPage->getBody());
+        $action = (string) $crawler->filterXPath('//form[@id="userLogin"]')->first()->attr('action');
+        $this->assertNotSame('', $action);
+
+        $postLogin = $http->post($this->baseUrl . $action, [
+            'form_params' => [
+                // csrf_token_form intentionally omitted
+                'username' => 'admin',
+                'password' => 'pass',
+                'email' => '',
+                'persist_login' => '0',
+                'user_role' => 'api',
+            ],
+            'allow_redirects' => false,
+        ]);
+        $this->assertSame(
+            200,
+            $postLogin->getStatusCode(),
+            'Missing csrf_token_form must re-render login (200), not proceed to consent'
+        );
+        $consentButton = (new Crawler((string) $postLogin->getBody()))
+            ->filterXPath('//*[@name="proceed"]')
+            ->count();
+        $this->assertSame(
+            0,
+            $consentButton,
+            'Missing CSRF token must not advance to consent page'
+        );
+    }
+
     private function registerConfidentialClient(Client $http): string
     {
         $reg = $http->post($this->baseUrl . '/oauth2/default/registration', [
