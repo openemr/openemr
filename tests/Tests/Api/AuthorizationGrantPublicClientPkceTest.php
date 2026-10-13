@@ -463,7 +463,8 @@ class AuthorizationGrantPublicClientPkceTest extends TestCase
             'verify' => false,
             'http_errors' => false,
             'cookies' => new CookieJar(),
-            'allow_redirects' => ['max' => 10, 'strict' => true, 'referer' => true, 'protocols' => ['http', 'https']],
+            // A random client id in the Referer trips the nginx word filter.
+            'allow_redirects' => ['max' => 10, 'strict' => true, 'referer' => false, 'protocols' => ['http', 'https']],
             'timeout' => 15,
         ]);
     }
