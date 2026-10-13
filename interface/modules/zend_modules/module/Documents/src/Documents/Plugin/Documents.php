@@ -41,10 +41,16 @@ class Documents extends AbstractPlugin
      */
     public static function getDocument($documentId, $doEncryption = false, $encryption_key = '')
     {
-                $obj = new \C_Document();
-                $obj->onReturnRetrieveKey();
-                $document = $obj->retrieve_action("", $documentId, true, true, true);
-        return $document;
+        // Load the document's owning pid first so retrieve_action()'s
+        // pid-vs-document check actually runs. An empty $patient_id string
+        // trips an escape hatch in C_Document::retrieve_action() that
+        // collapses the ownership assertion to 0===0 — defense in depth
+        // against a controller that forgets its own ownership gate.
+        $d = new \Document((int) $documentId);
+        $foreignId = (int) $d->get_foreign_id();
+        $obj = new \C_Document();
+        $obj->onReturnRetrieveKey();
+        return $obj->retrieve_action((string) $foreignId, $documentId, true, true, true);
     }
 
     public static function fetchXmlDocuments(): array

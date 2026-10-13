@@ -24,6 +24,10 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
@@ -35,6 +39,8 @@ use OpenEMR\Services\Cda\CdaValidateDocuments;
  */
 class CarecoordinationController extends AbstractActionController
 {
+    use CarecoordAuthzTrait;
+
     private readonly Listener $listenerObject;
 
     private readonly string $date_format;
@@ -64,9 +70,21 @@ class CarecoordinationController extends AbstractActionController
     public function deleteAuditAction(): ViewModel
     {
         $request = $this->getRequest();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $amid = $request->getPost('am_id') ?? null;
         if ($amid) {
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+            if (!$this->isAuditMasterAccessible((int) $amid)) {
+                AccessDeniedHelper::deny('CarecoordinationController::deleteAudit: audit_master not accessible by caller');
+            }
             $this->getCarecoordinationTable()->deleteImportAuditData(['audit_master_id' => $amid]);
+            EventAuditLogger::getInstance()->newEvent(
+                'carecoord-delete',
+                (string) ($session->get('authUser') ?? ''),
+                (string) ($session->get('authProvider') ?? ''),
+                1,
+                "amid=$amid"
+            );
         }
         $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
         $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
@@ -225,14 +243,75 @@ class CarecoordinationController extends AbstractActionController
     public function importAction(): JsonModel
     {
         $request = $this->getRequest();
-        if ($request->getQuery('document_id')) {
-            $_REQUEST["document_id"] = $request->getQuery('document_id');
-            $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
-            $this->documentsController->getDocumentsTable()->updateDocumentCategory($category_details[0]['id'], $_REQUEST["document_id"]);
-        }
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-        $document_id = $_REQUEST["document_id"];
-        $this->getCarecoordinationTable()->import($document_id);
+        // Reachable both from the internal uploadAction batch loop (where the
+        // caller has already walked its own foreign_id=0 cursor and sets
+        // $_REQUEST["batch_import"]) and from direct HTTP GET. The direct-GET
+        // surface is the one that needs the explicit ownership gate — reads of
+        // an unrelated document id would otherwise reclassify the row into the
+        // CCDA category and let the attacker retrieve it through the normal ACL
+        // path.
+        $batchContext = ($_REQUEST["batch_import"] ?? null) === 'YES';
+
+        $queryDocId = $request->getQuery('document_id');
+        if ($queryDocId !== null && $queryDocId !== '') {
+            $queryId = (int) $queryDocId;
+            if ($queryId <= 0) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: invalid document_id');
+            }
+
+            if (!$batchContext) {
+                $csrfToken = (string) ($request->getQuery('csrf_token_form') ?? $request->getPost('csrf_token_form', ''));
+                if (!CsrfUtils::verifyCsrfToken($csrfToken, $session)) {
+                    AccessDeniedHelper::deny('CarecoordinationController::importAction: CSRF token invalid');
+                }
+            }
+
+            $document = new Document($queryId);
+            if (!$document->get_id()) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: document not found');
+            }
+            if (!$document->can_access()) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: source document ACL denied');
+            }
+            // Carecoordination's import pipeline is designed to pull unassigned
+            // CCDA/CCR uploads (foreign_id=0) into the per-patient audit tables.
+            // Anything else is already assigned to a patient and must not be
+            // reclassified through this path.
+            if ((int) $document->get_foreign_id() !== 0) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: document already assigned to a patient');
+            }
+
+            $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
+            $ccdaCategoryId = (int) ($category_details[0]['id'] ?? 0);
+            if ($ccdaCategoryId <= 0) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: CCDA category missing');
+            }
+
+            $_REQUEST["document_id"] = $queryId;
+
+            // Run the import parse FIRST so a malformed CCDA never reclassifies
+            // the document. Only on parse success do we move the row into the
+            // CCDA category — on failure the document stays in its original
+            // category with no audit trail churn to clean up.
+            $this->getCarecoordinationTable()->import($queryId);
+            $this->documentsController->getDocumentsTable()->updateDocumentCategory($ccdaCategoryId, $queryId);
+
+            EventAuditLogger::getInstance()->newEvent(
+                'carecoord-import',
+                (string) ($session->get('authUser') ?? ''),
+                (string) ($session->get('authProvider') ?? ''),
+                1,
+                "doc_id=$queryId"
+            );
+        } else {
+            $document_id = (int) ($_REQUEST["document_id"] ?? 0);
+            if ($document_id <= 0) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: document_id required');
+            }
+            $this->getCarecoordinationTable()->import($document_id);
+        }
 
         $view = new JsonModel();
         $view->setTerminal(true);
@@ -242,17 +321,42 @@ class CarecoordinationController extends AbstractActionController
     public function revandapproveAction()
     {
         $request = $this->getRequest();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $document_id = $request->getQuery('document_id') ?: $request->getPost('document_id', null);
         $audit_master_id = $request->getQuery('amid') ?: $request->getPost('amid', null);
         $pid = $request->getQuery('pid') ?: $request->getPost('pid', null);
 
-        if ($request->getPost('setval') == 'approve') {
+        $setval = $request->getPost('setval');
+        if ($setval === 'approve' || $setval === 'discard') {
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+            if (!$this->isAuditMasterAccessible((int) $audit_master_id, (int) $pid)) {
+                AccessDeniedHelper::deny("CarecoordinationController::revandapprove ($setval): audit_master not accessible by caller");
+            }
+        }
+
+        if ($setval === 'approve') {
             $this->getCarecoordinationTable()->insertApprovedData($request->getPost());
+            EventAuditLogger::getInstance()->newEvent(
+                'carecoord-approve',
+                (string) ($session->get('authUser') ?? ''),
+                (string) ($session->get('authProvider') ?? ''),
+                1,
+                "amid=$audit_master_id doc_id=$document_id",
+                $pid ? (int) $pid : null
+            );
             return $this->redirect()->toRoute('carecoordination', [
                 'controller' => 'Carecoordination',
                 'action' => 'upload']);
-        } elseif ($request->getPost('setval') == 'discard') {
+        } elseif ($setval === 'discard') {
             $this->getCarecoordinationTable()->discardCCDAData(['audit_master_id' => $audit_master_id]);
+            EventAuditLogger::getInstance()->newEvent(
+                'carecoord-discard',
+                (string) ($session->get('authUser') ?? ''),
+                (string) ($session->get('authProvider') ?? ''),
+                1,
+                "amid=$audit_master_id",
+                $pid ? (int) $pid : null
+            );
             return $this->redirect()->toRoute('carecoordination', [
                 'controller' => 'Carecoordination',
                 'action' => 'upload']);
@@ -845,6 +949,45 @@ class CarecoordinationController extends AbstractActionController
             $audit[$table_name] = []; // leave it empty so we don't fail in the template
         }
         return $audit;
+    }
+
+    /**
+     * Return true when the current session is allowed to approve, discard, or
+     * delete the given audit_master row. The caller must either be the user
+     * who uploaded the referenced CCDA (pre-approval phase, pid=0) or have
+     * patient-record access to the target pid that the row carries. The
+     * optional $claimedPid parameter is validated against the stored row to
+     * stop callers from forging an unrelated pid.
+     */
+    private function isAuditMasterAccessible(int $auditMasterId, ?int $claimedPid = null): bool
+    {
+        if ($auditMasterId <= 0) {
+            return false;
+        }
+        $row = QueryUtils::fetchRecords(
+            'SELECT pid, user_id FROM audit_master WHERE id = ?',
+            [$auditMasterId]
+        );
+        if ($row === []) {
+            return false;
+        }
+        $storedPid = (int) ($row[0]['pid'] ?? 0);
+        $uploaderId = (int) ($row[0]['user_id'] ?? 0);
+        if ($claimedPid !== null && $claimedPid > 0 && $claimedPid !== $storedPid) {
+            return false;
+        }
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUserId = (int) ($session->get('authUserID') ?? 0);
+        if ($uploaderId > 0 && $authUserId === $uploaderId) {
+            return true;
+        }
+        if ($storedPid <= 0) {
+            // Pre-approval staging row with no patient yet; only the uploader
+            // or an admin should be able to approve/discard. Treat as denied
+            // for anyone else.
+            return false;
+        }
+        return $this->isPatientAuthorized($storedPid);
     }
 
 

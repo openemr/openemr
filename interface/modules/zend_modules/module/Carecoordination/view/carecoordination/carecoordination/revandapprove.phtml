@@ -231,6 +231,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
     });
 </script>
 <form method="post" action="<?php echo $this->basePath() . '/carecoordination/revandapprove'; ?>">
+    <input type="hidden" name="csrf_token_form" value="<?php echo \OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()); ?>">
     <input type="hidden" name="amid" value="<?php echo $this->escapeHtml($this->amid); ?>">
     <input type="hidden" name="pid" value="<?php echo $this->escapeHtml($this->pid); ?>">
     <input type="hidden" name="document_id" id="document_id" value="<?php echo $this->escapeHtml($this->document_id); ?>" >

@@ -23,6 +23,7 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -39,21 +40,29 @@ if (!empty($_REQUEST)) {
         CsrfUtils::csrfNotVerified();
     }
 }
-$searchArray = [];
-$pid = $_REQUEST['pid'] ?? $session->get('pid') ?? null;
+// Resolve the patient this finder is scoped to: an explicit request param
+// takes precedence, else the current session patient. The finder is a
+// per-patient dialog — refuse to list anything when neither source yields
+// a usable pid (returning an unscoped search would expose every patient's
+// document metadata to the caller).
+$rawRequestPid = $_REQUEST['pid'] ?? null;
+$sessionPid = $session->get('pid') ?? null;
+$pid = null;
+if ($rawRequestPid !== null && $rawRequestPid !== '') {
+    $pid = (int) $rawRequestPid;
+} elseif ($sessionPid !== null && $sessionPid !== '') {
+    $pid = (int) $sessionPid;
+}
+if ($pid === null || $pid <= 0) {
+    AccessDeniedHelper::deny('document_select: pid required (not in request or session)');
+}
+
+$searchArray = ['foreign_id' => $pid];
 $patientName = "";
-if (!empty($_REQUEST['pid'])) {
-    /** @var string|int $rawPid */
-    $rawPid = $_REQUEST['pid'];
-    $pid = intval($rawPid);
-    $patientService = new PatientService();
-    $patientArray = $patientService->findByPid($pid);
-    if (!empty($patientArray)) {
-        // TODO: log the fact that pid is null
-        // note for documents that foreign_id is ALWAYS the pid
-        $searchArray['foreign_id'] = $pid;
-        $patientName = trim(($patientArray['fname'] ?? '') . ' ' . ($patientArray['lname'] ?? ''));
-    }
+$patientService = new PatientService();
+$patientArray = $patientService->findByPid($pid);
+if (!empty($patientArray)) {
+    $patientName = trim(($patientArray['fname'] ?? '') . ' ' . ($patientArray['lname'] ?? ''));
 }
 $MAX_RECORDS = 25;
 $searchparm = trim($_REQUEST['searchparm'] ?? '');

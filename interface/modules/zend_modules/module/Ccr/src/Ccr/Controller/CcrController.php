@@ -15,12 +15,15 @@ namespace Ccr\Controller;
 
 use Application\Listener\Listener;
 use Ccr\Model\CcrTable;
+use Document;
 use Documents\Controller\DocumentsController;
 use Documents\Plugin\Documents;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\Stdlib\Parameters;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class CcrController extends AbstractActionController
@@ -90,14 +93,69 @@ class CcrController extends AbstractActionController
     public function importAction()
     {
         $request     = $this->getRequest();
-        if ($request->getQuery('document_id')) {
-            $_REQUEST["document_id"] = $request->getQuery('document_id');
-            $category_details          = $this->getCcrTable()->fetch_cat_id('CCR');
-            $this->documentsController->getDocumentsTable()->updateDocumentCategory($category_details[0]['id'], $_REQUEST["document_id"]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $batchContext = ($_REQUEST["batch_import"] ?? null) === 'YES';
+
+        $queryDocId = $request->getQuery('document_id');
+        if ($queryDocId !== null && $queryDocId !== '') {
+            $queryId = (int) $queryDocId;
+            if ($queryId <= 0) {
+                AccessDeniedHelper::deny('CcrController::importAction: invalid document_id');
+            }
+            if (!$batchContext) {
+                $csrfToken = (string) ($request->getQuery('csrf_token_form') ?? $request->getPost('csrf_token_form', ''));
+                if (!CsrfUtils::verifyCsrfToken($csrfToken, $session)) {
+                    AccessDeniedHelper::deny('CcrController::importAction: CSRF token invalid');
+                }
+            }
+            $document = new Document($queryId);
+            if (!$document->get_id()) {
+                AccessDeniedHelper::deny('CcrController::importAction: document not found');
+            }
+            if (!$document->can_access()) {
+                AccessDeniedHelper::deny('CcrController::importAction: source document ACL denied');
+            }
+            if ((int) $document->get_foreign_id() !== 0) {
+                AccessDeniedHelper::deny('CcrController::importAction: document already assigned to a patient');
+            }
+
+            $category_details = $this->getCcrTable()->fetch_cat_id('CCR');
+            $ccrCategoryId = (int) ($category_details[0]['id'] ?? 0);
+            if ($ccrCategoryId <= 0) {
+                AccessDeniedHelper::deny('CcrController::importAction: CCR category missing');
+            }
+
+            $_REQUEST["document_id"] = $queryId;
+
+            // Read the document and sanity-check that it parses as XML BEFORE
+            // reclassifying the row into the CCR category. A malformed file
+            // that fails here never gets moved into the readable CCR bucket.
+            $content = (string) $this->getCcrTable()->getDocument($queryId);
+            $previousInternalErrors = libxml_use_internal_errors(true);
+            $xmlProbe = simplexml_load_string($content);
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousInternalErrors);
+            if ($xmlProbe === false) {
+                AccessDeniedHelper::deny('CcrController::importAction: content is not well-formed XML');
+            }
+            $this->documentsController->getDocumentsTable()->updateDocumentCategory($ccrCategoryId, $queryId);
+
+            EventAuditLogger::getInstance()->newEvent(
+                'ccr-import',
+                (string) ($session->get('authUser') ?? ''),
+                (string) ($session->get('authProvider') ?? ''),
+                1,
+                "doc_id=$queryId"
+            );
+        } else {
+            $doc_id = (int) ($_REQUEST["document_id"] ?? 0);
+            if ($doc_id <= 0) {
+                AccessDeniedHelper::deny('CcrController::importAction: document_id required');
+            }
+            $content = $this->getCcrTable()->getDocument($doc_id);
         }
 
-        $doc_id     = $_REQUEST["document_id"];
-        $content    = $this->getCcrTable()->getDocument($doc_id);
+        $doc_id = (int) ($_REQUEST["document_id"] ?? 0);
         if ($request->getQuery('document_id')) {
             $replace    = ['<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:'];
             $to_replace = ['<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">',''];
