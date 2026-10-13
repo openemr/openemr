@@ -610,7 +610,7 @@ final readonly class Interval implements \Stringable
         if ($closed->low instanceof Uncertainty || $closed->high instanceof Uncertainty) {
             return null;
         }
-        $extra = $pointSize === null ? 0 : $pointSize->value;
+        $extra = $pointSize->value ?? 0;
         if ($closed->low instanceof Quantity) {
             if (!$closed->high instanceof Quantity || $closed->low->unit !== $closed->high->unit) {
                 $what = $pointSize === null ? 'width' : 'size';
