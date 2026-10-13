@@ -1455,7 +1455,7 @@ class X12File
                 $stpos = strrpos((string) $f_str, $seg_st, ($trpos - strlen((string) $f_str)));
                 $sepos = strpos((string) $f_str, $dt . 'SE' . $de, $stpos);
                 $sepos = strpos((string) $f_str, (string) $dt, $sepos + 1);
-                $segidx =  ($prskeys) ? substr_count((string) $f_str, (string) $dt, 0, $st_pos + 2) + 1 : 0;
+                $segidx =  ($prskeys) ? substr_count((string) $f_str, (string) $dt, 0, $stpos + 2) + 1 : 0;
                 $srchstr = substr((string) $f_str, $stpos + 1, $sepos - $stpos);
             }
 

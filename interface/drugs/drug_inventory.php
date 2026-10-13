@@ -150,6 +150,22 @@ function inventory_mapToTable($row): void
         echo "  <td>" . ($row['active'] ? xlt('Yes') : xlt('No')) . "</td>\n";
         echo "  <td>" . ($row['consumable'] ? xlt('Yes') : xlt('No')) . "</td>\n";
         echo "  <td>" . text($row['ndc_number']) . "</td>\n";
+        // related_code holds the billing codes the Fee Sheet links to this
+        // drug, e.g. "HCPCS:J1030" or "CPT4:96372;HCPCS:J1030".
+        $relatedCode = is_array($row) ? ($row['related_code'] ?? '') : '';
+        $relatedCodes = is_string($relatedCode) ? str_replace(';', ' ', $relatedCode) : '';
+        echo "  <td>" . text($relatedCodes) . "</td>\n";
+        // What the Fee Sheet carries over with that code: default units, and
+        // the NDC unit of measure and quantity for the claim.
+        $billingUnits = is_array($row) ? ($row['billing_units'] ?? null) : null;
+        $billingUnits = is_numeric($billingUnits) && (int) $billingUnits > 0 ? (string) (int) $billingUnits : '';
+        $ndcUom = is_array($row) && is_string($row['ndc_uom'] ?? null) ? $row['ndc_uom'] : '';
+        $ndcQuantity = is_array($row) ? ($row['ndc_quantity'] ?? null) : null;
+        $ndcQty = $ndcUom !== '' && is_numeric($ndcQuantity) && (float) $ndcQuantity > 0
+            ? $ndcUom . ' ' . rtrim(rtrim(number_format((float) $ndcQuantity, 3, '.', ''), '0'), '.')
+            : '';
+        echo "  <td>" . text($billingUnits) . "</td>\n";
+        echo "  <td>" . text($ndcQty) . "</td>\n";
         echo "  <td>" .
         generate_display_field(['data_type' => '1','list_id' => 'drug_form'], $row['form']) .
         "</td>\n";
@@ -393,6 +409,9 @@ foreach (
             <th><?php echo xlt('Act'); ?></th>
             <th><?php echo xlt('Cons'); ?></th>
             <th><?php echo xlt('NDC'); ?> </a></th>
+            <th title='<?php echo xla('Related billing codes (Fee Sheet)'); ?>'><?php echo xlt('Codes'); ?></th>
+            <th title='<?php echo xla('Default units when the related code is added to a Fee Sheet'); ?>'><?php echo xlt('Bill Units'); ?></th>
+            <th title='<?php echo xla('NDC unit of measure and quantity on the claim'); ?>'><?php echo xlt('NDC Qty'); ?></th>
             <th><?php echo xlt('Form'); ?> </a></th>
             <th><?php echo xlt('Size'); ?></th>
             <th title='<?php echo xlt('Measurement Units'); ?>'><?php echo xlt('Unit'); ?></th>

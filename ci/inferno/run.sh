@@ -77,7 +77,6 @@ initialize_openemr() {
     . ci/ciLibrary.source
     composer_install
     npm_build
-    ccda_build
     cd -
     dockers_env_start
     install_configure

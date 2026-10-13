@@ -29,9 +29,11 @@
 
 
 use Mpdf\Mpdf;
-use OpenEMR\Billing\InvoiceSummary;
+use OpenEMR\Billing\EraFilenameValidator;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Billing\Statement\PatientCreditEncounters;
+use OpenEMR\Billing\Statement\StatementLines;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -40,6 +42,7 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Common\Zip\ZipExtractionGuard;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
@@ -375,9 +378,14 @@ if (
 
     $sqlBindArray = [];
     $where = "";
+    /** @var list<int> $checkedEncounterIds form_encounter.id of every checked invoice */
+    $checkedEncounterIds = [];
     foreach ($_REQUEST['form_cb'] as $key => $value) {
         $where .= " OR f.id = ?";
         array_push($sqlBindArray, $key);
+        if (is_numeric($key)) {
+            $checkedEncounterIds[] = (int) $key;
+        }
     }
 
     if (!empty($where)) {
@@ -421,6 +429,19 @@ if (
         }
         $rcnt++;
     }
+    // Invoices whose statement count and date are bumped once their patient's
+    // statement is actually produced; a Due Pt run that nets to nothing leaves
+    // them untouched.
+    $pendingStatementUpdates = [];
+    $recordStatementRun = function (array $encounterIds) use ($today): void {
+        foreach ($encounterIds as $encounterId) {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE form_encounter SET last_stmt_date = ?, stmt_count = stmt_count + 1 WHERE id = ?",
+                [$today, $encounterId]
+            );
+        }
+    };
+
     // This loops once for each invoice/encounter.
     //
     for ($rcnt = 0; $row = $rows[$rcnt] ?? null; $rcnt++) {
@@ -501,37 +522,27 @@ if (
 
         // Recompute age at each invoice.
         $stmt['age'] = round((strtotime($today) - strtotime((string) $stmt['duedate'])) / (24 * 60 * 60));
-        // grab last bill date from billing
-        $bdrow = QueryUtils::querySingleRow("select bill_date from billing where pid = ? AND encounter = ? limit 1", [$row['pid'], $row['encounter']]);
 
-        $invlines = InvoiceSummary::arGetInvoiceSummary($row['pid'], $row['encounter'], true);
-        foreach ($invlines as $key => $value) {
-            $line = [];
-            $line['dos'] = $svcdate;
-            if (OEGlobalsBag::getInstance()->getBoolean('use_custom_statement')) {
-                $line['desc'] = ($key == 'CO-PAY') ? "Patient Payment" : $value['code_text'];
-            } else {
-                $line['desc'] = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
-            }
+        $rowPid = is_numeric($row['pid']) ? (int) $row['pid'] : 0;
+        $rowEncounter = is_numeric($row['encounter']) ? (int) $row['encounter'] : 0;
+        StatementLines::append($stmt, $rowPid, $rowEncounter, $svcdate, (is_numeric($duncount) ? (int) $duncount : 0) + 1);
 
-            $line['amount'] = sprintf("%.2f", $value['chg']);
-            $line['adjust'] = sprintf("%.2f", ($value['adj'] ?? null));
-            $line['paid'] = sprintf("%.2f", $value['chg'] - $value['bal']);
-            $line['notice'] = $duncount + 1;
-            $line['detail'] = $value['dtl'];
-            $line['bill_date'] = $bdrow['bill_date'];
-            $stmt['lines'][] = $line;
-            $stmt['amount'] = sprintf("%.2f", $stmt['amount'] + $value['bal']);
-            $stmt['ins_paid'] += $value['ins'] ?? null;
-        }
-
-        // Record that this statement was run.
+        // Record that this statement was run, once it is produced below.
         if (!$DEBUG && empty($_REQUEST['form_without'])) {
-            sqlStatement("UPDATE form_encounter SET " .
-                "last_stmt_date = ?, stmt_count = stmt_count + 1 " .
-                "WHERE id = ?", [$today, $row['id']]);
+            $pendingStatementUpdates[] = $row['id'];
         }
         $inv_count += 1;
+
+        if ($inv_pid[$inv_count] != ($inv_pid[$inv_count + 1] ?? null)) {
+            // This was the patient's last checked invoice. Bring in the patient's
+            // other encounters that hold a credit (overpaid, never listed as due, so
+            // never checked) as their own dated lines, so the amount due nets them
+            // instead of billing the open encounters in full and collecting the
+            // overpayment a second time. Their statement counts are left alone.
+            foreach (PatientCreditEncounters::find($rowPid, $checkedEncounterIds) as $credit) {
+                StatementLines::append($stmt, $rowPid, $credit['encounter'], substr($credit['date'], 0, 10), $credit['stmt_count'] + 1);
+            }
+        }
         if (!empty($_REQUEST['form_portalnotify'])) {
             if (!is_auth_portal($stmt['pid'])) {
                 $alertmsg = xlt('Notification FAILED: Not Portal Authorized');
@@ -545,6 +556,9 @@ if (
                     $alertmsg = xlt('Notification FAILED');
                     break;
                 }
+                // Count the invoices as statemented only once the portal has the statement.
+                $recordStatementRun($pendingStatementUpdates);
+                $pendingStatementUpdates = [];
 
                 $pvoice = [];
                 flush();
@@ -554,11 +568,16 @@ if (
             }
         } else {
             if ($inv_pid[$inv_count] != ($inv_pid[$inv_count + 1] ?? null)) {
-                if ($_REQUEST['form_category'] == 'Due Pt' && (get_patient_balance($stmt['pid']) < 0)) {
-                    // not printing statement if patient balance is less than zero even though
-                    // a single encounter may have a balance
-                    unset($stmt);
+                $amountDue = is_numeric($stmt['amount'] ?? null) ? (float) $stmt['amount'] : 0.0;
+                if ($_REQUEST['form_category'] == 'Due Pt' && $amountDue <= 0) {
+                    // Nothing is due once the patient's credits are netted against the
+                    // checked invoices, so no statement goes out and its invoices are
+                    // not counted as statemented.
+                    $stmt = [];
+                    $pendingStatementUpdates = [];
                 } else {
+                    $recordStatementRun($pendingStatementUpdates);
+                    $pendingStatementUpdates = [];
                     $tmp = make_statement($stmt);
                     if (!empty($_REQUEST['form_email']) && $tmp !== '') {
                         try {
@@ -968,14 +987,20 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                     if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
                                         $zip = new ZipArchive();
                                         if ($zip->open($tmp_name) === true) {
-                                            $contents = $zip->getFromIndex(0);
-                                            $zip->close();
-                                            if ($contents === false) {
-                                                $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
+                                            if (!ZipExtractionGuard::isSafe($zip)) {
+                                                $zip->close();
+                                                $alertmsg .= xl("ZIP archive exceeds extraction limits") . " ";
                                                 $shouldParseEra = false;
-                                            } elseif (file_put_contents($tmp_name, $contents) === false) {
-                                                $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
-                                                $shouldParseEra = false;
+                                            } else {
+                                                $contents = $zip->getFromIndex(0);
+                                                $zip->close();
+                                                if ($contents === false) {
+                                                    $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
+                                                    $shouldParseEra = false;
+                                                } elseif (file_put_contents($tmp_name, $contents) === false) {
+                                                    $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
+                                                    $shouldParseEra = false;
+                                                }
                                             }
                                         } else {
                                             $alertmsg .= xl("Unable to open ZIP archive") . " ";
@@ -991,19 +1016,31 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                         }
                                     }
                                     echo "-->\n";
-                                    $erafullname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.edi";
-                                    $edihname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/history/f835/$eraname.835";
-
-                                    if (is_file($erafullname)) {
-                                        $alertmsg .= "Warning: Set $eraname was already uploaded ";
-                                        if (is_file(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.html")) {
-                                            $alertmsg .= "and processed. ";
-                                        } else {
-                                            $alertmsg .= "but not yet processed. ";
+                                    $siteDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+                                    $eraDir = $siteDir . '/documents/era';
+                                    $historyDir = $siteDir . '/documents/edi/history/f835';
+                                    $erafullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $eraname, '.edi');
+                                    $edihname = is_dir($historyDir)
+                                        ? EraFilenameValidator::resolveWithinDirectory($historyDir, $eraname, '.835')
+                                        : null;
+                                    $htmlfullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $eraname, '.html');
+                                    if ($erafullname === null || $htmlfullname === null) {
+                                        $alertmsg .= xl("Invalid ERA file name.") . " ";
+                                        $eraname = '';
+                                    } else {
+                                        if (is_file($erafullname)) {
+                                            $alertmsg .= "Warning: Set $eraname was already uploaded ";
+                                            if (is_file($htmlfullname)) {
+                                                $alertmsg .= "and processed. ";
+                                            } else {
+                                                $alertmsg .= "but not yet processed. ";
+                                            }
+                                        }
+                                        rename($tmp_name, $erafullname);
+                                        if ($edihname !== null) {
+                                            copy($erafullname, $edihname);
                                         }
                                     }
-                                    rename($tmp_name, $erafullname);
-                                    copy($erafullname, $edihname);
                                 }
                             } // End 835 upload
 
@@ -1243,7 +1280,7 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                     <div class="form-row text-left position-override oe-show-hide" id="statement-download">
                         <div class="btn-group" role="group">
                             <?php
-                            if ($eracount) { ?>
+                            if ($eracount && $eraname !== '') { ?>
                                 <button type="button" class="btn btn-secondary btn-save" name="Submit" onclick='processERA()' value="<?php echo xla('Process ERA File'); ?>">
                                     <?php echo xlt('Process ERA File'); ?></button>
                                 <?php

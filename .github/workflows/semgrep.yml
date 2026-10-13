@@ -44,7 +44,7 @@ jobs:
       # positives while still detecting real XSS vulnerabilities.
       # Exclude Documentation/ (generated SchemaSpy HTML, not application code)
       # and *.mustache (QRDA/CDA XML templates, not browser-rendered HTML).
-      # JS/Node rulesets scan frontend scripts and ccdaservice.
+      # JS/Node rulesets scan frontend scripts.
       run: |
         semgrep \
           --config p/php \
@@ -55,7 +55,6 @@ jobs:
           --exclude vendor \
           --exclude node_modules \
           --exclude tests \
-          --exclude ccdaservice/node_modules \
           --exclude Documentation \
           --exclude '*.mustache' \
           --exclude-rule php.lang.security.injection.echoed-request.echoed-request \
@@ -74,7 +73,7 @@ jobs:
       # positives while still detecting real XSS vulnerabilities.
       # Exclude Documentation/ (generated SchemaSpy HTML, not application code)
       # and *.mustache (QRDA/CDA XML templates, not browser-rendered HTML).
-      # JS/Node rulesets scan frontend scripts and ccdaservice.
+      # JS/Node rulesets scan frontend scripts.
       run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
         semgrep \
@@ -86,7 +85,6 @@ jobs:
           --exclude vendor \
           --exclude node_modules \
           --exclude tests \
-          --exclude ccdaservice/node_modules \
           --exclude Documentation \
           --exclude '*.mustache' \
           --exclude-rule php.lang.security.injection.echoed-request.echoed-request \

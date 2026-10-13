@@ -43,7 +43,6 @@ This file configures the kind that does not require initialization.
     </include>
     <exclude>
       <directory>bin</directory>
-      <directory>ccdaservice</directory>
       <directory>ccr</directory>
       <directory>ci</directory>
       <directory>config</directory>

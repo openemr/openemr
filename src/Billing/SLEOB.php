@@ -216,9 +216,10 @@ class SLEOB
      * @param string $payer_type
      * @param string $reason
      * @param string $codetype
+     * @param ?string $payer_claim_number
      * @deprecated Use \OpenEMR\PaymentProcessing\Recorder::recordActivity directly
      */
-    public static function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $codetype = '')
+    public static function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $codetype = '', $payer_claim_number = null)
     {
         $codeonly = $code;
         $modifier = '';
@@ -242,6 +243,7 @@ class SLEOB
             'payAmount' => '0.0',
             'adjustmentAmount' => $amount,
             'memo' => $reason,
+            'payerClaimNumber' => $payer_claim_number,
         ]);
     }
 
