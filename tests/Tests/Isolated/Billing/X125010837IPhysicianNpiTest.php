@@ -33,6 +33,9 @@ class X125010837IPhysicianNpiTest extends TestCase
             "integer" => [1234567893, "1234567893"],
             "qualifier is not an npi" => ["XX", ""],
             "letter" => ["123456789A", ""],
+            "zero string" => ["0", ""],
+            "zero integer" => [0, ""],
+            "padded zero" => [" 0 ", ""],
             "empty" => ["", ""],
             "missing" => [null, ""],
         ];
@@ -45,5 +48,30 @@ class X125010837IPhysicianNpiTest extends TestCase
     public function testPhysicianNpi(mixed $value, string $digits): void
     {
         $this->assertSame($digits, X125010837I::physicianNpi($value));
+    }
+
+    /**
+     * @return array<string, array{mixed, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function physicianQualifierProvider(): array
+    {
+        return [
+            "xx" => ["XX", "XX"],
+            "zero string" => ["0", ""],
+            "zero integer" => [0, ""],
+            "empty" => ["", ""],
+            "missing" => [null, ""],
+        ];
+    }
+
+    /**
+     * A physician qualifier is kept. A zero placeholder is absent.
+     */
+    #[DataProvider("physicianQualifierProvider")]
+    public function testPhysicianQualifier(mixed $value, string $qualifier): void
+    {
+        $this->assertSame($qualifier, X125010837I::physicianQualifier($value));
     }
 }
