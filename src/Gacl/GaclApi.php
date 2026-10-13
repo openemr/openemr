@@ -386,7 +386,7 @@ class GaclApi extends Gacl {
      * @param array $axo_group_ids Array of Group IDs
      * @param array $aco_array Associative array, item={Section Value}, key={Array of Object Values} i.e. ["<Section Value>" => ["<Value 1>", "<Value 2>", "<Value 3>"], ...]
      */
-    public function append_acl($acl_id, $aro_array=NULL, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $aco_array=NULL) {
+    public function append_acl($acl_id, $aro_array=NULL, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $aco_array=NULL): bool {
         $this->debug_text("append_acl(): ACL_ID: $acl_id");
 
         $update = 0;
@@ -507,7 +507,7 @@ class GaclApi extends Gacl {
      * @param array $axo_group_ids Array of Group IDs
      * @param array $aco_array Associative array, item={Section Value}, key={Array of Object Values} i.e. ["<Section Value>" => ["<Value 1>", "<Value 2>", "<Value 3>"], ...]
      */
-    public function shift_acl($acl_id, $aro_array=NULL, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $aco_array=NULL) {
+    public function shift_acl($acl_id, $aro_array=NULL, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $aco_array=NULL): bool {
         $this->debug_text("shift_acl(): ACL_ID: $acl_id");
 
         $update = 0;
