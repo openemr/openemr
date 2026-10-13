@@ -694,7 +694,8 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                 }
             }
             $memo = CheckoutDiscountReason::memo(
-                CurrentRequest::get()->request->get('form_discount_reason'),
+                // all(), not get(): get() throws on an array value, and memo() handles any value.
+                CurrentRequest::get()->request->all()['form_discount_reason'] ?? null,
                 $discountReasons,
                 xl('Discount')
             );
