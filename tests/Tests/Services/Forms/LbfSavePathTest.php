@@ -192,12 +192,14 @@ class LbfSavePathTest extends TestCase
 
     /**
      * An employer field is stored.
+     *
+     * The seeded row is a day old so it cannot tie the saved row's timestamp.
      */
     #[Test]
     public function testAnEmployerFieldIsStored(): void
     {
         QueryUtils::sqlStatementThrowException(
-            'INSERT INTO employer_data (pid, occupation, date) VALUES (?, ?, NOW())',
+            'INSERT INTO employer_data (pid, occupation, date) VALUES (?, ?, DATE_SUB(NOW(), INTERVAL 1 DAY))',
             [self::PID, 'old']
         );
         $this->layoutField('em_occupation', 'D', 70, 2, '');
@@ -207,7 +209,7 @@ class LbfSavePathTest extends TestCase
         ]);
 
         $row = QueryUtils::querySingleRow(
-            'SELECT occupation FROM employer_data WHERE pid = ? ORDER BY date DESC LIMIT 1',
+            'SELECT occupation FROM employer_data WHERE pid = ? ORDER BY date DESC, id DESC LIMIT 1',
             [self::PID]
         );
         $this->assertIsArray($row);
