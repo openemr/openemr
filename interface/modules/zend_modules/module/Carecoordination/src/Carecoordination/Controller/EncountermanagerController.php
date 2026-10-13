@@ -390,7 +390,7 @@ class EncountermanagerController extends AbstractActionController
                     $ccdaDocuments = \Document::getDocumentsForForeignReferenceId('ccda', $id);
                     $content = !empty($ccdaDocuments) ? $ccdaDocuments[0]->get_data() : ""; // nothing here to export
                     // From header oid for an unstructured document.
-                    // used if the auto create patient document export is on in ccda service.
+                    // used if the auto create patient document export is on in the C-CDA generator.
                     // else document_type is correctly set if purposely sent as unstructured from CCM
                     if (stripos($content, '2.16.840.1.113883.10.20.22.1.10') > 0) {
                         $doc_type = 'unstructured';

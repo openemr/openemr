@@ -3,7 +3,7 @@
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Left side of && is always false\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
