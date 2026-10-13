@@ -9696,16 +9696,16 @@
         },
         {
             "name": "smarty/smarty",
-            "version": "v4.5.7",
+            "version": "v4.5.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/smarty-php/smarty.git",
-                "reference": "838d6ad1c635f8a6bafc08d791b8af18d8304b3a"
+                "reference": "042d310bdfbc67aa9138418d838d689b34f4c87e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/838d6ad1c635f8a6bafc08d791b8af18d8304b3a",
-                "reference": "838d6ad1c635f8a6bafc08d791b8af18d8304b3a",
+                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/042d310bdfbc67aa9138418d838d689b34f4c87e",
+                "reference": "042d310bdfbc67aa9138418d838d689b34f4c87e",
                 "shasum": ""
             },
             "require": {
@@ -9756,7 +9756,7 @@
             "support": {
                 "forum": "https://github.com/smarty-php/smarty/discussions",
                 "issues": "https://github.com/smarty-php/smarty/issues",
-                "source": "https://github.com/smarty-php/smarty/tree/v4.5.7"
+                "source": "https://github.com/smarty-php/smarty/tree/v4.5.8"
             },
             "funding": [
                 {
@@ -9764,7 +9764,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-06-29T08:48:56+00:00"
+            "time": "2026-10-04T21:31:15+00:00"
         },
         {
             "name": "steverhoades/oauth2-openid-connect-server",
