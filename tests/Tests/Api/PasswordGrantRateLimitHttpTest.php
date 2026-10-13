@@ -23,6 +23,7 @@ namespace OpenEMR\Tests\Api;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -107,13 +108,18 @@ class PasswordGrantRateLimitHttpTest extends TestCase
 
     protected function tearDown(): void
     {
-        try {
+        // Each cleanup action is isolated: a failure in one must not
+        // skip the others, since any skipped restoration can leave the
+        // admin account locked or the DB threshold at 2 for later tests.
+        $this->safeRun(function (): void {
             if ($this->clientId !== null) {
                 QueryUtils::sqlStatementThrowException(
                     'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
                     [$this->clientId]
                 );
             }
+        });
+        $this->safeRun(function (): void {
             if ($this->originalUserLockoutRow !== null) {
                 QueryUtils::sqlStatementThrowException(
                     "UPDATE `users_secure` SET `login_fail_counter` = ?, "
@@ -127,17 +133,22 @@ class PasswordGrantRateLimitHttpTest extends TestCase
                     ]
                 );
             }
+        });
+        $this->safeRun(function (): void {
             $this->restoreGlobal(
                 'password_max_failed_logins',
                 $this->originalMaxFailedGlobalRow,
                 $this->maxFailedGlobalRowWasInserted
             );
+        });
+        $this->safeRun(function (): void {
             $this->restoreGlobal(
                 'oauth_password_grant',
                 $this->originalPasswordGrantGlobalRow,
                 $this->passwordGrantGlobalRowWasInserted
             );
-        } finally {
+        });
+        $this->safeRun(function (): void {
             $globals = OEGlobalsBag::getInstance();
             if ($this->originalMaxFailedBagWasSet) {
                 $globals->set('password_max_failed_logins', $this->originalMaxFailedBagSetting);
@@ -145,12 +156,29 @@ class PasswordGrantRateLimitHttpTest extends TestCase
                 $globals->remove('password_max_failed_logins');
                 unset($GLOBALS['password_max_failed_logins']);
             }
+        });
+        $this->safeRun(function (): void {
+            $globals = OEGlobalsBag::getInstance();
             if ($this->originalPasswordGrantBagWasSet) {
                 $globals->set('oauth_password_grant', $this->originalPasswordGrantBagSetting);
             } else {
                 $globals->remove('oauth_password_grant');
                 unset($GLOBALS['oauth_password_grant']);
             }
+        });
+    }
+
+    private function safeRun(callable $cleanup): void
+    {
+        try {
+            $cleanup();
+        } catch (SqlQueryException $e) {
+            // Swallow and continue: subsequent restorations are more
+            // important than surfacing a single DB failure here, and
+            // phpunit still reports the test outcome. Narrowed to
+            // SqlQueryException so unrelated errors (TypeError,
+            // ErrorException, parse errors) still propagate.
+            fwrite(STDERR, '[' . static::class . "::tearDown] cleanup step failed: " . $e->getMessage() . "\n");
         }
     }
 
@@ -167,6 +195,27 @@ class PasswordGrantRateLimitHttpTest extends TestCase
         $http = $this->buildClient();
         [$clientId, $clientSecret] = $this->registerConfidentialPasswordGrantClient($http);
         $this->clientId = $clientId;
+
+        // Sentinel: prove the fixture credentials actually work before
+        // running the lockout sequence. Without this, a missing admin
+        // row or renamed password would make every /token call return
+        // invalid_grant and the test would pass trivially while the
+        // intended regression stayed undetected.
+        $sentinel = $this->postToken($http, $clientId, $clientSecret, self::CORRECT_PASSWORD);
+        $this->assertSame(
+            200,
+            $sentinel['status'],
+            'Sentinel mint with correct credentials must succeed; otherwise '
+                . 'the lockout sequence below is meaningless. Body: ' . $sentinel['body']
+        );
+        $sentinelBody = json_decode($sentinel['body'], true);
+        $this->assertIsArray($sentinelBody);
+        $this->assertIsString(
+            $sentinelBody['access_token'] ?? null,
+            'Sentinel response must contain an access_token.'
+        );
+        // Successful auth does not bump login_fail_counter, so the
+        // counter stays at the zero we set in setUp. No reset needed.
 
         $wrongPassword = 'definitely-not-the-real-password-' . bin2hex(random_bytes(4));
 
