@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Tests\Fixtures\BaseFixtureManager;
 
 /**
@@ -43,5 +44,11 @@ class DrugFixtureManager extends BaseFixtureManager
         // remove the drugs
         $delete = "DELETE FROM `drugs` WHERE `name` LIKE ?";
         sqlStatement($delete, [$bindVariable]);
+    }
+
+    public function getInstalledDrugUuid(string $name): string
+    {
+        $row = sqlQuery("SELECT `uuid` FROM `drugs` WHERE `name` = ?", [$name]);
+        return UuidRegistry::uuidToString($row['uuid']);
     }
 }

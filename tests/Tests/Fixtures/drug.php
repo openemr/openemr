@@ -34,6 +34,6 @@ return [
     'related_code' => 'acetaminophen',
     'active' => '1',
     'drug_code' => NULL,
-    'uuid' => 'uuid(\'drugs\')',    
+    'uuid' => 'uuid(\'drugs\')',
     ]
 ];
