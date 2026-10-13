@@ -176,13 +176,19 @@ function runFlow(Client $client, string $explorerPath, string $apiSite, string $
     }
 
     // No response pre -> an error pane rendered. For the public PKCE client
-    // the expected shape is "API request failed (Status: 401|403)" because
-    // the patient-role token has no patient context from admin's user_role=api
-    // login. Any other error (invalid_client, token endpoint 4xx, cURL error,
+    // the expected shape is a FHIR 401 with "Unauthorized" in the response
+    // body (the patient-role token has no patient context from admin's
+    // user_role=api login). Status-only would also pass invalid or
+    // unverifiable bearer tokens, so pin both the status and the body.
+    // Any other error (403, invalid_client, token endpoint 4xx, cURL error,
     // "Missing credentials") means the OAuth round-trip itself regressed and
     // must fail the smoke.
     $errorText = $client->getCrawler()->filter('div.alert-danger')->first()->text();
-    if ($clientType === 'public' && preg_match('/API request failed \(Status: 40[13]\)/', $errorText)) {
+    if (
+        $clientType === 'public'
+        && preg_match('/API request failed \(Status: 401\)/', $errorText)
+        && preg_match('/Response:.*Unauthorized/', $errorText)
+    ) {
         return 0;
     }
     throw new RuntimeException(
