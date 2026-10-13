@@ -14,6 +14,7 @@ namespace OpenEMR\Tests\Acceptance\Version;
 
 use OpenEMR\Tests\Acceptance\Support\AcceptanceContext;
 use OpenEMR\Tests\Acceptance\Support\ArtifactBrowser;
+use OpenEMR\Tests\Acceptance\Support\OAuth2\AuthCodeFlow;
 use OpenEMR\Tests\Acceptance\Support\ResponseHeaders;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -23,10 +24,11 @@ use PHPUnit\Framework\TestCase;
  * the version the operator expected, in the shape external tooling
  * relies on.
  *
- * `/api/version` is on the SkipAuthorizationStrategy allowlist
- * (`src/RestControllers/Subscriber/AuthorizationListener.php:98`) so
- * no Bearer token is required, but the endpoint STILL requires the
- * REST API to be globally enabled — hence the `api-enabled` group
+ * `/api/version` requires a Bearer token with the `api:oemr` scope —
+ * it is listed in `AuthorizationListener::BEARER_ONLY_STANDARD_API_PATHS`,
+ * which exempts it from the dispatcher's per-resource SMART scope
+ * check but still runs it through the full Bearer strategy. The REST
+ * API must also be globally enabled — hence the `api-enabled` group
  * gate so this only runs after `tests/Acceptance/bin/api-enable.php`
  * has flipped the `rest_api` global.
  *
@@ -67,14 +69,29 @@ final class VersionApiAcceptanceTest extends TestCase
     /**
      * `/apis/default/api/version` — the REST dispatcher strips the
      * `/apis/default/` prefix before matching routes, so
-     * `AuthorizationListener`'s `/api/version` skip-list entry
-     * matches on the tail. Same shape ApiSmokeTest uses for
-     * `/apis/default/api/facility`. Single constant so every
-     * assertion diagnostic reports the exact URL actually requested
-     * (single source of truth — avoids CI-triage drift where a
-     * failure message names a different endpoint than the test hit).
+     * `AuthorizationListener`'s `/api/version` entry in
+     * `BEARER_ONLY_STANDARD_API_PATHS` matches on the tail. Same shape
+     * ApiSmokeTest uses for `/apis/default/api/facility`. Single
+     * constant so every assertion diagnostic reports the exact URL
+     * actually requested (single source of truth — avoids CI-triage
+     * drift where a failure message names a different endpoint than
+     * the test hit).
      */
     private const VERSION_ENDPOINT = '/apis/default/api/version';
+
+    /**
+     * Scopes requested for the Bearer token used against /api/version.
+     *
+     * - `openid` is required by `AuthCodeFlow::mintAccessToken` (drives
+     *   the OIDC branch of the authorization-code grant).
+     * - `api:oemr` is what `BearerTokenAuthorizationStrategy::isValidRequestForUserRole`
+     *   checks for on `/api/*` standard-API routes.
+     *
+     * No `user/<resource>.<op>` SMART scope is needed because
+     * `/api/version` is in `AuthorizationListener::BEARER_ONLY_STANDARD_API_PATHS`,
+     * which exempts it from the dispatcher's per-resource scope check.
+     */
+    private const SCOPE = 'openid api:oemr';
 
     public function testVersionEndpointReturnsExpectedVersion(): void
     {
@@ -89,14 +106,26 @@ final class VersionApiAcceptanceTest extends TestCase
         // "must be set" message instead. Local dev must set it explicitly.
         $expected = AcceptanceContext::expectedVersion();
 
+        $accessToken = AuthCodeFlow::mintAccessToken(self::SCOPE);
+
         $browser = ArtifactBrowser::create();
-        $browser->request('GET', ArtifactBrowser::baseUrl() . self::VERSION_ENDPOINT);
+        $browser->request(
+            'GET',
+            ArtifactBrowser::baseUrl() . self::VERSION_ENDPOINT,
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $accessToken],
+        );
         $response = $browser->getResponse();
 
         self::assertSame(
             200,
             $response->getStatusCode(),
-            self::VERSION_ENDPOINT . ' must return 200 on an api-enabled install — a 404 means the REST API bootstrap (api-enable.php) did not flip the rest_api global before this test ran, a 500 means VersionRestController itself is broken, and any 3xx means the auth-skip allowlist regressed',
+            self::VERSION_ENDPOINT . ' must return 200 on an api-enabled install with a valid Bearer token — '
+            . '404 means the REST API bootstrap (api-enable.php) did not flip the rest_api global before this test ran, '
+            . '500 means VersionRestController itself is broken, '
+            . '401 means the Bearer strategy rejected the minted token (signature, iss, expiry, or scope regression), '
+            . '403 means api:oemr is missing from the token or BEARER_ONLY_STANDARD_API_PATHS no longer exempts /api/version from the resource-scope check',
         );
 
         // Assert JSON media type BEFORE json_decode — a JSON-shaped
