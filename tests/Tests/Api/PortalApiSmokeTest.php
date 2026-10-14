@@ -35,6 +35,8 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Tests\Fixtures\PortalPatientFixtureManager;
+use OpenEMR\Tests\Support\OAuth2\DcrClient;
+use OpenEMR\Tests\Support\OAuth2\PasswordGrant;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -131,9 +133,21 @@ class PortalApiSmokeTest extends TestCase
                 email: 'portalapi-' . bin2hex(random_bytes(4)) . '@test.example'
             );
 
-            [$cid, $csec] = $this->registerConfidentialPasswordGrantClient();
+            [$cid, $csec] = DcrClient::registerConfidential(
+                $this->baseUrl,
+                'PortalApiSmokeTest-' . bin2hex(random_bytes(3)),
+                self::PORTAL_SCOPE,
+                'password',
+            );
             $this->clientId = $cid;
-            $this->accessToken = $this->mintPatientRoleToken($cid, $csec);
+            $mint = PasswordGrant::mintPatientRoleToken(
+                $this->baseUrl,
+                $cid,
+                $csec,
+                self::PORTAL_SCOPE,
+                $this->fixture,
+            );
+            $this->accessToken = $mint['access_token'];
         } catch (SqlQueryException $setUpFailure) {
             try {
                 $this->tearDown();
@@ -259,6 +273,98 @@ class PortalApiSmokeTest extends TestCase
     }
 
     #[Test]
+    public function testGetPortalPatientIsolatesAcrossDifferentPatientBearers(): void
+    {
+        // Cross-patient data-isolation invariant. Patient A's bearer
+        // must only return patient A's data; patient B's bearer must
+        // only return patient B's data. A regression that bypassed
+        // the per-bearer patient-binding would let one patient's
+        // bearer read another patient's record.
+        //
+        // Uses the setUp-installed fixture as patient A plus an inline
+        // patient B. Both bearers get the same scope; the only
+        // difference is which fixture authenticated. removePortalPatientFixtures
+        // in tearDown clears any fixture matching the PREFIX, so patient
+        // B is cleaned up automatically.
+        $fixtureA = $this->fixture;
+        $this->assertIsArray($fixtureA);
+        $accessTokenA = (string) $this->accessToken;
+
+        $portalFixtures = $this->portalFixtures;
+        $this->assertNotNull($portalFixtures);
+        $fixtureB = $portalFixtures->installPortalPatient(
+            portalLoginUsername: 'portalapi-B-' . bin2hex(random_bytes(4)),
+            plainPassword: 'PortalApiSmokeTestPatientBPassword1!',
+            email: 'portalapi-B-' . bin2hex(random_bytes(4)) . '@test.example'
+        );
+
+        // Mint a fresh client + bearer for patient B. Patient A's client
+        // was registered with patient A's credentials embedded in the
+        // password-grant request — a different patient needs a fresh
+        // mint (clients can be reused across patients, but we isolate
+        // for clarity).
+        [$cidB, $csecB] = DcrClient::registerConfidential(
+            $this->baseUrl,
+            'PortalApiSmokeTest-B-' . bin2hex(random_bytes(3)),
+            self::PORTAL_SCOPE,
+            'password',
+        );
+        try {
+            $mintB = PasswordGrant::mintPatientRoleToken(
+                $this->baseUrl,
+                $cidB,
+                $csecB,
+                self::PORTAL_SCOPE,
+                $fixtureB,
+            );
+            $accessTokenB = $mintB['access_token'];
+
+            // Call /portal/patient with each bearer.
+            $respA = $this->rawGetWithToken('/apis/default/portal/patient', $accessTokenA);
+            $respB = $this->rawGetWithToken('/apis/default/portal/patient', $accessTokenB);
+
+            // The invariant: whichever shape /portal/patient returns, it
+            // must distinguish between the two authenticated patients.
+            // The strongest signal we can assert without parsing the
+            // (variable) response shape is that each bearer's response
+            // does NOT contain the OTHER patient's unique email —
+            // emails are per-fixture random so a cross-contamination
+            // would be visible as A's email in B's response or vice
+            // versa.
+            if ($respA['status'] === 200 && $respB['status'] === 200) {
+                // emailB comes from installPortalPatient's typed return
+                // (non-falsy-string); emailA threads through
+                // $this->fixture (?array) so narrow explicitly.
+                $emailA = $fixtureA['email'];
+                $this->assertIsString($emailA);
+                $emailB = $fixtureB['email'];
+                $this->assertStringNotContainsString(
+                    $emailB,
+                    $respA['body'],
+                    "Patient A's bearer returned patient B's email — "
+                        . "cross-patient data leak"
+                );
+                $this->assertStringNotContainsString(
+                    $emailA,
+                    $respB['body'],
+                    "Patient B's bearer returned patient A's email — "
+                        . "cross-patient data leak"
+                );
+            } else {
+                // Nginx 404 or other non-200: isolation is trivially
+                // held because neither bearer read any data. Still a
+                // valid regression gate — a future routing change that
+                // starts returning 200 without proper patient-binding
+                // would fail the 200-branch assertions above.
+                $this->assertContains($respA['status'], [200, 404]);
+                $this->assertContains($respB['status'], [200, 404]);
+            }
+        } finally {
+            DcrClient::remove($cidB);
+        }
+    }
+
+    #[Test]
     public function testGetPortalEncounterByUnknownUuidReturnsNotFoundShape(): void
     {
         $resp = $this->rawGet('/apis/default/portal/patient/encounter/' . self::BOGUS_UUID);
@@ -285,71 +391,21 @@ class PortalApiSmokeTest extends TestCase
      */
     private function rawGet(string $path): array
     {
+        return $this->rawGetWithToken($path, (string) $this->accessToken);
+    }
+
+    /**
+     * @return array{status: int, body: string}
+     */
+    private function rawGetWithToken(string $path, string $accessToken): array
+    {
         $resp = $this->buildClient()->get($this->baseUrl . $path, [
-            'headers' => ['Authorization' => 'Bearer ' . (string) $this->accessToken],
+            'headers' => ['Authorization' => 'Bearer ' . $accessToken],
         ]);
         return [
             'status' => $resp->getStatusCode(),
             'body' => (string) $resp->getBody(),
         ];
-    }
-
-    /**
-     * @return array{string, string}
-     */
-    private function registerConfidentialPasswordGrantClient(): array
-    {
-        $http = $this->buildClient();
-        $reg = $http->post($this->baseUrl . '/oauth2/default/registration', [
-            'headers' => ['Content-Type' => 'application/json'],
-            'json' => [
-                'application_type' => 'private',
-                'redirect_uris' => ['https://client.example/cb'],
-                'client_name' => 'PortalApiSmokeTest-' . bin2hex(random_bytes(3)),
-                'token_endpoint_auth_method' => 'client_secret_post',
-                'contacts' => ['e2e@test.example'],
-                'scope' => self::PORTAL_SCOPE,
-            ],
-        ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed');
-        $data = json_decode((string) $reg->getBody(), true);
-        $this->assertIsArray($data);
-        $this->assertIsString($data['client_id']);
-        $this->assertIsString($data['client_secret']);
-        QueryUtils::sqlStatementThrowException(
-            'UPDATE `oauth_clients` SET `grant_types` = ?, `is_enabled` = 1 WHERE `client_id` = ?',
-            ['password', $data['client_id']]
-        );
-        return [$data['client_id'], $data['client_secret']];
-    }
-
-    private function mintPatientRoleToken(string $clientId, string $clientSecret): string
-    {
-        $fixture = $this->fixture;
-        $this->assertIsArray($fixture);
-        $resp = $this->buildClient()->post($this->baseUrl . '/oauth2/default/token', [
-            'form_params' => [
-                'grant_type' => 'password',
-                'client_id' => $clientId,
-                'client_secret' => $clientSecret,
-                'scope' => self::PORTAL_SCOPE,
-                'user_role' => 'patient',
-                'username' => $fixture['portal_login_username'],
-                'password' => $fixture['plain_password'],
-                'email' => $fixture['email'],
-            ],
-        ]);
-        $this->assertSame(
-            200,
-            $resp->getStatusCode(),
-            'Patient-role token mint must succeed. Body: ' . (string) $resp->getBody()
-        );
-        $body = json_decode((string) $resp->getBody(), true);
-        $this->assertIsArray($body);
-        $token = $body['access_token'] ?? null;
-        $this->assertIsString($token);
-        $this->assertNotSame('', $token);
-        return $token;
     }
 
     private function persistGlobal(
