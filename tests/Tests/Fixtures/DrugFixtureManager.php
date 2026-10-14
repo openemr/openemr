@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace OpenEMR\Tests\Fixtures;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
