@@ -61,8 +61,11 @@ class Claim
      * @param $pid patient id
      * @param $encounter_id encounter id
      * @param $x12_partner_id
+     * @param ?string $payerId insurance company to build the claim for, in place of
+     *   the payer on the encounter's billing rows; lets Validate Only show the claim
+     *   for the payer selected in the billing manager without saving that choice
      */
-    public function __construct(public $pid, public $encounter_id, $x12_partner_id)
+    public function __construct(public $pid, public $encounter_id, $x12_partner_id, private readonly ?string $payerId = null)
     {
         $this->encounterService = new EncounterService();
         $this->encounter = $this->encounterService->getOneByPidEid($this->pid, $this->encounter_id);
@@ -116,6 +119,10 @@ class Claim
 
             if (!$row['units']) {
                 $row['units'] = 1;
+            }
+
+            if ($this->payerId !== null) {
+                $row['payer_id'] = $this->payerId;
             }
 
             // Load prior payer data at the first opportunity in order to get

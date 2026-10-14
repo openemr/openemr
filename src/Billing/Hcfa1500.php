@@ -143,14 +143,14 @@ class Hcfa1500
         $hcfa_entries[] = new HCFAInfo($row_pos, $col_pos, 8, $diag);
     }
 
-    public function genHcfa1500($pid, $encounter, &$log): string
+    public function genHcfa1500($pid, $encounter, &$log, ?string $payerId = null): string
     {
         $this->hcfa_data = '';
         $this->hcfa_proc_index = 0;
 
         $today = time();
 
-        $claim = new Claim($pid, $encounter, false);
+        $claim = new Claim($pid, $encounter, false, $payerId);
 
         $log .= "Generating HCFA claim $pid-$encounter for " .
             $claim->patientFirstName() . ' ' .
