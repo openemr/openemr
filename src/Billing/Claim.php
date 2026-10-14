@@ -1769,6 +1769,24 @@ class Claim
     }
 
     /**
+     * Whether loop 2430 reports this prior payer's adjudication of at least one
+     * service line, which is when the 837P generator sends an SVD for it: the
+     * payer paid something on the line or has adjustments on it.
+     */
+    public function hasLineAdjudication(int $ins): bool
+    {
+        for ($prockey = 0; $prockey < $this->procCount(); ++$prockey) {
+            $code = $this->cptKey($prockey);
+            $payerpaid = $this->payerTotals($ins, $code);
+            if ($payerpaid[1] != 0 || $this->payerAdjustments($ins, $code) !== []) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * The date a prior payer adjudicated this claim, taken from the check date
      * of the ERA session the payment was posted under.  Loop 2330B DTP*573.
      *
