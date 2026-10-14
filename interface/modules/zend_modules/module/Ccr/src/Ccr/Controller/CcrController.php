@@ -39,6 +39,16 @@ class CcrController extends AbstractActionController
      */
     private bool $internalBatchContext = false;
 
+    /**
+     * When indexAction() invokes importAction() internally for a batch
+     * import, the target document id is handed to the handler through
+     * this property — never through `$_REQUEST`. Laminas populates the
+     * request's query and post bags from `$_GET`/`$_POST` at build time
+     * and does not re-read `$_REQUEST`, so passing the id through the
+     * request globals is both unsafe and (post-refactor) ignored.
+     */
+    private ?int $internalBatchDocId = null;
+
     public function __construct(CcrTable $ccrTable, private readonly DocumentsController $documentsController)
     {
         $this->ccrTable = $ccrTable;
@@ -66,24 +76,26 @@ class CcrController extends AbstractActionController
         $uploaded_documents     = $this->getCcrTable()->fetch_uploaded_documents(['user' => $session->get('authUserID'), 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]);
 
         if (!empty($uploaded_documents[0]['id']) && $uploaded_documents[0]['id'] > 0) {
-            $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
             $this->internalBatchContext = true;
+            $this->internalBatchDocId = (int) $uploaded_documents[0]['id'];
             try {
                 $this->importAction();
             } finally {
                 $this->internalBatchContext = false;
+                $this->internalBatchDocId = null;
             }
         } else {
             // TODO: change to $this->Documents()
             $result = Documents::fetchXmlDocuments();
             foreach ($result as $row) {
                 if ($row['doc_type'] == 'CCR') {
-                    $_REQUEST["document_id"] = $row['doc_id'];
                     $this->internalBatchContext = true;
+                    $this->internalBatchDocId = (int) $row['doc_id'];
                     try {
                         $this->importAction();
                     } finally {
                         $this->internalBatchContext = false;
+                        $this->internalBatchDocId = null;
                     }
                     $this->documentsController->getDocumentsTable()->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
                 }
@@ -118,11 +130,17 @@ class CcrController extends AbstractActionController
         // appending ?batch_import=YES.
         $batchContext = $this->internalBatchContext;
 
-        $rawDocId = $request->getQuery('document_id') ?? $request->getPost('document_id');
+        // Under batchContext the document id arrives via a private property
+        // populated by indexAction(). External HTTP callers must send it on
+        // the query string or in the body — Laminas's request bags, not
+        // `$_REQUEST`, are the authoritative source for those.
+        $rawDocId = $batchContext
+            ? $this->internalBatchDocId
+            : ($request->getQuery('document_id') ?? $request->getPost('document_id'));
         if ($rawDocId === null || $rawDocId === '') {
             AccessDeniedHelper::deny('CcrController::importAction: document_id required');
         }
-        $queryId = (int) $rawDocId;
+        $queryId = is_numeric($rawDocId) ? (int) $rawDocId : 0;
         if ($queryId <= 0) {
             AccessDeniedHelper::deny('CcrController::importAction: invalid document_id');
         }
@@ -298,7 +316,7 @@ class CcrController extends AbstractActionController
             // never reflects a parse that silently failed earlier.
             $authUser = is_string($u = $session->get('authUser')) ? $u : '';
             $authProvider = is_string($p = $session->get('authProvider')) ? $p : '';
-            $amidInt = (int) $audit_master_id;
+            $amidInt = is_numeric($audit_master_id) ? (int) $audit_master_id : 0;
             EventAuditLogger::getInstance()->newEvent(
                 'ccr-import',
                 $authUser,

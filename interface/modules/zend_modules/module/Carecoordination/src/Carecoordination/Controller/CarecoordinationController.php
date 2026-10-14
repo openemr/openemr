@@ -54,6 +54,16 @@ class CarecoordinationController extends AbstractActionController
      */
     private bool $internalBatchContext = false;
 
+    /**
+     * When uploadAction() invokes importAction() internally for a batch
+     * import, the target document id is handed to the handler through
+     * this property — never through `$_REQUEST`. Laminas populates the
+     * request's query and post bags from `$_GET`/`$_POST` at build time
+     * and does not re-read `$_REQUEST`, so passing the id through the
+     * request globals is both unsafe and (post-refactor) ignored.
+     */
+    private ?int $internalBatchDocId = null;
+
     public function __construct(private readonly CarecoordinationTable $carecoordinationTable, private readonly DocumentsController $documentsController)
     {
         $this->listenerObject = new Listener();
@@ -156,12 +166,13 @@ class CarecoordinationController extends AbstractActionController
                     ['user' => $session->get('authUserID'), 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]
                 );
                 if ($uploaded_documents[0]['id'] > 0) {
-                    $_REQUEST["document_id"] = $uploaded_documents[0]['id'];
                     $this->internalBatchContext = true;
+                    $this->internalBatchDocId = (int) $uploaded_documents[0]['id'];
                     try {
                         $this->importAction();
                     } finally {
                         $this->internalBatchContext = false;
+                        $this->internalBatchDocId = null;
                     }
                 }
             }
@@ -169,12 +180,13 @@ class CarecoordinationController extends AbstractActionController
             $result = $this->Documents()->fetchXmlDocuments();
             foreach ($result as $row) {
                 if ($row['doc_type'] == 'CCDA') {
-                    $_REQUEST["document_id"] = $row['doc_id'];
                     $this->internalBatchContext = true;
+                    $this->internalBatchDocId = (int) $row['doc_id'];
                     try {
                         $this->importAction();
                     } finally {
                         $this->internalBatchContext = false;
+                        $this->internalBatchDocId = null;
                     }
                     $this->documentsController->getDocumentsTable()->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
                 }
@@ -270,13 +282,17 @@ class CarecoordinationController extends AbstractActionController
         // appending ?batch_import=YES.
         $batchContext = $this->internalBatchContext;
 
-        // Accept the document id from either the query string or the body
-        // so both GET and POST callers route through the same validation.
-        $rawDocId = $request->getQuery('document_id') ?? $request->getPost('document_id');
+        // Under batchContext the document id arrives via a private property
+        // populated by uploadAction(). External HTTP callers must send it on
+        // the query string or in the body — Laminas's request bags, not
+        // `$_REQUEST`, are the authoritative source for those.
+        $rawDocId = $batchContext
+            ? $this->internalBatchDocId
+            : ($request->getQuery('document_id') ?? $request->getPost('document_id'));
         if ($rawDocId === null || $rawDocId === '') {
             AccessDeniedHelper::deny('CarecoordinationController::importAction: document_id required');
         }
-        $queryId = (int) $rawDocId;
+        $queryId = is_numeric($rawDocId) ? (int) $rawDocId : 0;
         if ($queryId <= 0) {
             AccessDeniedHelper::deny('CarecoordinationController::importAction: invalid document_id');
         }
