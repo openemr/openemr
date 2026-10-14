@@ -36,16 +36,28 @@ class PasswordGrantRateLimitHttpTest extends TestCase
     private string $baseUrl;
     private ?string $clientId = null;
 
+    // Each triple of (captured, wasSet, setting) tracks a bag override:
+    //   - captured is false until setUp successfully reads the pre-test
+    //     bag state; cleanup must only touch the bag when captured.
+    //     Required because a mid-setUp SqlQueryException can skip the
+    //     capture for later globals, leaving wasSet=false (default) —
+    //     without the gate, cleanup would then remove() a legitimate
+    //     pre-existing bag value.
+    //   - wasSet records whether the pre-test bag held the key.
+    //   - setting is the pre-test value when wasSet is true.
+    private bool $passwordGrantBagCaptured = false;
     private mixed $originalPasswordGrantBagSetting = null;
     private bool $originalPasswordGrantBagWasSet = false;
     private ?string $originalPasswordGrantGlobalRow = null;
     private bool $passwordGrantGlobalRowWasInserted = false;
 
+    private bool $maxFailedBagCaptured = false;
     private mixed $originalMaxFailedBagSetting = null;
     private bool $originalMaxFailedBagWasSet = false;
     private ?string $originalMaxFailedGlobalRow = null;
     private bool $maxFailedGlobalRowWasInserted = false;
 
+    private bool $ipMaxFailedBagCaptured = false;
     private mixed $originalIpMaxFailedBagSetting = null;
     private bool $originalIpMaxFailedBagWasSet = false;
     private ?string $originalIpMaxFailedGlobalRow = null;
@@ -86,6 +98,7 @@ class PasswordGrantRateLimitHttpTest extends TestCase
             $globals = OEGlobalsBag::getInstance();
             $this->originalPasswordGrantBagWasSet = $globals->has('oauth_password_grant');
             $this->originalPasswordGrantBagSetting = $globals->get('oauth_password_grant');
+            $this->passwordGrantBagCaptured = true;
             $globals->set('oauth_password_grant', 3);
             $this->persistGlobal(
                 'oauth_password_grant',
@@ -96,6 +109,7 @@ class PasswordGrantRateLimitHttpTest extends TestCase
 
             $this->originalMaxFailedBagWasSet = $globals->has('password_max_failed_logins');
             $this->originalMaxFailedBagSetting = $globals->getInt('password_max_failed_logins');
+            $this->maxFailedBagCaptured = true;
             $globals->set('password_max_failed_logins', 2);
             $this->persistGlobal(
                 'password_max_failed_logins',
@@ -112,6 +126,7 @@ class PasswordGrantRateLimitHttpTest extends TestCase
             // actually verifying regressed.
             $this->originalIpMaxFailedBagWasSet = $globals->has('ip_max_failed_logins');
             $this->originalIpMaxFailedBagSetting = $globals->getInt('ip_max_failed_logins');
+            $this->ipMaxFailedBagCaptured = true;
             $globals->set('ip_max_failed_logins', 0);
             $this->persistGlobal(
                 'ip_max_failed_logins',
@@ -262,6 +277,11 @@ class PasswordGrantRateLimitHttpTest extends TestCase
             );
         });
         $this->safeRun(function (): void {
+            if (!$this->ipMaxFailedBagCaptured) {
+                // setUp threw before capturing the pre-test bag state;
+                // we never mutated the bag either, so no cleanup needed.
+                return;
+            }
             $globals = OEGlobalsBag::getInstance();
             if ($this->originalIpMaxFailedBagWasSet) {
                 $globals->set('ip_max_failed_logins', $this->originalIpMaxFailedBagSetting);
@@ -271,6 +291,9 @@ class PasswordGrantRateLimitHttpTest extends TestCase
             }
         });
         $this->safeRun(function (): void {
+            if (!$this->maxFailedBagCaptured) {
+                return;
+            }
             $globals = OEGlobalsBag::getInstance();
             if ($this->originalMaxFailedBagWasSet) {
                 $globals->set('password_max_failed_logins', $this->originalMaxFailedBagSetting);
@@ -280,6 +303,9 @@ class PasswordGrantRateLimitHttpTest extends TestCase
             }
         });
         $this->safeRun(function (): void {
+            if (!$this->passwordGrantBagCaptured) {
+                return;
+            }
             $globals = OEGlobalsBag::getInstance();
             if ($this->originalPasswordGrantBagWasSet) {
                 $globals->set('oauth_password_grant', $this->originalPasswordGrantBagSetting);
