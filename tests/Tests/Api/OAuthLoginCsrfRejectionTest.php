@@ -301,6 +301,20 @@ class OAuthLoginCsrfRejectionTest extends TestCase
             $consentButton,
             "Cross-session CSRF replay must not advance to the consent page"
         );
+        // CsrfUtils rejection renders "Sorry. Invalid CSRF!" into the
+        // login template's `invalid` slot; the failed-authentication
+        // path renders a different message. Asserting the CSRF-specific
+        // string distinguishes the rejection reason — a regression that
+        // ran verifyLogin() with Session A's token (and then failed
+        // because the credentials path rejects by chance) would present
+        // the auth-failure message instead and this assertion would
+        // catch it.
+        $this->assertStringContainsString(
+            'Invalid CSRF',
+            $body,
+            'Response should carry the CSRF-specific rejection message '
+                . '("Invalid CSRF"), not a failed-authentication message'
+        );
     }
 
     private function registerConfidentialClient(Client $http): string
