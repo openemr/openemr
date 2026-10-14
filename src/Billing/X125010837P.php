@@ -29,7 +29,7 @@ class X125010837P
     /**
      * Billing-provider ZIP, loop 2010AA. The 837P guide requires 9 digits for a US address.
      */
-    private const BILLING_ZIP_LOG = '*** Billing facility zip is not 9 digits. '
+    public const BILLING_ZIP_LOG = '*** Billing facility zip is not 9 digits. '
         . '837P loop 2010AA requires a 9-digit ZIP for US addresses; payers may reject the claim.';
 
     /**
@@ -47,7 +47,7 @@ class X125010837P
     /**
      * Service-facility ZIP, loop 2310C. The 837P guide requires 9 digits for a US address.
      */
-    private const SERVICE_ZIP_LOG = '*** Service facility zip is not 9 digits. '
+    public const SERVICE_ZIP_LOG = '*** Service facility zip is not 9 digits. '
         . '837P loop 2310C requires a 9-digit ZIP for US addresses; payers may reject the claim.';
 
     /**
@@ -1783,5 +1783,15 @@ class X125010837P
     private static function isUnitedStates(string $letters): bool
     {
         return in_array($letters, self::UNITED_STATES_POSTAL, true);
+    }
+
+    /**
+     * True when the log names a denial this hold covers.
+     * Today that is the billing or service facility ZIP. A pay-to warning does not count.
+     */
+    public static function logShowsDenial(string $log): bool
+    {
+        return str_contains($log, self::BILLING_ZIP_LOG)
+            || str_contains($log, self::SERVICE_ZIP_LOG);
     }
 }
