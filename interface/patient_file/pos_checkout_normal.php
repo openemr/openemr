@@ -253,6 +253,15 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         padding-left: 20px;
         }
 
+        /* The receipt's shaded cells keep the theme's text color, so the shade is
+           a light tint that reads on any theme's background (the Bootstrap
+           table-active tint). The theme's secondary color, used before, is
+           nearly black in Light and Solar, which made Total Charges and Balance
+           Due unreadable. */
+        :root {
+            --checkout-shade: rgba(0, 0, 0, 0.075);
+        }
+
         .mini_table {
             margin-top: 15px;
             width: 95%;
@@ -260,7 +269,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         }
 
         table.mini_table>tbody>tr>th {
-            background-color: var(--secondary);
+            background-color: var(--checkout-shade);
             text-align: center;
         }
 
@@ -295,11 +304,11 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         }
 
         body > div:nth-child(2) > div:nth-child(3) > div > table > thead > tr {
-            background-color: var(--secondary);
+            background-color: var(--checkout-shade);
         }
 
         body > div:nth-child(3) > div:nth-child(3) > div > table > thead {
-            background-color: var(--secondary);
+            background-color: var(--checkout-shade);
         }
 
         body > div:nth-child(3) > div:nth-child(3) > div > table:nth-child(1) > tbody > tr:nth-child(3) {
@@ -307,15 +316,15 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         }
 
         .bg-blue {
-            background-color:var(--secondary);
+            background-color: var(--checkout-shade);
         }
 
         .fac-name {
-            background-color:var(--secondary);
+            background-color: var(--checkout-shade);
             width: 99px;
         }
         .bg-color {
-            background-color: var(--secondary);
+            background-color: var(--checkout-shade);
             padding: 2px; font-weight: 600;
             -webkit-print-color-adjust: exact;
         }
