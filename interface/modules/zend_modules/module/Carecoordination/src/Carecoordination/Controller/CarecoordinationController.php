@@ -21,6 +21,7 @@ use Carecoordination\Model\CarecoordinationTable;
 use Document;
 use Documents\Controller\DocumentsController;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Stdlib\Parameters;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\BC\ServiceContainer;
@@ -373,15 +374,34 @@ class CarecoordinationController extends AbstractActionController
             AccessDeniedHelper::deny('CarecoordinationController::revandapprove: audit_master not accessible by caller');
         }
 
+        // Resolve document_id from the authorized audit row rather than
+        // trusting the request parameter. insertApprovedData() writes
+        // `UPDATE documents SET foreign_id = ? WHERE id = ?` using the
+        // caller-supplied document_id — if that id is not bound to the
+        // authorized amid, the attacker can reassign an unrelated document's
+        // foreign_id to their own patient.
+        $verifiedDocId = $this->resolveAuditMasterDocumentId($amidInt);
+
         if ($setval === 'approve') {
-            $this->getCarecoordinationTable()->insertApprovedData($request->getPost());
+            // Bind the write-path identifiers to the values we just
+            // authorized. The controller reads amid/pid as GET-first then
+            // POST-fallback, so an attacker could otherwise pass authz
+            // identifiers through the query string and write-path
+            // identifiers through the POST body (insertApprovedData reads
+            // amid/pid/document_id from the POST bag it receives).
+            $post = $request->getPost();
+            $postData = $post instanceof Parameters ? $post->toArray() : [];
+            $postData['amid'] = $amidInt;
+            $postData['pid'] = $pidInt;
+            $postData['document_id'] = $verifiedDocId;
+            $this->getCarecoordinationTable()->insertApprovedData($postData);
             [$authUser, $authProvider] = $this->auditIdentity();
             EventAuditLogger::getInstance()->newEvent(
                 'carecoord-approve',
                 $authUser,
                 $authProvider,
                 1,
-                "amid=$amidInt doc_id=$docIdInt",
+                "amid=$amidInt doc_id=$verifiedDocId",
                 $pidInt > 0 ? $pidInt : null
             );
             return $this->redirect()->toRoute('carecoordination', [

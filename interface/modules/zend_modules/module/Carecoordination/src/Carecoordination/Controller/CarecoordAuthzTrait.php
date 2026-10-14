@@ -88,13 +88,40 @@ trait CarecoordAuthzTrait
         }
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $authUserId = (int) ($session->get('authUserID') ?? 0);
-        if ($uploaderId > 0 && $authUserId === $uploaderId) {
-            return true;
-        }
         if ($storedPid <= 0) {
-            return false;
+            // Pre-approval staging row with no patient yet. The uploader
+            // sees their own in-progress import so they can review and
+            // approve/discard it; anyone else is denied until the row
+            // picks up a real pid.
+            return $uploaderId > 0 && $authUserId === $uploaderId;
         }
+        // Row is bound to a real patient — gate on patient access, not on
+        // uploader identity. The uploader shortcut above only exists for
+        // the pre-approval window; once the row carries a pid, the usual
+        // per-patient access boundary applies to everyone.
         return $this->isPatientAuthorized($storedPid);
+    }
+
+    /**
+     * Return the id of the single Document linked to the given audit_master
+     * row, or 0 when no document is linked. The caller is expected to have
+     * already passed isAuditMasterAccessible() against the same amid — this
+     * helper exists so controllers can bind the audit event's `doc_id` and
+     * the `UPDATE documents SET foreign_id` write to the audit's own
+     * document rather than trusting an attacker-supplied request parameter
+     * (which can otherwise reassign an unrelated document's foreign_id to
+     * the caller's own patient).
+     */
+    private function resolveAuditMasterDocumentId(int $auditMasterId): int
+    {
+        if ($auditMasterId <= 0) {
+            return 0;
+        }
+        $row = QueryUtils::fetchRecords(
+            'SELECT id FROM documents WHERE audit_master_id = ? ORDER BY id ASC LIMIT 1',
+            [$auditMasterId]
+        );
+        return isset($row[0]['id']) && is_numeric($row[0]['id']) ? (int) $row[0]['id'] : 0;
     }
 
     /**
