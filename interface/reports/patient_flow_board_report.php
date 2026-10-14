@@ -90,8 +90,48 @@ if (empty($form_patient)) {
 
     <script>
         $(function () {
-            var win = top.printLogSetup ? top : opener.top;
-            win.printLogSetup(document.getElementById('printbutton'));
+            // Resolve the window hosting `printLogSetup` robustly across the
+            // three call shapes this report can run under: as a top-level
+            // tab (printLogSetup lives on `top`), launched from a dialog
+            // via dlgopen (printLogSetup lives on the window registered by
+            // `top.set_opener`, retrievable via `top.get_opener(window.name)`),
+            // or opened via window.open from a parent page (`opener.top`).
+            // The old `top.printLogSetup ? top : opener.top` shape threw
+            // TypeError when opener was null and surfaced in the acceptance
+            // suite as AppointmentPersistence flakes -- see
+            // openemr/openemr#14491 for the sibling fix on find_appt_popup.
+            // Degrade gracefully (console.warn + no-op) when no shape resolves
+            // so the print button simply skips logging rather than throwing.
+            try {
+                var _printCtx = null;
+                if (top && typeof top.printLogSetup === 'function') {
+                    _printCtx = top;
+                }
+                if (!_printCtx && top && typeof top.get_opener === 'function') {
+                    var _p = top.get_opener(window.name);
+                    if (_p && _p.top && typeof _p.top.printLogSetup === 'function') {
+                        _printCtx = _p.top;
+                    }
+                }
+                if (!_printCtx && typeof opener !== 'undefined' && opener && opener.top && typeof opener.top.printLogSetup === 'function') {
+                    _printCtx = opener.top;
+                }
+                if (_printCtx) {
+                    _printCtx.printLogSetup(document.getElementById('printbutton'));
+                } else if (window.console && typeof window.console.warn === 'function') {
+                    window.console.warn(
+                        'patient_flow_board_report: printLogSetup context could not be resolved; '
+                        + 'print button will not log. '
+                        + 'top.printLogSetup=' + (typeof (top && top.printLogSetup))
+                        + ' top.get_opener=' + (typeof (top && top.get_opener))
+                        + ' opener=' + (typeof opener)
+                    );
+                }
+            } catch (_e) {
+                if (window.console && typeof window.console.error === 'function') {
+                    window.console.error('patient_flow_board_report printLogSetup failed', _e);
+                }
+            }
 
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
