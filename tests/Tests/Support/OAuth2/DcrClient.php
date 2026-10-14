@@ -61,8 +61,17 @@ class DcrClient
         Assert::assertIsArray($data);
         Assert::assertIsString($data['client_id'] ?? null);
         Assert::assertIsString($data['client_secret'] ?? null);
-        self::enableViaDb($data['client_id'], $grantType);
-        return [$data['client_id'], $data['client_secret']];
+        $clientId = $data['client_id'];
+        try {
+            self::enableViaDb($clientId, $grantType);
+        } catch (\Throwable $e) {
+            // Enable step failed after a successful DCR — remove the
+            // registered client so a caller that never receives the
+            // ID doesn't leak the row. Then rethrow.
+            self::remove($clientId);
+            throw $e;
+        }
+        return [$clientId, $data['client_secret']];
     }
 
     /**
@@ -91,8 +100,15 @@ class DcrClient
         $data = json_decode((string) $reg->getBody(), true);
         Assert::assertIsArray($data);
         Assert::assertIsString($data['client_id'] ?? null);
-        self::enableViaDb($data['client_id'], $grantType);
-        return $data['client_id'];
+        $clientId = $data['client_id'];
+        try {
+            self::enableViaDb($clientId, $grantType);
+        } catch (\Throwable $e) {
+            // Same orphan-avoidance pattern as registerConfidential.
+            self::remove($clientId);
+            throw $e;
+        }
+        return $clientId;
     }
 
     /**

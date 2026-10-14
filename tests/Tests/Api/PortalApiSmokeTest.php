@@ -35,6 +35,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Tests\Fixtures\PortalPatientFixtureManager;
+use OpenEMR\Tests\Support\OAuth2\AuthCodeFlow;
 use OpenEMR\Tests\Support\OAuth2\DcrClient;
 use OpenEMR\Tests\Support\OAuth2\PasswordGrant;
 use PHPUnit\Framework\Attributes\Test;
@@ -78,6 +79,16 @@ class PortalApiSmokeTest extends TestCase
     private ?string $originalPortalApiGlobalRow = null;
     private bool $portalApiGlobalRowWasInserted = false;
 
+    // site_addr_oath drives the server-side redirect URLs emitted by
+    // /authorize + /login + /scope-authorize-confirm. In the dev-easy
+    // stack it defaults to the HOST port (e.g. https://localhost:9307),
+    // which is unreachable from inside the container during the
+    // auth-code flow's Location follow. Override to the test's
+    // container-reachable baseUrl, restore in tearDown.
+    private bool $siteAddrOathCaptured = false;
+    private ?string $originalSiteAddrOathGlobalRow = null;
+    private bool $siteAddrOathGlobalRowWasInserted = false;
+
     /** @var list<string> */
     private array $tearDownFailures = [];
 
@@ -96,6 +107,19 @@ class PortalApiSmokeTest extends TestCase
             }
             $this->markTestSkipped($message);
         }
+        // Portal API routes require apache in the test env — nginx's CI
+        // config does not route /apis/* to PHP, so every response is a
+        // webserver-level 404 that would make this test vacuously pass.
+        // Skip (rather than fail) because this is an environment
+        // limitation, not a product bug; the apache lane covers the
+        // actual invariants. If the nginx config is extended to route
+        // /apis/* to PHP, remove this guard.
+        if (stripos($probe->getHeaderLine('Server'), 'nginx') !== false) {
+            $this->markTestSkipped(
+                'Portal API routes not reachable under the nginx test config — skipping to '
+                . 'avoid vacuous 404-accepts; apache lane covers these invariants.'
+            );
+        }
 
         try {
             // The password grant needs oauth_password_grant to admit
@@ -111,6 +135,19 @@ class PortalApiSmokeTest extends TestCase
                 '3',
                 $this->originalPasswordGrantGlobalRow,
                 $this->passwordGrantGlobalRowWasInserted
+            );
+
+            // Point site_addr_oath at the container-reachable baseUrl
+            // (default is the HOST port, which doesn't resolve from
+            // inside the container during the auth-code flow's Location
+            // follow). Captured flag mirrors the pattern used for the
+            // other bag overrides above.
+            $this->siteAddrOathCaptured = true;
+            $this->persistGlobal(
+                'site_addr_oath',
+                $this->baseUrl,
+                $this->originalSiteAddrOathGlobalRow,
+                $this->siteAddrOathGlobalRowWasInserted
             );
 
             // Portal routes require rest_portal_api to be enabled;
@@ -176,6 +213,16 @@ class PortalApiSmokeTest extends TestCase
             $this->portalFixtures?->removePortalPatientFixtures();
         });
         $this->safeRun(function (): void {
+            if (!$this->siteAddrOathCaptured) {
+                return;
+            }
+            $this->restoreGlobal(
+                'site_addr_oath',
+                $this->originalSiteAddrOathGlobalRow,
+                $this->siteAddrOathGlobalRowWasInserted
+            );
+        });
+        $this->safeRun(function (): void {
             $this->restoreGlobal(
                 'rest_portal_api',
                 $this->originalPortalApiGlobalRow,
@@ -228,44 +275,39 @@ class PortalApiSmokeTest extends TestCase
     #[Test]
     public function testGetPortalPatientReturnsAuthenticatedPatient(): void
     {
-        // 200 is the apache happy path; 404 covers two legitimate
-        // outcomes: (a) nginx test env doesn't route the portal api
-        // prefix to PHP (same deployment-config difference caught in
-        // PR #14574), and (b) controllers can return 404 for empty
-        // search results. The invariant pinned here is that the route
-        // resolves without a 5xx and either returns a reachable
-        // patient shape (200) or the correct no-reachable-data shape
-        // (404).
+        // The nginx-skip in setUp means this test only runs under
+        // apache; apache correctly routes to PHP, so a non-200 here
+        // would be a real product regression.
         $resp = $this->rawGet('/apis/default/portal/patient');
-        $this->assertContains(
+        $this->assertSame(
+            200,
             $resp['status'],
-            [200, 404],
-            'GET /portal/patient must return 200 or 404. Body: ' . $resp['body']
+            'GET /portal/patient must return 200 for a patient-role token. Body: ' . $resp['body']
         );
-        if ($resp['status'] === 200) {
-            $body = json_decode($resp['body'], true);
-            $this->assertIsArray($body);
-            $this->assertNotSame(
-                [],
-                $body,
-                '/portal/patient 200 response must not be an empty JSON array'
-            );
-        }
+        $body = json_decode($resp['body'], true);
+        $this->assertIsArray($body);
+        $this->assertNotSame(
+            [],
+            $body,
+            '/portal/patient response must not be an empty JSON array'
+        );
     }
 
     #[Test]
     public function testGetPortalEncounterListReturnsEmptyShape(): void
     {
-        // EncounterRestController::getAll returns 404 for an empty
-        // search result — see src/RestControllers/EncounterRestController.php.
-        // The fresh portal fixture has no encounters, so 404 is the
-        // expected shape on apache. nginx may also return 404 for the
-        // same prefix-not-routed-to-PHP reason as above.
+        // EncounterRestController::getAll returns 404 when the search
+        // has no errors but no data — see
+        // src/RestControllers/EncounterRestController.php. The fresh
+        // portal fixture has no encounters, so 404 is the expected
+        // apache shape here (not a webserver routing failure).
         $resp = $this->rawGet('/apis/default/portal/patient/encounter');
         $this->assertContains(
             $resp['status'],
             [200, 404],
-            'GET /portal/patient/encounter must return 200 or 404. Body: ' . $resp['body']
+            'GET /portal/patient/encounter must return 200 (populated) or 404 '
+                . '(empty — EncounterRestController::getAll semantics). '
+                . 'Body: ' . $resp['body']
         );
         if ($resp['status'] === 200) {
             $this->assertIsArray(json_decode($resp['body'], true));
@@ -331,34 +373,40 @@ class PortalApiSmokeTest extends TestCase
             // emails are per-fixture random so a cross-contamination
             // would be visible as A's email in B's response or vice
             // versa.
-            if ($respA['status'] === 200 && $respB['status'] === 200) {
-                // emailB comes from installPortalPatient's typed return
-                // (non-falsy-string); emailA threads through
-                // $this->fixture (?array) so narrow explicitly.
-                $emailA = $fixtureA['email'];
-                $this->assertIsString($emailA);
-                $emailB = $fixtureB['email'];
-                $this->assertStringNotContainsString(
-                    $emailB,
-                    $respA['body'],
-                    "Patient A's bearer returned patient B's email — "
-                        . "cross-patient data leak"
-                );
-                $this->assertStringNotContainsString(
-                    $emailA,
-                    $respB['body'],
-                    "Patient B's bearer returned patient A's email — "
-                        . "cross-patient data leak"
-                );
-            } else {
-                // Nginx 404 or other non-200: isolation is trivially
-                // held because neither bearer read any data. Still a
-                // valid regression gate — a future routing change that
-                // starts returning 200 without proper patient-binding
-                // would fail the 200-branch assertions above.
-                $this->assertContains($respA['status'], [200, 404]);
-                $this->assertContains($respB['status'], [200, 404]);
-            }
+            // setUp skips on nginx, so both bearers resolve to 200
+            // through apache. emailB comes from installPortalPatient's
+            // typed return (non-falsy-string); emailA threads through
+            // $this->fixture (?array) so narrow explicitly.
+            $this->assertSame(200, $respA['status'], 'Patient A /portal/patient must 200');
+            $this->assertSame(200, $respB['status'], 'Patient B /portal/patient must 200');
+            $emailA = $fixtureA['email'];
+            $this->assertIsString($emailA);
+            $emailB = $fixtureB['email'];
+            $this->assertStringNotContainsString(
+                $emailB,
+                $respA['body'],
+                "Patient A's bearer returned patient B's email — "
+                    . "cross-patient data leak"
+            );
+            $this->assertStringNotContainsString(
+                $emailA,
+                $respB['body'],
+                "Patient B's bearer returned patient A's email — "
+                    . "cross-patient data leak"
+            );
+            // Positive proof: each response SHOULD contain the
+            // authenticated patient's email. Catches a regression that
+            // returned the same "default patient" to any bearer.
+            $this->assertStringContainsString(
+                $emailA,
+                $respA['body'],
+                "Patient A's bearer should return patient A's data"
+            );
+            $this->assertStringContainsString(
+                $emailB,
+                $respB['body'],
+                "Patient B's bearer should return patient B's data"
+            );
         } finally {
             DcrClient::remove($cidB);
         }
@@ -383,6 +431,125 @@ class PortalApiSmokeTest extends TestCase
                 $body === null || is_array($body),
                 'Unknown-UUID 200 response must still be valid JSON. Body: ' . $resp['body']
             );
+        }
+    }
+
+    #[Test]
+    public function testPortalPatientRouteIsReachableWithAuthCodeMintedBearer(): void
+    {
+        // B2: real client path. Mint a patient-role bearer via the
+        // auth-code grant (standard SMART-on-FHIR flow) and hit
+        // /portal/patient with it. Password-grant coverage (setUp
+        // bearer) exists but the auth-code path has different
+        // consent/scope handling that this test independently
+        // exercises end-to-end.
+        $fixture = $this->fixture;
+        $this->assertIsArray($fixture);
+
+        $mint = AuthCodeFlow::mintPatientRoleToken(
+            $this->baseUrl,
+            'PortalApiSmokeTest-AuthCode-' . bin2hex(random_bytes(3)),
+            self::PORTAL_SCOPE,
+            $fixture,
+        );
+        $authCodeClientId = $mint['client_id'];
+        try {
+            $resp = $this->rawGetWithToken('/apis/default/portal/patient', $mint['access_token']);
+            $this->assertSame(
+                200,
+                $resp['status'],
+                'Auth-code minted patient-role bearer must reach /portal/patient. Body: '
+                    . $resp['body']
+            );
+            $emailValue = $fixture['email'];
+            $this->assertIsString($emailValue);
+            $this->assertStringContainsString(
+                $emailValue,
+                $resp['body'],
+                'Response must carry the authenticated patient data'
+            );
+        } finally {
+            DcrClient::remove($authCodeClientId);
+        }
+    }
+
+    #[Test]
+    public function testPasswordGrantAndAuthCodeMintEquivalentScopeSets(): void
+    {
+        // D1: scope-set equivalence invariant. For the same client-
+        // registration scope + the same requested scope + the same
+        // authenticated patient, both mint paths (password grant and
+        // auth-code grant) must grant the same scope set in the issued
+        // token. A divergence would mean one grant's issuance pipeline
+        // silently drops or alters scopes relative to the other —
+        // exactly the suspected cause of the patient/appointment.read
+        // behavior noted in setUp.
+        $fixture = $this->fixture;
+        $this->assertIsArray($fixture);
+
+        // Password-grant mint: use the setUp bearer's granted scopes
+        // (minted at setUp time with the same self::PORTAL_SCOPE).
+        $passwordGrantScopes = $this->mintScopesViaPasswordGrant();
+
+        // Auth-code mint: mint fresh for the same patient + same
+        // scope, then capture the granted scope set.
+        $authCodeMint = AuthCodeFlow::mintPatientRoleToken(
+            $this->baseUrl,
+            'PortalApiSmokeTest-ScopeEquiv-' . bin2hex(random_bytes(3)),
+            self::PORTAL_SCOPE,
+            $fixture,
+        );
+        try {
+            // OpenEMR's auth-code flow surfaces the OIDC `nonce`
+            // request parameter in the issued token's `scope` claim;
+            // password grant does not. nonce is not a resource scope
+            // and does not affect access control, so filter it out as
+            // a known-benign difference. The test still fails if a
+            // real resource scope (patient/*, user/*, system/*) is
+            // granted by one path and not the other.
+            $filter = static fn (string $s): bool => $s !== 'nonce';
+            $passwordGrantScopes = array_values(array_filter($passwordGrantScopes, $filter));
+            $authCodeScopes = array_values(array_filter($authCodeMint['scopes_granted'], $filter));
+            sort($passwordGrantScopes);
+            sort($authCodeScopes);
+            $this->assertSame(
+                $passwordGrantScopes,
+                $authCodeScopes,
+                "Password-grant and auth-code mint should grant equivalent "
+                . "resource-scope sets for the same patient + request scope "
+                . "(nonce excluded as a known-benign auth-code artifact). "
+                . "Password-grant granted: " . json_encode($passwordGrantScopes) . "; "
+                . "auth-code granted: " . json_encode($authCodeScopes)
+            );
+        } finally {
+            DcrClient::remove($authCodeMint['client_id']);
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function mintScopesViaPasswordGrant(): array
+    {
+        $fixture = $this->fixture;
+        $this->assertIsArray($fixture);
+        [$cid, $csec] = DcrClient::registerConfidential(
+            $this->baseUrl,
+            'PortalApiSmokeTest-PwdForEquiv-' . bin2hex(random_bytes(3)),
+            self::PORTAL_SCOPE,
+            'password',
+        );
+        try {
+            $mint = PasswordGrant::mintPatientRoleToken(
+                $this->baseUrl,
+                $cid,
+                $csec,
+                self::PORTAL_SCOPE,
+                $fixture,
+            );
+            return $mint['scopes_granted'];
+        } finally {
+            DcrClient::remove($cid);
         }
     }
 
