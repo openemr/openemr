@@ -53,12 +53,15 @@ class X125010837P
         $HLcount = 0,
         &$edicount = 0,
         &$patSegmentCount = 0,
-        ?string $payerId = null
+        ?string $payerId = null,
+        ?FacilityZipDenial &$zipDenial = null
     ) {
         // removed $HLBillingPayToProvider until it's supported in the generators
         $today = time();
         $out = '';
         $claim = new Claim($pid, $encounter, $x12_partner, $payerId);
+        $billingZipDenies = false;
+        $serviceZipDenies = false;
 
         $log .= $claim->patientFirstName() . ' ' .
         $claim->patientMiddleName() . ' ' .
@@ -298,6 +301,7 @@ class X125010837P
             // X12 requires a 9 digit zip in loop 2010AA but we output it anyways
             if (strlen((string) $claim->billingFacilityZip()) != 9) {
                 $log .= self::BILLING_ZIP_LOG . "\n";
+                $billingZipDenies = true;
             }
             $out .= $claim->billingFacilityZip();
             $out .= "~\n";
@@ -1036,6 +1040,7 @@ class X125010837P
             $out .= "*";
             if (strlen((string) $claim->facilityZip()) != 9) {
                 $log .= self::SERVICE_ZIP_LOG . "\n";
+                $serviceZipDenies = true;
             }
             $out .= $claim->facilityZip();
             $out .= "~\n";
@@ -1648,6 +1653,8 @@ class X125010837P
         $out = preg_replace('/\*+~/', '~', $out) ?? $out;
 
         $log .= "\n";
+        $zipDenial = new FacilityZipDenial($billingZipDenies, $serviceZipDenies);
+
         return $out;
     }
 
@@ -1688,8 +1695,8 @@ class X125010837P
         . 'and deny the service location with MA114.';
 
     /**
-     * True when the log names a denial this hold covers.
-     * Today that is the billing or service facility ZIP. A pay-to warning does not count.
+     * True when the log text contains a billing or service ZIP warning.
+     * The hold does not call this. That log also contains the patient name.
      */
     public static function logShowsDenial(string $log): bool
     {
