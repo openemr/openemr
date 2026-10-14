@@ -26,14 +26,6 @@ CREATE TABLE `module_lbf_statement_rules` (
 ) ENGINE=InnoDB;
 #EndIf
 
-#IfMissingColumn module_lbf_statement_rules match_token
-ALTER TABLE `module_lbf_statement_rules` ADD `match_token` varchar(255) DEFAULT NULL;
-#EndIf
-
-#IfNotColumnType module_lbf_statement_rules match_token varchar(255)
-ALTER TABLE `module_lbf_statement_rules` MODIFY `match_token` varchar(255) DEFAULT NULL;
-#EndIf
-
 #IfNotTable module_lbf_statement_runs
 CREATE TABLE `module_lbf_statement_runs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
