@@ -24,6 +24,7 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -40,18 +41,28 @@ if (!empty($_REQUEST)) {
         CsrfUtils::csrfNotVerified();
     }
 }
-// Resolve the patient this finder is scoped to: an explicit request param
-// takes precedence, else the current session patient. The finder is a
-// per-patient dialog — refuse to list anything when neither source yields
-// a usable pid (returning an unscoped search would expose every patient's
-// document metadata to the caller).
+// Resolve the patient this finder is scoped to. A request `pid` is honored
+// only when it matches the current session patient context, or when the
+// caller holds the `patients/docs` ACL (admin / batch flow). Otherwise the
+// request `pid` would let any logged-in user enumerate another patient's
+// document metadata. Falls back to the session patient when the request
+// omits one. Refuses the search entirely if neither source yields a usable
+// pid.
 $rawRequestPid = $_REQUEST['pid'] ?? null;
 $sessionPid = $session->get('pid') ?? null;
+$sessionPidInt = (int) ($sessionPid ?? 0);
 $pid = null;
 if ($rawRequestPid !== null && $rawRequestPid !== '') {
-    $pid = (int) $rawRequestPid;
-} elseif ($sessionPid !== null && $sessionPid !== '') {
-    $pid = (int) $sessionPid;
+    $requestedPid = (int) $rawRequestPid;
+    if ($sessionPidInt > 0 && $sessionPidInt === $requestedPid) {
+        $pid = $requestedPid;
+    } elseif (AclMain::aclCheckCore('patients', 'docs')) {
+        $pid = $requestedPid;
+    } else {
+        AccessDeniedHelper::deny('document_select: requested pid not accessible by caller');
+    }
+} elseif ($sessionPidInt > 0) {
+    $pid = $sessionPidInt;
 }
 if ($pid === null || $pid <= 0) {
     AccessDeniedHelper::deny('document_select: pid required (not in request or session)');

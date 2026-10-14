@@ -24,21 +24,25 @@ trait CarecoordAuthzTrait
 {
     /**
      * Return true when the current session is permitted to operate on the
-     * given patient id. If the session has an active patient context, that
-     * patient id must match. Otherwise require `patients/docs` so admin and
-     * scope-wide readers can continue to drive batch flows.
+     * given patient id. Callers that hold the base `patients/docs` ACL can
+     * drive batch and admin flows across patients. Otherwise the session
+     * must be scoped to that specific patient via `set_pid`. Session-pid
+     * context alone is NOT an authorization boundary — it's purely UI
+     * context — so it only grants access on top of the ACL check or when
+     * no ACL is held but the user is already inside that patient's chart.
      */
     private function isPatientAuthorized(int $pid): bool
     {
         if ($pid <= 0) {
             return false;
         }
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $sessionPid = (int) ($session->get('pid') ?? 0);
-        if ($sessionPid > 0) {
-            return $sessionPid === $pid;
+        if (AclMain::aclCheckCore('patients', 'docs') !== false) {
+            return true;
         }
-        return AclMain::aclCheckCore('patients', 'docs') !== false;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $rawSessionPid = $session->get('pid');
+        $sessionPid = is_numeric($rawSessionPid) ? (int) $rawSessionPid : 0;
+        return $sessionPid > 0 && $sessionPid === $pid;
     }
 
     /**
@@ -51,6 +55,23 @@ trait CarecoordAuthzTrait
         if (!$doc->can_access()) {
             return false;
         }
-        return $this->isPatientAuthorized((int) $doc->get_foreign_id());
+        $foreignId = $doc->get_foreign_id();
+        return $this->isPatientAuthorized(is_numeric($foreignId) ? (int) $foreignId : 0);
+    }
+
+    /**
+     * Return `[authUser, authProvider]` as a pair of typed strings for the
+     * current session, suitable for passing to EventAuditLogger::newEvent().
+     * The raw session values are `mixed`; narrow them once here instead of
+     * repeating the cast at every audit call site.
+     *
+     * @return array{string, string}
+     */
+    private function auditIdentity(): array
+    {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUser = is_string($u = $session->get('authUser')) ? $u : '';
+        $authProvider = is_string($p = $session->get('authProvider')) ? $p : '';
+        return [$authUser, $authProvider];
     }
 }

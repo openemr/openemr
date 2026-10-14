@@ -31,6 +31,14 @@ class CcrController extends AbstractActionController
     protected $ccrTable;
     protected $listenerObject;
 
+    /**
+     * Set to true by indexAction() when calling importAction() internally
+     * for pre-approval batch imports. The import handler consults this
+     * flag — never a request parameter — to decide whether to skip the
+     * CSRF check that external HTTP callers must pass.
+     */
+    private bool $internalBatchContext = false;
+
     public function __construct(CcrTable $ccrTable, private readonly DocumentsController $documentsController)
     {
         $this->ccrTable = $ccrTable;
@@ -59,15 +67,24 @@ class CcrController extends AbstractActionController
 
         if (!empty($uploaded_documents[0]['id']) && $uploaded_documents[0]['id'] > 0) {
             $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
-            $_REQUEST["batch_import"]   = 'YES';
-            $this->importAction();
+            $this->internalBatchContext = true;
+            try {
+                $this->importAction();
+            } finally {
+                $this->internalBatchContext = false;
+            }
         } else {
             // TODO: change to $this->Documents()
             $result = Documents::fetchXmlDocuments();
             foreach ($result as $row) {
                 if ($row['doc_type'] == 'CCR') {
                     $_REQUEST["document_id"] = $row['doc_id'];
-                    $this->importAction();
+                    $this->internalBatchContext = true;
+                    try {
+                        $this->importAction();
+                    } finally {
+                        $this->internalBatchContext = false;
+                    }
                     $this->documentsController->getDocumentsTable()->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
                 }
             }
@@ -94,19 +111,27 @@ class CcrController extends AbstractActionController
     {
         $request     = $this->getRequest();
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $batchContext = ($_REQUEST["batch_import"] ?? null) === 'YES';
 
-        $queryDocId = $request->getQuery('document_id');
-        if ($queryDocId !== null && $queryDocId !== '') {
-            $queryId = (int) $queryDocId;
-            if ($queryId <= 0) {
-                AccessDeniedHelper::deny('CcrController::importAction: invalid document_id');
-            }
-            if (!$batchContext) {
-                $csrfToken = (string) ($request->getQuery('csrf_token_form') ?? $request->getPost('csrf_token_form', ''));
-                if (!CsrfUtils::verifyCsrfToken($csrfToken, $session)) {
-                    AccessDeniedHelper::deny('CcrController::importAction: CSRF token invalid');
-                }
+        // $internalBatchContext is set by indexAction() around its own
+        // import loop and is NEVER populated from request data — so the
+        // CSRF skip below cannot be flipped by a cross-site caller
+        // appending ?batch_import=YES.
+        $batchContext = $this->internalBatchContext;
+
+        $rawDocId = $request->getQuery('document_id') ?? $request->getPost('document_id');
+        if ($rawDocId === null || $rawDocId === '') {
+            AccessDeniedHelper::deny('CcrController::importAction: document_id required');
+        }
+        $queryId = (int) $rawDocId;
+        if ($queryId <= 0) {
+            AccessDeniedHelper::deny('CcrController::importAction: invalid document_id');
+        }
+
+        if (!$batchContext) {
+            $rawCsrf = $request->getQuery('csrf_token_form') ?? $request->getPost('csrf_token_form', '');
+            $csrfToken = is_string($rawCsrf) ? $rawCsrf : '';
+            if (!CsrfUtils::verifyCsrfToken($csrfToken, $session)) {
+                AccessDeniedHelper::deny('CcrController::importAction: CSRF token invalid');
             }
             $document = new Document($queryId);
             if (!$document->get_id()) {
@@ -118,50 +143,34 @@ class CcrController extends AbstractActionController
             if ((int) $document->get_foreign_id() !== 0) {
                 AccessDeniedHelper::deny('CcrController::importAction: document already assigned to a patient');
             }
-
-            $category_details = $this->getCcrTable()->fetch_cat_id('CCR');
-            $ccrCategoryId = (int) ($category_details[0]['id'] ?? 0);
-            if ($ccrCategoryId <= 0) {
-                AccessDeniedHelper::deny('CcrController::importAction: CCR category missing');
-            }
-
-            $_REQUEST["document_id"] = $queryId;
-
-            // Read the document and sanity-check that it parses as XML BEFORE
-            // reclassifying the row into the CCR category. A malformed file
-            // that fails here never gets moved into the readable CCR bucket.
-            $content = (string) $this->getCcrTable()->getDocument($queryId);
-            $previousInternalErrors = libxml_use_internal_errors(true);
-            $xmlProbe = simplexml_load_string($content);
-            libxml_clear_errors();
-            libxml_use_internal_errors($previousInternalErrors);
-            if ($xmlProbe === false) {
-                AccessDeniedHelper::deny('CcrController::importAction: content is not well-formed XML');
-            }
-            $this->documentsController->getDocumentsTable()->updateDocumentCategory($ccrCategoryId, $queryId);
-
-            EventAuditLogger::getInstance()->newEvent(
-                'ccr-import',
-                (string) ($session->get('authUser') ?? ''),
-                (string) ($session->get('authProvider') ?? ''),
-                1,
-                "doc_id=$queryId"
-            );
-        } else {
-            $doc_id = (int) ($_REQUEST["document_id"] ?? 0);
-            if ($doc_id <= 0) {
-                AccessDeniedHelper::deny('CcrController::importAction: document_id required');
-            }
-            $content = $this->getCcrTable()->getDocument($doc_id);
         }
 
-        $doc_id = (int) ($_REQUEST["document_id"] ?? 0);
-        if ($request->getQuery('document_id')) {
-            $replace    = ['<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:'];
-            $to_replace = ['<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">',''];
-            $content    = str_replace($replace, $to_replace, $content);
-            $content    = preg_replace('/BirthName/', 'CurrentName', $content, 2);
+        $category_details = $this->getCcrTable()->fetch_cat_id('CCR');
+        $ccrCategoryId = (int) ($category_details[0]['id'] ?? 0);
+        if ($ccrCategoryId <= 0) {
+            AccessDeniedHelper::deny('CcrController::importAction: CCR category missing');
         }
+
+        $_REQUEST["document_id"] = $queryId;
+
+        // Read the document and sanity-check that it parses as XML BEFORE
+        // reclassifying the row into the CCR category. A malformed file
+        // that fails here never gets moved into the readable CCR bucket.
+        $content = (string) $this->getCcrTable()->getDocument($queryId);
+        $previousInternalErrors = libxml_use_internal_errors(true);
+        $xmlProbe = simplexml_load_string($content);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousInternalErrors);
+        if ($xmlProbe === false) {
+            AccessDeniedHelper::deny('CcrController::importAction: content is not well-formed XML');
+        }
+        $this->documentsController->getDocumentsTable()->updateDocumentCategory($ccrCategoryId, $queryId);
+
+        $doc_id = $queryId;
+        $replace    = ['<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:'];
+        $to_replace = ['<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">',''];
+        $content    = str_replace($replace, $to_replace, $content);
+        $content    = preg_replace('/BirthName/', 'CurrentName', $content, 2);
 
         //fields to which the corresponding elements are to be inserted
         //format - level 1 key is the main tag in the XML eg:- //Problems or //Problems/Problem according to the content in the XML.
@@ -284,7 +293,21 @@ class CcrController extends AbstractActionController
             $this->getCcrTable()->update_imported($doc_id);
             $this->getCcrTable()->update_document($doc_id, $audit_master_id);
 
-            if ($_REQUEST["batch_import"]   == 'YES') {
+            // Emit the ccr-import audit only once the parse succeeded and the
+            // audit-master row + document-audit link are in place, so the log
+            // never reflects a parse that silently failed earlier.
+            $authUser = is_string($u = $session->get('authUser')) ? $u : '';
+            $authProvider = is_string($p = $session->get('authProvider')) ? $p : '';
+            $amidInt = (int) $audit_master_id;
+            EventAuditLogger::getInstance()->newEvent(
+                'ccr-import',
+                $authUser,
+                $authProvider,
+                1,
+                "doc_id=$doc_id amid=$amidInt"
+            );
+
+            if ($batchContext) {
                 return;
             } else {
                 //echo('Imported');

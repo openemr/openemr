@@ -325,13 +325,15 @@ class EncountermanagerController extends AbstractActionController
         if (!$this->isDocumentAuthorized($ccdaDocument)) {
             AccessDeniedHelper::deny('EncountermanagerController::downloadAction: document ownership denied');
         }
+        [$authUser, $authProvider] = $this->auditIdentity();
+        $docForeignId = (int) $ccdaDocument->get_foreign_id();
         EventAuditLogger::getInstance()->newEvent(
             'carecoord-ccda-download',
-            (string) (SessionWrapperFactory::getInstance()->getActiveSession()->get('authUser') ?? ''),
-            (string) (SessionWrapperFactory::getInstance()->getActiveSession()->get('authProvider') ?? ''),
+            $authUser,
+            $authProvider,
             1,
             "doc_id=$id",
-            (int) $ccdaDocument->get_foreign_id() ?: null
+            $docForeignId > 0 ? $docForeignId : null
         );
 
         $dir = sys_get_temp_dir() . "/CCDA_$id/";
@@ -490,13 +492,16 @@ class EncountermanagerController extends AbstractActionController
     public function transmitCCDAction()
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $csrfToken = (string) ($this->getRequest()->getQuery('csrf_token') ?? '');
+        $rawCsrf = $this->getRequest()->getQuery('csrf_token') ?? '';
+        $csrfToken = is_string($rawCsrf) ? $rawCsrf : '';
         if (!CsrfUtils::verifyCsrfToken($csrfToken, $session)) {
             AccessDeniedHelper::deny('EncountermanagerController::transmitCCDAction: CSRF token invalid');
         }
 
-        $combination = $this->getRequest()->getQuery('combination');
-        $recipients = $this->getRequest()->getQuery('recipients');
+        $rawCombination = $this->getRequest()->getQuery('combination');
+        $combination = is_string($rawCombination) ? $rawCombination : '';
+        $rawRecipients = $this->getRequest()->getQuery('recipients');
+        $recipients = is_string($rawRecipients) ? $rawRecipients : '';
         $xml_type = $this->getRequest()->getQuery('xml_type');
 
         // Every pid encoded in `combination` must be reachable to the caller.
@@ -504,7 +509,7 @@ class EncountermanagerController extends AbstractActionController
         // not just filter — the recipient list goes to an external Direct
         // address, so a partial-success leak would be worse than a full stop.
         $authorizedPids = [];
-        foreach (explode('|', (string) $combination) as $row) {
+        foreach (explode('|', $combination) as $row) {
             $pid = (int) explode('_', $row)[0];
             if (!$this->isPatientAuthorized($pid)) {
                 AccessDeniedHelper::deny('EncountermanagerController::transmitCCDAction: pid not accessible by caller');
@@ -512,12 +517,13 @@ class EncountermanagerController extends AbstractActionController
             $authorizedPids[] = $pid;
         }
 
+        [$authUser, $authProvider] = $this->auditIdentity();
         EventAuditLogger::getInstance()->newEvent(
             'carecoord-ccda-transmit',
-            (string) ($session->get('authUser') ?? ''),
-            (string) ($session->get('authProvider') ?? ''),
+            $authUser,
+            $authProvider,
             1,
-            'pids=' . implode(',', $authorizedPids) . ' recipients=' . (string) $recipients
+            'pids=' . implode(',', $authorizedPids) . ' recipients=' . $recipients
         );
 
         $result = $this->getEncountermanagerTable()->transmitCcdToRecipients(["ccda_combination" => $combination, "recipients" => $recipients, "xml_type" => $xml_type]);
