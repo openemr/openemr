@@ -3,6 +3,7 @@
 <head>
     <title>{{ heading_title|text }}</title>
     {{ setupHeader(['datetime-picker']) }}
+    <script src="{{ webroot|attr }}/library/js/CqmDateRangeValidator.js?v={{ assetVersion|attr_url }}"></script>
     <script>
 
         {{ DateToYYYYMMDD_js() }}
@@ -14,11 +15,14 @@
             {{ jqueryDateTimePicker('.datepicker',true,true,true) }}
         });
 
+        let executeRequest = null;
+        let pollingActive = false;
+        let pollingTimer = null;
+
         function runReport() {
 
             // Validate first
-            if (!(validateForm())) {
-                alert({{ "Rule Set and Plan Set selections are not consistent. Please fix and Submit again."|xlj }});
+            if (!validateForm()) {
                 return false;
             }
 
@@ -39,17 +43,15 @@
             // Collect an id string via an ajax request
             top.restoreSession();
             $.get("../../library/ajax/collect_new_report_id.php",
-                {csrf_token_form: {{ csrfTokenRaw()|js_escape }} },
-                function (data) {
+                {csrf_token_form: {{ csrfTokenRaw()|js_escape }} })
+                .done(function (data) {
                     // Set the report id in page form
                     $("#form_new_report_id").attr("value", data);
 
-                    // Start collection status checks
-                    collectStatus($("#form_new_report_id").val());
-
                     // Run the report
                     top.restoreSession();
-                    $.post("../../library/ajax/execute_cdr_report.php",
+                    pollingActive = true;
+                    executeRequest = $.post("../../library/ajax/execute_cdr_report.php",
                         {
                             provider: $("#form_provider").val(),
                             type: $("#form_rule_filter").val(),
@@ -61,11 +63,49 @@
                             pat_prov_rel: $("#form_pat_prov_rel").val(),
                             execute_report_id: $("#form_new_report_id").val(),
                             csrf_token_form: {{ csrfTokenRaw()|js_escape }}
+                        })
+                        .fail(function (xhr) {
+                            stopPolling();
+                            restoreReportForm();
+                            const responseText = xhr.status === 400 && xhr.responseText
+                                ? xhr.responseText.trim().slice(0, 500)
+                                : '';
+                            alert(responseText || {{ "Unable to run report."|xlj }});
                         });
+
+                    // The execution request is long-running, so poll while it remains open.
+                    if (pollingActive) {
+                        collectStatus($("#form_new_report_id").val());
+                    }
+                })
+                .fail(function () {
+                    restoreReportForm();
+                    alert({{ "Unable to run report."|xlj }});
                 });
+
+            return false;
+        }
+
+        function stopPolling() {
+            pollingActive = false;
+            if (pollingTimer !== null) {
+                clearTimeout(pollingTimer);
+                pollingTimer = null;
+            }
+        }
+
+        function restoreReportForm() {
+            $("#processing").hide();
+            $("#submit_button, #xmla_button, #xmlb_button, #xmlc_button, #print_button, #genQRDA").show();
+            $("#instructions_text").show();
+            $('#status_span').text('');
         }
 
         function collectStatus(report_id) {
+            if (!pollingActive) {
+                return;
+            }
+
             // Collect the status string via an ajax request and place in DOM at timed intervals
             top.restoreSession();
             // Do not send the skip_timeout_reset parameter, so don't close window before report is done.
@@ -75,10 +115,14 @@
                     csrf_token_form: {{ csrfTokenRaw()|js_escape }}
                 },
                 function (data) {
+                    if (!pollingActive) {
+                        return;
+                    }
                     if (data == "PENDING") {
                         // Place the pending string in the DOM
                         $('#status_span').replaceWith("<span id='status_span'>{{ "Preparing To Run Report"|xlt }}</span>");
                     } else if (data == "COMPLETE") {
+                        stopPolling();
                         // Go into the results page
                         top.restoreSession();
                         link_report = "cqm.php?report_id=" + encodeURIComponent(report_id);
@@ -89,7 +133,11 @@
                     }
                 });
             // run status check every 10 seconds
-            var repeater = setTimeout("collectStatus(" + report_id + ")", 10000);
+            if (pollingActive) {
+                pollingTimer = setTimeout(function () {
+                    collectStatus(report_id);
+                }, 10000);
+            }
         }
 
         function GenXml(sNested) {
@@ -114,21 +162,38 @@
             dlgopen(sLoc, '_blank', 600, 500);
         }
 
-        function validateForm() {
+        function getValidationError() {
+            {% if not report_id and is_amc_report %}
+            const beginDate = DateToYYYYMMDDHHMMSS_js($("#form_begin_date").val());
+            const endDate = DateToYYYYMMDDHHMMSS_js($("#form_target_date").val());
+            if (CqmDateRangeValidator.isSupportedTimestamp(beginDate) &&
+                CqmDateRangeValidator.isSupportedTimestamp(endDate) && beginDate > endDate) {
+                return {{ "Begin Date cannot be later than End Date."|xlj }};
+            }
+            {% endif %}
             {% if not report_id and type_report == "cqm" %}
             // If this is a cqm and plan set not set to ignore, then need to ensure consistent with the rules set
             if ($("#form_plan_filter").val() != '') {
                 if ($("#form_rule_filter").val() == $("#form_plan_filter").val()) {
-                    return true;
+                    return null;
                 } else {
-                    return false;
+                    return {{ "Rule Set and Plan Set selections are not consistent. Please fix and Submit again."|xlj }};
                 }
             } else {
-                return true;
+                return null;
             }
             {% else %}
-            return true;
+            return null;
             {% endif %}
+        }
+
+        function validateForm() {
+            const validationError = getValidationError();
+            if (validationError !== null) {
+                alert(validationError);
+                return false;
+            }
+            return true;
         }
 
     </script>
