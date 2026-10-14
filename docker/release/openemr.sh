@@ -848,17 +848,15 @@ cleanup_setup_scripts() {
 run_vendor_hook tooearly
 
 # Initialize timing for performance analysis
-SCRIPT_START_TIME=$(date +%s.%N 2>/dev/null || date +%s)
+SCRIPT_START_TIME=$(current_time_us)
 log_timing() {
     local step_name="$1"
     local current_time
-    current_time=$(date +%s.%N 2>/dev/null || date +%s)
     local elapsed
-    if command -v python3 >/dev/null 2>&1; then
-        elapsed=$(python3 -c "print(round(${current_time} - ${SCRIPT_START_TIME}, 2))" 2>/dev/null || echo "0")
-    else
-        elapsed=$((current_time - SCRIPT_START_TIME))
-    fi
+    local elapsed_us
+    current_time=$(current_time_us)
+    elapsed_us=$(elapsed_time_us "${SCRIPT_START_TIME}" "${current_time}")
+    elapsed=$(format_elapsed_seconds "${elapsed_us}")
     echo "[TIMING] Step ${step_name}: ${elapsed}s elapsed"
 }
 
@@ -926,7 +924,7 @@ log_timing "2-SSL+5-Certificates"
 # Step 6: Run auto-configuration (if needed)
 # If Redis is configured, start waiting for it in parallel with MySQL wait
 # since they're independent services and we'll need both eventually
-AUTO_CONFIG_START=$(date +%s.%N 2>/dev/null || date +%s)
+AUTO_CONFIG_START=$(current_time_us)
 if [[ "${AUTHORITY}" = "yes" ]]; then
     if [[ "${CONFIG}" = "0" ]] &&
        [[ "${MYSQL_HOST}" != "" ]] &&
@@ -972,13 +970,9 @@ if [[ "${AUTHORITY}" = "yes" ]]; then
             unset REDIS_WAIT_PID
         fi
 
-        AUTO_CONFIG_END=$(date +%s.%N 2>/dev/null || date +%s)
-        AUTO_CONFIG_DURATION=0
-        if command -v python3 >/dev/null 2>&1; then
-            AUTO_CONFIG_DURATION=$(python3 -c "print(round(${AUTO_CONFIG_END} - ${AUTO_CONFIG_START}, 2))" 2>/dev/null || echo "0")
-        else
-            AUTO_CONFIG_DURATION=$((AUTO_CONFIG_END - AUTO_CONFIG_START))
-        fi
+        AUTO_CONFIG_END=$(current_time_us)
+        AUTO_CONFIG_DURATION_US=$(elapsed_time_us "${AUTO_CONFIG_START}" "${AUTO_CONFIG_END}")
+        AUTO_CONFIG_DURATION=$(format_elapsed_seconds "${AUTO_CONFIG_DURATION_US}")
         echo "[TIMING] Auto-configuration took ${AUTO_CONFIG_DURATION}s"
         echo "Setup Complete!"
 
@@ -1051,7 +1045,7 @@ log_timing "8-Redis"
 # Step 9: Finalize permissions and cleanup setup scripts
 # Note: Most file permissions are pre-set during Docker build (400 for files, 500 for dirs).
 # This step only needs to lock down files that were writable during setup.
-PERM_START=$(date +%s.%N 2>/dev/null || date +%s)
+PERM_START=$(current_time_us)
 if [[ "${AUTHORITY}" = "yes" ]] || [[ "${SWARM_MODE}" = "yes" ]]; then
     if [[ "${CONFIG}" = "1" ]] && [[ "${MANUAL_SETUP}" != "yes" ]]; then
         if [[ -f "${AUTO_CONFIG}" ]]; then
@@ -1074,14 +1068,10 @@ if [[ "${AUTHORITY}" = "yes" ]] || [[ "${SWARM_MODE}" = "yes" ]]; then
         fi
     fi
 fi
-PERM_END=$(date +%s.%N 2>/dev/null || date +%s)
-PERM_DURATION=0
-if command -v python3 >/dev/null 2>&1; then
-    PERM_DURATION=$(python3 -c "print(round(${PERM_END} - ${PERM_START}, 2))" 2>/dev/null || echo "0")
-else
-    PERM_DURATION=$((PERM_END - PERM_START))
-fi
-if [[ "${PERM_DURATION}" != "0" ]]; then
+PERM_END=$(current_time_us)
+PERM_DURATION_US=$(elapsed_time_us "${PERM_START}" "${PERM_END}")
+if (( PERM_DURATION_US >= 5000 )); then
+    PERM_DURATION=$(format_elapsed_seconds "${PERM_DURATION_US}")
     echo "[TIMING] File permissions took ${PERM_DURATION}s"
 fi
 log_timing "9-Permissions"
@@ -1141,13 +1131,9 @@ run_vendor_hook prelaunch
 # Step 15: Start Apache (if this container is an operator)
 log_timing "15-PreApache"
 if [[ "${OPERATOR}" = "yes" ]]; then
-    SCRIPT_END_TIME=$(date +%s.%N 2>/dev/null || date +%s)
-    TOTAL_DURATION=0
-    if command -v python3 >/dev/null 2>&1; then
-        TOTAL_DURATION=$(python3 -c "print(round(${SCRIPT_END_TIME} - ${SCRIPT_START_TIME}, 2))" 2>/dev/null || echo "0")
-    else
-        TOTAL_DURATION=$((SCRIPT_END_TIME - SCRIPT_START_TIME))
-    fi
+    SCRIPT_END_TIME=$(current_time_us)
+    TOTAL_DURATION_US=$(elapsed_time_us "${SCRIPT_START_TIME}" "${SCRIPT_END_TIME}")
+    TOTAL_DURATION=$(format_elapsed_seconds "${TOTAL_DURATION_US}")
     echo "[TIMING] Total script execution time: ${TOTAL_DURATION}s before Apache start"
     echo 'Starting Apache!'
     exec /usr/sbin/httpd -D FOREGROUND
