@@ -19,6 +19,7 @@ use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\Tasks\GeneratorX12;
 use OpenEMR\Billing\BillingProcessor\Tasks\GeneratorX12Direct;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\FacilityZipDenial;
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\TestCase;
@@ -193,6 +194,76 @@ class X125010837PZipTest extends TestCase
     }
 
     /**
+     * The hold reads the ZIP flags. Text in the log is not a denial.
+     */
+    public function testPatientNameDoesNotHoldTheClaim(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $gen = $this->generator(
+                'X12 validate ' . X125010837P::BILLING_ZIP_LOG . ' ' . X125010837P::SERVICE_ZIP_LOG,
+                new FacilityZipDenial()
+            );
+            $gen->probe->validateAndClear($gen->claim);
+
+            $this->assertSame(['remember', 'mark-existing'], $gen->probe->calls);
+            $this->assertCount(1, $gen->batch->getClaims());
+            $this->assertStringContainsString('Successfully marked claim', implode("\n", $gen->probe->screen));
+        });
+    }
+
+    /**
+     * A failed billed update keeps the accepted claim out of the batch.
+     */
+    public function testAcceptedClaimStaysOutWhenTheBilledUpdateFails(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $gen = $this->generator('X12 validate patient on 2026-09-29.');
+            $gen->probe->billedUpdateLands = false;
+            $gen->probe->validateAndClear($gen->claim);
+            $screen = implode("\n", $gen->probe->screen);
+
+            $this->assertSame(['remember', 'mark-existing'], $gen->probe->calls);
+            $this->assertSame([], $gen->batch->getClaims());
+            $this->assertStringContainsString(FacilityZipDenial::LEFT_OUT_NOT_BILLED, $screen);
+            $this->assertStringNotContainsString('Successfully', $screen);
+        });
+    }
+
+    /**
+     * A failed insert does not send the claim or update another version.
+     */
+    public function testClaimStaysOutWhenTheInsertFails(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $gen = $this->generator('X12 validate patient on 2026-09-29.');
+            $gen->probe->payerStored = false;
+            $gen->probe->generate($gen->claim);
+
+            $this->assertSame(['remember'], $gen->probe->calls);
+            $this->assertSame([], $gen->batch->getClaims());
+            $this->assertContains(FacilityZipDenial::LEFT_OUT_NOT_SAVED, $gen->probe->screen);
+        });
+    }
+
+    /**
+     * An accepted claim enters the batch only after the billed write lands.
+     */
+    public function testClaimEntersBatchOnlyAfterTheBilledWriteLands(): void
+    {
+        $probe = new InclusionProbe('validate');
+        $none = new FacilityZipDenial();
+        $billing = new FacilityZipDenial(true, false);
+        $service = new FacilityZipDenial(false, true);
+
+        $this->assertFalse($probe->enters(true, $billing, true, true));
+        $this->assertFalse($probe->enters(true, $service, false, false));
+        $this->assertFalse($probe->enters(true, $none, true, false));
+        $this->assertTrue($probe->enters(true, $none, true, true));
+        $this->assertTrue($probe->enters(true, $none, false, false));
+        $this->assertTrue($probe->enters(false, $billing, false, false));
+    }
+
+    /**
      * A pay-to warning does not hold the claim when the denial hold is on.
      */
     public function testGlobalOnDoesNotHoldAPayToWarning(): void
@@ -241,10 +312,14 @@ class X125010837PZipTest extends TestCase
     /**
      * Standard generator, batch, and claim for one hold case.
      */
-    private function generator(string $log): HoldZipFixture
+    private function generator(string $log, ?FacilityZipDenial $denial = null): HoldZipFixture
     {
         $probe = new HoldZipGenerator('validate');
         $probe->renderedLog = $log;
+        $probe->denial = $denial ?? new FacilityZipDenial(
+            str_contains($log, X125010837P::BILLING_ZIP_LOG),
+            str_contains($log, X125010837P::SERVICE_ZIP_LOG),
+        );
         $batch = new BillingClaimBatch('.txt', [
             'claims' => [(object) ['action' => 'validate']],
         ]);
@@ -345,6 +420,12 @@ final class HoldZipGenerator extends GeneratorX12
 
     public string $renderedLog = '';
 
+    public FacilityZipDenial $denial;
+
+    public bool $payerStored = true;
+
+    public bool $billedUpdateLands = true;
+
     public ?BillingClaim $seen = null;
 
     /**
@@ -374,22 +455,24 @@ final class HoldZipGenerator extends GeneratorX12
     }
 
     /**
-     * @return array{string, list<string>}
+     * @return array{string, non-empty-list<string>, FacilityZipDenial}
      */
     protected function renderedClaim(BillingClaim $claim): array
     {
         $this->seen = $claim;
 
-        return [$this->renderedLog, ['']];
+        return [$this->renderedLog, [''], $this->denial];
     }
 
     /**
      * Record that the payer was stored and the claim left unbilled.
      */
-    protected function rememberPayer(BillingClaim $claim): void
+    protected function rememberPayer(BillingClaim $claim): bool
     {
         $this->seen = $claim;
         $this->calls[] = 'remember';
+
+        return $this->payerStored;
     }
 
     /**
@@ -404,10 +487,12 @@ final class HoldZipGenerator extends GeneratorX12
     /**
      * Record the billed update of the row stored for this claim.
      */
-    protected function markBilledExisting(BillingClaim $claim): void
+    protected function markBilledExisting(BillingClaim $claim): bool
     {
         $this->seen = $claim;
         $this->calls[] = 'mark-existing';
+
+        return $this->billedUpdateLands;
     }
 }
 
@@ -471,11 +556,26 @@ final class VersionHoldProbe extends GeneratorX12
     }
 
     /**
-     * @return array{string, list<string>}
+     * @return array{string, non-empty-list<string>, FacilityZipDenial}
      */
     protected function renderedClaim(BillingClaim $claim): array
     {
-        return ['X12 generate patient on file.', ['']];
+        return ['X12 generate patient on file.', [''], new FacilityZipDenial()];
+    }
+}
+
+final class InclusionProbe extends GeneratorX12
+{
+    /**
+     * Expose the batch inclusion rule for one set of flags.
+     */
+    public function enters(
+        bool $hold,
+        FacilityZipDenial $denial,
+        bool $billIfAccepted,
+        bool $billedWriteLanded
+    ): bool {
+        return $this->claimEntersBatch($hold, $denial, $billIfAccepted, $billedWriteLanded);
     }
 }
 

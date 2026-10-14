@@ -16,6 +16,7 @@ namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\FacilityZipDenial;
 
 abstract class AbstractProcessingTask
 {
@@ -98,5 +99,41 @@ abstract class AbstractProcessingTask
             '',
             $claimVersion
         );
+    }
+
+    /**
+     * Positive int from a claim write that stored or updated a row.
+     * Zero and any other result did not land.
+     */
+    protected function landedClaimWrite(mixed $result): ?int
+    {
+        if (!is_int($result) || $result <= 0) {
+            return null;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Whether this claim's segments belong in the batch.
+     *
+     * With the hold on, a ZIP denial stays out, and an accepted claim
+     * stays out unless its billed update landed. Hold off still sends.
+     */
+    protected function claimEntersBatch(
+        bool $hold,
+        FacilityZipDenial $denial,
+        bool $billIfAccepted,
+        bool $billedWriteLanded
+    ): bool {
+        if ($hold && $denial->willDeny()) {
+            return false;
+        }
+
+        if ($hold && $billIfAccepted) {
+            return $billedWriteLanded;
+        }
+
+        return true;
     }
 }
