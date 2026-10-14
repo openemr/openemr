@@ -55,9 +55,19 @@ class Documents extends AbstractPlugin
 
     public static function fetchXmlDocuments(): array
     {
+        // The three batch-import loops that consume this list (CCDA, CCD,
+        // CCR) each hand the id to importAction() under batchContext, which
+        // skips the usual `foreign_id === 0` check that external callers
+        // get. Enforce the unassigned-document precondition at the source
+        // so an already-assigned XML can never be re-imported and
+        // reclassified by a later batch pass.
         $query = "SELECT doc.id
 	    FROM categories_to_documents AS cat_doc
-	    JOIN documents AS doc ON doc.imported = 0 AND doc.id = cat_doc.document_id AND doc.mimetype = 'text/xml'
+	    JOIN documents AS doc
+	        ON doc.imported = 0
+	        AND doc.id = cat_doc.document_id
+	        AND doc.mimetype = 'text/xml'
+	        AND (doc.foreign_id = 0 OR doc.foreign_id IS NULL)
 	    WHERE cat_doc.category_id = 1";
         $result = QueryUtils::fetchRecords($query);
         $count  = 0;

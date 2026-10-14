@@ -33,6 +33,7 @@ class CarecoordAuthzTraitTest extends TestCase
         $session->remove('pid');
         $session->remove('authUser');
         $session->remove('authUserID');
+        $session->remove('authProvider');
     }
 
     public function testInvalidPidIsAlwaysRejected(): void
