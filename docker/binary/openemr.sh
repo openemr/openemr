@@ -34,6 +34,10 @@ set -euo pipefail
 OE_ROOT="/var/www/localhost/htdocs/openemr"
 AUTO_CONFIG="/var/www/localhost/htdocs/openemr/auto_configure.php"
 SQLCONF_FILE="${OE_ROOT}/sites/default/sqlconf.php"
+# The Dockerfile copies the entrypoint query CLI next to unlock_admin.php, so
+# it is available before the application tree is readable. Binary images need
+# that: they unpack a PHAR, so src/Common/Docker is never on disk.
+ENTRYPOINT_QUERY="/root/entrypoint_query.php"
 
 # ============================================================================
 # SHELL LIBRARY SOURCING
@@ -198,7 +202,7 @@ wait_for_redis() {
 # Checks if OpenEMR has already been configured.
 # Returns "1" if configured, "0" if not configured yet.
 is_configured() {
-    /usr/local/bin/php -r "if (is_file('${SQLCONF_FILE}')) { require '${SQLCONF_FILE}'; echo isset(\$config) && \$config ? 1 : 0; } else { echo 0; }" 2>/dev/null | tail -1 || echo 0
+    /usr/local/bin/php "${ENTRYPOINT_QUERY}" is-configured "${SQLCONF_FILE}" 2>/dev/null | tail -1 || echo 0
 }
 
 # ============================================================================
@@ -650,7 +654,7 @@ run_auto_configure() {
     rm -f auto_configure.ini
 
     # Verify configuration succeeded
-    CONFIG=$(php -r "require_once('${SQLCONF_FILE}'); echo \$config;")
+    CONFIG=$(php "${ENTRYPOINT_QUERY}" config-flag "${SQLCONF_FILE}")
     if [[ "${CONFIG}" = "0" ]]; then
         echo "Error in auto-config. Configuration failed." >&2
         return 1
@@ -721,7 +725,7 @@ check_upgrade
 log_timing "3-UpgradeCheck"
 
 # Step 4: Verify configuration exists (critical check for worker containers)
-CONFIG=$(/usr/local/bin/php -r "require_once('${SQLCONF_FILE}'); echo \$config;")
+CONFIG=$(/usr/local/bin/php "${ENTRYPOINT_QUERY}" config-flag "${SQLCONF_FILE}")
 if [[ "${AUTHORITY}" = "no" ]] && [[ "${CONFIG}" = "0" ]]; then
     echo "Critical failure! An OpenEMR worker is trying to run on a missing configuration." >&2
     echo " - Is this due to a Kubernetes grant hiccup?" >&2

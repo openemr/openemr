@@ -32,6 +32,7 @@ set -euo pipefail
 OE_ROOT="/var/www/localhost/htdocs/openemr"
 AUTO_CONFIG="/var/www/localhost/htdocs/openemr/auto_configure.php"
 SQLCONF_FILE="${OE_ROOT}/sites/default/sqlconf.php"
+ENTRYPOINT_QUERY="/root/entrypoint_query.php"
 
 # ============================================================================
 # SHELL LIBRARY SOURCING
@@ -201,7 +202,7 @@ wait_for_redis() {
 # Checks if OpenEMR has already been configured.
 # Returns "1" if configured, "0" if not configured yet.
 is_configured() {
-    php -r "if (is_file('${SQLCONF_FILE}')) { require '${SQLCONF_FILE}'; echo isset(\$config) && \$config ? 1 : 0; } else { echo 0; }" 2>/dev/null | tail -1 || echo 0
+    php "${ENTRYPOINT_QUERY}" is-configured "${SQLCONF_FILE}" 2>/dev/null | tail -1 || echo 0
 }
 
 # ============================================================================
@@ -551,7 +552,7 @@ check_schema_upgrade() {
     # version.php is a standalone file of assignments, so requiring it directly
     # is safe here and deliberately avoids bootstrapping the application.
     local -i code_schema_version
-    code_schema_version=$(php -r "require '${OE_ROOT}/version.php'; echo (int)\$v_database;")
+    code_schema_version=$(php "${ENTRYPOINT_QUERY}" schema-version "${OE_ROOT}/version.php")
     if [[ "${code_schema_version}" -le 0 ]]; then
         echo "ERROR: could not read \$v_database from ${OE_ROOT}/version.php." >&2
         return 1
@@ -590,40 +591,28 @@ upgrade_site_schema() {
     fi
 
     # Connect as the site's own user against the site's own database, which is
-    # the only way to read a non-default site's version table.
-    #
-    # The path reaches PHP through the environment rather than interpolated into
-    # the source. A site directory name is an arbitrary filesystem string -- it
-    # may hold a quote, a backslash, a dollar sign or a newline -- so pasting one
-    # into a PHP literal would make the site list an eval surface.
-    local db_params
-    db_params=$(OPENEMR_SQLCONF="${sqlconf}" php <<'PHP'
-<?php
-require getenv('OPENEMR_SQLCONF');
-// An unconfigured site has nothing to migrate, which is not a failure: report
-// it in band so a nonzero status still means the file could not be read.
-if (!isset($config) || !$config) {
-    echo 'unconfigured';
-    exit(0);
-}
-// Unit separator, not a tab: tab is IFS whitespace, so read would collapse a
-// run of them and an empty field -- a site with no database password -- would
-// shift every later value one position left.
-echo implode("\x1f", [$host, $port, $login, $pass, $dbase]);
-PHP
-    ) || {
+    # the only way to read a non-default site's version table. The path is an
+    # argv argument, not interpolated into PHP source.
+    local exported
+    local EP_CONFIGURED='' EP_HOST='' EP_PORT='' EP_LOGIN='' EP_PASS='' EP_DBASE=''
+    exported=$(php "${ENTRYPOINT_QUERY}" export-sqlconf "${sqlconf}") || {
         echo "ERROR: could not read database parameters from ${sqlconf}." >&2
         return 1
     }
+    eval "${exported}"
 
     # Fresh install: check_upgrade runs before auto-configuration.
-    if [[ "${db_params}" = 'unconfigured' ]]; then
+    if [[ "${EP_CONFIGURED}" != "1" ]]; then
         return 0
     fi
 
     wait_for_mysql
     local db_host db_port db_login db_pass db_name
-    IFS=$'\x1f' read -r db_host db_port db_login db_pass db_name <<< "${db_params}"
+    db_host="${EP_HOST}"
+    db_port="${EP_PORT}"
+    db_login="${EP_LOGIN}"
+    db_pass="${EP_PASS}"
+    db_name="${EP_DBASE}"
 
     # One row, two columns: the installed schema revision and the release it
     # belongs to. sql_upgrade.php keys its migration files on the latter.
@@ -807,7 +796,7 @@ run_auto_configure() {
     rm -f auto_configure.ini
 
     # Verify configuration succeeded
-    CONFIG=$(php -r "require_once('${SQLCONF_FILE}'); echo \$config;")
+    CONFIG=$(php "${ENTRYPOINT_QUERY}" config-flag "${SQLCONF_FILE}")
     if [[ "${CONFIG}" = "0" ]]; then
         echo "Error in auto-config. Configuration failed." >&2
         return 1
@@ -892,7 +881,7 @@ check_upgrade
 log_timing "3-UpgradeCheck"
 
 # Step 4: Verify configuration exists (critical check for worker containers)
-CONFIG=$(php -r "require_once('${SQLCONF_FILE}'); echo \$config;")
+CONFIG=$(php "${ENTRYPOINT_QUERY}" config-flag "${SQLCONF_FILE}")
 if [[ "${AUTHORITY}" = "no" ]] && [[ "${CONFIG}" = "0" ]]; then
     echo "Critical failure! An OpenEMR worker is trying to run on a missing configuration." >&2
     echo " - Is this due to a Kubernetes grant hiccup?" >&2

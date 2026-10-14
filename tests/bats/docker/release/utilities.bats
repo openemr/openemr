@@ -43,3 +43,14 @@ setup() {
 @test "utilities: unlock_admin.php exists" {
     assert_file_exists "${UTILS}/unlock_admin.php"
 }
+
+@test "utilities: entrypoint query CLI exists and matches the canonical copy" {
+    local root
+    root="$(get_repo_root)"
+    assert_file_exists "${UTILS}/entrypoint_query.php"
+    assert_file_exists "${UTILS}/EntrypointQuery.php"
+    assert_files_identical "${root}/src/Common/Docker/entrypoint_query.php" \
+        "${UTILS}/entrypoint_query.php"
+    assert_files_identical "${root}/src/Common/Docker/EntrypointQuery.php" \
+        "${UTILS}/EntrypointQuery.php"
+}
