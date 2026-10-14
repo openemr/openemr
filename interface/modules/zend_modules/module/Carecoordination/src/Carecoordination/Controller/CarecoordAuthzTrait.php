@@ -18,6 +18,7 @@ namespace Carecoordination\Controller;
 
 use Document;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 trait CarecoordAuthzTrait
@@ -57,6 +58,43 @@ trait CarecoordAuthzTrait
         }
         $foreignId = $doc->get_foreign_id();
         return $this->isPatientAuthorized(is_numeric($foreignId) ? (int) $foreignId : 0);
+    }
+
+    /**
+     * Return true when the current session is allowed to review, approve,
+     * discard, or delete the given audit_master row. The caller must either
+     * be the user who uploaded the referenced CCDA/CCR (pre-approval phase
+     * where the row's `pid` is still 0) or hold patient-record access to
+     * the stored `pid` the row carries. When $claimedPid is supplied it is
+     * validated against the stored row so an attacker cannot slip a
+     * foreign pid alongside an amid they are legitimately scoped to.
+     */
+    private function isAuditMasterAccessible(int $auditMasterId, ?int $claimedPid = null): bool
+    {
+        if ($auditMasterId <= 0) {
+            return false;
+        }
+        $row = QueryUtils::fetchRecords(
+            'SELECT pid, user_id FROM audit_master WHERE id = ?',
+            [$auditMasterId]
+        );
+        if ($row === []) {
+            return false;
+        }
+        $storedPid = (int) ($row[0]['pid'] ?? 0);
+        $uploaderId = (int) ($row[0]['user_id'] ?? 0);
+        if ($claimedPid !== null && $claimedPid > 0 && $claimedPid !== $storedPid) {
+            return false;
+        }
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUserId = (int) ($session->get('authUserID') ?? 0);
+        if ($uploaderId > 0 && $authUserId === $uploaderId) {
+            return true;
+        }
+        if ($storedPid <= 0) {
+            return false;
+        }
+        return $this->isPatientAuthorized($storedPid);
     }
 
     /**

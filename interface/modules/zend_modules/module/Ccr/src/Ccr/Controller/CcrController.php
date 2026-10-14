@@ -14,6 +14,7 @@
 namespace Ccr\Controller;
 
 use Application\Listener\Listener;
+use Carecoordination\Controller\CarecoordAuthzTrait;
 use Ccr\Model\CcrTable;
 use Document;
 use Documents\Controller\DocumentsController;
@@ -28,6 +29,8 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class CcrController extends AbstractActionController
 {
+    use CarecoordAuthzTrait;
+
     protected $ccrTable;
     protected $listenerObject;
 
@@ -350,18 +353,51 @@ class CcrController extends AbstractActionController
         $audit_master_id    = $request->getQuery('amid') ?: $request->getPost('amid', null);
         $pid                = $request->getQuery('pid') ?: $request->getPost('pid', null);
         $document_id        = $request->getQuery('document_id') ?: $request->getPost('document_id', null);
+        $amidInt = is_numeric($audit_master_id) ? (int) $audit_master_id : 0;
+        $pidInt = is_numeric($pid) ? (int) $pid : 0;
+        $docIdInt = is_numeric($document_id) ? (int) $document_id : 0;
 
         $setval = $request->getPost('setval');
         if ($setval === 'approve' || $setval === 'discard') {
             CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
         }
+        // Authorize the amid/pid pair on every branch of this action — the
+        // approve/discard writes go through CcrTable::insertApprovedData() /
+        // discardCCRData() with attacker-controlled pid/amid, and the
+        // view-render path below reads cross-patient demographics /
+        // problems / allergies for the request pid. isAuditMasterAccessible()
+        // rejects a claimed pid that disagrees with the stored row, so the
+        // subsequent $pid lookups are bound to a record the caller is
+        // authorized for.
+        if (!$this->isAuditMasterAccessible($amidInt, $pidInt)) {
+            AccessDeniedHelper::deny('CcrController::revandapprove: audit_master not accessible by caller');
+        }
+
         if ($setval == 'approve') {
             $post = $request->getPost();
             $postData = $post instanceof Parameters ? $post->toArray() : [];
             $this->getCcrTable()->insertApprovedData($postData);
+            [$authUser, $authProvider] = $this->auditIdentity();
+            EventAuditLogger::getInstance()->newEvent(
+                'ccr-approve',
+                $authUser,
+                $authProvider,
+                1,
+                "amid=$amidInt doc_id=$docIdInt",
+                $pidInt > 0 ? $pidInt : null
+            );
             return $this->redirect()->toRoute('ccr', ['action' => 'index']);
         } elseif ($setval == 'discard') {
             $this->getCcrTable()->discardCCRData(['audit_master_id' => $audit_master_id]);
+            [$authUser, $authProvider] = $this->auditIdentity();
+            EventAuditLogger::getInstance()->newEvent(
+                'ccr-discard',
+                $authUser,
+                $authProvider,
+                1,
+                "amid=$amidInt",
+                $pidInt > 0 ? $pidInt : null
+            );
             return $this->redirect()->toRoute('ccr', ['action' => 'index']);
         }
 

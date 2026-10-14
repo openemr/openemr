@@ -26,7 +26,6 @@ use Laminas\View\Model\ViewModel;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -362,9 +361,16 @@ class CarecoordinationController extends AbstractActionController
         $setval = $request->getPost('setval');
         if ($setval === 'approve' || $setval === 'discard') {
             CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-            if (!$this->isAuditMasterAccessible($amidInt, $pidInt)) {
-                AccessDeniedHelper::deny("CarecoordinationController::revandapprove ($setval): audit_master not accessible by caller");
-            }
+        }
+        // Authorize the amid/pid pair on every branch — the view-render path
+        // below also reads cross-patient demographics / problems / allergies
+        // for the request pid, so an attacker who skipped setval could
+        // otherwise disclose a victim's parsed CCDA audit through the GET
+        // response. isAuditMasterAccessible() rejects a claimed pid that
+        // disagrees with the stored row, so the subsequent $pid lookups are
+        // bound to a record the caller is authorized for.
+        if (!$this->isAuditMasterAccessible($amidInt, $pidInt)) {
+            AccessDeniedHelper::deny('CarecoordinationController::revandapprove: audit_master not accessible by caller');
         }
 
         if ($setval === 'approve') {
@@ -985,46 +991,6 @@ class CarecoordinationController extends AbstractActionController
         }
         return $audit;
     }
-
-    /**
-     * Return true when the current session is allowed to approve, discard, or
-     * delete the given audit_master row. The caller must either be the user
-     * who uploaded the referenced CCDA (pre-approval phase, pid=0) or have
-     * patient-record access to the target pid that the row carries. The
-     * optional $claimedPid parameter is validated against the stored row to
-     * stop callers from forging an unrelated pid.
-     */
-    private function isAuditMasterAccessible(int $auditMasterId, ?int $claimedPid = null): bool
-    {
-        if ($auditMasterId <= 0) {
-            return false;
-        }
-        $row = QueryUtils::fetchRecords(
-            'SELECT pid, user_id FROM audit_master WHERE id = ?',
-            [$auditMasterId]
-        );
-        if ($row === []) {
-            return false;
-        }
-        $storedPid = (int) ($row[0]['pid'] ?? 0);
-        $uploaderId = (int) ($row[0]['user_id'] ?? 0);
-        if ($claimedPid !== null && $claimedPid > 0 && $claimedPid !== $storedPid) {
-            return false;
-        }
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $authUserId = (int) ($session->get('authUserID') ?? 0);
-        if ($uploaderId > 0 && $authUserId === $uploaderId) {
-            return true;
-        }
-        if ($storedPid <= 0) {
-            // Pre-approval staging row with no patient yet; only the uploader
-            // or an admin should be able to approve/discard. Treat as denied
-            // for anyone else.
-            return false;
-        }
-        return $this->isPatientAuthorized($storedPid);
-    }
-
 
     private function sanitizeZip($zipLocation)
     {
