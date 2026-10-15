@@ -62,12 +62,17 @@ class ForbiddenInstantiationsRule implements Rule
         ServiceContainer::class,
     ];
 
+    /**
+     * Inspect object construction expressions for forbidden service instantiations.
+     */
     public function getNodeType(): string
     {
         return New_::class;
     }
 
     /**
+     * Report direct construction of shared services outside their permitted callers.
+     *
      * @param New_ $node
      * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
