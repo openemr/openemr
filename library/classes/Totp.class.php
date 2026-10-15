@@ -69,7 +69,7 @@ class Totp
      * @param $totp : unencrypted
      * @return bool
      */
-    public function validateCode($totp)
+    public function validateCode($totp): bool
     {
         if (empty($totp) || empty($this->_secret)) {
             return false;

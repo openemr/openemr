@@ -445,6 +445,57 @@ class AuthorizationLogoutTest extends TestCase
         $this->assertFalse($response->hasHeader('Location'));
     }
 
+    #[Test]
+    public function testLogoutRejectsHintWithTamperedSignature(): void
+    {
+        // Build a correctly-signed JWT, then flip bytes in the
+        // signature portion. Structurally valid but cryptographically
+        // invalid. The post-#14475 signature-verifying flow must
+        // reject this at the signature check, not fall through to
+        // claim validation.
+        [$signer, $privateKey, $realIssuer] = $this->loadLogoutJwtMaterial();
+        $now = new DateTimeImmutable();
+        $validToken = (new JwtTokenBuilder(new JoseEncoder(), ChainedFormatter::default()))
+            ->issuedBy($realIssuer)
+            ->permittedFor(self::TEST_CLIENT_ID)
+            ->relatedTo('nobody')
+            ->issuedAt($now)
+            ->expiresAt($now->modify('+1 hour'))
+            ->withClaim('nonce', '')
+            ->getToken($signer, $privateKey)
+            ->toString();
+
+        $parts = explode('.', $validToken);
+        $this->assertCount(3, $parts, 'A valid lcobucci JWT has exactly three dot-separated parts');
+        // Flip a middle character so the decoded signature bytes change
+        // while the structural shape and header+payload remain intact.
+        // Mutating a middle base64url character is reliable because
+        // every middle character carries full 6-bit significance;
+        // tail characters can be padding bits that round-trip through
+        // base64 decoding/encoding unchanged, which would leave the
+        // signature valid and the test spuriously green.
+        $sig = $parts[2];
+        $midpoint = intdiv(strlen($sig), 2);
+        $this->assertGreaterThan(0, $midpoint);
+        $originalChar = $sig[$midpoint];
+        // Pick a replacement that is guaranteed different from the
+        // original and still a valid base64url character.
+        $replacement = $originalChar === 'A' ? 'B' : 'A';
+        $sig[$midpoint] = $replacement;
+        $this->assertNotSame($parts[2], $sig, 'Tamper must actually change the signature');
+        $tamperedToken = $parts[0] . '.' . $parts[1] . '.' . $sig;
+
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $tamperedToken,
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+    }
+
     private function b64url(string $data): string
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');

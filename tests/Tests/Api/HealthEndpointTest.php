@@ -84,7 +84,11 @@ class HealthEndpointTest extends TestCase
     }
 
     /**
-     * Test that readyz returns proper health check structure when installed
+     * Test that readyz returns proper health check structure
+     *
+     * The API suite runs against an installed instance, so these assertions are
+     * unconditional. Guarding them behind a status check let issue #13202 pass
+     * CI silently.
      */
     public function testReadyzReturnsHealthChecks(): void
     {
@@ -92,10 +96,36 @@ class HealthEndpointTest extends TestCase
         $body = json_decode((string) $response->getBody(), true);
         self::assertIsArray($body);
 
-        // If status is 'ready', we should have checks
-        if ($body['status'] === 'ready') {
-            $this->assertArrayHasKey('checks', $body, 'readyz response should have checks when ready');
-            $this->assertIsArray($body['checks'], 'checks should be an array');
-        }
+        $this->assertArrayHasKey('checks', $body, 'readyz response should have checks');
+        $this->assertIsArray($body['checks'], 'checks should be an array');
+    }
+
+    /**
+     * Regression test for issue #13202
+     *
+     * library/sql.inc.php reassigned the $config global during bootstrap,
+     * overwriting the sqlconf.php install flag with a DatabaseConnectionOptions
+     * object. InstallationCheck read the global after bootstrap, so a fully
+     * installed instance reported "setup_required" with installed: false while
+     * every other check passed.
+     */
+    public function testReadyzReportsInstalledOnAnInstalledInstance(): void
+    {
+        $response = $this->client->get('/meta/health/readyz');
+        $body = json_decode((string) $response->getBody(), true);
+        self::assertIsArray($body);
+
+        $this->assertArrayHasKey('checks', $body, 'readyz response should have checks');
+        self::assertIsArray($body['checks'], 'checks should be an array');
+        $this->assertArrayHasKey('installed', $body['checks'], 'readyz checks should include installed');
+        $this->assertTrue(
+            $body['checks']['installed'],
+            'installed should be true on an installed instance (issue #13202)'
+        );
+        $this->assertEquals(
+            'ready',
+            $body['status'],
+            'readyz status should be "ready" on an installed instance (issue #13202)'
+        );
     }
 }

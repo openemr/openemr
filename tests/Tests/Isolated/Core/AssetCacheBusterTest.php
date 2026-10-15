@@ -42,7 +42,6 @@ class AssetCacheBusterTest extends TestCase
      * generated documentation, and test fixtures.
      */
     private const SKIP_PREFIXES = [
-        'ccdaservice/',
         'contrib/',
         'docs/',
         'Documentation/',

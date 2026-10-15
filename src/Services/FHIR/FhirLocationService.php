@@ -358,7 +358,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         return AclMain::aclCheckCore('admin', 'users', $this->getSession()->get("authUser")) !== false;
     }
 
-    private function shouldIncludeContactInformationForLocationType($type, $recordUuid)
+    private function shouldIncludeContactInformationForLocationType($type, $recordUuid): bool
     {
         $isPatientBoundUuid = !empty($this->patientUuid) && $this->patientUuid == $recordUuid;
         // if its not a patient requesting their own record location information we need to check permissions on this.

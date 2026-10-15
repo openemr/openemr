@@ -1,10 +1,14 @@
 <?php
 
 /**
- * Tests for CORSAllowedOriginRegistry::normalizeOrigin (pure function).
+ * Tests for CORSAllowedOriginRegistry::normalizeOrigin (pure function)
+ * and for the pure-logic shape of isAllowedForClient (short-circuit
+ * cases that do not require the DB).
  *
- * The DB-backed `getAllowedOrigins`/`isAllowed` path is covered by the
- * API suite; only the parser is pinned here.
+ * The DB-backed `getAllowedOrigins`/`getOriginsForClient`/`isAllowed`/
+ * `isAllowedForClient` paths against real rows are covered by the API
+ * suite; only the parser and the input-validation short-circuits are
+ * pinned here.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -27,6 +31,42 @@ final class CORSAllowedOriginRegistryTest extends TestCase
     public function testNormalizeOrigin(string $input, ?string $expected): void
     {
         self::assertSame($expected, CORSAllowedOriginRegistry::normalizeOrigin($input));
+    }
+
+    public function testIsAllowedForClientRejectsEmptyClientId(): void
+    {
+        // Short-circuit before any DB lookup: without a client, there
+        // cannot be a per-client origin match.
+        $registry = new CORSAllowedOriginRegistry();
+        self::assertFalse($registry->isAllowedForClient('', 'https://app.example.com'));
+    }
+
+    public function testIsAllowedForClientRejectsEmptyOrigin(): void
+    {
+        $registry = new CORSAllowedOriginRegistry();
+        self::assertFalse($registry->isAllowedForClient('any-client', ''));
+    }
+
+    public function testIsAllowedForClientRejectsLiteralNullOrigin(): void
+    {
+        // Browsers send `Origin: null` for sandboxed iframes, data: URLs,
+        // and other opaque origins. Never match these against any
+        // client's registered origins.
+        $registry = new CORSAllowedOriginRegistry();
+        self::assertFalse($registry->isAllowedForClient('any-client', 'null'));
+        self::assertFalse($registry->isAllowedForClient('any-client', 'NULL'));
+    }
+
+    public function testIsAllowedForClientRejectsUnparseableOrigin(): void
+    {
+        $registry = new CORSAllowedOriginRegistry();
+        self::assertFalse($registry->isAllowedForClient('any-client', 'not-a-url'));
+    }
+
+    public function testGetOriginsForClientReturnsEmptyListForEmptyClientId(): void
+    {
+        $registry = new CORSAllowedOriginRegistry();
+        self::assertSame([], $registry->getOriginsForClient(''));
     }
 
     /**
