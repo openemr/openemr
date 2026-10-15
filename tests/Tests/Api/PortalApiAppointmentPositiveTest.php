@@ -14,9 +14,13 @@
  * Tests here lock the fix:
  *   - empty-list → 200 + "[]"
  *   - populated list → 200 + the fixture appointment
- *   - single resource known UUID → 200 + the appointment
  *   - single resource unknown UUID → 404 (preserves the single-
  *     resource not-found semantic unchanged)
+ *
+ * Deferred (not covered here, see inline comment near the test slot):
+ *   - single resource known UUID → 200 — needs AppointmentService
+ *     search-field plumbing to resolve a fixture row via
+ *     getOneForPatient's FhirSearchWhereClauseBuilder path. Follow-up.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
