@@ -56,6 +56,9 @@ class QueryPagination implements \JsonSerializable
         return $this->searchUri;
     }
 
+    /**
+     * Set the search URI used as the base for pagination links.
+     */
     public function setSearchUri(string $searchUri): void
     {
         $this->searchUri = $searchUri;
@@ -124,6 +127,8 @@ class QueryPagination implements \JsonSerializable
     }
 
     /**
+     * Return the available pagination links for the current query.
+     *
      * @return array{first: string, previous?: string, next?: string}
      */
     public function getLinks(): array
@@ -160,6 +165,8 @@ class QueryPagination implements \JsonSerializable
     }
 
     /**
+     * Return the available pagination links for the current query.
+     *
      * @return array{first: string, previous?: string, next?: string}
      */
     public function jsonSerialize(): array

@@ -37,6 +37,8 @@ class SearchQueryConfig
     }
 
     /**
+     * Return sort fields in the order they will be applied.
+     *
      * @return list<SearchFieldOrder>
      */
     public function getSearchFieldOrders(): array
@@ -44,6 +46,9 @@ class SearchQueryConfig
         return $this->searchFieldOrders;
     }
 
+    /**
+     * Append a sort field, preserving its precedence after previously added fields.
+     */
     public function addSearchFieldOrder(SearchFieldOrder $searchFieldOrder): void
     {
         $this->searchFieldOrders[] = $searchFieldOrder;

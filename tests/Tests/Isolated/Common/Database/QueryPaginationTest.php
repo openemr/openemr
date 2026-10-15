@@ -141,6 +141,9 @@ class QueryPaginationTest extends TestCase
         $this->assertSame($pagination->getSearchUri(), $copy->getSearchUri());
     }
 
+    /**
+     * A single-page result must expose only the first-page link.
+     */
     public function testGetLinksFirstPageNoMore(): void
     {
         $pagination = new QueryPagination(10, 0);
@@ -153,6 +156,9 @@ class QueryPaginationTest extends TestCase
         $this->assertArrayNotHasKey('next', $links);
     }
 
+    /**
+     * A middle page must link to the first, previous, and next result pages.
+     */
     public function testGetLinksMiddlePageWithMore(): void
     {
         $pagination = new QueryPagination(10, 20);
@@ -168,6 +174,9 @@ class QueryPaginationTest extends TestCase
         $this->assertStringContainsString('_offset=30', $links['next']);
     }
 
+    /**
+     * The last page must retain a previous link and omit the next link.
+     */
     public function testGetLinksLastPage(): void
     {
         $pagination = new QueryPagination(10, 40);
@@ -201,6 +210,9 @@ class QueryPaginationTest extends TestCase
         $this->assertSame(0, $pagination->getLimit());
     }
 
+    /**
+     * A previous-page link must clamp its offset to zero.
+     */
     public function testPreviousOffsetNeverNegative(): void
     {
         // When at offset 5 with limit 10, previous should be 0, not -5
