@@ -378,6 +378,12 @@ jobs:
     uses: ./.github/workflows/acceptance-docker.yml
     with:
       to_tag: ${{ needs.fetch-source-run-outputs.outputs.candidate_tag }}
+      # Recovery-time release-mode guardrail: same rationale as
+      # docker-build-release.yml's acceptance-gate -- we're about to
+      # publish the candidate via reusable-docker-publish.yml on green,
+      # so a silent upgrade-cell skip would ship an artifact whose
+      # auto-upgrade path was never validated.
+      require_upgrade_cell: true
     secrets: inherit
 
   # Job 3: publish + cleanup via the shared reusable. Same reusable

@@ -15,12 +15,12 @@ use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
 class SubstanceRecommendedService extends AbstractCarePlanService implements QdmServiceInterface
 {
-    public function getCarePlanType()
+    public function getCarePlanType(): string
     {
         return AbstractCarePlanService::CARE_PLAN_TYPE_MEDICATION;
     }
 
-    public function getModelClass()
+    public function getModelClass(): string
     {
         return SubstanceRecommended::class;
     }

@@ -112,7 +112,11 @@ function configure(id, imgpath) {
         $(".config").hide();
         $("#ConfigRow_" + id).fadeOut();
     } else {
-        $.post("./Installer/configure", {mod_id: id},
+        $.post("./Installer/configure",
+            {
+                mod_id: id,
+                csrf_token_form: window.csrfTokenForm
+            },
             function (data) {
                 $(".config").hide();
                 $("#ConfigRow_" + id).hide();
@@ -143,7 +147,8 @@ function SaveMe(frmId, mod_id) {
         $.ajax({
             type: 'POST',
             url: "./Installer/SaveHooks",
-            data: $('#' + frmId + mod_id).serialize(),
+            data: $('#' + frmId + mod_id).serialize() +
+                '&csrf_token_form=' + encodeURIComponent(window.csrfTokenForm),
             success: function (data) {
                 $.each(data, function (jsonIndex, jsonValue) {
                     if (jsonValue['return'] == 1) {
@@ -169,7 +174,8 @@ function DeleteACL(aclID, user, mod_id, msg) {
             url: "./Installer/DeleteAcl",
             data: {
                 aclID: aclID,
-                user: user
+                user: user,
+                csrf_token_form: window.csrfTokenForm
             },
             success: function (data) {
                 $.each(data, function (jsonIndex, jsonValue) {
@@ -197,7 +203,8 @@ function DeleteHooks(hooksID, mod_id, msg) {
             type: 'POST',
             url: "./Installer/DeleteHooks",
             data: {
-                hooksID: hooksID
+                hooksID: hooksID,
+                csrf_token_form: window.csrfTokenForm
             },
             success: function (data) {
                 $.each(data, function (jsonIndex, jsonValue) {
@@ -227,7 +234,8 @@ function saveConfig(frmId, mod_id) {
     $.ajax({
         type: 'POST',
         url: "./Installer/saveConfig",
-        data: $('#' + frmId + mod_id).serialize(),
+        data: $('#' + frmId + mod_id).serialize() +
+            '&csrf_token_form=' + encodeURIComponent(window.csrfTokenForm),
         success: function (data) {
             var resultTranslated = js_xl('Configuration saved successfully');
             $('#target' + data.modeId).html(resultTranslated.msg + ' ....').show().fadeOut(4000);
@@ -244,6 +252,7 @@ function validateNickName(modId) {
             url: "./Installer/nickName",
             data: {
                 nickname: Nickname,
+                csrf_token_form: window.csrfTokenForm
             },
             success: function (data) {
                 if (data != 0) {

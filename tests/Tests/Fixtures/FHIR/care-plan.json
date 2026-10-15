@@ -1,0 +1,58 @@
+[
+    {
+        "resourceType": "CarePlan",
+        "status": "active",
+        "intent": "plan",
+        "category": [
+            {
+                "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/us/core/CodeSystem/careplan-category",
+                        "code": "assess-plan",
+                        "display": "Assessment and Plan of Treatment"
+                    }
+                ]
+            }
+        ],
+        "period": {
+            "start": "2024-01-15"
+        },
+        "activity": [
+            {
+                "detail": {
+                    "code": {
+                        "coding": [
+                            {
+                                "system": "http://snomed.info/sct",
+                                "code": "182840001",
+                                "display": "test-fixture drug therapy"
+                            }
+                        ],
+                        "text": "test-fixture drug therapy"
+                    },
+                    "status": "in-progress",
+                    "description": "test-fixture care plan activity #1",
+                    "scheduledPeriod": {
+                        "start": "2024-01-15"
+                    }
+                }
+            },
+            {
+                "detail": {
+                    "code": {
+                        "coding": [
+                            {
+                                "system": "http://snomed.info/sct",
+                                "code": "229065009",
+                                "display": "test-fixture exercise therapy"
+                            }
+                        ],
+                        "text": "test-fixture exercise therapy"
+                    },
+                    "status": "not-started",
+                    "description": "test-fixture care plan activity #2"
+                }
+            }
+        ]
+    }
+]

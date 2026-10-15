@@ -172,23 +172,21 @@ class BillingClaimBatch
             OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')
         ) {
             $unique_x12_partners = $this->extractUniqueX12PartnersFromClaims($this->claims);
-            if (is_array($unique_x12_partners)) {
-                // If this is an array, queue the batchfile to send to all x-12 partners
-                foreach ($unique_x12_partners as $x12_partner_id) {
-                    X12RemoteTracker::create([
-                        'x12_partner_id' => $x12_partner_id,
-                        'x12_filename' => $this->bat_filename,
-                        'status' => X12RemoteTracker::STATUS_WAITING,
-                        'claims' => json_encode($this->claims)
-                    ]);
-                }
+            // Queue the batchfile to send to all x-12 partners
+            foreach ($unique_x12_partners as $x12_partner_id) {
+                X12RemoteTracker::create([
+                    'x12_partner_id' => $x12_partner_id,
+                    'x12_filename' => $this->bat_filename,
+                    'status' => X12RemoteTracker::STATUS_WAITING,
+                    'claims' => json_encode($this->claims)
+                ]);
             }
         }
 
         return $success;
     }
 
-    protected function extractUniqueX12PartnersFromClaims($claims)
+    protected function extractUniqueX12PartnersFromClaims($claims): array
     {
         $unique_x12_partners = [];
         foreach ($claims as $claim) {

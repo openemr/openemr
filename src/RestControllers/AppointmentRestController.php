@@ -135,7 +135,7 @@ class AppointmentRestController
     public function getAll()
     {
         $serviceResult = $this->appointmentService->getAppointmentsForPatient(null);
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        return self::listResponse($serviceResult);
     }
 
     #[OA\Get(
@@ -153,9 +153,14 @@ class AppointmentRestController
     {
         $patientService = new PatientService();
         $result = ProcessingResult::extractDataArray($patientService->getOne($puuid));
-        $serviceResult = !empty($result) ? $this->appointmentService->getAppointmentsForPatient($result[0]['pid']) : [];
-
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        if (empty($result)) {
+            // Patient uuid does not resolve — 404 is the correct
+            // response for the parent resource. The empty appointments
+            // branch below only applies when the patient exists.
+            return RestControllerHelper::responseHandler(false, null, 200);
+        }
+        $serviceResult = $this->appointmentService->getAppointmentsForPatient($result[0]['pid']);
+        return self::listResponse($serviceResult);
     }
 
     /**
@@ -185,6 +190,28 @@ class AppointmentRestController
     public function getAllForPatient($pid)
     {
         $serviceResult = $this->appointmentService->getAppointmentsForPatient($pid);
+        return self::listResponse($serviceResult);
+    }
+
+    /**
+     * Build the HTTP response for the three list endpoints
+     * (getAll, getAllForPatientByUuid, getAllForPatient). An empty
+     * list is a valid "zero results found" response, not "not found" —
+     * but RestControllerHelper::responseHandler treats a falsy
+     * $serviceResult as 404. Short-circuit around that for list
+     * endpoints only; single-resource lookups continue to use the
+     * 404-on-falsy semantic unchanged.
+     *
+     * Accepts mixed because the private $appointmentService property
+     * is untyped (legacy); AppointmentService's returns are typed to
+     * array, but PHPStan can't follow through the untyped property
+     * access. The internal === [] check still narrows correctly.
+     */
+    private static function listResponse(mixed $serviceResult): Response
+    {
+        if ($serviceResult === []) {
+            return new Response('[]', 200, ['Content-Type' => 'application/json']);
+        }
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
@@ -299,7 +326,7 @@ class AppointmentRestController
             $service = $this->appointmentService;
             assert($service instanceof AppointmentService);
             $existing = $service->getAppointment($eid);
-            $existingPidRaw = (is_array($existing) && isset($existing[0]) && is_array($existing[0]))
+            $existingPidRaw = (isset($existing[0]) && is_array($existing[0]))
                 ? ($existing[0]['pid'] ?? null)
                 : null;
             if (!is_numeric($existingPidRaw) || !is_numeric($pid) || (int) $existingPidRaw !== (int) $pid) {

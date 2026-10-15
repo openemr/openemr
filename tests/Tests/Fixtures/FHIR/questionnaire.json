@@ -1,0 +1,23 @@
+[
+  {
+    "resourceType": "Questionnaire",
+    "id": "test-fixture-questionnaire",
+    "url": "http://example.com/questionnaire/test-fixture",
+    "version": "1.0.0",
+    "name": "testfixturequestionnaire",
+    "title": "test-fixture Questionnaire",
+    "status": "active",
+    "item": [
+      {
+        "linkId": "1",
+        "type": "string",
+        "text": "What is your name?"
+      },
+      {
+        "linkId": "2",
+        "type": "decimal",
+        "text": "What is your age?"
+      }
+    ]
+  }
+]

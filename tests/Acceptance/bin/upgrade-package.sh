@@ -276,7 +276,7 @@ if [[ "${skip_sql_upgrade}" == "true" ]]; then
     echo "==> Upgrade prep complete (skip-sql-upgrade mode): ${TO_VERSION} filesystem via TARBALL_DIR, ${FROM_VERSION} sites/ + DB preserved, migrations NOT run"
     echo "    Artifact URL:  http://localhost:8680  (serving ${TO_VERSION} source, pre-migration ${FROM_VERSION} DB)"
     echo ""
-    echo "    Run tests:     ACCEPTANCE_ARTIFACT_URL=http://localhost:8680 composer acceptance -- --group=wizard-upgrade"
+    echo "    Run tests:     ACCEPTANCE_ARTIFACT_URL=http://localhost:8680 composer acceptance -- --group=wizard-completed-post-upgrade --group=post-upgrade"
     echo "    Teardown:      tests/Acceptance/bin/down-package.sh"
     exit 0
 fi

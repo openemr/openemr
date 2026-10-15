@@ -1,0 +1,120 @@
+<html>
+
+<head>
+    <title>Portal Lockout Tracker</title>
+
+    <!-- setupHeader stub -->
+
+    <script>
+        $(function () {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
+        });
+
+        function resetPortalCounter(portalLoginUsername) {
+            top.restoreSession();
+            request = new FormData;
+            request.append("function", "resetPortalAccountCounter");
+            request.append("portalLoginUsername", portalLoginUsername);
+            request.append("csrf_token_form", "test-counter-csrf-token");
+            fetch("\/library\/ajax\/login_counter_ip_tracker.php", {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: request
+            }).then(function (response) {
+                // Only paint "cleared" once the server confirmed success:
+                // the handler returns 403 on ACL denial. Network errors
+                // reject the promise and are handled by the .catch below;
+                // fetch does not resolve with response.ok=false in that
+                // case. getElementById takes a raw id, not a CSS selector,
+                // so the raw portal_login_username is concatenated as-is
+                // (CSS.escape() would add backslashes before dots/@ and
+                // break lookups for the common case of an email-address
+                // portal username).
+                if (!response.ok) {
+                    return;
+                }
+                let counterEl = document.getElementById('portal-fail-counter-' + portalLoginUsername);
+                if (counterEl) {
+                    counterEl.innerHTML = "0";
+                }
+                let lastFailEl = document.getElementById('portal-last-fail-' + portalLoginUsername);
+                if (lastFailEl) {
+                    lastFailEl.innerHTML = jsXlt("Not Applicable");
+                }
+                let autoBlockEl = document.getElementById('portal-autoblock-' + portalLoginUsername);
+                if (autoBlockEl) {
+                    autoBlockEl.innerHTML = jsXlt("No");
+                }
+            }).catch(function () {
+                // Leave the displayed values unchanged on network errors.
+            });
+        }
+
+    </script>
+
+    <style>
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_results table {
+                margin-top: 0px;
+            }
+        }
+    </style>
+</head>
+
+<body class="body_top">
+
+<span class='title'>Portal Lockout Tracker</span>
+
+<form method='post' name='theform' id='theform' action='portal_lockout_tracker.php' onsubmit='return top.restoreSession()'>
+    <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+
+    <div id="report_parameters">
+        <table>
+            <tr>
+                <td width='650px'>
+                    <div style='float: left'>
+                        <table class='text'>
+                            <tr>
+                                <td>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type='checkbox' id='showOnlyAutoBlocked' name='showOnlyAutoBlocked'> Show Only Auto Blocked
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+                <td class='h-100' align='left' valign='middle'>
+                    <table class='w-100 h-100' style='border-left: 1px solid;'>
+                        <tr>
+                            <td>
+                                <div class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                                            Submit
+                                        </a>
+                                                                            </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!-- end of search parameters -->
+            <div class='text'>Please click Submit to view results.</div>
+        <input type='hidden' name='form_refresh' id='form_refresh' value='' />
+</form>
+
+</body>
+
+</html>

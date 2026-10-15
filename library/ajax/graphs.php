@@ -39,19 +39,19 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 }
 
 // Conversion functions/constants
-function convertFtoC($a)
+function convertFtoC($a): float
 {
     return ($a - 32) * 0.5556;
 }
-function getLbstoKgMultiplier()
+function getLbstoKgMultiplier(): float
 {
     return 0.45359237;
 }
-function getIntoCmMultiplier()
+function getIntoCmMultiplier(): float
 {
     return 2.54;
 }
-function getIdealYSteps($a)
+function getIdealYSteps($a): int
 {
     if ($a > 1000) {
         return 200;

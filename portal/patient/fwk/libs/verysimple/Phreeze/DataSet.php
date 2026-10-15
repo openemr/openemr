@@ -69,7 +69,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *          array to use for populating a single object
      * @return Preezable
      */
-    private function _getObject(&$row)
+    private function _getObject(&$row): object
     {
         $obj = new $this->_objectclass($this->_phreezer, $row);
         return $obj;
@@ -172,7 +172,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *
      * @return bool
      */
-    public function CountIsKnown()
+    public function CountIsKnown(): bool
     {
         return $this->_totalcount > - 1;
     }
@@ -486,7 +486,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *
      * @param $cachekey
      */
-    private function IsLocked($cachekey)
+    private function IsLocked($cachekey): bool
     {
         return $this->_phreezer->LockFilePath && file_exists($this->_phreezer->LockFilePath . md5((string) $cachekey) . ".lock");
     }

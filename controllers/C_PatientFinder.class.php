@@ -84,12 +84,12 @@ class C_PatientFinder extends Controller
     }
 
     /**
-    *   Function that returns an array containing the
-    *   Results of a LastName search
-    *   @-param string $sql base sql query
-    *   @-param string $search_string parsed for last name
-    */
-    public function search_by_lName($sql, $search_string)
+     *   Function that returns an array containing the
+     *   Results of a LastName search
+     *   @-param string $sql base sql query
+     *   @-param string $search_string parsed for last name
+     */
+    public function search_by_lName($sql, $search_string): array
     {
         $lName = add_escape_custom($search_string);
         $sql .= " WHERE lname LIKE '$lName%' ORDER BY lname, fname";
@@ -104,12 +104,12 @@ class C_PatientFinder extends Controller
     }
 
     /**
-    *   Function that returns an array containing the
-    *   Results of a FirstName search
-    *   @param string $sql base sql query
-    *   @param string $search_string parsed for first name
-    */
-    public function search_by_fName($sql, $search_string)
+     *   Function that returns an array containing the
+     *   Results of a FirstName search
+     *   @param string $sql base sql query
+     *   @param string $search_string parsed for first name
+     */
+    public function search_by_fName($sql, $search_string): array
     {
         $name_array = explode(",", $search_string);
         $fName = add_escape_custom(trim($name_array[1]));
@@ -125,12 +125,12 @@ class C_PatientFinder extends Controller
     }
 
     /**
-    *   Function that returns an array containing the
-    *   Results of a Full Name search
-    *   @param string $sql base sql query
-    *   @param string $search_string parsed for first, last and middle name
-    */
-    public function search_by_FullName($sql, $search_string)
+     *   Function that returns an array containing the
+     *   Results of a Full Name search
+     *   @param string $sql base sql query
+     *   @param string $search_string parsed for first, last and middle name
+     */
+    public function search_by_FullName($sql, $search_string): array
     {
         $name_array = explode(",", $search_string);
         $lName = add_escape_custom($name_array[0]);

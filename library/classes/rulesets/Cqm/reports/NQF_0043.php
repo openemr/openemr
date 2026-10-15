@@ -9,7 +9,7 @@
 //
 class NQF_0043 extends AbstractCqmReport
 {
-    public function createPopulationCriteria()
+    public function createPopulationCriteria(): CqmPopulationCrtiteriaFactory
     {
          return new NQF_0043_PopulationCriteria();
     }

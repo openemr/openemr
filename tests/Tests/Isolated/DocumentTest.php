@@ -184,4 +184,103 @@ class DocumentTest extends TestCase
 
         self::assertSame($expected, $result['relativePath']);
     }
+
+    /**
+     * The document is expired iff its `date_expires` is at or before the
+     * current instant. `has_expired()` must return true for past timestamps
+     * (so callers deny + purge) and false for future timestamps (so valid
+     * documents remain accessible during their retention window).
+     */
+    public function testHasExpiredReturnsTrueForPastTimestamp(): void
+    {
+        $doc = self::makeDocumentWithExpires('-2 hours');
+        self::assertTrue($doc->has_expired());
+    }
+
+    public function testHasExpiredReturnsFalseForFutureTimestamp(): void
+    {
+        $doc = self::makeDocumentWithExpires('+30 minutes');
+        self::assertFalse($doc->has_expired());
+    }
+
+    public function testHasExpiredReturnsFalseWhenDateExpiresIsBlank(): void
+    {
+        $doc = self::makeDocumentWithExpires(null);
+        self::assertFalse($doc->has_expired());
+    }
+
+    /**
+     * Fail-closed: an unparsable `date_expires` string cannot be used to
+     * assert that the document is still within its retention window, so it
+     * must read as expired rather than as still valid.
+     */
+    public function testHasExpiredReturnsTrueWhenDateExpiresIsUnparsable(): void
+    {
+        $doc = self::makeDocumentWithExpires('not-a-date');
+        self::assertTrue($doc->has_expired());
+    }
+
+    /**
+     * createFromFormat can return a valid DateTime for inputs that technically
+     * parse but overflow (e.g. Feb 30 rolls into March). Warnings from
+     * getLastErrors() mean the resulting timestamp is not the value the caller
+     * stored — must fail closed regardless of the rolled-over timestamp being
+     * past or future.
+     */
+    public function testHasExpiredReturnsTrueForRolledOverDateExpires(): void
+    {
+        $doc = self::makeDocumentWithExpires('rollover');
+        self::assertTrue($doc->has_expired());
+    }
+
+    /**
+     * set_date_expires must round-trip via the getter. The setter also needs
+     * to be present for ORDataObject::populate_array() to wire the field on
+     * every `new Document($id)` load — without it, has_expired() always sees
+     * a null date_expires regardless of the DB value.
+     */
+    public function testSetDateExpiresRoundTripsViaGetter(): void
+    {
+        $rc = new \ReflectionClass(Document::class);
+        $doc = $rc->newInstanceWithoutConstructor();
+        $doc->set_date_expires('2026-09-16 18:32:34');
+        self::assertSame('2026-09-16 18:32:34', $doc->get_date_expires());
+        $doc->set_date_expires(null);
+        self::assertNull($doc->get_date_expires());
+    }
+
+    /**
+     * ORDataObject::populate_array() calls set_<field> when callable, so
+     * feeding it a row with date_expires must land the value on the object.
+     * Regression guard for the "silently dropped" behavior that predated
+     * this fix.
+     */
+    public function testPopulateArrayWiresDateExpires(): void
+    {
+        $rc = new \ReflectionClass(Document::class);
+        $doc = $rc->newInstanceWithoutConstructor();
+        $doc->populate_array([
+            'date_expires' => '2026-09-16 18:32:34',
+        ]);
+        self::assertSame('2026-09-16 18:32:34', $doc->get_date_expires());
+    }
+
+    private static function makeDocumentWithExpires(?string $when): Document
+    {
+        $rc = new \ReflectionClass(Document::class);
+        $doc = $rc->newInstanceWithoutConstructor();
+        $prop = new \ReflectionProperty(Document::class, 'date_expires');
+        if ($when === null) {
+            $prop->setValue($doc, null);
+        } elseif ($when === 'not-a-date') {
+            $prop->setValue($doc, 'not-a-date');
+        } elseif ($when === 'rollover') {
+            // Feb 30 does not exist; createFromFormat parses it into March 1
+            // with a "The parsed date was invalid" warning in getLastErrors().
+            $prop->setValue($doc, '2024-02-30 12:00:00');
+        } else {
+            $prop->setValue($doc, (new \DateTime($when))->format('Y-m-d H:i:s'));
+        }
+        return $doc;
+    }
 }

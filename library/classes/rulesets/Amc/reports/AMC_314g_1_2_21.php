@@ -26,22 +26,22 @@
 
 class AMC_314g_1_2_21 extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_314g_1_2_21";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         return "patients";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_314g_1_2_21_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_314g_1_2_21_Numerator();
     }

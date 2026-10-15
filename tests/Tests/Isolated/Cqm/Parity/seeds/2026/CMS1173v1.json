@@ -1,0 +1,114 @@
+{
+    "patients": [
+        {
+            "note": "Office visit for a VTE symptom on 1 April 2026, then admitted with VTE on 10 April with imaging and an anticoagulant ordered that day: initial population, denominator and numerator (diagnosis delayed more than a day after the visit).",
+            "birthDatetime": "1962-05-10T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-04-01T09:00:00.000+00:00",
+                        "2026-04-01T09:30:00.000+00:00"
+                    ],
+                    "diagnoses": [
+                        {
+                            "code": "VTE Symptoms",
+                            "rank": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Encounter Inpatient",
+                    "relevantPeriod": [
+                        "2026-04-10T10:00:00.000+00:00",
+                        "2026-04-13T12:00:00.000+00:00"
+                    ],
+                    "diagnoses": [
+                        {
+                            "code": "VTE Diagnoses",
+                            "rank": 1
+                        }
+                    ],
+                    "participant": [
+                        {
+                            "role": "Provider Types"
+                        }
+                    ]
+                },
+                {
+                    "type": "DiagnosticStudyPerformed",
+                    "valueSet": "Imaging Related to VTE",
+                    "relevantDatetime": "2026-04-10T11:00:00.000+00:00",
+                    "resultDatetime": "2026-04-10T12:00:00.000+00:00"
+                },
+                {
+                    "type": "MedicationOrder",
+                    "valueSet": "Anticoagulant Medications",
+                    "authorDatetime": "2026-04-10T14:00:00.000+00:00",
+                    "relevantPeriod": [
+                        "2026-04-10T14:00:00.000+00:00",
+                        "2026-12-31T23:00:00.000+00:00"
+                    ]
+                }
+            ]
+        },
+        {
+            "note": "Office visit for a VTE symptom on the morning of 3 August 2026 and admitted with VTE that afternoon: initial population and denominator, not numerator.",
+            "birthDatetime": "1970-11-20T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-08-03T09:00:00.000+00:00",
+                        "2026-08-03T09:30:00.000+00:00"
+                    ],
+                    "diagnoses": [
+                        {
+                            "code": "VTE Symptoms",
+                            "rank": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Encounter Inpatient",
+                    "relevantPeriod": [
+                        "2026-08-03T15:00:00.000+00:00",
+                        "2026-08-06T12:00:00.000+00:00"
+                    ],
+                    "diagnoses": [
+                        {
+                            "code": "VTE Diagnoses",
+                            "rank": 1
+                        }
+                    ],
+                    "participant": [
+                        {
+                            "role": "Provider Types"
+                        }
+                    ]
+                },
+                {
+                    "type": "DiagnosticStudyPerformed",
+                    "valueSet": "Imaging Related to VTE",
+                    "relevantDatetime": "2026-08-03T16:00:00.000+00:00",
+                    "resultDatetime": "2026-08-03T17:00:00.000+00:00"
+                },
+                {
+                    "type": "MedicationOrder",
+                    "valueSet": "Anticoagulant Medications",
+                    "authorDatetime": "2026-08-03T18:00:00.000+00:00",
+                    "relevantPeriod": [
+                        "2026-08-03T18:00:00.000+00:00",
+                        "2026-12-31T23:00:00.000+00:00"
+                    ]
+                }
+            ]
+        }
+    ]
+}

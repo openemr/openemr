@@ -11,7 +11,7 @@
 
 class AMC_302g_Numerator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_302g Numerator";
     }

@@ -28,7 +28,7 @@ use OpenEMR\Services\ContactService;
  * @param array $addressData Address form data
  * @return array Array of saved ContactAddress records
  */
-function saveAddressesForPatient($pid, $addressData)
+function saveAddressesForPatient($pid, $addressData): array
 {
     $logger = ServiceContainer::getLogger();
     $logger->debug("Saving addresses for patient", [

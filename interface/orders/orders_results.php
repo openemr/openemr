@@ -59,7 +59,7 @@ if (!$form_batch && !$pid && !$form_review) {
     die(xlt('There is no current patient'));
 }
 
-function oresRawData($name, $index)
+function oresRawData($name, $index): string
 {
     $s = $_POST[$name][$index] ?? '';
     return trim((string) $s);

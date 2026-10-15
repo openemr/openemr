@@ -49,6 +49,8 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
                     new InputOption('force', 'f', InputOption::VALUE_NONE, 'Bypass interval check (for "run"; ignored without --name)'),
                     new InputOption('json', null, InputOption::VALUE_NONE, 'Emit a single JSON result line on stdout (for "run" with --name); suppresses human-readable output'),
                     new InputOption('php', null, InputOption::VALUE_REQUIRED, 'PHP binary path (for "crontab")', PHP_BINARY),
+                    // bin/console reads --site before bootstrapping; declared here so it's accepted.
+                    new InputOption('site', null, InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
                 ])
             );
     }
@@ -224,6 +226,10 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
             return Command::FAILURE;
         }
         $consolePath = $fileroot . '/bin/console';
+        $site = $input->getOption('site');
+        if (!is_string($site) || $site === '') {
+            $site = 'default';
+        }
 
         $services = $this->fetchActiveServices();
 
@@ -245,11 +251,12 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
 
             $cron = $this->minutesToCron($interval);
             $io->writeln(sprintf(
-                '%s	%s %s background:services run --name=%s',
+                '%s	%s %s background:services run --name=%s --site=%s',
                 $cron,
                 escapeshellarg($php),
                 escapeshellarg($consolePath),
                 escapeshellarg($name),
+                escapeshellarg($site),
             ));
         }
 

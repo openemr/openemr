@@ -24,7 +24,7 @@
 
 class NQF_0384_Numerator implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Numerator";
     }

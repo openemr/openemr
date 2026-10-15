@@ -23,7 +23,7 @@ class SLEOB
     // claim ID and other stuff in the ERA.  This should be straightforward
     // except that some payers mangle the claim ID that we give them.
     //
-    public static function slInvoiceNumber(&$out)
+    public static function slInvoiceNumber(&$out): array
     {
         $invnumber = $out['our_claim_id'];
         $atmp = preg_split('/[ -]/', (string) $invnumber);
@@ -37,7 +37,7 @@ class SLEOB
         } elseif ($partCount == 3) {
             $pid = $atmp[0];
             $brow = sqlQuery("SELECT encounter FROM billing WHERE " .
-                "pid = '$pid' AND encounter = ? AND activity = 1", [$atmp[1]]);
+                "pid = ? AND encounter = ? AND activity = 1", [$pid, $atmp[1]]);
 
             $encounter = $brow['encounter'];
         } elseif ($partCount == 1) {
@@ -216,9 +216,10 @@ class SLEOB
      * @param string $payer_type
      * @param string $reason
      * @param string $codetype
+     * @param ?string $payer_claim_number
      * @deprecated Use \OpenEMR\PaymentProcessing\Recorder::recordActivity directly
      */
-    public static function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $codetype = '')
+    public static function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $codetype = '', $payer_claim_number = null)
     {
         $codeonly = $code;
         $modifier = '';
@@ -242,6 +243,7 @@ class SLEOB
             'payAmount' => '0.0',
             'adjustmentAmount' => $amount,
             'memo' => $reason,
+            'payerClaimNumber' => $payer_claim_number,
         ]);
     }
 

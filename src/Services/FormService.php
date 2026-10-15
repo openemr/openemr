@@ -26,7 +26,7 @@ class FormService
         $cols = "form_id, form_name",
         $name = "",
         $orderby = "FIND_IN_SET(formdir,'vitals') DESC, date DESC"
-    ) {
+    ): array {
 
         global $attendant_type;
         $arraySqlBind = [];

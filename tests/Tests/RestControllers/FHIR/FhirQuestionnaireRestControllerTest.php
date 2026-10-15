@@ -20,6 +20,7 @@ use OpenEMR\Services\FHIR\FhirQuestionnaireService;
 use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class FhirQuestionnaireRestControllerTest extends TestCase
@@ -43,15 +44,52 @@ class FhirQuestionnaireRestControllerTest extends TestCase
      */
     public function testOne(): void
     {
+        $response = $this->readOneWithPatientBinding(false);
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $contents = $response->getBody()->getContents();
+        $this->assertNotEmpty($contents, "Response body should not be empty");
+        $jsonBundle = json_decode($contents, true);
+        $this->assertArrayHasKey("resourceType", $jsonBundle, "Response should contain 'resourceType' key");
+        $this->assertEquals("Questionnaire", $jsonBundle['resourceType'], "Response 'resourceType' should be 'Questionnaire'");
+        $this->assertEquals("example-questionnaire-id", $jsonBundle['id'], "The id of the returned questionnaire should match");
+    }
+
+    /**
+     * A patient-scoped read must still look the Questionnaire up by the id in the URL.
+     *
+     * one() used to branch on isPatientRequest() and pass getPatientUUIDString() to getOne() --
+     * a patient uuid used as a Questionnaire id, which matches nothing. Questionnaire is
+     * definitional rather than patient data (FhirQuestionnaireService implements
+     * INonPatientCompartmentResourceService), so there is no patient compartment to scope the
+     * lookup to and nothing for the binding to narrow.
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function testOnePatientScopedRequestStillLooksUpByResourceId(): void
+    {
+        $response = $this->readOneWithPatientBinding(true);
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $jsonBundle = json_decode($response->getBody()->getContents(), true);
+        $this->assertIsArray($jsonBundle);
+        $this->assertEquals("example-questionnaire-id", $jsonBundle['id'], "A patient-scoped read must not substitute the patient uuid for the resource id");
+    }
+
+    /**
+     * Drives one() with the request reporting the given patient binding, asserting that getOne()
+     * is handed the resource id from the URL either way.
+     *
+     * @throws Exception
+     */
+    private function readOneWithPatientBinding(bool $isPatientRequest): ResponseInterface
+    {
         $logger = $this->createMock(SystemLogger::class);
         $resourceService = $this->createMock(FhirQuestionnaireService::class);
         $restRequest = $this->createMock(HttpRestRequest::class);
-        $restRequest->expects($this->once())
-            ->method('isPatientRequest')
-            ->willReturn(true);
-        $restRequest->expects($this->once())
-            ->method('getPatientUUIDString')
-            ->willReturn('some-uuid-string');
+        $restRequest->method('isPatientRequest')->willReturn($isPatientRequest);
+        $restRequest->method('getPatientUUIDString')->willReturn('some-patient-uuid-string');
 
         $fhirQuestionnaire = new FHIRQuestionnaire();
         $fhirQuestionnaire->setId(new FHIRId("example-questionnaire-id"));
@@ -67,18 +105,12 @@ class FhirQuestionnaireRestControllerTest extends TestCase
             ->willReturn(true);
         $resourceService->expects($this->once())
             ->method('getOne')
+            ->with('example-questionnaire-id')
             ->willReturn($processingResult);
+
         $controller = new FhirQuestionnaireRestController($logger, $resourceService);
-        $response = $controller->one($restRequest, $fhirQuestionnaire->getId()->getValue());
 
-
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $contents = $response->getBody()->getContents();
-        $this->assertNotEmpty($contents, "Response body should not be empty");
-        $jsonBundle = json_decode($contents, true);
-        $this->assertArrayHasKey("resourceType", $jsonBundle, "Response should contain 'resourceType' key");
-        $this->assertEquals("Questionnaire", $jsonBundle['resourceType'], "Response 'resourceType' should be 'Questionnaire'");
-        $this->assertEquals("example-questionnaire-id", $jsonBundle['id'], "The id of the returned questionnaire should match");
+        return $controller->one($restRequest, $fhirQuestionnaire->getId()->getValue());
     }
 
     public function testUpdate(): void

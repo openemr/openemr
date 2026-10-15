@@ -34,17 +34,17 @@ class RuleCriteriaSex extends RuleCriteria
         return xl_list_label($this->value);
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return xl("Sex");
     }
 
-    public function getView()
+    public function getView(): string
     {
         return "sex.php";
     }
 
-    public function getOptions()
+    public function getOptions(): array
     {
         $listService = new ListService();
         $optionsByListName  = $listService->getOptionsByListName('sex', ['active' => 1]);

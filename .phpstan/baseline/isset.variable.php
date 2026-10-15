@@ -29,6 +29,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$result in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/find_group_popup.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$result in isset\\(\\) always exists and is not nullable\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
 ];
 $ignoreErrors[] = [

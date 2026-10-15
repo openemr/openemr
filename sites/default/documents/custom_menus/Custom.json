@@ -1979,6 +1979,18 @@
                             "admin",
                             "super"
                         ]
+                    },
+                    {
+                        "label": "Portal Lockout Tracker",
+                        "menu_id": "rep0",
+                        "target": "rep",
+                        "url": "/interface/reports/portal_lockout_tracker.php",
+                        "children": [],
+                        "requirement": 0,
+                        "acl_req": [
+                            "admin",
+                            "super"
+                        ]
                     }
                 ],
                 "requirement": 0,

@@ -52,6 +52,9 @@ $m_error_count = 0;
     <ul class="col-md-12">
         <?php
         $email_sender = $_POST['email_sender'];
+        if (!is_string($email_sender)) {
+            $email_sender = '';
+        }
         $sent_by = $session->get('authUserID');
 
         while ($row = sqlFetchArray($res)) {
@@ -64,13 +67,13 @@ $m_error_count = 0;
             $email_subject = preg_replace('/\*{3}NAME\*{3}/', $pt_name, (string) $email_subject);
             $email_body = preg_replace('/\*{3}NAME\*{3}/', $pt_name, (string) $email_body);
 
-            $headers = "MIME-Version: 1.0\r\n";
-            $headers .= "To: $pt_name<" . $pt_email . ">\r\n";
-            $headers .= "From: <" . $email_sender . ">\r\n";
-            $headers .= "Reply-to: <" . $email_sender . ">\r\n";
-            $headers .= "X-Priority: 3\r\n";
-            $headers .= "X-Mailer: PHP mailer\r\n";
-            if (mail((string) $pt_email, (string) $email_subject, (string) $email_body, $headers)) {
+            $mail = new MyMailer();
+            $mail->setFrom($email_sender);
+            $mail->addReplyTo($email_sender);
+            $mail->addAddress((string) $pt_email, $pt_name);
+            $mail->Subject = (string) $email_subject;
+            $mail->Body = (string) $email_body;
+            if ($mail->send()) {
                 echo "<li>" . xlt('Email sent to') . ": " . text($pt_name) . " , " . text($pt_email) . "</li>";
             } else {
                 $m_error = true;

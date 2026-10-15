@@ -67,19 +67,19 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase implements IPa
     }
 
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return !in_array(DocumentReferenceCategoryEnum::tryFrom($category), DocumentReferenceCategoryEnum::cases());
     }
 
 
-    public function supportsCode($code)
+    public function supportsCode($code): bool
     {
         // exclude advanced directive codes as those are handled by another service
         return !in_array(DocumentReferenceAdvancedDirectiveCodeEnum::tryFrom($code), DocumentReferenceAdvancedDirectiveCodeEnum::cases());
     }
 
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -130,7 +130,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase implements IPa
         return $this->service->search($openEMRSearchParameters);
     }
 
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDocumentReference
     {
         $docReference = new FHIRDocumentReference();
         $fhirMeta = new FHIRMeta();

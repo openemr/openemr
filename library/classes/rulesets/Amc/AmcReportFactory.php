@@ -20,7 +20,7 @@ class AmcReportFactory extends RsReportFactoryAbstract
         }
     }
 
-    public function createReport($className, $rowRule, $patientData, $dateTarget, $options)
+    public function createReport($className, $rowRule, $patientData, $dateTarget, $options): object
     {
         $reportObject = null;
         if (class_exists($className)) {

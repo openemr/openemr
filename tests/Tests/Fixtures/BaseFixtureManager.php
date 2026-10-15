@@ -195,12 +195,12 @@ abstract class BaseFixtureManager
         return ""; // return empty string
     }
 
-    private function isFunctionCall($value)
+    private function isFunctionCall($value): bool
     {
         return preg_match("/[a-zA-Z]+\(['a-zA-Z_0-9\-]*\)/", $value ?? '') === 1;
     }
 
-    private function isForeignReference(array $reference)
+    private function isForeignReference(array $reference): bool
     {
         return isset($reference['table']) && isset($reference['columnSearch']) && isset($reference['columnSearchValue']) && isset($reference['columnReference']);
     }

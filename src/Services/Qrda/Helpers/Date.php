@@ -22,7 +22,7 @@ trait Date
     protected $_performance_period_start;
     protected $_performance_period_end;
 
-    public function value_or_null_flavor($time)
+    public function value_or_null_flavor($time): string
     {
         if (!empty($time) && !str_contains((string) $time, "0000-00-00")) {
             $time = DateHelper::format_datetime($time);
@@ -48,32 +48,32 @@ trait Date
         return DateHelper::format_datetime(date('Y-m-d H:i'));
     }
 
-    public function sent_date_time(Mustache_Context $context)
+    public function sent_date_time(Mustache_Context $context): string
     {
         return "<low " . $this->value_or_null_flavor($context->find('sendDateTime')) . "/>";
     }
 
-    public function received_date_time(Mustache_Context $context)
+    public function received_date_time(Mustache_Context $context): string
     {
         return "<high " . $this->value_or_null_flavor($context->find('receivedDatetime')) . "/>";
     }
 
-    public function active_date_time(Mustache_Context $context)
+    public function active_date_time(Mustache_Context $context): string
     {
         return "<effectiveTime " . $this->value_or_null_flavor($context->find('activeDatetime')) . "/>";
     }
 
-    public function author_time(Mustache_Context $context)
+    public function author_time(Mustache_Context $context): string
     {
         return "<time " . $this->value_or_null_flavor($context->find('authorDatetime')) . "/>";
     }
 
-    public function author_effective_time(Mustache_Context $context)
+    public function author_effective_time(Mustache_Context $context): string
     {
         return "<effectiveTime " . $this->value_or_null_flavor($context->find('authorDatetime')) . "/>";
     }
 
-    public function birth_date_time(Mustache_Context $context)
+    public function birth_date_time(Mustache_Context $context): string
     {
         return "<birthTime " . $this->value_or_null_flavor($context->find('birthDatetime')) . "/>";
     }
@@ -88,14 +88,14 @@ trait Date
         return "<effectiveTime " . $this->value_or_null_flavor($context->find('resultDatetime')) . "/>";
     }
 
-    public function expired_date_time(Mustache_Context $context)
+    public function expired_date_time(Mustache_Context $context): string
     {
         return "<effectiveTime>"
             . "<low " . $this->value_or_null_flavor($context->find('expiredDatetime')) . "/>"
             . "</effectiveTime>";
     }
 
-    public function medication_supply_request_period(Mustache_Context $context)
+    public function medication_supply_request_period(Mustache_Context $context): string
     {
         $relevantPeriod = $context->find('relevantPeriod') ?? ['low' => null, 'high' => null];
         return "<effectiveTime xsi:type='IVL_TS'>"
@@ -104,7 +104,7 @@ trait Date
             . "</effectiveTime>";
     }
 
-    public function medication_duration_author_effective_time(Mustache_Context $context)
+    public function medication_duration_author_effective_time(Mustache_Context $context): string
     {
         return "<effectiveTime xsi:type='IVL_TS'>"
             . "<low " . $this->value_or_null_flavor($context->find('authorDatetime')) . "/>"
@@ -112,7 +112,7 @@ trait Date
             . "</effectiveTime>";
     }
 
-    public function prevalence_period(Mustache_Context $context)
+    public function prevalence_period(Mustache_Context $context): string
     {
         $prevalencePeriod = json_decode(
             json_encode($context->find('prevalencePeriod')),
@@ -124,7 +124,7 @@ trait Date
             . "</effectiveTime>";
     }
 
-    public function relevant_period(Mustache_Context $context)
+    public function relevant_period(Mustache_Context $context): string
     {
         $relevantPeriod = $context->find('relevantPeriod') ?? ['low' => null, 'high' => null];
         return "<effectiveTime>"
@@ -133,7 +133,7 @@ trait Date
             . "</effectiveTime>";
     }
 
-    public function participation_period(Mustache_Context $context)
+    public function participation_period(Mustache_Context $context): string
     {
         $participationPeriod = $context->find('participationPeriod') ?? ['low' => null, 'high' => null];
         return "<effectiveTime>"
@@ -142,7 +142,7 @@ trait Date
             . "</effectiveTime>";
     }
 
-    public function relevant_date_time_value(Mustache_Context $context)
+    public function relevant_date_time_value(Mustache_Context $context): string
     {
         return "<effectiveTime " . $this->value_or_null_flavor($context->find('relevantDatetime')) . "/>";
     }
@@ -173,7 +173,7 @@ trait Date
         }
     }
 
-    public function medication_duration_effective_time(Mustache_Context $context)
+    public function medication_duration_effective_time(Mustache_Context $context): string
     {
         $relevantPeriod = $context->find('relevantPeriod') ?? ['low' => null, 'high' => null];
         return "<effectiveTime xsi:type=\"IVL_TS\">"
@@ -182,14 +182,14 @@ trait Date
             . "</effectiveTime>";
     }
 
-    public function facility_period(Mustache_Context $context)
+    public function facility_period(Mustache_Context $context): string
     {
         $locationPeriod = $context->find('locationPeriod') ?? ['low' => null, 'high' => null];
         return "<low " . $this->value_or_null_flavor($locationPeriod['low']) . "/>"
             . "<high " . $this->value_or_null_flavor($locationPeriod['high']) . "/>";
     }
 
-    public function incision_datetime(Mustache_Context $context)
+    public function incision_datetime(Mustache_Context $context): string
     {
         return "<effectiveTime " . $this->value_or_null_flavor($context->find('incisionDatetime')) . "/>";
     }

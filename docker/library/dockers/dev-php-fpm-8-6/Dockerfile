@@ -10,15 +10,24 @@
 # php-fpm Dockerfile build for openemr development docker environment
 # This docker is hosted here: https://hub.docker.com/r/openemr/dev-php-fpm/ <tag is 7.2>
 #
-FROM openemr/dev-php-fpm:pre-build-dev-86
+# 8.6-rc rolls forward as upstream cuts new RCs, giving the dev-track sidecar
+# coverage of the imminent 8.6 GA. The dev-source (php-src master) slot moved
+# to 8.7 in dev-php-fpm-8-7.
+FROM php:8.6-rc-fpm
 
 # Add mariadb-client package that is needed in the OpenEMR Backup gui, which does direct command mysql commands
 # Add imagemagick that is needed for some image processing in OpenEMR
 # Note this basically add 160MB of space to the docker, so would be nice for OpenEMR to not require this stuff
 #  and instead rely on php scripts, if possible.
+#
+# libonig-dev is needed for mbstring's mbregex functionality; php:8.6-rc-fpm
+# no longer bundles mbstring (docker-library/php#1654 dropped `--enable-mbstring`
+# alongside PECL removal), so install-php-extensions compiles it from source
+# below and needs oniguruma headers apt-installed first.
 RUN apt-get update \
  && apt-get install -y curl \
                        imagemagick \
+                       libonig-dev \
                        mariadb-client
 
 # Install correct version nodejs
@@ -105,7 +114,7 @@ RUN apt-get update && apt-get install -y git \
 # TODO: intermittently try to remove this block of code and add back pcov in below ../install-php-extensions run
 # TODO:
 # krakjoe/pcov's `develop` (default) branch still uses INI_BOOL/INI_INT/INI_STR
-# macros that PHP 8.6's Zend engine removed. The fix lives on the
+# macros that PHP 8.6+'s Zend engine removed. The fix lives on the
 # `issue-php86a2` topic branch (single commit from 2026-07-21), unmerged so
 # far. Track that branch until upstream merges it into develop; the tripwire
 # above fires when install-php-extensions can install pcov cleanly, prompting
@@ -124,6 +133,11 @@ RUN apt-get update && apt-get install -y git \
 # Add the standard php extensions (note using a very cool script by mlocati to do this).
 # imagick, redis, and pcov are handled by the from-source workaround blocks above;
 # the tripwire above monitors when they can move back into this list.
+#
+# mbstring is explicitly listed because php:8.6-rc-fpm no longer bundles it
+# (docker-library/php#1654 dropped `--enable-mbstring` from the 8.6+ image
+# template alongside PECL removal). libonig-dev is already apt-installed above
+# so install-php-extensions can compile it.
 RUN install-php-extensions bcmath \
                            calendar \
                            dom \
@@ -131,6 +145,7 @@ RUN install-php-extensions bcmath \
                            gettext \
                            intl \
                            ldap \
+                           mbstring \
                            mysqli \
                            pdo_mysql \
                            soap \

@@ -15,12 +15,12 @@ use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
 class DiagnosticStudyOrderedService extends AbstractCarePlanService implements QdmServiceInterface
 {
-    public function getCarePlanType()
+    public function getCarePlanType(): string
     {
         return AbstractCarePlanService::CARE_PLAN_TYPE_PLAN_OF_CARE;
     }
 
-    public function getModelClass()
+    public function getModelClass(): string
     {
         return DiagnosticStudyOrder::class;
     }

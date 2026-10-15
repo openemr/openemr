@@ -103,7 +103,7 @@ class ActionRouter
         return ob_get_clean();
     }
 
-    protected function resolveViewLocation($viewName)
+    protected function resolveViewLocation($viewName): string
     {
         $controllerName = strtolower((string) $this->controller->getControllerName());
         $viewLocation = $this->templateRoot . 'controllers' . DIRECTORY_SEPARATOR . $controllerName . DIRECTORY_SEPARATOR . $viewName;
@@ -114,7 +114,7 @@ class ActionRouter
         return $viewLocation;
     }
 
-    protected function resolveTemplate($templateName)
+    protected function resolveTemplate($templateName): string
     {
         $templateLocation = $this->templateRoot . 'base' . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . $templateName;
 

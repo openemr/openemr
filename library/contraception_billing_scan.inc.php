@@ -85,10 +85,8 @@ function contraception_billing_scan($patient_id, $encounter_id, $provider_id = 0
     $contraception_billing_prov = 0;
 
     $billresult = BillingUtilities::getBillingByEncounter($patient_id, $encounter_id, "*");
-    if (is_array($billresult)) {
-        foreach ($billresult as $iter) {
-            _contraception_billing_check($iter["code_type"], trim((string) $iter["code"]), $iter['provider_id']);
-        }
+    foreach ($billresult as $iter) {
+        _contraception_billing_check($iter["code_type"], trim((string) $iter["code"]), $iter['provider_id']);
     }
     // If no provider at the line level, use the encounter's default provider.
     if (empty($contraception_billing_prov)) {

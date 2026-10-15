@@ -140,7 +140,7 @@ $sms_gateway =  ['CLICKATELL','TMB4'];
                 </div>
                 <div class="col-md-6 form-group">
                     <label for="provider_name"><?php echo xlt('Name of Provider'); ?>:</label>
-                    <input class="form-control" type="text" name="provider_name" size="40" value="<?php echo attr($provider_name); ?>" placeholder="<?php xla('provider name'); ?>">
+                    <input class="form-control" type="text" name="provider_name" size="40" value="<?php echo attr($provider_name); ?>" placeholder="<?php echo xla('provider name'); ?>">
                 </div>
             </div>
             <div class="row">

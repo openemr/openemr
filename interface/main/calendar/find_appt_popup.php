@@ -21,6 +21,7 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Calendar\ConfiguredScheduleHours;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -94,6 +95,13 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 // seconds per time slot
 $slotsecs = OEGlobalsBag::getInstance()->getInt('calendar_interval') * 60;
 
+// Clinic day window from Admin -> Config -> Calendar (same as day/week grid).
+// schedule_end is exclusive for slot start/end fitting (Ending Hour 5 PM =>
+// last 30-min start is 4:30).
+[$scheduleStartHour, $scheduleEndHour] = ConfiguredScheduleHours::normalizeWindow(
+    OEGlobalsBag::getInstance()->getInt('schedule_start'),
+    OEGlobalsBag::getInstance()->getInt('schedule_end')
+);
 
 $catslots = 1;
 if ($input_catid) {
@@ -259,8 +267,12 @@ if (in_array($sdateStr, $holidays, true)) {
 if (isset($_REQUEST['cktime'])) {
     $cktime = 0 + $_REQUEST['cktime'];
     $ckindex = (int) ($cktime * 60 / $slotsecs);
+    $ckUtime = ($slotbase + $ckindex) * $slotsecs;
+    if (!ConfiguredScheduleHours::containsSlot($ckUtime, $evslots, $slotsecs, $scheduleStartHour, $scheduleEndHour)) {
+        $ckavail = false;
+    }
     for ($j = $ckindex; $j < $ckindex + $evslots; ++$j) {
-        if ($slots[$j] >= 4) {
+        if (($slots[$j] ?? 0) >= 4) {
             $ckavail = false;
             $isProv = false;
             if (isset($prov[$j])) {
@@ -388,6 +400,10 @@ if (isset($_REQUEST['cktime'])) {
                 }
 
                 $utime = ($slotbase + $i) * $slotsecs;
+                // Honor Admin -> Config -> Calendar start/end hours (e.g. no slots after 5 PM).
+                if (!ConfiguredScheduleHours::containsSlot($utime, $evslots, $slotsecs, $scheduleStartHour, $scheduleEndHour)) {
+                    continue;
+                }
                 $thisdate = date("Y-m-d", $utime);
                 if ($thisdate != $lastdate) {
                     // if a new day, start a new row
@@ -465,12 +481,64 @@ $(function () {
 
 <?php
 if (!$ckavail) {
+    // Shared confirm-branch body: resolve the parent window robustly
+    // (opener can be undefined-at-load if the iframe parses its
+    // include_opener.js before dialog.js's `top.set_opener(winname,
+    // window)` completes -- that's a timing race, not a semantic
+    // guarantee), restore the parent session, submit the parent
+    // form, then unconditionally dlgclose(). The try/catch + always-
+    // close shape mirrors the openemr/openemr#14325 fix on
+    // add_edit_event.php's response path: a null/undefined-opener
+    // throw must not block dlgclose() from firing, because that's
+    // the exact modal-persists symptom the acceptance harness
+    // AppointmentPersistenceAcceptanceTest exists to catch.
+    //
+    // Parent-window resolution: window.opener in dlgopen iframe
+    // context goes through include_opener.js's fallback chain
+    // (`opener = top.get_opener(window.name)` at script-load time).
+    // We ALSO re-resolve via top.get_opener(window.name) at
+    // use-time, inside the try, so a load-time race that left
+    // opener undefined has a second chance to find the real parent.
+    // Both the holiday and the provider-not-available / slot-
+    // already-used branches share this logic -- extracted into a
+    // single $submitParentJs so the three confirm variants only
+    // differ in their prompt string.
+    // CodeRabbit note on this PR: logging the caught error + the
+    // unresolved-parent case to the browser console closes the
+    // diagnostic loop with the PantherAcceptanceTestCase failure-
+    // capture hook added in the same PR (that hook writes the
+    // browser console log to tmp/acceptance-failure-artifacts/
+    // on test failure, so if the opener-chain fallback here
+    // doesn't resolve the real parent, the artifact bundle names
+    // exactly why).
+    $submitParentJs = <<<'JS'
+            try {
+                var _parentWin = (typeof opener !== 'undefined' && opener && opener.document)
+                    ? opener
+                    : ((top && typeof top.get_opener === 'function') ? top.get_opener(window.name) : null);
+                if (_parentWin && _parentWin.top && typeof _parentWin.top.restoreSession === 'function') {
+                    _parentWin.top.restoreSession();
+                }
+                if (_parentWin && _parentWin.document && _parentWin.document.forms[0]) {
+                    _parentWin.document.forms[0].submit();
+                } else if (window.console && typeof window.console.warn === 'function') {
+                    window.console.warn(
+                        'find_appt_popup: parent window could not be resolved; '
+                        + 'confirmed save was NOT propagated to the opener form. '
+                        + 'opener=' + (typeof opener) + ' top.get_opener=' + (typeof (top && top.get_opener))
+                    );
+                }
+            } catch (_e) {
+                if (window.console && typeof window.console.error === 'function') {
+                    window.console.error('find_appt_popup confirm submit failed', _e);
+                }
+            }
+            dlgclose();
+JS;
     if (AclMain::aclCheckCore('patients', 'appt', '', 'write')) {
         if ($is_holiday) { ?>
             if (confirm(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>)) {
-                opener.top.restoreSession();
-                opener.document.forms[0].submit();
-                dlgclose();
+            <?php echo $submitParentJs; ?>
             } <?php
         } else {
             //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
@@ -481,9 +549,7 @@ if (!$ckavail) {
                 if (confirm(<?php echo xlj('This appointment slot is already used, use it anyway?'); ?>)) {
                 <?php
             } ?>
-            opener.top.restoreSession();
-            opener.document.forms[0].submit();
-            dlgclose();
+            <?php echo $submitParentJs; ?>
         }
             <?php
         }

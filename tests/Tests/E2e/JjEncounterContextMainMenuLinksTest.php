@@ -32,8 +32,6 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
     use LoginTrait;
     use EncounterOpenTrait;
 
-    private $crawler;
-
     #[DataProvider('menuLinkProvider')]
     #[Depends('testEncounterOpen')]
     #[Depends('testLoginAuthorized')]

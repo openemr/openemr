@@ -53,7 +53,7 @@ class FhirDocRefService
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -95,7 +95,7 @@ class FhirDocRefService
         return $fhirSearchResult;
     }
 
-    private function createDefaultType()
+    private function createDefaultType(): TokenSearchField
     {
         return new TokenSearchField('type', [self::LOINC_CCD_CLINICAL_SUMMARY_OF_CARE]);
     }

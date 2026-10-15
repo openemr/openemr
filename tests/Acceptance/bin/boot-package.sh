@@ -255,7 +255,7 @@ if [[ "${skip_install_helper}" == "true" ]]; then
     echo "    Artifact URL:  http://localhost:8680  (serving setup.php)"
     echo "    HTTPS URL:     https://localhost:8643 (self-signed cert)"
     echo ""
-    echo "    Run tests:     ACCEPTANCE_ARTIFACT_URL=http://localhost:8680 composer acceptance -- --group=wizard-install"
+    echo "    Run tests:     ACCEPTANCE_ARTIFACT_URL=http://localhost:8680 composer acceptance -- --group=wizard-completed-post-install --group=post-install"
     echo "    Teardown:      tests/Acceptance/bin/down-package.sh"
     exit 0
 fi

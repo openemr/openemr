@@ -38,7 +38,7 @@ class SendtoController extends AbstractActionController
     /*
     * Display the content of Send To button
     */
-    public function sendAction()
+    public function sendAction(): ViewModel
     {
         $button_only = $this->params()->fromQuery('embedded_button');
         $required_butons = $this->params()->fromQuery('required_butons');

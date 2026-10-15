@@ -21,6 +21,7 @@
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
@@ -58,7 +59,7 @@ if (isset($_REQUEST['isBilling'])) {
     SessionUtil::unsetSession(['billpid', 'billencounter']);
 }
 
-$MBO = new OpenEMR\Billing\MiscBillingOptions();
+$MBO = new MiscBillingOptions();
 
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
@@ -72,7 +73,8 @@ if (empty($formid)) {
         $formid = (int) $mboquery['id'];
     }
 }
-$obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
+$fetched = $formid ? formFetch("form_misc_billing_options", $formid) : [];
+$obj = is_array($fetched) ? $fetched : [];
 ?>
 <html>
 <head>
@@ -245,11 +247,13 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                         <div class="form-group">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider') ?>:</label>
                             <?php
-                            if (!empty($obj["provider_id"])) {
-                                $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj["provider_id"]);
-                            } else { // default to the patient's ref_prov
-                                $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
-                            } ?>
+                            // The form's own provider, falling back to the patient's
+                            // referring provider. Either can be absent: the select posts an
+                            // empty string when nothing is chosen, which the int column
+                            // stores as 0, and patient_data.ref_providerID is nullable.
+                            $boxSeventeenProvider = MiscBillingOptions::providerId($obj["provider_id"] ?? null)
+                                ?? MiscBillingOptions::providerId(getPatientData($pid, "ref_providerID")['ref_providerID'] ?? null);
+                            $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $boxSeventeenProvider); ?>
                         </div>
                         <div class="form-group">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider Qualifier'); ?>:</label>
@@ -311,15 +315,14 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-                                <label for="medicaid_resubmission_code"><?php echo xlt('Box 22. Resubmission Code'); ?>:</label>
-<!-- ai gen'ed code ends -->
-                                <input type="text" class="form-control" name="medicaid_resubmission_code" id="medicaid_resubmission_code"
-                                    value="<?php echo attr($obj["medicaid_resubmission_code"] ?? ''); ?>" />
+                                <label for="resubmission_code"><?php echo xlt('Box 22. Resubmission Code'); ?>:</label>
+                                <input type="text" class="form-control" name="resubmission_code" id="resubmission_code"
+                                    value="<?php echo attr($obj["resubmission_code"] ?? ''); ?>" />
                             </div>
                             <div class="col-md">
-                                <label><?php echo xlt('Medicaid Original Reference No.'); ?>:</label>
-                                <input type="text" class="form-control" name="medicaid_original_reference" id="medicaid_original_reference"
-                                    value="<?php echo attr($obj["medicaid_original_reference"] ?? ''); ?>" />
+                                <label><?php echo xlt('Box 22a. Original Ref. No.'); ?>:</label>
+                                <input type="text" class="form-control" name="original_reference_number" id="original_reference_number"
+                                    value="<?php echo attr($obj["original_reference_number"] ?? ''); ?>" />
                             </div>
                         </div>
                         <div class="form-group mt-3">

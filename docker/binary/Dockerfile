@@ -22,8 +22,8 @@ ARG ALPINE_VERSION=3.24
 FROM alpine:${ALPINE_VERSION} AS base
 
 # OpenEMR version and binary release information
-ARG OPENEMR_VERSION=8_3_0
-ARG BINARY_RELEASE_DATE=08232026
+ARG OPENEMR_VERSION=8_4_1
+ARG BINARY_RELEASE_DATE=10032026
 ARG PHP_VERSION=8.5
 # Forge tags use an abbreviated PHP version (e.g. "8.5" -> "php85"). Derived
 # once here rather than per-RUN, the same way docker/flex/Dockerfile does it.
@@ -49,7 +49,7 @@ RUN apk --no-cache upgrade
 # apache2-utils (utilities), bash (shell), certbot (Let's Encrypt), curl (HTTP client),
 # dcron (scheduled tasks), imagemagick (image processing),
 # mariadb-client (database client), mariadb-connector-c (DB connector), ncurses (terminal),
-# nodejs/npm (JavaScript runtime for CQM service), openssl/openssl-dev (cryptography), perl (interpreter),
+# openssl/openssl-dev (cryptography), perl (interpreter),
 # rsync (file sync), shadow (user management), su-exec (lightweight privilege-drop
 # tool used by run_php_as_apache to invoke OpenEMR CLI scripts as the apache user
 # without an intermediate shell — busybox `su` rescans options across the whole
@@ -67,8 +67,6 @@ RUN apk add --no-cache \
     mariadb-client \
     mariadb-connector-c \
     ncurses \
-    nodejs \
-    npm \
     openssl \
     openssl-dev \
     perl \
@@ -264,6 +262,8 @@ COPY upgrade/docker-version \
      upgrade/fsupgrade-11.sh \
      upgrade/fsupgrade-12.sh \
      upgrade/fsupgrade-13.sh \
+     upgrade/fsupgrade-14.sh \
+     upgrade/fsupgrade-15.sh \
      /root/
 
 # Set upgrade scripts as executable (read and execute for owner only)
@@ -280,7 +280,9 @@ RUN chmod 500 \
     /root/fsupgrade-10.sh \
     /root/fsupgrade-11.sh \
     /root/fsupgrade-12.sh \
-    /root/fsupgrade-13.sh
+    /root/fsupgrade-13.sh \
+    /root/fsupgrade-14.sh \
+    /root/fsupgrade-15.sh
 
 # ============================================================================
 # APACHE AND PHP-FPM RUNTIME DIRECTORIES

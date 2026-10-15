@@ -26,7 +26,7 @@
 
 class AMC_314g_1_2_19_Denominator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_314g_1_2_19 Denominator";
     }

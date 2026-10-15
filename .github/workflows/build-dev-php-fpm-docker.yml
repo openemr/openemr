@@ -1,4 +1,4 @@
-name: Nightly Build development 8.6 php-fpm Docker
+name: Nightly Build development 8.7 php-fpm Docker
 
 on:
   workflow_dispatch:
@@ -27,11 +27,11 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Build (and push on master) dev-php-fpm:pre-build-dev-86 docker
+    - name: Build (and push on master) dev-php-fpm:pre-build-dev-87 docker
       uses: docker/build-push-action@v7
       with:
         context: ./docker/library/dockers/dev-php-fpm
-        tags: openemr/dev-php-fpm:pre-build-dev-86
+        tags: openemr/dev-php-fpm:pre-build-dev-87
         platforms: linux/amd64
         push: ${{ env.PUSH_IMAGE == 'true' }}
         no-cache: true

@@ -30,7 +30,7 @@ class CustomerPrimaryInfoView
     {
     }
 
-    public static function loadByPost($postData)
+    public static function loadByPost($postData): CustomerPrimaryInfoView
     {
         $model = new CustomerPrimaryInfoView();
         $model->primaryId = $postData["form_primaryId"];

@@ -168,7 +168,12 @@
                div inside the schedule td) the marker lands one slot
                below the cursor. #}
             <tr>
-                <td>&nbsp;</td>
+                {# providerXbtn (unselect-all-providers) lives here in the outer
+                   day-header row rather than inside the times inner-table, so
+                   the times column and the event columns share a common top
+                   edge and events positioned at top:0 align with their time
+                   label. #}
+                <td class="providerXbtn" data-username="__PC_ALL__"><i class="fa fa-lg fa-user-md"></i></td>
                 {% for column in provider.dayColumns %}
                     {% set headerClass = 'text-center week_dateheader' %}
                     {% if column.isCurrentDay %}{% set headerClass = headerClass ~ ' week_currday' %}{% endif %}
@@ -181,7 +186,6 @@
                 <td id="times" class="calendar-times-col">
                     <div class="calendar-times-inner">
                         <table class="table calendar-times-table">
-                            <tr><td class="timeslot providerXbtn" data-username="__PC_ALL__"><i class="fa fa-lg fa-user-md"></i></td></tr>
                             {% for slot in timeRows %}
                                 <tr>
                                     <td class="timeslot{% if isHolidayDay %} timeslot-holiday{% endif %}">

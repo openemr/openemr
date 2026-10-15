@@ -66,4 +66,4 @@ UPDATE categories_seq SET id = (select MAX(id) from categories);
 
 #IfMissingColumn ehi_export_job_tasks exported_result
 ALTER TABLE ehi_export_job_tasks ADD COLUMN `exported_result` TEXT COMMENT 'The JSON encoded result of the export process, populated during processing for status updates';
-#Endif
+#EndIf

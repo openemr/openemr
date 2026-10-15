@@ -49,16 +49,42 @@ var dlgclose =
         var wframe = top;
         var dialogModal = top.$('div#' + frameName);
 
-        var removeFrame = dialogModal.find("iframe[name='" + frameName + "']");
-        if (removeFrame.length > 0) {
-            removeFrame.remove();
+        if (dialogModal.length === 0) {
+            return;
         }
 
-        if (dialogModal.length > 0) {
-            if(call){
-                wframe.setCallBack(call, args);
-            }
+        if (call) {
+            wframe.setCallBack(call, args);
+        }
+
+        // The original implementation removed the iframe up-front and then
+        // called .modal('hide'). Two bugs there when dlgclose fires from
+        // an inline script inside the modal's own iframe (e.g.
+        // find_appt_popup's "provider unavailable, use anyway" submit
+        // branch, which runs before the modal's show transition even
+        // finishes):
+        //
+        //   1. Removing the iframe synchronously kills the calling script
+        //      before .modal('hide') runs — the modal never hides.
+        //   2. Bootstrap 4's Modal.hide() is a no-op while _isTransitioning
+        //      is true, and every dlgopen enters show-transition
+        //      immediately, so a fast dlgclose call lands during that
+        //      window and is silently dropped.
+        //
+        // Fix both: defer the iframe removal into a top-scoped
+        // 'hidden.bs.modal' handler (so it happens after the fade and
+        // after our calling script has returned), and if the modal is
+        // still transitioning, wait for 'shown.bs.modal' before firing
+        // hide.
+        dialogModal.one('hidden.bs.modal', function () {
+            dialogModal.find("iframe[name='" + frameName + "']").remove();
+        });
+        var bs = dialogModal.data('bs.modal');
+        if (bs && bs._isTransitioning) {
+            dialogModal.one('shown.bs.modal', function () {
+                dialogModal.modal('hide');
+            });
+        } else {
             dialogModal.modal('hide');
         }
-
     };

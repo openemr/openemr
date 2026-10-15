@@ -74,7 +74,7 @@ class SocialHistoryService extends BaseService
         return [];
     }
 
-    public function search($search, $isAndCondition = true, $limit = null)
+    public function search($search, $isAndCondition = true, $limit = null): ProcessingResult
     {
         // history_data contains a table record for every single insert into the database
         $sql = "

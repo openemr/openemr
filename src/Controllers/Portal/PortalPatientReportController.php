@@ -18,7 +18,7 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class PortalPatientReportController
 {
-    public function getDocuments($pid)
+    public function getDocuments($pid): array
     {
 
         // show available documents
@@ -42,7 +42,7 @@ class PortalPatientReportController
         }
         return $documents;
     }
-    public function getProcedureOrders($pid)
+    public function getProcedureOrders($pid): array
     {
         $res = sqlStatement(
             "SELECT po.procedure_order_id, po.date_ordered, fe.date " .
@@ -85,7 +85,7 @@ class PortalPatientReportController
         return $procedures;
     }
 
-    public function getIssues(array $ISSUE_TYPES, int $pid)
+    public function getIssues(array $ISSUE_TYPES, int $pid): array
     {
         $issuesByType = [];
         // get issues
@@ -135,7 +135,7 @@ class PortalPatientReportController
         }
         return $issuesByType;
     }
-    public function getEncounters($pid)
+    public function getEncounters($pid): array
     {
 
         $isfirst = 1;

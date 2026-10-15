@@ -418,19 +418,30 @@ unForceHttps() {
 # Parameters:
 #   $1: Number of random patients to generate (integer)
 #   $2: Development mode - "true" or "false" (affects import behavior)
+#   $3: Import format - "ccda" (default) or "fhir". ccda uses the CCDA import
+#       script; fhir uses the per-resource FHIR write endpoints added in #13281
+#       via contrib/util/fhir_import/import_fhir.php.
 #
 # Process:
 #   1. Downloads and sets up Synthea if not already present
-#   2. Generates synthetic patient data in CCDA format
-#   3. Imports CCDA files into OpenEMR using import_ccda.php
+#   2. Generates synthetic patient data in the selected format
+#   3. Imports the generated files into OpenEMR via the matching importer
 #
 # Note: First run will download Synthea and Java runtime (adds ~50MB).
 # Each patient generation takes several seconds.
 #
 # Must call prepareVariables() before calling this function.
 importRandomPatients() {
-    echo "Setting up for following number of random patients (each patient will take several seconds): ${1}"
-    echo "Development mode: ${2}"
+    local count="${1}"
+    local isDev="${2}"
+    local format="${3:-ccda}"
+    if [[ "${format}" != "ccda" && "${format}" != "fhir" ]]; then
+        echo "FAIL: unknown format '${format}' — expected ccda or fhir" >&2
+        return 1
+    fi
+    echo "Setting up for following number of random patients (each patient will take several seconds): ${count}"
+    echo "Development mode: ${isDev}"
+    echo "Import format: ${format}"
     (
         if [[ ! -d /root/synthea ]]; then
             echo "Setting up synthea first"
@@ -444,31 +455,59 @@ importRandomPatients() {
         # step below runs as the apache user via run_php_as_apache (the
         # RootCliGuard wrapper from #12267), and apache cannot traverse
         # /root (mode 700, root-only) — so generating into /root/synthea/
-        # would leave the CCDA files unreadable to the importer and glob()
-        # would silently return zero matches. Generate into /tmp/synthea
-        # instead, which is 1777, while keeping the cached JAR in
-        # /root/synthea (apache never needs to touch it). Pass the JAR by
-        # absolute path so the cwd change is harmless.
+        # would leave the exported files unreadable to the importer and
+        # glob() would silently return zero matches. Generate into
+        # /tmp/synthea instead, which is 1777, while keeping the cached
+        # JAR in /root/synthea (apache never needs to touch it). Pass the
+        # JAR by absolute path so the cwd change is harmless.
         mkdir -p /tmp/synthea
         rm -fr /tmp/synthea/output
+        local fhirFlag="false"
+        local ccdaFlag="true"
+        if [[ "${format}" == "fhir" ]]; then
+            fhirFlag="true"
+            ccdaFlag="false"
+        fi
         cd /tmp/synthea &&
-            java -jar /root/synthea/synthea-with-dependencies.jar --exporter.fhir.export false --exporter.ccda.export true --generate.only_alive_patients true -p "${1}"
+            java -jar /root/synthea/synthea-with-dependencies.jar \
+                "--exporter.fhir.export=${fhirFlag}" \
+                "--exporter.ccda.export=${ccdaFlag}" \
+                --generate.only_alive_patients true \
+                -p "${count}"
     ) || { echo "FAIL: synthea setup or generation failed; aborting before import" >&2; return 1; }
-    # Belt-and-suspenders: the subshell exit status above covers most
-    # failure modes, but import_ccda.php treats an empty source directory
-    # as a no-op — silently logs "Finished patients import 0" and exits 0.
-    # That is the exact failure mode that hid the unreachable-/root bug
-    # before this fix; guard against it explicitly so a future regression
-    # in the synthea step still fails the irp command loudly.
-    if [[ -z "$(ls -A /tmp/synthea/output/ccda 2>/dev/null || true)" ]]; then
-        echo "FAIL: no CCDA files produced in /tmp/synthea/output/ccda; nothing to import" >&2
-        return 1
+
+    if [[ "${format}" == "fhir" ]]; then
+        # Belt-and-suspenders: the subshell exit status above covers most
+        # failure modes, but the bin/console openemr:fhir-import command
+        # treats an empty source directory as a FAIL and exits 1 by itself.
+        # Guard here so the diagnostic is consistent whether synthea
+        # produced nothing or produced only non-FHIR output.
+        if [[ -z "$(ls -A /tmp/synthea/output/fhir 2>/dev/null || true)" ]]; then
+            echo "FAIL: no FHIR bundles produced in /tmp/synthea/output/fhir; nothing to import" >&2
+            return 1
+        fi
+        export OPENEMR_ENABLE_FHIR_IMPORT=1
+        run_php_as_apache php /var/www/localhost/htdocs/openemr/bin/console \
+            openemr:fhir-import \
+            --site=default \
+            --sourcePath=/tmp/synthea/output/fhir
+    else
+        # Belt-and-suspenders: the subshell exit status above covers most
+        # failure modes, but import_ccda.php treats an empty source directory
+        # as a no-op — silently logs "Finished patients import 0" and exits 0.
+        # That is the exact failure mode that hid the unreachable-/root bug
+        # before this fix; guard against it explicitly so a future regression
+        # in the synthea step still fails the irp command loudly.
+        if [[ -z "$(ls -A /tmp/synthea/output/ccda 2>/dev/null || true)" ]]; then
+            echo "FAIL: no CCDA files produced in /tmp/synthea/output/ccda; nothing to import" >&2
+            return 1
+        fi
+        sed -i "s@exit;@//exit;@" /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php
+        export OPENEMR_ENABLE_CCDA_IMPORT=1
+        run_php_as_apache php /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php --sourcePath=/tmp/synthea/output/ccda --site=default --openemrPath=/var/www/localhost/htdocs/openemr "--isDev=${isDev}"
+        sed -i "s@//exit;@exit;@" /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php
     fi
-    sed -i "s@exit;@//exit;@" /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php
-    export OPENEMR_ENABLE_CCDA_IMPORT=1
-    run_php_as_apache php /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php --sourcePath=/tmp/synthea/output/ccda --site=default --openemrPath=/var/www/localhost/htdocs/openemr "--isDev=${2}"
-    sed -i "s@//exit;@exit;@" /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php
-    echo "Completed run for following number of random patients: ${1}"
+    echo "Completed run for following number of random patients: ${count}"
 }
 
 # Creates multiple OpenEMR multisite instances for testing multisite functionality.

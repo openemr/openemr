@@ -310,6 +310,134 @@ final class PatchPrepReleaseTargetsMutatorTest extends TestCase
         self::assertIsArray($parsed);
     }
 
+    public function testStripsNextFromMasterRowWhenPresent(): void
+    {
+        // Mirrors the real rel-840 -> 8.4.1 patch-prep state that
+        // exposed the pre-fix gap: PostReleaseTargetsMutator put `next`
+        // back on the master row at 8.4.0 finalize, and patch-prep
+        // needs to move it to the incoming patch's new dev row.
+        $input = <<<'YAML'
+        - branch: master
+          docker_tags: 8.5.0,dev,next
+          openemr_version_ref: master
+
+        - branch: rel-840
+          docker_tags: 8.4.0,latest
+          openemr_version_ref: v8_4_0
+        YAML;
+        $this->writeTarget($input);
+
+        (new PatchPrepReleaseTargetsMutator())->apply(
+            $this->context('rel-840', '8.4.1'),
+        );
+
+        $parsed = Yaml::parse($this->readTarget());
+        self::assertIsArray($parsed);
+        $masterRows = $this->rowsForBranch($parsed, 'master');
+        self::assertCount(1, $masterRows);
+        self::assertSame('8.5.0,dev', $masterRows[0]['docker_tags']);
+
+        // The new 8.4.1,next row is the only one now claiming `next`.
+        $nextClaimers = [];
+        foreach ($parsed as $row) {
+            self::assertIsArray($row);
+            $tags = $row['docker_tags'] ?? null;
+            self::assertIsString($tags);
+            if (str_contains($tags, 'next')) {
+                $branch = $row['branch'] ?? null;
+                self::assertIsString($branch);
+                $nextClaimers[] = $branch;
+            }
+        }
+        self::assertSame(['rel-840'], $nextClaimers, 'only the incoming-patch rel row may carry next after patch-prep');
+    }
+
+    public function testMasterRowIsIdempotentWhenNextAlreadyAbsent(): void
+    {
+        // Master already at `X.Y.Z,dev` (no next). Patch-prep should
+        // not touch it. Prior tests (e.g. testAddsNewDevRowAfterPatchShipped)
+        // assumed this shape without an explicit assertion; lock it in.
+        $input = <<<'YAML'
+        - branch: master
+          docker_tags: 8.5.0,dev
+          openemr_version_ref: master
+
+        - branch: rel-840
+          docker_tags: 8.4.0,latest
+          openemr_version_ref: v8_4_0
+        YAML;
+        $this->writeTarget($input);
+
+        (new PatchPrepReleaseTargetsMutator())->apply(
+            $this->context('rel-840', '8.4.1'),
+        );
+
+        $parsed = Yaml::parse($this->readTarget());
+        self::assertIsArray($parsed);
+        $masterRows = $this->rowsForBranch($parsed, 'master');
+        self::assertCount(1, $masterRows);
+        self::assertSame('8.5.0,dev', $masterRows[0]['docker_tags']);
+    }
+
+    public function testStripNextIsIdempotentAcrossReruns(): void
+    {
+        $input = <<<'YAML'
+        - branch: master
+          docker_tags: 8.5.0,dev,next
+          openemr_version_ref: master
+
+        - branch: rel-840
+          docker_tags: 8.4.0,latest
+          openemr_version_ref: v8_4_0
+        YAML;
+        $this->writeTarget($input);
+        $mutator = new PatchPrepReleaseTargetsMutator();
+        $first = $mutator->apply($this->context('rel-840', '8.4.1'));
+        self::assertTrue($first->changed());
+
+        // Rerun on the mutated state: new dev row already there, `next`
+        // already off master, placeholder already dropped. No-op.
+        $second = $mutator->apply($this->context('rel-840', '8.4.1'));
+        self::assertFalse($second->changed(), 'second run must be a no-op even for the strip-next step');
+    }
+
+    public function testMasterRowCommentAndOrderingPreservedOnStrip(): void
+    {
+        // The dev-time master row has a multi-line trailing comment
+        // and a `gate_with_acceptance: true` sibling; strip-next must
+        // touch only the docker_tags line, not the surrounding lines.
+        $input = <<<'YAML'
+        - branch: master
+          # 8.5.0 is the version master is currently developing.
+          # The docker_tag <-> version.php alignment guard catches drift.
+          docker_tags: 8.5.0,dev,next
+          openemr_version_ref: master
+          gate_with_acceptance: true
+
+        - branch: rel-840
+          docker_tags: 8.4.0,latest
+          openemr_version_ref: v8_4_0
+        YAML;
+        $this->writeTarget($input);
+
+        (new PatchPrepReleaseTargetsMutator())->apply(
+            $this->context('rel-840', '8.4.1'),
+        );
+        $output = $this->readTarget();
+
+        // Comments preserved.
+        self::assertStringContainsString('# 8.5.0 is the version master is currently developing.', $output);
+        self::assertStringContainsString('# The docker_tag <-> version.php alignment guard catches drift.', $output);
+        // gate_with_acceptance preserved on the master row.
+        self::assertMatchesRegularExpression(
+            '/- branch: master.*?gate_with_acceptance: true/s',
+            $output,
+        );
+        // docker_tags line rewritten cleanly.
+        self::assertStringContainsString('docker_tags: 8.5.0,dev' . "\n", $output);
+        self::assertStringNotContainsString('docker_tags: 8.5.0,dev,next', $output);
+    }
+
     /**
      * @return list<array<string, mixed>>
      */

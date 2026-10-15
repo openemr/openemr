@@ -35,6 +35,30 @@
 # The four caller-facing inputs mirror the shape build-release.yml
 # already had internally, so this refactor is refactor-in-place: no
 # behavior change, just moving code across a workflow_call boundary.
+#
+# CALLER-MUST-GATE contract
+# -------------------------
+# This reusable is UNCONDITIONALLY destructive: every step below
+# creates the annotated git tag, creates/uploads to the GitHub Release,
+# and treats a call as "publish now". There is NO built-in `dry_run` /
+# `no_publish` input here; callers MUST gate `uses:` on the appropriate
+# condition themselves. Existing patterns:
+#
+#   * build-release.yml (primary ship): `if: '!inputs.dry_run'` on the
+#     job that calls this reusable. Smoketest passes dry_run=true so
+#     the job (and therefore this reusable) never runs.
+#
+#   * acceptance-only.yml (recovery ship): `if: ... && inputs.no_publish
+#     != true && ...` on the publish job that calls this reusable.
+#     Smoketest passes no_publish=true so the job (and therefore this
+#     reusable) never runs.
+#
+# If you add a new caller, YOU MUST replicate a matching gate at the
+# `uses:` job level. This reusable has no self-defense; calling it
+# without gating will push a real tag + create a real Release the
+# instant the workflow fires. See recovery-path-smoketest.yml's
+# defense-in-depth model (L1/L2/L4a) for the surrounding context that
+# assumes callers hold up their end of this contract.
 
 name: Reusable — Publish release
 
@@ -99,6 +123,30 @@ jobs:
         filter: blob:none
         fetch-depth: 1
         persist-credentials: false
+
+    # Preflight: enforce non-empty required inputs before any destructive
+    # step runs. workflow_call's `required: true` only validates the
+    # input is DECLARED at the call site, not that its value is
+    # non-empty -- `-f artifact_name=""` satisfies `required: true` but
+    # would break downstream steps. Since every step below performs a
+    # destructive publish op (git tag push + gh release create/upload),
+    # fail loudly HERE if any input is empty, before touching anything.
+    # Belt-and-suspenders complement to the CALLER-MUST-GATE contract in
+    # this workflow's header (see G37 in release-mechanism-gaps.md).
+    # Positioned after the initial checkout so the shared preflight
+    # script is on disk; `version_branch=""` still gets caught (via
+    # checkout's own "ref doesn't exist" failure) even though its error
+    # is less friendly than the preflight's.
+    - name: Preflight (all required inputs non-empty)
+      env:
+        VERSION: ${{ inputs.version }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        ARTIFACT_NAME: ${{ inputs.artifact_name }}
+      run: >-
+        .github/scripts/assert-inputs-nonempty.sh
+        "reusable-publish-release.yml"
+        VERSION RELEASE_TAG VERSION_BRANCH ARTIFACT_NAME
 
     - name: Generate app token
       id: app-token

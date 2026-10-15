@@ -60,7 +60,7 @@ function oeFormatDateTime($datetime, $formatTime = "global", $seconds = false): 
  * @param $timestamp
  * @return string
  */
-function oeTimestampFormatDateTime($timestamp)
+function oeTimestampFormatDateTime($timestamp): string
 {
     if (!$timestamp) {
         $timestamp = strtotime(date('Y-m-d H:i'));
@@ -126,7 +126,7 @@ function oeFormatClientID($id)
  * @param string $mode
  * @return string
  */
-function DateFormatRead($mode = 'legacy')
+function DateFormatRead($mode = 'legacy'): string
 {
     //For the 3 supported date format,the javascript code also should be twicked to display the date as per it.
     //Output of this function is given to 'ifFormat' parameter of the 'Calendar.setup'.
@@ -167,7 +167,7 @@ function DateToYYYYMMDD($DateValue)
     return DateFormatterUtils::DateToYYYYMMDD($DateValue);
 }
 
-function TimeToHHMMSS($TimeValue)
+function TimeToHHMMSS($TimeValue): string
 {
     if (trim((string) $TimeValue) == '') {
         return '';
@@ -178,7 +178,7 @@ function TimeToHHMMSS($TimeValue)
 }
 
 
-function DateTimeToYYYYMMDDHHMMSS($DateTimeValue)
+function DateTimeToYYYYMMDDHHMMSS($DateTimeValue): string
 {
     //This function accepts a timestamp in any of the selected formats, and as per the global setting, converts it to the yyyy-mm-dd hh:mm:ss format.
 

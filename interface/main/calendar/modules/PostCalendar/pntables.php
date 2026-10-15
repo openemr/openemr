@@ -30,7 +30,7 @@
  * This function is called internally by the core whenever the module is
  * loaded.  It adds in the information
  */
-function postcalendar_pntables()
+function postcalendar_pntables(): array
 {
     // Initialise table array
     $pntable = [];

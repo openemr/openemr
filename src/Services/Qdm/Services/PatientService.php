@@ -28,12 +28,12 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class PatientService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getPatientIdColumn()
+    public function getPatientIdColumn(): string
     {
         return 'P.pid';
     }
 
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT
                     P.pid,
@@ -67,7 +67,7 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public static function makeQdmIdentifier($namingSystem, $value)
+    public static function makeQdmIdentifier($namingSystem, $value): Identifier
     {
         return new Identifier(
             [
@@ -77,7 +77,7 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         );
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): Patient
     {
         $record = $recordObj->getData();
         // Make a BSON-formatted ID that the CQM-execution service will preserve when results returned

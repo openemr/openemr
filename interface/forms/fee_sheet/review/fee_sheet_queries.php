@@ -228,7 +228,7 @@ function create_procs($req_pid, $req_encounter, $procs): void
  * @param int   $encounter       the encounter ID
  * @return array - returns an array of the diagnoses
  */
-function issue_diagnoses($pid, $encounter)
+function issue_diagnoses($pid, $encounter): array
 {
     $retval = [];
     $parameters = [$encounter,$pid];
@@ -274,7 +274,7 @@ function issue_diagnoses($pid, $encounter)
  */
 
 
-function common_diagnoses($limit = 10)
+function common_diagnoses($limit = 10): array
 {
     $retval = [];
     $parameters = [$limit];
@@ -355,8 +355,9 @@ function fee_sheet_items($pid, $encounter, &$diagnoses, &$procedures): void
  *
  * @param int   $pid             the ID of the patient
  * @param int   $encounter       the encounter ID
+ * @return EncounterInfo[]
  */
-function select_encounters($pid, $encounter)
+function select_encounters($pid, $encounter): array
 {
     $retval = [];
     $parameters = [$pid,$encounter];

@@ -34,16 +34,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Shell execution function exec\\(\\) is forbidden\\. exec\\(\\) executes a shell command\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Shell execution function popen\\(\\) is forbidden\\. popen\\(\\) opens a pipe to a process\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Shell execution function exec\\(\\) is forbidden\\. exec\\(\\) executes a shell command\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Installer.class.php',
 ];
 $ignoreErrors[] = [
@@ -65,16 +55,6 @@ $ignoreErrors[] = [
     'message' => '#^Shell execution function proc_open\\(\\) is forbidden\\. proc_open\\(\\) opens a process file pointer\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/System/System.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Shell execution function exec\\(\\) is forbidden\\. exec\\(\\) executes a shell command\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Shell execution function popen\\(\\) is forbidden\\. popen\\(\\) opens a pipe to a process\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Shell execution function exec\\(\\) is forbidden\\. exec\\(\\) executes a shell command\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',

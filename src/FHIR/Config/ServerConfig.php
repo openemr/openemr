@@ -145,7 +145,7 @@ class ServerConfig
         $this->webServerRoot = $webServerRoot;
     }
 
-    public function getPublicRestKey()
+    public function getPublicRestKey(): string
     {
         // TODO: @adunsulag we have redundancy here in OAuth2KeyConfig and ServerConfig.  We should probably merge these.
         $site = $this->getSiteId() ?? "default";
@@ -184,7 +184,7 @@ class ServerConfig
         return $this->getOauthAuthorizationUrl() . "/introspect";
     }
 
-    public function areSystemScopesEnabled()
+    public function areSystemScopesEnabled(): bool
     {
         return OEGlobalsBag::getInstance()->get('rest_system_scopes_api') === '1';
     }

@@ -120,7 +120,7 @@ class AppointmentService extends BaseService
         return $validator->validate($appointment);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT pce.pc_eid,
                        pce.pc_uuid,
@@ -201,7 +201,7 @@ class AppointmentService extends BaseService
         return $processingResult;
     }
 
-    public function getAppointmentsForPatient($pid)
+    public function getAppointmentsForPatient($pid): array
     {
         $sqlBindArray = [];
 
@@ -256,7 +256,7 @@ class AppointmentService extends BaseService
         return $finalRecords;
     }
 
-    public function getAppointment($eid)
+    public function getAppointment($eid): array
     {
         $sql = "SELECT pce.pc_eid,
                        pce.uuid AS pc_uuid,
@@ -557,9 +557,8 @@ class AppointmentService extends BaseService
 
     /**
      * Returns a list of appointment statuses (also used with encounters).
-     * @return array
      */
-    public function getAppointmentStatuses()
+    public function getAppointmentStatuses(): array
     {
         $listService = new ListService();
         $options = $listService->getOptionsByListName('apptstat', ['activity' => 1]);
@@ -694,7 +693,7 @@ class AppointmentService extends BaseService
         return QueryUtils::fetchRecords($sql, [$cat_id]);
     }
 
-    public function searchCalendarCategories(array $oeSearchParameters)
+    public function searchCalendarCategories(array $oeSearchParameters): ProcessingResult
     {
         $sql = "SELECT * FROM openemr_postcalendar_categories ";
         $whereClause = FhirSearchWhereClauseBuilder::build($oeSearchParameters, true);

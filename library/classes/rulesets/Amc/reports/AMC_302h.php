@@ -11,22 +11,22 @@
 
 class AMC_302h extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_302h";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         return "lab_orders";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_302h_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_302h_Numerator();
     }

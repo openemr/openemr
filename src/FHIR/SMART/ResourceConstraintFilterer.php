@@ -16,6 +16,7 @@
 
 namespace OpenEMR\FHIR\SMART;
 
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
@@ -28,31 +29,48 @@ class ResourceConstraintFilterer {
     use SystemLoggerAwareTrait;
 
     public function canAccessResource(FHIRDomainResource $resource, HttpRestRequest $request): bool {
+        if (!$request->hasRequestRequiredScope()) {
+            // The in-EHR local API is authorized by the user's session and ACL, not by an access
+            // token, so there are no scope constraints to apply. Any other request without a
+            // recorded scope never passed the scope check and sees nothing.
+            return $request->isLocalApi();
+        }
         $endpointScope = $request->getRequestRequiredScope();
         // TODO: @adunsulag we could move this all into the HttpRestRequest class... but it seems heavy, is there a better
         // class with more cohesion to put this logic into?
         $scopeEntities = $request->getAllContainedScopesForScopeEntity($endpointScope);
+        if ($scopeEntities === []) {
+            // no granting scope carries constraints for this endpoint; endpoint access itself is
+            // decided earlier by the scope check in AuthorizationListener
+            return true;
+        }
+        // Scopes are a union and each scope is evaluated on its own: the resource is visible when
+        // at least one granting scope admits it. Constraints are never merged across scopes --
+        // merging let category=A&clinicalStatus=active plus category=B&clinicalStatus=resolved
+        // admit an A+resolved Condition that neither scope grants, and let a sibling category
+        // scope narrow an unrestricted grant.
         foreach ($scopeEntities as $scopeEntity) {
-            // Check if this scope entity matches or is contained by the given scope
-            // add any constraints to the endpoint scope
-            $endpointScope->addScopePermissions($scopeEntity);
-        }
-        $constraints = $endpointScope->getPermissions()->getConstraints();
-        if (!empty($constraints)) {
-            // the scope has constraints, so we need to add them to the request query parameters
-            // the scope constraint may be category=value1,value2,value3 etc and the query may request category=value2,value4
-            // we need to make sure that the final query only contains values that are allowed by the scope constraints
-            foreach ($constraints as $key => $constraintValues) {
-                // TODO: @adunsulag we should fix the getConstraints to make this an array always
-                $constraintValues = is_array($constraintValues) ? $constraintValues : [$constraintValues];
-                $resourceValue = $this->getResourceValueForKey($resource, $key);
-                if ($this->checkResourceValueWithConstraints($resource, $resourceValue, $constraintValues, $key)) {
-                    return true;
-                }
+            if ($scopeEntity instanceof ScopeEntity && $this->scopeAdmitsResource($scopeEntity, $resource)) {
+                return true;
             }
-            return false;
         }
-        // no constraints, allow access
+        return false;
+    }
+
+    /**
+     * A scope admits a resource when it has no constraints, or when every one of its constraint
+     * keys is satisfied (AND across keys, OR across the values of one key).
+     */
+    private function scopeAdmitsResource(ScopeEntity $scope, FHIRDomainResource $resource): bool
+    {
+        foreach ($scope->getPermissions()->getConstraints() as $key => $constraintValues) {
+            // TODO: @adunsulag we should fix the getConstraints to make this an array always
+            $constraintValues = is_array($constraintValues) ? $constraintValues : [$constraintValues];
+            $resourceValue = $this->getResourceValueForKey($resource, $key);
+            if (!$this->checkResourceValueWithConstraints($resource, $resourceValue, $constraintValues, $key)) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -68,7 +86,12 @@ class ResourceConstraintFilterer {
         return null;
     }
 
-    private function checkResourceValueWithConstraints(FHIRDomainResource $resource, array|FHIRCodeableConcept|FHIRCoding|FHIRCode|null $resourceValue
+    /**
+     * Only coded values (CodeableConcept, Coding, code) can be matched. Any other element type
+     * (a string, a status enum object, ...) cannot satisfy a constraint and is denied, rather
+     * than raising a TypeError and turning a narrowing scope into a 500.
+     */
+    private function checkResourceValueWithConstraints(FHIRDomainResource $resource, mixed $resourceValue
         , array $constraintValues, int|string $key): bool
     {
         if ($resourceValue === null) {

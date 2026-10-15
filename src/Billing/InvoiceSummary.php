@@ -42,7 +42,7 @@ use OpenEMR\Billing\SLEOB;
 //
 class InvoiceSummary
 {
-    public static function arGetInvoiceSummary($patient_id, $encounter_id, $with_detail = false)
+    public static function arGetInvoiceSummary($patient_id, $encounter_id, $with_detail = false): array
     {
         $codes = [];
         $keysuff1 = 1000;
@@ -104,13 +104,13 @@ class InvoiceSummary
         while ($row = sqlFetchArray($res)) {
             $amount = sprintf('%01.2f', $row['fee']);
             $code = 'PROD:' . $row['drug_id'];
+            $codes[$code]['chg'] ??= null;
             $codes[$code]['chg'] += $amount;
+            $codes[$code]['bal'] ??= null;
             $codes[$code]['bal'] += $amount;
             // Add the details if they want 'em.
             if ($with_detail) {
-                if (!$codes[$code]['dtl']) {
-                    $codes[$code]['dtl'] = [];
-                }
+                $codes[$code]['dtl'] ??= [];
 
                 $tmp = [];
                 $tmp['chg'] = $amount;

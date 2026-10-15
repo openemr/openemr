@@ -471,10 +471,8 @@ class DownloadWenoPharmacies
         if ($kind === 'error_html') {
             $scrape = file_get_contents($storeLocation) ?: '';
             $scraped = $wenoLog->scrapeWenoErrorHtml($scrape);
-            $scraped = is_array($scraped) ? $scraped : [];
-            if (($scraped['is_error'] ?? false) === true) {
-                $messageText = $scraped['messageText'] ?? '';
-                $messageText = is_scalar($messageText) ? trim((string) $messageText) : '';
+            if ($scraped['is_error'] === true) {
+                $messageText = trim($scraped['messageText']);
                 $message = 'Pharmacy download failed: ' . ($messageText !== '' ? $messageText : 'Weno returned an error page');
                 $wenoLog->insertWenoLog($logContext, $message);
                 $this->logger->error($message);

@@ -437,6 +437,67 @@ class ObservationControllerTest extends TestCase
     }
 
     /**
+     * Only the enhanced observation form's clinical fields may be merged from
+     * request input. Server-controlled identity + provenance fields (id, pid,
+     * encounter, form_id, user, groupname, authorized) must retain the values
+     * set from the session/controller regardless of what the request carries.
+     */
+    public function testProcessEnhancedFormSaveDropsUnallowedPostFields(): void
+    {
+        $formId = 1;
+        $postData = [
+            'observation_id' => 0,
+            'code' => 'TEST001',
+            'ob_value' => '120',
+            'date' => '2024-01-01 10:00',
+            // These are all server-controlled and must NOT be overridden by POST:
+            'id' => 999,
+            'authorized' => 1,
+            'pid' => 999,
+            'encounter' => 999,
+            'form_id' => 999,
+            'user' => 'evil',
+            'groupname' => 'evil',
+        ];
+
+        $mockTemplate = [
+            'id' => 0,
+            'form_id' => 0,
+            'pid' => 0,
+            'encounter' => 0,
+            'sub_observations' => []
+        ];
+
+        $this->mockObservationService
+            ->expects($this->once())
+            ->method('getNewObservationTemplate')
+            ->willReturn($mockTemplate);
+
+        $this->mockObservationService
+            ->expects($this->once())
+            ->method('saveObservation')
+            ->with($this->callback(function (array $observation) use ($formId): bool {
+                // Server-controlled fields keep the values set by the controller
+                // (form_id from parameter; pid/encounter/user/groupname/authorized
+                // from session; id from either the template or the loaded record).
+                $this->assertSame($formId, $observation['form_id']);
+                $this->assertSame(123, $observation['pid']);
+                $this->assertSame(456, $observation['encounter']);
+                $this->assertSame('testuser', $observation['user']);
+                $this->assertSame('testprovider', $observation['groupname']);
+                $this->assertSame(1, $observation['authorized']);
+                $this->assertSame(0, $observation['id']);
+                // Clinical fields from POST are merged.
+                $this->assertSame('TEST001', $observation['code']);
+                $this->assertSame('120', $observation['ob_value']);
+                return true;
+            }))
+            ->willReturn($mockTemplate);
+
+        $this->controller->processEnhancedFormSave($formId, $postData);
+    }
+
+    /**
      * AI Generated: Test shouldShowListView logic
      */
     public function testShouldShowListView(): void

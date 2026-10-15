@@ -16,6 +16,8 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -26,6 +28,10 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+}
+
+if (!AclMain::aclCheckCore('patients', 'demo')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Patient Search", xl("Patient Search"));
 }
 
 // The form posts fstart, but the pager links pass it on the query string.

@@ -404,7 +404,6 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
             null,
             json_encode($questionnaireTemplate)
         );
-        $this->assertIsArray($result, "Failed to create test QuestionnaireResponse");
         $this->assertNotNull($result['response_id']);
 
         return $result['response_id'];
@@ -480,7 +479,6 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
             null,
             json_encode($questionnaireTemplate)
         );
-        $this->assertNotEmpty($result, "Failed to create complex test QuestionnaireResponse");
         $this->assertNotNull($result['response_id']);
 
         return $result['response_id'];

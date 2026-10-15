@@ -31,9 +31,9 @@ class Group_Statuses
 
     /**
      * Gets group appointment statuses
-     * @return ADORecordSet_mysqli
+     * @return list<array<string, mixed>>
      */
-    public function getGroupStatuses()
+    public function getGroupStatuses(): array
     {
         $sql = 'SELECT  option_id, title FROM ' . self::TABLE . ' WHERE list_id = ?;';
         $result = sqlStatement($sql, ['groupstat']);
@@ -47,9 +47,9 @@ class Group_Statuses
 
     /**
      * Gets group meeting attendance statuses
-     * @return ADORecordSet_mysqli
+     * @return list<array<string, mixed>>
      */
-    public function getGroupAttendanceStatuses()
+    public function getGroupAttendanceStatuses(): array
     {
         $sql = 'SELECT  option_id, title FROM ' . self::TABLE . ' WHERE list_id = ?;';
         $result = sqlStatement($sql, ['attendstat']);

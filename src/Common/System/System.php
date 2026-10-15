@@ -18,7 +18,7 @@ class System
      * @param string $command The command to check
      * @return bool True if the command has been found ; otherwise, false.
      */
-    public function command_exists($command)
+    public function command_exists($command): bool
     {
         $exec_command = escapeshellcmd($command); // @see  https://www.php.net/manual/en/function.escapeshellcmd.php
         $whereIsCommand = (PHP_OS == 'WINNT') ? 'where' : 'which';
@@ -83,7 +83,7 @@ class System
      * @param string $command a command or command string that needs to be sanitized.
      * @return string The cleaned up string.
      */
-    public function escapeshellcmd($command)
+    public function escapeshellcmd($command): string
     {
         // for now we just pass through to the php cleanup, any specifics we can add after
         return escapeshellcmd($command);

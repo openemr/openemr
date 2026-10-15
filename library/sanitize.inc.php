@@ -80,13 +80,13 @@ function convert_very_strict_label($label)
 }
 
 // Check integer
-function check_integer($value)
+function check_integer($value): bool
 {
     return (empty(preg_match('/[^0-9]/', (string) $value)));
 }
 
 //Basename functionality for nonenglish languages (without this, basename function omits nonenglish characters).
-function basename_international($path)
+function basename_international($path): string
 {
     $parts = preg_split('~[\\\\/]~', (string) $path);
     foreach ($parts as $key => $value) {
@@ -170,7 +170,7 @@ function sanitizeNumber($number)
  * @return string                 SQL statement checking if passed column is empty
  */
 
-function dateEmptySql($sqlColumn, $time = false, $rev = false)
+function dateEmptySql($sqlColumn, $time = false, $rev = false): string
 {
     if (!$rev) {
         if ($time) {

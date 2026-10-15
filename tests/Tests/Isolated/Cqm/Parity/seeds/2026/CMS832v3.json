@@ -1,0 +1,94 @@
+{
+    "patients": [
+        {
+            "note": "Five-day inpatient stay in April 2026, creatinine 0.9 and 0.95 mg/dL on the first day and 2.2 mg/dL on day four: denominator and numerator (creatinine more than doubled after 48 hours).",
+            "birthDatetime": "1955-03-01T08:00:00.000+00:00",
+            "elements": [
+                {
+                    "type": "PatientCharacteristicSex",
+                    "valueSet": "Male (finding)"
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Encounter Inpatient",
+                    "relevantPeriod": [
+                        "2026-04-01T08:00:00.000+00:00",
+                        "2026-04-06T12:00:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "LaboratoryTestPerformed",
+                    "valueSet": "Creatinine Mass Per Volume",
+                    "relevantDatetime": "2026-04-01T10:00:00.000+00:00",
+                    "result": {
+                        "value": 0.9,
+                        "unit": "mg/dL"
+                    }
+                },
+                {
+                    "type": "LaboratoryTestPerformed",
+                    "valueSet": "Creatinine Mass Per Volume",
+                    "relevantDatetime": "2026-04-01T20:00:00.000+00:00",
+                    "result": {
+                        "value": 0.95,
+                        "unit": "mg/dL"
+                    }
+                },
+                {
+                    "type": "LaboratoryTestPerformed",
+                    "valueSet": "Creatinine Mass Per Volume",
+                    "relevantDatetime": "2026-04-04T10:00:00.000+00:00",
+                    "result": {
+                        "value": 2.2,
+                        "unit": "mg/dL"
+                    }
+                }
+            ]
+        },
+        {
+            "note": "The same stay with a stable creatinine of 1.0 mg/dL on day four: denominator, not numerator.",
+            "birthDatetime": "1960-08-01T08:00:00.000+00:00",
+            "elements": [
+                {
+                    "type": "PatientCharacteristicSex",
+                    "valueSet": "Female (finding)"
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Encounter Inpatient",
+                    "relevantPeriod": [
+                        "2026-09-08T08:00:00.000+00:00",
+                        "2026-09-12T12:00:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "LaboratoryTestPerformed",
+                    "valueSet": "Creatinine Mass Per Volume",
+                    "relevantDatetime": "2026-09-08T10:00:00.000+00:00",
+                    "result": {
+                        "value": 0.8,
+                        "unit": "mg/dL"
+                    }
+                },
+                {
+                    "type": "LaboratoryTestPerformed",
+                    "valueSet": "Creatinine Mass Per Volume",
+                    "relevantDatetime": "2026-09-08T22:00:00.000+00:00",
+                    "result": {
+                        "value": 0.85,
+                        "unit": "mg/dL"
+                    }
+                },
+                {
+                    "type": "LaboratoryTestPerformed",
+                    "valueSet": "Creatinine Mass Per Volume",
+                    "relevantDatetime": "2026-09-11T10:00:00.000+00:00",
+                    "result": {
+                        "value": 1.0,
+                        "unit": "mg/dL"
+                    }
+                }
+            ]
+        }
+    ]
+}

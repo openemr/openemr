@@ -25,9 +25,8 @@ use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
  * @param int $search_type_id The integer ID used for code_type in codes (e.g. 2 for ICD9)
  * @param string $search_type A string representing the code type to be searched on (e.g. ICD9, DSMIV)
  * @param string $search_query The text to search on.
- * @return array
  */
-function diagnosis_search($search_type_id, $search_type, $search_query)
+function diagnosis_search($search_type_id, $search_type, $search_query): array
 {
     $retval = [];
     $search = main_code_set_search($search_type, $search_query, 20);

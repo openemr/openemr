@@ -78,9 +78,8 @@ class SearchFieldStatementResolver
      * Given a DateSearchField with a list of SearchFieldComparableValue objects in the search field a SQL query fragment
      * is generated that handles the date field searching.
      * @param DateSearchField $searchField
-     * @return SearchQueryFragment
      */
-    public static function resolveDateField(DateSearchField $searchField)
+    public static function resolveDateField(DateSearchField $searchField): SearchQueryFragment
     {
         $field = self::assertValidFieldIdentifier($searchField);
 
@@ -199,9 +198,8 @@ class SearchFieldStatementResolver
      * TODO: adunsulag this seems like a lot of duplicate code similar to the resolveTokenField... reference doesn't have
      * the modifiers like the token does so I'm not sure if we keep this duplicative code here or not.
      * @param ReferenceSearchField $searchField
-     * @return SearchQueryFragment
      */
-    public static function resolveReferenceField(ReferenceSearchField $searchField)
+    public static function resolveReferenceField(ReferenceSearchField $searchField): SearchQueryFragment
     {
         $field = self::assertValidFieldIdentifier($searchField);
 
@@ -231,9 +229,8 @@ class SearchFieldStatementResolver
     /**
      * Resolves a TokenSearchField to its corresponding value.
      * @param TokenSearchField $searchField
-     * @return SearchQueryFragment
      */
-    public static function resolveTokenField(TokenSearchField $searchField)
+    public static function resolveTokenField(TokenSearchField $searchField): SearchQueryFragment
     {
         $field = self::assertValidFieldIdentifier($searchField);
 
@@ -250,14 +247,20 @@ class SearchFieldStatementResolver
             /** @var TokenSearchValue $value  */
 
             if ($modifier === SearchModifier::MISSING) {
+                // On MySQL 8, CAST(col AS CHAR) of a binary uuid that is not valid UTF-8 is cut at the
+                // first invalid byte (often to '') with the sql_mode OpenEMR sets, or NULL in strict
+                // mode, so the uuid looked missing. A value whose bytes are not all spaces is never
+                // missing; every value the CHAR cast can read compares exactly as before.
                 if ($value->getCode() === false) {
                     // often our tokens get treated as string values so we will do this here also
-                    $clauses[] = "(" . $field . " IS NOT NULL AND CAST(" . $field . " AS CHAR) != '') ";
+                    $clauses[] = "(" . $field . " IS NOT NULL AND (CAST(" . $field . " AS CHAR) != ''"
+                        . " OR TRIM(CAST(" . $field . " AS BINARY)) != '')) ";
                 } else {
                     // TODO: @adunsulag do we want to compare token values to empty strings... it seems like that would be a missing value but
                     // could we get an inaccurate result here? or will we end up with a case with a number to string conversion on a field
                     // if the value is not a string?
-                    $clauses[] = "(" . $field . " IS NULL OR CAST(" . $field . " AS CHAR) = '') ";
+                    $clauses[] = "(" . $field . " IS NULL OR (CAST(" . $field . " AS CHAR) = ''"
+                        . " AND TRIM(CAST(" . $field . " AS BINARY)) = '')) ";
                 }
             // if we have other modifiers we would handle them here
             } else {
@@ -300,9 +303,8 @@ class SearchFieldStatementResolver
     /**
      * Given a search field and any modifier's it may have it converts it to the corresponding SearchQueryFragment
      * @param StringSearchField $searchField
-     * @return SearchQueryFragment
      */
-    public static function resolveStringSearchField(StringSearchField $searchField)
+    public static function resolveStringSearchField(StringSearchField $searchField): SearchQueryFragment
     {
         $field = self::assertValidFieldIdentifier($searchField);
 
@@ -344,7 +346,7 @@ class SearchFieldStatementResolver
      * @param $dateType
      * @return string
      */
-    public static function getDateFieldFormatForDateType($dateType)
+    public static function getDateFieldFormatForDateType($dateType): string
     {
         $format = "Y-m-d H:i:s.u"; // default format is datetime
         if ($dateType == DateSearchField::DATE_TYPE_DATE) {

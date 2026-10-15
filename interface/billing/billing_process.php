@@ -21,9 +21,18 @@
 require_once("../globals.php");
 
 use OpenEMR\Billing\BillingProcessor\BillingProcessor;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+if (
+    !AclMain::aclCheckCore('acct', 'eob', '', 'write')
+    && !AclMain::aclCheckCore('acct', 'bill', '', 'write')
+) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Manager", xl("Billing Manager"));
+}
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);

@@ -45,7 +45,7 @@ class GlobalConfig
         return $this->globalsArray[$settingKey] ?? null;
     }
 
-    public function getGlobalSettingSectionConfiguration()
+    public function getGlobalSettingSectionConfiguration(): array
     {
         $settings = [
         ];

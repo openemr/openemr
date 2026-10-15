@@ -262,9 +262,8 @@ class QuestionnaireResponseService extends BaseService
     /**
      * @param $search
      * @param $isAndCondition
-     * @return ProcessingResult
      */
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         $sqlSelectIds = "SELECT DISTINCT qr.questionnaire_response_uuid ";
         $sqlSelectData = " SELECT qr.*
@@ -342,7 +341,11 @@ class QuestionnaireResponseService extends BaseService
      * @param ?string  $form_response
      * @param bool  $add_report
      * @param array $scores
-     * @return array|false|int|mixed
+     * @return array{
+     *   id: mixed,
+     *   response_id: mixed,
+     *   new: bool,
+     * }
      * @throws Exception
      */
     public function saveQuestionnaireResponse(
@@ -356,7 +359,7 @@ class QuestionnaireResponseService extends BaseService
         $form_response = null,
         $add_report = false,
         $scores = []
-    ) {
+    ): array {
         $q_content = null;
         $q_title = null;
         $q_record_id = null;

@@ -337,7 +337,7 @@ class Mime_Types
      * @param string $ext
      * @return bool
      */
-    public function has_extension($ext)
+    public function has_extension($ext): bool
     {
         return (isset($this->mime_types [strtolower($ext)]));
     }
@@ -350,7 +350,7 @@ class Mime_Types
      * @param string $type
      * @return bool
      */
-    public function has_type($type)
+    public function has_type($type): bool
     {
         return (in_array(strtolower($type), $this->mime_types));
     }

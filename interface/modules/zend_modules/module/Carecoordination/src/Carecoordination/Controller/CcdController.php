@@ -18,6 +18,7 @@ use Carecoordination\Model\CcdTable;
 use Documents\Controller\DocumentsController;
 use Documents\Model\DocumentsTable;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -41,7 +42,7 @@ class CcdController extends AbstractActionController
     /*
     * Upload CCD file
     */
-    public function uploadAction()
+    public function uploadAction(): ViewModel
     {
         $request          = $this->getRequest();
         $upload           = $request->getPost('upload');
@@ -86,9 +87,8 @@ class CcdController extends AbstractActionController
     * Function to import the data CCD file to audit tables.
     *
     * @param    document_id     integer value
-    * @return   none
     */
-    public function importAction()
+    public function importAction(): JsonModel
     {
         $request     = $this->getRequest();
         if ($request->getQuery('document_id')) {

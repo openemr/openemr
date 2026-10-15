@@ -39,6 +39,7 @@ exten
 fo
 formend
 grp
+idel
 inout
 inpt
 insid
@@ -52,6 +53,7 @@ oce
 ot
 parm
 parms
+plantext
 provid
 provids
 ptd
@@ -122,3 +124,6 @@ hightlight
 occurance
 seperator
 vlaue
+
+# Upstream CMS QRDA III schematron typo (in shipped .sch, not our source)
+asssertions

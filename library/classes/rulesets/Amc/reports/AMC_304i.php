@@ -11,22 +11,22 @@
 
 class AMC_304i extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304i";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         return "transitions-out";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_304i_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_304i_Numerator();
     }

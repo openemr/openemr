@@ -31,7 +31,7 @@ class CertificationReportTypes
      * @param string $method The method we are checking to see if its an AMC or not
      * @return bool True if the passed in string is an AMC report type, false otherwise
      */
-    public static function isAMCReportType(string $method)
+    public static function isAMCReportType(string $method): bool
     {
         return array_search(strtolower($method), self::AMC_METHODS) !== false;
     }

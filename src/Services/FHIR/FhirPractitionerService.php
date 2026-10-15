@@ -79,7 +79,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      * Returns an array mapping FHIR Practitioner Resource search parameters to OpenEMR Practitioner search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
@@ -218,7 +218,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      * @param array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!$fhirResource instanceof FHIRPractitioner) {
             throw new \BadMethodCallException("fhir resource must be of type " . FHIRPractitioner::class);

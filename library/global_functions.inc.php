@@ -110,7 +110,7 @@ function CloseTag($tag): void
  *
  * @return array{msg_map: array<int, string>, phone_map: array<int, string>}
  */
-function cron_getFacilitiesMap(FacilityService $facilityService)
+function cron_getFacilitiesMap(FacilityService $facilityService): array
 {
     /** @var array<string, string> $message_map */
     $message_map = OEGlobalsBag::getInstance()->get('phone_appt_message');
@@ -149,7 +149,7 @@ function cron_GetNotificationSettings(): array|false
  * @param int $trigger_hours Hours before appointment to trigger
  * @return array Array of patient appointment data
  */
-function cron_getPhoneAlertpatientData($type, $trigger_hours)
+function cron_getPhoneAlertpatientData($type, $trigger_hours): array
 {
     $ssql = '';
     $check_date = '';
@@ -215,7 +215,7 @@ function cron_updateentry(string $type, $pid, $pc_eid): void
  * @param string $str The input string to decorate
  * @return string The decorated string
  */
-function decorateString($fmt, $str)
+function decorateString($fmt, $str): string
 {
     $res = '';
     while ($fmt) {
@@ -318,7 +318,7 @@ function fixDate($date, $default = "0000-00-00")
  * @param int $extradecimals Extra decimal places beyond currency standard
  * @return string The formatted number
  */
-function formatMoneyNumber($value, $extradecimals = 0)
+function formatMoneyNumber($value, $extradecimals = 0): string
 {
     return sprintf('%01.' . (OEGlobalsBag::getInstance()->get('currency_decimals') + $extradecimals) . 'f', $value);
 }
@@ -455,7 +455,7 @@ function hl7Date($s)
  * @param bool $formatted Whether to include formatting like (555)123-4567 or just digits
  * @return string The formatted phone number, or empty string if invalid
  */
-function hl7Phone($s, bool $formatted)
+function hl7Phone($s, bool $formatted): string
 {
     if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
         return $formatted
@@ -474,7 +474,7 @@ function hl7Phone($s, bool $formatted)
  * @param string $s
  * @return string
  */
-function hl7Priority($s)
+function hl7Priority($s): string
 {
     return strtoupper(substr((string) $s, 0, 1)) === 'H' ? 'S' : 'R';
 }
@@ -520,7 +520,7 @@ function hl7RelationWord(string $s): string
  * @param string $s The input sex value
  * @return string M, F, or U
  */
-function hl7Sex($s)
+function hl7Sex($s): string
 {
     $s = strtoupper(substr((string) $s, 0, 1));
     if ($s !== 'M' && $s !== 'F') {
@@ -536,7 +536,7 @@ function hl7Sex($s)
  * @param bool $withDashes Whether to include dashes (123-45-6789) or just digits
  * @return string The formatted SSN, or empty string if invalid
  */
-function hl7SSN($s, bool $withDashes)
+function hl7SSN($s, bool $withDashes): string
 {
     if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
         return $withDashes
@@ -571,7 +571,7 @@ function hl7Text($s)
  * @param bool $withSeconds Whether to include seconds (YmdHis) or not (YmdHi)
  * @return string The formatted timestamp, or empty string if input is empty
  */
-function hl7Time($s, bool $withSeconds)
+function hl7Time($s, bool $withSeconds): string
 {
     if (empty($s)) {
         return '';
@@ -597,7 +597,7 @@ function hl7Zip($s)
  * @param string $tstr The issue type string
  * @return int The index of the issue type
  */
-function issueTypeIndex($tstr)
+function issueTypeIndex($tstr): int
 {
     $i = 0;
     foreach (IssueTypeRegistry::issueTypes() as $key => $value) {
@@ -636,7 +636,7 @@ function markTaxes($taxrates): void
  * @param  string $s Input text.
  * @return string  Output text.
  */
-function myCellText($s)
+function myCellText($s): string
 {
     $s = trim($s ?? '');
     if ($s === '') {
@@ -735,7 +735,7 @@ function rbvalue($rbname): string
  * @param int $pid The patient ID
  * @return array Contains 'base' filename, 'fname', and 'lname'
  */
-function report_basename($pid)
+function report_basename($pid): array
 {
     $ptd = getPatientData($pid, "fname,lname");
     // escape names for pesky periods hyphen etc.
@@ -804,7 +804,7 @@ function UrlIfImageExists(string $filename, bool $append = true): string
  * @param int|string $thisField The user ID
  * @return string The user's name in "Last, First Middle" format
  */
-function User_Id_Look($thisField)
+function User_Id_Look($thisField): string
 {
     if (!$thisField) {
         return '';

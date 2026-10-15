@@ -258,4 +258,80 @@ class FhirObservationRestController
         $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
         return $searchResponseBody;
     }
+
+    // @codeCoverageIgnoreStart
+    /**
+     * Creates a new FHIR Observation resource.
+     * Routed via FhirGenericRestController::post(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    #[OA\Post(
+        path: '/fhir/Observation',
+        description: 'Creates a new Observation resource. Only vital sign Observations are writable; '
+            . 'Observations whose code belongs to a category OpenEMR derives from other records '
+            . '(social history, SDOH, patient and employer demographics) are rejected rather than dropped.',
+        tags: ['fhir'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '201', description: 'Observation resource created'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function post(array $fhirJson): void
+    {
+        // Implementation lives in FhirGenericRestController::post()
+    }
+
+    /**
+     * Updates an existing FHIR Observation resource.
+     * Routed via FhirGenericRestController::put(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    #[OA\Put(
+        path: '/fhir/Observation/{uuid}',
+        description: 'Modifies an Observation resource. The uuid identifies one vital sign on one '
+            . 'vitals record, so Observation.code must match the code that uuid was issued for.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the Observation resource.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', description: 'Observation resource updated'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function put(string $fhirId, array $fhirJson): void
+    {
+        // Implementation lives in FhirGenericRestController::put()
+    }
+    // @codeCoverageIgnoreEnd
 }

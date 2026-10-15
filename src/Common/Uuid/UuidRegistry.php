@@ -184,9 +184,8 @@ class UuidRegistry
      * Returns the uuid registry record for a given uuid.
      * @param string|binary $uuid The uuid to search
      * @param bool $is_binary Whether the passed in uuid is a string or binary
-     * @return array|null
      */
-    public static function getRegistryRecordForUuid($uuid, $is_binary = false)
+    public static function getRegistryRecordForUuid($uuid, $is_binary = false): array
     {
         $sql = "select * from `uuid_registry` WHERE uuid = ?";
         $uuid_as_binary = $is_binary ? $uuid : UuidRegistry::uuidToBytes($uuid);
@@ -292,7 +291,7 @@ class UuidRegistry
         }
     }
 
-    private function createMissingUuids()
+    private function createMissingUuids(): int
     {
         try {
             QueryUtils::startTransaction();
@@ -331,7 +330,7 @@ class UuidRegistry
      * Converts a UUID byte value to a string representation
      * @return string the UUID string value
      */
-    public static function uuidToString($uuidBytes)
+    public static function uuidToString($uuidBytes): string
     {
         return Uuid::fromBytes($uuidBytes)->toString();
     }
@@ -340,7 +339,7 @@ class UuidRegistry
      * Converts a UUID string to a bytes representation
      * @return string the UUID bytes value
      */
-    public static function uuidToBytes($uuidString)
+    public static function uuidToBytes($uuidString): string
     {
         return Uuid::fromString($uuidString)->getBytes();
     }
@@ -358,7 +357,7 @@ class UuidRegistry
      * Check if UUID Brinary is Empty
      * @return bool
      */
-    public static function isEmptyBinaryUUID($uuidString)
+    public static function isEmptyBinaryUUID($uuidString): bool
     {
         return (empty($uuidString) || ($uuidString == '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'));
     }
@@ -408,7 +407,7 @@ class UuidRegistry
         return $this->getUnusedUuidBatch($limit);
     }
 
-    private function createMissingUuidsForTableWithId()
+    private function createMissingUuidsForTableWithId(): int
     {
         $counter = 0;
         $count = $this->getTableCountWithMissingUuids();
@@ -446,7 +445,7 @@ class UuidRegistry
      *      assigned this group uuid. (see completePartialMissingUuidsForVerticalTable() function)
      * @return int
      */
-    private function createMissingUuidsForVerticalTable()
+    private function createMissingUuidsForVerticalTable(): int
     {
         $counter = 0;
 
@@ -494,7 +493,7 @@ class UuidRegistry
      *      assigned this group uuid. (this function)
      * @return int
      */
-    private function completePartialMissingUuidsForVerticalTable()
+    private function completePartialMissingUuidsForVerticalTable(): int
     {
         $counter = 0;
 
@@ -558,9 +557,8 @@ class UuidRegistry
     /**
      * Returns an array of generated unique universal identifiers up to the passed in limit.
      * @param int $limit
-     * @return array
      */
-    private function getUUIDBatch($limit = 10)
+    private function getUUIDBatch($limit = 10): array
     {
         $uuids = [];
         // Create uuid using the Timestamp-first COMB Codec, so can use for primary keys

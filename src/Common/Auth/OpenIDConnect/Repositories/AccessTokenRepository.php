@@ -103,7 +103,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         return false;
     }
 
-    public function isAccessTokenRevokedInDatabase($tokenId)
+    public function isAccessTokenRevokedInDatabase($tokenId): bool
     {
         $sql = " SELECT * FROM api_token WHERE token = ? AND revoked = 1 ";
         $resource = QueryUtils::sqlStatementThrowException($sql, [$tokenId], true);

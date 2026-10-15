@@ -24,6 +24,4 @@ class DdOpenPatientTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
     use PatientOpenTrait;
-
-    private $crawler;
 }

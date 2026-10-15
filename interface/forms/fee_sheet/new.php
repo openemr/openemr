@@ -21,6 +21,7 @@ require_once("codes.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\HcpcsDrugDefaults;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
@@ -303,7 +304,7 @@ function echoServiceLines(): void
 
             if (!empty($code_types[$codetype]['claim']) && empty($code_types[$codetype]['diag'])) {
                 echo "  <td class='billcell text-center' $usbillstyle><input type='text' class='form-control form-control-sm' name='bill[" . attr($lino) . "][notecodes]' " .
-                "value='" . text($li['notecodes']) . "' maxlength='10' size='8' /></td>\n";
+                "value='" . attr($li['notecodes']) . "' maxlength='10' size='8' /></td>\n";
             } else {
                 echo "  <td class='billcell text-center' $usbillstyle></td>\n";
             }
@@ -1640,18 +1641,25 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     $modifier = '';
                                                 }
                                                 $ndc_info = '';
-                                                // If HCPCS, find last NDC string used for this code.
+                                                $units = null;
+                                                // If HCPCS, take the NDC and units from the related inventory drug,
+                                                // else the last NDC string used for this code. A custom fee sheet
+                                                // list entry can name the drug ("HCPCS|J1010|<drug_id>") when
+                                                // several products share the code.
                                                 if ($newtype == 'HCPCS' && $ndc_applies) {
-                                                    $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
-                                                    "code_type = ? AND code = ? AND ndc_info LIKE 'N4%' " .
-                                                    "ORDER BY date DESC LIMIT 1", [$newtype, $code]);
-                                                    if (!empty($tmp)) {
-                                                        $ndc_info = $tmp['ndc_info'];
-                                                    } else {
-                                                        $tmp = sqlQuery("SELECT ndc_number FROM drugs WHERE " .
-                                                            "related_code = ? AND active = 1", [$newtype . ":" . $code]);
+                                                    $drugId = filter_var($newsel, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                                                    $drugDefaults = (is_int($drugId) ? HcpcsDrugDefaults::forDrug($drugId, $code) : null)
+                                                        ?? HcpcsDrugDefaults::forCode($code);
+                                                    if ($drugDefaults !== null) {
+                                                        $ndc_info = $drugDefaults->ndcInfo;
+                                                        $units = $drugDefaults->units;
+                                                    }
+                                                    if ($ndc_info === '') {
+                                                        $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
+                                                        "code_type = ? AND code = ? AND ndc_info LIKE 'N4%' " .
+                                                        "ORDER BY date DESC LIMIT 1", [$newtype, $code]);
                                                         if (!empty($tmp)) {
-                                                            $ndc_info = $tmp['ndc_number'];
+                                                            $ndc_info = $tmp['ndc_info'];
                                                         }
                                                     }
                                                 }
@@ -1660,6 +1668,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                      'code' => $code,
                                                      'modifier' => trim($modifier),
                                                      'ndc_info' => $ndc_info,
+                                                     'units' => $units,
                                                 ]);
                                             }
                                         }

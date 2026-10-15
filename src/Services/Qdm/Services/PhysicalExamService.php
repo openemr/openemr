@@ -16,17 +16,17 @@ use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
 class PhysicalExamService extends AbstractObservationService implements QdmServiceInterface
 {
-    public function getObservationType()
+    public function getObservationType(): string
     {
         return parent::OB_TYPE_PHYSICAL_EXAM;
     }
 
-    public function getModelClass()
+    public function getModelClass(): string
     {
         return PhysicalExamPerformed::class;
     }
 
-    public function makeResult($record)
+    public function makeResult($record): Quantity
     {
         return new Quantity([
             'value' => (int)$record['ob_value'],

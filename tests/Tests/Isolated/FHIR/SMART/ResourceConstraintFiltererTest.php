@@ -15,8 +15,10 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRObservationStatus;
 use OpenEMR\FHIR\SMART\ResourceConstraintFilterer;
 use OpenEMR\Services\FHIR\UtilsService;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -140,6 +142,158 @@ class ResourceConstraintFiltererTest extends TestCase {
         $this->assertFalse($resourceConstraintFilterer->canAccessResource($condition, $httpRestRequest), "Access should be denied for Condition with category problem-list-item");
     }
 
+    /**
+     * Scopes are a union. An unrestricted grant held alongside a category grant must not be
+     * narrowed to that category by constraint merging.
+     */
+    public function testUnrestrictedScopeIsNotNarrowedBySiblingCategoryScope(): void
+    {
+        $scopeValidatorArray = (new ScopeValidatorFactory())->buildScopeValidatorArray([
+            'user/Observation.rs',
+            'user/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory',
+        ]);
+        $httpRestRequest = HttpRestRequest::create('/fhir/Observation', 'GET');
+        $httpRestRequest->setRequestRequiredScope(ScopeEntity::createFromString('user/Observation.s'));
+        $httpRestRequest->setAccessTokenScopeValidationArray($scopeValidatorArray);
+
+        $this->assertTrue(
+            (new ResourceConstraintFilterer())->canAccessResource($this->createObservationWithCategories(['survey']), $httpRestRequest),
+            'An unrestricted Observation grant must reach a survey Observation even when a laboratory-only scope is also held'
+        );
+    }
+
+    /**
+     * Constraint keys are ANDed. Matching any single key admitted every active Condition of any
+     * category for a scope constrained by category=encounter-diagnosis&clinicalStatus=active.
+     */
+    public function testEveryConstraintKeyMustMatch(): void
+    {
+        $scopeValidatorArray = (new ScopeValidatorFactory())->buildScopeValidatorArray([
+            'user/Condition.rs?category=http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis'
+            . '&clinicalStatus=http://terminology.hl7.org/CodeSystem/condition-clinical|active',
+        ]);
+        $httpRestRequest = HttpRestRequest::create('/fhir/Condition', 'GET');
+        $httpRestRequest->setRequestRequiredScope(ScopeEntity::createFromString('user/Condition.s'));
+        $httpRestRequest->setAccessTokenScopeValidationArray($scopeValidatorArray);
+
+        $filterer = new ResourceConstraintFilterer();
+        $this->assertTrue($filterer->canAccessResource($this->createConditionWithStatus('encounter-diagnosis', 'active'), $httpRestRequest));
+        $this->assertFalse(
+            $filterer->canAccessResource($this->createConditionWithStatus('problem-list-item', 'active'), $httpRestRequest),
+            'clinicalStatus alone must not admit another category'
+        );
+        $this->assertFalse(
+            $filterer->canAccessResource($this->createConditionWithStatus('encounter-diagnosis', 'resolved'), $httpRestRequest),
+            'category alone must not admit another clinicalStatus'
+        );
+    }
+
+    /**
+     * Each granting scope is evaluated on its own. Merging constraints across scopes admitted
+     * an encounter-diagnosis + resolved Condition that neither scope grants.
+     */
+    public function testConstraintsAreNotMergedAcrossScopes(): void
+    {
+        $scopeValidatorArray = (new ScopeValidatorFactory())->buildScopeValidatorArray([
+            'user/Condition.rs?category=http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis'
+            . '&clinicalStatus=http://terminology.hl7.org/CodeSystem/condition-clinical|active',
+            'user/Condition.rs?category=http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item'
+            . '&clinicalStatus=http://terminology.hl7.org/CodeSystem/condition-clinical|resolved',
+        ]);
+        $httpRestRequest = HttpRestRequest::create('/fhir/Condition', 'GET');
+        $httpRestRequest->setRequestRequiredScope(ScopeEntity::createFromString('user/Condition.s'));
+        $httpRestRequest->setAccessTokenScopeValidationArray($scopeValidatorArray);
+
+        $filterer = new ResourceConstraintFilterer();
+        $this->assertTrue($filterer->canAccessResource($this->createConditionWithStatus('encounter-diagnosis', 'active'), $httpRestRequest));
+        $this->assertTrue($filterer->canAccessResource($this->createConditionWithStatus('problem-list-item', 'resolved'), $httpRestRequest));
+        $this->assertFalse(
+            $filterer->canAccessResource($this->createConditionWithStatus('encounter-diagnosis', 'resolved'), $httpRestRequest),
+            'a combination granted by neither scope must be denied'
+        );
+        $this->assertFalse($filterer->canAccessResource($this->createConditionWithStatus('problem-list-item', 'active'), $httpRestRequest));
+    }
+
+    /**
+     * A constraint on an element that is not coded (Observation.status) cannot be matched and
+     * is denied instead of raising a TypeError.
+     */
+    public function testConstraintOnNonCodedElementDeniesWithoutError(): void
+    {
+        $scopeValidatorArray = (new ScopeValidatorFactory())->buildScopeValidatorArray(['user/Observation.rs?status=final']);
+        $httpRestRequest = HttpRestRequest::create('/fhir/Observation', 'GET');
+        $httpRestRequest->setRequestRequiredScope(ScopeEntity::createFromString('user/Observation.s'));
+        $httpRestRequest->setAccessTokenScopeValidationArray($scopeValidatorArray);
+
+        $observation = $this->createObservationWithCategories(['laboratory']);
+        $observation->setStatus(new FHIRObservationStatus(['value' => 'final']));
+        $this->assertFalse((new ResourceConstraintFilterer())->canAccessResource($observation, $httpRestRequest));
+    }
+
+    /**
+     * The in-EHR local API skips the scope check, so no required scope is recorded. It used to
+     * throw reading the uninitialized scope, turning e.g. the clinical notes Observation search
+     * into a 500 whenever it matched anything.
+     */
+    public function testLocalApiRequestWithoutScopeIsAllowed(): void
+    {
+        $httpRestRequest = HttpRestRequest::create('/fhir/Observation', 'GET');
+        $httpRestRequest->setIsLocalApi(true);
+        $this->assertTrue((new ResourceConstraintFilterer())->canAccessResource($this->createObservationWithCategories(['laboratory']), $httpRestRequest));
+    }
+
+    public function testTokenRequestWithoutRecordedScopeIsDenied(): void
+    {
+        $httpRestRequest = HttpRestRequest::create('/fhir/Observation', 'GET');
+        $this->assertFalse((new ResourceConstraintFilterer())->canAccessResource($this->createObservationWithCategories(['laboratory']), $httpRestRequest));
+    }
+
+    /**
+     * The clinical-note restriction on DocumentReference narrows to clinical notes only.
+     */
+    public function testDocumentReferenceClinicalNoteScope(): void
+    {
+        $scopeValidatorArray = (new ScopeValidatorFactory())->buildScopeValidatorArray([
+            'patient/DocumentReference.rs?category=http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category|clinical-note',
+        ]);
+        $httpRestRequest = HttpRestRequest::create('/fhir/DocumentReference', 'GET');
+        $httpRestRequest->setRequestRequiredScope(ScopeEntity::createFromString('patient/DocumentReference.s'));
+        $httpRestRequest->setAccessTokenScopeValidationArray($scopeValidatorArray);
+        $filterer = new ResourceConstraintFilterer();
+
+        $this->assertTrue($filterer->canAccessResource(
+            $this->createDocumentReferenceWithCategory('http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category', 'clinical-note'),
+            $httpRestRequest
+        ));
+        $this->assertFalse($filterer->canAccessResource(
+            $this->createDocumentReferenceWithCategory('http://loinc.org', '34133-9'),
+            $httpRestRequest
+        ), 'a non clinical-note document must not be visible under the clinical-note scope');
+        $this->assertFalse($filterer->canAccessResource(new FHIRDocumentReference(), $httpRestRequest), 'a document with no category must not be visible');
+    }
+
+    private function createDocumentReferenceWithCategory(string $system, string $code): FHIRDocumentReference
+    {
+        $documentReference = new FHIRDocumentReference();
+        $documentReference->addCategory(UtilsService::createCodeableConcept([
+            $code => ['system' => $system, 'code' => $code, 'description' => $code],
+        ]));
+        return $documentReference;
+    }
+
+    private function createConditionWithStatus(string $category, string $clinicalStatus): FHIRCondition
+    {
+        $condition = $this->createConditionWithCategory($category);
+        $condition->setClinicalStatus(UtilsService::createCodeableConcept([
+            $clinicalStatus => [
+                'system' => 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+                'code' => $clinicalStatus,
+                'description' => ucfirst($clinicalStatus),
+            ]
+        ]));
+        return $condition;
+    }
+
     private function createObservationWithCategories(array $array): FHIRObservation
     {
         $observation = new FHIRObservation();
@@ -156,7 +310,7 @@ class ResourceConstraintFiltererTest extends TestCase {
         return $observation;
     }
 
-    private function createConditionWithCategory(string $string)
+    private function createConditionWithCategory(string $string): FHIRCondition
     {
         $condition = new FHIRCondition();
         $category = UtilsService::createCodeableConcept([

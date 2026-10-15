@@ -212,12 +212,28 @@ $twig = ServiceContainer::getTwig();
                 credentials: 'same-origin',
                 body: request
             }).then((response) => {
+                if (response.status === 400) {
+                    // globals.php answers 400 when the session holds no site ID,
+                    // meaning the session itself is gone (logged out elsewhere, or
+                    // expired and garbage collected). Nothing this window sends can
+                    // succeed any more, so go to the login screen as the timeout
+                    // check below does; logging in loads a fresh main.php, which
+                    // starts polling again. Do not treat 403 the same way: a stale
+                    // CSRF token is also what an old window sends after someone has
+                    // logged in again elsewhere, and logging out would end that new
+                    // session.
+                    timeoutLogout();
+                    return;
+                }
                 if (response.status !== 200) {
                     console.log('Reminders start failed. Status Code: ' + response.status);
                     return;
                 }
                 return response.json();
             }).then((data) => {
+                if (data === undefined) {
+                    return;
+                }
                 if (data.timeoutMessage && (data.timeoutMessage == 'timeout')) {
                     // timeout has happened, so logout
                     timeoutLogout();
@@ -266,9 +282,10 @@ $twig = ServiceContainer::getTwig();
                 setTimeout(function () {
                     restoreSession();
                     // Call the REST "run all due" endpoint via LocalApi (APICSRFTOKEN header).
-                    // The REST stack does not touch SessionTracker, so no skip_timeout_reset
-                    // equivalent is needed to avoid resetting the session expiration timer.
-                    fetch(webroot_url + "/apis/" + site_id_js + "/api/background_service/$run", {
+                    // A LocalApi request loads globals.php with auth, so auth.inc.php would
+                    // reset the session expiration timer; send skip_timeout_reset so this
+                    // background poll does not keep an idle session alive.
+                    fetch(webroot_url + "/apis/" + site_id_js + "/api/background_service/$run?skip_timeout_reset=1", {
                         method: 'POST',
                         credentials: 'same-origin',
                         headers: {

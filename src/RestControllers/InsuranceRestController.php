@@ -189,7 +189,7 @@ class InsuranceRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getOne($insuranceUuid, $puuid)
+    public function getOne($insuranceUuid, $puuid): array
     {
         $searchParams = [];
         // we do this again cause we have to handle the 404 result here.
@@ -240,7 +240,7 @@ class InsuranceRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function put($puuid, $insuranceUuid, $data)
+    public function put($puuid, $insuranceUuid, $data): array
     {
         $data['uuid'] = $insuranceUuid;
         $data['type'] ??= 'primary';
@@ -293,7 +293,7 @@ class InsuranceRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function post($puuid, $data)
+    public function post($puuid, $data): array
     {
         $data['type'] ??= 'primary';
 
@@ -361,7 +361,7 @@ class InsuranceRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function operationSwapInsurance(string $puuid, string $type, string $insuranceUuid)
+    public function operationSwapInsurance(string $puuid, string $type, string $insuranceUuid): array
     {
         $processingResult = new ProcessingResult();
         $validationMessages = ['puuid::INVALID_PUUID' => 'Patient uuid invalid'];

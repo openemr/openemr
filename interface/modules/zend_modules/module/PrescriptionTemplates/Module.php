@@ -34,7 +34,7 @@ class Module
      * the implementation of the autoloader provider,
      * returns an array for the AutoloaderFactory
      */
-    public function getAutoloaderConfig()
+    public function getAutoloaderConfig(): array
     {
         return [
             \Laminas\Loader\ClassMapAutoloader::class => [

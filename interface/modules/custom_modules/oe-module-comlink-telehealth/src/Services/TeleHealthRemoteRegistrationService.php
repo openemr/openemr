@@ -84,7 +84,7 @@ class TeleHealthRemoteRegistrationService
         $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
-    public function createPatientRegistration($patient)
+    public function createPatientRegistration($patient): bool
     {
         $registrationRequest = new UserVideoRegistrationRequest();
         $registrationRequest->setDbRecordId($patient['id']);
@@ -101,7 +101,7 @@ class TeleHealthRemoteRegistrationService
         return !empty($userId);
     }
 
-    public function createUserRegistration($user)
+    public function createUserRegistration($user): bool
     {
         $registrationRequest = new UserVideoRegistrationRequest();
         $registrationRequest->setDbRecordId($user['id']);
@@ -194,7 +194,7 @@ class TeleHealthRemoteRegistrationService
         }
     }
 
-    private function getEndpointUrl($endpoint)
+    private function getEndpointUrl($endpoint): string
     {
         return $this->apiURL . $endpoint;
     }
@@ -323,7 +323,7 @@ class TeleHealthRemoteRegistrationService
         return true;
     }
 
-    public function verifyProvisioningServiceIsValid()
+    public function verifyProvisioningServiceIsValid(): array
     {
         $randomUuid = UuidV4::uuid4()->toString();
         $randomPassword = UuidV4::uuid4()->toString();
@@ -333,7 +333,7 @@ class TeleHealthRemoteRegistrationService
         return ['status' => $response['internalStatus'], 'message' => $response['internalError']];
     }
 
-    private function sendAPIRequest($endpointUrl, array $body)
+    private function sendAPIRequest($endpointUrl, array $body): array
     {
         // because this could be an already existing event we've tried saving before we decode the json, even though
         // on the first event notification we may be doubling the work

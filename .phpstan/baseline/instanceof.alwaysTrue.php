@@ -12,6 +12,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/ReportManager.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instanceof between RestResponse and RestResponse will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Command/PhoneNotificationCommand.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Instanceof between OpenEMR\\\\FHIR\\\\R4\\\\FHIRResourceContainer and OpenEMR\\\\FHIR\\\\R4\\\\FHIRResourceContainer will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRDomainResource.php',
@@ -40,6 +45,11 @@ $ignoreErrors[] = [
     'message' => '#^Instanceof between \\$this\\(OpenEMR\\\\Services\\\\FHIR\\\\FhirProvenanceService\\) and OpenEMR\\\\Services\\\\FHIR\\\\IResourceReadableService will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirProvenanceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instanceof between OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIROperationOutcome and OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIROperationOutcome will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirValidationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Instanceof between OpenEMR\\\\Services\\\\Search\\\\TokenSearchField and OpenEMR\\\\Services\\\\Search\\\\TokenSearchField will always evaluate to true\\.$#',

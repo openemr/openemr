@@ -17,7 +17,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class InterventionService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT
                     O.patient_id AS pid,
@@ -35,12 +35,12 @@ class InterventionService extends AbstractQdmService implements QdmServiceInterf
         return $sql;
     }
 
-    public function getPatientIdColumn()
+    public function getPatientIdColumn(): string
     {
         return 'O.patient_id';
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): InterventionPerformed
     {
         $record = $recordObj->getData();
         $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());

@@ -24,7 +24,7 @@
 
 class AMC_304a_3_Numerator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304a_3 Numerator";
     }

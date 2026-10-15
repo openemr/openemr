@@ -16,12 +16,12 @@ class PhysicalExam extends ClinicalType
     const NOT_DONE_SYSTEM = 'phys_exm_not_done_system';
     const FINDING_BMI_PERC = 'phys_exm_finding_bmi_perc';
 
-    public function getListId()
+    public function getListId(): string
     {
         return 'Clinical_Rules_Phys_Exm_Type';
     }
 
-    public function getListType()
+    public function getListType(): string
     {
         return "medical_problem"; // TODO this may not be the correct type for BMI icd9 codes
     }

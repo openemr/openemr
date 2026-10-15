@@ -100,7 +100,7 @@ class GroupService extends BaseService
         return $processingResult;
     }
 
-    private function hydratePatientProviderSearchResultsFromQueryResource($queryResource)
+    private function hydratePatientProviderSearchResultsFromQueryResource($queryResource): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         $recordsByUuid = [];

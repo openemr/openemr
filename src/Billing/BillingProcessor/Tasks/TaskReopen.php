@@ -27,7 +27,7 @@ class TaskReopen extends AbstractProcessingTask implements ProcessingTaskInterfa
         // nothing to do
     }
 
-    public function execute(BillingClaim $claim)
+    public function execute(BillingClaim $claim): int
     {
         $this->printToScreen("Re-Opening claim" . " " . $claim->getId());
         $tmp = BillingUtilities::updateClaim(

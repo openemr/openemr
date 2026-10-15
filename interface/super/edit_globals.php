@@ -39,6 +39,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\Globals\EncryptedGlobalValue;
 use OpenEMR\Services\Globals\GlobalSetting;
 use Ramsey\Uuid\Uuid;
 
@@ -184,12 +185,21 @@ function checkBackgroundServices(): void
                                     // a new value has been inputted, so create the hash that will then be stored
                                     $tmpValue = (new AuthHash())->passwordHash($tmpValue);
                                 }
-                                $fldvalue = $cryptoGen->encryptForDatabase(is_string($tmpValue) ? $tmpValue : null);
+                                $fldvalue = $cryptoGen->encryptForDatabase($tmpValue);
                             }
                         } else {
                             $fldvalue = trim($_POST["form_$i"] ?? '');
                         }
-                        setUserSetting($label, $fldvalue, $authUserID, false);
+                        // An encrypted value that could not be decrypted was shown empty;
+                        // leaving it empty keeps the stored value rather than clearing it.
+                        $keepUndecryptable = EncryptedGlobalValue::keepStoredValue(
+                            $fldtype,
+                            $fldvalue,
+                            CurrentRequest::get()->request->getString(EncryptedGlobalValue::undecryptableFieldName($i))
+                        );
+                        if (!$keepUndecryptable) {
+                            setUserSetting($label, $fldvalue, $authUserID, false);
+                        }
                         if (($_POST["toggle_$i"] ?? '') == "YES") {
                             removeUserSetting($label);
                         }
@@ -267,15 +277,27 @@ function checkBackgroundServices(): void
                                     // a new value has been inputted, so create the hash that will then be stored
                                     $tmpValue = (new AuthHash())->passwordHash($tmpValue);
                                 }
-                                $fldvalue = $cryptoGen->encryptForDatabase(is_string($tmpValue) ? $tmpValue : null);
+                                $fldvalue = $cryptoGen->encryptForDatabase($tmpValue);
                             }
                         }
 
+                        // An encrypted value that could not be decrypted was shown empty;
+                        // leaving it empty keeps the stored value rather than clearing it.
+                        $keepUndecryptable = EncryptedGlobalValue::keepStoredValue(
+                            $fldtype,
+                            $fldvalue,
+                            $postedGlobals->getString(EncryptedGlobalValue::undecryptableFieldName($i))
+                        );
+
                         // We rely on the fact that set of keys in globals.inc.php === set of keys in `globals` table!
                         if (
-                            !isset($old_globals[$fldid]) // if the key not found in database - update database
-                            ||
-                            (isset($old_globals[$fldid]) && $old_globals[$fldid]['gl_value'] !== $fldvalue) // if the value in database is different
+                            !$keepUndecryptable
+                            &&
+                            (
+                                !isset($old_globals[$fldid]) // if the key not found in database - update database
+                                ||
+                                (isset($old_globals[$fldid]) && $old_globals[$fldid]['gl_value'] !== $fldvalue) // if the value in database is different
+                            )
                         ) {
                             // special treatment for some vars
                             switch ($fldid) {
@@ -389,6 +411,65 @@ function checkBackgroundServices(): void
                 <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             </div>
         </div>
+        <?php
+        // A stored secret that cannot be decrypted usually means the site's encryption keys
+        // changed, which is serious and reaches beyond this page. The fields below still render
+        // so a value can be replaced, so say it here where it is seen on every tab, and log it.
+        $encryptedStored = [];
+        // Setting name => its label; the labels in the metadata are already translated.
+        $encryptedTitles = [];
+        foreach ($GLOBALS_METADATA as $grparr) {
+            foreach ($grparr as $fldid => $fldarr) {
+                $isEncrypted = ($fldarr[1] ?? null) === GlobalSetting::DATA_TYPE_ENCRYPTED || ($fldarr[1] ?? null) === GlobalSetting::DATA_TYPE_ENCRYPTED_HASH;
+                if ($isEncrypted && (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS, true))) {
+                    $encryptedStored[$fldid] = null;
+                    $encryptedTitles[$fldid] = is_string($fldarr[0] ?? null) ? $fldarr[0] : $fldid;
+                }
+            }
+        }
+        if ($encryptedStored !== []) {
+            $encryptedNames = array_keys($encryptedStored);
+            $placeholders = implode(',', array_fill(0, count($encryptedNames), '?'));
+            foreach (QueryUtils::fetchRecords("SELECT `gl_name`, `gl_value` FROM `globals` WHERE `gl_index` = 0 AND `gl_name` IN ($placeholders)", $encryptedNames) as $row) {
+                if (is_string($row['gl_name'] ?? null)) {
+                    $encryptedStored[$row['gl_name']] = $row['gl_value'] ?? null;
+                }
+            }
+            if ($userMode) {
+                // A user's own setting is shown in place of the global one.
+                $userLabels = array_map(static fn (string $name): string => 'global:' . $name, $encryptedNames);
+                foreach (QueryUtils::fetchRecords("SELECT `setting_label`, `setting_value` FROM `user_settings` WHERE `setting_user` = ? AND `setting_label` IN ($placeholders)", [$session->get('authUserID'), ...$userLabels]) as $row) {
+                    if (is_string($row['setting_label'] ?? null)) {
+                        $encryptedStored[substr($row['setting_label'], strlen('global:'))] = $row['setting_value'] ?? null;
+                    }
+                }
+            }
+        }
+        $undecryptable = EncryptedGlobalValue::findUndecryptable($cryptoGen, $encryptedStored);
+        if ($undecryptable['failed'] !== []) {
+            $undecryptableCount = count($undecryptable['failed']);
+            ServiceContainer::getLogger()->error('Encrypted settings cannot be decrypted in the Config editor', [
+                'failed' => $undecryptableCount,
+                'stored' => $undecryptable['total'],
+                'settings' => $undecryptable['failed'],
+                'userMode' => $userMode,
+            ]);
+            ?>
+        <div class="row">
+            <div class="col-sm-12 px-0">
+                <div class="alert alert-danger" role="alert" id="undecryptable-alert">
+                    <h5 class="alert-heading"><?php echo xlt('Stored encrypted settings could not be decrypted'); ?>: <?php echo text($undecryptableCount . ' / ' . $undecryptable['total']); ?></h5>
+                    <?php if (EncryptedGlobalValue::keysLikelyChanged($undecryptableCount, $undecryptable['total'])) { ?>
+                    <p class="font-weight-bold"><?php echo xlt('None of the stored encrypted settings can be decrypted. This points to missing or replaced encryption keys, not to a single damaged value.'); ?></p>
+                    <?php } ?>
+                    <p><?php echo xlt('This usually means the encryption keys of this site were changed or were not carried over during an upgrade or migration. Other encrypted data, such as encrypted documents, will then be unreadable too.'); ?></p>
+                    <p><?php echo xlt('Restore the original encryption keys before entering new values. A marked setting that is left empty keeps its stored value, so it works again once the keys are restored. Enter a new value only if the original keys cannot be recovered.'); ?></p>
+                    <p class="mb-0"><?php echo xlt('Affected settings'); ?>:
+                        <?php echo text(implode(', ', array_map(static fn (string $name): string => $encryptedTitles[$name] ?? $name, $undecryptable['failed']))); ?></p>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
         <div class="row">
             <div class="col-sm-12 px-0">
                 <?php if ($userMode) { ?>
@@ -569,11 +650,24 @@ function checkBackgroundServices(): void
                                                     echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                         "maxlength='255' value='" . attr($fldvalue) . "' />\n";
                                                 } elseif (($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED) || ($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED_HASH)) {
-                                                    $fldvalueDecrypted = $cryptoGen->decryptFromDatabase(is_string($fldvalue) ? $fldvalue : null);
+                                                    // A stored value that cannot be decrypted (for example after the
+                                                    // site's encryption keys changed) must not stop this page from
+                                                    // rendering: this page is the only place the value can be replaced.
+                                                    // Show the field empty with a notice so a new value can be saved.
+                                                    $fldvalueDecrypted = EncryptedGlobalValue::decryptForEdit($cryptoGen, $fldvalue);
+                                                    $decryptFailed = $fldvalueDecrypted === null;
+                                                    $fldvalueDecrypted ??= '';
                                                     echo "  <input type='password' class='form-control' name='form_$i' id='form_$i' " .
                                                         "maxlength='255' value='" . attr($fldvalueDecrypted) . "' />\n";
+                                                    if ($decryptFailed) {
+                                                        // Tells the save handler to keep the stored value if this
+                                                        // field is left empty, instead of overwriting it with ''.
+                                                        echo "  <input type='hidden' name='" . attr(EncryptedGlobalValue::undecryptableFieldName($i)) . "' value='1' />\n";
+                                                        echo "  <small class='form-text text-danger'>" .
+                                                            xlt('The stored value could not be decrypted. Enter a new value and save, or leave it empty to keep the stored value.') . "</small>\n";
+                                                    }
                                                     if ($userMode) {
-                                                        $globalTitle = $cryptoGen->decryptFromDatabase(is_string($globalValue) ? $globalValue : null);
+                                                        $globalTitle = EncryptedGlobalValue::decryptForEdit($cryptoGen, $globalValue) ?? '';
                                                     }
                                                     $fldvalueDecrypted = '';
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_PASS) {

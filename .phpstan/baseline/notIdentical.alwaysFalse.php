@@ -2,9 +2,9 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between false and false will always evaluate to false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+    'message' => '#^Strict comparison using \\!\\=\\= between \'\' and \'\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between null and null will always evaluate to false\\.$#',

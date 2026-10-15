@@ -48,7 +48,7 @@ $lab_npi = [
  * @param  string  $npi           The lab's NPI number as known to the system
  * @return int The numeric value of the lab's address book entry
  */
-function getLabID($npi)
+function getLabID($npi): int
 {
     $lrow = sqlQuery(
         "SELECT ppid FROM procedure_providers WHERE " .

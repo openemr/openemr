@@ -42,7 +42,7 @@ class ReminderIntervalRange
         return array_values($map);
     }
 
-    private static function map()
+    private static function map(): array
     {
         $map = [
             'pre' => new ReminderIntervalType('pre', xl('Warning')),

@@ -15,6 +15,7 @@ namespace Immunization\Controller;
 use Application\Listener\Listener;
 use Immunization\Form\ImmunizationForm;
 use Immunization\Model\ImmunizationTable;
+use Immunization\Model\PatientSelectionMarker;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -140,8 +141,12 @@ class ImmunizationController extends AbstractActionController
         $details = $this->getImmunizationTable()->immunizedPatientDetails($params);
         $rows = [];
         foreach ($details as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
             $rows[] = $row;
         }
+        $rows = PatientSelectionMarker::markFirstRowForEachPatient($rows);
 
         $params['res_count'] = $count;
         $params['total_pages'] = $totalpages;
@@ -166,7 +171,7 @@ class ImmunizationController extends AbstractActionController
      * function getAllCodes
      * List All Codes in the combobox
      */
-    public function getAllCodes($data)
+    public function getAllCodes($data): array
     {
         $defaultCode = $data['codes'] ?? '';
         $res = $this->getImmunizationTable()->codeslist();
@@ -744,7 +749,7 @@ class ImmunizationController extends AbstractActionController
      * @param string $ethnicity
      * @return string
      */
-    public function format_ethnicity($ethnicity)
+    public function format_ethnicity($ethnicity): string
     {
         return match ($ethnicity) {
             "hisp_or_latin" => "H^Hispanic or Latino^HL70189",
@@ -758,7 +763,7 @@ class ImmunizationController extends AbstractActionController
      * @param string $a
      * @return string
      */
-    public function tr($a)
+    public function tr($a): string
     {
         return (str_replace(' ', '^', $a));
     }

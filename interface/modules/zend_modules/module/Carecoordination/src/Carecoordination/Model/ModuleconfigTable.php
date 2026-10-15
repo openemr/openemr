@@ -27,7 +27,7 @@ namespace Carecoordination\Model;
 
 class ModuleconfigTable
 {
-    public function getUsers()
+    public function getUsers(): array
     {
         $users = ['0' => ''];
         $res = $this->applicationTable->zQuery(("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE abook_type='ccda'"));

@@ -8,7 +8,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,6 +19,7 @@ namespace OpenEMR\Billing\BillingProcessor;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\BaseService;
+use phpseclib3\Net\SFTP;
 
 class X12RemoteTracker extends BaseService
 {
@@ -57,6 +60,10 @@ class X12RemoteTracker extends BaseService
         $x12_remotes = $remoteTracker->fetchByStatus(self::STATUS_WAITING);
         $cryptoGen = ServiceContainer::getCrypto();
         foreach ($x12_remotes as $x12_remote) {
+            if (!is_array($x12_remote)) {
+                continue;
+            }
+
             // Make sure required parameters are filled in on the X12 partner form, otherwise, log a message
             if (false === $remoteTracker->validateSFTPCredentials($x12_remote)) {
                 // there was a problem, get messages, log them and continue
@@ -127,21 +134,35 @@ class X12RemoteTracker extends BaseService
             $x12_remote['status'] = self::STATUS_IN_PROGRESS;
             $remoteTracker->update($x12_remote);
 
-            // Upload the file
-            if (false === $sftp->put($x12_remote['x12_filename'], $claim_file_contents)) {
-                $x12_remote['status'] = self::STATUS_UPLOAD_ERRROR;
-                $x12_remote['messages'][] = "Could not upload file.";
-                $x12_remote['messages'] = array_merge($x12_remote['messages'], $sftp->getSFTPErrors());
-                $remoteTracker->update($x12_remote);
-            }
-
-            // Change status from waiting to in-progress
-            $x12_remote['status'] = self::STATUS_SUCCESS;
+            // Upload the file and record the outcome
+            $x12_remote = self::uploadClaimFile($sftp, $x12_remote, $claim_file_contents);
             $remoteTracker->update($x12_remote);
 
             // Disconnect from the remote server
             $sftp->disconnect();
         }
+    }
+
+    /**
+     * Upload a claim file and return the tracker row with the outcome: success,
+     * or upload-error with the SFTP errors added to its messages.
+     *
+     * @param array<mixed> $x12_remote
+     * @return array<mixed>
+     */
+    public static function uploadClaimFile(SFTP $sftp, array $x12_remote, string $claim_file_contents): array
+    {
+        $filename = is_string($x12_remote['x12_filename'] ?? null) ? $x12_remote['x12_filename'] : '';
+        if (false === $sftp->put($filename, $claim_file_contents)) {
+            $messages = is_array($x12_remote['messages'] ?? null) ? $x12_remote['messages'] : [];
+            $messages[] = "Could not upload file.";
+            $x12_remote['status'] = self::STATUS_UPLOAD_ERRROR;
+            $x12_remote['messages'] = array_merge($messages, $sftp->getSFTPErrors());
+            return $x12_remote;
+        }
+
+        $x12_remote['status'] = self::STATUS_SUCCESS;
+        return $x12_remote;
     }
 
     protected function validateSFTPCredentials($credentials)
@@ -194,7 +215,7 @@ class X12RemoteTracker extends BaseService
         return $results;
     }
 
-    protected function onlyRealFields($passed_in)
+    protected function onlyRealFields($passed_in): array
     {
         $realFields = [];
         foreach ($passed_in as $key => $value) {

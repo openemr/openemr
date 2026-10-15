@@ -15,12 +15,12 @@ use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
 class DiagnosticStudyService extends AbstractObservationService implements QdmServiceInterface
 {
-    public function getObservationType()
+    public function getObservationType(): string
     {
         return parent::OB_TYPE_DIAGNOSTIC_STUDY;
     }
 
-    public function getModelClass()
+    public function getModelClass(): string
     {
         return DiagnosticStudyPerformed::class;
     }

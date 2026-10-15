@@ -20,7 +20,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class EncounterService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         // Get the encounter, and also collect the duration of the encounter using the appointment category
         $sql = "SELECT
@@ -43,12 +43,12 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public function getPatientIdColumn()
+    public function getPatientIdColumn(): string
     {
         return 'FE.pid';
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): EncounterPerformed
     {
         $record = $recordObj->getData();
         // Convert the encounter datetime into a DateTime Object so we can calculate end time based on encounter end date

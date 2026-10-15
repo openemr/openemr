@@ -1,0 +1,58 @@
+# Run one composer acceptance invocation with a specific PHPUnit --group
+# and the standard ACCEPTANCE_EXPECTED_VERSION env set for that step.
+#
+# Extracted (Item 3 of the post-8.4.0 acceptance-surface refactor -- see
+# docs/artifact-acceptance-testing-plan.md) so acceptance-package.yml and
+# acceptance-docker.yml can declare their scenario steps without repeating
+# the env-set + composer invocation shape on every call. The two workflows
+# had ~15 near-identical instances of this block before extraction; each
+# was a place drift could sneak in (missing env, wrong version, forgotten
+# --group flag).
+#
+# The composite deliberately does NOT wrap boot, api-enable, or teardown --
+# those differ enough between the tarball and docker paths that a single
+# composite would need too many conditional inputs. Boot stays in the
+# workflow (boot-package.sh vs docker compose up); api-enable is its own
+# composite (api-enable-artifact/). This one only wraps the composer
+# invocation because that's the most-repeated shape.
+name: Run acceptance group
+description: >-
+  Invoke `composer acceptance -- --group=<group>` with
+  ACCEPTANCE_EXPECTED_VERSION set. Wraps the most-repeated acceptance-step
+  shape across acceptance-package.yml and acceptance-docker.yml.
+
+inputs:
+  group:
+    description: >-
+      PHPUnit group name to filter tests by. Passed straight through to
+      `composer acceptance -- --group=<group>`. Multiple groups are not
+      supported here -- if a step needs to OR-sum multiple groups, call
+      composer directly in that step (rare enough not to justify extra
+      composite complexity).
+    required: true
+  expected_version:
+    description: >-
+      Value to set ACCEPTANCE_EXPECTED_VERSION to for this invocation.
+      Version-check tests (VersionDisplayAcceptanceTest,
+      VersionApiAcceptanceTest) assert the artifact self-reports this
+      version. Required for consistency -- callers must be explicit about
+      which version the artifact-under-test is running at each step (from
+      version pre-upgrade, expected/to version post-upgrade). Callers in
+      contexts without a knowable version (e.g., docker floating-tag runs
+      until Item 4 lands) pass an empty string; the version tests will
+      skip cleanly via AcceptanceContext::hasExpectedVersion().
+    required: true
+
+runs:
+  using: composite
+  steps:
+  - name: Run composer acceptance --group=${{ inputs.group }}
+    shell: bash
+    env:
+      ACCEPTANCE_EXPECTED_VERSION: ${{ inputs.expected_version }}
+    # inputs.group is caller-controlled but constrained: each call site
+    # passes a hard-coded group name (`post-install`, `wizard-completed-
+    # post-install`, etc.) -- no user-controlled path into it. If a future
+    # caller ever plumbs a workflow_dispatch input into `group`, that
+    # dispatch input would need its own validation.
+    run: composer acceptance -- --group=${{ inputs.group }}

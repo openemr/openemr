@@ -21,7 +21,7 @@ trait MappedServiceCodeTrait
     use MappedServiceTrait;
     use MappedServiceCategoryTrait;
 
-    public function getServiceListForCategory(TokenSearchField $field)
+    public function getServiceListForCategory(TokenSearchField $field): array
     {
         $serviceList = [];
         foreach ($this->getMappedServices() as $service) {
@@ -36,7 +36,7 @@ trait MappedServiceCodeTrait
         return $serviceList;
     }
 
-    public function getServiceListForCode(TokenSearchField $field)
+    public function getServiceListForCode(TokenSearchField $field): array
     {
         // TODO: @adunsulag if we want to aggregate multiple code parameters we will need to handle selecting a subset of codes
         // per service
@@ -64,7 +64,7 @@ trait MappedServiceCodeTrait
         throw new SearchFieldException($field->getField(), "Invalid or unsupported code");
     }
 
-    public function getTokenSearchFieldWithSupportedCodes(FhirServiceBase $service, TokenSearchField $field)
+    public function getTokenSearchFieldWithSupportedCodes(FhirServiceBase $service, TokenSearchField $field): TokenSearchField
     {
         $subsetCodes = [];
         foreach ($field->getValues() as $value) {

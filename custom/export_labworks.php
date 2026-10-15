@@ -15,7 +15,15 @@
 
  require_once("../interface/globals.php");
 
+ use OpenEMR\Common\Acl\AccessDeniedHelper;
+ use OpenEMR\Common\Acl\AclMain;
+ use OpenEMR\Common\Csrf\CsrfUtils;
  use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('patients', 'demo')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Export Patient Demographics LabWorks", xl("Export Patient Demographics LabWorks"));
+}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
  // FTP parameters that you must customize.  If you are not sending
  // then set $FTP_SERVER to an empty string.
@@ -33,21 +41,21 @@
  $out = "";
 
  // Add a string to output with some basic sanitizing.
-function custom_labworks_Add($field)
+function custom_labworks_Add($field): string
 {
     return "^" . trim(str_replace(["\r", "\n", "\t"], " ", $field));
 }
 
 
  // Translate a date.
-function LWDate($field)
+function LWDate($field): string
 {
     $tmp = fixDate($field);
     return substr((string) $tmp, 5, 2) . substr((string) $tmp, 8, 2) . substr((string) $tmp, 0, 4);
 }
 
  // Translate insurance type.
-function InsType($field)
+function InsType($field): string
 {
     if (! $field) {
         return "";

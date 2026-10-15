@@ -11,9 +11,11 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2011 Phyaura, LLC <info@phyaura.com>
  * @copyright Copyright (c) 2019-2022 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019-2022 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -482,6 +484,33 @@ function snomedRF2_import(): bool
     return true;
 }
 
+/**
+ * Pair each importable file in an ICD-10 release with the first import key its name contains.
+ *
+ * Matching is case-insensitive. Addenda, non-.txt entries, and files matching no key are skipped.
+ *
+ * @param list<string> $filenames
+ * @param list<string> $keys lowercase substrings, as used for the $incoming keys in icd_import()
+ * @return list<array{filename: string, key: string}>
+ */
+function icd_import_file_keys(array $filenames, array $keys): array
+{
+    $file_keys = [];
+    foreach ($filenames as $filename) {
+        $lower = strtolower($filename);
+        if (!str_contains($lower, '.txt') || str_contains($lower, 'addenda')) {
+            continue;
+        }
+        foreach ($keys as $key) {
+            if (str_contains($lower, $key)) {
+                $file_keys[] = ['filename' => $filename, 'key' => $key];
+                break;
+            }
+        }
+    }
+    return $file_keys;
+}
+
 // Function to import ICD tables $type differentiates ICD 9, 10 and eventually 11 (circa 2018 :-) etc.
 //
 function icd_import($type)
@@ -530,54 +559,58 @@ function icd_import($type)
         return;
     }
 
+    $icd_files = [];
+    try {
+        while (($filename = readdir($handle)) !== false) {
+            $icd_files[] = $filename;
+        }
+    } finally {
+        closedir($handle);
+    }
+    $file_keys = icd_import_file_keys($icd_files, array_keys($incoming));
+    $loaded_keys = array_column($file_keys, 'key');
+
     // Batching the inserts into one transaction drastically speeds up import with InnoDB
-    QueryUtils::inTransaction(function () use ($dir, $handle, $incoming): void {
-        // first inactivate older set(s)
-        sqlStatementNoLog("UPDATE icd10_pcs_order_code SET active = 0");
-        sqlStatementNoLog("UPDATE icd10_dx_order_code SET active = 0");
+    QueryUtils::inTransaction(function () use ($dir, $incoming, $file_keys, $loaded_keys): void {
+        // Inactivate only the tables this release replaces, so loading only a
+        // CM file (or only a PCS file) leaves the other code set active.
+        if (in_array('icd10pcs_codes_', $loaded_keys, true)) {
+            QueryUtils::sqlStatementThrowException('UPDATE icd10_pcs_order_code SET active = 0', [], noLog: true);
+        }
+        if (in_array('icd10cm_order_', $loaded_keys, true)) {
+            QueryUtils::sqlStatementThrowException('UPDATE icd10_dx_order_code SET active = 0', [], noLog: true);
+        }
 
-        while (false !== ($filename = readdir($handle))) {
-            // bypass unwanted entries
-            if (!stripos($filename, ".txt") || stripos($filename, "addenda")) {
-                continue;
-            }
-
-            $keys = array_keys($incoming);
-            while ($this_key = array_pop($keys)) {
-                if (stripos($filename, $this_key) !== false) {
-                    $generator = getFileData($dir . $filename);
-                    foreach ($generator as $value) {
-                        $run_sql = "INSERT INTO `" . $incoming[$this_key]['TABLENAME'] . "` (";
-                        $sql_place = "(";
-                        $sql_values = [];
-                        foreach (range(1, 4) as $field) {
-                            $fld = "FLD" . $field;
-                            $nxtfld = "FLD" . ($field + 1);
-                            $pos = "POS" . $field;
-                            $len = "LEN" . $field;
-                            $run_sql .= $incoming[$this_key][$fld] . ", ";
-                            $sql_place .= "?, ";
-                            // concat this fields template in the sql string
-                            array_push($sql_values, substr((string) $value, $incoming[$this_key][$pos], $incoming[$this_key][$len]));
-                            if (!array_key_exists($nxtfld, $incoming[$this_key])) {
-                                $run_sql .= "active, revision) VALUES ";
-                                $sql_place .= "?, ?)";
-                                array_push($sql_values, 1);
-                                array_push($sql_values, $incoming[$this_key]['REV']);
-                                sqlStatementNoLog($run_sql . $sql_place, $sql_values);
-                                break;
-                            } else {
-                                $run_sql .= " ";
-                                $sql_place .= " ";
-                            }
-                        }
+        foreach ($file_keys as ['filename' => $filename, 'key' => $this_key]) {
+            $generator = getFileData($dir . $filename);
+            foreach ($generator as $value) {
+                $run_sql = "INSERT INTO `" . $incoming[$this_key]['TABLENAME'] . "` (";
+                $sql_place = "(";
+                $sql_values = [];
+                foreach (range(1, 4) as $field) {
+                    $fld = "FLD" . $field;
+                    $nxtfld = "FLD" . ($field + 1);
+                    $pos = "POS" . $field;
+                    $len = "LEN" . $field;
+                    $run_sql .= $incoming[$this_key][$fld] . ", ";
+                    $sql_place .= "?, ";
+                    // concat this fields template in the sql string
+                    array_push($sql_values, substr((string) $value, $incoming[$this_key][$pos], $incoming[$this_key][$len]));
+                    if (!array_key_exists($nxtfld, $incoming[$this_key])) {
+                        $run_sql .= "active, revision) VALUES ";
+                        $sql_place .= "?, ?)";
+                        array_push($sql_values, 1);
+                        array_push($sql_values, $incoming[$this_key]['REV']);
+                        sqlStatementNoLog($run_sql . $sql_place, $sql_values);
+                        break;
+                    } else {
+                        $run_sql .= " ";
+                        $sql_place .= " ";
                     }
                 }
             }
         }
     });
-
-    closedir($handle);
 
     // now update the tables where necessary
     sqlStatement("update `icd10_dx_order_code` SET formatted_dx_code = dx_code");

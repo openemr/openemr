@@ -7,11 +7,15 @@
  * @link      https://www.open-emr.org
  * @author    Sam Likins <sam.likins@wsi-services.com>
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015 Sam Likins <sam.likins@wsi-services.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Rx\Ensora\PatientContact;
+use OpenEMR\Rx\Ensora\PatientDiagnosisList;
 use OpenEMR\Services\VersionService;
 
 class eRxXMLBuilder
@@ -85,7 +89,7 @@ class eRxXMLBuilder
         return $this->store;
     }
 
-    protected function trimData($string, $length)
+    protected function trimData($string, $length): string
     {
         return substr((string) $string, 0, $length - 1);
     }
@@ -532,7 +536,7 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getStaffElements($authUserId, $destination)
+    public function getStaffElements($authUserId, $destination): array
     {
         $userRole = $this->getStore()->getUserById($authUserId);
         $userRole = preg_replace('/erx/', '', (string) $userRole['newcrop_user_role']);
@@ -605,9 +609,16 @@ class eRxXMLBuilder
     public function getPatientContact($patient)
     {
         $element = $this->getDocument()->createElement('PatientContact');
-        if ($patient['phone_home']) {
-            $element->appendChild($this->createElementText('homeTelephone', preg_replace('/-/', '', (string) $patient['phone_home'])));
+        $contact = PatientContact::fromPatientRow($patient);
+        // ContactType is an xs:sequence: homeTelephone must precede cellularTelephone.
+        $children = [];
+        if ($contact->homeTelephone !== null) {
+            $children[] = $this->createElementText('homeTelephone', $contact->homeTelephone);
         }
+        if ($contact->cellularTelephone !== null) {
+            $children[] = $this->createElementText('cellularTelephone', $contact->cellularTelephone);
+        }
+        $this->appendChildren($element, $children);
 
         return $element;
     }
@@ -655,7 +666,7 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getPatientFreeformHealthplans($patientId)
+    public function getPatientFreeformHealthplans($patientId): array
     {
         $healthplans = $this->getStore()
             ->getPatientHealthplansByPatientId($patientId);
@@ -672,7 +683,7 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatientFreeformAllergy($patientId)
+    public function getPatientFreeformAllergy($patientId): array
     {
         $allergyData = $this->getStore()
             ->getPatientAllergiesByPatientId($patientId);
@@ -703,49 +714,31 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatientDiagnosis($patientId)
+    public function getPatientDiagnosis($patientId): array
     {
         $diagnosisData = $this->getStore()
             ->getPatientDiagnosisByPatientId($patientId);
 
+        $rows = [];
+        while ($row = sqlFetchArray($diagnosisData)) {
+            $rows[] = $row;
+        }
+
         $elements = [];
-        while ($diagnosis = sqlFetchArray($diagnosisData)) {
-            if ($diagnosis['diagnosis']) {
-                // For issues that have multiple diagnosis coded, they are semicolon-separated
-                // explode() will return an array containing the individual diagnosis if there is no semicolon
-                $multiple = explode(";", (string) $diagnosis['diagnosis']);
-                foreach ($multiple as $individual) {
-                    $res = explode(":", $individual); //split diagnosis type and code
-                    $codeType = $res[0];
-                    $diagnosisId = $res[1];
-                    // NewCrop only accepts ICD10 codes, so only add XML elements for diagnosis with ICD10 code types
-                    if (
-                        $codeType == 'ICD10' &&
-                        !empty($diagnosisId) &&
-                        empty($diagnosis['enddate'])
-                    ) {
-                        $element = $this->getDocument()->createElement('PatientDiagnosis');
-                        $element->appendChild($this->createElementText('diagnosisID', $diagnosisId));
-                        $element->appendChild($this->createElementText('diagnosisType', $codeType));
-
-                        if ($diagnosis['begdate']) {
-                            $onsetDate = new DateTime($diagnosis['begdate']);
-                            $element->appendChild($this->createElementText('onsetDate', date_format($onsetDate, 'Ymd')));
-                        }
-
-                        if ($diagnosis['title']) {
-                            $element->appendChild($this->createElementText('diagnosisName', $diagnosis['title']));
-                        }
-
-                        if ($diagnosis['date']) {
-                            $date = new DateTime($diagnosis['date']);
-                            $element->appendChild($this->createElementText('recordedDate', date_format($date, 'Ymd')));
-                        }
-
-                        $elements[] = $element;
-                    }
-                }
+        foreach (PatientDiagnosisList::fromProblemRows($rows) as $diagnosis) {
+            $element = $this->getDocument()->createElement('PatientDiagnosis');
+            $element->appendChild($this->createElementText('diagnosisID', $diagnosis->code));
+            $element->appendChild($this->createElementText('diagnosisType', 'ICD10'));
+            if ($diagnosis->onsetDate !== null) {
+                $element->appendChild($this->createElementText('onsetDate', $diagnosis->onsetDate));
             }
+            if ($diagnosis->name !== null) {
+                $element->appendChild($this->createElementText('diagnosisName', $diagnosis->name));
+            }
+            if ($diagnosis->recordedDate !== null) {
+                $element->appendChild($this->createElementText('recordedDate', $diagnosis->recordedDate));
+            }
+            $elements[] = $element;
         }
 
         return $elements;
@@ -784,7 +777,7 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getPatientPrescriptions($prescriptionIds)
+    public function getPatientPrescriptions($prescriptionIds): array
     {
         $elements = [];
 
@@ -813,7 +806,7 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatientMedication($patientId, $uploadActive, $count)
+    public function getPatientMedication($patientId, $uploadActive, $count): array
     {
         $medications = $this->getStore()
             ->selectMedicationsNotUploadedByPatientId($patientId, $uploadActive, $count);
@@ -838,7 +831,7 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatientElements($patientId, $totalCount, $requestedPrescriptionIds)
+    public function getPatientElements($patientId, $totalCount, $requestedPrescriptionIds): array
     {
         $elements = [];
 

@@ -176,7 +176,7 @@ class RuleManager
         return $rule;
     }
 
-    public function newRule()
+    public function newRule(): Rule
     {
         $rule = new Rule();
         return $rule;
@@ -259,8 +259,9 @@ class RuleManager
 
     /**
      * @param Rule $rule
+     * @return RuleTargets[]
      */
-    private function fetchRuleTargetCriteria($rule)
+    private function fetchRuleTargetCriteria($rule): array
     {
         $stmt = sqlStatement(self::SQL_RULE_TARGET, [$rule->id]);
         $criterion = $this->gatherCriteria(
@@ -283,8 +284,9 @@ class RuleManager
 
     /**
      * @param Rule $rule
+     * @return RuleActions[]
      */
-    private function fetchRuleActions($rule)
+    private function fetchRuleActions($rule): array
     {
         $stmt = sqlStatement(self::SQL_RULE_ACTIONS, [$rule->id]);
         $ruleActionGroups = [];
@@ -407,7 +409,7 @@ class RuleManager
      * @param Rule $rule
      * @param RuleCriteriaFactory $factory
      */
-    private function gatherCriteria($rule, $stmt, $factory)
+    private function gatherCriteria($rule, $stmt, $factory): array
     {
         $criterion = [];
         for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
@@ -551,7 +553,7 @@ class RuleManager
         return $ruleId;
     }
 
-    public function getNextRuleId()
+    public function getNextRuleId(): string
     {
         $result = sqlQuery("select count(*)+1 AS id from clinical_rules");
         $ruleId = "rule_" . $result['id'];
@@ -683,7 +685,7 @@ class RuleManager
         }
     }
 
-    public function getAllowedFilterCriteriaTypes()
+    public function getAllowedFilterCriteriaTypes(): array
     {
         $allowed = [];
         foreach (RuleCriteriaType::values() as $type) {
@@ -694,7 +696,7 @@ class RuleManager
         return $allowed;
     }
 
-    public function getAllowedTargetCriteriaTypes()
+    public function getAllowedTargetCriteriaTypes(): array
     {
         $allowed = [];
         array_push($allowed, RuleCriteriaType::from(RuleCriteriaType::lifestyle));

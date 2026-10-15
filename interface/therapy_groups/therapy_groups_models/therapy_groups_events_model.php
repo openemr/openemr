@@ -34,9 +34,8 @@ class Therapy_Groups_Events
     /**
      * Get all events of specified group.
      * @param $gid
-     * @return ADORecordSet_mysqli
      */
-    public function getGroupEvents($gid)
+    public function getGroupEvents($gid): array
     {
 
         $appts_to_show = OEGlobalsBag::getInstance()->getInt('number_of_group_appts_to_show');

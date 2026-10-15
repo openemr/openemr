@@ -323,7 +323,7 @@ class ConnectorApi
         return $api_server;
     }
 
-    public static function buildHeader()
+    public static function buildHeader(): array
     {
         $token = ConnectorApi::getAccessToken();
         $content = 'content-type: application/json';

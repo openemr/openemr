@@ -29,22 +29,22 @@ class Encounter_Factory implements FactoryIF
     {
     }
 
-    public function createConfiguration()
+    public function createConfiguration(): ConfigurationIF
     {
         return new Encounter_Configuration();
     }
 
-    public function createSignable()
+    public function createSignable(): SignableIF
     {
         return new Encounter_Signable($this->_encounterId);
     }
 
-    public function createButton()
+    public function createButton(): ButtonIF
     {
         return new Encounter_Button($this->_encounterId);
     }
 
-    public function createLog()
+    public function createLog(): LogIF
     {
         return new Encounter_Log($this->_encounterId);
     }

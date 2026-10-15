@@ -820,7 +820,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
     /**
      * @return string
      */
-    public function getCallLogs()
+    public function getCallLogs(): string
     {
         return xlt('Not Supported');
     }

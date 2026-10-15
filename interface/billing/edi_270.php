@@ -197,7 +197,7 @@ if ($exclude_policy != "") {
     }
 
 // unique multidimensional array by key
-    function unique_by_key($source, $key)
+    function unique_by_key($source, $key): array
     {
         $i = 0;
         $rtn_array = [];

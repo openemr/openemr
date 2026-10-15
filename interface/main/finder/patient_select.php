@@ -13,6 +13,8 @@
 require_once("../../globals.php");
 
 use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\PaginationUtils;
@@ -33,6 +35,10 @@ if (!empty($_REQUEST)) {
     if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
+}
+
+if (!AclMain::aclCheckCore('patients', 'demo')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Patient Selector", xl("Patient Selector"));
 }
 
 $fstart = $_REQUEST['fstart'] ?? 0;

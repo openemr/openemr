@@ -23,7 +23,7 @@ class ExportFormsGroupsEncounterTableDefinition extends ExportTableDefinition
 {
     const TABLE_NAME = 'form_groups_encounter';
 
-    public function getRecords()
+    public function getRecords(): array
     {
         $selectQuery = $this->getSelectClause(); // make sure we only grab the clauses we allow
 

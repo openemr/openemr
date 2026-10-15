@@ -27,7 +27,7 @@ class NQF_0013_Exclusion implements CqmFilterIF
     // inlining this as there are two duplicate Procedure classes, originally came from library/classes/ClinicalTypes/Procedure.php
     const DIALYSIS_SERVICE = 'pro_dialysis_service';
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Exclusion";
     }

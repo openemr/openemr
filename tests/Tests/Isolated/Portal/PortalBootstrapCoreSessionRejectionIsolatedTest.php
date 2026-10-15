@@ -21,9 +21,9 @@
  *      the "no authenticated user" behaviour.
  *   2. `portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php`
  *      enforces `p_acl` for the core-user fallback in addition to the
- *      patient-portal path. Only `p_all` routes are open to the fallback;
- *      `p_none` / `p_limited` routes deny (they are patient-scoped and
- *      their binding logic assumes `bootstrap_pid`).
+ *      patient-portal path. `p_all` and explicit `p_staff` routes are open
+ *      to the fallback; `p_none` / `p_limited` routes deny because their
+ *      binding logic assumes `bootstrap_pid`.
  *
  * Both files are legacy include-style scripts with process-terminating
  * side effects (`exit()`, header emission, `interface/globals.php` require)
@@ -129,18 +129,18 @@ final class PortalBootstrapCoreSessionRejectionIsolatedTest extends TestCase
     public function testGenericRouterHasCoreFallbackAclEnforcementOnLiteralRoutes(): void
     {
         // The literal-match branch: for the core-user fallback (bootstrap_pid
-        // empty) any route that isn't `p_all` must deny. Otherwise a core
+        // empty) any route that isn't `p_all` or `p_staff` must deny. Otherwise a core
         // user who happens to hold `patientportal/portal` reaches
         // patient-scoped routes whose controllers assume bootstrap_pid is
         // populated.
         //
         // The regex matches the literal-match branch's else-case: the
-        // condition `$pAcl != 'p_all'` sits inside an else block guarded
+        // `p_all` / `p_staff` conditions sit inside an else block guarded
         // by the same bootstrapPid variable.
         $this->assertMatchesRegularExpression(
-            '/empty\(\$bootstrapPid\).*?\$pAcl\s*!=\s*[\'"]p_all[\'"]/s',
+            '/empty\(\$bootstrapPid\).*?\$pAcl\s*!=\s*[\'"]p_all[\'"].*?\$pAcl\s*!=\s*[\'"]p_staff[\'"]/s',
             $this->genericRouterContent,
-            'GenericRouter literal-match branch must deny non-p_all routes when bootstrap_pid is empty (core-user fallback)',
+            'GenericRouter literal-match branch must allow only p_all or p_staff routes for the core-user fallback',
         );
     }
 
@@ -150,9 +150,9 @@ final class PortalBootstrapCoreSessionRejectionIsolatedTest extends TestCase
         // like `GET:api/onsitedocument/(:num)`. The uncovered path here
         // touched wildcard routes.
         $this->assertMatchesRegularExpression(
-            '/empty\(\$bootstrapPid\).*?\$p_acl\s*!=\s*[\'"]p_all[\'"]/s',
+            '/empty\(\$bootstrapPid\).*?\$p_acl\s*!=\s*[\'"]p_all[\'"].*?\$p_acl\s*!=\s*[\'"]p_staff[\'"]/s',
             $this->genericRouterContent,
-            'GenericRouter wildcard-match branch must deny non-p_all routes when bootstrap_pid is empty (core-user fallback)',
+            'GenericRouter wildcard-match branch must allow only p_all or p_staff routes for the core-user fallback',
         );
     }
 
