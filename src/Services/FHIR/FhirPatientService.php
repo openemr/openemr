@@ -884,7 +884,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         if (!empty($fhirResource->getGeneralPractitioner())) {
             $providerReference = UtilsService::parseReference($fhirResource->getGeneralPractitioner()[0]);
-            if (!empty($providerReference) && $providerReference['resourceType'] === 'Practitioner' && $providerReference['localResource']) {
+            if (!empty($providerReference) && $providerReference['type'] === 'Practitioner' && $providerReference['localResource']) {
                 $data['provider_uuid'] = $providerReference['uuid'];
             }
         }
