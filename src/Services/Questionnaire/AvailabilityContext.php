@@ -20,6 +20,15 @@ namespace OpenEMR\Services\Questionnaire;
  * A null member means "the caller does not know or does not care", which matches any
  * assignment. A non-null member matches an assignment whose corresponding column is
  * either null (the assignment is unscoped on that axis) or equal.
+ *
+ * `facility` and `provider` describe the situation, and each surface supplies the reading
+ * that surface actually has:
+ *
+ *  - encounter: both come off the encounter's own `form_encounter` row, so they mean the
+ *    facility the visit happened at and the provider responsible for it.
+ *  - dashboard: there is no encounter, so `facility` is the facility the user is working
+ *    at and `provider` stays null — the dashboard cannot name a responsible provider, and
+ *    null correctly matches every assignment rather than only unscoped ones.
  */
 final readonly class AvailabilityContext
 {

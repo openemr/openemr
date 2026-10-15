@@ -153,6 +153,55 @@ class QuestionnaireAvailabilityIsolatedTest extends TestCase
     }
 
     /**
+     * Guards the bug class CodeRabbit found on the encounter surface: a scope was added to
+     * the context and the schema, but nothing ever read it, so the restriction silently
+     * did nothing.
+     *
+     * Every constructor scope except the three that are not SQL columns must turn into a
+     * narrowing clause when supplied. If someone adds a scope to the context without
+     * adding it to buildScopeClause(), this fails.
+     */
+    public function testEveryContextScopeReachesTheQuery(): void
+    {
+        $notScopeColumns = ['surface', 'pid', 'encounter'];
+        $params = (new \ReflectionClass(AvailabilityContext::class))
+            ->getConstructor()
+            ?->getParameters() ?? [];
+
+        $scopeNames = [];
+        foreach ($params as $param) {
+            if (!in_array($param->getName(), $notScopeColumns, true)) {
+                $scopeNames[] = $param->getName();
+            }
+        }
+        $this->assertNotEmpty($scopeNames, 'the context must declare at least one scope');
+
+        $context = new AvailabilityContext(
+            QuestionnaireSurface::Smart,
+            visitCategoryId: 5,
+            facility: 3,
+            provider: 7,
+            clientId: 'some-client',
+        );
+        [$clause, $binds] = $this->scopeClause($context);
+
+        $this->assertCount(
+            count($scopeNames),
+            $binds,
+            'every supplied scope must contribute exactly one bind: ' . implode(', ', $scopeNames)
+        );
+        foreach ($scopeNames as $name) {
+            // visitCategoryId -> visit_category_id, clientId -> client_id
+            $column = strtolower((string)preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
+            $this->assertStringContainsString(
+                'ca.`' . $column . '`',
+                $clause,
+                "scope {$name} is declared on the context but never narrows the query"
+            );
+        }
+    }
+
+    /**
      * The registry is shared by every encounter form in OpenEMR. Rows this service does
      * not speak for must survive untouched, and must not trigger an availability lookup
      * at all — an install with no questionnaires registered should pay nothing for this.

@@ -535,21 +535,33 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
     // A null scope means "cannot answer for this axis", which matches every assignment
     // rather than only the unscoped ones — a group encounter has no form_encounter row,
     // and must not silently lose its questionnaires because of it.
+    //
+    // $encounter rather than the session value: review mode reassigns it from review_id
+    // above, and the scope has to describe the encounter actually on screen.
     $encounterAvailabilityPid = is_numeric($pid) ? (int)$pid : null;
-    $encounterAvailabilityEncounterRaw = OEGlobalsBag::getInstance()->get('encounter');
-    $encounterAvailabilityEncounter = is_numeric($encounterAvailabilityEncounterRaw)
-        ? (int)$encounterAvailabilityEncounterRaw
-        : null;
+    $encounterAvailabilityEncounter = is_numeric($encounter) ? (int)$encounter : null;
     $encounterAvailabilityVisitCategoryId = null;
+    $encounterAvailabilityFacility = null;
+    $encounterAvailabilityProvider = null;
     if ($encounterAvailabilityEncounter !== null && $attendant_type === 'pid') {
-        $encounterVisitCat = QueryUtils::fetchSingleValue(
-            "SELECT `pc_catid` FROM `form_encounter` WHERE `encounter` = ?",
-            'pc_catid',
+        // facility and provider describe the visit, not the person looking at it, so both
+        // come off the encounter row alongside the visit category — one query, three scopes
+        $encounterScopeRow = QueryUtils::querySingleRow(
+            "SELECT `pc_catid`, `facility_id`, `provider_id`
+               FROM `form_encounter` WHERE `encounter` = ?",
             [$encounterAvailabilityEncounter]
         );
-        $encounterAvailabilityVisitCategoryId = is_numeric($encounterVisitCat)
-            ? (int)$encounterVisitCat
-            : null;
+        if (is_array($encounterScopeRow)) {
+            $encounterAvailabilityVisitCategoryId = is_numeric($encounterScopeRow['pc_catid'] ?? null)
+                ? (int)$encounterScopeRow['pc_catid']
+                : null;
+            $encounterAvailabilityFacility = is_numeric($encounterScopeRow['facility_id'] ?? null)
+                ? (int)$encounterScopeRow['facility_id']
+                : null;
+            $encounterAvailabilityProvider = is_numeric($encounterScopeRow['provider_id'] ?? null)
+                ? (int)$encounterScopeRow['provider_id']
+                : null;
+        }
     }
     $questionnaireAvailability = new QuestionnaireAvailabilityService();
     $questionnaireContext = new AvailabilityContext(
@@ -557,6 +569,8 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
         pid: $encounterAvailabilityPid,
         encounter: $encounterAvailabilityEncounter,
         visitCategoryId: $encounterAvailabilityVisitCategoryId,
+        facility: $encounterAvailabilityFacility,
+        provider: $encounterAvailabilityProvider,
     );
     $reg = $questionnaireAvailability->filterEncounterFormRows(getFormsByCategory(), $questionnaireContext);
     $old_category = '';
