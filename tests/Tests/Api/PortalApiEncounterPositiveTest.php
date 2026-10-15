@@ -138,7 +138,12 @@ class PortalApiEncounterPositiveTest extends TestCase
                 $this->fixture,
             );
             $this->accessToken = $mint['access_token'];
-        } catch (SqlQueryException $setUpFailure) {
+        } catch (\Throwable $setUpFailure) {
+            // Catch Throwable (not just SqlQueryException) because
+            // PHPUnit does not call tearDown() when setUp() throws.
+            // DcrClient / PasswordGrant assertion failures and Guzzle
+            // network errors would otherwise leave fixture state
+            // (patient, encounter row, globals, oauth client) behind.
             try {
                 $this->tearDown();
             } catch (\Throwable $rollbackFailure) {
