@@ -977,6 +977,19 @@ function submitOnce(form) {
     return true;
 }
 
+// Coming back to the check list with the Back button can restore it from the
+// browser's cache still marked as submitted; unlock it so it can be used again.
+window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+        document.querySelectorAll('form').forEach(function (form) {
+            delete form.dataset.submitted;
+            form.querySelectorAll('input[type=submit]').forEach(function (button) {
+                button.disabled = false;
+            });
+        });
+    }
+});
+
 function checkAll(checked) {
     var f = document.forms[0];
     for (var i = 0; i < f.elements.length; ++i) {
