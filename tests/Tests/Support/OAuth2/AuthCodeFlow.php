@@ -56,18 +56,27 @@ class AuthCodeFlow
             'authorization_code',
             self::REDIRECT_URI,
         );
-        $result = self::runFlow(
-            $baseUrl,
-            $clientId,
-            $clientSecret,
-            $scope,
-            [
-                'username' => 'admin',
-                'password' => 'pass',
-                'email' => '',
-                'user_role' => 'api',
-            ],
-        );
+        try {
+            $result = self::runFlow(
+                $baseUrl,
+                $clientId,
+                $clientSecret,
+                $scope,
+                [
+                    'username' => 'admin',
+                    'password' => 'pass',
+                    'email' => '',
+                    'user_role' => 'api',
+                ],
+            );
+        } catch (\Throwable $e) {
+            // runFlow throwing means the caller never receives
+            // client_id — remove the orphaned row before rethrowing.
+            // Same pattern as DcrClient::registerConfidential's
+            // enableViaDb guard.
+            DcrClient::remove($clientId);
+            throw $e;
+        }
         $result['client_id'] = $clientId;
         $result['client_secret'] = $clientSecret;
         return $result;
@@ -103,18 +112,24 @@ class AuthCodeFlow
             'authorization_code',
             self::REDIRECT_URI,
         );
-        $result = self::runFlow(
-            $baseUrl,
-            $clientId,
-            $clientSecret,
-            $scope,
-            [
-                'username' => $fixture['portal_login_username'],
-                'password' => $fixture['plain_password'],
-                'email' => $fixture['email'],
-                'user_role' => 'portal-api',
-            ],
-        );
+        try {
+            $result = self::runFlow(
+                $baseUrl,
+                $clientId,
+                $clientSecret,
+                $scope,
+                [
+                    'username' => $fixture['portal_login_username'],
+                    'password' => $fixture['plain_password'],
+                    'email' => $fixture['email'],
+                    'user_role' => 'portal-api',
+                ],
+            );
+        } catch (\Throwable $e) {
+            // Same orphan-row guard as mintUserRoleToken above.
+            DcrClient::remove($clientId);
+            throw $e;
+        }
         $result['client_id'] = $clientId;
         $result['client_secret'] = $clientSecret;
         return $result;
