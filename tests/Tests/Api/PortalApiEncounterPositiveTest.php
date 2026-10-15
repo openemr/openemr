@@ -248,14 +248,17 @@ class PortalApiEncounterPositiveTest extends TestCase
         );
         $body = json_decode($resp['body'], true);
         $this->assertIsArray($body);
-        // Response contains either a direct resource or a nested data
-        // envelope depending on the controller shape. Confirm the
-        // encounter's distinctive fixture marker shows up somewhere in
-        // the serialized response.
+        // Narrow to the returned data record so the marker assertion
+        // proves the ENCOUNTER row was actually in the response, not
+        // just somewhere in the top-level envelope (headers, pagination
+        // links, etc).
+        $this->assertArrayHasKey('data', $body);
+        $this->assertIsArray($body['data']);
+        $dataJson = json_encode($body['data'], JSON_THROW_ON_ERROR);
         $this->assertStringContainsString(
             self::ENCOUNTER_REASON_PREFIX,
-            $resp['body'],
-            'Response must contain the fixture encounter marker, '
+            $dataJson,
+            'Response data must contain the fixture encounter marker, '
                 . 'confirming the encounter row was actually returned'
         );
     }
