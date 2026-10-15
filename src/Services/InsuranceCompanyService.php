@@ -277,7 +277,12 @@ class InsuranceCompanyService extends BaseService
         // TODO: this should be refactored to use getAll but its selecting all the columns and for backwards
         // compatibility we will leave this here.
         $sql = "SELECT * FROM insurance_companies WHERE id=?";
-        return sqlQuery($sql, [$id]);
+        $row = sqlQuery($sql, [$id]);
+        // uuid is binary(16); hand it back as a string so the REST API can json_encode the row
+        if (is_array($row) && is_string($row['uuid'] ?? null) && $row['uuid'] !== '') {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+        }
+        return $row;
     }
 
     public function getOne($uuid): ProcessingResult
@@ -456,6 +461,7 @@ class InsuranceCompanyService extends BaseService
 
         $sql = " INSERT INTO insurance_companies SET";
         $sql .= "     id=?,";
+        $sql .= "     uuid=?,";
         $sql .= "     name=?,";
         $sql .= "     attn=?,";
         $sql .= "     cms_id=?,";
@@ -470,6 +476,7 @@ class InsuranceCompanyService extends BaseService
             $sql,
             [
                 $freshId,
+                UuidRegistry::getRegistryForTable(self::INSURANCE_TABLE)->createUuid(),
                 $data["name"],
                 $data["attn"],
                 $data["cms_id"],
