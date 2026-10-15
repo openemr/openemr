@@ -266,10 +266,14 @@ class PortalApiEncounterPositiveTest extends TestCase
     private function installEncounterFixture(int $pid): string
     {
         // Reserve a uuid via the registry so EncounterService lookups
-        // resolve it correctly.
+        // resolve it correctly. createUuid() writes the uuid_registry
+        // row immediately, so record the string on the instance here
+        // (not just at the return site) so teardown can clean up the
+        // registry row if any later step in this method throws.
         $registry = new UuidRegistry(['table_name' => 'form_encounter']);
         $uuidBytes = $registry->createUuid();
         $uuidString = UuidRegistry::uuidToString($uuidBytes);
+        $this->encounterUuid = $uuidString;
 
         // Pick any seeded facility — any valid facility id will do; the
         // route handler returns whichever encounter is bound to the
