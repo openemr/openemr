@@ -86,7 +86,7 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     }
 
     /**
-     * With _count or _offset, the page is read in the query rather than trimmed afterwards.
+     * With _count, _offset or both, the page is read in the query rather than trimmed afterwards.
      *
      * @param array<mixed> $openEMRSearchParameters
      */

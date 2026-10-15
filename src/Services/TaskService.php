@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
@@ -54,8 +55,8 @@ class TaskService extends BaseService
     /**
      * @param array<string, ISearchField> $search
      * @param mixed $isAndCondition
-     * @param ?SearchQueryConfig $config paging (_count, _offset); the query reads one row past the page so the
-     *                                   result knows whether there is more
+     * @param ?SearchQueryConfig $config paging (_count, _offset); with _count the query reads one row past the
+     *                                   page so the result knows whether there is more
      */
     public function search(array $search, $isAndCondition = true, ?SearchQueryConfig $config = null): ProcessingResult
     {
@@ -68,7 +69,7 @@ class TaskService extends BaseService
             $where = FhirSearchWhereClauseBuilder::build($search, $isAndCondition !== false);
             $records = QueryUtils::fetchRecords(
                 'SELECT tasks.* FROM (' . self::SELECT . ') AS tasks ' . $where->getFragment() . ' ORDER BY tasks.id '
-                    . SearchConfigClauseBuilder::buildQueryPaginationClause($pagination),
+                    . self::pagingClause($pagination),
                 $where->getBoundValues()
             );
             foreach ($records as $row) {
@@ -84,5 +85,20 @@ class TaskService extends BaseService
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $processingResult;
+    }
+
+    /**
+     * The page as SQL: SearchConfigClauseBuilder's LIMIT and OFFSET for _count (with or without _offset).
+     * It writes nothing when there is no limit, so _offset alone gets its own clause here; MySQL takes
+     * an OFFSET only after a LIMIT, hence the largest one.
+     */
+    private static function pagingClause(?QueryPagination $pagination): string
+    {
+        $clause = SearchConfigClauseBuilder::buildQueryPaginationClause($pagination);
+        $offset = $pagination?->getCurrentOffsetId();
+        if ($clause === '' && is_numeric($offset) && (int)$offset > 0) {
+            $clause = 'LIMIT 18446744073709551615 OFFSET ' . (int)$offset;
+        }
+        return $clause;
     }
 }

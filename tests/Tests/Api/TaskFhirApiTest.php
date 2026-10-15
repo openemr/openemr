@@ -228,6 +228,11 @@ class TaskFhirApiTest extends TestCase
         $page2 = $this->search(['patient' => $this->patient['uuid'], '_count' => '1', '_offset' => '1']);
         $this->assertCount(1, $page2);
         $this->assertNotSame($first, $page2[0]['id'] ?? null, 'the second page holds the other task');
+
+        // _offset on its own skips that many and returns the rest.
+        $rest = $this->search(['patient' => $this->patient['uuid'], '_offset' => '1']);
+        $this->assertCount(1, $rest, '_offset=1 skips one of the two');
+        $this->assertSame($page2[0]['id'] ?? null, $rest[0]['id'] ?? null);
     }
 
     public function testReadOneMapsTheRecord(): void
