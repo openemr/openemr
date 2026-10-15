@@ -165,7 +165,7 @@ class DocumentService extends BaseService
 
         $filename = empty($filenameSql['name']) ? "unknownName" : $filenameSql['name'];
 
-        $obj = new \C_Document();
+        $obj = new \C_Document(withCsrfToken: false);
         $obj->onReturnRetrieveKey();
         $document = $obj->retrieve_action($pid, $did, true, true, true);
         if (empty($document)) {
