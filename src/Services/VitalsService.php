@@ -331,6 +331,11 @@ class VitalsService extends BaseService
     {
         $vitalsData = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $vitalsData);
 
+        // an empty uuid can't be converted below; treat it as "not sent" so an update keeps the stored one
+        if (($vitalsData['uuid'] ?? null) === '') {
+            unset($vitalsData['uuid']);
+        }
+
         // convert any uuids to their proper format for insertion
         foreach ($this->getUuidFields() as $field) {
             if (isset($vitalsData[$field])) {
@@ -353,6 +358,10 @@ class VitalsService extends BaseService
             $vitalsData['uuid'] = UuidRegistry::getRegistryForTable(self::TABLE_VITALS)->createUuid();
         } else {
             unset($vitalsData['id']);
+            // never blank out an existing row's uuid; FHIR Observation ids hang off it
+            if (!isset($vitalsData['uuid'])) {
+                unset($vitalsData['uuid']);
+            }
         }
         // save in temp vars then clear out encounter and other new form settings
         $eid = $vitalsData['eid'];
