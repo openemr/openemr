@@ -586,10 +586,11 @@ class DocumentTemplateService extends QuestionnaireService
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         $name = null;
-        if (!empty($pid)) {
-            $name = sqlQuery("SELECT `pid`, Concat_Ws(', ', `lname`, `fname`) as name FROM `patient_data` WHERE `pid` = ?", [$pid])['name'] ?? '';
-        } elseif ($pid == -1) {
+        // Check -1 (the template repository) first: !empty(-1) is true
+        if ($pid == -1) {
             $name = 'Repository';
+        } elseif (!empty($pid)) {
+            $name = sqlQuery("SELECT `pid`, Concat_Ws(', ', `lname`, `fname`) as name FROM `patient_data` WHERE `pid` = ?", [$pid])['name'] ?? '';
         }
 
         $sql = "INSERT INTO `document_templates`

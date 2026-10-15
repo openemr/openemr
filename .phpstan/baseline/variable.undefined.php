@@ -2152,11 +2152,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Pharmacy/Services/ImportPharmacies.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$outputResult might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$all might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Rx/RxList.php',
