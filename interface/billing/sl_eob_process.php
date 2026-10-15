@@ -884,7 +884,7 @@ if (!$debug) {
 <title><?php echo xlt('EOB Posting - Electronic Remittances'); ?></title>
 </head>
 <body class='m-0'>
-<form action="sl_eob_process.php" method="get">
+<form action="sl_eob_process.php" method="get" onsubmit="return submitOnce(this)">
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <?php
@@ -963,6 +963,20 @@ if ($alertmsg) {
     echo " alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
+// Post a check list once: a double click or a second Enter would post the checks again.
+function submitOnce(form) {
+    if (form.dataset.submitted) {
+        return false;
+    }
+    form.dataset.submitted = '1';
+    setTimeout(function () {
+        form.querySelectorAll('input[type=submit]').forEach(function (button) {
+            button.disabled = true;
+        });
+    }, 0);
+    return true;
+}
+
 function checkAll(checked) {
     var f = document.forms[0];
     for (var i = 0; i < f.elements.length; ++i) {
