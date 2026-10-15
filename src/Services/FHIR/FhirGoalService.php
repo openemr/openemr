@@ -71,7 +71,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             '_lastUpdated' => $this->getLastModifiedSearchField(),
             'lifecycle-status' => new FhirSearchParameterDefinition('lifecycle-status', SearchFieldType::TOKEN, ['plan_status']),
             'target-date' => new FhirSearchParameterDefinition('target-date', SearchFieldType::DATE, ['date_end']),
-            'description' => new FhirSearchParameterDefinition('description', SearchFieldType::TOKEN, ['code']),
+            'description' => new FhirSearchParameterDefinition('description', SearchFieldType::TOKEN, ['fcp.code']),
         ];
     }
 
