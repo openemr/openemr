@@ -246,4 +246,5 @@ $(function () {
         <input style="position: absolute;top: 480px;" type="submit" name="save" value="<?php echo $this->listenerObject->z_xla("Save");?>">
     </div>
     <input type="hidden" id="tosave" name="tosave" value="">
+    <input type="hidden" name="csrf_token_form" value="<?php echo \OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()); ?>" />
 </form>

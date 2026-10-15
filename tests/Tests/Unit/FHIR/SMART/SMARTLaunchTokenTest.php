@@ -143,4 +143,35 @@ class SMARTLaunchTokenTest extends TestCase
         ]);
         $this->assertCount(1, $token->getFhirContext(), "Patient with an absolute non-launch role is permitted");
     }
+
+    public function testDeserializeRejectsTamperedSerializedToken(): void
+    {
+        // The launch token payload is encrypted + base64-encoded by
+        // serialize(). Flipping bytes in the base64 body makes
+        // decryption fail; deserialize() must reject rather than
+        // produce a mis-constructed SMARTLaunchToken that downstream
+        // code would trust. Locks the integrity property of the
+        // encrypted-wrapper design.
+        $token = new SMARTLaunchToken('555-555-5555', '777-777-7777');
+        $serialized = $token->serialize();
+        $this->assertNotEmpty($serialized);
+
+        // Replace the last 10 chars of the base64 body with a known
+        // string so the structural shape is intact but the ciphertext
+        // no longer decrypts.
+        $tampered = substr($serialized, 0, -10) . 'AAAAAAAAAA';
+        $this->assertNotSame($serialized, $tampered, 'Tamper must actually change the string');
+
+        $this->expectException(\InvalidArgumentException::class);
+        SMARTLaunchToken::deserializeToken($tampered);
+    }
+
+    public function testDeserializeRejectsNonBase64Garbage(): void
+    {
+        // A non-base64-decodable payload must be rejected explicitly
+        // rather than fall through to the decryption path with
+        // whatever base64_decode returned on strict=false.
+        $this->expectException(\InvalidArgumentException::class);
+        SMARTLaunchToken::deserializeToken('this is not a valid serialized token at all!!!');
+    }
 }

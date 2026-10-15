@@ -279,7 +279,7 @@ class SentinelUtil
 
         throw new \RuntimeException(
             'Could not discover Redis master from any sentinel: '
-            . ($lastException !== null ? $lastException->getMessage() : 'all sentinels returned empty'),
+            . ($lastException?->getMessage() ?? 'all sentinels returned empty'),
             0,
             $lastException,
         );

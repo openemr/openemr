@@ -32,6 +32,13 @@ use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 function GetServiceOtherCounts(): array
 {
     $counts['faxCnt'] = $counts['smsCnt'] = 0;
+    // The fax/SMS enable flags can outlive the module: when it is disabled or
+    // removed its classes are not autoloadable, and calling AppDispatch would
+    // fail this request on every poll. Report no counts instead.
+    if (!class_exists(AppDispatch::class)) {
+        $counts['serviceTotal'] = 0;
+        return $counts;
+    }
     // unless main.php is reloaded Globals is most accurate.
     if (!empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null)) {
         $client = AppDispatch::getApiService('fax');
