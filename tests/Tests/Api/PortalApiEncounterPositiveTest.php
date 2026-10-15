@@ -286,17 +286,16 @@ class PortalApiEncounterPositiveTest extends TestCase
         $encounterNumber = time() + random_int(0, 999);
         $reason = self::ENCOUNTER_REASON_PREFIX . bin2hex(random_bytes(4));
 
-        QueryUtils::sqlStatementThrowException(
+        // Capture the ID at the insert boundary via sqlInsert's
+        // return value. Doing a follow-up LAST_INSERT_ID() query
+        // leaves a window where encounterId stays 0 if the lookup
+        // fails — teardown would then skip deleting the inserted row.
+        $this->encounterId = QueryUtils::sqlInsert(
             'INSERT INTO form_encounter '
                 . '(pid, uuid, encounter, date, reason, facility_id, facility, pc_catid, class_code, sensitivity, provider_id, billing_facility, last_level_billed, last_level_closed, stmt_count, invoice_refno, referral_source, shift, voucher_number) '
                 . "VALUES (?, ?, ?, NOW(), ?, ?, '', 5, 'AMB', 'normal', 0, 0, 0, 0, 0, '', '', '', '')",
             [$pid, $uuidBytes, $encounterNumber, $reason, $facilityId]
         );
-        $idRow = QueryUtils::querySingleRow('SELECT LAST_INSERT_ID() AS id');
-        $this->assertIsArray($idRow);
-        $idRaw = $idRow['id'];
-        $this->assertIsNumeric($idRaw);
-        $this->encounterId = (int) $idRaw;
         return $uuidString;
     }
 
