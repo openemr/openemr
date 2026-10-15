@@ -604,7 +604,10 @@ class EncounterService extends BaseService
         return 1;
     }
 
-    public function updateVital($pid, $eid, $vid, $data)
+    /**
+     * @param array<mixed> $data
+     */
+    public function updateVital($pid, $eid, $vid, array $data)
     {
         // Verify the vital belongs to this patient/encounter before updating
         // to prevent IDOR attacks where an attacker supplies another patient's vid.
@@ -617,6 +620,10 @@ class EncounterService extends BaseService
         $data['date'] = date("Y-m-d H:i:s");
         $data['activity'] = 1;
         $data['id'] = $vid;
+        $existingUuid = $existingVital['uuid'] ?? null;
+        if (is_string($existingUuid)) {
+            $data['uuid'] = $existingUuid;
+        }
         $data['pid'] = $pid;
         $data['eid'] = $eid;
 

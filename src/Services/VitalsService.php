@@ -353,6 +353,10 @@ class VitalsService extends BaseService
             $vitalsData['uuid'] = UuidRegistry::getRegistryForTable(self::TABLE_VITALS)->createUuid();
         } else {
             unset($vitalsData['id']);
+            // never blank out an existing row's uuid; FHIR Observation ids hang off it
+            if (!isset($vitalsData['uuid']) || $vitalsData['uuid'] === '') {
+                unset($vitalsData['uuid']);
+            }
         }
         // save in temp vars then clear out encounter and other new form settings
         $eid = $vitalsData['eid'];
