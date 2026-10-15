@@ -358,15 +358,7 @@ class QuestionnaireAvailabilityService
         $clauses = [];
         $binds = [];
 
-        /** @var array<string, int|string|null> $scopes */
-        $scopes = [
-            'facility' => $context->facility,
-            'provider' => $context->provider,
-            'visit_category_id' => $context->visitCategoryId,
-            'client_id' => $context->clientId,
-        ];
-
-        foreach ($scopes as $column => $value) {
+        foreach ($context->scopeValues() as $column => $value) {
             // 0 means unknown, not a real scope. Every id this narrows by is an
             // auto-increment starting at 1, and callers coerce with is_numeric() ? (int) :
             // null, so a missing or malformed value arrives here as 0. Narrowing on it
@@ -383,13 +375,43 @@ class QuestionnaireAvailabilityService
     }
 
     /**
+     * Whether the current user passes the assignment's ACL.
+     *
+     * An assignment overrides the surface default as a PAIR or not at all. OpenEMR's ACL
+     * sections and levels are only meaningful together -- 'patients'/'med',
+     * 'encounters'/'notes', 'admin'/'super' -- so mixing an assignment's section with the
+     * surface default's level names a combination the installer never created, which
+     * aclCheckCore denies for everyone. That failure is invisible: the questionnaire just
+     * stops appearing, with nothing to say why.
+     *
+     * A half-set pair is therefore refused and logged rather than guessed at. Denying is
+     * the right direction: whoever set one half meant to restrict access, so falling back
+     * to the broader surface default would do the opposite of what was asked.
+     *
      * @param AssignmentRow $assignment
      */
     private function isPermitted(array $assignment, QuestionnaireSurface $surface): bool
     {
-        [$defaultSection, $defaultLevel] = $surface->defaultAcl();
-        $section = $assignment['acl_section'] ?? $defaultSection;
-        $level = $assignment['acl_level'] ?? $defaultLevel;
+        $section = $assignment['acl_section'];
+        $level = $assignment['acl_level'];
+
+        if ($section === null && $level === null) {
+            [$section, $level] = $surface->defaultAcl();
+        } elseif ($section === null || $level === null) {
+            ServiceContainer::getLogger()->warning(
+                'Questionnaire assignment names half an ACL pair and is being denied; '
+                . 'set both acl_section and acl_level, or neither',
+                [
+                    'assignment_id' => $assignment['id'],
+                    'resource_id' => $assignment['resource_id'],
+                    'surface' => $surface->value,
+                    'acl_section' => $section,
+                    'acl_level' => $level,
+                ]
+            );
+
+            return false;
+        }
 
         return AclMain::aclCheckCore($section, $level);
     }

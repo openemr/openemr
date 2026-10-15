@@ -43,6 +43,30 @@ final readonly class AvailabilityContext
     ) {
     }
 
+    /**
+     * Assignment columns this context can narrow by, mapped to the value it supplies.
+     *
+     * The context-to-column mapping lives here so exactly one place owns it. A column
+     * renamed in `content_assignments` but not here, or here but not in the schema,
+     * is caught by the DDL guard in QuestionnaireAvailabilityIsolatedTest rather than
+     * by a query failing on a live encounter page.
+     *
+     * `pid`, `encounter` and `surface` are deliberately absent: an assignment is never
+     * scoped to one patient or one visit, and the surface is matched separately because
+     * it is required rather than optional.
+     *
+     * @return array<string, int|string|null>
+     */
+    public function scopeValues(): array
+    {
+        return [
+            'facility' => $this->facility,
+            'provider' => $this->provider,
+            'visit_category_id' => $this->visitCategoryId,
+            'client_id' => $this->clientId,
+        ];
+    }
+
     public function withVisitCategoryId(?int $visitCategoryId): self
     {
         return new self(

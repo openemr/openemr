@@ -190,13 +190,17 @@ class QuestionnaireAvailabilityIsolatedTest extends TestCase
             $binds,
             'every supplied scope must contribute exactly one bind: ' . implode(', ', $scopeNames)
         );
-        foreach ($scopeNames as $name) {
-            // visitCategoryId -> visit_category_id, clientId -> client_id
-            $column = strtolower((string)preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
+        $this->assertCount(
+            count($scopeNames),
+            $context->scopeValues(),
+            'scopeValues() must name a column for every scope on the constructor: '
+            . implode(', ', $scopeNames)
+        );
+        foreach (array_keys($context->scopeValues()) as $column) {
             $this->assertStringContainsString(
                 'ca.`' . $column . '`',
                 $clause,
-                "scope {$name} is declared on the context but never narrows the query"
+                "scope column {$column} is mapped on the context but never narrows the query"
             );
         }
     }
@@ -270,5 +274,111 @@ class QuestionnaireAvailabilityIsolatedTest extends TestCase
         $this->assertSame(11, $narrowed->pid);
         $this->assertSame(22, $narrowed->encounter);
         $this->assertSame(QuestionnaireSurface::Encounter, $narrowed->surface);
+    }
+
+    /**
+     * Every assignment column the service names must exist in the shipped schema.
+     *
+     * This is the guard for the whole class of bug where a column is renamed in src/ and
+     * not in sql/, or the reverse. It is invisible to PHPStan and to the project's SQL
+     * rules: buildScopeClause() assembles the column name by concatenation, so no
+     * analyser ever sees the literal, and on a live page the only symptom is an
+     * "Unknown column" at render time.
+     *
+     * Both schema files are checked. database.sql is what a fresh install and the whole
+     * E2E suite get; the upgrade script is what an existing site gets. The two drifting
+     * apart is its own bug.
+     *
+     * @param non-empty-string $schemaFile
+     */
+    #[DataProvider('schemaFileProvider')]
+    public function testEveryScopeColumnExistsInTheSchema(string $schemaFile): void
+    {
+        $columns = self::assignmentTableColumns($schemaFile);
+        $context = new AvailabilityContext(QuestionnaireSurface::Encounter);
+
+        foreach (array_keys($context->scopeValues()) as $column) {
+            $this->assertContains(
+                $column,
+                $columns,
+                "AvailabilityContext narrows by `{$column}`, which {$schemaFile} does not define"
+            );
+        }
+    }
+
+    /**
+     * The same guard for every other column the service's SQL names directly.
+     *
+     * @param non-empty-string $schemaFile
+     */
+    #[DataProvider('schemaFileProvider')]
+    public function testEveryQueriedAssignmentColumnExistsInTheSchema(string $schemaFile): void
+    {
+        $columns = self::assignmentTableColumns($schemaFile);
+
+        $source = file_get_contents(
+            dirname(__DIR__, 5) . '/src/Services/Questionnaire/QuestionnaireAvailabilityService.php'
+        );
+        $this->assertIsString($source, 'the service source must be readable');
+
+        // Every `ca`-qualified column in the service's hand-written SQL. The alias is
+        // only ever content_assignments, so anything qualified with it must be a column
+        // on that table.
+        preg_match_all('/\bca\.`([a-z_]+)`/', $source, $matches);
+        $queried = array_values(array_unique($matches[1]));
+        $this->assertNotEmpty($queried, 'the service must query content_assignments by name');
+
+        foreach ($queried as $column) {
+            $this->assertContains(
+                $column,
+                $columns,
+                "the service selects ca.`{$column}`, which {$schemaFile} does not define"
+            );
+        }
+    }
+
+    /**
+     * @return array<string, array{non-empty-string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function schemaFileProvider(): array
+    {
+        return [
+            'fresh install' => ['sql/database.sql'],
+            'upgrade' => ['sql/8_4_1-to-8_5_0_upgrade.sql'],
+        ];
+    }
+
+    /**
+     * Column names defined for content_assignments in one of the schema files.
+     *
+     * @return list<string>
+     */
+    private static function assignmentTableColumns(string $schemaFile): array
+    {
+        $path = dirname(__DIR__, 5) . '/' . $schemaFile;
+        $sql = file_get_contents($path);
+        if ($sql === false) {
+            self::fail("cannot read {$schemaFile}");
+        }
+
+        if (
+            preg_match(
+                '/CREATE TABLE `content_assignments` \((.*?)\n\) ENGINE/s',
+                $sql,
+                $block
+            ) !== 1
+        ) {
+            self::fail("{$schemaFile} does not create content_assignments");
+        }
+
+        // Leading backtick-quoted identifier on each line is the column; PRIMARY KEY and
+        // KEY lines start with the keyword instead, so they drop out.
+        preg_match_all('/^\s{2,}`([a-z_]+)`\s+\S/mi', $block[1], $matches);
+        $columns = array_values(array_unique($matches[1]));
+        self::assertNotEmpty($columns, "{$schemaFile} defines no columns for content_assignments");
+
+        return $columns;
     }
 }
