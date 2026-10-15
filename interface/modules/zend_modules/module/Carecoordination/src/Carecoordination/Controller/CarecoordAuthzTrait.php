@@ -83,23 +83,57 @@ trait CarecoordAuthzTrait
         }
         $storedPid = (int) ($row[0]['pid'] ?? 0);
         $uploaderId = (int) ($row[0]['user_id'] ?? 0);
-        if ($claimedPid !== null && $claimedPid > 0 && $claimedPid !== $storedPid) {
-            return false;
-        }
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $authUserId = (int) ($session->get('authUserID') ?? 0);
-        if ($storedPid <= 0) {
-            // Pre-approval staging row with no patient yet. The uploader
-            // sees their own in-progress import so they can review and
-            // approve/discard it; anyone else is denied until the row
-            // picks up a real pid.
-            return $uploaderId > 0 && $authUserId === $uploaderId;
+        if ($storedPid > 0) {
+            // Row is bound to a real patient. The claimed pid, if non-zero,
+            // must match the stored pid; a caller otherwise authorized for
+            // the stored pid can not slip a different pid into the write
+            // path via the request. Gate on patient access to the stored
+            // pid, not on uploader identity — once the row carries a pid,
+            // the usual per-patient boundary applies to everyone.
+            if ($claimedPid !== null && $claimedPid > 0 && $claimedPid !== $storedPid) {
+                return false;
+            }
+            return $this->isPatientAuthorized($storedPid);
         }
-        // Row is bound to a real patient — gate on patient access, not on
-        // uploader identity. The uploader shortcut above only exists for
-        // the pre-approval window; once the row carries a pid, the usual
-        // per-patient access boundary applies to everyone.
-        return $this->isPatientAuthorized($storedPid);
+        // Pre-approval staging row with no bound patient. Only the uploader
+        // sees their own in-progress import. For approve calls that carry
+        // a target pid, the uploader must also hold patient access for
+        // that pid — otherwise an uploader with no care relationship to
+        // any patient could pick an arbitrary victim pid as the binding
+        // target on the row they just uploaded.
+        if ($uploaderId <= 0 || $authUserId !== $uploaderId) {
+            return false;
+        }
+        if ($claimedPid === null || $claimedPid <= 0) {
+            // view / discard — the caller is the uploader and has not
+            // asked to bind the row to a specific patient yet.
+            return true;
+        }
+        return $this->isPatientAuthorized($claimedPid);
+    }
+
+    /**
+     * Return the stored `pid` on the given audit_master row, or 0 if the
+     * row does not exist. Controllers call this after
+     * isAuditMasterAccessible() has already approved the row so the
+     * approve-path write can be bound to the trusted stored pid rather
+     * than the request-supplied `pid` (which may be zero or omitted).
+     * For pre-approval rows (storedPid === 0) the caller is expected to
+     * fall back to the claimed pid that `isAuditMasterAccessible` just
+     * patient-authorized against.
+     */
+    private function resolveAuditMasterStoredPid(int $auditMasterId): int
+    {
+        if ($auditMasterId <= 0) {
+            return 0;
+        }
+        $row = QueryUtils::fetchRecords(
+            'SELECT pid FROM audit_master WHERE id = ?',
+            [$auditMasterId]
+        );
+        return isset($row[0]['pid']) && is_numeric($row[0]['pid']) ? (int) $row[0]['pid'] : 0;
     }
 
     /**

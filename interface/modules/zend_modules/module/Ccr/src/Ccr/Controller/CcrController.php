@@ -373,15 +373,29 @@ class CcrController extends AbstractActionController
             AccessDeniedHelper::deny('CcrController::revandapprove: audit_master not accessible by caller');
         }
 
-        // Resolve document_id from the authorized audit row rather than
-        // trusting the request parameter. insertApprovedData() writes
-        // `UPDATE documents SET foreign_id = ? WHERE id = ?` using the
-        // caller-supplied document_id — if that id is not bound to the
-        // authorized amid, the attacker can reassign an unrelated document's
-        // foreign_id to their own patient.
+        // Resolve document_id and the stored pid from the authorized audit
+        // row rather than trusting the request parameters. The write path
+        // in insertApprovedData() runs `UPDATE documents SET foreign_id = ?
+        // WHERE id = ?` and `UPDATE patient_data SET … WHERE pid = ?` using
+        // whatever the POST bag supplies — if either id is not bound to
+        // the authorized amid, the attacker can reassign an unrelated
+        // document, zero out the foreign_id, or write to a pid other than
+        // the one the request authorized against.
         $verifiedDocId = $this->resolveAuditMasterDocumentId($amidInt);
+        $storedPid = $this->resolveAuditMasterStoredPid($amidInt);
+        // For a bound audit row (storedPid > 0) the write stays on the
+        // audit's own patient. For a pre-approval row (storedPid === 0)
+        // the uploader is binding a target pid; isAuditMasterAccessible()
+        // already proved the uploader is patient-authorized for pidInt.
+        $writePid = $storedPid > 0 ? $storedPid : $pidInt;
 
         if ($setval == 'approve') {
+            if ($verifiedDocId <= 0) {
+                AccessDeniedHelper::deny('CcrController::revandapprove approve: audit_master has no linked document');
+            }
+            if ($writePid <= 0) {
+                AccessDeniedHelper::deny('CcrController::revandapprove approve: no bound or claimed pid for the write');
+            }
             // Bind the write-path identifiers to the values we just
             // authorized. The controller reads amid/pid as GET-first then
             // POST-fallback, so an attacker could otherwise pass authz
@@ -391,7 +405,7 @@ class CcrController extends AbstractActionController
             $post = $request->getPost();
             $postData = $post instanceof Parameters ? $post->toArray() : [];
             $postData['amid'] = $amidInt;
-            $postData['pid'] = $pidInt;
+            $postData['pid'] = $writePid;
             $postData['document_id'] = $verifiedDocId;
             $this->getCcrTable()->insertApprovedData($postData);
             [$authUser, $authProvider] = $this->auditIdentity();
@@ -401,7 +415,7 @@ class CcrController extends AbstractActionController
                 $authProvider,
                 1,
                 "amid=$amidInt doc_id=$verifiedDocId",
-                $pidInt > 0 ? $pidInt : null
+                $writePid
             );
             return $this->redirect()->toRoute('ccr', ['action' => 'index']);
         } elseif ($setval == 'discard') {
