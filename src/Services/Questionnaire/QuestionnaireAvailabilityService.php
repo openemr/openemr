@@ -33,8 +33,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Questionnaire;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 
 /**
  * @phpstan-type AssignmentRow array{
@@ -71,6 +73,7 @@ class QuestionnaireAvailabilityService
      * the surface default, which is the check that surface already performed.
      *
      * @return list<int>
+     * @throws SqlQueryException if the assignment lookup cannot run
      */
     public function getAvailableIds(AvailabilityContext $context): array
     {
@@ -164,10 +167,8 @@ class QuestionnaireAvailabilityService
      */
     public function filterEncounterFormRows(iterable $rows, AvailabilityContext $context): array
     {
-        /** @var array<int, int>|null $available */
-        $available = null;
-        $filtered = [];
-
+        /** @var list<array<string, mixed>> $all */
+        $all = [];
         foreach ($rows as $row) {
             if (!is_array($row)) {
                 continue;
@@ -176,15 +177,51 @@ class QuestionnaireAvailabilityService
             foreach ($row as $column => $value) {
                 $typed[(string)$column] = $value;
             }
+            $all[] = $typed;
+        }
 
+        /** @var array<int, int>|null $available */
+        $available = null;
+        $filtered = [];
+
+        foreach ($all as $typed) {
             if (($typed['directory'] ?? null) !== self::ENCOUNTER_FORM_DIRECTORY) {
                 $filtered[] = $typed;
                 continue;
             }
 
-            $available ??= array_flip($this->getAvailableIds($context));
+            // A questionnaire registry row with no form_foreign_id does not stand for any
+            // one questionnaire — it is the generic "New Questionnaire" launcher that every
+            // install seeds. There is no assignment to look up for it, so it passes
+            // through; filtering it would remove the only route to creating a questionnaire
+            // encounter form.
             $foreignId = self::asInt($typed['form_foreign_id'] ?? null);
-            if ($foreignId > 0 && isset($available[$foreignId])) {
+            if ($foreignId <= 0) {
+                $filtered[] = $typed;
+                continue;
+            }
+
+            try {
+                $available ??= array_flip($this->getAvailableIds($context));
+            } catch (SqlQueryException $e) {
+                // This runs while the encounter page is already rendering, so letting a
+                // failed query here take out the whole encounter is the wrong trade: the
+                // menu degrades to unfiltered, which is exactly what it showed before
+                // assignments existed. Logged at error level, not swallowed.
+                //
+                // Narrowed to SqlQueryException on purpose. ForbiddenCatchTypeRule bars
+                // suppressing Error and ErrorException, and rightly so -- a TypeError or
+                // a PHP warning promoted by ErrorHandler is a bug to surface, not a
+                // degraded menu. A query that cannot run is the one failure the caller
+                // can genuinely recover from.
+                ServiceContainer::getLogger()->error(
+                    'Questionnaire availability lookup failed; encounter form menu left unfiltered',
+                    ['surface' => $context->surface->value, 'exception' => $e]
+                );
+                return $all;
+            }
+
+            if (isset($available[$foreignId])) {
                 $filtered[] = $typed;
             }
         }
@@ -221,6 +258,7 @@ class QuestionnaireAvailabilityService
 
     /**
      * @return list<AssignmentRow>
+     * @throws SqlQueryException if the assignment lookup cannot run
      */
     private function fetchAssignments(AvailabilityContext $context): array
     {

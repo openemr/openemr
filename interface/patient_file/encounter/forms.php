@@ -572,7 +572,6 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
         facility: $encounterAvailabilityFacility,
         provider: $encounterAvailabilityProvider,
     );
-    $reg = $questionnaireAvailability->filterEncounterFormRows(getFormsByCategory(), $questionnaireContext);
     $old_category = '';
     $DivId = 1;
 

@@ -226,6 +226,29 @@ class QuestionnaireAvailabilityIsolatedTest extends TestCase
         );
     }
 
+    /**
+     * Every install seeds a registry row for questionnaire_assessments with a NULL
+     * form_foreign_id — the generic "New Questionnaire" launcher. It names no particular
+     * questionnaire, so there is no assignment to check and it must survive the filter.
+     * Dropping it removed the only route to creating a questionnaire encounter form.
+     */
+    public function testTheGenericQuestionnaireLauncherIsNotFiltered(): void
+    {
+        $rows = [
+            ['directory' => 'vitals', 'name' => 'Vitals'],
+            ['directory' => 'questionnaire_assessments', 'name' => 'New Questionnaire', 'form_foreign_id' => null],
+            ['directory' => 'newpatient', 'name' => 'New Encounter'],
+        ];
+
+        $filtered = (new QuestionnaireAvailabilityService())->filterEncounterFormRows(
+            $rows,
+            new AvailabilityContext(QuestionnaireSurface::Encounter)
+        );
+
+        $this->assertCount(3, $filtered);
+        $this->assertContains('New Questionnaire', array_column($filtered, 'name'));
+    }
+
     public function testMalformedFormRowsAreDropped(): void
     {
         $filtered = (new QuestionnaireAvailabilityService())->filterEncounterFormRows(
