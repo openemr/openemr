@@ -23,7 +23,7 @@ final class EraCheckPosting
     /** @var array<string, int> check number => payment session reused for it */
     private array $reusedSessions = [];
 
-    /** @var array<string, true> claims ("pid-encounter") posted in this run */
+    /** @var array<string, true> claims posted from each check in this run */
     private array $postedClaims = [];
 
     /**
@@ -91,12 +91,13 @@ final class EraCheckPosting
 
     /**
      * Whether this claim was posted from this check before this run. A claim first
-     * seen in this run is recorded, so further claim lines (CLPs) for it in the same
-     * ERA still post.
+     * seen on this check in this run is recorded, so further claim lines (CLPs) for
+     * it on the same check still post. The check is part of the key: the same claim
+     * under another check in the ERA gets its own lookup.
      */
     public function postedBefore(int $pid, int $encounter, string $checkNumber, string $checkDate): bool
     {
-        $key = $pid . '-' . $encounter;
+        $key = $pid . '-' . $encounter . "\0" . $checkNumber . "\0" . $checkDate;
         if (isset($this->postedClaims[$key])) {
             return false;
         }
