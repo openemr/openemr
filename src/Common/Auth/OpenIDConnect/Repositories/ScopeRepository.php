@@ -244,6 +244,9 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $scopeValidatorFactory->buildScopeValidatorArray($currentServerScopes);
     }
 
+    /**
+     * Resolve a scope identifier to its translated consent-screen description.
+     */
     public function lookupDescriptionForScope(string $scope): string
     {
         $requiredSmart = [

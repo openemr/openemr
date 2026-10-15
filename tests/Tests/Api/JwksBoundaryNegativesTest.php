@@ -263,6 +263,193 @@ class JwksBoundaryNegativesTest extends TestCase
         $this->assertSame('invalid_client', $body['error'] ?? null);
     }
 
+    #[Test]
+    public function testJwtAssertionAgainstClientWithMalformedJwksJsonIsRejected(): void
+    {
+        // DCR with a valid jwks, then mutate oauth_clients to insert
+        // syntactically-invalid JSON into the jwks column. Locks the
+        // "jwks JSON parse failure must not fall through to a successful
+        // auth" invariant.
+        $http = $this->buildClient();
+        $keyLocation = __DIR__ . '/../data/Unit/Common/Auth/Grant/';
+        $jwks = json_decode((string) file_get_contents($keyLocation . 'jwk-public-valid.json'), true, 512, JSON_THROW_ON_ERROR);
+        $reg = $http->post($this->baseUrl . '/oauth2/default/registration', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'application_type' => 'private',
+                'redirect_uris' => ['https://client.example/cb'],
+                'client_name' => 'JwksBoundaryNegativesTest-malformed-' . bin2hex(random_bytes(3)),
+                'token_endpoint_auth_method' => 'private_key_jwt',
+                'contacts' => ['e2e@test.example'],
+                'scope' => 'openid',
+                'jwks' => $jwks,
+            ],
+        ]);
+        $this->assertSame(200, $reg->getStatusCode());
+        $data = json_decode((string) $reg->getBody(), true);
+        $this->assertIsArray($data);
+        $this->assertIsString($data['client_id']);
+        $this->clientId = $data['client_id'];
+
+        // Corrupt the stored JWKS to malformed JSON.
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `oauth_clients` SET `jwks` = ?, `jwks_uri` = '' WHERE `client_id` = ?",
+            ['{"keys": [not-valid-json', $this->clientId]
+        );
+
+        $privateKey = InMemory::file($keyLocation . 'openemr-rsa384-private.key');
+        $publicKey = InMemory::file($keyLocation . 'openemr-rsa384-public.pem');
+        $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            $privateKey,
+            $publicKey,
+            $this->baseUrl . '/oauth2/default/token',
+            $this->clientId,
+        );
+
+        $response = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'client_credentials',
+                'client_id' => $this->clientId,
+                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                'client_assertion' => $assertion,
+                'scope' => 'openid',
+            ],
+        ]);
+        $this->assertSame(
+            401,
+            $response->getStatusCode(),
+            'JWT auth against a client with malformed JWKS JSON must return 401. '
+                . 'Body: ' . (string) $response->getBody()
+        );
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame('invalid_client', $body['error'] ?? null);
+    }
+
+    #[Test]
+    public function testJwtAssertionAgainstClientWithEmptyKeysArrayIsRejected(): void
+    {
+        // DCR with a valid jwks, then mutate to a well-formed-JSON but
+        // empty keys array. The assertion is well-signed with the real
+        // key but no public key is available to verify against; auth
+        // must fail.
+        $http = $this->buildClient();
+        $reg = $http->post($this->baseUrl . '/oauth2/default/registration', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'application_type' => 'private',
+                'redirect_uris' => ['https://client.example/cb'],
+                'client_name' => 'JwksBoundaryNegativesTest-emptykeys-' . bin2hex(random_bytes(3)),
+                'token_endpoint_auth_method' => 'private_key_jwt',
+                'contacts' => ['e2e@test.example'],
+                'scope' => 'openid',
+                'jwks' => json_decode((string) file_get_contents(__DIR__ . '/../data/Unit/Common/Auth/Grant/jwk-public-valid.json'), true, 512, JSON_THROW_ON_ERROR),
+            ],
+        ]);
+        $this->assertSame(200, $reg->getStatusCode());
+        $data = json_decode((string) $reg->getBody(), true);
+        $this->assertIsArray($data);
+        $this->assertIsString($data['client_id']);
+        $this->clientId = $data['client_id'];
+
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `oauth_clients` SET `jwks` = ?, `jwks_uri` = '' WHERE `client_id` = ?",
+            ['{"keys":[]}', $this->clientId]
+        );
+
+        $keyLocation = __DIR__ . '/../data/Unit/Common/Auth/Grant/';
+        $privateKey = InMemory::file($keyLocation . 'openemr-rsa384-private.key');
+        $publicKey = InMemory::file($keyLocation . 'openemr-rsa384-public.pem');
+        $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            $privateKey,
+            $publicKey,
+            $this->baseUrl . '/oauth2/default/token',
+            $this->clientId,
+        );
+
+        $response = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'client_credentials',
+                'client_id' => $this->clientId,
+                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                'client_assertion' => $assertion,
+                'scope' => 'openid',
+            ],
+        ]);
+        $this->assertSame(
+            401,
+            $response->getStatusCode(),
+            'JWT auth against a client with empty JWKS keys array must return 401. '
+                . 'Body: ' . (string) $response->getBody()
+        );
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame('invalid_client', $body['error'] ?? null);
+    }
+
+    #[Test]
+    public function testJwtAssertionAgainstClientWithNullKeysIsRejected(): void
+    {
+        // DCR with a valid jwks, then mutate to well-formed JSON whose
+        // `keys` property is explicitly null (shape distinct from
+        // malformed JSON and empty-array). Without an is_array() guard,
+        // the constructor would store null in $this->jwks and foreach
+        // on null emits an ErrorException under the repo error handler,
+        // escaping the invalid_client / 401 path.
+        $http = $this->buildClient();
+        $reg = $http->post($this->baseUrl . '/oauth2/default/registration', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'application_type' => 'private',
+                'redirect_uris' => ['https://client.example/cb'],
+                'client_name' => 'JwksBoundaryNegativesTest-nullkeys-' . bin2hex(random_bytes(3)),
+                'token_endpoint_auth_method' => 'private_key_jwt',
+                'contacts' => ['e2e@test.example'],
+                'scope' => 'openid',
+                'jwks' => json_decode((string) file_get_contents(__DIR__ . '/../data/Unit/Common/Auth/Grant/jwk-public-valid.json'), true, 512, JSON_THROW_ON_ERROR),
+            ],
+        ]);
+        $this->assertSame(200, $reg->getStatusCode());
+        $data = json_decode((string) $reg->getBody(), true);
+        $this->assertIsArray($data);
+        $this->assertIsString($data['client_id']);
+        $this->clientId = $data['client_id'];
+
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `oauth_clients` SET `jwks` = ?, `jwks_uri` = '' WHERE `client_id` = ?",
+            ['{"keys":null}', $this->clientId]
+        );
+
+        $keyLocation = __DIR__ . '/../data/Unit/Common/Auth/Grant/';
+        $privateKey = InMemory::file($keyLocation . 'openemr-rsa384-private.key');
+        $publicKey = InMemory::file($keyLocation . 'openemr-rsa384-public.pem');
+        $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            $privateKey,
+            $publicKey,
+            $this->baseUrl . '/oauth2/default/token',
+            $this->clientId,
+        );
+
+        $response = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'client_credentials',
+                'client_id' => $this->clientId,
+                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                'client_assertion' => $assertion,
+                'scope' => 'openid',
+            ],
+        ]);
+        $this->assertSame(
+            401,
+            $response->getStatusCode(),
+            'JWT auth against a client with null JWKS keys must return 401. '
+                . 'Body: ' . (string) $response->getBody()
+        );
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame('invalid_client', $body['error'] ?? null);
+    }
+
     private function buildClient(): Client
     {
         return new Client([

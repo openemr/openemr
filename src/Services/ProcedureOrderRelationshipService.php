@@ -158,7 +158,7 @@ class ProcedureOrderRelationshipService
      * @param string $resourceUuid
      * @return bool
      */
-    public function relationshipExists($procedureOrderId, $resourceType, $resourceUuid)
+    public function relationshipExists($procedureOrderId, $resourceType, $resourceUuid): bool
     {
         $uuidBinary = UuidRegistry::uuidToBytes($resourceUuid);
         if ($uuidBinary === false) {

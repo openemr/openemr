@@ -21,7 +21,11 @@ use PHPUnit\Framework\TestCase;
 
 final class ServerScopeListEntityTest extends TestCase
 {
-    /** @param callable(ServerScopeListEntity): list<string> $getScopes */
+    /**
+     * Previously populated FHIR catalogs must reflect each change to system access.
+     *
+     * @param callable(ServerScopeListEntity): list<string> $getScopes
+     */
     #[DataProvider('systemScopeCatalogProvider')]
     public function testSystemScopeChangesInvalidatePopulatedCaches(
         callable $getScopes,
@@ -43,6 +47,8 @@ final class ServerScopeListEntityTest extends TestCase
     }
 
     /**
+     * Exercise each FHIR catalog with representative ordinary and system scopes.
+     *
      * @return iterable<string, array{callable(ServerScopeListEntity): list<string>, string, string}>
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
@@ -65,6 +71,9 @@ final class ServerScopeListEntityTest extends TestCase
         ];
     }
 
+    /**
+     * System access changes must not alter the standard API scope catalogs.
+     */
     public function testSystemScopeChangesPreserveStandardApiCatalogs(): void
     {
         $catalog = new ServerScopeListEntity();
@@ -80,6 +89,9 @@ final class ServerScopeListEntityTest extends TestCase
         }
     }
 
+    /**
+     * The combined catalog must rebuild after system access changes without duplicating scopes.
+     */
     public function testAggregateCatalogReflectsCacheTransitionsAndDeduplicatesScopes(): void
     {
         $catalog = new ServerScopeListEntity();
@@ -94,6 +106,9 @@ final class ServerScopeListEntityTest extends TestCase
         self::assertSame($initial, $catalog->getAllSupportedScopesList());
     }
 
+    /**
+     * Nullable and unknown resource inputs must retain their existing fallback descriptions.
+     */
     public function testDescriptionsPreserveNullableAndUnknownResourceInputs(): void
     {
         $globals = OEGlobalsBag::getInstance();

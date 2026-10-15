@@ -439,6 +439,9 @@ class ServerScopeListEntity
         return array_keys(array_combine($allScopes, $allScopes));
     }
 
+    /**
+     * Return the translated description of a non-resource scope, or an empty string if unknown.
+     */
     public function lookupDescriptionForFullScopeString(string $scope): string
     {
         $requiredSmart = [
@@ -455,6 +458,9 @@ class ServerScopeListEntity
         return $requiredSmart[$scope] ?? "";
     }
 
+    /**
+     * Describe a resource and its access context, using a generic description for unknown resources.
+     */
     public function lookupDescriptionForResourceScope(?string $resource, ?string $context): string
     {
         $description = "";
