@@ -30,6 +30,7 @@ use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\TaskService;
 use OpenEMR\Validators\ProcessingResult;
@@ -81,13 +82,32 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
+        return $this->getTaskService()->search(self::searchFields($openEMRSearchParameters));
+    }
+
+    /**
+     * With _count or _offset, the page is read in the query rather than trimmed afterwards.
+     *
+     * @param array<mixed> $openEMRSearchParameters
+     */
+    protected function searchForOpenEMRRecordsWithConfig(array $openEMRSearchParameters, SearchQueryConfig $searchConfig): ProcessingResult
+    {
+        return $this->getTaskService()->search(self::searchFields($openEMRSearchParameters), true, $searchConfig);
+    }
+
+    /**
+     * @param array<mixed> $openEMRSearchParameters
+     * @return array<string, ISearchField>
+     */
+    private static function searchFields(array $openEMRSearchParameters): array
+    {
         $search = [];
         foreach ($openEMRSearchParameters as $name => $field) {
             if (is_string($name) && $field instanceof ISearchField) {
                 $search[$name] = $field;
             }
         }
-        return $this->getTaskService()->search($search);
+        return $search;
     }
 
     /**

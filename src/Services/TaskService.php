@@ -20,7 +20,9 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchConfigClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Validators\ProcessingResult;
 
 class TaskService extends BaseService
@@ -52,14 +54,21 @@ class TaskService extends BaseService
     /**
      * @param array<string, ISearchField> $search
      * @param mixed $isAndCondition
+     * @param ?SearchQueryConfig $config paging (_count, _offset); the query reads one row past the page so the
+     *                                   result knows whether there is more
      */
-    public function search(array $search, $isAndCondition = true): ProcessingResult
+    public function search(array $search, $isAndCondition = true, ?SearchQueryConfig $config = null): ProcessingResult
     {
         $processingResult = new ProcessingResult();
+        $pagination = $config?->getPagination();
+        if ($pagination !== null) {
+            $processingResult->setPagination($pagination);
+        }
         try {
             $where = FhirSearchWhereClauseBuilder::build($search, $isAndCondition !== false);
             $records = QueryUtils::fetchRecords(
-                'SELECT tasks.* FROM (' . self::SELECT . ') AS tasks ' . $where->getFragment() . ' ORDER BY tasks.id',
+                'SELECT tasks.* FROM (' . self::SELECT . ') AS tasks ' . $where->getFragment() . ' ORDER BY tasks.id '
+                    . SearchConfigClauseBuilder::buildQueryPaginationClause($pagination),
                 $where->getBoundValues()
             );
             foreach ($records as $row) {

@@ -213,6 +213,23 @@ class TaskFhirApiTest extends TestCase
         );
     }
 
+    public function testCountPagesTheSearch(): void
+    {
+        $result = $this->testClient->get('/apis/default/fhir/Task', ['patient' => $this->patient['uuid'], '_count' => '1']);
+        $this->assertSame(Response::HTTP_OK, $result->getStatusCode());
+        $bundle = json_decode((string)$result->getBody()->getContents(), true);
+        $this->assertIsArray($bundle);
+        $entries = $bundle['entry'] ?? null;
+        $this->assertIsArray($entries);
+        // The generic controller's bundles carry only a self link, so there is no next link to check.
+        $this->assertCount(1, $entries, '_count=1 returns one task of the two');
+
+        $first = self::at($entries, 0, 'resource', 'id');
+        $page2 = $this->search(['patient' => $this->patient['uuid'], '_count' => '1', '_offset' => '1']);
+        $this->assertCount(1, $page2);
+        $this->assertNotSame($first, $page2[0]['id'] ?? null, 'the second page holds the other task');
+    }
+
     public function testReadOneMapsTheRecord(): void
     {
         $task = $this->read($this->tasks['referral']);
