@@ -7168,8 +7168,8 @@ class InternalToCdaConverter
      * with its code/displayName/codeSystem/codeSystemName attributes, or
      * collapse it to nullFlavor="UNK" when no code is available.
      *
-     * This mirrors the Node service's shared code renderer
-     * (ccdaservice/oe-blue-button-generate/lib/translate.js `exports.code`,
+     * This mirrors the retired Node service's shared code renderer
+     * (oe-blue-button-generate/lib/translate.js `exports.code`,
      * lines 27-65), which is the authoritative behavior the PHP converter
      * replaces: an empty code becomes nullFlavor="UNK", and each remaining
      * attribute is emitted only when its value is non-empty. The cs/CD/st

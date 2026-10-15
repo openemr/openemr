@@ -10,7 +10,7 @@
     {% if e.referringProvider %}
         <br />{{ "Referring Provider"|xlt }} - {{ e.referringProvider|text }}
     {% endif %}
-    {% if e.dispensedMedications is defined %}
+    {% if e.dispensedMedications is defined and e.dispensedMedications is not empty %}
         {% include "templates/newpatient/partials/report/_dispensed-medications.html.twig" %}
     {% endif %}
 {% endfor %}

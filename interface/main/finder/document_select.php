@@ -23,6 +23,8 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -39,21 +41,39 @@ if (!empty($_REQUEST)) {
         CsrfUtils::csrfNotVerified();
     }
 }
-$searchArray = [];
-$pid = $_REQUEST['pid'] ?? $session->get('pid') ?? null;
-$patientName = "";
-if (!empty($_REQUEST['pid'])) {
-    /** @var string|int $rawPid */
-    $rawPid = $_REQUEST['pid'];
-    $pid = intval($rawPid);
-    $patientService = new PatientService();
-    $patientArray = $patientService->findByPid($pid);
-    if (!empty($patientArray)) {
-        // TODO: log the fact that pid is null
-        // note for documents that foreign_id is ALWAYS the pid
-        $searchArray['foreign_id'] = $pid;
-        $patientName = trim(($patientArray['fname'] ?? '') . ' ' . ($patientArray['lname'] ?? ''));
+// Resolve the patient this finder is scoped to. A request `pid` is honored
+// only when it matches the current session patient context, or when the
+// caller holds the `patients/docs` ACL (admin / batch flow). Otherwise the
+// request `pid` would let any logged-in user enumerate another patient's
+// document metadata. Falls back to the session patient when the request
+// omits one. Refuses the search entirely if neither source yields a usable
+// pid.
+$rawRequestPid = $_REQUEST['pid'] ?? null;
+$sessionPid = $session->get('pid') ?? null;
+$sessionPidInt = (int) ($sessionPid ?? 0);
+$pid = null;
+if ($rawRequestPid !== null && $rawRequestPid !== '') {
+    $requestedPid = (int) $rawRequestPid;
+    if ($sessionPidInt > 0 && $sessionPidInt === $requestedPid) {
+        $pid = $requestedPid;
+    } elseif (AclMain::aclCheckCore('patients', 'docs')) {
+        $pid = $requestedPid;
+    } else {
+        AccessDeniedHelper::deny('document_select: requested pid not accessible by caller');
     }
+} elseif ($sessionPidInt > 0) {
+    $pid = $sessionPidInt;
+}
+if ($pid === null || $pid <= 0) {
+    AccessDeniedHelper::deny('document_select: pid required (not in request or session)');
+}
+
+$searchArray = ['foreign_id' => $pid];
+$patientName = "";
+$patientService = new PatientService();
+$patientArray = $patientService->findByPid($pid);
+if (!empty($patientArray)) {
+    $patientName = trim(($patientArray['fname'] ?? '') . ' ' . ($patientArray['lname'] ?? ''));
 }
 $MAX_RECORDS = 25;
 $searchparm = trim($_REQUEST['searchparm'] ?? '');

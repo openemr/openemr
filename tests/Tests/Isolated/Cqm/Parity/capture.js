@@ -16,8 +16,13 @@
  * calls the async Calculator.calculate() without awaiting it and so answers
  * every request with {}, which cannot serve as a reference.
  *
- * Usage, from a checkout whose ccdaservice has node_modules installed:
- *   node capture.js <ccdaservice/node_modules> <json_measures dir> <year> <out dir> [patients per measure] [measure...]
+ * Usage:
+ *   node capture.js <node_modules> <json_measures dir> <year> <out dir> [patients per measure] [measure...]
+ *
+ * The reference engine is not part of OpenEMR. Install the versions the
+ * fixtures were made with anywhere, e.g.
+ *   npm install --prefix /tmp/cqm-reference cqm-execution@4.4.3 cqm-models@4.3.2
+ * and pass /tmp/cqm-reference/node_modules as <node_modules>.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -338,7 +343,7 @@ function patientFactory(measure, valueSets) {
         const c = valueSetNamed(name, where).concepts[0];
         return { code: c.code, system: c.code_system_oid };
     };
-    const SEED_KEYS = new Set(['ref', 'type', 'valueSet', 'result', 'clazz', 'diagnoses', 'relatedTo', ...PERIOD_KEYS, ...DATETIME_KEYS]);
+    const SEED_KEYS = new Set(['ref', 'type', 'valueSet', 'result', 'clazz', 'diagnoses', 'participant', 'relatedTo', ...PERIOD_KEYS, ...DATETIME_KEYS]);
 
     const seedElement = (item, where) => {
         for (const key of Object.keys(item)) {
@@ -388,6 +393,12 @@ function patientFactory(measure, valueSets) {
                 rank: d.rank ?? null,
                 presentOnAdmissionIndicator: null,
             }));
+        }
+        if ('participant' in item) {
+            el.participant = item.participant.map((p) => {
+                const pid = nextId();
+                return { _type: 'QDM::Practitioner', role: firstCode(p.role, where), id: pid, _id: pid };
+            });
         }
         const id = nextId();
         return { ...el, id, _id: id };
@@ -638,7 +649,9 @@ async function captureMeasure(dir) {
     const name = path.basename(dir);
     const measure = JSON.parse(fs.readFileSync(path.join(dir, `${name}.json`), 'utf8'));
     const valueSets = JSON.parse(fs.readFileSync(path.join(dir, 'value_sets.json'), 'utf8'));
-    const factory = patientFactory(measure, valueSets);
+    // A value set can be published with no concepts at all (no 'concepts' key);
+    // the generator reads it as empty, the engine gets the file as published.
+    const factory = patientFactory(measure, valueSets.map((vs) => ({ ...vs, concepts: vs.concepts ?? [] })));
     const fresh = Array.from({ length: POOL }, () => factory.create());
     const summaries = await calculate(measure, valueSets, fresh);
 

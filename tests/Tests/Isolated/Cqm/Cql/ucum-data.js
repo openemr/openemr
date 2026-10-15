@@ -5,7 +5,12 @@
  * data/ucumDefs.min.json. Only the fields that parsing and conversion read
  * are kept.
  *
- * Usage: node ucum-data.js <ccdaservice/node_modules> <output file>
+ * Usage: node ucum-data.js <node_modules> <output file>
+ *
+ * The reference engine is not part of OpenEMR. Install the versions the
+ * fixtures were made with anywhere, e.g.
+ *   npm install --prefix /tmp/cqm-reference cqm-execution@4.4.3 cqm-models@4.3.2
+ * and pass /tmp/cqm-reference/node_modules as <node_modules>.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
