@@ -6,6 +6,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -100,5 +101,29 @@ class FhirOrganizationServiceCrudTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
         $this->assertEquals(0, count($actualResult->getInternalErrors()));
         $this->assertEquals(0, count($actualResult->getData()));
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function addressSearchProvider(): array
+    {
+        return [
+            'address' => ['address', 'no-such-street'],
+            'address-postalcode' => ['address-postalcode', '00000'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('addressSearchProvider')]
+    public function testAddressSearchDoesNotError(string $param, string $value): void
+    {
+        // facility and insurance company rows have different address columns
+        $service = $this->fhirOrganizationService;
+        $this->assertInstanceOf(FhirOrganizationService::class, $service);
+        $result = $service->getAll([$param => $value]);
+
+        $this->assertTrue($result->isValid());
+        $this->assertEmpty($result->getInternalErrors());
     }
 }
