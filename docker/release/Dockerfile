@@ -217,6 +217,7 @@ COPY --from=openemr-source /openemr /tmp/openemr
 COPY --from=openemr-composer /openemr/vendor /tmp/openemr/vendor
 COPY --from=openemr-composer /openemr/composer.json /tmp/openemr/composer.json
 COPY --from=openemr-composer /openemr/composer.lock /tmp/openemr/composer.lock
+COPY --from=openemr-composer /openemr/interface/modules/custom_modules /tmp/openemr/interface/modules/custom_modules
 # Copy built assets
 COPY --from=openemr-assets /openemr/public /tmp/openemr/public
 
