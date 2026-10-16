@@ -74,6 +74,7 @@ $skipAuditLog = true; // disable audit logging during upgrades
 
 require_once('interface/globals.php');
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
@@ -567,7 +568,18 @@ header('Content-type: text/html; charset=utf-8');
                     }
 
                     echo "<p class='text-success'>" . $line . "...</p><br />\n";
-                    $legacyTablesByCharacterSet = (new DatabaseCharsetAudit())->getTablesWithLegacyCharacterSets();
+                    try {
+                        $legacyTablesByCharacterSet = (new DatabaseCharsetAudit())->getTablesWithLegacyCharacterSets();
+                    } catch (\Throwable $exception) {
+                        ServiceContainer::getLogger()->warning(
+                            'Database character-set audit could not be completed during SQL upgrade',
+                            ['exception' => $exception]
+                        );
+                        echo "<div class='alert alert-warning'>" .
+                            xlt("The database character-set audit could not be completed. The upgrade will continue; review the database charset manually.") .
+                            "</div>";
+                        $legacyTablesByCharacterSet = [];
+                    }
                     if ($legacyTablesByCharacterSet !== []) {
                         echo "<div class='alert alert-warning'>";
                         echo "<p>" . xlt("Some database tables or columns are not using utf8mb4. Writes of four-byte characters to these fields may be replaced with question marks.") . "</p>";
