@@ -1,0 +1,5 @@
+*
+!Gemfile
+!Gemfile.lock
+!build_bundle.rb
+!generate_ecqm_list.rb
