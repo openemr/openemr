@@ -18,8 +18,15 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\System;
 
+use Symfony\Component\HttpFoundation\Response;
+
 class MissingSiteIdException extends MissingSiteException
 {
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_UNAUTHORIZED;
+    }
+
     public function __construct(
         string $message = 'Site ID is missing from session data.',
         int $code = 0,

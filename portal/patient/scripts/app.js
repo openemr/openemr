@@ -19,7 +19,11 @@ var app = {
      * @param timeout
      * @param containerId
      */
-    appendAlert: function(message, style, timeout,containerId) {
+    appendAlert: function(message, style, timeout,containerId, response) {
+        if (response && response.status === 401) {
+            parent.parent.location.replace(top.webroot_url + "/portal/verify_session.php" + '?w&u');
+            return;
+        }
         if (!message) {
             return;
         }
@@ -27,9 +31,6 @@ var app = {
             timeout = 15000;
         }
         if (typeof asyncAlertMsg !== 'undefined') {
-            if (message.includes("Site ID is missing from session data") !== false) {
-                parent.parent.location.replace(top.webroot_url + "/portal/verify_session.php" + '?w&u');
-            }
             asyncAlertMsg(message, timeout, style);
         } else {
             alert(message);
