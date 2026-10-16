@@ -17,6 +17,8 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -113,7 +115,22 @@ class AppointmentRestController
     )]
     public function getOneForPatient($auuid, $patientUuid)
     {
-        $serviceResult = $this->appointmentService->search(['puuid' => $patientUuid, 'pc_uuid' => $auuid]);
+        // Wrap uuid parameters as TokenSearchField + TokenSearchValue
+        // with the isUuid flag so the search layer converts them from
+        // the 36-char string form to BINARY(16) before comparison
+        // against pce.uuid and patient_data.uuid. Passing raw strings
+        // (the pre-fix shape) would wrap as StringSearchField with
+        // exact-match semantics and never match a binary column.
+        $serviceResult = $this->appointmentService->search([
+            'puuid' => new TokenSearchField(
+                'puuid',
+                [new TokenSearchValue($patientUuid, null, true)]
+            ),
+            'pc_uuid' => new TokenSearchField(
+                'pc_uuid',
+                [new TokenSearchValue($auuid, null, true)]
+            ),
+        ]);
         $data = ProcessingResult::extractDataArray($serviceResult);
         return RestControllerHelper::responseHandler($data[0] ?? [], null, 200);
     }
