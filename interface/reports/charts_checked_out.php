@@ -20,11 +20,10 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
-// Chart-tracker output cross-references patient pubpid with the borrowing
-// clinician; gate on the appointment ACL used by the sibling scheduling
-// reports.
-if (!AclMain::aclCheckCore('patients', 'appt')) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Charts Checked Out", xl("Charts Checked Out"));
+// Chart-tracker output; align the permission check with the sibling
+// `chart_location_activity.php` report (`patients/med`).
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Charts Checked Out", xl("Charts Checked Out"));
 }
 
 ?>
