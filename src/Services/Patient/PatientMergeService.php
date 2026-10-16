@@ -153,15 +153,17 @@ class PatientMergeService
         $this->moveDocuments($sourcePid, $targetPid, $log);
         $this->moveEncounterDocuments($sourcePid, $targetPid, $log);
 
-        $this->mergeAllTables($sourcePid, $targetPid, $log);
+        QueryUtils::inTransaction(function () use ($sourcePid, $targetPid, $duplicateEncounters, $log): void {
+            $this->mergeAllTables($sourcePid, $targetPid, $log);
 
-        // The pids have been merged by this point; what is left is folding the source encounter's
-        // components into the target encounter.
-        if ($duplicateEncounters !== null) {
-            $this->mergeDuplicateEncounters($duplicateEncounters, $log);
-        }
+            // The pids have been merged by this point; what is left is folding the source encounter's
+            // components into the target encounter.
+            if ($duplicateEncounters !== null) {
+                $this->mergeDuplicateEncounters($duplicateEncounters, $log);
+            }
 
-        $this->duplicatePatients->recalculateScore($targetPid);
+            $this->duplicatePatients->recalculateScore($targetPid);
+        });
 
         $log->add(xl('Merge complete.'));
     }
