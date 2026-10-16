@@ -230,6 +230,26 @@ class PortalApiAppointmentSinglePositiveTest extends TestCase
     }
 
     #[Test]
+    public function testGetPortalAppointmentByMalformedUuidReturns404(): void
+    {
+        // After the TokenSearchField conversion, a malformed uuid
+        // string reaches UuidRegistry::uuidToBytes which throws
+        // InvalidArgumentException. The controller short-circuits on
+        // isValidStringUUID so the dispatcher does not bubble it up
+        // to a 500. Pre-controller-fix the raw-string search just
+        // returned no rows → 404; post-fix the explicit guard
+        // preserves that shape.
+        $resp = $this->rawGet('/apis/default/portal/patient/appointment/not-a-uuid');
+        $this->assertSame(
+            404,
+            $resp['status'],
+            'Malformed-UUID path must return 404 (not 500 from an uncaught '
+                . 'InvalidArgumentException). Status: ' . $resp['status']
+                . ', Body: ' . $resp['body']
+        );
+    }
+
+    #[Test]
     public function testGetPortalAppointmentByKnownUuidReturns200WithAppointment(): void
     {
         $appointmentUuid = $this->appointmentUuid;

@@ -14,6 +14,7 @@ namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\PatientService;
@@ -115,6 +116,14 @@ class AppointmentRestController
     )]
     public function getOneForPatient($auuid, $patientUuid)
     {
+        // TokenSearchValue(..., ..., true) calls UuidRegistry::uuidToBytes
+        // on the value, which throws InvalidArgumentException for a
+        // malformed UUID string. Short-circuit here so a bad path
+        // param resolves to the existing 404-via-empty-array shape
+        // rather than bubbling up to the dispatcher as a 500.
+        if (!UuidRegistry::isValidStringUUID($auuid)) {
+            return RestControllerHelper::responseHandler([], null, 200);
+        }
         // Wrap uuid parameters as TokenSearchField + TokenSearchValue
         // with the isUuid flag so the search layer converts them from
         // the 36-char string form to BINARY(16) before comparison
