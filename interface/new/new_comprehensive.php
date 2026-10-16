@@ -822,7 +822,7 @@ $(function () {
     <?php } ?>
 
     $('#search').click(function() { searchme(); });
-    $('#create').click(function() { check()});
+    $('#create').click(function(e) { check(e); });
 
     var check = function(e) {
         var f = document.forms[0];
