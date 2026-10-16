@@ -63,7 +63,7 @@ final class BatchFilePublisher
         }
 
         $size = filesize($temporary);
-        if ($size !== strlen($content)) {
+        if (!is_int($size) || $size !== strlen($content)) {
             self::remove($temporary);
 
             return false;
