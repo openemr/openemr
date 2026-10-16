@@ -45,6 +45,7 @@ describe('portal dashboard document review', () => {
             'jQuery',
             'dlgopen',
             'cuser',
+            'authUserID',
             source
         )(
             global.window,
@@ -56,7 +57,8 @@ describe('portal dashboard document review', () => {
             (url, name, width, height, forceNewWindow, title, options) => {
                 dialogOptions = options;
             },
-            '42'
+            'reviewer.username',
+            314
         );
         activityHelpers = global.window.__OE_ONSITE_ACTIVITY_TEST__;
     });
@@ -86,10 +88,17 @@ describe('portal dashboard document review', () => {
         expect(save.mock.calls[0][1]).toMatchObject({
             status: 'closed',
             pendingAction: 'completed',
-            actionUser: '42'
+            actionUser: 314
         });
         expect(save.mock.calls[0][1].actionTakenTime).toBeInstanceOf(Date);
         expect(save.mock.calls[0][2].wait).toBe(true);
+        expect(save.mock.calls[0][2].attrs).toEqual(save.mock.calls[0][1]);
+        expect(Object.keys(save.mock.calls[0][2].attrs).sort()).toEqual([
+            'actionTakenTime',
+            'actionUser',
+            'pendingAction',
+            'status'
+        ]);
         expect(doneButton.disabled).toBe(true);
 
         save.mock.calls[0][2].success();

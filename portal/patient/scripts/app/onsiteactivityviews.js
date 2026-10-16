@@ -255,13 +255,15 @@ const actpage = {
 
     completeActivityReview: function (activityId, onSuccess, onError) {
         const activity = new model.OnsitePortalActivityModel({id: activityId});
-        activity.save({
+        const completionAttributes = {
             status: 'closed',
             pendingAction: 'completed',
-            actionUser: cuser,
+            actionUser: authUserID,
             actionTakenTime: new Date()
-        }, {
+        };
+        activity.save(completionAttributes, {
             wait: true,
+            attrs: completionAttributes,
             success: onSuccess,
             error: onError
         });
