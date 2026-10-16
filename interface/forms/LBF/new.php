@@ -323,10 +323,10 @@ if (
                 $new = [$field_id => $value];
                 updateEmployerData($pid, $new);
             } else {
-                $newPatientData[$field_id] = $value;
                 if (!is_string($field_id)) {
                     throw new \OpenEMR\Common\Database\SqlQueryException('', 'The layout column cannot be saved.');
                 }
+                $newPatientData[$field_id] = $value;
                 sqlStatement(LayoutColumnUpdate::patientStatement($field_id), [$value, $pid]);
             }
 
