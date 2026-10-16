@@ -390,11 +390,42 @@ class FhirObservationObservationFormServiceTest extends TestCase
     {
         $record = $this->getDefaultObservationRecord();
         $observation = $this->fhirService->parseOpenEMRRecord($record);
+        $this->assertInstanceOf(FHIRObservation::class, $observation);
 
         // Verify US Core Screening Assessment profile is set in meta
         $profiles = $observation->getMeta()->getProfile();
         $profileValues = array_map(fn($uri): string => $uri->getValue(), $profiles);
         $this->assertContains(FhirObservationObservationFormService::USCGI_PROFILE_URI, $profileValues);
+    }
+
+    /**
+     * A survey observation linked to a QuestionnaireResponse claims the screening assessment profile
+     */
+    public function testParseOpenEMRRecordScreeningAssessmentProfileWithQuestionnaireResponse(): void
+    {
+        $record = $this->getDefaultObservationRecord();
+        $observation = $this->fhirService->parseOpenEMRRecord($record);
+        $this->assertInstanceOf(FHIRObservation::class, $observation);
+
+        $profiles = $observation->getMeta()->getProfile();
+        $profileValues = array_map(fn($uri): string => $uri->getValue(), $profiles);
+        $this->assertContains(FhirObservationObservationFormService::USCGI_SCREENING_ASSESSMENT_URI, $profileValues);
+    }
+
+    /**
+     * Without a linked QuestionnaireResponse only the simple observation profile is claimed
+     */
+    public function testParseOpenEMRRecordNoScreeningAssessmentProfileWithoutQuestionnaireResponse(): void
+    {
+        $record = $this->getDefaultObservationRecord();
+        unset($record['questionnaire_response_uuid']);
+        $observation = $this->fhirService->parseOpenEMRRecord($record);
+        $this->assertInstanceOf(FHIRObservation::class, $observation);
+
+        $profiles = $observation->getMeta()->getProfile();
+        $profileValues = array_map(fn($uri): string => $uri->getValue(), $profiles);
+        $this->assertContains(FhirObservationObservationFormService::USCGI_PROFILE_URI, $profileValues);
+        $this->assertNotContains(FhirObservationObservationFormService::USCGI_SCREENING_ASSESSMENT_URI, $profileValues);
     }
 
     /**
