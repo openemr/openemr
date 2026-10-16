@@ -351,8 +351,17 @@ CREATE TABLE `content_assignments` (
 #EndIf
 
 -- Backfill from current state so an upgraded site sees exactly what it saw before.
--- Every active questionnaire was on the dashboard; every enabled registry-registered one
--- was available in every encounter. Both become unscoped assignment rows.
+-- Every questionnaire was reachable from the dashboard and every registry-registered one
+-- from the encounter; both become unscoped assignment rows.
+--
+-- Deliberately NOT filtered on questionnaire_repository.active or registry.state. Those
+-- flags are applied at read time -- the availability join requires qr.active = 1 and
+-- getFormsByCategory() selects on registry.state -- so an assignment for something
+-- currently inactive or disabled has no visible effect. Filtering here instead would
+-- change behaviour on upgrade: before, re-activating a questionnaire or re-enabling its
+-- registry row made it visible again; with the flags filtered it would have no assignment
+-- and would stay hidden, with no UI yet to repair it. Backfilling everything keeps
+-- re-activation working exactly as it does today.
 --
 -- Idempotent per questionnaire rather than per surface: a NOT EXISTS on the individual
 -- row means a re-run completes a partial backfill instead of skipping every remaining
@@ -361,22 +370,21 @@ CREATE TABLE `content_assignments` (
 INSERT INTO `content_assignments` (`resource_type`, `resource_id`, `surface`, `active`, `seq`)
 SELECT DISTINCT 'questionnaire', qr.`id`, 'dashboard', 1, 0
   FROM `questionnaire_repository` qr
- WHERE qr.`active` = 1
-   AND NOT EXISTS (
+ WHERE NOT EXISTS (
        SELECT 1 FROM `content_assignments` ca
         WHERE ca.`resource_type` = 'questionnaire'
           AND ca.`resource_id` = qr.`id`
           AND ca.`surface` = 'dashboard'
    );
 
--- registry.state = 1 matches QuestionnaireService::fetchEncounterQuestionnaireForm, so a
--- form that was registered and later disabled does not get an active assignment.
+-- form_foreign_id > 0 stays: a questionnaire_assessments registry row without one is the
+-- generic "New Questionnaire" launcher, which stands for no questionnaire and needs no
+-- assignment.
 INSERT INTO `content_assignments` (`resource_type`, `resource_id`, `surface`, `active`, `seq`)
 SELECT DISTINCT 'questionnaire', r.`form_foreign_id`, 'encounter', 1, 0
   FROM `registry` r
  WHERE r.`directory` = 'questionnaire_assessments'
    AND r.`form_foreign_id` > 0
-   AND r.`state` = 1
    AND NOT EXISTS (
        SELECT 1 FROM `content_assignments` ca
         WHERE ca.`resource_type` = 'questionnaire'

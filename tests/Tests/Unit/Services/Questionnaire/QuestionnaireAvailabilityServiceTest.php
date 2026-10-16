@@ -452,6 +452,71 @@ class QuestionnaireAvailabilityServiceTest extends TestCase
     }
 
     /**
+     * The contract the encounter-form registration path depends on.
+     *
+     * interface/forms/questionnaire_assessments/save.php creates the encounter assignment
+     * right after it inserts the registry row, because registering the form is what makes
+     * the questionnaire an encounter form. Without that call the questionnaire is
+     * registered and then filtered straight back out of the encounter menu, so this locks
+     * what assignDefault() has to deliver for that surface.
+     */
+    public function testAssignDefaultMakesAQuestionnaireAvailableOnTheEncounterSurface(): void
+    {
+        $id = $this->addQuestionnaire('availability assign default encounter');
+
+        $this->assertSame(
+            [],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Encounter)),
+            'nothing should be assigned before registration'
+        );
+
+        $this->service->assignDefault($id, QuestionnaireSurface::Encounter);
+
+        $this->assertSame(
+            [$id],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Encounter)),
+            'a registered questionnaire must be offered by the encounter it was registered for'
+        );
+        $this->assertSame(
+            [],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Dashboard)),
+            'registering for the encounter must not also assign the dashboard'
+        );
+    }
+
+    /**
+     * Why the upgrade backfill does not filter on `questionnaire_repository`.`active`.
+     *
+     * The flag is applied at read time by the availability join, so an assignment for an
+     * inactive questionnaire is inert rather than wrong. Backfilling it anyway is what
+     * keeps re-activation working: before this table existed, re-activating a
+     * questionnaire put it back on the dashboard, and with the backfill filtered on
+     * `active` it would have no assignment and stay hidden, with no UI yet to repair it.
+     */
+    public function testAnAssignmentForAnInactiveQuestionnaireGoesLiveWhenItIsReactivated(): void
+    {
+        $id = $this->addQuestionnaire('availability inactive then reactivated', false);
+        $this->addAssignment(['resource_id' => $id, 'surface' => 'dashboard']);
+
+        $this->assertSame(
+            [],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Dashboard)),
+            'the assignment must be inert while the questionnaire is inactive'
+        );
+
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `questionnaire_repository` SET `active` = 1 WHERE `id` = ?',
+            [$id]
+        );
+
+        $this->assertSame(
+            [$id],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Dashboard)),
+            're-activating must make it available again without an administrator touching assignments'
+        );
+    }
+
+    /**
      * The full public path, end to end, against the real schema.
      *
      * getAvailableIds() and getAvailableQuestionnaires() both run the ACL check, which
