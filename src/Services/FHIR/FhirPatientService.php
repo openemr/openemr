@@ -917,6 +917,11 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         return $processingResult;
     }
 
+    public function lockPatientForUpdate(string $patientUuid): void
+    {
+        $this->patientService->lockPatientForUpdate($patientUuid);
+    }
+
     protected function searchForOpenEMRRecordsWithConfig($openEMRSearchParameters, SearchQueryConfig $config): ProcessingResult
     {
         // do any conversions on the data that we need here
