@@ -22,6 +22,7 @@ namespace OpenEMR\Services\CodeTypes\Importer;
 
 use Generator;
 use InvalidArgumentException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Services\CodeTypes\CodeImportException;
@@ -128,10 +129,10 @@ abstract class BaseCodeTypeImporter
         try {
             QueryUtils::fetchRecordsNoLog('SELECT RELEASE_LOCK(?) AS released', [$lockName]);
         } catch (SqlQueryException $exception) {
-            error_log(
-                'Failed to release the code import lock for ' . $this->getCodeType()
-                . ' (' . $exception::class . ').'
-            );
+            ServiceContainer::getLogger()->error('Failed to release code import lock', [
+                'code_type' => $this->getCodeType(),
+                'exception' => $exception,
+            ]);
         }
     }
 
