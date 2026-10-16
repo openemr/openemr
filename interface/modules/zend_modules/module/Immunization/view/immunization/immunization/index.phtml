@@ -44,6 +44,9 @@ $form->prepare();
                             <?php echo  $this->formRow($form->get('to_date'));?>
                             <script>
                                 $(function () {
+                                        <?php $display_format = \Application\Model\ApplicationTable::datePickerFormat($GLOBALS['date_display_format']); ?>
+                                        $( "#from_date" ).datepicker("option", "dateFormat", "<?php echo $display_format;?>");
+                                        $( "#to_date" ).datepicker("option", "dateFormat", "<?php echo $display_format;?>");
                                         $( "#from_date" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['form_from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>' );
                                         $( "#to_date" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['form_to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
                                 });
