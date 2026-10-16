@@ -1,6 +1,6 @@
 # Exporting and Importing Layouts, Lists and Other Configuration
 
-Administration → System → Backup used to offer **Export Configuration** and **Import Configuration**. They moved chosen layouts (layout-based forms, transactions, history and demographics), lists, and a few configuration tables from one site to another, and many sites used them to keep their forms under version control. The page was removed in [#13471](https://github.com/openemr/openemr/pull/13471) (see [#11905](https://github.com/openemr/openemr/issues/11905)). This guide does the same with the standard database tools.
+Administration → System → Backup used to offer **Export Configuration** and **Import Configuration**. They moved chosen layouts (layout-based forms, transactions, history and demographics), lists, and a few configuration tables from one site to another, and many sites used them to keep their forms under version control. The page was removed in [#13471](https://github.com/openemr/openemr/pull/13471) (see [#11905](https://github.com/openemr/openemr/issues/11905)), so OpenEMR 8.3.0 and later don't have it. This guide does the same with the standard database tools.
 
 It's for administrators with command-line access to the OpenEMR database. For a backup of the whole site, see [Backing Up Using the Built In Tools](https://www.open-emr.org/wiki/index.php/Backing_Up_Using_the_Built_In_Tools).
 
@@ -56,9 +56,10 @@ cat >> "layout-$F.sql" <<'SQL'
 SET sql_mode = '';
 SET group_concat_max_len = 1000000;
 SELECT CONCAT('ALTER TABLE patient_data ',
-    COALESCE(GROUP_CONCAT(DISTINCT ' ADD `', lo.field_id, '` TEXT NOT NULL' ORDER BY lo.field_id), ''))
+    COALESCE(GROUP_CONCAT(DISTINCT ' ADD `', lo.field_id, '` TEXT' ORDER BY lo.field_id), ''))
   FROM layout_options AS lo
   WHERE (lo.form_id LIKE 'DEM%' OR lo.source = 'D')
+    AND lo.field_id NOT LIKE 'em\_%' AND lo.data_type NOT IN (52, 54, 55, 56)
     AND lo.field_id NOT IN (SELECT COLUMN_NAME FROM information_schema.COLUMNS
                             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'patient_data')
   INTO @sql;
@@ -67,7 +68,11 @@ EXECUTE stmt;
 SQL
 ```
 
-This is the SQL the old page appended, with one change: `TABLE_SCHEMA = DATABASE()`. Without it, on a server holding more than one OpenEMR database, another site's columns would count as present, and the new fields would have nowhere to save.
+This is the SQL the old page appended, with three changes:
+
+- **`TABLE_SCHEMA = DATABASE()`.** Without it, on a server holding more than one OpenEMR database, another site's columns would count as present, and the new fields would have nowhere to save.
+- **Fields stored in other tables are left out.** These are the employer fields (`em_…`, saved in `employer_data`), previous names (data type 52), and the address, phone and related-person lists (data types 54, 55 and 56). The old SQL added an unused `patient_data` column for each. On 8.4.1 that's 12 columns, on every demographics import, even into a site on the same release.
+- **The columns are nullable `TEXT`,** as the layout editor adds them, rather than `TEXT NOT NULL`.
 
 ## Export a list
 
@@ -106,6 +111,17 @@ Run the file inside a transaction. `mysql` stops at the first error, and the unf
 
 The column step for history and demographics layouts can't be rolled back: `ALTER TABLE` commits what came before it.
 
+## Between releases
+
+Exports list their columns, so they import into a release whose tables have those columns. These tables have changed only twice since 7.0.0:
+
+- **Layout-based forms (`LBF…`) and transactions (`LBT…`)** import into every release from 7.0.0 to 8.4.1, except into 7.0.0 from 7.0.1 or later: `grp_unchecked` was added in 7.0.1.
+- **Lists** import into every release from 7.0.0 to 8.4.1, except that a list exported from 7.0.3 or later doesn't import into 7.0.0 to 7.0.2: `last_updated` was added in 7.0.3.
+- **The demographics and history layouts** should move only between sites on the same release. Each release changes the stock fields. Importing 7.0.3's demographics layout into 8.4.1 replaces 8.4.1's layout with the older one, dropping the fields 8.4.1 added (such as `pronoun` and `interpreter_needed`), and brings back fields 8.4.1 renamed.
+- **Whole tables** (below) only between sites on the same release.
+
+When a column is missing, the import stops with `Unknown column` and changes nothing.
+
 ## Keeping forms under version control
 
 Each exported row is one `INSERT` line, so a file kept in git shows a changed field as a changed line:
@@ -119,7 +135,7 @@ To undo a change, import the earlier version of the file.
 
 ## Other configuration tables
 
-The old page could also export whole tables. These replace the table in the target site, references included, so use them only on a new site:
+The old page could also export whole tables. These replace the table in the target site, its definition and references included, so use them only on a new site on the same release. Across releases the import still succeeds, but it puts back the older table: `drugs` from 7.0.2, imported into 8.4.1, loses the `date_created` and `last_updated` columns 8.4.1's code uses.
 
 | What | Tables |
 |---|---|
