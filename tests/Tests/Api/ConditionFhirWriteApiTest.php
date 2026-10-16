@@ -33,6 +33,8 @@ class ConditionFhirWriteApiTest extends TestCase
 
     private ApiTestClient $testClient;
     private FixtureManager $fixtureManager;
+    /** @var list<string> */
+    private array $auditResourceUuids = [];
     /** @var array<string, mixed> */
     private array $fhirFixture;
     private string $patientUuid;
@@ -79,6 +81,12 @@ class ConditionFhirWriteApiTest extends TestCase
         // after a failed setUp(), and touching a typed property before initialization raises an
         // Error that aborts the rest of the cleanup -- taking the OAuth client teardown below
         // with it and leaking a registered client per failed run.
+        foreach ($this->auditResourceUuids as $resourceUuid) {
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM `api_write_audit` WHERE `resource_uuid` = ?',
+                [$resourceUuid]
+            );
+        }
         QueryUtils::sqlStatementThrowException(
             "DELETE FROM lists WHERE type = 'medical_problem' AND comments LIKE 'test-fixture%'"
         );
@@ -105,10 +113,38 @@ class ConditionFhirWriteApiTest extends TestCase
             $response->getStatusCode(),
             'POST ' . self::RESOURCE_URL . ' should return 201. Body: ' . $body
         );
-        $contents = json_decode($body, true);
-        $this->assertIsArray($contents, 'Create response should be a JSON object. Body: ' . $body);
+        $contents = $this->decodeJsonObject($body, 'Create response should be a JSON object. Body: ' . $body);
         $this->assertArrayHasKey('uuid', $contents, 'Create response should carry the new resource uuid');
-        $this->assertIsString($contents['uuid']);
+        $resourceUuid = $this->stringFromArray($contents, 'uuid');
+        $this->auditResourceUuids[] = $resourceUuid;
+
+        $auditRow = $this->querySingleRow(
+            'SELECT `client_id`, `resource_type`, `resource_uuid`, `action`, `scope`, `token_id`,
+                `before_snapshot`, `after_snapshot`, `api_log_id`
+             FROM `api_write_audit` WHERE `resource_uuid` = ? AND `action` = ?',
+            [$resourceUuid, 'create']
+        );
+        $auditCount = $this->querySingleRow(
+            'SELECT COUNT(*) AS `count` FROM `api_write_audit` WHERE `resource_uuid` = ? AND `action` = ?',
+            [$resourceUuid, 'create']
+        );
+        $this->assertEquals(1, $auditCount['count']);
+        $this->assertSame($this->testClient->getClientId(), $auditRow['client_id']);
+        $this->assertSame(self::RESOURCE_TYPE, $auditRow['resource_type']);
+        $this->assertSame($resourceUuid, $auditRow['resource_uuid']);
+        $this->assertStringContainsString(self::RESOURCE_TYPE, $this->stringFromArray($auditRow, 'scope'));
+        $this->assertNotSame('', $auditRow['token_id']);
+        $this->assertNull($auditRow['before_snapshot']);
+        if ($auditRow['after_snapshot'] !== null) {
+            $this->assertJsonSnapshot($auditRow['after_snapshot']);
+        }
+        if ($auditRow['api_log_id'] !== null) {
+            $linkedApiLog = $this->querySingleRow(
+                'SELECT `id` FROM `api_log` WHERE `id` = ?',
+                [$auditRow['api_log_id']]
+            );
+            $this->assertArrayHasKey('id', $linkedApiLog);
+        }
     }
 
     public function testPutUpdatesCondition(): void
@@ -120,11 +156,10 @@ class ConditionFhirWriteApiTest extends TestCase
             $createResponse->getStatusCode(),
             'POST ' . self::RESOURCE_URL . ' should return 201. Body: ' . $createBody
         );
-        $created = json_decode($createBody, true);
-        $this->assertIsArray($created, 'Create response should be a JSON object. Body: ' . $createBody);
+        $created = $this->decodeJsonObject($createBody, 'Create response should be a JSON object. Body: ' . $createBody);
         $this->assertArrayHasKey('uuid', $created, 'Create response should carry the new resource id. Body: ' . $createBody);
-        $id = $created['uuid'];
-        $this->assertIsString($id);
+        $id = $this->stringFromArray($created, 'uuid');
+        $this->auditResourceUuids[] = $id;
 
         $updated = $this->fhirFixture;
         $updated['id'] = $id;
@@ -145,10 +180,28 @@ class ConditionFhirWriteApiTest extends TestCase
         );
         $this->assertSame(self::RESOURCE_TYPE, $putContents['resourceType'] ?? null);
         $this->assertSame($id, $putContents['id'] ?? null);
+
+        $updateAudit = $this->querySingleRow(
+            'SELECT `before_snapshot`, `after_snapshot` FROM `api_write_audit`
+             WHERE `resource_uuid` = ? AND `action` = ?',
+            [$id, 'update']
+        );
+        $updateAuditCount = $this->querySingleRow(
+            'SELECT COUNT(*) AS `count` FROM `api_write_audit` WHERE `resource_uuid` = ? AND `action` = ?',
+            [$id, 'update']
+        );
+        $this->assertEquals(1, $updateAuditCount['count']);
+        if ($updateAudit['before_snapshot'] !== null) {
+            $this->assertJsonSnapshot($updateAudit['before_snapshot']);
+        }
+        if ($updateAudit['after_snapshot'] !== null) {
+            $this->assertJsonSnapshot($updateAudit['after_snapshot']);
+        }
     }
 
     public function testPostWithoutSubjectReturnsError(): void
     {
+        $auditCountBefore = $this->querySingleRow('SELECT COUNT(*) AS `count` FROM `api_write_audit`');
         $invalid = $this->fhirFixture;
         unset($invalid['subject']);
         $response = $this->testClient->post(self::RESOURCE_URL, $invalid);
@@ -157,5 +210,52 @@ class ConditionFhirWriteApiTest extends TestCase
             $response->getStatusCode(),
             'POST without subject should return 400. Body: ' . $response->getBody()->getContents()
         );
+        $auditCountAfter = $this->querySingleRow('SELECT COUNT(*) AS `count` FROM `api_write_audit`');
+        $this->assertEquals($auditCountBefore['count'], $auditCountAfter['count']);
+    }
+
+    /**
+     * @param list<mixed> $parameters
+     * @return array<mixed>
+     */
+    private function querySingleRow(string $sql, array $parameters = []): array
+    {
+        $row = QueryUtils::querySingleRow($sql, $parameters);
+        if (!is_array($row)) {
+            self::fail('Expected the database query to return a row.');
+        }
+        return $row;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function decodeJsonObject(string $json, string $message): array
+    {
+        $decoded = json_decode($json, true);
+        if (!is_array($decoded)) {
+            self::fail($message);
+        }
+        return $decoded;
+    }
+
+    /**
+     * @param array<mixed> $values
+     */
+    private function stringFromArray(array $values, string $key): string
+    {
+        $value = $values[$key] ?? null;
+        if (!is_string($value)) {
+            self::fail('Expected a string value for ' . $key . '.');
+        }
+        return $value;
+    }
+
+    private function assertJsonSnapshot(mixed $snapshot): void
+    {
+        if (!is_string($snapshot)) {
+            self::fail('Expected an audit snapshot string.');
+        }
+        $this->decodeJsonObject($snapshot, 'Audit snapshot should be a JSON object.');
     }
 }

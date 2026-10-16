@@ -2,6 +2,7 @@
 
 namespace OpenEMR\RestControllers\Subscriber;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\Audit\ApiLogRedactor;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -118,7 +119,7 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
             if ($patientId === 0) {
                 $patientId = null; //entries in log table are blank for no patient_id, whereas in api_log are 0, which is why above $api value uses 0 when empty
             }
-            $this->getEventAuditLogger()->recordLogItem(
+            $apiLogId = $this->getEventAuditLogger()->recordLogItem(
                 1,
                 $eventName,
                 $session->get('authUser', ''),
@@ -132,6 +133,10 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
                 '',
                 $api
             );
+            $apiWriteAuditId = $request->attributes->get('apiWriteAuditId');
+            if (is_int($apiLogId) && is_int($apiWriteAuditId)) {
+                ServiceContainer::getApiWriteAuditService()->linkApiLog($apiWriteAuditId, $apiLogId);
+            }
         }
     }
 

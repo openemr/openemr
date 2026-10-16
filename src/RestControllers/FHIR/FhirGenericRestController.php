@@ -22,6 +22,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\SMART\ResourceConstraintFilterer;
 use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\FHIR\ApiWriteAction;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\FhirValidationService;
@@ -252,7 +253,19 @@ class FhirGenericRestController implements IGlobalsAware {
                 'post'
             );
         }
-        return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
+        $response = RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
+        if ($response->getStatusCode() === Response::HTTP_CREATED && $processingResult->hasData()) {
+            $resource = $processingResult->getFirstDataResult();
+            if (!$resource instanceof FHIRDomainResource) {
+                throw new \LogicException('Successful FHIR create did not return a FHIR resource for auditing');
+            }
+            $this->recordSuccessfulWrite(
+                $resource,
+                ApiWriteAction::Create,
+                patientUuid: $this->getAuditPatientUuid($fhirJson, $resource)
+            );
+        }
+        return $response;
     }
 
     /**
@@ -320,6 +333,21 @@ class FhirGenericRestController implements IGlobalsAware {
             return $fhirResource;
         }
 
+        $auditService = ServiceContainer::getApiWriteAuditService();
+        $beforeResource = null;
+        if (
+            $auditService->shouldAudit($this->request)
+            && $this->getGlobalsBag()->getInt('api_write_audit_option') === 2
+        ) {
+            $beforeResult = $this->getFhirService()->getOne($fhirId);
+            $beforeResource = $beforeResult->isValid() && $beforeResult->hasData()
+                ? $beforeResult->getFirstDataResult()
+                : null;
+            if (!$beforeResource instanceof FHIRDomainResource) {
+                $beforeResource = null;
+            }
+        }
+
         try {
             $processingResult = $this->getFhirService()->update($fhirId, $fhirResource);
         } catch (\InvalidArgumentException $e) {
@@ -347,7 +375,61 @@ class FhirGenericRestController implements IGlobalsAware {
                 'put'
             );
         }
-        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
+        $response = RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
+        if ($response->getStatusCode() === Response::HTTP_OK && $processingResult->hasData()) {
+            $resource = $processingResult->getFirstDataResult();
+            if (!$resource instanceof FHIRDomainResource) {
+                throw new \LogicException('Successful FHIR update did not return a FHIR resource for auditing');
+            }
+            $this->recordSuccessfulWrite(
+                $resource,
+                ApiWriteAction::Update,
+                $beforeResource,
+                $this->getAuditPatientUuid($fhirJson, $resource)
+            );
+        }
+        return $response;
+    }
+
+    private function recordSuccessfulWrite(
+        FHIRDomainResource $afterResource,
+        ApiWriteAction $action,
+        ?FHIRDomainResource $beforeResource = null,
+        ?string $patientUuid = null
+    ): void {
+        $auditService = ServiceContainer::getApiWriteAuditService();
+        if (!$auditService->shouldAudit($this->request)) {
+            return;
+        }
+        if ($this->expectedResourceType === null) {
+            throw new \LogicException('FHIR write route did not set the expected resource type');
+        }
+        $auditId = $auditService->recordSuccessfulWrite(
+            $this->request,
+            $this->expectedResourceType,
+            $afterResource,
+            $action,
+            $beforeResource,
+            $patientUuid,
+            $this->getGlobalsBag()->getInt('api_write_audit_option')
+        );
+        $this->request->attributes->set('apiWriteAuditId', $auditId);
+    }
+
+    /**
+     * Resolve the patient represented by the write body, including a Patient
+     * resource whose own id is its patient UUID.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    private function getAuditPatientUuid(array $fhirJson, FHIRDomainResource $resource): ?string
+    {
+        $patientUuid = self::extractPatientUuidFromFhirJson($fhirJson);
+        if ($patientUuid !== null || $this->expectedResourceType !== 'Patient') {
+            return $patientUuid;
+        }
+
+        return $resource->getId()->getValue();
     }
 
     /**
@@ -358,9 +440,7 @@ class FhirGenericRestController implements IGlobalsAware {
      * correlation id; the client gets a generic message + the same id so
      * operators can trace incidents.
      *
-     * Audit-event emission for write paths is intentionally out of scope here
-     * — that's a project-wide concern that needs an EventAuditLogger contract
-     * for FHIR mutations and will land in a separate change.
+     * Failed write requests are not added to the successful-write audit ledger.
      */
     private function respondWithSafeError(
         string $issueCode,

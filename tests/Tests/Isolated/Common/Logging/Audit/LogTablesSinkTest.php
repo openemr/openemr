@@ -101,7 +101,7 @@ class LogTablesSinkTest extends TestCase
 
         $sink = new LogTablesSink(conn: $this->connection);
 
-        $sink->record($event);
+        self::assertNull($sink->record($event));
     }
 
     public function testRecordInsertsIntoLogCommentEncryptWithCorrectChecksum(): void
@@ -153,7 +153,7 @@ class LogTablesSinkTest extends TestCase
 
         $sink = new LogTablesSink(conn: $this->connection);
 
-        $sink->record($event);
+        self::assertNull($sink->record($event));
 
         self::assertIsArray($capturedLogCommentData);
         self::assertSame('No', $capturedLogCommentData['encrypt']);
@@ -271,7 +271,7 @@ class LogTablesSinkTest extends TestCase
 
         $sink = new LogTablesSink(conn: $this->connection);
 
-        $sink->record($event);
+        self::assertSame(42, $sink->record($event));
 
         self::assertSame(['log', 'log_comment_encrypt', 'api_log'], $insertedTables);
     }
@@ -292,7 +292,7 @@ class LogTablesSinkTest extends TestCase
 
         $sink = new LogTablesSink(conn: $this->connection);
 
-        $sink->record($event);
+        self::assertNull($sink->record($event));
 
         self::assertSame(['log', 'log_comment_encrypt'], $insertedTables);
     }

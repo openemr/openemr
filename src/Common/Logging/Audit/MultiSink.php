@@ -24,10 +24,15 @@ readonly class MultiSink implements SinkInterface
     ) {
     }
 
-    public function record(Event $event): void
+    public function record(Event $event): ?int
     {
+        $apiLogId = null;
         foreach ($this->sinks as $sink) {
-            $sink->record($event);
+            $sinkApiLogId = $sink->record($event);
+            if ($sinkApiLogId !== null) {
+                $apiLogId = $sinkApiLogId;
+            }
         }
+        return $apiLogId;
     }
 }

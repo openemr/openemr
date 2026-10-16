@@ -35,7 +35,7 @@ readonly class LogTablesSink implements SinkInterface
     ) {
     }
 
-    public function record(Event $event): void
+    public function record(Event $event): ?int
     {
         $api = $event->api;
 
@@ -97,8 +97,21 @@ readonly class LogTablesSink implements SinkInterface
         $this->conn->insert('log_comment_encrypt', $logCommentData);
 
         // 3. if api log entry, then insert insert associated entry into api_log
+        $apiLogId = null;
         if ($api !== null) {
             $this->conn->insert('api_log', $apiLogData);
+            $insertedId = $this->conn->lastInsertId();
+            if (is_int($insertedId)) {
+                $apiLogId = $insertedId;
+            } elseif (ctype_digit($insertedId)) {
+                $apiLogId = (int) $insertedId;
+            } else {
+                throw new \RuntimeException('Could not retrieve the API log id after inserting the audit row');
+            }
+            if ($apiLogId <= 0) {
+                throw new \RuntimeException('Could not retrieve the API log id after inserting the audit row');
+            }
         }
+        return $apiLogId;
     }
 }
