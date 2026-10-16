@@ -12,12 +12,15 @@
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -44,6 +47,101 @@ class FacilityService extends BaseService
         parent::__construct(self::FACILITY_TABLE);
         UuidRegistry::createMissingUuidsForTables([self::FACILITY_TABLE]);
         $this->facilityValidator = new FacilityValidator();
+    }
+
+
+    /**
+     * Save-dialog text for a billing facility. The row is already stored.
+     */
+    public const FACILITY_SAVED_BILLING_POSTAL = 'This billing facility was saved. The postal code is not 9 digits, '
+        . 'so a claim billed from this facility can be rejected.';
+
+    /**
+     * Save-dialog text for a service facility. The row is already stored.
+     */
+    public const FACILITY_SAVED_SERVICE_POSTAL = 'This service facility was saved. The postal code is not 9 digits, '
+        . 'so a claim that uses this service location can be rejected.';
+
+    /**
+     * Save-dialog text when the facility is both a billing and a service location.
+     */
+    public const FACILITY_SAVED_BOTH_POSTAL = 'This facility was saved as a billing and service location. '
+        . 'The postal code is not 9 digits, so a claim that uses it can be rejected.';
+
+    /**
+     * Postal notice for the facility screen. Empty when the dialog should stay quiet.
+     *
+     * Digits are kept by Claim::x12Zip(). Nine digits stay quiet.
+     * The check is the US claim rule. It runs for the United States, and for a
+     * blank country when the telephone country code is 1. Another country
+     * stays quiet. This screen does not warn for a different postal format.
+     */
+    public static function facilityPostalSaveNotice(
+        string $postal,
+        bool $billingLocation,
+        bool $serviceLocation,
+        string $country = '',
+        int $phoneCountryCode = 1,
+    ): string {
+        if (!$billingLocation && !$serviceLocation) {
+            return '';
+        }
+        if (!self::unitedStatesClaimPostal($country, $phoneCountryCode)) {
+            return '';
+        }
+        $digits = preg_replace('/[^0-9]/', '', $postal) ?? '';
+        if (strlen($digits) === 9) {
+            return '';
+        }
+        if ($billingLocation && $serviceLocation) {
+            return self::FACILITY_SAVED_BOTH_POSTAL;
+        }
+        if ($billingLocation) {
+            return self::FACILITY_SAVED_BILLING_POSTAL;
+        }
+
+        return self::FACILITY_SAVED_SERVICE_POSTAL;
+    }
+
+    /**
+     * Whether the nine-digit claim notice applies to this facility.
+     *
+     * A blank country follows the telephone country code. Code 1 is the
+     * North American default. A named country applies only for the United States.
+     */
+    private static function unitedStatesClaimPostal(string $country, int $phoneCountryCode): bool
+    {
+        $country = trim($country);
+        if ($country === '') {
+            return $phoneCountryCode === 1;
+        }
+        $letters = strtoupper(preg_replace('/[^A-Za-z]/', '', $country) ?? '');
+
+        return in_array($letters, ['US', 'USA', 'UNITEDSTATES', 'UNITEDSTATESOFAMERICA'], true);
+    }
+
+    /**
+     * JSON body for the facility save dialog.
+     *
+     * A sentence that cannot be encoded is dropped. A save that already
+     * finished still reports saved.
+     */
+    public static function facilitySaveDialogBody(bool $saved, string $sentence): string
+    {
+        $encoded = json_encode(
+            [
+                'status' => $saved ? 'saved' : 'not_saved',
+                'message' => $sentence,
+            ],
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE
+        );
+        if (!is_string($encoded)) {
+            return $saved
+                ? '{"status":"saved","message":""}'
+                : '{"status":"not_saved","message":""}';
+        }
+
+        return $encoded;
     }
 
     public function getUuidFields(): array
@@ -191,6 +289,12 @@ class FacilityService extends BaseService
         return ["facility_address" => ""];
     }
 
+    /**
+     * Facility row for one encounter, from the encounter service location.
+     *
+     * @param mixed $encounterId
+     * @return mixed
+     */
     public function getFacilityForEncounter($encounterId)
     {
         $record = $this->get([
@@ -202,18 +306,44 @@ class FacilityService extends BaseService
         return $record;
     }
 
+    /**
+     * Whether this facility id is stored.
+     *
+     * The row stays locked until the surrounding transaction ends.
+     */
+    public function facilityIdStored(string $id): bool
+    {
+        if ($id === '' || !ctype_digit($id) || $id === '0') {
+            return false;
+        }
+
+        $row = QueryUtils::querySingleRow(
+            "SELECT id FROM facility WHERE id = ? FOR UPDATE",
+            [$id]
+        );
+
+        return is_array($row);
+    }
+
+    /**
+     * Replace the stored facility columns and tell listeners it changed.
+     *
+     * The column list has to be an array before the update is sent.
+     *
+     * @param array<string, mixed> $data
+     */
     public function updateFacility($data)
     {
         $dataBeforeUpdate = $this->getById($data['id']);
         $query = $this->buildUpdateColumns($data);
-        $sql = " UPDATE facility SET ";
-        $sql .= $query['set'];
-        $sql .= " WHERE id = ?";
-        array_push($query['bind'], $data['id']);
-        $result = sqlStatement(
-            $sql,
-            $query['bind']
-        );
+        $set = $query['set'] ?? null;
+        $binds = $query['bind'] ?? null;
+        if (!is_string($set) || !is_array($binds)) {
+            throw new \LogicException('The facility columns could not be saved');
+        }
+        $sql = " UPDATE facility SET " . $set . " WHERE id = ?";
+        $binds[] = $data['id'];
+        $result = QueryUtils::sqlStatementThrowException($sql, $binds);
 
         $facilityUpdatedEvent = new FacilityUpdatedEvent($dataBeforeUpdate, $data);
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityUpdatedEvent, FacilityUpdatedEvent::EVENT_HANDLE);
@@ -221,15 +351,24 @@ class FacilityService extends BaseService
         return $result;
     }
 
+    /**
+     * Store a new facility and tell listeners it was created.
+     *
+     * The column list has to be an array before the insert is sent.
+     *
+     * @param array<string, mixed> $data
+     * @return int|string
+     */
     public function insertFacility($data)
     {
         $query = $this->buildInsertColumns($data);
-        $sql = " INSERT INTO facility SET ";
-        $sql .= $query['set'];
-        $facilityId = sqlInsert(
-            $sql,
-            $query['bind']
-        );
+        $set = $query['set'] ?? null;
+        $binds = $query['bind'] ?? null;
+        if (!is_string($set) || !is_array($binds)) {
+            throw new \LogicException('The facility columns could not be saved');
+        }
+        $sql = " INSERT INTO facility SET " . $set;
+        $facilityId = QueryUtils::sqlInsert($sql, $binds);
 
         $facilityCreatedEvent = new FacilityCreatedEvent(array_merge($data, ['id' => $facilityId]));
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityCreatedEvent, FacilityCreatedEvent::EVENT_HANDLE);
@@ -237,13 +376,19 @@ class FacilityService extends BaseService
         return $facilityId;
     }
 
+    /**
+     * Rename the facility stored on users who belong to this facility.
+     *
+     * @param mixed $facility_name
+     * @param mixed $facility_id
+     */
     public function updateUsersFacility($facility_name, $facility_id)
     {
         $sql = " UPDATE users SET";
         $sql .= " facility=?";
         $sql .= " WHERE facility_id=?";
 
-        return sqlStatement($sql, [$facility_name, $facility_id]);
+        return QueryUtils::sqlStatementThrowException($sql, [$facility_name, $facility_id]);
     }
 
     /**

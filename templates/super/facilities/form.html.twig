@@ -63,7 +63,35 @@ function submitform() {
         type: request_method,
         data: form_data
     }).done(function (r) { //
-        dlgclose('refreshme', false);
+        let status = '';
+        let message = '';
+        let payload = r;
+        if (typeof r === 'string') {
+            try {
+                payload = JSON.parse(r);
+            } catch (e) {
+                payload = null;
+            }
+        }
+        if (payload && typeof payload === 'object') {
+            if (typeof payload.status === 'string') {
+                status = payload.status;
+            }
+            if (typeof payload.message === 'string') {
+                message = payload.message;
+            }
+        }
+        if (status !== 'saved' && message === '') {
+            message = {{ 'The facility save did not finish.'|xlj }};
+        }
+        if (message) {
+            alert(message);
+        }
+        if (status === 'saved') {
+            dlgclose('refreshme', false);
+        }
+    }).fail(function () {
+        alert({{ 'The facility save did not finish.'|xlj }});
     });
     return false;
 }

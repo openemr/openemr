@@ -1,6 +1,7 @@
 <?php
 
-/* X125010837P Class
+/**
+ * X125010837P Class
  *
  * This program creates an X12 5010 837P file.
  *
@@ -8,9 +9,11 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @author Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
+ * @author Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -23,6 +26,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 class X125010837P
 {
+
     /*
      * @param  $pid
      * @param  $encounter
