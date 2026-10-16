@@ -4,29 +4,34 @@
 
 const fs = require('fs');
 const path = require('path');
+const Backbone = require('backbone');
 
 describe('portal dashboard document review', () => {
     let activityHelpers;
-    let save;
+    let requests;
     let dialogOptions;
     let modalHide;
     let alert;
 
     beforeEach(() => {
-        save = jest.fn();
+        requests = [];
+        jest.spyOn(Backbone, 'ajax').mockImplementation((options) => {
+            requests.push(options);
+            return {};
+        });
         dialogOptions = null;
         modalHide = jest.fn();
         alert = jest.spyOn(global.window, 'alert').mockImplementation(() => {});
 
-        class OnsitePortalActivityModel {
-            constructor(attributes) {
-                this.attributes = attributes;
+        const OnsitePortalActivityModel = Backbone.Model.extend({
+            urlRoot: 'api/onsiteportalactivity',
+            defaults: {
+                patientId: 123,
+                tableArgs: 456,
+                status: 'pending',
+                pendingAction: 'review'
             }
-
-            save(attributes, options) {
-                save(this.attributes, attributes, options);
-            }
-        }
+        });
 
         const model = {
             OnsiteActivityViewCollection: class {},
@@ -64,6 +69,7 @@ describe('portal dashboard document review', () => {
     });
 
     afterEach(() => {
+        Backbone.ajax.mockRestore();
         alert.mockRestore();
         delete global.window.__OE_ONSITE_ACTIVITY_TEST__;
     });
@@ -83,17 +89,17 @@ describe('portal dashboard document review', () => {
         const done = dialogOptions.buttons[1];
         done.click.call(modalContent, {currentTarget: doneButton});
 
-        expect(save).toHaveBeenCalledTimes(1);
-        expect(save.mock.calls[0][0]).toEqual({id: 17});
-        expect(save.mock.calls[0][1]).toMatchObject({
+        expect(requests).toHaveLength(1);
+        const request = requests[0];
+        expect(request.type).toBe('PUT');
+        const payload = JSON.parse(request.data);
+        expect(payload).toMatchObject({
             status: 'closed',
             pendingAction: 'completed',
             actionUser: 314
         });
-        expect(save.mock.calls[0][1].actionTakenTime).toBeInstanceOf(Date);
-        expect(save.mock.calls[0][2].wait).toBe(true);
-        expect(save.mock.calls[0][2].attrs).toEqual(save.mock.calls[0][1]);
-        expect(Object.keys(save.mock.calls[0][2].attrs).sort()).toEqual([
+        expect(new Date(payload.actionTakenTime).toString()).not.toBe('Invalid Date');
+        expect(Object.keys(payload).sort()).toEqual([
             'actionTakenTime',
             'actionUser',
             'pendingAction',
@@ -101,7 +107,7 @@ describe('portal dashboard document review', () => {
         ]);
         expect(doneButton.disabled).toBe(true);
 
-        save.mock.calls[0][2].success();
+        request.success({});
 
         expect(modalHide).toHaveBeenCalledWith('hide');
     });
@@ -118,7 +124,7 @@ describe('portal dashboard document review', () => {
 
         activityHelpers.showDocumentModal(activityView);
         dialogOptions.buttons[1].click.call({}, {currentTarget: doneButton});
-        save.mock.calls[0][2].error(null, {});
+        requests[0].error({});
 
         expect(doneButton.disabled).toBe(false);
         expect(alert).toHaveBeenCalledWith('Could not complete review');
