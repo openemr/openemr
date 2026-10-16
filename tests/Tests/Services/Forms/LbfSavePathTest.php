@@ -191,16 +191,17 @@ class LbfSavePathTest extends TestCase
     }
 
     /**
-     * An employer field is stored.
+     * An employer field is stored, and columns this save omits stay put.
      *
      * The seeded row is a day old so it cannot tie the saved row's timestamp.
+     * A blank occupation still clears that column.
      */
     #[Test]
     public function testAnEmployerFieldIsStored(): void
     {
         QueryUtils::sqlStatementThrowException(
-            'INSERT INTO employer_data (pid, occupation, date) VALUES (?, ?, DATE_SUB(NOW(), INTERVAL 1 DAY))',
-            [self::PID, 'old']
+            'INSERT INTO employer_data (pid, occupation, industry, date) VALUES (?, ?, ?, DATE_SUB(NOW(), INTERVAL 1 DAY))',
+            [self::PID, 'old', 'ZZ mill']
         );
         $this->layoutField('em_occupation', 'D', 70, 2, '');
         $this->postForm([
@@ -209,11 +210,24 @@ class LbfSavePathTest extends TestCase
         ]);
 
         $row = QueryUtils::querySingleRow(
-            'SELECT occupation FROM employer_data WHERE pid = ? ORDER BY date DESC, id DESC LIMIT 1',
+            'SELECT occupation, industry FROM employer_data WHERE pid = ? ORDER BY date DESC, id DESC LIMIT 1',
             [self::PID]
         );
         $this->assertIsArray($row);
         $this->assertSame('ZZ nurse', $row['occupation']);
+        $this->assertSame('ZZ mill', $row['industry']);
+
+        $this->postForm([
+            'form_em_occupation' => '',
+            'bn_save' => 'Save',
+        ]);
+        $cleared = QueryUtils::querySingleRow(
+            'SELECT occupation, industry FROM employer_data WHERE pid = ? ORDER BY date DESC, id DESC LIMIT 1',
+            [self::PID]
+        );
+        $this->assertIsArray($cleared);
+        $this->assertSame('', $cleared['occupation']);
+        $this->assertSame('ZZ mill', $cleared['industry']);
     }
 
     /**
