@@ -310,6 +310,14 @@ class PatientMergeService
 
             if (in_array($tableName, self::IDENTITY_TABLES, true)) {
                 $this->deleteRows($tableName, 'pid', $sourcePid, $targetPid, $log);
+            } elseif ($tableName === 'patient_access_onsite') {
+                if ($this->countRows($tableName, 'pid', $targetPid) > 0) {
+                    // Keep the surviving chart's credentials and revoke the duplicate account.
+                    $this->deleteRows($tableName, 'pid', $sourcePid, $targetPid, $log);
+                } else {
+                    // If only the source has an account, preserve it on the surviving chart.
+                    $this->updateRows($tableName, 'pid', $sourcePid, $targetPid, $log);
+                }
             } elseif ($tableName === 'chart_tracker') {
                 $this->updateRows($tableName, 'ct_pid', $sourcePid, $targetPid, $log);
             } elseif ($tableName === 'documents') {
