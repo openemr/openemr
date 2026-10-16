@@ -2,7 +2,7 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
-use OpenEMR\Tests\Fixtures\BaseFixtureManager;
+use OpenEMR\Common\Database\QueryUtils;
 
 /**
  * Provides OpenEMR Fixtures/Sample Records to test cases as Objects or Database Records.
@@ -76,17 +76,20 @@ class FacilityFixtureManager extends BaseFixtureManager
      */
     public function removeInstalledFixtures()
     {
-        $bindVariable = self::FIXTURE_PREFIX . "%";
-
-        // remove the related uuids from uuid_registry
-        $select = "SELECT `uuid` FROM `facility` WHERE `name` LIKE ?";
-        $sel = sqlStatement($select, [$bindVariable]);
-        while ($row = sqlFetchArray($sel)) {
-            sqlQuery("DELETE FROM `uuid_registry` WHERE `table_name` = 'facility' AND `uuid` = ?", [$row['uuid']]);
+        $facilityIds = $this->getInstalledFixtureIds('facility');
+        if ($facilityIds === []) {
+            return;
         }
 
-        // remove the facilitys
-        $delete = "DELETE FROM `facility` WHERE `name` LIKE ?";
-        sqlStatement($delete, [$bindVariable]);
+        $placeholders = implode(',', array_fill(0, count($facilityIds), '?'));
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM `uuid_registry` WHERE `table_name` = 'facility' AND `uuid` IN " .
+            "(SELECT `uuid` FROM `facility` WHERE `id` IN ($placeholders))",
+            $facilityIds
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM `facility` WHERE `id` IN ($placeholders)",
+            $facilityIds
+        );
     }
 }

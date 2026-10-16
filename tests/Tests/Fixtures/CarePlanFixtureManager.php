@@ -43,9 +43,15 @@ class CarePlanFixtureManager extends BaseFixtureManager
 
     protected function removeInstalledFixtures()
     {
-        $sql = "DELETE FROM form_care_plan WHERE description LIKE '" . self::FIXTURE_PREFIX . "%'";
+        $carePlanIds = $this->getInstalledFixtureIds('form_care_plan');
         try {
-            QueryUtils::sqlStatementThrowException($sql, []);
+            if ($carePlanIds !== []) {
+                $placeholders = implode(',', array_fill(0, count($carePlanIds), '?'));
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM form_care_plan WHERE id IN ($placeholders)",
+                    $carePlanIds
+                );
+            }
         } catch (SqlQueryException $exception) {
             ServiceContainer::getLogger()->error("Failed to delete form_care_plan data ", ['message' => $exception, 'trace' => $exception->getTraceAsString()]);
             throw $exception;
