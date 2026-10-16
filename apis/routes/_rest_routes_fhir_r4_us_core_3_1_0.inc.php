@@ -67,6 +67,7 @@ use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
 use OpenEMR\Services\FHIR\FhirAppointmentService;
 use OpenEMR\Services\FHIR\FhirCarePlanService;
 use OpenEMR\Services\FHIR\FhirCareTeamService;
+use OpenEMR\Services\FHIR\FhirClaimService;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Services\FHIR\FhirCoverageService;
 use OpenEMR\Services\FHIR\FhirDeviceService;
@@ -1525,5 +1526,21 @@ return [
         $return = $fhirExportService->processDeleteExportForJob($job);
 
         return $return;
+    },
+	
+    "POST /fhir/Claim" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "write");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController(
+            $request,
+            new FhirClaimService($request->getApiBaseFullUrl()),
+            $globalsBag
+        );
+        $controller->setExpectedResourceType("Claim");
+        $controller->addAclRestrictions("patients", "write");
+        return $controller->post($data);
     },
 ];
