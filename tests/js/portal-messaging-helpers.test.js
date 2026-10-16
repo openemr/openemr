@@ -304,3 +304,33 @@ describe('messages.js groupChain', () => {
         expect(groupChain(items, NaN)).not.toBe(items);
     });
 });
+
+describe('messages.js unread message count notifications', () => {
+    const { getUnreadMessageCount, notifyParentUnreadMessageCount } = messagesHelpers;
+
+    test('counts only unread inbox messages', () => {
+        const items = [
+            { id: 1, message_status: 'New' },
+            { id: 2, message_status: 'Read' },
+            { id: 3, message_status: 'Delete' }
+        ];
+
+        expect(getUnreadMessageCount(items)).toBe(1);
+    });
+
+    test('notifies the parent portal page with the updated unread count', () => {
+        const parentWindow = { postMessage: jest.fn() };
+        Object.defineProperty(global.window, 'parent', { configurable: true, value: parentWindow });
+
+        try {
+            notifyParentUnreadMessageCount([{ id: 1, message_status: 'New' }]);
+        } finally {
+            Object.defineProperty(global.window, 'parent', { configurable: true, value: global.window });
+        }
+
+        expect(parentWindow.postMessage).toHaveBeenCalledWith(
+            { type: 'openemr.portal.unread-message-count', count: 1 },
+            global.window.location.origin
+        );
+    });
+});

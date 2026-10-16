@@ -921,6 +921,39 @@
                 </div>
             </div>
         </div>
+        <script>
+            (() => {
+                const messagesFrame = document.querySelector('#secure-msgs iframe');
+                if (!messagesFrame) {
+                    return;
+                }
+
+                window.addEventListener('message', event => {
+                    if (event.origin !== window.location.origin || event.source !== messagesFrame.contentWindow) {
+                        return;
+                    }
+
+                    const message = event.data;
+                    if (
+                        !message ||
+                        typeof message !== 'object' ||
+                        message.type !== 'openemr.portal.unread-message-count' ||
+                        !Number.isSafeInteger(message.count) ||
+                        message.count < 0
+                    ) {
+                        return;
+                    }
+
+                    const badge = document.getElementById('secure-message-unread-count');
+                    if (!badge) {
+                        return;
+                    }
+
+                    badge.textContent = `${message.count}(New)`;
+                    badge.classList.toggle('d-none', message.count === 0);
+                });
+            })();
+        </script>
 
         <!-- Appointments Card -->
         {% if allow_portal_appointments %}
