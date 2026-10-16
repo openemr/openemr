@@ -19,14 +19,20 @@ use PHPUnit\Framework\TestCase;
 
 class PrescriptionDrugNameLookupTest extends TestCase
 {
+    private const RXCUI = 'ZZ99401';
+
+    private const SAB = 'RXNORM';
+
+    private const NAME = 'ZZ RxNorm Lookup';
+
     private bool $created = false;
 
+    /**
+     * The fixture uses the uppercase table name, and only that test row.
+     */
     protected function setUp(): void
     {
-        $existing = QueryUtils::querySingleRow(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND LOWER(table_name) = 'rxnconso'"
-        );
-        if ($existing === false) {
+        if (!$this->hasUppercaseTable()) {
             QueryUtils::sqlStatementThrowException(
                 "CREATE TABLE `RXNCONSO` (
                     `RXCUI` varchar(8) NOT NULL,
@@ -34,28 +40,40 @@ class PrescriptionDrugNameLookupTest extends TestCase
                     `str` varchar(1000) NOT NULL
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
             );
-            $this->created = true;
             QueryUtils::clearSchemaCache();
+            if (!$this->hasUppercaseTable()) {
+                $this->markTestSkipped('This server cannot keep an uppercase RXNCONSO table.');
+            }
+            $this->created = true;
         }
 
         QueryUtils::sqlStatementThrowException(
             'INSERT INTO ' . escape_table_name('RXNCONSO') . ' (`RXCUI`, `SAB`, `str`) VALUES (?, ?, ?)',
-            ['202433', 'RXNORM', 'Tylenol']
+            [self::RXCUI, self::SAB, self::NAME]
         );
     }
 
+    /**
+     * Remove the inserted row, and the table only when this test created it.
+     */
     protected function tearDown(): void
     {
-        QueryUtils::sqlStatementThrowException(
-            'DELETE FROM ' . escape_table_name('RXNCONSO') . ' WHERE `RXCUI` = ? AND `str` = ?',
-            ['202433', 'Tylenol']
-        );
+        if ($this->hasUppercaseTable()) {
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM ' . escape_table_name('RXNCONSO')
+                . ' WHERE `RXCUI` = ? AND `SAB` = ? AND `str` = ?',
+                [self::RXCUI, self::SAB, self::NAME]
+            );
+        }
         if ($this->created) {
-            QueryUtils::sqlStatementThrowException('DROP TABLE ' . escape_table_name('RXNCONSO'));
+            QueryUtils::sqlStatementThrowException('DROP TABLE `RXNCONSO`');
             QueryUtils::clearSchemaCache();
         }
     }
 
+    /**
+     * A drug is found when the installed table name is RXNCONSO.
+     */
     public function testAnUppercaseRxNormTableStillReturnsTheDrug(): void
     {
         $source = file_get_contents(__DIR__ . '/../../../../library/ajax/prescription_drugname_lookup.php');
@@ -66,11 +84,26 @@ class PrescriptionDrugNameLookupTest extends TestCase
         $sql = "SELECT `str` as name, `RXCUI` as `rxnorm` FROM "
             . escape_table_name('RXNCONSO')
             . " WHERE `SAB` = 'RXNORM' AND `str` LIKE ? GROUP BY `RXCUI` ORDER BY `str` LIMIT 100";
-        $row = QueryUtils::querySingleRow($sql, ['Tyl%']);
+        $row = QueryUtils::querySingleRow($sql, ['ZZ Rx%']);
         $this->assertIsArray($row);
         $name = $row['name'] ?? null;
         $rxnorm = $row['rxnorm'] ?? null;
-        $this->assertSame('Tylenol', $name);
-        $this->assertSame('202433', $rxnorm);
+        $this->assertSame(self::NAME, $name);
+        $this->assertSame(self::RXCUI, $rxnorm);
+    }
+
+    /**
+     * True when information_schema stores the table name as RXNCONSO.
+     */
+    private function hasUppercaseTable(): bool
+    {
+        $existing = QueryUtils::querySingleRow(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'RXNCONSO'"
+        );
+        if (!is_array($existing)) {
+            return false;
+        }
+
+        return ($existing['table_name'] ?? '') === 'RXNCONSO';
     }
 }
