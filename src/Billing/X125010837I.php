@@ -776,9 +776,10 @@ class X125010837I
 
             $out .= "NM1" . // Loop 2310C other operating Physician
                 "*73" . "*1" . "*" . $ub04id[427] . "*" . $ub04id[428] . "*" . "*";
+            $secondOtherQualifier = self::physicianQualifier($ub04id[419] ?? null);
             $secondOtherNpi = self::physicianNpi($ub04id[420] ?? null);
-            if ($secondOtherNpi !== '') {
-                $out .= "*" . $ub04id[419] . "*" . $secondOtherNpi;
+            if ($secondOtherQualifier !== '' && $secondOtherNpi !== '') {
+                $out .= "*" . $secondOtherQualifier . "*" . $secondOtherNpi;
             } else {
                 $out .= "*" . "*";
                 $log .= "*** Other Operating Physician has no NPI.\n";
