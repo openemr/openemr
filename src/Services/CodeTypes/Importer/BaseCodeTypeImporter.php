@@ -37,6 +37,8 @@ abstract class BaseCodeTypeImporter
     /** Number of records written per transaction. See writeBatch(). */
     private const COMMIT_EVERY = 1000;
 
+    private ?string $importLockSchemaHash = null;
+
     abstract public function getCodeType(): string;
 
     /**
@@ -106,7 +108,7 @@ abstract class BaseCodeTypeImporter
 
     protected function acquireImportLock(int $codeTypeId): bool
     {
-        $lockName = 'openemr.code_import.' . $codeTypeId;
+        $lockName = $this->getImportLockName($codeTypeId);
         $row = QueryUtils::querySingleRow('SELECT GET_LOCK(?, 0) AS got', [$lockName], false);
         if (!is_array($row)) {
             throw new CodeImportException('Unable to acquire the code import lock for ' . $this->getCodeType());
@@ -125,15 +127,32 @@ abstract class BaseCodeTypeImporter
 
     protected function releaseImportLock(int $codeTypeId): void
     {
-        $lockName = 'openemr.code_import.' . $codeTypeId;
         try {
+            $lockName = $this->getImportLockName($codeTypeId);
             QueryUtils::fetchRecordsNoLog('SELECT RELEASE_LOCK(?) AS released', [$lockName]);
         } catch (SqlQueryException $exception) {
             ServiceContainer::getLogger()->error('Failed to release code import lock', [
                 'code_type' => $this->getCodeType(),
                 'exception' => $exception,
             ]);
+        } finally {
+            $this->importLockSchemaHash = null;
         }
+    }
+
+    private function getImportLockName(int $codeTypeId): string
+    {
+        if ($this->importLockSchemaHash === null) {
+            $databaseRows = QueryUtils::fetchRecordsNoLog('SELECT DATABASE() AS database_name');
+            $databaseName = $databaseRows[0]['database_name'] ?? null;
+            if (!is_string($databaseName) || $databaseName === '') {
+                throw new CodeImportException('Unable to determine the database for the code import lock');
+            }
+
+            $this->importLockSchemaHash = substr(hash('sha256', $databaseName), 0, 16);
+        }
+
+        return 'oe.ci.' . $this->importLockSchemaHash . '.' . $codeTypeId;
     }
 
     /**
