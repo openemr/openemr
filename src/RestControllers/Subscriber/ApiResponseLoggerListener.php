@@ -3,6 +3,7 @@
 namespace OpenEMR\RestControllers\Subscriber;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\Audit\ApiLogRedactor;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -135,7 +136,14 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
             );
             $apiWriteAuditId = $request->attributes->get('apiWriteAuditId');
             if (is_int($apiLogId) && is_int($apiWriteAuditId)) {
-                ServiceContainer::getApiWriteAuditService()->linkApiLog($apiWriteAuditId, $apiLogId);
+                try {
+                    ServiceContainer::getApiWriteAuditService()->linkApiLog($apiWriteAuditId, $apiLogId);
+                } catch (SqlQueryException $exception) {
+                    $this->logger?->error(
+                        'ApiResponseLoggerListener failed to link API log to API write audit',
+                        ['exception' => $exception]
+                    );
+                }
             }
         }
     }
