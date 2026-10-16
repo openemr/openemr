@@ -10,8 +10,11 @@
  * form_vitals, one data element per value, with its LOINC code and UCUM unit.
  *
  * The QRDA import stores each imported physical exam twice: in form_observation and
- * as a Vitals form. A reading with a form_observation physical exam of the same
- * code on the same day is left to PhysicalExamService, so it is counted once.
+ * as a Vitals form. A reading with a form_observation physical exam of the same code,
+ * on the same day and with the same value, is left to PhysicalExamService, so it is
+ * counted once. A different reading the same day is kept: CMS165 takes the lowest
+ * blood pressure of the most recent day. Days are compared, not timestamps, because
+ * the import's revise-and-approve path writes the date in another form.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -45,6 +48,14 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
         'weight' => ['29463-7', '[lb_av]'],
     ];
 
+    /**
+     * The codes a QRDA-imported physical exam can carry for each vital: the import
+     * writes body weight measured (3141-9) and body weight (29463-7) both as weight.
+     */
+    public const IMPORTED_AS = [
+        '29463-7' => ['29463-7', '3141-9'],
+    ];
+
     public function getSqlStatement(): string
     {
         $selects = [];
@@ -53,6 +64,7 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
             $isNumber = in_array($column, ['bps', 'bpd'], true)
                 ? "v.`$column` REGEXP '^[0-9]+([.][0-9]+)?$' AND v.`$column` > 0"
                 : "v.`$column` > 0";
+            $codes = implode(', ', array_map(static fn(string $c): string => "'LOINC:$c'", self::IMPORTED_AS[$loinc] ?? [$loinc]));
             $selects[] = "SELECT v.`pid`, v.`date`, 'LOINC:$loinc' AS `code`, v.`$column` AS `value`, '$unit' AS `unit`
                 FROM `form_vitals` AS v
                 JOIN `forms` AS f ON f.`form_id` = v.`id` AND f.`formdir` = 'vitals' AND f.`deleted` = 0
@@ -60,7 +72,8 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
                 AND NOT EXISTS (
                     SELECT 1 FROM `form_observation` AS o
                     WHERE o.`pid` = v.`pid` AND o.`ob_type` = '" . AbstractObservationService::OB_TYPE_PHYSICAL_EXAM . "'
-                    AND o.`code` = 'LOINC:$loinc' AND DATE(o.`date`) = DATE(v.`date`)
+                    AND o.`code` IN ($codes) AND DATE(o.`date`) = DATE(v.`date`)
+                    AND CAST(o.`ob_value` AS DECIMAL(12,2)) = CAST(v.`$column` AS DECIMAL(12,2))
                 )";
         }
         // Wrapped so that the patient filter executeQuery() appends applies to every vital.
