@@ -324,3 +324,19 @@ CREATE TABLE `oauth_auth_code_revocations` (
     KEY `idx_revoked_at` (`revoked_at`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfMissingColumn contact_address created_by
+ALTER TABLE `contact_address` ADD COLUMN `created_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id';
+#EndIf
+
+#IfMissingColumn contact_address updated_date
+ALTER TABLE `contact_address` ADD COLUMN `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf
+
+#IfMissingColumn contact_address updated_by
+ALTER TABLE `contact_address` ADD COLUMN `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id';
+#EndIf
+
+#IfNotIndex procedure_order idx_specimen_type
+ALTER TABLE `procedure_order` ADD INDEX `idx_specimen_type` (`specimen_type`);
+#EndIf
