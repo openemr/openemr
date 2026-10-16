@@ -28,8 +28,11 @@ class PhysicalExamService extends AbstractObservationService implements QdmServi
 
     public function makeResult($record): Quantity
     {
+        // A BMI of 18.7 is 18.7, not 18; a value that isn't a number is no result, not 0
+        // (a blood pressure of 0 would count as controlled).
+        $value = $record['ob_value'] ?? null;
         return new Quantity([
-            'value' => (int)$record['ob_value'],
+            'value' => is_numeric($value) ? (float)$value : null,
             'unit' => $record['ob_unit']
         ]);
     }
