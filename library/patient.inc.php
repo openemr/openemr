@@ -1054,16 +1054,17 @@ function newPatientData(
     $fitness = 0;
     $referral_source = '';
     if ($pid) {
-        $rez = sqlQuery("select id, fitness, referral_source from patient_data where pid = ?", [$pid]);
+        // No row yet when this creates the patient; keep the defaults then.
+        $rez = sqlQuery("select id, fitness, referral_source from patient_data where pid = ?", [$pid]) ?: [];
         // Check for brain damage:
-        if ($db_id != $rez['id']) {
+        if ($db_id != ($rez['id'] ?? null)) {
             $errmsg = "Internal error: Attempt to change patient_data.id from '" .
-              text($rez['id']) . "' to '" . text($db_id) . "' for pid '" . text($pid) . "'";
+              text($rez['id'] ?? '') . "' to '" . text($db_id) . "' for pid '" . text($pid) . "'";
             die($errmsg);
         }
 
-        $fitness = $rez['fitness'];
-        $referral_source = $rez['referral_source'];
+        $fitness = $rez['fitness'] ?? $fitness;
+        $referral_source = $rez['referral_source'] ?? $referral_source;
     }
 
     // Get the default price level.
