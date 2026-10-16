@@ -53,14 +53,14 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
     {
         $record = $recordObj->getData();
         $result = 'Negative';
-        if (
-            !empty($record['result'])
-            && $record['result'] != 'Negative'
-        ) {
+        $resultValue = $record['result'] ?? null;
+        if (is_numeric($resultValue)) {
             $result = new Quantity([
-                'value' => (int)$record['result'],
+                'value' => (float) $resultValue,
                 'unit' => $record['units']
             ]);
+        } elseif (is_string($resultValue) && $resultValue !== '' && $resultValue !== 'Negative') {
+            $result = $resultValue;
         }
         // A result generally should have a code however,
         // for rare occasions with values such as Negative, schematron expects a code type
