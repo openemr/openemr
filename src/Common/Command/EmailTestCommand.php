@@ -18,7 +18,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\Email\EmailSendMethod;
 use OpenEMR\Services\Email\EmailTestService;
 use OpenEMR\Services\IGlobalsAware;
-use OpenEMR\Services\Trait\GlobalInterfaceTrait;
+use OpenEMR\Services\Traits\GlobalInterfaceTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
