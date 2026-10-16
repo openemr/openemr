@@ -80,19 +80,15 @@ initialize_openemr() {
     cd -
     dockers_env_start
     install_configure
-    "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
-    "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
-    #  Snapshot is from 7.0.3; run migrations to create any new tables
-    docker compose exec -T openemr su-exec apache php "${OPENEMR_DIR}/sql_upgrade.php" --from=7.0.3
+    "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2026-10-16-inferno-baseline.tgz
+    "${HOME}/bin/openemr-cmd" rs 2026-10-16-inferno-baseline
+    # Snapshot is from 8.5.0-dev (database 550). Upgrading from 8.4.1 re-runs
+    # 8_4_1-to-8_5_0_upgrade.sql, which picks up schema added since then.
+    docker compose exec -T openemr su-exec apache php "${OPENEMR_DIR}/sql_upgrade.php" --from=8.4.1
     # (may need to configure api globals here)
     # Prevent password expiration from blocking OAuth password grant
     docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
         -e "UPDATE users_secure SET last_update_password = NOW()"
-    # Fix user to qualify as Practitioner: NPI AND (username OR valid abook_type)
-    # Snapshot predates commit 4af4c827f which added username/abook_type filtering
-    # See https://github.com/openemr/openemr/issues/11831#issuecomment-4341049367
-    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
-        -e "UPDATE users SET abook_type = 'external_provider', npi = '0123456789' WHERE uuid = UNHEX(REPLACE('96889cb7-0f90-4d9e-9a6c-ac0e70c01cb1', '-', ''))"
 
     # Configure coverage after containers are running and OpenEMR is initialized
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
