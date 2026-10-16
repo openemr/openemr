@@ -135,7 +135,8 @@ class EmployerService extends BaseService
         if ($old !== false) {
             $valuesToSave = [];
             foreach ($old as $key => $oldValue) {
-                $newValue = empty($new[$key]) ? '' : $new[$key];
+                // A missing key keeps the previous value. An explicit empty value clears it.
+                $newValue = is_array($new) && array_key_exists($key, $new) ? $new[$key] : $oldValue;
                 $valuesToSave[$key] = strcmp((string) $newValue, (string) $oldValue) != 0 ? $newValue : $oldValue;
             }
             $new = $valuesToSave;
