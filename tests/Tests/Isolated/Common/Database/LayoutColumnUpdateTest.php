@@ -22,32 +22,32 @@ use PHPUnit\Framework\TestCase;
 
 class LayoutColumnUpdateTest extends TestCase
 {
-    #[Test]
-    #[DataProvider('refusedPatientColumns')]
     /**
      * A patient identity column is refused before a statement is built.
      */
+    #[Test]
+    #[DataProvider('refusedPatientColumns')]
     public function testAPatientIdentityColumnIsRefused(string $column): void
     {
         $this->expectException(SqlQueryException::class);
         LayoutColumnUpdate::patientStatement($column);
     }
 
-    #[Test]
-    #[DataProvider('refusedVisitColumns')]
     /**
      * A visit identity column is refused before a statement is built.
      */
+    #[Test]
+    #[DataProvider('refusedVisitColumns')]
     public function testAVisitIdentityColumnIsRefused(string $column): void
     {
         $this->expectException(SqlQueryException::class);
         LayoutColumnUpdate::encounterStatement($column);
     }
 
-    #[Test]
     /**
      * A field id that already contains a backtick is refused.
      */
+    #[Test]
     public function testABacktickInTheFieldIdIsRefused(): void
     {
         $this->expectException(SqlQueryException::class);
