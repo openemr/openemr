@@ -81,6 +81,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DatabaseCharsetAudit;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 use OpenEMR\Services\VersionService;
 
@@ -566,6 +567,22 @@ header('Content-type: text/html; charset=utf-8');
                     }
 
                     echo "<p class='text-success'>" . $line . "...</p><br />\n";
+                    $legacyTablesByCharacterSet = (new DatabaseCharsetAudit())->getTablesWithLegacyCharacterSets();
+                    if ($legacyTablesByCharacterSet !== []) {
+                        echo "<div class='alert alert-warning'>";
+                        echo "<p>" . xlt("Some database tables or columns are not using utf8mb4. Writes of four-byte characters to these fields may be replaced with question marks.") . "</p>";
+                        echo "<p>" . xlt("Review the affected tables and follow the backup-first instructions before making any charset changes.") . " ";
+                        echo "<a href='Documentation/DATABASE_CHARSET_UPGRADE.md'>" . xlt("Database character-set upgrade guide") . "</a>.</p>";
+                        echo "<details><summary>" . xlt("Affected tables by character set") . "</summary>";
+                        foreach ($legacyTablesByCharacterSet as $characterSet => $tables) {
+                            echo "<p><strong>" . text($characterSet) . " (" . count($tables) . ")</strong></p><ul>";
+                            foreach ($tables as $tableName) {
+                                echo "<li>" . text($tableName) . "</li>";
+                            }
+                            echo "</ul>";
+                        }
+                        echo "</details></div>";
+                    }
                     $versionService->update($desiredVersion);
 
                     echo "<p><p class='text-success'>" . xlt("Database and Access Control upgrade finished.") . "</p></p>\n";
