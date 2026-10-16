@@ -38,12 +38,17 @@ class ViewRendererListener implements EventSubscriberInterface
         }
 
         // TODO: @adunsulag we could add in logic for things like ndjson, xml, etc here.
+        $statusCode = http_response_code();
+        if (!is_int($statusCode)) {
+            $statusCode = Response::HTTP_OK;
+        }
+
         match ($event->getRequest()->getContentTypeFormat()) {
-            'text' => $event->setResponse(new Response((string)$result, 200, [
+            'text' => $event->setResponse(new Response((string)$result, $statusCode, [
                 'Content-Type' => 'text/plain; charset=UTF-8'
             ])),
             // Handle JSON response
-            default => $event->setResponse(new JsonResponse($result)),
+            default => $event->setResponse(new JsonResponse($result, $statusCode)),
         };
     }
 }
