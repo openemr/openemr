@@ -200,7 +200,7 @@
 
             {% if formUrl %}
                 <a class="btn btn-outline-secondary" id="lbf-stmt-open-form"
-                   href="open_form.php"
+                   href="open_form.php?form_id={{ form_id|attr_url }}&amp;pid={{ pid|attr_url }}&amp;instance_id={{ instance_id|attr_url }}&amp;dest=form&amp;csrf_token_form={{ csrfTokenValue|attr_url }}"
                    data-dest="form"
                    data-form-id="{{ form_id|attr }}"
                    data-pid="{{ pid|attr }}"
@@ -212,7 +212,7 @@
             {% endif %}
             {% if printUrl %}
                 <a class="btn btn-outline-secondary" id="lbf-stmt-print"
-                   href="open_form.php"
+                   href="open_form.php?form_id={{ form_id|attr_url }}&amp;pid={{ pid|attr_url }}&amp;instance_id={{ instance_id|attr_url }}&amp;dest=print&amp;csrf_token_form={{ csrfTokenValue|attr_url }}"
                    data-dest="print"
                    data-form-id="{{ form_id|attr }}"
                    data-pid="{{ pid|attr }}"

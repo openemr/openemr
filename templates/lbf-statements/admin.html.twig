@@ -120,8 +120,8 @@
 
         <div class="modal fade" id="ruleModal" tabindex="-1" role="dialog" aria-labelledby="ruleModalLabel" aria-hidden="true"
              data-band-rules="{{ bandRules|json_encode|attr }}"
-             data-msg-overlap="{{ "This numeric range overlaps another band on the same field."|xlt }}"
-             data-msg-inverted="{{ "Minimum must be less than or equal to maximum."|xlt }}"
+             data-msg-overlap="{{ "This numeric range overlaps another band on the same field."|xla }}"
+             data-msg-inverted="{{ "Minimum must be less than or equal to maximum."|xla }}"
              {% if edit %}data-reopen="{{ edit|json_encode|attr }}"{% endif %}>
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -131,7 +131,7 @@
                         <input type="hidden" name="form_id" value="{{ form_id|attr }}" />
                         <input type="hidden" name="rule_id" id="rule_id" value="" />
                         <div class="modal-header">
-                            <h5 class="modal-title" id="ruleModalLabel" data-add="{{ "Add rule"|xlt }}" data-edit="{{ "Edit rule"|xlt }}">{{ "Add rule"|xlt }}</h5>
+                            <h5 class="modal-title" id="ruleModalLabel" data-add="{{ "Add rule"|xla }}" data-edit="{{ "Edit rule"|xla }}">{{ "Add rule"|xlt }}</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="{{ "Close"|xlt }}">
                                 <span aria-hidden="true">&times;</span>
                             </button>
