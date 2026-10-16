@@ -186,15 +186,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/MenuItems.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G9_Certification\\\\CCDADocRefGenerationTest\\:\\:replaceRootIdForNodes\\(\\) has parameter \\$currentList1 with generic class DOMNodeList but does not specify its types\\: TNode$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G9_Certification\\\\CCDADocRefGenerationTest\\:\\:replaceRootIdForNodes\\(\\) has parameter \\$expectedList2 with generic class DOMNodeList but does not specify its types\\: TNode$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

@@ -6812,26 +6812,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Api/PatientApiTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method C14N\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getAttribute\\(\\) on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method item\\(\\) on DOMNodeList\\<DOMNameSpaceNode\\|DOMNode\\>\\|false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setAttribute\\(\\) on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',

@@ -3752,11 +3752,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Api/IntrospectionTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$parentElement on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$action on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Billing/BillingClaimBatchTest.php',
