@@ -96,7 +96,11 @@ $encounter = $_REQUEST['encounter'] ?? '';
 
 $AJAX_PREFS = $_REQUEST['AJAX_PREFS'] ?? '';
 $PMSFH_SAVE = ($_REQUEST['PMSFH_save'] ?? '') === '1';
-if ($encounter == "" && !$id && !$AJAX_PREFS && !$PMSFH_SAVE && (($requestMode != "retrieve") or ($requestMode == "show_PDF"))) {
+// Copy forward (and the read-only view's refresh) posts the prior form's id as
+// copy_from and the patient, but no encounter, id or mode. The copy branch below
+// checks those itself.
+$COPY_REQUEST = $request->request->getString('copy') !== '';
+if ($encounter == "" && !$id && !$AJAX_PREFS && !$PMSFH_SAVE && !$COPY_REQUEST && (($requestMode != "retrieve") or ($requestMode == "show_PDF"))) {
     echo "Sorry Charlie..."; //should lead to a database of errors for explanation.
     exit;
 }

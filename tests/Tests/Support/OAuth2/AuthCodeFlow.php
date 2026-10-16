@@ -42,12 +42,21 @@ class AuthCodeFlow
      * Mint a users-role bearer via auth-code grant with the seeded
      * admin/pass credentials. For api-tier staff-side testing.
      *
+     * The optional $consentGrantsOverride parameter lets a caller
+     * submit only a subset of the /authorize-requested scopes at the
+     * consent step — emulating a user unchecking some of the scope
+     * checkboxes before clicking "proceed." Default (null) grants
+     * every requested scope.
+     *
+     * @param ?list<string> $consentGrantsOverride
+     *
      * @return array{access_token: string, scopes_granted: list<string>, response_body: array<mixed>, client_id: string, client_secret: string}
      */
     public static function mintUserRoleToken(
         string $baseUrl,
         string $clientName,
         string $scope,
+        ?array $consentGrantsOverride = null,
     ): array {
         [$clientId, $clientSecret] = DcrClient::registerConfidential(
             $baseUrl,
@@ -68,6 +77,7 @@ class AuthCodeFlow
                     'email' => '',
                     'user_role' => 'api',
                 ],
+                $consentGrantsOverride,
             );
         } catch (\Throwable $e) {
             // runFlow throwing means the caller never receives
@@ -92,7 +102,12 @@ class AuthCodeFlow
      * matching what the templates/oauth2/oauth2-login.html.twig
      * "Patient Login" button submits.
      *
+     * The optional $consentGrantsOverride parameter lets a caller
+     * submit only a subset of the /authorize-requested scopes at the
+     * consent step. See mintUserRoleToken for details.
+     *
      * @param array<string, mixed> $fixture
+     * @param ?list<string> $consentGrantsOverride
      *
      * @return array{access_token: string, scopes_granted: list<string>, response_body: array<mixed>, client_id: string, client_secret: string}
      */
@@ -101,6 +116,7 @@ class AuthCodeFlow
         string $clientName,
         string $scope,
         array $fixture,
+        ?array $consentGrantsOverride = null,
     ): array {
         Assert::assertIsString($fixture['portal_login_username'] ?? null);
         Assert::assertIsString($fixture['plain_password'] ?? null);
@@ -124,6 +140,7 @@ class AuthCodeFlow
                     'email' => $fixture['email'],
                     'user_role' => 'portal-api',
                 ],
+                $consentGrantsOverride,
             );
         } catch (\Throwable $e) {
             // Same orphan-row guard as mintUserRoleToken above.
@@ -137,6 +154,10 @@ class AuthCodeFlow
 
     /**
      * @param array{username: string, password: string, email: string, user_role: string} $loginParams
+     * @param ?list<string> $consentGrantsOverride if non-null, only
+     *     these scopes are submitted at the consent step (emulating a
+     *     user unchecking others); if null, all $scope-requested
+     *     scopes are submitted.
      *
      * @return array{access_token: string, scopes_granted: list<string>, response_body: array<mixed>}
      */
@@ -146,6 +167,7 @@ class AuthCodeFlow
         string $clientSecret,
         string $scope,
         array $loginParams,
+        ?array $consentGrantsOverride = null,
     ): array {
         $http = self::buildClient();
 
@@ -197,8 +219,12 @@ class AuthCodeFlow
 
         // Step 3: POST consent with scope grants, DO NOT follow the
         // redirect — we need to extract `code` from the Location.
+        // By default grant every requested scope; if the caller
+        // supplied $consentGrantsOverride, submit only those (emulating
+        // a user unchecking the omitted scope boxes).
         $scopeGrant = [];
-        foreach (explode(' ', $scope) as $s) {
+        $scopesToGrant = $consentGrantsOverride ?? explode(' ', $scope);
+        foreach ($scopesToGrant as $s) {
             if ($s !== '') {
                 $scopeGrant[$s] = $s;
             }
