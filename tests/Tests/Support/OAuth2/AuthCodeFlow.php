@@ -153,6 +153,98 @@ class AuthCodeFlow
     }
 
     /**
+     * Drive /authorize + login up to (but not past) the consent page
+     * and return the rendered HTML + hints a caller needs to continue
+     * the flow or assert on the page shape.
+     *
+     * Used by:
+     *   - the token-mint methods below (which continue to consent POST
+     *     + token exchange)
+     *   - consent-screen regression tests that assert on the rendered
+     *     page shape without needing to complete the auth-code → token
+     *     exchange
+     *
+     * @return array{client_id: string, client_secret: string, http: Client, consent_html: string, consent_csrf: string, consent_action: string, state: string, nonce: string}
+     */
+    public static function renderConsentPageForUserRole(
+        string $baseUrl,
+        string $clientName,
+        string $scope,
+    ): array {
+        [$clientId, $clientSecret] = DcrClient::registerConfidential(
+            $baseUrl,
+            $clientName,
+            $scope,
+            'authorization_code',
+            self::REDIRECT_URI,
+        );
+        try {
+            $prep = self::runToConsentPage(
+                $baseUrl,
+                $clientId,
+                $scope,
+                [
+                    'username' => 'admin',
+                    'password' => 'pass',
+                    'email' => '',
+                    'user_role' => 'api',
+                ],
+            );
+        } catch (\Throwable $e) {
+            DcrClient::remove($clientId);
+            throw $e;
+        }
+        $prep['client_id'] = $clientId;
+        $prep['client_secret'] = $clientSecret;
+        return $prep;
+    }
+
+    /**
+     * Patient-role variant of renderConsentPageForUserRole. See the
+     * mintPatientRoleToken docblock for the fixture-shape expectation.
+     *
+     * @param array<string, mixed> $fixture
+     *
+     * @return array{client_id: string, client_secret: string, http: Client, consent_html: string, consent_csrf: string, consent_action: string, state: string, nonce: string}
+     */
+    public static function renderConsentPageForPatientRole(
+        string $baseUrl,
+        string $clientName,
+        string $scope,
+        array $fixture,
+    ): array {
+        Assert::assertIsString($fixture['portal_login_username'] ?? null);
+        Assert::assertIsString($fixture['plain_password'] ?? null);
+        Assert::assertIsString($fixture['email'] ?? null);
+        [$clientId, $clientSecret] = DcrClient::registerConfidential(
+            $baseUrl,
+            $clientName,
+            $scope,
+            'authorization_code',
+            self::REDIRECT_URI,
+        );
+        try {
+            $prep = self::runToConsentPage(
+                $baseUrl,
+                $clientId,
+                $scope,
+                [
+                    'username' => $fixture['portal_login_username'],
+                    'password' => $fixture['plain_password'],
+                    'email' => $fixture['email'],
+                    'user_role' => 'portal-api',
+                ],
+            );
+        } catch (\Throwable $e) {
+            DcrClient::remove($clientId);
+            throw $e;
+        }
+        $prep['client_id'] = $clientId;
+        $prep['client_secret'] = $clientSecret;
+        return $prep;
+    }
+
+    /**
      * @param array{username: string, password: string, email: string, user_role: string} $loginParams
      * @param ?list<string> $consentGrantsOverride if non-null, only
      *     these scopes are submitted at the consent step (emulating a
@@ -169,53 +261,11 @@ class AuthCodeFlow
         array $loginParams,
         ?array $consentGrantsOverride = null,
     ): array {
-        $http = self::buildClient();
-
-        // Step 1: GET /authorize, follow to login page.
-        $state = bin2hex(random_bytes(8));
-        $nonce = bin2hex(random_bytes(8));
-        $authUrl = $baseUrl . '/oauth2/default/authorize?' . http_build_query([
-            'client_id' => $clientId,
-            'redirect_uri' => self::REDIRECT_URI,
-            'response_type' => 'code',
-            'scope' => $scope,
-            'state' => $state,
-            'nonce' => $nonce,
-        ]);
-        $loginPageResp = $http->get($authUrl);
-        Assert::assertSame(
-            200,
-            $loginPageResp->getStatusCode(),
-            '/authorize GET must land on the login page (200). Body: '
-                . (string) $loginPageResp->getBody()
-        );
-        $loginBody = (string) $loginPageResp->getBody();
-        [$loginCsrf, $loginAction] = self::extractCsrfAndAction($loginBody, 'login page');
-
-        // Step 2: POST login credentials with the role-specific
-        // user_role value. Guzzle follows redirects so the final
-        // response is the consent page.
-        $loginPostResp = $http->post(self::resolveActionUrl($baseUrl, $loginAction), [
-            'form_params' => [
-                'csrf_token_form' => $loginCsrf,
-                'username' => $loginParams['username'],
-                'password' => $loginParams['password'],
-                'email' => $loginParams['email'],
-                'persist_login' => '0',
-                'user_role' => $loginParams['user_role'],
-            ],
-            'allow_redirects' => true,
-        ]);
-        $consentBody = (string) $loginPostResp->getBody();
-        Assert::assertStringContainsString(
-            'proceed',
-            $consentBody,
-            'Expected to land on the consent page after login — the "proceed" control '
-                . 'is the consent-page marker. If this fails, likely the login was '
-                . 'rejected (wrong credentials / wrong user_role) or the server '
-                . "took us elsewhere. Body start: " . substr($consentBody, 0, 500)
-        );
-        [$consentCsrf, $consentAction] = self::extractCsrfAndAction($consentBody, 'consent page');
+        $prep = self::runToConsentPage($baseUrl, $clientId, $scope, $loginParams);
+        $http = $prep['http'];
+        $consentCsrf = $prep['consent_csrf'];
+        $consentAction = $prep['consent_action'];
+        $state = $prep['state'];
 
         // Step 3: POST consent with scope grants, DO NOT follow the
         // redirect — we need to extract `code` from the Location.
@@ -285,6 +335,80 @@ class AuthCodeFlow
             'access_token' => $token,
             'scopes_granted' => $granted,
             'response_body' => $body,
+        ];
+    }
+
+    /**
+     * Drives steps 1-2 of the auth-code flow (GET /authorize → POST
+     * login → arrive on consent page). Returns everything a caller
+     * needs to either continue to consent-submit or assert on the
+     * rendered consent page.
+     *
+     * @param array{username: string, password: string, email: string, user_role: string} $loginParams
+     *
+     * @return array{http: Client, consent_html: string, consent_csrf: string, consent_action: string, state: string, nonce: string}
+     */
+    private static function runToConsentPage(
+        string $baseUrl,
+        string $clientId,
+        string $scope,
+        array $loginParams,
+    ): array {
+        $http = self::buildClient();
+
+        // Step 1: GET /authorize, follow to login page.
+        $state = bin2hex(random_bytes(8));
+        $nonce = bin2hex(random_bytes(8));
+        $authUrl = $baseUrl . '/oauth2/default/authorize?' . http_build_query([
+            'client_id' => $clientId,
+            'redirect_uri' => self::REDIRECT_URI,
+            'response_type' => 'code',
+            'scope' => $scope,
+            'state' => $state,
+            'nonce' => $nonce,
+        ]);
+        $loginPageResp = $http->get($authUrl);
+        Assert::assertSame(
+            200,
+            $loginPageResp->getStatusCode(),
+            '/authorize GET must land on the login page (200). Body: '
+                . (string) $loginPageResp->getBody()
+        );
+        $loginBody = (string) $loginPageResp->getBody();
+        [$loginCsrf, $loginAction] = self::extractCsrfAndAction($loginBody, 'login page');
+
+        // Step 2: POST login credentials with the role-specific
+        // user_role value. Guzzle follows redirects so the final
+        // response is the consent page.
+        $loginPostResp = $http->post(self::resolveActionUrl($baseUrl, $loginAction), [
+            'form_params' => [
+                'csrf_token_form' => $loginCsrf,
+                'username' => $loginParams['username'],
+                'password' => $loginParams['password'],
+                'email' => $loginParams['email'],
+                'persist_login' => '0',
+                'user_role' => $loginParams['user_role'],
+            ],
+            'allow_redirects' => true,
+        ]);
+        $consentBody = (string) $loginPostResp->getBody();
+        Assert::assertStringContainsString(
+            'proceed',
+            $consentBody,
+            'Expected to land on the consent page after login — the "proceed" control '
+                . 'is the consent-page marker. If this fails, likely the login was '
+                . 'rejected (wrong credentials / wrong user_role) or the server '
+                . "took us elsewhere. Body start: " . substr($consentBody, 0, 500)
+        );
+        [$consentCsrf, $consentAction] = self::extractCsrfAndAction($consentBody, 'consent page');
+
+        return [
+            'http' => $http,
+            'consent_html' => $consentBody,
+            'consent_csrf' => $consentCsrf,
+            'consent_action' => $consentAction,
+            'state' => $state,
+            'nonce' => $nonce,
         ];
     }
 
