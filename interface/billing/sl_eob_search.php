@@ -32,6 +32,7 @@ use Mpdf\Mpdf;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Billing\StatementRunRecorder;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -63,7 +64,7 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Search", xl("EOB Posting - Search"));
 }
 
-$DEBUG = 0; // set to 0 for production, 1 to test
+$DEBUG = false; // Set to true to run without updating invoices.
 $alertmsg = '';
 $where = '';
 $eraname = '';
@@ -71,6 +72,8 @@ $eracount = 0;
 $g_posting_adj_disable = OEGlobalsBag::getInstance()->getBoolean('posting_adj_disable') ? 'checked' : '';
 $posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
 $form_cb = false;
+$isPortalNotify = !empty($_REQUEST['form_portalnotify']);
+$withoutUpdate = !empty($_REQUEST['form_without']);
 
 /* Load dependencies only if we need them */
 if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
@@ -394,6 +397,7 @@ if (
         "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter", $sqlBindArray);
 
     $stmt = [];
+    $statementEncounterIds = [];
     $stmt_count = 0;
 
     $flagT = true;
@@ -466,6 +470,7 @@ if (
             if (!empty($stmt)) {
                 ++$stmt_count;
             }
+            $statementEncounterIds = [];
             $stmt['fid'] = $row['id'];
             $stmt['cid'] = $row['pid'];
             $stmt['pid'] = $row['pid'];
@@ -525,14 +530,23 @@ if (
             $stmt['ins_paid'] += $value['ins'] ?? null;
         }
 
-        // Record that this statement was run.
-        if (!$DEBUG && empty($_REQUEST['form_without'])) {
-            sqlStatement("UPDATE form_encounter SET " .
-                "last_stmt_date = ?, stmt_count = stmt_count + 1 " .
-                "WHERE id = ?", [$today, $row['id']]);
+        // Portal statement counting keeps its existing behavior. For non-portal
+        // runs, wait until make_statement() confirms that content was produced.
+        $encounterId = filter_var($row['id'], FILTER_VALIDATE_INT);
+        if ($encounterId === false) {
+            throw new \UnexpectedValueException('Encounter ID must be an integer');
+        }
+        if ($isPortalNotify) {
+            if (!$DEBUG && !$withoutUpdate) {
+                sqlStatement("UPDATE form_encounter SET " .
+                    "last_stmt_date = ?, stmt_count = stmt_count + 1 " .
+                    "WHERE id = ?", [$today, $encounterId]);
+            }
+        } else {
+            $statementEncounterIds[] = $encounterId;
         }
         $inv_count += 1;
-        if (!empty($_REQUEST['form_portalnotify'])) {
+        if ($isPortalNotify) {
             if (!is_auth_portal($stmt['pid'])) {
                 $alertmsg = xlt('Notification FAILED: Not Portal Authorized');
                 break;
@@ -554,12 +568,26 @@ if (
             }
         } else {
             if ($inv_pid[$inv_count] != ($inv_pid[$inv_count + 1] ?? null)) {
-                if ($_REQUEST['form_category'] == 'Due Pt' && (get_patient_balance($stmt['pid']) < 0)) {
+                if (
+                    $_REQUEST['form_category'] == 'Due Pt'
+                    && !StatementRunRecorder::hasPositiveDuePatientBalance(get_patient_balance($stmt['pid']))
+                ) {
                     // not printing statement if patient balance is less than zero even though
                     // a single encounter may have a balance
                     unset($stmt);
                 } else {
-                    $tmp = make_statement($stmt);
+                    $statementContents = make_statement($stmt);
+                    if (!is_string($statementContents)) {
+                        throw new \UnexpectedValueException('Statement renderer must return string content');
+                    }
+                    StatementRunRecorder::recordIfProduced(
+                        $statementEncounterIds,
+                        $statementContents,
+                        $today,
+                        $withoutUpdate,
+                        $DEBUG
+                    );
+                    $tmp = $statementContents;
                     if (!empty($_REQUEST['form_email']) && $tmp !== '') {
                         try {
                             emailLogin($inv_pid[$inv_count], $tmp);
@@ -572,36 +600,38 @@ if (
                         $tmp .= "<br />\n\014<br /><br />";
                     }
                     fwrite($fhprint, (string) $tmp);
-                    // now save it to pt documents
-                    $d = new Document();
-                    $doc_pid = $inv_pid[$inv_count];
-                    $invoice_category_id = 0;
-                    $catrow = QueryUtils::querySingleRow("SELECT id FROM categories WHERE name = ?", ['Invoices']);
-                    if (!empty($catrow['id'])) {
-                        $invoice_category_id = $catrow['id'];
-                    }
-                    // even if click download pdf the file content in $tmp is text
-                    // set mimetype and fileext based on statement appearance
-                    $isPdf = (OEGlobalsBag::getInstance()->get('statement_appearance') == 1);
-                    $fileext = $isPdf ? '.pdf' : '.txt';
-                    $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
-                    $mimetype = $isPdf ? 'pdf' : 'text/plain';
-                    if ($isPdf) {
-                        $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
-                        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-                        if ($session->get('language_direction') === 'rtl') {
-                            $pdf2->SetDirectionality('rtl');
+                    if ($statementContents !== '') {
+                        // Only a produced statement is saved as an invoice document.
+                        $d = new Document();
+                        $doc_pid = $inv_pid[$inv_count];
+                        $invoice_category_id = 0;
+                        $catrow = QueryUtils::querySingleRow("SELECT id FROM categories WHERE name = ?", ['Invoices']);
+                        if (!empty($catrow['id'])) {
+                            $invoice_category_id = $catrow['id'];
                         }
-                        $pdf2->WriteHTML($tmp);
-                        $tmp = $pdf2->Output('', 'S');
+                        // even if click download pdf the file content in $tmp is text
+                        // set mimetype and fileext based on statement appearance
+                        $isPdf = (OEGlobalsBag::getInstance()->get('statement_appearance') == 1);
+                        $fileext = $isPdf ? '.pdf' : '.txt';
+                        $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
+                        $mimetype = $isPdf ? 'pdf' : 'text/plain';
+                        if ($isPdf) {
+                            $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
+                            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                            if ($session->get('language_direction') === 'rtl') {
+                                $pdf2->SetDirectionality('rtl');
+                            }
+                            $pdf2->WriteHTML($tmp);
+                            $tmp = $pdf2->Output('', 'S');
+                        }
+                        $invoice = $d->createDocument(
+                            $doc_pid,
+                            $invoice_category_id, // TBD: Make sure not 0
+                            $inv_filename,
+                            $mimetype,
+                            $tmp
+                        );
                     }
-                    $invoice = $d->createDocument(
-                        $doc_pid,
-                        $invoice_category_id, // TBD: Make sure not 0
-                        $inv_filename,
-                        $mimetype,
-                        $tmp
-                    );
                 }
             }
         }
