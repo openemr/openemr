@@ -1,0 +1,92 @@
+<?php
+
+/**
+ * Vital signs entered in the Vitals form, as QDM Physical Exam, Performed.
+ *
+ * The eCQMs read blood pressure, BMI, BMI percentile, height and weight as
+ * Physical Exam, Performed (CMS165, CMS69, CMS155 among them). PhysicalExamService
+ * reads those from form_observation only, which the encounter's Vitals form never
+ * writes, so vitals entered there were not counted. This service reads them from
+ * form_vitals, one data element per value, with its LOINC code and UCUM unit.
+ *
+ * The QRDA import stores each imported physical exam twice: in form_observation and
+ * as a Vitals form. A reading with a form_observation physical exam of the same
+ * code on the same day is left to PhysicalExamService, so it is counted once.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    anun333 <anun333@posteo.net>
+ * @copyright Copyright (c) 2026 anun333 <anun333@posteo.net>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Services\Qdm\Services;
+
+use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
+use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
+use OpenEMR\Cqm\Qdm\PhysicalExamPerformed;
+use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
+
+class VitalSignsService extends AbstractQdmService implements QdmServiceInterface
+{
+    /**
+     * form_vitals column => [LOINC code, UCUM unit]. The Vitals form stores weight in
+     * pounds and height in inches whatever the display setting (units_of_measurement).
+     */
+    public const VITALS = [
+        'bps' => ['8480-6', 'mm[Hg]'],
+        'bpd' => ['8462-4', 'mm[Hg]'],
+        'BMI' => ['39156-5', 'kg/m2'],
+        'ped_bmi' => ['59576-9', '%'],
+        'height' => ['8302-2', '[in_i]'],
+        'weight' => ['29463-7', '[lb_av]'],
+    ];
+
+    public function getSqlStatement(): string
+    {
+        $selects = [];
+        foreach (self::VITALS as $column => [$loinc, $unit]) {
+            // Blood pressure columns are text; read only plain positive numbers from them.
+            $isNumber = in_array($column, ['bps', 'bpd'], true)
+                ? "v.`$column` REGEXP '^[0-9]+([.][0-9]+)?$' AND v.`$column` > 0"
+                : "v.`$column` > 0";
+            $selects[] = "SELECT v.`pid`, v.`date`, 'LOINC:$loinc' AS `code`, v.`$column` AS `value`, '$unit' AS `unit`
+                FROM `form_vitals` AS v
+                JOIN `forms` AS f ON f.`form_id` = v.`id` AND f.`formdir` = 'vitals' AND f.`deleted` = 0
+                WHERE $isNumber
+                AND NOT EXISTS (
+                    SELECT 1 FROM `form_observation` AS o
+                    WHERE o.`pid` = v.`pid` AND o.`ob_type` = '" . AbstractObservationService::OB_TYPE_PHYSICAL_EXAM . "'
+                    AND o.`code` = 'LOINC:$loinc' AND DATE(o.`date`) = DATE(v.`date`)
+                )";
+        }
+        // Wrapped so that the patient filter executeQuery() appends applies to every vital.
+        return "SELECT `pid`, `date`, `code`, `value`, `unit` FROM (\n" . implode("\nUNION ALL\n", $selects) . "\n) AS vital_signs WHERE 1 = 1";
+    }
+
+    public function makeQdmModel(QdmRecord $recordObj): PhysicalExamPerformed
+    {
+        $record = $recordObj->getData();
+        // The query returns only numbers above zero; anything else would be no result.
+        $value = $record['value'] ?? null;
+        $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());
+        $model = new PhysicalExamPerformed([
+            '_id' => $id,
+            'id' => $id,
+            'relevantDatetime' => new DateTime(['date' => $record['date']]),
+            'authorDatetime' => new DateTime(['date' => $record['date']]),
+            'result' => new Quantity([
+                'value' => is_numeric($value) ? (float)$value : null,
+                'unit' => $record['unit'],
+            ]),
+        ]);
+        $code = $this->makeQdmCode($record['code']);
+        if ($code !== null) {
+            $model->addCode($code);
+        }
+        return $model;
+    }
+}
