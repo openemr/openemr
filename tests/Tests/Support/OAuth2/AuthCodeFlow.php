@@ -39,6 +39,82 @@ class AuthCodeFlow
     public const REDIRECT_URI = 'https://client.example/cb';
 
     /**
+     * Generate a PKCE code_verifier per RFC 7636: 43-128 chars from
+     * the unreserved URL-safe base64 alphabet. 32 random bytes encoded
+     * gives a 43-char verifier.
+     */
+    public static function generatePkceVerifier(): string
+    {
+        return rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
+    }
+
+    /**
+     * Derive the S256 code_challenge from a code_verifier per RFC
+     * 7636 §4.2: BASE64URL-ENCODE(SHA256(ASCII(verifier))).
+     */
+    public static function deriveS256Challenge(string $verifier): string
+    {
+        return rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
+    }
+
+    /**
+     * Mint a users-role bearer via auth-code + PKCE against a PUBLIC
+     * client (no client_secret). PKCE is the only credential
+     * presented at the token endpoint — the code_verifier matching
+     * the /authorize code_challenge is what proves the client is the
+     * one that initiated the flow. Suitable for mobile / SPA /
+     * CLI-style clients that cannot keep a secret.
+     *
+     * Generates verifier + S256 challenge internally; caller can
+     * access the verifier in the returned payload if they need it
+     * (e.g. for a wrong-verifier-rejection test variant).
+     *
+     * @param ?list<string> $consentGrantsOverride see mintUserRoleToken docblock
+     *
+     * @return array{access_token: string, scopes_granted: list<string>, response_body: array<mixed>, client_id: string, code_verifier: string, code_challenge: string}
+     */
+    public static function mintUserRolePublicClient(
+        string $baseUrl,
+        string $clientName,
+        string $scope,
+        ?array $consentGrantsOverride = null,
+    ): array {
+        $clientId = DcrClient::registerPublic(
+            $baseUrl,
+            $clientName,
+            $scope,
+            'authorization_code',
+            self::REDIRECT_URI,
+        );
+        try {
+            $verifier = self::generatePkceVerifier();
+            $challenge = self::deriveS256Challenge($verifier);
+            $result = self::runFlow(
+                $baseUrl,
+                $clientId,
+                null, // public client: no client_secret
+                $scope,
+                [
+                    'username' => 'admin',
+                    'password' => 'pass',
+                    'email' => '',
+                    'user_role' => 'api',
+                ],
+                $consentGrantsOverride,
+                $challenge,
+                $verifier,
+            );
+        } catch (\Throwable $e) {
+            DcrClient::remove($clientId);
+            throw $e;
+        }
+        $result['client_id'] = $clientId;
+        $result['code_verifier'] = $verifier;
+        $result['code_challenge'] = $challenge;
+        return $result;
+    }
+
+    /**
      * Mint a users-role bearer via auth-code grant with the seeded
      * admin/pass credentials. For api-tier staff-side testing.
      *
@@ -250,18 +326,35 @@ class AuthCodeFlow
      *     these scopes are submitted at the consent step (emulating a
      *     user unchecking others); if null, all $scope-requested
      *     scopes are submitted.
+     * @param ?string $pkceCodeChallenge if non-null, submitted to
+     *     /authorize as code_challenge + code_challenge_method=S256.
+     *     Required for public clients; optional for confidential.
+     * @param ?string $pkceCodeVerifier if non-null, submitted to
+     *     /token as code_verifier. Must be the pre-image of
+     *     $pkceCodeChallenge. Required when challenge is supplied.
+     * @param ?string $clientSecret null → public-client (no client_secret
+     *     in the token POST). Required: either $clientSecret is a
+     *     string OR $pkceCodeVerifier is non-null.
      *
      * @return array{access_token: string, scopes_granted: list<string>, response_body: array<mixed>}
      */
     private static function runFlow(
         string $baseUrl,
         string $clientId,
-        string $clientSecret,
+        ?string $clientSecret,
         string $scope,
         array $loginParams,
         ?array $consentGrantsOverride = null,
+        ?string $pkceCodeChallenge = null,
+        ?string $pkceCodeVerifier = null,
     ): array {
-        $prep = self::runToConsentPage($baseUrl, $clientId, $scope, $loginParams);
+        $prep = self::runToConsentPage(
+            $baseUrl,
+            $clientId,
+            $scope,
+            $loginParams,
+            $pkceCodeChallenge,
+        );
         $http = $prep['http'];
         $consentCsrf = $prep['consent_csrf'];
         $consentAction = $prep['consent_action'];
@@ -307,15 +400,25 @@ class AuthCodeFlow
         Assert::assertIsString($query['code']);
         $code = $query['code'];
 
-        // Step 4: POST /token with code + client credentials.
+        // Step 4: POST /token with code + client credentials or PKCE.
+        // A confidential client authenticates via client_secret_post
+        // ($clientSecret non-null). A public client authenticates via
+        // code_verifier only ($clientSecret null, $pkceCodeVerifier
+        // non-null).
+        $tokenForm = [
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+            'redirect_uri' => self::REDIRECT_URI,
+            'client_id' => $clientId,
+        ];
+        if ($clientSecret !== null) {
+            $tokenForm['client_secret'] = $clientSecret;
+        }
+        if ($pkceCodeVerifier !== null) {
+            $tokenForm['code_verifier'] = $pkceCodeVerifier;
+        }
         $tokenResp = $http->post($baseUrl . '/oauth2/default/token', [
-            'form_params' => [
-                'grant_type' => 'authorization_code',
-                'code' => $code,
-                'redirect_uri' => self::REDIRECT_URI,
-                'client_id' => $clientId,
-                'client_secret' => $clientSecret,
-            ],
+            'form_params' => $tokenForm,
         ]);
         $tokenBodyRaw = (string) $tokenResp->getBody();
         Assert::assertSame(
@@ -339,6 +442,62 @@ class AuthCodeFlow
     }
 
     /**
+     * Exchange a refresh_token for a new access_token.
+     *
+     * Supports both confidential (client_secret_post) and public
+     * (no client_secret) clients — pass null for $clientSecret to
+     * omit the field entirely from the token POST, matching the
+     * public-client refresh contract where PKCE at the auth-code
+     * exchange is the only client proof.
+     *
+     * Returns the raw token-endpoint response so a caller can assert
+     * status + body shape — 200 for a successful exchange, 400 with
+     * `error=invalid_scope` for a scope-upgrade attempt, etc.
+     *
+     * $scope is optional per RFC 6749 §6: when supplied, the client
+     * is asking for a narrower (or equal) scope. Omitting it reuses
+     * the refresh-token's bound scope set.
+     *
+     * @return array{status: int, body: array<mixed>, scopes_granted: list<string>, response_body: array<mixed>}
+     */
+    public static function exchangeRefreshToken(
+        string $baseUrl,
+        string $clientId,
+        ?string $clientSecret,
+        string $refreshToken,
+        ?string $scope = null,
+    ): array {
+        $form = [
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $refreshToken,
+            'client_id' => $clientId,
+        ];
+        if ($clientSecret !== null) {
+            $form['client_secret'] = $clientSecret;
+        }
+        if ($scope !== null) {
+            $form['scope'] = $scope;
+        }
+        $resp = self::buildClient()->post($baseUrl . '/oauth2/default/token', [
+            'form_params' => $form,
+        ]);
+        $bodyRaw = (string) $resp->getBody();
+        $body = json_decode($bodyRaw, true);
+        if (!is_array($body)) {
+            $body = ['_raw' => $bodyRaw];
+        }
+        $scopeValue = $body['scope'] ?? '';
+        /** @var list<string> $granted */
+        $granted = is_string($scopeValue) && $scopeValue !== '' ? explode(' ', $scopeValue) : [];
+        return [
+            'status' => $resp->getStatusCode(),
+            'body' => $body,
+            'scopes_granted' => $granted,
+            'response_body' => $body,
+        ];
+    }
+
+    /**
      * Drives steps 1-2 of the auth-code flow (GET /authorize → POST
      * login → arrive on consent page). Returns everything a caller
      * needs to either continue to consent-submit or assert on the
@@ -353,20 +512,26 @@ class AuthCodeFlow
         string $clientId,
         string $scope,
         array $loginParams,
+        ?string $pkceCodeChallenge = null,
     ): array {
         $http = self::buildClient();
 
         // Step 1: GET /authorize, follow to login page.
         $state = bin2hex(random_bytes(8));
         $nonce = bin2hex(random_bytes(8));
-        $authUrl = $baseUrl . '/oauth2/default/authorize?' . http_build_query([
+        $authParams = [
             'client_id' => $clientId,
             'redirect_uri' => self::REDIRECT_URI,
             'response_type' => 'code',
             'scope' => $scope,
             'state' => $state,
             'nonce' => $nonce,
-        ]);
+        ];
+        if ($pkceCodeChallenge !== null) {
+            $authParams['code_challenge'] = $pkceCodeChallenge;
+            $authParams['code_challenge_method'] = 'S256';
+        }
+        $authUrl = $baseUrl . '/oauth2/default/authorize?' . http_build_query($authParams);
         $loginPageResp = $http->get($authUrl);
         Assert::assertSame(
             200,
