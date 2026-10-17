@@ -1,8 +1,10 @@
 <?php
 
 /**
- * REST routes for the FHIR Task resource: read and search, through the
- * generic FHIR controller, with their API documentation.
+ * REST routes for the FHIR Task resource: read, search, create and update,
+ * through the generic FHIR controller, with their API documentation. Responses
+ * carry the task's version as an ETag, and an update may send it back as
+ * If-Match so that it fails (412) if someone changed the task since.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -18,21 +20,65 @@ namespace OpenEMR\RestControllers\FHIR;
 use OpenApi\Attributes as OA;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\RestControllers\Config\RestConfig;
+use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirTaskService;
+use OpenEMR\Services\FHIR\UtilsService;
+use OpenEMR\Services\TaskService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class FhirTaskRestController
 {
+    private readonly FhirTaskService $service;
+
     public function __construct(private readonly HttpRestRequest $request, private readonly OEGlobalsBag $globalsBag)
     {
+        $this->service = new FhirTaskService();
     }
 
     private function controller(): FhirGenericRestController
     {
-        $controller = new FhirGenericRestController($this->request, new FhirTaskService(), $this->globalsBag);
+        $controller = new FhirGenericRestController($this->request, $this->service, $this->globalsBag);
+        $controller->setExpectedResourceType('Task');
         $controller->addAclRestrictions('patients', 'med');
         return $controller;
+    }
+
+    /**
+     * The version in an If-Match header (W/"3" or "3"), null when there is none or it is
+     * "*", false when it is something else.
+     */
+    public static function ifMatchVersion(?string $header): int|false|null
+    {
+        if ($header === null || trim($header) === '' || trim($header) === '*') {
+            return null;
+        }
+        return preg_match('/^\s*(?:W\/)?"(\d+)"\s*$/', $header, $m) === 1 ? (int)$m[1] : false;
+    }
+
+    /**
+     * The task's version, from the resource in a response body, as its ETag. A client can read
+     * the same version from meta.versionId: OpenEMR's Docker image removes ETag headers
+     * ("Header unset ETag" in its Apache configuration).
+     */
+    public static function withETag(Response $response): Response
+    {
+        $body = json_decode((string)$response->getContent(), true);
+        if (!is_array($body) || ($body['resourceType'] ?? null) !== 'Task') {
+            return $response;
+        }
+        $meta = $body['meta'] ?? null;
+        $version = is_array($meta) ? ($meta['versionId'] ?? null) : null;
+        if (is_string($version) && $version !== '') {
+            $response->headers->set('ETag', 'W/"' . $version . '"');
+        }
+        return $response;
+    }
+
+    private static function outcome(string $code, string $message, int $status): Response
+    {
+        return RestControllerHelper::responseHandler(UtilsService::createOperationOutcomeResource('error', $code, $message), null, $status);
     }
 
     #[OA\Get(
@@ -110,7 +156,7 @@ class FhirTaskRestController
     )]
     public function getOne(string $uuid): Response
     {
-        return $this->controller()->getOne($uuid);
+        return self::withETag($this->controller()->getOne($uuid));
     }
 
     #[OA\Get(
@@ -228,5 +274,100 @@ class FhirTaskRestController
     public function getAll(): JsonResponse|Response
     {
         return $this->controller()->getAll();
+    }
+
+    #[OA\Post(
+        path: '/fhir/Task',
+        description: 'Creates a Task. The server sets id, meta and lastModified, and authoredOn when it is left out. Task.for must name the patient; focus may name a ServiceRequest or Questionnaire; owner and requester an Organization, Practitioner, PractitionerRole or Patient; partOf one task for the same patient.',
+        tags: ['fhir'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/fhir+json',
+                schema: new OA\Schema(
+                    example: [
+                        'resourceType' => 'Task',
+                        'status' => 'requested',
+                        'intent' => 'order',
+                        'code' => ['coding' => [['system' => 'http://hl7.org/fhir/CodeSystem/task-code', 'code' => 'fulfill']]],
+                        'for' => ['reference' => 'Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf'],
+                        'focus' => ['reference' => 'ServiceRequest/95e9d3fb-fe7b-448a-aa60-d40b11b486a5'],
+                        'owner' => ['reference' => 'Organization/95f0a1c2-7d3e-4b5f-8a9c-0e1d2f3a4b5c'],
+                    ]
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(response: '201', description: 'The Task as saved, with its version as an ETag.'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function post(): Response
+    {
+        $data = RestControllerHelper::parseJsonRequestBody($this->request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        return self::withETag($this->controller()->post($data));
+    }
+
+    #[OA\Put(
+        path: '/fhir/Task/{uuid}',
+        description: "Updates a Task. Task.for can't change. A task that is completed, cancelled, failed or rejected can only become entered-in-error, and an entered-in-error task can't change status. Send the version from the ETag as If-Match to have the update refused (412) if the task changed since you read it.",
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(name: 'uuid', in: 'path', description: 'The uuid for the Task resource.', required: true, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'If-Match', in: 'header', description: 'The version the task must still have, as W/"{versionId}".', required: false, schema: new OA\Schema(type: 'string')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/fhir+json',
+                schema: new OA\Schema(
+                    example: [
+                        'resourceType' => 'Task',
+                        'id' => '9f1c2a5e-3b7d-4c8e-a1f0-2d6b8e4c7a19',
+                        'status' => 'accepted',
+                        'intent' => 'order',
+                        'for' => ['reference' => 'Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf'],
+                        'focus' => ['reference' => 'ServiceRequest/95e9d3fb-fe7b-448a-aa60-d40b11b486a5'],
+                        'owner' => ['reference' => 'Organization/95f0a1c2-7d3e-4b5f-8a9c-0e1d2f3a4b5c'],
+                    ]
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', description: 'The Task as saved, with its new version as an ETag.'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
+            new OA\Response(response: '412', description: 'If-Match named a version the task no longer has.'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function put(string $uuid): Response
+    {
+        // A patient token is refused by the generic controller (403) before anything is read.
+        if (!$this->request->isPatientRequest()) {
+            RestConfig::request_authorization_check($this->request, 'patients', 'med');
+            $expected = self::ifMatchVersion($this->request->headers->get('If-Match'));
+            if ($expected === false) {
+                return self::outcome('invalid', 'If-Match must be a version as W/"{versionId}"', 400);
+            }
+            if ($expected !== null) {
+                $stored = (new TaskService())->getForWrite($uuid);
+                if ($stored !== null && $stored['version'] !== $expected) {
+                    return self::outcome('conflict', "The task is at version {$stored['version']}, not $expected: read it again before updating", 412);
+                }
+                $this->service->expectVersion($expected);
+            }
+        }
+        $data = RestControllerHelper::parseJsonRequestBody($this->request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        return self::withETag($this->controller()->put($uuid, $data));
     }
 }

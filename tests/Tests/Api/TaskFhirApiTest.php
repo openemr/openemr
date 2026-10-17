@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FHIR Task API tests: read and search.
+ * FHIR Task API tests: read, search, create and update.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -24,9 +24,12 @@ use Symfony\Component\HttpFoundation\Response;
  * Tests for:
  *   GET /fhir/Task          (search, returns a Bundle)
  *   GET /fhir/Task/:uuid    (read one)
+ *   POST /fhir/Task         (create)
+ *   PUT /fhir/Task/:uuid    (update, with If-Match)
  *
- * There is no write route yet, so the tasks are seeded straight into the task
- * table and removed in tearDown, with two fixture patients.
+ * The read tests' tasks are seeded straight into the task table; the write
+ * tests make theirs through the API. All are removed in tearDown, with the
+ * two fixture patients.
  */
 class TaskFhirApiTest extends TestCase
 {
@@ -272,5 +275,192 @@ class TaskFhirApiTest extends TestCase
         $unknown = UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
         $result = $this->testClient->get('/apis/default/fhir/Task/' . $unknown);
         $this->assertSame(Response::HTTP_NOT_FOUND, $result->getStatusCode());
+    }
+
+    /**
+     * A Task body for one of the fixture patients.
+     *
+     * @param array<string, mixed> $changes
+     * @return array<string, mixed>
+     */
+    private function body(array $changes = [], ?string $patientUuid = null): array
+    {
+        return array_merge([
+            'resourceType' => 'Task',
+            'status' => 'requested',
+            'intent' => 'order',
+            'code' => ['coding' => [['system' => 'http://hl7.org/fhir/CodeSystem/task-code', 'code' => 'fulfill']]],
+            'description' => 'Referral to medically tailored meals',
+            'for' => ['reference' => 'Patient/' . ($patientUuid ?? $this->patient['uuid'])],
+            'focus' => ['reference' => 'ServiceRequest/' . $this->serviceRequestUuid],
+        ], $changes);
+    }
+
+    /** A string from a decoded response, or '' when it isn't one. */
+    private static function text(mixed $value): string
+    {
+        return is_string($value) ? $value : '';
+    }
+
+    /**
+     * Creates a task through the API and keeps its uuid for tearDown.
+     *
+     * @param array<string, mixed> $body
+     * @return array{0: int, 1: mixed, 2: string} status, decoded body, ETag
+     */
+    private function create(array $body): array
+    {
+        $result = $this->testClient->post('/apis/default/fhir/Task', $body);
+        $json = json_decode((string)$result->getBody()->getContents(), true);
+        $id = self::text(self::at($json, 'id'));
+        if ($result->getStatusCode() === Response::HTTP_CREATED && $id !== '') {
+            $this->tasks['created-' . count($this->tasks)] = $id;
+        }
+        return [$result->getStatusCode(), $json, $result->getHeaderLine('ETag')];
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     * @param array<string, string> $headers
+     * @return array{0: int, 1: mixed, 2: string} status, decoded body, ETag
+     */
+    private function update(string $uuid, array $body, array $headers = []): array
+    {
+        $result = $this->testClient->put('/apis/default/fhir/Task', $uuid, $body + ['id' => $uuid], $headers);
+        return [$result->getStatusCode(), json_decode((string)$result->getBody()->getContents(), true), $result->getHeaderLine('ETag')];
+    }
+
+    /**
+     * The validation errors of a 400, by element.
+     *
+     * @return array<mixed>
+     */
+    private function errors(mixed $result): array
+    {
+        $errors = self::at($result, 'validationErrors');
+        $this->assertIsArray($errors);
+        return $errors;
+    }
+
+    public function testCreateReturnsTheSavedTaskAtVersionOne(): void
+    {
+        [$status, $task, $etag] = $this->create($this->body(['id' => 'chosen-by-client', 'lastModified' => '2001-01-01T00:00:00Z']));
+        $this->assertSame(Response::HTTP_CREATED, $status, (string)json_encode($task));
+        $this->assertSame('Task', self::at($task, 'resourceType'));
+        $id = self::text(self::at($task, 'id'));
+        $this->assertNotSame('chosen-by-client', $id, 'the server picks the id');
+        $this->assertSame('1', self::at($task, 'meta', 'versionId'));
+        // The ETag header carries the same version, but OpenEMR's Docker image removes ETag
+        // headers ("Header unset ETag" in openemr.conf), so the body's versionId is what a client reads.
+        $this->assertContains($etag, ['W/"1"', ''], 'when present, the version');
+        $this->assertSame('requested', self::at($task, 'status'));
+        $this->assertSame('Patient/' . $this->patient['uuid'], self::at($task, 'for', 'reference'));
+        $this->assertSame('ServiceRequest/' . $this->serviceRequestUuid, self::at($task, 'focus', 'reference'));
+        $this->assertNotSame('', self::text(self::at($task, 'authoredOn')), 'set by the server when the body leaves it out');
+        $this->assertStringNotContainsString('2001', self::text(self::at($task, 'lastModified')), 'lastModified is the server\'s');
+
+        $read = $this->testClient->get('/apis/default/fhir/Task/' . $id);
+        $this->assertSame(Response::HTTP_OK, $read->getStatusCode());
+        $this->assertContains($read->getHeaderLine('ETag'), ['W/"1"', '']);
+    }
+
+    public function testUpdateRaisesTheVersionAndHonoursIfMatch(): void
+    {
+        [, $task] = $this->create($this->body());
+        $uuid = self::text(self::at($task, 'id'));
+
+        [$status, $updated, $etag] = $this->update($uuid, $this->body(['status' => 'accepted']), ['If-Match' => 'W/"1"']);
+        $this->assertSame(Response::HTTP_OK, $status, (string)json_encode($updated));
+        $this->assertSame('accepted', self::at($updated, 'status'));
+        $this->assertSame('2', self::at($updated, 'meta', 'versionId'));
+        $this->assertContains($etag, ['W/"2"', '']);
+        $this->assertSame(self::at($task, 'authoredOn'), self::at($updated, 'authoredOn'), 'authoredOn is kept');
+
+        // Someone else's view of version 1 is now stale.
+        [$status, $outcome] = $this->update($uuid, $this->body(['status' => 'in-progress']), ['If-Match' => 'W/"1"']);
+        $this->assertSame(Response::HTTP_PRECONDITION_FAILED, $status);
+        $this->assertSame('OperationOutcome', self::at($outcome, 'resourceType'));
+
+        [$status] = $this->update($uuid, $this->body(['status' => 'in-progress']), ['If-Match' => 'version one']);
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status, 'If-Match has to be a version');
+
+        // Without If-Match the update applies to whatever is there.
+        [$status, $updated] = $this->update($uuid, $this->body(['status' => 'in-progress']));
+        $this->assertSame(Response::HTTP_OK, $status);
+        $this->assertSame('3', self::at($updated, 'meta', 'versionId'));
+    }
+
+    public function testATaskStaysWithItsPatient(): void
+    {
+        [, $task] = $this->create($this->body());
+        $uuid = self::text(self::at($task, 'id'));
+        [$status, $result] = $this->update($uuid, $this->body([], $this->otherPatient['uuid']));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status);
+        $this->assertArrayHasKey('for', $this->errors($result));
+        $read = $this->read($uuid);
+        $this->assertSame('Patient/' . $this->patient['uuid'], self::at($read, 'for', 'reference'));
+        $this->assertSame('1', self::at($read, 'meta', 'versionId'), 'nothing changed');
+    }
+
+    public function testAFinishedTaskCanOnlyBeMarkedEnteredInError(): void
+    {
+        [, $task] = $this->create($this->body(['status' => 'completed']));
+        $uuid = self::text(self::at($task, 'id'));
+        [$status, $result] = $this->update($uuid, $this->body(['status' => 'in-progress']));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status);
+        $this->assertArrayHasKey('status', $this->errors($result));
+        [$status] = $this->update($uuid, $this->body(['status' => 'entered-in-error']));
+        $this->assertSame(Response::HTTP_OK, $status);
+        [$status] = $this->update($uuid, $this->body(['status' => 'requested']));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status);
+    }
+
+    public function testReferencesMustBeOfTheTypesTheWorkflowsUse(): void
+    {
+        [$status, $result] = $this->create($this->body(['focus' => ['reference' => 'Patient/' . $this->patient['uuid']]]));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status);
+        $this->assertArrayHasKey('focus', $this->errors($result));
+        [$status, $result] = $this->create($this->body(['owner' => ['reference' => 'Device/' . $this->serviceRequestUuid]]));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status);
+        $this->assertArrayHasKey('owner', $this->errors($result));
+        [$status] = $this->create($this->body(['owner' => ['reference' => 'Organization/' . $this->serviceRequestUuid]]));
+        $this->assertSame(Response::HTTP_CREATED, $status);
+    }
+
+    public function testAParentTaskMustBeForTheSamePatient(): void
+    {
+        $partOf = static fn(string $uuid): array => ['partOf' => [['reference' => 'Task/' . $uuid]]];
+        [$status, $result] = $this->create($this->body($partOf($this->tasks['other'])));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status, 'the other patient\'s task');
+        $this->assertArrayHasKey('partOf', $this->errors($result));
+        $unknown = UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
+        [$status] = $this->create($this->body($partOf($unknown)));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status, 'no such task');
+        [$status, $child] = $this->create($this->body($partOf($this->tasks['referral'])));
+        $this->assertSame(Response::HTTP_CREATED, $status);
+        $this->assertSame('Task/' . $this->tasks['referral'], self::at($child, 'partOf', 0, 'reference'));
+        $childUuid = self::text(self::at($child, 'id'));
+        [$status] = $this->update($childUuid, $this->body($partOf($childUuid)));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status, 'not part of itself');
+    }
+
+    public function testSubjectSearchesByPatientLikePatient(): void
+    {
+        $bySubject = array_column($this->search(['subject' => 'Patient/' . $this->patient['uuid']]), 'id');
+        $byPatient = array_column($this->search(['patient' => $this->patient['uuid']]), 'id');
+        $this->assertContains($this->tasks['referral'], $bySubject);
+        $this->assertEqualsCanonicalizing($byPatient, $bySubject);
+        $this->assertNotContains($this->tasks['other'], $bySubject);
+    }
+
+    public function testUpdatingAMalformedOrUnknownIdIsNotFound(): void
+    {
+        // With If-Match the controller looks the task up before the generic update does.
+        foreach (['abc', UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid())] as $id) {
+            [$status] = $this->update($id, $this->body(), ['If-Match' => 'W/"1"']);
+            $this->assertSame(Response::HTTP_NOT_FOUND, $status, $id);
+            [$status] = $this->update($id, $this->body());
+            $this->assertSame(Response::HTTP_NOT_FOUND, $status, $id . ' without If-Match');
+        }
     }
 }

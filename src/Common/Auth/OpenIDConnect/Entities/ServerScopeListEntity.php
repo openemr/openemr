@@ -98,7 +98,7 @@ class ServerScopeListEntity
                 'PractitionerRole',
                 'Procedure',
                 'Provenance',
-                // These four are writable (see $fhirWriteResources) and get a v1 read scope so a
+                // These five are writable (see $fhirWriteResources) and get a v1 read scope so a
                 // v1-only client can hold read and write together. Mixing v1 and v2 for the same
                 // resource is also valid: grants are checked as a permission union
                 // (ResourceScopeEntityList::grantsScope) and consent keeps each scope's spelling.
@@ -106,7 +106,6 @@ class ServerScopeListEntity
                 'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
-                // Task is read and search only for now; its write scopes come with create and update.
                 'Task',
                 'ValueSet',
                 'OperationDefinition',
@@ -138,6 +137,7 @@ class ServerScopeListEntity
                 'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
+                'Task',
             ];
             $fhirScopes = [];
             $systemEnabled = $this->systemScopesEnabled;
@@ -228,6 +228,7 @@ class ServerScopeListEntity
                 'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
+                'Task',
             ];
             $scopes = [];
             $systemEnabled = $this->systemScopesEnabled;
