@@ -90,6 +90,15 @@ class VitalSignsServiceDatabaseTest extends TestCase
             'blood pressure and weight are the imported exams\' copies; the BMI is only in the Vitals form');
     }
 
+    public function testAnExamWhoseValueIsNotANumberDoesNotHideAReading(): void
+    {
+        // PhysicalExamService reads "128abc" as no result; CAST alone would read it as 128 and drop the reading.
+        $this->observation(self::PID, '2026-03-02 09:00:00', '8480-6', '128abc', 'mm[Hg]');
+        $this->vitals(self::PID, '2026-03-02 09:00:00', ['bps' => '128']);
+
+        $this->assertSame([[self::PID, 'LOINC:8480-6', 128.0]], $this->read(new QdmRequestOne((string)self::PID)));
+    }
+
     /** @return list<array{int, string, float}> pid, code and value of each vital read, in the query's order */
     private function read(QdmRequestOne|QdmRequestSome $request): array
     {

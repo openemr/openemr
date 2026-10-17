@@ -13,7 +13,9 @@
  * as a Vitals form. A reading with a form_observation physical exam of the same code,
  * on the same day and with the same value, is left to PhysicalExamService, so it is
  * counted once. A different reading the same day is kept: CMS165 takes the lowest
- * blood pressure of the most recent day. Days are compared, not timestamps, because
+ * blood pressure of the most recent day. Only an exam whose value is a plain number
+ * counts: PhysicalExamService reads any other as no result, and CAST would read
+ * "128abc" as 128. Days are compared, not timestamps, because
  * the import's revise-and-approve path writes the date in another form.
  *
  * @package   OpenEMR
@@ -73,6 +75,7 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
                     SELECT 1 FROM `form_observation` AS o
                     WHERE o.`pid` = v.`pid` AND o.`ob_type` = '" . AbstractObservationService::OB_TYPE_PHYSICAL_EXAM . "'
                     AND o.`code` IN ($codes) AND DATE(o.`date`) = DATE(v.`date`)
+                    AND o.`ob_value` REGEXP '^[0-9]+([.][0-9]+)?$'
                     AND CAST(o.`ob_value` AS DECIMAL(12,2)) = CAST(v.`$column` AS DECIMAL(12,2))
                 )";
         }
