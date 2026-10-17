@@ -319,6 +319,16 @@ class ConsentPageRenderTest extends TestCase
             $prep['consent_action'],
             'Patient-role consent form must also POST under the /oauth2/ namespace'
         );
+        $this->assertStringContainsStringIgnoringCase(
+            'cancel',
+            $prep['consent_html'],
+            'Patient-role consent page must also expose a cancel/deny control'
+        );
+        $this->assertStringContainsString(
+            $clientName,
+            $prep['consent_html'],
+            'Patient-role consent page must also display the registered client name'
+        );
     }
 
     private function persistGlobal(
