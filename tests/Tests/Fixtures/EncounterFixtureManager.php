@@ -44,9 +44,15 @@ class EncounterFixtureManager extends BaseFixtureManager
 
     protected function removeInstalledFixtures()
     {
-        $sql = "DELETE FROM form_encounter WHERE reason LIKE 'test-fixture-%'";
+        $encounterIds = $this->getInstalledFixtureIds('form_encounter');
         try {
-            QueryUtils::sqlStatementThrowException($sql, []);
+            if ($encounterIds !== []) {
+                $placeholders = implode(',', array_fill(0, count($encounterIds), '?'));
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM form_encounter WHERE id IN ($placeholders)",
+                    $encounterIds
+                );
+            }
         } catch (SqlQueryException $exception) {
             ServiceContainer::getLogger()->error("Failed to delete form_encounter data ", ['message' => $exception, 'trace' => $exception->getTraceAsString()]);
             throw $exception;
