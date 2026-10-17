@@ -37,6 +37,11 @@ use OpenEMR\Core\OEGlobalsBag;
 if (!AclMain::aclCheckCore('patientportal', 'portal')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patientportal/portal: Create Portal Login", xl("Patient Portal"));
 }
+// The service layer accepts pid=0 and will read/write `patient_access_onsite`
+// against that value; require an open chart before reaching it.
+if (!is_numeric($pid) || (int) $pid <= 0) {
+    AccessDeniedHelper::denyWithTemplate("No patient selected: Create Portal Login", xl("Patient Portal"));
+}
 
 $patientAccessOnSiteService = new PatientAccessOnsiteService();
 $credentials = $patientAccessOnSiteService->getOnsiteCredentialsForPid($pid);

@@ -692,9 +692,16 @@ class DocumentTemplateRender
         if ($raw === '') {
             return '';
         }
+        // Control characters (incl. tabs and newlines) can be stripped by
+        // browser URL parsers, turning e.g. "/\t/evil.example" into the
+        // protocol-relative "//evil.example". Reject them before matching.
+        if (preg_match('/[\x00-\x1F\x7F]/', $raw)) {
+            return '';
+        }
         // Relative paths starting with `/`, `./`, `../` or a bare segment
-        // (no scheme, no `//` authority) stay in the same origin.
-        if (preg_match('#^(?:/|\./|\.\./)#', $raw)) {
+        // stay in the same origin. The lookahead rejects `//host` and
+        // `/\host`, both of which browsers resolve as protocol-relative.
+        if (preg_match('#^(?:/(?![/\\\\])|\./|\.\./)#', $raw)) {
             return $raw;
         }
         if (preg_match('#^[A-Za-z0-9_\-]+(?:\.[A-Za-z0-9_\-]+)*(?:\?.*)?$#', $raw)) {

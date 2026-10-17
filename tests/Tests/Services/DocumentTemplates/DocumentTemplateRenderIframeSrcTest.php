@@ -87,6 +87,37 @@ class DocumentTemplateRenderIframeSrcTest extends TestCase
         $this->assertSame('', $this->sanitize(42));
     }
 
+    public function testRejectsProtocolRelativeDoubleSlash(): void
+    {
+        // Browsers resolve `//host/x` as `<scheme>://host/x` — cross-origin.
+        $this->assertSame('', $this->sanitize('//evil.example/x'));
+    }
+
+    public function testRejectsProtocolRelativeSlashBackslash(): void
+    {
+        // Browsers normalize `\` to `/` in special schemes, so `/\host`
+        // reaches the same cross-origin resolution as `//host`.
+        $this->assertSame('', $this->sanitize('/\\evil.example'));
+    }
+
+    public function testRejectsEmbeddedTabInScheme(): void
+    {
+        // Browsers strip control chars from URLs before parsing, so
+        // `java\tscript:alert(1)` reaches the parser as `javascript:...`.
+        $this->assertSame('', $this->sanitize("java\tscript:alert(1)"));
+    }
+
+    public function testRejectsEmbeddedTabInRelativePath(): void
+    {
+        // `/\t/evil.example` → browser → `//evil.example` (cross-origin).
+        $this->assertSame('', $this->sanitize("/\t/evil.example"));
+    }
+
+    public function testRejectsEmbeddedNewlineInUrl(): void
+    {
+        $this->assertSame('', $this->sanitize("foo?\njavascript:x"));
+    }
+
     private function sanitize(mixed $input): string
     {
         $render = new DocumentTemplateRender(1, 1);
