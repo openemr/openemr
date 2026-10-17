@@ -8077,12 +8077,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateRender.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\DocumentTemplates\\\\DocumentTemplateRender\\:\\:fetchTemplateDocument\\(\\) should return array but returns array\\|false\\|null\\.$#',
+    'message' => '#^Method OpenEMR\\\\Services\\\\DocumentTemplates\\\\DocumentTemplateService\\:\\:fetchPortalAuthUsers\\(\\) should return array\\<array\\<string\\>\\> but returns list\\<array\\>\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateRender.php',
+    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\DocumentTemplates\\\\DocumentTemplateService\\:\\:fetchPortalAuthUsers\\(\\) should return array\\<array\\<string\\>\\> but returns list\\<array\\>\\.$#',
+    'message' => '#^Method OpenEMR\\\\Services\\\\DocumentTemplates\\\\DocumentTemplateService\\:\\:fetchTemplateForPatient\\(\\) should return array\\<string, mixed\\>\\|false\\|null but returns array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];

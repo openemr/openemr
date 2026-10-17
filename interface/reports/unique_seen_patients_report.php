@@ -22,10 +22,10 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-// Mailing-label + DOB/insurer output is demographic data; gate on
-// patients/demo to match the sibling patient-report entry points.
-if (!AclMain::aclCheckCore('patients', 'demo')) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Unique Seen Patients Report", xl("Unique Seen Patients Report"));
+// Patient-roster report; align the permission check with the other
+// `patients/pat_rep` reports in this directory.
+if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/pat_rep: Unique Seen Patients Report", xl("Unique Seen Patients Report"));
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();

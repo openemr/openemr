@@ -57,8 +57,16 @@ class DocumentTemplateRender
     private readonly DocumentTemplateService $templateService;
     private readonly LoggerInterface $logger;
 
+    /**
+     * The constructor $pid is loosely typed for back-compat with callers that
+     * pass it as a string or null; this is the narrowed int form used for
+     * patient-scoped template lookups.
+     */
+    private readonly int $pidInt;
+
     public function __construct(private $pid, $user, $encounter = null, ?LoggerInterface $logger = null)
     {
+        $this->pidInt = is_numeric($pid) ? (int) $pid : 0;
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->user = $user ?: $session->get('authUserID', 0);
         $this->encounter = $encounter ?: OEGlobalsBag::getInstance()->get('encounter');
@@ -93,9 +101,13 @@ class DocumentTemplateRender
                 $this->encounter
             ]);
         }
-        // From database
+        // From database — fetch scoped to the renderer's bound patient.
         if (!empty($template_id)) {
-            $template = $this->templateService->fetchTemplate($template_id)['template_content'];
+            $row = $this->templateService->fetchTemplateForPatient($template_id, $this->pidInt);
+            if (!is_array($row)) {
+                throw new RuntimeException(xlt("Template not available for this patient."));
+            }
+            $template = $row['template_content'];
         } elseif (!empty($template_content)) {
             $template = $template_content;
         } else {
@@ -182,7 +194,7 @@ class DocumentTemplateRender
                 $this->keyLength = strlen($matches[0]);
                 $src = $formData['encounterForm'] ?? '';
                 $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($q_id) . "</script>";
-                $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
+                $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($this->sanitizeIframeSrc($src)) . "'></iframe>";
                 $s = $this->keyReplace($s, $sigfld);
             } elseif (preg_match('/^{(QuestionnaireURLLoinc)\|(.*)\|(.*)\|(.*)}/', substr((string) $s, $this->keyLocation), $matches)) {
                 // deprecated 09/23/2022 Unsure this directive is useful!
@@ -192,7 +204,7 @@ class DocumentTemplateRender
                 $this->keyLength = strlen($matches[0]);
                 $src = './../questionnaire_template.php?isPortal=1&type=loinc_form&name=' . urlencode($form_name) . '&url=' . urlencode($q_url) . '&form_code=' . urlencode($form_id);
                 $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($form_name) . "</script>";
-                $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
+                $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($this->sanitizeIframeSrc($src)) . "'></iframe>";
                 $s = $this->keyReplace($s, $sigfld);
             }
             if (preg_match('/^{(AcknowledgePdf):(.*):(.*)}/', substr((string) $s, $this->keyLocation), $matches)) {
@@ -204,7 +216,8 @@ class DocumentTemplateRender
                     $formname = '';
                 }
                 $formtitle = text($formname . ' ' . $matches[3]);
-                $content_fetch = $this->templateService->fetchTemplate($form_id)['template_content'];
+                $pdfRow = $this->templateService->fetchTemplateForPatient($form_id, $this->pidInt);
+                $content_fetch = is_array($pdfRow) ? ($pdfRow['template_content'] ?? '') : '';
                 $content = 'data:application/pdf;base64,' . base64_encode((string) $content_fetch);
                 $sigfld = '<script>page.pdfFormName=' . js_escape($formname) . '</script>';
                 $sigfld .= "<div class='d-none' id='showPdf'>\n";
@@ -229,7 +242,7 @@ class DocumentTemplateRender
                 $this->keyLength = strlen($matches[0]);
                 $src = $formData['encounterForm'] ?? '';
                 $sigfld = "<script>page.isFrameForm=1;page.encounterFormName=" . js_escape($formname) . "</script>";
-                $sigfld .= "<iframe id='encounterForm' class='lbfFrame' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
+                $sigfld .= "<iframe id='encounterForm' class='lbfFrame' style='height:100vh;width:100%;border:0;' src='" . attr($this->sanitizeIframeSrc($src)) . "'></iframe>";
                 $s = $this->keyReplace($s, $sigfld);
             } elseif (preg_match('/^\{(TextBox):([0-9][0-9])x([0-9][0-9][0-9])\}/', substr((string) $s, $this->keyLocation), $matches)) {
                 $rows = $matches[2];
@@ -638,7 +651,10 @@ class DocumentTemplateRender
     {
         $isFetchById = is_numeric($template_id);
         if (!empty($template_id) && $source == 'new') {
-            $return = $this->templateService->fetchTemplate($template_id);
+            $return = $this->templateService->fetchTemplateForPatient($template_id, $this->pidInt);
+            if (!is_array($return)) {
+                throw new RuntimeException(xlt("Template not available for this patient."));
+            }
             $template = $return['template_content'];
             if ($render) {
                 $template = $this->doRender(null, $return['template_content']);
@@ -649,7 +665,9 @@ class DocumentTemplateRender
                 $return = sqlQuery('SELECT * FROM `onsite_documents` WHERE `id` = ?', [$template_id]);
             } else { // by name
                 $return = sqlQuery('SELECT * FROM `onsite_documents` WHERE `file_name` = ?', [$template_id]);
-                $template = $return['full_document'];
+            }
+            if (!is_array($return)) {
+                throw new RuntimeException(xlt("No matching onsite document."));
             }
             if ($render) {
                 $template = $this->doRender(null, $return['file_content'], $return['template_data']);
@@ -660,5 +678,40 @@ class DocumentTemplateRender
         }
 
         return $return;
+    }
+
+    /**
+     * Restrict an iframe `src` to the schemes the renderer actually needs:
+     * same-origin relative paths and explicit http/https URLs. Anything else
+     * returns an empty string. `attr()` HTML-encodes the value but does not
+     * narrow the scheme, so the narrowing happens here before substitution.
+     */
+    private function sanitizeIframeSrc(mixed $src): string
+    {
+        $raw = is_string($src) ? trim($src) : '';
+        if ($raw === '') {
+            return '';
+        }
+        // Control characters (incl. tabs and newlines) can be stripped by
+        // browser URL parsers, turning e.g. "/\t/other.example" into the
+        // protocol-relative "//other.example". Reject them before matching.
+        if (preg_match('/[\x00-\x1F\x7F]/', $raw)) {
+            return '';
+        }
+        // Relative paths starting with `/`, `./`, `../` or a bare segment
+        // stay in the same origin. The lookahead rejects `//host` and
+        // `/\host`, both of which browsers resolve as protocol-relative.
+        if (preg_match('#^(?:/(?![/\\\\])|\./|\.\./)#', $raw)) {
+            return $raw;
+        }
+        if (preg_match('#^[A-Za-z0-9_\-]+(?:\.[A-Za-z0-9_\-]+)*(?:\?.*)?$#', $raw)) {
+            return $raw;
+        }
+        // Fully qualified URLs: accept http(s) only.
+        $scheme = parse_url($raw, PHP_URL_SCHEME);
+        if (is_string($scheme) && in_array(strtolower($scheme), ['http', 'https'], true)) {
+            return $raw;
+        }
+        return '';
     }
 }
