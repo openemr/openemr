@@ -5,7 +5,7 @@
  * data contained in the OpenEMR system.  The search field will take in an array of values that are in the ISO8601 format
  * and parse them.  Fuzzy matching is supporting from left to right matching (in order of specificity ie a fuzzy search on
  * month must be preceded by year).  If a time component is specified both hours and minutes are required with seconds
- * being optional.  Currently Timezone parsing is not supported.
+ * being optional.  A value with no timezone is read in the server's timezone.
  *
  * In order to support fuzzy matching (equality, greater than, greater than or equal to, etc) each value being searched
  * on is converted into a DatePeriod with a start and end date component.
@@ -38,7 +38,7 @@ class DateSearchField extends BasicSearchField
     // This line is licensed under the MIT license and was last accessed on April 20th 2021
     // This line was updated on July 6th 2023 to support the fractional seconds (represented in milliseconds) component of the ISO8601 standard
     // per the https://build.fhir.org/search.html#date parameter format yyyy-mm-ddThh:mm:ss.ssss[Z|(+|-)hh:mm]
-    private const COMPARATOR_MATCH = "/^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(\.\d{1,9})?(Z|(\+|-)(\d{2}):(\d{2}))?$/";
+    private const COMPARATOR_MATCH = "/^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(?:(:\d{2})(\.\d{1,9})?)?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/";
 
     // php's DATE_ATOM does not handle milliseconds so we have to add them in manually
     public const DATE_ATOM_MILLISECONDS = 'Y-m-d\TH:i:s.uP';
@@ -140,11 +140,6 @@ class DateSearchField extends BasicSearchField
             throw new \InvalidArgumentException("Date format requires the year to be specified");
         }
 
-        // TODO: @adunsulag how did this ever trigger? seconds is optional, this forces seconds to be used...
-        if (!empty($matches[5]) && empty($matches[6])) {
-            throw new \InvalidArgumentException("Date format requires minutes to be specified if an hour is provided");
-        }
-
         $comparator = $matches[self::COMPARATOR_INDEX_COMPARATOR] ?? SearchComparator::EQUALS;
         if (!SearchComparator::isValidComparator($comparator)) {
             // TODO: adunsulag should we make this a specific Search Exception so we can report back an Operation Outcome?
@@ -199,11 +194,10 @@ class DateSearchField extends BasicSearchField
         }
 
         if (!empty($matches[self::COMPARATOR_INDEX_MILLISECONDS])) {
-            // remove the '.'
-            $milliseconds = intval(substr($matches[self::COMPARATOR_INDEX_MILLISECONDS], 1));
-            $milliseconds = min([max([$milliseconds, 0]), 999]);
-            $lowerBoundRange['ms'] = $milliseconds;
-            $upperBoundRange['ms'] = $milliseconds;
+            // remove the '.' and read the digits as a fraction of a second, so '.5' covers .500 to .599
+            $fraction = substr($matches[self::COMPARATOR_INDEX_MILLISECONDS], 1, 3);
+            $lowerBoundRange['ms'] = intval(str_pad($fraction, 3, '0'));
+            $upperBoundRange['ms'] = intval(str_pad($fraction, 3, '9'));
         }
 
         // we need to handle the timezone component if they send it, otherwise it defaults to the local timezone
@@ -229,7 +223,7 @@ class DateSearchField extends BasicSearchField
         // Not sure how we want to handle timezone
         // we create a DateTime object as not all search fields are a DateTime so we go as precise as we can
         // and let the services go more imprecise if needed.
-        $stringDate = sprintf("%d-%02d-%02dT%02d:%02d:%02d.%04d%s", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s'], $datetime['ms'], $datetime['tz']);
+        $stringDate = sprintf("%d-%02d-%02dT%02d:%02d:%02d.%03d%s", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s'], $datetime['ms'], $datetime['tz']);
         // 'n' & 'j' don't have leading zeros
         $dateValue = \DateTime::createFromFormat(self::DATE_ATOM_MILLISECONDS, $stringDate);
         return $dateValue;
