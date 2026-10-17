@@ -358,3 +358,69 @@ CREATE TABLE `task` (
   KEY `part_of_uuid` (`part_of_uuid`)
 ) ENGINE=InnoDB;
 #EndIf
+#IfNotTable content_assignments
+CREATE TABLE `content_assignments` (
+  `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `resource_type` varchar(63) NOT NULL DEFAULT 'questionnaire' COMMENT 'what is being assigned. A resource belongs here when "may this appear on this surface, in this context" is answered by the columns below; content scoped by patient cohort or carrying a send schedule does not',
+  `resource_id` bigint(21) UNSIGNED DEFAULT NULL COMMENT 'fk into the resource_type table, e.g. questionnaire_repository.id. NULL with a category set means every resource in that category',
+  `surface` varchar(31) NOT NULL COMMENT 'dashboard, encounter, portal, smart',
+  `category` varchar(64) DEFAULT NULL COMMENT 'with resource_id set, unused; with resource_id NULL, assigns every resource whose own category matches',
+  `facility` int(11) DEFAULT NULL COMMENT 'fk to facility.id; NULL means any',
+  `provider` int(11) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id; NULL means any',
+  `visit_category_id` int(11) DEFAULT NULL COMMENT 'fk to openemr_postcalendar_categories.pc_catid, as form_encounter.pc_catid carries it; NULL means any',
+  `client_id` varchar(255) DEFAULT NULL COMMENT 'oauth client for surface=smart; NULL means any',
+  `acl_section` varchar(64) DEFAULT NULL COMMENT 'ACL section required; set with acl_level or leave both NULL to use the surface default',
+  `acl_level` varchar(31) DEFAULT NULL COMMENT 'ACL level required; set with acl_section or leave both NULL to use the surface default',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `seq` int(11) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_by` int(10) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id',
+  `updated_by` int(10) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id',
+  PRIMARY KEY (`id`),
+  KEY `lookup` (`resource_type`,`surface`,`active`),
+  KEY `resource` (`resource_type`,`resource_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- Backfill from current state so an upgraded site sees exactly what it saw before.
+-- Every questionnaire was reachable from the dashboard and every registry-registered one
+-- from the encounter; both become unscoped assignment rows.
+--
+-- Deliberately NOT filtered on questionnaire_repository.active or registry.state. Those
+-- flags are applied at read time -- the availability join requires qr.active = 1 and
+-- getFormsByCategory() selects on registry.state -- so an assignment for something
+-- currently inactive or disabled has no visible effect. Filtering here instead would
+-- change behaviour on upgrade: before, re-activating a questionnaire or re-enabling its
+-- registry row made it visible again; with the flags filtered it would have no assignment
+-- and would stay hidden, with no UI yet to repair it. Backfilling everything keeps
+-- re-activation working exactly as it does today.
+--
+-- Idempotent per questionnaire rather than per surface: a NOT EXISTS on the individual
+-- row means a re-run completes a partial backfill instead of skipping every remaining
+-- questionnaire as soon as one assignment is present. DISTINCT because a questionnaire
+-- can hold more than one matching registry row.
+INSERT INTO `content_assignments` (`resource_type`, `resource_id`, `surface`, `active`, `seq`)
+SELECT DISTINCT 'questionnaire', qr.`id`, 'dashboard', 1, 0
+  FROM `questionnaire_repository` qr
+ WHERE NOT EXISTS (
+       SELECT 1 FROM `content_assignments` ca
+        WHERE ca.`resource_type` = 'questionnaire'
+          AND ca.`resource_id` = qr.`id`
+          AND ca.`surface` = 'dashboard'
+   );
+
+-- form_foreign_id > 0 stays: a questionnaire_assessments registry row without one is the
+-- generic "New Questionnaire" launcher, which stands for no questionnaire and needs no
+-- assignment.
+INSERT INTO `content_assignments` (`resource_type`, `resource_id`, `surface`, `active`, `seq`)
+SELECT DISTINCT 'questionnaire', r.`form_foreign_id`, 'encounter', 1, 0
+  FROM `registry` r
+ WHERE r.`directory` = 'questionnaire_assessments'
+   AND r.`form_foreign_id` > 0
+   AND NOT EXISTS (
+       SELECT 1 FROM `content_assignments` ca
+        WHERE ca.`resource_type` = 'questionnaire'
+          AND ca.`resource_id` = r.`form_foreign_id`
+          AND ca.`surface` = 'encounter'
+   );
