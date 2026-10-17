@@ -61,7 +61,10 @@ if ($transid > 0) {
     $ownerPid = is_array($owner) && isset($owner['pid']) && is_numeric($owner['pid'])
         ? (int) $owner['pid']
         : 0;
-    if ($ownerPid !== $sessionPidInt) {
+    // transactions.pid is nullable; a NULL-owned row with no open chart
+    // would otherwise normalize to 0 === 0 and pass the match. Require
+    // both sides to be positive before comparing.
+    if ($sessionPidInt <= 0 || $ownerPid <= 0 || $ownerPid !== $sessionPidInt) {
         AccessDeniedHelper::deny('add_transaction: transid does not belong to the open chart');
     }
 }
