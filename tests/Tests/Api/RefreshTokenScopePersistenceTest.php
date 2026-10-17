@@ -254,12 +254,36 @@ class RefreshTokenScopePersistenceTest extends TestCase
             'openid offline_access user/Patient.read user/Encounter.read',
         );
         if ($upgraded['status'] >= 400) {
-            // RFC-strict path: 400 + invalid_scope.
-            $this->assertContains(
+            // RFC-strict path: 400 + invalid_scope. league/oauth2-server's
+            // RefreshTokenGrant::validateScopes throws invalidScope BEFORE
+            // revoking the old refresh token, so narrowing the accepted
+            // error to invalid_scope guarantees the rejection came from the
+            // scope check — not from an unrelated refresh failure (revoked
+            // token, wrong client, malformed body) that would also map to
+            // invalid_grant / invalid_request and leave the regression gate
+            // reporting success while refresh is actually broken.
+            $this->assertSame(
+                'invalid_scope',
                 $upgraded['body']['error'] ?? null,
-                ['invalid_scope', 'invalid_request', 'invalid_grant'],
-                'If upgrade is rejected, error label should be invalid_scope '
-                    . 'or similar. Body: ' . json_encode($upgraded['body'])
+                'If upgrade is rejected, error label must be invalid_scope. '
+                    . 'Body: ' . json_encode($upgraded['body'])
+            );
+            // Control refresh: the same refresh_token must still work with
+            // the originally granted scope. Proves the rejection above was
+            // scope-driven rather than a side-effect of an upstream failure.
+            $control = AuthCodeFlow::exchangeRefreshToken(
+                $this->baseUrl,
+                $mint['client_id'],
+                $mint['client_secret'],
+                $refreshToken,
+                implode(' ', $granted),
+            );
+            $this->assertSame(
+                200,
+                $control['status'],
+                'Control refresh with the granted scope must succeed — '
+                    . 'confirms the upgrade rejection was scope-driven. '
+                    . 'Body: ' . json_encode($control['body'])
             );
             return;
         }
