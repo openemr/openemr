@@ -15,7 +15,10 @@
  * counted once. A different reading the same day is kept: CMS165 takes the lowest
  * blood pressure of the most recent day. Only an exam whose value is a plain number
  * counts: PhysicalExamService reads any other as no result, and CAST would read
- * "128abc" as 128. Days are compared, not timestamps, because
+ * "128abc" as 128. Values are compared at the precision form_vitals stores them, so
+ * two readings that differ only past the hundredths are both kept, while the
+ * import's two copies, written from the same source value, still match. Days are
+ * compared, not timestamps, because
  * the import's revise-and-approve path writes the date in another form.
  *
  * @package   OpenEMR
@@ -58,6 +61,16 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
         '29463-7' => ['29463-7', '3141-9'],
     ];
 
+    /**
+     * Decimal places form_vitals keeps for each column (DECIMAL(12,6)); the others
+     * (blood pressure as text, ped_bmi as DECIMAL(6,2)) are compared at two.
+     */
+    private const STORED_SCALE = [
+        'BMI' => 6,
+        'height' => 6,
+        'weight' => 6,
+    ];
+
     public function getSqlStatement(): string
     {
         $selects = [];
@@ -67,6 +80,7 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
                 ? "v.`$column` REGEXP '^[0-9]+([.][0-9]+)?$' AND v.`$column` > 0"
                 : "v.`$column` > 0";
             $codes = implode(', ', array_map(static fn(string $c): string => "'LOINC:$c'", self::IMPORTED_AS[$loinc] ?? [$loinc]));
+            $scale = self::STORED_SCALE[$column] ?? 2;
             $selects[] = "SELECT v.`pid`, v.`date`, 'LOINC:$loinc' AS `code`, v.`$column` AS `value`, '$unit' AS `unit`
                 FROM `form_vitals` AS v
                 JOIN `forms` AS f ON f.`form_id` = v.`id` AND f.`formdir` = 'vitals' AND f.`deleted` = 0
@@ -76,7 +90,7 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
                     WHERE o.`pid` = v.`pid` AND o.`ob_type` = '" . AbstractObservationService::OB_TYPE_PHYSICAL_EXAM . "'
                     AND o.`code` IN ($codes) AND DATE(o.`date`) = DATE(v.`date`)
                     AND o.`ob_value` REGEXP '^[0-9]+([.][0-9]+)?$'
-                    AND CAST(o.`ob_value` AS DECIMAL(12,2)) = CAST(v.`$column` AS DECIMAL(12,2))
+                    AND CAST(o.`ob_value` AS DECIMAL(12,$scale)) = CAST(v.`$column` AS DECIMAL(12,$scale))
                 )";
         }
         // Wrapped so that the patient filter executeQuery() appends applies to every vital.
