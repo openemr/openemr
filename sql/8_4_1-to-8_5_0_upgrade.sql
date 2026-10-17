@@ -324,3 +324,17 @@ CREATE TABLE `oauth_auth_code_revocations` (
     KEY `idx_revoked_at` (`revoked_at`)
 ) ENGINE=InnoDB;
 #EndIf
+
+-- Index `api_log`.`log_id`, which is a join key in two places and had no index.
+--
+-- `api_log` is joined on `log_id` by the audit log viewer (Reports > Logs, via
+-- EventAuditLogger) and by the Real World Testing API metric. With no index,
+-- MariaDB resolves the viewer's LEFT JOIN as a block-nested-loop over the whole
+-- table; measured on 20,060 rows it reports type=ALL with a join buffer, and
+-- with the index it reports type=ref at one row per outer row.
+--
+-- `api_log` holds one row per API request, so it is far smaller than `log`, and
+-- InnoDB builds a secondary index online (ALGORITHM=INPLACE, LOCK=NONE).
+#IfNotIndex api_log log_id
+CREATE INDEX `log_id` ON `api_log` (`log_id`);
+#EndIf

@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Reports;
 
+use OpenEMR\Common\Database\QueryUtils;
+
 class RealWorldTesting
 {
     private readonly string $beginDate;
@@ -44,125 +46,166 @@ class RealWorldTesting
     // Number of generated CCDA documents.
     private function metric1(): string
     {
-        $result = "";
-        $check = sqlQuery("SELECT count(`id`) AS `count` FROM `ccda` WHERE `updated_date` >= ? AND `updated_date` <= ?", [$this->beginDate, $this->endDate]);
-        if (!empty($check['count']) && $check['count'] > 0) {
-            $result .= xl('Number of generated CCDA documents') . ': ' . $check['count'];
-        } else {
-            $result .= xl('No generated CCDA documents.');
-        }
-        return $result;
+        $count = $this->periodCount(
+            "SELECT count(`id`) AS `count` FROM `ccda`
+             WHERE `updated_date` >= ? AND `updated_date` <= ?"
+        );
+        return $count > 0
+            ? xl('Number of generated CCDA documents') . ': ' . $count
+            : xl('No generated CCDA documents.');
     }
 
-    // Number of Direct messages sent and received.
+    /**
+     * Number of Direct messages sent and received.
+     *
+     * @return list<string>
+     */
     private function metric2(): array
     {
-        $result = [];
-        $check = sqlQuery("SELECT count(`id`) AS `count` FROM `direct_message_log` WHERE `status` = 'S' AND `create_ts` >= ? AND `create_ts` <= ?", [$this->beginDate, $this->endDate]);
-        if (!empty($check['count']) && $check['count'] > 0) {
-            $result[] = xl('Number of sent Direct messages') . ': ' . $check['count'];
-        } else {
-            $result[] = xl('No sent Direct messages.');
-        }
-        $check = sqlQuery("SELECT count(`id`) AS `count` FROM `direct_message_log` WHERE `status` = 'R' AND `create_ts` >= ? AND `create_ts` <= ?", [$this->beginDate, $this->endDate]);
-        if (!empty($check['count']) && $check['count'] > 0) {
-            $result[] = xl('Number of received Direct messages') . ': ' . $check['count'];
-        } else {
-            $result[] = xl('No received Direct messages.');
-        }
-        return $result;
+        $sent = $this->periodCount(
+            "SELECT count(`id`) AS `count` FROM `direct_message_log`
+             WHERE `status` = 'S' AND `create_ts` >= ? AND `create_ts` <= ?"
+        );
+        $received = $this->periodCount(
+            "SELECT count(`id`) AS `count` FROM `direct_message_log`
+             WHERE `status` = 'R' AND `create_ts` >= ? AND `create_ts` <= ?"
+        );
+
+        return [
+            $sent > 0
+                ? xl('Number of sent Direct messages') . ': ' . $sent
+                : xl('No sent Direct messages.'),
+            $received > 0
+                ? xl('Number of received Direct messages') . ': ' . $received
+                : xl('No received Direct messages.'),
+        ];
     }
 
     // Number of QRDA imports.
     private function metric3(): string
     {
-        $result = "";
-        $check = sqlQuery("SELECT count(`id`) AS `count` FROM `audit_master` WHERE `is_qrda_document` = '1' AND `created_time` >= ? AND `created_time` <= ?", [$this->beginDate, $this->endDate]);
-        if (!empty($check['count']) && $check['count'] > 0) {
-            $result .= xl('Number QRDA imports') . ': ' . $check['count'];
-        } else {
-            $result .= xl('No QRDA imports.');
-        }
-        return $result;
+        $count = $this->periodCount(
+            "SELECT count(`id`) AS `count` FROM `audit_master`
+             WHERE `is_qrda_document` = '1' AND `created_time` >= ? AND `created_time` <= ?"
+        );
+        return $count > 0
+            ? xl('Number QRDA imports') . ': ' . $count
+            : xl('No QRDA imports.');
     }
 
     // Number of generated CQM QRDA 3 reports.
     private function metric4(): string
     {
-        $result = "";
-        $check = sqlQuery("SELECT count(`id`) AS `count` FROM `log` WHERE `event` = 'qrda3-export' AND `success` = '1' AND `date` >= ? AND `date` <= ?", [$this->beginDate, $this->endDate]);
-        if (!empty($check['count']) && $check['count'] > 0) {
-            $result .= xl('Number CQM QRDA 3 reports') . ': ' . $check['count'];
-        } else {
-            $result .= xl('No CQM QRDA 3 reports.');
+        $count = $this->periodCount(
+            "SELECT count(`id`) AS `count` FROM `log`
+             WHERE `event` = 'qrda3-export' AND `success` = '1'
+               AND `date` >= ? AND `date` <= ?"
+        );
+        return $count > 0
+            ? xl('Number CQM QRDA 3 reports') . ': ' . $count
+            : xl('No CQM QRDA 3 reports.');
+    }
+
+    /**
+     * API use analytics: successful and unsuccessful requests, requests by
+     * users and by patients, and requests per data category.
+     *
+     * @return list<string>
+     */
+    private function metric5(): array
+    {
+        $metrics = $this->apiUseMetrics();
+
+        $result = [];
+        $result[] = xl('Successful API requests') . ': ' . $metrics->successful;
+        $result[] = xl('Unsuccessful API requests') . ': ' . $metrics->unsuccessful;
+        $result[] = xl('API requests by users') . ': ' . $metrics->byUsers;
+        $result[] = xl('API requests by patients') . ': ' . $metrics->byPatients;
+        foreach ($metrics->byResource as $resource => $count) {
+            $result[] = xl('API requests for resource') . ' ' . $resource . ': ' . $count;
         }
         return $result;
     }
 
-    // API use analytics, which will include number of successful requests, number of
-    // unsuccessful requests, number of requests by patients, number of requests by
-    // users, and number of requests categorized by each data category.
-    private function metric5(): array
+    /**
+     * Every metric counts rows in the same reporting period, and `COUNT()`
+     * columns are typed `mixed`, so the bind and the narrowing live here.
+     */
+    private function periodCount(string $sql): int
     {
-        $result = [];
-        $countSuccess = 0;
-        $countFail = 0;
-        $countUser = 0;
-        $countPatient = 0;
-        $arrayResources = [];
-        $res = sqlStatement("SELECT l.`success`, al.`user_id`, al.`patient_id`, al.`request`
-                             FROM `log` as l
-                             INNER JOIN `api_log` as al
-                             ON l.`id` = al.`log_id`
-                             WHERE l.`date` >= ? AND l.`date` <= ?
-                            ", [$this->beginDate, $this->endDate]);
-        while ($row = sqlFetchArray($res)) {
-            if (empty($row['success'])) {
-                $countFail++;
-            } else {
-                $countSuccess++;
-                if (!empty($row['user_id'])) {
-                    $countUser++;
-                } elseif (!empty($row['patient_id'])) {
-                    $countPatient++;
-                }
-                if (!empty($row['request'])) {
-                    if (array_key_exists($row['request'], $arrayResources)) {
-                        $arrayResources[$row['request']]++;
-                    } else {
-                        $arrayResources[$row['request']] = 1;
-                    }
-                }
-            }
-        }
-        $result[] = xl('Successful API requests') . ': ' . $countSuccess;
-        $result[] = xl('Unsuccessful API requests') . ': ' . $countFail;
-        $result[] = xl('API requests by users') . ': ' . $countUser;
-        $result[] = xl('API requests by patients') . ': ' . $countPatient;
-        foreach ($arrayResources as $key => $value) {
-            $result[] = xl('API requests for resource') . ' ' . $key . ': ' . $value;
-        }
-        return $result;
+        return MetricCount::fromColumn(
+            QueryUtils::querySingleRow($sql, [$this->beginDate, $this->endDate]),
+            'count'
+        );
+    }
+
+    /**
+     * Aggregating in SQL keeps the result set proportional to the number of
+     * distinct resources rather than to the number of API requests in the
+     * period, which the previous row-by-row loop read into PHP in full.
+     *
+     * `log`.`success` is a nullable tinyint; NULL and 0 both count as a failure,
+     * matching the `empty()` test this replaced. A request is attributed to a
+     * user when `user_id` is set, and only otherwise to a patient.
+     */
+    private function apiUseMetrics(): ApiUseMetrics
+    {
+        $period = [$this->beginDate, $this->endDate];
+
+        $totals = QueryUtils::querySingleRow(
+            "SELECT
+                 SUM(l.`success` IS NULL OR l.`success` = 0) AS `fail_count`,
+                 SUM(l.`success` IS NOT NULL AND l.`success` <> 0) AS `success_count`,
+                 SUM(l.`success` IS NOT NULL AND l.`success` <> 0
+                     AND al.`user_id` <> 0) AS `user_count`,
+                 SUM(l.`success` IS NOT NULL AND l.`success` <> 0
+                     AND al.`user_id` = 0 AND al.`patient_id` <> 0) AS `patient_count`
+             FROM `log` AS l
+             INNER JOIN `api_log` AS al ON l.`id` = al.`log_id`
+             WHERE l.`date` >= ? AND l.`date` <= ?",
+            $period
+        );
+
+        // Grouped on a binary cast because the installer's default collation is
+        // utf8mb4_general_ci, under which GROUP BY would fold `Patient` and
+        // `patient` into one row. The loop this replaced keyed a PHP array, which
+        // is byte-exact, so the cast preserves that.
+        //
+        // `request <> '0'` preserves the previous empty() test, which treated the
+        // string '0' as absent. Ordering replaces the old insertion order, which
+        // was whatever the unordered scan happened to return.
+        $resourceRows = QueryUtils::fetchRecords(
+            "SELECT CAST(al.`request` AS BINARY) AS `resource`, COUNT(*) AS `request_count`
+             FROM `log` AS l
+             INNER JOIN `api_log` AS al ON l.`id` = al.`log_id`
+             WHERE l.`date` >= ? AND l.`date` <= ?
+               AND l.`success` IS NOT NULL AND l.`success` <> 0
+               AND al.`request` <> '' AND al.`request` <> '0'
+             GROUP BY CAST(al.`request` AS BINARY)
+             ORDER BY CAST(al.`request` AS BINARY)",
+            $period
+        );
+
+        return ApiUseMetrics::fromRows($totals, $resourceRows);
     }
 
     // Number of Electronic Health Information (EHI) Exports.
     private function metric6(): string
     {
-        $result = "";
-
-        // First check if the ehi_export_job_tasks table exists, since is only installed via Electronic Health Information Exporter module
-        //  if it does not exist, then return no EHI exports
-        $row = sqlQuery("SHOW TABLES LIKE 'ehi_export_job_tasks'");
-        if (empty($row)) {
+        // ehi_export_job_tasks only exists where the Electronic Health
+        // Information Exporter module is installed.
+        $table = QueryUtils::querySingleRow("SHOW TABLES LIKE 'ehi_export_job_tasks'");
+        if (!is_array($table) || $table === []) {
             return xl('No Electronic Health Information (EHI) Exports.');
         }
 
-        $check = sqlQuery("SELECT count(`ehi_task_id`) AS `count` FROM `ehi_export_job_tasks` WHERE `status` = 'completed' AND `completion_date` >= ? AND `completion_date` <= ?", [$this->beginDate, $this->endDate]);
-        if (!empty($check['count']) && $check['count'] > 0) {
-            $result .= xl('Number of Electronic Health Information (EHI) Exports') . ': ' . $check['count'];
-        } else {
-            $result .= xl('No Electronic Health Information (EHI) Exports.');
-        }
-        return $result;
+        $count = $this->periodCount(
+            "SELECT count(`ehi_task_id`) AS `count` FROM `ehi_export_job_tasks`
+             WHERE `status` = 'completed'
+               AND `completion_date` >= ? AND `completion_date` <= ?"
+        );
+        return $count > 0
+            ? xl('Number of Electronic Health Information (EHI) Exports') . ': ' . $count
+            : xl('No Electronic Health Information (EHI) Exports.');
     }
 }
