@@ -319,7 +319,9 @@ class QuestionnaireAvailabilityServiceTest extends TestCase
 
     public function testAnAssignmentNamingNeitherTargetMatchesNothing(): void
     {
-        $id = $this->addQuestionnaire('availability untargeted');
+        // The questionnaire has to exist for the assertion to mean anything -- an active
+        // questionnaire is present and the untargeted row still matches nothing.
+        $this->addQuestionnaire('availability untargeted');
         $this->addAssignment(['resource_id' => null, 'category' => null, 'surface' => 'dashboard']);
 
         $this->assertSame(
