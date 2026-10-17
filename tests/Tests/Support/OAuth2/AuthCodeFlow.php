@@ -339,6 +339,57 @@ class AuthCodeFlow
     }
 
     /**
+     * Exchange a refresh_token for a new access_token.
+     *
+     * Confidential-client (client_secret_post) refresh exchange,
+     * matching the mint helpers above. Returns the raw token-endpoint
+     * response so a caller can assert status + body shape — the token
+     * endpoint returns 200 for a successful exchange, 400 with
+     * `error=invalid_scope` (or similar) for a scope-upgrade attempt,
+     * etc.
+     *
+     * $scope is optional per RFC 6749 §6: when supplied, the client
+     * is asking for a narrower (or equal) scope. Omitting it reuses
+     * the refresh-token's bound scope set.
+     *
+     * @return array{status: int, body: array<mixed>, scopes_granted: list<string>, response_body: array<mixed>}
+     */
+    public static function exchangeRefreshToken(
+        string $baseUrl,
+        string $clientId,
+        string $clientSecret,
+        string $refreshToken,
+        ?string $scope = null,
+    ): array {
+        $form = [
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $refreshToken,
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret,
+        ];
+        if ($scope !== null) {
+            $form['scope'] = $scope;
+        }
+        $resp = self::buildClient()->post($baseUrl . '/oauth2/default/token', [
+            'form_params' => $form,
+        ]);
+        $bodyRaw = (string) $resp->getBody();
+        $body = json_decode($bodyRaw, true);
+        if (!is_array($body)) {
+            $body = ['_raw' => $bodyRaw];
+        }
+        $scopeValue = $body['scope'] ?? '';
+        /** @var list<string> $granted */
+        $granted = is_string($scopeValue) && $scopeValue !== '' ? explode(' ', $scopeValue) : [];
+        return [
+            'status' => $resp->getStatusCode(),
+            'body' => $body,
+            'scopes_granted' => $granted,
+            'response_body' => $body,
+        ];
+    }
+
+    /**
      * Drives steps 1-2 of the auth-code flow (GET /authorize → POST
      * login → arrive on consent page). Returns everything a caller
      * needs to either continue to consent-submit or assert on the
