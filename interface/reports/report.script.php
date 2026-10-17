@@ -13,17 +13,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Acl\AclMain;
-
-// Fragment included from `interface/billing/billing_report.php`; align the
-// standalone-case permission check with that parent file. Globals.php is
-// already loaded via the parent include; re-requiring here is idempotent.
-require_once(__DIR__ . "/../globals.php");
-if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Billing Report", xl("Billing Report"));
-}
-
 ?>
 <script>
     //Calendar Functions to set From and To dates
