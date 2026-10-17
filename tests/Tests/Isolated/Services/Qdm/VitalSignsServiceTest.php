@@ -89,6 +89,7 @@ class VitalSignsServiceTest extends TestCase
         }
         $this->assertStringContainsString("o.`code` IN ('LOINC:29463-7', 'LOINC:3141-9')", $sql);
         $this->assertStringContainsString("o.`code` IN ('LOINC:8480-6')", $sql);
+        $this->assertSame(count(VitalSignsService::VITALS), substr_count($sql, "o.`ob_value` REGEXP '^[0-9]+([.][0-9]+)?$'"));
         // executeQuery() appends "AND (<patient filter>)", which must apply to the whole union.
         $this->assertStringEndsWith(') AS vital_signs WHERE 1 = 1', $sql);
     }
