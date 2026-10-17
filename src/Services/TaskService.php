@@ -103,11 +103,15 @@ class TaskService extends BaseService
 
     /**
      * What a write needs to know about a stored task: its patient, status, parent and version.
+     * Null for no such task, including an id that isn't a uuid at all.
      *
      * @return ?array{id: int, patient_id: ?int, status: string, part_of_uuid: ?string, version: int}
      */
     public function getForWrite(string $uuid): ?array
     {
+        if (!UuidRegistry::isValidStringUUID($uuid)) {
+            return null;
+        }
         $row = QueryUtils::querySingleRow(
             'SELECT id, patient_id, status, part_of_uuid, version FROM task WHERE uuid = ?',
             [UuidRegistry::uuidToBytes($uuid)]
