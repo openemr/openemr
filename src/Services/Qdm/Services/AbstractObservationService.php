@@ -46,6 +46,12 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
                 `ob_reason_status`, `ob_reason_code`, `date_end`
                 FROM `form_observation`
                 WHERE `ob_type` = '$observation_type'
+                AND COALESCE(`activity`, 1) <> 0
+                AND NOT EXISTS (
+                    SELECT 1 FROM `forms`
+                    WHERE `forms`.`form_id` = `form_observation`.`form_id`
+                      AND `forms`.`formdir` = 'observation' AND `forms`.`deleted` = 1
+                )
                 ";
         return $sql;
     }
