@@ -693,8 +693,8 @@ class DocumentTemplateRender
             return '';
         }
         // Control characters (incl. tabs and newlines) can be stripped by
-        // browser URL parsers, turning e.g. "/\t/evil.example" into the
-        // protocol-relative "//evil.example". Reject them before matching.
+        // browser URL parsers, turning e.g. "/\t/other.example" into the
+        // protocol-relative "//other.example". Reject them before matching.
         if (preg_match('/[\x00-\x1F\x7F]/', $raw)) {
             return '';
         }

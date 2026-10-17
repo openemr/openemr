@@ -90,14 +90,14 @@ class DocumentTemplateRenderIframeSrcTest extends TestCase
     public function testRejectsProtocolRelativeDoubleSlash(): void
     {
         // Browsers resolve `//host/x` as `<scheme>://host/x` — cross-origin.
-        $this->assertSame('', $this->sanitize('//evil.example/x'));
+        $this->assertSame('', $this->sanitize('//other.example/x'));
     }
 
     public function testRejectsProtocolRelativeSlashBackslash(): void
     {
         // Browsers normalize `\` to `/` in special schemes, so `/\host`
         // reaches the same cross-origin resolution as `//host`.
-        $this->assertSame('', $this->sanitize('/\\evil.example'));
+        $this->assertSame('', $this->sanitize('/\\other.example'));
     }
 
     public function testRejectsEmbeddedTabInScheme(): void
@@ -109,8 +109,8 @@ class DocumentTemplateRenderIframeSrcTest extends TestCase
 
     public function testRejectsEmbeddedTabInRelativePath(): void
     {
-        // `/\t/evil.example` → browser → `//evil.example` (cross-origin).
-        $this->assertSame('', $this->sanitize("/\t/evil.example"));
+        // `/\t/other.example` → browser → `//other.example` (cross-origin).
+        $this->assertSame('', $this->sanitize("/\t/other.example"));
     }
 
     public function testRejectsEmbeddedNewlineInUrl(): void
