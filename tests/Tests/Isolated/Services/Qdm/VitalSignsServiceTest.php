@@ -83,9 +83,11 @@ class VitalSignsServiceTest extends TestCase
         $this->assertSame($count, substr_count($sql, "f.`formdir` = 'vitals' AND f.`deleted` = 0"));
         $this->assertSame($count, substr_count($sql, "o.`ob_type` = 'physical_exam_performed'"));
         $this->assertSame($count - 1, substr_count($sql, 'UNION ALL'));
-        // A reading is the import's copy only with the same code, day and value; weight under either import code.
+        // A reading is the import's copy only with the same code, day and value, compared at the precision
+        // form_vitals stores (six places for BMI, height and weight); weight under either import code.
         foreach (VitalSignsService::VITALS as $column => [$loinc]) {
-            $this->assertStringContainsString("CAST(o.`ob_value` AS DECIMAL(12,2)) = CAST(v.`$column` AS DECIMAL(12,2))", $sql);
+            $scale = in_array($column, ['BMI', 'height', 'weight'], true) ? 6 : 2;
+            $this->assertStringContainsString("CAST(o.`ob_value` AS DECIMAL(12,$scale)) = CAST(v.`$column` AS DECIMAL(12,$scale))", $sql);
         }
         $this->assertStringContainsString("o.`code` IN ('LOINC:29463-7', 'LOINC:3141-9')", $sql);
         $this->assertStringContainsString("o.`code` IN ('LOINC:8480-6')", $sql);

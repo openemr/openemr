@@ -90,6 +90,18 @@ class VitalSignsServiceDatabaseTest extends TestCase
             'blood pressure and weight are the imported exams\' copies; the BMI is only in the Vitals form');
     }
 
+    public function testReadingsAreComparedAtTheirStoredPrecision(): void
+    {
+        // form_vitals keeps BMI, height and weight to six places: two BMIs either side of 25 that round
+        // to the same hundredth are two readings, while an imported copy of the same value still matches.
+        $this->observation(self::PID, '2026-03-02 08:15:00', '39156-5', '25.004', 'kg/m2');
+        $this->vitals(self::PID, '2026-03-02 09:00:00', ['BMI' => '24.996']);
+        $this->observation(self::PID, '2026-03-03 09:00:00', '3141-9', '70.123456', 'kg');
+        $this->vitals(self::PID, '2026-03-03 09:00:00', ['weight' => '70.123456']);
+
+        $this->assertSame([[self::PID, 'LOINC:39156-5', 24.996]], $this->read(new QdmRequestOne((string)self::PID)));
+    }
+
     public function testAnExamWhoseValueIsNotANumberDoesNotHideAReading(): void
     {
         // PhysicalExamService reads "128abc" as no result; CAST alone would read it as 128 and drop the reading.
