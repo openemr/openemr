@@ -1259,6 +1259,10 @@ return [
 
     "GET /fhir/Task/:uuid" => fn(string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag): Response => (new FhirTaskRestController($request, $globalsBag))->getOne($uuid),
 
+    "POST /fhir/Task" => fn(HttpRestRequest $request, OEGlobalsBag $globalsBag): Response => (new FhirTaskRestController($request, $globalsBag))->post(),
+
+    "PUT /fhir/Task/:uuid" => fn(string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag): Response => (new FhirTaskRestController($request, $globalsBag))->put($uuid),
+
     "GET /fhir/Procedure/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient

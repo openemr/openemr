@@ -19,11 +19,13 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchConfigClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchQueryConfig;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
 class TaskService extends BaseService
@@ -35,7 +37,7 @@ class TaskService extends BaseService
             task.intent, task.priority, task.code, task.description, task.patient_id, patients.uuid AS puuid,
             task.focus_type, task.focus_uuid, task.owner_type, task.owner_uuid,
             task.requester_type, task.requester_uuid, task.part_of_uuid,
-            task.authored_on, task.last_modified, task.created_by, task.updated_by
+            task.authored_on, task.last_modified, task.created_by, task.updated_by, task.version
         FROM task
         LEFT JOIN patient_data AS patients ON patients.pid = task.patient_id";
 
@@ -85,6 +87,114 @@ class TaskService extends BaseService
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $processingResult;
+    }
+
+    /**
+     * One task as search() returns it, by uuid, or null.
+     *
+     * @return ?array<string, mixed>
+     */
+    public function getOne(string $uuid): ?array
+    {
+        $records = $this->search(['_id' => new TokenSearchField('uuid', [$uuid], true)])->getData();
+        $record = is_array($records) ? ($records[0] ?? null) : null;
+        return is_array($record) ? self::stringKeyed($record) : null;
+    }
+
+    /**
+     * What a write needs to know about a stored task: its patient, status, parent and version.
+     *
+     * @return ?array{id: int, patient_id: ?int, status: string, part_of_uuid: ?string, version: int}
+     */
+    public function getForWrite(string $uuid): ?array
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT id, patient_id, status, part_of_uuid, version FROM task WHERE uuid = ?',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        if (!is_array($row) || !is_numeric($row['id'] ?? null)) {
+            return null;
+        }
+        $parent = $row['part_of_uuid'] ?? null;
+        return [
+            'id' => (int)$row['id'],
+            'patient_id' => is_numeric($row['patient_id'] ?? null) ? (int)$row['patient_id'] : null,
+            'status' => is_string($row['status'] ?? null) ? $row['status'] : '',
+            'part_of_uuid' => is_string($parent) && $parent !== '' ? UuidRegistry::uuidToString($parent) : null,
+            'version' => is_numeric($row['version'] ?? null) ? (int)$row['version'] : 1,
+        ];
+    }
+
+    /**
+     * Saves a new task and returns its uuid.
+     *
+     * @param array<string, string|null> $fields the task's columns, uuids as strings
+     */
+    public function insert(array $fields, int $patientId, ?int $userId): string
+    {
+        $uuid = (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createUuid();
+        $columns = self::columns($fields);
+        $sql = 'INSERT INTO task (uuid, patient_id, created_by, updated_by, version'
+            . implode('', array_map(static fn(string $c): string => ", `$c`", array_keys($columns)))
+            . ') VALUES (?, ?, ?, ?, 1' . str_repeat(', ?', count($columns)) . ')';
+        QueryUtils::sqlInsert($sql, array_merge([$uuid, $patientId, $userId, $userId], array_values($columns)));
+        return UuidRegistry::uuidToString($uuid);
+    }
+
+    /**
+     * Updates a task and raises its version, only while its version is still the one expected
+     * (If-Match) when one is given. False when no row matched: the task is gone, or changed since.
+     *
+     * @param array<string, string|null> $fields the task's columns, uuids as strings
+     */
+    public function update(string $uuid, array $fields, ?int $userId, ?int $expectedVersion = null): bool
+    {
+        $columns = self::columns($fields);
+        $sql = 'UPDATE task SET updated_by = ?, version = version + 1'
+            . implode('', array_map(static fn(string $c): string => ", `$c` = ?", array_keys($columns)))
+            . ' WHERE uuid = ?' . ($expectedVersion === null ? '' : ' AND version = ?');
+        $binds = array_merge([$userId], array_values($columns), [UuidRegistry::uuidToBytes($uuid)]);
+        if ($expectedVersion !== null) {
+            $binds[] = $expectedVersion;
+        }
+        QueryUtils::sqlStatementThrowException($sql, $binds);
+        return QueryUtils::affectedRows() > 0;
+    }
+
+    /**
+     * The writable columns, uuid columns as bytes. A write names only these, so a field that
+     * isn't one of them can't reach the SQL.
+     *
+     * @param array<string, string|null> $fields
+     * @return array<string, string|null>
+     */
+    private static function columns(array $fields): array
+    {
+        $writable = ['status', 'status_reason', 'business_status', 'intent', 'priority', 'code', 'description',
+            'focus_type', 'focus_uuid', 'owner_type', 'owner_uuid', 'requester_type', 'requester_uuid', 'part_of_uuid', 'authored_on'];
+        $columns = [];
+        foreach ($writable as $column) {
+            if (array_key_exists($column, $fields)) {
+                $value = $fields[$column];
+                $columns[$column] = $value !== null && str_ends_with($column, '_uuid') ? UuidRegistry::uuidToBytes($value) : $value;
+            }
+        }
+        return $columns;
+    }
+
+    /**
+     * @param array<mixed> $record
+     * @return array<string, mixed>
+     */
+    private static function stringKeyed(array $record): array
+    {
+        $out = [];
+        foreach ($record as $key => $value) {
+            if (is_string($key)) {
+                $out[$key] = $value;
+            }
+        }
+        return $out;
     }
 
     /**

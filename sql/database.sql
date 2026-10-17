@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 553
+-- v_database: 554
 --
 
 --
@@ -14429,6 +14429,7 @@ CREATE TABLE `task` (
   `last_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created_by` bigint(20) DEFAULT NULL COMMENT 'users.id',
   `updated_by` bigint(20) DEFAULT NULL COMMENT 'users.id',
+  `version` int(11) NOT NULL DEFAULT 1 COMMENT 'FHIR meta.versionId: 1 on create, raised by each update (If-Match)',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `patient_id` (`patient_id`),
