@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Isolated\Common\System;
 use OpenEMR\Common\System\MissingSiteException;
 use OpenEMR\Common\System\MissingSiteIdException;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 class MissingSiteIdExceptionTest extends TestCase
 {
@@ -43,9 +44,15 @@ class MissingSiteIdExceptionTest extends TestCase
         }
     }
 
-    public function testProducesBadRequestHttpStatus(): void
+    public function testProducesUnauthorizedHttpStatus(): void
     {
         $exception = new MissingSiteIdException();
-        $this->assertSame(400, $exception->getStatusCode());
+        $this->assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
+    }
+
+    public function testMissingSiteExceptionRemainsBadRequest(): void
+    {
+        $exception = new MissingSiteException();
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
     }
 }
