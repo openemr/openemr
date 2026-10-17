@@ -324,3 +324,13 @@ CREATE TABLE `oauth_auth_code_revocations` (
     KEY `idx_revoked_at` (`revoked_at`)
 ) ENGINE=InnoDB;
 #EndIf
+
+-- Financial Review Date (Demographics > Stats) was a text field on a datetime
+-- column: clicking it opened no date picker, and a date typed any way other
+-- than YYYY-MM-DD was stored as 0000-00-00, because OpenEMR saves with strict
+-- mode off (#12856). Make it a date field, as Date Deceased already is. Only
+-- where it is still the stock text type, so a site that changed it keeps its
+-- choice.
+#IfRow3D layout_options form_id DEM field_id financial_review data_type 2
+UPDATE `layout_options` SET `data_type` = 4 WHERE `form_id` = 'DEM' AND `field_id` = 'financial_review' AND `data_type` = 2;
+#EndIf
