@@ -452,4 +452,15 @@ class TaskFhirApiTest extends TestCase
         $this->assertEqualsCanonicalizing($byPatient, $bySubject);
         $this->assertNotContains($this->tasks['other'], $bySubject);
     }
+
+    public function testUpdatingAMalformedOrUnknownIdIsNotFound(): void
+    {
+        // With If-Match the controller looks the task up before the generic update does.
+        foreach (['abc', UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid())] as $id) {
+            [$status] = $this->update($id, $this->body(), ['If-Match' => 'W/"1"']);
+            $this->assertSame(Response::HTTP_NOT_FOUND, $status, $id);
+            [$status] = $this->update($id, $this->body());
+            $this->assertSame(Response::HTTP_NOT_FOUND, $status, $id . ' without If-Match');
+        }
+    }
 }
