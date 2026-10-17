@@ -48,7 +48,7 @@ class FhirTaskServiceIsolatedTest extends TestCase
         $params = (new FhirTaskService())->getSearchParams();
         $this->assertIsArray($params);
         $this->assertSame(
-            ['_id', 'patient', 'status', 'code', 'focus', 'owner', 'requester', 'part-of', 'authored-on', '_lastUpdated'],
+            ['_id', 'patient', 'subject', 'status', 'code', 'focus', 'owner', 'requester', 'part-of', 'authored-on', '_lastUpdated'],
             array_keys($params)
         );
     }

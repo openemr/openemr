@@ -1,8 +1,13 @@
 <?php
 
 /**
- * The FHIR Task resource, read and search, over the task table (#14521; D9
- * and C7 of #13266). Create and update come in a later change.
+ * The FHIR Task resource over the task table (#14521; D9 and C7 of #13266):
+ * read and search, and create and update. A write keeps to FhirTaskWriteRules:
+ * the patient a task is for doesn't change, focus, owner and requester point
+ * at the resource types the workflows use, a parent task belongs to the same
+ * patient, and a task doesn't leave a final status. meta.versionId counts the
+ * updates, so an update can ask that nobody changed the task since it was read
+ * (If-Match).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -15,6 +20,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRTask;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -43,6 +50,9 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
 
     private ?TaskService $taskService = null;
 
+    /** The version an update must find (If-Match), or null for any. */
+    private ?int $expectedVersion = null;
+
     private function getTaskService(): TaskService
     {
         return $this->taskService ??= new TaskService();
@@ -56,6 +66,8 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         return [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             'patient' => $this->getPatientContextSearchField(),
+            // R4's subject is Task.for, which here is always the patient.
+            'subject' => new FhirSearchParameterDefinition('subject', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]),
             'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['status']),
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['code']),
             'focus' => self::referenceSearch('focus', 'focus_uuid'),
@@ -122,7 +134,8 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         $task = new FHIRTask();
         $lastModified = self::text($dataRecord, 'last_modified');
         $lastModified = $lastModified === null ? UtilsService::getDateFormattedAsUTC() : self::utc($lastModified);
-        $task->setMeta(UtilsService::createFhirMeta('1', $lastModified));
+        $version = $dataRecord['version'] ?? null;
+        $task->setMeta(UtilsService::createFhirMeta(is_numeric($version) ? (string)(int)$version : '1', $lastModified));
 
         $id = new FHIRId();
         $id->setValue(self::text($dataRecord, 'uuid') ?? '');
@@ -183,46 +196,184 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     }
 
     /**
-     * Task is read-only until its create and update change: nothing reaches
-     * the methods below, because no write route exists.
-     *
-     * @return array<string, mixed>
+     * The version the next update must find, from If-Match; null takes any.
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource): array
+    public function expectVersion(?int $version): void
     {
-        return [];
+        $this->expectedVersion = $version;
     }
 
     /**
-     * @param mixed $openEmrRecord
+     * A Task body as task fields, the patient's uuid, and what's wrong with it.
+     *
+     * @return array{fields: array<string, string|null>, puuid: ?string, errors: array<string, string>}
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
+    {
+        if (!($fhirResource instanceof FHIRTask)) {
+            throw new \InvalidArgumentException('Expected FHIRTask resource, got ' . $fhirResource::class);
+        }
+        // As plain JSON arrays: the model's own serialization nests element objects.
+        $json = json_decode((string)json_encode($fhirResource), true);
+        return FhirTaskWriteRules::read(is_array($json) ? $json : []);
+    }
+
+    /**
+     * @param mixed $openEmrRecord what parseFhirResource() returned
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
-        return self::readOnly();
+        [$fields, $puuid, $errors] = self::unpack($openEmrRecord);
+        $pid = $puuid === null ? null : self::patientId($puuid);
+        if ($puuid !== null && $pid === null) {
+            $errors['for'] = 'Patient reference could not be resolved: ' . $puuid;
+        }
+        if ($pid !== null && ($problem = $this->parentProblem($fields['part_of_uuid'] ?? null, $pid, null)) !== null) {
+            $errors['partOf'] = $problem;
+        }
+        if ($errors !== [] || $pid === null) {
+            return self::invalid($errors);
+        }
+        $fields['authored_on'] ??= date('Y-m-d H:i:s');
+        $uuid = $this->getTaskService()->insert($fields, $pid, $this->userId());
+        // insert() hands this result to the response as it is, so it carries the FHIR resource.
+        $result = new ProcessingResult();
+        $record = $this->getTaskService()->getOne($uuid);
+        if ($record !== null) {
+            $result->addData($this->parseOpenEMRRecord($record));
+        }
+        return $result;
     }
 
     /**
      * @param string $fhirResourceId
-     * @param array<mixed> $updatedOpenEMRRecord
+     * @param array<mixed> $updatedOpenEMRRecord what parseFhirResource() returned, with the uuid
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
-        return self::readOnly();
+        [$fields, $puuid, $errors] = self::unpack($updatedOpenEMRRecord);
+        $stored = UuidRegistry::isValidStringUUID($fhirResourceId) ? $this->getTaskService()->getForWrite($fhirResourceId) : null;
+        if ($stored === null) {
+            // Nothing to update: handleFhirProcessingResult() answers 404 for an empty result.
+            return new ProcessingResult();
+        }
+        // The patient a task is for doesn't change: the body has to name the one it has, so a
+        // task id can't be used to move a task, or write one, under another patient.
+        $pid = $puuid === null ? null : self::patientId($puuid);
+        if ($puuid !== null && $pid !== $stored['patient_id']) {
+            $errors['for'] = "Task.for can't change: it must name the task's patient";
+        }
+        if (isset($fields['status']) && ($problem = FhirTaskWriteRules::transitionProblem($stored['status'], $fields['status'])) !== null) {
+            $errors['status'] = $problem;
+        }
+        if ($stored['patient_id'] !== null && ($problem = $this->parentProblem($fields['part_of_uuid'] ?? null, $stored['patient_id'], $fhirResourceId)) !== null) {
+            $errors['partOf'] = $problem;
+        }
+        if ($this->expectedVersion !== null && $this->expectedVersion !== $stored['version']) {
+            $errors['meta.versionId'] = "The task is at version {$stored['version']}, not {$this->expectedVersion}: read it again before updating";
+        }
+        if ($errors !== []) {
+            return self::invalid($errors);
+        }
+        // authoredOn is when the task was made: an update keeps the stored one.
+        unset($fields['authored_on']);
+        if (!$this->getTaskService()->update($fhirResourceId, $fields, $this->userId(), $this->expectedVersion ?? $stored['version'])) {
+            return self::invalid(['meta.versionId' => 'The task changed while it was being updated: read it again before updating']);
+        }
+        // update() turns the row into the FHIR resource itself.
+        $result = new ProcessingResult();
+        $record = $this->getTaskService()->getOne($fhirResourceId);
+        if ($record !== null) {
+            $result->addData($record);
+        }
+        return $result;
     }
 
     /**
+     * Who made or last changed the task, as the Provenance for its author: the requester when
+     * the task names one.
+     *
      * @param mixed $dataRecord
      * @param bool $encode
      */
-    public function createProvenanceResource($dataRecord, $encode = false): ?FHIRProvenance
+    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|null
     {
-        return null;
+        if (!($dataRecord instanceof FHIRTask)) {
+            throw new \BadMethodCallException('Data record should be correct instance class');
+        }
+        $provenance = (new FhirProvenanceService())->createProvenanceForDomainResource($dataRecord, $dataRecord->getRequester());
+        if (!($provenance instanceof FHIRProvenance)) {
+            return null;
+        }
+        if ($encode) {
+            $json = json_encode($provenance);
+            return is_string($json) ? $json : null;
+        }
+        return $provenance;
     }
 
-    private static function readOnly(): ProcessingResult
+    /**
+     * What's wrong with a parent task, or null: it has to exist, be another task, and be for the
+     * same patient.
+     */
+    private function parentProblem(?string $parentUuid, int $patientId, ?string $selfUuid): ?string
+    {
+        if ($parentUuid === null) {
+            return null;
+        }
+        if ($selfUuid !== null && strcasecmp($parentUuid, $selfUuid) === 0) {
+            return "A task can't be part of itself";
+        }
+        $parent = $this->getTaskService()->getForWrite($parentUuid);
+        if ($parent === null) {
+            return 'Task.partOf names no task: ' . $parentUuid;
+        }
+        return $parent['patient_id'] === $patientId ? null : 'Task.partOf must name a task for the same patient';
+    }
+
+    /**
+     * @return array{0: array<string, string|null>, 1: ?string, 2: array<string, string>}
+     */
+    private static function unpack(mixed $record): array
+    {
+        $fields = [];
+        $errors = [];
+        if (is_array($record)) {
+            foreach (is_array($record['fields'] ?? null) ? $record['fields'] : [] as $column => $value) {
+                if (is_string($column) && ($value === null || is_string($value))) {
+                    $fields[$column] = $value;
+                }
+            }
+            foreach (is_array($record['errors'] ?? null) ? $record['errors'] : [] as $element => $message) {
+                if (is_string($element) && is_string($message)) {
+                    $errors[$element] = $message;
+                }
+            }
+        }
+        $puuid = is_array($record) && is_string($record['puuid'] ?? null) ? $record['puuid'] : null;
+        return [$fields, $puuid, $errors];
+    }
+
+    /** The pid of the patient with this uuid, or null. */
+    private static function patientId(string $puuid): ?int
+    {
+        $pid = QueryUtils::fetchSingleValue('SELECT pid FROM patient_data WHERE uuid = ?', 'pid', [UuidRegistry::uuidToBytes($puuid)]);
+        return is_numeric($pid) ? (int)$pid : null;
+    }
+
+    private function userId(): ?int
+    {
+        $id = $this->getSession()?->get('authUserID');
+        return is_numeric($id) ? (int)$id : null;
+    }
+
+    /**
+     * @param array<string, string> $errors
+     */
+    private static function invalid(array $errors): ProcessingResult
     {
         $result = new ProcessingResult();
-        $result->setValidationMessages(['Task' => 'Task is read-only']);
+        $result->setValidationMessages($errors);
         return $result;
     }
 
