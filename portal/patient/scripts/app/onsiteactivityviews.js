@@ -74,24 +74,6 @@ const actpage = {
             dlgopen('', '', 'modal-xl', '', '', title, params);
         }
 
-        function showDocumentModal(cpid, recid) {
-            let title = 'Audit Document';
-            const urlParams = new URLSearchParams({
-                pid: cpid,
-                recid: recid,
-                user: cuser
-            });
-            let params = {
-                buttons: [
-                    {text: 'Help', close: false, style: 'info btn-sm', id: 'formHelp'},
-                    {text: 'Done', style: 'danger btn-sm', close: true}],
-                sizeHeight: 'full',
-                onClosed: 'reload',
-                url: './onsitedocuments?' + urlParams
-            };
-            dlgopen('', '', 'modal-lg', '', '', '', params);
-        }
-
         // initialize the collection view
         this.collectionView = new view.CollectionView({
             el: $("#onsiteActivityViewCollectionContainer"),
@@ -174,8 +156,7 @@ const actpage = {
                 }
 
                 if (activity === 'document') {
-                    let recid = m.get('tableArgs');
-                    showDocumentModal(cpid, recid);
+                    actpage.showDocumentModal(m);
                 } else if (activity === 'profile') {
                     showProfileModal(cpid);
                 } else if (activity === 'payment') {
@@ -233,6 +214,59 @@ const actpage = {
 
             }, model.longPollDuration);
         }
+    },
+
+    showDocumentModal: function (activityView) {
+        const patientId = activityView.get('patientId');
+        const documentId = activityView.get('tableArgs');
+        const activityId = activityView.get('id');
+        const urlParams = new URLSearchParams({
+            pid: patientId,
+            recid: documentId,
+            user: cuser
+        });
+        const params = {
+            buttons: [
+                {text: 'Help', close: false, style: 'info btn-sm', id: 'formHelp'},
+                {
+                    text: 'Done',
+                    style: 'danger btn-sm',
+                    close: false,
+                    click: function (event) {
+                        const doneButton = event.currentTarget;
+                        doneButton.disabled = true;
+                        actpage.completeActivityReview(
+                            activityId,
+                            () => jQuery(this).closest('.dialogModal').modal('hide'),
+                            (activity, response) => {
+                                doneButton.disabled = false;
+                                window.alert(app.getErrorMessage(response));
+                            }
+                        );
+                    }
+                }
+            ],
+            sizeHeight: 'full',
+            onClosed: 'reload',
+            url: './onsitedocuments?' + urlParams
+        };
+        dlgopen('', '', 'modal-lg', '', '', '', params);
+    },
+
+    completeActivityReview: function (activityId, onSuccess, onError) {
+        const activity = new model.OnsitePortalActivityModel({id: activityId});
+        const completionAttributes = {
+            status: 'closed',
+            pendingAction: 'completed',
+            actionUser: authUserID,
+            actionTakenTime: new Date()
+        };
+        activity.save(completionAttributes, {
+            wait: true,
+            attrs: completionAttributes,
+            success: onSuccess,
+            error: onError
+        });
     },
 
     /**
@@ -351,3 +385,10 @@ const actpage = {
         }
     },
 };
+
+if (typeof window !== 'undefined') {
+    window.__OE_ONSITE_ACTIVITY_TEST__ = {
+        showDocumentModal: actpage.showDocumentModal,
+        completeActivityReview: actpage.completeActivityReview
+    };
+}
