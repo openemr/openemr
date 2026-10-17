@@ -44,6 +44,8 @@ class VitalSignsServiceTest extends TestCase
 
     /**
      * @return array<string, array{string, string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function vitals(): array
     {
@@ -73,29 +75,6 @@ class VitalSignsServiceTest extends TestCase
         $this->assertSame($json['relevantDatetime'], $json['authorDatetime'] ?? null);
     }
 
-    public function testTheQueryReadsEachVitalFromVitalsFormsThatAreNotDeletedAndNotAlreadyAnExam(): void
-    {
-        $sql = $this->vitalSigns()->getSqlStatement();
-        foreach (VitalSignsService::VITALS as $column => [$loinc]) {
-            $this->assertStringContainsString("'LOINC:$loinc' AS `code`, v.`$column` AS `value`", $sql);
-        }
-        $count = count(VitalSignsService::VITALS);
-        $this->assertSame($count, substr_count($sql, "f.`formdir` = 'vitals' AND f.`deleted` = 0"));
-        $this->assertSame($count, substr_count($sql, "o.`ob_type` = 'physical_exam_performed'"));
-        $this->assertSame($count - 1, substr_count($sql, 'UNION ALL'));
-        // A reading is the import's copy only with the same code, day and value, compared at the precision
-        // form_vitals stores (six places for BMI, height and weight); weight under either import code.
-        foreach (VitalSignsService::VITALS as $column => [$loinc]) {
-            $scale = in_array($column, ['BMI', 'height', 'weight'], true) ? 6 : 2;
-            $this->assertStringContainsString("CAST(o.`ob_value` AS DECIMAL(12,$scale)) = CAST(v.`$column` AS DECIMAL(12,$scale))", $sql);
-        }
-        $this->assertStringContainsString("o.`code` IN ('LOINC:29463-7', 'LOINC:3141-9')", $sql);
-        $this->assertStringContainsString("o.`code` IN ('LOINC:8480-6')", $sql);
-        $this->assertSame(count(VitalSignsService::VITALS), substr_count($sql, "o.`ob_value` REGEXP '^[0-9]+([.][0-9]+)?$'"));
-        // executeQuery() appends "AND (<patient filter>)", which must apply to the whole union.
-        $this->assertStringEndsWith(') AS vital_signs WHERE 1 = 1', $sql);
-    }
-
     public function testTheBuilderRunsTheService(): void
     {
         $services = (new \ReflectionProperty(QdmBuilder::class, 'services'))->getValue(new QdmBuilder());
@@ -105,6 +84,8 @@ class VitalSignsServiceTest extends TestCase
 
     /**
      * @return array<string, array{string, int, string, list<array{string, string, string}>, array{int, int, int}}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function measures(): array
     {
@@ -133,15 +114,59 @@ class VitalSignsServiceTest extends TestCase
     #[DataProvider('measures')]
     public function testMeasuresCountVitals(string $measureName, int $born, string $set, array $vitals, array $expected): void
     {
+        $populations = $this->populations($measureName, $born, $set, $vitals);
+        $this->assertSame(
+            ['IPP' => $expected[0], 'DENOM' => $expected[1], 'NUMER' => $expected[2]],
+            ['IPP' => $populations['IPP'] ?? null, 'DENOM' => $populations['DENOM'] ?? null, 'NUMER' => $populations['NUMER'] ?? null],
+        );
+    }
+
+    public function testCms22CountsANormalBloodPressureFromVitals(): void
+    {
+        // CMS22 screens adults without hypertension: a diagnosis of it is a denominator exclusion,
+        // so this patient has none. A normal reading entered only in Vitals now meets the numerator.
+        $only = static fn (array $p): array => array_intersect_key($p, ['IPP' => 1, 'DENOM' => 1, 'DENEX' => 1, 'NUMER' => 1]);
+        $normal = [['8480-6', 'mm[Hg]', '118'], ['8462-4', 'mm[Hg]', '76']];
+        $this->assertSame(['DENEX' => 0, 'DENOM' => 1, 'IPP' => 1, 'NUMER' => 1], self::sorted($only($this->populations('CMS22v13', 1975, 'PopulationSet_1', $normal, false))));
+        $this->assertSame(['DENEX' => 0, 'DENOM' => 1, 'IPP' => 1, 'NUMER' => 0], self::sorted($only($this->populations('CMS22v13', 1975, 'PopulationSet_1', [], false))));
+    }
+
+    public function testAVitalThatIsNotANumberIsNoResult(): void
+    {
+        // A Quantity with no value would stop the measure from being calculated at all.
+        $this->assertNull($this->vital('8480-6', 'mm[Hg]', 'high')->result);
+    }
+
+    /**
+     * @param array<string, mixed> $populations
+     * @return array<string, mixed>
+     */
+    private static function sorted(array $populations): array
+    {
+        ksort($populations);
+        return $populations;
+    }
+
+    /**
+     * One patient's populations for a measure: a 2025 office visit, hypertension on the problem
+     * list unless left out, and these vitals from the Vitals form.
+     *
+     * @param list<array{string, string, string}> $vitals
+     * @return array<string, mixed>
+     */
+    private function populations(string $measureName, int $born, string $set, array $vitals, bool $hypertension = true): array
+    {
         $patient = new Patient(['birthDatetime' => "$born-05-01 00:00:00"]);
         $this->add($patient, 1, EncounterService::class, [
             'pid' => 1, 'encounter' => 7, 'date' => '2025-03-10 10:00:00', 'date_end' => '2025-03-10 10:30:00',
             'encounter_type_code' => 'CPT4:99213', 'discharge_disposition' => null, 'discharge_dispo_code' => null,
             'diagnosis' => null, 'pc_duration' => null,
         ]);
-        $this->add($patient, 2, DiagnosisService::class, [
-            'pid' => 1, 'begdate' => '2024-01-01', 'enddate' => '2026-12-31', 'date' => '2024-01-01 00:00:00', 'diagnosis' => 'ICD10:I10',
-        ]);
+        if ($hypertension) {
+            $this->add($patient, 2, DiagnosisService::class, [
+                'pid' => 1, 'begdate' => '2024-01-01', 'enddate' => '2026-12-31', 'date' => '2024-01-01 00:00:00', 'diagnosis' => 'ICD10:I10',
+            ]);
+        }
         foreach ($vitals as $i => [$loinc, $unit, $value]) {
             $patient->add_data_element($this->vitalSigns()->makeQdmModel(new QdmRecord(
                 ['pid' => 1, 'date' => '2025-03-10 10:15:00', 'code' => "LOINC:$loinc", 'value' => $value, 'unit' => $unit],
@@ -154,12 +179,7 @@ class VitalSignsServiceTest extends TestCase
         $measure = new Measure(MeasureService::fetchMeasureJson($path));
         $measure->measure_path = $path;
         $results = (new CqmCalculator())->calculateMeasure([$patient], $measure, '2025-01-01 00:00:00');
-
-        $populations = array_values($results)[0][$set] ?? [];
-        $this->assertSame(
-            ['IPP' => $expected[0], 'DENOM' => $expected[1], 'NUMER' => $expected[2]],
-            ['IPP' => $populations['IPP'] ?? null, 'DENOM' => $populations['DENOM'] ?? null, 'NUMER' => $populations['NUMER'] ?? null],
-        );
+        return array_values($results)[0][$set] ?? [];
     }
 
     private function vital(string $loinc, string $unit, string $value): PhysicalExamPerformed

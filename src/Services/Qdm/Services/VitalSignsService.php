@@ -100,19 +100,23 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
     public function makeQdmModel(QdmRecord $recordObj): PhysicalExamPerformed
     {
         $record = $recordObj->getData();
-        // The query returns only numbers above zero; anything else would be no result.
-        $value = $record['value'] ?? null;
         $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());
         $model = new PhysicalExamPerformed([
             '_id' => $id,
             'id' => $id,
             'relevantDatetime' => new DateTime(['date' => $record['date']]),
             'authorDatetime' => new DateTime(['date' => $record['date']]),
-            'result' => new Quantity([
-                'value' => is_numeric($value) ? (float)$value : null,
-                'unit' => $record['unit'],
-            ]),
         ]);
+        // A number is a quantity; anything else is no result, as in PhysicalExamService. The query
+        // returns only numbers above zero, but a quantity with no value would stop the measure
+        // from being calculated at all, so this doesn't rely on it.
+        $value = $record['value'] ?? null;
+        if (is_numeric($value)) {
+            $model->result = new Quantity([
+                'value' => (float)$value,
+                'unit' => $record['unit'],
+            ]);
+        }
         $code = $this->makeQdmCode($record['code']);
         if ($code !== null) {
             $model->addCode($code);
