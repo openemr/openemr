@@ -467,6 +467,218 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
     }
 
     /**
+     * Tampered-launch error-path gate: an app-launch request that arrives
+     * at /oauth2/default/authorize carrying a `launch=` value that is
+     * either not valid base64 or decodes to ciphertext that fails
+     * decryption must be rejected before any user interaction. The
+     * server-side guard lives in
+     * `CustomAuthCodeGrant::validateAuthorizationRequest`, which calls
+     * `SMARTLaunchToken::deserializeToken($launch)` inside a try/catch
+     * and converts any `\JsonException` or `\InvalidArgumentException`
+     * into an `OAuthServerException::invalidRequest('launch', ...)` with
+     * the hint "launch parameter was incorrectly formatted or did not
+     * originate from this server".
+     *
+     * The regression this catches: a refactor that silently swallows
+     * the deserialization exception (or widens the catch to include
+     * success-paths) would turn a maliciously supplied `launch=` value
+     * into an accepted session-side token with attacker-chosen patient
+     * UUIDs. The strongest signals we can assert against on the raw
+     * JSON response are:
+     *   - the `error` field is exactly `invalid_request`
+     *   - the `hint` field names the launch param specifically — a
+     *     generic "invalid request" (missing hint) means the guard
+     *     fired on a different code path and the launch-token check
+     *     may have been bypassed
+     *
+     * The authorize endpoint emits a JSON 400 directly (not a 302 back
+     * to the client's redirect_uri with ?error=invalid_request),
+     * because the exception is raised before the auth-request is fully
+     * validated and `getRedirectUri()` isn't trusted yet. Chrome
+     * renders the body as `<pre>{"error":"invalid_request", ...}` so
+     * Panther sees the raw JSON in the body text — no need for a
+     * separate HTTP-status probe.
+     */
+    #[Test]
+    public function testStandaloneLaunchWithTamperedLaunchTokenIsRejectedByAuthorize(): void
+    {
+        $client = $this->readRegisteredSmartClient();
+        $tamperedLaunch = 'TAMPERED_INVALID_BASE64!!!';
+        $authorizeUrl = self::OPENEMR_BASE . '/oauth2/default/authorize?' . http_build_query([
+            'response_type' => 'code',
+            'client_id' => $client['client_id'],
+            'redirect_uri' => $client['redirect_uri'],
+            'scope' => 'openid fhirUser launch user/Patient.rs',
+            'aud' => self::FHIR_BASE,
+            'state' => 'smoke-tampered-launch',
+            'launch' => $tamperedLaunch,
+            'code_challenge_method' => 'S256',
+            // 43-char URL-safe placeholder — the launch-token guard
+            // fires before PKCE validation, so this value never has
+            // to be a real PKCE challenge for this flow.
+            'code_challenge' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQR',
+        ]);
+
+        $this->panther->request('GET', $authorizeUrl);
+        $this->panther->waitFor('body', 10);
+        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+
+        // Core assertion: the server-side `invalidRequest('launch', ...)`
+        // rejection fired. A missing/renamed `error` field means the
+        // response shape drifted; a value other than `invalid_request`
+        // means the guard fired on a different error code path.
+        $this->assertStringContainsString(
+            '"error":"invalid_request"',
+            $bodyText,
+            'tampered launch token should surface as OAuthServerException::invalidRequest JSON',
+        );
+        // Hint-level assertion: the hint identifies WHICH guard rejected.
+        // Catches the "guard moved / message changed" regression that a
+        // generic error-code match would miss — a shift to a different
+        // guard (e.g. aud/redirect_uri) could still carry
+        // invalid_request but would signal the launch-token check was
+        // bypassed.
+        $this->assertStringContainsString(
+            'launch parameter was incorrectly formatted',
+            $bodyText,
+            'the invalid_request hint should name the launch-token guard specifically',
+        );
+        // Belt-and-braces: the final URL stays on /authorize/, not
+        // redirected to the client callback. A silent redirect to
+        // callback with ?error=... would mean we leaked the state
+        // param back to the SMART app's PHP, which should NOT happen
+        // when the error fires pre-redirect-validation.
+        $this->assertStringContainsString(
+            '/oauth2/default/authorize',
+            $this->panther->getCurrentURL(),
+            'tampered launch should fail at the authorize endpoint, not redirect to the client callback',
+        );
+    }
+
+    /**
+     * Redirect-URI mismatch error-path gate: when the authorize request
+     * names a `redirect_uri` that is not among the client's registered
+     * redirect URIs, OpenEMR must reject before login so the attacker
+     * never gets the chance to steer a legitimate code to an
+     * uncontrolled callback. The guard lives in the league/oauth2
+     * `RedirectUriValidator` and surfaces as a `401 invalid_client`
+     * response (see `CustomAuthCodeGrant::validateRedirectUri` which
+     * wraps the parent and logs on failure).
+     *
+     * The regression this catches: a refactor that loosens the
+     * redirect_uri comparison (e.g. a `substr`/`strpos` instead of a
+     * strict-equality match on the registered list) would re-open the
+     * SMART open-redirect attack class in which an attacker-crafted
+     * authorize URL silently routes the issued code to attacker-owned
+     * origins. The response shape asserted here is the specific
+     * `invalid_client` JSON the league library emits when
+     * `redirect_uri` fails validation — distinct from
+     * `invalid_request`, so a drift to the wrong error code fails
+     * loudly.
+     */
+    #[Test]
+    public function testStandaloneLaunchWithMismatchedRedirectUriIsRejectedByAuthorize(): void
+    {
+        $client = $this->readRegisteredSmartClient();
+        $evilRedirect = 'https://evil.example/callback';
+        $this->assertNotSame(
+            $client['redirect_uri'],
+            $evilRedirect,
+            'test precondition: evil redirect must not accidentally equal the real registered one',
+        );
+        $authorizeUrl = self::OPENEMR_BASE . '/oauth2/default/authorize?' . http_build_query([
+            'response_type' => 'code',
+            'client_id' => $client['client_id'],
+            'redirect_uri' => $evilRedirect,
+            'scope' => 'openid fhirUser launch/patient user/Patient.rs',
+            'aud' => self::FHIR_BASE,
+            'state' => 'smoke-evil-redirect',
+            'code_challenge_method' => 'S256',
+            'code_challenge' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQR',
+        ]);
+
+        $this->panther->request('GET', $authorizeUrl);
+        $this->panther->waitFor('body', 10);
+        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+
+        // Error-code assertion: the league library emits
+        // `invalid_client` specifically for redirect_uri mismatch
+        // (not `invalid_request`). A drift to `invalid_request` here
+        // would mean the validator short-circuited on a different
+        // guard — still a rejection, but no longer the redirect-uri
+        // one, which is the regression surface this test defends.
+        $this->assertStringContainsString(
+            '"error":"invalid_client"',
+            $bodyText,
+            'redirect_uri mismatch should surface as invalid_client — if this flips to invalid_request the redirect validator was bypassed',
+        );
+        // No 302 to the attacker-chosen redirect: the browser must
+        // terminate on the openemr origin, not evil.example. parse_url
+        // the current location rather than substring-matching the
+        // whole URL — "evil.example" legitimately appears in the
+        // request's query string as the rejected redirect_uri, so a
+        // naive contains-check would false-positive even on a
+        // correctly-rejecting server. The host/origin is the signal
+        // that matters.
+        $currentUrl = $this->panther->getCurrentURL();
+        $landedHost = parse_url($currentUrl, PHP_URL_HOST);
+        $this->assertSame(
+            'openemr',
+            $landedHost,
+            'authorize must NOT follow the attacker-chosen redirect_uri — current host should still be openemr, not evil.example (open-redirect regression hallmark). Landed at: ' . $currentUrl,
+        );
+        $this->assertStringContainsString(
+            '/oauth2/default/authorize',
+            $currentUrl,
+            'request should terminate at the authorize endpoint with no redirect at all',
+        );
+    }
+
+    /**
+     * Reads the oe-smart-questionnaire app's registered-clients file
+     * (populated by `bin/register.php` during stack setup) to extract
+     * the `client_id` + `redirect_uri` the SMART app registered with
+     * OpenEMR. This mirrors how the app's own launch.php reads
+     * clients.json for its server-side DCR state — using the same
+     * source of truth avoids baking a stale client_id into the test.
+     *
+     * File path matches the layout ci/smart-launch/apache-alias.conf
+     * sets up: `/opt/oe-smart-questionnaire/app/` with var/clients.json
+     * holding one object keyed by issuer URL.
+     *
+     * @return array{client_id: string, redirect_uri: string}
+     */
+    private function readRegisteredSmartClient(): array
+    {
+        $clientsFile = '/opt/oe-smart-questionnaire/app/var/clients.json';
+        $raw = @file_get_contents($clientsFile);
+        if ($raw === false) {
+            $this->fail("could not read SMART clients.json at {$clientsFile} — did ci/smart-launch/run.sh register a client?");
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded) || $decoded === []) {
+            $this->fail("clients.json at {$clientsFile} is empty or malformed — register.php did not populate it");
+        }
+        $issuerKey = self::FHIR_BASE;
+        $entry = $decoded[$issuerKey] ?? null;
+        if (!is_array($entry)) {
+            $this->fail("clients.json has no entry for issuer {$issuerKey} — register.php wrote a different issuer key");
+        }
+        $clientId = $entry['client_id'] ?? null;
+        if (!is_string($clientId) || $clientId === '') {
+            $this->fail("clients.json entry for {$issuerKey} is missing client_id");
+        }
+        // The app registers a single redirect_uri per site matching the
+        // app_url + /callback.php — we rebuild it from APP_BASE rather
+        // than requiring clients.json to carry it, because the file
+        // historically has not persisted the redirect_uri field.
+        return [
+            'client_id' => $clientId,
+            'redirect_uri' => self::APP_BASE . '/callback.php',
+        ];
+    }
+
+    /**
      * Shared launch flow for the standalone tests: GET launch.php →
      * follow OpenEMR authorize → login as admin → pick the first demo
      * patient → approve the pre-checked consent → wait for
