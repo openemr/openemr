@@ -57,15 +57,13 @@ class ImmunizationApiTest extends TestCase
     }
 
     #[Test]
-    public function testGetOneWithUnknownUuidReturnsEmptyData(): void
+    public function testGetOneWithUnknownUuidReturns404(): void
     {
-        // See DrugApiTest::testGetOneWithUnknownUuidReturnsEmptyData for
-        // the rationale — the single-GET route currently returns 200
-        // with `data: []` + `links: []` rather than the 404 the
-        // controller code would suggest. Assert the invariant we care
-        // about (no immunization returned for an unknown UUID), not
-        // the (currently incorrect) status code.
+        // See DrugApiTest::testGetOneWithUnknownUuidReturns404 for the
+        // rationale. Asserts both the 404 status (preserved by the
+        // ViewRendererListener fix in this PR) and the empty-data body.
         $response = $this->testClient->getOne(self::IMMUNIZATION_API_ENDPOINT, "00000000-0000-4000-8000-000000000000");
+        $this->assertSame(404, $response->getStatusCode());
         $body = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($body);
         $this->assertArrayHasKey("data", $body);

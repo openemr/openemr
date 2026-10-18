@@ -57,21 +57,20 @@ class DrugApiTest extends TestCase
     }
 
     #[Test]
-    public function testGetOneWithUnknownUuidReturnsEmptyData(): void
+    public function testGetOneWithUnknownUuidReturns404(): void
     {
         // Format-valid UUID that is extremely unlikely to exist as a
-        // drug.uuid in demo data. Current master quirk: this route
-        // returns 200 with `data: []` + `links: []` rather than the
-        // 404 DrugRestController::getOne's `handleProcessingResult(…,
-        // 404)` branch would suggest — looks like the single-GET
-        // route is dispatching to getAll. Rather than binding to the
-        // (currently incorrect) status code, assert the invariant
-        // we actually care about: an unknown-UUID lookup must not
-        // return a drug. This test passes today AND catches a worse
-        // regression (route returning an arbitrary row). If a future
-        // fix flips the status to 404, the data-empty assertion still
-        // holds.
+        // drug.uuid in demo data. Asserts both the HTTP status
+        // (`DrugRestController::getOne` calls `handleProcessingResult(…,
+        // 404)` when the service returns zero rows) AND the body shape
+        // (empty data array). Catches two distinct regression classes:
+        //   - a listener/controller regression that drops the 404
+        //     status (ViewRendererListener preserves http_response_code
+        //     under this PR — before this fix, the response was 200);
+        //   - a routing regression that returns an arbitrary drug for
+        //     a bogus UUID (data array still has to be empty).
         $response = $this->testClient->getOne(self::DRUG_API_ENDPOINT, "00000000-0000-4000-8000-000000000000");
+        $this->assertSame(404, $response->getStatusCode());
         $body = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($body);
         $this->assertArrayHasKey("data", $body);
