@@ -1,10 +1,10 @@
 <?php
 
 /**
- * What a FHIR Task create or update may say (part 2 of #14521): the R4 code
- * sets, the resource types focus, owner and requester may point at, and the
- * statuses a task can't leave. Reads a Task body into a task row's fields and
- * says what's wrong, element by element.
+ * What a FHIR Task create or update may say (parts 2 and 3 of #14521): the
+ * code sets, the resource types focus, owner, requester and output may point
+ * at, and the statuses a task can't leave. Reads a Task body into a task row's
+ * fields and outputs, and says what's wrong, element by element.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -19,6 +19,9 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 
+/**
+ * @phpstan-type TaskOutputRow array{type_system: ?string, type_code: ?string, type_text: ?string, value_type: string, value_uuid: string}
+ */
 final class FhirTaskWriteRules
 {
     /** http://hl7.org/fhir/R4/valueset-task-status.html */
@@ -41,8 +44,14 @@ final class FhirTaskWriteRules
     /** http://hl7.org/fhir/R4/valueset-request-priority.html */
     public const PRIORITIES = ['routine', 'urgent', 'asap', 'stat'];
 
-    /** http://hl7.org/fhir/CodeSystem/task-code */
-    public const CODES = ['approve', 'fulfill', 'abort', 'replace', 'change', 'suspend', 'resume'];
+    /**
+     * Task.code by system: R4's task-code (http://hl7.org/fhir/CodeSystem/task-code), and the SDC's
+     * code for a task to fill in a questionnaire, which SDOH Clinical Care's TaskForPatient also uses.
+     */
+    public const CODES = [
+        FhirTaskService::TASK_CODE_SYSTEM => ['approve', 'fulfill', 'abort', 'replace', 'change', 'suspend', 'resume'],
+        FhirTaskService::SDC_TEMP_SYSTEM => ['complete-questionnaire'],
+    ];
 
     /** The two workflows #14521 builds for: a referral being worked, and a questionnaire assigned to a patient. */
     public const FOCUS_TYPES = ['ServiceRequest', 'Questionnaire'];
@@ -53,14 +62,21 @@ final class FhirTaskWriteRules
     /** Who asked for it. */
     public const REQUESTER_TYPES = ['Practitioner', 'PractitionerRole', 'Organization', 'Patient'];
 
+    /** What the work produced: a filled-in questionnaire, a result, a service delivered. */
+    public const OUTPUT_TYPES = ['QuestionnaireResponse', 'Observation', 'Procedure'];
+
+    /** Each output is looked up when the task is written, so a task holds a bounded number. */
+    public const MAX_OUTPUTS = 50;
+
     /**
-     * A Task body as task row fields, the patient it is for (by uuid), and what's wrong with
-     * it by element. id, meta and lastModified are the server's and aren't read; authoredOn
-     * is kept as given (the caller sets it when it isn't). Elements the table doesn't hold
-     * yet (input, output, note) are left out.
+     * A Task body as task row fields, its outputs, the patient it is for (by uuid), and what's
+     * wrong with it by element. id, meta and lastModified are the server's and aren't read;
+     * authoredOn is kept as given (the caller sets it when it isn't). Elements the table doesn't
+     * hold yet (input, note) are left out. Outputs are keyed by their place in Task.output, so
+     * a fault found later can name the same one.
      *
      * @param array<array-key, mixed> $json the Task as JSON
-     * @return array{fields: array<string, string|null>, puuid: ?string, errors: array<string, string>}
+     * @return array{fields: array<string, string|null>, outputs: array<int, TaskOutputRow>, puuid: ?string, errors: array<string, string>}
      */
     public static function read(array $json): array
     {
@@ -87,13 +103,16 @@ final class FhirTaskWriteRules
         }
 
         $fields['code'] = null;
+        $fields['code_system'] = null;
         if (isset($json['code'])) {
-            $codes = FhirPayloadReader::codingCodes($json['code'], FhirTaskService::TASK_CODE_SYSTEM);
-            $code = $codes[0] ?? null;
-            if (!is_string($code) || !in_array($code, self::CODES, true)) {
-                $errors['code'] = 'Task.code must be a coding from ' . FhirTaskService::TASK_CODE_SYSTEM . ': ' . implode(', ', self::CODES);
+            $coding = self::knownCoding($json['code']);
+            if ($coding === null) {
+                $errors['code'] = 'Task.code must be a coding from ' . implode(
+                    ' or ',
+                    array_map(static fn(string $system, array $codes): string => $system . ' (' . implode(', ', $codes) . ')', array_keys(self::CODES), self::CODES)
+                );
             } else {
-                $fields['code'] = $code;
+                [$fields['code_system'], $fields['code']] = $coding;
             }
         }
         $description = $json['description'] ?? null;
@@ -123,6 +142,10 @@ final class FhirTaskWriteRules
             $fields[$element . '_type'] = $reference['type'];
             $fields[$element . '_uuid'] = $reference['uuid'];
         }
+        // A patient can be given their own task, not someone else's.
+        if ($fields['owner_type'] === 'Patient' && $puuid !== null && strcasecmp((string)$fields['owner_uuid'], $puuid) !== 0) {
+            $errors['owner'] = 'A Patient owner must be the patient the task is for';
+        }
 
         $fields['part_of_uuid'] = null;
         $partOf = $json['partOf'] ?? null;
@@ -148,7 +171,79 @@ final class FhirTaskWriteRules
             $errors['authoredOn'] = 'Task.authoredOn must be a FHIR dateTime with a time zone, such as 2026-10-18T09:30:00-05:00';
         }
 
-        return ['fields' => $fields, 'puuid' => $puuid, 'errors' => $errors];
+        $outputs = [];
+        $output = $json['output'] ?? null;
+        if ($output !== null) {
+            if (!is_array($output) || !array_is_list($output)) {
+                $errors['output'] = 'Task.output must be a list';
+            } elseif (count($output) > self::MAX_OUTPUTS) {
+                $errors['output'] = 'Task.output takes at most ' . self::MAX_OUTPUTS . ' outputs';
+            } else {
+                foreach ($output as $i => $entry) {
+                    $row = self::output($entry);
+                    if (is_string($row)) {
+                        $errors["output[$i]"] = "Task.output[$i] $row";
+                    } else {
+                        $outputs[$i] = $row;
+                    }
+                }
+            }
+        }
+
+        return ['fields' => $fields, 'outputs' => $outputs, 'puuid' => $puuid, 'errors' => $errors];
+    }
+
+    /**
+     * One Task.output as a task_output row, or what's wrong with it. Its type is a coding, its
+     * text, or both; its value a reference to something the work produced, on this server.
+     *
+     * @return TaskOutputRow|string
+     */
+    private static function output(mixed $entry): array|string
+    {
+        if (!is_array($entry)) {
+            return 'must be an object with a type and a valueReference';
+        }
+        $type = $entry['type'] ?? null;
+        $text = FhirPayloadReader::getString($type, 'text');
+        $system = FhirPayloadReader::firstCodingValue($type, 'system');
+        $code = FhirPayloadReader::firstCodingCode($type);
+        if ($text === null && ($system === '' || $code === '')) {
+            return 'needs a type: a coding with a system and a code, or text';
+        }
+        foreach (array_keys($entry) as $key) {
+            if (is_string($key) && str_starts_with($key, 'value') && $key !== 'valueReference') {
+                return "must be a valueReference, not $key";
+            }
+        }
+        $reference = self::reference($entry['valueReference'] ?? null, self::OUTPUT_TYPES);
+        if ($reference === null) {
+            return 'must reference one of ' . implode(', ', self::OUTPUT_TYPES) . ' on this server ({type}/{uuid})';
+        }
+        return [
+            'type_system' => $system !== '' && $code !== '' ? $system : null,
+            'type_code' => $system !== '' && $code !== '' ? $code : null,
+            'type_text' => $text,
+            'value_type' => $reference['type'],
+            'value_uuid' => $reference['uuid'],
+        ];
+    }
+
+    /**
+     * The first coding in Task.code that CODES holds, as its system and code, or null.
+     *
+     * @return ?array{0: string, 1: string}
+     */
+    private static function knownCoding(mixed $concept): ?array
+    {
+        foreach (FhirPayloadReader::codings($concept) as $coding) {
+            $system = FhirPayloadReader::getString($coding, 'system');
+            $code = FhirPayloadReader::getString($coding, 'code');
+            if ($system !== null && $code !== null && in_array($code, self::CODES[$system] ?? [], true)) {
+                return [$system, $code];
+            }
+        }
+        return null;
     }
 
     /**

@@ -71,6 +71,7 @@ class TaskFhirApiTest extends TestCase
         $this->tasks['questionnaire'] = $this->insertTask($this->patient['pid'], [
             'status' => 'completed',
             'code' => 'complete-questionnaire',
+            'code_system' => 'http://hl7.org/fhir/uv/sdc/CodeSystem/temp',
             'part_of_uuid' => $this->tasks['referral'],
         ]);
         $this->tasks['other'] = $this->insertTask($this->otherPatient['pid'], ['status' => 'requested']);
@@ -81,7 +82,15 @@ class TaskFhirApiTest extends TestCase
         if ($this->tasks !== []) {
             $uuids = array_values($this->tasks);
             QueryUtils::sqlStatementThrowException(
+                'DELETE FROM task_output WHERE task_id IN (SELECT id FROM task WHERE uuid IN (' . implode(',', array_fill(0, count($uuids), '?')) . '))',
+                array_map(UuidRegistry::uuidToBytes(...), $uuids)
+            );
+            QueryUtils::sqlStatementThrowException(
                 'DELETE FROM task WHERE uuid IN (' . implode(',', array_fill(0, count($uuids), '?')) . ')',
+                array_map(UuidRegistry::uuidToBytes(...), $uuids)
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'task' AND uuid IN (" . implode(',', array_fill(0, count($uuids), '?')) . ')',
                 array_map(UuidRegistry::uuidToBytes(...), $uuids)
             );
         }
@@ -268,6 +277,35 @@ class TaskFhirApiTest extends TestCase
         $task = $this->read($this->tasks['questionnaire']);
         $this->assertSame([['reference' => 'Task/' . $this->tasks['referral'], 'type' => 'Task']], $task['partOf'] ?? null);
         $this->assertSame('completed', $task['status'] ?? null);
+        $this->assertSame(
+            [['system' => 'http://hl7.org/fhir/uv/sdc/CodeSystem/temp', 'code' => 'complete-questionnaire', 'display' => 'complete-questionnaire']],
+            self::at($task, 'code', 'coding')
+        );
+    }
+
+    public function testAQuestionnaireTaskCanBePutBackAsItWasRead(): void
+    {
+        $task = [];
+        foreach ($this->read($this->tasks['questionnaire']) as $element => $value) {
+            $this->assertIsString($element);
+            $task[$element] = $value;
+        }
+        [$status, $updated] = $this->update($this->tasks['questionnaire'], $task);
+        $this->assertSame(Response::HTTP_OK, $status, (string)json_encode($updated));
+        $this->assertSame(self::at($task, 'code'), self::at($updated, 'code'));
+        $this->assertSame('2', self::at($updated, 'meta', 'versionId'));
+    }
+
+    public function testAPatientOwnerMustBeTheTasksPatient(): void
+    {
+        [$status, $result] = $this->create($this->body(['owner' => ['reference' => 'Patient/' . $this->otherPatient['uuid']]]));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status);
+        $this->assertSame(['owner'], array_keys($this->errors($result)));
+        [$status, $task] = $this->create($this->body(['owner' => ['reference' => 'Patient/' . $this->patient['uuid']]]));
+        $this->assertSame(Response::HTTP_CREATED, $status, (string)json_encode($task));
+        [$status, $result] = $this->update(self::text(self::at($task, 'id')), $this->body(['owner' => ['reference' => 'Patient/' . $this->otherPatient['uuid']]]));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status);
+        $this->assertSame(['owner'], array_keys($this->errors($result)));
     }
 
     public function testUnknownTaskIsNotFound(): void
