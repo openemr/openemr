@@ -516,16 +516,35 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
         // the real encrypted blob keeps the shape intact and specifically
         // exercises the HMAC-reject path.
         $realLaunch = (new SMARTLaunchToken('smoke-patient-uuid', 'smoke-encounter-uuid'))->serialize();
-        // The serialized form is base64(version-prefix + encrypted-blob).
-        // Flip one byte near the middle of the encrypted blob — this
-        // changes a ciphertext byte, which fails HMAC validation on
-        // decryption even though every structural check passes.
+        // The serialized form is a double base64:
+        //   base64_encode("<3-byte-version-prefix>" + base64_encode("<48-byte-HMAC><16-byte-IV><ciphertext>"))
+        // To exercise the HMAC-reject path specifically, flip a byte of
+        // the CIPHERTEXT (not the outer base64 text, not the HMAC bytes
+        // themselves, not the IV). The HMAC is computed over IV +
+        // ciphertext, so a ciphertext-byte flip breaks the HMAC check
+        // in CryptoGen::coreDecrypt while every structural check
+        // (version prefix, outer base64, inner base64, length) passes.
+        //
+        // A naive byte-flip on the outer-decoded buffer would land in
+        // the inner base64 text and would fail the base64-strict check
+        // instead — a different code path from the HMAC check this
+        // test is supposed to lock in. Rabbit found that regression in
+        // the first version of this fixture.
         $decoded = base64_decode($realLaunch, true);
         self::assertNotFalse($decoded, 'real serialize() output must be strict-base64');
         self::assertGreaterThan(10, strlen($decoded), 'serialized token should be longer than its 3-byte version prefix');
-        $mid = (int) (strlen($decoded) / 2);
-        $decoded[$mid] = chr(ord($decoded[$mid]) ^ 0x01);
-        $tamperedLaunch = base64_encode($decoded);
+        $versionPrefix = substr($decoded, 0, 3);
+        $payload = base64_decode(substr($decoded, 3), true);
+        self::assertNotFalse($payload, 'serialized token payload must be strict-base64');
+        self::assertGreaterThan(
+            64,
+            strlen($payload),
+            'payload must contain the 48-byte HMAC, the 16-byte IV, and at least one ciphertext byte',
+        );
+        // Offset 48 + 16 = first byte of ciphertext.
+        $ciphertextOffset = 48 + 16;
+        $payload[$ciphertextOffset] = chr(ord($payload[$ciphertextOffset]) ^ 0x01);
+        $tamperedLaunch = base64_encode($versionPrefix . base64_encode($payload));
 
         $authorizeUrl = self::OPENEMR_BASE . '/oauth2/default/authorize?' . http_build_query([
             'response_type' => 'code',
