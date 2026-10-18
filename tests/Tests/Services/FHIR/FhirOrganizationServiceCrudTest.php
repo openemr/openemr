@@ -105,6 +105,8 @@ class FhirOrganizationServiceCrudTest extends TestCase
 
     /**
      * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function addressSearchProvider(): array
     {
