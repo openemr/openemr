@@ -55,7 +55,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
-            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "postal_code", "city", "state", "country","line1", "line2"]),
+            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["line1", "line2", "zip", "city", "state", "country"]),
             'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
             'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ["zip"]),
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),

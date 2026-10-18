@@ -49,8 +49,13 @@ class C_Document extends Controller
     private readonly DocumentTemplateService $templateService;
     private bool $returnRetrieveKey = false;
 
+    /**
+     * @param bool $withCsrfToken false when nothing will be rendered, e.g. the REST API reading a file;
+     *                            API bearer token sessions have no CSRF key to build a token from
+     */
     public function __construct(
         ?CryptoInterface $crypto = null,
+        bool $withCsrfToken = true,
     ) {
         parent::__construct();
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -60,7 +65,7 @@ class C_Document extends Controller
         $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING'] ?? ''));
         $this->assign("CURRENT_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "document&");
 
-        if (php_sapi_name() !== 'cli') {
+        if ($withCsrfToken && php_sapi_name() !== 'cli') {
             // skip when this is being called via command line for the ccda importing
             $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken($session));
         }

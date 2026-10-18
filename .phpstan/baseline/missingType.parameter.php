@@ -35122,11 +35122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/EncounterService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\EncounterService\\:\\:updateVital\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/EncounterService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\EncounterService\\:\\:updateVital\\(\\) has parameter \\$eid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/EncounterService.php',

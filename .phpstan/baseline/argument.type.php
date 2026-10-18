@@ -59928,7 +59928,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$vitals of method OpenEMR\\\\Services\\\\VitalsService\\:\\:save\\(\\) expects array, mixed given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/EncounterService.php',
 ];
 $ignoreErrors[] = [
