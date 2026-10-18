@@ -661,7 +661,13 @@ class QuestionnaireAvailabilityServiceTest extends TestCase
         ]);
 
         $context = new AvailabilityContext(QuestionnaireSurface::Encounter);
-        $this->assertSame([$id], $this->ownAssignedIds($context));
+        // ownAssignedIds() reports matching rows, not questionnaires, so one questionnaire
+        // reached by two rules appears twice; getAvailableIds() is what dedupes.
+        $this->assertSame(
+            [$id, $id],
+            $this->ownAssignedIds($context),
+            'both rules reach it while both are on'
+        );
 
         $this->service->setAssignmentActive($unscoped, false);
         $this->assertSame(
