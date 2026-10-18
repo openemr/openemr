@@ -77,6 +77,17 @@ class DcrClient
     /**
      * Register a public client (no client_secret, PKCE required) with
      * the given scope list, then enable it for the named grant.
+     *
+     * OpenEMR DCR restricts token_endpoint_auth_method to
+     * client_secret_basic | client_secret_post | private_key_jwt
+     * (AuthorizationController::registerClient allowed list — "none"
+     * is rejected with invalid_client_metadata). The flip to a public
+     * client is driven by application_type != 'private'; with
+     * application_type=web the server skips client_secret generation,
+     * so the registered client is effectively public even though
+     * token_endpoint_auth_method is declared as client_secret_post.
+     * See `AuthorizationGrantPublicClientPkceTest::doPkceAuthorize`
+     * for the reference registration pattern.
      */
     public static function registerPublic(
         string $baseUrl,
@@ -91,7 +102,7 @@ class DcrClient
                 'application_type' => 'web',
                 'redirect_uris' => [$redirectUri],
                 'client_name' => $clientName,
-                'token_endpoint_auth_method' => 'none',
+                'token_endpoint_auth_method' => 'client_secret_post',
                 'contacts' => ['e2e@test.example'],
                 'scope' => $scope,
             ],
