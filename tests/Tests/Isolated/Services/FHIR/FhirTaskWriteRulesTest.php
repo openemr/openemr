@@ -122,7 +122,29 @@ class FhirTaskWriteRulesTest extends TestCase
             'an input that is a Patient' => [['input' => [['type' => ['text' => 'Contact'], 'valueReference' => ['reference' => 'Patient/' . self::PATIENT]]]], 'input[0]'],
             'an input url that is not a url' => [['input' => [['type' => ['text' => 'Form'], 'valueUrl' => 'the clinic website']]], 'input[0]'],
             'an input canonical with a space' => [['input' => [['type' => ['text' => 'Form'], 'valueCanonical' => 'https://example.org/Questionnaire/phq 9']]], 'input[0]'],
+            'an output type text longer than its column' => [['output' => [['type' => ['text' => str_repeat('t', FhirTaskWriteRules::MAX_SYSTEM + 1)], 'valueString' => 'Tuesday']]], 'output[0]'],
+            'an input type system longer than its column' => [['input' => [['type' => ['coding' => [['system' => 'https://example.org/' . str_repeat('s', FhirTaskWriteRules::MAX_SYSTEM), 'code' => 'x']]], 'valueString' => 'x']]], 'input[0]'],
+            'an input type code longer than its column' => [['input' => [['type' => ['coding' => [['system' => 'https://example.org', 'code' => str_repeat('c', FhirTaskWriteRules::MAX_CODE + 1)]]], 'valueString' => 'x']]], 'input[0]'],
+            'an output code system longer than its column' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['coding' => [['system' => 'https://example.org/' . str_repeat('s', FhirTaskWriteRules::MAX_SYSTEM), 'code' => 'food-delivered']]]]]], 'output[0]'],
+            'an output code longer than its column' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['coding' => [['system' => 'https://example.org', 'code' => str_repeat('c', FhirTaskWriteRules::MAX_CODE + 1)]]]]]], 'output[0]'],
+            'an output concept text longer than the limit' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['text' => str_repeat('a', FhirTaskWriteRules::MAX_TEXT + 1)]]]], 'output[0]'],
         ];
+    }
+
+    public function testValuesAsLongAsTheirColumnsAreKept(): void
+    {
+        $system = 'https://example.org/' . str_repeat('s', FhirTaskWriteRules::MAX_SYSTEM - 20);
+        $code = str_repeat('c', FhirTaskWriteRules::MAX_CODE);
+        $text = str_repeat('t', FhirTaskWriteRules::MAX_SYSTEM);
+        $read = FhirTaskWriteRules::read(self::task(['output' => [[
+            'type' => ['coding' => [['system' => $system, 'code' => $code]], 'text' => $text],
+            'valueCodeableConcept' => ['coding' => [['system' => $system, 'code' => $code]], 'text' => str_repeat('a', FhirTaskWriteRules::MAX_TEXT)],
+        ]]]));
+        $this->assertSame([], $read['errors']);
+        $row = $read['outputs'][0];
+        $this->assertSame([$system, $code, $text, $system, $code], [$row['type_system'], $row['type_code'], $row['type_text'], $row['value_system'], $row['value_code']]);
+        $this->assertSame(FhirTaskWriteRules::MAX_TEXT, mb_strlen((string)$row['value_text']));
+        $this->assertSame(FhirTaskWriteRules::MAX_SYSTEM, mb_strlen($system), 'the system used is exactly at the limit');
     }
 
     /**
