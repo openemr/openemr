@@ -80,6 +80,12 @@ class HttpRestRequestUnconstrainedScopeIsolatedTest extends TestCase
             // method is a plain any-unconstrained-wins scan.
             'unconstrained listed first' => [['system/Observation.rs', 'system/Observation.rs?' . self::LAB], 'system/Observation.read', true, true],
             'unconstrained listed last' => [['system/Observation.rs?' . self::LAB, 'system/Observation.rs'], 'system/Observation.read', true, true],
+
+            // v1 permission containment: holding read must NOT satisfy a required
+            // write even when the resource / context / unconstrained-ness all
+            // align. Exercises the v1-write branch of ScopeEntity::containsScope
+            // separately from the v2 CRUDS branch covered below.
+            'v1 read token vs v1 write required' => [['system/Patient.read'], 'system/Patient.write', false, false],
         ];
     }
 
