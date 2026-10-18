@@ -671,7 +671,7 @@ class parseCSV
      * @param mixed $conditions specified conditions that the row must match
      * @return true of false
      */
-    public function _validate_row_conditions($row = [], $conditions = null)
+    public function _validate_row_conditions($row = [], $conditions = null): bool
     {
         if (! empty($row)) {
             if (! empty($conditions)) {
@@ -816,7 +816,7 @@ class parseCSV
      * @param mixed $file local filename
      * @return true or false
      */
-    public function _check_data($file = null)
+    public function _check_data($file = null): bool
     {
         if (empty($this->file_data)) {
             $file ??= $this->file;

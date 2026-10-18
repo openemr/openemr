@@ -4,6 +4,7 @@
  * Verify that encounter forms hand their JavaScript the web root unchanged.
  *
  * Regression test for issue #13016. vitals.html.twig and care_plan_form.html.twig
+ * (and later observation_edit.html.twig and procedure_order/common.php)
  * passed the web root to their init() through the js_url filter, which URL-encodes
  * it: a web root of "/openemr" reached the reason code widget as "%2Fopenemr", so
  * "Select Reason Code" opened
@@ -96,6 +97,42 @@ class ReasonCodeWidgetWebRootTest extends TestCase
         ]);
 
         self::assertSame($webRoot, self::initArgument('/window\.careplanForm\.init\((.*?), null, \{/', $output));
+    }
+
+    /**
+     * No page or template hands JavaScript the web root through js_url: it is a
+     * path prefix, not a URL parameter, and encoding it breaks every URL built on
+     * it in subdirectory installs. The observation and procedure order forms did
+     * this after vitals and the care plan were fixed.
+     */
+    #[Test]
+    public function noSourcePassesTheWebRootThroughJsUrl(): void
+    {
+        $pattern = '/webroot\s*\|\s*js_url'
+            . '|js_url\(\s*(?:\$web_?root|\$GLOBALS\[[\'"]webroot[\'"]\]'
+            . '|OEGlobalsBag::getInstance\(\)->(?:getWebRoot\(\)|get(?:String)?\([\'"]webroot[\'"]\)))\s*\)/i';
+        $root = dirname(__DIR__, 4);
+        $offenders = [];
+        foreach (['interface', 'library', 'templates', 'src'] as $dir) {
+            $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root . '/' . $dir, \FilesystemIterator::SKIP_DOTS));
+            foreach ($files as $file) {
+                if (!$file instanceof \SplFileInfo || !preg_match('/\.(php|twig)$/', $file->getFilename())) {
+                    continue;
+                }
+                $path = $file->getPathname();
+                if (str_contains($path, '/vendor/') || str_contains($path, '/node_modules/')) {
+                    continue;
+                }
+                $lines = file($path) ?: [];
+                foreach ($lines as $number => $line) {
+                    if (preg_match($pattern, $line) === 1) {
+                        $offenders[] = substr($path, strlen($root) + 1) . ':' . ($number + 1);
+                    }
+                }
+            }
+        }
+
+        self::assertSame([], $offenders, 'Pass the web root with js_escape, not js_url');
     }
 
     /**

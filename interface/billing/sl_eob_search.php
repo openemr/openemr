@@ -309,7 +309,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
             if (stristr($OneLine, "\014") == true && !feof($file)) {
                 $pdf->ezNewPage();
                 $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
-                str_replace("\014", "", $OneLine);
+                $OneLine = str_replace("\014", "", $OneLine);
             }
 
             if (
@@ -1176,22 +1176,19 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                 $in_collections = stristr((string) $billnote, 'IN COLLECTIONS') !== false
                                     || $row['in_collection'] == 1;
 
-                                // $duncount was originally supposed to be the number of times that
-                                // the patient was sent a statement for this invoice.
+                                // $duncount is the number of statements the patient has been sent for
+                                // this invoice, or, while insurance is still open, minus the number of
+                                // insurance levels not yet closed.
                                 //
-                                $duncount = $row['stmt_count'];
-
-                                // But if we have not yet billed the patient, then compute $duncount as a
-                                // negative count of the number of insurance plans for which we have not
-                                // yet closed out insurance.
-                                //
-                                if (!$duncount) {
-                                    $i = 1;
-                                    while ($i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $i)) {
-                                        ++$i;
-                                    }
-                                    $duncount = $row['last_level_closed'] + 1 - $i;
+                                $payerCount = 0;
+                                while ($payerCount < 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $payerCount + 1)) {
+                                    ++$payerCount;
                                 }
+                                $duncount = SLEOB::dunningCount(
+                                    is_numeric($row['stmt_count']) ? (int) $row['stmt_count'] : 0,
+                                    is_numeric($row['last_level_closed']) ? (int) $row['last_level_closed'] : 0,
+                                    $payerCount
+                                );
 
                                 $isdueany = ($balance > 0);
 
@@ -1240,7 +1237,7 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                         &nbsp;
                                     </td>
                                     <td class="detail text-right"><?php echo text(FormatMoney::getBucks($balance)); ?>&nbsp;</td>
-                                    <td class="detail text-center"><?php echo $duncount ? text($duncount) : "&nbsp;" ?></td>
+                                    <td class="detail text-center"><?php echo $duncount ? text((string) $duncount) : "&nbsp;" ?></td>
                                     <?php if (!$eracount) { ?>
                                         <td class="detail text-left">
                                             <input type='checkbox'
