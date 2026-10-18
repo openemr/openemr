@@ -49,7 +49,7 @@ class VitalSignsServiceDatabaseTest extends TestCase
         $this->vitals(self::OTHER_PID, '2026-03-02 09:00:00', ['bps' => '150', 'bpd' => '95']);
 
         $rows = $this->read(new QdmRequestOne((string)self::PID));
-        $this->assertSame([[self::PID, 'LOINC:8480-6', 128.0], [self::PID, 'LOINC:8462-4', 82.0]], $rows);
+        $this->assertSame([[self::PID, 'LOINC:8462-4', 82.0], [self::PID, 'LOINC:8480-6', 128.0]], $rows);
         $both = $this->read(new QdmRequestSome([self::PID, self::OTHER_PID]));
         $this->assertCount(4, $both);
     }
@@ -126,7 +126,7 @@ class VitalSignsServiceDatabaseTest extends TestCase
         $this->assertSame([[self::PID, 'LOINC:8480-6', 128.0]], $this->read(new QdmRequestOne((string)self::PID)));
     }
 
-    /** @return list<array{int, string, float}> pid, code and value of each vital read, in the query's order */
+    /** @return list<array{int, string, float}> pid, code and value of each vital read, sorted: the query's UNION ALL has no order */
     private function read(QdmRequestOne|QdmRequestSome $request): array
     {
         $result = $this->service(VitalSignsService::class, $request)->executeQuery();
@@ -135,6 +135,7 @@ class VitalSignsServiceDatabaseTest extends TestCase
         while (is_array($row = QueryUtils::fetchArrayFromResultSet($result))) {
             $rows[] = [(int)self::number($row['pid']), self::text($row['code']), (float)self::number($row['value'])];
         }
+        sort($rows);
         return $rows;
     }
 
