@@ -66,6 +66,17 @@ class QuestionnaireAvailabilityService
      */
     public const ENCOUNTER_FORM_DIRECTORY = 'questionnaire_assessments';
 
+    /**
+     * Codes on the InvalidArgumentException a refused write throws. The message is for
+     * logs; a screen maps the code to translated text instead of showing the message.
+     */
+    public const ERROR_NOT_SAVED = 1;
+    public const ERROR_NO_TARGET = 2;
+    public const ERROR_HALF_ACL = 3;
+    public const ERROR_UNSUPPORTED_SCOPE = 4;
+    public const ERROR_MISSING = 5;
+    public const ERROR_DUPLICATE = 6;
+
 
     /**
      * Questionnaire ids available on this surface, in assignment order.
@@ -367,23 +378,13 @@ class QuestionnaireAvailabilityService
      * administrator deciding again, which is exactly what the screen is for, and is why
      * assignDefault() is the only path that must not reactivate.
      *
-     * @throws InvalidArgumentException if the row names no target, or half an ACL pair
+     * @throws InvalidArgumentException if the row names no target, carries half an ACL
+     *         pair, or is scoped on an axis its surface does not fill in
      * @throws SqlQueryException if the write cannot run
      */
     public function assign(AssignmentRecord $record): int
     {
-        if (!$record->hasTarget()) {
-            throw new InvalidArgumentException(
-                'an assignment must name a questionnaire or a category'
-            );
-        }
-        if (($record->aclSection === null) !== ($record->aclLevel === null)) {
-            // Refused here so the read path's own refusal is unreachable from the UI.
-            // OpenEMR ACL sections and levels are only meaningful as pairs.
-            throw new InvalidArgumentException(
-                'set both acl_section and acl_level, or neither'
-            );
-        }
+        $this->assertWritable($record);
 
         $existing = $this->findMatchingAssignmentId($record);
         $userId = self::asInt(
@@ -449,24 +450,19 @@ class QuestionnaireAvailabilityService
      * would undo that decision as a side effect.
      *
      * @throws InvalidArgumentException if the rule names no target, carries half an ACL
-     *         pair, does not exist, or would become a duplicate of another rule
+     *         pair, is scoped on an axis its surface does not fill in, does not exist,
+     *         or would become a duplicate of another rule
      * @throws SqlQueryException if the write cannot run
      */
     public function updateAssignment(AssignmentRecord $record): void
     {
         if ($record->id <= 0) {
-            throw new InvalidArgumentException('a rule must be saved before it can be edited');
-        }
-        if (!$record->hasTarget()) {
             throw new InvalidArgumentException(
-                'an assignment must name a questionnaire or a category'
+                'a rule must be saved before it can be edited',
+                self::ERROR_NOT_SAVED
             );
         }
-        if (($record->aclSection === null) !== ($record->aclLevel === null)) {
-            throw new InvalidArgumentException(
-                'set both acl_section and acl_level, or neither'
-            );
-        }
+        $this->assertWritable($record);
 
         $exists = QueryUtils::fetchSingleValue(
             'SELECT `id` FROM `' . self::TABLE_NAME . '` WHERE `id` = ? AND `resource_type` = ?',
@@ -474,7 +470,7 @@ class QuestionnaireAvailabilityService
             [$record->id, self::RESOURCE_TYPE]
         );
         if (self::asInt($exists) !== $record->id) {
-            throw new InvalidArgumentException('that rule no longer exists');
+            throw new InvalidArgumentException('that rule no longer exists', self::ERROR_MISSING);
         }
 
         // An edit may not turn one rule into a copy of another. Two rows with the same
@@ -483,7 +479,8 @@ class QuestionnaireAvailabilityService
         $clash = $this->findMatchingAssignmentId($record);
         if ($clash > 0 && $clash !== $record->id) {
             throw new InvalidArgumentException(
-                'another rule already covers that questionnaire or category with the same scope'
+                'another rule already covers that questionnaire or category with the same scope',
+                self::ERROR_DUPLICATE
             );
         }
 
@@ -586,6 +583,56 @@ class QuestionnaireAvailabilityService
             'DELETE FROM `' . self::TABLE_NAME . '` WHERE `id` = ? AND `resource_type` = ?',
             [$assignmentId, self::RESOURCE_TYPE]
         );
+    }
+
+    /**
+     * Checks that apply to any rule before it is written, new or edited.
+     *
+     * Each is refused here so the screen cannot store a rule that would silently do
+     * something other than what it says:
+     *
+     *  - no target matches nothing;
+     *  - half an ACL pair is denied for everyone on the read path (see isPermitted());
+     *  - a scope the surface never fills in is never narrowed, so the rule would apply
+     *    everywhere on that surface (see QuestionnaireSurface::supportedScopes()).
+     *
+     * @throws InvalidArgumentException naming the first problem found
+     */
+    private function assertWritable(AssignmentRecord $record): void
+    {
+        if (!$record->hasTarget()) {
+            throw new InvalidArgumentException(
+                'an assignment must name a questionnaire or a category',
+                self::ERROR_NO_TARGET
+            );
+        }
+        if (($record->aclSection === null) !== ($record->aclLevel === null)) {
+            // OpenEMR ACL sections and levels are only meaningful as pairs.
+            throw new InvalidArgumentException(
+                'set both acl_section and acl_level, or neither',
+                self::ERROR_HALF_ACL
+            );
+        }
+        $unsupported = array_diff(
+            $record->scopedColumns(),
+            $record->surface->supportedScopes()
+        );
+        if ($unsupported !== []) {
+            // Shown to the administrator, so the axes are named in words, not columns.
+            $axes = array_map(
+                static fn(string $column): string => match ($column) {
+                    'visit_category_id' => 'visit category',
+                    'client_id' => 'SMART client',
+                    default => $column,
+                },
+                $unsupported
+            );
+            throw new InvalidArgumentException(sprintf(
+                'the %s surface cannot narrow by %s, so that rule would apply everywhere on it',
+                $record->surface->value,
+                implode(', ', $axes)
+            ), self::ERROR_UNSUPPORTED_SCOPE);
+        }
     }
 
     /**

@@ -40,4 +40,31 @@ enum QuestionnaireSurface: string
             self::Portal => ['patients', 'docs'],
         };
     }
+
+    /**
+     * The scope columns this surface's caller fills in, in AvailabilityContext order.
+     *
+     * A context member left null matches every rule, so a rule scoped on an axis its
+     * surface never fills in is not narrowed at all. A visit-category rule on the
+     * dashboard would show at every visit, which is the opposite of what the
+     * administrator asked for. assign() refuses such a rule, and the screen disables
+     * those fields.
+     *
+     *  - dashboard: the user's current facility; no encounter, so no provider or visit
+     *  - encounter: facility, provider and visit category off the encounter row
+     *  - smart: the user's current facility and the app being launched, from both the
+     *    dashboard launch menu and the launch endpoint
+     *  - portal: nothing yet; the portal does not read assignments
+     *
+     * @return list<'facility'|'provider'|'visit_category_id'|'client_id'>
+     */
+    public function supportedScopes(): array
+    {
+        return match ($this) {
+            self::Dashboard => ['facility'],
+            self::Encounter => ['facility', 'provider', 'visit_category_id'],
+            self::Smart => ['facility', 'client_id'],
+            self::Portal => [],
+        };
+    }
 }

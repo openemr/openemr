@@ -693,6 +693,7 @@ class QuestionnaireAvailabilityServiceTest extends TestCase
         $id = $this->addQuestionnaire('availability half acl');
 
         $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionCode(QuestionnaireAvailabilityService::ERROR_HALF_ACL);
         $this->service->assign(new AssignmentRecord(
             id: 0,
             surface: QuestionnaireSurface::Dashboard,
@@ -701,9 +702,105 @@ class QuestionnaireAvailabilityServiceTest extends TestCase
         ));
     }
 
+    /**
+     * The dashboard has no encounter, so it never fills in a visit category. A rule
+     * scoped to one would match at every visit -- the opposite of what was asked -- so
+     * it is refused instead of stored.
+     */
+    public function testAssignRefusesAScopeTheSurfaceCannotApply(): void
+    {
+        $id = $this->addQuestionnaire('availability unsupported scope');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionCode(QuestionnaireAvailabilityService::ERROR_UNSUPPORTED_SCOPE);
+        $this->service->assign(new AssignmentRecord(
+            id: 0,
+            surface: QuestionnaireSurface::Dashboard,
+            resourceId: $id,
+            visitCategoryId: 5,
+        ));
+    }
+
+    public function testUpdateAssignmentRefusesAScopeTheSurfaceCannotApply(): void
+    {
+        $id = $this->addQuestionnaire('availability edit unsupported scope');
+        $ruleId = $this->addAssignment(['resource_id' => $id, 'surface' => 'dashboard']);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionCode(QuestionnaireAvailabilityService::ERROR_UNSUPPORTED_SCOPE);
+        $this->service->updateAssignment(new AssignmentRecord(
+            id: $ruleId,
+            surface: QuestionnaireSurface::Dashboard,
+            resourceId: $id,
+            provider: 7,
+        ));
+    }
+
+    /**
+     * One questionnaire offered at two kinds of visit and not at a third: one rule per
+     * visit category, written through the same call the screen uses.
+     */
+    public function testVisitCategoryRulesOfferAQuestionnaireAtEachNamedKindOfVisit(): void
+    {
+        $id = $this->addQuestionnaire('availability per visit category');
+        foreach ([5, 9] as $visitCategoryId) {
+            $this->ownAssignmentIds[] = $this->service->assign(new AssignmentRecord(
+                id: 0,
+                surface: QuestionnaireSurface::Encounter,
+                resourceId: $id,
+                visitCategoryId: $visitCategoryId,
+            ));
+        }
+
+        $this->assertSame(
+            [$id],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Encounter, visitCategoryId: 5))
+        );
+        $this->assertSame(
+            [$id],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Encounter, visitCategoryId: 9))
+        );
+        $this->assertSame(
+            [],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Encounter, visitCategoryId: 7)),
+            'a visit category with no rule must not be offered it'
+        );
+    }
+
+    /**
+     * SMART launch is opt-in per questionnaire: nothing assigns it by default, an
+     * unscoped SMART rule allows every app, and a rule naming an app allows only that one.
+     */
+    public function testSmartLaunchNeedsARuleAndCanNameTheApp(): void
+    {
+        $id = $this->addQuestionnaire('availability smart launch');
+        $appA = new AvailabilityContext(QuestionnaireSurface::Smart, clientId: 'zz-availability-app-a');
+        $appB = new AvailabilityContext(QuestionnaireSurface::Smart, clientId: 'zz-availability-app-b');
+
+        $this->assertSame([], $this->ownAssignedIds($appA), 'no SMART rule, no launch');
+
+        $named = $this->service->assign(new AssignmentRecord(
+            id: 0,
+            surface: QuestionnaireSurface::Smart,
+            resourceId: $id,
+            clientId: 'zz-availability-app-a',
+        ));
+        $this->ownAssignmentIds[] = $named;
+        $this->assertSame([$id], $this->ownAssignedIds($appA), 'the named app may launch it');
+        $this->assertSame([], $this->ownAssignedIds($appB), 'another app may not');
+
+        $this->ownAssignmentIds[] = $this->service->assign(new AssignmentRecord(
+            id: 0,
+            surface: QuestionnaireSurface::Smart,
+            resourceId: $id,
+        ));
+        $this->assertSame([$id], $this->ownAssignedIds($appB), 'an unscoped SMART rule allows every app');
+    }
+
     public function testAssignRefusesARuleWithNoTarget(): void
     {
         $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionCode(QuestionnaireAvailabilityService::ERROR_NO_TARGET);
         $this->service->assign(new AssignmentRecord(
             id: 0,
             surface: QuestionnaireSurface::Dashboard,
@@ -820,6 +917,7 @@ class QuestionnaireAvailabilityServiceTest extends TestCase
         $other = $this->addAssignment(['resource_id' => $id, 'surface' => 'encounter']);
 
         $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionCode(QuestionnaireAvailabilityService::ERROR_DUPLICATE);
         $this->service->updateAssignment(new AssignmentRecord(
             id: $other,
             surface: QuestionnaireSurface::Encounter,
@@ -847,6 +945,7 @@ class QuestionnaireAvailabilityServiceTest extends TestCase
         $id = $this->addQuestionnaire('availability edit missing');
 
         $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionCode(QuestionnaireAvailabilityService::ERROR_MISSING);
         $this->service->updateAssignment(new AssignmentRecord(
             id: 999999999,
             surface: QuestionnaireSurface::Dashboard,

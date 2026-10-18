@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\Questionnaire;
 
+use OpenEMR\Services\Questionnaire\AssignmentRecord;
 use OpenEMR\Services\Questionnaire\AvailabilityContext;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
 use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
@@ -44,6 +45,74 @@ class QuestionnaireAvailabilityIsolatedTest extends TestCase
             $this->assertNotSame('', $section, "{$surface->value} must name an ACL section");
             $this->assertNotSame('', $level, "{$surface->value} must name an ACL level");
         }
+    }
+
+    /**
+     * A surface may only promise scopes its caller can fill in. A column named here but
+     * missing from AvailabilityContext would let the screen store a rule that is never
+     * narrowed, which is the failure supportedScopes() exists to prevent.
+     */
+    public function testEverySupportedScopeIsAContextScope(): void
+    {
+        foreach (QuestionnaireSurface::cases() as $surface) {
+            $contextColumns = (new AvailabilityContext($surface))->scopeValues();
+            foreach ($surface->supportedScopes() as $column) {
+                $this->assertArrayHasKey(
+                    $column,
+                    $contextColumns,
+                    "{$surface->value} supports {$column}, which AvailabilityContext does not supply"
+                );
+            }
+        }
+    }
+
+    /**
+     * Pins what each surface can be narrowed by, so giving a surface a new scope is a
+     * deliberate change here rather than a silent one.
+     *
+     * @param list<string> $scopes
+     */
+    #[DataProvider('surfaceScopeProvider')]
+    public function testSurfaceScopes(string $persisted, array $scopes): void
+    {
+        $this->assertSame($scopes, QuestionnaireSurface::from($persisted)->supportedScopes());
+    }
+
+    /**
+     * @return array<string, array{string, list<string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function surfaceScopeProvider(): array
+    {
+        return [
+            'dashboard' => ['dashboard', ['facility']],
+            'encounter' => ['encounter', ['facility', 'provider', 'visit_category_id']],
+            'portal' => ['portal', []],
+            'smart' => ['smart', ['facility', 'client_id']],
+        ];
+    }
+
+    public function testScopedColumnsNamesOnlyTheAxesARuleNarrows(): void
+    {
+        $scoped = new AssignmentRecord(
+            id: 0,
+            surface: QuestionnaireSurface::Encounter,
+            resourceId: 1,
+            facility: 3,
+            visitCategoryId: 5,
+        );
+        $this->assertSame(['facility', 'visit_category_id'], $scoped->scopedColumns());
+        $this->assertTrue($scoped->isScoped());
+
+        $unscoped = new AssignmentRecord(
+            id: 0,
+            surface: QuestionnaireSurface::Encounter,
+            resourceId: 1,
+            clientId: '',
+        );
+        $this->assertSame([], $unscoped->scopedColumns(), 'an empty client id is not a scope');
+        $this->assertFalse($unscoped->isScoped());
     }
 
     /**

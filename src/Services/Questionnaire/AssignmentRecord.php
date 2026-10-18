@@ -69,9 +69,30 @@ final readonly class AssignmentRecord
      */
     public function isScoped(): bool
     {
-        return $this->facility !== null
-            || $this->provider !== null
-            || $this->visitCategoryId !== null
-            || ($this->clientId ?? '') !== '';
+        return $this->scopedColumns() !== [];
+    }
+
+    /**
+     * The scope columns this row narrows by, named as in `content_assignments`.
+     *
+     * @return list<'facility'|'provider'|'visit_category_id'|'client_id'>
+     */
+    public function scopedColumns(): array
+    {
+        $columns = [];
+        if ($this->facility !== null) {
+            $columns[] = 'facility';
+        }
+        if ($this->provider !== null) {
+            $columns[] = 'provider';
+        }
+        if ($this->visitCategoryId !== null) {
+            $columns[] = 'visit_category_id';
+        }
+        if (($this->clientId ?? '') !== '') {
+            $columns[] = 'client_id';
+        }
+
+        return $columns;
     }
 }

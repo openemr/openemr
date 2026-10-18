@@ -30,6 +30,9 @@ use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Questionnaire\AvailabilityContext;
+use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 // not sure I really like this here... it seems like some of this
@@ -171,7 +174,13 @@ class SmartLaunchController
 
         // Questionnaire context is resolved from OpenEMR database ids so the browser cannot inject FHIR references.
         /** @var array<string, mixed> $intentData */
-        $this->addQuestionnaireLaunchContext($launchCode, $intentData, $pid);
+        $this->addQuestionnaireLaunchContext(
+            $launchCode,
+            $intentData,
+            $pid,
+            $client->getIdentifier(),
+            $session->get('facilityId')
+        );
 
         $serializedCode = $launchCode->serialize();
         $launchParams = "?launch=" . urlencode($serializedCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
@@ -209,11 +218,15 @@ class SmartLaunchController
 
     /**
      * @param array<string, mixed> $intentData
+     * @param mixed $clientId identifier of the app being launched
+     * @param mixed $facility the session facility, which SMART rules may be scoped to
      */
     private function addQuestionnaireLaunchContext(
         SMARTLaunchToken $launchCode,
         array $intentData,
-        mixed $pid
+        mixed $pid,
+        mixed $clientId,
+        mixed $facility
     ): void {
         $questionnaireValue = $intentData['questionnaire_id'] ?? null;
         $questionnaireResponseValue = $intentData['questionnaire_response_id'] ?? null;
@@ -238,6 +251,23 @@ class SmartLaunchController
         }
         if (!AclMain::aclCheckCore('patients', 'med')) {
             throw new AccessDeniedException("patients", "med", "You do not have permission to access patient assessments");
+        }
+
+        // A questionnaire is launched into a SMART app only when a SMART availability rule
+        // allows it, for any app or for this one. The dashboard hides the launch menu for
+        // every other questionnaire; this refuses a launch URL built by hand for one.
+        $smartContext = new AvailabilityContext(
+            QuestionnaireSurface::Smart,
+            pid: $patientId,
+            facility: $this->getPositiveInteger($facility),
+            clientId: is_string($clientId) && $clientId !== '' ? $clientId : null,
+        );
+        if (!(new QuestionnaireAvailabilityService())->isAvailable($questionnaireId, $smartContext)) {
+            throw new AccessDeniedException(
+                "patients",
+                "med",
+                "Questionnaire is not assigned for SMART launch by this app"
+            );
         }
 
         $questionnaireRecords = QueryUtils::fetchRecordsNoLog(
