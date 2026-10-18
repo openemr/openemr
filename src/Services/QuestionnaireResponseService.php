@@ -444,17 +444,20 @@ class QuestionnaireResponseService extends BaseService
         $fhirResponseOb->setId(new FHIRId($qr_id));
         $serverConfig = new ServerConfig();
         $fhirResponseOb->setQuestionnaire(new FHIRCanonical($serverConfig->getFhirUrl() . '/Questionnaire/' . $q_id));
+        // the FHIR reference uses the encounter uuid; the encounter column keeps the encounter id
+        $encounterReference = $encounter;
         if (is_numeric($encounter)) {
             $encounter_uuid = $this::getUuidById($encounter, 'form_encounter', 'encounter');
             if (empty($encounter_uuid)) {
                 $encounter = 0;
+                $encounterReference = 0;
             } else {
-                $encounter = UuidRegistry::uuidToString($encounter_uuid) ?: $encounter;
+                $encounterReference = UuidRegistry::uuidToString($encounter_uuid) ?: $encounter;
             }
         }
-        if (!empty($encounter)) {
+        if (!empty($encounterReference)) {
             $encRef = new FHIRReference();
-            $encRef->setReference(new FHIRString('fhir/Encounter/' . $encounter));
+            $encRef->setReference(new FHIRString('fhir/Encounter/' . $encounterReference));
             $fhirResponseOb->setEncounter($encRef);
         }
         $r_status = $fhirResponseOb->getStatus();

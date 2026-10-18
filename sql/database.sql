@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 552
+-- v_database: 557
 --
 
 --
@@ -14399,6 +14399,45 @@ CREATE TABLE `questionnaire_response` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `response_index` (`response_id`, `patient_id`, `questionnaire_id`, `questionnaire_name`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `task`
+--
+
+DROP TABLE IF EXISTS `task`;
+CREATE TABLE `task` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
+  `status` varchar(31) NOT NULL DEFAULT 'requested' COMMENT 'FHIR Task.status code',
+  `status_reason` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.statusReason, as text',
+  `business_status` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.businessStatus, as text',
+  `intent` varchar(31) NOT NULL DEFAULT 'order' COMMENT 'FHIR Task.intent code',
+  `priority` varchar(31) DEFAULT NULL COMMENT 'FHIR Task.priority code',
+  `code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.code, from http://hl7.org/fhir/CodeSystem/task-code',
+  `description` text,
+  `patient_id` bigint(20) DEFAULT NULL COMMENT 'FHIR Task.for: patient_data.pid',
+  `focus_type` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.focus: resource type',
+  `focus_uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Task.focus: resource id',
+  `owner_type` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.owner: resource type',
+  `owner_uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Task.owner: resource id',
+  `requester_type` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.requester: resource type',
+  `requester_uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Task.requester: resource id',
+  `part_of_uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Task.partOf: the parent task.uuid',
+  `authored_on` datetime DEFAULT NULL,
+  `last_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` bigint(20) DEFAULT NULL COMMENT 'users.id',
+  `updated_by` bigint(20) DEFAULT NULL COMMENT 'users.id',
+  `version` int(11) NOT NULL DEFAULT 1 COMMENT 'FHIR meta.versionId: 1 on create, raised by each update (If-Match)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  KEY `patient_id` (`patient_id`),
+  KEY `status` (`status`),
+  KEY `focus_uuid` (`focus_uuid`),
+  KEY `owner_uuid` (`owner_uuid`),
+  KEY `part_of_uuid` (`part_of_uuid`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `form_questionnaire_assessments`;

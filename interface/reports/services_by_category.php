@@ -17,10 +17,17 @@ require_once("../../custom/code_types.inc.php");
 
 /** @var array<string, array<string, mixed>> $code_types */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+
+// Align the permission check with the sibling billing reports (`acct/rep_a`).
+if (!AclMain::aclCheckCore('acct', 'rep_a')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Services By Category", xl("Services By Category"));
+}
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {

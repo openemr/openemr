@@ -27,8 +27,21 @@ $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActi
 $pid = $session->get('pid', 0);
 
 use OpenEMR\Common\{Csrf\CsrfUtils, Session\SessionWrapperFactory};
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\PatientAccessOnsiteService;
 use OpenEMR\Core\OEGlobalsBag;
+
+// Portal credential management; align the permission check with the
+// `patientportal/portal` administration surface.
+if (!AclMain::aclCheckCore('patientportal', 'portal')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patientportal/portal: Create Portal Login", xl("Patient Portal"));
+}
+// The service layer accepts pid=0 and will read/write `patient_access_onsite`
+// against that value; require an open chart before reaching it.
+if (!is_numeric($pid) || (int) $pid <= 0) {
+    AccessDeniedHelper::denyWithTemplate("No patient selected: Create Portal Login", xl("Patient Portal"));
+}
 
 $patientAccessOnSiteService = new PatientAccessOnsiteService();
 $credentials = $patientAccessOnSiteService->getOnsiteCredentialsForPid($pid);

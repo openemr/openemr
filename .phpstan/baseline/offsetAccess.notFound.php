@@ -82,6 +82,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'ODSPH\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset \'ODVESSELS\'\\|\'OSVESSELS\' does not exist on string\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -102,9 +107,194 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'ODSPH\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset \'address\' does not exist on array\\{name\\: non\\-falsy\\-string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'BPDD\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'BPDN\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'COMMENTS\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'LENS_MATERIAL\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'LENS_TREATMENTS\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODADD\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODAXIS\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODCYL\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODHBASE\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODHPD\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODMIDADD\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODMPDD\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODMPDN\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODNEARVA\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODSLABOFF\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODSPH\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODVA\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODVBASE\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODVERTEXDIST\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'ODVPD\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSADD\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSAXIS\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSCYL\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSHBASE\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSHPD\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSMIDADD\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSMPDD\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSMPDN\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSNEARVA\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSSLABOFF\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSSPH\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSVA\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSVBASE\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSVERTEXDIST\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'OSVPD\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'RX_TYPE\' might not exist on \'\'\\|non\\-empty\\-array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'form_id\' might not exist on array\\|null\\.$#',
@@ -167,57 +357,117 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/templates/indexrx.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'care_plan\' might not exist on array\\{\\}\\|array\\{care_plan\\?\\: array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, text\\: mixed, code\\: mixed, description\\: mixed, plan_type\\: mixed\\}\\>\\}\\.$#',
+    'message' => '#^Offset \'care_plan\' might not exist on array\\{\\}\\|array\\{care_plan\\?\\: non\\-empty\\-array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, text\\: mixed, code\\: mixed, description\\: mixed, plan_type\\: mixed\\}\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'encounter\' might not exist on array\\{\\}\\|array\\{encounter\\?\\: array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, date\\: mixed, provider_npi\\: mixed, provider_name\\: mixed, provider_address\\: mixed, provider_city\\: mixed, provider_state\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
+    'message' => '#^Offset \'encounter\' might not exist on array\\{\\}\\|\\(array\\<literal\\-string&non\\-falsy\\-string, non\\-empty\\-array\\<mixed\\>\\>\\)\\.$#',
+    'count' => 22,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'encounter\' might not exist on array\\{\\}\\|array\\{encounter\\?\\: non\\-empty\\-array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, date\\: mixed, provider_npi\\: mixed, provider_name\\: mixed, provider_address\\: mixed, provider_city\\: mixed, provider_state\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'functional_cognitive_status\' might not exist on array\\{\\}\\|array\\{functional_cognitive_status\\?\\: array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, text\\: mixed, code\\: mixed, date\\: mixed, description\\: mixed\\}\\>\\}\\.$#',
+    'message' => '#^Offset \'functional_cognitive_status\' might not exist on array\\{\\}\\|\\(array\\<literal\\-string&non\\-falsy\\-string, non\\-empty\\-array\\<mixed\\>\\>\\)\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'functional_cognitive_status\' might not exist on array\\{\\}\\|array\\{functional_cognitive_status\\?\\: non\\-empty\\-array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, text\\: mixed, code\\: mixed, date\\: mixed, description\\: mixed\\}\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'immunization\' might not exist on array\\{\\}\\|array\\{immunization\\?\\: array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, administered_date\\: mixed, route_code\\: mixed, route_code_text\\: mixed, cvx_code\\: mixed, cvx_code_text\\: mixed, amount_administered\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
+    'message' => '#^Offset \'immunization\' might not exist on array\\{\\}\\|\\(array\\<literal\\-string&non\\-falsy\\-string, non\\-empty\\-array\\<mixed\\>\\>\\)\\.$#',
+    'count' => 22,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'immunization\' might not exist on array\\{\\}\\|array\\{immunization\\?\\: non\\-empty\\-array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, administered_date\\: mixed, route_code\\: mixed, route_code_text\\: mixed, cvx_code\\: mixed, cvx_code_text\\: mixed, amount_administered\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'lists1\' might not exist on array\\{\\}\\|array\\{lists1\\?\\: array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, begdate\\: mixed, enddate\\: mixed, list_code\\: mixed, list_code_text\\: mixed, status\\: mixed, observation_text\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
+    'message' => '#^Offset \'import_file\' might not exist on array\\{\\}\\|\\(array\\<literal\\-string&non\\-falsy\\-string, non\\-empty\\-array\\<mixed\\>\\>\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'lists1\' might not exist on array\\{\\}\\|array\\{lists1\\?\\: non\\-empty\\-array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, begdate\\: mixed, enddate\\: mixed, list_code\\: mixed, list_code_text\\: mixed, status\\: mixed, observation_text\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'lists2\' might not exist on array\\{\\}\\|array\\{lists2\\?\\: array\\<int\\<1, max\\>, array\\{extension\\: mixed, begdate\\: mixed, enddate\\: mixed, list_code\\: mixed, list_code_text\\: mixed, severity_al\\: mixed, status\\: mixed, reaction\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
+    'message' => '#^Offset \'lists2\' might not exist on array\\{\\}\\|array\\{lists2\\?\\: non\\-empty\\-array\\<int\\<1, max\\>, array\\{extension\\: mixed, begdate\\: mixed, enddate\\: mixed, list_code\\: mixed, list_code_text\\: mixed, severity_al\\: mixed, status\\: mixed, reaction\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'lists3\' might not exist on array\\{\\}\\|array\\{lists3\\?\\: array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, begdate\\: mixed, enddate\\: mixed, route\\: mixed, note\\: mixed, indication\\: mixed, route_display\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
+    'message' => '#^Offset \'lists3\' might not exist on array\\{\\}\\|\\(array\\<literal\\-string&non\\-falsy\\-string, non\\-empty\\-array\\<mixed\\>\\>\\)\\.$#',
+    'count' => 23,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'lists3\' might not exist on array\\{\\}\\|array\\{lists3\\?\\: non\\-empty\\-array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, begdate\\: mixed, enddate\\: mixed, route\\: mixed, note\\: mixed, indication\\: mixed, route_display\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'procedure\' might not exist on array\\{\\}\\|array\\{procedure\\?\\: array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, codeSystemName\\: mixed, code\\: mixed, code_text\\: mixed, date\\: mixed, represented_organization1\\: mixed, represented_organization_address1\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
+    'message' => '#^Offset \'observation_preformed\' might not exist on array\\{\\}\\|\\(array\\<literal\\-string&non\\-falsy\\-string, non\\-empty\\-array\\<mixed\\>\\>\\)\\.$#',
+    'count' => 16,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'patient_data\' might not exist on array\\{\\}\\|\\(array\\<literal\\-string&non\\-falsy\\-string, non\\-empty\\-array\\<mixed\\>\\>\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'procedure_result\' might not exist on array\\{\\}\\|array\\{procedure_result\\?\\: array\\<int\\<1, max\\>, array\\{proc_text\\: mixed, proc_code\\: mixed, extension\\: mixed, date\\: mixed, status\\: mixed, results_text\\: mixed, results_code\\: mixed, results_range\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
+    'message' => '#^Offset \'payer\' might not exist on array\\{\\}\\|\\(array\\<literal\\-string&non\\-falsy\\-string, non\\-empty\\-array\\<mixed\\>\\>\\)\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'procedure\' might not exist on array\\{\\}\\|\\(array\\<literal\\-string&non\\-falsy\\-string, non\\-empty\\-array\\<mixed\\>\\>\\)\\.$#',
+    'count' => 18,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'procedure\' might not exist on array\\{\\}\\|array\\{procedure\\?\\: non\\-empty\\-array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, codeSystemName\\: mixed, code\\: mixed, code_text\\: mixed, date\\: mixed, represented_organization1\\: mixed, represented_organization_address1\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'referral\' might not exist on array\\{\\}\\|array\\{referral\\?\\: array\\<int\\<1, max\\>, array\\{body\\: mixed, root\\: mixed\\}\\>\\}\\.$#',
+    'message' => '#^Offset \'procedure_result\' might not exist on array\\{\\}\\|\\(array\\<literal\\-string&non\\-falsy\\-string, non\\-empty\\-array\\<mixed\\>\\>\\)\\.$#',
+    'count' => 11,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'procedure_result\' might not exist on array\\{\\}\\|array\\{procedure_result\\?\\: non\\-empty\\-array\\<int\\<1, max\\>, array\\{proc_text\\: mixed, proc_code\\: mixed, extension\\: mixed, date\\: mixed, status\\: mixed, results_text\\: mixed, results_code\\: mixed, results_range\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'vitals\' might not exist on array\\{\\}\\|array\\{vitals\\?\\: array\\<int\\<1, max\\>, array\\{extension\\: mixed, date\\: mixed, temperature\\: mixed, bpd\\: mixed, bps\\: mixed, head_circ\\: mixed, pulse\\: mixed, height\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
+    'message' => '#^Offset \'referral\' might not exist on array\\{\\}\\|\\(array\\<literal\\-string&non\\-falsy\\-string, non\\-empty\\-array\\<mixed\\>\\>\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'referral\' might not exist on array\\{\\}\\|array\\{referral\\?\\: non\\-empty\\-array\\<int\\<1, max\\>, array\\{body\\: mixed, root\\: mixed\\}\\>\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'vital_sign\' might not exist on array\\{\\}\\|\\(array\\<literal\\-string&non\\-falsy\\-string, non\\-empty\\-array\\<mixed\\>\\>\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'vitals\' might not exist on array\\{\\}\\|array\\{vitals\\?\\: non\\-empty\\-array\\<int\\<1, max\\>, array\\{extension\\: mixed, date\\: mixed, temperature\\: mixed, bpd\\: mixed, bps\\: mixed, head_circ\\: mixed, pulse\\: mixed, height\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];

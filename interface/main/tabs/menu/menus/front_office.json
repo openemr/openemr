@@ -362,7 +362,11 @@
                 "target": "msc",
                 "url": "/interface/reports/patient_edu_web_lookup.php",
                 "children": [],
-                "requirement": 0
+                "requirement": 0,
+                "acl_req": [
+                    "patients",
+                    "med"
+                ]
             }
         ],
         "requirement": 0

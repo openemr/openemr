@@ -80,19 +80,15 @@ initialize_openemr() {
     cd -
     dockers_env_start
     install_configure
-    "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
-    "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
-    #  Snapshot is from 7.0.3; run migrations to create any new tables
-    docker compose exec -T openemr su-exec apache php "${OPENEMR_DIR}/sql_upgrade.php" --from=7.0.3
+    "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2026-10-16-inferno-baseline.tgz
+    "${HOME}/bin/openemr-cmd" rs 2026-10-16-inferno-baseline
+    # Snapshot is from 8.5.0-dev (database 550). Upgrading from 8.4.1 re-runs
+    # 8_4_1-to-8_5_0_upgrade.sql, which picks up schema added since then.
+    docker compose exec -T openemr su-exec apache php "${OPENEMR_DIR}/sql_upgrade.php" --from=8.4.1
     # (may need to configure api globals here)
     # Prevent password expiration from blocking OAuth password grant
     docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
         -e "UPDATE users_secure SET last_update_password = NOW()"
-    # Fix user to qualify as Practitioner: NPI AND (username OR valid abook_type)
-    # Snapshot predates commit 4af4c827f which added username/abook_type filtering
-    # See https://github.com/openemr/openemr/issues/11831#issuecomment-4341049367
-    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
-        -e "UPDATE users SET abook_type = 'external_provider', npi = '0123456789' WHERE uuid = UNHEX(REPLACE('96889cb7-0f90-4d9e-9a6c-ac0e70c01cb1', '-', ''))"
 
     # Configure coverage after containers are running and OpenEMR is initialized
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
@@ -124,19 +120,22 @@ run_testsuite() {
     . ci/ciLibrary.source
     # Stay in repo root - we have write permissions here and COMPOSE_FILE is set
 
-    # Run PHPUnit tests with coverage if enabled
+    # Run PHPUnit tests with coverage if enabled. main() calls this function
+    # as a condition, which turns off set -e inside it, so a failing phpunit
+    # wouldn't stop it; keep phpunit's exit status and return it.
+    local -a coverage_args=()
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
-        phpunit --testsuite certification \
-                --coverage-clover coverage.inferno-phpunit.clover.xml \
-                --log-junit junit-inferno.xml \
-                -c "${OPENEMR_DIR}/phpunit.xml"
-    else
-        phpunit --testsuite certification \
-                --log-junit junit-inferno.xml \
-                -c "${OPENEMR_DIR}/phpunit.xml"
+        coverage_args=( --coverage-clover coverage.inferno-phpunit.clover.xml )
     fi
+    local status=0
+    # shellcheck disable=SC2310  # the status is kept and returned below
+    phpunit --testsuite certification \
+            "${coverage_args[@]}" \
+            --log-junit junit-inferno.xml \
+            -c "${OPENEMR_DIR}/phpunit.xml" || status=$?
 
-    echo 'Certification Tests Executed'
+    echo "Certification Tests Executed (exit code ${status})"
+    return "${status}"
 }
 
 collect_inferno_coverage() {
@@ -218,13 +217,16 @@ main() {
     check_inferno
     initialize_openemr
 
-    # Run the test suite and capture exit code
-    # shellcheck disable=SC2310
-    if ! run_testsuite; then
-        local exit_code=$?
+    # Run the test suite and capture exit code. (After "if ! run_testsuite",
+    # $? is the negated status, 0, so capture it with || instead.)
+    local exit_code=0
+    # shellcheck disable=SC2310  # run_testsuite returns phpunit's status itself
+    run_testsuite || exit_code=$?
+    if (( exit_code != 0 )); then
         echo "FAILURE: Inferno certification tests failed with exit code: ${exit_code}"
         # Still try to collect coverage even on failure
         if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+            # shellcheck disable=SC2310  # best effort; the test failure decides the exit code
             collect_inferno_coverage || echo "Warning: Coverage collection failed"
         fi
         exit "${exit_code}"

@@ -17,14 +17,15 @@ require_once("../../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$request = CurrentRequest::get();
 
-$feid = $_GET['feid'] + 0; // id from form_encounter table
-
-$info_msg = "";
+$feid = $request->query->getInt('feid'); // id from form_encounter table
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: Billing Note", xl("Billing Note"));
@@ -37,22 +38,16 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
 
 <body>
     <?php
-    if (!empty($_POST['form_submit']) || !empty($_POST['form_cancel'])) {
+    $submitted = $request->request->getString('form_submit') !== '';
+    if ($submitted || $request->request->getString('form_cancel') !== '') {
         CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-        $fenote = trim((string) $_POST['form_note']);
-        if ($_POST['form_submit']) {
-            sqlStatement("UPDATE form_encounter " .
-            "SET billing_note = ? WHERE id = ?", [$fenote,$feid]);
-        } else {
-            $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-            " WHERE id = ?", [$feid]);
-            $fenote = $tmp['billing_note'];
+        if ($submitted) {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE form_encounter SET billing_note = ? WHERE id = ?",
+                [trim($request->request->getString('form_note')), $feid]
+            );
         }
-
-        // escape and format note for viewing
-        $fenote = str_replace("\r\n", "<br />", $fenote);
-        $fenote = str_replace("\n", "<br />", $fenote);
 
         echo "<script>\n";
         echo "dlgclose();";
@@ -61,22 +56,25 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
         exit();
     }
 
-    $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-    " WHERE id = ?", [$feid]);
-    $fenote = $tmp['billing_note'];
+    $fenote = QueryUtils::fetchSingleValue("SELECT billing_note FROM form_encounter WHERE id = ?", 'billing_note', [$feid]);
+    $fenote = is_string($fenote) ? $fenote : '';
+
+    // Size the box to the note on the server: one row per line, plus the rows long
+    // lines wrap to in the small dialog (about 35 characters wide), plus one to type
+    // in. Measuring it in the browser gave 0 when the dialog wasn't laid out yet.
+    $noteRows = 0;
+    foreach (preg_split('/\r\n|\r|\n/', $fenote) ?: [] as $line) {
+        $noteRows += max(1, (int) ceil(mb_strlen($line) / 35));
+    }
+    $noteRows = min(20, max(4, $noteRows + 1));
     ?>
 
     <div class="container">
         <h2><?php echo xlt('Billing Note'); ?></h2>
-        <form method='post' action='edit_billnote.php?feid=<?php echo attr_url($feid); ?>' onsubmit='return top.restoreSession()'>
+        <form method='post' action='edit_billnote.php?feid=<?php echo attr_url((string) $feid); ?>' onsubmit='return top.restoreSession()'>
             <div class="form-group">
                 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-                <textarea class='form-control' name='form_note' id='form_note' rows='4'><?php echo text($fenote); ?></textarea>
-                <script>
-                    // Size to existing content before dialog.js measures the frame on load.
-                    const ta = document.getElementById('form_note');
-                    ta.style.height = Math.min(ta.scrollHeight + 2, window.parent.innerHeight * 0.7) + 'px';
-                </script>
+                <textarea class='form-control' name='form_note' id='form_note' rows='<?php echo $noteRows; ?>'><?php echo text($fenote); ?></textarea>
             </div>
             <div class="form-group">
                 <div class="btn-group btn-group-sm mt-3">
@@ -84,7 +82,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
                         <?php echo xlt('Save'); ?>
                     </button>
                     <button type='submit' class='btn btn-secondary btn-cancel btn-sm' name='form_cancel' value='<?php echo xla('Cancel'); ?>'>
-                        <?php echo xla('Cancel'); ?>
+                        <?php echo xlt('Cancel'); ?>
                     </button>
                 </div>
             </div>

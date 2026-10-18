@@ -15,6 +15,8 @@ namespace Syndromicsurveillance\Controller;
 use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 
 class SyndromicsurveillanceController extends AbstractActionController
@@ -44,6 +46,11 @@ class SyndromicsurveillanceController extends AbstractActionController
     */
     public function indexAction()
     {
+        // Align the permission check with the sibling `interface/reports/`
+        // clinical lookups (`patients/med`).
+        if (!AclMain::aclCheckCore('patients', 'med')) {
+            AccessDeniedHelper::deny('SyndromicsurveillanceController::index: patients/med required');
+        }
         $date_display_format = OEGlobalsBag::getInstance()->get('date_display_format');
         $default_from_date = date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
         $default_to_date = date('Y-m-d');  // be inclusive of today.
