@@ -546,8 +546,9 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
     // Convert the flat list of menu items into a multi-dimensional array based on the category
     // decide what will be displayed (name or nickname)
     // A locked (e-signed) encounter takes no new forms, but its fee sheet stays
-    // available: coding often follows the provider's signature, the fee sheet
-    // isn't clinical documentation, and Fees > Fee Sheet opens it regardless.
+    // available: coding often follows the provider's signature and the fee
+    // sheet isn't clinical documentation. The main menu's Fees > Fee Sheet
+    // makes the same exception (menuActionClick in tabs_view_model.js).
     $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) use ($encounterLocked) {
         $menuArray = $menuEvent->getMenuData();
         $reg = getFormsByCategory();

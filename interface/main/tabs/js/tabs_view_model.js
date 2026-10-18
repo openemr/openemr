@@ -324,7 +324,9 @@ function menuActionClick(data,evt)
 
     if(data.enabled())
     {
-        if(data.requirement===2)
+        // A locked (e-signed) encounter takes no new forms, but its fee sheet
+        // stays available, as in the encounter's own form menu.
+        if(data.requirement===2 && !/load_form\.php\?formname=fee_sheet(&|$)/.test(data.url()))
         {
             var encounterID=app_view_model.application_data[attendant_type]().selectedEncounterID();
             if(isEncounterLocked(encounterID))
