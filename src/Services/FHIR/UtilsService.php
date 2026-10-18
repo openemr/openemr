@@ -165,17 +165,32 @@ class UtilsService
         return $diagnosisCode;
     }
 
+    /**
+     * An element that holds only a data-absent-reason extension, to pass as the value of a
+     * missing element, e.g. $resource->setSubject(UtilsService::createDataMissingExtension()).
+     * The returned object serializes as {"extension": [<data-absent-reason>]} and has no url
+     * itself, so don't add it to another element's extensions; use
+     * createDataAbsentReasonExtension() for that.
+     * @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
+     */
     public static function createDataMissingExtension(): FHIRExtension
     {
-        // @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
-        // for some reason in order to get this to work we have to wrap our inner exception
-        // into an outer exception.  This might be just a PHPism with the way JSON encodes things
+        $outerExtension = new FHIRExtension();
+        $outerExtension->addExtension(self::createDataAbsentReasonExtension());
+        return $outerExtension;
+    }
+
+    /**
+     * The data-absent-reason extension with the code "unknown", for adding to an element's
+     * extensions, e.g. $reference->addExtension(UtilsService::createDataAbsentReasonExtension()).
+     * @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
+     */
+    public static function createDataAbsentReasonExtension(): FHIRExtension
+    {
         $extension = new FHIRExtension();
         $extension->setUrl(FhirCodeSystemConstants::DATA_ABSENT_REASON_EXTENSION);
         $extension->setValueCode(new FHIRCode("unknown"));
-        $outerExtension = new FHIRExtension();
-        $outerExtension->addExtension($extension);
-        return $outerExtension;
+        return $extension;
     }
 
     public static function getExtensionsByUrl($url, $object): array

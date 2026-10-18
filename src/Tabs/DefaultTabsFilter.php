@@ -86,6 +86,6 @@ final class DefaultTabsFilter
         if ($relative === '') {
             return false;
         }
-        return SafeIncludeResolver::resolve($projectDir, $relative) !== false;
+        return SafeIncludeResolver::resolve($projectDir, $relative, requirePhpSuffix: false) !== false;
     }
 }

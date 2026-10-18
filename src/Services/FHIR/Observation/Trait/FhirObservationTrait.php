@@ -200,7 +200,7 @@ trait FhirObservationTrait
             $performer = UtilsService::createRelativeReference($performerType, $performerUuid, $performerDisplay);
         } else {
             $performer = new FHIRReference();
-            $performer->addExtension(UtilsService::createDataMissingExtension());
+            $performer->addExtension(UtilsService::createDataAbsentReasonExtension());
         }
         $observation->addPerformer($performer);
     }
@@ -282,11 +282,11 @@ trait FhirObservationTrait
     {
         $obType = $dataRecord['ob_type'] ?? null;
         // Required survey category slice (mustSupport, min 1..1)
-        $catCode = $obType ?? 'survey';
+        $catCode = is_string($obType) && $obType !== '' ? $obType : 'survey';
         $observation->addCategory(UtilsService::createCodeableConcept([
             $catCode => [
                 'code' => $catCode,
-                'description' => $obType ?? 'Survey',
+                'description' => FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY_DISPLAYS[$catCode] ?? '',
                 'system' => FhirCodeSystemConstants::HL7_CATEGORY_OBSERVATION
             ]
         ]));

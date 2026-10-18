@@ -21,9 +21,13 @@ use Carecoordination\Model\CarecoordinationTable;
 use Document;
 use Documents\Controller\DocumentsController;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Stdlib\Parameters;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
@@ -35,9 +39,30 @@ use OpenEMR\Services\Cda\CdaValidateDocuments;
  */
 class CarecoordinationController extends AbstractActionController
 {
+    use CarecoordAuthzTrait;
+
     private readonly Listener $listenerObject;
 
     private readonly string $date_format;
+
+    /**
+     * Set to true by uploadAction() when calling importAction() internally
+     * for pre-approval batch imports (one call per unassigned CCDA upload).
+     * The import handler consults this flag — never a request parameter —
+     * to decide whether to skip the CSRF check that external HTTP callers
+     * must pass.
+     */
+    private bool $internalBatchContext = false;
+
+    /**
+     * When uploadAction() invokes importAction() internally for a batch
+     * import, the target document id is handed to the handler through
+     * this property — never through `$_REQUEST`. Laminas populates the
+     * request's query and post bags from `$_GET`/`$_POST` at build time
+     * and does not re-read `$_REQUEST`, so passing the id through the
+     * request globals is both unsafe and (post-refactor) ignored.
+     */
+    private ?int $internalBatchDocId = null;
 
     public function __construct(private readonly CarecoordinationTable $carecoordinationTable, private readonly DocumentsController $documentsController)
     {
@@ -64,9 +89,22 @@ class CarecoordinationController extends AbstractActionController
     public function deleteAuditAction(): ViewModel
     {
         $request = $this->getRequest();
-        $amid = $request->getPost('am_id') ?? null;
-        if ($amid) {
-            $this->getCarecoordinationTable()->deleteImportAuditData(['audit_master_id' => $amid]);
+        $rawAmid = $request->getPost('am_id');
+        if ($rawAmid !== null && $rawAmid !== '') {
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+            $amidInt = (int) $rawAmid;
+            if (!$this->isAuditMasterAccessible($amidInt)) {
+                AccessDeniedHelper::deny('CarecoordinationController::deleteAudit: audit_master not accessible by caller');
+            }
+            $this->getCarecoordinationTable()->deleteImportAuditData(['audit_master_id' => $amidInt]);
+            [$authUser, $authProvider] = $this->auditIdentity();
+            EventAuditLogger::getInstance()->newEvent(
+                'carecoord-delete',
+                $authUser,
+                $authProvider,
+                1,
+                "amid=$amidInt"
+            );
         }
         $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
         $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
@@ -128,17 +166,28 @@ class CarecoordinationController extends AbstractActionController
                     ['user' => $session->get('authUserID'), 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]
                 );
                 if ($uploaded_documents[0]['id'] > 0) {
-                    $_REQUEST["document_id"] = $uploaded_documents[0]['id'];
-                    $_REQUEST["batch_import"] = 'YES';
-                    $this->importAction();
+                    $this->internalBatchContext = true;
+                    $this->internalBatchDocId = (int) $uploaded_documents[0]['id'];
+                    try {
+                        $this->importAction();
+                    } finally {
+                        $this->internalBatchContext = false;
+                        $this->internalBatchDocId = null;
+                    }
                 }
             }
         } else {
             $result = $this->Documents()->fetchXmlDocuments();
             foreach ($result as $row) {
                 if ($row['doc_type'] == 'CCDA') {
-                    $_REQUEST["document_id"] = $row['doc_id'];
-                    $this->importAction();
+                    $this->internalBatchContext = true;
+                    $this->internalBatchDocId = (int) $row['doc_id'];
+                    try {
+                        $this->importAction();
+                    } finally {
+                        $this->internalBatchContext = false;
+                        $this->internalBatchDocId = null;
+                    }
                     $this->documentsController->getDocumentsTable()->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
                 }
             }
@@ -225,14 +274,75 @@ class CarecoordinationController extends AbstractActionController
     public function importAction(): JsonModel
     {
         $request = $this->getRequest();
-        if ($request->getQuery('document_id')) {
-            $_REQUEST["document_id"] = $request->getQuery('document_id');
-            $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
-            $this->documentsController->getDocumentsTable()->updateDocumentCategory($category_details[0]['id'], $_REQUEST["document_id"]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+        // $internalBatchContext is set by uploadAction() around its own
+        // import loop and is NEVER populated from request data — so the
+        // CSRF skip below cannot be flipped by a cross-site caller
+        // appending ?batch_import=YES.
+        $batchContext = $this->internalBatchContext;
+
+        // Under batchContext the document id arrives via a private property
+        // populated by uploadAction(). External HTTP callers must send it on
+        // the query string or in the body — Laminas's request bags, not
+        // `$_REQUEST`, are the authoritative source for those.
+        $rawDocId = $batchContext
+            ? $this->internalBatchDocId
+            : ($request->getQuery('document_id') ?? $request->getPost('document_id'));
+        if ($rawDocId === null || $rawDocId === '') {
+            AccessDeniedHelper::deny('CarecoordinationController::importAction: document_id required');
+        }
+        $queryId = is_numeric($rawDocId) ? (int) $rawDocId : 0;
+        if ($queryId <= 0) {
+            AccessDeniedHelper::deny('CarecoordinationController::importAction: invalid document_id');
         }
 
-        $document_id = $_REQUEST["document_id"];
-        $this->getCarecoordinationTable()->import($document_id);
+        if (!$batchContext) {
+            $rawCsrf = $request->getQuery('csrf_token_form') ?? $request->getPost('csrf_token_form', '');
+            $csrfToken = is_string($rawCsrf) ? $rawCsrf : '';
+            if (!CsrfUtils::verifyCsrfToken($csrfToken, $session)) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: CSRF token invalid');
+            }
+
+            $document = new Document($queryId);
+            if (!$document->get_id()) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: document not found');
+            }
+            if (!$document->can_access()) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: source document ACL denied');
+            }
+            // Carecoordination's import pipeline is designed to pull unassigned
+            // CCDA/CCR uploads (foreign_id=0) into the per-patient audit tables.
+            // Anything else is already assigned to a patient and must not be
+            // reclassified through this path.
+            if ((int) $document->get_foreign_id() !== 0) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: document already assigned to a patient');
+            }
+        }
+
+        $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
+        $ccdaCategoryId = (int) ($category_details[0]['id'] ?? 0);
+        if ($ccdaCategoryId <= 0) {
+            AccessDeniedHelper::deny('CarecoordinationController::importAction: CCDA category missing');
+        }
+
+        $_REQUEST["document_id"] = $queryId;
+
+        // Run the import parse FIRST so a malformed CCDA never reclassifies
+        // the document. Only on parse success do we move the row into the
+        // CCDA category — on failure the document stays in its original
+        // category with no audit trail churn to clean up.
+        $this->getCarecoordinationTable()->import($queryId);
+        $this->documentsController->getDocumentsTable()->updateDocumentCategory($ccdaCategoryId, $queryId);
+
+        [$authUser, $authProvider] = $this->auditIdentity();
+        EventAuditLogger::getInstance()->newEvent(
+            'carecoord-import',
+            $authUser,
+            $authProvider,
+            1,
+            "doc_id=$queryId"
+        );
 
         $view = new JsonModel();
         $view->setTerminal(true);
@@ -245,14 +355,83 @@ class CarecoordinationController extends AbstractActionController
         $document_id = $request->getQuery('document_id') ?: $request->getPost('document_id', null);
         $audit_master_id = $request->getQuery('amid') ?: $request->getPost('amid', null);
         $pid = $request->getQuery('pid') ?: $request->getPost('pid', null);
+        $amidInt = (int) $audit_master_id;
+        $pidInt = (int) $pid;
+        $docIdInt = (int) $document_id;
 
-        if ($request->getPost('setval') == 'approve') {
-            $this->getCarecoordinationTable()->insertApprovedData($request->getPost());
+        $setval = $request->getPost('setval');
+        if ($setval === 'approve' || $setval === 'discard') {
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        }
+        // Authorize the amid/pid pair on every branch — the view-render path
+        // below also reads cross-patient demographics / problems / allergies
+        // for the request pid, so an attacker who skipped setval could
+        // otherwise disclose a victim's parsed CCDA audit through the GET
+        // response. isAuditMasterAccessible() rejects a claimed pid that
+        // disagrees with the stored row, so the subsequent $pid lookups are
+        // bound to a record the caller is authorized for.
+        if (!$this->isAuditMasterAccessible($amidInt, $pidInt)) {
+            AccessDeniedHelper::deny('CarecoordinationController::revandapprove: audit_master not accessible by caller');
+        }
+
+        // Resolve document_id and the stored pid from the authorized audit
+        // row rather than trusting the request parameters. The write path
+        // in insertApprovedData() runs `UPDATE documents SET foreign_id = ?
+        // WHERE id = ?` and `UPDATE patient_data SET … WHERE pid = ?` using
+        // whatever the POST bag supplies — if either id is not bound to
+        // the authorized amid, the attacker can reassign an unrelated
+        // document, zero out the foreign_id, or write to a pid other than
+        // the one the request authorized against.
+        $verifiedDocId = $this->resolveAuditMasterDocumentId($amidInt);
+        $storedPid = $this->resolveAuditMasterStoredPid($amidInt);
+        // For a bound audit row (storedPid > 0) the write stays on the
+        // audit's own patient. For a pre-approval row (storedPid === 0)
+        // the uploader is binding a target pid; isAuditMasterAccessible()
+        // already proved the uploader is patient-authorized for pidInt.
+        $writePid = $storedPid > 0 ? $storedPid : $pidInt;
+
+        if ($setval === 'approve') {
+            if ($verifiedDocId <= 0) {
+                AccessDeniedHelper::deny('CarecoordinationController::revandapprove approve: audit_master has no linked document');
+            }
+            if ($writePid <= 0) {
+                AccessDeniedHelper::deny('CarecoordinationController::revandapprove approve: no bound or claimed pid for the write');
+            }
+            // Bind the write-path identifiers to the values we just
+            // authorized. The controller reads amid/pid as GET-first then
+            // POST-fallback, so an attacker could otherwise pass authz
+            // identifiers through the query string and write-path
+            // identifiers through the POST body (insertApprovedData reads
+            // amid/pid/document_id from the POST bag it receives).
+            $post = $request->getPost();
+            $postData = $post instanceof Parameters ? $post->toArray() : [];
+            $postData['amid'] = $amidInt;
+            $postData['pid'] = $writePid;
+            $postData['document_id'] = $verifiedDocId;
+            $this->getCarecoordinationTable()->insertApprovedData($postData);
+            [$authUser, $authProvider] = $this->auditIdentity();
+            EventAuditLogger::getInstance()->newEvent(
+                'carecoord-approve',
+                $authUser,
+                $authProvider,
+                1,
+                "amid=$amidInt doc_id=$verifiedDocId",
+                $writePid
+            );
             return $this->redirect()->toRoute('carecoordination', [
                 'controller' => 'Carecoordination',
                 'action' => 'upload']);
-        } elseif ($request->getPost('setval') == 'discard') {
-            $this->getCarecoordinationTable()->discardCCDAData(['audit_master_id' => $audit_master_id]);
+        } elseif ($setval === 'discard') {
+            $this->getCarecoordinationTable()->discardCCDAData(['audit_master_id' => $amidInt]);
+            [$authUser, $authProvider] = $this->auditIdentity();
+            EventAuditLogger::getInstance()->newEvent(
+                'carecoord-discard',
+                $authUser,
+                $authProvider,
+                1,
+                "amid=$amidInt",
+                $pidInt > 0 ? $pidInt : null
+            );
             return $this->redirect()->toRoute('carecoordination', [
                 'controller' => 'Carecoordination',
                 'action' => 'upload']);
@@ -847,7 +1026,6 @@ class CarecoordinationController extends AbstractActionController
         return $audit;
     }
 
-
     private function sanitizeZip($zipLocation)
     {
         // TODO: @adunsulag NOTE that zip files can be in any order... so we can't assume that this is alphabetical
@@ -957,6 +1135,13 @@ class CarecoordinationController extends AbstractActionController
         // make sure we only have our documents folder and our ccda file
         $this->sanitizeZip($tmpFileName);
         $z->open($tmpFileName);
+        if (!\OpenEMR\Common\Zip\ZipExtractionGuard::isSafe($z)) {
+            $z->close();
+            ServiceContainer::getLogger()->warning('CCDA import archive exceeds extraction limits', [
+                'archive' => $tmpFileName,
+            ]);
+            return;
+        }
         $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
         $catId = $category_details[0]['id'] ?? null;
         if (empty($catId)) {

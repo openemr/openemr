@@ -86,7 +86,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
      * @param $endDate The report end date
      * @return bool True if the test passes, false, if it does not
      */
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         $fhir_api = OEGlobalsBag::getInstance()->get('rest_fhir_api') ?? '0';
         $patient_api = OEGlobalsBag::getInstance()->get('rest_portal_api') ?? '0';

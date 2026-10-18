@@ -107,6 +107,7 @@ $twig = ServiceContainer::getTwig();
         <?php if (OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 0) { ?>
         window.addEventListener('beforeunload', (event) => {
             if (!timed_out) {
+                restoreSession();
                 event.returnValue = <?php echo xlj('Recommend not leaving or refreshing or you may lose data.'); ?>;
             }
         });
@@ -281,9 +282,10 @@ $twig = ServiceContainer::getTwig();
                 setTimeout(function () {
                     restoreSession();
                     // Call the REST "run all due" endpoint via LocalApi (APICSRFTOKEN header).
-                    // The REST stack does not touch SessionTracker, so no skip_timeout_reset
-                    // equivalent is needed to avoid resetting the session expiration timer.
-                    fetch(webroot_url + "/apis/" + site_id_js + "/api/background_service/$run", {
+                    // A LocalApi request loads globals.php with auth, so auth.inc.php would
+                    // reset the session expiration timer; send skip_timeout_reset so this
+                    // background poll does not keep an idle session alive.
+                    fetch(webroot_url + "/apis/" + site_id_js + "/api/background_service/$run?skip_timeout_reset=1", {
                         method: 'POST',
                         credentials: 'same-origin',
                         headers: {
