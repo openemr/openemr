@@ -77,7 +77,12 @@ final class TokenIntrospectionRestControllerIsolatedTest extends TestCase
 
     public function testValidateReturnsFalseWhenTokenIsEmpty(): void
     {
+        // Both the missing-token and empty-string-token shapes must be rejected
+        // at the parameter-validation stage. The controller treats empty() the
+        // same way for both, but the test asserts both boundaries explicitly so
+        // a regression that only catches "not set" but not "set to ''" shows up.
         $request = $this->newPostRequest([
+            'token' => '',
             'client_id' => 'some-client',
             'client_secret' => 'some-secret',
         ]);
@@ -86,15 +91,20 @@ final class TokenIntrospectionRestControllerIsolatedTest extends TestCase
 
         self::assertFalse(
             $controller->validateInitialRequestParameters($request),
-            'validateInitialRequestParameters must reject requests without a token'
+            'validateInitialRequestParameters must reject requests with an empty token'
         );
     }
 
     public function testValidateReturnsFalseWhenClientIdIsMissingAndHintIsNotRefreshToken(): void
     {
+        // validateInitialRequestParameters reads `token_hint` (not
+        // `token_type_hint` — the latter is read by the main tokenIntrospection
+        // body for the DB-backed path). Pass `token_hint=access_token` so this
+        // test actually exercises the non-refresh branch rather than falling
+        // through to the default empty-hint value.
         $request = $this->newPostRequest([
             'token' => 'some-opaque-token',
-            'token_type_hint' => 'access_token',
+            'token_hint' => 'access_token',
         ]);
 
         $controller = $this->newController();
