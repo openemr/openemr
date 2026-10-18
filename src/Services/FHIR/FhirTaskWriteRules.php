@@ -82,6 +82,12 @@ final class FhirTaskWriteRules
     /** The longest string, markdown, url or canonical kept, in characters: well inside the TEXT column's 65,535 bytes. */
     public const MAX_TEXT = 10000;
 
+    /** The longest coding system and type text kept, in characters: the varchar(255) columns of task_input and task_output. */
+    public const MAX_SYSTEM = 255;
+
+    /** The longest code kept, in characters: the varchar(63) columns. */
+    public const MAX_CODE = 63;
+
     /**
      * A Task body as task row fields, its inputs and outputs, the patient it is for (by uuid),
      * and what's wrong with it by element. id, meta and lastModified are the server's and aren't
@@ -248,6 +254,10 @@ final class FhirTaskWriteRules
         if ($text === null && ($system === '' || $code === '')) {
             return 'needs a type: a coding with a system and a code, or text';
         }
+        // Longer than its column, a value would be cut short or fail the insert: refuse it here instead.
+        if (($text !== null && mb_strlen($text) > self::MAX_SYSTEM) || ($system !== '' && $code !== '' && !self::fits($system, $code))) {
+            return 'type is too long: its text and coding system take at most ' . self::MAX_SYSTEM . ' characters, its code ' . self::MAX_CODE;
+        }
         $given = array_values(array_filter(array_keys($entry), static fn(int|string $key): bool => is_string($key) && str_starts_with($key, 'value')));
         if (count($given) !== 1) {
             return 'needs one value, one of ' . implode(', ', $values);
@@ -284,6 +294,10 @@ final class FhirTaskWriteRules
             if ($valueText === null && ($valueSystem === '' || $valueCode === '')) {
                 return 'needs a coding with a system and a code, or text';
             }
+            if (($valueSystem !== '' && $valueCode !== '' && !self::fits($valueSystem, $valueCode)) || ($valueText !== null && mb_strlen($valueText) > self::MAX_TEXT)) {
+                return 'valueCodeableConcept is too long: its coding system takes at most ' . self::MAX_SYSTEM . ' characters, its code '
+                    . self::MAX_CODE . ', its text ' . self::MAX_TEXT;
+            }
             if ($valueSystem !== '' && $valueCode !== '') {
                 $row['value_system'] = $valueSystem;
                 $row['value_code'] = $valueCode;
@@ -305,6 +319,12 @@ final class FhirTaskWriteRules
         }
         $row['value_text'] = $value;
         return $row;
+    }
+
+    /** Whether a coding fits the system and code columns. */
+    private static function fits(string $system, string $code): bool
+    {
+        return mb_strlen($system) <= self::MAX_SYSTEM && mb_strlen($code) <= self::MAX_CODE;
     }
 
     /**
