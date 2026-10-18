@@ -92,9 +92,11 @@ openemr-cmd e 'mariadb -h mysql -u openemr -popenemr openemr < /var/www/localhos
 #    server, no browser), then the Panther driver (confidential auth-code +
 #    public PKCE paths -- browser login + consent click-through), then the
 #    password-grant driver (admin-credentialed token exchange -- no browser,
-#    no explorer client, DCR + DB flip + token + FHIR). Exits nonzero on any
-#    failure; the workflow uploads docker logs + driver-browser screenshots
-#    on failure for post-mortem.
+#    no explorer client, DCR + DB flip + token + FHIR read), then the FHIR
+#    write-path driver (same DCR + DB-flip + password-grant lane, but
+#    exercising POST / PUT / GET round-trip against /fhir/CareTeam). Exits
+#    nonzero on any failure; the workflow uploads docker logs + driver-
+#    browser screenshots on failure for post-mortem.
 # --------------------------------------------------------------------------
 echo "==> Running driver (JWT)"
 openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver.php'
@@ -104,3 +106,6 @@ openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-brow
 
 echo "==> Running driver-password (password grant, user_role=users)"
 openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-password.php'
+
+echo "==> Running driver-fhir-writes (FHIR CareTeam POST + PUT + GET)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-fhir-writes.php'
