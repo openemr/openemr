@@ -19,6 +19,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
+use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\Test;
@@ -45,6 +46,10 @@ class FhirQuestionnaireResponseServiceCrudTest extends TestCase
      * @var list<string>
      */
     private array $questionnaireTitles = [];
+    /** @var array<mixed> the questionnaire installQuestionnaire() saved last */
+    private array $questionnaire = [];
+    /** @var list<int> encounters this test inserted */
+    private array $encounters = [];
 
     protected function setUp(): void
     {
@@ -110,6 +115,13 @@ class FhirQuestionnaireResponseServiceCrudTest extends TestCase
                 "DELETE FROM questionnaire_repository WHERE name = ?",
                 [$questionnaireTitle]
             );
+        }
+        foreach ($this->encounters as $encounter) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM form_encounter WHERE encounter = ?)",
+                [$encounter]
+            );
+            QueryUtils::sqlStatementThrowException("DELETE FROM form_encounter WHERE encounter = ?", [$encounter]);
         }
         $this->fixtureManager->removePatientFixtures();
     }
@@ -267,6 +279,52 @@ class FhirQuestionnaireResponseServiceCrudTest extends TestCase
     }
 
     /**
+     * The encounter column holds the encounter id; only the FHIR encounter reference uses its uuid.
+     */
+    #[Test]
+    public function testSaveQuestionnaireResponseKeepsTheEncounterId(): void
+    {
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT pid FROM patient_data WHERE uuid = ?',
+            'pid',
+            [UuidRegistry::uuidToBytes($this->patientUuid)]
+        );
+        $this->assertIsNumeric($pid);
+        $encounter = (int) QueryUtils::generateId();
+        $encounterUuid = UuidRegistry::getRegistryForTable('form_encounter')->createUuid();
+        QueryUtils::sqlInsert(
+            'INSERT INTO form_encounter (date, pid, encounter, uuid) VALUES (NOW(), ?, ?, ?)',
+            [$pid, $encounter, $encounterUuid]
+        );
+        $this->encounters[] = $encounter;
+
+        $saved = (new QuestionnaireResponseService())->saveQuestionnaireResponse(
+            $this->fixture,
+            (int) $pid,
+            $encounter,
+            null,
+            null,
+            $this->questionnaire
+        );
+
+        $row = QueryUtils::querySingleRow(
+            'SELECT encounter, questionnaire_response FROM questionnaire_response WHERE id = ?',
+            [$saved['id']]
+        );
+        $this->assertIsArray($row);
+        $storedEncounter = $row['encounter'];
+        $this->assertIsNumeric($storedEncounter);
+        $this->assertSame($encounter, (int) $storedEncounter);
+        $this->assertIsString($row['questionnaire_response']);
+        $response = json_decode($row['questionnaire_response'], true);
+        $this->assertIsArray($response);
+        $this->assertSame(
+            ['reference' => 'fhir/Encounter/' . UuidRegistry::uuidToString($encounterUuid)],
+            $response['encounter'] ?? null
+        );
+    }
+
+    /**
      * Installs a questionnaire in the repository and returns its uuid.
      */
     private function installQuestionnaire(): string
@@ -282,6 +340,7 @@ class FhirQuestionnaireResponseServiceCrudTest extends TestCase
         $questionnaire['title'] = $questionnaireTitle;
         unset($questionnaire['id'], $questionnaire['url']);
 
+        $this->questionnaire = $questionnaire;
         $rowId = (new QuestionnaireService())->saveQuestionnaireResource($questionnaire);
         $this->assertNotEmpty($rowId);
         $binUuid = QueryUtils::fetchSingleValue('SELECT uuid FROM questionnaire_repository WHERE id = ?', 'uuid', [$rowId]);

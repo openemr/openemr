@@ -37,6 +37,7 @@ use OpenEMR\Services\Qdm\Services\ProcedureService;
 use OpenEMR\Services\Qdm\Services\SubstanceOrderService;
 use OpenEMR\Services\Qdm\Services\SubstanceRecommendedService;
 use OpenEMR\Services\Qdm\Services\SymptomService;
+use OpenEMR\Services\Qdm\Services\VitalSignsService;
 
 class QdmBuilder
 {
@@ -62,6 +63,7 @@ class QdmBuilder
         SubstanceOrderService::class,
         SubstanceRecommendedService::class,
         SymptomService::class,
+        VitalSignsService::class,
     ];
 
     /**

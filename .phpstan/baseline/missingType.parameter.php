@@ -39067,11 +39067,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qdm/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\Services\\\\PhysicalExamService\\:\\:makeResult\\(\\) has parameter \\$record with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/Services/PhysicalExamService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\AggregateCount\\:\\:__construct\\(\\) has parameter \\$measure_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/AggregateCount.php',

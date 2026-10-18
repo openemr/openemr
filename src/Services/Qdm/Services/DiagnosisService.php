@@ -34,7 +34,8 @@ class DiagnosisService extends AbstractQdmService implements QdmServiceInterface
                 'low' => $this->validDateOrNull($record['begdate']),
                 'high' => $this->validDateOrNull($record['enddate']),
                 'lowClosed' => (bool) $this->validDateOrNull($record['begdate']),
-                'highClosed' => (bool) $this->validDateOrNull($record['enddate'])
+                // No end date means ongoing: in CQL a closed null end is unbounded, an open one unknown (#14526)
+                'highClosed' => true
             ])
         ]);
 

@@ -106,6 +106,8 @@ class ServerScopeListEntity
                 'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
+                // Task is read and search only for now; its write scopes come with create and update.
+                'Task',
                 'ValueSet',
                 'OperationDefinition',
             ];
@@ -195,7 +197,8 @@ class ServerScopeListEntity
                 'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
-                'Specimen'
+                'Specimen',
+                'Task',
             ];
             // The subset of the above that has a FHIR write route. Kept as its own explicit
             // list rather than derived from the routes: several resources here are readable but
