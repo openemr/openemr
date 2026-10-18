@@ -358,3 +358,8 @@ CREATE TABLE `task` (
   KEY `part_of_uuid` (`part_of_uuid`)
 ) ENGINE=InnoDB;
 #EndIf
+
+-- FHIR Task writes (part 2 of #14521): meta.versionId, raised on each update, for If-Match.
+#IfMissingColumn task version
+ALTER TABLE `task` ADD COLUMN `version` int(11) NOT NULL DEFAULT 1 COMMENT 'FHIR meta.versionId: 1 on create, raised by each update (If-Match)';
+#EndIf

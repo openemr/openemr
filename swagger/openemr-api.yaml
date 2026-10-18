@@ -10295,6 +10295,40 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a Task. The server sets id, meta and lastModified, and authoredOn when it is left out. Task.for must name the patient; focus may name a ServiceRequest or Questionnaire; owner and requester an Organization, Practitioner, PractitionerRole or Patient; partOf one task for the same patient.'
+      requestBody:
+        required: true
+        content:
+          application/fhir+json:
+            schema:
+              example:
+                resourceType: Task
+                status: requested
+                intent: order
+                code:
+                  coding:
+                    -
+                      system: 'http://hl7.org/fhir/CodeSystem/task-code'
+                      code: fulfill
+                for:
+                  reference: Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf
+                focus:
+                  reference: ServiceRequest/95e9d3fb-fe7b-448a-aa60-d40b11b486a5
+                owner:
+                  reference: Organization/95f0a1c2-7d3e-4b5f-8a9c-0e1d2f3a4b5c
+      responses:
+        201:
+          description: 'The Task as saved, with its version as an ETag.'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/Task/{uuid}':
     get:
       tags:
@@ -10353,6 +10387,55 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: "Updates a Task. Task.for can't change. A task that is completed, cancelled, failed or rejected can only become entered-in-error, and an entered-in-error task can't change status. Send the version from the ETag as If-Match to have the update refused (412) if the task changed since you read it."
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Task resource.'
+          required: true
+          schema:
+            type: string
+        -
+          name: If-Match
+          in: header
+          description: 'The version the task must still have, as W/"{versionId}".'
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/fhir+json:
+            schema:
+              example:
+                resourceType: Task
+                id: 9f1c2a5e-3b7d-4c8e-a1f0-2d6b8e4c7a19
+                status: accepted
+                intent: order
+                for:
+                  reference: Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf
+                focus:
+                  reference: ServiceRequest/95e9d3fb-fe7b-448a-aa60-d40b11b486a5
+                owner:
+                  reference: Organization/95f0a1c2-7d3e-4b5f-8a9c-0e1d2f3a4b5c
+      responses:
+        200:
+          description: 'The Task as saved, with its new version as an ETag.'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        404:
+          $ref: '#/components/responses/uuidnotfound'
+        412:
+          description: 'If-Match named a version the task no longer has.'
       security:
         -
           openemr_auth: {  }

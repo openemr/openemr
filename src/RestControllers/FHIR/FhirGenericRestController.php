@@ -458,7 +458,8 @@ class FhirGenericRestController implements IGlobalsAware {
      */
     private static function extractPatientUuidFromFhirJson(array $fhirJson): ?string
     {
-        foreach (['subject', 'patient', 'beneficiary'] as $field) {
+        // Task names its patient in `for`.
+        foreach (['subject', 'patient', 'beneficiary', 'for'] as $field) {
             $uuid = self::patientUuidFromReferenceElement($fhirJson[$field] ?? null);
             if ($uuid !== null) {
                 return $uuid;
