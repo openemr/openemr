@@ -48,7 +48,9 @@ F=LBFexample
 
 ### History and demographics layouts
 
-History and demographics fields are stored as columns of `history_data` and `patient_data`. A field added in one site has no column in another, so after importing the layout, the target site must add any missing columns. Append this to the export of a `DEM` layout. For a history layout (`HIS…`), use `history_data`, `'HIS%'` and source `'H'` instead:
+History and demographics fields are stored as columns of `history_data` and `patient_data`. A field added in one site has no column in another, so after importing the layout, the target site must add any missing columns. Append the block for your layout to its export.
+
+For the demographics layout (`DEM`):
 
 ```sh
 # Add missing patient_data columns on import
@@ -68,10 +70,29 @@ EXECUTE stmt;
 SQL
 ```
 
+For a history layout (`HIS…`):
+
+```sh
+# Add missing history_data columns on import
+cat >> "layout-$F.sql" <<'SQL'
+SET sql_mode = '';
+SET group_concat_max_len = 1000000;
+SELECT CONCAT('ALTER TABLE history_data ',
+    COALESCE(GROUP_CONCAT(DISTINCT ' ADD `', lo.field_id, '` TEXT' ORDER BY lo.field_id), ''))
+  FROM layout_options AS lo
+  WHERE (lo.form_id LIKE 'HIS%' OR lo.source = 'H')
+    AND lo.field_id NOT IN (SELECT COLUMN_NAME FROM information_schema.COLUMNS
+                            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'history_data')
+  INTO @sql;
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+SQL
+```
+
 This is the SQL the old page appended, with three changes:
 
 - **`TABLE_SCHEMA = DATABASE()`.** Without it, on a server holding more than one OpenEMR database, another site's columns would count as present, and the new fields would have nowhere to save.
-- **Fields stored in other tables are left out.** These are the employer fields (`em_…`, saved in `employer_data`), previous names (data type 52), and the address, phone and related-person lists (data types 54, 55 and 56). The old SQL added an unused `patient_data` column for each. On 8.4.1 that's 12 columns, on every demographics import, even into a site on the same release.
+- **Fields stored in other tables are left out,** in the demographics block. These are the employer fields (`em_…`, saved in `employer_data`), previous names (data type 52), and the address, phone and related-person lists (data types 54, 55 and 56). The old SQL added an unused `patient_data` column for each. On 8.4.1 that's 12 columns, on every demographics import, even into a site on the same release.
 - **The columns are nullable `TEXT`,** as the layout editor adds them, rather than `TEXT NOT NULL`.
 
 ## Export a list
