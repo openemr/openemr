@@ -290,7 +290,17 @@ class RefreshTokenScopePersistenceTest extends TestCase
         // Accept-and-narrow path: 200 but Encounter.read must NOT be
         // in the returned scope set. The invariant is "an unapproved
         // scope cannot slip in on refresh" — not the specific error label.
+        // Require a non-empty access_token too: a tokenless 200 (missing
+        // or empty access_token) would silently pass the scope-set check
+        // because filterArtifacts treats a missing scope as an empty list.
         $this->assertSame(200, $upgraded['status']);
+        $accessToken = $upgraded['body']['access_token'] ?? null;
+        $this->assertIsString(
+            $accessToken,
+            'Accept-and-narrow refresh must return an access_token. '
+                . 'Body: ' . json_encode($upgraded['body'])
+        );
+        $this->assertNotSame('', $accessToken, 'access_token must not be empty');
         $upgradedScopes = $this->filterArtifacts($upgraded['scopes_granted']);
         $this->assertNotContains(
             'user/Encounter.read',
