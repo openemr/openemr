@@ -24,6 +24,7 @@ use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use OpenEMR\FHIR\SMART\SMARTLaunchToken;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\Client;
 use Symfony\Component\Panther\PantherTestCase;
@@ -503,7 +504,29 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
     public function testStandaloneLaunchWithTamperedLaunchTokenIsRejectedByAuthorize(): void
     {
         $client = $this->readRegisteredSmartClient();
-        $tamperedLaunch = 'TAMPERED_INVALID_BASE64!!!';
+        // Build a REAL serialized launch token (correct version prefix,
+        // correct base64 shape, correct ciphertext length), then corrupt
+        // a byte of the inner encrypted blob so CryptoGen::decryptStandard
+        // fails its HMAC check. A bare TAMPERED_INVALID_BASE64 placeholder
+        // would also fail — but on the "base64 decode could not produce
+        // valid ciphertext" path, not on the HMAC-validation path. A
+        // regression that silently removed the HMAC check (while leaving
+        // the base64 + length checks intact) would let the placeholder-
+        // style tamper through and we would miss it. Flipping a byte of
+        // the real encrypted blob keeps the shape intact and specifically
+        // exercises the HMAC-reject path.
+        $realLaunch = (new SMARTLaunchToken('smoke-patient-uuid', 'smoke-encounter-uuid'))->serialize();
+        // The serialized form is base64(version-prefix + encrypted-blob).
+        // Flip one byte near the middle of the encrypted blob — this
+        // changes a ciphertext byte, which fails HMAC validation on
+        // decryption even though every structural check passes.
+        $decoded = base64_decode($realLaunch, true);
+        self::assertNotFalse($decoded, 'real serialize() output must be strict-base64');
+        self::assertGreaterThan(10, strlen($decoded), 'serialized token should be longer than its 3-byte version prefix');
+        $mid = (int) (strlen($decoded) / 2);
+        $decoded[$mid] = chr(ord($decoded[$mid]) ^ 0x01);
+        $tamperedLaunch = base64_encode($decoded);
+
         $authorizeUrl = self::OPENEMR_BASE . '/oauth2/default/authorize?' . http_build_query([
             'response_type' => 'code',
             'client_id' => $client['client_id'],
