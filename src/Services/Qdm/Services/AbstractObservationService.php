@@ -46,14 +46,28 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
                 `ob_reason_status`, `ob_reason_code`, `date_end`
                 FROM `form_observation`
                 WHERE `ob_type` = '$observation_type'
-                AND COALESCE(`activity`, 1) <> 0
-                AND NOT EXISTS (
-                    SELECT 1 FROM `forms`
-                    WHERE `forms`.`form_id` = `form_observation`.`form_id`
-                      AND `forms`.`formdir` = 'observation' AND `forms`.`deleted` = 1
-                )
+                AND " . self::countedObservation('`form_observation`') . "
                 ";
         return $sql;
+    }
+
+    /**
+     * Which form_observation rows the measures count, as SQL: not deleted in the Observation form
+     * (ObservationService::deleteObservationById() sets activity = 0), and not from an Observation
+     * form deleted from the visit (delete_form.php sets forms.deleted = 1). A NULL activity, and an
+     * observation with no forms row (form_id 0, as the QRDA import writes them), are kept.
+     * VitalSignsService checks its duplicates against the same rows.
+     *
+     * @param string $table form_observation or its alias, as it appears in the query
+     */
+    public static function countedObservation(string $table): string
+    {
+        return "COALESCE($table.`activity`, 1) <> 0
+                AND NOT EXISTS (
+                    SELECT 1 FROM `forms`
+                    WHERE `forms`.`form_id` = $table.`form_id`
+                      AND `forms`.`formdir` = 'observation' AND `forms`.`deleted` = 1
+                )";
     }
 
     public function makeResult($record)
