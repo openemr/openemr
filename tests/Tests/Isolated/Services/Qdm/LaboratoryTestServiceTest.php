@@ -39,6 +39,13 @@ class LaboratoryTestServiceTest extends TestCase
         self::assertSame('Positive', $model->result);
     }
 
+    public function testWhitespaceOnlyResultUsesTheEmptyResultFallback(): void
+    {
+        $model = $this->service()->makeQdmModel(new QdmRecord($this->record('    '), 1, 1));
+
+        self::assertSame('Negative', $model->result);
+    }
+
     private function service(): LaboratoryTestService
     {
         return new LaboratoryTestService(
