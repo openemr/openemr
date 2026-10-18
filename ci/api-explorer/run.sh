@@ -90,12 +90,17 @@ openemr-cmd e 'mariadb -h mysql -u openemr -popenemr openemr < /var/www/localhos
 # --------------------------------------------------------------------------
 # 5. Run the Guzzle driver (JWT client-credentials path -- fast, server-to-
 #    server, no browser), then the Panther driver (confidential auth-code +
-#    public PKCE paths -- browser login + consent click-through). Exits
-#    nonzero on any failure; the workflow uploads docker logs + driver-
-#    browser screenshots on failure for post-mortem.
+#    public PKCE paths -- browser login + consent click-through), then the
+#    password-grant driver (admin-credentialed token exchange -- no browser,
+#    no explorer client, DCR + DB flip + token + FHIR). Exits nonzero on any
+#    failure; the workflow uploads docker logs + driver-browser screenshots
+#    on failure for post-mortem.
 # --------------------------------------------------------------------------
 echo "==> Running driver (JWT)"
 openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver.php'
 
 echo "==> Running driver-browser (confidential auth-code + public PKCE)"
 openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-browser.php'
+
+echo "==> Running driver-password (password grant, user_role=users)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-password.php'
