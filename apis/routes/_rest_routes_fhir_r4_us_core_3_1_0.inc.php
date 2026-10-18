@@ -57,6 +57,7 @@ use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireRestController;
 use OpenEMR\RestControllers\FHIR\FhirServiceRequestRestController;
 use OpenEMR\RestControllers\FHIR\FhirSpecimenRestController;
+use OpenEMR\RestControllers\FHIR\FhirTaskRestController;
 use OpenEMR\RestControllers\FHIR\FhirValueSetRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
@@ -1253,6 +1254,10 @@ return [
         $controller->addAclRestrictions("patients", "med");
         return $controller->put($uuid, $data);
     },
+
+    "GET /fhir/Task" => fn(HttpRestRequest $request, OEGlobalsBag $globalsBag): Response => (new FhirTaskRestController($request, $globalsBag))->getAll(),
+
+    "GET /fhir/Task/:uuid" => fn(string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag): Response => (new FhirTaskRestController($request, $globalsBag))->getOne($uuid),
 
     "GET /fhir/Procedure/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
