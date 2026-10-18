@@ -65,9 +65,24 @@ function issue_ippf_gcac_save($issue): void
     "WHERE form_id = 'GCA' AND uor > 0 AND field_id != '' AND edit_options != 'H' " .
     "ORDER BY group_id, seq");
     while ($frow = sqlFetchArray($fres)) {
-        $field_id  = $frow['field_id'];
+        $field_id  = is_string($frow['field_id'] ?? null) ? $frow['field_id'] : '';
+        // `$field_id` is persisted by the layout editor and spliced into the
+        // SET clause below; validate it resolves to a real column of the
+        // target table before concatenating.
+        try {
+            $escaped_field = escape_sql_column_name($field_id, ['lists_ippf_gcac'], false, true);
+        } catch (\OpenEMR\Common\Database\SqlQueryException) {
+            // Log the unknown identifier so administrators can diagnose a
+            // layout_options row whose field_id no longer matches a real
+            // column of lists_ippf_gcac (typo or renamed column).
+            \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+                'issue_ippf_gcac_save: skipped unknown layout field_id',
+                ['field_id' => $field_id]
+            );
+            continue;
+        }
         $value = get_layout_form_value($frow);
-        $sets .= ", " . add_escape_custom($field_id) . " = '" . add_escape_custom($value) . "'";
+        $sets .= ", " . $escaped_field . " = '" . add_escape_custom($value) . "'";
     }
 
   // This replaces the row if its id exists, otherwise inserts it.
@@ -207,9 +222,24 @@ function issue_ippf_con_save($issue): void
     "WHERE form_id = 'CON' AND uor > 0 AND field_id != '' AND edit_options != 'H' " .
     "ORDER BY group_id, seq");
     while ($frow = sqlFetchArray($fres)) {
-        $field_id  = $frow['field_id'];
+        $field_id  = is_string($frow['field_id'] ?? null) ? $frow['field_id'] : '';
+        // `$field_id` is persisted by the layout editor and spliced into the
+        // SET clause below; validate it resolves to a real column of the
+        // target table before concatenating.
+        try {
+            $escaped_field = escape_sql_column_name($field_id, ['lists_ippf_con'], false, true);
+        } catch (\OpenEMR\Common\Database\SqlQueryException) {
+            // Log the unknown identifier so administrators can diagnose a
+            // layout_options row whose field_id no longer matches a real
+            // column of lists_ippf_con (typo or renamed column).
+            \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+                'issue_ippf_con_save: skipped unknown layout field_id',
+                ['field_id' => $field_id]
+            );
+            continue;
+        }
         $value = get_layout_form_value($frow);
-        $sets .= ", " . add_escape_custom($field_id) . " = '" . add_escape_custom($value) . "'";
+        $sets .= ", " . $escaped_field . " = '" . add_escape_custom($value) . "'";
     }
 
   // This replaces the row if its id exists, otherwise inserts it.

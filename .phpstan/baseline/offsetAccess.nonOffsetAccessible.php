@@ -10702,11 +10702,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/tabs/main.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'newcrop_user_role\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/tabs/main.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'comlink_telehealth_cms_id\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/moduleConfig.php',
