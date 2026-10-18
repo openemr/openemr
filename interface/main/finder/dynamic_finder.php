@@ -405,7 +405,13 @@ function rp(): array
         // already validates at the write seam; this is the matching
         // read-side guard so legacy rows that predate the write guard
         // (or are inserted directly in the database) still get rejected.
+        // `escape_sql_column_name()` short-circuits `*` without checking
+        // the schema, so reject it explicitly here (the SELECT below
+        // already carries an explicit `pid` list and never wants `*`).
         $optionId = is_string($row['option_id'] ?? null) ? $row['option_id'] : '';
+        if ($optionId === '*') {
+            continue;
+        }
         try {
             escape_sql_column_name($optionId, ['patient_data'], false, true);
         } catch (SqlQueryException) {

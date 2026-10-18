@@ -48,13 +48,18 @@ $option_value = 0;
 // `interface/main/finder/dynamic_finder.php` later concatenates into a
 // SELECT column list from `patient_data`. Validate the identifier at the
 // write seam so stored rows always resolve to a real `patient_data`
-// column.
+// column. `escape_sql_column_name()` short-circuits `*` without checking
+// the schema, so reject that explicitly before the schema check.
 if ($list_id === 'recent_patient_columns') {
     $validOptionId = true;
-    try {
-        escape_sql_column_name($option_id, ['patient_data'], false, true);
-    } catch (SqlQueryException) {
+    if ($option_id === '*') {
         $validOptionId = false;
+    } else {
+        try {
+            escape_sql_column_name($option_id, ['patient_data'], false, true);
+        } catch (SqlQueryException) {
+            $validOptionId = false;
+        }
     }
     if (!$validOptionId) {
         echo json_encode(["error" => xl('Invalid column name')]);

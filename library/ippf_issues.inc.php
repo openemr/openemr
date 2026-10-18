@@ -72,6 +72,13 @@ function issue_ippf_gcac_save($issue): void
         try {
             $escaped_field = escape_sql_column_name($field_id, ['lists_ippf_gcac'], false, true);
         } catch (\OpenEMR\Common\Database\SqlQueryException) {
+            // Log the unknown identifier so administrators can diagnose a
+            // layout_options row whose field_id no longer matches a real
+            // column of lists_ippf_gcac (typo or renamed column).
+            \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+                'issue_ippf_gcac_save: skipped unknown layout field_id',
+                ['field_id' => $field_id]
+            );
             continue;
         }
         $value = get_layout_form_value($frow);
@@ -222,6 +229,13 @@ function issue_ippf_con_save($issue): void
         try {
             $escaped_field = escape_sql_column_name($field_id, ['lists_ippf_con'], false, true);
         } catch (\OpenEMR\Common\Database\SqlQueryException) {
+            // Log the unknown identifier so administrators can diagnose a
+            // layout_options row whose field_id no longer matches a real
+            // column of lists_ippf_con (typo or renamed column).
+            \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+                'issue_ippf_con_save: skipped unknown layout field_id',
+                ['field_id' => $field_id]
+            );
             continue;
         }
         $value = get_layout_form_value($frow);
