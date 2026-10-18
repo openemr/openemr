@@ -155,18 +155,18 @@ try {
         ]);
     } catch (GuzzleException $e) {
         fwrite(STDERR, "FAIL DCR request errored: " . $e->getMessage() . "\n");
-        exit(3);
+        throw new \RuntimeException('', 3);
     }
     if ($regResponse->getStatusCode() !== 200) {
         fwrite(STDERR, "FAIL DCR returned HTTP {$regResponse->getStatusCode()}\n");
         fwrite(STDERR, substr((string) $regResponse->getBody(), 0, 2000) . "\n");
-        exit(4);
+        throw new \RuntimeException('', 4);
     }
     $regBody = json_decode((string) $regResponse->getBody(), true);
     if (!is_array($regBody) || !is_string($regBody['client_id'] ?? null) || !is_string($regBody['client_secret'] ?? null)) {
         fwrite(STDERR, "FAIL DCR response missing client_id or client_secret\n");
         fwrite(STDERR, substr((string) $regResponse->getBody(), 0, 2000) . "\n");
-        exit(5);
+        throw new \RuntimeException('', 5);
     }
     $registeredClientId = $regBody['client_id'];
     $clientSecret = $regBody['client_secret'];
@@ -194,7 +194,7 @@ try {
     if ($rc !== 0) {
         fwrite(STDERR, "FAIL mariadb UPDATE returned {$rc}\n");
         fwrite(STDERR, implode("\n", $output) . "\n");
-        exit(6);
+        throw new \RuntimeException('', 6);
     }
     echo "       OK\n\n";
 
@@ -220,25 +220,25 @@ try {
         ]);
     } catch (GuzzleException $e) {
         fwrite(STDERR, "FAIL token request errored: " . $e->getMessage() . "\n");
-        exit(7);
+        throw new \RuntimeException('', 7);
     }
     if ($tokenResponse->getStatusCode() !== 200) {
         fwrite(STDERR, "FAIL token endpoint returned HTTP {$tokenResponse->getStatusCode()}\n");
         fwrite(STDERR, substr((string) $tokenResponse->getBody(), 0, 2000) . "\n");
-        exit(8);
+        throw new \RuntimeException('', 8);
     }
     $tokenBody = json_decode((string) $tokenResponse->getBody(), true);
     if (!is_array($tokenBody) || !is_string($tokenBody['access_token'] ?? null) || $tokenBody['access_token'] === '') {
         fwrite(STDERR, "FAIL token response missing access_token\n");
         fwrite(STDERR, substr((string) $tokenResponse->getBody(), 0, 2000) . "\n");
-        exit(9);
+        throw new \RuntimeException('', 9);
     }
     $accessToken = $tokenBody['access_token'];
     $grantedScope = is_string($tokenBody['scope'] ?? null) ? $tokenBody['scope'] : '';
     if (!str_contains($grantedScope, 'patient/patient.read')) {
         fwrite(STDERR, "FAIL granted scope missing patient/patient.read (scope-filter drift?)\n");
         fwrite(STDERR, "       granted = {$grantedScope}\n");
-        exit(10);
+        throw new \RuntimeException('', 10);
     }
     echo "       OK  (token_type = " . (string) ($tokenBody['token_type'] ?? '?') . ", scope = {$grantedScope})\n\n";
 
@@ -261,33 +261,41 @@ try {
         ]);
     } catch (GuzzleException $e) {
         fwrite(STDERR, "FAIL portal request errored: " . $e->getMessage() . "\n");
-        exit(11);
+        throw new \RuntimeException('', 11);
     }
     if ($portalResponse->getStatusCode() !== 200) {
         fwrite(STDERR, "FAIL portal /patient returned HTTP {$portalResponse->getStatusCode()}\n");
         fwrite(STDERR, substr((string) $portalResponse->getBody(), 0, 2000) . "\n");
-        exit(12);
+        throw new \RuntimeException('', 12);
     }
     $portalRaw = (string) $portalResponse->getBody();
     $portalBody = json_decode($portalRaw, true);
     if (!is_array($portalBody) || $portalBody === []) {
         fwrite(STDERR, "FAIL portal /patient must return a non-empty JSON array\n");
         fwrite(STDERR, substr($portalRaw, 0, 2000) . "\n");
-        exit(13);
+        throw new \RuntimeException('', 13);
     }
     if (!str_contains($portalRaw, $fixture['email'])) {
         fwrite(STDERR, "FAIL portal /patient response does not identify the fixture patient (email missing)\n");
         fwrite(STDERR, substr($portalRaw, 0, 2000) . "\n");
-        exit(14);
+        throw new \RuntimeException('', 14);
     }
     echo "       OK  (response identifies fixture patient by email)\n\n";
 
     echo "PASS  oe-module-api-explorer portal-api round-trip succeeded.\n";
     $exitCode = 0;
 } catch (\Throwable $e) {
-    fwrite(STDERR, "FAIL unexpected error: " . $e->getMessage() . "\n");
-    fwrite(STDERR, $e->getTraceAsString() . "\n");
-    $exitCode = 20;
+    // Expected-failure paths throw RuntimeException with a nonzero
+    // exit code; the detailed FAIL message was written to STDERR at
+    // the throw site. Unexpected throws (code 0) get the trace dump
+    // and are mapped to exit 20. Both paths run the finally block —
+    // the previous exit() calls skipped it, leaving the fixture row
+    // and oauth_clients row behind on failure (coderabbit 2026-10-18).
+    if ($e->getCode() === 0) {
+        fwrite(STDERR, "FAIL unexpected error: " . $e->getMessage() . "\n");
+        fwrite(STDERR, $e->getTraceAsString() . "\n");
+    }
+    $exitCode = $e->getCode() ?: 20;
 } finally {
     // Cleanup: fixture rows + the smoke-registered oauth client. Safe
     // to call even on partial-failure paths (removePortalPatientFixtures
