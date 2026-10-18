@@ -95,6 +95,13 @@ class FhirSearchModifiersApiTest extends TestCase
     {
         $this->baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: 'https://localhost';
 
+        // Built-in-webserver CI job sets this env var to opt OAuth-dependent
+        // tests out of the hard-fail-in-CI branch below. php -S cannot do
+        // the HTTPS/OAuth round-trip these tests depend on; the apache +
+        // mariadb lanes exercise them instead.
+        if (getenv('OPENEMR_ALLOW_OAUTH_HTTPS_SKIP') === '1') {
+            $this->markTestSkipped('Skipping per OPENEMR_ALLOW_OAUTH_HTTPS_SKIP=1');
+        }
         $probe = $this->buildClient()->get($this->baseUrl . '/');
         if ($probe->getHeaderLine('Server') === '') {
             $message = 'OAuth flow requires a real webserver (Apache/nginx)';
