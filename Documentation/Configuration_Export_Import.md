@@ -17,8 +17,14 @@ It's for administrators with command-line access to the OpenEMR database. For a 
   password=your-password
   ```
 
+  Then make it readable only by you: `chmod 600 ~/.my.cnf`.
 - **With Docker,** run the commands inside the database container, for example `docker compose exec -T mysql mariadb-dump …`.
-- **On Windows,** run them in Git Bash or WSL. They assume a POSIX shell.
+- **On Windows,** run them in Git Bash or WSL. They assume a POSIX shell. WSL's client reads `~/.my.cnf`, but the Windows client doesn't, even in Git Bash. There, name the file before any other option. These two lines do that for every command below:
+
+  ```sh
+  mysql() { command mysql --defaults-extra-file=C:/Users/you/.my.cnf "$@"; }
+  mysqldump() { command mysqldump --defaults-extra-file=C:/Users/you/.my.cnf "$@"; }
+  ```
 
 Set these once per shell. `DUMP` writes one `INSERT` per row with column names and no table definitions, the same options the old page used:
 
