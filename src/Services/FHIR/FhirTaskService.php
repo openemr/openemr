@@ -53,9 +53,23 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     /** The version an update must find (If-Match), or null for any. */
     private ?int $expectedVersion = null;
 
+    private bool $versionConflict = false;
+
+    /** How far up a parent chain the loop check walks; deeper chains aren't a workflow anyone builds. */
+    private const MAX_PARENT_DEPTH = 100;
+
     private function getTaskService(): TaskService
     {
         return $this->taskService ??= new TaskService();
+    }
+
+    /**
+     * Puts another TaskService in front of the task table: a test uses it to make the conditional
+     * UPDATE lose a race.
+     */
+    public function setTaskService(TaskService $taskService): void
+    {
+        $this->taskService = $taskService;
     }
 
     /**
@@ -204,6 +218,16 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     }
 
     /**
+     * Whether the last update was refused because the task wasn't at the version it expected:
+     * the version If-Match named, or the one read before the conditional UPDATE. The controller
+     * answers that with 412, not 400.
+     */
+    public function hadVersionConflict(): bool
+    {
+        return $this->versionConflict;
+    }
+
+    /**
      * A Task body as task fields, the patient's uuid, and what's wrong with it.
      *
      * @return array{fields: array<string, string|null>, puuid: ?string, errors: array<string, string>}
@@ -252,6 +276,9 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         [$fields, $puuid, $errors] = self::unpack($updatedOpenEMRRecord);
+        $this->versionConflict = false;
+        // authoredOn is when the task was made: an update keeps the stored one, so a bad one in the body doesn't matter.
+        unset($errors['authoredOn']);
         $stored = UuidRegistry::isValidStringUUID($fhirResourceId) ? $this->getTaskService()->getForWrite($fhirResourceId) : null;
         if ($stored === null) {
             // Nothing to update: handleFhirProcessingResult() answers 404 for an empty result.
@@ -269,15 +296,18 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         if ($stored['patient_id'] !== null && ($problem = $this->parentProblem($fields['part_of_uuid'] ?? null, $stored['patient_id'], $fhirResourceId)) !== null) {
             $errors['partOf'] = $problem;
         }
-        if ($this->expectedVersion !== null && $this->expectedVersion !== $stored['version']) {
-            $errors['meta.versionId'] = "The task is at version {$stored['version']}, not {$this->expectedVersion}: read it again before updating";
-        }
         if ($errors !== []) {
             return self::invalid($errors);
         }
-        // authoredOn is when the task was made: an update keeps the stored one.
+        // Only once the body is allowed for this task's patient does the version come into it, so a
+        // 412 never tells a caller about a task it couldn't write.
+        if ($this->expectedVersion !== null && $this->expectedVersion !== $stored['version']) {
+            $this->versionConflict = true;
+            return self::invalid(['meta.versionId' => "The task is at version {$stored['version']}, not {$this->expectedVersion}: read it again before updating"]);
+        }
         unset($fields['authored_on']);
         if (!$this->getTaskService()->update($fhirResourceId, $fields, $this->userId(), $this->expectedVersion ?? $stored['version'])) {
+            $this->versionConflict = true;
             return self::invalid(['meta.versionId' => 'The task changed while it was being updated: read it again before updating']);
         }
         // update() turns the row into the FHIR resource itself.
@@ -313,8 +343,8 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     }
 
     /**
-     * What's wrong with a parent task, or null: it has to exist, be another task, and be for the
-     * same patient.
+     * What's wrong with a parent task, or null: it has to exist, be for the same patient, and not
+     * lead back to the task itself through its own parents (A part of B, then B part of A).
      */
     private function parentProblem(?string $parentUuid, int $patientId, ?string $selfUuid): ?string
     {
@@ -328,7 +358,27 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         if ($parent === null) {
             return 'Task.partOf names no task: ' . $parentUuid;
         }
-        return $parent['patient_id'] === $patientId ? null : 'Task.partOf must name a task for the same patient';
+        if ($parent['patient_id'] !== $patientId) {
+            return 'Task.partOf must name a task for the same patient';
+        }
+        // A new task has no children yet, so only an update can close a loop. The walk also stops
+        // at a loop already stored, and after MAX_PARENT_DEPTH steps.
+        if ($selfUuid === null) {
+            return null;
+        }
+        $seen = [strtolower($parentUuid) => true];
+        $next = $parent['part_of_uuid'];
+        for ($depth = 0; $next !== null && $depth < self::MAX_PARENT_DEPTH; $depth++) {
+            if (strcasecmp($next, $selfUuid) === 0) {
+                return 'Task.partOf would make a loop: ' . $parentUuid . ' is already part of this task';
+            }
+            if (isset($seen[strtolower($next)])) {
+                return null;
+            }
+            $seen[strtolower($next)] = true;
+            $next = $this->getTaskService()->getForWrite($next)['part_of_uuid'] ?? null;
+        }
+        return null;
     }
 
     /**

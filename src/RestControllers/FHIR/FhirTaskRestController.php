@@ -24,7 +24,6 @@ use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Services\FHIR\UtilsService;
-use OpenEMR\Services\TaskService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -356,18 +355,18 @@ class FhirTaskRestController
             if ($expected === false) {
                 return self::outcome('invalid', 'If-Match must be a version as W/"{versionId}"', 400);
             }
-            if ($expected !== null) {
-                $stored = (new TaskService())->getForWrite($uuid);
-                if ($stored !== null && $stored['version'] !== $expected) {
-                    return self::outcome('conflict', "The task is at version {$stored['version']}, not $expected: read it again before updating", 412);
-                }
-                $this->service->expectVersion($expected);
-            }
+            // The service compares it with the stored version, after the compartment check and its
+            // own checks of the body, so a version is only ever told to a caller that may write the task.
+            $this->service->expectVersion($expected);
         }
         $data = RestControllerHelper::parseJsonRequestBody($this->request, true);
         if ($data instanceof Response) {
             return $data;
         }
-        return self::withETag($this->controller()->put($uuid, $data));
+        $response = $this->controller()->put($uuid, $data);
+        if ($this->service->hadVersionConflict()) {
+            return self::outcome('conflict', 'The task changed since it was read: read it again, then update it with If-Match set to its new version', 412);
+        }
+        return self::withETag($response);
     }
 }

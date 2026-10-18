@@ -140,7 +140,13 @@ final class FhirTaskWriteRules
             }
         }
 
-        $fields['authored_on'] = FhirDateTimeParser::toDbDateTime($json['authoredOn'] ?? null, 'Task.authoredOn');
+        // A bad authoredOn is named like any other fault; an update ignores it (it keeps the stored one).
+        try {
+            $fields['authored_on'] = FhirDateTimeParser::toDbDateTime($json['authoredOn'] ?? null, 'Task.authoredOn');
+        } catch (\InvalidArgumentException) {
+            $fields['authored_on'] = null;
+            $errors['authoredOn'] = 'Task.authoredOn must be a FHIR dateTime with a time zone, such as 2026-10-18T09:30:00-05:00';
+        }
 
         return ['fields' => $fields, 'puuid' => $puuid, 'errors' => $errors];
     }

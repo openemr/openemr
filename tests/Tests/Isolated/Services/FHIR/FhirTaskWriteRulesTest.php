@@ -100,6 +100,7 @@ class FhirTaskWriteRulesTest extends TestCase
             'requested by a related person' => [['requester' => ['reference' => 'RelatedPerson/' . self::ORG]], 'requester'],
             'two parents' => [['partOf' => [['reference' => 'Task/' . self::PARENT], ['reference' => 'Task/' . self::REQUEST]]], 'partOf'],
             'a parent that is not a task' => [['partOf' => [['reference' => 'ServiceRequest/' . self::REQUEST]]], 'partOf'],
+            'authoredOn not a dateTime' => [['authoredOn' => 'yesterday'], 'authoredOn'],
         ];
     }
 

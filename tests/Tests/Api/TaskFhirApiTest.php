@@ -400,6 +400,25 @@ class TaskFhirApiTest extends TestCase
         $read = $this->read($uuid);
         $this->assertSame('Patient/' . $this->patient['uuid'], self::at($read, 'for', 'reference'));
         $this->assertSame('1', self::at($read, 'meta', 'versionId'), 'nothing changed');
+
+        // A stale If-Match doesn't change that: the patient is checked before the version, so the
+        // answer names the patient, not the task's version.
+        [$status, $result] = $this->update($uuid, $this->body([], $this->otherPatient['uuid']), ['If-Match' => 'W/"9"']);
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status, (string)json_encode($result));
+        $this->assertArrayHasKey('for', $this->errors($result));
+    }
+
+    public function testABadAuthoredOnIsNamedAndAnUpdateIgnoresIt(): void
+    {
+        [$status, $result] = $this->create($this->body(['authoredOn' => 'yesterday']));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status);
+        $this->assertArrayHasKey('authoredOn', $this->errors($result), (string)json_encode($result));
+
+        [, $task] = $this->create($this->body());
+        $uuid = self::text(self::at($task, 'id'));
+        [$status, $updated] = $this->update($uuid, $this->body(['status' => 'accepted', 'authoredOn' => 'yesterday']));
+        $this->assertSame(Response::HTTP_OK, $status, (string)json_encode($updated));
+        $this->assertSame(self::at($task, 'authoredOn'), self::at($updated, 'authoredOn'), 'the stored authoredOn is kept');
     }
 
     public function testAFinishedTaskCanOnlyBeMarkedEnteredInError(): void
@@ -444,6 +463,32 @@ class TaskFhirApiTest extends TestCase
         $this->assertSame(Response::HTTP_BAD_REQUEST, $status, 'not part of itself');
     }
 
+    public function testAParentChainCannotLoop(): void
+    {
+        $partOf = static fn(string $uuid): array => ['partOf' => [['reference' => 'Task/' . $uuid]]];
+        [, $a] = $this->create($this->body());
+        $aUuid = self::text(self::at($a, 'id'));
+        [, $b] = $this->create($this->body($partOf($aUuid)));
+        $bUuid = self::text(self::at($b, 'id'));
+
+        // A part of B, when B is part of A.
+        [$status, $result] = $this->update($aUuid, $this->body($partOf($bUuid)));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status, 'a two-task loop');
+        $this->assertArrayHasKey('partOf', $this->errors($result));
+
+        // A part of C, when C is part of B and B part of A.
+        [, $c] = $this->create($this->body($partOf($bUuid)));
+        $cUuid = self::text(self::at($c, 'id'));
+        [$status, $result] = $this->update($aUuid, $this->body($partOf($cUuid)));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status, 'a three-task loop');
+        $this->assertArrayHasKey('partOf', $this->errors($result));
+        $this->assertSame('1', self::at($this->read($aUuid), 'meta', 'versionId'), 'nothing changed');
+
+        // A parent outside the chain is still fine.
+        [$status] = $this->update($aUuid, $this->body($partOf($this->tasks['referral'])));
+        $this->assertSame(Response::HTTP_OK, $status);
+    }
+
     public function testSubjectSearchesByPatientLikePatient(): void
     {
         $bySubject = array_column($this->search(['subject' => 'Patient/' . $this->patient['uuid']]), 'id');
@@ -455,7 +500,7 @@ class TaskFhirApiTest extends TestCase
 
     public function testUpdatingAMalformedOrUnknownIdIsNotFound(): void
     {
-        // With If-Match the controller looks the task up before the generic update does.
+        // With If-Match, the service finds no task before it compares versions.
         foreach (['abc', UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid())] as $id) {
             [$status] = $this->update($id, $this->body(), ['If-Match' => 'W/"1"']);
             $this->assertSame(Response::HTTP_NOT_FOUND, $status, $id);
