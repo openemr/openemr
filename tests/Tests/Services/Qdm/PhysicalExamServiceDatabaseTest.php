@@ -24,8 +24,9 @@ use PHPUnit\Framework\TestCase;
 
 class PhysicalExamServiceDatabaseTest extends TestCase
 {
-    // A synthetic patient; no patient_data row is needed, and every row made here is removed.
+    // Synthetic patients; no patient_data rows are needed, and every row made here is removed.
     private const PID = 990613;
+    private const OTHER_PID = 990614;
 
     protected function setUp(): void
     {
@@ -34,8 +35,8 @@ class PhysicalExamServiceDatabaseTest extends TestCase
 
     protected function tearDown(): void
     {
-        QueryUtils::sqlStatementThrowException('DELETE FROM `forms` WHERE `pid` = ?', [self::PID]);
-        QueryUtils::sqlStatementThrowException('DELETE FROM `form_observation` WHERE `pid` = ?', [self::PID]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM `forms` WHERE `pid` IN (?, ?)', [self::PID, self::OTHER_PID]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM `form_observation` WHERE `pid` IN (?, ?)', [self::PID, self::OTHER_PID]);
         $this->assertSame(0, $this->rowsLeft(), 'the synthetic rows are removed');
     }
 
@@ -63,6 +64,19 @@ class PhysicalExamServiceDatabaseTest extends TestCase
         );
 
         $this->assertSame(['130', '131'], $this->values());
+    }
+
+    public function testAnotherPatientsDeletedFormWithTheSameIdHidesNothing(): void
+    {
+        // Two writers pick form_id with an unlocked MAX() + 1, so two patients' forms can share one.
+        $form = $this->observation('140', form: 'kept');
+        QueryUtils::sqlInsert(
+            "INSERT INTO `forms` (`date`, `encounter`, `form_name`, `form_id`, `pid`, `user`, `groupname`, `authorized`, `deleted`, `formdir`)"
+            . " VALUES ('2026-03-02 09:00:00', 0, 'Observation', ?, ?, 'test', 'Default', 1, 1, 'observation')",
+            [$form, self::OTHER_PID],
+        );
+
+        $this->assertSame(['140'], $this->values());
     }
 
     /** @return list<string> the ob_value of each observation read, in the query's order */
@@ -107,8 +121,9 @@ class PhysicalExamServiceDatabaseTest extends TestCase
 
     private function rowsLeft(): int
     {
-        return (int)self::number(QueryUtils::fetchSingleValue('SELECT COUNT(*) AS n FROM `forms` WHERE `pid` = ?', 'n', [self::PID]))
-            + (int)self::number(QueryUtils::fetchSingleValue('SELECT COUNT(*) AS n FROM `form_observation` WHERE `pid` = ?', 'n', [self::PID]));
+        $pids = [self::PID, self::OTHER_PID];
+        return (int)self::number(QueryUtils::fetchSingleValue('SELECT COUNT(*) AS n FROM `forms` WHERE `pid` IN (?, ?)', 'n', $pids))
+            + (int)self::number(QueryUtils::fetchSingleValue('SELECT COUNT(*) AS n FROM `form_observation` WHERE `pid` IN (?, ?)', 'n', $pids));
     }
 
     private static function number(mixed $value): int|float|string
