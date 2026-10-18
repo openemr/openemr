@@ -2,7 +2,8 @@
 
 /**
  * What a FHIR Task create or update may say: the code sets, the reference
- * types, the parent task, the statuses a task can't leave, and If-Match.
+ * types, a Patient owner, the parent task, the outputs, the statuses a task
+ * can't leave, and If-Match.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -28,6 +29,7 @@ class FhirTaskWriteRulesTest extends TestCase
     private const REQUEST = '95e9d3fb-fe7b-448a-aa60-d40b11b486a5';
     private const ORG = '95f0a1c2-7d3e-4b5f-8a9c-0e1d2f3a4b5c';
     private const PARENT = '9f1c2a5e-3b7d-4c8e-a1f0-2d6b8e4c7a19';
+    private const RESPONSE = '96b2c3d4-e5f6-4a71-9b8c-0d1e2f3a4b5c';
 
     /**
      * @param array<string, mixed> $changes
@@ -61,6 +63,7 @@ class FhirTaskWriteRulesTest extends TestCase
         $this->assertSame('order', $fields['intent']);
         $this->assertSame('routine', $fields['priority']);
         $this->assertSame('fulfill', $fields['code']);
+        $this->assertSame(FhirTaskService::TASK_CODE_SYSTEM, $fields['code_system']);
         $this->assertSame('Medically tailored meals', $fields['description']);
         $this->assertSame('Waiting on the organization', $fields['status_reason']);
         $this->assertSame(['ServiceRequest', self::REQUEST], [$fields['focus_type'], $fields['focus_uuid']]);
@@ -75,10 +78,11 @@ class FhirTaskWriteRulesTest extends TestCase
         // A PUT replaces the task: an element the body leaves out becomes empty.
         $read = FhirTaskWriteRules::read(['status' => 'accepted', 'intent' => 'order', 'for' => ['reference' => 'Patient/' . self::PATIENT]]);
         $this->assertSame([], $read['errors']);
-        foreach (['priority', 'code', 'description', 'status_reason', 'business_status', 'focus_type', 'focus_uuid', 'owner_uuid', 'requester_uuid', 'part_of_uuid', 'authored_on'] as $column) {
+        foreach (['priority', 'code', 'code_system', 'description', 'status_reason', 'business_status', 'focus_type', 'focus_uuid', 'owner_uuid', 'requester_uuid', 'part_of_uuid', 'authored_on'] as $column) {
             $this->assertArrayHasKey($column, $read['fields']);
             $this->assertNull($read['fields'][$column], $column);
         }
+        $this->assertSame([], $read['outputs'], 'and so do its outputs');
     }
 
     /**
@@ -92,15 +96,23 @@ class FhirTaskWriteRulesTest extends TestCase
             'unknown priority' => [['priority' => 'whenever'], 'priority'],
             'a code from another system' => [['code' => ['coding' => [['system' => 'http://example.org', 'code' => 'fulfill']]]], 'code'],
             'a code task-code lacks' => [['code' => ['coding' => [['system' => FhirTaskService::TASK_CODE_SYSTEM, 'code' => 'complete']]]], 'code'],
+            'the questionnaire code under task-code' => [['code' => ['coding' => [['system' => FhirTaskService::TASK_CODE_SYSTEM, 'code' => 'complete-questionnaire']]]], 'code'],
+            'a task-code code under the SDC' => [['code' => ['coding' => [['system' => FhirTaskService::SDC_TEMP_SYSTEM, 'code' => 'fulfill']]]], 'code'],
             'no patient' => [['for' => null], 'for'],
             'for a group' => [['for' => ['reference' => 'Group/' . self::PATIENT]], 'for'],
             'not a uuid' => [['for' => ['reference' => 'Patient/123']], 'for'],
             'focus on a patient' => [['focus' => ['reference' => 'Patient/' . self::PATIENT]], 'focus'],
             'owned by a device' => [['owner' => ['reference' => 'Device/' . self::ORG]], 'owner'],
+            'owned by another patient' => [['owner' => ['reference' => 'Patient/' . self::ORG]], 'owner'],
             'requested by a related person' => [['requester' => ['reference' => 'RelatedPerson/' . self::ORG]], 'requester'],
             'two parents' => [['partOf' => [['reference' => 'Task/' . self::PARENT], ['reference' => 'Task/' . self::REQUEST]]], 'partOf'],
             'a parent that is not a task' => [['partOf' => [['reference' => 'ServiceRequest/' . self::REQUEST]]], 'partOf'],
             'authoredOn not a dateTime' => [['authoredOn' => 'yesterday'], 'authoredOn'],
+            'output not a list' => [['output' => ['type' => ['text' => 'Response'], 'valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE]]], 'output'],
+            'an output with no type' => [['output' => [['valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE]]]], 'output[0]'],
+            'an output type coding with no system' => [['output' => [['type' => ['coding' => [['code' => 'questionnaire-response']]], 'valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE]]]], 'output[0]'],
+            'an output that is text' => [['output' => [['type' => ['text' => 'Contact'], 'valueString' => 'Call on Tuesday']]], 'output[0]'],
+            'an output that is a Condition' => [['output' => [['type' => ['text' => 'Finding'], 'valueReference' => ['reference' => 'Condition/' . self::RESPONSE]]]], 'output[0]'],
         ];
     }
 
@@ -118,11 +130,68 @@ class FhirTaskWriteRulesTest extends TestCase
     {
         foreach (['focus' => FhirTaskWriteRules::FOCUS_TYPES, 'owner' => FhirTaskWriteRules::OWNER_TYPES, 'requester' => FhirTaskWriteRules::REQUESTER_TYPES] as $element => $types) {
             foreach ($types as $type) {
-                $read = FhirTaskWriteRules::read(self::task([$element => ['reference' => $type . '/' . self::ORG]]));
+                // A Patient owner has to be the task's own patient.
+                $uuid = $element === 'owner' && $type === 'Patient' ? self::PATIENT : self::ORG;
+                $read = FhirTaskWriteRules::read(self::task([$element => ['reference' => $type . '/' . $uuid]]));
                 $this->assertSame([], $read['errors'], "$element $type");
                 $this->assertSame($type, $read['fields'][$element . '_type']);
             }
         }
+    }
+
+    public function testTheQuestionnaireTaskKeepsItsCodeSystemAndOutput(): void
+    {
+        $read = FhirTaskWriteRules::read(self::task([
+            'status' => 'completed',
+            'code' => ['coding' => [
+                ['system' => 'http://example.org/local', 'code' => 'survey'],
+                ['system' => FhirTaskService::SDC_TEMP_SYSTEM, 'code' => 'complete-questionnaire'],
+            ]],
+            'focus' => ['reference' => 'Questionnaire/' . self::REQUEST],
+            // The patient's own task, with the uuid in capitals: the same patient.
+            'owner' => ['reference' => 'Patient/' . strtoupper(self::PATIENT)],
+            'output' => [[
+                'type' => ['coding' => [['system' => FhirTaskService::SDC_TEMP_SYSTEM, 'code' => 'questionnaire-response']], 'text' => 'Completed form'],
+                'valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE],
+            ]],
+        ]));
+        $this->assertSame([], $read['errors']);
+        $this->assertSame([FhirTaskService::SDC_TEMP_SYSTEM, 'complete-questionnaire'], [$read['fields']['code_system'], $read['fields']['code']], 'the first coding it knows');
+        $this->assertSame([0 => [
+            'type_system' => FhirTaskService::SDC_TEMP_SYSTEM,
+            'type_code' => 'questionnaire-response',
+            'type_text' => 'Completed form',
+            'value_type' => 'QuestionnaireResponse',
+            'value_uuid' => self::RESPONSE,
+        ]], $read['outputs']);
+    }
+
+    public function testOutputsKeepTheirPlaceInTheList(): void
+    {
+        $response = ['type' => ['text' => 'Response'], 'valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE]];
+        $read = FhirTaskWriteRules::read(self::task(['output' => [
+            ['type' => ['text' => 'Response'], 'valueReference' => ['reference' => 'Goal/' . self::RESPONSE]],
+            $response,
+        ]]));
+        $this->assertSame(['output[0]'], array_keys($read['errors']));
+        $this->assertSame([1], array_keys($read['outputs']), 'the good one is still the second');
+        $this->assertNull($read['outputs'][1]['type_system'], 'a type given as text alone has no coding');
+    }
+
+    public function testEveryOutputTypeIsAcceptedUpToTheLimit(): void
+    {
+        $outputs = array_map(
+            static fn(string $type): array => ['type' => ['text' => $type], 'valueReference' => ['reference' => $type . '/' . self::RESPONSE]],
+            FhirTaskWriteRules::OUTPUT_TYPES
+        );
+        $read = FhirTaskWriteRules::read(self::task(['output' => $outputs]));
+        $this->assertSame([], $read['errors']);
+        $this->assertSame(FhirTaskWriteRules::OUTPUT_TYPES, array_column($read['outputs'], 'value_type'));
+
+        $many = array_fill(0, FhirTaskWriteRules::MAX_OUTPUTS, $outputs[0]);
+        $this->assertSame([], FhirTaskWriteRules::read(self::task(['output' => $many]))['errors']);
+        $many[] = $outputs[0];
+        $this->assertSame(['output'], array_keys(FhirTaskWriteRules::read(self::task(['output' => $many]))['errors']));
     }
 
     /**
