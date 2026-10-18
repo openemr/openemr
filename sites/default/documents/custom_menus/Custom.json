@@ -1590,7 +1590,11 @@
                         "target": "rep",
                         "url": "/interface/reports/services_by_category.php",
                         "children": [],
-                        "requirement": 0
+                        "requirement": 0,
+                        "acl_req": [
+                            "acct",
+                            "rep_a"
+                        ]
                     },
                     {
                         "label": "Syndromic Surveillance",
@@ -2037,7 +2041,11 @@
                 "target": "msc",
                 "url": "/interface/reports/patient_edu_web_lookup.php",
                 "children": [],
-                "requirement": 0
+                "requirement": 0,
+                "acl_req": [
+                    "patients",
+                    "med"
+                ]
             },
             {
                 "label": "Authorizations",
