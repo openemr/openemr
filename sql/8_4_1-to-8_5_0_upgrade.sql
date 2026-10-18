@@ -418,12 +418,31 @@ SELECT DISTINCT 'questionnaire', r.`form_foreign_id`, 'encounter', 1, 0
    AND r.`form_foreign_id` > 0;
 #EndIf
 
--- FHIR Task outputs (part 3 of #14521): the system Task.code is from, and what the work produced.
+-- FHIR Task inputs and outputs (part 3 of #14521): the system Task.code is from, what the work needs, and what it produced.
 -- Codes written before the system was kept were all task-code's, except the questionnaire task's.
 #IfMissingColumn task code_system
 ALTER TABLE `task` ADD COLUMN `code_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.code: its system, such as http://hl7.org/fhir/CodeSystem/task-code' AFTER `code`;
 UPDATE `task` SET `code_system` = 'http://hl7.org/fhir/uv/sdc/CodeSystem/temp' WHERE `code` = 'complete-questionnaire';
 UPDATE `task` SET `code_system` = 'http://hl7.org/fhir/CodeSystem/task-code' WHERE `code` IS NOT NULL AND `code_system` IS NULL;
+#EndIf
+
+#IfNotTable task_input
+CREATE TABLE `task_input` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `task_id` bigint(20) NOT NULL COMMENT 'task.id',
+  `seq` int(11) NOT NULL DEFAULT 0 COMMENT 'position in Task.input',
+  `type_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.input.type: coding system',
+  `type_code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.input.type: coding code',
+  `type_text` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.input.type: text',
+  `value_element` varchar(31) NOT NULL COMMENT 'which value[x] it is: valueReference, valueCanonical, valueUrl, valueString, valueMarkdown or valueCodeableConcept',
+  `value_type` varchar(63) DEFAULT NULL COMMENT 'valueReference: resource type',
+  `value_uuid` binary(16) DEFAULT NULL COMMENT 'valueReference: resource id',
+  `value_system` varchar(255) DEFAULT NULL COMMENT 'valueCodeableConcept: coding system',
+  `value_code` varchar(63) DEFAULT NULL COMMENT 'valueCodeableConcept: coding code',
+  `value_text` text COMMENT 'the canonical, url, string or markdown; valueCodeableConcept: its text',
+  PRIMARY KEY (`id`),
+  KEY `task_id` (`task_id`, `seq`)
+) ENGINE=InnoDB;
 #EndIf
 
 #IfNotTable task_output
@@ -434,8 +453,12 @@ CREATE TABLE `task_output` (
   `type_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.output.type: coding system',
   `type_code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.output.type: coding code',
   `type_text` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.output.type: text',
-  `value_type` varchar(63) NOT NULL COMMENT 'FHIR Task.output.valueReference: resource type',
-  `value_uuid` binary(16) NOT NULL COMMENT 'FHIR Task.output.valueReference: resource id',
+  `value_element` varchar(31) NOT NULL COMMENT 'which value[x] it is: valueReference, valueCanonical, valueUrl, valueString, valueMarkdown or valueCodeableConcept',
+  `value_type` varchar(63) DEFAULT NULL COMMENT 'valueReference: resource type',
+  `value_uuid` binary(16) DEFAULT NULL COMMENT 'valueReference: resource id',
+  `value_system` varchar(255) DEFAULT NULL COMMENT 'valueCodeableConcept: coding system',
+  `value_code` varchar(63) DEFAULT NULL COMMENT 'valueCodeableConcept: coding code',
+  `value_text` text COMMENT 'the canonical, url, string or markdown; valueCodeableConcept: its text',
   PRIMARY KEY (`id`),
   KEY `task_id` (`task_id`, `seq`)
 ) ENGINE=InnoDB;

@@ -10234,7 +10234,7 @@ paths:
         -
           name: code
           in: query
-          description: 'The code of the Task resource, from http://hl7.org/fhir/CodeSystem/task-code, or complete-questionnaire.'
+          description: 'The code of the Task resource: from http://hl7.org/fhir/CodeSystem/task-code, complete-questionnaire, make-contact, review-material or general-information.'
           required: false
           schema:
             type: string
@@ -10304,7 +10304,7 @@ paths:
     post:
       tags:
         - fhir
-      description: "Creates a Task. The server sets id, meta and lastModified, and authoredOn when it is left out. Task.for must name the patient; code is from http://hl7.org/fhir/CodeSystem/task-code, or is complete-questionnaire from http://hl7.org/fhir/uv/sdc/CodeSystem/temp; focus may name a ServiceRequest or Questionnaire; owner and requester an Organization, Practitioner, PractitionerRole or Patient, and a Patient owner must be the task's patient; partOf one task for the same patient; each output a valueReference to a QuestionnaireResponse, Observation or Procedure for the same patient."
+      description: "Creates a Task. The server sets id, meta and lastModified, and authoredOn when it is left out. Task.for must name the patient; code is from http://hl7.org/fhir/CodeSystem/task-code, or is one SDOH Clinical Care's TaskForPatient uses (complete-questionnaire, make-contact, review-material, general-information); focus may name a ServiceRequest or Questionnaire; owner an Organization, Practitioner, PractitionerRole, the task's Patient or a RelatedPerson of theirs, and requester an Organization, Practitioner, PractitionerRole or Patient; partOf one task for the same patient. Each input is a canonical, url, string, markdown, CodeableConcept, or a reference to a Questionnaire, DocumentReference, Organization, Practitioner or PractitionerRole; each output a string, markdown, CodeableConcept, or a reference to a QuestionnaireResponse, Observation, Procedure or DocumentReference. References into the patient's record must be the task's patient's."
       requestBody:
         required: true
         content:
@@ -10399,7 +10399,7 @@ paths:
     put:
       tags:
         - fhir
-      description: "Updates a Task. Task.for can't change, and the outputs in the body replace the task's. A task that is completed, cancelled, failed or rejected can only become entered-in-error, and an entered-in-error task can't change status. Send the version from the ETag as If-Match to have the update refused (412) if the task changed since you read it."
+      description: "Updates a Task. Task.for can't change, and the inputs and outputs in the body replace the task's. A task that is completed, cancelled, failed or rejected can only become entered-in-error, and an entered-in-error task can't change status. Send the version from the ETag as If-Match to have the update refused (412) if the task changed since you read it."
       parameters:
         -
           name: uuid
@@ -10436,6 +10436,14 @@ paths:
                   reference: Questionnaire/96a1b2c3-d4e5-4f60-8a7b-9c0d1e2f3a4b
                 owner:
                   reference: Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf
+                input:
+                  -
+                    type:
+                      coding:
+                        -
+                          system: 'http://hl7.org/fhir/uv/sdc/CodeSystem/temp'
+                          code: questionnaire
+                    valueCanonical: 'https://localhost:9300/apis/default/fhir/Questionnaire/96a1b2c3-d4e5-4f60-8a7b-9c0d1e2f3a4b'
                 output:
                   -
                     type:

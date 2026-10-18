@@ -14441,6 +14441,28 @@ CREATE TABLE `task` (
 ) ENGINE=InnoDB;
 
 --
+-- Table structure for table `task_input`
+--
+
+DROP TABLE IF EXISTS `task_input`;
+CREATE TABLE `task_input` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `task_id` bigint(20) NOT NULL COMMENT 'task.id',
+  `seq` int(11) NOT NULL DEFAULT 0 COMMENT 'position in Task.input',
+  `type_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.input.type: coding system',
+  `type_code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.input.type: coding code',
+  `type_text` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.input.type: text',
+  `value_element` varchar(31) NOT NULL COMMENT 'which value[x] it is: valueReference, valueCanonical, valueUrl, valueString, valueMarkdown or valueCodeableConcept',
+  `value_type` varchar(63) DEFAULT NULL COMMENT 'valueReference: resource type',
+  `value_uuid` binary(16) DEFAULT NULL COMMENT 'valueReference: resource id',
+  `value_system` varchar(255) DEFAULT NULL COMMENT 'valueCodeableConcept: coding system',
+  `value_code` varchar(63) DEFAULT NULL COMMENT 'valueCodeableConcept: coding code',
+  `value_text` text COMMENT 'the canonical, url, string or markdown; valueCodeableConcept: its text',
+  PRIMARY KEY (`id`),
+  KEY `task_id` (`task_id`, `seq`)
+) ENGINE=InnoDB;
+
+--
 -- Table structure for table `task_output`
 --
 
@@ -14452,8 +14474,12 @@ CREATE TABLE `task_output` (
   `type_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.output.type: coding system',
   `type_code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.output.type: coding code',
   `type_text` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.output.type: text',
-  `value_type` varchar(63) NOT NULL COMMENT 'FHIR Task.output.valueReference: resource type',
-  `value_uuid` binary(16) NOT NULL COMMENT 'FHIR Task.output.valueReference: resource id',
+  `value_element` varchar(31) NOT NULL COMMENT 'which value[x] it is: valueReference, valueCanonical, valueUrl, valueString, valueMarkdown or valueCodeableConcept',
+  `value_type` varchar(63) DEFAULT NULL COMMENT 'valueReference: resource type',
+  `value_uuid` binary(16) DEFAULT NULL COMMENT 'valueReference: resource id',
+  `value_system` varchar(255) DEFAULT NULL COMMENT 'valueCodeableConcept: coding system',
+  `value_code` varchar(63) DEFAULT NULL COMMENT 'valueCodeableConcept: coding code',
+  `value_text` text COMMENT 'the canonical, url, string or markdown; valueCodeableConcept: its text',
   PRIMARY KEY (`id`),
   KEY `task_id` (`task_id`, `seq`)
 ) ENGINE=InnoDB;

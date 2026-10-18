@@ -2,9 +2,9 @@
 
 /**
  * What a FHIR Task create or update may say (parts 2 and 3 of #14521): the
- * code sets, the resource types focus, owner, requester and output may point
- * at, and the statuses a task can't leave. Reads a Task body into a task row's
- * fields and outputs, and says what's wrong, element by element.
+ * code sets, the resource types focus, owner, requester, input and output may
+ * point at, and the statuses a task can't leave. Reads a Task body into a task
+ * row's fields, inputs and outputs, and says what's wrong, element by element.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -20,7 +20,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
- * @phpstan-type TaskOutputRow array{type_system: ?string, type_code: ?string, type_text: ?string, value_type: string, value_uuid: string}
+ * @phpstan-type TaskParameterRow array{type_system: ?string, type_code: ?string, type_text: ?string, value_element: string, value_type: ?string, value_uuid: ?string, value_system: ?string, value_code: ?string, value_text: ?string}
  */
 final class FhirTaskWriteRules
 {
@@ -45,38 +45,53 @@ final class FhirTaskWriteRules
     public const PRIORITIES = ['routine', 'urgent', 'asap', 'stat'];
 
     /**
-     * Task.code by system: R4's task-code (http://hl7.org/fhir/CodeSystem/task-code), and the SDC's
-     * code for a task to fill in a questionnaire, which SDOH Clinical Care's TaskForPatient also uses.
+     * Task.code by system: R4's task-code (http://hl7.org/fhir/CodeSystem/task-code), and the codes
+     * SDOH Clinical Care's TaskForPatient binds Task.code to: the SDC's complete-questionnaire, and
+     * its own make-contact, review-material and general-information.
      */
     public const CODES = [
         FhirTaskService::TASK_CODE_SYSTEM => ['approve', 'fulfill', 'abort', 'replace', 'change', 'suspend', 'resume'],
         FhirTaskService::SDC_TEMP_SYSTEM => ['complete-questionnaire'],
+        FhirTaskService::SDOHCC_TEMP_SYSTEM => ['make-contact', 'review-material', 'general-information'],
     ];
 
     /** The two workflows #14521 builds for: a referral being worked, and a questionnaire assigned to a patient. */
     public const FOCUS_TYPES = ['ServiceRequest', 'Questionnaire'];
 
-    /** Who does the work: a community organization, a clinician, or the patient. */
-    public const OWNER_TYPES = ['Organization', 'Practitioner', 'PractitionerRole', 'Patient'];
+    /** Who does the work: a community organization, a clinician, the patient, or someone for them (a parent). */
+    public const OWNER_TYPES = ['Organization', 'Practitioner', 'PractitionerRole', 'Patient', 'RelatedPerson'];
 
     /** Who asked for it. */
     public const REQUESTER_TYPES = ['Practitioner', 'PractitionerRole', 'Organization', 'Patient'];
 
-    /** What the work produced: a filled-in questionnaire, a result, a service delivered. */
-    public const OUTPUT_TYPES = ['QuestionnaireResponse', 'Observation', 'Procedure'];
+    /** What the work needs: the questionnaire or the PDF to fill in, and whom to contact. */
+    public const INPUT_TYPES = ['Questionnaire', 'DocumentReference', 'Organization', 'Practitioner', 'PractitionerRole'];
 
-    /** Each output is looked up when the task is written, so a task holds a bounded number. */
-    public const MAX_OUTPUTS = 50;
+    /** The values an input may be: SDOH Clinical Care's questionnaire (canonical), its PDF, its url, its category, contacts. */
+    public const INPUT_VALUES = ['valueReference', 'valueCanonical', 'valueUrl', 'valueString', 'valueMarkdown', 'valueCodeableConcept'];
+
+    /** What the work produced: a filled-in questionnaire or its PDF, a result, a service delivered. */
+    public const OUTPUT_TYPES = ['QuestionnaireResponse', 'Observation', 'Procedure', 'DocumentReference'];
+
+    /** The values an output may be: a record, an answer in words (the contact chosen), or a code for what was done. */
+    public const OUTPUT_VALUES = ['valueReference', 'valueString', 'valueMarkdown', 'valueCodeableConcept'];
+
+    /** References into the patient's record are looked up when the task is written, so a task holds a bounded number of each. */
+    public const MAX_PARAMETERS = 50;
+
+    /** The longest string, markdown, url or canonical kept, in characters: well inside the TEXT column's 65,535 bytes. */
+    public const MAX_TEXT = 10000;
 
     /**
-     * A Task body as task row fields, its outputs, the patient it is for (by uuid), and what's
-     * wrong with it by element. id, meta and lastModified are the server's and aren't read;
-     * authoredOn is kept as given (the caller sets it when it isn't). Elements the table doesn't
-     * hold yet (input, note) are left out. Outputs are keyed by their place in Task.output, so
-     * a fault found later can name the same one.
+     * A Task body as task row fields, its inputs and outputs, the patient it is for (by uuid),
+     * and what's wrong with it by element. id, meta and lastModified are the server's and aren't
+     * read; authoredOn is kept as given (the caller sets it when it isn't). Elements the table
+     * doesn't hold (note, encounter, reasonCode and the rest) are left out, as other FHIR writes
+     * here leave them. Inputs and outputs are keyed by their place in the list, so a fault found
+     * later can name the same one.
      *
      * @param array<array-key, mixed> $json the Task as JSON
-     * @return array{fields: array<string, string|null>, outputs: array<int, TaskOutputRow>, puuid: ?string, errors: array<string, string>}
+     * @return array{fields: array<string, string|null>, inputs: array<int, TaskParameterRow>, outputs: array<int, TaskParameterRow>, puuid: ?string, errors: array<string, string>}
      */
     public static function read(array $json): array
     {
@@ -171,38 +186,60 @@ final class FhirTaskWriteRules
             $errors['authoredOn'] = 'Task.authoredOn must be a FHIR dateTime with a time zone, such as 2026-10-18T09:30:00-05:00';
         }
 
-        $outputs = [];
-        $output = $json['output'] ?? null;
-        if ($output !== null) {
-            if (!is_array($output) || !array_is_list($output)) {
-                $errors['output'] = 'Task.output must be a list';
-            } elseif (count($output) > self::MAX_OUTPUTS) {
-                $errors['output'] = 'Task.output takes at most ' . self::MAX_OUTPUTS . ' outputs';
-            } else {
-                foreach ($output as $i => $entry) {
-                    $row = self::output($entry);
-                    if (is_string($row)) {
-                        $errors["output[$i]"] = "Task.output[$i] $row";
-                    } else {
-                        $outputs[$i] = $row;
-                    }
-                }
-            }
-        }
+        $inputs = self::parameters($json, 'input', self::INPUT_VALUES, self::INPUT_TYPES, $errors);
+        $outputs = self::parameters($json, 'output', self::OUTPUT_VALUES, self::OUTPUT_TYPES, $errors);
 
-        return ['fields' => $fields, 'outputs' => $outputs, 'puuid' => $puuid, 'errors' => $errors];
+        return ['fields' => $fields, 'inputs' => $inputs, 'outputs' => $outputs, 'puuid' => $puuid, 'errors' => $errors];
     }
 
     /**
-     * One Task.output as a task_output row, or what's wrong with it. Its type is a coding, its
-     * text, or both; its value a reference to something the work produced, on this server.
+     * Task.input or Task.output as rows, keyed by place; each fault goes into $errors by its place.
      *
-     * @return TaskOutputRow|string
+     * @param array<array-key, mixed> $json
+     * @param list<string> $values the value[x] elements it may use
+     * @param list<string> $types what a valueReference may point at
+     * @param array<string, string> $errors
+     * @return array<int, TaskParameterRow>
      */
-    private static function output(mixed $entry): array|string
+    private static function parameters(array $json, string $element, array $values, array $types, array &$errors): array
+    {
+        $list = $json[$element] ?? null;
+        if ($list === null) {
+            return [];
+        }
+        if (!is_array($list) || !array_is_list($list)) {
+            $errors[$element] = "Task.$element must be a list";
+            return [];
+        }
+        if (count($list) > self::MAX_PARAMETERS) {
+            $errors[$element] = "Task.$element takes at most " . self::MAX_PARAMETERS;
+            return [];
+        }
+        $rows = [];
+        foreach ($list as $i => $entry) {
+            $row = self::parameter($entry, $values, $types);
+            if (is_string($row)) {
+                $errors[$element . "[$i]"] = "Task.$element" . "[$i] $row";
+            } else {
+                $rows[$i] = $row;
+            }
+        }
+        return $rows;
+    }
+
+    /**
+     * One input or output as a row, or what's wrong with it. Its type is a coding, its text, or
+     * both; its value one of $values: a reference to one of $types on this server, a canonical, a
+     * url, a string or markdown, or a CodeableConcept.
+     *
+     * @param list<string> $values
+     * @param list<string> $types
+     * @return TaskParameterRow|string
+     */
+    private static function parameter(mixed $entry, array $values, array $types): array|string
     {
         if (!is_array($entry)) {
-            return 'must be an object with a type and a valueReference';
+            return 'must be an object with a type and a value';
         }
         $type = $entry['type'] ?? null;
         $text = FhirPayloadReader::getString($type, 'text');
@@ -211,22 +248,63 @@ final class FhirTaskWriteRules
         if ($text === null && ($system === '' || $code === '')) {
             return 'needs a type: a coding with a system and a code, or text';
         }
-        foreach (array_keys($entry) as $key) {
-            if (is_string($key) && str_starts_with($key, 'value') && $key !== 'valueReference') {
-                return "must be a valueReference, not $key";
-            }
+        $given = array_values(array_filter(array_keys($entry), static fn(int|string $key): bool => is_string($key) && str_starts_with($key, 'value')));
+        if (count($given) !== 1) {
+            return 'needs one value, one of ' . implode(', ', $values);
         }
-        $reference = self::reference($entry['valueReference'] ?? null, self::OUTPUT_TYPES);
-        if ($reference === null) {
-            return 'must reference one of ' . implode(', ', self::OUTPUT_TYPES) . ' on this server ({type}/{uuid})';
+        $element = (string)$given[0];
+        if (!in_array($element, $values, true)) {
+            return "can't be a $element; it takes " . implode(', ', $values);
         }
-        return [
+        $row = [
             'type_system' => $system !== '' && $code !== '' ? $system : null,
             'type_code' => $system !== '' && $code !== '' ? $code : null,
             'type_text' => $text,
-            'value_type' => $reference['type'],
-            'value_uuid' => $reference['uuid'],
+            'value_element' => $element,
+            'value_type' => null,
+            'value_uuid' => null,
+            'value_system' => null,
+            'value_code' => null,
+            'value_text' => null,
         ];
+        $value = $entry[$element];
+        if ($element === 'valueReference') {
+            $reference = self::reference($value, $types);
+            if ($reference === null) {
+                return 'must reference one of ' . implode(', ', $types) . ' on this server ({type}/{uuid})';
+            }
+            $row['value_type'] = $reference['type'];
+            $row['value_uuid'] = $reference['uuid'];
+            return $row;
+        }
+        if ($element === 'valueCodeableConcept') {
+            $valueText = FhirPayloadReader::getString($value, 'text');
+            $valueSystem = FhirPayloadReader::firstCodingValue($value, 'system');
+            $valueCode = FhirPayloadReader::firstCodingCode($value);
+            if ($valueText === null && ($valueSystem === '' || $valueCode === '')) {
+                return 'needs a coding with a system and a code, or text';
+            }
+            if ($valueSystem !== '' && $valueCode !== '') {
+                $row['value_system'] = $valueSystem;
+                $row['value_code'] = $valueCode;
+            }
+            $row['value_text'] = $valueText;
+            return $row;
+        }
+        if (!is_string($value) || trim($value) === '') {
+            return "$element must be a string with something in it";
+        }
+        if (mb_strlen($value) > self::MAX_TEXT) {
+            return "$element is longer than " . self::MAX_TEXT . ' characters';
+        }
+        if ($element === 'valueUrl' && filter_var($value, FILTER_VALIDATE_URL) === false) {
+            return 'valueUrl must be an absolute url';
+        }
+        if ($element === 'valueCanonical' && preg_match('/^[^\s|]+(\|[^\s|]+)?$/', $value) !== 1) {
+            return 'valueCanonical must be a url, with |version or without';
+        }
+        $row['value_text'] = $value;
+        return $row;
     }
 
     /**

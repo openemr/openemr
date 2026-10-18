@@ -2,8 +2,8 @@
 
 /**
  * What a FHIR Task create or update may say: the code sets, the reference
- * types, a Patient owner, the parent task, the outputs, the statuses a task
- * can't leave, and If-Match.
+ * types, a Patient owner, the parent task, the inputs and outputs, the
+ * statuses a task can't leave, and If-Match.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -82,7 +82,7 @@ class FhirTaskWriteRulesTest extends TestCase
             $this->assertArrayHasKey($column, $read['fields']);
             $this->assertNull($read['fields'][$column], $column);
         }
-        $this->assertSame([], $read['outputs'], 'and so do its outputs');
+        $this->assertSame([[], []], [$read['inputs'], $read['outputs']], 'and so do its inputs and outputs');
     }
 
     /**
@@ -111,8 +111,17 @@ class FhirTaskWriteRulesTest extends TestCase
             'output not a list' => [['output' => ['type' => ['text' => 'Response'], 'valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE]]], 'output'],
             'an output with no type' => [['output' => [['valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE]]]], 'output[0]'],
             'an output type coding with no system' => [['output' => [['type' => ['coding' => [['code' => 'questionnaire-response']]], 'valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE]]]], 'output[0]'],
-            'an output that is text' => [['output' => [['type' => ['text' => 'Contact'], 'valueString' => 'Call on Tuesday']]], 'output[0]'],
             'an output that is a Condition' => [['output' => [['type' => ['text' => 'Finding'], 'valueReference' => ['reference' => 'Condition/' . self::RESPONSE]]]], 'output[0]'],
+            'an output that is a yes or no' => [['output' => [['type' => ['text' => 'Done'], 'valueBoolean' => true]]], 'output[0]'],
+            'an output that is a canonical' => [['output' => [['type' => ['text' => 'Form'], 'valueCanonical' => 'https://example.org/Questionnaire/phq-9']]], 'output[0]'],
+            'an output with two values' => [['output' => [['type' => ['text' => 'Contact'], 'valueString' => 'Tuesday', 'valueMarkdown' => 'Tuesday']]], 'output[0]'],
+            'an output string with nothing in it' => [['output' => [['type' => ['text' => 'Contact'], 'valueString' => '  ']]], 'output[0]'],
+            'an output longer than the limit' => [['output' => [['type' => ['text' => 'Notes'], 'valueMarkdown' => str_repeat('a', FhirTaskWriteRules::MAX_TEXT + 1)]]], 'output[0]'],
+            'an output code with no system' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['coding' => [['code' => 'food-delivered']]]]]], 'output[0]'],
+            'input not a list' => [['input' => ['type' => ['text' => 'Form'], 'valueCanonical' => 'https://example.org/Questionnaire/phq-9']], 'input'],
+            'an input that is a Patient' => [['input' => [['type' => ['text' => 'Contact'], 'valueReference' => ['reference' => 'Patient/' . self::PATIENT]]]], 'input[0]'],
+            'an input url that is not a url' => [['input' => [['type' => ['text' => 'Form'], 'valueUrl' => 'the clinic website']]], 'input[0]'],
+            'an input canonical with a space' => [['input' => [['type' => ['text' => 'Form'], 'valueCanonical' => 'https://example.org/Questionnaire/phq 9']]], 'input[0]'],
         ];
     }
 
@@ -157,13 +166,60 @@ class FhirTaskWriteRulesTest extends TestCase
         ]));
         $this->assertSame([], $read['errors']);
         $this->assertSame([FhirTaskService::SDC_TEMP_SYSTEM, 'complete-questionnaire'], [$read['fields']['code_system'], $read['fields']['code']], 'the first coding it knows');
-        $this->assertSame([0 => [
+        $this->assertSame([0 => self::row([
             'type_system' => FhirTaskService::SDC_TEMP_SYSTEM,
             'type_code' => 'questionnaire-response',
             'type_text' => 'Completed form',
+            'value_element' => 'valueReference',
             'value_type' => 'QuestionnaireResponse',
             'value_uuid' => self::RESPONSE,
-        ]], $read['outputs']);
+        ])], $read['outputs']);
+    }
+
+    public function testThePatientTasksInputsAndOutputsAsSdohClinicalCareWritesThem(): void
+    {
+        $sdohcc = FhirTaskService::SDOHCC_TEMP_SYSTEM;
+        $read = FhirTaskWriteRules::read(self::task([
+            'code' => ['coding' => [['system' => $sdohcc, 'code' => 'make-contact']]],
+            'owner' => ['reference' => 'RelatedPerson/' . self::ORG],
+            'input' => [
+                ['type' => ['coding' => [['system' => FhirTaskService::SDC_TEMP_SYSTEM, 'code' => 'questionnaire']]], 'valueCanonical' => 'https://example.org/fhir/Questionnaire/phq-9|1.2'],
+                ['type' => ['coding' => [['system' => $sdohcc, 'code' => 'questionnaire-pdf']]], 'valueReference' => ['reference' => 'DocumentReference/' . self::RESPONSE]],
+                ['type' => ['coding' => [['system' => $sdohcc, 'code' => 'questionnaire-url']]], 'valueUrl' => 'https://example.org/forms/phq-9'],
+                ['type' => ['coding' => [['system' => $sdohcc, 'code' => 'questionnaire-category']]], 'valueCodeableConcept' => ['coding' => [['system' => $sdohcc, 'code' => 'risk-questionnaire']]]],
+                ['type' => ['coding' => [['system' => $sdohcc, 'code' => 'contact-entity']]], 'valueReference' => ['reference' => 'Organization/' . self::ORG]],
+            ],
+            'output' => [
+                ['type' => ['coding' => [['system' => $sdohcc, 'code' => 'chosen-contact']]], 'valueMarkdown' => 'The **food pantry**, on Tuesday'],
+                ['type' => ['text' => 'Answer'], 'valueString' => 'Yes'],
+                ['type' => ['text' => 'What was done'], 'valueCodeableConcept' => ['coding' => [['system' => 'http://example.org/activities', 'code' => 'food-delivered']], 'text' => 'Food delivered']],
+            ],
+        ]));
+        $this->assertSame([], $read['errors']);
+        $this->assertSame([$sdohcc, 'make-contact'], [$read['fields']['code_system'], $read['fields']['code']]);
+        $this->assertSame('RelatedPerson', $read['fields']['owner_type'], 'a parent can own the task');
+        $this->assertSame(
+            ['valueCanonical', 'valueReference', 'valueUrl', 'valueCodeableConcept', 'valueReference'],
+            array_column($read['inputs'], 'value_element')
+        );
+        $this->assertSame('https://example.org/fhir/Questionnaire/phq-9|1.2', $read['inputs'][0]['value_text'], 'a canonical with its version');
+        $this->assertSame(['DocumentReference', self::RESPONSE], [$read['inputs'][1]['value_type'], $read['inputs'][1]['value_uuid']]);
+        $this->assertSame([$sdohcc, 'risk-questionnaire', null], [$read['inputs'][3]['value_system'], $read['inputs'][3]['value_code'], $read['inputs'][3]['value_text']]);
+        $this->assertSame(['Organization', self::ORG], [$read['inputs'][4]['value_type'], $read['inputs'][4]['value_uuid']]);
+        $this->assertSame(['valueMarkdown', 'The **food pantry**, on Tuesday'], [$read['outputs'][0]['value_element'], $read['outputs'][0]['value_text']]);
+        $this->assertSame(['valueString', 'Yes'], [$read['outputs'][1]['value_element'], $read['outputs'][1]['value_text']]);
+        $this->assertSame(['http://example.org/activities', 'food-delivered', 'Food delivered'], [$read['outputs'][2]['value_system'], $read['outputs'][2]['value_code'], $read['outputs'][2]['value_text']]);
+    }
+
+    public function testEveryCodeItKnowsIsAccepted(): void
+    {
+        foreach (FhirTaskWriteRules::CODES as $system => $codes) {
+            foreach ($codes as $code) {
+                $read = FhirTaskWriteRules::read(self::task(['code' => ['coding' => [['system' => $system, 'code' => $code]]]]));
+                $this->assertSame([], $read['errors'], "$system $code");
+                $this->assertSame([$system, $code], [$read['fields']['code_system'], $read['fields']['code']]);
+            }
+        }
     }
 
     public function testOutputsKeepTheirPlaceInTheList(): void
@@ -178,7 +234,7 @@ class FhirTaskWriteRulesTest extends TestCase
         $this->assertNull($read['outputs'][1]['type_system'], 'a type given as text alone has no coding');
     }
 
-    public function testEveryOutputTypeIsAcceptedUpToTheLimit(): void
+    public function testEveryInputAndOutputTypeIsAcceptedUpToTheLimit(): void
     {
         $outputs = array_map(
             static fn(string $type): array => ['type' => ['text' => $type], 'valueReference' => ['reference' => $type . '/' . self::RESPONSE]],
@@ -187,11 +243,29 @@ class FhirTaskWriteRulesTest extends TestCase
         $read = FhirTaskWriteRules::read(self::task(['output' => $outputs]));
         $this->assertSame([], $read['errors']);
         $this->assertSame(FhirTaskWriteRules::OUTPUT_TYPES, array_column($read['outputs'], 'value_type'));
+        $inputs = array_map(
+            static fn(string $type): array => ['type' => ['text' => $type], 'valueReference' => ['reference' => $type . '/' . self::RESPONSE]],
+            FhirTaskWriteRules::INPUT_TYPES
+        );
+        $read = FhirTaskWriteRules::read(self::task(['input' => $inputs]));
+        $this->assertSame([], $read['errors']);
+        $this->assertSame(FhirTaskWriteRules::INPUT_TYPES, array_column($read['inputs'], 'value_type'));
 
-        $many = array_fill(0, FhirTaskWriteRules::MAX_OUTPUTS, $outputs[0]);
+        $many = array_fill(0, FhirTaskWriteRules::MAX_PARAMETERS, $outputs[0]);
         $this->assertSame([], FhirTaskWriteRules::read(self::task(['output' => $many]))['errors']);
         $many[] = $outputs[0];
         $this->assertSame(['output'], array_keys(FhirTaskWriteRules::read(self::task(['output' => $many]))['errors']));
+    }
+
+    /**
+     * A task_input or task_output row: these columns, the rest null.
+     *
+     * @param array<string, string> $columns
+     * @return array<string, ?string>
+     */
+    private static function row(array $columns): array
+    {
+        return array_merge(array_fill_keys(['type_system', 'type_code', 'type_text', 'value_element', 'value_type', 'value_uuid', 'value_system', 'value_code', 'value_text'], null), $columns);
     }
 
     /**

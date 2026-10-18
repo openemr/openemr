@@ -81,10 +81,12 @@ class TaskFhirApiTest extends TestCase
     {
         if ($this->tasks !== []) {
             $uuids = array_values($this->tasks);
-            QueryUtils::sqlStatementThrowException(
-                'DELETE FROM task_output WHERE task_id IN (SELECT id FROM task WHERE uuid IN (' . implode(',', array_fill(0, count($uuids), '?')) . '))',
-                array_map(UuidRegistry::uuidToBytes(...), $uuids)
-            );
+            foreach (['task_input', 'task_output'] as $table) {
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM $table WHERE task_id IN (SELECT id FROM task WHERE uuid IN (" . implode(',', array_fill(0, count($uuids), '?')) . '))',
+                    array_map(UuidRegistry::uuidToBytes(...), $uuids)
+                );
+            }
             QueryUtils::sqlStatementThrowException(
                 'DELETE FROM task WHERE uuid IN (' . implode(',', array_fill(0, count($uuids), '?')) . ')',
                 array_map(UuidRegistry::uuidToBytes(...), $uuids)

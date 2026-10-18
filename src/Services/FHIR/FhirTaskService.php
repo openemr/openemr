@@ -4,9 +4,10 @@
  * The FHIR Task resource over the task table (#14521; D9 and C7 of #13266):
  * read and search, and create and update. A write keeps to FhirTaskWriteRules:
  * the patient a task is for doesn't change, focus, owner and requester point
- * at the resource types the workflows use, a Patient owner is the task's own
- * patient, a parent task and each output belong to the same patient, and a
- * task doesn't leave a final status. meta.versionId counts the updates, so an
+ * at the resource types the workflows use, a Patient or RelatedPerson owner is
+ * the task's own patient or theirs, a parent task and each input and output in
+ * the patient's record belong to the same patient, and a task doesn't leave a
+ * final status. meta.versionId counts the updates, so an
  * update can ask that nobody changed the task since it was read (If-Match).
  *
  * @package   OpenEMR
@@ -24,15 +25,19 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRTask;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRTaskIntent;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRTaskStatus;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRTask\FHIRTaskInput;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTask\FHIRTaskOutput;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -52,6 +57,9 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
 
     /** Structured Data Capture's temporary codes: complete-questionnaire, and its questionnaire-response output. */
     public const SDC_TEMP_SYSTEM = 'http://hl7.org/fhir/uv/sdc/CodeSystem/temp';
+
+    /** SDOH Clinical Care's temporary codes: its patient task codes, and its input and output types. */
+    public const SDOHCC_TEMP_SYSTEM = 'http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes';
 
     private ?TaskService $taskService = null;
 
@@ -213,36 +221,54 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         }
         $task->setLastModified(new FHIRDateTime($lastModified));
 
-        $outputs = $dataRecord['outputs'] ?? null;
-        foreach (is_array($outputs) ? $outputs : [] as $output) {
-            if (is_array($output)) {
-                $task->addOutput(self::output($output));
+        foreach (['inputs' => new FHIRTaskInput(), 'outputs' => new FHIRTaskOutput()] as $key => $blank) {
+            $rows = $dataRecord[$key] ?? null;
+            foreach (is_array($rows) ? $rows : [] as $row) {
+                if (!is_array($row)) {
+                    continue;
+                }
+                $parameter = self::parameter(clone $blank, $row);
+                if ($parameter instanceof FHIRTaskInput) {
+                    $task->addInput($parameter);
+                } else {
+                    $task->addOutput($parameter);
+                }
             }
         }
         return $task;
     }
 
     /**
-     * A task_output row as Task.output: its type, and the reference to what the work produced.
+     * A task_input or task_output row as Task.input or Task.output: its type, and its value.
      *
      * @param array<mixed> $row
      */
-    private static function output(array $row): FHIRTaskOutput
+    private static function parameter(FHIRTaskInput|FHIRTaskOutput $parameter, array $row): FHIRTaskInput|FHIRTaskOutput
     {
-        $type = new FHIRCodeableConcept();
-        $system = self::text($row, 'type_system');
-        $code = self::text($row, 'type_code');
+        $parameter->setType(self::concept(self::text($row, 'type_system'), self::text($row, 'type_code'), self::text($row, 'type_text')));
+        $text = self::text($row, 'value_text');
+        match (self::text($row, 'value_element')) {
+            'valueReference' => $parameter->setValueReference(UtilsService::createRelativeReference(self::text($row, 'value_type') ?? '', self::text($row, 'value_uuid') ?? '')),
+            'valueCodeableConcept' => $parameter->setValueCodeableConcept(self::concept(self::text($row, 'value_system'), self::text($row, 'value_code'), $text)),
+            'valueCanonical' => $parameter->setValueCanonical(new FHIRCanonical($text ?? '')),
+            'valueUrl' => $parameter->setValueUrl(new FHIRUrl($text ?? '')),
+            'valueMarkdown' => $parameter->setValueMarkdown(new FHIRMarkdown($text ?? '')),
+            default => $parameter->setValueString(new FHIRString($text ?? '')),
+        };
+        return $parameter;
+    }
+
+    /** A CodeableConcept of one coding, its text, or both. */
+    private static function concept(?string $system, ?string $code, ?string $text): FHIRCodeableConcept
+    {
+        $concept = new FHIRCodeableConcept();
         if ($system !== null && $code !== null) {
-            $type->addCoding(UtilsService::createCoding($code, null, $system));
+            $concept->addCoding(UtilsService::createCoding($code, null, $system));
         }
-        $text = self::text($row, 'type_text');
         if ($text !== null) {
-            $type->setText(new FHIRString($text));
+            $concept->setText(new FHIRString($text));
         }
-        $output = new FHIRTaskOutput();
-        $output->setType($type);
-        $output->setValueReference(UtilsService::createRelativeReference(self::text($row, 'value_type') ?? '', self::text($row, 'value_uuid') ?? ''));
-        return $output;
+        return $concept;
     }
 
     /**
@@ -264,9 +290,9 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     }
 
     /**
-     * A Task body as task fields, its outputs, the patient's uuid, and what's wrong with it.
+     * A Task body as task fields, its inputs and outputs, the patient's uuid, and what's wrong with it.
      *
-     * @return array{fields: array<string, string|null>, outputs: array<int, array<string, string|null>>, puuid: ?string, errors: array<string, string>}
+     * @return array{fields: array<string, string|null>, inputs: array<int, array<string, string|null>>, outputs: array<int, array<string, string|null>>, puuid: ?string, errors: array<string, string>}
      */
     public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
@@ -283,7 +309,7 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
-        [$fields, $outputs, $puuid, $errors] = self::unpack($openEmrRecord);
+        [$fields, $inputs, $outputs, $puuid, $errors] = self::unpack($openEmrRecord);
         $pid = $puuid === null ? null : self::patientId($puuid);
         if ($puuid !== null && $pid === null) {
             $errors['for'] = 'Patient reference could not be resolved: ' . $puuid;
@@ -292,13 +318,13 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
             $errors['partOf'] = $problem;
         }
         if ($pid !== null) {
-            $errors += $this->outputProblems($outputs, $puuid);
+            $errors += $this->recordProblems($fields, $inputs, $outputs, $puuid);
         }
         if ($errors !== [] || $pid === null) {
             return self::invalid($errors);
         }
         $fields['authored_on'] ??= date('Y-m-d H:i:s');
-        $uuid = $this->getTaskService()->insert($fields, $pid, $this->userId(), array_values($outputs));
+        $uuid = $this->getTaskService()->insert($fields, $pid, $this->userId(), array_values($inputs), array_values($outputs));
         // insert() hands this result to the response as it is, so it carries the FHIR resource.
         $result = new ProcessingResult();
         $record = $this->getTaskService()->getOne($uuid);
@@ -314,7 +340,7 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
-        [$fields, $outputs, $puuid, $errors] = self::unpack($updatedOpenEMRRecord);
+        [$fields, $inputs, $outputs, $puuid, $errors] = self::unpack($updatedOpenEMRRecord);
         $this->versionConflict = false;
         // authoredOn is when the task was made: an update keeps the stored one, so a bad one in the body doesn't matter.
         unset($errors['authoredOn']);
@@ -329,7 +355,7 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         if ($puuid !== null && $pid !== $stored['patient_id']) {
             $errors['for'] = "Task.for can't change: it must name the task's patient";
         } elseif ($puuid !== null) {
-            $errors += $this->outputProblems($outputs, $puuid);
+            $errors += $this->recordProblems($fields, $inputs, $outputs, $puuid);
         }
         if (isset($fields['status']) && ($problem = FhirTaskWriteRules::transitionProblem($stored['status'], $fields['status'])) !== null) {
             $errors['status'] = $problem;
@@ -347,8 +373,8 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
             return self::invalid(['meta.versionId' => "The task is at version {$stored['version']}, not {$this->expectedVersion}: read it again before updating"]);
         }
         unset($fields['authored_on']);
-        // A PUT replaces the task, its outputs with it.
-        if (!$this->getTaskService()->update($fhirResourceId, $fields, $this->userId(), $this->expectedVersion ?? $stored['version'], array_values($outputs))) {
+        // A PUT replaces the task, its inputs and outputs with it.
+        if (!$this->getTaskService()->update($fhirResourceId, $fields, $this->userId(), $this->expectedVersion ?? $stored['version'], array_values($inputs), array_values($outputs))) {
             $this->versionConflict = true;
             return self::invalid(['meta.versionId' => 'The task changed while it was being updated: read it again before updating']);
         }
@@ -424,48 +450,80 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     }
 
     /**
-     * What's wrong with each output, by its place in Task.output: what it references has to be
-     * on this server and for the task's patient. The resource's own service looks it up, inside
-     * that patient's compartment, so an output can't name another patient's record.
+     * What's wrong with the references into the patient's record, by element: a RelatedPerson
+     * owner, and each input and output that names a QuestionnaireResponse, Observation, Procedure
+     * or DocumentReference. Each has to be on this server and for the task's patient. The
+     * resource's own service looks it up inside that patient's compartment, so a task can't name
+     * another patient's record. References outside the record (a Questionnaire, an Organization,
+     * a Practitioner) are checked by type only, as owner and requester are.
      *
+     * @param array<string, string|null> $fields
+     * @param array<int, array<string, string|null>> $inputs
      * @param array<int, array<string, string|null>> $outputs
      * @return array<string, string>
      */
-    private function outputProblems(array $outputs, string $puuid): array
+    private function recordProblems(array $fields, array $inputs, array $outputs, string $puuid): array
     {
         $problems = [];
-        foreach ($outputs as $i => $output) {
-            $type = $output['value_type'] ?? null;
-            $uuid = $output['value_uuid'] ?? null;
-            $service = match ($type) {
-                'QuestionnaireResponse' => self::questionnaireResponseService(),
-                'Observation' => new FhirObservationService(),
-                'Procedure' => new FhirProcedureService(),
-                default => null,
-            };
-            $found = $service !== null && is_string($uuid) ? $service->getOne($uuid, $puuid) : null;
-            if ($found === null || !$found->isValid() || !$found->hasData()) {
-                $problems["output[$i]"] = "Task.output[$i] names no $type for this task's patient: $uuid";
+        if (($fields['owner_type'] ?? null) === 'RelatedPerson' && !$this->inRecord('RelatedPerson', $fields['owner_uuid'] ?? null, $puuid)) {
+            $problems['owner'] = "Task.owner names no RelatedPerson of this task's patient: " . ($fields['owner_uuid'] ?? '');
+        }
+        foreach (['input' => $inputs, 'output' => $outputs] as $element => $rows) {
+            foreach ($rows as $i => $row) {
+                $type = $row['value_type'] ?? null;
+                if ($type === null || self::recordService($type) === null) {
+                    continue;
+                }
+                if (!$this->inRecord($type, $row['value_uuid'] ?? null, $puuid)) {
+                    $problems[$element . "[$i]"] = "Task.$element" . "[$i] names no $type for this task's patient: " . ($row['value_uuid'] ?? '');
+                }
             }
         }
         return $problems;
     }
 
-    /** QuestionnaireResponse as its read route builds it: the responses saved from forms are a mapped service. */
-    private static function questionnaireResponseService(): FhirQuestionnaireResponseService
+    /** Whether the record with this type and uuid is the patient's. */
+    private function inRecord(string $type, ?string $uuid, string $puuid): bool
     {
-        $service = new FhirQuestionnaireResponseService();
-        $service->addMappedService(new FhirQuestionnaireResponseFormService());
-        return $service;
+        $service = self::recordService($type);
+        if ($service === null || $uuid === null) {
+            return false;
+        }
+        $session = $this->getSession();
+        if ($session !== null) {
+            $service->setSession($session);
+        }
+        $found = $service->getOne($uuid, $puuid);
+        return $found->isValid() && $found->hasData();
     }
 
     /**
-     * @return array{0: array<string, string|null>, 1: array<int, array<string, string|null>>, 2: ?string, 3: array<string, string>}
+     * The service for a resource in the patient's record, built as its read route builds it, or
+     * null for a type outside the record. QuestionnaireResponse's responses saved from forms are a
+     * mapped service.
+     */
+    private static function recordService(string $type): ?FhirServiceBase
+    {
+        if ($type === 'QuestionnaireResponse') {
+            $service = new FhirQuestionnaireResponseService();
+            $service->addMappedService(new FhirQuestionnaireResponseFormService());
+            return $service;
+        }
+        return match ($type) {
+            'Observation' => new FhirObservationService(),
+            'Procedure' => new FhirProcedureService(),
+            'DocumentReference' => new FhirDocumentReferenceService(),
+            'RelatedPerson' => new FhirRelatedPersonService(),
+            default => null,
+        };
+    }
+
+    /**
+     * @return array{0: array<string, string|null>, 1: array<int, array<string, string|null>>, 2: array<int, array<string, string|null>>, 3: ?string, 4: array<string, string>}
      */
     private static function unpack(mixed $record): array
     {
         $fields = [];
-        $outputs = [];
         $errors = [];
         if (is_array($record)) {
             foreach (is_array($record['fields'] ?? null) ? $record['fields'] : [] as $column => $value) {
@@ -473,17 +531,7 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
                     $fields[$column] = $value;
                 }
             }
-            foreach (is_array($record['outputs'] ?? null) ? $record['outputs'] : [] as $i => $output) {
-                if (!is_int($i) || !is_array($output)) {
-                    continue;
-                }
-                $outputs[$i] = [];
-                foreach ($output as $column => $value) {
-                    if (is_string($column) && ($value === null || is_string($value))) {
-                        $outputs[$i][$column] = $value;
-                    }
-                }
-            }
+
             foreach (is_array($record['errors'] ?? null) ? $record['errors'] : [] as $element => $message) {
                 if (is_string($element) && is_string($message)) {
                     $errors[$element] = $message;
@@ -491,7 +539,30 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
             }
         }
         $puuid = is_array($record) && is_string($record['puuid'] ?? null) ? $record['puuid'] : null;
-        return [$fields, $outputs, $puuid, $errors];
+        $rows = is_array($record) ? $record : [];
+        return [$fields, self::rows($rows['inputs'] ?? null), self::rows($rows['outputs'] ?? null), $puuid, $errors];
+    }
+
+    /**
+     * Input or output rows from what parseFhirResource() returned, keyed by place.
+     *
+     * @return array<int, array<string, string|null>>
+     */
+    private static function rows(mixed $list): array
+    {
+        $rows = [];
+        foreach (is_array($list) ? $list : [] as $i => $row) {
+            if (!is_int($i) || !is_array($row)) {
+                continue;
+            }
+            $rows[$i] = [];
+            foreach ($row as $column => $value) {
+                if (is_string($column) && ($value === null || is_string($value))) {
+                    $rows[$i][$column] = $value;
+                }
+            }
+        }
+        return $rows;
     }
 
     /** The pid of the patient with this uuid, or null. */
