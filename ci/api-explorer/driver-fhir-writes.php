@@ -224,6 +224,11 @@ try {
             'Accept' => 'application/fhir+json',
         ],
         'query' => ['_count' => '1'],
+        // Bearer-authenticated: reject redirects to preserve the
+        // HTTPS-only destination rule gated at startup. Guzzle strips
+        // Authorization on cross-origin redirects but doesn't preserve
+        // the scheme guard.
+        'allow_redirects' => false,
     ]);
 } catch (GuzzleException $e) {
     fwrite(STDERR, "FAIL Patient discovery errored: " . $e->getMessage() . "\n");
@@ -398,6 +403,8 @@ try {
             'Authorization' => 'Bearer ' . $accessToken,
             'Accept' => 'application/fhir+json',
         ],
+        // Bearer-authenticated: reject redirects (see Patient GET above).
+        'allow_redirects' => false,
     ]);
 } catch (GuzzleException $e) {
     fwrite(STDERR, "FAIL CareTeam GET errored: " . $e->getMessage() . "\n");
