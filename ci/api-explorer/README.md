@@ -4,11 +4,12 @@ End-to-end smoke that exercises OpenEMR's OAuth2 + FHIR surface from a real
 third-party client (`sjpadgett/oe-module-api-explorer`). Runs on every PR; its
 job is to catch regressions in the OAuth2 code path that in-tree unit and
 isolated tests cannot see — real RFC 7591 DCR, real token endpoint for the
-`client_credentials` and `authorization_code` grants (both confidential and
-public-with-PKCE), real FHIR Patient read from a bearer-authenticated client.
-Refresh-token and SMART launch are not covered here; refresh-token has no
-dedicated flow in this smoke, and SMART launch is covered by the sibling
-`oe-smart-questionnaire` smoke.
+`client_credentials`, `authorization_code` (confidential and public-with-PKCE),
+and `password` grants, real FHIR Patient read from a bearer-authenticated
+client, and a real FHIR write round-trip (`CareTeam` POST + PUT + GET) with
+the password-grant bearer. Refresh-token and SMART launch are not covered
+here; refresh-token has no dedicated flow in this smoke, and SMART launch is
+covered by the sibling `oe-smart-questionnaire` smoke.
 
 ## What the smoke does
 
@@ -22,8 +23,8 @@ dedicated flow in this smoke, and SMART launch is covered by the sibling
 4. Seeds demo data via `openemr-cmd drid` so the FHIR Patient endpoint has
    something to return.
 5. Seeds the globals the explorer requires: `site_addr_oath`, `rest_api`,
-   `rest_fhir_api`, `rest_system_scopes_api`. (Must run **after** `drid` —
-   drid rewrites `site_addr_oath`.)
+   `rest_fhir_api`, `rest_system_scopes_api`, `oauth_password_grant`. (Must
+   run **after** `drid` — drid rewrites `site_addr_oath`.)
 6. Runs **`driver.php`** (Guzzle, no browser): initializes the explorer's
    session, triggers `client_register.php` to register all four clients
    (confidential auth-code, public PKCE, JWT client-credentials, SMART EHR
@@ -39,19 +40,50 @@ dedicated flow in this smoke, and SMART launch is covered by the sibling
    design — the smoke accepts that as "OAuth round-trip succeeded, FHIR
    access was scope-limited" and still passes. Any OAuth-protocol regression
    (DCR, authorize, PKCE verifier, token exchange) rises as a hard failure.
+8. Runs **`driver-password.php`** (Guzzle, no browser): registers a one-shot
+   confidential client via DCR, flips its stored `grant_types` to `password`
+   + `is_enabled=1` (DCR drops the password grant because it is admin-only;
+   see `ClientGrantTypePolicy::ADMIN_ONLY`), posts admin credentials to
+   `/oauth2/default/token` with `grant_type=password` + `user_role=users`,
+   and reads `/apis/default/fhir/Patient` with the resulting bearer. Asserts
+   a FHIR `Bundle` with `total >= 1`. The explorer's four shipped clients
+   (confidential auth-code, public PKCE, JWT client-credentials, SMART EHR
+   launch) do not include a password-grant client, so this driver drives
+   the token endpoint directly rather than through the explorer's UI; the
+   explorer's own Scope Lab panel reaches the same contract via per-session
+   CSRF + a profile-shaped payload, which is more scope-matrix plumbing
+   than the password grant itself. The in-tree `PasswordGrantPatientRole`
+   api test uses the same DCR + DB-flip + token pattern.
+9. Runs **`driver-fhir-writes.php`** (Guzzle, no browser): reuses the
+   same DCR + DB-flip + password-grant lane as `driver-password.php`, but
+   requests `user/CareTeam.write` in the DCR scope and drives a full
+   write round-trip against `/apis/default/fhir/CareTeam` — POST a
+   minimal fixture (subject = a `Patient` uuid discovered via
+   `GET /fhir/Patient?_count=1`, participant = the admin user's uuid as
+   `Practitioner`), PUT the created resource with a mutated name,
+   GET it back and assert the mutation persisted. Closes a §8.2 external-
+   realism gap: all four other grant lanes exercise read-only FHIR, and
+   Inferno's ONC G10 US Core 3.1.1 suite is read-only too, so a scope-
+   filtering or write-path bearer-validation regression that only shows
+   up on writes was previously only catchable by the in-tree api-tier
+   tests, not from a real external client.
 
-Total runtime ~2-3 min on top of the stack boot. The smoke exercises paths
+Total runtime ~3 min on top of the stack boot. The smoke exercises paths
 unit tests cannot reach (RFC 7591 DCR, JWT assertion generation + validation,
 system-scope FHIR reads, authorize + consent UI, PKCE verifier at the token
-endpoint) from a client the server has no awareness of until registration
-time, which is as close to "real external app" as you can get in CI.
+endpoint, password-grant token issuance against user_role=users, FHIR
+write-path POST / PUT / GET with persistence verification) from a client
+the server has no awareness of until registration time, which is as close
+to "real external app" as you can get in CI.
 
 ## What the smoke does **not** do
 
 - No SMART-launch coverage. The sibling smoke (`oe-smart-questionnaire`,
   acceptance-side) owns that path.
-- No conformance surface. If the explorer added bulk `$export` or FHIR write
-  coverage to this smoke, it would still be a smoke, not Inferno.
+- No conformance surface. The FHIR write lane in `driver-fhir-writes.php`
+  is a round-trip, not a conformance sweep — it exercises one resource
+  (CareTeam) at POST + PUT + GET to catch write-path OAuth regressions
+  from an external client, not every write route.
 
 ## Upstream tracking
 
@@ -84,10 +116,12 @@ those as the `api-explorer-driver-browser-postmortem` artifact.
 
 | File | Purpose |
 |------|---------|
-| `run.sh` | Entry point: clone the explorer, seed demo data + globals, invoke both drivers. |
+| `run.sh` | Entry point: clone the explorer, seed demo data + globals, invoke all four drivers. |
 | `driver.php` | Guzzle round-trip: DCR + JWT client-credentials FHIR Patient read. |
 | `driver-browser.php` | Panther/Selenium round-trip: confidential auth-code + public PKCE flows. |
-| `seed-globals.sql` | REPLACE INTO globals rows the explorer requires. Keys backed by `src/Services/Globals/GlobalConnectorsEnum.php`. |
+| `driver-password.php` | Guzzle round-trip: DCR + DB-flip + password-grant token + FHIR Patient read. |
+| `driver-fhir-writes.php` | Guzzle round-trip: DCR + DB-flip + password-grant token + FHIR CareTeam POST + PUT + GET persistence read-back. |
+| `seed-globals.sql` | REPLACE INTO globals rows the smoke requires. Keys backed by `src/Services/Globals/GlobalConnectorsEnum.php`. |
 
 ## Credits
 

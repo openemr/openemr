@@ -23,10 +23,10 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-// Menu-level acl_req only hides navigation; enforce the demographic ACL here
-// so a direct URL request cannot reach the patient-list CSV export.
-if (!AclMain::aclCheckCore('patients', 'demo')) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Patient List", xl("Patient List"));
+// Patient-roster report; align the permission check with the other
+// `patients/pat_rep` reports in this directory.
+if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/pat_rep: Patient List", xl("Patient List"));
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
