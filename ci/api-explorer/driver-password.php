@@ -68,6 +68,17 @@ $mysqlUser = getenv('EXPLORER_MYSQL_USER') ?: 'openemr';
 $mysqlPass = getenv('EXPLORER_MYSQL_PASS') ?: 'openemr';
 $mysqlDb = getenv('EXPLORER_MYSQL_DB') ?: 'openemr';
 
+// Defensive scheme gate: the token POST below carries admin credentials
+// in the request body. Refuse to proceed if someone overrode
+// EXPLORER_BASE_URL to a plain http:// endpoint. verify=false is kept
+// on the Guzzle client because this smoke targets the docker-network
+// alias https://openemr with the dev-easy self-signed cert — same
+// pattern as driver.php / driver-browser.php.
+if (!str_starts_with(strtolower($baseUrl), 'https://')) {
+    fwrite(STDERR, "FAIL EXPLORER_BASE_URL must be https:// (got: {$baseUrl})\n");
+    exit(2);
+}
+
 echo "oe-module-api-explorer password-grant smoke\n";
 echo "  base = {$baseUrl}\n";
 echo "  db   = {$mysqlUser}@{$mysqlHost}/{$mysqlDb}\n\n";
@@ -102,6 +113,10 @@ try {
             'contacts' => ['smoke@test.example'],
             'scope' => 'openid api:oemr api:fhir user/Patient.read',
         ],
+        // Credentials-bearing request: refuse to forward body on a redirect.
+        // OpenEMR's /oauth2/default/registration does not redirect, but the
+        // explicit false keeps the gate defensive.
+        'allow_redirects' => false,
     ]);
 } catch (GuzzleException $e) {
     fwrite(STDERR, "FAIL DCR request errored: " . $e->getMessage() . "\n");
@@ -165,6 +180,11 @@ try {
             'username' => 'admin',
             'password' => 'pass',
         ],
+        // Credentials-bearing request: the form body carries admin/pass +
+        // client_secret. Refuse to forward on a redirect (Guzzle strips
+        // Authorization headers on cross-origin redirects but does not
+        // strip form_params bodies).
+        'allow_redirects' => false,
     ]);
 } catch (GuzzleException $e) {
     fwrite(STDERR, "FAIL token request errored: " . $e->getMessage() . "\n");
