@@ -111,6 +111,43 @@ class VitalSignsServiceDatabaseTest extends TestCase
         $this->assertSame([[self::PID, 'LOINC:8480-6', 128.0]], $this->read(new QdmRequestOne((string)self::PID)));
     }
 
+    public function testABloodPressureTypedWithSpacesIsStillANumber(): void
+    {
+        // The Vitals form keeps blood pressure as typed. PHP's is_numeric() takes "128 ", so the form
+        // accepts it, and it is still a reading; "128abc" is not.
+        $this->vitals(self::PID, '2026-03-02 09:00:00', ['bps' => '128 ', 'bpd' => ' 82']);
+        $this->vitals(self::PID, '2026-03-09 09:00:00', ['bps' => '128abc', 'bpd' => '80']);
+
+        $this->assertSame(
+            [[self::PID, 'LOINC:8480-6', 128.0], [self::PID, 'LOINC:8462-4', 82.0], [self::PID, 'LOINC:8462-4', 80.0]],
+            $this->read(new QdmRequestOne((string)self::PID))
+        );
+        $values = $this->values(new QdmRequestOne((string)self::PID));
+        $this->assertSame(['128', '82', '80'], $values, 'read without the spaces');
+    }
+
+    public function testAnImportedExamWithSpacesStillMatchesItsVitalsCopy(): void
+    {
+        // PhysicalExamService reads an exam of "128 " as 128, so its Vitals copy is the same reading
+        // and is left to it, as for "128".
+        $this->observation(self::PID, '2026-03-02 09:00:00', '8480-6', '128 ', 'mm[Hg]');
+        $this->vitals(self::PID, '2026-03-02 09:00:00', ['bps' => '128']);
+
+        $this->assertSame([], $this->read(new QdmRequestOne((string)self::PID)));
+    }
+
+    /** @return list<string> the value of each vital read, as the query returns it */
+    private function values(QdmRequestOne $request): array
+    {
+        $result = $this->service(VitalSignsService::class, $request)->executeQuery();
+        $this->assertInstanceOf(\ADORecordSet::class, $result);
+        $values = [];
+        while (is_array($row = QueryUtils::fetchArrayFromResultSet($result))) {
+            $values[] = self::text($row['value']);
+        }
+        return $values;
+    }
+
     /** @return list<array{int, string, float}> pid, code and value of each vital read, in the query's order */
     private function read(QdmRequestOne|QdmRequestSome $request): array
     {
