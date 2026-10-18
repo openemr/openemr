@@ -4,10 +4,11 @@
  * E2e test: an e-signed, locked encounter keeps its fee sheet.
  *
  * With "Lock e-signed encounters and their forms" on, signing the whole
- * encounter hides the encounter form menu so no new forms can be added. The
- * fee sheet went with it, although coding often follows the provider's
- * signature and Fees > Fee Sheet opens it regardless. The menu of a locked
- * encounter now offers the fee sheet and nothing else.
+ * encounter hides the encounter form menu, and the main menu refuses its
+ * encounter items ("This encounter is locked"), so no new forms can be added.
+ * The fee sheet went with both, although coding often follows the provider's
+ * signature. The encounter's form menu now offers the fee sheet and nothing
+ * else, and the main menu's Fees > Fee Sheet opens it.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -20,10 +21,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e;
 
+use Facebook\WebDriver\WebDriverBy;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
+use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
@@ -65,6 +68,52 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
             $unlocked = $this->encounterMenuForms($this->unlockedEncounter);
             $this->assertContains('fee_sheet', $unlocked);
             $this->assertGreaterThan(1, count($unlocked), 'An unlocked encounter should still offer every form');
+        } finally {
+            try {
+                if (isset($this->client)) {
+                    $this->client->quit();
+                }
+            } finally {
+                $this->cleanUpFixtureData();
+            }
+        }
+    }
+
+    #[Test]
+    #[Depends('testLoginAuthorized')]
+    public function testMainMenuOpensTheFeeSheetOnALockedEncounter(): void
+    {
+        try {
+            $this->insertFixtureData();
+            $this->base();
+            $this->login(LoginTestData::username, LoginTestData::password);
+
+            // Select the patient and the locked encounter in the app shell, as
+            // opening them from the dashboard does, so the main menu's
+            // encounter items are enabled.
+            $this->client->executeScript(
+                'navigateTab(webroot_url + "/interface/patient_file/summary/demographics.php?set_pid=" + arguments[0], "pat");',
+                [$this->pid]
+            );
+            $this->client->wait(30)->until(
+                fn(): bool => $this->client->executeScript('var p = app_view_model.application_data[attendant_type](); return p ? String(p.pid()) : "";') === (string) $this->pid,
+                'The patient was not selected in the app shell'
+            );
+            $this->client->executeScript('setEncounter(arguments[0]); goToEncounter(arguments[0]);', [$this->lockedEncounter]);
+            $this->client->waitFor(XpathsConstants::ENCOUNTER_IFRAME);
+
+            // The menu refuses with alert(); record alerts instead of showing them.
+            $this->client->executeScript('window.e2eAlerts = []; window.alert = function (message) { window.e2eAlerts.push(String(message)); };');
+            $this->goToMainMenuLink('Fees||Fee Sheet');
+            $this->assertSame(
+                [],
+                $this->client->executeScript('return window.e2eAlerts;'),
+                'Fees > Fee Sheet should open on a locked encounter without the "locked" alert'
+            );
+
+            $this->client->switchTo()->defaultContent();
+            $this->client->switchTo()->frame($this->client->findElement(WebDriverBy::xpath(XpathsConstants::ENCOUNTER_IFRAME)));
+            $this->client->waitFor('//iframe[contains(@src, "formname=fee_sheet")]', 30);
         } finally {
             try {
                 if (isset($this->client)) {
