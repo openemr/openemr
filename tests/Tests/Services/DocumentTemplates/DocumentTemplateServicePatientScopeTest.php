@@ -13,6 +13,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,8 +23,10 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Services\DocumentTemplates;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class DocumentTemplateServicePatientScopeTest extends TestCase
 {
@@ -86,6 +90,19 @@ class DocumentTemplateServicePatientScopeTest extends TestCase
     {
         $svc = new DocumentTemplateService();
         $this->assertFalse($svc->fetchTemplateForPatient(999999, 1));
+    }
+
+    public function testRendererRejectsTemplateOwnedByAnotherPatient(): void
+    {
+        // Seed a template owned by patient 1, create a renderer bound to
+        // patient 2, and expect the renderer to refuse to render the
+        // template. This covers the patient-id handoff from the renderer
+        // to fetchTemplateForPatient() end-to-end.
+        $ownedId = $this->seedTemplate(pid: 1, name: 'pid1_render_only', content: 'PID1_PRIVATE');
+        $renderer = new DocumentTemplateRender(2, 1);
+
+        $this->expectException(RuntimeException::class);
+        $renderer->doRender($ownedId);
     }
 
     private function seedTemplate(int $pid, string $name, string $content): int

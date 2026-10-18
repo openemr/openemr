@@ -217,7 +217,10 @@ class DocumentTemplateRender
                 }
                 $formtitle = text($formname . ' ' . $matches[3]);
                 $pdfRow = $this->templateService->fetchTemplateForPatient($form_id, $this->pidInt);
-                $content_fetch = is_array($pdfRow) ? ($pdfRow['template_content'] ?? '') : '';
+                if (!is_array($pdfRow)) {
+                    throw new RuntimeException(xlt("Template not available for this patient."));
+                }
+                $content_fetch = $pdfRow['template_content'] ?? '';
                 $content = 'data:application/pdf;base64,' . base64_encode((string) $content_fetch);
                 $sigfld = '<script>page.pdfFormName=' . js_escape($formname) . '</script>';
                 $sigfld .= "<div class='d-none' id='showPdf'>\n";
