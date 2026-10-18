@@ -34,6 +34,7 @@ namespace OpenEMR\Tests\Unit\Services\Questionnaire;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\Questionnaire\AssignmentRecord;
 use OpenEMR\Services\Questionnaire\AvailabilityContext;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
 use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
@@ -516,6 +517,382 @@ class QuestionnaireAvailabilityServiceTest extends TestCase
             $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Dashboard)),
             're-activating must make it available again without an administrator touching assignments'
         );
+    }
+
+    /**
+     * assign() creates a row and makes the questionnaire available on that surface.
+     */
+    public function testAssignCreatesAnAvailableAssignment(): void
+    {
+        $id = $this->addQuestionnaire('availability assign api');
+
+        $assignmentId = $this->service->assign(new AssignmentRecord(
+            id: 0,
+            surface: QuestionnaireSurface::Dashboard,
+            resourceId: $id,
+        ));
+        $this->ownAssignmentIds[] = $assignmentId;
+
+        $this->assertGreaterThan(0, $assignmentId);
+        $this->assertSame(
+            [$id],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Dashboard))
+        );
+    }
+
+    /**
+     * Saving the screen twice must not multiply rows, so assign() updates a row with the
+     * same target, surface and scope rather than inserting another.
+     */
+    public function testAssignIsIdempotentForTheSameTargetAndScope(): void
+    {
+        $id = $this->addQuestionnaire('availability assign twice');
+
+        $first = $this->service->assign(new AssignmentRecord(
+            id: 0,
+            surface: QuestionnaireSurface::Encounter,
+            resourceId: $id,
+        ));
+        $second = $this->service->assign(new AssignmentRecord(
+            id: 0,
+            surface: QuestionnaireSurface::Encounter,
+            resourceId: $id,
+            seq: 5,
+        ));
+        $this->ownAssignmentIds[] = $first;
+
+        $this->assertSame($first, $second, 'the same rule must reuse its row');
+
+        $count = QueryUtils::fetchSingleValue(
+            'SELECT COUNT(*) AS `c` FROM `content_assignments`
+              WHERE `resource_type` = ? AND `resource_id` = ? AND `surface` = ?',
+            'c',
+            [QuestionnaireAvailabilityService::RESOURCE_TYPE, $id, 'encounter']
+        );
+        $this->assertSame(1, self::narrowInt($count, 'the rule count'));
+    }
+
+    /**
+     * Scope is part of a rule's identity: "at facility 3" and "anywhere" are different
+     * rules and have to be able to coexist.
+     */
+    public function testADifferentScopeIsADifferentRule(): void
+    {
+        $id = $this->addQuestionnaire('availability scoped vs unscoped');
+
+        $unscoped = $this->service->assign(new AssignmentRecord(
+            id: 0,
+            surface: QuestionnaireSurface::Encounter,
+            resourceId: $id,
+        ));
+        $scoped = $this->service->assign(new AssignmentRecord(
+            id: 0,
+            surface: QuestionnaireSurface::Encounter,
+            resourceId: $id,
+            facility: 3,
+        ));
+        $this->ownAssignmentIds[] = $unscoped;
+        $this->ownAssignmentIds[] = $scoped;
+
+        $this->assertNotSame($unscoped, $scoped);
+    }
+
+    /**
+     * unassign() keeps the row. The row records that an administrator decided; `active`
+     * is the decision, and keeping it is what stops a later import resurrecting it.
+     */
+    public function testUnassignWithdrawsTheQuestionnaireButKeepsTheRow(): void
+    {
+        $id = $this->addQuestionnaire('availability unassign api');
+        $assignmentId = $this->service->assign(new AssignmentRecord(
+            id: 0,
+            surface: QuestionnaireSurface::Dashboard,
+            resourceId: $id,
+        ));
+        $this->ownAssignmentIds[] = $assignmentId;
+
+        $this->service->unassign($assignmentId);
+
+        $this->assertSame(
+            [],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Dashboard)),
+            'withdrawn means not offered'
+        );
+
+        $count = QueryUtils::fetchSingleValue(
+            'SELECT COUNT(*) AS `c` FROM `content_assignments` WHERE `id` = ?',
+            'c',
+            [$assignmentId]
+        );
+        $this->assertSame(1, self::narrowInt($count, 'the surviving row'), 'the row is kept');
+
+        $this->service->assignDefault($id, QuestionnaireSurface::Dashboard);
+        $this->assertSame(
+            [],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Dashboard)),
+            're-import must not resurrect a withdrawal'
+        );
+
+        $this->service->setAssignmentActive($assignmentId, true);
+        $this->assertSame(
+            [$id],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Dashboard)),
+            'but an administrator can decide again'
+        );
+    }
+
+    /**
+     * Availability is additive, and the management screen depends on knowing it.
+     *
+     * A questionnaire stays offered while ANY active rule reaches it, so switching off
+     * one rule is not the same as withdrawing the questionnaire. The grid marks a box
+     * whose questionnaire is also covered by a category or scoped rule for exactly this
+     * reason -- without it, an administrator unticks a box, sees no change, and concludes
+     * the screen is broken.
+     */
+    public function testAvailabilityIsAdditiveAcrossRules(): void
+    {
+        $id = $this->addQuestionnaire('availability additive');
+        $unscoped = $this->addAssignment(['resource_id' => $id, 'surface' => 'encounter']);
+        $scoped = $this->addAssignment([
+            'resource_id' => $id,
+            'surface' => 'encounter',
+            'facility' => 3,
+        ]);
+
+        $context = new AvailabilityContext(QuestionnaireSurface::Encounter);
+        $this->assertSame([$id], $this->ownAssignedIds($context));
+
+        $this->service->setAssignmentActive($unscoped, false);
+        $this->assertSame(
+            [$id],
+            $this->ownAssignedIds($context),
+            'the scoped rule still offers it to a caller that cannot name a facility'
+        );
+
+        $this->service->setAssignmentActive($scoped, false);
+        $this->assertSame(
+            [],
+            $this->ownAssignedIds($context),
+            'only with every rule off is it withdrawn'
+        );
+    }
+
+    /**
+     * A half-set ACL pair is refused at write time, so the read path's own refusal is
+     * unreachable from the management screen.
+     */
+    public function testAssignRefusesHalfAnAclPair(): void
+    {
+        $id = $this->addQuestionnaire('availability half acl');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->service->assign(new AssignmentRecord(
+            id: 0,
+            surface: QuestionnaireSurface::Dashboard,
+            resourceId: $id,
+            aclSection: 'admin',
+        ));
+    }
+
+    public function testAssignRefusesARuleWithNoTarget(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->service->assign(new AssignmentRecord(
+            id: 0,
+            surface: QuestionnaireSurface::Dashboard,
+        ));
+    }
+
+    /**
+     * listAssignments() is what the screen edits, so it must report stored state --
+     * including rows that are inactive or scoped, which availability hides.
+     */
+    public function testListAssignmentsReportsStoredStateIncludingInactiveAndScoped(): void
+    {
+        $id = $this->addQuestionnaire('availability listed');
+        $off = $this->addAssignment(['resource_id' => $id, 'surface' => 'portal', 'active' => 0]);
+        $scoped = $this->addAssignment([
+            'resource_id' => $id,
+            'surface' => 'portal',
+            'facility' => 3,
+        ]);
+        $categoryRule = $this->addAssignment([
+            'resource_id' => null,
+            'category' => self::CATEGORY,
+            'surface' => 'portal',
+        ]);
+
+        $byId = [];
+        foreach ($this->service->listAssignments(QuestionnaireSurface::Portal) as $record) {
+            $byId[$record->id] = $record;
+        }
+
+        $this->assertArrayHasKey($off, $byId);
+        $this->assertFalse($byId[$off]->active, 'an inactive rule is still reported');
+        $this->assertFalse($byId[$off]->isScoped());
+        $this->assertSame('availability listed', $byId[$off]->resourceName);
+
+        $this->assertArrayHasKey($scoped, $byId);
+        $this->assertTrue($byId[$scoped]->isScoped());
+        $this->assertSame(3, $byId[$scoped]->facility);
+
+        $this->assertArrayHasKey($categoryRule, $byId);
+        $this->assertTrue($byId[$categoryRule]->isCategoryWide());
+        $this->assertNull($byId[$categoryRule]->resourceId);
+    }
+
+    /**
+     * Editing a rule's scope changes its identity, so it has to happen in place by id --
+     * and the row keeps its id, which is what keeps its history.
+     */
+    public function testUpdateAssignmentRewritesScopeInPlace(): void
+    {
+        $id = $this->addQuestionnaire('availability edit scope');
+        $ruleId = $this->addAssignment(['resource_id' => $id, 'surface' => 'encounter']);
+
+        $this->service->updateAssignment(new AssignmentRecord(
+            id: $ruleId,
+            surface: QuestionnaireSurface::Encounter,
+            resourceId: $id,
+            facility: 3,
+            aclSection: 'encounters',
+            aclLevel: 'notes',
+            seq: 4,
+        ));
+
+        $edited = null;
+        foreach ($this->service->listAssignments(QuestionnaireSurface::Encounter) as $record) {
+            if ($record->id === $ruleId) {
+                $edited = $record;
+            }
+        }
+        $this->assertNotNull($edited, 'the same row, still there under the same id');
+        $this->assertSame(3, $edited->facility);
+        $this->assertSame('encounters', $edited->aclSection);
+        $this->assertSame('notes', $edited->aclLevel);
+        $this->assertSame(4, $edited->seq);
+
+        $this->assertSame(
+            [],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Encounter, facility: 4)),
+            'now scoped to facility 3, so not offered at facility 4'
+        );
+    }
+
+    /**
+     * An edit must not quietly re-enable a rule someone switched off; on/off is its own
+     * action on the screen.
+     */
+    public function testUpdateAssignmentLeavesActiveAsStored(): void
+    {
+        $id = $this->addQuestionnaire('availability edit keeps off');
+        $ruleId = $this->addAssignment(['resource_id' => $id, 'surface' => 'dashboard', 'active' => 0]);
+
+        $this->service->updateAssignment(new AssignmentRecord(
+            id: $ruleId,
+            surface: QuestionnaireSurface::Dashboard,
+            resourceId: $id,
+            seq: 2,
+        ));
+
+        $this->assertSame(
+            [],
+            $this->ownAssignedIds(new AvailabilityContext(QuestionnaireSurface::Dashboard)),
+            'still switched off after the edit'
+        );
+    }
+
+    /**
+     * Two rows with the same target and scope would be indistinguishable on the screen and
+     * would make assign() ambiguous, so an edit may not create one.
+     */
+    public function testUpdateAssignmentRefusesToDuplicateAnotherRule(): void
+    {
+        $id = $this->addQuestionnaire('availability edit clash');
+        $this->addAssignment(['resource_id' => $id, 'surface' => 'encounter', 'facility' => 3]);
+        $other = $this->addAssignment(['resource_id' => $id, 'surface' => 'encounter']);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->service->updateAssignment(new AssignmentRecord(
+            id: $other,
+            surface: QuestionnaireSurface::Encounter,
+            resourceId: $id,
+            facility: 3,
+        ));
+    }
+
+    public function testUpdateAssignmentRefusesHalfAnAclPair(): void
+    {
+        $id = $this->addQuestionnaire('availability edit half acl');
+        $ruleId = $this->addAssignment(['resource_id' => $id, 'surface' => 'dashboard']);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->service->updateAssignment(new AssignmentRecord(
+            id: $ruleId,
+            surface: QuestionnaireSurface::Dashboard,
+            resourceId: $id,
+            aclLevel: 'med',
+        ));
+    }
+
+    public function testUpdateAssignmentRefusesARuleThatDoesNotExist(): void
+    {
+        $id = $this->addQuestionnaire('availability edit missing');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->service->updateAssignment(new AssignmentRecord(
+            id: 999999999,
+            surface: QuestionnaireSurface::Dashboard,
+            resourceId: $id,
+        ));
+    }
+
+    public function testDeleteAssignmentRemovesTheRow(): void
+    {
+        $id = $this->addQuestionnaire('availability delete rule');
+        $assignmentId = $this->addAssignment(['resource_id' => $id, 'surface' => 'dashboard']);
+
+        $this->service->deleteAssignment($assignmentId);
+
+        $count = QueryUtils::fetchSingleValue(
+            'SELECT COUNT(*) AS `c` FROM `content_assignments` WHERE `id` = ?',
+            'c',
+            [$assignmentId]
+        );
+        $this->assertSame(0, self::narrowInt($count, 'the deleted row'));
+    }
+
+    public function testSetSeqChangesDisplayOrder(): void
+    {
+        $id = $this->addQuestionnaire('availability seq');
+        $assignmentId = $this->addAssignment(['resource_id' => $id, 'surface' => 'dashboard']);
+
+        $this->service->setSeq($assignmentId, 7);
+
+        foreach ($this->service->listAssignments(QuestionnaireSurface::Dashboard) as $record) {
+            if ($record->id === $assignmentId) {
+                $this->assertSame(7, $record->seq);
+                return;
+            }
+        }
+        $this->fail('the rule was not listed back');
+    }
+
+    /**
+     * The grid only ever writes unscoped, questionnaire-specific rules, so a category or
+     * scoped rule must survive a grid save untouched. Proven here at the service level,
+     * which is the contract the screen relies on.
+     */
+    public function testManageableQuestionnairesListsEveryActiveQuestionnaire(): void
+    {
+        $first = $this->addQuestionnaire('availability manageable one');
+        $inactive = $this->addQuestionnaire('availability manageable inactive', false);
+
+        $ids = array_column($this->service->listManageableQuestionnaires(), 'id');
+
+        $this->assertContains($first, $ids);
+        $this->assertNotContains($inactive, $ids, 'an inactive questionnaire is not assignable');
     }
 
     /**

@@ -33,10 +33,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Questionnaire;
 
+use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * @phpstan-type AssignmentRow array{
@@ -254,6 +256,374 @@ class QuestionnaireAvailabilityService
                 `resource_type` = ?, `resource_id` = ?, `surface` = ?, `active` = 1',
             [self::RESOURCE_TYPE, $questionnaireId, $surface->value]
         );
+    }
+
+    /**
+     * Every assignment row, newest surface order first, for the management screen.
+     *
+     * Unlike getAvailableIds() this applies no ACL and no scope narrowing: the screen
+     * edits what is stored, including rows that are inactive or scoped somewhere the
+     * administrator is not. Ordered so a surface's rows stay together.
+     *
+     * @return list<AssignmentRecord>
+     * @throws SqlQueryException if the lookup cannot run
+     */
+    public function listAssignments(?QuestionnaireSurface $surface = null): array
+    {
+        $binds = [self::RESOURCE_TYPE];
+        $where = '';
+        if ($surface !== null) {
+            $where = ' AND ca.`surface` = ?';
+            $binds[] = $surface->value;
+        }
+
+        $rows = QueryUtils::fetchRecordsNoLog(
+            'SELECT ca.`id`, ca.`surface`, ca.`resource_id`, ca.`category`, ca.`facility`,
+                    ca.`provider`, ca.`visit_category_id`, ca.`client_id`, ca.`acl_section`,
+                    ca.`acl_level`, ca.`active`, ca.`seq`, qr.`name` AS `resource_name`
+               FROM `' . self::TABLE_NAME . '` ca
+               LEFT JOIN `questionnaire_repository` qr ON qr.`id` = ca.`resource_id`
+              WHERE ca.`resource_type` = ?' . $where . '
+              ORDER BY ca.`surface`, ca.`seq`, COALESCE(qr.`name`, ca.`category`), ca.`id`',
+            $binds
+        );
+
+        $records = [];
+        foreach ($rows as $row) {
+            $surfaceValue = self::asString($row['surface'] ?? null);
+            $resolved = $surfaceValue !== null ? QuestionnaireSurface::tryFrom($surfaceValue) : null;
+            if ($resolved === null) {
+                // A surface this build does not know about. Skipped rather than guessed
+                // at, so an older or newer row cannot be silently re-pointed by an edit.
+                continue;
+            }
+            $resourceId = self::asInt($row['resource_id'] ?? null);
+            $facility = self::asInt($row['facility'] ?? null);
+            $provider = self::asInt($row['provider'] ?? null);
+            $visitCategory = self::asInt($row['visit_category_id'] ?? null);
+
+            $records[] = new AssignmentRecord(
+                id: self::asInt($row['id'] ?? null),
+                surface: $resolved,
+                resourceId: $resourceId > 0 ? $resourceId : null,
+                category: self::asString($row['category'] ?? null),
+                facility: $facility > 0 ? $facility : null,
+                provider: $provider > 0 ? $provider : null,
+                visitCategoryId: $visitCategory > 0 ? $visitCategory : null,
+                clientId: self::asString($row['client_id'] ?? null),
+                aclSection: self::asString($row['acl_section'] ?? null),
+                aclLevel: self::asString($row['acl_level'] ?? null),
+                active: self::asInt($row['active'] ?? null) === 1,
+                seq: self::asInt($row['seq'] ?? null),
+                resourceName: self::asString($row['resource_name'] ?? null),
+            );
+        }
+
+        return $records;
+    }
+
+    /**
+     * Active questionnaires, for the rows of the management grid.
+     *
+     * Deliberately not QuestionnaireService::getQuestionnaireList(): that one can exclude
+     * questionnaires already registered as encounter forms, which is right for the import
+     * picker and wrong here -- the screen must show every questionnaire an administrator
+     * could assign anywhere.
+     *
+     * @return list<array{id: int, name: string, category: string}>
+     * @throws SqlQueryException if the lookup cannot run
+     */
+    public function listManageableQuestionnaires(): array
+    {
+        $rows = QueryUtils::fetchRecordsNoLog(
+            'SELECT `id`, `name`, `category` FROM `questionnaire_repository`
+              WHERE `active` = 1
+              ORDER BY COALESCE(`category`, \'\'), `name`',
+            []
+        );
+
+        $list = [];
+        foreach ($rows as $row) {
+            $id = self::asInt($row['id'] ?? null);
+            if ($id <= 0) {
+                continue;
+            }
+            $list[] = [
+                'id' => $id,
+                'name' => self::asString($row['name'] ?? null) ?? '',
+                'category' => self::asString($row['category'] ?? null) ?? '',
+            ];
+        }
+
+        return $list;
+    }
+
+    /**
+     * Create or update an assignment and return its id.
+     *
+     * An existing row for the same target, surface and scope is updated rather than
+     * duplicated, so saving the screen twice does not multiply rows. A row carried
+     * `active = 0` from an earlier unassign is reactivated by this call -- that is an
+     * administrator deciding again, which is exactly what the screen is for, and is why
+     * assignDefault() is the only path that must not reactivate.
+     *
+     * @throws InvalidArgumentException if the row names no target, or half an ACL pair
+     * @throws SqlQueryException if the write cannot run
+     */
+    public function assign(AssignmentRecord $record): int
+    {
+        if (!$record->hasTarget()) {
+            throw new InvalidArgumentException(
+                'an assignment must name a questionnaire or a category'
+            );
+        }
+        if (($record->aclSection === null) !== ($record->aclLevel === null)) {
+            // Refused here so the read path's own refusal is unreachable from the UI.
+            // OpenEMR ACL sections and levels are only meaningful as pairs.
+            throw new InvalidArgumentException(
+                'set both acl_section and acl_level, or neither'
+            );
+        }
+
+        $existing = $this->findMatchingAssignmentId($record);
+        $userId = self::asInt(
+            SessionWrapperFactory::getInstance()->getActiveSession()->get('authUserID')
+        );
+        $actor = $userId > 0 ? $userId : null;
+
+        if ($existing > 0) {
+            QueryUtils::sqlStatementThrowException(
+                'UPDATE `' . self::TABLE_NAME . '` SET
+                    `acl_section` = ?, `acl_level` = ?, `active` = ?, `seq` = ?, `updated_by` = ?
+                  WHERE `id` = ?',
+                [
+                    $record->aclSection,
+                    $record->aclLevel,
+                    $record->active ? 1 : 0,
+                    $record->seq,
+                    $actor,
+                    $existing,
+                ]
+            );
+
+            return $existing;
+        }
+
+        $id = QueryUtils::sqlInsert(
+            'INSERT INTO `' . self::TABLE_NAME . '` SET
+                `resource_type` = ?, `resource_id` = ?, `surface` = ?, `category` = ?,
+                `facility` = ?, `provider` = ?, `visit_category_id` = ?, `client_id` = ?,
+                `acl_section` = ?, `acl_level` = ?, `active` = ?, `seq` = ?,
+                `created_by` = ?, `updated_by` = ?',
+            [
+                self::RESOURCE_TYPE,
+                $record->resourceId,
+                $record->surface->value,
+                $record->isCategoryWide() ? $record->category : null,
+                $record->facility,
+                $record->provider,
+                $record->visitCategoryId,
+                ($record->clientId ?? '') !== '' ? $record->clientId : null,
+                $record->aclSection,
+                $record->aclLevel,
+                $record->active ? 1 : 0,
+                $record->seq,
+                $actor,
+                $actor,
+            ]
+        );
+
+        return self::asInt($id);
+    }
+
+    /**
+     * Rewrite an existing rule in place -- target, scope, ACL and order.
+     *
+     * Separate from assign() because assign() finds its row by target and scope, and
+     * editing a rule's scope changes exactly that: an edit has to address the row by id.
+     * Editing in place rather than delete-and-recreate keeps the row's id, created_by
+     * and created_at, so the rule's history survives the change.
+     *
+     * `active` is left as stored. Switching a rule on or off is its own action on the
+     * screen, and an edit form that quietly re-enabled a rule someone had switched off
+     * would undo that decision as a side effect.
+     *
+     * @throws InvalidArgumentException if the rule names no target, carries half an ACL
+     *         pair, does not exist, or would become a duplicate of another rule
+     * @throws SqlQueryException if the write cannot run
+     */
+    public function updateAssignment(AssignmentRecord $record): void
+    {
+        if ($record->id <= 0) {
+            throw new InvalidArgumentException('a rule must be saved before it can be edited');
+        }
+        if (!$record->hasTarget()) {
+            throw new InvalidArgumentException(
+                'an assignment must name a questionnaire or a category'
+            );
+        }
+        if (($record->aclSection === null) !== ($record->aclLevel === null)) {
+            throw new InvalidArgumentException(
+                'set both acl_section and acl_level, or neither'
+            );
+        }
+
+        $exists = QueryUtils::fetchSingleValue(
+            'SELECT `id` FROM `' . self::TABLE_NAME . '` WHERE `id` = ? AND `resource_type` = ?',
+            'id',
+            [$record->id, self::RESOURCE_TYPE]
+        );
+        if (self::asInt($exists) !== $record->id) {
+            throw new InvalidArgumentException('that rule no longer exists');
+        }
+
+        // An edit may not turn one rule into a copy of another. Two rows with the same
+        // target and scope would make assign() ambiguous and show the administrator two
+        // rules that cannot be told apart.
+        $clash = $this->findMatchingAssignmentId($record);
+        if ($clash > 0 && $clash !== $record->id) {
+            throw new InvalidArgumentException(
+                'another rule already covers that questionnaire or category with the same scope'
+            );
+        }
+
+        $userId = self::asInt(
+            SessionWrapperFactory::getInstance()->getActiveSession()->get('authUserID')
+        );
+
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `' . self::TABLE_NAME . '` SET
+                `resource_id` = ?, `surface` = ?, `category` = ?, `facility` = ?,
+                `provider` = ?, `visit_category_id` = ?, `client_id` = ?,
+                `acl_section` = ?, `acl_level` = ?, `seq` = ?, `updated_by` = ?
+              WHERE `id` = ? AND `resource_type` = ?',
+            [
+                $record->resourceId,
+                $record->surface->value,
+                $record->isCategoryWide() ? $record->category : null,
+                $record->facility,
+                $record->provider,
+                $record->visitCategoryId,
+                ($record->clientId ?? '') !== '' ? $record->clientId : null,
+                $record->aclSection,
+                $record->aclLevel,
+                $record->seq,
+                $userId > 0 ? $userId : null,
+                $record->id,
+                self::RESOURCE_TYPE,
+            ]
+        );
+    }
+
+    /**
+     * Withdraw an assignment without removing the row.
+     *
+     * The row records that an administrator decided about this questionnaire on this
+     * surface; `active` is the decision. Keeping it is what stops a later re-import
+     * resurrecting a withdrawal, and it leaves `updated_by` as a trace of who did it.
+     *
+     * @throws SqlQueryException if the write cannot run
+     */
+    public function unassign(int $assignmentId): void
+    {
+        $this->setAssignmentActive($assignmentId, false);
+    }
+
+    /**
+     * @throws SqlQueryException if the write cannot run
+     */
+    public function setAssignmentActive(int $assignmentId, bool $active): void
+    {
+        if ($assignmentId <= 0) {
+            return;
+        }
+        $userId = self::asInt(
+            SessionWrapperFactory::getInstance()->getActiveSession()->get('authUserID')
+        );
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `' . self::TABLE_NAME . '` SET `active` = ?, `updated_by` = ?
+              WHERE `id` = ? AND `resource_type` = ?',
+            [$active ? 1 : 0, $userId > 0 ? $userId : null, $assignmentId, self::RESOURCE_TYPE]
+        );
+    }
+
+    /**
+     * Display order within a surface. Lower sorts first; equal seq falls back to id.
+     *
+     * @throws SqlQueryException if the write cannot run
+     */
+    public function setSeq(int $assignmentId, int $seq): void
+    {
+        if ($assignmentId <= 0) {
+            return;
+        }
+        $userId = self::asInt(
+            SessionWrapperFactory::getInstance()->getActiveSession()->get('authUserID')
+        );
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `' . self::TABLE_NAME . '` SET `seq` = ?, `updated_by` = ?
+              WHERE `id` = ? AND `resource_type` = ?',
+            [$seq, $userId > 0 ? $userId : null, $assignmentId, self::RESOURCE_TYPE]
+        );
+    }
+
+    /**
+     * Remove a row outright.
+     *
+     * Reserved for rows an administrator explicitly discards -- a category rule that was
+     * a mistake, or a scoped row that is no longer wanted. Withdrawing a questionnaire
+     * from a surface is unassign(), not this, because a deleted row leaves no record that
+     * the decision was ever made and a later import would re-add it.
+     *
+     * @throws SqlQueryException if the delete cannot run
+     */
+    public function deleteAssignment(int $assignmentId): void
+    {
+        if ($assignmentId <= 0) {
+            return;
+        }
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM `' . self::TABLE_NAME . '` WHERE `id` = ? AND `resource_type` = ?',
+            [$assignmentId, self::RESOURCE_TYPE]
+        );
+    }
+
+    /**
+     * Id of a row with the same target, surface and scope, or 0.
+     *
+     * Scope is part of the identity on purpose: "this questionnaire on the encounter at
+     * facility 3" and "...at any facility" are different rules and must be able to
+     * coexist.
+     *
+     * @throws SqlQueryException if the lookup cannot run
+     */
+    private function findMatchingAssignmentId(AssignmentRecord $record): int
+    {
+        $found = QueryUtils::fetchSingleValue(
+            'SELECT `id` FROM `' . self::TABLE_NAME . '`
+              WHERE `resource_type` = ?
+                AND `surface` = ?
+                AND `resource_id` <=> ?
+                AND `category` <=> ?
+                AND `facility` <=> ?
+                AND `provider` <=> ?
+                AND `visit_category_id` <=> ?
+                AND `client_id` <=> ?
+              LIMIT 1',
+            'id',
+            [
+                self::RESOURCE_TYPE,
+                $record->surface->value,
+                $record->resourceId,
+                $record->isCategoryWide() ? $record->category : null,
+                $record->facility,
+                $record->provider,
+                $record->visitCategoryId,
+                ($record->clientId ?? '') !== '' ? $record->clientId : null,
+            ]
+        );
+
+        return self::asInt($found);
     }
 
     /**

@@ -1300,7 +1300,7 @@
                         "requirement": 0,
                         "acl_req": [
                             "patients",
-                            "pat_rep"
+                            "demo"
                         ]
                     },
                     {
@@ -1596,11 +1596,7 @@
                         "target": "rep",
                         "url": "/interface/reports/services_by_category.php",
                         "children": [],
-                        "requirement": 0,
-                        "acl_req": [
-                            "acct",
-                            "rep_a"
-                        ]
+                        "requirement": 0
                     },
                     {
                         "label": "Syndromic Surveillance",
@@ -1849,7 +1845,7 @@
                         "requirement": 0,
                         "acl_req": [
                             "patients",
-                            "pat_rep"
+                            "demo"
                         ]
                     }
                 ],
@@ -2047,11 +2043,7 @@
                 "target": "msc",
                 "url": "/interface/reports/patient_edu_web_lookup.php",
                 "children": [],
-                "requirement": 0,
-                "acl_req": [
-                    "patients",
-                    "med"
-                ]
+                "requirement": 0
             },
             {
                 "label": "Authorizations",

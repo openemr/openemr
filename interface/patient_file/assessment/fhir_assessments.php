@@ -30,6 +30,9 @@ use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 
 $pid = PatientSessionUtil::getPid();
 $authorized = AclMain::aclCheckCore('patients', 'med');
+// Managing where questionnaires are offered changes it for every patient and every user,
+// so the tab is shown only to administrators; the embedded page enforces the same check.
+$canManageAvailability = $authorized && AclMain::aclCheckCore('admin', 'super');
 $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
 $container = OEGlobalsBag::getInstance()->getBoolean('questionnaire_display_fullscreen')
     ? 'container'
@@ -328,6 +331,21 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             <?php endif; ?>
                         </a>
                     </li>
+                    <?php if ($canManageAvailability) : ?>
+                    <li class="nav-item" role="presentation">
+                        <a
+                            class="nav-link"
+                            id="questionnaire-availability-tab"
+                            data-toggle="tab"
+                            href="#questionnaire-availability"
+                            role="tab"
+                            aria-controls="questionnaire-availability"
+                            aria-selected="false"
+                        >
+                            <?php echo xlt('Availability'); ?>
+                        </a>
+                    </li>
+                    <?php endif; ?>
                 </ul>
                 <div class="tab-content border-left border-right border-bottom p-3 bg-light" id="assessment-tabs-content">
                     <div
@@ -576,10 +594,71 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             </div>
                         <?php endif; ?>
                     </div>
+                    <?php if ($canManageAvailability) : ?>
+                    <div
+                        class="tab-pane fade"
+                        id="questionnaire-availability"
+                        role="tabpanel"
+                        aria-labelledby="questionnaire-availability-tab"
+                    >
+                        <!--
+                            Embedded rather than merged into this page: the management screen
+                            has its own forms, CSRF tokens and POST handling, and keeping it a
+                            separate document means neither page's submit can reach the
+                            other's handler. Loaded on first open so ordinary dashboard
+                            visits pay nothing for it.
+                        -->
+                        <iframe
+                            id="questionnaire-availability-frame"
+                            title="<?php echo attr(xl('Questionnaire Availability')); ?>"
+                            class="w-100 border-0 bg-white"
+                            style="height: 75vh;"
+                            data-src="<?php echo attr($webRoot . '/interface/super/manage_questionnaire_availability.php'); ?>"
+                        ></iframe>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endif; ?>
     </div>
+    <?php if ($canManageAvailability) : ?>
+    <script>
+        (function () {
+            const tab = document.getElementById('questionnaire-availability-tab')
+            const frame = document.getElementById('questionnaire-availability-frame')
+            const availableTab = document.getElementById('available-assessments-tab')
+            if (!tab || !frame) {
+                return
+            }
+            // The first load is the screen itself; any later load is the screen coming
+            // back from a save, which can change what this patient's dashboard offers.
+            let loads = 0
+            let changed = false
+            frame.addEventListener('load', () => {
+                loads++
+                if (loads > 1) {
+                    changed = true
+                }
+            })
+            tab.addEventListener('click', () => {
+                if (!frame.getAttribute('src')) {
+                    top.restoreSession()
+                    frame.setAttribute('src', frame.dataset.src)
+                }
+            })
+            // The Available list was rendered before the change, so refresh it rather than
+            // show a list that no longer matches the rules just saved.
+            if (availableTab) {
+                availableTab.addEventListener('click', () => {
+                    if (changed) {
+                        top.restoreSession()
+                        window.location.reload()
+                    }
+                })
+            }
+        })()
+    </script>
+    <?php endif; ?>
 
     <?php if ($authorized && $pid > 0) : ?>
         <script>
