@@ -468,6 +468,153 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
     }
 
     /**
+     * EHR-launch CSRF-rejection gate: ehr-launch-client.php is the
+     * server-side launcher that mints the opaque launch token and 302s
+     * to the SMART app. Any client-side form or button that POSTs to it
+     * carries a session-scoped csrf_token. A missing or forged csrf_token
+     * must be rejected with a 403 before the launch token is ever
+     * generated — otherwise an attacker who can get an authenticated
+     * admin to visit a URL under their control could trigger a legitimate
+     * launch (and a chosen patient context) against a client of their
+     * choosing.
+     *
+     * `SmartLaunchController::redirectAndLaunchSmartApp()` throws
+     * `CsrfInvalidException` on a bad csrf; the top-level handler in
+     * `interface/smart/ehr-launch-client.php` catches it and calls
+     * `CsrfUtils::csrfNotVerified()`, which sets HTTP 403 and renders
+     * `xlt('Authentication Error')`. The assertion matches on both the
+     * status code and the rendered text so a regression that silently
+     * drops either signal fails loudly.
+     */
+    #[Test]
+    public function testEhrLaunchRejectsBadCsrfToken(): void
+    {
+        // Sign in + set patient context + grab the real client_id from
+        // fhir_assessments.php. We need a legitimate client_id so the
+        // request progresses past the empty-client guard and reaches
+        // the csrf check (client-id check happens before csrf check
+        // in redirectAndLaunchSmartApp — a bogus client_id would short-
+        // circuit via a different error path).
+        $this->panther->request('GET', self::OPENEMR_BASE . '/interface/login/login.php?site=default');
+        $this->panther->waitFor('form', 10);
+        $this->panther->findElement(WebDriverBy::name('authUser'))->sendKeys('admin');
+        $this->panther->findElement(WebDriverBy::name('clearPass'))->sendKeys('pass');
+        $this->panther->executeScript('document.forms[0].submit();');
+        $this->panther->wait(15)->until(
+            static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/interface/main/tabs/main.php'),
+        );
+        $this->panther->request(
+            'GET',
+            self::OPENEMR_BASE . '/interface/patient_file/summary/demographics.php?set_pid=1',
+        );
+        $this->panther->waitFor('body', 10);
+        $this->panther->request(
+            'GET',
+            self::OPENEMR_BASE . '/interface/patient_file/assessment/fhir_assessments.php',
+        );
+        $this->panther->waitFor('.smart-context-launch', 10);
+        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector('.smart-context-launch'));
+        $clientId = $launchBtn->getAttribute('data-client-id');
+        $intent = $launchBtn->getAttribute('data-intent');
+        $this->assertNotEmpty($clientId);
+
+        // Fire ehr-launch-client with a bogus csrf_token. The request
+        // reaches redirectAndLaunchSmartApp, passes the client-id
+        // lookup, then fails verifyCsrfToken.
+        $this->panther->request('GET', self::OPENEMR_BASE . '/interface/smart/ehr-launch-client.php?' . http_build_query([
+            'client_id' => $clientId,
+            'csrf_token' => 'bogus-csrf-token-not-session-bound',
+            'intent' => $intent,
+        ]));
+        $this->panther->waitFor('body', 10);
+        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+
+        // The csrfNotVerified() renderer echoes `xlt('Authentication Error')`.
+        // The body-text assertion catches a regression that silently
+        // drops the renderer (e.g. a refactor that changes to a different
+        // error page) — the renderer identity matters because that is
+        // what tells the operator what rejected.
+        $this->assertStringContainsString(
+            'Authentication Error',
+            $bodyText,
+            'ehr-launch-client should emit csrfNotVerified() Authentication Error on a bad csrf',
+        );
+        // Belt-and-braces: ehr-launch-client should NOT 302 to any
+        // app launch_uri when csrf fails. Stay on
+        // /interface/smart/ehr-launch-client.php. A silent redirect to
+        // the app's launch.php here would mean the launch token was
+        // minted anyway and the CSRF guard was decorative.
+        $this->assertStringContainsString(
+            '/interface/smart/ehr-launch-client.php',
+            $this->panther->getCurrentURL(),
+            'bad csrf must NOT redirect to the SMART app — launch token should never have been minted',
+        );
+    }
+
+    /**
+     * EHR-launch unknown-client-id gate: a POST to ehr-launch-client.php
+     * with a `client_id` that does not match any registered oauth_client
+     * row must fail BEFORE csrf verification — the server has no way to
+     * know the correct app's launch_uri to redirect to, and any legacy
+     * behavior that falls through to a generic error page is still
+     * meaningfully different from "launched the wrong app silently".
+     *
+     * `SmartLaunchController::redirectAndLaunchSmartApp()` throws a
+     * plain `\Exception('Invalid client id')` when
+     * `ClientRepository::getClientEntity()` returns empty; the top-level
+     * `\Throwable` catch in `interface/smart/ehr-launch-client.php` logs
+     * the trace and dies with the generic message `"Unknown system
+     * error occurred"`. Assert on that message — the generic shape is
+     * the contract. A regression that leaks client-id state back to the
+     * browser (echoed id, SQL fragment, trace) would NOT contain this
+     * exact string.
+     */
+    #[Test]
+    public function testEhrLaunchRejectsUnknownClientId(): void
+    {
+        $this->panther->request('GET', self::OPENEMR_BASE . '/interface/login/login.php?site=default');
+        $this->panther->waitFor('form', 10);
+        $this->panther->findElement(WebDriverBy::name('authUser'))->sendKeys('admin');
+        $this->panther->findElement(WebDriverBy::name('clearPass'))->sendKeys('pass');
+        $this->panther->executeScript('document.forms[0].submit();');
+        $this->panther->wait(15)->until(
+            static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/interface/main/tabs/main.php'),
+        );
+        $this->panther->request(
+            'GET',
+            self::OPENEMR_BASE . '/interface/patient_file/summary/demographics.php?set_pid=1',
+        );
+        $this->panther->waitFor('body', 10);
+
+        $this->panther->request('GET', self::OPENEMR_BASE . '/interface/smart/ehr-launch-client.php?' . http_build_query([
+            'client_id' => 'nonexistent-client-id-smoke-test',
+            // csrf_token irrelevant here — the client lookup fails first.
+            'csrf_token' => 'does-not-matter',
+            'intent' => 'patient.demographics.dialog',
+        ]));
+        $this->panther->waitFor('body', 10);
+        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+
+        $this->assertStringContainsString(
+            'Unknown system error occurred',
+            $bodyText,
+            'unknown client_id should die with the generic Throwable-catch message, not leak details',
+        );
+        $this->assertStringContainsString(
+            '/interface/smart/ehr-launch-client.php',
+            $this->panther->getCurrentURL(),
+            'unknown client_id must NOT redirect anywhere — no legitimate launch_uri is known',
+        );
+        // Negative: the response body must NOT echo the attacker-supplied
+        // client_id value, prove no information disclosure on this path.
+        $this->assertStringNotContainsString(
+            'nonexistent-client-id-smoke-test',
+            $bodyText,
+            'response body must not echo the submitted client_id — would be an information-disclosure regression',
+        );
+    }
+
+    /**
      * Tampered-launch error-path gate: an app-launch request that arrives
      * at /oauth2/default/authorize carrying a `launch=` value that is
      * either not valid base64 or decodes to ciphertext that fails
