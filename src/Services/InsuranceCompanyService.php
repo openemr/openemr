@@ -501,6 +501,17 @@ class InsuranceCompanyService extends BaseService
 
     public function update($data, $iid)
     {
+        // Overlay the submitted fields onto the stored row so a partial payload
+        // (e.g. {"name": "foo"}) narrows to a semantic PATCH on the named
+        // columns rather than wiping every omitted column to NULL. Clients can
+        // still clear a column by submitting an explicit null for its key.
+        $existing = $this->getOneById($iid);
+        if (!is_array($existing) || !is_array($data)) {
+            return false;
+        }
+        /** @var array<string, mixed> $data */
+        $data = array_merge($existing, $data);
+
         $sql = " UPDATE insurance_companies SET";
         $sql .= "     name=?,";
         $sql .= "     attn=?,";
@@ -531,10 +542,17 @@ class InsuranceCompanyService extends BaseService
             return false;
         }
 
-        $addressesResults = $this->addressService->update(AddressData::fromArray($data), $iid);
-
-        if (!$addressesResults) {
-            return false;
+        // Only touch the stored address when the submitted payload actually
+        // carries city + state — AddressData::fromArray substitutes empty
+        // strings for missing keys, so an unconditional update on a partial
+        // payload (or on a row that was created without an address) would
+        // either wipe the stored address or try to update a nonexistent
+        // row. Mirrors the insert() guard above.
+        if (($data["city"] ?? '') !== '' && ($data["state"] ?? '') !== '') {
+            $addressesResults = $this->addressService->update(AddressData::fromArray($data), $iid);
+            if (!$addressesResults) {
+                return false;
+            }
         }
 
         // no point in updating the phone if there is no phone record...

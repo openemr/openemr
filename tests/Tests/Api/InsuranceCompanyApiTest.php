@@ -200,4 +200,53 @@ class InsuranceCompanyApiTest extends TestCase
             $body['uuid']
         );
     }
+
+    #[Test]
+    public function testPutWithPartialPayloadNarrowsToPatch(): void
+    {
+        // PUT /api/insurance_company/{id} with a partial payload must act
+        // as a semantic PATCH on the named columns — i.e. only the fields
+        // the client submitted change, every other column keeps its stored
+        // value. Pre-fix, InsuranceCompanyService::update() bound each
+        // insurance_companies column from $data unconditionally, so a
+        // partial payload emitted PHP warnings on the missing keys and
+        // wiped every omitted column to NULL (destructive write masquerading
+        // as PATCH).
+        $uniqueName = self::FIXTURE_NAME_PREFIX . " Put " . uniqid();
+        $postResponse = $this->testClient->post(self::API_ENDPOINT, [
+            'name' => $uniqueName,
+            'attn' => 'original-attn',
+            'cms_id' => '12345',
+            'ins_type_code' => '2',
+            'x12_receiver_id' => 'rcv-x12',
+            'x12_default_partner_id' => '98765',
+            'alt_cms_id' => 'alt-67890',
+        ]);
+        $this->assertEquals(201, $postResponse->getStatusCode());
+        $postBody = json_decode((string) $postResponse->getBody(), true);
+        $this->assertIsArray($postBody);
+        $createdId = $postBody['iid'];
+        $this->assertIsNumeric($createdId);
+
+        $renamed = self::FIXTURE_NAME_PREFIX . " Put Renamed " . uniqid();
+        $putResponse = $this->testClient->put(
+            self::API_ENDPOINT,
+            (string) $createdId,
+            ['name' => $renamed]
+        );
+        $this->assertEquals(200, $putResponse->getStatusCode());
+
+        $follow = $this->testClient->getOne(self::API_ENDPOINT, (string) $createdId);
+        $this->assertEquals(200, $follow->getStatusCode());
+        $after = json_decode((string) $follow->getBody(), true);
+        $this->assertIsArray($after);
+        $this->assertEquals($renamed, $after['name']);
+        // Every other column the POST set must have survived the PATCH.
+        $this->assertEquals('original-attn', $after['attn']);
+        $this->assertEquals('12345', $after['cms_id']);
+        $this->assertEquals('2', $after['ins_type_code']);
+        $this->assertEquals('rcv-x12', $after['x12_receiver_id']);
+        $this->assertEquals('98765', $after['x12_default_partner_id']);
+        $this->assertEquals('alt-67890', $after['alt_cms_id']);
+    }
 }
