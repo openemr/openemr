@@ -26,6 +26,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\ReferralTaskService;
 
 
 /** @var string $date_init */
@@ -120,6 +121,12 @@ if ($mode) {
 
     if (!$transid) {
         $transid = $newid;
+    }
+
+    // The referral's FHIR Task, when the fhir_referral_tasks global is on (#14710).
+    if ($form_id === 'LBTref' && is_numeric($transid)) {
+        $authUserId = $session->get('authUserID');
+        (new ReferralTaskService())->createForReferral((int)$transid, is_numeric($authUserId) ? (int)$authUserId : null);
     }
 
   // Set the AMC sent records flag
