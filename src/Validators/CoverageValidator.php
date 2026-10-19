@@ -112,13 +112,19 @@ class CoverageValidator extends BaseValidator
                                     // need to search previous names, if no matches here then throw exception
                                     $previousNames = $patient['previous_names'];
                                     $found = false;
+                                    $subscriberFname = $values['subscriber_fname'];
+                                    $subscriberLname = $values['subscriber_lname'];
                                     foreach ($previousNames as $previousName) {
                                         // do a strict equality and then we can do multibyte comparison for localizations
                                         // note if we want to handle more comprehensive multibytes
                                         // we need to do some normalizations as per this stackoverflow post: https://stackoverflow.com/a/38855868
+                                        $previousFname = $previousName['previous_name_first'];
+                                        $previousLname = $previousName['previous_name_last'];
                                         if (
-                                            mb_is_string_equal_ci($previousName['previous_name_first'], $values['subscriber_fname'])
-                                            && mb_is_string_equal_ci($previousName['previous_name_last'], $values['subscriber_lname'])
+                                            is_string($subscriberFname) && is_string($subscriberLname)
+                                            && is_string($previousFname) && is_string($previousLname)
+                                            && mb_is_string_equal_ci($previousFname, $subscriberFname)
+                                            && mb_is_string_equal_ci($previousLname, $subscriberLname)
                                         ) {
                                             $found = true;
                                             break;
