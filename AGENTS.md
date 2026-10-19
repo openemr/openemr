@@ -414,10 +414,10 @@ messages), [PSR-15](https://www.php-fig.org/psr/psr-15/) (middleware),
 
 ### Strict Typing
 
-Every new PHP file starts with `declare(strict_types=1)`. Without strict types,
-PHP silently coerces scalar arguments to the declared type: `true` becomes
-`1` for an `int` parameter and `"1e3"` becomes `1000`, hiding bugs that
-surface later as data corruption.
+Every new PHP file starts with `declare(strict_types=1)`. When the calling
+file does not declare it, PHP silently coerces scalar arguments to the
+declared type: `true` becomes `1` for an `int` parameter and `"1e3"` becomes
+`1000`, hiding bugs that surface later as data corruption.
 
 Every property, parameter, and return type should have a native type
 declaration. Reserve PHPDoc types for information native types cannot express
