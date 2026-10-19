@@ -344,9 +344,16 @@ echo "    DB version=${DB_VERSION}"
 # on hold two Clinicians 'write' ACLs, and the ACL admin screens edit only
 # the first, so acl_upgrade.php merges them. Exactly one must remain, and
 # it must keep patients/med and patients/appt, which came from different
-# halves of the pair.
+# halves of the pair. A published target that predates the merge keeps
+# both, so the check runs only when the target package ships the merger.
 assert_single_clinicians_write_acl() {
     local sql row acl_count med appt
+    echo '==> Asserting Clinicians hold one write ACL with both merged halves'
+    if ! docker compose exec -T openemr \
+        test -f /var/www/localhost/htdocs/openemr/src/Common/Acl/DuplicateAclMerger.php; then
+        echo '    Skipped: target package predates the Clinicians ACL merge'
+        return 0
+    fi
     sql="$(cat <<'SQL'
 SELECT
     COUNT(DISTINCT a.id) AS acl_count,
@@ -359,7 +366,6 @@ LEFT JOIN gacl_aco_map AS c ON a.id = c.acl_id
 WHERE g.name = 'Clinicians' AND a.return_value = 'write'
 SQL
 )"
-    echo '==> Asserting Clinicians hold one write ACL with both merged halves'
     row="$(docker compose exec -T mysql \
         mariadb -uroot -proot openemr -sN -e "${sql}" \
         2>/dev/null || echo 'query-failed')"
