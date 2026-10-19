@@ -264,8 +264,9 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
     }
 
     /**
-     * A reference to the user as a Practitioner when FHIR serves them as one, else their
-     * name alone, so the reference never points at a Practitioner that isn't there.
+     * A reference to the user as a Practitioner, or an address-book entry as an
+     * Organization, when FHIR serves them as one; else their name alone, so the reference
+     * never points at a resource that isn't there.
      *
      * @param array<mixed> $record
      */
@@ -275,6 +276,9 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
         $name = self::text($record, $prefix . '_name');
         if ($uuid !== null && in_array($record[$prefix . '_is_practitioner'] ?? null, [1, '1', true], true)) {
             return UtilsService::createRelativeReference('Practitioner', $uuid, $name);
+        }
+        if ($uuid !== null && in_array($record[$prefix . '_is_organization'] ?? null, [1, '1', true], true)) {
+            return UtilsService::createRelativeReference('Organization', $uuid, $name);
         }
         if ($name === null) {
             return null;

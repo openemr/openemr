@@ -47,18 +47,34 @@ class AddressBookOrganizationService extends BaseService
     }
 
     /**
-     * Each organization with a name: the Organization field, or the contact's name when
-     * that is all the entry has. The phone is the work phone, which the address book's
-     * NPI lookup fills for an organization, else the other phone.
+     * An organization's name, for a users row under the given alias: the Organization field,
+     * or the contact's name when that is all the entry has.
+     */
+    public static function nameSql(string $alias): string
+    {
+        return "COALESCE(NULLIF(TRIM($alias.organization), ''), NULLIF(TRIM(CONCAT_WS(' ', $alias.fname, $alias.lname)), ''))";
+    }
+
+    /**
+     * Whether a users row under the given alias is one of these organizations, for a query
+     * that points at address-book entries (such as a referral's recipient).
+     */
+    public static function isOrganizationSql(string $alias): string
+    {
+        return "($alias.abook_type = '" . self::ABOOK_TYPE . "' AND COALESCE($alias.username, '') = '' AND " . self::nameSql($alias) . ' IS NOT NULL)';
+    }
+
+    /**
+     * Each organization. The phone is the work phone, which the address book's NPI lookup
+     * fills for an organization, else the other phone.
      */
     private static function select(): string
     {
-        $name = "COALESCE(NULLIF(TRIM(u.organization), ''), NULLIF(TRIM(CONCAT_WS(' ', u.fname, u.lname)), ''))";
-        return "SELECT u.id, u.uuid, $name AS name, u.active, u.npi, u.email, u.url,
+        return 'SELECT u.id, u.uuid, ' . self::nameSql('u') . " AS name, u.active, u.npi, u.email, u.url,
                 COALESCE(NULLIF(TRIM(u.phonew1), ''), NULLIF(TRIM(u.phone), '')) AS phone, u.fax,
                 u.street, u.streetb AS street_line_2, u.city, u.state, u.zip AS postal_code, u.last_updated
             FROM users AS u
-            WHERE u.abook_type = '" . self::ABOOK_TYPE . "' AND COALESCE(u.username, '') = '' AND $name IS NOT NULL";
+            WHERE " . self::isOrganizationSql('u');
     }
 
     /**
