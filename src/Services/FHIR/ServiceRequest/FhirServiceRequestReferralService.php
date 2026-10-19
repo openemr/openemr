@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\FHIR\ServiceRequest;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRServiceRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
@@ -27,11 +28,12 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRRequestIntent;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRRequestStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
-use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ReferralService;
@@ -45,7 +47,6 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirServiceRequestReferralService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
-    use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
 
     /**
@@ -189,6 +190,58 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
         return [self::PROFILE];
     }
 
+    /**
+     * Referrals are read-only here: a POST or PUT goes to the order service, so the
+     * three write methods are never reached.
+     *
+     * @return array<mixed>
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
+    {
+        throw new \BadMethodCallException('Referral ServiceRequests are read-only');
+    }
+
+    /**
+     * @param mixed $openEmrRecord
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        throw new \BadMethodCallException('Referral ServiceRequests are read-only');
+    }
+
+    /**
+     * @param mixed $fhirResourceId
+     * @param mixed $updatedOpenEMRRecord
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        throw new \BadMethodCallException('Referral ServiceRequests are read-only');
+    }
+
+    /**
+     * As for orders, with the requester as author when it is a Practitioner reference;
+     * otherwise the organization is.
+     *
+     * @param mixed $dataRecord
+     */
+    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|null
+    {
+        if (!($dataRecord instanceof FHIRServiceRequest)) {
+            throw new \BadMethodCallException('Data record should be correct instance class');
+        }
+        $requester = $dataRecord->getRequester();
+        $author = self::isReference($requester) ? $requester : null;
+        $provenance = (new FhirProvenanceService())->createProvenanceForDomainResource($dataRecord, $author);
+        if (!($provenance instanceof FHIRProvenance)) {
+            return null;
+        }
+        if ($encode) {
+            $json = json_encode($provenance);
+            return is_string($json) ? $json : null;
+        }
+        return $provenance;
+    }
+
     private static function referralConcept(): FHIRCodeableConcept
     {
         return UtilsService::createCodeableConcept([
@@ -263,6 +316,15 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
             }
         }
         return false;
+    }
+
+    /**
+     * Whether a requester or performer points at a resource, rather than being a name alone
+     * or absent (the generated getters return null when the element isn't set).
+     */
+    private static function isReference(mixed $reference): bool
+    {
+        return $reference instanceof FHIRReference && trim((string)$reference->getReference()) !== '';
     }
 
     /**
