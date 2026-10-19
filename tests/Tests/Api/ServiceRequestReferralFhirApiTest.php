@@ -194,6 +194,29 @@ class ServiceRequestReferralFhirApiTest extends TestCase
         $this->assertSame([$this->referrals['replied']['uuid']], self::ids($this->search($patient + ['_lastUpdated' => 'gt2026-10-16'])));
     }
 
+    public function testARestEditWithoutAReferralDateKeepsTheAuthoredDate(): void
+    {
+        // A PUT that leaves referralDate out (or sends it empty) reaches update() with no value
+        // for it, and updateTransactionForm() skips empty values, so the stored date stays.
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $session->set('authUser', 'admin');
+        try {
+            (new PatientTransactionService())->update($this->referrals['replied']['id'], [
+                'referByNpi' => '', 'referToNpi' => '', 'body' => 'Food insecurity, rescheduled', 'referralDate' => '',
+                'referDiagnosis' => '', 'riskLevel' => '', 'includeVitals' => '', 'authorization' => '', 'visits' => '',
+                'validFrom' => '', 'validThrough' => '',
+            ]);
+        } finally {
+            $session->remove('authUser');
+        }
+
+        $referral = $this->read($this->referrals['replied']['uuid']);
+        $this->assertSame('2026-10-01', $referral['authoredOn'] ?? null, 'the Referral Date, not the time of the edit');
+        $patient = ['patient' => $this->patient['uuid'], 'category' => self::REFERRAL];
+        $this->assertSame([$this->referrals['replied']['uuid']], self::ids($this->search($patient + ['_lastUpdated' => 'gt2026-10-16'])), 'while the last update moves');
+        $this->assertSame([$this->referrals['replied']['uuid']], self::ids($this->search($patient + ['authored' => 'lt2026-10-05'])));
+    }
+
     public function testAnotherPatientsReferralIsNotReadThroughThisPatient(): void
     {
         $ids = self::ids($this->search(['patient' => $this->patient['uuid'], '_id' => $this->referrals['other']['uuid']]));
