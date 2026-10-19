@@ -302,8 +302,9 @@ class ActiveMedicationListService extends BaseService
     /**
      * One medication section: a heading, an empty line, or a table.
      *
+     * @param literal-string $heading
      * @param list<array{title: string, dose: string, start: ?string, end: ?string, comments: string}> $rows
-     * @param callable(string): string $translate
+     * @param callable(literal-string): string $translate
      * @param callable(string): string $escape
      * @param callable(?string): string $formatDate
      */
