@@ -106,7 +106,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <tbody>
                                 <?php
                                 // Where a referral stands (#14710); other transactions have no status.
-                                $referralService = new ReferralService();
+                                $referralService = new ReferralService(createMissingUuids: false);
                                 $today = new DateTimeImmutable('today');
                                 $overdueDays = ReferralStatus::overdueDays();
                                 foreach ($result as $item) {

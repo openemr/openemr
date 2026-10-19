@@ -18,6 +18,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -30,7 +32,7 @@ class ReferralTaskService
 
     private function getReferralService(): ReferralService
     {
-        return $this->referralService ??= new ReferralService();
+        return $this->referralService ??= new ReferralService(createMissingUuids: false);
     }
 
     public function setReferralService(ReferralService $referralService): void
@@ -62,6 +64,7 @@ class ReferralTaskService
         if (!OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value)) {
             return null;
         }
+        self::createMissingUuids($transactionId);
         $referral = $this->getReferralService()->getReferral($transactionId);
         if ($referral === null) {
             return null;
@@ -85,6 +88,34 @@ class ReferralTaskService
             'requester_uuid' => $requester[1] ?? null,
             'authored_on' => date('Y-m-d H:i:s'),
         ], (int)$patientId, $userId);
+    }
+
+    /**
+     * Gives the referral, its patient and the two people it names a uuid when they have none
+     * (the Transactions screen and the address book save rows without one), row by row, so a
+     * save doesn't fill in every row of those tables.
+     */
+    private static function createMissingUuids(int $transactionId): void
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT t.pid,
+                (SELECT d.field_value FROM lbt_data AS d WHERE d.form_id = t.id AND d.field_id = 'refer_from') AS refer_from,
+                (SELECT d.field_value FROM lbt_data AS d WHERE d.form_id = t.id AND d.field_id = 'refer_to') AS refer_to
+            FROM transactions AS t WHERE t.id = ? AND t.title = ?",
+            [$transactionId, ReferralService::FORM_ID]
+        );
+        if (!is_array($row)) {
+            return;
+        }
+        UuidRegistry::createMissingUuidForRow(ReferralService::TABLE_NAME, 'id', $transactionId);
+        if (is_numeric($row['pid'] ?? null)) {
+            UuidRegistry::createMissingUuidForRow('patient_data', 'pid', (int)$row['pid']);
+        }
+        foreach (['refer_from', 'refer_to'] as $person) {
+            if (is_numeric($row[$person] ?? null)) {
+                UuidRegistry::createMissingUuidForRow('users', 'id', (int)$row[$person]);
+            }
+        }
     }
 
     private function hasTask(string $referralUuid, string $ownerUuid): bool
