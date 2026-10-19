@@ -204,19 +204,20 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $query = "SELECT po.patient_id, po.encounter_id, po.date_ordered, " .
     "pd.pubpid, " .
     "CONCAT(pd.lname, ', ', pd.fname, ' ', pd.mname) AS patient_name, " .
-    "pto.name AS procedure_name, " .
+    "pc.procedure_name AS procedure_name, " .
     "pts.related_code, " .
     "u1.lname AS provider_lname, u1.fname AS provider_fname, u1.mname AS provider_mname, " .
     "pr.procedure_report_id, pr.date_report, pr.report_status " .
     "FROM procedure_order AS po " .
     "JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
     "JOIN patient_data AS pd ON pd.pid = po.patient_id " .
+    "JOIN procedure_order_code AS pc ON pc.procedure_order_id = po.procedure_order_id " .
     "JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id " .
+    "AND pr.procedure_order_seq = pc.procedure_order_seq " .
     "JOIN procedure_result AS ps ON ps.procedure_report_id = pr.procedure_report_id " .
     "AND ps.abnormal != '' AND ps.abnormal != 'no' " .
-    "JOIN procedure_type AS pto ON pto.procedure_type_id = po.procedure_type_id " .
-    "JOIN procedure_type AS pts ON pts.procedure_type_id = ps.procedure_type_id " .
-    "AND pts.related_code != '' " .
+    "JOIN procedure_type AS pts ON pts.lab_id = po.lab_id AND pts.procedure_code = ps.result_code " .
+    "AND pts.procedure_type LIKE 'res%' AND pts.related_code != '' " .
     "LEFT JOIN users AS u1 ON u1.id = po.provider_id " .
     "WHERE " .
     "po.date_ordered >= ? AND po.date_ordered <= ?";
