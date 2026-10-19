@@ -28,10 +28,9 @@ if (!empty($_POST)) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
-// Might want something different here.
-//
-if (!AclMain::aclCheckCore('acct', 'rep')) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Report", xl("Report"));
+// Every provider's data is shown, so require what the menu entry does: acct/rep_a.
+if (!AclMain::aclCheckCore('acct', 'rep_a')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Report", xl("Report"));
 }
 
 $facilityService = new FacilityService();
