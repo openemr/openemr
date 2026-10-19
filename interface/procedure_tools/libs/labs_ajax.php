@@ -81,7 +81,10 @@ if ($action === 'print_labels') {
     }
     $order = $_GET['order'];
     $specimen = [];
-    $specimens = explode(";", (string) $_GET['specimen']);
+    // createLabels() in interface/forms/procedure_order/common.php appends a
+    // trailing `;` after each specimen, so strip it before splitting to avoid
+    // an empty tail element inflating the bound-check count.
+    $specimens = explode(";", rtrim((string) $_GET['specimen'], ";"));
     $patient = strtoupper((string) $_GET['patient']);
     $order_date = orderDate($order);
     $dob = $_GET['dob'];

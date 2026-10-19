@@ -189,9 +189,11 @@ class SocialHistoryService extends BaseService
 
         // Reject any layout-sourced key that does not resolve to a real column of
         // history_data. Mirrors the house whitelist pattern used elsewhere for
-        // layout_options.field_id-driven writes.
+        // layout_options.field_id-driven writes. `*` is rejected explicitly
+        // because escape_sql_column_name() short-circuits on it without checking
+        // the schema.
         foreach (array_keys($record) as $key) {
-            if (!is_string($key) || $key === '') {
+            if (!is_string($key) || $key === '' || $key === '*') {
                 unset($record[$key]);
                 continue;
             }

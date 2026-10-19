@@ -144,11 +144,14 @@ if (isset($entryID)) {
     $selectedEntry = sqlQuery("SELECT `date`, `complete`, `result` " .
     "FROM `rule_patient_data` " .
     "WHERE `id`=? AND `pid`=?", [$entryID, $pid]);
-    if (is_array($selectedEntry)) {
-        $form_date = $selectedEntry['date'];
-        $form_complete = $selectedEntry['complete'];
-        $form_result = $selectedEntry['result'];
+    if (!is_array($selectedEntry)) {
+        echo "<p>(" . xlt('Entry not found for this patient') . ")</p>\n";
+        echo "</body>\n</html>\n";
+        exit();
     }
+    $form_date = $selectedEntry['date'];
+    $form_complete = $selectedEntry['complete'];
+    $form_result = $selectedEntry['result'];
 }
 
 ?>
