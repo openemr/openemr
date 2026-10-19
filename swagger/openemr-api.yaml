@@ -411,6 +411,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        404:
+          $ref: '#/components/responses/standard'
       security:
         -
           openemr_auth: {  }
@@ -1025,6 +1027,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        404:
+          $ref: '#/components/responses/standard'
       security:
         -
           openemr_auth: {  }

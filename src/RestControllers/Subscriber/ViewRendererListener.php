@@ -37,13 +37,26 @@ class ViewRendererListener implements EventSubscriberInterface
             return;
         }
 
+        // Preserve the status previously selected by http_response_code()
+        // — RestControllerHelper::handleProcessingResult() sets it (e.g.
+        // 404 for an empty single-GET lookup, 400 for validation errors)
+        // but the JsonResponse / Response constructors default to 200
+        // and would silently drop it. 12+ `handleProcessingResult(…,
+        // 4xx)` call sites across controllers depend on this.
+        //
+        // http_response_code() returns int when a code has been set and
+        // `false` (NOT bool `true` — but PHPStan models it as int|true
+        // through its stubs) when called outside an HTTP context. Guard
+        // with an is_int narrow + fall back to 200 for any non-int.
+        $capturedCode = http_response_code();
+        $statusCode = is_int($capturedCode) ? $capturedCode : Response::HTTP_OK;
         // TODO: @adunsulag we could add in logic for things like ndjson, xml, etc here.
         match ($event->getRequest()->getContentTypeFormat()) {
-            'text' => $event->setResponse(new Response((string)$result, 200, [
+            'text' => $event->setResponse(new Response((string)$result, $statusCode, [
                 'Content-Type' => 'text/plain; charset=UTF-8'
             ])),
             // Handle JSON response
-            default => $event->setResponse(new JsonResponse($result)),
+            default => $event->setResponse(new JsonResponse($result, $statusCode)),
         };
     }
 }

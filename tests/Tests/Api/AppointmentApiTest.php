@@ -114,4 +114,33 @@ class AppointmentApiTest extends TestCase
 
         $this->assertEquals(401, $actualResponse->getStatusCode());
     }
+
+    #[Test]
+    public function testDeleteAppointment(): void
+    {
+        // setUp created the fixture appointment at $this->appointmentEid via
+        // POST /api/patient/:pid/appointment. Verify the DELETE round-trip:
+        // the single-GET returns 200 while the row exists, DELETE returns
+        // 200, and a follow-up single-GET returns 404.
+        $dependencies = $this->fixtureManager->installDependencies();
+        $pid = $dependencies['pid'];
+
+        $preDelete = $this->testClient->getOne(
+            self::APPOINTMENT_API_ENDPOINT,
+            (string) $this->appointmentEid
+        );
+        $this->assertEquals(200, $preDelete->getStatusCode(), 'fixture appointment should be present before delete');
+
+        $deleteResponse = $this->testClient->delete(
+            self::PATIENT_APPOINTMENT_API_ENDPOINT . "/{$pid}/appointment",
+            $this->appointmentEid
+        );
+        $this->assertEquals(200, $deleteResponse->getStatusCode());
+
+        $postDelete = $this->testClient->getOne(
+            self::APPOINTMENT_API_ENDPOINT,
+            (string) $this->appointmentEid
+        );
+        $this->assertEquals(404, $postDelete->getStatusCode(), 'deleted appointment should 404 on subsequent single-GET');
+    }
 }
