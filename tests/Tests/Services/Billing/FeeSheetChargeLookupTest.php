@@ -78,6 +78,14 @@ class FeeSheetChargeLookupTest extends TestCase
         $this->assertSame('30.00', (new FeeSheetChargeLookup())->find('CPT4', self::CODE, self::PID_DISCOUNT)['fee'] ?? null);
     }
 
+    public function testCodeOfAnotherTypeIsUsedWhenTheGivenTypeHasNone(): void
+    {
+        // The item still gets a fee, as before, rather than none at all.
+        $this->addCode('HCPCS', 'Entered as another type', 1, '', ['standard' => '44.00']);
+
+        $this->assertSame('44.00', (new FeeSheetChargeLookup())->find('CPT4', self::CODE, self::PID_STANDARD)['fee'] ?? null);
+    }
+
     public function testEmptyCodeTypeMatchesAnyType(): void
     {
         $this->addCode('HCPCS', 'Only row', 1, '', ['standard' => '12.00']);

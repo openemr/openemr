@@ -20,28 +20,19 @@ final class FeeSheetChargeLookup
 {
     /**
      * The code row for $code, chosen as FeeSheet::getPrice() chooses it: of
-     * the given code type (any type when empty), active rows first, then the
-     * row without a modifier, then the oldest. The fee is the price at the
+     * the given code type, active rows first, then the row without a
+     * modifier, then the oldest. When no row of that type has the code (or
+     * no type is given), a row of any type is chosen the same way, so an item
+     * still gets a description, units and fee. The fee is the price at the
      * patient's price level, or null when that level has no price.
      *
      * @return array{code_text: string, units: string, fee: ?string}|null null when no row has this code
      */
     public function find(string $codeType, string $code, int $pid): ?array
     {
-        $sql = "SELECT c.code_text, c.units, p.pr_price FROM codes AS c"
-            . " LEFT JOIN code_types AS ct ON ct.ct_id = c.code_type"
-            . " LEFT JOIN patient_data AS pd ON pd.pid = ?"
-            . " LEFT JOIN prices AS p ON p.pr_id = c.id AND p.pr_selector = '' AND p.pr_level = pd.pricelevel"
-            . " WHERE c.code = ?";
-        $binds = [$pid, $code];
-        if ($codeType !== '') {
-            $sql .= " AND ct.ct_key = ?";
-            $binds[] = $codeType;
-        }
-        $sql .= " ORDER BY c.active DESC, c.modifier, c.id LIMIT 1";
-
-        $row = QueryUtils::querySingleRow($sql, $binds);
-        if (!is_array($row)) {
+        $row = $codeType !== '' ? $this->row($code, $pid, $codeType) : null;
+        $row ??= $this->row($code, $pid, null);
+        if ($row === null) {
             return null;
         }
 
@@ -50,6 +41,27 @@ final class FeeSheetChargeLookup
             'units' => self::text($row['units'] ?? null) ?? '',
             'fee' => self::text($row['pr_price'] ?? null),
         ];
+    }
+
+    /**
+     * @return array<mixed>|null
+     */
+    private function row(string $code, int $pid, ?string $codeType): ?array
+    {
+        $sql = "SELECT c.code_text, c.units, p.pr_price FROM codes AS c"
+            . " LEFT JOIN code_types AS ct ON ct.ct_id = c.code_type"
+            . " LEFT JOIN patient_data AS pd ON pd.pid = ?"
+            . " LEFT JOIN prices AS p ON p.pr_id = c.id AND p.pr_selector = '' AND p.pr_level = pd.pricelevel"
+            . " WHERE c.code = ?";
+        $binds = [$pid, $code];
+        if ($codeType !== null) {
+            $sql .= " AND ct.ct_key = ?";
+            $binds[] = $codeType;
+        }
+        $sql .= " ORDER BY c.active DESC, c.modifier, c.id LIMIT 1";
+
+        $row = QueryUtils::querySingleRow($sql, $binds);
+        return is_array($row) ? $row : null;
     }
 
     private static function text(mixed $value): ?string
