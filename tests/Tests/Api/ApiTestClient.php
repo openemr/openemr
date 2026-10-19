@@ -141,6 +141,8 @@ class ApiTestClient
         'user/RelatedPerson.write',
         'user/ServiceRequest.read',
         'user/ServiceRequest.write',
+        'user/Task.read',
+        'user/Task.write',
 
         'user/allergy.read',
         'user/allergy.write',
@@ -487,13 +489,14 @@ class ApiTestClient
      * Submits a HTTP PUT Request.
      *
      * @param array<string, mixed> $body
+     * @param array<string, string> $headers more request headers, such as If-Match
      */
-    public function put(string $url, string $id, array $body): ResponseInterface
+    public function put(string $url, string $id, array $body, array $headers = []): ResponseInterface
     {
         $resourceUrl = $url . "/" . $id;
 
         $putResponse = $this->client->put($resourceUrl, [
-            "headers" => $this->headers,
+            "headers" => array_merge($this->headers, $headers),
             "body" => json_encode($body)
         ]);
         return $putResponse;

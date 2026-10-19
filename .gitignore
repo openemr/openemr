@@ -18,9 +18,6 @@ node_modules
 !/public/assets/modified
 /.docs/.out/*
 
-# ccda service build
-ccdaservice/node_modules
-
 # dev editor configs
 /.idea/*
 /.vscode/*
@@ -53,3 +50,7 @@ docker/development-easy-redis/docker-compose.override.yml
 compose.override.yml
 tmp/
 .webpack-cache/
+
+# ci/api-explorer/run.sh clones sjpadgett/oe-module-api-explorer here on every
+# run; it's a transient CI/dev-time artifact, never a committed module.
+/devtools/oe-module-api-explorer/

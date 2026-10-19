@@ -118,4 +118,86 @@ class InsuranceCompanyApiTest extends TestCase
 
         $this->assertEquals(400, $response->getStatusCode());
     }
+
+    #[Test]
+    public function testGetAll(): void
+    {
+        // GET /api/insurance_company — list endpoint. Seed one fixture via
+        // POST, then confirm the list surfaces it with a UUID (the UUID
+        // path matters: InsuranceCompanyService::search() must stringify
+        // the binary column so the response is JSON-encodable).
+        $uniqueName = self::FIXTURE_NAME_PREFIX . " List " . uniqid();
+        $postResponse = $this->testClient->post(self::API_ENDPOINT, [
+            'name' => $uniqueName,
+            'ins_type_code' => '1',
+        ]);
+        $this->assertEquals(201, $postResponse->getStatusCode());
+
+        $response = $this->testClient->get(self::API_ENDPOINT);
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertArrayHasKey('data', $body);
+        $data = $body['data'];
+        $this->assertIsArray($data);
+
+        // Find the fixture row by name and also assert its uuid is a
+        // valid UUID string. The weaker "name is in the list" check
+        // would pass even if the response omitted uuid entirely, which
+        // misses the serialization invariant this test is supposed to
+        // protect (PR #14653's InsuranceCompanyService::search uuid-
+        // stringify path).
+        $found = null;
+        foreach ($data as $row) {
+            if (is_array($row) && ($row['name'] ?? null) === $uniqueName) {
+                $found = $row;
+                break;
+            }
+        }
+        $this->assertIsArray($found, 'fixture company must appear in the list');
+        $this->assertIsString($found['uuid']);
+        $this->assertMatchesRegularExpression(
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+            $found['uuid']
+        );
+    }
+
+    #[Test]
+    public function testGetOneByIdSuccess(): void
+    {
+        // GET /api/insurance_company/{id} on a known-good id. PR #14653
+        // fixed getOneById to stringify the binary uuid column; this test
+        // locks that invariant at the api tier (ServiceTest covers it at
+        // the service tier). The id in the API path is the numeric
+        // insurance_companies.id, not the uuid. Response is a bare JSON
+        // object of the row (no envelope).
+        $uniqueName = self::FIXTURE_NAME_PREFIX . " GetOne " . uniqid();
+        $postResponse = $this->testClient->post(self::API_ENDPOINT, [
+            'name' => $uniqueName,
+            'ins_type_code' => '1',
+        ]);
+        $this->assertEquals(201, $postResponse->getStatusCode());
+        // Insurance company POST returns a bare {"iid": N} shape (no
+        // envelope), unlike Patient/Facility which wrap in {data, …}.
+        $postBody = json_decode((string) $postResponse->getBody(), true);
+        $this->assertIsArray($postBody);
+        $this->assertArrayHasKey('iid', $postBody);
+        $createdId = $postBody['iid'];
+        $this->assertIsNumeric($createdId);
+
+        $response = $this->testClient->getOne(self::API_ENDPOINT, (string) $createdId);
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        // Bare-row shape — the row fields live at the top level.
+        $this->assertEquals($uniqueName, $body['name']);
+        $this->assertEquals($createdId, $body['id']);
+        $this->assertIsString($body['uuid']);
+        $this->assertMatchesRegularExpression(
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+            $body['uuid']
+        );
+    }
 }

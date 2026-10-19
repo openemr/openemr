@@ -638,7 +638,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 8,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/ajax/graphs.php',
 ];
 $ignoreErrors[] = [
@@ -873,7 +873,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 10,
+    'count' => 7,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [

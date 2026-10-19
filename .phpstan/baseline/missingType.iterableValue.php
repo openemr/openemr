@@ -1292,11 +1292,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/openemr.bootstrap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\BootstrapService\\:\\:fetchPersistedSetupSettings\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/BootstrapService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\BootstrapService\\:\\:getModuleRegistry\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/BootstrapService.php',
@@ -5457,11 +5452,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpClient\\:\\:request\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpRestParsedRoute\\:\\:getRouteParams\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestParsedRoute.php',
@@ -5930,21 +5920,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Core\\\\ModulesApplication\\:\\:filterSafeLocalModuleFiles\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Cqm\\\\CqmClient\\:\\:getHealth\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/CqmClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Cqm\\\\CqmClient\\:\\:getVersion\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/CqmClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Cqm\\\\CqmClient\\:\\:shutdown\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/CqmClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\AbstractType\\:\\:__construct\\(\\) has parameter \\$properties with no value type specified in iterable type array\\.$#',
@@ -10003,11 +9978,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:is_conflicting_acl\\(\\) has parameter \\$ignore_acl_ids with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:search_acl\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
@@ -15585,11 +15555,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ProductRegistrationService\\:\\:getProductDialogStatus\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ProductRegistrationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\CqmCalculator\\:\\:calculateMeasure\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\IndividualResult\\:\\:collect_observations\\(\\) has parameter \\$observation_hash with no value type specified in iterable type array\\.$#',

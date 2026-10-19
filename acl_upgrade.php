@@ -45,7 +45,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2012-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -61,10 +63,19 @@ $ignoreAuth = true; // no login required
 require_once('interface/globals.php');
 
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\DuplicateAclMerger;
+use OpenEMR\Gacl\GaclApi;
 
 $acl_version = AclExtended::getAclVersion();
 if (empty($acl_version)) {
     $acl_version = 0;
+}
+
+// Installs from 8.2.0 through 8.4.x hold two Clinicians 'write' ACLs. Merge
+// them before any block below looks that ACL up.
+$merged_acl_ids = (new DuplicateAclMerger(new GaclApi()))->merge('Clinicians', 'write');
+if ($merged_acl_ids !== []) {
+    echo 'Merged ' . count($merged_acl_ids) . ' duplicate Clinicians group write ACL(s).</BR>';
 }
 
 // Upgrade for acl_version 1

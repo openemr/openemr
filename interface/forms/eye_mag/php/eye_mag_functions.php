@@ -19,6 +19,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\BaseDrawing;
 use OpenEMR\Forms\EyeMag\CopyForward;
 use OpenEMR\Forms\EyeMag\CopyMode;
 use OpenEMR\Forms\EyeMag\PmsfhPanel;
@@ -3266,7 +3267,8 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
 
                 $sql = "SELECT * from documents where name like ? ORDER by id DESC";
                 $doc = sqlQuery($sql, ["%" . $base_name . "%"]);
-                $base_filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
+                // The site's own base drawing if it has one, else the form's.
+                $base_filetoshow = BaseDrawing::fromGlobals(OEGlobalsBag::getInstance())->url($side, $zone);
                 if ((($doc['id'] ?? null) > '0')) {
                     $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']);
                 } else {

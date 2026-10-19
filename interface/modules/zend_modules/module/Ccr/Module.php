@@ -34,7 +34,7 @@ class Module
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
         $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e): void {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            $userId = is_string($session->get('authUserID')) ? $session->get('authUserID') : '';
+            $userId = (string) ($session->get('authUserID') ?? '');
             if (
                 !AclMain::zhAclCheck($userId, 'send_to_hie')
                 && !AclMain::aclCheckCore('admin', 'super')

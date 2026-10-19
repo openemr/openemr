@@ -1190,7 +1190,7 @@ class Savant3 implements \Stringable
      *         Savant3_Error, or is a subclass that Savant3_Error. False if not.
      *
      */
-    public function isError($obj)
+    public function isError($obj): bool
     {
         $autoload = $this->__config ['autoload'];
 

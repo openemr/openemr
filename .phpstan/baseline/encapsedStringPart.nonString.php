@@ -412,6 +412,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Part \\$count_rx \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 20,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Part \\$i \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -420,6 +425,11 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$term \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$count_rx \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 20,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$field_id \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
@@ -2942,11 +2952,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/SinglePatientApi/CapabilityStatementTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$measure \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$measureResult\\[\'pubpid\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
@@ -2958,11 +2963,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$pid \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$setName \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
 ];

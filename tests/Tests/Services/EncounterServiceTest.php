@@ -14,6 +14,7 @@ namespace OpenEMR\Tests\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\EncounterService;
+use OpenEMR\Services\VitalsService;
 use OpenEMR\Tests\Fixtures\EncounterFixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -76,5 +77,41 @@ class EncounterServiceTest extends TestCase
         $resultData = $actualResult->getData()[0];
         $this->assertNotNull($resultData);
         $this->assertEquals($uuidString, $resultData['puuid'], "Patient uuid should match bound patient");
+    }
+
+    #[Test]
+    public function testUpdateVitalKeepsUuid(): void
+    {
+        $this->fixtureManager->installFixtures();
+        $encounter = QueryUtils::querySingleRow("SELECT `pid`, `encounter` FROM `form_encounter` ORDER BY `id` DESC LIMIT 1");
+        $this->assertIsArray($encounter);
+        $pid = $encounter['pid'];
+        $eid = $encounter['encounter'];
+
+        [$vid] = $this->service->insertVital($pid, $eid, ['bps' => '120', 'bpd' => '80']);
+        try {
+            $uuidBefore = QueryUtils::fetchSingleValue("SELECT `uuid` FROM `form_vitals` WHERE `id` = ?", 'uuid', [$vid]);
+            $this->assertNotEmpty($uuidBefore);
+
+            // a REST PUT body doesn't carry the uuid
+            $this->service->updateVital($pid, $eid, $vid, ['bps' => '130', 'bpd' => '85']);
+
+            $row = QueryUtils::querySingleRow("SELECT `uuid`, `bps` FROM `form_vitals` WHERE `id` = ?", [$vid]);
+            $this->assertIsArray($row);
+            $this->assertEquals('130', $row['bps']);
+            $this->assertSame($uuidBefore, $row['uuid'], "Updating a vital must not change or clear its uuid");
+
+            // an empty uuid in the save data is treated as not sent
+            (new VitalsService())->saveVitalsArray([
+                'id' => $vid, 'uuid' => '', 'pid' => $pid, 'eid' => $eid, 'authorized' => '1', 'bps' => '140',
+            ]);
+            $row = QueryUtils::querySingleRow("SELECT `uuid`, `bps` FROM `form_vitals` WHERE `id` = ?", [$vid]);
+            $this->assertIsArray($row);
+            $this->assertEquals('140', $row['bps']);
+            $this->assertSame($uuidBefore, $row['uuid'], "An empty uuid must not change or clear the stored one");
+        } finally {
+            QueryUtils::sqlStatementThrowException("DELETE FROM `forms` WHERE `formdir` = 'vitals' AND `form_id` = ?", [$vid]);
+            QueryUtils::sqlStatementThrowException("DELETE FROM `form_vitals` WHERE `id` = ?", [$vid]);
+        }
     }
 }

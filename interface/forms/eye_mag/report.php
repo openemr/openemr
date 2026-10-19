@@ -525,6 +525,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 } else {
                     //get patient photo
                     $tempDocC = new C_Document();
+                    // The report embeds the file itself (disable_exit), which C_Document only
+                    // allows once the caller has asked for the retrieve key.
+                    $tempDocC->onReturnRetrieveKey();
                     try {
                         $fileTemp = $tempDocC->retrieve_action($pid, -1, false, true, true, true, 'patient_picture');
                         if (!empty($fileTemp)) {
@@ -2557,6 +2560,7 @@ function display_draw_image($zone, $encounter, $pid): void
         //               if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
         if ($PDF_OUTPUT) {
             $tempDocC = new C_Document();
+            $tempDocC->onReturnRetrieveKey();
             $fileTemp = $tempDocC->retrieve_action($pid, $doc['id'], false, true, true);
             // tmp file in ../documents/temp since need to be available via webroot
             $from_file_tmp_web_name = tempnam(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp', "oer");

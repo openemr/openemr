@@ -45,7 +45,7 @@ RUN apk --no-cache upgrade
 # apache2-utils (utilities), bash (shell), certbot (Let's Encrypt), curl (HTTP client),
 # dcron (scheduled tasks), git (version control), imagemagick (image processing),
 # mariadb-client (database client), mariadb-connector-c (DB connector), ncurses (terminal),
-# nodejs/npm (JavaScript runtime), openssl/openssl-dev (cryptography), perl (interpreter),
+# openssl/openssl-dev (cryptography), perl (interpreter),
 # rsync (file sync), shadow (user management), su-exec (lightweight privilege-drop
 # tool used by run_php_as_apache to invoke OpenEMR CLI scripts as the apache user
 # without an intermediate shell — busybox `su` rescans options across the whole
@@ -64,8 +64,6 @@ RUN apk add --no-cache \
     mariadb-client \
     mariadb-connector-c \
     ncurses \
-    nodejs \
-    npm \
     openssl \
     openssl-dev \
     perl \
@@ -207,9 +205,6 @@ RUN apk add --no-cache build-base nodejs npm
 RUN --mount=type=cache,target=/root/.npm \
     npm install \
     && npm run build \
-    && cd ccdaservice \
-    && npm install --allow-git=all \
-    && cd .. \
     && rm -fr node_modules \
     && apk del --no-cache build-base
 
@@ -224,7 +219,6 @@ COPY --from=openemr-composer /openemr/composer.json /tmp/openemr/composer.json
 COPY --from=openemr-composer /openemr/composer.lock /tmp/openemr/composer.lock
 # Copy built assets
 COPY --from=openemr-assets /openemr/public /tmp/openemr/public
-COPY --from=openemr-assets /openemr/ccdaservice /tmp/openemr/ccdaservice
 
 RUN cd /tmp \
     # =========================================================================

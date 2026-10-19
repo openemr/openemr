@@ -46,7 +46,7 @@ $groupCount   = 0;      // 0 if no items in the group yet
 $itemSeparator = '; ';  // separator between group items
 
 // Check if the current location has the specified {string}.
-function keySearch(&$s, $key)
+function keySearch(&$s, $key): bool
 {
     global $keyLocation, $keyLength;
     $keyLength = strlen((string) $key);

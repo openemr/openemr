@@ -23487,16 +23487,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Forms/FormVitals.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\HttpClient\\:\\:\\$port has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\HttpClient\\:\\:\\$system has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\oeOAuth\\:\\:\\$DEBUG_MODE has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeOAuth.php',
@@ -29307,11 +29297,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PatientAccessOnsiteService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\Qdm\\\\CqmCalculator\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Qdm\\\\CqmCalculator\\:\\:\\$measure has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
@@ -29622,11 +29607,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\Qrda\\\\QrdaReportService\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Qrda\\\\QrdaReportService\\:\\:\\$effectiveDate has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',
@@ -29760,16 +29740,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\PatientApiTest\\:\\:\\$testClient has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/PatientApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\ECQM\\\\MeasureResultsTest\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\ECQM\\\\MeasureResultsTest\\:\\:\\$measureOptions has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\ECQM\\\\MeasureResultsTest\\:\\:\\$measure_result_map has no type specified\\.$#',
