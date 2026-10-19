@@ -77,6 +77,13 @@ class ViewRendererListenerTest extends TestCase
     #[PreserveGlobalState(false)]
     public function testJsonBranchDefaultsTo200WhenNoCodeSet(): void
     {
+        // Precondition: the fallback branch only runs when no response
+        // code has been set. In a fresh CLI subprocess
+        // http_response_code() returns false; if that ever changed the
+        // test would pass vacuously without exercising the fallback, so
+        // assert the precondition explicitly before invoking the listener.
+        $this->assertFalse(http_response_code(), 'precondition: no status set in subprocess');
+
         // No prior http_response_code() call → listener falls back to 200.
         // Guards against a regression that would propagate an unrelated
         // sentinel (e.g. `true`, which is_int-false) into the response.
