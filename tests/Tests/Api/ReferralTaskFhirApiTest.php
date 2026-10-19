@@ -220,6 +220,30 @@ class ReferralTaskFhirApiTest extends TestCase
         $this->assertNull(ReferralStatus::ofTransaction($rows[$other] ?? null, new ReferralService(), $today, 14));
     }
 
+    public function testSavingAReferralFillsInOnlyItsOwnMissingUuids(): void
+    {
+        // As the address book and the Transactions screen save them: no uuid.
+        $insert = static fn(string $name): int => (int)QueryUtils::sqlInsert(
+            "INSERT INTO users (username, active, authorized, abook_type, organization) VALUES ('', 1, 0, 'external_org', ?)",
+            [$name]
+        );
+        $this->people['saved pantry'] = ['uuid' => '', 'id' => $insert('Zq Saved Pantry')];
+        $this->people['bystander'] = ['uuid' => '', 'id' => $insert('Zq Bystander')];
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['saved pantry']['id'], 'body' => 'x']);
+        $other = $this->saveReferral(['refer_to' => $this->people['bystander']['id'], 'body' => 'not saved again']);
+
+        $taskUuid = $this->createTask($id);
+
+        $this->assertIsString($taskUuid);
+        $uuidOf = static fn(string $table, int $id): mixed => QueryUtils::fetchSingleValue("SELECT uuid FROM $table WHERE id = ?", 'uuid', [$id]);
+        $pantry = $uuidOf('users', $this->people['saved pantry']['id']);
+        $this->assertIsString($pantry, 'the recipient got a uuid');
+        $this->assertIsString($uuidOf('transactions', $id), 'the referral got a uuid');
+        $this->assertNull($uuidOf('users', $this->people['bystander']['id']), 'another entry is left as it was');
+        $this->assertNull($uuidOf('transactions', $other), 'another referral is left as it was');
+        $this->assertSame('Organization/' . UuidRegistry::uuidToString($pantry), self::at($this->read('Task', $taskUuid), 'owner', 'reference'));
+    }
+
     public function testNoTaskWithoutARecipientFhirServes(): void
     {
         $toNoNpi = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['no npi']['id'], 'body' => 'x']);

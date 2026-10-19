@@ -455,7 +455,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 </div>
                 <?php
                 // Where a saved referral stands (#14710).
-                $referral = $form_id === 'LBTref' && is_numeric($transid) && $transid > 0 ? (new ReferralService())->getReferral((int)$transid) : null;
+                $referral = $form_id === 'LBTref' && is_numeric($transid) && $transid > 0 ? (new ReferralService(createMissingUuids: false))->getReferral((int)$transid) : null;
                 if ($referral !== null) {
                     $referralStatus = ReferralStatus::ofReferral($referral, new DateTimeImmutable('today'), ReferralStatus::overdueDays());
                     ?>

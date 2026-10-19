@@ -52,10 +52,17 @@ class ReferralService extends BaseService
      */
     private const SOURCE_COLUMNS = ['uuid' => 't.uuid', 'puuid' => 'patients.uuid', 'last_modified' => 't.date'];
 
-    public function __construct()
+    /**
+     * @param bool $createMissingUuids give every referral, patient and user without a uuid one,
+     *     as FHIR searches need; false where only a few known rows are read (a save, or one
+     *     patient's referrals on a page), which fill in their own rows or don't need uuids
+     */
+    public function __construct(bool $createMissingUuids = true)
     {
         parent::__construct(self::TABLE_NAME);
-        UuidRegistry::createMissingUuidsForTables([self::TABLE_NAME, 'patient_data', 'users']);
+        if ($createMissingUuids) {
+            UuidRegistry::createMissingUuidsForTables([self::TABLE_NAME, 'patient_data', 'users']);
+        }
     }
 
     /**
