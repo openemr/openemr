@@ -38,7 +38,7 @@ class Api
         return $this->configToJson($configuration);
     }
 
-    public function createFormESign($formId, $formDir, $encounterId)
+    public function createFormESign($formId, $formDir, $encounterId): ESign
     {
         $factory = new Form_Factory($formId, $formDir, $encounterId);
         $esign = $this->createESign($factory);
@@ -51,11 +51,23 @@ class Api
         return $this->configToJson($configuration);
     }
 
-    public function createEncounterESign($encounterId)
+    public function createEncounterESign($encounterId): ESign
     {
         $factory = new Encounter_Factory($encounterId);
         $esign = $this->createESign($factory);
         return $esign;
+    }
+
+    /**
+     * Whether a form counts as signed on the patient report.
+     *
+     * Signing the encounter signs every form in it, so a form without a
+     * signature of its own still counts when its encounter is signed.
+     */
+    public function isFormSignedForReport(int $formId, string $formDir, int $encounterId): bool
+    {
+        return $this->createFormESign($formId, $formDir, $encounterId)->isSigned()
+            || $this->createEncounterESign($encounterId)->isSigned();
     }
 
     public function createEncounterSignable($encounterId): Encounter_Signable
