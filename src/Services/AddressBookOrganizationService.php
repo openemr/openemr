@@ -35,7 +35,6 @@ class AddressBookOrganizationService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
-        UuidRegistry::createMissingUuidsForTables([self::TABLE_NAME]);
     }
 
     /**
@@ -68,6 +67,7 @@ class AddressBookOrganizationService extends BaseService
     public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $processingResult = new ProcessingResult();
+        self::createMissingUuids();
         try {
             $where = FhirSearchWhereClauseBuilder::build($search, $isAndCondition !== false);
             $records = QueryUtils::fetchRecords(
@@ -87,5 +87,22 @@ class AddressBookOrganizationService extends BaseService
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $processingResult;
+    }
+
+    /**
+     * Gives these entries a uuid when they have none, since the address book saves them
+     * without one. Row by row, so that a search doesn't write to every other user missing one.
+     */
+    private static function createMissingUuids(): void
+    {
+        $rows = QueryUtils::fetchRecords(
+            "SELECT id FROM users WHERE abook_type = ? AND (uuid IS NULL OR uuid = '' OR uuid = ?)",
+            [self::ABOOK_TYPE, str_repeat("\0", 16)]
+        );
+        foreach ($rows as $row) {
+            if (is_numeric($row['id'] ?? null)) {
+                UuidRegistry::createMissingUuidForRow(self::TABLE_NAME, 'id', (int)$row['id']);
+            }
+        }
     }
 }
