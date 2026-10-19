@@ -18,6 +18,9 @@ use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
 
 class X125010837I
 {
+    /**
+     * An 837 date from an MMDDYY form date, with the century set to 20.
+     */
     public static function x12Date($frmdate): string
     {
         return ('20' . substr((string) $frmdate, 4, 2) . substr((string) $frmdate, 0, 2) . substr((string) $frmdate, 2, 2));
@@ -61,6 +64,25 @@ class X125010837I
         }
 
         return $value;
+    }
+
+    /**
+     * The 837I text for one encounter. A UB04 physician NPI is digits in NM109.
+     */
+
+    /**
+     * NM108 and NM109 for a physician segment.
+     *
+     * A hyphen in the NPI is not sent. A missing qualifier or NPI leaves both empty.
+     */
+    public static function physicianIdentifier(string $qualifier, mixed $npi): string
+    {
+        $digits = self::physicianNpi($npi);
+        if ($qualifier === '' || $digits === '') {
+            return '**';
+        }
+
+        return '*' . $qualifier . '*' . $digits;
     }
 
     public static function generateX12837I($pid, $encounter, $x12_partner, &$log, $ub04id)
@@ -709,11 +731,9 @@ class X125010837I
             ++$edicount;
             // Loop 2310A Attending Physician
             $out .= "NM1" . "*71" . "*1" . "*" . $ub04id[388] . "*" . $ub04id[389] . "*" . "*";
-            $attendingNpi = self::physicianNpi($ub04id[379] ?? null);
-            if ($attendingNpi !== '') {
-                $out .= "*" . "XX" . "*" . $attendingNpi;
-            } else {
-                $out .= "*" . "*";
+            $attendingId = self::physicianIdentifier('XX', $ub04id[379] ?? null);
+            $out .= $attendingId;
+            if ($attendingId === '**') {
                 $log .= "*** Attending Physician has no NPI.\n";
             }
             $out .= "~\n";
@@ -732,11 +752,9 @@ class X125010837I
 
             $out .= "NM1" . // Loop 2310B operating Physician
                 "*72" . "*1" . "*" . $ub04id[400] . "*" . $ub04id[400] . "*" . "*";
-            $operatingNpi = self::physicianNpi($ub04id[390] ?? null);
-            if ($operatingNpi !== '') {
-                $out .= "*" . "XX" . "*" . $operatingNpi;
-            } else {
-                $out .= "*" . "*";
+            $operatingId = self::physicianIdentifier('XX', $ub04id[390] ?? null);
+            $out .= $operatingId;
+            if ($operatingId === '**') {
                 $log .= "*** Operating Physician has no NPI qualifier.\n";
             }
             $out .= "~\n";
@@ -755,12 +773,12 @@ class X125010837I
 
             $out .= "NM1" . // Loop 2310C other operating Physician
                 "*73" . "*1" . "*" . $ub04id[413] . "*" . $ub04id[414] . "*" . "*";
-            $otherQualifier = self::physicianQualifier($ub04id[405] ?? null);
-            $otherNpi = self::physicianNpi($ub04id[406] ?? null);
-            if ($otherQualifier !== '' && $otherNpi !== '') {
-                $out .= "*" . $otherQualifier . "*" . $otherNpi;
-            } else {
-                $out .= "*" . "*";
+            $otherId = self::physicianIdentifier(
+                self::physicianQualifier($ub04id[405] ?? null),
+                $ub04id[406] ?? null
+            );
+            $out .= $otherId;
+            if ($otherId === '**') {
                 $log .= "*** Other Operating Physician has no NPI.\n";
             }
             $out .= "~\n";
@@ -776,12 +794,12 @@ class X125010837I
 
             $out .= "NM1" . // Loop 2310C other operating Physician
                 "*73" . "*1" . "*" . $ub04id[427] . "*" . $ub04id[428] . "*" . "*";
-            $secondOtherQualifier = self::physicianQualifier($ub04id[419] ?? null);
-            $secondOtherNpi = self::physicianNpi($ub04id[420] ?? null);
-            if ($secondOtherQualifier !== '' && $secondOtherNpi !== '') {
-                $out .= "*" . $secondOtherQualifier . "*" . $secondOtherNpi;
-            } else {
-                $out .= "*" . "*";
+            $secondOtherId = self::physicianIdentifier(
+                self::physicianQualifier($ub04id[419] ?? null),
+                $ub04id[420] ?? null
+            );
+            $out .= $secondOtherId;
+            if ($secondOtherId === '**') {
                 $log .= "*** Other Operating Physician has no NPI.\n";
             }
             $out .= "~\n";

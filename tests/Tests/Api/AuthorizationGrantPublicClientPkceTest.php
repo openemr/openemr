@@ -457,6 +457,9 @@ class AuthorizationGrantPublicClientPkceTest extends TestCase
         return [$csrf, $action];
     }
 
+    /**
+     * An HTTP client that does not send the authorize URL as the Referer.
+     */
     private function buildClient(): Client
     {
         return new Client([
