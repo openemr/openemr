@@ -27,6 +27,7 @@ namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Tests\Fixtures\EncounterFixtureManager;
+use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -60,6 +61,13 @@ class VitalApiTest extends TestCase
 
     protected function tearDown(): void
     {
+        // Each vital POST inserts a form_vitals row + a linked forms row
+        // (formdir='vitals'), plus a uuid_registry + uuid_mapping entry for
+        // the FHIR Observation surface. EncounterFixtureManager::removeFixtures()
+        // only deletes form_encounter + patient_data + facility, so those
+        // vital rows would orphan on teardown. removeObservationFixtures()
+        // sweeps the whole vital/uuid chain scoped to the fixture pid prefix.
+        (new FixtureManager())->removeObservationFixtures();
         $this->fixtureManager->removeFixtures();
     }
 

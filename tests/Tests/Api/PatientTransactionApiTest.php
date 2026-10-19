@@ -165,7 +165,10 @@ class PatientTransactionApiTest extends TestCase
         $this->assertArrayHasKey('data', $body);
         $data = $body['data'];
         $this->assertIsArray($data);
-        $this->assertNotEmpty($data);
+        $flat = [];
+        $this->collectRows($data, $flat);
+        $bodies = array_column($flat, 'body');
+        $this->assertContains($created['body'], $bodies, 'fixture transaction must surface in the list by body text');
     }
 
     #[Test]
