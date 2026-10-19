@@ -417,3 +417,8 @@ SELECT DISTINCT 'questionnaire', r.`form_foreign_id`, 'encounter', 1, 0
  WHERE r.`directory` = 'questionnaire_assessments'
    AND r.`form_foreign_id` > 0;
 #EndIf
+
+-- FHIR ServiceRequest referrals (D8 of #13266): a uuid for each transaction, so the Transactions screen's referrals have a FHIR id.
+#IfMissingColumn transactions uuid
+ALTER TABLE `transactions` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`, ADD UNIQUE KEY `uuid` (`uuid`);
+#EndIf

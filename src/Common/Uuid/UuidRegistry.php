@@ -73,6 +73,7 @@ class UuidRegistry
         'questionnaire_response' => ['table_name' => 'questionnaire_response'],
         'form_history_sdoh' => ['table_name' => 'form_history_sdoh'],
         'task' => ['table_name' => 'task'],
+        'transactions' => ['table_name' => 'transactions'],
         'users' => ['table_name' => 'users']
     ];
     // Maximum tries to create a unique uuid before failing (this should never happen)
