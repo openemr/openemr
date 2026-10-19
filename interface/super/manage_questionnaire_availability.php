@@ -5,15 +5,19 @@
  *
  * Which questionnaires are offered on which surface -- patient dashboard, encounter
  * forms, patient portal, SMART launch -- is stored in `content_assignments` and answered
- * by QuestionnaireAvailabilityService. Until this screen existed those rows arrived only
- * from the upgrade backfill and from import, so the only way to change them was SQL.
+ * by QuestionnaireAvailabilityService. This screen edits those rows in three places, each
+ * answering one question an administrator actually asks:
  *
- * Two sections, because there are two genuinely different jobs:
+ *  - Questionnaires: "where is this offered?" One tick per surface, meaning offered
+ *    everywhere on that surface. This is the common case and needs nothing else.
+ *  - Limits for one questionnaire: "only at this facility / for this kind of visit / for
+ *    this SMART app", and who may see it. Opened from the questionnaire's row.
+ *  - Category rules: "every questionnaire in this category", including ones imported
+ *    later. A separate list, because it targets a category rather than a questionnaire.
  *
- *  - the grid turns one questionnaire on or off for a surface, which is the common case;
- *  - the rules list shows every stored row including category-wide and scoped ones, which
- *    is how an administrator sees why a questionnaire is still offered after its own row
- *    was switched off.
+ * Rules add up: a questionnaire is offered on a surface while any active rule for it, or
+ * for its category, matches. The grid marks a surface that is also reached by a limit or
+ * a category rule, so unticking a box that changes nothing is explained, not a mystery.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -67,7 +71,7 @@ $postedId = static function (string $field) use ($request): ?int {
 
     return is_int($value) && $value > 0 ? $value : null;
 };
-// The same, for the query string: ?edit= or ?edit=abc must not take the page down.
+// The same, for the query string: ?q= or ?edit=abc must not take the page down.
 $queryId = static function (string $field) use ($request): ?int {
     $value = $request->query->filter($field, null, FILTER_VALIDATE_INT, ['flags' => FILTER_NULL_ON_FAILURE]);
 
@@ -87,6 +91,9 @@ $postedText = static function (string $field) use ($request): ?string {
 $notices = [];
 $errors = [];
 $ruleSaved = false;
+// The questionnaire whose limits are open. Its forms post back to the same ?q=, so the
+// panel stays open after a save.
+$selectedId = $queryId('q');
 
 if ($request->getMethod() === 'POST') {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
@@ -117,14 +124,11 @@ if ($request->getMethod() === 'POST') {
             $rendered = $request->request->all('rendered');
             $changes = 0;
             if ($rendered !== []) {
-                // Index the unscoped rows once; a scoped or category row is never touched
-                // by the grid, because the grid cannot express what it is scoped to.
+                // Index the unscoped rows once; a limited or category row is never
+                // touched by the grid, because a tick cannot express what it is limited to.
                 $unscopedByKey = [];
                 foreach ($service->listAssignments() as $existing) {
-                    if ($existing->isCategoryWide() || $existing->isScoped()) {
-                        continue;
-                    }
-                    if ($existing->resourceId === null) {
+                    if ($existing->isCategoryWide() || $existing->isScoped() || $existing->resourceId === null) {
                         continue;
                     }
                     $unscopedByKey[$existing->resourceId . '|' . $existing->surface->value] = $existing;
@@ -166,13 +170,13 @@ if ($request->getMethod() === 'POST') {
                 ? xl('No changes to save')
                 : sprintf(xl('Saved %d change(s)'), $changes);
         } elseif ($action === 'save_rule') {
+            // One handler for both rule forms. The limits form names a questionnaire; the
+            // category form names a category. Neither form offers the other's target, so a
+            // rule can no longer be saved with both or with the wrong one.
             $surface = QuestionnaireSurface::tryFrom($request->request->getString('surface'));
-            $questionnaireId = $postedId('resource_id');
-            $category = $postedText('category');
-            if ($questionnaireId !== null) {
-                // A row names one questionnaire or a category, never both.
-                $category = null;
-            }
+            $target = $request->request->getString('target');
+            $questionnaireId = $target === 'questionnaire' ? $postedId('questionnaire_id') : null;
+            $category = $target === 'category' ? $postedText('category') : null;
 
             // The permission is picked as one "section|level" value, so the form cannot
             // post half a pair. A malformed value is refused rather than guessed at.
@@ -191,12 +195,14 @@ if ($request->getMethod() === 'POST') {
             }
 
             if ($surface === null) {
-                $errors[] = xl('Choose a surface');
+                $errors[] = xl('Choose where it is offered');
+            } elseif ($target === 'category' && $category === null) {
+                $errors[] = xl('Choose a category');
             } elseif (!$aclValid) {
                 $errors[] = xl('Choose a permission from the list');
             } else {
-                // A scope field the chosen surface cannot apply is disabled in the form
-                // and so not posted. If one arrives anyway, the service refuses it.
+                // A limit the chosen surface cannot apply is disabled in the form and so
+                // not posted. If one arrives anyway, the service refuses it.
                 $record = new AssignmentRecord(
                     id: $postedId('assignment_id') ?? 0,
                     surface: $surface,
@@ -216,7 +222,27 @@ if ($request->getMethod() === 'POST') {
                     $notices[] = xl('Rule updated');
                 } else {
                     $service->assign($record);
-                    $notices[] = xl('Rule added');
+                    $notices[] = $record->isScoped() ? xl('Limit added') : xl('Rule saved');
+
+                    // Rules add up, so a limit on its own changes nothing while the
+                    // questionnaire is still ticked for the whole surface. "Only where this
+                    // limit applies" switches that tick off in the same step.
+                    if (
+                        $record->isScoped()
+                        && $record->resourceId !== null
+                        && $request->request->getString('only_here') === '1'
+                    ) {
+                        foreach ($service->listAssignments($surface) as $existing) {
+                            if (
+                                $existing->resourceId === $record->resourceId
+                                && !$existing->isScoped()
+                                && $existing->active
+                            ) {
+                                $service->setAssignmentActive($existing->id, false);
+                                $notices[] = xl('No longer offered everywhere on that surface, only where its limits apply');
+                            }
+                        }
+                    }
                 }
                 // Saved, so leave edit mode; a failed save stays in it so the error is
                 // shown next to the rule being edited.
@@ -242,9 +268,9 @@ if ($request->getMethod() === 'POST') {
             QuestionnaireAvailabilityService::ERROR_NO_TARGET => xl('Choose a questionnaire or a category'),
             QuestionnaireAvailabilityService::ERROR_HALF_ACL => xl('Choose a permission from the list'),
             QuestionnaireAvailabilityService::ERROR_UNSUPPORTED_SCOPE
-                => xl('This surface cannot be narrowed by one of the chosen fields. Clear the fields the form disables for it.'),
+                => xl('That surface cannot be limited by one of the chosen fields. Clear the fields the form disables for it.'),
             QuestionnaireAvailabilityService::ERROR_DUPLICATE
-                => xl('Another rule already covers that questionnaire or category with the same scope'),
+                => xl('Another rule already has exactly these limits'),
             QuestionnaireAvailabilityService::ERROR_MISSING => xl('That rule no longer exists'),
             default => xl('The rule could not be saved'),
         };
@@ -268,11 +294,16 @@ if ($request->getMethod() === 'POST') {
 $questionnaires = $service->listManageableQuestionnaires();
 $assignments = $service->listAssignments();
 
-// The rule being edited, if any. Addressed by id in the query string so a failed save
-// returns to the same rule; cleared once a save succeeds.
+$questionnaireNames = [];
+foreach ($questionnaires as $questionnaire) {
+    $questionnaireNames[$questionnaire['id']] = $questionnaire['name'];
+}
+
+// The rule being edited, if any, addressed by id so a failed save returns to it. Editing
+// a questionnaire's rule opens that questionnaire's panel.
 $editing = null;
-$editId = $ruleSaved ? 0 : ($queryId('edit') ?? 0);
-if ($editId > 0) {
+$editId = $ruleSaved ? null : $queryId('edit');
+if ($editId !== null) {
     foreach ($assignments as $candidate) {
         if ($candidate->id === $editId) {
             $editing = $candidate;
@@ -280,8 +311,17 @@ if ($editId > 0) {
         }
     }
 }
-$formAction = 'manage_questionnaire_availability.php'
-    . ($editing !== null ? '?edit=' . $editing->id : '');
+if ($editing !== null && $editing->resourceId !== null) {
+    $selectedId = $editing->resourceId;
+}
+if ($selectedId !== null && !isset($questionnaireNames[$selectedId])) {
+    $selectedId = null;
+}
+$editingCategoryRule = $editing !== null && $editing->isCategoryWide() ? $editing : null;
+$editingLimit = $editing !== null && !$editing->isCategoryWide() ? $editing : null;
+
+$pageUrl = 'manage_questionnaire_availability.php';
+$selectedUrl = $selectedId !== null ? $pageUrl . '?q=' . $selectedId : $pageUrl;
 
 /**
  * `selected` when an option matches the value being edited.
@@ -289,39 +329,46 @@ $formAction = 'manage_questionnaire_availability.php'
 $selectedIf = static fn(string $optionValue, ?string $current): string
     => $current !== null && $optionValue === $current ? 'selected' : '';
 
-// Unscoped, questionnaire-specific rows drive the grid checkboxes. Those are the only
-// rows the grid can express, so they are the only ones it writes.
+// What the grid shows. A tick is an active unscoped rule; the rest of a questionnaire's
+// rules are counted so the grid can say the surface is also reached another way.
 /** @var array<string, bool> $gridState */
 $gridState = [];
-
-// Rules the grid cannot show, indexed so the grid can still warn about them. Availability
-// is additive: a questionnaire stays offered while ANY active rule reaches it. Without
-// this, an administrator unticks a box, sees no change, and concludes the screen is
-// broken -- when in fact a category-wide or scoped rule is still offering it.
-/** @var array<string, array<string, true>> $otherRuleReasons */
-$otherRuleReasons = [];
-$noteOther = static function (string $key, string $reason) use (&$otherRuleReasons): void {
-    $otherRuleReasons[$key][$reason] = true;
-};
+/** @var array<string, int> $limitCounts "questionnaire|surface" => active limited rules */
+$limitCounts = [];
+/** @var array<int, int> $ruleCounts questionnaire => rules beyond a plain tick */
+$ruleCounts = [];
+/** @var array<string, true> $categoryReach "category|surface" => an active category rule */
+$categoryReach = [];
+$selectedRules = [];
+$categoryRules = [];
 
 foreach ($assignments as $assignment) {
     if ($assignment->isCategoryWide()) {
-        if ($assignment->active && ($assignment->category ?? '') !== '') {
-            // Keyed by category; resolved per questionnaire when the grid renders.
-            $noteOther('category:' . $assignment->category . '|' . $assignment->surface->value, 'category');
+        $categoryRules[] = $assignment;
+        if ($assignment->active) {
+            $categoryReach[$assignment->category . '|' . $assignment->surface->value] = true;
         }
         continue;
     }
     if ($assignment->resourceId === null) {
         continue;
     }
+    $resourceId = $assignment->resourceId;
+    $key = $resourceId . '|' . $assignment->surface->value;
+    if ($resourceId === $selectedId) {
+        $selectedRules[] = $assignment;
+    }
     if ($assignment->isScoped()) {
+        $ruleCounts[$resourceId] = ($ruleCounts[$resourceId] ?? 0) + 1;
         if ($assignment->active) {
-            $noteOther($assignment->resourceId . '|' . $assignment->surface->value, 'scoped');
+            $limitCounts[$key] = ($limitCounts[$key] ?? 0) + 1;
         }
         continue;
     }
-    $gridState[$assignment->resourceId . '|' . $assignment->surface->value] = $assignment->active;
+    if ($assignment->aclSection !== null) {
+        $ruleCounts[$resourceId] = ($ruleCounts[$resourceId] ?? 0) + 1;
+    }
+    $gridState[$key] = $assignment->active;
 }
 
 /**
@@ -383,9 +430,9 @@ $providers = $asOptions(
     'id',
     'name'
 );
-// id => label maps, so the rules list can show names instead of ids. Built with plain
-// loops rather than a helper closure: a closure's array docblock types are not honoured,
-// so its result would come back as mixed.
+// id => label maps, so rules show names instead of ids. Built with plain loops rather
+// than a helper closure: a closure's array docblock types are not honoured, so its result
+// would come back as mixed.
 $facilityNames = [];
 foreach ($facilities as $option) {
     $facilityNames[$option['id']] = $option['label'];
@@ -429,8 +476,8 @@ if (
 
 // Questionnaire categories are Observation_Types option ids. Offer the list so a
 // category rule cannot be stored with a typo that matches nothing, and show titles
-// rather than ids wherever a category is displayed. Categories a questionnaire already
-// carries but the list lacks are kept, so existing data stays selectable.
+// rather than ids wherever a category is displayed. Categories a questionnaire or a rule
+// already carries but the list lacks are kept, so existing data stays selectable.
 /** @var array<string, string> $categoryTitles */
 $categoryTitles = [];
 foreach (
@@ -455,8 +502,9 @@ foreach ($questionnaires as $questionnaire) {
         $categoryTitles[$questionnaire['category']] = $questionnaire['category'];
     }
 }
-if ($editing !== null && $editing->isCategoryWide() && !isset($categoryTitles[(string)$editing->category])) {
-    $categoryTitles[(string)$editing->category] = (string)$editing->category;
+foreach ($categoryRules as $categoryRule) {
+    $ruleCategory = (string)$categoryRule->category;
+    $categoryTitles[$ruleCategory] ??= $ruleCategory;
 }
 $categoryLabel = static fn(string $category): string => $categoryTitles[$category] ?? $category;
 
@@ -495,9 +543,6 @@ foreach (
     $aclChoices[$section][$pair] = $levelLabel;
     $aclLabels[$pair] = $sectionLabel . ': ' . $levelLabel;
 }
-$editingAcl = ($editing !== null && $editing->aclSection !== null && $editing->aclLevel !== null)
-    ? $editing->aclSection . '|' . $editing->aclLevel
-    : null;
 $aclLabel = static fn(string $section, string $level): string
     => $aclLabels[$section . '|' . $level] ?? ($section . '/' . $level);
 
@@ -522,35 +567,6 @@ foreach (
     }
 }
 
-$surfaceLabels = [
-    QuestionnaireSurface::Dashboard->value => xl('Patient dashboard'),
-    QuestionnaireSurface::Encounter->value => xl('Encounter forms'),
-    QuestionnaireSurface::Portal->value => xl('Patient portal'),
-    QuestionnaireSurface::Smart->value => xl('SMART launch'),
-];
-$scopeLabels = [
-    'facility' => xl('Facility'),
-    'provider' => xl('Provider'),
-    'visit_category_id' => xl('Visit category'),
-    'client_id' => xl('SMART app'),
-];
-$surfaces = QuestionnaireSurface::cases();
-
-/**
- * One line telling an administrator what a surface can be narrowed by.
- */
-$scopeHint = static function (QuestionnaireSurface $surface) use ($scopeLabels, $surfaceLabels): string {
-    $names = [];
-    foreach ($surface->supportedScopes() as $column) {
-        $names[] = $scopeLabels[$column];
-    }
-    if ($names === []) {
-        return sprintf(xl('%s: rules cannot be narrowed.'), $surfaceLabels[$surface->value]);
-    }
-
-    return sprintf(xl('%s: rules can be narrowed by %s.'), $surfaceLabels[$surface->value], implode(', ', $names));
-};
-
 // SMART apps a rule can name: enabled clients registered with the EHR launch scope,
 // the same set the dashboard offers in its launch menu.
 /** @var array<string, string> $smartAppNames client id => app name */
@@ -569,9 +585,257 @@ foreach ((new ClientRepository())->listClientEntities() as $client) {
     $clientName = $clientText($client->getName());
     $smartAppNames[$clientIdentifier] = $clientName !== '' ? $clientName : $clientIdentifier;
 }
-$editingClientId = $editing !== null && ($editing->clientId ?? '') !== '' ? $editing->clientId : null;
+
+$surfaceLabels = [
+    QuestionnaireSurface::Dashboard->value => xl('Patient dashboard'),
+    QuestionnaireSurface::Encounter->value => xl('Encounter forms'),
+    QuestionnaireSurface::Portal->value => xl('Patient portal'),
+    QuestionnaireSurface::Smart->value => xl('SMART launch'),
+];
+$scopeLabels = [
+    'facility' => xl('Facility'),
+    'provider' => xl('Provider'),
+    'visit_category_id' => xl('Visit category'),
+    'client_id' => xl('SMART app'),
+];
+$surfaces = QuestionnaireSurface::cases();
+
+/**
+ * One line telling an administrator what a surface can be limited by.
+ */
+$scopeHint = static function (QuestionnaireSurface $surface) use ($scopeLabels, $surfaceLabels): string {
+    $names = [];
+    foreach ($surface->supportedScopes() as $column) {
+        $names[] = $scopeLabels[$column];
+    }
+    if ($names === []) {
+        return sprintf(xl('%s cannot be limited yet.'), $surfaceLabels[$surface->value]);
+    }
+
+    return sprintf(xl('%s can be limited by %s.'), $surfaceLabels[$surface->value], implode(', ', $names));
+};
+
+/**
+ * Where a rule applies, in words: "Everywhere" or "Facility: Main; Visit category: …".
+ */
+$limitText = static function (AssignmentRecord $rule) use (
+    $scopeLabels,
+    $nameOrId,
+    $facilityNames,
+    $providerNames,
+    $visitCategoryNames,
+    $smartAppNames
+): string {
+    $parts = [];
+    if ($rule->facility !== null) {
+        $parts[] = $scopeLabels['facility'] . ': '
+            . $nameOrId($facilityNames[(string)$rule->facility] ?? null, $rule->facility);
+    }
+    if ($rule->provider !== null) {
+        $parts[] = $scopeLabels['provider'] . ': '
+            . $nameOrId($providerNames[(string)$rule->provider] ?? null, $rule->provider);
+    }
+    if ($rule->visitCategoryId !== null) {
+        $parts[] = $scopeLabels['visit_category_id'] . ': '
+            . $nameOrId($visitCategoryNames[(string)$rule->visitCategoryId] ?? null, $rule->visitCategoryId);
+    }
+    if ($rule->clientId !== null && $rule->clientId !== '') {
+        $parts[] = $scopeLabels['client_id'] . ': '
+            . ($smartAppNames[$rule->clientId] ?? $rule->clientId . ' ' . xl('(inactive or removed)'));
+    }
+
+    return $parts === [] ? xl('Everywhere') : implode('; ', $parts);
+};
+
+/**
+ * Who may see what a rule offers, in words.
+ */
+$permissionText = static function (AssignmentRecord $rule) use ($aclLabel): string {
+    if ($rule->aclSection !== null && $rule->aclLevel !== null) {
+        return $aclLabel($rule->aclSection, $rule->aclLevel);
+    }
+    [$defaultSection, $defaultLevel] = $rule->surface->defaultAcl();
+
+    return sprintf(xl('Default (%s)'), $aclLabel($defaultSection, $defaultLevel));
+};
 
 $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
+
+/**
+ * One row of a rule table, shared by the questionnaire panel and the category list.
+ *
+ * $leadingCell is the category title for a category rule, or null for the
+ * questionnaire panel, which already names its questionnaire in the heading.
+ */
+$renderRuleRow = static function (string $returnUrl, AssignmentRecord $rule, ?string $leadingCell) use (
+    $surfaceLabels,
+    $limitText,
+    $permissionText,
+    $csrfToken,
+    $editing,
+    $pageUrl
+): void {
+    $rowClass = $editing !== null && $editing->id === $rule->id ? 'table-active' : '';
+    $editUrl = $rule->resourceId !== null
+        ? $pageUrl . '?q=' . $rule->resourceId . '&edit=' . $rule->id . '#limits'
+        : $pageUrl . '?edit=' . $rule->id . '#category-rules';
+    ?>
+    <tr class="<?php echo attr($rowClass); ?>">
+        <?php if ($leadingCell !== null) { ?>
+            <td><?php echo text($leadingCell); ?></td>
+        <?php } ?>
+        <td><?php echo text($surfaceLabels[$rule->surface->value]); ?></td>
+        <td><?php echo text($limitText($rule)); ?></td>
+        <td class="text-muted"><?php echo text($permissionText($rule)); ?></td>
+        <td>
+            <?php if ($rule->active) { ?>
+                <span class="badge badge-success"><?php echo xlt('On'); ?></span>
+            <?php } else { ?>
+                <span class="badge badge-info"><?php echo xlt('Off'); ?></span>
+            <?php } ?>
+        </td>
+        <td class="text-nowrap text-right">
+            <a class="btn btn-sm btn-outline-primary" href="<?php echo attr($editUrl); ?>" onclick="top.restoreSession()"><?php echo xlt('Edit'); ?></a>
+            <form method="post" action="<?php echo attr($returnUrl); ?>" class="d-inline" onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
+                <input type="hidden" name="action" value="toggle_rule" />
+                <input type="hidden" name="assignment_id" value="<?php echo attr((string)$rule->id); ?>" />
+                <input type="hidden" name="to" value="<?php echo $rule->active ? 'off' : 'on'; ?>" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    <?php echo $rule->active ? xlt('Switch off') : xlt('Switch on'); ?>
+                </button>
+            </form>
+            <form method="post" action="<?php echo attr($returnUrl); ?>" class="d-inline"
+                  data-confirm="<?php echo xla('Remove this rule? Switch it off instead to keep a record of it.'); ?>"
+                  onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
+                <input type="hidden" name="action" value="delete_rule" />
+                <input type="hidden" name="assignment_id" value="<?php echo attr((string)$rule->id); ?>" />
+                <button type="submit" class="btn btn-sm btn-link text-danger"><?php echo xlt('Remove'); ?></button>
+            </form>
+        </td>
+    </tr>
+    <?php
+};
+
+/**
+ * Surface, permission and limit fields, shared by both rule forms.
+ *
+ * Ids are prefixed so the two forms on the page do not collide. Limit fields carry
+ * data-scope and are disabled for a surface that cannot apply them, so they are not
+ * posted; the service refuses them too.
+ */
+$renderRuleFields = static function (string $prefix, ?AssignmentRecord $rule) use (
+    $surfaces,
+    $surfaceLabels,
+    $scopeHint,
+    $selectedIf,
+    $facilities,
+    $providers,
+    $visitCategories,
+    $smartAppNames,
+    $aclChoices,
+    $aclSectionNames,
+    $aclLabels
+): void {
+    $ruleAcl = $rule !== null && $rule->aclSection !== null && $rule->aclLevel !== null
+        ? $rule->aclSection . '|' . $rule->aclLevel
+        : null;
+    $ruleClientId = $rule !== null && $rule->clientId !== null && $rule->clientId !== '' ? $rule->clientId : null;
+    ?>
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="<?php echo attr($prefix); ?>-surface"><?php echo xlt('Offered on'); ?></label>
+            <select class="form-control" id="<?php echo attr($prefix); ?>-surface" name="surface" data-surface-select>
+                <?php foreach ($surfaces as $surface) { ?>
+                    <option
+                        value="<?php echo attr($surface->value); ?>"
+                        data-scopes="<?php echo attr(json_encode($surface->supportedScopes(), JSON_THROW_ON_ERROR)); ?>"
+                        data-hint="<?php echo attr($scopeHint($surface)); ?>"
+                        <?php echo $selectedIf($surface->value, $rule?->surface->value); ?>
+                    ><?php echo text($surfaceLabels[$surface->value]); ?></option>
+                <?php } ?>
+            </select>
+        </div>
+        <div class="form-group col-md-8">
+            <label for="<?php echo attr($prefix); ?>-acl"><?php echo xlt('Who may see it'); ?></label>
+            <select class="form-control" id="<?php echo attr($prefix); ?>-acl" name="acl">
+                <option value=""><?php echo xlt('Default for that surface'); ?></option>
+                <?php if ($ruleAcl !== null && !isset($aclLabels[$ruleAcl])) { ?>
+                    <option value="<?php echo attr($ruleAcl); ?>" selected>
+                        <?php echo text(sprintf(xl('%s (not in the permission list)'), str_replace('|', '/', $ruleAcl))); ?>
+                    </option>
+                <?php } ?>
+                <?php foreach ($aclChoices as $section => $levels) { ?>
+                    <optgroup label="<?php echo attr($aclSectionNames[$section] ?? $section); ?>">
+                        <?php foreach ($levels as $pair => $levelLabel) { ?>
+                            <option value="<?php echo attr($pair); ?>" <?php echo $selectedIf($pair, $ruleAcl); ?>>
+                                <?php echo text($levelLabel); ?>
+                            </option>
+                        <?php } ?>
+                    </optgroup>
+                <?php } ?>
+            </select>
+        </div>
+    </div>
+    <p class="small text-muted mb-2" data-scope-hint></p>
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label for="<?php echo attr($prefix); ?>-facility"><?php echo xlt('Only at facility'); ?></label>
+            <select class="form-control" id="<?php echo attr($prefix); ?>-facility" name="facility" data-scope="facility">
+                <option value=""><?php echo xlt('Any'); ?></option>
+                <?php foreach ($facilities as $facility) { ?>
+                    <option value="<?php echo attr($facility['id']); ?>" <?php echo $selectedIf($facility['id'], $rule?->facility !== null ? (string)$rule->facility : null); ?>>
+                        <?php echo text($facility['label']); ?>
+                    </option>
+                <?php } ?>
+            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="<?php echo attr($prefix); ?>-provider"><?php echo xlt('Only for provider'); ?></label>
+            <select class="form-control" id="<?php echo attr($prefix); ?>-provider" name="provider" data-scope="provider">
+                <option value=""><?php echo xlt('Any'); ?></option>
+                <?php foreach ($providers as $provider) { ?>
+                    <option value="<?php echo attr($provider['id']); ?>" <?php echo $selectedIf($provider['id'], $rule?->provider !== null ? (string)$rule->provider : null); ?>>
+                        <?php echo text($provider['label']); ?>
+                    </option>
+                <?php } ?>
+            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="<?php echo attr($prefix); ?>-visit"><?php echo xlt('Only for visit category'); ?></label>
+            <select class="form-control" id="<?php echo attr($prefix); ?>-visit" name="visit_category_id" data-scope="visit_category_id">
+                <option value=""><?php echo xlt('Any'); ?></option>
+                <?php foreach ($visitCategories as $visitCategory) { ?>
+                    <option value="<?php echo attr($visitCategory['id']); ?>" <?php echo $selectedIf($visitCategory['id'], $rule?->visitCategoryId !== null ? (string)$rule->visitCategoryId : null); ?>>
+                        <?php echo text($visitCategory['label']); ?>
+                    </option>
+                <?php } ?>
+            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="<?php echo attr($prefix); ?>-app"><?php echo xlt('Only for SMART app'); ?></label>
+            <select class="form-control" id="<?php echo attr($prefix); ?>-app" name="client_id" data-scope="client_id">
+                <option value=""><?php echo xlt('Any'); ?></option>
+                <?php if ($ruleClientId !== null && !isset($smartAppNames[$ruleClientId])) { ?>
+                    <option value="<?php echo attr($ruleClientId); ?>" selected>
+                        <?php echo text($ruleClientId . ' ' . xl('(inactive or removed)')); ?>
+                    </option>
+                <?php } ?>
+                <?php foreach ($smartAppNames as $appId => $appName) { ?>
+                    <option value="<?php echo attr((string)$appId); ?>" <?php echo $selectedIf((string)$appId, $ruleClientId); ?>>
+                        <?php echo text($appName); ?>
+                    </option>
+                <?php } ?>
+            </select>
+        </div>
+    </div>
+    <?php if ($rule !== null) { ?>
+        <input type="hidden" name="assignment_id" value="<?php echo attr((string)$rule->id); ?>" />
+        <input type="hidden" name="seq" value="<?php echo attr((string)$rule->seq); ?>" />
+    <?php } ?>
+    <?php
+};
 ?>
 <!DOCTYPE html>
 <html>
@@ -582,8 +846,8 @@ $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
 <body class="body_top">
 <div class="container-fluid">
     <h2 class="mt-3"><?php echo xlt('Questionnaire Availability'); ?></h2>
-    <p class="text-muted">
-        <?php echo xlt('Choose where each questionnaire is offered. Rules are additive: a questionnaire is offered while any active rule reaches it, so a badge marks boxes whose questionnaire is also covered by a category or scoped rule.'); ?>
+    <p class="text-muted mb-3">
+        <?php echo xlt('Tick where each questionnaire is offered. Open Limits to offer one only at a facility, for a provider, for a kind of visit or for one SMART app, or to change who may see it.'); ?>
     </p>
 
     <?php foreach ($notices as $notice) { ?>
@@ -598,90 +862,94 @@ $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
             <?php echo xlt('No active questionnaires are in the repository yet. Import one from the patient dashboard first.'); ?>
         </div>
     <?php } else { ?>
-    <form method="post" action="manage_questionnaire_availability.php" onsubmit="return top.restoreSession()">
+    <form method="post" action="<?php echo attr($selectedUrl); ?>" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
         <input type="hidden" name="action" value="save_grid" />
-        <div class="form-inline mb-2">
+        <div class="d-flex flex-wrap align-items-center mb-2">
             <label class="sr-only" for="grid-filter"><?php echo xlt('Filter questionnaires'); ?></label>
-            <input type="search" class="form-control form-control-sm" id="grid-filter"
+            <input type="search" class="form-control form-control-sm mr-3 mb-1" id="grid-filter" style="max-width: 18rem;"
                    placeholder="<?php echo xla('Filter by name or category'); ?>" />
+            <span class="small text-muted mb-1">
+                <span class="badge badge-info"><?php echo xlt('limited'); ?></span>
+                <?php echo xlt('also offered where a limit applies'); ?>
+                &nbsp;
+                <span class="badge badge-info"><?php echo xlt('category'); ?></span>
+                <?php echo xlt('also offered by a category rule'); ?>
+            </span>
         </div>
         <div class="table-responsive">
             <table class="table table-sm table-striped" id="availability-grid">
                 <thead>
                 <tr>
                     <th><?php echo xlt('Questionnaire'); ?></th>
-                    <th><?php echo xlt('Category'); ?></th>
                     <?php foreach ($surfaces as $surface) { ?>
                         <th class="text-center">
                             <?php echo text($surfaceLabels[$surface->value]); ?>
                             <?php if ($surface === QuestionnaireSurface::Smart) { ?>
-                                <i class="fa fa-info-circle text-muted" title="<?php echo xla('Only ticked questionnaires can be launched into a SMART app from Available Assessments. Add a rule to allow one app only.'); ?>"></i>
+                                <i class="fa fa-info-circle text-muted" title="<?php echo xla('Only questionnaires offered here can be launched into a SMART app from Available Assessments.'); ?>"></i>
                             <?php } ?>
                         </th>
                     <?php } ?>
+                    <th class="text-right"><?php echo xlt('Limits'); ?></th>
                 </tr>
                 </thead>
                 <tbody>
                 <?php foreach ($questionnaires as $questionnaire) {
+                    $questionnaireId = $questionnaire['id'];
                     $questionnaireCategory = $questionnaire['category'] !== ''
                         ? $categoryLabel($questionnaire['category'])
                         : '';
+                    $extraRules = $ruleCounts[$questionnaireId] ?? 0;
                     ?>
-                    <tr data-filter="<?php echo attr(mb_strtolower($questionnaire['name'] . ' ' . $questionnaireCategory)); ?>">
-                        <td><?php echo text($questionnaire['name']); ?></td>
-                        <td class="text-muted"><?php echo text($questionnaireCategory); ?></td>
+                    <tr class="<?php echo $questionnaireId === $selectedId ? 'table-active' : ''; ?>"
+                        data-filter="<?php echo attr(mb_strtolower($questionnaire['name'] . ' ' . $questionnaireCategory)); ?>">
+                        <td>
+                            <?php echo text($questionnaire['name']); ?>
+                            <?php if ($questionnaireCategory !== '') { ?>
+                                <div class="small text-muted"><?php echo text($questionnaireCategory); ?></div>
+                            <?php } ?>
+                        </td>
                         <?php foreach ($surfaces as $surface) {
-                            $surfaceValue = $surface->value;
-                            $key = $questionnaire['id'] . '|' . $surfaceValue;
+                            $key = $questionnaireId . '|' . $surface->value;
                             $isOn = $gridState[$key] ?? false;
-
-                            // Reasons this questionnaire may be offered here regardless of
-                            // the checkbox, so an unticked-but-still-offered state is
-                            // explained rather than looking like a bug.
-                            $reasons = array_keys($otherRuleReasons[$key] ?? []);
-                            if ($questionnaire['category'] !== '') {
-                                $categoryKey = 'category:' . $questionnaire['category'] . '|' . $surfaceValue;
-                                if (isset($otherRuleReasons[$categoryKey])) {
-                                    $reasons[] = 'category';
-                                }
-                            }
-                            $reasons = array_values(array_unique($reasons));
+                            $limited = $limitCounts[$key] ?? 0;
+                            $viaCategory = $questionnaire['category'] !== ''
+                                && isset($categoryReach[$questionnaire['category'] . '|' . $surface->value]);
                             $notRegistered = $surface === QuestionnaireSurface::Encounter
-                                && !isset($registeredForEncounter[$questionnaire['id']]);
+                                && !isset($registeredForEncounter[$questionnaireId]);
                             ?>
                             <td class="text-center">
                                 <input type="hidden" name="rendered[]" value="<?php echo attr($key); ?>" />
                                 <input
                                     type="checkbox"
                                     class="js-grid-box"
-                                    name="offer[<?php echo attr((string)$questionnaire['id']); ?>][<?php echo attr($surfaceValue); ?>]"
+                                    name="offer[<?php echo attr((string)$questionnaireId); ?>][<?php echo attr($surface->value); ?>]"
                                     value="1"
-                                    aria-label="<?php echo attr($questionnaire['name'] . ': ' . $surfaceLabels[$surfaceValue]); ?>"
+                                    title="<?php echo xla('Offered everywhere on this surface'); ?>"
+                                    aria-label="<?php echo attr($questionnaire['name'] . ': ' . $surfaceLabels[$surface->value]); ?>"
                                     <?php echo $isOn ? 'checked' : ''; ?>
                                 />
-                                <?php if ($notRegistered) { ?>
-                                    <div>
-                                        <span class="badge badge-info" title="<?php echo xla('Not registered as an encounter form, so it cannot appear in encounters yet. Register it from the Questionnaire form in an encounter; this setting then applies.'); ?>">
-                                            <?php echo xlt('not registered'); ?>
-                                        </span>
-                                    </div>
+                                <?php if ($limited > 0) { ?>
+                                    <div><span class="badge badge-info" title="<?php echo xla('Also offered where its limits apply, even with this box unticked. Open Limits to see them.'); ?>"><?php echo xlt('limited'); ?></span></div>
                                 <?php } ?>
-                                <?php foreach ($reasons as $reason) { ?>
-                                    <div>
-                                        <?php if ($reason === 'category') { ?>
-                                            <span class="badge badge-info" title="<?php echo xla('A category rule also offers this here, so it stays available even with this box unchecked. See All rules below.'); ?>">
-                                                <?php echo xlt('category rule'); ?>
-                                            </span>
-                                        <?php } else { ?>
-                                            <span class="badge badge-warning" title="<?php echo xla('A scoped rule also offers this here, so it stays available in that scope even with this box unchecked. See All rules below.'); ?>">
-                                                <?php echo xlt('scoped rule'); ?>
-                                            </span>
-                                        <?php } ?>
-                                    </div>
+                                <?php if ($viaCategory) { ?>
+                                    <div><span class="badge badge-info" title="<?php echo xla('A category rule also offers it here, even with this box unticked.'); ?>"><?php echo xlt('category'); ?></span></div>
+                                <?php } ?>
+                                <?php if ($notRegistered) { ?>
+                                    <div><span class="badge badge-warning" title="<?php echo xla('Not registered as an encounter form, so it cannot appear in encounters yet. Register it from the Questionnaire form in an encounter; this setting then applies.'); ?>"><?php echo xlt('not registered'); ?></span></div>
                                 <?php } ?>
                             </td>
                         <?php } ?>
+                        <td class="text-right text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary"
+                               href="<?php echo attr($pageUrl . '?q=' . $questionnaireId . '#limits'); ?>"
+                               onclick="top.restoreSession()">
+                                <?php echo xlt('Limits'); ?>
+                                <?php if ($extraRules > 0) { ?>
+                                    <span class="badge badge-info ml-1"><?php echo text((string)$extraRules); ?></span>
+                                <?php } ?>
+                            </a>
+                        </td>
                     </tr>
                 <?php } ?>
                 </tbody>
@@ -692,321 +960,163 @@ $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
     </form>
     <?php } ?>
 
-    <hr />
-    <h4><?php echo xlt('All rules'); ?></h4>
-    <p class="text-muted">
-        <?php echo xlt('Every stored rule, including category-wide and scoped rules the grid above cannot show. Switching a rule off keeps it for the record; removing it deletes it.'); ?>
-    </p>
-    <?php if ($assignments !== []) { ?>
-        <div class="form-inline mb-2">
-            <label class="sr-only" for="rules-filter"><?php echo xlt('Filter rules'); ?></label>
-            <input type="search" class="form-control form-control-sm mr-2" id="rules-filter"
-                   placeholder="<?php echo xla('Filter by target or scope'); ?>" />
-            <label class="sr-only" for="rules-surface"><?php echo xlt('Surface'); ?></label>
-            <select class="form-control form-control-sm" id="rules-surface">
-                <option value=""><?php echo xlt('All surfaces'); ?></option>
-                <?php foreach ($surfaceLabels as $value => $label) { ?>
-                    <option value="<?php echo attr($value); ?>"><?php echo text($label); ?></option>
-                <?php } ?>
-            </select>
+    <?php if ($selectedId !== null) {
+        // $selectedId was cleared above unless it names a listed questionnaire.
+        $selectedName = $questionnaireNames[$selectedId];
+        ?>
+        <div class="card mt-4" id="limits">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong><?php echo text(sprintf(xl('Limits for %s'), $selectedName)); ?></strong>
+                <a class="btn btn-sm btn-link" href="<?php echo attr($pageUrl); ?>" onclick="top.restoreSession()"><?php echo xlt('Close'); ?></a>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    <?php echo xlt('Each line is one rule. "Everywhere" is the tick in the grid. A limited rule offers the questionnaire only where its limits match. Rules add up: it is offered if any rule that is on matches.'); ?>
+                </p>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th><?php echo xlt('Offered on'); ?></th>
+                            <th><?php echo xlt('Where'); ?></th>
+                            <th><?php echo xlt('Who may see it'); ?></th>
+                            <th><?php echo xlt('Status'); ?></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php if ($selectedRules === []) { ?>
+                            <tr><td colspan="5" class="text-muted"><?php echo xlt('Not offered anywhere yet. Tick a surface in the grid, or add a limit below.'); ?></td></tr>
+                        <?php } ?>
+                        <?php foreach ($selectedRules as $selectedRule) {
+                            $renderRuleRow($selectedUrl . '#limits', $selectedRule, null);
+                        } ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h5 class="mt-3">
+                    <?php echo $editingLimit !== null ? xlt('Edit rule') : xlt('Add a limit'); ?>
+                </h5>
+                <form method="post" action="<?php echo attr($selectedUrl . '#limits'); ?>" onsubmit="return top.restoreSession()" data-rule-form>
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
+                    <input type="hidden" name="action" value="save_rule" />
+                    <input type="hidden" name="target" value="questionnaire" />
+                    <input type="hidden" name="questionnaire_id" value="<?php echo attr((string)$selectedId); ?>" />
+                    <?php $renderRuleFields('limit', $editingLimit); ?>
+                    <?php if ($editingLimit === null) { ?>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" name="only_here" value="1" id="limit-only-here" checked />
+                            <label class="form-check-label" for="limit-only-here">
+                                <?php echo xlt('Offer it only where this limit applies (untick "everywhere" on that surface)'); ?>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><?php echo xlt('Add limit'); ?></button>
+                    <?php } else { ?>
+                        <button type="submit" class="btn btn-primary"><?php echo xlt('Save changes'); ?></button>
+                        <a class="btn btn-link" href="<?php echo attr($selectedUrl . '#limits'); ?>" onclick="top.restoreSession()"><?php echo xlt('Cancel'); ?></a>
+                    <?php } ?>
+                </form>
+            </div>
         </div>
     <?php } ?>
-    <div class="table-responsive">
-        <table class="table table-sm" id="rules-table">
-            <thead>
-            <tr>
-                <th><?php echo xlt('Actions'); ?></th>
-                <th><?php echo xlt('Target'); ?></th>
-                <th><?php echo xlt('Surface'); ?></th>
-                <th><?php echo xlt('Scope'); ?></th>
-                <th><?php echo xlt('Requires'); ?></th>
-                <th><?php echo xlt('Order'); ?></th>
-                <th><?php echo xlt('Status'); ?></th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php if ($assignments === []) { ?>
-                <tr><td colspan="7" class="text-muted"><?php echo xlt('No rules yet'); ?></td></tr>
-            <?php } ?>
-            <?php foreach ($assignments as $assignment) {
-                $scopeParts = [];
-                if ($assignment->facility !== null) {
-                    $scopeParts[] = $scopeLabels['facility'] . ': ' . $nameOrId($facilityNames[(string)$assignment->facility] ?? null, $assignment->facility);
-                }
-                if ($assignment->provider !== null) {
-                    $scopeParts[] = $scopeLabels['provider'] . ': ' . $nameOrId($providerNames[(string)$assignment->provider] ?? null, $assignment->provider);
-                }
-                if ($assignment->visitCategoryId !== null) {
-                    $scopeParts[] = $scopeLabels['visit_category_id'] . ': '
-                        . $nameOrId($visitCategoryNames[(string)$assignment->visitCategoryId] ?? null, $assignment->visitCategoryId);
-                }
-                if (($assignment->clientId ?? '') !== '') {
-                    $scopeParts[] = $scopeLabels['client_id'] . ': '
-                        . ($smartAppNames[(string)$assignment->clientId]
-                            ?? $assignment->clientId . ' ' . xl('(inactive or removed)'));
-                }
-                $targetText = $assignment->isCategoryWide()
-                    ? sprintf(xl('every questionnaire in %s'), $categoryLabel((string)$assignment->category))
-                    : ($assignment->resourceName ?? ('#' . $assignment->resourceId));
-                $scopeText = $scopeParts === [] ? xl('any') : implode('; ', $scopeParts);
-                $rowClasses = [];
-                if (!$assignment->active) {
-                    $rowClasses[] = 'text-muted';
-                }
-                if ($editing !== null && $editing->id === $assignment->id) {
-                    // table-active shades with the theme; table-warning keeps a light
-                    // background under dark-theme text and becomes unreadable.
-                    $rowClasses[] = 'table-active';
-                }
-                ?>
-                <tr class="<?php echo attr(implode(' ', $rowClasses)); ?>"
-                    data-surface="<?php echo attr($assignment->surface->value); ?>"
-                    data-filter="<?php echo attr(mb_strtolower($targetText . ' ' . $scopeText)); ?>">
-                    <td class="text-nowrap">
-                        <a
-                            class="btn btn-sm btn-primary"
-                            href="manage_questionnaire_availability.php?edit=<?php echo attr((string)$assignment->id); ?>#rule-form"
-                            onclick="top.restoreSession()"
-                        ><?php echo xlt('Edit'); ?></a>
-                        <form method="post" action="manage_questionnaire_availability.php" class="d-inline"
-                              onsubmit="return top.restoreSession()">
-                            <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
-                            <input type="hidden" name="action" value="toggle_rule" />
-                            <input type="hidden" name="assignment_id" value="<?php echo attr((string)$assignment->id); ?>" />
-                            <input type="hidden" name="to" value="<?php echo $assignment->active ? 'off' : 'on'; ?>" />
-                            <button type="submit" class="btn btn-sm btn-secondary">
-                                <?php echo $assignment->active ? xlt('Switch off') : xlt('Switch on'); ?>
-                            </button>
-                        </form>
-                        <form method="post" action="manage_questionnaire_availability.php" class="d-inline"
-                              data-confirm="<?php echo xla('Remove this rule? This cannot be undone. Switch it off instead to keep a record of it.'); ?>"
-                              onsubmit="return top.restoreSession()">
-                            <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
-                            <input type="hidden" name="action" value="delete_rule" />
-                            <input type="hidden" name="assignment_id" value="<?php echo attr((string)$assignment->id); ?>" />
-                            <button type="submit" class="btn btn-sm btn-link text-danger"><?php echo xlt('Remove'); ?></button>
-                        </form>
-                    </td>
-                    <td>
-                        <a
-                            href="manage_questionnaire_availability.php?edit=<?php echo attr((string)$assignment->id); ?>#rule-form"
-                            onclick="top.restoreSession()"
-                            title="<?php echo xla('Edit this rule'); ?>"
-                        >
-                        <?php if ($assignment->isCategoryWide()) { ?>
-                            <em><?php echo text($targetText); ?></em>
-                        <?php } else { ?>
-                            <?php echo text($targetText); ?>
-                        <?php } ?>
-                        </a>
-                    </td>
-                    <td>
-                        <?php echo text($surfaceLabels[$assignment->surface->value]); ?>
 
-                    </td>
-                    <td><?php echo text($scopeText); ?></td>
-                    <td>
-                        <?php if ($assignment->aclSection !== null && $assignment->aclLevel !== null) { ?>
-                            <span title="<?php echo attr($assignment->aclSection . '/' . $assignment->aclLevel); ?>">
-                                <?php echo text($aclLabel($assignment->aclSection, $assignment->aclLevel)); ?>
-                            </span>
-                        <?php } else {
-                            [$defaultSection, $defaultLevel] = $assignment->surface->defaultAcl();
-                            ?>
-                            <span class="text-muted" title="<?php echo attr($defaultSection . '/' . $defaultLevel); ?>">
-                                <?php echo text(sprintf(xl('surface default (%s)'), $aclLabel($defaultSection, $defaultLevel))); ?>
-                            </span>
-                        <?php } ?>
-                    </td>
-                    <td><?php echo text((string)$assignment->seq); ?></td>
-                    <td>
-                        <?php if ($assignment->active) { ?>
-                            <span class="badge badge-success"><?php echo xlt('Active'); ?></span>
-                        <?php } else { ?>
-                            <span class="badge badge-info"><?php echo xlt('Off'); ?></span>
-                        <?php } ?>
-                    </td>
-                </tr>
-            <?php } ?>
-            </tbody>
-        </table>
-    </div>
+    <div class="card mt-4 mb-5" id="category-rules">
+        <div class="card-header"><strong><?php echo xlt('Category rules'); ?></strong></div>
+        <div class="card-body">
+            <p class="text-muted">
+                <?php echo xlt('Offer every questionnaire in a category, including ones imported later, without ticking each one.'); ?>
+            </p>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th><?php echo xlt('Category'); ?></th>
+                        <th><?php echo xlt('Offered on'); ?></th>
+                        <th><?php echo xlt('Where'); ?></th>
+                        <th><?php echo xlt('Who may see it'); ?></th>
+                        <th><?php echo xlt('Status'); ?></th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php if ($categoryRules === []) { ?>
+                        <tr><td colspan="6" class="text-muted"><?php echo xlt('No category rules'); ?></td></tr>
+                    <?php } ?>
+                    <?php foreach ($categoryRules as $categoryRule) {
+                        $renderRuleRow(
+                            $selectedUrl . '#category-rules',
+                            $categoryRule,
+                            $categoryLabel((string)$categoryRule->category)
+                        );
+                    } ?>
+                    </tbody>
+                </table>
+            </div>
 
-    <hr />
-    <h4 id="rule-form">
-        <?php echo $editing !== null ? xlt('Edit rule') : xlt('Add a rule'); ?>
-    </h4>
-    <p class="text-muted">
-        <?php if ($editing !== null) { ?>
-            <?php echo xlt('Changing the target or scope edits this rule in place, keeping its history. Switching it on or off is done from the list above.'); ?>
-        <?php } else { ?>
-            <?php echo xlt('Use a rule for what the grid cannot express: every questionnaire in a category, or a questionnaire offered only at one facility, for one provider, for one kind of visit, or to one SMART app. Rules are additive, so to limit a questionnaire to certain visits, also untick its box in the grid.'); ?>
-        <?php } ?>
-    </p>
-    <form method="post" action="<?php echo attr($formAction); ?>" onsubmit="return top.restoreSession()">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
-        <input type="hidden" name="action" value="save_rule" />
-        <input type="hidden" name="assignment_id" value="<?php echo attr($editing !== null ? (string)$editing->id : ''); ?>" />
-        <div class="form-row">
-            <div class="form-group col-md-3">
-                <label for="surface"><?php echo xlt('Surface'); ?></label>
-                <select class="form-control" id="surface" name="surface" aria-describedby="scope-hint">
-                    <?php foreach ($surfaces as $surface) { ?>
-                        <option
-                            value="<?php echo attr($surface->value); ?>"
-                            data-scopes="<?php echo attr(json_encode($surface->supportedScopes(), JSON_THROW_ON_ERROR)); ?>"
-                            data-hint="<?php echo attr($scopeHint($surface)); ?>"
-                            <?php echo $selectedIf($surface->value, $editing?->surface->value); ?>
-                        ><?php echo text($surfaceLabels[$surface->value]); ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-            <div class="form-group col-md-4">
-                <label for="resource_id"><?php echo xlt('Questionnaire'); ?></label>
-                <select class="form-control" id="resource_id" name="resource_id">
-                    <option value=""><?php echo xlt('-- use a category instead --'); ?></option>
-                    <?php foreach ($questionnaires as $questionnaire) { ?>
-                        <option value="<?php echo attr((string)$questionnaire['id']); ?>" <?php echo $selectedIf((string)$questionnaire['id'], $editing?->resourceId !== null ? (string)$editing->resourceId : null); ?>>
-                            <?php echo text($questionnaire['name']); ?>
-                        </option>
-                    <?php } ?>
-                </select>
-            </div>
-            <div class="form-group col-md-3">
-                <label for="category"><?php echo xlt('Category'); ?></label>
-                <select class="form-control" id="category" name="category">
-                    <option value=""><?php echo xlt('-- choose a questionnaire instead --'); ?></option>
-                    <?php foreach ($categoryTitles as $categoryValue => $categoryTitle) { ?>
-                        <option value="<?php echo attr((string)$categoryValue); ?>" <?php echo $selectedIf((string)$categoryValue, $editing !== null && $editing->isCategoryWide() ? (string)$editing->category : null); ?>>
-                            <?php echo text($categoryTitle); ?>
-                        </option>
-                    <?php } ?>
-                </select>
-            </div>
-            <div class="form-group col-md-2">
-                <label for="seq"><?php echo xlt('Order'); ?></label>
-                <input type="number" class="form-control" id="seq" name="seq" value="<?php echo attr($editing !== null ? (string)$editing->seq : '0'); ?>" min="0" />
-            </div>
-        </div>
-        <p class="small text-muted mb-2" id="scope-hint"></p>
-        <div class="form-row">
-            <div class="form-group col-md-3">
-                <label for="facility"><?php echo xlt('Facility'); ?></label>
-                <select class="form-control" id="facility" name="facility" data-scope="facility">
-                    <option value=""><?php echo xlt('Any'); ?></option>
-                    <?php foreach ($facilities as $facility) { ?>
-                        <option value="<?php echo attr($facility['id']); ?>" <?php echo $selectedIf($facility['id'], $editing?->facility !== null ? (string)$editing->facility : null); ?>>
-                            <?php echo text($facility['label']); ?>
-                        </option>
-                    <?php } ?>
-                </select>
-            </div>
-            <div class="form-group col-md-3">
-                <label for="provider"><?php echo xlt('Provider'); ?></label>
-                <select class="form-control" id="provider" name="provider" data-scope="provider">
-                    <option value=""><?php echo xlt('Any'); ?></option>
-                    <?php foreach ($providers as $provider) { ?>
-                        <option value="<?php echo attr($provider['id']); ?>" <?php echo $selectedIf($provider['id'], $editing?->provider !== null ? (string)$editing->provider : null); ?>>
-                            <?php echo text($provider['label']); ?>
-                        </option>
-                    <?php } ?>
-                </select>
-            </div>
-            <div class="form-group col-md-3">
-                <label for="visit_category_id"><?php echo xlt('Visit category'); ?></label>
-                <select class="form-control" id="visit_category_id" name="visit_category_id" data-scope="visit_category_id">
-                    <option value=""><?php echo xlt('Any'); ?></option>
-                    <?php foreach ($visitCategories as $visitCategory) { ?>
-                        <option value="<?php echo attr($visitCategory['id']); ?>" <?php echo $selectedIf($visitCategory['id'], $editing?->visitCategoryId !== null ? (string)$editing->visitCategoryId : null); ?>>
-                            <?php echo text($visitCategory['label']); ?>
-                        </option>
-                    <?php } ?>
-                </select>
-            </div>
-            <div class="form-group col-md-3">
-                <label for="client_id"><?php echo xlt('SMART app'); ?></label>
-                <select class="form-control" id="client_id" name="client_id" data-scope="client_id">
-                    <option value=""><?php echo xlt('Any'); ?></option>
-                    <?php if ($editingClientId !== null && !isset($smartAppNames[$editingClientId])) { ?>
-                        <option value="<?php echo attr($editingClientId); ?>" selected>
-                            <?php echo text($editingClientId . ' ' . xl('(inactive or removed)')); ?>
-                        </option>
-                    <?php } ?>
-                    <?php foreach ($smartAppNames as $appId => $appName) { ?>
-                        <option value="<?php echo attr((string)$appId); ?>" <?php echo $selectedIf((string)$appId, $editingClientId); ?>>
-                            <?php echo text($appName); ?>
-                        </option>
-                    <?php } ?>
-                </select>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="acl"><?php echo xlt('Required permission'); ?></label>
-                <select class="form-control" id="acl" name="acl">
-                    <option value=""><?php echo xlt('Surface default'); ?></option>
-                    <?php if ($editingAcl !== null && !isset($aclLabels[$editingAcl])) { ?>
-                        <option value="<?php echo attr($editingAcl); ?>" selected>
-                            <?php echo text(sprintf(xl('%s (not in the permission list)'), str_replace('|', '/', $editingAcl))); ?>
-                        </option>
-                    <?php } ?>
-                    <?php foreach ($aclChoices as $section => $levels) { ?>
-                        <optgroup label="<?php echo attr($aclSectionNames[$section] ?? $section); ?>">
-                            <?php foreach ($levels as $pair => $levelLabel) { ?>
-                                <option value="<?php echo attr($pair); ?>" <?php echo $selectedIf($pair, $editingAcl); ?>>
-                                    <?php echo text($levelLabel); ?>
+            <h5 class="mt-3">
+                <?php echo $editingCategoryRule !== null ? xlt('Edit category rule') : xlt('Add a category rule'); ?>
+            </h5>
+            <form method="post" action="<?php echo attr($selectedUrl . '#category-rules'); ?>" onsubmit="return top.restoreSession()" data-rule-form>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
+                <input type="hidden" name="action" value="save_rule" />
+                <input type="hidden" name="target" value="category" />
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="category-category"><?php echo xlt('Category'); ?></label>
+                        <select class="form-control" id="category-category" name="category" required>
+                            <option value=""><?php echo xlt('Choose a category'); ?></option>
+                            <?php foreach ($categoryTitles as $categoryValue => $categoryTitle) { ?>
+                                <option value="<?php echo attr((string)$categoryValue); ?>" <?php echo $selectedIf((string)$categoryValue, $editingCategoryRule?->category); ?>>
+                                    <?php echo text($categoryTitle); ?>
                                 </option>
                             <?php } ?>
-                        </optgroup>
-                    <?php } ?>
-                </select>
-                <small class="form-text text-muted">
-                    <?php echo xlt('Who may see this questionnaire. Surface default keeps the check that page already makes.'); ?>
-                </small>
-            </div>
+                        </select>
+                    </div>
+                </div>
+                <?php $renderRuleFields('category', $editingCategoryRule); ?>
+                <?php if ($editingCategoryRule === null) { ?>
+                    <button type="submit" class="btn btn-primary"><?php echo xlt('Add category rule'); ?></button>
+                <?php } else { ?>
+                    <button type="submit" class="btn btn-primary"><?php echo xlt('Save changes'); ?></button>
+                    <a class="btn btn-link" href="<?php echo attr($selectedUrl . '#category-rules'); ?>" onclick="top.restoreSession()"><?php echo xlt('Cancel'); ?></a>
+                <?php } ?>
+            </form>
         </div>
-        <?php if ($editing !== null) { ?>
-            <button type="submit" class="btn btn-primary"><?php echo xlt('Save changes'); ?></button>
-            <a class="btn btn-link" href="manage_questionnaire_availability.php" onclick="top.restoreSession()"><?php echo xlt('Cancel'); ?></a>
-        <?php } else { ?>
-            <button type="submit" class="btn btn-primary"><?php echo xlt('Add rule'); ?></button>
-        <?php } ?>
-    </form>
-    <div class="mb-5"></div>
+    </div>
 </div>
 <script>
 (function () {
     'use strict';
 
-    // Scope fields the chosen surface never fills in are disabled, so they are not posted.
-    // The service refuses such a rule too; this keeps the form from offering it.
-    const surface = document.getElementById('surface');
-    const scopeHint = document.getElementById('scope-hint');
-    const scopedFields = document.querySelectorAll('[data-scope]');
-    const applySurface = function () {
-        const option = surface.options[surface.selectedIndex];
-        let allowed = [];
-        try {
-            allowed = JSON.parse(option?.dataset.scopes || '[]');
-        } catch (e) {
-            allowed = [];
+    // In each rule form, limit fields the chosen surface never fills in are disabled, so
+    // they are not posted. The service refuses such a rule too; this keeps the form from
+    // offering it.
+    document.querySelectorAll('form[data-rule-form]').forEach(function (form) {
+        const surface = form.querySelector('[data-surface-select]');
+        const hint = form.querySelector('[data-scope-hint]');
+        const scopedFields = form.querySelectorAll('[data-scope]');
+        if (!surface) {
+            return;
         }
-        scopedFields.forEach(function (field) {
-            field.disabled = !allowed.includes(field.dataset.scope);
-        });
-        scopeHint.textContent = option?.dataset.hint || '';
-    };
-    surface.addEventListener('change', applySurface);
-    applySurface();
-
-    // A rule names one questionnaire or a category, never both.
-    const resource = document.getElementById('resource_id');
-    const category = document.getElementById('category');
-    const applyTarget = function () {
-        category.disabled = resource.value !== '';
-    };
-    resource.addEventListener('change', applyTarget);
-    applyTarget();
+        const applySurface = function () {
+            const option = surface.options[surface.selectedIndex];
+            let allowed = [];
+            try {
+                allowed = JSON.parse(option?.dataset.scopes || '[]');
+            } catch (e) {
+                allowed = [];
+            }
+            scopedFields.forEach(function (field) {
+                field.disabled = !allowed.includes(field.dataset.scope);
+            });
+            if (hint) {
+                hint.textContent = option?.dataset.hint || '';
+            }
+        };
+        surface.addEventListener('change', applySurface);
+        applySurface();
+    });
 
     document.querySelectorAll('form[data-confirm]').forEach(function (form) {
         form.addEventListener('submit', function (event) {
@@ -1025,32 +1135,15 @@ $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
         });
     });
 
-    const filterRows = function (rows, text, surfaceValue) {
-        const needle = text.trim().toLowerCase();
-        rows.forEach(function (row) {
-            const matchesText = needle === '' || (row.dataset.filter || '').includes(needle);
-            const matchesSurface = !surfaceValue || row.dataset.surface === surfaceValue;
-            row.hidden = !(matchesText && matchesSurface);
-        });
-    };
-
     const gridFilter = document.getElementById('grid-filter');
     if (gridFilter) {
         const gridRows = document.querySelectorAll('#availability-grid tbody tr');
         gridFilter.addEventListener('input', function () {
-            filterRows(gridRows, gridFilter.value, '');
+            const needle = gridFilter.value.trim().toLowerCase();
+            gridRows.forEach(function (row) {
+                row.hidden = needle !== '' && !(row.dataset.filter || '').includes(needle);
+            });
         });
-    }
-
-    const rulesFilter = document.getElementById('rules-filter');
-    const rulesSurface = document.getElementById('rules-surface');
-    if (rulesFilter && rulesSurface) {
-        const ruleRows = document.querySelectorAll('#rules-table tbody tr[data-surface]');
-        const applyRulesFilter = function () {
-            filterRows(ruleRows, rulesFilter.value, rulesSurface.value);
-        };
-        rulesFilter.addEventListener('input', applyRulesFilter);
-        rulesSurface.addEventListener('change', applyRulesFilter);
     }
 })();
 </script>
