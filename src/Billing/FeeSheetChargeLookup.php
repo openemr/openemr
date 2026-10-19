@@ -20,7 +20,7 @@ final class FeeSheetChargeLookup
 {
     /**
      * The code row for $code, chosen as FeeSheet::getPrice() chooses it: of
-     * the given code type, active rows first, then the row without a
+     * the given code type (its key, or its code_types id), active rows first, then the row without a
      * modifier, then the oldest. When no row of that type has the code (or
      * no type is given), a row of any type is chosen the same way, so an item
      * still gets a description, units and fee. The fee is the price at the
@@ -55,7 +55,8 @@ final class FeeSheetChargeLookup
             . " WHERE c.code = ?";
         $binds = [$pid, $code];
         if ($codeType !== null) {
-            $sql .= " AND ct.ct_key = ?";
+            // A code type is its key (CPT4), or its code_types id when all digits.
+            $sql .= ctype_digit($codeType) ? " AND ct.ct_id = ?" : " AND ct.ct_key = ?";
             $binds[] = $codeType;
         }
         $sql .= " ORDER BY c.active DESC, c.modifier, c.id LIMIT 1";

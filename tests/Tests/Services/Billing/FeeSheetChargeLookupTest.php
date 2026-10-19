@@ -78,6 +78,16 @@ class FeeSheetChargeLookupTest extends TestCase
         $this->assertSame('30.00', (new FeeSheetChargeLookup())->find('CPT4', self::CODE, self::PID_DISCOUNT)['fee'] ?? null);
     }
 
+    public function testNumericCodeTypeIsMatchedByItsId(): void
+    {
+        $this->addCode('HCPCS', 'Other type', 1, '', ['standard' => '99.00']);
+        $this->addCode('CPT4', 'Refraction', 1, '', ['standard' => '44.00']);
+        $cptId = QueryUtils::fetchSingleValue('SELECT ct_id FROM code_types WHERE ct_key = ?', 'ct_id', ['CPT4']);
+        $this->assertIsNumeric($cptId);
+
+        $this->assertSame('44.00', (new FeeSheetChargeLookup())->find((string) $cptId, self::CODE, self::PID_STANDARD)['fee'] ?? null);
+    }
+
     public function testCodeOfAnotherTypeIsUsedWhenTheGivenTypeHasNone(): void
     {
         // The item still gets a fee, as before, rather than none at all.
