@@ -179,6 +179,36 @@ class ServiceRequestReferralFhirApiTest extends TestCase
         $this->assertSame($this->referrals['other']['uuid'], $this->read($this->referrals['other']['uuid'])['id'] ?? null, 'it is there for a user token');
     }
 
+    public function testEachReferralHasAProvenanceWhoseAgentsAreReferences(): void
+    {
+        // Provenance needs a primary business entity, which a new install doesn't mark.
+        $facility = QueryUtils::fetchRecords('SELECT id, primary_business_entity FROM facility ORDER BY id LIMIT 1')[0] ?? null;
+        $this->assertIsArray($facility);
+        QueryUtils::sqlStatementThrowException('UPDATE facility SET primary_business_entity = 1 WHERE id = ?', [$facility['id']]);
+        try {
+            $resources = $this->search(['patient' => $this->patient['uuid'], 'category' => self::REFERRAL, '_revinclude' => 'Provenance:target']);
+        } finally {
+            QueryUtils::sqlStatementThrowException('UPDATE facility SET primary_business_entity = ? WHERE id = ?', [$facility['primary_business_entity'], $facility['id']]);
+        }
+
+        $targets = [];
+        foreach ($resources as $resource) {
+            if (($resource['resourceType'] ?? null) !== 'Provenance') {
+                continue;
+            }
+            foreach (is_array($resource['target'] ?? null) ? $resource['target'] : [] as $target) {
+                $targets[] = is_array($target) ? ($target['reference'] ?? null) : null;
+            }
+            // The open referral's requester is a user FHIR doesn't serve as a Practitioner,
+            // so the organization is the author rather than a name with nothing to resolve.
+            foreach (is_array($resource['agent'] ?? null) ? $resource['agent'] : [] as $agent) {
+                $this->assertIsString(is_array($agent) && is_array($agent['who'] ?? null) ? ($agent['who']['reference'] ?? null) : null, json_encode($resource) ?: '');
+            }
+        }
+        $this->assertContains('ServiceRequest/' . $this->referrals['open']['uuid'], $targets);
+        $this->assertContains('ServiceRequest/' . $this->referrals['replied']['uuid'], $targets);
+    }
+
     /**
      * @param array<string, string> $query
      * @return list<array<mixed>> the resources in the bundle
