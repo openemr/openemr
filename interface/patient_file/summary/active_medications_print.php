@@ -35,22 +35,27 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::deny('Unauthorized access to medication list');
 }
 
-$prow = getPatientData($pid, "squad, title, fname, mname, lname");
-$squad = is_string($prow['squad'] ?? null) ? $prow['squad'] : '';
+$patient = [];
+foreach (getPatientData($pid, "squad, title, fname, mname, lname") as $column => $value) {
+    if (!is_string($column)) {
+        continue;
+    }
+    $patient[$column] = $value;
+}
+$squadValue = $patient['squad'] ?? null;
+$squad = is_string($squadValue) ? $squadValue : '';
 if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
     AccessDeniedHelper::deny('Not authorized for squad: ' . $squad);
 }
 
-$ptname = ActiveMedicationListService::patientName(is_array($prow) ? $prow : []);
+$ptname = ActiveMedicationListService::patientName($patient);
 $svc = new ActiveMedicationListService();
 $active = $svc->getActiveList($pid);
 $inactive = $svc->getInactiveList($pid, $active);
-$formatMedDate = static function (?string $d): string {
-    return ActiveMedicationListService::formatListDate(
-        $d,
-        static fn (string $raw) => oeFormatShortDate($raw)
-    );
-};
+$formatMedDate = static fn (?string $d): string => ActiveMedicationListService::formatListDate(
+    $d,
+    static fn (string $raw) => oeFormatShortDate($raw)
+);
 ?>
 <html>
 <head>
@@ -62,8 +67,8 @@ $formatMedDate = static function (?string $d): string {
     <?php echo ' ' . xlt('for') . ' ' . text($ptname); ?></p>
 
 <?php
-echo ActiveMedicationListService::sectionHtml('Active', $active, 'xl', 'text', $formatMedDate, 'table table-bordered table-sm');
-echo ActiveMedicationListService::sectionHtml('Inactive', $inactive, 'xl', 'text', $formatMedDate, 'table table-bordered table-sm');
+echo ActiveMedicationListService::sectionHtml('Active', $active, xl(...), 'text', $formatMedDate, 'table table-bordered table-sm');
+echo ActiveMedicationListService::sectionHtml('Inactive', $inactive, xl(...), 'text', $formatMedDate, 'table table-bordered table-sm');
 ?>
 
 <script>
