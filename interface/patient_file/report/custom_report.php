@@ -432,57 +432,33 @@ function getContent()
                         echo "</div>\n"; // end of billing DIV
                     } elseif ($val == "medications") {
                         if (AclMain::aclCheckCore('patients', 'med')) {
-                            echo "<hr />";
-                            echo "<div class='text medications'>\n";
-                            print "<h4>" . xlt('Medications') . ":</h4>";
+                            echo "<hr />\n<div class='text medications'>\n";
+                            echo "<h4>" . text(xl('Medications')) . ":</h4>\n";
                             $medListService = new ActiveMedicationListService();
                             $activeMeds = $medListService->getActiveList($pid);
                             $inactiveMeds = $medListService->getInactiveList($pid, $activeMeds);
                             $medDate = static function (?string $d): string {
-                                if ($d === null) {
-                                    return '';
-                                }
-                                $formatted = oeFormatShortDate($d);
-                                return is_string($formatted) ? $formatted : '';
+                                return ActiveMedicationListService::formatListDate(
+                                    $d,
+                                    static fn (string $raw) => oeFormatShortDate($raw)
+                                );
                             };
-                            echo "<span class='font-weight-bold'>" . xlt('Active') . ":</span><br />";
-                            if ($activeMeds === []) {
-                                echo "<span>" . xlt('None{{Issues}}') . "</span><br />\n";
-                            } else {
-                                echo "<div class='table-responsive'><table class='table'>";
-                                echo "<tr><td class='font-weight-bold'>" . xlt('Medication') . "</td>";
-                                echo "<td class='font-weight-bold'>" . xlt('Dose') . "</td>";
-                                echo "<td class='font-weight-bold'>" . xlt('Start') . "</td>";
-                                echo "<td class='font-weight-bold'>" . xlt('End') . "</td>";
-                                echo "<td class='font-weight-bold'>" . xlt('Comments') . "</td></tr>\n";
-                                foreach ($activeMeds as $med) {
-                                    echo "<tr><td class='text'>" . text($med['title']) . "</td>";
-                                    echo "<td class='text'>" . text($med['dose']) . "</td>";
-                                    echo "<td class='text'>" . text($medDate($med['start'])) . "</td>";
-                                    echo "<td class='text'>" . text($medDate($med['end'])) . "</td>";
-                                    echo "<td class='text'>" . text($med['comments']) . "</td></tr>\n";
-                                }
-                                echo "</table></div>";
-                            }
-                            echo "<span class='font-weight-bold'>" . xlt('Inactive') . ":</span><br />";
-                            if ($inactiveMeds === []) {
-                                echo "<span>" . xlt('None{{Issues}}') . "</span><br />\n";
-                            } else {
-                                echo "<div class='table-responsive'><table class='table'>";
-                                echo "<tr><td class='font-weight-bold'>" . xlt('Medication') . "</td>";
-                                echo "<td class='font-weight-bold'>" . xlt('Dose') . "</td>";
-                                echo "<td class='font-weight-bold'>" . xlt('Start') . "</td>";
-                                echo "<td class='font-weight-bold'>" . xlt('End') . "</td>";
-                                echo "<td class='font-weight-bold'>" . xlt('Comments') . "</td></tr>\n";
-                                foreach ($inactiveMeds as $med) {
-                                    echo "<tr><td class='text'>" . text($med['title']) . "</td>";
-                                    echo "<td class='text'>" . text($med['dose']) . "</td>";
-                                    echo "<td class='text'>" . text($medDate($med['start'])) . "</td>";
-                                    echo "<td class='text'>" . text($medDate($med['end'])) . "</td>";
-                                    echo "<td class='text'>" . text($med['comments']) . "</td></tr>\n";
-                                }
-                                echo "</table></div>";
-                            }
+                            echo ActiveMedicationListService::sectionHtml(
+                                'Active',
+                                $activeMeds,
+                                'xl',
+                                'text',
+                                $medDate,
+                                'table table-sm'
+                            );
+                            echo ActiveMedicationListService::sectionHtml(
+                                'Inactive',
+                                $inactiveMeds,
+                                'xl',
+                                'text',
+                                $medDate,
+                                'table table-sm'
+                            );
                             echo "</div>\n";
                         }
                     } elseif ($val == "immunizations") {

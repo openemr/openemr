@@ -41,23 +41,15 @@ if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
     AccessDeniedHelper::deny('Not authorized for squad: ' . $squad);
 }
 
-$nameParts = [];
-foreach (['title', 'fname', 'mname', 'lname'] as $nameCol) {
-    $part = $prow[$nameCol] ?? '';
-    if (is_string($part) && trim($part) !== '') {
-        $nameParts[] = trim($part);
-    }
-}
-$ptname = implode(' ', $nameParts);
+$ptname = ActiveMedicationListService::patientName(is_array($prow) ? $prow : []);
 $svc = new ActiveMedicationListService();
 $active = $svc->getActiveList($pid);
 $inactive = $svc->getInactiveList($pid, $active);
 $formatMedDate = static function (?string $d): string {
-    if ($d === null) {
-        return '';
-    }
-    $formatted = oeFormatShortDate($d);
-    return is_string($formatted) ? $formatted : '';
+    return ActiveMedicationListService::formatListDate(
+        $d,
+        static fn (string $raw) => oeFormatShortDate($raw)
+    );
 };
 ?>
 <html>
@@ -69,53 +61,10 @@ $formatMedDate = static function (?string $d): string {
 <p><b><?php echo xlt('Medications'); ?></b>
     <?php echo ' ' . xlt('for') . ' ' . text($ptname); ?></p>
 
-<p><b><?php echo xlt('Active'); ?></b></p>
-<?php if ($active === []) { ?>
-<p><?php echo xlt('None{{Issues}}'); ?></p>
-<?php } else { ?>
-<table class="table table-bordered table-sm">
-    <tr>
-        <th><?php echo xlt('Medication'); ?></th>
-        <th><?php echo xlt('Dose'); ?></th>
-        <th><?php echo xlt('Start'); ?></th>
-        <th><?php echo xlt('End'); ?></th>
-        <th><?php echo xlt('Comments'); ?></th>
-    </tr>
-    <?php foreach ($active as $row) { ?>
-    <tr>
-        <td><?php echo text($row['title']); ?></td>
-        <td><?php echo text($row['dose']); ?></td>
-        <td><?php echo text($formatMedDate($row['start'])); ?></td>
-        <td><?php echo text($formatMedDate($row['end'])); ?></td>
-        <td><?php echo text($row['comments']); ?></td>
-    </tr>
-    <?php } ?>
-</table>
-<?php } ?>
-
-<p><b><?php echo xlt('Inactive'); ?></b></p>
-<?php if ($inactive === []) { ?>
-<p><?php echo xlt('None{{Issues}}'); ?></p>
-<?php } else { ?>
-<table class="table table-bordered table-sm">
-    <tr>
-        <th><?php echo xlt('Medication'); ?></th>
-        <th><?php echo xlt('Dose'); ?></th>
-        <th><?php echo xlt('Start'); ?></th>
-        <th><?php echo xlt('End'); ?></th>
-        <th><?php echo xlt('Comments'); ?></th>
-    </tr>
-    <?php foreach ($inactive as $row) { ?>
-    <tr>
-        <td><?php echo text($row['title']); ?></td>
-        <td><?php echo text($row['dose']); ?></td>
-        <td><?php echo text($formatMedDate($row['start'])); ?></td>
-        <td><?php echo text($formatMedDate($row['end'])); ?></td>
-        <td><?php echo text($row['comments']); ?></td>
-    </tr>
-    <?php } ?>
-</table>
-<?php } ?>
+<?php
+echo ActiveMedicationListService::sectionHtml('Active', $active, 'xl', 'text', $formatMedDate, 'table table-bordered table-sm');
+echo ActiveMedicationListService::sectionHtml('Inactive', $inactive, 'xl', 'text', $formatMedDate, 'table table-bordered table-sm');
+?>
 
 <script>
 if (window.opener && window.opener.top && typeof window.opener.top.printLogPrint === "function") {

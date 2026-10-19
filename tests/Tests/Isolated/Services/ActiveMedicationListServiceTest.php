@@ -221,4 +221,127 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertSame(0, ActiveMedicationListService::printPatientId(null, '0'));
         $this->assertSame(0, ActiveMedicationListService::printPatientId('7.5', '0'));
     }
+
+    /**
+     * A second issue with the same name is not a second row.
+     */
+    public function testMergeSkipsADuplicateIssueName(): void
+    {
+        $rows = ActiveMedicationListService::merge(
+            [
+                ['title' => 'Aspirin', 'begdate' => '2024-01-01'],
+                ['title' => 'aspirin', 'begdate' => '2024-02-01'],
+                ['title' => 12],
+            ],
+            [
+                ['drug' => 'Aspirin', 'dosage' => '81 mg'],
+                ['drug' => '  ', 'dosage' => 'skip'],
+            ]
+        );
+        $this->assertCount(1, $rows);
+        $this->assertSame('Aspirin', $rows[0]['title']);
+    }
+
+    /**
+     * A prescription dose can be only the strength or only the instructions.
+     */
+    public function testMergeKeepsASingleDosePart(): void
+    {
+        $rows = ActiveMedicationListService::merge(
+            [],
+            [
+                ['drug' => 'Metformin', 'dosage' => '500 mg', 'drug_dosage_instructions' => ''],
+            ]
+        );
+        $this->assertSame('500 mg', $rows[0]['dose']);
+    }
+
+    /**
+     * Names already listed, and blank titles, stay off the inactive list.
+     */
+    public function testExcludeListedNamesDropsBlankTitles(): void
+    {
+        $rows = ActiveMedicationListService::excludeListedNames(
+            [
+                ['source' => 'issue', 'title' => '  ', 'dose' => '', 'start' => null, 'end' => null, 'comments' => ''],
+                ['source' => 'issue', 'title' => 'Aspirin', 'dose' => '', 'start' => null, 'end' => null, 'comments' => ''],
+            ],
+            [
+                ['title' => ''],
+                ['title' => 'Aspirin'],
+            ]
+        );
+        $this->assertSame([], $rows);
+    }
+
+    /**
+     * A missing patient id has no query string. A web root keeps a single slash.
+     */
+    public function testPrintHrefOmitsPidWhenNoneIsSelected(): void
+    {
+        $this->assertSame(
+            '/openemr/interface/patient_file/summary/active_medications_print.php',
+            ActiveMedicationListService::printHref('/openemr/', 0)
+        );
+    }
+
+    /**
+     * The heading uses only the name columns that are non-empty strings.
+     */
+    public function testPatientNameSkipsBlankAndNonStringColumns(): void
+    {
+        $this->assertSame(
+            'Ada Lovelace',
+            ActiveMedicationListService::patientName([
+                'title' => ' ',
+                'fname' => 'Ada',
+                'mname' => 3,
+                'lname' => 'Lovelace',
+            ])
+        );
+        $this->assertSame('', ActiveMedicationListService::patientName([]));
+    }
+
+    /**
+     * A null date is blank. A formatter that does not return a string is blank.
+     */
+    public function testFormatListDateRejectsNullAndNonStringResults(): void
+    {
+        $this->assertSame('', ActiveMedicationListService::formatListDate(null, static fn (string $v): string => $v));
+        $this->assertSame('', ActiveMedicationListService::formatListDate('2024-01-02', static fn (string $v): int => 1));
+        $this->assertSame('01/02/2024', ActiveMedicationListService::formatListDate('2024-01-02', static fn (string $v): string => '01/02/2024'));
+    }
+
+    /**
+     * An empty section says none. A filled section escapes the cell text.
+     */
+    public function testSectionHtmlCoversEmptyAndFilledLists(): void
+    {
+        $translate = static fn (string $s): string => $s;
+        $escape = static fn (string $s): string => htmlspecialchars($s, ENT_QUOTES);
+        $dates = static fn (?string $d): string => $d ?? '';
+        $empty = ActiveMedicationListService::sectionHtml('Active', [], $translate, $escape, $dates, 'table');
+        $this->assertStringContainsString('>Active<', $empty);
+        $this->assertStringContainsString('None{{Issues}}', $empty);
+        $this->assertStringNotContainsString('<table', $empty);
+
+        $filled = ActiveMedicationListService::sectionHtml(
+            'Inactive',
+            [[
+                'title' => 'A < B',
+                'dose' => '10 mg',
+                'start' => '2024-01-01',
+                'end' => null,
+                'comments' => 'note',
+            ]],
+            $translate,
+            $escape,
+            $dates,
+            'table table-sm'
+        );
+        $this->assertStringContainsString('A &lt; B', $filled);
+        $this->assertStringContainsString('>Medication<', $filled);
+        $this->assertStringContainsString('class="table table-sm"', $filled);
+        $this->assertStringContainsString('>note<', $filled);
+    }
 }
