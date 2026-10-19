@@ -340,6 +340,39 @@ if [[ "${DB_VERSION}" != "${EXPECTED}" ]]; then
 fi
 echo "    DB version=${DB_VERSION}"
 
+# Post-upgrade ACL assertion (openemr/openemr#14706). Installs from 8.2.0
+# on hold two Clinicians 'write' ACLs, and the ACL admin screens edit only
+# the first, so acl_upgrade.php merges them. Exactly one must remain, and
+# it must keep patients/med and patients/appt, which came from different
+# halves of the pair.
+assert_single_clinicians_write_acl() {
+    local sql row acl_count med appt
+    sql="$(cat <<'SQL'
+SELECT
+    COUNT(DISTINCT a.id) AS acl_count,
+    COALESCE(SUM(c.section_value = 'patients' AND c.value = 'med'), 0) AS med,
+    COALESCE(SUM(c.section_value = 'patients' AND c.value = 'appt'), 0) AS appt
+FROM gacl_acl AS a
+INNER JOIN gacl_aro_groups_map AS m ON a.id = m.acl_id
+INNER JOIN gacl_aro_groups AS g ON m.group_id = g.id
+LEFT JOIN gacl_aco_map AS c ON a.id = c.acl_id
+WHERE g.name = 'Clinicians' AND a.return_value = 'write'
+SQL
+)"
+    echo '==> Asserting Clinicians hold one write ACL with both merged halves'
+    row="$(docker compose exec -T mysql \
+        mariadb -uroot -proot openemr -sN -e "${sql}" \
+        2>/dev/null || echo 'query-failed')"
+    read -r acl_count med appt <<< "${row}"
+    if [[ "${acl_count}" != 1 || "${med}" != 1 || "${appt}" != 1 ]]; then
+        printf '::error::expected one Clinicians write ACL holding patients/med and patients/appt; got ACLs=%s med=%s appt=%s (see openemr/openemr#14706)\n' \
+            "${acl_count}" "${med:-}" "${appt:-}" >&2
+        exit 1
+    fi
+    echo "    Clinicians write ACLs=${acl_count}"
+}
+assert_single_clinicians_write_acl
+
 echo ""
 echo "==> Upgrade complete: ${FROM_VERSION} → ${TO_VERSION}"
 echo "    Artifact URL:  http://localhost:8680  (now serving ${TO_VERSION})"
