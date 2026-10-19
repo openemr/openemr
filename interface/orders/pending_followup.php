@@ -202,8 +202,10 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
 
-    $query = "SELECT po.patient_id, po.encounter_id, po.date_ordered, " .
-    "pd.pubpid, " .
+    // DISTINCT because a lab may define the same result code more than once, which would
+    // list one pending follow-up twice. MySQL 8 then needs every ORDER BY column selected.
+    $query = "SELECT DISTINCT po.patient_id, po.encounter_id, po.date_ordered, po.procedure_order_id, " .
+    "pd.pubpid, pd.lname, pd.fname, pd.mname, " .
     "CONCAT(pd.lname, ', ', pd.fname, ' ', pd.mname) AS patient_name, " .
     "pc.procedure_name AS procedure_name, " .
     "pts.related_code, " .
