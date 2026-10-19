@@ -58,6 +58,8 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
 if (!isset($pid)) {
     throw new \RuntimeException('$pid must be set by globals.php before requiring this script');
 }
+// String form of $pid for the hidden form fields below.
+$pidField = (is_int($pid) || is_string($pid)) ? (string) $pid : '';
 $portalAssetRoot = $globalsBag->getString('webroot') . '/portal';
 
 if (!$isPortal) {
@@ -677,7 +679,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
 
     <form id="invoiceForm" method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/portal_payment.php'>
         <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
-        <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>'/>
+        <input type='hidden' name='form_pid' value='<?php echo attr($pidField) ?>'/>
         <input type='hidden' name='form_save' value='<?php echo xla('Invoice'); ?>'/>
         <table>
             <tr height="10">
@@ -1078,7 +1080,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         }
         ?>
         </div>
-        <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo attr($pid); ?>"/>
+        <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo attr($pidField); ?>"/>
         <input type='hidden' name='mode' id='mode' value=''/>
     </form>
 
@@ -1100,6 +1102,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                     <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere' && $globalsBag->get('payment_gateway') !== 'Rainforest') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
                         <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
+                        <input type='hidden' name='form_pid' value='<?php echo attr($pidField) ?>'/>
                         <fieldset>
                             <div class="form-group">
                                 <label label-default="label-default"
@@ -1159,7 +1162,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                                     </div>
                                 </div>
                             </div>
-                            <input type='hidden' name='pid' id='pid' value='<?php echo attr($pid) ?>'/>
+                            <input type='hidden' name='pid' id='pid' value='<?php echo attr($pidField) ?>'/>
                             <input type='hidden' name='mode' id='mode' value=''/>
                             <input type='hidden' name='cc_type' id='cc_type' value=''/>
                             <input type='hidden' name='payment' id='paymentAmount' value=''/>
@@ -1171,6 +1174,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                     <?php } else { // stripe/sphere/rainforest ?>
                         <form method="post" name="payment-form" id="payment-form">
                             <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
+                            <input type='hidden' name='form_pid' value='<?php echo attr($pidField) ?>'/>
                             <fieldset>
                                 <div class="form-group">
                                     <label label-default="label-default"><?php echo xlt('Name on Card'); ?></label>
