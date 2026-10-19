@@ -91,6 +91,11 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 
 if ($_POST['form_complete'] ?? null) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
+        echo "<p>(" . xlt('Not authorized') . ")</p>\n";
+        echo "</body>\n</html>\n";
+        exit();
+    }
 
     // Save that form as a row in rule_patient_data table
     //  and then close the window/module.
@@ -111,10 +116,10 @@ if ($_POST['form_complete'] ?? null) {
         sqlStatement("INSERT INTO `rule_patient_data` (`date`, `pid`, `category`, `item`, `complete`, `result`) " .
         "VALUES (?,?,?,?,?,?)", [$form_date, $pid, $form_category, $form_item, $form_complete, $form_result]);
     } else { // $form_mode == "edit"
-        // Modify selected row in rule_patient_data table
+        // Modify selected row in rule_patient_data table — bind to session pid
         sqlStatement("UPDATE `rule_patient_data` " .
         "SET `date`=?, `complete`=?, `result`=? " .
-        "WHERE `id`=?", [$form_date,$form_complete,$form_result,$form_entryID]);
+        "WHERE `id`=? AND `pid`=?", [$form_date,$form_complete,$form_result,$form_entryID,$pid]);
     }
 
     // Close this window and refresh the patient summary display.
@@ -134,14 +139,16 @@ if (isset($_GET['entryID'])) {
     $entryID = trim((string) $_GET['entryID']);
 }
 
-// Collect data if a specific entry is selected
+// Collect data if a specific entry is selected — bind to session pid
 if (isset($entryID)) {
     $selectedEntry = sqlQuery("SELECT `date`, `complete`, `result` " .
     "FROM `rule_patient_data` " .
-    "WHERE `id`=?", [$entryID]);
-    $form_date = $selectedEntry['date'];
-    $form_complete = $selectedEntry['complete'];
-    $form_result = $selectedEntry['result'];
+    "WHERE `id`=? AND `pid`=?", [$entryID, $pid]);
+    if (is_array($selectedEntry)) {
+        $form_date = $selectedEntry['date'];
+        $form_complete = $selectedEntry['complete'];
+        $form_result = $selectedEntry['result'];
+    }
 }
 
 ?>

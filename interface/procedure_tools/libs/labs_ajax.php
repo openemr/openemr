@@ -87,6 +87,18 @@ if ($action === 'print_labels') {
     $dob = $_GET['dob'];
     $count = $query->getInt('count') ?: 1;
 
+    $maxCount = 50;
+    $maxSpecimens = 50;
+    $maxTotalLabels = 500;
+    $specimenCount = count($specimens);
+    if (
+        $count > $maxCount
+        || $specimenCount > $maxSpecimens
+        || ($count * $specimenCount) > $maxTotalLabels
+    ) {
+        (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, 'Label print bounds exceeded.');
+    }
+
     $pdf = new mPDF([
         'tempDir' => (new CacheDirectory())->for('openemr-mpdf'),
         'mode' => 'utf-8',
