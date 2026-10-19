@@ -52,7 +52,8 @@ worktree, where `<slug>` is the branch label. `openemr-cmd worktree list`
 confirms.
 
 **Never use raw `git worktree add`, `git worktree remove`, or
-`git worktree move` against this repo.** The `openemr-cmd worktree` script
+`git worktree move` against this repo**, except to undo a raw `git worktree
+add` as described below. The `openemr-cmd worktree` script
 owns state that bare git does not: a JSON state file tracking each worktree,
 a per-worktree compose override with its assigned port offset, and a
 generated `.env`. Bypassing it leaves orphaned state files, port collisions
