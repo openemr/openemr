@@ -69,7 +69,8 @@ class ReferralService extends BaseService
     /**
      * Each referral with its fields, its patient's uuid, its status (completed once a
      * reply date is recorded) and, for the requester and the person referred to, their
-     * uuid and whether FHIR serves them as a Practitioner.
+     * uuid and whether FHIR serves them as a Practitioner, or the one referred to as an
+     * Organization (an External Organization in the address book).
      */
     private static function select(string $sourceFilter = ''): string
     {
@@ -87,7 +88,9 @@ class ReferralService extends BaseService
                 requester.uuid AS requester_uuid, " . $isPractitioner('requester') . " AS requester_is_practitioner,
                 TRIM(CONCAT_WS(' ', requester.fname, requester.lname)) AS requester_name,
                 performer.uuid AS performer_uuid, " . $isPractitioner('performer') . " AS performer_is_practitioner,
-                COALESCE(NULLIF(TRIM(CONCAT_WS(' ', performer.fname, performer.lname)), ''), performer.organization) AS performer_name
+                (performer.id IS NOT NULL AND " . AddressBookOrganizationService::isOrganizationSql('performer') . ") AS performer_is_organization,
+                CASE WHEN " . AddressBookOrganizationService::isOrganizationSql('performer') . ' THEN ' . AddressBookOrganizationService::nameSql('performer') . "
+                    ELSE COALESCE(NULLIF(TRIM(CONCAT_WS(' ', performer.fname, performer.lname)), ''), performer.organization) END AS performer_name
             FROM (
                 SELECT t.id, t.uuid, t.pid AS patient_id, patients.uuid AS puuid, t.date AS last_modified $fields
                 FROM transactions AS t
@@ -98,6 +101,28 @@ class ReferralService extends BaseService
             ) AS r
             LEFT JOIN users AS requester ON requester.id = r.refer_from
             LEFT JOIN users AS performer ON performer.id = r.refer_to";
+    }
+
+    /**
+     * One referral as search() returns it, by its transaction id, or null when the
+     * transaction isn't a referral.
+     *
+     * @return ?array<string, mixed>
+     */
+    public function getReferral(int $transactionId): ?array
+    {
+        $rows = QueryUtils::fetchRecords('SELECT referrals.* FROM (' . self::select(' AND t.id = ?') . ') AS referrals', [$transactionId]);
+        $row = $rows[0] ?? null;
+        if (!is_array($row)) {
+            return null;
+        }
+        $record = [];
+        foreach ($row as $column => $value) {
+            if (is_string($column)) {
+                $record[$column] = $value;
+            }
+        }
+        return $this->createResultRecordFromDatabaseResult($record);
     }
 
     /**
