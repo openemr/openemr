@@ -132,7 +132,7 @@
                         <input type="hidden" name="rule_id" id="rule_id" value="" />
                         <div class="modal-header">
                             <h5 class="modal-title" id="ruleModalLabel" data-add="{{ "Add rule"|xla }}" data-edit="{{ "Edit rule"|xla }}">{{ "Add rule"|xlt }}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="{{ "Close"|xlt }}">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="{{ "Close"|xla }}">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -142,7 +142,7 @@
 
                             <div class="form-group">
                                 <label for="statement_text">{{ "Sentence"|xlt }}</label>
-                                <textarea class="form-control" id="statement_text" name="statement_text" rows="2" placeholder="{{ "The left atrium is mildly dilated."|xlt }}"></textarea>
+                                <textarea class="form-control" id="statement_text" name="statement_text" rows="2" placeholder="{{ "The left atrium is mildly dilated."|xla }}"></textarea>
                                 <small class="form-text text-muted">{{ "Use {source} and {source_2} for the measured values."|xlt }}</small>
                             </div>
 
@@ -197,7 +197,7 @@
 
                             <div id="token-fields" class="form-group d-none">
                                 <label for="match_token">{{ "Tokens"|xlt }}</label>
-                                <input class="form-control" id="match_token" name="match_token" placeholder="{{ "mild, moderate"|xlt }}" />
+                                <input class="form-control" id="match_token" name="match_token" placeholder="{{ "mild, moderate"|xla }}" />
                                 <small class="form-text text-muted">{{ "Comma-separated. Matches an option id, a checkbox member, or a whole word."|xlt }}</small>
                             </div>
 
