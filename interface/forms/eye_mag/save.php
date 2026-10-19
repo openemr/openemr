@@ -35,6 +35,7 @@ use Mpdf\Mpdf;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\FeeSheetChargeLookup;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
@@ -865,26 +866,23 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $dups = [];
         $ndc_info = '';
         foreach ($CODING as $item) { //need toremove duplicate codes
+            if (!is_array($item)) {
+                continue;
+            }
             if (($dups[$item["code"]] ?? '') == '1') {
                 continue;
             }
 
             $dups[$item["code"]] = "1";
-            $sql = "SELECT codes.*, prices.pr_price FROM codes " .
-                "LEFT OUTER JOIN patient_data ON patient_data.pid = ? " .
-                "LEFT OUTER JOIN prices ON prices.pr_id = codes.id AND " .
-                "prices.pr_selector = '' AND " .
-                "prices.pr_level = patient_data.pricelevel " .
-                "WHERE code =?" .
-                " LIMIT 1";
-            $result = sqlStatement($sql, [$pid, $item['code']]);
-            while ($res = sqlFetchArray($result)) {
-                $item["codedesc"] = $res["code_text"];// eg. = "NP EYE intermediate exam"
-                if (!$item["modifier"]) {
-                    $modifier = $res["modifier"];
-                }
-                $item["units"] = $res["units"];
-                $item["fee"] = $res["pr_price"];
+            // Same code row and price the fee sheet would use for this code.
+            $codeType = is_string($item['codetype'] ?? null) ? $item['codetype'] : '';
+            $code = is_string($item['code'] ?? null) ? $item['code'] : '';
+            $patientId = filter_var($pid, FILTER_VALIDATE_INT);
+            $charge = is_int($patientId) ? (new FeeSheetChargeLookup())->find($codeType, $code, $patientId) : null;
+            if ($charge !== null) {
+                $item["codedesc"] = $charge['code_text'];// eg. = "NP EYE intermediate exam"
+                $item["units"] = $charge['units'];
+                $item["fee"] = $charge['fee'];
             }
             $billed = "0";
             $item["justify"] .= ":";
