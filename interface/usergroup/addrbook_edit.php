@@ -626,7 +626,7 @@ if ($type) { // note this only happens when its new
 
 <form method='post' name='theform' id="theform" action='addrbook_edit.php?userid=<?php echo attr_url($userid) ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-<?php if ($info_msg !== '' && !$save_ok) { ?>
+<?php if ($info_msg !== '') { ?>
 <div class="alert alert-danger"><?php echo text($info_msg); ?></div>
 <?php } ?>
 

@@ -85,8 +85,8 @@ final class AddressBookReferrerFields
      * True when Address Book should require a valid NPI on external persons.
      *
      * NPI is US-only (CMS/NPPES). This is not tied to UI language. New
-     * installs default on. Upgrades default off, then turn on when Units
-     * for Visit Forms is already US-primary or US-only.
+     * installs default on. Upgrades insert the setting off and leave it
+     * off.
      */
     public static function npiRequired(): bool
     {
