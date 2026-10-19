@@ -67,8 +67,9 @@ class ReferralService extends BaseService
     }
 
     /**
-     * Each referral with its fields, its patient's uuid, its status (completed once a
-     * reply date is recorded) and, for the requester and the person referred to, their
+     * Each referral with its fields, its patient's uuid, the status of its latest Task, its
+     * status (completed once a reply date is recorded or its Task is completed, revoked
+     * when its Task is cancelled) and, for the requester and the person referred to, their
      * uuid and whether FHIR serves them as a Practitioner, or the one referred to as an
      * Organization (an External Organization in the address book).
      */
@@ -82,7 +83,10 @@ class ReferralService extends BaseService
             . " AND (COALESCE($alias.username, '') <> '' OR $alias.abook_type IN (" . self::PRACTITIONER_ABOOK_TYPES . ')))';
 
         return "SELECT r.*,
-                CASE WHEN COALESCE(r.reply_date, '') <> '' THEN 'completed' ELSE 'active' END AS status,
+                CASE WHEN COALESCE(r.reply_date, '') <> '' OR r.task_status = 'completed' THEN 'completed'
+                    WHEN r.task_status = 'cancelled' THEN 'revoked'
+                    WHEN r.task_status = 'entered-in-error' THEN 'entered-in-error'
+                    ELSE 'active' END AS status,
                 'order' AS intent,
                 COALESCE(NULLIF(r.refer_date, ''), DATE(r.last_modified)) AS authored,
                 requester.uuid AS requester_uuid, " . $isPractitioner('requester') . " AS requester_is_practitioner,
@@ -92,7 +96,9 @@ class ReferralService extends BaseService
                 CASE WHEN " . AddressBookOrganizationService::isOrganizationSql('performer') . ' THEN ' . AddressBookOrganizationService::nameSql('performer') . "
                     ELSE COALESCE(NULLIF(TRIM(CONCAT_WS(' ', performer.fname, performer.lname)), ''), performer.organization) END AS performer_name
             FROM (
-                SELECT t.id, t.uuid, t.pid AS patient_id, patients.uuid AS puuid, t.date AS last_modified $fields
+                SELECT t.id, t.uuid, t.pid AS patient_id, patients.uuid AS puuid, t.date AS last_modified $fields,
+                    (SELECT task.status FROM task WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid
+                        ORDER BY task.id DESC LIMIT 1) AS task_status
                 FROM transactions AS t
                 JOIN patient_data AS patients ON patients.pid = t.pid
                 LEFT JOIN lbt_data AS d ON d.form_id = t.id
