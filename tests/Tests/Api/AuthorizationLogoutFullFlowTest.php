@@ -294,6 +294,9 @@ class AuthorizationLogoutFullFlowTest extends TestCase
         }
     }
 
+    /**
+     * An HTTP client that does not send the authorize URL as the Referer.
+     */
     private function buildClient(): Client
     {
         return new Client([

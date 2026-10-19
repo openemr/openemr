@@ -81,6 +81,9 @@ class ClaimNpiDigitsTest extends TestCase
         $this->assertSame('1234567893', $claim->providerNPI(0));
     }
 
+    /**
+     * A claim with no database load, for the NPI accessors.
+     */
     private function claim(): Claim
     {
         return (new ReflectionClass(Claim::class))->newInstanceWithoutConstructor();
