@@ -267,6 +267,75 @@ class ActiveMedicationListService extends BaseService
     }
 
     /**
+     * Display name from the patient row columns the print page already loads.
+     *
+     * @param array<string, mixed> $patient
+     */
+    public static function patientName(array $patient): string
+    {
+        $parts = [];
+        foreach (['title', 'fname', 'mname', 'lname'] as $column) {
+            $part = $patient[$column] ?? '';
+            if (is_string($part) && trim($part) !== '') {
+                $parts[] = trim($part);
+            }
+        }
+
+        return implode(' ', $parts);
+    }
+
+    /**
+     * Format a stored medication date. A null date and a non-string result are blank.
+     *
+     * @param callable(string): mixed $formatter
+     */
+    public static function formatListDate(?string $value, callable $formatter): string
+    {
+        if ($value === null) {
+            return '';
+        }
+        $formatted = $formatter($value);
+
+        return is_string($formatted) ? $formatted : '';
+    }
+
+    /**
+     * One medication section: a heading, an empty line, or a table.
+     *
+     * @param list<array{title: string, dose: string, start: ?string, end: ?string, comments: string}> $rows
+     * @param callable(string): string $translate
+     * @param callable(string): string $escape
+     * @param callable(?string): string $formatDate
+     */
+    public static function sectionHtml(
+        string $heading,
+        array $rows,
+        callable $translate,
+        callable $escape,
+        callable $formatDate,
+        string $tableClass
+    ): string {
+        $html = '<p><b>' . $escape($translate($heading)) . '</b></p>';
+        if ($rows === []) {
+            return $html . '<p>' . $escape($translate('None{{Issues}}')) . '</p>';
+        }
+        $html .= '<table class="' . $escape($tableClass) . '"><tr>';
+        foreach (['Medication', 'Dose', 'Start', 'End', 'Comments'] as $label) {
+            $html .= '<th>' . $escape($translate($label)) . '</th>';
+        }
+        $html .= '</tr>';
+        foreach ($rows as $row) {
+            $html .= '<tr><td>' . $escape($row['title']) . '</td>';
+            $html .= '<td>' . $escape($row['dose']) . '</td>';
+            $html .= '<td>' . $escape($formatDate($row['start'])) . '</td>';
+            $html .= '<td>' . $escape($formatDate($row['end'])) . '</td>';
+            $html .= '<td>' . $escape($row['comments']) . '</td></tr>';
+        }
+
+        return $html . '</table>';
+    }
+
+    /**
      * Keep a real calendar date, otherwise null.
      */
     private static function optionalDate(mixed $value): ?string
