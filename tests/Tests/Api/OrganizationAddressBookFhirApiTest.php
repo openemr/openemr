@@ -126,6 +126,24 @@ class OrganizationAddressBookFhirApiTest extends TestCase
         $this->assertSame([], $this->idsOfEntries($this->search(['_id' => $pantry, '_lastUpdated' => 'lt2000-01-01'])));
     }
 
+    public function testAnEntrySavedWithoutAUuidGetsOneAndOtherUsersDoNot(): void
+    {
+        // As the address book saves them: no uuid.
+        $this->entries['no uuid'] = ['uuid' => '', 'id' => (int)QueryUtils::sqlInsert(
+            "INSERT INTO users (username, active, authorized, abook_type, organization, city) VALUES ('', 1, 0, 'external_org', 'Zq Saved Without Uuid', 'Zqville')"
+        )];
+        $this->entries['vendor'] = ['uuid' => '', 'id' => (int)QueryUtils::sqlInsert(
+            "INSERT INTO users (username, active, authorized, abook_type, organization) VALUES ('', 1, 0, 'vendor', 'Zq Vendor Without Uuid')"
+        )];
+
+        $found = $this->search(['name' => 'Zq Saved Without']);
+        $this->assertCount(1, $found);
+        $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM users WHERE id = ?', 'uuid', [$this->entries['no uuid']['id']]);
+        $this->assertIsString($uuid);
+        $this->assertSame(UuidRegistry::uuidToString($uuid), $found[0]['id'] ?? null);
+        $this->assertNull(QueryUtils::fetchSingleValue('SELECT uuid FROM users WHERE id = ?', 'uuid', [$this->entries['vendor']['id']]), 'another address book entry is left as it was');
+    }
+
     public function testAnExternalOrganizationIsReadOnly(): void
     {
         $body = [];
