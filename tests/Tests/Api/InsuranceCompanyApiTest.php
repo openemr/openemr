@@ -141,8 +141,26 @@ class InsuranceCompanyApiTest extends TestCase
         $this->assertArrayHasKey('data', $body);
         $data = $body['data'];
         $this->assertIsArray($data);
-        $names = array_column($data, 'name');
-        $this->assertContains($uniqueName, $names);
+
+        // Find the fixture row by name and also assert its uuid is a
+        // valid UUID string. The weaker "name is in the list" check
+        // would pass even if the response omitted uuid entirely, which
+        // misses the serialization invariant this test is supposed to
+        // protect (PR #14653's InsuranceCompanyService::search uuid-
+        // stringify path).
+        $found = null;
+        foreach ($data as $row) {
+            if (is_array($row) && ($row['name'] ?? null) === $uniqueName) {
+                $found = $row;
+                break;
+            }
+        }
+        $this->assertIsArray($found, 'fixture company must appear in the list');
+        $this->assertIsString($found['uuid']);
+        $this->assertMatchesRegularExpression(
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+            $found['uuid']
+        );
     }
 
     #[Test]
@@ -177,6 +195,9 @@ class InsuranceCompanyApiTest extends TestCase
         $this->assertEquals($uniqueName, $body['name']);
         $this->assertEquals($createdId, $body['id']);
         $this->assertIsString($body['uuid']);
-        $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $body['uuid']);
+        $this->assertMatchesRegularExpression(
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+            $body['uuid']
+        );
     }
 }

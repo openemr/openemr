@@ -110,7 +110,10 @@ class MedicationApiTest extends TestCase
             $this->assertArrayHasKey('uuid', $row);
             if ($row['uuid'] !== null) {
                 $this->assertIsString($row['uuid']);
-                $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $row['uuid']);
+                $this->assertMatchesRegularExpression(
+                    '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+                    $row['uuid']
+                );
             }
         }
     }
@@ -128,16 +131,22 @@ class MedicationApiTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $body = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($body);
+        // Match by id (not title) so an interrupted prior run that
+        // leaked a row with the same prefix doesn't shadow the row this
+        // POST just created.
         $found = null;
         foreach ($body as $row) {
-            if (is_array($row) && ($row['title'] ?? null) === $created['title']) {
+            if (is_array($row) && isset($row['id']) && is_numeric($row['id']) && (int) $row['id'] === $created['id']) {
                 $found = $row;
                 break;
             }
         }
         $this->assertIsArray($found, 'POST should produce a medication findable via getAll');
         $this->assertIsString($found['uuid']);
-        $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $found['uuid']);
+        $this->assertMatchesRegularExpression(
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+            $found['uuid']
+        );
     }
 
     #[Test]
@@ -153,7 +162,10 @@ class MedicationApiTest extends TestCase
         $this->assertEquals($created['id'], $body['id']);
         // PR #14653's ListService::getOne fix stringifies the uuid.
         $this->assertIsString($body['uuid']);
-        $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $body['uuid']);
+        $this->assertMatchesRegularExpression(
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+            $body['uuid']
+        );
     }
 
     #[Test]
@@ -164,20 +176,15 @@ class MedicationApiTest extends TestCase
         $deleteResp = $this->testClient->delete($this->endpoint(), $created['id']);
         $this->assertEquals(200, $deleteResp->getStatusCode());
 
-        // Confirm the row is gone from the list.
-        $followup = $this->testClient->get($this->endpoint());
-        $followupBody = json_decode((string) $followup->getBody(), true);
-        $this->assertIsArray($followupBody);
-        // The list rows carry `id` as a string-coerced int; compare both
-        // sides as string to sidestep PHPStan's cast-from-mixed narrowing.
-        $followupIds = array_map(
-            static fn (mixed $v): string => is_scalar($v) ? (string) $v : '',
-            array_column($followupBody, 'id')
-        );
-        $this->assertNotContains(
-            (string) $created['id'],
-            $followupIds,
-            'deleted medication must not appear in the list'
-        );
+        // Confirm the deleted row is gone via a single-GET returning 404.
+        // (We can't use the list-GET for this check because
+        // ListRestController::getAll runs through
+        // RestControllerHelper::responseHandler which emits 404 for an
+        // empty list — same empty-array-as-404 bug AppointmentRestController
+        // had before PR #14605 fixed it. On CI the pid=1 fixtures may not
+        // include any other medications, so after DELETE the list is empty
+        // and the follow-up GET /medication returns 404, not 200+[].)
+        $followup = $this->testClient->getOne($this->endpoint(), (string) $created['id']);
+        $this->assertEquals(404, $followup->getStatusCode(), 'deleted medication must 404 on subsequent single-GET');
     }
 }
