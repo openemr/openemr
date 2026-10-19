@@ -74,4 +74,28 @@ class X125010837IPhysicianNpiTest extends TestCase
     {
         $this->assertSame($qualifier, X125010837I::physicianQualifier($value));
     }
+
+    /**
+     * The 837I generator writes a hyphenated physician NPI as digits in NM109.
+     */
+    public function testHyphenatedPhysicianNpiIsDigitsInTheSegment(): void
+    {
+        $this->assertSame('*XX*1234567893', X125010837I::physicianIdentifier('XX', '1234-567893'));
+        $this->assertSame('**', X125010837I::physicianIdentifier('', '1234-567893'));
+        $this->assertSame('**', X125010837I::physicianIdentifier('XX', '0'));
+
+        $institutional = file_get_contents(__DIR__ . '/../../../../src/Billing/X125010837I.php');
+        $batch = file_get_contents(
+            __DIR__ . '/../../../../src/Billing/BillingProcessor/Tasks/GeneratorUB04X12.php'
+        );
+        $this->assertIsString($institutional);
+        $this->assertIsString($batch);
+        $this->assertStringContainsString('generateX12837I(', $batch);
+        $this->assertStringContainsString("physicianIdentifier('XX', \$ub04id[379]", $institutional);
+        $this->assertStringContainsString("physicianIdentifier('XX', \$ub04id[390]", $institutional);
+        $this->assertStringContainsString('physicianQualifier($ub04id[405]', $institutional);
+        $this->assertStringContainsString('$ub04id[406]', $institutional);
+        $this->assertStringContainsString('physicianQualifier($ub04id[419]', $institutional);
+        $this->assertStringContainsString('$ub04id[420]', $institutional);
+    }
 }
