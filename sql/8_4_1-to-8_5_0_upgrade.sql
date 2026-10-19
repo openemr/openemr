@@ -363,3 +363,8 @@ CREATE TABLE `task` (
 #IfMissingColumn task version
 ALTER TABLE `task` ADD COLUMN `version` int(11) NOT NULL DEFAULT 1 COMMENT 'FHIR meta.versionId: 1 on create, raised by each update (If-Match)';
 #EndIf
+
+-- FHIR ServiceRequest referrals (D8 of #13266): a uuid for each transaction, so the Transactions screen's referrals have a FHIR id.
+#IfMissingColumn transactions uuid
+ALTER TABLE `transactions` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`, ADD UNIQUE KEY `uuid` (`uuid`);
+#EndIf

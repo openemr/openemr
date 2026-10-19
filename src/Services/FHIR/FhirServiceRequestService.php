@@ -25,6 +25,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\EncounterService;
+use OpenEMR\Services\FHIR\ServiceRequest\FhirServiceRequestReferralService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -133,11 +134,80 @@ class FhirServiceRequestService extends FhirServiceBase implements
      */
     private $strictValidation = false;
 
+    private ?FhirServiceRequestReferralService $referralService = null;
+
     public function __construct()
     {
         parent::__construct();
         $this->procedureService = new ProcedureService();
         $this->relationshipService = new ProcedureOrderRelationshipService();
+    }
+
+    private function getReferralService(): FhirServiceRequestReferralService
+    {
+        return $this->referralService ??= new FhirServiceRequestReferralService();
+    }
+
+    public function setReferralService(FhirServiceRequestReferralService $referralService): void
+    {
+        $this->referralService = $referralService;
+    }
+
+    /**
+     * Orders come from procedure_order and referrals from the Transactions screen's
+     * referral form (D8 of #13266). A search without a category reads both; with one,
+     * each searched code selects the store it belongs to. Neither store pages its
+     * results, so merging them loses nothing. A read by id is a search by _id, so it
+     * reaches both too.
+     *
+     * @param mixed $fhirSearchParameters
+     * @param mixed $puuidBind
+     */
+    public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
+    {
+        $searchParameters = is_array($fhirSearchParameters) ? $fhirSearchParameters : [];
+        $bind = is_string($puuidBind) ? $puuidBind : null;
+        [$orders, $referrals] = self::storesForCategory($searchParameters['category'] ?? null);
+        $result = $orders ? parent::getAll($searchParameters, $bind) : new ProcessingResult();
+        if (!$referrals || $result->hasErrors()) {
+            return $result;
+        }
+        $referralResult = $this->getReferralService()->getAll($searchParameters, $bind);
+        if ($referralResult->hasErrors()) {
+            // As the mapped services do: errors from either store, and no data.
+            $result->addProcessingResult($referralResult);
+            $result->clearData();
+            return $result;
+        }
+        $result->addProcessingResult($referralResult);
+        return $result;
+    }
+
+    /**
+     * @return array{bool, bool} whether to read orders, and whether to read referrals
+     */
+    private static function storesForCategory(mixed $category): array
+    {
+        $tokens = [];
+        foreach (is_array($category) ? $category : [$category] as $value) {
+            if (is_string($value) && trim($value) !== '') {
+                array_push($tokens, ...explode(',', $value));
+            }
+        }
+        if ($tokens === []) {
+            return [true, true];
+        }
+        $orders = false;
+        $referrals = false;
+        foreach ($tokens as $token) {
+            $code = str_contains($token, '|') ? substr($token, strrpos($token, '|') + 1) : $token;
+            if (trim($code) === FhirServiceRequestReferralService::CATEGORY_REFERRAL) {
+                $referrals = true;
+            } else {
+                $orders = true;
+            }
+        }
+        return [$orders, $referrals];
     }
 
     /**
