@@ -60,9 +60,9 @@
     "stylelint": "17.16.0",
     "stylelint-config-sass-guidelines": "13.0.0",
     "stylelint-config-standard": "40.0.0",
-    "stylelint-order": "8.1.1",
+    "stylelint-order": "8.1.2",
     "stylelint-scss": "7.3.0",
-    "webpack": "5.111.1",
+    "webpack": "5.112.0",
     "webpack-cli": "5.1.4"
   },
   "dependencies": {
