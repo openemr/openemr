@@ -16,8 +16,10 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\PatientTransactionService;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
@@ -169,6 +171,27 @@ class ServiceRequestReferralFhirApiTest extends TestCase
         $this->assertSame([], self::ids($this->search($patient + ['code' => FhirCodeSystemConstants::SNOMED_CT . '|99243'])), 'a code in another system');
         $this->assertSame([$this->referrals['replied']['uuid']], self::ids($this->search($patient + ['code' => self::REFERRAL])));
         $this->assertSame([$this->referrals['open']['uuid']], self::ids($this->search($patient + ['authored' => 'ge2026-10-05'])));
+    }
+
+    public function testAnEditThroughTheRestApiMovesTheLastUpdate(): void
+    {
+        // The fixtures were saved on 2026-10-15; the REST update is the path that left that date as it was.
+        $patient = ['patient' => $this->patient['uuid'], 'category' => self::REFERRAL];
+        $this->assertSame([], self::ids($this->search($patient + ['_lastUpdated' => 'gt2026-10-16'])));
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $session->set('authUser', 'admin');
+        try {
+            (new PatientTransactionService())->update($this->referrals['replied']['id'], [
+                'referByNpi' => '', 'referToNpi' => '', 'body' => 'Food insecurity, rescheduled', 'referralDate' => '2026-10-01',
+                'referDiagnosis' => '', 'riskLevel' => '', 'includeVitals' => '', 'authorization' => '', 'visits' => '',
+                'validFrom' => '', 'validThrough' => '',
+            ]);
+        } finally {
+            $session->remove('authUser');
+        }
+
+        $this->assertSame([$this->referrals['replied']['uuid']], self::ids($this->search($patient + ['_lastUpdated' => 'gt2026-10-16'])));
     }
 
     public function testAnotherPatientsReferralIsNotReadThroughThisPatient(): void

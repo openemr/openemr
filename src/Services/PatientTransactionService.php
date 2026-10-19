@@ -243,6 +243,9 @@ class PatientTransactionService extends BaseService
         $validThrough = $data["validThrough"];
 
         QueryUtils::inTransaction(function () use ($tid, $referById, $referToId, $body, $referralDate, $referralDiagnosis, $riskLevel, $includeVitals, $authorization, $visits, $validFrom, $validThrough): void {
+            // As the Transactions screen does on every save, so that the change shows as the
+            // referral's last update (the FHIR ServiceRequest's meta.lastUpdated and _lastUpdated).
+            QueryUtils::sqlStatementThrowException('UPDATE transactions SET date = NOW() WHERE id = ?', [$tid]);
             $this->updateTransactionForm($tid, 'refer_from', $referById);
             $this->updateTransactionForm($tid, 'refer_to', $referToId);
             $this->updateTransactionForm($tid, 'body', $body);
