@@ -22,6 +22,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\BaseDrawing;
 use OpenEMR\Forms\EyeMag\CopyForward;
 use OpenEMR\Forms\EyeMag\CopyMode;
+use OpenEMR\Forms\EyeMag\FamilyHistory;
 use OpenEMR\Forms\EyeMag\PmsfhPanel;
 use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Services\FacilityService;
@@ -1909,68 +1910,30 @@ function build_PMSFH($pid): array
     Epilepsy:       Mental Illness:
     Suicide:
     */
-    $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = 'HIS' AND group_id = '3' AND uor > 0 " .
-    "ORDER BY seq");
-    while ($group_fields = sqlFetchArray($group_fields_query)) {
-        $titlecols  = $group_fields['titlecols'];
-        $datacols   = $group_fields['datacols'];
-        $data_type  = $group_fields['data_type'];
-        $field_id   = $group_fields['field_id'];
-        $list_id    = $group_fields['list_id'];
-        $currvalue  = '';
-        if ((preg_match("/^\|?0\|?\|?/", ($result1[$field_id] ?? ''))) || ($result1[$field_id] == '')) {
-            continue;
-        } else {
-            $currvalue = $result1[$field_id];
-        }
-
-        $PMSFH['FH'][$field_id]['resnote'] = nl2br(htmlspecialchars((string) $currvalue, ENT_NOQUOTES));
-        if ($PMSFH['FH'][$field_id]['resnote'] > '') {
-            $PMSFH['FH'][$field_id]['display'] = substr($PMSFH['FH'][$field_id]['resnote'], 0, 100);
-        } elseif ($PMSFH['FH'][$field_id]['restype']) {
-            $PMSFH['FH'][$field_id]['display'] = str_replace($field_id, '', $PMSFH['FH'][$field_id]['restype']);
-        } else {
-            $PMSFH['FH'][$field_id]['display'] = xlt("denies");
-        }
-
-        //coffee,tobacco,alcohol,sleep_patterns,exercise_patterns,seatbelt_use,counseling,hazardous_activities,recreational_drugs
-        if ($field_id == "relatives_cancer") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Cancer");
-        }
-
-        if ($field_id == "relatives_diabetes") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Diabetes");
-        }
-
-        if ($field_id == "relatives_high_blood_pressure") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("HTN{{hypertension}}");
-        }
-
-        if ($field_id == "relatives_heart_problems") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Cor Disease");
-        }
-
-        if ($field_id == "relatives_epilepsy") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Epilepsy");
-        }
-
-        if ($field_id == "relatives_mental_illness") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Psych");
-        }
-
-        if ($field_id == "relatives_suicide") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Suicide");
-        }
-
-        if ($field_id == "relatives_stroke") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Stroke");
-        }
-
-        if ($field_id == "relatives_tuberculosis") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("TB");
-        }
+    // The medical columns come from a fixed list, not the History layout:
+    // a practice may hide or move those fields there, and the eye exam would
+    // then save them without ever showing them again.
+    $medicalShortTitles = [
+        'relatives_cancer' => xlt("Cancer"),
+        'relatives_tuberculosis' => xlt("TB"),
+        'relatives_diabetes' => xlt("Diabetes"),
+        'relatives_high_blood_pressure' => xlt("HTN{{hypertension}}"),
+        'relatives_heart_problems' => xlt("Cor Disease"),
+        'relatives_stroke' => xlt("Stroke"),
+        'relatives_epilepsy' => xlt("Epilepsy"),
+        'relatives_mental_illness' => xlt("Psych"),
+        'relatives_suicide' => xlt("Suicide"),
+    ];
+    $familyMedical = [];
+    foreach (FamilyHistory::recordedMedical(is_array($result1) ? $result1 : []) as $field_id => $currvalue) {
+        $resnote = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
+        $familyMedical[$field_id] = [
+            'resnote' => $resnote,
+            'display' => substr($resnote, 0, 100),
+            'short_title' => $medicalShortTitles[$field_id],
+        ];
     }
+    $PMSFH['FH'] = $familyMedical;
 
     // Now make some of our own using the usertext11-30 fields
     // These can be customized for specialties but remember this is just an array,
