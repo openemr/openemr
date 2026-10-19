@@ -179,6 +179,16 @@ class ServiceRequestReferralFhirApiTest extends TestCase
         $this->assertSame($this->referrals['other']['uuid'], $this->read($this->referrals['other']['uuid'])['id'] ?? null, 'it is there for a user token');
     }
 
+    public function testLastUpdatedFiltersReferrals(): void
+    {
+        QueryUtils::sqlStatementThrowException("UPDATE transactions SET date = '2026-09-01 09:00:00' WHERE id = ?", [$this->referrals['replied']['id']]);
+        $patient = ['patient' => $this->patient['uuid'], 'category' => self::REFERRAL];
+
+        $this->assertSame([$this->referrals['open']['uuid']], self::ids($this->search($patient + ['_lastUpdated' => 'gt2026-10-01'])));
+        $this->assertSame([$this->referrals['replied']['uuid']], self::ids($this->search($patient + ['_lastUpdated' => 'lt2026-10-01'])));
+        $this->assertSame([], self::ids($this->search($patient + ['_lastUpdated' => 'lt2026-10-01', 'status' => 'active'])), 'with a filter on the grouped fields too');
+    }
+
     public function testEachReferralHasAProvenanceWhoseAgentsAreReferences(): void
     {
         // Provenance needs a primary business entity, which a new install doesn't mark.
