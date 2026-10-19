@@ -45,8 +45,18 @@ final class BatchFilePublisher
         ) {
             return false;
         }
+        // Claim the name before any bytes are written. rename() would replace
+        // a file created by another publisher between the existence check and
+        // the rename, and a later failure would delete that file.
+        if (!self::writeMarker($marker) || !self::syncDirectory($directory, $filename . '.publishing')) {
+            self::remove($marker);
+
+            return false;
+        }
         $handle = fopen($temporary, 'wb');
         if ($handle === false) {
+            self::remove($marker);
+
             return false;
         }
 
@@ -58,6 +68,7 @@ final class BatchFilePublisher
         fclose($handle);
         if ($written !== strlen($content) || $synced !== true || !is_file($temporary)) {
             self::remove($temporary);
+            self::remove($marker);
 
             return false;
         }
@@ -65,18 +76,11 @@ final class BatchFilePublisher
         $size = filesize($temporary);
         if (!is_int($size) || $size !== strlen($content)) {
             self::remove($temporary);
-
-            return false;
-        }
-
-        // The marker is written before the rename, so a crash in between is
-        // not mistaken for an older batch that has no completion note.
-        if (!self::writeMarker($marker) || !self::syncDirectory($directory, $filename . '.publishing')) {
-            self::remove($temporary);
             self::remove($marker);
 
             return false;
         }
+
         if (!rename($temporary, $final)) {
             self::remove($temporary);
             self::remove($marker);
@@ -308,7 +312,8 @@ final class BatchFilePublisher
         if (is_dir($path) || is_link($path)) {
             return false;
         }
-        $handle = fopen($path, 'wb');
+        // x fails when the marker already exists, so two publishers cannot pass.
+        $handle = fopen($path, 'xb');
         if ($handle === false) {
             return false;
         }
