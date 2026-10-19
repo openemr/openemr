@@ -194,6 +194,19 @@ class ServiceRequestReferralFhirApiTest extends TestCase
         $this->assertSame([$this->referrals['replied']['uuid']], self::ids($this->search($patient + ['_lastUpdated' => 'gt2026-10-16'])));
     }
 
+    public function testAFreeTextDiagnosisIsTheReasonsText(): void
+    {
+        // Referrer Diagnosis is a text field on a stock install, so it can hold codes, words, or both.
+        QueryUtils::sqlStatementThrowException("REPLACE INTO lbt_data SET field_value = ?, form_id = ?, field_id = 'refer_diag'", ['Chest pain; ICD10:R07.9; Hypertension: follow up', $this->referrals['replied']['id']]);
+
+        $reasons = self::at($this->read($this->referrals['replied']['uuid']), 'reasonCode');
+
+        $this->assertIsArray($reasons);
+        $this->assertCount(2, $reasons);
+        $this->assertSame([[FhirCodeSystemConstants::HL7_ICD10_CM, 'R07.9']], self::codings($reasons[0]));
+        $this->assertSame(['text' => 'Chest pain; Hypertension: follow up'], $reasons[1], 'words are text, not a code with no system');
+    }
+
     public function testARestEditWithoutAReferralDateKeepsTheAuthoredDate(): void
     {
         // A PUT that leaves referralDate out (or sends it empty) reaches update() with no value

@@ -170,8 +170,8 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
         if ($performer !== null) {
             $serviceRequest->addPerformer($performer);
         }
-        foreach ((new CodeTypesService())->parseCodesIntoCodeableConcepts(self::text($record, 'refer_diag') ?? '') as $code => $reason) {
-            $serviceRequest->addReasonCode(UtilsService::createCodeableConcept([$code => $reason]));
+        foreach (self::reasons(self::text($record, 'refer_diag')) as $reason) {
+            $serviceRequest->addReasonCode($reason);
         }
         $body = self::text($record, 'body');
         if ($body !== null) {
@@ -247,6 +247,39 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
         return UtilsService::createCodeableConcept([
             self::CATEGORY_REFERRAL => ['code' => self::CATEGORY_REFERRAL, 'description' => self::CATEGORY_REFERRAL_DISPLAY, 'system' => FhirCodeSystemConstants::SNOMED_CT],
         ]);
+    }
+
+    /**
+     * Referrer Diagnosis as reason codes. Each coded entry (a code type whose system OpenEMR
+     * knows, such as ICD10:I10) is a coding. Anything else is the reason's text: on a stock
+     * install the field is free text, and "chest pain" is not a code.
+     *
+     * @return list<FHIRCodeableConcept>
+     */
+    private static function reasons(?string $diagnosis): array
+    {
+        $reasons = [];
+        $text = [];
+        $codeTypes = new CodeTypesService();
+        foreach (explode(';', $diagnosis ?? '') as $entry) {
+            $entry = trim($entry);
+            if ($entry === '') {
+                continue;
+            }
+            $parsed = str_contains($entry, ':') ? $codeTypes->parseCodesIntoCodeableConcepts($entry) : [];
+            $code = reset($parsed);
+            if (is_array($code) && is_string($code['system'] ?? null) && $code['system'] !== '') {
+                $reasons[] = UtilsService::createCodeableConcept($parsed);
+            } else {
+                $text[] = $entry;
+            }
+        }
+        if ($text !== []) {
+            $concept = new FHIRCodeableConcept();
+            $concept->setText(new FHIRString(implode('; ', $text)));
+            $reasons[] = $concept;
+        }
+        return $reasons;
     }
 
     /**
