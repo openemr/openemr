@@ -19,9 +19,14 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\BasicSearchField;
+use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\ReferenceSearchField;
 use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\SearchFieldStatementResolver;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
 class ReferralService extends BaseService
@@ -39,6 +44,13 @@ class ReferralService extends BaseService
      * with a login; either way only with an NPI.
      */
     private const PRACTITIONER_ABOOK_TYPES = "'ord_lab', 'spe', 'external_provider'";
+
+    /**
+     * Search columns that are the transaction's own, by the column each is read from.
+     * Filters on them are applied before the fields are grouped, so that a search by
+     * patient, id or last update doesn't group every referral first.
+     */
+    private const SOURCE_COLUMNS = ['uuid' => 't.uuid', 'puuid' => 'patients.uuid', 'last_modified' => 't.date'];
 
     public function __construct()
     {
@@ -59,7 +71,7 @@ class ReferralService extends BaseService
      * reply date is recorded) and, for the requester and the person referred to, their
      * uuid and whether FHIR serves them as a Practitioner.
      */
-    private static function select(): string
+    private static function select(string $sourceFilter = ''): string
     {
         $fields = '';
         foreach (self::FIELDS as $field) {
@@ -81,7 +93,7 @@ class ReferralService extends BaseService
                 FROM transactions AS t
                 JOIN patient_data AS patients ON patients.pid = t.pid
                 LEFT JOIN lbt_data AS d ON d.form_id = t.id
-                WHERE t.title = '" . self::FORM_ID . "'
+                WHERE t.title = '" . self::FORM_ID . "'$sourceFilter
                 GROUP BY t.id, t.uuid, t.pid, patients.uuid, t.date
             ) AS r
             LEFT JOIN users AS requester ON requester.id = r.refer_from
@@ -96,10 +108,25 @@ class ReferralService extends BaseService
     {
         $processingResult = new ProcessingResult();
         try {
-            $where = FhirSearchWhereClauseBuilder::build($search, $isAndCondition !== false);
+            // Fields joined by OR stay together, after grouping.
+            $isAnd = $isAndCondition !== false;
+            $grouped = [];
+            $sourceFilter = '';
+            $sourceValues = [];
+            foreach ($search as $key => $field) {
+                $sourceField = $isAnd ? self::atSource($field) : null;
+                if ($sourceField === null) {
+                    $grouped[$key] = $field;
+                    continue;
+                }
+                $statement = SearchFieldStatementResolver::getStatementForSearchField($sourceField);
+                $sourceFilter .= ' AND (' . $statement->getFragment() . ')';
+                $sourceValues = array_merge($sourceValues, $statement->getBoundValues());
+            }
+            $where = FhirSearchWhereClauseBuilder::build($grouped, $isAnd);
             $records = QueryUtils::fetchRecords(
-                'SELECT referrals.* FROM (' . self::select() . ') AS referrals ' . $where->getFragment() . ' ORDER BY referrals.id',
-                $where->getBoundValues()
+                'SELECT referrals.* FROM (' . self::select($sourceFilter) . ') AS referrals ' . $where->getFragment() . ' ORDER BY referrals.id',
+                array_merge($sourceValues, $where->getBoundValues())
             );
             foreach ($records as $row) {
                 $record = [];
@@ -114,5 +141,25 @@ class ReferralService extends BaseService
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $processingResult;
+    }
+
+    /**
+     * The same filter on the column its value is read from, or null for one on a value
+     * worked out from the grouped fields (status, authored) or of a kind not handled here.
+     */
+    private static function atSource(ISearchField $field): ?BasicSearchField
+    {
+        $column = self::SOURCE_COLUMNS[$field->getField()] ?? null;
+        if ($column === null || !($field instanceof BasicSearchField)) {
+            return null;
+        }
+        $sourceField = match (true) {
+            $field instanceof TokenSearchField => new TokenSearchField($column, $field->getValues(), $field->isUuid() === true),
+            $field instanceof ReferenceSearchField => new ReferenceSearchField($column, $field->getValues(), true),
+            $field instanceof DateSearchField => new DateSearchField($column, $field->getValues(), $field->getDateType(), $field->isAnd()),
+            default => null,
+        };
+        $sourceField?->setModifier($field->getModifier());
+        return $sourceField;
     }
 }
