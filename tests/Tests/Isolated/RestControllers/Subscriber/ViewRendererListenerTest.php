@@ -26,6 +26,8 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\RestControllers\Subscriber;
 
 use OpenEMR\RestControllers\Subscriber\ViewRendererListener;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -61,7 +63,18 @@ class ViewRendererListenerTest extends TestCase
         $this->assertSame(404, $response->getStatusCode());
     }
 
+    /**
+     * Run this test in a separate process so http_response_code() returns the
+     * CLI-default (`false`) rather than inheriting state from a sibling test.
+     * The surrounding tearDown() resets the global to 200 after each test, so
+     * without the subprocess the listener would see 200 regardless of whether
+     * the is_int guard exists — the fallback branch would never actually
+     * fire. The subprocess hands the listener an uninitialised SAPI state
+     * which is the real-world shape the guard protects against.
+     */
     #[Test]
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function testJsonBranchDefaultsTo200WhenNoCodeSet(): void
     {
         // No prior http_response_code() call → listener falls back to 200.
