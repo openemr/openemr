@@ -1173,6 +1173,13 @@ $GLOBALS_METADATA = [
             xl('Display Invoice Number or Patient Name in the Cash Receipt Report')
         ],
 
+        'referral_overdue_days' => [
+            xl('Referrals Overdue After (Days)'),
+            'num',
+            '14',
+            xl('A referral not yet completed shows as overdue this many days after its Referral Date, on the Transactions screen and in the Referrals report. 0 turns this off.')
+        ],
+
     ],
 
     // Billing Tab

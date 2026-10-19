@@ -24,7 +24,10 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\PatientTransactionService;
+use OpenEMR\Services\ReferralService;
+use OpenEMR\Services\ReferralStatus;
 use OpenEMR\Services\ReferralTaskService;
+use OpenEMR\Services\TaskService;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
@@ -173,6 +176,50 @@ class ReferralTaskFhirApiTest extends TestCase
         $this->assertEqualsCanonicalizing(['Practitioner/' . $this->people['oncologist']['uuid'], 'Practitioner/' . $this->people['dermatologist']['uuid']], $owners, 'one when saved, one for the new recipient');
     }
 
+    public function testTheReferralTakesItsLatestTasksStatus(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $taskUuid = $this->createTask($id);
+        $this->assertIsString($taskUuid);
+        $referral = $this->referralUuid($id);
+
+        $this->assertSame('active', $this->read('ServiceRequest', $referral)['status'] ?? null, 'requested');
+        foreach (['accepted' => 'active', 'completed' => 'completed', 'cancelled' => 'revoked', 'entered-in-error' => 'entered-in-error'] as $taskStatus => $requestStatus) {
+            (new TaskService())->update($taskUuid, ['status' => $taskStatus], null);
+            $this->assertSame($requestStatus, $this->read('ServiceRequest', $referral)['status'] ?? null, "Task $taskStatus");
+        }
+        $this->assertSame([$referral], self::ids($this->search('ServiceRequest', ['patient' => $this->patient['uuid'], 'status' => 'entered-in-error'])));
+
+        // A new recipient's Task is the latest, so the referral is active again.
+        (new TaskService())->update($taskUuid, ['status' => 'cancelled'], null);
+        QueryUtils::sqlStatementThrowException("REPLACE INTO lbt_data SET field_value = ?, form_id = ?, field_id = 'refer_to'", [$this->people['cardiologist']['id'], $id]);
+        $this->assertIsString($this->createTask($id));
+        $this->assertSame('active', $this->read('ServiceRequest', $referral)['status'] ?? null);
+    }
+
+    public function testATransactionListRowShowsTheReferralsStatus(): void
+    {
+        $referral = $this->saveReferral(['refer_date' => '2026-01-05', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $taskUuid = $this->createTask($referral);
+        $this->assertIsString($taskUuid);
+        (new TaskService())->update($taskUuid, ['status' => 'rejected'], null);
+        $other = $this->saveTransaction('LBTptreq', ['body' => 'x']);
+        $today = new \DateTimeImmutable('2026-10-19');
+
+        // As getTransByPid() lists them, which is what the Transactions screen shows.
+        $rows = [];
+        foreach (getTransByPid($this->patient['pid']) as $row) {
+            if (is_array($row) && is_numeric($row['id'] ?? null)) {
+                $rows[(int)$row['id']] = $row;
+            }
+        }
+        $status = ReferralStatus::ofTransaction($rows[$referral] ?? null, new ReferralService(), $today, 14);
+        $this->assertNotNull($status);
+        $this->assertSame('Rejected', $status->label());
+        $this->assertTrue($status->overdue);
+        $this->assertNull(ReferralStatus::ofTransaction($rows[$other] ?? null, new ReferralService(), $today, 14));
+    }
+
     public function testNoTaskWithoutARecipientFhirServes(): void
     {
         $toNoNpi = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['no npi']['id'], 'body' => 'x']);
@@ -263,6 +310,7 @@ class ReferralTaskFhirApiTest extends TestCase
 
     /**
      * @return array<mixed>
+     * @phpstan-impure a resource can change between reads
      */
     private function read(string $type, string $uuid): array
     {
@@ -271,6 +319,21 @@ class ReferralTaskFhirApiTest extends TestCase
         $resource = json_decode((string)$response->getBody(), true);
         $this->assertIsArray($resource);
         return $resource;
+    }
+
+    /**
+     * @param list<array<mixed>> $resources
+     * @return list<string>
+     */
+    private static function ids(array $resources): array
+    {
+        $ids = [];
+        foreach ($resources as $resource) {
+            if (is_string($resource['id'] ?? null)) {
+                $ids[] = $resource['id'];
+            }
+        }
+        return $ids;
     }
 
     /**
