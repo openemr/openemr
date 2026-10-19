@@ -437,16 +437,14 @@ function getContent()
                             $medListService = new ActiveMedicationListService();
                             $activeMeds = $medListService->getActiveList($pid);
                             $inactiveMeds = $medListService->getInactiveList($pid, $activeMeds);
-                            $medDate = static function (?string $d): string {
-                                return ActiveMedicationListService::formatListDate(
-                                    $d,
-                                    static fn (string $raw) => oeFormatShortDate($raw)
-                                );
-                            };
+                            $medDate = static fn (?string $d): string => ActiveMedicationListService::formatListDate(
+                                $d,
+                                static fn (string $raw) => oeFormatShortDate($raw)
+                            );
                             echo ActiveMedicationListService::sectionHtml(
                                 'Active',
                                 $activeMeds,
-                                'xl',
+                                xl(...),
                                 'text',
                                 $medDate,
                                 'table table-sm'
@@ -454,7 +452,7 @@ function getContent()
                             echo ActiveMedicationListService::sectionHtml(
                                 'Inactive',
                                 $inactiveMeds,
-                                'xl',
+                                xl(...),
                                 'text',
                                 $medDate,
                                 'table table-sm'
