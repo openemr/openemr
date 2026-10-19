@@ -97,6 +97,26 @@ class SmartLaunchControllerTest extends TestCase
         $this->invokePrivate('addQuestionnaireLaunchContext', [$token, ['questionnaire_id' => '5'], null, self::CLIENT_ID, null]);
     }
 
+    /**
+     * A dashboard assessment launch must not carry the session encounter, or the app
+     * saves a patient-level response into that encounter's context.
+     */
+    public function testQuestionnaireAssessmentLaunchDoesNotCarryTheSessionEncounter(): void
+    {
+        $this->assertFalse($this->invokePrivate(
+            'carriesSessionEncounter',
+            [SMARTLaunchToken::INTENT_QUESTIONNAIRE_ASSESSMENT]
+        ));
+        $this->assertTrue($this->invokePrivate(
+            'carriesSessionEncounter',
+            [SMARTLaunchToken::INTENT_ENCOUNTER_DIALOG]
+        ));
+        $this->assertTrue($this->invokePrivate(
+            'carriesSessionEncounter',
+            [SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG]
+        ));
+    }
+
     #[DataProvider('positiveIntegerProvider')]
     public function testGetPositiveInteger(mixed $value, ?int $expected): void
     {
@@ -105,6 +125,8 @@ class SmartLaunchControllerTest extends TestCase
 
     /**
      * @return array<string, array{mixed, ?int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function positiveIntegerProvider(): array
     {
@@ -137,6 +159,8 @@ class SmartLaunchControllerTest extends TestCase
 
     /**
      * @return array<string, array{?string, array<string, string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function questionnaireContextItemProvider(): array
     {
@@ -176,6 +200,8 @@ class SmartLaunchControllerTest extends TestCase
 
     /**
      * @return array<string, array{?int, string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function appContextActionProvider(): array
     {

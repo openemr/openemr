@@ -55,13 +55,23 @@ $service = new QuestionnaireAvailabilityService();
 $request = CurrentRequest::get();
 
 /**
- * A posted id, or null for "not supplied". InputBag::getInt() already returns an int, so
- * this only has to reject the zero that an absent or non-numeric field produces.
+ * A posted positive integer, or null for "not supplied".
+ *
+ * Not InputBag::getInt(): in Symfony 7 it throws BadRequestException for a field that is
+ * posted but empty, and this page always posts empty fields -- assignment_id on an add,
+ * and every "Any" select. FILTER_NULL_ON_FAILURE turns "", non-numeric input and an
+ * absent field alike into null.
  */
 $postedId = static function (string $field) use ($request): ?int {
-    $value = $request->request->getInt($field);
+    $value = $request->request->filter($field, null, FILTER_VALIDATE_INT, ['flags' => FILTER_NULL_ON_FAILURE]);
 
-    return $value > 0 ? $value : null;
+    return is_int($value) && $value > 0 ? $value : null;
+};
+// The same, for the query string: ?edit= or ?edit=abc must not take the page down.
+$queryId = static function (string $field) use ($request): ?int {
+    $value = $request->query->filter($field, null, FILTER_VALIDATE_INT, ['flags' => FILTER_NULL_ON_FAILURE]);
+
+    return is_int($value) && $value > 0 ? $value : null;
 };
 
 /**
@@ -198,7 +208,7 @@ if ($request->getMethod() === 'POST') {
                     clientId: $postedText('client_id'),
                     aclSection: $aclSection,
                     aclLevel: $aclLevel,
-                    seq: max(0, $request->request->getInt('seq')),
+                    seq: $postedId('seq') ?? 0,
                 );
 
                 if ($record->id > 0) {
@@ -261,7 +271,7 @@ $assignments = $service->listAssignments();
 // The rule being edited, if any. Addressed by id in the query string so a failed save
 // returns to the same rule; cleared once a save succeeds.
 $editing = null;
-$editId = $ruleSaved ? 0 : $request->query->getInt('edit');
+$editId = $ruleSaved ? 0 : ($queryId('edit') ?? 0);
 if ($editId > 0) {
     foreach ($assignments as $candidate) {
         if ($candidate->id === $editId) {

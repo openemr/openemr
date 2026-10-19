@@ -140,7 +140,7 @@ class SmartLaunchController
             $puuid = UuidRegistry::uuidToString($patientService->getUuid($pid));
         }
         $encounter = $session->get('encounter');
-        if (!empty($encounter)) {
+        if (!empty($encounter) && $this->carriesSessionEncounter($intent)) {
             // grab the encounter euuid
             $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($encounter, 'form_encounter', 'encounter'));
         }
@@ -377,6 +377,20 @@ class SmartLaunchController
             ],
             JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
         );
+    }
+
+    /**
+     * Whether a launch with this intent takes the encounter open in the session.
+     *
+     * A questionnaire assessment launched from Available Assessments is a patient-level
+     * response, saved with no encounter, like the native runtime saves it. Handing the app
+     * whatever encounter the user last opened would make it record the response against
+     * that encounter, so the dashboard form would land in the encounter's response
+     * context. Other intents keep the session encounter as before.
+     */
+    private function carriesSessionEncounter(mixed $intent): bool
+    {
+        return $intent !== SMARTLaunchToken::INTENT_QUESTIONNAIRE_ASSESSMENT;
     }
 
     private function getPositiveInteger(mixed $value): ?int
