@@ -149,6 +149,20 @@ class ReferralService extends BaseService
     }
 
     /**
+     * One referral as search() returns it, by its uuid, or null.
+     *
+     * @return ?array<string, mixed>
+     */
+    public function getReferralByUuid(string $uuid): ?array
+    {
+        if (!UuidRegistry::isValidStringUUID($uuid)) {
+            return null;
+        }
+        $id = QueryUtils::fetchSingleValue('SELECT id FROM transactions WHERE uuid = ?', 'id', [UuidRegistry::uuidToBytes($uuid)]);
+        return is_numeric($id) ? $this->getReferral((int)$id) : null;
+    }
+
+    /**
      * @param array<string, ISearchField> $search
      * @param mixed $isAndCondition
      */

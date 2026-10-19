@@ -44,6 +44,7 @@ use OpenEMR\Services\AddressBookOrganizationService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
@@ -432,6 +433,10 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         if (!$this->getTaskService()->update($fhirResourceId, $fields, $this->userId(), $this->expectedVersion ?? $stored['version'], array_values($inputs), array_values($outputs))) {
             $this->versionConflict = true;
             return self::invalid(['meta.versionId' => 'The task changed while it was being updated: read it again before updating']);
+        }
+        // A referral's Task: the one who made the referral hears when it's accepted, rejected or completed (#14710).
+        if (isset($fields['status'])) {
+            (new ReferralTaskService())->taskStatusChanged($fhirResourceId, $stored['status'], $fields['status'], $this->userId());
         }
         // update() turns the row into the FHIR resource itself.
         $result = new ProcessingResult();

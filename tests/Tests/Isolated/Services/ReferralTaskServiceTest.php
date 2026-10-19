@@ -74,7 +74,27 @@ class ReferralTaskServiceTest extends TestCase
             }
         };
 
-        $this->assertNull($service->createAfterSave(12, 3), 'the REST API\'s path');
+        $this->assertNull($service->afterSave(12, 3), 'the REST API\'s path');
         $this->assertNull($service->createForSavedTransaction('LBTref', '12', '3'), 'the screen\'s path');
+    }
+
+    /**
+     * A reply that can't complete the Task, after the Task was made, is contained the same way.
+     */
+    public function testAReplyThatFailsDoesNotFailTheSavedReferral(): void
+    {
+        $service = new class extends ReferralTaskService {
+            public function createForReferral(int $transactionId, ?int $userId): string
+            {
+                return 'task-uuid';
+            }
+
+            public function recordReply(int $transactionId, ?int $userId): string
+            {
+                throw new SqlQueryException('', 'the Task could not be updated');
+            }
+        };
+
+        $this->assertNull($service->afterSave(12, 3));
     }
 }

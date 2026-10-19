@@ -126,7 +126,7 @@ if ($mode) {
         $transid = $newid;
     }
 
-    // The referral's FHIR Task, when the fhir_referral_tasks global is on (#14710).
+    // The referral's FHIR Task and its reply, when the fhir_referral_tasks global is on (#14710).
     (new ReferralTaskService())->createForSavedTransaction($form_id, $transid, $session->get('authUserID'));
 
   // Set the AMC sent records flag
