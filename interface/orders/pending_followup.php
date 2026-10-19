@@ -23,8 +23,9 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
-if (! AclMain::aclCheckCore('acct', 'rep')) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Pending Followup from Results", xl("Pending Followup from Results"));
+// Lab results across patients, so require what the menu entry does: patients/lab.
+if (! AclMain::aclCheckCore('patients', 'lab')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Pending Followup from Results", xl("Pending Followup from Results"));
 }
 
 $facilityService = new FacilityService();
