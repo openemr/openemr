@@ -1,12 +1,13 @@
 <?php
 
 /**
- * A form counts as signed on the patient report when it or its encounter is signed.
+ * A form counts as signed on the patient report when it is signed, or locked
+ * by its encounter's signature.
  *
  * With "Only Include E-Signed Forms On Report" on, the report printed
- * "Not signed." for every form in an encounter signed as a whole: it checked
- * the form's own signatures only, while signing the encounter stores one
- * signature for the encounter (table form_encounter).
+ * "Not signed." for every form in an encounter signed and locked as a whole:
+ * it checked the form's own signatures only, while signing the encounter
+ * stores one signature for the encounter (table form_encounter).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -21,68 +22,122 @@ namespace OpenEMR\Tests\Services\ESign;
 
 use ESign\Api;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/../../../../library/ESign/Api.php';
 
 class FormSignedForReportTest extends TestCase
 {
-    /** Marks the fixture signatures (hash), so cleanup removes only those. */
+    /** Marks the fixture rows (signature hash, form name), so cleanup removes only those. */
     private const MARKER = 'esign-report-encounter-signed-test';
 
-    // Ids no real row uses; signatures are looked up by tid and table only.
-    private const FORM_ID = 990000101;
+    // Ids no real row uses.
+    private const PID = 990000100;
     private const ENCOUNTER = 990000102;
     private const OTHER_ENCOUNTER = 990000103;
+
+    private const LOCK_GLOBALS = ['lock_esign_all', 'lock_esign_individual'];
+
+    /** @var array<string, mixed> */
+    private array $savedGlobals = [];
 
     protected function setUp(): void
     {
         parent::setUp();
+        $globals = OEGlobalsBag::getInstance();
+        foreach (self::LOCK_GLOBALS as $name) {
+            $this->savedGlobals[$name] = $globals->get($name);
+        }
+        $this->setLocking(true);
         $this->cleanUp();
     }
 
     protected function tearDown(): void
     {
         $this->cleanUp();
+        $globals = OEGlobalsBag::getInstance();
+        foreach ($this->savedGlobals as $name => $value) {
+            $globals->set($name, $value);
+        }
         parent::tearDown();
     }
 
     public function testUnsignedFormIsNotSigned(): void
     {
-        $this->assertFalse($this->signedForReport());
+        $formId = $this->addForm(self::ENCOUNTER);
+
+        $this->assertFalse($this->signedForReport($formId));
     }
 
     public function testFormWithItsOwnSignatureIsSigned(): void
     {
-        $this->sign(self::FORM_ID, 'forms', 0);
+        $formId = $this->addForm(self::ENCOUNTER);
+        $this->sign($formId, 'forms', 0);
 
-        $this->assertTrue($this->signedForReport());
+        $this->assertTrue($this->signedForReport($formId));
     }
 
-    public function testFormInALockedSignedEncounterIsSigned(): void
+    public function testFormLockedByItsEncountersSignatureIsSigned(): void
     {
+        $formId = $this->addForm(self::ENCOUNTER);
         $this->sign(self::ENCOUNTER, 'form_encounter', 1);
 
-        $this->assertTrue($this->signedForReport());
+        $this->assertTrue($this->signedForReport($formId));
     }
 
-    public function testFormInASignedEncounterWithoutALockIsSigned(): void
+    public function testEncounterSignatureWithoutALockDoesNotCount(): void
     {
+        // It doesn't freeze the encounter, so it may not cover forms added later.
+        $formId = $this->addForm(self::ENCOUNTER);
         $this->sign(self::ENCOUNTER, 'form_encounter', 0);
 
-        $this->assertTrue($this->signedForReport());
+        $this->assertFalse($this->signedForReport($formId));
+    }
+
+    public function testEncounterLockIsIgnoredWhenEncounterLockingIsOff(): void
+    {
+        $this->setLocking(false);
+        $formId = $this->addForm(self::ENCOUNTER);
+        $this->sign(self::ENCOUNTER, 'form_encounter', 1);
+
+        $this->assertFalse($this->signedForReport($formId));
     }
 
     public function testAnotherEncountersSignatureDoesNotCount(): void
     {
+        $formId = $this->addForm(self::ENCOUNTER);
         $this->sign(self::OTHER_ENCOUNTER, 'form_encounter', 1);
 
-        $this->assertFalse($this->signedForReport());
+        $this->assertFalse($this->signedForReport($formId));
     }
 
-    private function signedForReport(): bool
+    public function testDeletedFormIsNotSigned(): void
     {
-        return (new Api())->isFormSignedForReport(self::FORM_ID, 'eye_mag', self::ENCOUNTER);
+        $formId = $this->addForm(self::ENCOUNTER, 1);
+        $this->sign(self::ENCOUNTER, 'form_encounter', 1);
+
+        $this->assertFalse($this->signedForReport($formId));
+    }
+
+    private function signedForReport(int $formId): bool
+    {
+        return (new Api())->isFormSignedForReport($formId, 'eye_mag');
+    }
+
+    private function setLocking(bool $encounterLocks): void
+    {
+        $globals = OEGlobalsBag::getInstance();
+        $globals->set('lock_esign_all', $encounterLocks);
+        $globals->set('lock_esign_individual', false);
+    }
+
+    private function addForm(int $encounter, int $deleted = 0): int
+    {
+        return QueryUtils::sqlInsert(
+            'INSERT INTO `forms` (`date`, `encounter`, `form_name`, `form_id`, `pid`, `user`, `groupname`, `authorized`, `deleted`, `formdir`) VALUES (NOW(), ?, ?, 1, ?, ?, ?, 1, ?, ?)',
+            [$encounter, self::MARKER, self::PID, 'admin', 'Default', $deleted, 'eye_mag']
+        );
     }
 
     private function sign(int $tid, string $table, int $isLock): void
@@ -96,5 +151,6 @@ class FormSignedForReportTest extends TestCase
     private function cleanUp(): void
     {
         QueryUtils::sqlStatementThrowException('DELETE FROM `esign_signatures` WHERE `hash` = ?', [self::MARKER]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM `forms` WHERE `form_name` = ?', [self::MARKER]);
     }
 }

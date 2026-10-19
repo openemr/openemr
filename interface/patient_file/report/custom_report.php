@@ -756,12 +756,11 @@ function getContent()
                                 <?php
                                 if (!empty($res[1])) {
                                     $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
-                                    // A form counts as signed when it or its encounter is signed.
+                                    // A form counts as signed when it is signed, or locked by its encounter's signature.
                                     $onlySigned = OEGlobalsBag::getInstance()->getBoolean('esign_report_show_only_signed');
                                     $formRowId = filter_var($formId, FILTER_VALIDATE_INT);
-                                    $encounterId = filter_var($form_encounter, FILTER_VALIDATE_INT);
-                                    $formSigned = $onlySigned && is_int($formRowId) && is_int($encounterId)
-                                        && $esignApi->isFormSignedForReport($formRowId, $res[1], $encounterId);
+                                    $formSigned = $onlySigned && is_int($formRowId)
+                                        && $esignApi->isFormSignedForReport($formRowId, $res[1]);
                                     if (!$onlySigned || $formSigned) {
                                         $reportRenderer->renderReport($res[1], 'custom_report.php', $pid, $form_encounter, $N, $form_id, $res[1]);
                                     } else {
