@@ -21,6 +21,7 @@ use OpenEMR\Services\Qdm\QdmRequestOne;
 use OpenEMR\Services\Qdm\QdmRequestSome;
 use OpenEMR\Services\Qdm\Services\PhysicalExamService;
 use OpenEMR\Services\Qdm\Services\VitalSignsService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class VitalSignsServiceDatabaseTest extends TestCase
@@ -67,6 +68,25 @@ class VitalSignsServiceDatabaseTest extends TestCase
         );
         $values = $this->values(new QdmRequestOne((string)self::PID));
         $this->assertSame(['80', '82', '128'], $values, 'read without the spaces');
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function notABloodPressure(): iterable
+    {
+        // Each is a number to PHP's is_numeric() or to MySQL, but not digits with an optional
+        // decimal part. Blank stands for empty too: TRIM makes them the same value.
+        yield 'a sign' => ['+128'];
+        yield 'an exponent' => ['1e2'];
+        yield 'a trailing decimal point' => ['128.'];
+        yield 'blank' => ['   '];
+    }
+
+    #[DataProvider('notABloodPressure')]
+    public function testOnlyDigitsWithAnOptionalDecimalPartAreRead(string $bps): void
+    {
+        $this->vitals(self::PID, '2026-03-02 09:00:00', ['bps' => $bps]);
+
+        $this->assertSame([], $this->read(new QdmRequestOne((string)self::PID)));
     }
 
     public function testAnImportedExamWithSpacesStillMatchesItsVitalsCopy(): void
