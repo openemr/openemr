@@ -36,7 +36,7 @@ class InsuranceCompanyService extends BaseService
 {
     private const INSURANCE_TABLE = "insurance_companies";
     private readonly InsuranceCompanyValidator $insuranceCompanyValidator;
-    private $addressService = null;
+    private readonly AddressService $addressService;
     private $phoneNumberService = null;
 
     /**
@@ -489,7 +489,7 @@ class InsuranceCompanyService extends BaseService
         );
 
         if (($data["city"] ?? '') !== '' && ($data["state"] ?? '') !== '') {
-            $this->addressService->insert(AddressData::fromArray($data), $freshId);
+            $this->addressService->insert(AddressData::fromArray($data), (int) $freshId);
         }
 
         if (($data["phone"] ?? '') !== '') {
@@ -543,13 +543,28 @@ class InsuranceCompanyService extends BaseService
         }
 
         // Only touch the stored address when the submitted payload actually
-        // carries city + state — AddressData::fromArray substitutes empty
-        // strings for missing keys, so an unconditional update on a partial
-        // payload (or on a row that was created without an address) would
-        // either wipe the stored address or try to update a nonexistent
-        // row. Mirrors the insert() guard above.
-        if (($data["city"] ?? '') !== '' && ($data["state"] ?? '') !== '') {
-            $addressesResults = $this->addressService->update(AddressData::fromArray($data), $iid);
+        // carries at least one address field. Merge submitted fields over the
+        // stored address so a payload submitting only `line1` (with no
+        // city/state) still gets applied without wiping unrelated fields,
+        // and a payload submitting only `city`+`state` doesn't clobber the
+        // stored `line1` with an empty string. If no addresses row exists
+        // yet for this company (insert() skips address when city/state are
+        // empty), fall through to an insert so the submitted address is
+        // actually saved.
+        if (self::payloadCarriesAddressFields($data)) {
+            if (!is_numeric($iid)) {
+                return false;
+            }
+            $iidInt = (int) $iid;
+            $stored = $this->addressService->getOneByForeignId($iidInt);
+            $storedFields = $stored?->toArray() ?? [];
+            $submittedFields = array_intersect_key(
+                $data,
+                array_flip(['line1', 'line2', 'city', 'state', 'zip', 'country', 'plus_four'])
+            );
+            $addressData = AddressData::fromArray(array_merge($storedFields, $submittedFields));
+            $addressesResults = $this->addressService->update($addressData, $iidInt);
+            $addressesResults ??= $this->addressService->insert($addressData, $iidInt);
             if (!$addressesResults) {
                 return false;
             }
@@ -565,6 +580,19 @@ class InsuranceCompanyService extends BaseService
         }
 
         return $iid;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private static function payloadCarriesAddressFields(array $data): bool
+    {
+        foreach (['line1', 'line2', 'city', 'state', 'zip', 'country', 'plus_four'] as $key) {
+            if (array_key_exists($key, $data)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
