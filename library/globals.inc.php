@@ -899,7 +899,7 @@ $GLOBALS_METADATA = [
             xl('Require NPI on Address Book persons'),
             'bool',
             '1',
-            xl('Require a valid National Provider Identifier when saving an external person in the Address Book. NPI is the US HIPAA identifier issued by CMS/NPPES; it is not used outside the United States and is not tied to UI language. Turn this off for non-US sites. New installs default on. Upgrades default off, then turn on when Units for Visit Forms is already US-primary or US-only.')
+            xl('Require a valid National Provider Identifier when saving an external person in the Address Book. NPI is the US HIPAA identifier issued by CMS/NPPES; it is not used outside the United States and is not tied to UI language. Turn this off for non-US sites. New installs default on. Upgrades insert the setting off and leave it off.')
         ],
 
         'text_templates_enabled' => [
