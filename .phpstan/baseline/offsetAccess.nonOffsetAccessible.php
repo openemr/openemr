@@ -5843,12 +5843,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
-    'count' => 5,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'codedesc\' on mixed\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
@@ -5858,7 +5858,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'codetype\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
@@ -5887,11 +5887,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fee\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'fname\' on array\\|false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
@@ -5907,17 +5902,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'justify\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'lname\' on array\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'modifier\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
@@ -5953,11 +5938,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'title\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'units\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
