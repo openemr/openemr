@@ -52,5 +52,6 @@ header('Content-Type: application/json');
 echo json_encode([
     'lots' => $lots,
     'has_default_warehouse' => $defaultWarehouse !== '',
+    'has_warehouses' => $drugSalesService->clinicHasActiveWarehouses(),
     'restrict_to_default' => DrugSalesService::restrictSalesToDefaultWarehouse(),
 ]);

@@ -44,6 +44,9 @@ class DrugSalesService extends BaseService
      */
     private const RESTRICT_SALES_TO_DEFAULT_WAREHOUSE_KEY = 'restrict_sales_to_default_warehouse';
 
+    /** Memoised result of clinicHasActiveWarehouses(); null until first asked. */
+    private ?bool $hasActiveWarehouses = null;
+
     public static function restrictSalesToDefaultWarehouse(): bool
     {
         // OEGlobalsBag only sees keys that have a DB row. A fresh install
@@ -350,13 +353,23 @@ class DrugSalesService extends BaseService
             "WHERE " .
             "di.drug_id = ? AND di.destroy_date IS NULL AND di.on_hand != 0 ";
         // Honour the clinic-level policy: when restrict_sales_to_default_warehouse
-        // is on, the user must have a default warehouse and we filter to it.
-        // No default = no anchor for "on-site" = the policy cannot be applied,
-        // so we refuse the sale rather than silently dispensing from any
-        // warehouse (the pre-2026 loophole). The default_warehouse param is
+        // is on, we filter to the user's default warehouse. A user without one
+        // has no anchor for "on-site", so in a clinic that has configured
+        // warehouses the sale is refused with an explanation rather than
+        // silently dispensing from any warehouse (the pre-2026 loophole).
+        // Clinics without any active warehouse keep the legacy behaviour:
+        // their lots and users both carry an empty warehouse id, so the
+        // filter below still matches. Availability probes ($testonly) never
+        // throw; they simply find nothing on-site, which every caller already
+        // reports as insufficient inventory. The default_warehouse param is
         // typed loose (legacy signature) so we accept null/'' alike.
         $defaultWarehouseSet = $default_warehouse !== null && $default_warehouse !== '' && $default_warehouse !== false;
-        if (self::restrictSalesToDefaultWarehouse() && !$defaultWarehouseSet) {
+        if (
+            !$testonly
+            && self::restrictSalesToDefaultWarehouse()
+            && !$defaultWarehouseSet
+            && $this->clinicHasActiveWarehouses()
+        ) {
             throw new InvalidArgumentException(xl('Your clinic only allows dispensing from your default warehouse, but no default warehouse is configured for your user. Set one under Administration → Users.'));
         }
 
@@ -551,9 +564,10 @@ class DrugSalesService extends BaseService
      *   transferred to the on-site warehouse first.
      *
      * "On site" is defined as $defaultWarehouse (the user's
-     * users.default_warehouse). If the user has no default warehouse, every
-     * lot is treated as off-site — the user has no anchor to compare
-     * against, so we surface the safest-to-question state.
+     * users.default_warehouse). A user without a default warehouse in a
+     * clinic that has warehouses sees every lot as off-site — there is no
+     * anchor to compare against. In a clinic without configured warehouses
+     * every lot is on-site, because lots and users both carry ''.
      *
      * Excluded in both modes: expired lots, destroyed lots, lots with
      * on_hand <= 0, and lots in warehouses marked seq > 99 (the
@@ -628,10 +642,11 @@ class DrugSalesService extends BaseService
             // xl_list_label translates list_options titles; falls back to the
             // raw title if no translation is registered.
             $warehouseTitle = $rawTitle !== '' ? (string)xl_list_label($rawTitle) : '';
-            // When the user has no default warehouse, we have no anchor for
-            // "on-site" — every lot is treated as off-site so the UI warns
-            // on every selection.
-            $isOffSite = $defaultWarehouse === '' || $warehouseId !== $defaultWarehouse;
+            // A lot is on-site when it sits in the user's default warehouse.
+            // In a clinic without configured warehouses both sides are '',
+            // so every lot counts as on-site; a user without a default in a
+            // clinic that has warehouses sees every lot as off-site.
+            $isOffSite = $warehouseId !== $defaultWarehouse;
             $lots[] = [
                 'inventory_id'    => $toInt($row['inventory_id'] ?? 0),
                 'lot_number'      => $toString($row['lot_number'] ?? ''),
@@ -644,6 +659,22 @@ class DrugSalesService extends BaseService
             ];
         }
         return $lots;
+    }
+
+    /**
+     * Whether the clinic has configured at least one active warehouse. The
+     * default-warehouse policy only means something when it has.
+     */
+    public function clinicHasActiveWarehouses(): bool
+    {
+        if ($this->hasActiveWarehouses === null) {
+            $row = QueryUtils::fetchRecords(
+                "SELECT COUNT(*) AS c FROM list_options WHERE list_id = 'warehouse' AND activity = 1"
+            )[0] ?? null;
+            $countRaw = is_array($row) ? ($row['c'] ?? 0) : 0;
+            $this->hasActiveWarehouses = is_numeric($countRaw) && (int)$countRaw > 0;
+        }
+        return $this->hasActiveWarehouses;
     }
 
     /**

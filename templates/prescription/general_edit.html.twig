@@ -519,21 +519,28 @@
 
     // Tracks the lot-picker mode delivered by the AJAX endpoint:
     //  - hasDefaultWarehouse: the user has a default warehouse configured.
-    //    When false, "on-site" has no anchor; show the danger banner,
-    //    skip per-selection off-site flags, and skip the off-site confirm.
+    //  - hasWarehouses: the clinic has at least one active warehouse. Only
+    //    then does a missing default matter: show the danger banner, skip
+    //    per-selection off-site flags, and skip the off-site confirm. A
+    //    clinic without warehouses dispenses as it always did.
     //  - restrictToDefault: the clinic's restrict_sales_to_default_warehouse
     //    flag. When true, off-site lots are rendered disabled (sellDrug()
     //    would block them server-side anyway); when false, they are
     //    selectable with a warning + submit-time confirm.
     var lotPickerHasDefaultWarehouse = true;
+    var lotPickerHasWarehouses = true;
     var lotPickerRestrictToDefault = true;
+
+    function lotPickerMissingDefault() {
+        return lotPickerHasWarehouses && !lotPickerHasDefaultWarehouse;
+    }
 
     // Toggle the off-site warning panel based on whether the currently
     // selected lot is flagged as off-site (data-off-site="1"). Suppressed
-    // when no default warehouse is set, or when strict mode is on (in
+    // when the default warehouse is missing, or when strict mode is on (in
     // strict mode, off-site lots are disabled and cannot be selected).
     function updateOffSiteWarning() {
-        if (!lotPickerHasDefaultWarehouse || lotPickerRestrictToDefault) {
+        if (lotPickerMissingDefault() || lotPickerRestrictToDefault) {
             $('#off_site_warning').hide();
             return;
         }
@@ -565,12 +572,14 @@
             $sel.empty();
             var lots = (data && data.lots) ? data.lots : [];
             lotPickerHasDefaultWarehouse = !!(data && data.has_default_warehouse);
+            lotPickerHasWarehouses = !!(data && data.has_warehouses);
             lotPickerRestrictToDefault = !!(data && data.restrict_to_default);
-            // Show the configuration banner when no default warehouse is
-            // set. Show the strict-variant of the message when the clinic
-            // also enforces the restriction — in that case the dispense
-            // button must be disabled too, because sellDrug() will refuse.
-            var noDefault = !lotPickerHasDefaultWarehouse;
+            // Show the configuration banner when the clinic has warehouses
+            // but the user has no default. Show the strict-variant of the
+            // message when the clinic also enforces the restriction — in
+            // that case the dispense button must be disabled too, because
+            // sellDrug() will refuse.
+            var noDefault = lotPickerMissingDefault();
             $('#no_default_warehouse_warning').toggle(noDefault);
             $('#no_default_warehouse_warning .no-default-loose').toggle(noDefault && !lotPickerRestrictToDefault);
             $('#no_default_warehouse_warning .no-default-strict').toggle(noDefault && lotPickerRestrictToDefault);
