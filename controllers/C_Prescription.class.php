@@ -381,7 +381,8 @@ class C_Prescription extends Controller
         $encounterId = (int)($_POST['dispense_encounter_id'] ?? 0);
         $inventoryIdRaw = filter_input(INPUT_POST, 'dispense_inventory_id');
         $inventoryId = is_numeric($inventoryIdRaw) && (int)$inventoryIdRaw > 0 ? (int)$inventoryIdRaw : null;
-        $patientId = $prescription->get_patient_id();
+        $patientIdRaw = $prescription->get_patient_id();
+        $patientId = is_numeric($patientIdRaw) ? (int)$patientIdRaw : 0;
         $prescriptionId = $prescription->id;
 
         $dispenseError = null;
@@ -397,7 +398,7 @@ class C_Prescription extends Controller
             try {
                 $drugSalesService = new DrugSalesService();
                 $expiredLots = false;
-                $saleId = $drugSalesService->sellDrug(
+                $saleResult = $drugSalesService->sellDrug(
                     $drugId,
                     $quantity,
                     $fee,
@@ -413,8 +414,9 @@ class C_Prescription extends Controller
                     '',
                     $inventoryId
                 );
+                $saleId = is_numeric($saleResult) ? (int)$saleResult : 0;
 
-                if (!$saleId) {
+                if ($saleId <= 0) {
                     if ($inventoryId !== null && DrugSalesService::restrictSalesToDefaultWarehouse()) {
                         // Strict policy is on and the picker submitted an
                         // off-site lot. Surface the actual reason instead
@@ -433,7 +435,7 @@ class C_Prescription extends Controller
         if ($dispenseError) {
             // Show error and return to prescription list
             echo "<script>alert(" . js_escape($dispenseError) . "); ";
-            echo "window.location.href = 'controller.php?prescription&list&id=" . attr_url($patientId) . "';</script>";
+            echo "window.location.href = 'controller.php?prescription&list&id=" . attr_url((string)$patientId) . "';</script>";
             exit;
         }
 

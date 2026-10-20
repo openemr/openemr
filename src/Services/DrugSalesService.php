@@ -609,12 +609,8 @@ class DrugSalesService extends BaseService
             $params[] = $defaultWarehouse;
         }
 
-        $toInt = static function (mixed $v): int {
-            return is_numeric($v) ? (int)$v : 0;
-        };
-        $toString = static function (mixed $v): string {
-            return is_scalar($v) || $v === null ? (string)($v ?? '') : '';
-        };
+        $toInt = (static fn(mixed $v): int => is_numeric($v) ? (int)$v : 0);
+        $toString = (static fn(mixed $v): string => is_scalar($v) || $v === null ? (string)($v ?? '') : '');
 
         $rows = QueryUtils::fetchRecords($query, $params);
         $lots = [];
@@ -745,9 +741,7 @@ class DrugSalesService extends BaseService
      */
     public function renderBottleLabel(int $saleId): array
     {
-        $stringify = static function (mixed $v): string {
-            return is_scalar($v) || $v === null ? (string)($v ?? '') : '';
-        };
+        $stringify = (static fn(mixed $v): string => is_scalar($v) || $v === null ? (string)($v ?? '') : '');
 
         $facilityService = new FacilityService();
         $facilityRaw = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);

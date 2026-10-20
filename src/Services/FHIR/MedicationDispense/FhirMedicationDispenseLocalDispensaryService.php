@@ -146,27 +146,27 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
                     if ($dosageText !== null) {
                         $dosageText = 'Dose: ';
                         $doseAndRate = $fhirDosage->getDoseAndRate();
-                        $doseQuantity = !empty($doseAndRate) ? $doseAndRate[0]->getDoseQuantity() : null;
+                        $doseQuantity = $doseAndRate !== [] ? $doseAndRate[0]->getDoseQuantity() : null;
                         if ($doseQuantity) {
                             $dosageText .= $doseQuantity->getValue() . ' ' . $doseQuantity->getUnit() . ' ';
                         }
                         $timing = $fhirDosage->getTiming();
-                        if ($timing !== null && $timing->getCode() !== null) {
+                        if ($timing !== null) {
                             $dosageText .= ' ' . $timing->getCode()->getText() . ' ';
                         }
                         $route = $fhirDosage->getRoute();
                         if ($route) {
                             $routeCoding = $route->getCoding();
-                            if (!empty($routeCoding)) {
+                            if ($routeCoding !== []) {
                                 $dosageText .= ' via ' . $routeCoding[0]->getDisplay() . ' ';
                             }
                         }
                         $additionalInstructions = $fhirDosage->getAdditionalInstruction();
-                        if (!empty($additionalInstructions)) {
+                        if ($additionalInstructions !== []) {
                             $dosageText .= ' ' . $additionalInstructions[0]->getText() . ' ';
                         }
                     }
-                    $instructions[] = trim((string)$dosageText);
+                    $instructions[] = trim($dosageText);
                 }
 
                 $medicationName = $fhirResource->getMedicationCodeableConcept()->getText() ?? xl("Unknown Medication");

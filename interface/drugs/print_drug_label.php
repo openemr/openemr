@@ -10,9 +10,9 @@
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DrugSalesService;
 
@@ -30,8 +30,8 @@ if ($saleId <= 0) {
 $labelData = null;
 try {
     $labelData = (new DrugSalesService())->renderBottleLabel($saleId);
-} catch (\Throwable $e) {
-    (new SystemLogger())->error('Could not render bottle label', ['sale_id' => $saleId, 'exception' => $e]);
+} catch (\RuntimeException $e) {
+    ServiceContainer::getLogger()->error('Could not render bottle label', ['sale_id' => $saleId, 'exception' => $e]);
 }
 if ($labelData === null) {
     die(xlt('No label could be generated for this sale'));
