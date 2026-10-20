@@ -239,7 +239,68 @@ final class ActiveMedicationListServiceTest extends TestCase
             ]
         );
         $this->assertCount(1, $rows);
-        $this->assertSame('Aspirin', $rows[0]['title']);
+        $this->assertSame('issue', $rows[0]['source']);
+        $this->assertSame('aspirin', $rows[0]['title']);
+        $this->assertSame('2024-02-01', $rows[0]['start']);
+    }
+
+    /**
+     * The later start date is the dose that stays.
+     */
+    public function testMergeKeepsTheLaterDose(): void
+    {
+        $rows = ActiveMedicationListService::merge(
+            [
+                [
+                    'title' => 'Lisinopril',
+                    'drug_dosage_instructions' => '5 mg daily',
+                    'begdate' => '2024-01-01',
+                ],
+                [
+                    'title' => 'Lisinopril',
+                    'drug_dosage_instructions' => '10 mg daily',
+                    'begdate' => '2026-03-01',
+                ],
+            ],
+            [
+                [
+                    'drug' => 'Lisinopril',
+                    'dosage' => '20 mg',
+                    'start_date' => '2025-06-01',
+                ],
+            ]
+        );
+        $this->assertCount(1, $rows);
+        $this->assertSame('issue', $rows[0]['source']);
+        $this->assertSame('10 mg daily', $rows[0]['dose']);
+        $this->assertSame('2026-03-01', $rows[0]['start']);
+    }
+
+    /**
+     * A newer prescription replaces an older issue with the same name.
+     */
+    public function testMergeKeepsANewerPrescriptionDose(): void
+    {
+        $rows = ActiveMedicationListService::merge(
+            [
+                [
+                    'title' => 'Metformin',
+                    'drug_dosage_instructions' => '500 mg daily',
+                    'begdate' => '2024-01-01',
+                ],
+            ],
+            [
+                [
+                    'drug' => 'Metformin',
+                    'dosage' => '1000 mg',
+                    'start_date' => '2026-04-01',
+                ],
+            ]
+        );
+        $this->assertCount(1, $rows);
+        $this->assertSame('prescription', $rows[0]['source']);
+        $this->assertSame('1000 mg', $rows[0]['dose']);
+        $this->assertSame('2026-04-01', $rows[0]['start']);
     }
 
     /**
