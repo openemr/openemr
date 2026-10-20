@@ -54,6 +54,19 @@ class FamilyHistoryTest extends TestCase
         );
     }
 
+    public function testDisplayIsTheRawValueForThePanelsToEscape(): void
+    {
+        $this->assertSame('mother & father', FamilyHistory::display('mother & father'));
+    }
+
+    public function testDisplayCutsLongValuesByCharacter(): void
+    {
+        $display = FamilyHistory::display(str_repeat('a', 99) . 'éé');
+
+        $this->assertSame(str_repeat('a', 99) . 'é', $display);
+        $this->assertTrue(mb_check_encoding($display, 'UTF-8'));
+    }
+
     public function testSaveWritesOnlyThePostedFamilyHistoryColumns(): void
     {
         // What the panel posts: its six medical fields, the eye fields, and

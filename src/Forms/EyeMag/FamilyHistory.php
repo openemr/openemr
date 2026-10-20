@@ -73,6 +73,16 @@ final class FamilyHistory
     }
 
     /**
+     * The start of a recorded value the panels show, unescaped (the panels
+     * escape it). Cut by character so text() doesn't blank a value cut
+     * inside a multibyte character.
+     */
+    public static function display(string $value): string
+    {
+        return mb_substr($value, 0, 100);
+    }
+
+    /**
      * The family history columns a panel save should write: those the
      * request posted, with their values. Columns the panel doesn't post are
      * left out, so a save doesn't clear them. A posted value that isn't a

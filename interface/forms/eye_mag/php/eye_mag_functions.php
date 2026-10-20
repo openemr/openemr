@@ -1926,10 +1926,10 @@ function build_PMSFH($pid): array
     ];
     $familyMedical = [];
     foreach (FamilyHistory::recordedMedical(is_array($result1) ? $result1 : []) as $field_id => $currvalue) {
-        $resnote = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
         $familyMedical[$field_id] = [
-            'resnote' => $resnote,
-            'display' => substr($resnote, 0, 100),
+            'resnote' => nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES)),
+            // Raw, like the eye rows below: the renderers escape it.
+            'display' => FamilyHistory::display($currvalue),
             'short_title' => $medicalShortTitles[$field_id],
         ];
     }
