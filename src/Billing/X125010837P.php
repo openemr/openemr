@@ -319,55 +319,44 @@ class X125010837P
 
             // Situational PER*1C segment omitted.
 
-            // Pay-To Address defaults to billing provider and is no longer required in 5010 but may be useful
-            if ($claim->pay_to_provider != '') {
+            // Loop 2010AB Pay-To Address: the billing facility's mailing address, sent
+            // only when it differs from the billing provider address in 2010AA.
+            // 5010 uses only NM101-NM102 here: the pay-to loop is an address, not a provider.
+            if ($claim->hasPayToAddress()) {
                 ++$edicount;
-                $billingFacilityName = substr((string) $claim->billingFacilityName(), 0, 60);
-                $out .= "NM1" .       // Loop 2010AB Pay-To Provider
+                $out .= "NM1" .       // Loop 2010AB Pay-To Address
                 "*" . "87" .
                 "*" . "2" .
-                "*" . $billingFacilityName .
-                "*" .
-                "*" .
-                "*" .
-                "*";
-                if ($claim->billingFacilityNPI()) {
-                    $out .= "*XX*" . $claim->billingFacilityNPI();
-                } else {
-                    $log .= "*** Pay to provider has no NPI.\n";
-                }
-                $out .= "~\n";
+                "~\n";
 
                 ++$edicount;
                 $out .= "N3" .
-                "*";
-                if ($claim->billingFacilityStreet()) {
-                    $out .= $claim->billingFacilityStreet();
-                } else {
-                    $log .= "*** Pay to provider has no street.\n";
+                "*" . $claim->payToFacilityStreet();
+                if ($claim->payToFacilityStreet2() !== '') {
+                    $out .= "*" . $claim->payToFacilityStreet2();
                 }
                 $out .= "~\n";
 
                 ++$edicount;
                 $out .= "N4" .
                 "*";
-                if ($claim->billingFacilityCity()) {
-                    $out .= $claim->billingFacilityCity();
+                if ($claim->payToFacilityCity()) {
+                    $out .= $claim->payToFacilityCity();
                 } else {
-                    $log .= "*** Pay to provider has no city.\n";
+                    $log .= "*** Pay to address has no city.\n";
                 }
                 $out .= "*";
-                if ($claim->billingFacilityState()) {
-                    $out .= $claim->billingFacilityState();
+                if ($claim->payToFacilityState()) {
+                    $out .= $claim->payToFacilityState();
                 } else {
-                    $log .= "*** Pay to provider has no state.\n";
+                    $log .= "*** Pay to address has no state.\n";
                 }
                 $out .= "*";
                 // X12 requires a 9 digit zip but we output it anyways
-                if (strlen((string) $claim->billingFacilityZip()) != 9) {
-                    $log .= "*** Pay to provider zip is not 9 digits.\n";
+                if (strlen($claim->payToFacilityZip()) != 9) {
+                    $log .= "*** Pay to address zip is not 9 digits.\n";
                 }
-                $out .= $claim->billingFacilityZip();
+                $out .= $claim->payToFacilityZip();
                 $out .= "~\n";
             }
 
