@@ -346,4 +346,371 @@ class PatientAllergyConditionApiTest extends TestCase
             "Patient 2 should NOT have Patient 1's allergy (Codeine). "
             . "If this fails, per-patient filtering is broken.");
     }
+
+    /**
+     * POST /api/patient/:puuid/allergy — creates an allergy and returns
+     * a 201 with `data.uuid` populated. Locks the create response shape
+     * (data.id + data.uuid) that AllergyIntoleranceService::insert produces.
+     */
+    public function testPostAllergyCreatesRecord(): void
+    {
+        $patientUuid = $this->createPatient();
+
+        $allergyData = [
+            "title" => "Latex",
+            "type" => "allergy",
+            "reaction" => "contact dermatitis",
+            "verification" => "confirmed",
+            "begdate" => "2023-05-10",
+        ];
+        $url = self::PATIENT_API_ENDPOINT . "/" . $patientUuid . "/allergy";
+        $response = $this->testClient->post($url, $allergyData);
+
+        $this->assertEquals(201, $response->getStatusCode(),
+            "POST should return 201. Body: " . (string) $response->getBody());
+        $body = $this->decodeBody($response);
+        $this->assertSame([], $body["validationErrors"] ?? ["SENTINEL"],
+            "Create must produce no validation errors. Body: " . (string) $response->getBody());
+        $this->assertIsArray($body["data"]);
+        $this->assertArrayHasKey("uuid", $body["data"]);
+        $this->assertIsString($body["data"]["uuid"]);
+        $this->assertMatchesRegularExpression(
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+            $body["data"]["uuid"]
+        );
+    }
+
+    /**
+     * PUT /api/patient/:puuid/allergy/:auuid — updates an existing allergy
+     * and the follow-up GET reflects the new value. AllergyIntoleranceService::update
+     * resolves the owning patient via `pid` before writing (puuid is a read alias
+     * that buildUpdateColumns() drops), so the test does not need to pass puuid
+     * in the body.
+     */
+    public function testPutAllergyUpdatesRecord(): void
+    {
+        $patientUuid = $this->createPatient();
+
+        $allergyData = [
+            "title" => "Peanuts",
+            "type" => "allergy",
+            "reaction" => "anaphylaxis",
+            "verification" => "confirmed",
+            "begdate" => "2018-03-15",
+        ];
+        $createBody = $this->createAllergy($patientUuid, $allergyData);
+        $this->assertIsArray($createBody["data"]);
+        $this->assertIsString($createBody["data"]["uuid"]);
+        $allergyUuid = $createBody["data"]["uuid"];
+
+        $url = self::PATIENT_API_ENDPOINT . "/" . $patientUuid . "/allergy";
+        $putResponse = $this->testClient->put($url, $allergyUuid, [
+            "title" => "Peanuts (severe)",
+            "begdate" => "2018-03-15",
+            "diagnosis" => "ICD10:T78.00XA",
+        ]);
+        $this->assertEquals(200, $putResponse->getStatusCode(),
+            "PUT should return 200. Body: " . (string) $putResponse->getBody());
+
+        $follow = $this->testClient->get($url . "/" . $allergyUuid);
+        $this->assertEquals(200, $follow->getStatusCode());
+        $followBody = $this->decodeBody($follow);
+        $this->assertIsArray($followBody["data"]);
+        // Per-patient single-GET returns `data` as a list of rows
+        // (isMultipleResultResponse=true in the controller). Narrow before
+        // reading the title.
+        $this->assertNotEmpty($followBody["data"], "Follow-up GET must return the row");
+        $this->assertIsArray($followBody["data"][0]);
+        $this->assertSame("Peanuts (severe)", $followBody["data"][0]["title"] ?? null);
+    }
+
+    /**
+     * DELETE /api/patient/:puuid/allergy/:auuid — hard-deletes the row from
+     * `lists` (AllergyIntoleranceService::delete runs a `DELETE FROM lists
+     * WHERE pid = ? AND uuid = ? AND type = 'allergy'`). After the delete,
+     * the single-GET returns an empty-data response (handleProcessingResult
+     * flattens zero records to `data: []`), locking that shape too.
+     */
+    public function testDeleteAllergyRemovesRecord(): void
+    {
+        $patientUuid = $this->createPatient();
+
+        $allergyData = [
+            "title" => "Aspirin",
+            "type" => "allergy",
+            "reaction" => "hives",
+            "verification" => "confirmed",
+            "begdate" => "2020-07-04",
+        ];
+        $createBody = $this->createAllergy($patientUuid, $allergyData);
+        $this->assertIsArray($createBody["data"]);
+        $this->assertIsString($createBody["data"]["uuid"]);
+        $allergyUuid = $createBody["data"]["uuid"];
+
+        $baseUrl = self::PATIENT_API_ENDPOINT . "/" . $patientUuid . "/allergy";
+        $deleteResponse = $this->testClient->delete($baseUrl, $allergyUuid);
+        $this->assertEquals(200, $deleteResponse->getStatusCode(),
+            "DELETE should return 200. Body: " . (string) $deleteResponse->getBody());
+
+        $follow = $this->testClient->getOne($baseUrl, $allergyUuid);
+        $followBody = $this->decodeBody($follow);
+        $this->assertIsArray($followBody["data"]);
+        $this->assertSame([], $followBody["data"],
+            "After DELETE, single-GET on the same uuid must return empty data.");
+    }
+
+    /**
+     * POST /api/patient/:puuid/medical_problem — creates a condition and
+     * returns 201 with `data.uuid`. ConditionService::insert mirrors
+     * AllergyIntoleranceService::insert's shape.
+     */
+    public function testPostMedicalProblemCreatesRecord(): void
+    {
+        $patientUuid = $this->createPatient();
+
+        $conditionData = [
+            "title" => "Type 2 Diabetes",
+            "type" => "medical_problem",
+            "diagnosis" => "ICD10:E11.9",
+            "begdate" => "2017-11-02",
+        ];
+        $url = self::PATIENT_API_ENDPOINT . "/" . $patientUuid . "/medical_problem";
+        $response = $this->testClient->post($url, $conditionData);
+
+        $this->assertEquals(201, $response->getStatusCode(),
+            "POST should return 201. Body: " . (string) $response->getBody());
+        $body = $this->decodeBody($response);
+        $this->assertSame([], $body["validationErrors"] ?? ["SENTINEL"],
+            "Create must produce no validation errors. Body: " . (string) $response->getBody());
+        $this->assertIsArray($body["data"]);
+        $this->assertArrayHasKey("uuid", $body["data"]);
+        $this->assertIsString($body["data"]["uuid"]);
+        $this->assertMatchesRegularExpression(
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+            $body["data"]["uuid"]
+        );
+    }
+
+    /**
+     * PUT /api/patient/:puuid/medical_problem/:muuid — updates an existing
+     * condition and the follow-up GET reflects the new value.
+     */
+    public function testPutMedicalProblemUpdatesRecord(): void
+    {
+        $patientUuid = $this->createPatient();
+
+        $conditionData = [
+            "title" => "Essential Hypertension",
+            "type" => "medical_problem",
+            "diagnosis" => "ICD10:I10",
+            "begdate" => "2019-02-14",
+        ];
+        $createBody = $this->createCondition($patientUuid, $conditionData);
+        $this->assertIsArray($createBody["data"]);
+        $this->assertIsString($createBody["data"]["uuid"]);
+        $conditionUuid = $createBody["data"]["uuid"];
+
+        $url = self::PATIENT_API_ENDPOINT . "/" . $patientUuid . "/medical_problem";
+        $putResponse = $this->testClient->put($url, $conditionUuid, [
+            "title" => "Essential Hypertension (resolved)",
+            "begdate" => "2019-02-14",
+            "enddate" => "2024-08-01",
+            "diagnosis" => "ICD10:I10",
+        ]);
+        $this->assertEquals(200, $putResponse->getStatusCode(),
+            "PUT should return 200. Body: " . (string) $putResponse->getBody());
+
+        $follow = $this->testClient->get($url . "/" . $conditionUuid);
+        $this->assertEquals(200, $follow->getStatusCode());
+        $followBody = $this->decodeBody($follow);
+        $this->assertIsArray($followBody["data"]);
+        // Per-patient single-GET returns `data` as a list of rows
+        // (isMultipleResultResponse=true in the controller).
+        $this->assertNotEmpty($followBody["data"], "Follow-up GET must return the row");
+        $this->assertIsArray($followBody["data"][0]);
+        $this->assertSame("Essential Hypertension (resolved)", $followBody["data"][0]["title"] ?? null);
+    }
+
+    /**
+     * DELETE /api/patient/:puuid/medical_problem/:muuid — hard-deletes the
+     * row from `lists`. ConditionService::delete runs a parameterised
+     * `DELETE FROM lists WHERE pid = ? AND uuid = ? AND type = 'medical_problem'`.
+     */
+    public function testDeleteMedicalProblemRemovesRecord(): void
+    {
+        $patientUuid = $this->createPatient();
+
+        $conditionData = [
+            "title" => "Asthma",
+            "type" => "medical_problem",
+            "diagnosis" => "ICD10:J45.909",
+            "begdate" => "2015-08-20",
+        ];
+        $createBody = $this->createCondition($patientUuid, $conditionData);
+        $this->assertIsArray($createBody["data"]);
+        $this->assertIsString($createBody["data"]["uuid"]);
+        $conditionUuid = $createBody["data"]["uuid"];
+
+        $baseUrl = self::PATIENT_API_ENDPOINT . "/" . $patientUuid . "/medical_problem";
+        $deleteResponse = $this->testClient->delete($baseUrl, $conditionUuid);
+        $this->assertEquals(200, $deleteResponse->getStatusCode(),
+            "DELETE should return 200. Body: " . (string) $deleteResponse->getBody());
+
+        $follow = $this->testClient->getOne($baseUrl, $conditionUuid);
+        $followBody = $this->decodeBody($follow);
+        $this->assertIsArray($followBody["data"]);
+        $this->assertSame([], $followBody["data"],
+            "After DELETE, single-GET on the same uuid must return empty data.");
+    }
+
+    /**
+     * GET /api/allergy — top-level list (no patient scope). After seeding
+     * an allergy through the per-patient POST, the top-level list must
+     * surface it.
+     */
+    public function testGetAllergyTopLevelList(): void
+    {
+        $patientUuid = $this->createPatient();
+        $createBody = $this->createAllergy($patientUuid, [
+            "title" => "Shellfish",
+            "type" => "allergy",
+            "reaction" => "swelling",
+            "verification" => "confirmed",
+            "begdate" => "2021-06-18",
+        ]);
+        $this->assertIsArray($createBody["data"]);
+        $this->assertIsString($createBody["data"]["uuid"]);
+        $createdUuid = $createBody["data"]["uuid"];
+
+        $response = $this->testClient->get("/apis/default/api/allergy");
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = $this->decodeBody($response);
+        $this->assertArrayHasKey("data", $body);
+        $this->assertIsArray($body["data"]);
+        $this->assertGreaterThan(0, count($body["data"]),
+            "Top-level GET /api/allergy must return at least the one we created.");
+
+        $uuids = array_map(
+            static fn($row): string => is_array($row) && is_string($row["uuid"] ?? null) ? (string) $row["uuid"] : '',
+            $body["data"]
+        );
+        $this->assertContains($createdUuid, $uuids,
+            "Top-level /api/allergy must include the just-created allergy.");
+    }
+
+    /**
+     * GET /api/allergy/:auuid — top-level single lookup. Returns the
+     * single-record data shape (data as the row object, not an array of rows).
+     */
+    public function testGetAllergyTopLevelSingle(): void
+    {
+        $patientUuid = $this->createPatient();
+        $createBody = $this->createAllergy($patientUuid, [
+            "title" => "Pollen",
+            "type" => "allergy",
+            "reaction" => "sneezing",
+            "verification" => "confirmed",
+            "begdate" => "2022-04-01",
+        ]);
+        $this->assertIsArray($createBody["data"]);
+        $this->assertIsString($createBody["data"]["uuid"]);
+        $createdUuid = $createBody["data"]["uuid"];
+
+        $response = $this->testClient->get("/apis/default/api/allergy/" . $createdUuid);
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = $this->decodeBody($response);
+        $this->assertArrayHasKey("data", $body);
+        $this->assertIsArray($body["data"]);
+        $this->assertSame($createdUuid, $body["data"]["uuid"] ?? null);
+        $this->assertSame("Pollen", $body["data"]["title"] ?? null);
+    }
+
+    /**
+     * GET /api/medical_problem — top-level list surfaces a condition
+     * created via the per-patient POST.
+     */
+    public function testGetMedicalProblemTopLevelList(): void
+    {
+        $patientUuid = $this->createPatient();
+        $createBody = $this->createCondition($patientUuid, [
+            "title" => "Migraine",
+            "type" => "medical_problem",
+            "diagnosis" => "ICD10:G43.909",
+            "begdate" => "2016-09-01",
+        ]);
+        $this->assertIsArray($createBody["data"]);
+        $this->assertIsString($createBody["data"]["uuid"]);
+        $createdUuid = $createBody["data"]["uuid"];
+
+        $response = $this->testClient->get("/apis/default/api/medical_problem");
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = $this->decodeBody($response);
+        $this->assertArrayHasKey("data", $body);
+        $this->assertIsArray($body["data"]);
+        $this->assertGreaterThan(0, count($body["data"]),
+            "Top-level GET /api/medical_problem must return at least the one we created.");
+
+        $uuids = array_map(
+            static fn($row): string => is_array($row) && is_string($row["uuid"] ?? null) ? (string) $row["uuid"] : '',
+            $body["data"]
+        );
+        $this->assertContains($createdUuid, $uuids);
+    }
+
+    /**
+     * GET /api/medical_problem/:muuid — top-level single lookup returns
+     * the row as a single data object.
+     */
+    public function testGetMedicalProblemTopLevelSingle(): void
+    {
+        $patientUuid = $this->createPatient();
+        $createBody = $this->createCondition($patientUuid, [
+            "title" => "GERD",
+            "type" => "medical_problem",
+            "diagnosis" => "ICD10:K21.9",
+            "begdate" => "2020-02-20",
+        ]);
+        $this->assertIsArray($createBody["data"]);
+        $this->assertIsString($createBody["data"]["uuid"]);
+        $createdUuid = $createBody["data"]["uuid"];
+
+        $response = $this->testClient->get("/apis/default/api/medical_problem/" . $createdUuid);
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = $this->decodeBody($response);
+        $this->assertArrayHasKey("data", $body);
+        $this->assertIsArray($body["data"]);
+        $this->assertSame($createdUuid, $body["data"]["uuid"] ?? null);
+        $this->assertSame("GERD", $body["data"]["title"] ?? null);
+    }
+
+    /**
+     * GET /api/allergy/:auuid — unknown UUID returns 404 with empty data.
+     * AllergyIntoleranceRestController::getOne calls
+     * handleProcessingResult(..., 404) when zero rows match.
+     */
+    public function testGetAllergyTopLevelSingleNotFound(): void
+    {
+        $response = $this->testClient->get(
+            "/apis/default/api/allergy/00000000-0000-4000-8000-000000000000"
+        );
+        $this->assertEquals(404, $response->getStatusCode());
+        $body = $this->decodeBody($response);
+        $this->assertSame([], $body["data"] ?? null,
+            "Unknown-UUID allergy lookup must not return any row.");
+    }
+
+    /**
+     * GET /api/medical_problem/:muuid — unknown UUID returns 404 with
+     * empty data (same shape as the allergy variant).
+     */
+    public function testGetMedicalProblemTopLevelSingleNotFound(): void
+    {
+        $response = $this->testClient->get(
+            "/apis/default/api/medical_problem/00000000-0000-4000-8000-000000000000"
+        );
+        $this->assertEquals(404, $response->getStatusCode());
+        $body = $this->decodeBody($response);
+        $this->assertSame([], $body["data"] ?? null,
+            "Unknown-UUID medical_problem lookup must not return any row.");
+    }
 }
