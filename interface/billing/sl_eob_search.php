@@ -34,6 +34,7 @@ use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Billing\Statement\PatientCreditEncounters;
 use OpenEMR\Billing\Statement\StatementLines;
+use OpenEMR\Billing\StatementRunRecorder;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -66,7 +67,7 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Search", xl("EOB Posting - Search"));
 }
 
-$DEBUG = 0; // set to 0 for production, 1 to test
+$DEBUG = false; // Set to true to run without updating invoices.
 $alertmsg = '';
 $where = '';
 $eraname = '';
@@ -74,6 +75,8 @@ $eracount = 0;
 $g_posting_adj_disable = OEGlobalsBag::getInstance()->getBoolean('posting_adj_disable') ? 'checked' : '';
 $posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
 $form_cb = false;
+$isPortalNotify = !empty($_REQUEST['form_portalnotify']);
+$withoutUpdate = !empty($_REQUEST['form_without']);
 
 /* Load dependencies only if we need them */
 if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
@@ -528,7 +531,7 @@ if (
         StatementLines::append($stmt, $rowPid, $rowEncounter, $svcdate, (is_numeric($duncount) ? (int) $duncount : 0) + 1);
 
         // Record that this statement was run, once it is produced below.
-        if (!$DEBUG && empty($_REQUEST['form_without'])) {
+        if (!$DEBUG && !$withoutUpdate) {
             $pendingStatementUpdates[] = $row['id'];
         }
         $inv_count += 1;
@@ -568,17 +571,30 @@ if (
             }
         } else {
             if ($inv_pid[$inv_count] != ($inv_pid[$inv_count + 1] ?? null)) {
-                $amountDue = is_numeric($stmt['amount'] ?? null) ? (float) $stmt['amount'] : 0.0;
-                if ($_REQUEST['form_category'] == 'Due Pt' && $amountDue <= 0) {
+                $amountDue = is_numeric($stmt['amount'] ?? null) ? (string) $stmt['amount'] : '0.00';
+                if (
+                    $_REQUEST['form_category'] == 'Due Pt'
+                    && !StatementRunRecorder::hasPositiveDuePatientBalance($amountDue)
+                ) {
                     // Nothing is due once the patient's credits are netted against the
                     // checked invoices, so no statement goes out and its invoices are
                     // not counted as statemented.
                     $stmt = [];
                     $pendingStatementUpdates = [];
                 } else {
-                    $recordStatementRun($pendingStatementUpdates);
+                    $statementContents = make_statement($stmt);
+                    if (!is_string($statementContents)) {
+                        throw new \UnexpectedValueException('Statement renderer must return string content');
+                    }
+                    StatementRunRecorder::recordIfProduced(
+                        $pendingStatementUpdates,
+                        $statementContents,
+                        $today,
+                        $withoutUpdate,
+                        $DEBUG
+                    );
                     $pendingStatementUpdates = [];
-                    $tmp = make_statement($stmt);
+                    $tmp = $statementContents;
                     if (!empty($_REQUEST['form_email']) && $tmp !== '') {
                         try {
                             emailLogin($inv_pid[$inv_count], $tmp);
@@ -591,36 +607,38 @@ if (
                         $tmp .= "<br />\n\014<br /><br />";
                     }
                     fwrite($fhprint, (string) $tmp);
-                    // now save it to pt documents
-                    $d = new Document();
-                    $doc_pid = $inv_pid[$inv_count];
-                    $invoice_category_id = 0;
-                    $catrow = QueryUtils::querySingleRow("SELECT id FROM categories WHERE name = ?", ['Invoices']);
-                    if (!empty($catrow['id'])) {
-                        $invoice_category_id = $catrow['id'];
-                    }
-                    // even if click download pdf the file content in $tmp is text
-                    // set mimetype and fileext based on statement appearance
-                    $isPdf = (OEGlobalsBag::getInstance()->get('statement_appearance') == 1);
-                    $fileext = $isPdf ? '.pdf' : '.txt';
-                    $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
-                    $mimetype = $isPdf ? 'pdf' : 'text/plain';
-                    if ($isPdf) {
-                        $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
-                        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-                        if ($session->get('language_direction') === 'rtl') {
-                            $pdf2->SetDirectionality('rtl');
+                    if ($statementContents !== '') {
+                        // Only a produced statement is saved as an invoice document.
+                        $d = new Document();
+                        $doc_pid = $inv_pid[$inv_count];
+                        $invoice_category_id = 0;
+                        $catrow = QueryUtils::querySingleRow("SELECT id FROM categories WHERE name = ?", ['Invoices']);
+                        if (!empty($catrow['id'])) {
+                            $invoice_category_id = $catrow['id'];
                         }
-                        $pdf2->WriteHTML($tmp);
-                        $tmp = $pdf2->Output('', 'S');
+                        // even if click download pdf the file content in $tmp is text
+                        // set mimetype and fileext based on statement appearance
+                        $isPdf = (OEGlobalsBag::getInstance()->get('statement_appearance') == 1);
+                        $fileext = $isPdf ? '.pdf' : '.txt';
+                        $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
+                        $mimetype = $isPdf ? 'pdf' : 'text/plain';
+                        if ($isPdf) {
+                            $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
+                            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                            if ($session->get('language_direction') === 'rtl') {
+                                $pdf2->SetDirectionality('rtl');
+                            }
+                            $pdf2->WriteHTML($tmp);
+                            $tmp = $pdf2->Output('', 'S');
+                        }
+                        $invoice = $d->createDocument(
+                            $doc_pid,
+                            $invoice_category_id, // TBD: Make sure not 0
+                            $inv_filename,
+                            $mimetype,
+                            $tmp
+                        );
                     }
-                    $invoice = $d->createDocument(
-                        $doc_pid,
-                        $invoice_category_id, // TBD: Make sure not 0
-                        $inv_filename,
-                        $mimetype,
-                        $tmp
-                    );
                 }
             }
         }
