@@ -185,6 +185,8 @@ class SoapNoteApiTest extends TestCase
         $after = json_decode((string) $follow->getBody(), true);
         $this->assertIsArray($after);
         $this->assertEquals($renamed, $after['subjective'] ?? null);
+        $this->assertEquals('updated objective', $after['objective'] ?? null);
+        $this->assertEquals('updated assessment', $after['assessment'] ?? null);
         $this->assertEquals('updated plan', $after['plan'] ?? null);
     }
 }
