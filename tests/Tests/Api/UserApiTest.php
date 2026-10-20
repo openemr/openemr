@@ -43,8 +43,15 @@ class UserApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
+        // cleanupRevokeAuth makes a Guzzle logout request that can throw
+        // at the transport layer. Wrap in try/finally so cleanupClient
+        // (which drops the OAuth client + its tokens from the DB) still
+        // runs even when the logout call fails.
+        try {
+            $this->testClient->cleanupRevokeAuth();
+        } finally {
+            $this->testClient->cleanupClient();
+        }
     }
 
     /**
