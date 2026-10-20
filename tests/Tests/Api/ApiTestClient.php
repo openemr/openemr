@@ -161,6 +161,7 @@ class ApiTestClient
         'user/employer.read',
         'user/insurance.read',
         'user/insurance.write',
+        'user/insurance.$swap-insurance',
         'user/insurance_company.read',
         'user/insurance_company.write',
         'user/insurance_type.read',
