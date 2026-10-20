@@ -97,7 +97,7 @@ class Date_Calc
         return true;
     } // end func isValidDate
 
-    public static function isLeapYear($year = "")
+    public static function isLeapYear($year = ""): bool
     {
 
         if (empty($year)) {

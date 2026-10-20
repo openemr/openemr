@@ -15,6 +15,7 @@ namespace OpenEMR\RestControllers;
 use OpenApi\Attributes as OA;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\ListService;
+use Symfony\Component\HttpFoundation\Response;
 
 #[OA\Schema(
     schema: 'api_dental_issue_request',
@@ -109,6 +110,31 @@ class ListRestController
     public function getAll($pid, $list_type)
     {
         $serviceResult = $this->listService->getAll($pid, $list_type);
+        return self::listResponse($serviceResult);
+    }
+
+    /**
+     * Build the HTTP response for list endpoints
+     * (`GET /api/patient/{pid}/medication|surgery|dental_issue`). An empty
+     * list is a valid "zero rows found for this patient" response — not
+     * "endpoint not found" — but `RestControllerHelper::responseHandler`
+     * treats a falsy $serviceResult (which includes PHP's empty array
+     * []) as HTTP 404. Short-circuit around that for list endpoints
+     * only; single-resource lookups (`getOne`) continue to use the
+     * 404-on-falsy semantic because "not found" is the correct shape
+     * for a specific missing row.
+     *
+     * Mirrors the pattern PR #14605 established for
+     * AppointmentRestController. Accepts mixed because
+     * ListService::getAll is annotated `array` but PHPStan can't follow
+     * through the untyped property access; the === [] narrow does the
+     * actual check at runtime.
+     */
+    private static function listResponse(mixed $serviceResult): Response
+    {
+        if ($serviceResult === []) {
+            return new Response('[]', 200, ['Content-Type' => 'application/json']);
+        }
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 

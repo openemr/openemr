@@ -151,4 +151,53 @@ class PatientApiTest extends TestCase
             $this->assertEquals("90210", $searchResult["postal_code"]);
         }
     }
+
+    public function testGetEmployer(): void
+    {
+        // POST creates a patient and lets us resolve a known-good puuid
+        // for the employer route lookup. The employer endpoint returns
+        // a standard ProcessingResult envelope — empty data array for a
+        // newly-created patient with no employer record.
+        /** @var ApiTestClient $client */
+        $client = $this->testClient;
+        /** @var array<string, mixed> $patientRecord */
+        $patientRecord = $this->patientRecord;
+        $postResponse = $client->post(self::PATIENT_API_ENDPOINT, $patientRecord);
+        $this->assertEquals(201, $postResponse->getStatusCode());
+        $postBody = json_decode((string) $postResponse->getBody(), true);
+        $this->assertIsArray($postBody);
+        $this->assertIsArray($postBody["data"] ?? null);
+        $this->assertIsString($postBody["data"]["uuid"] ?? null);
+        $patientUuid = (string) $postBody["data"]["uuid"];
+
+        $employerResponse = $client->get(self::PATIENT_API_ENDPOINT . "/" . $patientUuid . "/employer");
+        $this->assertEquals(200, $employerResponse->getStatusCode());
+
+        $employerBody = json_decode((string) $employerResponse->getBody(), true);
+        $this->assertIsArray($employerBody);
+        $this->assertArrayHasKey("data", $employerBody);
+        $this->assertArrayHasKey("validationErrors", $employerBody);
+        $this->assertArrayHasKey("internalErrors", $employerBody);
+        $this->assertSame([], $employerBody["validationErrors"]);
+        $this->assertSame([], $employerBody["internalErrors"]);
+        $this->assertIsArray($employerBody["data"]);
+    }
+
+    public function testGetEmployerWithInvalidUuidReturns400(): void
+    {
+        // The route guards on UuidRegistry::isValidStringUUID and
+        // returns 400 with a validationErrors.uuid entry when the path
+        // segment isn't a parseable UUID — distinct from the 404 shape
+        // a missing-but-valid UUID would produce.
+        /** @var ApiTestClient $client */
+        $client = $this->testClient;
+        $response = $client->get(self::PATIENT_API_ENDPOINT . "/not-a-uuid/employer");
+        $this->assertEquals(400, $response->getStatusCode());
+
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertArrayHasKey("validationErrors", $body);
+        $this->assertIsArray($body["validationErrors"]);
+        $this->assertArrayHasKey("uuid", $body["validationErrors"]);
+    }
 }

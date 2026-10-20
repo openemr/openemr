@@ -141,6 +141,17 @@ class FhirGoalServiceCrudTest extends TestCase
     }
 
     #[Test]
+    public function testSearchByDescription(): void
+    {
+        // description maps to the care plan code; the query also joins codes, which has its own code column
+        $result = $this->fhirGoalService->getAll(['description' => 'no-such-goal-code']);
+
+        $this->assertTrue($result->isValid());
+        $this->assertEmpty($result->getInternalErrors());
+        $this->assertEmpty($result->getData());
+    }
+
+    #[Test]
     public function testInsertWithoutEncounterExtensionReturnsValidationError(): void
     {
         $this->fhirGoalFixture->setId(new FHIRId());

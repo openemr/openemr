@@ -589,7 +589,7 @@ class EhiExporter
         // if we have to do anything custom that is different than our custom table definition
     }
 
-    private function shouldProcessForeignKey(Models\ExportKeyDefinition $definition)
+    private function shouldProcessForeignKey(Models\ExportKeyDefinition $definition): bool
     {
         // we don't want to traverse keys that are not unique as we risk jeopardizing patient data following the references
         if ($this->isNonUniqueKey($definition)) {

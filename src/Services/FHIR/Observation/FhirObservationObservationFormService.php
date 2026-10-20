@@ -90,8 +90,8 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
             $meta->addProfile($this->createProfile($profile));
         }
         $categoryCodes = array_map(fn($category) => $category->getCoding()[0]->getCode(), $observation->getCategory() ?? []);
-        // check for linked questionnaire
-        if (!empty($dataRecord['questionnaire_uuid'])) {
+        // check for linked questionnaire response
+        if (!empty($dataRecord['questionnaire_response_uuid'])) {
             // verify we have a survey category
             if (in_array('survey', $categoryCodes)) {
                 foreach ($this->getProfileForVersions(self::USCGI_SCREENING_ASSESSMENT_URI, $this->getSupportedVersions()) as $profile) {

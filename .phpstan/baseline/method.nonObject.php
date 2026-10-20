@@ -862,6 +862,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method alphaCodeType\\(\\) on FeeSheetHtml\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method get\\(\\) on string\\|Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method genPriceLevelSelect\\(\\) on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
@@ -1060,21 +1070,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method autoReg\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_data\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/trusted-messages-ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_mimetype\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/trusted-messages-ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_name\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/trusted-messages-ajax.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method subscribeToEvents\\(\\) on mixed\\.$#',
@@ -2232,49 +2227,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/cash_receipt.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method buttonHtml\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method isButtonViewable\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method isLocked\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method isLogViewable\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method renderLog\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getPrimaryBusinessEntity\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_normal.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method isLogViewable\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method isSigned\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method renderLog\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method ErrorMsg\\(\\) on mixed\\.$#',
@@ -3802,16 +3757,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method isLogViewable\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method renderLog\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getPathname\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../setup.php',
@@ -4062,22 +4007,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorX12Direct.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getEncounter\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorX12Direct.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getPartner\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorX12Direct.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getPayorType\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorX12Direct.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getPid\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorX12Direct.php',
 ];
@@ -4475,11 +4405,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method get_reason_code\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/FormVitals.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method run_node_background_process\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getContents\\(\\) on Http\\\\Message\\\\Encoding\\\\GzipDecodeStream\\|resource\\.$#',
@@ -6353,12 +6278,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method insert\\(\\) on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method update\\(\\) on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
 $ignoreErrors[] = [
@@ -6835,26 +6760,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method removePatientFixtures\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/PatientApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method C14N\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getAttribute\\(\\) on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method item\\(\\) on DOMNodeList\\<DOMNameSpaceNode\\|DOMNode\\>\\|false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setAttribute\\(\\) on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method click\\(\\) on mixed\\.$#',
@@ -7878,11 +7783,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getHasMember\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationObservationFormServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getMeta\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationObservationFormServiceTest.php',
 ];

@@ -301,6 +301,53 @@ class OAuth2AttackScenarioTest extends TestCase
         $this->assertRejected($resp, 'Password grant must reject when user_role (patient) does not match the registered user (staff admin)');
     }
 
+    #[Test]
+    public function testPasswordGrantAcceptsClientSecretBasicAuth(): void
+    {
+        // RFC 6749 §2.3.1: `client_secret_basic` presents client
+        // credentials in the Authorization header. Every other
+        // password-grant test in this suite uses `client_secret_post`
+        // (credentials in the form body). This locks the Basic auth
+        // path so a future refactor cannot silently drop it.
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'ClientSecretBasicAccept',
+            ['token_endpoint_auth_method' => 'client_secret_basic']
+        );
+        $resp = $this->postTokenRawWithBasicAuth($cid, $csec, [
+            'grant_type' => 'password',
+            'scope' => 'openid api:oemr',
+            'user_role' => 'users',
+            'username' => 'admin',
+            'password' => 'pass',
+        ]);
+        $this->assertSame(
+            200,
+            $resp['status'],
+            'Basic-auth password grant must succeed when the client registered with client_secret_basic. Body: ' . $resp['body']
+        );
+        $body = json_decode($resp['body'], true);
+        $this->assertIsArray($body);
+        $this->assertIsString($body['access_token'] ?? null, 'Response must carry a non-empty access_token');
+        $this->assertNotSame('', $body['access_token'], 'access_token must not be an empty string');
+    }
+
+    #[Test]
+    public function testPasswordGrantRejectsBasicAuthWithWrongSecret(): void
+    {
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'ClientSecretBasicRejectWrong',
+            ['token_endpoint_auth_method' => 'client_secret_basic']
+        );
+        $resp = $this->postTokenRawWithBasicAuth($cid, $csec . 'tamper', [
+            'grant_type' => 'password',
+            'scope' => 'openid api:oemr',
+            'user_role' => 'users',
+            'username' => 'admin',
+            'password' => 'pass',
+        ]);
+        $this->assertRejected($resp, 'Basic-auth password grant must reject a wrong client_secret');
+    }
+
     // ----- Refresh-token deny-paths -----
 
     #[Test]
@@ -409,6 +456,38 @@ class OAuth2AttackScenarioTest extends TestCase
         $this->assertFalse($body['active'] ?? null, 'Introspection without client_id must report active:false');
     }
 
+    #[Test]
+    public function testIntrospectionReportsInactiveWhenAuthenticatingClientDidNotMintTheToken(): void
+    {
+        // RFC 7662 lets the introspection endpoint treat a token not
+        // issued to the authenticating client as if it were unknown.
+        // Prevents a confidential client from probing other clients'
+        // tokens by presenting them for introspection with its own
+        // credentials.
+        [$cidA, $csecA] = $this->dcrConfidentialPasswordGrantClient('IntrospectCrossClientMinter');
+        [$cidB, $csecB] = $this->dcrConfidentialPasswordGrantClient('IntrospectCrossClientProber');
+        $tokens = $this->passwordGrantForTest($cidA, $csecA, 'openid api:oemr');
+
+        // Client B presents client A's access token under B's own
+        // client credentials.
+        $resp = $this->rawPostForm('/oauth2/default/introspect', [
+            'client_id' => $cidB,
+            'client_secret' => $csecB,
+            'token' => $tokens['access_token'],
+        ]);
+        $this->assertSame(
+            200,
+            $resp['status'],
+            'Introspection probing another client\'s token must still return 200 per RFC 7662 shape. Body: ' . $resp['body']
+        );
+        $body = json_decode($resp['body'], true);
+        $this->assertIsArray($body);
+        $this->assertFalse(
+            $body['active'] ?? null,
+            'Introspection must report active=false for a token issued to a different client. Body: ' . $resp['body']
+        );
+    }
+
     // ----- CORS enforcement -----
 
     #[Test]
@@ -435,6 +514,187 @@ class OAuth2AttackScenarioTest extends TestCase
             array_change_key_case($resp['headers']),
             'Response from a disallowed origin must not reflect the Origin into Access-Control-Allow-Origin. Received headers: '
             . json_encode(array_keys($resp['headers']))
+        );
+    }
+
+    #[Test]
+    public function testCorsResponseEmitsAllowOriginForBearerAuthFromTokensOwnClientRegisteredOrigin(): void
+    {
+        // Legitimate flow: a SMART app presents its own token, from the
+        // origin its own client registered. Response must emit
+        // Access-Control-Allow-Origin so the app's JS can read the body.
+        $smartAppOrigin = 'https://smart-app-regression.example';
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'SmartAppOwnOrigin',
+            ['redirect_uris' => [$smartAppOrigin . '/cb']]
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:oemr');
+
+        $resp = $this->rawGet('/apis/default/api/version', [
+            'Origin' => $smartAppOrigin,
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+        ]);
+        $this->assertSame(200, $resp['status'], 'Bearer-auth GET must succeed. Body: ' . $resp['body']);
+        $headers = array_change_key_case($resp['headers']);
+        $this->assertArrayHasKey(
+            'access-control-allow-origin',
+            $headers,
+            'Legitimate bearer-auth response from the token-owning client\'s registered origin must emit Allow-Origin'
+        );
+        $this->assertContains(
+            $smartAppOrigin,
+            $headers['access-control-allow-origin'],
+            'Allow-Origin must echo the request Origin exactly'
+        );
+    }
+
+    #[Test]
+    public function testCorsResponseDoesNotEmitAllowOriginForOriginRegisteredUnderDifferentClient(): void
+    {
+        // The core per-client scoping gate. Two separately-registered
+        // clients: the "victim" SMART app whose redirect_uri is
+        // smart-app-regression.example, and an attacker-registered
+        // client whose redirect_uri is attacker-regression-cors.example.
+        // Both origins land in the global union. A request bearing the
+        // victim app's token with Origin: attacker's-origin must NOT
+        // receive Allow-Origin -- an attacker's origin cannot be
+        // paired with a different client's token in a response.
+        $smartAppOrigin = 'https://smart-app-regression-victim.example';
+        $attackerOrigin = 'https://attacker-regression-cors.example';
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'VictimApp',
+            ['redirect_uris' => [$smartAppOrigin . '/cb']]
+        );
+        // Attacker's DCR -- unauth per RFC 7591, by design.
+        $this->dcr([
+            'client_name' => 'OAuth2AttackScenarioTest-AttackerCorsOrigin-' . bin2hex(random_bytes(3)),
+            'redirect_uris' => [$attackerOrigin . '/cb'],
+            'scope' => 'openid api:oemr',
+        ]);
+
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:oemr');
+        $resp = $this->rawGet('/apis/default/api/version', [
+            'Origin' => $attackerOrigin,
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+        ]);
+        $this->assertSame(
+            200,
+            $resp['status'],
+            'Bearer auth itself must succeed; the gate is response-side Allow-Origin, not auth. Body: ' . $resp['body']
+        );
+        $this->assertArrayNotHasKey(
+            'access-control-allow-origin',
+            array_change_key_case($resp['headers']),
+            'Allow-Origin must not reflect an origin registered under a DIFFERENT OAuth2 client. Received headers: '
+            . json_encode(array_keys($resp['headers']))
+        );
+    }
+
+    #[Test]
+    public function testCorsResponseDoesNotEmitAllowOriginForRegisteredOriginOnUnauthenticatedRequest(): void
+    {
+        // Register a client so its redirect_uri's origin lands in the
+        // global union. Then hit a protected endpoint WITHOUT a bearer
+        // token. The pre-fix behaviour would reflect the registered
+        // origin into Allow-Origin on the 401 response, which was a
+        // reflection oracle if the request also carried a session
+        // cookie. The per-client gate keys off clientId, which is unset
+        // for unauthenticated requests, so Allow-Origin is suppressed.
+        $origin = 'https://registered-but-unauth-cors.example';
+        $this->dcr([
+            'client_name' => 'OAuth2AttackScenarioTest-RegisteredUnauth-' . bin2hex(random_bytes(3)),
+            'redirect_uris' => [$origin . '/cb'],
+            'scope' => 'openid',
+        ]);
+
+        $resp = $this->rawGet('/apis/default/api/version', ['Origin' => $origin]);
+        $this->assertSame(
+            401,
+            $resp['status'],
+            'Unauthenticated request to /api/version must still be rejected with 401'
+        );
+        $this->assertArrayNotHasKey(
+            'access-control-allow-origin',
+            array_change_key_case($resp['headers']),
+            'Allow-Origin must not be emitted on unauthenticated responses even if the Origin is in the global union'
+        );
+    }
+
+    #[Test]
+    public function testCorsResponseMatchesAnyOfClientsMultipleRegisteredOrigins(): void
+    {
+        // oauth_clients.redirect_uri stores one or more URIs separated
+        // by "|". A client with two redirect_uris must receive
+        // Allow-Origin for requests from EITHER origin, as long as the
+        // request is bearer-authenticated under that same client's
+        // token. Exercises the explode('|', ...) path in
+        // CORSAllowedOriginRegistry::getOriginsForClient().
+        $firstOrigin = 'https://multi-origin-first.example';
+        $secondOrigin = 'https://multi-origin-second.example';
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'MultiOriginClient',
+            ['redirect_uris' => [$firstOrigin . '/cb', $secondOrigin . '/cb']]
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:oemr');
+
+        foreach ([$firstOrigin, $secondOrigin] as $origin) {
+            $resp = $this->rawGet('/apis/default/api/version', [
+                'Origin' => $origin,
+                'Authorization' => 'Bearer ' . $tokens['access_token'],
+            ]);
+            $this->assertSame(200, $resp['status'], "Bearer-auth GET from $origin must succeed. Body: " . $resp['body']);
+            $headers = array_change_key_case($resp['headers']);
+            $this->assertArrayHasKey(
+                'access-control-allow-origin',
+                $headers,
+                "Allow-Origin must be emitted for request from $origin — client registered both origins"
+            );
+            $this->assertContains(
+                $origin,
+                $headers['access-control-allow-origin'],
+                "Allow-Origin for request from $origin must echo that exact origin"
+            );
+        }
+    }
+
+    #[Test]
+    public function testCorsResponseDoesNotEmitAllowOriginWhenClientIsDisabled(): void
+    {
+        // Admin-disabled client with a still-live token: the Bearer
+        // strategy checks $client->isEnabled() during authorizeRequest
+        // and throws accessDenied before setting the clientId request
+        // attribute. The CORS listener therefore never consults
+        // getOriginsForClient at all -- clientId is unset, so the
+        // "clientId must be a non-empty string" branch in
+        // onKernelResponse short-circuits before the registry lookup.
+        // Response is 401 and no Allow-Origin header is emitted,
+        // which is what prevents the attacker's JS from reading the
+        // 401 body cross-origin.
+        $origin = 'https://disabled-client-origin.example';
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'DisabledClient',
+            ['redirect_uris' => [$origin . '/cb']]
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:oemr');
+        // Administratively disable the client.
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `oauth_clients` SET `is_enabled` = 0 WHERE `client_id` = ?',
+            [$cid]
+        );
+
+        $resp = $this->rawGet('/apis/default/api/version', [
+            'Origin' => $origin,
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+        ]);
+        $this->assertSame(
+            401,
+            $resp['status'],
+            'Bearer strategy must reject a token whose client is disabled. Body: ' . $resp['body']
+        );
+        $this->assertArrayNotHasKey(
+            'access-control-allow-origin',
+            array_change_key_case($resp['headers']),
+            'Allow-Origin must not be emitted for a request whose client is disabled upstream of the CORS gate'
         );
     }
 
@@ -553,6 +813,236 @@ class OAuth2AttackScenarioTest extends TestCase
         );
     }
 
+    // ----- Bulk FHIR scope-downgrade regression gates -----
+
+    #[Test]
+    public function testPatientExportDeniesNarrowerScopeToken(): void
+    {
+        // A token holding user/Patient.read but not user/Patient.$export
+        // must not authorize the bulk Patient export. Locks the
+        // dispatcher's operation-level scope enforcement
+        // (ScopeEntity::containsScope line 324 rejects on operation
+        // mismatch).
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'PatientExportScopeDowngrade',
+            ['scope' => 'openid api:fhir user/Patient.read']
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:fhir user/Patient.read');
+        $resp = $this->rawGet('/apis/default/fhir/Patient/$export', [
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+            'Accept' => 'application/fhir+ndjson',
+            'Prefer' => 'respond-async',
+        ]);
+        $this->assertSame(
+            401,
+            $resp['status'],
+            'Patient $export must deny a token lacking the $export operation scope. Body: ' . $resp['body']
+        );
+    }
+
+    #[Test]
+    public function testGroupExportDeniesNarrowerScopeToken(): void
+    {
+        // A token holding user/Group.read but not user/Group.$export
+        // must not authorize bulk Group export.
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'GroupExportScopeDowngrade',
+            ['scope' => 'openid api:fhir user/Group.read']
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:fhir user/Group.read');
+        $resp = $this->rawGet('/apis/default/fhir/Group/anything/$export', [
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+            'Accept' => 'application/fhir+ndjson',
+            'Prefer' => 'respond-async',
+        ]);
+        $this->assertSame(
+            401,
+            $resp['status'],
+            'Group $export must deny a token lacking the $export operation scope. Body: ' . $resp['body']
+        );
+    }
+
+    #[Test]
+    public function testSystemExportDeniesNarrowerScopeToken(): void
+    {
+        // A token holding user/Patient.read (a narrow resource scope)
+        // must not authorize the system-wide /fhir/$export, which the
+        // dispatcher resolves to a wildcard-resource $export permission.
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'SystemExportScopeDowngrade',
+            ['scope' => 'openid api:fhir user/Patient.read']
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:fhir user/Patient.read');
+        $resp = $this->rawGet('/apis/default/fhir/$export', [
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+            'Accept' => 'application/fhir+ndjson',
+            'Prefer' => 'respond-async',
+        ]);
+        $this->assertSame(
+            401,
+            $resp['status'],
+            'System-wide $export must deny a token lacking the $export operation scope. Body: ' . $resp['body']
+        );
+    }
+
+    // ----- Cross-scope lateral escalation regression gates -----
+
+    #[Test]
+    public function testUserRoleTokenCannotReachPortalRoute(): void
+    {
+        // A users-role bearer token holds user/* scopes. Portal routes
+        // (/apis/{site}/portal/*) are built with patient/* scope lookups
+        // under the dispatcher's role-driven logic. The user-role token
+        // must not satisfy the portal route's scope check — the
+        // dispatcher derives scopeType from user_role, so there is no
+        // path by which a user-role token's user/* scopes could be
+        // consulted against a portal patient-role route.
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'CrossScopeUserToPortal',
+            ['scope' => 'openid api:oemr api:port user/Patient.read']
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:port user/Patient.read');
+        $resp = $this->rawGet('/apis/default/portal/patient', [
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+        ]);
+        // 401 (unauthenticated-shape rejection by the dispatcher), 403
+        // (authenticated but lacking cross-scope permission), or 404
+        // (route unresolved under this webserver config — nginx test
+        // env doesn't route the portal api prefix to PHP) are all
+        // correct deny shapes. The invariant locked here is that the
+        // token's user/* scopes don't satisfy a patient/* route — not
+        // the specific HTTP code.
+        $this->assertContains(
+            $resp['status'],
+            [401, 403, 404],
+            'User-role token must not reach a portal route. Body: ' . $resp['body']
+        );
+    }
+
+    #[Test]
+    public function testPatientRoleTokenCannotReachStandardApiRoute(): void
+    {
+        // A patient-role bearer token holds patient/* scopes. Standard
+        // /api/* routes require the dispatcher to build user/* lookups,
+        // which won't match patient/* scopes. The dispatcher's role-
+        // driven scope-type derivation makes this architecturally
+        // impossible; this test locks that invariant.
+        //
+        // Build a portal patient fixture (needed because the password
+        // grant with user_role=patient requires it) and mint a
+        // patient-role token.
+        $portalFixtures = new \OpenEMR\Tests\Fixtures\PortalPatientFixtureManager();
+        $fixture = $portalFixtures->installPortalPatient(
+            portalLoginUsername: 'crossscope-patient-' . bin2hex(random_bytes(4)),
+            plainPassword: 'CrossScopePortalPassword1!',
+            email: 'crossscope-patient-' . bin2hex(random_bytes(4)) . '@test.example'
+        );
+        try {
+            // Register with api:oemr included so the token passes the
+            // standard-api bearer-gate (which requires api:oemr); the
+            // deny we want to lock is the dispatcher's role-driven
+            // scope-type check on /api/facility, not the bearer gate.
+            [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+                'CrossScopePatientToStandardApi',
+                ['scope' => 'openid api:oemr api:port patient/Patient.read']
+            );
+            $tokenResp = $this->postTokenRaw([
+                'grant_type' => 'password',
+                'client_id' => $cid,
+                'client_secret' => $csec,
+                'scope' => 'openid api:oemr api:port patient/Patient.read',
+                'user_role' => 'patient',
+                'username' => $fixture['portal_login_username'],
+                'password' => $fixture['plain_password'],
+                'email' => $fixture['email'],
+            ]);
+            $this->assertSame(200, $tokenResp['status'], 'Patient-role token must mint. Body: ' . $tokenResp['body']);
+            $body = json_decode($tokenResp['body'], true);
+            $this->assertIsArray($body);
+            $accessToken = $body['access_token'] ?? null;
+            $this->assertIsString($accessToken);
+
+            // Patient-role token tries /api/facility (a standard-api
+            // route requiring user-role authorization).
+            $resp = $this->rawGet('/apis/default/api/facility', [
+                'Authorization' => 'Bearer ' . $accessToken,
+            ]);
+            // 401 (unauthenticated-shape) or 403 (authenticated but
+            // lacking cross-scope permission) are both correct deny
+            // shapes.
+            $this->assertContains(
+                $resp['status'],
+                [401, 403],
+                'Patient-role token must not reach a standard /api route. Body: ' . $resp['body']
+            );
+        } finally {
+            $portalFixtures->removePortalPatientFixtures();
+        }
+    }
+
+    // ----- CORS wildcard+credentials invariant -----
+
+    #[Test]
+    public function testCorsResponseDoesNotCombineWildcardAllowOriginWithCredentials(): void
+    {
+        // CORS forbids `Access-Control-Allow-Origin: *` paired with
+        // `Access-Control-Allow-Credentials: true`. The response-side
+        // listener emits the request's Origin (never `*`) and only when
+        // the authenticated client's scope allows it. The semgrep rule
+        // openemr-oauth2-cors-reflect-origin-without-allowlist blocks
+        // source-side introduction. This test adds a runtime invariant:
+        // no response ever emits both headers in that forbidden shape.
+        //
+        // Drive two request shapes so the listener actually runs:
+        //   1. Unauthenticated request with an Origin — covers the
+        //      pre-auth path (CORS listener should omit both headers).
+        //   2. Authenticated bearer-token request from a client whose
+        //      own registered origin is used — covers the per-client
+        //      scoped path.
+        // Path 1: unauthenticated.
+        $resp1 = $this->rawGet('/apis/default/fhir/metadata', [
+            'Origin' => 'https://probe.example',
+        ]);
+        $this->assertNoCorsWildcardWithCredentials($resp1, 'CORS invariant (unauthenticated)');
+
+        // Path 2: authenticated bearer from a client whose registered
+        // redirect_uri base matches the Origin header below.
+        [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient(
+            'CorsWildcardCredentialsInvariant',
+            [
+                'redirect_uris' => ['https://probe.example/cb'],
+                'scope' => 'openid api:oemr user/Patient.read',
+            ]
+        );
+        $tokens = $this->passwordGrantForTest($cid, $csec, 'openid api:oemr user/Patient.read');
+        $resp2 = $this->rawGet('/apis/default/fhir/metadata', [
+            'Authorization' => 'Bearer ' . $tokens['access_token'],
+            'Origin' => 'https://probe.example',
+        ]);
+        $this->assertNoCorsWildcardWithCredentials($resp2, 'CORS invariant (authenticated bearer)');
+    }
+
+    /**
+     * @param AttackResponse $resp
+     */
+    private function assertNoCorsWildcardWithCredentials(array $resp, string $context): void
+    {
+        $headers = array_change_key_case($resp['headers']);
+        $allowOrigin = $headers['access-control-allow-origin'] ?? [];
+        $allowCredentials = $headers['access-control-allow-credentials'] ?? [];
+        $hasWildcardOrigin = in_array('*', $allowOrigin, true);
+        $hasCredentialsTrue = in_array(
+            'true',
+            array_map(strtolower(...), array_map(strval(...), $allowCredentials)),
+            true
+        );
+        $this->assertFalse(
+            $hasWildcardOrigin && $hasCredentialsTrue,
+            $context . ': Access-Control-Allow-Origin: * must never pair with '
+                . 'Access-Control-Allow-Credentials: true. Headers: ' . json_encode($headers)
+        );
+    }
+
     // ----- Shared helpers -----
 
     /**
@@ -589,11 +1079,12 @@ class OAuth2AttackScenarioTest extends TestCase
     /**
      * DCR + enable password grant + fix is_enabled=1 (admin-UI equivalent).
      *
+     * @param array<string, mixed> $overrides
      * @return array{0: string, 1: string}
      */
-    private function dcrConfidentialPasswordGrantClient(string $tag): array
+    private function dcrConfidentialPasswordGrantClient(string $tag, array $overrides = []): array
     {
-        [$cid, $csec, $_body] = $this->dcrFull($tag);
+        [$cid, $csec, $_body] = $this->dcrFull($tag, $overrides);
         QueryUtils::sqlStatementThrowException(
             'UPDATE `oauth_clients` SET `grant_types` = ?, `is_enabled` = 1 WHERE `client_id` = ?',
             ['password', $cid]
@@ -602,14 +1093,41 @@ class OAuth2AttackScenarioTest extends TestCase
     }
 
     /**
+     * @return array{access_token: string}
+     */
+    private function passwordGrantForTest(string $clientId, string $clientSecret, string $scope): array
+    {
+        $resp = $this->postTokenRaw([
+            'grant_type' => 'password',
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret,
+            'scope' => $scope,
+            'user_role' => 'users',
+            'username' => 'admin',
+            'password' => 'pass',
+        ]);
+        $this->assertSame(200, $resp['status'], 'password-grant must succeed. Body: ' . $resp['body']);
+        $body = json_decode($resp['body'], true);
+        $this->assertIsArray($body);
+        $this->assertIsString($body['access_token'] ?? null);
+        $this->assertNotSame(
+            '',
+            $body['access_token'],
+            'access_token must not be an empty string -- an empty token would make downstream deny-path tests pass vacuously'
+        );
+        return ['access_token' => $body['access_token']];
+    }
+
+    /**
+     * @param array<string, mixed> $overrides
      * @return array{0: string, 1: string, 2: string}
      */
-    private function dcrFull(string $tag): array
+    private function dcrFull(string $tag, array $overrides = []): array
     {
-        $resp = $this->dcr([
+        $resp = $this->dcr(array_merge([
             'client_name' => 'OAuth2AttackScenarioTest-' . $tag . '-' . bin2hex(random_bytes(3)),
             'scope' => 'openid api:oemr offline_access',
-        ]);
+        ], $overrides));
         $this->assertSame(200, $resp['status'], 'DCR for the attack-suite fixture must succeed. Body: ' . $resp['body']);
         $data = json_decode($resp['body'], true);
         $this->assertIsArray($data);
@@ -625,6 +1143,25 @@ class OAuth2AttackScenarioTest extends TestCase
     private function postTokenRaw(array $form): array
     {
         return $this->rawPostForm('/oauth2/default/token', $form);
+    }
+
+    /**
+     * @param array<string, string> $form
+     * @return AttackResponse
+     */
+    private function postTokenRawWithBasicAuth(string $clientId, string $clientSecret, array $form): array
+    {
+        $response = $this->buildClient()->post($this->baseUrl . '/oauth2/default/token', [
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode($clientId . ':' . $clientSecret),
+            ],
+            'form_params' => $form,
+        ]);
+        return [
+            'status' => $response->getStatusCode(),
+            'body' => (string) $response->getBody(),
+            'headers' => $response->getHeaders(),
+        ];
     }
 
     /**

@@ -327,11 +327,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Forms/FormVitalDetails.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$client$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$prefix$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Core/ModulesClassLoader.php',

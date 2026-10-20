@@ -547,9 +547,6 @@ $categories = [];
 $catStack = [[0, '']];
 while (count($catStack) > 0) {
     [$catid, $catstring] = array_pop($catStack);
-    if (!is_int($catid) || !is_string($catstring)) {
-        continue;
-    }
 
     $crows = QueryUtils::fetchRecords('SELECT id, name FROM categories WHERE parent = ? ORDER BY name', [$catid]);
     $children = [];

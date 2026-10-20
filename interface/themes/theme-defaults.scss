@@ -429,3 +429,10 @@ fieldset {
 .about-review-image > #color {
   fill: #083c5d;
 }
+
+// Collapsible section headers drawn on a bg-secondary bar (the New Patient form):
+// dark or white text, whichever contrasts with the theme's secondary color. The
+// colors are literal because some themes (Solar) swap $white and $black.
+.card-header.bg-secondary .btn-link {
+  color: color-yiq(theme-color("secondary"), #212529, #fff);
+}

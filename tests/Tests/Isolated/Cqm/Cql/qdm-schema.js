@@ -9,7 +9,12 @@
  * list of one ("[Code]"), a nested schema by its name ("@FacilityLocation"
  * or "[@Component]"), or a string default ("=encounter").
  *
- * Usage: node qdm-schema.js <ccdaservice/node_modules> <output file>
+ * Usage: node qdm-schema.js <node_modules> <output file>
+ *
+ * The reference engine is not part of OpenEMR. Install the versions the
+ * fixtures were made with anywhere, e.g.
+ *   npm install --prefix /tmp/cqm-reference cqm-execution@4.4.3 cqm-models@4.3.2
+ * and pass /tmp/cqm-reference/node_modules as <node_modules>.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

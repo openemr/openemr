@@ -543,46 +543,52 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
     }
 
 
-    if (!$encounterLocked) {
-        // Convert the flat list of menu items into a multi-dimensional array based on the category
-        // decide what will be displayed (name or nickname)
-        $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
-            $menuArray = $menuEvent->getMenuData();
-            $reg = getFormsByCategory();
-            // Check sensitivity from the appropriate table based on encounter type
-            $sensitivityQuery = ($attendant_type ?? 'pid') === 'pid'
-                ? "SELECT sensitivity FROM form_encounter WHERE encounter = ?"
-                : "SELECT sensitivity FROM form_groups_encounter WHERE encounter = ?";
-            $sensitivity = sqlQuery($sensitivityQuery, [OEGlobalsBag::getInstance()->get("encounter") ?? null])['sensitivity'] ?? null;
-            $pass_sens = true;
-            if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity))) {
-                $pass_sens = false;
+    // Convert the flat list of menu items into a multi-dimensional array based on the category
+    // decide what will be displayed (name or nickname)
+    // A locked (e-signed) encounter takes no new forms, but its fee sheet stays
+    // available: coding often follows the provider's signature and the fee
+    // sheet isn't clinical documentation. The main menu's Fees > Fee Sheet
+    // makes the same exception (menuActionClick in tabs_view_model.js).
+    $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) use ($encounterLocked) {
+        $menuArray = $menuEvent->getMenuData();
+        $reg = getFormsByCategory();
+        // Check sensitivity from the appropriate table based on encounter type
+        $sensitivityQuery = ($attendant_type ?? 'pid') === 'pid'
+            ? "SELECT sensitivity FROM form_encounter WHERE encounter = ?"
+            : "SELECT sensitivity FROM form_groups_encounter WHERE encounter = ?";
+        $sensitivity = sqlQuery($sensitivityQuery, [OEGlobalsBag::getInstance()->get("encounter") ?? null])['sensitivity'] ?? null;
+        $pass_sens = true;
+        if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity))) {
+            $pass_sens = false;
+        }
+        foreach ($reg as $item) {
+            if ($encounterLocked && (!is_array($item) || ($item['directory'] ?? null) !== 'fee_sheet')) {
+                continue;
             }
-            foreach ($reg as $item) {
-                $tmp = explode('|', (string) $item['aco_spec']);
-                if ($pass_sens) {
-                    if (!empty($tmp[1])) {
-                        if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
-                            continue;
-                        }
+            $tmp = explode('|', (string) $item['aco_spec']);
+            if ($pass_sens) {
+                if (!empty($tmp[1])) {
+                    if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
+                        continue;
                     }
-                } else {
-                    continue;
                 }
-
-                $_cat = trim($item['category'] ?? '');
-                $_cat = ($_cat == '') ? xl("Miscellaneous") : xl($_cat);
-                $item['displayText'] = (trim($item['nickname'] ?? '') != '') ? trim($item['nickname'] ?? '') : trim($item['name'] ?? '');
-                unset($item['category']);
-                unset($item['name']);
-                unset($item['nickname']);
-                $menuArray[$_cat]['children'][] = $item;
+            } else {
+                continue;
             }
-            $menuEvent->setMenuData($menuArray);
-            return $menuEvent;
-        });
 
+            $_cat = trim($item['category'] ?? '');
+            $_cat = ($_cat == '') ? xl("Miscellaneous") : xl($_cat);
+            $item['displayText'] = (trim($item['nickname'] ?? '') != '') ? trim($item['nickname'] ?? '') : trim($item['name'] ?? '');
+            unset($item['category']);
+            unset($item['name']);
+            unset($item['nickname']);
+            $menuArray[$_cat]['children'][] = $item;
+        }
+        $menuEvent->setMenuData($menuArray);
+        return $menuEvent;
+    });
 
+    if (!$encounterLocked) {
         // Zend Module hooks
         $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
             $module_query = sqlStatement("SELECT msh.*, ms.menu_name, ms.path, m.mod_ui_name, m.type

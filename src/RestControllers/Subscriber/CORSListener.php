@@ -71,17 +71,48 @@ class CORSListener implements EventSubscriberInterface
         // a different one.
         $response->headers->set('Vary', 'Origin', false);
 
-        $origin = (string) $request->headers->get('Origin', '');
-        $allowed = $this->getAllowedOriginRegistry()->isAllowed($origin);
-        if ($allowed) {
-            $response->headers->set('Access-Control-Allow-Origin', $origin);
-            $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        // Response-side CORS gate is bound to the authenticated OAuth2
+        // client. BearerTokenAuthorizationStrategy sets the clientId
+        // request attribute to a string after a token validates;
+        // LocalApiAuthorizationController and SkipAuthorizationStrategy
+        // both set it to null. Emit Access-Control-Allow-Origin only
+        // when:
+        //  - the response is for a bearer-authenticated request
+        //    (clientId is a non-empty string), AND
+        //  - the request Origin is one of that specific client's own
+        //    registered redirect_uri origins.
+        //
+        // Session-cookie-authenticated responses and unauth responses
+        // never carry Allow-Origin -- cross-origin JS cannot read
+        // either, so a cookie-authenticated session cannot be used as a
+        // reflection oracle via a self-registered attacker client's
+        // origin matching the global union.
+        $clientId = $request->attributes->get('clientId');
+        if (!is_string($clientId) || $clientId === '') {
+            $event->setResponse($response);
+            return;
         }
+
+        $origin = (string) $request->headers->get('Origin', '');
+        if (!$this->getAllowedOriginRegistry()->isAllowedForClient($clientId, $origin)) {
+            $event->setResponse($response);
+            return;
+        }
+
+        $response->headers->set('Access-Control-Allow-Origin', $origin);
+        $response->headers->set('Access-Control-Allow-Credentials', 'true');
         $event->setResponse($response);
     }
 
     private function buildPreflightResponse(Request $request): Response
     {
+        // Preflight stays scoped to the global allow-list rather than
+        // the per-client gate: CORS forbids credentials on preflight,
+        // so no Authorization header is attached and the authenticated
+        // OAuth2 client is not yet known. A lenient preflight that
+        // accepts any origin in the global union is harmless on its
+        // own; the real gate is the per-client check on the actual
+        // response in onKernelResponse().
         $origin = (string) $request->headers->get('Origin', '');
         $allowed = $this->getAllowedOriginRegistry()->isAllowed($origin);
 

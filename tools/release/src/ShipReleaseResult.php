@@ -41,7 +41,7 @@ final readonly class ShipReleaseResult
             return false;
         }
         // Exhaustive match without default so PHPStan flags new enum
-        // cases at compile time (per CLAUDE.md coding guideline).
+        // cases at compile time (per AGENTS.md coding guideline).
         foreach ($this->steps as $step) {
             $isSuccess = match ($step->status) {
                 ShipReleaseStepStatus::MERGED,

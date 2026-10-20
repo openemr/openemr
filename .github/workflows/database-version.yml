@@ -19,6 +19,8 @@ on:
     - master
     - rel-*
     paths:
+    - .github/workflows/database-version.yml
+    - bin/get-v-database.php
     - version.php
     - sql/database.sql
     - sql/patch.sql
@@ -151,6 +153,10 @@ jobs:
           echo 'so without a bump an install already at that number is not prompted to'
           echo 'run these statements. If this PR did bump it, another PR has since merged'
           echo 'with the same number.'
+          echo
+          echo 'Editing a statement already in the file counts as adding one, so a fix'
+          echo 'to an existing statement needs a bump too: installs that already ran the'
+          echo 'old version are only offered the corrected one after a bump.'
           echo
           echo '### How to fix'
           echo
