@@ -10,57 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-.pure-form input[type="text"],
-.pure-form input[type="password"],
-.pure-form input[type="email"],
-.pure-form input[type="url"],
-.pure-form input[type="date"],
-.pure-form input[type="month"],
-.pure-form input[type="time"],
-.pure-form input[type="datetime"],
-.pure-form input[type="datetime-local"],
-.pure-form input[type="week"],
-.pure-form input[type="number"],
-.pure-form input[type="search"],
-.pure-form input[type="tel"],
-.pure-form input[type="color"],
-.pure-form select,
-.pure-form textarea {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px #ddd inset;
-  box-sizing: border-box;
-  display: inline-block;
-  padding: 0.2em;
-}
-
-.pure-form label {
-  margin: 0.1em;
-}
-
-.pure-form [disabled] {
-  color: #000 !important;
-}
-
-.pure-form input[type="text"],
-.pure-form input[type="password"],
-.pure-form input[type="email"],
-.pure-form input[type="url"],
-.pure-form input[type="date"],
-.pure-form input[type="month"],
-.pure-form input[type="time"],
-.pure-form input[type="datetime"],
-.pure-form input[type="datetime-local"],
-.pure-form input[type="week"],
-.pure-form input[type="number"],
-.pure-form input[type="search"],
-.pure-form input[type="tel"],
-.pure-form input[type="color"],
-.pure-form select,
-.pure-form textarea {
-  padding: 0.2em !important;
-}
-
 .eye_mag {
   z-index: 5;
 }
@@ -83,27 +32,6 @@
   text-decoration: underline;
 }
 
-.text_clinical {
-  color: #000;
-  font-family: Arial, Arial, sans-serif;
-  text-decoration: none;
-}
-
-.text_clinical a b {
-  color: #000;
-  font-family: Arial, Arial, sans-serif;
-  text-decoration: none;
-}
-
-.text_clinical a:hover {
-  text-decoration: underline;
-}
-
-.text_clinical th {
-  font-size: 1.1em;
-  text-decoration: underline;
-}
-
 .checkbox {
   height: 15px;
   width: 15px;
@@ -122,11 +50,11 @@
   border: 0;
   border: 1px solid #000;
   font-size: 1em;
-  height: 38px;
+  height: 58px;
   justify-content: center;
   outline: none;
   text-align: center;
-  width: 38px;
+  width: 58px;
 }
 
 textarea.ACT {
@@ -145,7 +73,7 @@ textarea.ACT {
 }
 
 .input-helper::before {
-  content: "";
+  content: '';
   display: block;
   padding-left: 10px;
   position: relative;
@@ -217,24 +145,25 @@ textarea.full {
   width: 18px;
 }
 
-input[type="radio"].hidden {
+input[type='radio'].hidden {
   display: none;
 }
 
-input[type="checkbox"].hidden {
+input[type='checkbox'].hidden {
   display: none;
 }
 
-input[type="checkbox"].hidden:checked + label::before {
+input[type='checkbox'].hidden:checked + label::before {
   background: #222;
 }
 
-input[type="text"] {
+input[type='text'] {
   display: inline-block;
+  font-size: 0.7em;
   height: 20px;
   padding: 0.2em 0.4em;
   text-align: center;
-  width: 45px;
+  width: 60px;
 }
 
 /* REFRACTION PANEL */
@@ -255,7 +184,7 @@ input[type="text"] {
   padding: 0.1in;
 }
 
-.refraction2 input[type="text"] {
+.refraction2 input[type='text'] {
   display: inline-block;
   padding: 0.2rem 0.4rem;
   width: 20px;
@@ -267,7 +196,7 @@ input[type="text"] {
   box-shadow: 10px 10px 5px #888;
   box-sizing: content-box !important;
   display: inline-block;
-  font-family: Arial, Arial, sans-serif;
+  font-family: Arial, sans-serif;
   font-size: 1.2em;
   margin: 8px auto;
   min-height: 2.2in;
@@ -282,6 +211,12 @@ input[type="text"] {
   text-decoration: none;
   vertical-align: middle;
   width: 0.35in;
+}
+
+th {
+  color: #000;
+  font-size: 1rem;
+  text-align: center;
 }
 
 .refraction th {
@@ -302,7 +237,7 @@ input[type="text"] {
   float: left;
 }
 
-input[type="text"].refraction {
+input[type='text'].refraction {
   display: inline-block;
   padding: 0.2em 0.4em;
   text-align: right;
@@ -326,7 +261,10 @@ input[type="text"].refraction {
   font-size: 1em;
   font-weight: 600;
   padding-right: 5px;
+  position: absolute;
+  right: 10px;
   text-align: right;
+  top: 30px;
 }
 
 .title_report {
@@ -339,7 +277,7 @@ input[type="text"].refraction {
   text-decoration: underline;
 }
 
-/*Drop downs stuff */
+/* Drop downs stuff */
 
 .dropdowns {
   background-color: var(--danger);
@@ -380,7 +318,7 @@ input[type="text"].refraction {
   border-radius: 8px;
   box-shadow: 1px 10px 5px #888;
   float: left;
-  font-family: Arial, Serif;
+  font-family: Arial, serif;
   font-size: 1.2em;
   height: 1.05in;
   margin-right: 3px;
@@ -393,11 +331,6 @@ input[type="text"].refraction {
   margin-right: 3px;
 }
 
-.vitals tr td input {
-  display: inline-block;
-  padding: 0.2em 0.4em;
-}
-
 #divId {
   background: url('images/Amsler_2.jpg') no-repeat;
   box-sizing: border-box;
@@ -406,7 +339,9 @@ input[type="text"].refraction {
   padding-left: 180px; /* Equal to width of new image */
   width: 180px; /* Width of new image */
 }
+
 /* All in one selector */
+
 /*
 #AmslerOD {
  /*
@@ -429,7 +364,7 @@ input[type="text"].refraction {
   border: 1pt solid #000;
   border-radius: 8px;
   box-shadow: 5px 5px 9px #888;
-  font-family: Arial, Serif;
+  font-family: Arial, serif;
   margin-right: 4px;
   padding: 6px;
   position: relative;
@@ -440,6 +375,12 @@ input[type="text"].refraction {
 
 .borderShadow2 {
   box-shadow: 1px 1px 1px #888;
+}
+
+.PRIORS textarea,
+input {
+  background-color: #ccf;
+  color: #000;
 }
 
 .current_W {
@@ -459,12 +400,6 @@ input[type="text"].refraction {
   background-color: #fff;
 }
 
-th {
-  color: #000;
-  font-size: 1rem;
-  text-align: center;
-}
-
 .QP_not {
   display: none;
 }
@@ -477,6 +412,7 @@ body {
   display: inline-block;
   margin-left: auto;
   margin-right: auto;
+
   /* padding-left:5px; //Or whatever value you would like
      padding-right:5px; //Same ^
      */
@@ -554,10 +490,11 @@ body {
 
 textarea.EXTTEXT {
   font-size: 1em;
-  height: 0.4in;
-  max-height: 0.5in;
+  height: 0.42in;
+  max-height: 0.42in;
   max-width: 1in;
-  /*narrow_textarea*/
+
+  /* narrow_textarea */
   width: 1in;
 }
 
@@ -574,7 +511,7 @@ textarea.ANTSEGTEXT {
 .button {
   background-color: #e3e1b8;
   color: #050;
-  font: bold 84% Arial, "trebuchet ms", helvetica, sans-serif;
+  font: bold 84% Arial, 'trebuchet ms', helvetica, sans-serif;
   padding: 2px 4px;
   text-decoration: none;
 }
@@ -587,57 +524,6 @@ textarea.ANTSEGTEXT {
   border-bottom: 0;
 }
 
-#tabs {
-  list-style: none;
-  margin: 0 0 0 10px;
-}
-
-#tabs li {
-  display: inline;
-}
-
-#tabs li a {
-  background-color: #cc9;
-  border: 2px solid #ccc;
-  border-bottom: 0;
-  border-radius: 5px 5px 0 0;
-  border-top-left-radius: 5px;
-  box-shadow: 0 5px 9px #888;
-  color: #000;
-  font-size: 1.7em;
-  outline: none;
-  padding: 4px 6px;
-  text-decoration: none;
-}
-
-#tabs li a:hover {
-  background-color: #ddd;
-  color: #000080;
-}
-
-#tabs li.active a {
-  background-color: #fff;
-  border-bottom: 0;
-  color: #000080;
-  padding: 4px 6px 5px;
-}
-
-#tabs li.active a:hover {
-  background-color: #eee;
-  border-bottom: 0;
-}
-
-#tabs li a.icon_accept {
-  background-image: url('accept.png');
-  background-position: 5px;
-  background-repeat: no-repeat;
-  padding-left: 24px;
-}
-
-#tabs li a.icon_accept:hover {
-  padding-left: 24px;
-}
-
 #tabs_content_container {
   border-top: 0.5pt;
   padding: 10px;
@@ -645,7 +531,7 @@ textarea.ANTSEGTEXT {
 }
 
 .button-success {
-  background: rgb(240, 240, 0); /* this is a green */
+  background: rgb(240 240 0); /* this is a green */
   border-radius: 45px;
   box-shadow: 2px 2px 2px #888;
 }
@@ -659,7 +545,7 @@ textarea.ANTSEGTEXT {
   border: #000;
 }
 
-.tools input[type="button"] {
+.tools input[type='button'] {
   border: 1px solid #000;
   color: #000;
   display: inline-block;
@@ -694,31 +580,6 @@ textarea.ANTSEGTEXT {
 /* DEPRECATED */
 .bold {
   font-weight: bold;
-}
-
-/* DEPRECATED */
-.underline {
-  text-decoration: underline;
-}
-
-#tabs {
-  font-size: 0.55em;
-  line-height: normal;
-  margin: 0 auto;
-  width: 95%;
-}
-
-#tabs ul {
-  float: right;
-  list-style: none;
-  margin: 0;
-  padding: 4px 2px 0 5px;
-}
-
-/* End IE5-Mac hack */
-#tabs li:hover {
-  color: #000;
-  text-decoration: underline;
 }
 
 /* CSS for QP_buttons */
@@ -790,7 +651,7 @@ textarea.ANTSEGTEXT {
   color: #fff;
   display: inline-block;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000080', endColorstr='#3d94f6');
-  font-family: Arial, Serif;
+  font-family: Arial, serif;
   font-size: 11px;
   font-weight: 400;
   line-height: 12px;
@@ -808,15 +669,17 @@ textarea.ANTSEGTEXT {
   border-spacing: 0;
   cursor: pointer;
   float: left;
-  /*background-image: url('../../forms/eye_mag/images/cross.png');
+
+  /* background-image: url('../../forms/eye_mag/images/cross.png');
      */
   height: 100%;
   padding: 10px 0 0 5px;
   position: relative;
   width: 100%;
 
-  /*cellspacing:poor IE support for  this*/
-  /* border-collapse:separate;*/
+  /* cellspacing:poor IE support for  this */
+
+  /* border-collapse:separate; */
 }
 
 .divRow {
@@ -836,8 +699,9 @@ textarea.ANTSEGTEXT {
   border-collapse: collapse;
   border-top: 3px solid;
   float: left;
+
   /* display:table-column; */
-  text-align: center; /*fix for  buggy browsers*/
+  text-align: center; /* fix for  buggy browsers */
 }
 
 .divCell {
@@ -849,7 +713,7 @@ textarea.ANTSEGTEXT {
   height: 5.1px;
   padding: 0;
   text-align: center;
-  width: 5.1px; /*fix for  buggy browsers*/
+  width: 5.1px; /* fix for  buggy browsers */
 }
 
 .top_right {
@@ -903,13 +767,6 @@ textarea.ANTSEGTEXT {
 
 .yellow {
   background-color: var(--warning);
-}
-
-textarea.EXTTEXT {
-  height: 0.42in;
-  max-height: 0.42in;
-  max-width: 1in;
-  width: 1in;
 }
 
 .wide_textarea {
@@ -989,16 +846,6 @@ textarea.EXTTEXT {
   text-decoration: none;
 }
 
-.closeButton:hover a {
-  color: #000;
-  text-decoration: none;
-}
-
-.closeButton a:link {
-  color: #000;
-  outline: none;
-}
-
 .closeButton_2 {
   display: inline-block;
   float: right;
@@ -1049,40 +896,6 @@ textarea.EXTTEXT {
   cursor: pointer;
   text-decoration: none;
 }
-/* testing out the tabs header stuff for ACT */
-#header ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-#header li {
-  background: url('../../forms/eye_mag/images/tabright.gif') top right no-repeat;
-  float: left;
-  margin: 0;
-}
-
-#header a {
-  background: url('../../forms/eye_mag/images/tableft.gif') top left no-repeat;
-  color: #ffc;
-  display: block;
-  padding: 0.6em 1em 0.25em;
-  text-decoration: none;
-}
-
-#header a:hover {
-  color: #fff;
-}
-
-#header #selected {
-  background-image: url('images/tabrightactive.gif');
-  font-weight: bold;
-}
-
-#header #selected a {
-  background-image: url('images/tableftactive.gif');
-  color: #fff;
-}
 
 #content {
   background: #c60;
@@ -1099,7 +912,7 @@ h1 {
   border-bottom: 2px solid;
   border-color: #89a9c7;
   color: #1775d5;
-  font: small-caps italic bold 1.9em Arial, arial, helvetica, sans-seif;
+  font: small-caps italic bold 1.9em Arial, arial, helvetica, sans-serif;
   letter-spacing: 0.1em;
   margin: 0 0 2px;
   padding: 6px 0 4px;
@@ -1107,6 +920,7 @@ h1 {
 }
 
 /* done testing ACT header tabs */
+
 /* ACT_TEXT test */
 .ACT_TEXT {
   display: table-cell;
@@ -1116,13 +930,10 @@ h1 {
 .ACT_selected {
   background-color: #fff;
   border-bottom: 0;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+  border-radius: 7px 7px 0 0;
   border-left: 1px solid #000;
   border-right: 1px solid #000;
   border-top: 1px solid #000;
-  border-top-left-radius: 7px;
-  border-top-right-radius: 7px;
   box-shadow: 1px -1px 1px 0 #888;
   color: #000;
   font-size: 1.1rem;
@@ -1133,10 +944,7 @@ h1 {
 .ACT_deselected {
   background-color: #2d6775;
   border-bottom: 1px solid #000;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  border-top-left-radius: 7px;
-  border-top-right-radius: 7px;
+  border-radius: 7px 7px 0 0;
   color: #fff;
   font-size: 1rem;
   height: 25px;
@@ -1161,21 +969,18 @@ b.ACT_box {
 /* do some full screen playing around */
 .fullscreen {
   background-color: #fff;
-  bottom: 0;
+  inset: 0;
   box-sizing: border-box;
   font-size: 2em;
   height: 100%;
-  left: 0;
   margin: 0;
   object-fit: contain;
   position: absolute;
-  right: 0;
-  top: 0;
   width: 100%;
   z-index: 100;
 }
 
-input[type="text"].fullscreen {
+input[type='text'].fullscreen {
   font-size: 0.8em;
   height: 150px;
   text-indent: 0;
@@ -1191,10 +996,7 @@ input[type="text"].fullscreen {
   font-size: 1em;
   height: 1.2em;
   left: 0.05in;
-  padding-bottom: 2px;
-  padding-left: 0;
-  padding-right: 0;
-  padding-top: 0;
+  padding: 0 0 2px;
   position: absolute;
   text-align: left;
   top: 0.05in;
@@ -1208,6 +1010,7 @@ input[type="text"].fullscreen {
   margin: 3px auto;
   padding: 5px 8px;
   text-align: left;
+
   /*  height:2.5in; */
   width: 1.97in;
 }
@@ -1219,6 +1022,7 @@ input[type="text"].fullscreen {
   margin: 3px auto;
   padding: 5px 8px;
   text-align: left;
+
   /*   height:2.4in; */
   width: 1.97in;
 }
@@ -1246,91 +1050,12 @@ input[type="text"].fullscreen {
   background-color: #ccf;
 }
 
-.PRIORS textarea,
-input {
-  background-color: #ccf;
-  color: #000;
-}
-
 .PRIORS a {
   text-decoration: none;
 }
 
 .Draw_class {
   padding: 2px;
-}
-
-.navbar-custom {
-  background-color: #1d62f0;
-  color: #000;
-}
-
-.navbar-custom,
-.navbar-nav > li > li:focus {
-  background-color: #3e76c2;
-  border-radius: 0;
-  color: #fff;
-  top: 0;
-}
-
-.navbar-custom {
-  color: #000; /* just changes the base font color */
-  margin: 0;
-  padding: 6px 10px 4px;
-}
-
-.navbar-nav > li > a {
-  color: #000; /* just changes the base font color */
-  padding: 6px 10px 4px;
-}
-
-.nav > li > a:focus,
-.nav > li:focus {
-  background-color: #1c5ecf; /* this is the "hover" blue */
-  color: #fff; /*#33aa33; <--- this is kelly green */
-  text-decoration: none;
-}
-
-.navbar-custom,
-.navbar-nav,
-.nav > .active > a,
-.navbar-nav > .active > a:hover,
-.navbar-nav > .active > a:focus {
-  background-color: #c9dbf2; /* Mac Menu title bar background color */
-  color: #fff;
-}
-
-.dropdown {
-  list-style: none;
-}
-
-.dropdown-menu {
-  background-color: #dee9f7; /* Mac Menu dropdown bar background color */
-}
-
-.dropdown-menu > li > a:hover,
-.dropdown-menu > li > a:focus {
-  background-color: #1c5ecf; /*#3E76C2;*/
-  color: #fff; /*#262626;*/
-  text-decoration: none;
-}
-
-.navbar-brand {
-  color: var(--danger);
-  height: 24px;
-  margin: 10px 0 2px;
-  padding: 10px 5px 0 10px;
-}
-
-.navbar-nav > li > .dropdown-menu {
-  margin-top: 2px;
-}
-
-.dropdown-menu .divider {
-  background-color: #c0c0c0; /*gba(131, 135, 146, 0.61);*/
-  height: 1px;
-  margin: 9px 0;
-  overflow: hidden;
 }
 
 a:hover,
@@ -1347,8 +1072,8 @@ a:focus {
      * The fields/anchors are added as blank elements (sorry) in view.php
      */
   display: block;
-  height: 20px; /*same height as header*/
-  margin-top: -20px; /*same height as header*/
+  height: 20px; /* same height as header */
+  margin-top: -20px; /* same height as header */
   visibility: hidden;
 }
 
@@ -1379,7 +1104,7 @@ a:focus {
 
 .panel_title {
   font-size: 1.1em;
-  font-weight: 600;
+  font-weight: bold;
   text-decoration: underline;
 }
 
@@ -1497,10 +1222,6 @@ a:focus {
   box-shadow: 5px 5px 9px var(--danger);
 }
 
-.build_PLAN li:hover {
-  background: var(--warning);
-}
-
 .building_blocks {
   font-size: 1em;
 }
@@ -1558,6 +1279,10 @@ dd:last-of-type {
   position: relative;
 }
 
+.build_PLAN li:hover {
+  background: var(--warning);
+}
+
 li .handle {
   display: inline-block;
   padding: 0.4em;
@@ -1600,19 +1325,6 @@ h2 {
   font-size: 1.3em;
 }
 
-.title {
-  font-size: 1em;
-  position: absolute;
-  right: 10px;
-  top: 30px;
-}
-
-.refraction_panel {
-  display: none;
-  height: auto;
-  width: 95%;
-}
-
 .refraction_report {
   border: 1pt solid #000;
   display: inline-block;
@@ -1620,15 +1332,6 @@ h2 {
   font-size: 1em;
   margin: 4px;
   padding: 0.1in;
-}
-
-.refraction td {
-  font-size: 0.9em;
-  padding: 3px;
-  text-align: center;
-  text-decoration: none;
-  vertical-align: middle;
-  width: 0.35in;
 }
 
 .refraction_report th {
@@ -1645,18 +1348,6 @@ h2 {
   padding: 0;
 }
 
-.refraction li {
-  float: left;
-}
-
-input[type="text"] {
-  display: inline-block;
-  font-size: 0.7em;
-  padding: 0.2em 0.4em;
-  text-align: center;
-  width: 60px;
-}
-
 .refraction_report b {
   font-weight: bold;
 }
@@ -1669,10 +1360,6 @@ input[type="text"] {
 
 .right {
   text-align: right;
-}
-
-.left {
-  text-align: left;
 }
 
 .label {
@@ -1688,11 +1375,11 @@ input[type="text"] {
 .body2 {
   font-size: 12px;
   margin: 0;
-  padding: 0;
+  padding: 0 0 0 105px;
 }
 
 .text {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
 }
 
 #report_custom .encounter_form {
@@ -1713,23 +1400,10 @@ input[type="text"] {
   text-align: center;
 }
 
-.panel_title {
-  font-weight: bold;
-}
-
 .show_report {
   padding-left: 14px;
   padding-right: 4px;
   text-align: left;
-}
-
-.body2 {
-  padding-left: 105px;
-}
-
-.ACT {
-  height: 58px;
-  width: 58px;
 }
 
 .report_vitals {
@@ -1757,7 +1431,259 @@ input[type="text"] {
   text-align: center;
 }
 
-form_header span {
+.form_header span {
   color: #000;
   display: unset;
+}
+
+/* report.css is only linked from report.php (see its <link> tag); none
+ * of the selectors below match anything in report.php's markup (this
+ * form's other view, view.php, uses a separate stylesheet, style.css).
+ * They are kept, in dead-code form, for backward compatibility, but
+ * relocated here so their selector specificity doesn't precede the
+ * lower-specificity selectors above that stylelint's
+ * no-descending-specificity rule compares them against.
+ */
+
+.pure-form input[type='text'],
+.pure-form input[type='password'],
+.pure-form input[type='email'],
+.pure-form input[type='url'],
+.pure-form input[type='date'],
+.pure-form input[type='month'],
+.pure-form input[type='time'],
+.pure-form input[type='datetime'],
+.pure-form input[type='datetime-local'],
+.pure-form input[type='week'],
+.pure-form input[type='number'],
+.pure-form input[type='search'],
+.pure-form input[type='tel'],
+.pure-form input[type='color'],
+.pure-form select,
+.pure-form textarea {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px #ddd inset;
+  box-sizing: border-box;
+  display: inline-block;
+  padding: 0.2em !important;
+}
+
+.pure-form label {
+  margin: 0.1em;
+}
+
+.pure-form [disabled] {
+  color: #000 !important;
+}
+
+.vitals tr td input {
+  display: inline-block;
+  padding: 0.2em 0.4em;
+}
+
+.text_clinical {
+  color: #000;
+  font-family: Arial, sans-serif;
+  text-decoration: none;
+}
+
+.text_clinical th {
+  font-size: 1.1em;
+  text-decoration: underline;
+}
+
+.text_clinical a b {
+  color: #000;
+  font-family: Arial, sans-serif;
+  text-decoration: none;
+}
+
+.navbar-nav > li > a {
+  color: #000; /* just changes the base font color */
+  padding: 6px 10px 4px;
+}
+
+.navbar-custom,
+.navbar-nav,
+.nav > .active > a {
+  background-color: #c9dbf2; /* Mac Menu title bar background color */
+  color: #fff;
+}
+
+.text_clinical a:hover {
+  text-decoration: underline;
+}
+
+.closeButton:hover a {
+  color: #000;
+  text-decoration: none;
+}
+
+.closeButton a:link {
+  color: #000;
+  outline: none;
+}
+
+.nav > li > a:focus,
+.nav > li:focus {
+  background-color: #1c5ecf; /* this is the "hover" blue */
+  color: #fff; /* #33aa33; <--- this is kelly green */
+  text-decoration: none;
+}
+
+.navbar-custom {
+  background-color: #1d62f0;
+  color: #000; /* just changes the base font color */
+  margin: 0;
+  padding: 6px 10px 4px;
+}
+
+.navbar-custom,
+.navbar-nav > li > li:focus {
+  background-color: #3e76c2;
+  border-radius: 0;
+  color: #fff;
+  top: 0;
+}
+
+.dropdown {
+  list-style: none;
+}
+
+.dropdown-menu {
+  background-color: #dee9f7; /* Mac Menu dropdown bar background color */
+}
+
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
+  background-color: #1c5ecf; /* #3E76C2; */
+  color: #fff; /* #262626; */
+  text-decoration: none;
+}
+
+.navbar-nav > .active > a:hover,
+.navbar-nav > .active > a:focus {
+  background-color: #c9dbf2; /* Mac Menu title bar background color */
+  color: #fff;
+}
+
+.navbar-brand {
+  color: var(--danger);
+  height: 24px;
+  margin: 10px 0 2px;
+  padding: 10px 5px 0 10px;
+}
+
+.navbar-nav > li > .dropdown-menu {
+  margin-top: 2px;
+}
+
+.dropdown-menu .divider {
+  background-color: #c0c0c0; /* gba(131, 135, 146, 0.61); */
+  height: 1px;
+  margin: 9px 0;
+  overflow: hidden;
+}
+
+/* testing out the tabs header stuff for ACT */
+#tabs {
+  font-size: 0.55em;
+  line-height: normal;
+  list-style: none;
+  margin: 0 auto;
+  width: 95%;
+}
+
+#header ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#header li {
+  background: url('../../forms/eye_mag/images/tabright.gif') top right no-repeat;
+  float: left;
+  margin: 0;
+}
+
+#header a {
+  background: url('../../forms/eye_mag/images/tableft.gif') top left no-repeat;
+  color: #ffc;
+  display: block;
+  padding: 0.6em 1em 0.25em;
+  text-decoration: none;
+}
+
+#tabs li {
+  display: inline;
+}
+
+#tabs ul {
+  float: right;
+  list-style: none;
+  margin: 0;
+  padding: 4px 2px 0 5px;
+}
+
+#tabs li a {
+  background-color: #cc9;
+  border: 2px solid #ccc;
+  border-bottom: 0;
+  border-radius: 5px 5px 0 0;
+  border-top-left-radius: 5px;
+  box-shadow: 0 5px 9px #888;
+  color: #000;
+  font-size: 1.7em;
+  outline: none;
+  padding: 4px 6px;
+  text-decoration: none;
+}
+
+#header a:hover {
+  color: #fff;
+}
+
+/* End IE5-Mac hack */
+#tabs li:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+#tabs li a:hover {
+  background-color: #ddd;
+  color: #000080;
+}
+
+#tabs li.active a {
+  background-color: #fff;
+  border-bottom: 0;
+  color: #000080;
+  padding: 4px 6px 5px;
+}
+
+#tabs li a.icon_accept {
+  background-image: url('accept.png');
+  background-position: 5px;
+  background-repeat: no-repeat;
+  padding-left: 24px;
+}
+
+#tabs li.active a:hover {
+  background-color: #eee;
+  border-bottom: 0;
+}
+
+#tabs li a.icon_accept:hover {
+  padding-left: 24px;
+}
+
+#header #selected {
+  background-image: url('images/tabrightactive.gif');
+  font-weight: bold;
+}
+
+#header #selected a {
+  background-image: url('images/tableftactive.gif');
+  color: #fff;
 }

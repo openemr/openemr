@@ -35,7 +35,6 @@ interface/themes/jquery.autocomplete.css
 # TODO: fix and remove from this list
 interface/forms/CAMOS/CAMOS.css
 interface/forms/CAMOS/rx.css
-interface/forms/eye_mag/css/report.css
 interface/forms/eye_mag/css/style.css
 interface/forms/questionnaire_assessments/assets/styles/styles_openemr_lforms.css
 interface/forms/vitals/vitals.css
