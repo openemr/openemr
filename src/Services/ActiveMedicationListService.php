@@ -37,50 +37,84 @@ class ActiveMedicationListService extends BaseService
     public static function merge(array $issues, array $prescriptions): array
     {
         $out = [];
+        /** @var array<string, int> $seen */
         $seen = [];
         foreach ($issues as $row) {
             $title = self::cell($row['title'] ?? null);
             if ($title === '') {
                 continue;
             }
-            $key = self::nameKey($title);
-            if (isset($seen[$key])) {
-                continue;
-            }
-            $seen[$key] = true;
-            $out[] = [
+            self::keepCurrent($out, $seen, [
                 'source' => 'issue',
                 'title' => $title,
                 'dose' => self::cell($row['drug_dosage_instructions'] ?? null),
                 'start' => self::optionalDate($row['begdate'] ?? null),
                 'end' => self::optionalDate($row['enddate'] ?? null),
                 'comments' => self::cell($row['comments'] ?? null),
-            ];
+            ]);
         }
         foreach ($prescriptions as $row) {
             $title = self::cell($row['drug'] ?? null);
             if ($title === '') {
                 continue;
             }
-            $key = self::nameKey($title);
-            if (isset($seen[$key])) {
-                continue;
-            }
-            $seen[$key] = true;
             $doseParts = [
                 self::cell($row['dosage'] ?? null),
                 self::cell($row['drug_dosage_instructions'] ?? null),
             ];
-            $out[] = [
+            self::keepCurrent($out, $seen, [
                 'source' => 'prescription',
                 'title' => $title,
                 'dose' => trim(implode(' ', array_filter($doseParts, static fn(string $p): bool => $p !== ''))),
                 'start' => self::optionalDate($row['start_date'] ?? null),
                 'end' => self::optionalDate($row['end_date'] ?? null),
                 'comments' => '',
-            ];
+            ]);
         }
         return $out;
+    }
+
+    /**
+     * One row per drug name. A later start date replaces an earlier one.
+     * The same start keeps the later row.
+     *
+     * @param list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}> $out
+     * @param array<string, int> $seen
+     * @param array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string} $row
+     */
+    private static function keepCurrent(array &$out, array &$seen, array $row): void
+    {
+        $key = self::nameKey($row['title']);
+        if (!isset($seen[$key])) {
+            $seen[$key] = count($out);
+            $out[] = $row;
+            return;
+        }
+        $index = $seen[$key];
+        if (self::candidateIsCurrent($row, $out[$index])) {
+            $out[$index] = $row;
+        }
+    }
+
+    /**
+     * @param array{start: ?string} $candidate
+     * @param array{start: ?string} $kept
+     */
+    private static function candidateIsCurrent(array $candidate, array $kept): bool
+    {
+        $candidateStart = $candidate['start'];
+        $keptStart = $kept['start'];
+        if ($candidateStart === $keptStart) {
+            return true;
+        }
+        if (!is_string($candidateStart)) {
+            return false;
+        }
+        if (!is_string($keptStart)) {
+            return true;
+        }
+
+        return $candidateStart > $keptStart;
     }
 
     /**
