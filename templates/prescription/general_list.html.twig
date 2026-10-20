@@ -118,32 +118,44 @@ function Check(chk) {
 
 function performDeleteDrug(prescriptionId, restoreInventory) {
     top.restoreSession();
+    // deletedrug.php answers with JSON {success, message} and a matching
+    // HTTP status, so the result does not depend on translated text. A
+    // non-JSON body (for example the CSRF failure page) ends up in the
+    // error handler and is shown as-is.
+    function messageFrom(xhr) {
+        var payload = null;
+        try {
+            payload = JSON.parse(xhr.responseText || '');
+        } catch (e) {
+            payload = null;
+        }
+        if (payload && payload.message) {
+            return payload.message;
+        }
+        return xhr.responseText || xhr.statusText || {{'Unknown error. Please contact your administrator.'|js_escape}};
+    }
     $.ajax({
         url: "./library/deletedrug.php",
         type: 'POST',
+        dataType: 'json',
         data: {
             drugid: prescriptionId,
             restore_inventory: restoreInventory ? '1' : '',
             csrf_token_form: {{CSRF_TOKEN_FORM|js_escape}}
         },
         success: function(data) {
-            // The endpoint replies with HTTP 200 even on ACL denial or
-            // caught exceptions; the body is the user-facing message.
-            // Only redirect on the success sentinel "Finished Deleting".
-            var body = (typeof data === 'string') ? data.trim() : '';
-            if (body === {{'Finished Deleting'|js_escape}}) {
+            if (data && data.success) {
                 document.location.href = '{{webroot}}/controller.php?prescription&list&id=' + {{session.pid|js_url}};
                 return;
             }
             alert(
                 {{'Could not delete prescription:'|js_escape}} + '\n\n' +
-                (body || {{'Unknown error. Please contact your administrator.'|js_escape}})
+                ((data && data.message) || {{'Unknown error. Please contact your administrator.'|js_escape}})
             );
         },
         error: function(xhr) {
             alert(
-                {{'Could not delete prescription (network error):'|js_escape}} + '\n\n' +
-                (xhr.responseText || xhr.statusText || {{'Unknown error.'|js_escape}})
+                {{'Could not delete prescription:'|js_escape}} + '\n\n' + messageFrom(xhr)
             );
         },
     });

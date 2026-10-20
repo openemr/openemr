@@ -21157,11 +21157,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/daysheet.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#6 \\$patient_id of method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:newEvent\\(\\) expects int\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/deletedrug.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$id of class Document constructor expects int, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/dicom_frame.php',
