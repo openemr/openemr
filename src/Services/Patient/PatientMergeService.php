@@ -153,15 +153,17 @@ class PatientMergeService
         $this->moveDocuments($sourcePid, $targetPid, $log);
         $this->moveEncounterDocuments($sourcePid, $targetPid, $log);
 
-        $this->mergeAllTables($sourcePid, $targetPid, $log);
+        QueryUtils::inTransaction(function () use ($sourcePid, $targetPid, $duplicateEncounters, $log): void {
+            $this->mergeAllTables($sourcePid, $targetPid, $log);
 
-        // The pids have been merged by this point; what is left is folding the source encounter's
-        // components into the target encounter.
-        if ($duplicateEncounters !== null) {
-            $this->mergeDuplicateEncounters($duplicateEncounters, $log);
-        }
+            // The pids have been merged by this point; what is left is folding the source encounter's
+            // components into the target encounter.
+            if ($duplicateEncounters !== null) {
+                $this->mergeDuplicateEncounters($duplicateEncounters, $log);
+            }
 
-        $this->duplicatePatients->recalculateScore($targetPid);
+            $this->duplicatePatients->recalculateScore($targetPid);
+        });
 
         $log->add(xl('Merge complete.'));
     }
@@ -310,6 +312,14 @@ class PatientMergeService
 
             if (in_array($tableName, self::IDENTITY_TABLES, true)) {
                 $this->deleteRows($tableName, 'pid', $sourcePid, $targetPid, $log);
+            } elseif ($tableName === 'patient_access_onsite') {
+                if ($this->countRows($tableName, 'pid', $targetPid) > 0) {
+                    // Keep the surviving chart's credentials and revoke the duplicate account.
+                    $this->deleteRows($tableName, 'pid', $sourcePid, $targetPid, $log);
+                } else {
+                    // If only the source has an account, preserve it on the surviving chart.
+                    $this->updateRows($tableName, 'pid', $sourcePid, $targetPid, $log);
+                }
             } elseif ($tableName === 'chart_tracker') {
                 $this->updateRows($tableName, 'ct_pid', $sourcePid, $targetPid, $log);
             } elseif ($tableName === 'documents') {
