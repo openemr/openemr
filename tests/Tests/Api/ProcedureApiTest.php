@@ -40,6 +40,16 @@ class ProcedureApiTest extends TestCase
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
     }
 
+    protected function tearDown(): void
+    {
+        // Each test's setUp() calls setAuthToken() which registers +
+        // enables a fresh OAuth client. Without this cleanup, repeated
+        // runs leave client rows + their tokens in the DB. Mirrors the
+        // teardown pattern in PatientApiTest.
+        $this->testClient->cleanupRevokeAuth();
+        $this->testClient->cleanupClient();
+    }
+
     #[Test]
     public function testGetAllReturnsJsonProcessingResult(): void
     {
