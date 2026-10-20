@@ -74,20 +74,113 @@
 }
 
 .oe-questionnaire-runtime input[readonly],
-.oe-questionnaire-runtime textarea[readonly] {
+.oe-questionnaire-runtime textarea[readonly],
+.oe-questionnaire-runtime input:disabled,
+.oe-questionnaire-runtime textarea:disabled,
+.oe-questionnaire-runtime select:disabled {
   font-weight: 600;
 }
 
 @media (width <= 767.98px) {
   .oe-questionnaire-runtime .oe-questionnaire-group > .card-body {
-    padding: 0.75rem;
+    padding: 0.6rem;
   }
 
   .oe-questionnaire-runtime .oe-questionnaire-question {
-    padding: 0.75rem 0;
+    padding: 0.5rem 0;
   }
 }
 
 .oe-questionnaire-runtime.oe-questionnaire-guides .oe-questionnaire-group > .card-body {
   border-left: 0.2rem solid rgb(0 0 0 / 12%);
+}
+
+/*
+ * Regression fixes (issue #14736): denser vertical rhythm closer to the
+ * former LForms widget, readable long choice answers, and styling for the
+ * display prefix, repeating-group controls and the runtime warning panel.
+ */
+.oe-questionnaire-runtime .oe-questionnaire-question {
+  padding: 0.45rem 0;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-label {
+  margin-bottom: 0.25rem !important;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-group {
+  margin-bottom: 0.75rem !important;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-group > .card-header {
+  padding: 0.45rem 0.75rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-group > .card-body {
+  padding: 0.6rem 0.85rem;
+}
+
+.oe-questionnaire-runtime .custom-control.mb-1 {
+  margin-bottom: 0.15rem !important;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-control {
+  margin-top: 0.1rem;
+}
+
+/* Long choice answers must wrap rather than clip. */
+.oe-questionnaire-runtime .oe-questionnaire-choice-label {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-choice-select {
+  width: 100%;
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-prefix {
+  color: var(--dark, #343a40);
+}
+
+/* Repeating group instances (issue #14736). */
+.oe-questionnaire-runtime .oe-questionnaire-group-instance {
+  position: relative;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-group-instance + .oe-questionnaire-group-instance {
+  border-top: 1px dashed rgb(0 0 0 / 15%);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-group-instance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-repeat-add {
+  margin-top: 0.5rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-warnings .alert {
+  margin-bottom: 1rem;
+}
+
+/* Repeating scalar item rows and open-choice label (issue #14736). */
+.oe-questionnaire-runtime .oe-questionnaire-repeat-row {
+  align-items: center;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-open-label {
+  color: var(--dark, #343a40);
+  font-weight: 600;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-attachment-info:empty {
+  display: none;
 }
