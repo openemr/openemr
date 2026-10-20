@@ -200,4 +200,175 @@ class InsuranceCompanyApiTest extends TestCase
             $body['uuid']
         );
     }
+
+    #[Test]
+    public function testPutWithPartialPayloadNarrowsToPatch(): void
+    {
+        // PUT /api/insurance_company/{id} with a partial payload must act
+        // as a semantic PATCH on the named columns — i.e. only the fields
+        // the client submitted change, every other column keeps its stored
+        // value. Pre-fix, InsuranceCompanyService::update() bound each
+        // insurance_companies column from $data unconditionally, so a
+        // partial payload emitted PHP warnings on the missing keys and
+        // wiped every omitted column to NULL (destructive write masquerading
+        // as PATCH).
+        $uniqueName = self::FIXTURE_NAME_PREFIX . " Put " . uniqid();
+        $postResponse = $this->testClient->post(self::API_ENDPOINT, [
+            'name' => $uniqueName,
+            'attn' => 'original-attn',
+            'cms_id' => '12345',
+            'ins_type_code' => '2',
+            'x12_receiver_id' => 'rcv-x12',
+            'x12_default_partner_id' => '98765',
+            'alt_cms_id' => 'alt-67890',
+        ]);
+        $this->assertEquals(201, $postResponse->getStatusCode());
+        $postBody = json_decode((string) $postResponse->getBody(), true);
+        $this->assertIsArray($postBody);
+        $createdId = $postBody['iid'];
+        $this->assertIsNumeric($createdId);
+
+        $renamed = self::FIXTURE_NAME_PREFIX . " Put Renamed " . uniqid();
+        $putResponse = $this->testClient->put(
+            self::API_ENDPOINT,
+            (string) $createdId,
+            ['name' => $renamed]
+        );
+        $this->assertEquals(200, $putResponse->getStatusCode());
+
+        $follow = $this->testClient->getOne(self::API_ENDPOINT, (string) $createdId);
+        $this->assertEquals(200, $follow->getStatusCode());
+        $after = json_decode((string) $follow->getBody(), true);
+        $this->assertIsArray($after);
+        $this->assertEquals($renamed, $after['name']);
+        // Every other column the POST set must have survived the PATCH.
+        $this->assertEquals('original-attn', $after['attn']);
+        $this->assertEquals('12345', $after['cms_id']);
+        $this->assertEquals('2', $after['ins_type_code']);
+        $this->assertEquals('rcv-x12', $after['x12_receiver_id']);
+        $this->assertEquals('98765', $after['x12_default_partner_id']);
+        $this->assertEquals('alt-67890', $after['alt_cms_id']);
+    }
+
+    #[Test]
+    public function testPutAddressFieldsMergeOverStoredAddress(): void
+    {
+        // Address handling has to honour PATCH semantics across the
+        // insurance_companies / addresses join:
+        //   - A payload that submits only one address field (eg `line1`)
+        //     must apply that change without wiping the other address
+        //     columns, even though AddressData::fromArray() populates
+        //     missing keys with empty strings.
+        //   - A payload that submits NO address fields must leave the
+        //     stored address untouched (addressService->update on an
+        //     unchanged AddressData would wipe fields).
+        //   - A payload that submits address fields on a company that
+        //     has no stored addresses row (POST without city+state skips
+        //     the address insert) must insert, not fail silently.
+        //
+        // This test covers the first two cases by seeding a full address
+        // via POST, then PUTting only `line1`, and asserting the other
+        // address columns survive.
+        $uniqueName = self::FIXTURE_NAME_PREFIX . " PutAddr " . uniqid();
+        $postResponse = $this->testClient->post(self::API_ENDPOINT, [
+            'name' => $uniqueName,
+            'ins_type_code' => '1',
+            'line1' => '123 Example St',
+            'line2' => 'Suite 4',
+            'city' => 'Springfield',
+            'state' => 'IL',
+            'zip' => '62701',
+            'country' => 'USA',
+        ]);
+        $this->assertEquals(201, $postResponse->getStatusCode());
+        $postBody = json_decode((string) $postResponse->getBody(), true);
+        $this->assertIsArray($postBody);
+        $createdId = $postBody['iid'];
+        $this->assertIsNumeric($createdId);
+
+        // The controller's PUT handler still runs the INSERT-context
+        // validator (requires `name`), so include it unchanged on the
+        // PATCH — the point of this test is the address-merge path, not
+        // the insurance_companies validator context.
+        $putResponse = $this->testClient->put(
+            self::API_ENDPOINT,
+            (string) $createdId,
+            [
+                'name' => $uniqueName,
+                'line1' => '456 Updated Ave',
+            ]
+        );
+        $this->assertEquals(200, $putResponse->getStatusCode());
+
+        // getOneById returns only insurance_companies columns, but the
+        // list endpoint (search) LEFT JOINs addresses, so use the list
+        // and locate the fixture row by id to assert the address state.
+        $after = $this->findRowInListById((int) $createdId);
+        $this->assertEquals('456 Updated Ave', $after['line1'] ?? null);
+        $this->assertEquals('Suite 4', $after['line2'] ?? null);
+        $this->assertEquals('Springfield', $after['city'] ?? null);
+        $this->assertEquals('IL', $after['state'] ?? null);
+        $this->assertEquals('62701', $after['zip'] ?? null);
+        $this->assertEquals('USA', $after['country'] ?? null);
+    }
+
+    #[Test]
+    public function testPutInsertsAddressRowForCompanyThatHadNone(): void
+    {
+        // POST without city+state intentionally skips the address insert
+        // (mirrors the pre-existing insert() guard). A subsequent PUT
+        // that supplies address fields must create the addresses row —
+        // AddressService::update() returns null when no addresses row
+        // exists for this foreign_id, so the service has to fall through
+        // to AddressService::insert().
+        $uniqueName = self::FIXTURE_NAME_PREFIX . " PutAddrInsert " . uniqid();
+        $postResponse = $this->testClient->post(self::API_ENDPOINT, [
+            'name' => $uniqueName,
+            'ins_type_code' => '1',
+        ]);
+        $this->assertEquals(201, $postResponse->getStatusCode());
+        $postBody = json_decode((string) $postResponse->getBody(), true);
+        $this->assertIsArray($postBody);
+        $createdId = $postBody['iid'];
+        $this->assertIsNumeric($createdId);
+
+        $putResponse = $this->testClient->put(
+            self::API_ENDPOINT,
+            (string) $createdId,
+            [
+                'name' => $uniqueName,
+                'line1' => '789 Fresh St',
+                'city' => 'Metropolis',
+                'state' => 'IL',
+                'zip' => '62960',
+            ]
+        );
+        $this->assertEquals(200, $putResponse->getStatusCode());
+
+        $after = $this->findRowInListById((int) $createdId);
+        $this->assertEquals('789 Fresh St', $after['line1'] ?? null);
+        $this->assertEquals('Metropolis', $after['city'] ?? null);
+        $this->assertEquals('IL', $after['state'] ?? null);
+        $this->assertEquals('62960', $after['zip'] ?? null);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function findRowInListById(int $id): array
+    {
+        $response = $this->testClient->get(self::API_ENDPOINT);
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $data = $body['data'] ?? [];
+        $this->assertIsArray($data);
+        foreach ($data as $row) {
+            if (is_array($row) && is_numeric($row['id'] ?? null) && (int) $row['id'] === $id) {
+                /** @var array<string, mixed> $row */
+                return $row;
+            }
+        }
+        $this->fail("row id=$id not found in list response");
+    }
 }
