@@ -11,11 +11,12 @@
  *
  * Uses `EncounterFixtureManager` for the patient/facility/encounter
  * chain. tearDown explicitly sweeps `form_soap` + the linked `forms`
- * row (formdir='newpatient') scoped to the fixture-pid prefix —
- * `EncounterFixtureManager::removeFixtures()` only deletes
- * form_encounter + patient_data + facility, so these rows would
- * orphan otherwise. Analogous to the `removeObservationFixtures()`
- * sweep `VitalApiTest` uses for `form_vitals`.
+ * row (formdir='soap' per `EncounterService::insertSoapNote`) scoped
+ * to the fixture-pid prefix — `EncounterFixtureManager::removeFixtures()`
+ * only deletes form_encounter + patient_data + facility, so these
+ * rows would orphan otherwise. Analogous to the
+ * `removeObservationFixtures()` sweep `VitalApiTest` uses for
+ * `form_vitals`.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -65,12 +66,12 @@ class SoapNoteApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        // Each POST writes a form_soap row + a `forms` row (formdir='newpatient'
-        // for soap notes in the current demo install — the formdir value is
-        // whatever addForm() uses). The EncounterFixtureManager removes
-        // form_encounter + patient_data + facility but leaves form_soap and
-        // the linked forms row behind. Scope the sweep to the fixture pid
-        // so we don't touch other patients' soap notes.
+        // Each POST writes a form_soap row + a `forms` row with
+        // formdir='soap' (see EncounterService::insertSoapNote). The
+        // EncounterFixtureManager removes form_encounter + patient_data
+        // + facility but leaves form_soap and the linked forms row
+        // behind. Scope the sweep to the fixture pid so we don't touch
+        // other patients' soap notes.
         $pids = QueryUtils::fetchTableColumn(
             "SELECT pid FROM patient_data WHERE pubpid LIKE ?",
             'pid',
@@ -83,7 +84,7 @@ class SoapNoteApiTest extends TestCase
                 $pids
             );
             QueryUtils::sqlStatementThrowException(
-                "DELETE FROM forms WHERE pid IN ($placeholders) AND formdir = 'newpatient'",
+                "DELETE FROM forms WHERE pid IN ($placeholders) AND formdir = 'soap'",
                 $pids
             );
         }

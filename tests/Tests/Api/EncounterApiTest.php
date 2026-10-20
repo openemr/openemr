@@ -80,6 +80,24 @@ class EncounterApiTest extends TestCase
 
     protected function tearDown(): void
     {
+        // testPostCreatesEncounter writes an encounter via the API, which
+        // inserts a form_encounter row (removed by removeFixtures reason-
+        // prefix sweep since we pass reason='test-fixture-...') AND a
+        // `forms` row with formdir='newpatient' linking the encounter.
+        // The forms row isn't scoped by reason, so sweep it explicitly
+        // by the fixture pid before removing patient_data.
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT pid FROM patient_data WHERE pubpid LIKE ?",
+            'pid',
+            ['test-fixture-%']
+        );
+        if (count($pids) > 0) {
+            $placeholders = implode(',', array_fill(0, count($pids), '?'));
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM forms WHERE pid IN ($placeholders) AND formdir = 'newpatient'",
+                $pids
+            );
+        }
         $this->fixtureManager->removeFixtures();
     }
 
