@@ -80,8 +80,6 @@ class ForbidDirectSessionWriteRule implements Rule
         'src/Services/Cda/',
         // Test files — session setup in tests uses writable mock sessions
         'tests/',
-        // Test/dev utilities
-        'src/Cqm/test.php',
         // Modules with $sessionAllowWrite = true
         'oe-module-faxsms/',
     ];

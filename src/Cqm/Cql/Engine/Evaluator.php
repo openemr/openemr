@@ -785,7 +785,7 @@ final class Evaluator
         if ($isList || $aggregate !== null) {
             return $returned;
         }
-        return is_array($returned) ? ($returned[0] ?? null) : $returned;
+        return $returned[0] ?? null;
     }
 
     /**
@@ -1062,7 +1062,7 @@ final class Evaluator
                 if ($x instanceof Quantity || $x instanceof CqlTemporal) {
                     return $type === 'Add' ? Quantity::doAddition($x, $y) : Quantity::doSubtraction($x, $y);
                 }
-                if ($x instanceof Uncertainty && $y instanceof Uncertainty) {
+                if ($x instanceof Uncertainty) {
                     $isObject = $x->low instanceof Quantity || $x->low instanceof CqlTemporal;
                     if ($type === 'Add') {
                         return $isObject
@@ -1081,7 +1081,7 @@ final class Evaluator
                 if ($y instanceof Quantity) {
                     return $y->multiplyBy(self::quantityOperand($x));
                 }
-                if ($x instanceof Uncertainty && $y instanceof Uncertainty) {
+                if ($x instanceof Uncertainty) {
                     return new Uncertainty(self::numeric($x->low) * self::numeric($y->low), self::numeric($x->high) * self::numeric($y->high));
                 }
                 return self::numeric($x) * self::numeric($y);
@@ -1089,7 +1089,7 @@ final class Evaluator
                 if ($x instanceof Quantity) {
                     return $x->dividedBy(self::quantityOperand($y));
                 }
-                if ($x instanceof Uncertainty && $y instanceof Uncertainty) {
+                if ($x instanceof Uncertainty) {
                     return new Uncertainty(fdiv(self::numeric($x->low), self::numeric($y->high)), fdiv(self::numeric($x->high), self::numeric($y->low)));
                 }
                 return fdiv(self::numeric($x), self::numeric($y));

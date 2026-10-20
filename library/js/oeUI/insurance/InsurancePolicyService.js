@@ -158,6 +158,32 @@ export class InsurancePolicyService
             });
     }
 
+    /**
+     * Compares two dates (or nulls) for a descending sort with nulls last, which
+     * is what MySQL's and MariaDB's `ORDER BY date DESC` do on the server side.
+     * @param {Date|null} a
+     * @param {Date|null} b
+     * @returns {number} negative when a sorts before b, positive when after, 0 when equal
+     */
+    static compareDatesDesc(a, b) {
+        if (a === null && b === null) {
+            return 0;
+        }
+        if (a === null) {
+            return 1;
+        }
+        if (b === null) {
+            return -1;
+        }
+        if (a > b) {
+            return -1;
+        }
+        if (a < b) {
+            return 1;
+        }
+        return 0;
+    }
+
     sortInsurancesByDate(insurances) {
         let futureDate = new Date();
         insurances.sort((a, b) => {
@@ -187,25 +213,15 @@ export class InsurancePolicyService
             if (sortIndex !== 0) {
                 return sortIndex;
             }
-            // `date` DESC, nulls come first, then sort by date with most recent first
-            if (a.date !== null && b.date !== null) {
-                sortIndex += a.date > b.date ? -1 : 1;
-            } else if (b.date === null && a.date !== null) {
-                sortIndex -= -1;
-            } else {
-                sortIndex += 1;
-            }
+            // `date` DESC as the server orders it: most recent start first, and a
+            // policy with no start date last (MySQL and MariaDB put NULLs last in a DESC sort),
+            // so an old policy that never got a start date can't shadow the current one.
+            sortIndex = InsurancePolicyService.compareDatesDesc(a.date, b.date);
             if (sortIndex !== 0) {
                 return sortIndex;
             }
-            // `date_end` DESC, nulls come first, then sort by date with most recent first
-            if (!dateEndNullA && !dateEndNullB) {
-                sortIndex += a.date_end > b.date_end ? -1 : 1;
-            } else if (dateEndNullB && !dateEndNullA) {
-                sortIndex -= -1;
-            } else {
-                sortIndex += 1;
-            }
+            // `date_end` DESC, same rule
+            sortIndex = InsurancePolicyService.compareDatesDesc(a.date_end, b.date_end);
             if (sortIndex !== 0) {
                 return sortIndex;
             }
@@ -214,12 +230,13 @@ export class InsurancePolicyService
             // pass the base sensitivity to ignore case
             if (a.policy_number !== null && b.policy_number !== null) {
                 // TODO: @adunsulag if we have the locale specified here... we could pass it in instead of undefined
-                return b.localeCompare(a, undefined, {sensitivity: 'base'});
+                return a.policy_number.localeCompare(b.policy_number, undefined, {sensitivity: 'base'});
             } else if (b.policy_number === null && a.policy_number !== null) {
                 return -1;
-            } else {
+            } else if (a.policy_number === null && b.policy_number !== null) {
                 return 1;
             }
+            return 0;
         });
     }
 

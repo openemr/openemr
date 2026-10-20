@@ -388,7 +388,7 @@ class AclMain
     // Permissions check for a specified issue type.
     // Note $return_value may be an array of return values.
     //
-    public static function aclCheckIssue($type, $user = '', $return_value = '')
+    public static function aclCheckIssue($type, $user = '', $return_value = ''): bool
     {
         $issueTypes = IssueTypeRegistry::issueTypes();
         if (empty($issueTypes[$type][5])) {

@@ -3311,7 +3311,7 @@ class EncounterccdadispatchTable
     /**
      * Generates an unstructured component template for each patient document to be exported.
      * The resulting template is structured for direct placement into the unstructured
-     * document by the ccda service.
+     * document by the C-CDA generator.
      * BTW HL7 spec doesn't allow but one component per unstructured document so
      * this will break spec. However, we'll keep it our little secret as this is off by default.
      * User can turn on during exports for OpenEMR to OpenEMR transfer of patients.
@@ -3632,17 +3632,39 @@ class EncounterccdadispatchTable
                         }
                     }
                 } else {//Fetching a single field from the table
-                    $primary_key = '';
-                    $query = "SHOW INDEX FROM ? WHERE Key_name='PRIMARY'";
-                    $res_primary = QueryUtils::fetchRecords($query, [$formTables_details[1]]);
-                    foreach ($res_primary as $row_primary) {
-                        $primary_key = $row_primary['Column_name'];
+                    // The mapper stores the target table and column list in free-form text
+                    // fields; both reach SQL grammar unparameterized below, so validate each
+                    // identifier against the alphanumeric/underscore shape SQL identifiers
+                    // actually take. Bail silently on anything else so the mapper never
+                    // widens into an injection surface.
+                    $tableName = (string) $formTables_details[1];
+                    if (preg_match('/\A[A-Za-z0-9_]+\z/', $tableName) !== 1) {
+                        continue;
+                    }
+                    $columnList = array_values(array_filter(
+                        array_map(trim(...), explode(',', (string) $formTables_details[3])),
+                        static fn(string $c): bool => $c !== '' && preg_match('/\A[A-Za-z0-9_]+\z/', $c) === 1,
+                    ));
+                    if ($columnList === []) {
+                        continue;
                     }
 
+                    $primary_key = '';
+                    $res_primary = QueryUtils::fetchRecords(
+                        "SELECT COLUMN_NAME FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = 'PRIMARY'",
+                        [$tableName]
+                    );
+                    foreach ($res_primary as $row_primary) {
+                        $primary_key = (string) $row_primary['COLUMN_NAME'];
+                    }
                     unset($res_primary);
+                    if ($primary_key === '' || preg_match('/\A[A-Za-z0-9_]+\z/', $primary_key) !== 1) {
+                        continue;
+                    }
 
-                    $query = "select " . $formTables_details[3] . " from " . $formTables_details[1] . "
-                    join forms as f on f.pid=? AND f.encounter=? AND f.form_id=" . $formTables_details[1] . "." . $primary_key . " AND f.formdir=?
+                    $selectCols = implode(', ', array_map(static fn(string $c): string => "`$c`", $columnList));
+                    $query = "select $selectCols from `$tableName`
+                    join forms as f on f.pid=? AND f.encounter=? AND f.form_id=`$tableName`.`$primary_key` AND f.formdir=?
                     where 1 = 1 ";
                     $result = QueryUtils::fetchRecords($query, [$pid, $encounter, $formDir]);
 
@@ -3675,8 +3697,14 @@ class EncounterccdadispatchTable
                     include_once($filename);
                 }
 
-                $field_ids = explode(',', (string)$formTables_details[3]);
-                $fields_str = implode(',', array_map(fn($v): string => "'$v'", $field_ids));
+                $field_ids = array_values(array_filter(
+                    array_map(trim(...), explode(',', (string) $formTables_details[3])),
+                    static fn(string $f): bool => $f !== '' && preg_match('/\A[A-Za-z0-9_]+\z/', $f) === 1,
+                ));
+                if ($field_ids === []) {
+                    continue;
+                }
+                $placeholders = implode(',', array_fill(0, count($field_ids), '?'));
 
                 $query = <<<SQL
                     SELECT *
@@ -3685,10 +3713,10 @@ class EncounterccdadispatchTable
                     ON f.pid = ?
                     AND f.form_id = {$lbf}.form_id
                     AND f.formdir = ?
-                    AND {$lbf}.field_id IN ({$fields_str})
+                    AND {$lbf}.field_id IN ({$placeholders})
                     WHERE deleted = 0
                     SQL;
-                $result = QueryUtils::fetchRecords($query, [$pid, $formDir]);
+                $result = QueryUtils::fetchRecords($query, array_merge([$pid, $formDir], $field_ids));
 
                 foreach ($result as $row) {
                     preg_match('/\.$/', trim((string)$row['field_value']), $matches);

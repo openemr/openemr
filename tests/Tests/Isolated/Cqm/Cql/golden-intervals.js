@@ -10,7 +10,12 @@
  * Run with TZ=UTC: cql-execution reads the machine timezone where the PHP
  * port uses UTC (CqlDateTime::LOCAL_OFFSET).
  *
- * Usage: TZ=UTC node golden-intervals.js <ccdaservice/node_modules> <output directory> [seed] [scale]
+ * Usage: TZ=UTC node golden-intervals.js <node_modules> <output directory> [seed] [scale]
+ *
+ * The reference engine is not part of OpenEMR. Install the versions the
+ * fixtures were made with anywhere, e.g.
+ *   npm install --prefix /tmp/cqm-reference cqm-execution@4.4.3 cqm-models@4.3.2
+ * and pass /tmp/cqm-reference/node_modules as <node_modules>.
  *
  * Numbers are written as "#" and JavaScript's own string form; a quantity
  * is {"q": [value, unit]}, an uncertainty {"u": [low, high]}, an interval

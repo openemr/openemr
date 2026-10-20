@@ -146,7 +146,7 @@
         "maglnet/composer-require-checker": "^4.0",
         "phpmyadmin/sql-parser": "^6.0",
         "phpstan/extension-installer": "^1.4",
-        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan": "^2.3",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0",
         "phpstan/phpstan-strict-rules": "^2.0",
@@ -154,7 +154,7 @@
         "phpunit/phpunit": "^11.0",
         "psy/psysh": "^0.12.23",
         "ramsey/conventional-commits": "^1.5",
-        "rector/rector": "^2.1",
+        "rector/rector": "^2.7",
         "roave/security-advisories": "dev-latest",
         "shipmonk/phpstan-baseline-per-identifier": "^2.3",
         "slevomat/coding-standard": "^8.28",
@@ -175,16 +175,16 @@
             "type": "package",
             "package": {
                 "name": "openemr/oe-cqm-parsers",
-                "version": "7.0.4",
+                "version": "7.1.0",
                 "source": {
                     "type": "git",
-                    "url": "https://github.com/openemr/oe-cqm-parsers.git",
-                    "reference": "7c6b2a95bb12529f9339ffdc17bf1fb54f1baaea"
+                    "url": "https://github.com/sjpadgett/ecqm-bundle-builder.git",
+                    "reference": "bfd49442973fba45ac588abc1279126fcfe84cca"
                 },
                 "dist": {
                     "type": "zip",
-                    "url": "https://api.github.com/repos/openemr/oe-cqm-parsers/zipball/7c6b2a95bb12529f9339ffdc17bf1fb54f1baaea",
-                    "reference": "7c6b2a95bb12529f9339ffdc17bf1fb54f1baaea"
+                    "url": "https://api.github.com/repos/sjpadgett/ecqm-bundle-builder/zipball/bfd49442973fba45ac588abc1279126fcfe84cca",
+                    "reference": "bfd49442973fba45ac588abc1279126fcfe84cca"
                 }
             }
         }

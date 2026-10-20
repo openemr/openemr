@@ -7,7 +7,12 @@
  * Run with TZ=UTC: cql-execution reads the machine timezone where the PHP
  * port uses UTC (CqlDateTime::LOCAL_OFFSET).
  *
- * Usage: TZ=UTC node golden.js <ccdaservice/node_modules> <output directory> [seed] [scale]
+ * Usage: TZ=UTC node golden.js <node_modules> <output directory> [seed] [scale]
+ *
+ * The reference engine is not part of OpenEMR. Install the versions the
+ * fixtures were made with anywhere, e.g.
+ *   npm install --prefix /tmp/cqm-reference cqm-execution@4.4.3 cqm-models@4.3.2
+ * and pass /tmp/cqm-reference/node_modules as <node_modules>.
  *
  * Writes one file per group of operations, each small enough for the
  * repository's large-file check. A date/time is written compactly as

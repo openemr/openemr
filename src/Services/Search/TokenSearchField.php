@@ -40,7 +40,7 @@ class TokenSearchField extends BasicSearchField
         $this->setValues($values);
     }
 
-    public function hasCodeValue($code, $system = null)
+    public function hasCodeValue($code, $system = null): bool
     {
         $checkSystem = $system !== null;
         foreach ($this->getValues() as $tokenValue) {

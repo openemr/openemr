@@ -1,0 +1,87 @@
+# Compose stack for the SMART-launch smoke (openemr/openemr#14529).
+#
+# Modeled on ci/inferno/compose.yml: flex image + MariaDB + Selenium, with
+# the openemr source bind-mounted and `EMPTY=yes` so install happens via
+# install_configure() from ciLibrary.source during run.sh. Adds a second
+# bind mount for the SMART app files staged at ci/smart-launch/stage/ by
+# run.sh, and an Apache alias conf that serves the app's public/ at
+# /smart-questionnaire.
+#
+# Everything runs on one compose network so URLs are service aliases
+# (http(s)://openemr, http(s)://selenium:4444) — avoids the host/container
+# URL-alignment problem that would otherwise bite SMART launch when the
+# server-side app's PHP and the browser hit different URLs for OpenEMR.
+services:
+  mysql:
+    restart: always
+    image: mariadb:12.3.3@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
+    command:
+    - mariadbd
+    - --character-set-server=utf8mb4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+  openemr:
+    restart: always
+    image: openemr/openemr:flex-3.24-php-8.5@sha256:71f93832be5cf1d0c0d27a66bba6c6c92b9d732a64c31a908372f3845c8746bb
+    ports:
+    - 8080:80
+    - 8523:443
+    volumes:
+    - ../../:/var/www/localhost/htdocs/openemr
+    # Pinned-SHA extraction of oe-smart-questionnaire gets staged into
+    # ci/smart-launch/stage/app/ by run.sh. Mounted outside the openemr
+    # document root so Apache cannot accidentally serve the app's src/
+    # or var/clients.json (which holds the client_secret).
+    - ./stage/app:/opt/oe-smart-questionnaire/app
+    # Apache alias conf: Alias /smart-questionnaire → <app>/public.
+    # Flex image's httpd.conf has IncludeOptional /etc/apache2/conf.d/*.conf
+    # so the file is picked up at startup. zz- prefix sorts after openemr's
+    # own conf.d entries so our aliases take precedence.
+    - ./apache-alias.conf:/etc/apache2/conf.d/zz-smart-questionnaire.conf:ro
+    environment:
+      EMPTY: 'yes'
+      FORCE_NO_BUILD_MODE: 'yes'
+      OPENEMR_ENABLE_CI_PHP: '1'
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
+    depends_on:
+      mysql:
+        condition: service_healthy
+  # Selenium standalone with Chromium — the WebDriver endpoint the
+  # smart-launch PHPUnit test connects to via symfony/panther.
+  # No `profiles:` here (unlike ci/compose-shared-selenium) because we
+  # always want it up for this stack — the stack has no non-selenium
+  # test shape to care about.
+  selenium:
+    image: selenium/standalone-chromium:152.0.7977.82@sha256:08fd293648e126275782c616a61f4ee1d90cf413b1972ebc35dbd054d6789f55
+    environment:
+      SE_SCREEN_WIDTH: 1920
+      SE_SCREEN_HEIGHT: 1080
+      SE_SCREEN_DEPTH: 24
+      SE_START_XVFB: 'true'
+    volumes:
+    - /dev/shm:/dev/shm
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:4444/wd/hub/status
+      start_period: 30s
+      interval: 30s
+      timeout: 5s
+      retries: 3

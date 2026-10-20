@@ -205,6 +205,19 @@ class InsuranceCompanyServiceTest extends TestCase
     }
 
     #[Test]
+    public function testGetOneByIdReturnsJsonEncodableUuid(): void
+    {
+        $id = $this->insertAndTrack();
+
+        $result = $this->service->getOneById($id);
+
+        $this->assertIsArray($result);
+        $this->assertIsString($result['uuid']);
+        $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $result['uuid']);
+        $this->assertNotFalse(json_encode($result));
+    }
+
+    #[Test]
     public function testSearchReturnsInsuranceCompanyWithAddressJoin(): void
     {
         $id = $this->insertAndTrack();

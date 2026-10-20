@@ -797,7 +797,7 @@ similar), you may want a sandboxed environment that lets agents work against
 OpenEMR — each in its own git worktree with its own Docker stack — without
 exposing your host filesystem or host Docker daemon to the agent.
 
-The repository's [`CLAUDE.md`](CLAUDE.md) documents the universal rules every
+The repository's [`AGENTS.md`](AGENTS.md) documents the universal rules every
 agent environment must satisfy: required tools, the git directory layout, and
 the golden rules for worktree and stack lifecycle. Any environment that meets
 those rules will work.

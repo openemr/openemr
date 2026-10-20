@@ -73,6 +73,99 @@ class SafeIncludeResolverTest extends TestCase
         $this->assertFalse(SafeIncludeResolver::resolve($projectRoot, 'php://filter/resource=composer.json'));
     }
 
+    public function testResolveReturnsFalseForEdiSuffix(): void
+    {
+        $tmp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'openemr-sir-' . uniqid('', true);
+        mkdir($tmp);
+        try {
+            file_put_contents($tmp . '/payload.edi', "<?php echo 'ran'; ?>");
+            $this->assertFalse(SafeIncludeResolver::resolve($tmp, 'payload.edi'));
+        } finally {
+            @unlink($tmp . '/payload.edi');
+            @rmdir($tmp);
+        }
+    }
+
+    public function testResolveReturnsFalseForNoSuffix(): void
+    {
+        $tmp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'openemr-sir-' . uniqid('', true);
+        mkdir($tmp);
+        try {
+            file_put_contents($tmp . '/payload', "<?php echo 'ran'; ?>");
+            $this->assertFalse(SafeIncludeResolver::resolve($tmp, 'payload'));
+        } finally {
+            @unlink($tmp . '/payload');
+            @rmdir($tmp);
+        }
+    }
+
+    public function testResolveReturnsFalseForPhpInfixButDifferentSuffix(): void
+    {
+        $tmp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'openemr-sir-' . uniqid('', true);
+        mkdir($tmp);
+        try {
+            file_put_contents($tmp . '/report.php.txt', "<?php echo 'ran'; ?>");
+            $this->assertFalse(SafeIncludeResolver::resolve($tmp, 'report.php.txt'));
+        } finally {
+            @unlink($tmp . '/report.php.txt');
+            @rmdir($tmp);
+        }
+    }
+
+    public function testResolveAcceptsPhpSuffixCaseInsensitive(): void
+    {
+        $tmp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'openemr-sir-' . uniqid('', true);
+        mkdir($tmp);
+        try {
+            file_put_contents($tmp . '/report.PHP', "<?php echo 'ran'; ?>");
+            $resolved = SafeIncludeResolver::resolve($tmp, 'report.PHP');
+            $this->assertSame(realpath($tmp . '/report.PHP'), $resolved);
+        } finally {
+            @unlink($tmp . '/report.PHP');
+            @rmdir($tmp);
+        }
+    }
+
+    public function testResolveReturnsFalseForPhpSuffixWithTrailingSlash(): void
+    {
+        $projectRoot = dirname(__DIR__, 5);
+        $this->assertFalse(SafeIncludeResolver::resolve($projectRoot, 'src/Common/Filesystem/SafeIncludeResolver.php/'));
+    }
+
+    public function testResolveAcceptsNonPhpWhenSuffixCheckDisabled(): void
+    {
+        $projectRoot = dirname(__DIR__, 5);
+        $resolved = SafeIncludeResolver::resolve($projectRoot, 'composer.json', requirePhpSuffix: false);
+        $this->assertSame(realpath($projectRoot . '/composer.json'), $resolved);
+    }
+
+    public function testResolveReturnsFalseForTraversalEvenWhenSuffixCheckDisabled(): void
+    {
+        $projectRoot = dirname(__DIR__, 5);
+        $this->assertFalse(SafeIncludeResolver::resolve($projectRoot . '/src', '../composer.json', requirePhpSuffix: false));
+    }
+
+    public function testResolveReturnsFalseForPhpSymlinkTargetingNonPhp(): void
+    {
+        $tmp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'openemr-sir-' . uniqid('', true);
+        mkdir($tmp);
+        $target = $tmp . '/payload.edi';
+        $link = $tmp . '/legit.php';
+        file_put_contents($target, "<?php echo 'ran'; ?>");
+        try {
+            if (!@symlink($target, $link)) {
+                $this->markTestSkipped('Unable to create symlink in this environment.');
+            }
+            $this->assertFalse(SafeIncludeResolver::resolve($tmp, 'legit.php'));
+        } finally {
+            if (is_link($link)) {
+                unlink($link);
+            }
+            @unlink($target);
+            @rmdir($tmp);
+        }
+    }
+
     public function testResolveReturnsFalseForSymlinkPointingOutsideBaseDir(): void
     {
         $projectRoot = dirname(__DIR__, 5);

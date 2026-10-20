@@ -271,7 +271,7 @@ class eRxSOAP
      * @param  string  $process SOAP process to check against for elapsed TTL of current patient
      * @return bool True if TTL of current patient has elapsed for provided SOAP process, otherwise false
      */
-    public function elapsedTTL($process)
+    public function elapsedTTL($process): bool
     {
         $ttl = $this->getTTL($process);
         if (false === $ttl || 0 == $ttl) {

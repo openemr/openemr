@@ -14,6 +14,7 @@
 
 namespace ESign;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/ESign.php';
@@ -38,7 +39,7 @@ class Api
         return $this->configToJson($configuration);
     }
 
-    public function createFormESign($formId, $formDir, $encounterId)
+    public function createFormESign($formId, $formDir, $encounterId): ESign
     {
         $factory = new Form_Factory($formId, $formDir, $encounterId);
         $esign = $this->createESign($factory);
@@ -51,11 +52,32 @@ class Api
         return $this->configToJson($configuration);
     }
 
-    public function createEncounterESign($encounterId)
+    public function createEncounterESign($encounterId): ESign
     {
         $factory = new Encounter_Factory($encounterId);
         $esign = $this->createESign($factory);
         return $esign;
+    }
+
+    /**
+     * Whether a form counts as signed on the patient report: it has a
+     * signature of its own, or it is locked, which includes an encounter
+     * signature locking it ("Lock e-signed encounters"). The encounter is
+     * the one the form row belongs to.
+     */
+    public function isFormSignedForReport(int $formId, string $formDir): bool
+    {
+        $encounter = QueryUtils::fetchSingleValue(
+            'SELECT `encounter` FROM `forms` WHERE `id` = ? AND `formdir` = ? AND `deleted` = 0',
+            'encounter',
+            [$formId, $formDir]
+        );
+        $encounterId = filter_var($encounter, FILTER_VALIDATE_INT);
+        if (!is_int($encounterId)) {
+            return false;
+        }
+        $esign = $this->createFormESign($formId, $formDir, $encounterId);
+        return $esign->isSigned() || $esign->isLocked();
     }
 
     public function createEncounterSignable($encounterId): Encounter_Signable
