@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Common\Database;
+namespace OpenEMR\Tests\Services\Database;
 
 use OpenEMR\Common\Database\LayoutColumnUpdate;
 use OpenEMR\Common\Database\SqlQueryException;
