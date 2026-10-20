@@ -432,6 +432,18 @@ function getContent()
                         echo "</div>\n"; // end of billing DIV
                     } elseif ($val == "medications") {
                         if (AclMain::aclCheckCore('patients', 'med')) {
+                            $squadPatient = [];
+                            foreach (getPatientData($pid, "squad") as $column => $value) {
+                                if (!is_string($column)) {
+                                    continue;
+                                }
+                                $squadPatient[$column] = $value;
+                            }
+                            $squadValue = $squadPatient['squad'] ?? null;
+                            $squad = is_string($squadValue) ? $squadValue : '';
+                            if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
+                                AccessDeniedHelper::deny('Not authorized for squad: ' . $squad);
+                            }
                             echo "<hr />\n<div class='text medications'>\n";
                             echo "<h4>" . text(xl('Medications')) . ":</h4>\n";
                             $medListService = new ActiveMedicationListService();
