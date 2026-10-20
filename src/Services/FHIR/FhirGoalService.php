@@ -16,6 +16,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRGoal;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDate;
@@ -685,7 +686,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         return str_contains($stored, ':') ? $stored : null;
     }
 
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRGoal)) {
             throw new \BadMethodCallException("Data record should be correct instance class");

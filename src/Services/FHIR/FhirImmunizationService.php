@@ -4,6 +4,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRImmunization;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDate;
@@ -440,7 +441,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
      * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
-    protected function insertOpenEMRRecord($openEmrRecord)
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
         if (!is_array($openEmrRecord)) {
             throw new \InvalidArgumentException('Expected a parsed OpenEMR Immunization record array');
@@ -456,7 +457,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
      * @param array $updatedOpenEMRRecord The updated OpenEMR record
      * @return ProcessingResult
      */
-    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         // The patient the caller asserts has to be the immunization's actual owner. Without this
         // the resolved patient_id would simply be written, moving the record to another chart.
@@ -490,7 +491,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         return $this->immunizationService->getAll($openEMRSearchParameters, true);
     }
 
-    public function createProvenanceResource($dataRecord = [], $encode = false)
+    public function createProvenanceResource($dataRecord = []): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRImmunization)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -502,11 +503,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             $author = $performer->getActor();
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $author);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
-        }
+        return $fhirProvenance;
     }
 
     /**

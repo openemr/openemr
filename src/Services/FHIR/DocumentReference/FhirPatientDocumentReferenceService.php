@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR\DocumentReference;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
@@ -234,7 +235,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase implements IPa
         return $docReference;
     }
 
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRDocumentReference)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -247,10 +248,6 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase implements IPa
             $author = reset($authors); // grab the first one, as we only populate one anyways.
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $author);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
-        }
+        return $fhirProvenance;
     }
 }
