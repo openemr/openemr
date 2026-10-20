@@ -21,7 +21,6 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -41,14 +40,13 @@ $facilityService = new FacilityService();
 $alertmsg = '';
 
 /**
- * Send the facility save dialog its status and sentence.
+ * Send the facility save dialog its sentence.
  *
- * The dialog alerts the sentence, then closes only when status is saved.
- * The encoded body is not HTML.
+ * The dialog alerts the sentence, then closes. The encoded body is not HTML.
  */
-$echoFacilitySaveDialogResult = function (bool $saved, string $sentence): void {
+$echoFacilitySaveDialogResult = function (string $sentence): void {
     header('Content-Type: application/json; charset=utf-8');
-    echo FacilityService::facilitySaveDialogBody($saved, $sentence);
+    echo FacilityService::facilitySaveDialogBody($sentence);
 };
 
 $phoneCountryCode = OEGlobalsBag::getInstance()->getInt('phone_country_code');
@@ -108,9 +106,7 @@ foreach ($columns as $c => $v) {
 
 /*      Inserting New facility                  */
 if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {
-    QueryUtils::inTransaction(function () use ($facilityService, $values): void {
-        $facilityService->insertFacility($values);
-    });
+    $facilityService->insertFacility($values);
     // The save dialog decodes this body and passes the sentence to alert().
     $sentence = $facilityPostalSentence(
         $values['postal_code'] ?? '',
@@ -118,7 +114,7 @@ if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST
         ($values['service_location'] ?? '') === '1',
         $values['country_code'] ?? ''
     );
-    $echoFacilitySaveDialogResult(true, $sentence);
+    $echoFacilitySaveDialogResult($sentence);
     exit(); // sjp 12/20/17 for ajax save
 }
 
@@ -126,28 +122,19 @@ if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST
 if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility") {
     // Since it's an edit, add in the facility ID
     $values["id"] = trim($_POST['fid'] ?? '');
-    // The facility row and the linked user names commit together.
-    // A missing id is not saved. An unchanged row can still exist.
-    $saved = QueryUtils::inTransaction(function () use ($facilityService, $values): bool {
-        if (!$facilityService->facilityIdStored($values["id"])) {
-            return false;
-        }
-        $facilityService->updateFacility($values);
-        $facilityService->updateUsersFacility($values['name'], $values['id']);
+    $facilityService->updateFacility($values);
 
-        return true;
-    });
-    // The save dialog decodes this body and passes the sentence to alert().
-    $sentence = '';
-    if ($saved) {
-        $sentence = $facilityPostalSentence(
-            $values['postal_code'] ?? '',
-            ($values['billing_location'] ?? '') === '1',
-            ($values['service_location'] ?? '') === '1',
-            $values['country_code'] ?? ''
-        );
-    }
-    $echoFacilitySaveDialogResult($saved, $sentence);
+    // Update facility name for all users with this facility.
+    // This is necessary because some provider based code uses facility name for lookups instead of facility id.
+    //
+    $facilityService->updateUsersFacility($values['name'], $values['id']);
+    $sentence = $facilityPostalSentence(
+        $values['postal_code'] ?? '',
+        ($values['billing_location'] ?? '') === '1',
+        ($values['service_location'] ?? '') === '1',
+        $values['country_code'] ?? ''
+    );
+    $echoFacilitySaveDialogResult($sentence);
     exit(); // sjp 12/20/17 for ajax save
 }
 
