@@ -29,7 +29,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -228,16 +227,25 @@ class PatientTransactionApiTest extends TestCase
         // transactions. The correct contract for a collection endpoint
         // is 200 with `data: []` — mirrors PR #14605 for
         // AppointmentRestController and PR #14681 for
-        // ListRestController. Uses a fresh FixtureManager patient so the
-        // "no transactions" state is deterministic regardless of
-        // demo-data variance.
-        $fixtureManager = new FixtureManager();
-        $fixtureManager->installPatientFixtures();
+        // ListRestController.
+        //
+        // Insert and remove a single patient under a test-unique pubpid
+        // (not the shared `test-fixture-` prefix) so this test's cleanup
+        // can't touch patients another test or crashed fixture left
+        // behind — rabbit flagged that
+        // `FixtureManager::removePatientFixtures()` sweeps all
+        // `test-fixture-%` rows.
+        $uniquePubpid = 'test-txn-empty-' . uniqid();
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO patient_data (pubpid, fname, lname, DOB) "
+            . "VALUES (?, 'TestFixture', 'EmptyTxn', '1980-01-01')",
+            [$uniquePubpid]
+        );
         try {
             $freshPid = QueryUtils::fetchSingleValue(
-                "SELECT pid FROM patient_data WHERE pubpid LIKE ? ORDER BY pid DESC LIMIT 1",
+                "SELECT pid FROM patient_data WHERE pubpid = ?",
                 'pid',
-                [FixtureManager::PATIENT_FIXTURE_PUBPID_PREFIX . "%"]
+                [$uniquePubpid]
             );
             $this->assertIsNumeric($freshPid);
 
@@ -255,7 +263,10 @@ class PatientTransactionApiTest extends TestCase
             $this->assertSame([], $body['validationErrors']);
             $this->assertSame([], $body['internalErrors']);
         } finally {
-            $fixtureManager->removePatientFixtures();
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM patient_data WHERE pubpid = ?",
+                [$uniquePubpid]
+            );
         }
     }
 }
