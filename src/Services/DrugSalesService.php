@@ -748,17 +748,22 @@ class DrugSalesService extends BaseService
                 "SET di.on_hand = di.on_hand + s.qty",
                 [$prescriptionId]
             );
-            // A lot that sellDrug() auto-destroyed because one of these sales
-            // emptied it has its stock back now, so un-destroy it. The
-            // destroy_notes marker sellDrug() writes identifies exactly those
-            // lots; lots destroyed for any other reason are left alone.
+            // A lot that sellDrug() auto-destroyed because a sale emptied it
+            // may have stock again now, so un-destroy it. The sale that
+            // emptied the lot need not belong to this prescription: another
+            // prescription's sale may have taken the last units, and the
+            // restored ones are just as dispensable. The destroy_notes marker
+            // sellDrug() writes ("sale_id = N") identifies sale-created
+            // destructions; lots destroyed manually keep their marker.
             QueryUtils::sqlStatementThrowException(
                 "UPDATE drug_inventory AS di " .
-                "JOIN drug_sales AS ds ON ds.inventory_id = di.inventory_id " .
+                "JOIN (SELECT DISTINCT inventory_id FROM drug_sales " .
+                "WHERE prescription_id = ? AND inventory_id != 0) AS s " .
+                "ON s.inventory_id = di.inventory_id " .
                 "SET di.destroy_date = NULL, di.destroy_method = NULL, " .
                 "di.destroy_witness = NULL, di.destroy_notes = NULL " .
-                "WHERE ds.prescription_id = ? AND di.destroy_date IS NOT NULL " .
-                "AND di.destroy_notes = CONCAT('sale_id = ', ds.sale_id)",
+                "WHERE di.destroy_date IS NOT NULL AND di.on_hand > 0 " .
+                "AND di.destroy_notes LIKE 'sale_id = %'",
                 [$prescriptionId]
             );
         }

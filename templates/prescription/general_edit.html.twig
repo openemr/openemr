@@ -552,9 +552,13 @@
 
     // Repopulate the lot dropdown when the selected in-house drug changes.
     // The first lot returned is the one sellDrug() would auto-pick (default
-    // warehouse, nearest expiration), so we preselect it.
+    // warehouse, nearest expiration), so we preselect it. Each request gets
+    // a sequence number so a slow response for a drug the user has already
+    // moved away from is discarded instead of selecting one of its lots.
+    var lotRequestSeq = 0;
     function loadLotsForDrug(drugId) {
         var $sel = $('#dispense_inventory_id');
+        var requestSeq = ++lotRequestSeq;
         $('#off_site_warning').hide();
         $('#no_default_warehouse_warning').hide();
         $('#strict_mode_notice').hide();
@@ -569,6 +573,9 @@
             csrf_token_form: {{ CSRF_TOKEN_FORM|js_escape }},
             drug_id: drugId
         }).done(function(data) {
+            if (requestSeq !== lotRequestSeq) {
+                return; // a newer request has superseded this one
+            }
             $sel.empty();
             var lots = (data && data.lots) ? data.lots : [];
             lotPickerHasDefaultWarehouse = !!(data && data.has_default_warehouse);
@@ -629,6 +636,9 @@
             $sel.val(firstSelectableId !== null ? firstSelectableId : lots[0].inventory_id);
             updateOffSiteWarning();
         }).fail(function() {
+            if (requestSeq !== lotRequestSeq) {
+                return;
+            }
             $sel.empty().append($('<option>').val('').text({{'Failed to load lots'|xlj}}));
         });
     }
