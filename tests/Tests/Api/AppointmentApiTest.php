@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Api;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Tests\Fixtures\AppointmentFixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -128,6 +129,27 @@ class AppointmentApiTest extends TestCase
         $dependencies = $this->fixtureManager->installDependencies();
         $pid = $dependencies['pid'];
 
+        // Create a second appointment for a different fixture patient so
+        // the test can verify the pid filter actually filters — without
+        // this, a regression that drops the WHERE clause would still
+        // see the fixture appointment in the response and pass.
+        $otherPatient = QueryUtils::querySingleRow(
+            "SELECT pid FROM patient_data WHERE pubpid LIKE ? AND pid <> ? LIMIT 1",
+            [AppointmentFixtureManager::FIXTURE_PREFIX . "%", $pid]
+        );
+        $this->assertIsArray($otherPatient);
+        $this->assertIsNumeric($otherPatient['pid']);
+        $otherPid = (int) $otherPatient['pid'];
+        $otherAppointmentResponse = $this->testClient->post(
+            self::PATIENT_APPOINTMENT_API_ENDPOINT . "/{$otherPid}/appointment",
+            $this->fixtureManager->getSecondAppointmentFixture((int) $dependencies['facility_id'])
+        );
+        $this->assertEquals(200, $otherAppointmentResponse->getStatusCode());
+        $otherAppointmentBody = json_decode((string) $otherAppointmentResponse->getBody(), true);
+        $this->assertIsArray($otherAppointmentBody);
+        $this->assertIsNumeric($otherAppointmentBody['id'] ?? null);
+        $otherAppointmentEid = (int) $otherAppointmentBody['id'];
+
         $actualResponse = $this->testClient->get(
             self::PATIENT_APPOINTMENT_API_ENDPOINT . "/{$pid}/appointment"
         );
@@ -144,6 +166,11 @@ class AppointmentApiTest extends TestCase
             $responseBody
         );
         $this->assertContains($this->appointmentEid, $eids);
+        $this->assertNotContains(
+            $otherAppointmentEid,
+            $eids,
+            'the pid-scoped route must not surface another patient\'s appointment'
+        );
     }
 
     #[Test]
@@ -152,6 +179,10 @@ class AppointmentApiTest extends TestCase
         // Patient-compartment single-GET. The route handler delegates to
         // the same AppointmentRestController::getOne as the top-level
         // route, so the response shape matches testGetAppointmentById.
+        // The handler currently uses $eid alone — a wrong-pid path
+        // segment with a correct $eid returns the same row. A
+        // pid-scoping tightening is tracked separately; this test
+        // locks only the happy-path shape.
         $dependencies = $this->fixtureManager->installDependencies();
         $pid = $dependencies['pid'];
 
