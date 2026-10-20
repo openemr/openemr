@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -217,5 +218,44 @@ class PatientTransactionApiTest extends TestCase
             }
         }
         $this->assertIsArray($match, 'updated transaction should surface the new body text in the list');
+    }
+
+    #[Test]
+    public function testGetAllForPatientWithNoTransactionsReturnsEmptyList(): void
+    {
+        // Regression gate on the empty-list-as-404 fix. Pre-fix,
+        // GetPatientTransactions returned 404 whenever a patient had no
+        // transactions. The correct contract for a collection endpoint
+        // is 200 with `data: []` — mirrors PR #14605 for
+        // AppointmentRestController and PR #14681 for
+        // ListRestController. Uses a fresh FixtureManager patient so the
+        // "no transactions" state is deterministic regardless of
+        // demo-data variance.
+        $fixtureManager = new FixtureManager();
+        $fixtureManager->installPatientFixtures();
+        try {
+            $freshPid = QueryUtils::fetchSingleValue(
+                "SELECT pid FROM patient_data WHERE pubpid LIKE ? ORDER BY pid DESC LIMIT 1",
+                'pid',
+                [FixtureManager::PATIENT_FIXTURE_PUBPID_PREFIX . "%"]
+            );
+            $this->assertIsNumeric($freshPid);
+
+            $response = $this->testClient->get("/apis/default/api/patient/" . (int) $freshPid . "/transaction");
+            $this->assertEquals(
+                200,
+                $response->getStatusCode(),
+                'GET on transaction-less patient must return 200 with empty data, not 404'
+            );
+
+            $body = json_decode((string) $response->getBody(), true);
+            $this->assertIsArray($body);
+            $this->assertArrayHasKey('data', $body);
+            $this->assertSame([], $body['data'], 'empty-list response must have data: []');
+            $this->assertSame([], $body['validationErrors']);
+            $this->assertSame([], $body['internalErrors']);
+        } finally {
+            $fixtureManager->removePatientFixtures();
+        }
     }
 }
