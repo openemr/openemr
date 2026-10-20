@@ -456,7 +456,7 @@ $(function () {
                                         {{prescription.provider.get_name_display()|text}}&nbsp;
                                         </td>
                                         <td>
-                                            <a href="#" id="deleteDrug" class="btn btn-danger btn-sm btn-delete" data-prescription-id="{{ prescription.id|attr }}" data-dispensation-count="{{ prescription.get_dispensation_count()|attr }}">{{'Delete'|xlt}}</a>
+                                            <a href="#" class="btn btn-danger btn-sm btn-delete" data-prescription-id="{{ prescription.id|attr }}" data-dispensation-count="{{ prescription.get_dispensation_count()|attr }}">{{'Delete'|xlt}}</a>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -572,7 +572,8 @@ $(function () {
     $(".onescript").on("mouseout", function() {
         $(this).children().toggleClass("highlight");
     });
-    $(".btn-delete").on("click", function() {
+    $(".btn-delete").on("click", function(evt) {
+        evt.preventDefault();
         deleteDrug(this.dataset['prescriptionId'], this.dataset['dispensationCount']);
     });
     $(".quitButton").on("click", function(evt) {
