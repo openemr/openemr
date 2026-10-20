@@ -242,6 +242,9 @@ class SearchFieldStatementResolver
         $modifier = $searchField->getModifier(); // we aren't going to deal with modifiers just yet
         $values = $searchField->getValues();
         $clauses = [];
+        if ($modifier === SearchModifier::MISSING && count($values) !== 1) {
+            throw new SearchFieldException($field, "the missing modifier takes one value, true or false");
+        }
 
         foreach ($values as $value) {
             /** @var TokenSearchValue $value  */
@@ -330,6 +333,9 @@ class SearchFieldStatementResolver
         $searchFragment = new SearchQueryFragment();
         $modifier = $searchField->getModifier();
         $values = $searchField->getValues();
+        if ($modifier === SearchModifier::MISSING && count($values) !== 1) {
+            throw new SearchFieldException($field, "the missing modifier takes one value, true or false");
+        }
 
         foreach ($values as $value) {
             if ($modifier === SearchModifier::MISSING) {

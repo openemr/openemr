@@ -26,7 +26,10 @@ use PHPUnit\Framework\TestCase;
 
 class FHIRSearchFieldFactoryMissingTest extends TestCase
 {
-    private function whereFor(string $parameter, string $value): string
+    /**
+     * @param string|list<string> $value
+     */
+    private function whereFor(string $parameter, string|array $value): string
     {
         $factory = new FHIRSearchFieldFactory([
             'gender' => new FhirSearchParameterDefinition('gender', SearchFieldType::TOKEN, ['sex']),
@@ -71,10 +74,29 @@ class FHIRSearchFieldFactoryMissingTest extends TestCase
         $this->assertSame($expectedWhere, $this->whereFor($parameter, $value));
     }
 
+    /**
+     * @return array<string, array{string, string|list<string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function invalidMissingProvider(): array
+    {
+        return [
+            'not true or false' => ['gender:missing', 'False'],
+            'two values' => ['gender:missing', 'true,false'],
+            'two values, several columns' => ['name:missing', 'true,false'],
+            'a repeated parameter, several columns' => ['name:missing', ['true', 'false']],
+        ];
+    }
+
+    /**
+     * @param string|list<string> $value
+     */
     #[Test]
-    public function testMissingModifierRejectsOtherValues(): void
+    #[DataProvider('invalidMissingProvider')]
+    public function testMissingModifierRejectsOtherValues(string $parameter, string|array $value): void
     {
         $this->expectException(SearchFieldException::class);
-        $this->whereFor('gender:missing', 'False');
+        $this->whereFor($parameter, $value);
     }
 }
