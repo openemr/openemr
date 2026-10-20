@@ -1420,6 +1420,22 @@ Both 4d and 4e are independent of Phase 7d, Phase 3.6, and each
 other. Ordering: after 7d + 3.6 finish, pick whichever slice-1
 lands cleanest given whoever picks it up.
 
+**4h — SHIPPED 2026-10-19 (#14707)**. Post-upgrade DB-state assertion
+in `tests/Acceptance/bin/upgrade-package.sh`: after `sql_upgrade.php`
+completes, assert Clinicians hold exactly one `write` ACL carrying
+both `patients/med` and `patients/appt` — the merged union of a
+duplicate pair that had sat on every install since 8.2.0's
+openemr/openemr#8087. Guarded by a `test -f
+.../src/Common/Acl/DuplicateAclMerger.php` probe on the TO package,
+so targets predating the merger (any shipped tarball ≤ 8.4.1) skip
+cleanly without a false-negative. Second shell-level post-upgrade
+assertion since #13635's version-display DB check; follows the same
+"shell SQL + explicit `::error::` prefix + skip-when-feature-absent"
+shape. See `release-mechanism-gaps.md` G52 for the underlying
+discovery (the 8.5.0 `acl_upgrade.php` ERROR line that was failing
+`wizard-upgrade` acceptance cells on every `tools/release/**` PR,
+e.g. openemr/openemr#14487).
+
 Original Phase 4 scope preserved below for reference:
 
 - Add ApiSmokeTest, FhirSmokeTest, E2eCriticalPathTest (last one
