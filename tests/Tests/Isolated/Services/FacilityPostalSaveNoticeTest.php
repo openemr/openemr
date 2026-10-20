@@ -12,7 +12,11 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Services;
+namespace OpenEMR\Tests\Isolated\Services;
+
+if (!defined('OPENEMR_STATIC_ANALYSIS')) {
+    define('OPENEMR_STATIC_ANALYSIS', true);
+}
 
 use OpenEMR\Services\FacilityService;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -27,9 +31,12 @@ class FacilityPostalSaveNoticeTest extends TestCase
      */
     public static function noticeProvider(): array
     {
-        $billing = FacilityService::FACILITY_SAVED_BILLING_POSTAL;
-        $service = FacilityService::FACILITY_SAVED_SERVICE_POSTAL;
-        $both = FacilityService::FACILITY_SAVED_BOTH_POSTAL;
+        $billing = 'This billing facility was saved. The postal code is not 9 digits, '
+            . 'so a claim billed from this facility can be rejected.';
+        $service = 'This service facility was saved. The postal code is not 9 digits, '
+            . 'so a claim that uses this service location can be rejected.';
+        $both = 'This facility was saved as a billing and service location. '
+            . 'The postal code is not 9 digits, so a claim that uses it can be rejected.';
 
         return [
             'billing five digits' => ['12345', true, false, $billing, '', 1],
