@@ -692,7 +692,7 @@ class EventAuditLogger implements AuditLoggerInterface
         $ccdaDocId = null,
         $user_notes = '',
         $api = null
-    ) {
+    ): ?int {
         if ($patientId == "NULL") {
             $patientId = null;
         }
@@ -731,7 +731,7 @@ class EventAuditLogger implements AuditLoggerInterface
             $api,
         );
 
-        $this->sink->record($auditEvent);
+        return $this->sink->record($auditEvent);
     }
 
     /**

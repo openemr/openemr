@@ -108,6 +108,35 @@ CREATE TABLE `api_log` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `api_write_audit`
+--
+
+CREATE TABLE `api_write_audit` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `created_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `client_id` varchar(80) NOT NULL,
+  `user_id` bigint(20) DEFAULT NULL,
+  `patient_id` bigint(20) DEFAULT NULL,
+  `resource_type` varchar(80) NOT NULL,
+  `resource_uuid` varchar(80) NOT NULL,
+  `action` enum('create','update','delete') NOT NULL,
+  `scope` text NOT NULL,
+  `token_id` varchar(80) NOT NULL,
+  `before_snapshot` longtext DEFAULT NULL,
+  `after_snapshot` longtext DEFAULT NULL,
+  `api_log_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_api_write_audit_client_time` (`client_id`, `created_time`),
+  KEY `idx_api_write_audit_user_time` (`user_id`, `created_time`),
+  KEY `idx_api_write_audit_patient_time` (`patient_id`, `created_time`),
+  KEY `idx_api_write_audit_resource` (`resource_type`, `resource_uuid`),
+  KEY `idx_api_write_audit_token` (`token_id`),
+  KEY `idx_api_write_audit_api_log` (`api_log_id`)
+) ENGINE = InnoDB;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `api_token`
 --
 
