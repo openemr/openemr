@@ -12,6 +12,7 @@
 
 require_once "../interface/globals.php";
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -71,8 +72,9 @@ if ((!empty($id)) && ($id > 0)) {
      */
     $restoreInventoryRaw = filter_input(INPUT_POST, 'restore_inventory');
     $restoreInventory = $restoreInventoryRaw !== null && $restoreInventoryRaw !== '' && $restoreInventoryRaw !== '0';
+    $reversalFailed = false;
     try {
-        $reversal = (new DrugSalesService())->reverseSalesForPrescription((int)$id, $restoreInventory);
+        $reversal = (new DrugSalesService())->reverseSalesForPrescription($id, $restoreInventory);
         if ($reversal['sales_deleted'] > 0) {
             $auditDetail = sprintf(
                 'Reversed %d sale(s) for deleted prescription %d (inventory %s, %s units)',
@@ -84,11 +86,15 @@ if ((!empty($id)) && ($id > 0)) {
             $pidForAudit = isset($pid) && is_numeric($pid) ? (int)$pid : 0;
             EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, $auditDetail, $pidForAudit);
         }
-    } catch (\Throwable $e) {
-        echo 'Caught exception ', text($e->getMessage()), "\n";
-        if ($e->getMessage()) {
-            exit;
-        }
+    } catch (\RuntimeException $e) {
+        ServiceContainer::getLogger()->error('Could not reverse drug sales for deleted prescription', ['prescription_id' => $id, 'exception' => $e]);
+        $reversalFailed = true;
+    }
+    if ($reversalFailed) {
+        // Stop before the prescription row is deleted so sales and
+        // inventory stay consistent with the prescription that still exists.
+        echo xlt('The dispensed sales for this prescription could not be reversed. The prescription was not deleted.');
+        exit;
     }
 
     /**
