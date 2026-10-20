@@ -48,7 +48,12 @@ final class BatchFilePublisher
         // Claim the name before any bytes are written. rename() would replace
         // a file created by another publisher between the existence check and
         // the rename, and a later failure would delete that file.
-        if (!self::writeMarker($marker) || !self::syncDirectory($directory, $filename . '.publishing')) {
+        // A failed exclusive open means another publisher owns the marker.
+        // writeMarker() removes a marker only when this run created it.
+        if (!self::writeMarker($marker)) {
+            return false;
+        }
+        if (!self::syncDirectory($directory, $filename . '.publishing')) {
             self::remove($marker);
 
             return false;
@@ -313,7 +318,8 @@ final class BatchFilePublisher
             return false;
         }
         // x fails when the marker already exists, so two publishers cannot pass.
-        $handle = fopen($path, 'xb');
+        // The warning is expected when this run loses that race.
+        $handle = @fopen($path, 'xb');
         if ($handle === false) {
             return false;
         }
