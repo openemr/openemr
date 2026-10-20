@@ -164,7 +164,7 @@ $(function () {
                             <th scope="col"><?php echo xlt('Name'); ?></th>
                             <th scope="col"><?php echo xlt('Tax ID'); ?></th>
                             <th scope="col"><?php echo xlt('NPI'); ?></th>
-                            <th scope="col"><?php echo xlt('Billing Address'); ?></th>
+                            <th scope="col"><?php echo xlt('Physical Address'); ?></th>
                             <th scope="col"><?php echo xlt('Mailing Address'); ?></th>
                             <th scope="col"><?php echo xlt('Phone'); ?></th>
                         </tr>

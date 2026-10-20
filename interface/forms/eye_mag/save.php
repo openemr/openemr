@@ -35,6 +35,7 @@ use Mpdf\Mpdf;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\FeeSheetChargeLookup;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
@@ -42,6 +43,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\CopyMode;
+use OpenEMR\Forms\EyeMag\FamilyHistory;
 use OpenEMR\Forms\EyeMag\PmsfhPanel;
 use OpenEMR\Forms\EyeMag\SqlFragment;
 use OpenEMR\Forms\EyeMag\Zone;
@@ -635,24 +637,16 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 send_json_values($PMSFH);
                 exit;
             } elseif ($form_type == 'FH') {
-                $query = "UPDATE history_data set
-                relatives_cancer=?,
-                relatives_diabetes=?,
-                relatives_high_blood_pressure=?,
-                relatives_heart_problems=?,
-                relatives_stroke=?,
-                relatives_epilepsy=?,
-                relatives_mental_illness=?,
-                relatives_suicide=?,
-                usertext11=?,
-                usertext12=?,
-                usertext13=?,
-                usertext14=?,
-                usertext15=?,
-                usertext16=?,
-                usertext17=?,
-                usertext18=? where pid=?";
-                $resFH = sqlStatement($query, [$_REQUEST['relatives_cancer'], $_REQUEST['relatives_diabetes'], $_REQUEST['relatives_high_blood_pressure'], $_REQUEST['relatives_heart_problems'], $_REQUEST['relatives_stroke'], $_REQUEST['relatives_epilepsy'], $_REQUEST['relatives_mental_illness'], $_REQUEST['relatives_suicide'], $_REQUEST['usertext11'], $_REQUEST['usertext12'], $_REQUEST['usertext13'], $_REQUEST['usertext14'], $_REQUEST['usertext15'], $_REQUEST['usertext16'], $_REQUEST['usertext17'], $_REQUEST['usertext18'], $pid]);
+                // Write only the family history columns the panel posted; the
+                // ones it has no field for (mental illness, suicide) keep
+                // whatever the History screen holds.
+                $familyHistory = FamilyHistory::postedColumns($_REQUEST);
+                if ($familyHistory !== []) {
+                    QueryUtils::sqlStatementThrowException(
+                        FamilyHistory::updateSql(),
+                        [...FamilyHistory::updateValues($familyHistory), $pid]
+                    );
+                }
                 $PMSFH = build_PMSFH($pid);
                 send_json_values($PMSFH);
                 exit;
@@ -865,26 +859,23 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $dups = [];
         $ndc_info = '';
         foreach ($CODING as $item) { //need toremove duplicate codes
+            if (!is_array($item)) {
+                continue;
+            }
             if (($dups[$item["code"]] ?? '') == '1') {
                 continue;
             }
 
             $dups[$item["code"]] = "1";
-            $sql = "SELECT codes.*, prices.pr_price FROM codes " .
-                "LEFT OUTER JOIN patient_data ON patient_data.pid = ? " .
-                "LEFT OUTER JOIN prices ON prices.pr_id = codes.id AND " .
-                "prices.pr_selector = '' AND " .
-                "prices.pr_level = patient_data.pricelevel " .
-                "WHERE code =?" .
-                " LIMIT 1";
-            $result = sqlStatement($sql, [$pid, $item['code']]);
-            while ($res = sqlFetchArray($result)) {
-                $item["codedesc"] = $res["code_text"];// eg. = "NP EYE intermediate exam"
-                if (!$item["modifier"]) {
-                    $modifier = $res["modifier"];
-                }
-                $item["units"] = $res["units"];
-                $item["fee"] = $res["pr_price"];
+            // Same code row and price the fee sheet would use for this code.
+            $codeType = is_string($item['codetype'] ?? null) ? $item['codetype'] : '';
+            $code = is_string($item['code'] ?? null) ? $item['code'] : '';
+            $patientId = filter_var($pid, FILTER_VALIDATE_INT);
+            $charge = is_int($patientId) ? (new FeeSheetChargeLookup())->find($codeType, $code, $patientId) : null;
+            if ($charge !== null) {
+                $item["codedesc"] = $charge['code_text'];// eg. = "NP EYE intermediate exam"
+                $item["units"] = $charge['units'];
+                $item["fee"] = $charge['fee'];
             }
             $billed = "0";
             $item["justify"] .= ":";

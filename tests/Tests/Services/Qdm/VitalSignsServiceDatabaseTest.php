@@ -21,6 +21,7 @@ use OpenEMR\Services\Qdm\QdmRequestOne;
 use OpenEMR\Services\Qdm\QdmRequestSome;
 use OpenEMR\Services\Qdm\Services\PhysicalExamService;
 use OpenEMR\Services\Qdm\Services\VitalSignsService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class VitalSignsServiceDatabaseTest extends TestCase
@@ -49,9 +50,53 @@ class VitalSignsServiceDatabaseTest extends TestCase
         $this->vitals(self::OTHER_PID, '2026-03-02 09:00:00', ['bps' => '150', 'bpd' => '95']);
 
         $rows = $this->read(new QdmRequestOne((string)self::PID));
-        $this->assertSame([[self::PID, 'LOINC:8480-6', 128.0], [self::PID, 'LOINC:8462-4', 82.0]], $rows);
+        $this->assertSame([[self::PID, 'LOINC:8462-4', 82.0], [self::PID, 'LOINC:8480-6', 128.0]], $rows);
         $both = $this->read(new QdmRequestSome([self::PID, self::OTHER_PID]));
         $this->assertCount(4, $both);
+    }
+
+    public function testABloodPressureTypedWithSpacesIsStillANumber(): void
+    {
+        // The Vitals form keeps blood pressure as typed. PHP's is_numeric() takes "128 ", so the form
+        // accepts it, and it is still a reading; "128abc" is not.
+        $this->vitals(self::PID, '2026-03-02 09:00:00', ['bps' => '128 ', 'bpd' => ' 82']);
+        $this->vitals(self::PID, '2026-03-09 09:00:00', ['bps' => '128abc', 'bpd' => '80']);
+
+        $this->assertSame(
+            [[self::PID, 'LOINC:8462-4', 80.0], [self::PID, 'LOINC:8462-4', 82.0], [self::PID, 'LOINC:8480-6', 128.0]],
+            $this->read(new QdmRequestOne((string)self::PID))
+        );
+        $values = $this->values(new QdmRequestOne((string)self::PID));
+        $this->assertSame(['80', '82', '128'], $values, 'read without the spaces');
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function notABloodPressure(): iterable
+    {
+        // Each is a number to PHP's is_numeric() or to MySQL, but not digits with an optional
+        // decimal part. Blank stands for empty too: TRIM makes them the same value.
+        yield 'a sign' => ['+128'];
+        yield 'an exponent' => ['1e2'];
+        yield 'a trailing decimal point' => ['128.'];
+        yield 'blank' => ['   '];
+    }
+
+    #[DataProvider('notABloodPressure')]
+    public function testOnlyDigitsWithAnOptionalDecimalPartAreRead(string $bps): void
+    {
+        $this->vitals(self::PID, '2026-03-02 09:00:00', ['bps' => $bps]);
+
+        $this->assertSame([], $this->read(new QdmRequestOne((string)self::PID)));
+    }
+
+    public function testAnImportedExamWithSpacesStillMatchesItsVitalsCopy(): void
+    {
+        // PhysicalExamService reads an exam of "128 " as 128, so its Vitals copy is the same reading
+        // and is left to it, as for "128".
+        $this->observation(self::PID, '2026-03-02 09:00:00', '8480-6', '128 ', 'mm[Hg]');
+        $this->vitals(self::PID, '2026-03-02 09:00:00', ['bps' => '128']);
+
+        $this->assertSame([], $this->read(new QdmRequestOne((string)self::PID)));
     }
 
     public function testAVitalsFormThatWasDeletedIsNotRead(): void
@@ -111,7 +156,7 @@ class VitalSignsServiceDatabaseTest extends TestCase
         $this->assertSame([[self::PID, 'LOINC:8480-6', 128.0]], $this->read(new QdmRequestOne((string)self::PID)));
     }
 
-    /** @return list<array{int, string, float}> pid, code and value of each vital read, in the query's order */
+    /** @return list<array{int, string, float}> pid, code and value of each vital read, sorted: the query's UNION ALL has no order */
     private function read(QdmRequestOne|QdmRequestSome $request): array
     {
         $result = $this->service(VitalSignsService::class, $request)->executeQuery();
@@ -120,6 +165,7 @@ class VitalSignsServiceDatabaseTest extends TestCase
         while (is_array($row = QueryUtils::fetchArrayFromResultSet($result))) {
             $rows[] = [(int)self::number($row['pid']), self::text($row['code']), (float)self::number($row['value'])];
         }
+        sort($rows);
         return $rows;
     }
 
@@ -176,5 +222,18 @@ class VitalSignsServiceDatabaseTest extends TestCase
     {
         self::assertIsString($value);
         return $value;
+    }
+
+    /** @return list<string> the value of each vital read, as the query returns it, sorted */
+    private function values(QdmRequestOne $request): array
+    {
+        $result = $this->service(VitalSignsService::class, $request)->executeQuery();
+        $this->assertInstanceOf(\ADORecordSet::class, $result);
+        $values = [];
+        while (is_array($row = QueryUtils::fetchArrayFromResultSet($result))) {
+            $values[] = self::text($row['value']);
+        }
+        sort($values);
+        return $values;
     }
 }
