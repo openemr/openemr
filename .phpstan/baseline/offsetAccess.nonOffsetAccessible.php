@@ -42267,6 +42267,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FacilityService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'limit\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',

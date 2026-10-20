@@ -49,7 +49,7 @@ class FacilityPostalSaveNoticeTest extends TestCase
             'united states still notices' => ['12345', true, false, $billing, 'United States', 1],
             'usa abbreviation still notices' => ['12345', false, true, $service, 'U.S.A.', 44],
             'us code still notices' => ['12345', true, true, $both, 'US', 1],
-            'foreign nine digits is quiet' => ['123456789', true, false, '', '', 1],
+            'nine digits with a blank country' => ['123456789', true, false, '', '', 1],
             'not a service or billing location' => ['12345', false, false, '', 'Canada', 1],
         ];
     }
@@ -80,34 +80,26 @@ class FacilityPostalSaveNoticeTest extends TestCase
     }
 
     /**
-     * The dialog body names saved or not saved, and stays JSON when the sentence cannot be encoded.
+     * The dialog body names the save and stays JSON when the sentence cannot be encoded.
      */
-    public function testSaveDialogBodyNamesTheStatus(): void
+    public function testSaveDialogBodyNamesTheSave(): void
     {
-        $saved = json_decode(FacilityService::facilitySaveDialogBody(true, 'Notice'), true);
-        $open = json_decode(FacilityService::facilitySaveDialogBody(false, ''), true);
+        $saved = json_decode(FacilityService::facilitySaveDialogBody('Notice'), true);
         $this->assertIsArray($saved);
-        $this->assertIsArray($open);
 
         $this->assertSame('saved', $saved['status']);
         $this->assertSame('Notice', $saved['message']);
-        $this->assertSame('not_saved', $open['status']);
-        $this->assertSame('', $open['message']);
     }
 
     /**
-     * A sentence that is not valid text drops the notice and keeps the status.
+     * A sentence that is not valid text drops the notice and still reports saved.
      */
-    public function testSaveDialogBodyKeepsTheStatusWhenTheSentenceCannotBeEncoded(): void
+    public function testSaveDialogBodyStaysSavedWhenTheSentenceCannotBeEncoded(): void
     {
-        $saved = json_decode(FacilityService::facilitySaveDialogBody(true, "\xB1\x31"), true);
-        $open = json_decode(FacilityService::facilitySaveDialogBody(false, "\xB1\x31"), true);
+        $saved = json_decode(FacilityService::facilitySaveDialogBody("\xB1\x31"), true);
         $this->assertIsArray($saved);
-        $this->assertIsArray($open);
 
         $this->assertSame('saved', $saved['status']);
         $this->assertSame('', $saved['message']);
-        $this->assertSame('not_saved', $open['status']);
-        $this->assertSame('', $open['message']);
     }
 }
