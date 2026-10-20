@@ -11,9 +11,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Appointment API Endpoint Test Cases.
  *
- * Covers the Standard REST API read endpoints:
- *   GET /api/appointment        – list all appointments
- *   GET /api/appointment/:eid   – retrieve a single appointment by event id
+ * Covers the Standard REST API endpoints:
+ *   GET    /api/appointment               – list all appointments
+ *   GET    /api/appointment/:eid          – retrieve a single appointment
+ *   GET    /api/patient/:pid/appointment       – list for a patient
+ *   GET    /api/patient/:pid/appointment/:eid  – single for a patient
+ *   POST   /api/patient/:pid/appointment       – create (exercised via setUp)
+ *   DELETE /api/patient/:pid/appointment/:eid  – delete
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -113,6 +117,54 @@ class AppointmentApiTest extends TestCase
         $actualResponse = $this->testClient->get(self::APPOINTMENT_API_ENDPOINT);
 
         $this->assertEquals(401, $actualResponse->getStatusCode());
+    }
+
+    #[Test]
+    public function testGetAppointmentListForPatient(): void
+    {
+        // Patient-compartment list route. Separate from the top-level
+        // /api/appointment: this one is scoped to the fixture pid and
+        // uses the int pid (not uuid) in the path.
+        $dependencies = $this->fixtureManager->installDependencies();
+        $pid = $dependencies['pid'];
+
+        $actualResponse = $this->testClient->get(
+            self::PATIENT_APPOINTMENT_API_ENDPOINT . "/{$pid}/appointment"
+        );
+        $this->assertEquals(200, $actualResponse->getStatusCode());
+
+        $responseBody = json_decode((string) $actualResponse->getBody(), true);
+        $this->assertIsArray($responseBody);
+        $this->assertNotEmpty($responseBody);
+        // The patient-compartment route returns pc_eid as an int (unlike
+        // the top-level `/api/appointment` route which serializes it as
+        // a string). Narrow to a list of int before match.
+        $eids = array_map(
+            static fn($row): int => is_array($row) && is_numeric($row['pc_eid'] ?? null) ? (int) $row['pc_eid'] : -1,
+            $responseBody
+        );
+        $this->assertContains($this->appointmentEid, $eids);
+    }
+
+    #[Test]
+    public function testGetAppointmentByIdForPatient(): void
+    {
+        // Patient-compartment single-GET. The route handler delegates to
+        // the same AppointmentRestController::getOne as the top-level
+        // route, so the response shape matches testGetAppointmentById.
+        $dependencies = $this->fixtureManager->installDependencies();
+        $pid = $dependencies['pid'];
+
+        $actualResponse = $this->testClient->getOne(
+            self::PATIENT_APPOINTMENT_API_ENDPOINT . "/{$pid}/appointment",
+            (string) $this->appointmentEid
+        );
+        $this->assertEquals(200, $actualResponse->getStatusCode());
+
+        /** @var list<array<string, mixed>> $responseBody */
+        $responseBody = json_decode((string) $actualResponse->getBody(), true);
+        $this->assertNotEmpty($responseBody);
+        $this->assertEquals($this->appointmentEid, $responseBody[0]['pc_eid']);
     }
 
     #[Test]
