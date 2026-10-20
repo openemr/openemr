@@ -192,7 +192,7 @@ class NotificationCronEmailTest extends TestCase
     public function cancelledAppointmentIsExcludedFromNotification(): void
     {
         QueryUtils::sqlStatementThrowException(
-            "UPDATE openemr_postcalendar_events SET pc_apptstatus = 'x' WHERE pc_eid = ?",
+            "UPDATE openemr_postcalendar_events SET pc_apptstatus = 'x', pc_time = NOW() WHERE pc_eid = ?",
             [$this->testEventEid],
         );
 

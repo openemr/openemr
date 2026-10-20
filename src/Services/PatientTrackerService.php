@@ -10,8 +10,10 @@
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Terry Hill <terry@lillysystems.com>
+ * @author    Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @copyright Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -264,11 +266,14 @@ class PatientTrackerService extends BaseService
 
         #Ensure the entry in calendar appt entry has been updated.
         $pc_appt =  sqlQuery("SELECT `pc_apptstatus`, `pc_room` FROM `openemr_postcalendar_events` WHERE `pc_eid` = ?", [$eid]);
+        $roomChanged = $room != $pc_appt['pc_room'];
         if ($status != $pc_appt['pc_apptstatus']) {
-            sqlStatement("UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ? WHERE `pc_eid` = ?", [$status,$eid]);
-        }
-
-        if ($room != $pc_appt['pc_room']) {
+            AppointmentService::persistAppointmentStatus(
+                $eid,
+                $status,
+                $roomChanged ? (string) $room : null
+            );
+        } elseif ($roomChanged) {
             sqlStatement("UPDATE `openemr_postcalendar_events` SET `pc_room` = ? WHERE `pc_eid` = ?", [$room,$eid]);
         }
 
