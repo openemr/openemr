@@ -4902,11 +4902,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/MiscBillingOptions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\MiscBillingOptions\\:\\:getReferringProviders\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/MiscBillingOptions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\SLEOB\\:\\:slInvoiceNumber\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/SLEOB.php',
