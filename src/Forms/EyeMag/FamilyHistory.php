@@ -75,7 +75,8 @@ final class FamilyHistory
     /**
      * The family history columns a panel save should write: those the
      * request posted, with their values. Columns the panel doesn't post are
-     * left out, so a save doesn't clear them.
+     * left out, so a save doesn't clear them. A posted value that isn't a
+     * string is null, which updateValues() treats as not posted.
      *
      * @param array<mixed> $posted the request parameters
      * @return array<string, ?string>
@@ -91,5 +92,34 @@ final class FamilyHistory
             $columns[$column] = is_string($value) ? $value : null;
         }
         return $columns;
+    }
+
+    /**
+     * The panel save's UPDATE. It names every family history column and
+     * keeps a column's stored value when its placeholder is null, so the SQL
+     * never depends on what was posted.
+     */
+    public static function updateSql(): string
+    {
+        $assignments = array_map(
+            static fn(string $column): string => "`$column` = COALESCE(?, `$column`)",
+            [...self::MEDICAL, ...self::EYE]
+        );
+        return 'UPDATE history_data SET ' . implode(', ', $assignments) . ' WHERE pid = ?';
+    }
+
+    /**
+     * The values for updateSql()'s column placeholders, in its order: the
+     * posted value, or null to keep the stored one. The pid follows them.
+     *
+     * @param array<string, ?string> $columns from postedColumns()
+     * @return list<?string>
+     */
+    public static function updateValues(array $columns): array
+    {
+        return array_map(
+            static fn(string $column): ?string => $columns[$column] ?? null,
+            [...self::MEDICAL, ...self::EYE]
+        );
     }
 }

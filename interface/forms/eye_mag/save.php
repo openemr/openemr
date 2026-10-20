@@ -642,10 +642,9 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 // whatever the History screen holds.
                 $familyHistory = FamilyHistory::postedColumns($_REQUEST);
                 if ($familyHistory !== []) {
-                    $assignments = implode(', ', array_map(static fn(string $column): string => "`$column` = ?", array_keys($familyHistory)));
                     QueryUtils::sqlStatementThrowException(
-                        "UPDATE history_data SET $assignments WHERE pid = ?",
-                        [...array_values($familyHistory), $pid]
+                        FamilyHistory::updateSql(),
+                        [...FamilyHistory::updateValues($familyHistory), $pid]
                     );
                 }
                 $PMSFH = build_PMSFH($pid);

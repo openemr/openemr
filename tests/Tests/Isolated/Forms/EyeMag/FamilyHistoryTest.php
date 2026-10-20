@@ -90,9 +90,30 @@ class FamilyHistoryTest extends TestCase
         $this->assertArrayNotHasKey('relatives_suicide', $columns);
     }
 
-    public function testNonStringPostedValueIsWrittenAsNull(): void
+    public function testNonStringPostedValueIsNull(): void
     {
         $this->assertSame(['relatives_cancer' => null], FamilyHistory::postedColumns(['relatives_cancer' => ['x']]));
+    }
+
+    public function testUpdateKeepsAColumnWhoseValueIsNull(): void
+    {
+        $sql = FamilyHistory::updateSql();
+
+        $this->assertStringStartsWith('UPDATE history_data SET `relatives_cancer` = COALESCE(?, `relatives_cancer`), ', $sql);
+        $this->assertStringContainsString('`relatives_suicide` = COALESCE(?, `relatives_suicide`)', $sql);
+        $this->assertStringEndsWith('`usertext18` = COALESCE(?, `usertext18`) WHERE pid = ?', $sql);
+        $this->assertSame(17, substr_count($sql, 'COALESCE(?, '));
+    }
+
+    public function testUpdateValuesFollowTheColumnOrderWithNullForUnposted(): void
+    {
+        $values = FamilyHistory::updateValues(['relatives_diabetes' => '', 'relatives_cancer' => 'mother', 'usertext18' => 'RD']);
+
+        $this->assertSame(
+            ['mother', null, '', null, null, null, null, null, null, null, null, null, null, null, null, null, 'RD'],
+            $values
+        );
+        $this->assertCount(substr_count(FamilyHistory::updateSql(), '?') - 1, $values);
     }
 
     public function testNothingPostedWritesNothing(): void
