@@ -56,7 +56,7 @@ class AppointmentRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getOne($eid)
+    public function getOne($eid): Response
     {
         $serviceResult = $this->appointmentService->getAppointment($eid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
