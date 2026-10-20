@@ -582,8 +582,11 @@ class DrugSalesService extends BaseService
             return [];
         }
 
+        // The warehouse id is bound as a parameter (never interpolated), the
+        // same way sellDrug() does it. Its placeholder comes after any
+        // WHERE-clause placeholders, so it is appended to $params last.
         $orderby = ($defaultWarehouse === '') ?
-            "" : "di.warehouse_id != '$defaultWarehouse', ";
+            "" : "di.warehouse_id != ?, ";
         $orderby .= "lo.seq, di.expiration, di.lot_number, di.inventory_id";
 
         $today = date('Y-m-d');
@@ -602,6 +605,9 @@ class DrugSalesService extends BaseService
         }
 
         $query .= "ORDER BY $orderby";
+        if ($defaultWarehouse !== '') {
+            $params[] = $defaultWarehouse;
+        }
 
         $toInt = static function (mixed $v): int {
             return is_numeric($v) ? (int)$v : 0;
@@ -787,7 +793,9 @@ class DrugSalesService extends BaseService
             $headerText .= $labelConfig['disclaimer'] . "\n";
         }
 
-        $dosageInt = (int)$row['dosage'];
+        // Pluralise the form ("tablets") for any dosage above one, including
+        // fractional ones such as 1.5 — an (int) cast would truncate those.
+        $dosagePlural = is_numeric($row['dosage']) && (float)$row['dosage'] > 1;
         $unitDisplay     = $stringify(generate_display_field(['data_type' => '1','list_id' => 'drug_units'], $row['unit']));
         $formDisplay     = $stringify(generate_display_field(['data_type' => '1','list_id' => 'drug_form'], $row['form']));
         $intervalDisplay = $stringify(generate_display_field(['data_type' => '1','list_id' => 'drug_interval'], $row['interval']));
@@ -799,7 +807,7 @@ class DrugSalesService extends BaseService
             xl('QTY') . ' ' . $row['quantity'] . "\n" .
             xl('Take') . ' ' . $row['dosage'] . ' ' .
             $formDisplay .
-            ($dosageInt > 1 ? 's ' : ' ') .
+            ($dosagePlural ? 's ' : ' ') .
             $intervalDisplay .
             ' ' .
             $routeDisplay .
