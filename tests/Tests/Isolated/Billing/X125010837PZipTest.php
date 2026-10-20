@@ -717,6 +717,34 @@ class X125010837PZipTest extends TestCase
 
 
     /**
+     * Another publisher's marker stays when this run cannot claim the name.
+     */
+    public function testPublishLeavesAnotherPublishersMarker(): void
+    {
+        $directory = sys_get_temp_dir() . '/openemr-marker-' . bin2hex(random_bytes(4));
+        mkdir($directory);
+        try {
+            $marker = $directory . '/race.txt.publishing';
+            file_put_contents($marker, 'owned');
+            $this->assertFalse(BatchFilePublisher::publish($directory, 'race.txt', 'GS~'));
+            $this->assertSame('owned', file_get_contents($marker));
+            $this->assertFileDoesNotExist($directory . '/race.txt');
+            $this->assertFileDoesNotExist($directory . '/race.txt.partial');
+
+            $writeMarker = new \ReflectionMethod(BatchFilePublisher::class, 'writeMarker');
+            $this->assertFalse($writeMarker->invoke(null, $marker));
+            $this->assertSame('owned', file_get_contents($marker));
+        } finally {
+            foreach (glob($directory . '/*') ?: [] as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+            rmdir($directory);
+        }
+    }
+
+    /**
      * Direct validation says when every claim was held out of the batch.
      */
     public function testDirectValidationSaysWhenNoClaimsWereAdded(): void
