@@ -647,6 +647,35 @@ class DrugSalesService extends BaseService
     }
 
     /**
+     * The warehouse the given user dispenses from by default, '' when none is set.
+     */
+    public function getUserDefaultWarehouse(string $username): string
+    {
+        if ($username === '') {
+            return '';
+        }
+        $row = QueryUtils::fetchRecords("SELECT default_warehouse FROM users WHERE username = ?", [$username])[0] ?? null;
+        $raw = is_array($row) ? ($row['default_warehouse'] ?? '') : '';
+        return is_scalar($raw) ? (string)$raw : '';
+    }
+
+    /**
+     * The warehouse a lot is stored in, or null when the lot does not exist.
+     */
+    public function getLotWarehouseId(int $inventoryId): ?string
+    {
+        if ($inventoryId <= 0) {
+            return null;
+        }
+        $row = QueryUtils::fetchRecords("SELECT warehouse_id FROM drug_inventory WHERE inventory_id = ?", [$inventoryId])[0] ?? null;
+        if (!is_array($row)) {
+            return null;
+        }
+        $raw = $row['warehouse_id'] ?? '';
+        return is_scalar($raw) ? (string)$raw : '';
+    }
+
+    /**
      * Reverse all sales attached to a prescription.
      *
      * Used when a prescription is deleted: the orphaned drug_sales rows
@@ -657,6 +686,12 @@ class DrugSalesService extends BaseService
      *
      * Non-dispensible sales (where inventory_id = 0) never affected
      * inventory, so they are deleted regardless of the flag.
+     *
+     * Runs several statements and does not open a transaction of its own:
+     * the caller wraps it (see QueryUtils::inTransaction()) together with
+     * whatever else has to succeed or fail with it, such as the prescription
+     * delete. Nesting BeginTrans() on the shared ADODB connection would
+     * commit early, so the outermost caller owns the transaction.
      *
      * Returns a summary for UI feedback / audit logging.
      *
@@ -669,13 +704,30 @@ class DrugSalesService extends BaseService
         }
 
         if ($restoreInventory) {
-            // Add the dispensed quantity back to each lot. Skip rows with
-            // inventory_id = 0 (non-dispensible products — no inventory effect).
+            // Add the dispensed quantity back to each lot, aggregated per lot
+            // first: a multi-table UPDATE touches each target row only once,
+            // so two sales on the same lot would otherwise restore only one
+            // of them. Rows with inventory_id = 0 are non-dispensible
+            // products that never affected inventory.
             QueryUtils::sqlStatementThrowException(
-                "UPDATE drug_sales AS ds " .
-                "JOIN drug_inventory AS di ON di.inventory_id = ds.inventory_id " .
-                "SET di.on_hand = di.on_hand + ds.quantity " .
-                "WHERE ds.prescription_id = ? AND ds.inventory_id != 0",
+                "UPDATE drug_inventory AS di " .
+                "JOIN (SELECT inventory_id, SUM(quantity) AS qty FROM drug_sales " .
+                "WHERE prescription_id = ? AND inventory_id != 0 GROUP BY inventory_id) AS s " .
+                "ON s.inventory_id = di.inventory_id " .
+                "SET di.on_hand = di.on_hand + s.qty",
+                [$prescriptionId]
+            );
+            // A lot that sellDrug() auto-destroyed because one of these sales
+            // emptied it has its stock back now, so un-destroy it. The
+            // destroy_notes marker sellDrug() writes identifies exactly those
+            // lots; lots destroyed for any other reason are left alone.
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE drug_inventory AS di " .
+                "JOIN drug_sales AS ds ON ds.inventory_id = di.inventory_id " .
+                "SET di.destroy_date = NULL, di.destroy_method = NULL, " .
+                "di.destroy_witness = NULL, di.destroy_notes = NULL " .
+                "WHERE ds.prescription_id = ? AND di.destroy_date IS NOT NULL " .
+                "AND di.destroy_notes = CONCAT('sale_id = ', ds.sale_id)",
                 [$prescriptionId]
             );
         }
@@ -745,7 +797,12 @@ class DrugSalesService extends BaseService
 
         $facilityService = new FacilityService();
         $facilityRaw = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
-        $facility = is_array($facilityRaw) ? array_map($stringify, $facilityRaw) : [];
+        // Default the address fields so a missing primary business entity
+        // yields an empty header line instead of undefined-key warnings.
+        $facility = array_merge(
+            ['street' => '', 'city' => '', 'state' => '', 'postal_code' => '', 'phone' => ''],
+            is_array($facilityRaw) ? array_map($stringify, $facilityRaw) : []
+        );
 
         $rowRaw = QueryUtils::fetchRecords(
             "SELECT " .
