@@ -66193,17 +66193,17 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$array of function array_push expects array, mixed given\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$passed_in of method OpenEMR\\\\Services\\\\BaseService\\:\\:buildInsertColumns\\(\\) expects array, mixed given\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$passed_in of method OpenEMR\\\\Services\\\\BaseService\\:\\:buildUpdateColumns\\(\\) expects array, mixed given\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
 $ignoreErrors[] = [
@@ -66227,13 +66227,18 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$binds of function sqlInsert expects array, mixed given\\.$#',
+    'message' => '#^Parameter \\#1 \\.\\.\\.\\$arrays of function array_merge expects array, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Parameter \\#2 \\$binds of function sqlInsert expects array, mixed given\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FacilityService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$binds of function sqlStatement expects array, mixed given\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
 $ignoreErrors[] = [

@@ -20,7 +20,6 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -123,22 +122,20 @@ class FacilityService extends BaseService
     /**
      * JSON body for the facility save dialog.
      *
-     * A sentence that cannot be encoded is dropped. A save that already
-     * finished still reports saved.
+     * The row is already stored. A sentence that cannot be encoded is dropped,
+     * and the dialog still reports saved.
      */
-    public static function facilitySaveDialogBody(bool $saved, string $sentence): string
+    public static function facilitySaveDialogBody(string $sentence): string
     {
         $encoded = json_encode(
             [
-                'status' => $saved ? 'saved' : 'not_saved',
+                'status' => 'saved',
                 'message' => $sentence,
             ],
             JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE
         );
         if (!is_string($encoded)) {
-            return $saved
-                ? '{"status":"saved","message":""}'
-                : '{"status":"not_saved","message":""}';
+            return '{"status":"saved","message":""}';
         }
 
         return $encoded;
@@ -289,12 +286,6 @@ class FacilityService extends BaseService
         return ["facility_address" => ""];
     }
 
-    /**
-     * Facility row for one encounter, from the encounter service location.
-     *
-     * @param mixed $encounterId
-     * @return mixed
-     */
     public function getFacilityForEncounter($encounterId)
     {
         $record = $this->get([
@@ -306,44 +297,18 @@ class FacilityService extends BaseService
         return $record;
     }
 
-    /**
-     * Whether this facility id is stored.
-     *
-     * The row stays locked until the surrounding transaction ends.
-     */
-    public function facilityIdStored(string $id): bool
-    {
-        if ($id === '' || !ctype_digit($id) || $id === '0') {
-            return false;
-        }
-
-        $row = QueryUtils::querySingleRow(
-            "SELECT id FROM facility WHERE id = ? FOR UPDATE",
-            [$id]
-        );
-
-        return is_array($row);
-    }
-
-    /**
-     * Replace the stored facility columns and tell listeners it changed.
-     *
-     * The column list has to be an array before the update is sent.
-     *
-     * @param array<string, mixed> $data
-     */
     public function updateFacility($data)
     {
         $dataBeforeUpdate = $this->getById($data['id']);
         $query = $this->buildUpdateColumns($data);
-        $set = $query['set'] ?? null;
-        $binds = $query['bind'] ?? null;
-        if (!is_string($set) || !is_array($binds)) {
-            throw new \LogicException('The facility columns could not be saved');
-        }
-        $sql = " UPDATE facility SET " . $set . " WHERE id = ?";
-        $binds[] = $data['id'];
-        $result = QueryUtils::sqlStatementThrowException($sql, $binds);
+        $sql = " UPDATE facility SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE id = ?";
+        array_push($query['bind'], $data['id']);
+        $result = sqlStatement(
+            $sql,
+            $query['bind']
+        );
 
         $facilityUpdatedEvent = new FacilityUpdatedEvent($dataBeforeUpdate, $data);
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityUpdatedEvent, FacilityUpdatedEvent::EVENT_HANDLE);
@@ -351,24 +316,15 @@ class FacilityService extends BaseService
         return $result;
     }
 
-    /**
-     * Store a new facility and tell listeners it was created.
-     *
-     * The column list has to be an array before the insert is sent.
-     *
-     * @param array<string, mixed> $data
-     * @return int|string
-     */
     public function insertFacility($data)
     {
         $query = $this->buildInsertColumns($data);
-        $set = $query['set'] ?? null;
-        $binds = $query['bind'] ?? null;
-        if (!is_string($set) || !is_array($binds)) {
-            throw new \LogicException('The facility columns could not be saved');
-        }
-        $sql = " INSERT INTO facility SET " . $set;
-        $facilityId = QueryUtils::sqlInsert($sql, $binds);
+        $sql = " INSERT INTO facility SET ";
+        $sql .= $query['set'];
+        $facilityId = sqlInsert(
+            $sql,
+            $query['bind']
+        );
 
         $facilityCreatedEvent = new FacilityCreatedEvent(array_merge($data, ['id' => $facilityId]));
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityCreatedEvent, FacilityCreatedEvent::EVENT_HANDLE);
@@ -376,19 +332,13 @@ class FacilityService extends BaseService
         return $facilityId;
     }
 
-    /**
-     * Rename the facility stored on users who belong to this facility.
-     *
-     * @param mixed $facility_name
-     * @param mixed $facility_id
-     */
     public function updateUsersFacility($facility_name, $facility_id)
     {
         $sql = " UPDATE users SET";
         $sql .= " facility=?";
         $sql .= " WHERE facility_id=?";
 
-        return QueryUtils::sqlStatementThrowException($sql, [$facility_name, $facility_id]);
+        return sqlStatement($sql, [$facility_name, $facility_id]);
     }
 
     /**
