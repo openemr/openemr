@@ -9,10 +9,10 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
- * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -20,6 +20,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -298,48 +299,151 @@ class FacilityService extends BaseService
         return $record;
     }
 
-    public function updateFacility($data)
+    /**
+     * Whether this facility id is stored.
+     *
+     * The row stays locked until the surrounding transaction ends.
+     */
+    public function facilityIdStored(string $id): bool
     {
-        $dataBeforeUpdate = $this->getById($data['id']);
-        $query = $this->buildUpdateColumns($data);
-        $sql = " UPDATE facility SET ";
-        $sql .= $query['set'];
-        $sql .= " WHERE id = ?";
-        array_push($query['bind'], $data['id']);
-        $result = sqlStatement(
-            $sql,
-            $query['bind']
+        if ($id === '' || !ctype_digit($id) || $id === '0') {
+            return false;
+        }
+
+        $row = QueryUtils::querySingleRow(
+            "SELECT id FROM facility WHERE id = ? FOR UPDATE",
+            [$id]
         );
 
-        $facilityUpdatedEvent = new FacilityUpdatedEvent($dataBeforeUpdate, $data);
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityUpdatedEvent, FacilityUpdatedEvent::EVENT_HANDLE);
-
-        return $result;
+        return is_array($row);
     }
 
-    public function insertFacility($data)
+    /**
+     * Save an existing facility and the name stored on its users.
+     *
+     * Both writes commit together. A missing id saves nothing. A failure
+     * rolls the attempt back. Listeners hear about the change only after
+     * that commit.
+     *
+     * @param array<string, mixed> $values
+     */
+    public function updateFacilityAndUsers(array $values): bool
     {
-        $query = $this->buildInsertColumns($data);
-        $sql = " INSERT INTO facility SET ";
-        $sql .= $query['set'];
-        $facilityId = sqlInsert(
-            $sql,
-            $query['bind']
+        $id = $values['id'] ?? null;
+        if (!is_int($id) && !is_string($id)) {
+            return false;
+        }
+
+        try {
+            $outcome = QueryUtils::inTransaction(function () use ($values, $id): array {
+                if (!$this->facilityIdStored((string) $id)) {
+                    return ['saved' => false, 'before' => []];
+                }
+
+                $loaded = $this->getById($id);
+                $this->updateFacility($values);
+                $name = $values['name'] ?? '';
+                if (!is_string($name)) {
+                    $name = '';
+                }
+                $this->updateUsersFacility($name, $id);
+
+                return [
+                    'saved' => true,
+                    'before' => is_array($loaded) ? $loaded : [],
+                ];
+            });
+        } catch (\RuntimeException) {
+            return false;
+        }
+
+        if ($outcome['saved'] !== true) {
+            return false;
+        }
+
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
+            new FacilityUpdatedEvent($outcome['before'], $values),
+            FacilityUpdatedEvent::EVENT_HANDLE
         );
 
-        $facilityCreatedEvent = new FacilityCreatedEvent(array_merge($data, ['id' => $facilityId]));
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityCreatedEvent, FacilityCreatedEvent::EVENT_HANDLE);
+        return true;
+    }
+
+    /**
+     * Replace the stored facility columns.
+     *
+     * The column list has to be an array before the update is sent.
+     * updateFacilityAndUsers() tells listeners, and only after the commit.
+     *
+     * @param array<string, mixed> $data
+     */
+    public function updateFacility(array $data)
+    {
+        $query = $this->buildUpdateColumns($data);
+        $set = $query['set'] ?? null;
+        $binds = $query['bind'] ?? null;
+        if (!is_string($set) || !is_array($binds)) {
+            throw new \LogicException('The facility columns could not be saved');
+        }
+        $binds[] = $data['id'];
+
+        return QueryUtils::sqlStatementThrowException(
+            " UPDATE facility SET " . $set . " WHERE id = ?",
+            $binds
+        );
+    }
+
+    /**
+     * Store a new facility.
+     *
+     * The column list has to be an array before the insert is sent.
+     * Listeners hear about the facility after the commit.
+     *
+     * @param array<string, mixed> $data
+     * @return int
+     */
+    public function insertFacility(array $data): int
+    {
+        $facilityId = QueryUtils::inTransaction(function () use ($data): int {
+            return $this->writeInsertedFacility($data);
+        });
+
+        $created = $data;
+        $created['id'] = $facilityId;
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
+            new FacilityCreatedEvent($created),
+            FacilityCreatedEvent::EVENT_HANDLE
+        );
 
         return $facilityId;
     }
 
-    public function updateUsersFacility($facility_name, $facility_id)
+    /**
+     * Insert the facility row. The caller commits, then tells listeners.
+     *
+     * @param array<string, mixed> $data
+     */
+    private function writeInsertedFacility(array $data): int
     {
-        $sql = " UPDATE users SET";
-        $sql .= " facility=?";
-        $sql .= " WHERE facility_id=?";
+        $query = $this->buildInsertColumns($data);
+        $set = $query['set'] ?? null;
+        $binds = $query['bind'] ?? null;
+        if (!is_string($set) || !is_array($binds)) {
+            throw new \LogicException('The facility columns could not be saved');
+        }
 
-        return sqlStatement($sql, [$facility_name, $facility_id]);
+        return QueryUtils::sqlInsert(" INSERT INTO facility SET " . $set, $binds);
+    }
+
+    /**
+     * Rename the facility stored on users who belong to this facility.
+     */
+    public function updateUsersFacility(string $facility_name, int|string $facility_id)
+    {
+        return QueryUtils::sqlStatementThrowException(
+            " UPDATE users SET facility=? WHERE facility_id=?",
+            [$facility_name, $facility_id]
+        );
     }
 
     /**

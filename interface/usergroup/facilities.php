@@ -39,9 +39,10 @@ $facilityService = new FacilityService();
 $alertmsg = '';
 
 /**
- * Send the facility save dialog its sentence.
+ * Tell the facility save dialog whether the save finished.
  *
- * The dialog alerts the sentence, then closes. The encoded body is not HTML.
+ * The dialog closes only when the status is saved. A postal sentence is
+ * included when one applies.
  */
 $echoFacilitySaveDialogResult = function (bool $saved, string $sentence): void {
     header('Content-Type: application/json; charset=utf-8');
@@ -105,7 +106,6 @@ foreach ($columns as $c => $v) {
 /*      Inserting New facility                  */
 if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {
     $facilityService->insertFacility($values);
-    // The save dialog decodes this body and passes the sentence to alert().
     $sentence = $facilityPostalSentence(
         $values['postal_code'] ?? '',
         ($values['billing_location'] ?? '') === '1',
@@ -120,19 +120,16 @@ if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST
 if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility") {
     // Since it's an edit, add in the facility ID
     $values["id"] = trim($_POST['fid'] ?? '');
-    $facilityService->updateFacility($values);
-
-    // Update facility name for all users with this facility.
-    // This is necessary because some provider based code uses facility name for lookups instead of facility id.
-    //
-    $facilityService->updateUsersFacility($values['name'], $values['id']);
-    $sentence = $facilityPostalSentence(
+    // The facility row and the linked user names commit together.
+    // A missing id is not saved. The postal sentence is sent only after that commit.
+    $saved = $facilityService->updateFacilityAndUsers($values);
+    $sentence = $saved ? $facilityPostalSentence(
         $values['postal_code'] ?? '',
         ($values['billing_location'] ?? '') === '1',
         ($values['service_location'] ?? '') === '1',
         $values['country_code'] ?? ''
-    );
-    $echoFacilitySaveDialogResult(true, $sentence);
+    ) : '';
+    $echoFacilitySaveDialogResult($saved, $sentence);
     exit(); // sjp 12/20/17 for ajax save
 }
 

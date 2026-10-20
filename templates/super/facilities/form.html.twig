@@ -63,6 +63,7 @@ function submitform() {
         type: request_method,
         data: form_data
     }).done(function (r) { //
+        let status = '';
         let message = '';
         let payload = r;
         if (typeof r === 'string') {
@@ -72,19 +73,25 @@ function submitform() {
                 payload = null;
             }
         }
-        if (payload && typeof payload === 'object' && typeof payload.message === 'string') {
-            message = payload.message;
-        }
-        if (!(payload && typeof payload === 'object' && payload.status === 'saved')) {
-            if (message) {
-                alert(message);
+        if (payload && typeof payload === 'object') {
+            if (typeof payload.status === 'string') {
+                status = payload.status;
             }
-            return false;
+            if (typeof payload.message === 'string') {
+                message = payload.message;
+            }
+        }
+        if (status !== 'saved' && message === '') {
+            message = {{ 'The facility save did not finish.'|xlj }};
         }
         if (message) {
             alert(message);
         }
-        dlgclose('refreshme', false);
+        if (status === 'saved') {
+            dlgclose('refreshme', false);
+        }
+    }).fail(function () {
+        alert({{ 'The facility save did not finish.'|xlj }});
     });
     return false;
 }
