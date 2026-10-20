@@ -115,6 +115,7 @@ class ApiTestClient
         'user/Immunization.read',
         'user/Immunization.write',
         'user/Location.read',
+        'user/Media.read',
         'user/Medication.read',
         'user/Medication.write',
         'user/MedicationDispense.read',

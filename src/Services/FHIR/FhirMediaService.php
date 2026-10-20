@@ -94,7 +94,10 @@ class FhirMediaService extends FhirServiceBase implements IFhirExportableResourc
         $fhirMedia->setMeta($fhirMeta);
 
         $fhirMedia->setId($dataRecord['uuid']);
-        $fhirMedia->setStatus('completed'); // if the file is uploaded it is completed
+        // if the file is uploaded it is completed; a deleted document is entered-in-error, as in
+        // FhirPatientDocumentReferenceService
+        $isDeleted = in_array($dataRecord['deleted'] ?? null, [1, '1'], true);
+        $fhirMedia->setStatus($isDeleted ? 'entered-in-error' : 'completed');
 
         if (!empty($dataRecord['puuid'])) {
             $fhirMedia->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
