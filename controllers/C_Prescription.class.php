@@ -417,14 +417,20 @@ class C_Prescription extends Controller
                 $saleId = is_numeric($saleResult) ? (int)$saleResult : 0;
 
                 if ($saleId <= 0) {
+                    $dispenseError = xl('Inventory is not available for this order');
                     if ($inventoryId !== null && DrugSalesService::restrictSalesToDefaultWarehouse()) {
-                        // Strict policy is on and the picker submitted an
-                        // off-site lot. Surface the actual reason instead
-                        // of the generic "no inventory" message — the lot
-                        // does exist, the clinic just bars it.
-                        $dispenseError = xl('Your clinic only allows dispensing from your default warehouse. Either change the lot’s warehouse to your default, or transfer the lot to your default warehouse first via Inventory → Management → Edit Lot.');
-                    } else {
-                        $dispenseError = xl('Inventory is not available for this order');
+                        // Strict policy is on and the picker submitted a lot.
+                        // When that lot sits outside the user's default
+                        // warehouse, say so instead of the generic "no
+                        // inventory" message — the lot does exist, the clinic
+                        // just bars it. An on-site lot that fails is simply
+                        // short on stock, so the generic message stands.
+                        $authUserRaw = SessionWrapperFactory::getInstance()->getActiveSession()->get('authUser');
+                        $authUser = is_string($authUserRaw) ? $authUserRaw : '';
+                        $lotWarehouse = $drugSalesService->getLotWarehouseId($inventoryId);
+                        if ($lotWarehouse !== null && $lotWarehouse !== $drugSalesService->getUserDefaultWarehouse($authUser)) {
+                            $dispenseError = xl('Your clinic only allows dispensing from your default warehouse. Either change the lot’s warehouse to your default, or transfer the lot to your default warehouse first via Inventory → Management → Edit Lot.');
+                        }
                     }
                 }
             } catch (\Throwable $e) {
