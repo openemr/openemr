@@ -100,6 +100,11 @@ class UserApiTest extends TestCase
             }
         }
         $this->assertIsArray($admin, 'admin user must surface in the list');
+        $this->assertArrayNotHasKey(
+            'username',
+            $admin,
+            'username is a sensitive field; UserService::search gates it behind toggleSensitiveFields which the REST layer never calls'
+        );
         $this->assertMatchesRegularExpression(
             '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
             $admin['uuid']
