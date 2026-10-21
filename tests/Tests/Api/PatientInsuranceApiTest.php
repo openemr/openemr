@@ -348,6 +348,10 @@ class PatientInsuranceApiTest extends TestCase
         $this->assertIsArray($body);
         $this->assertArrayHasKey('validationErrors', $body);
         $this->assertIsArray($body['validationErrors']);
-        $this->assertNotEmpty($body['validationErrors']);
+        $this->assertArrayHasKey(
+            'puuid::INVALID_PUUID',
+            $body['validationErrors'],
+            'invalid puuid should surface the puuid::INVALID_PUUID key so a response that only fails on the unknown insurance uuid cannot silently satisfy this assertion'
+        );
     }
 }
