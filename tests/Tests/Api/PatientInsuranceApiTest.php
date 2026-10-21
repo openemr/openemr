@@ -328,6 +328,69 @@ class PatientInsuranceApiTest extends TestCase
     }
 
     #[Test]
+    public function testPutRejectsWrongPatient(): void
+    {
+        // Create a policy on the setUp fixturePuuid, then try to update it
+        // through a different patient's path. InsuranceService::update resolves
+        // the row's owning pid and reports not-found when the pid supplied by
+        // the controller (from the path puuid) does not match. The follow-up
+        // GET through the owning patient's path confirms the row is intact.
+        $created = $this->postFixturePolicy();
+
+        // Pick another test-fixture patient. installPatientFixtures seeded the
+        // full set; pick one whose uuid differs from fixturePuuid.
+        $otherPuuidBytes = QueryUtils::fetchSingleValue(
+            "SELECT uuid FROM patient_data WHERE pubpid LIKE ? AND uuid <> ? ORDER BY pid DESC LIMIT 1",
+            'uuid',
+            [FixtureManager::PATIENT_FIXTURE_PUBPID_PREFIX . "%", UuidRegistry::uuidToBytes($this->fixturePuuid)]
+        );
+        $this->assertIsString($otherPuuidBytes);
+        $otherPuuid = UuidRegistry::uuidToString($otherPuuidBytes);
+
+        $wrongPath = "/apis/default/api/patient/" . $otherPuuid . "/insurance";
+        $putResponse = $this->testClient->put($wrongPath, $created['uuid'], [
+            'type' => 'primary',
+            'provider' => (string) $this->fixtureInsurerId,
+            'policy_number' => 'MUTATED-ACROSS-PATIENT',
+            'subscriber_lname' => 'MutatedLast',
+            'subscriber_fname' => 'MutatedFirst',
+            'subscriber_relationship' => 'self',
+            'subscriber_DOB' => '1980-01-01',
+            'subscriber_street' => '000 Mutated Street',
+            'subscriber_postal_code' => '00000',
+            'subscriber_city' => 'Mutatedville',
+            'subscriber_state' => 'XX',
+            'subscriber_sex' => 'Male',
+            'accept_assignment' => 'TRUE',
+            'date' => '2026-01-01',
+            'date_end' => null,
+        ]);
+        // Reported as not-found rather than forbidden so a uuid probe cannot
+        // confirm the existence of another patient's policy. We assert the
+        // row was not mutated regardless of the exact status code.
+        $this->assertNotEquals(
+            200,
+            $putResponse->getStatusCode(),
+            'Wrong-patient PUT must not report success. Body: ' . (string) $putResponse->getBody()
+        );
+
+        $owningPath = "/apis/default/api/patient/" . $this->fixturePuuid . "/insurance";
+        $follow = $this->testClient->getOne($owningPath, $created['uuid']);
+        $this->assertEquals(200, $follow->getStatusCode());
+        $followBody = json_decode((string) $follow->getBody(), true);
+        $this->assertIsArray($followBody);
+        $data = $followBody['data'] ?? null;
+        $this->assertIsArray($data);
+        $policyNumber = $data['policy_number'] ?? '';
+        $this->assertIsString($policyNumber);
+        $this->assertStringStartsWith(
+            'TEST-POLICY-',
+            $policyNumber,
+            'Insurance policy_number must not have been overwritten through another patient\'s path.'
+        );
+    }
+
+    #[Test]
     public function testSwapInsuranceWithInvalidPatientUuidReturnsValidationError(): void
     {
         // Invalid puuid string — handler short-circuits with the
