@@ -12,6 +12,7 @@
 namespace OpenEMR\Tests\Isolated\Services\FHIR\Condition;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\UtilsService;
@@ -50,6 +51,29 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
             ,'occurrence' => 0
         ];
     }
+    /**
+     * The service with the code-table lookup replaced, since isolated tests have no database.
+     *
+     * @param array<string, string> $descriptions "TYPE:CODE" => description
+     */
+    private function serviceWithCodeDescriptions(array $descriptions): FhirConditionEncounterDiagnosisService
+    {
+        return new class ($descriptions) extends FhirConditionEncounterDiagnosisService {
+            /**
+             * @param array<string, string> $descriptions
+             */
+            public function __construct(private readonly array $descriptions)
+            {
+                parent::__construct();
+            }
+
+            protected function lookupCodeDescription(CodeTypesService $codeTypes, string $code): string
+            {
+                return $this->descriptions[$code] ?? '';
+            }
+        };
+    }
+
     public function testParseOpenEMRRecordWithUnparsedDiagnosisString(): void
     {
         // Services that query lists.diagnosis directly pass the stored string
@@ -57,7 +81,8 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         $record['diagnosis'] = 'ICD10:I10.';
         $record['title'] = 'Essential (primary) hypertension';
 
-        $fhirResource = (new FhirConditionEncounterDiagnosisService())->parseOpenEMRRecord($record);
+        // no description in the code tables, so the coding falls back to the title
+        $fhirResource = $this->serviceWithCodeDescriptions([])->parseOpenEMRRecord($record);
         $this->assertInstanceOf(FHIRCondition::class, $fhirResource);
 
         $coding = $fhirResource->getCode()->getCoding()[0];
@@ -74,7 +99,7 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         $record['diagnosis'] = 'ICD10:123;SNOMED:123';
         $record['title'] = 'Shared code value';
 
-        $fhirResource = (new FhirConditionEncounterDiagnosisService())->parseOpenEMRRecord($record);
+        $fhirResource = $this->serviceWithCodeDescriptions([])->parseOpenEMRRecord($record);
         $this->assertInstanceOf(FHIRCondition::class, $fhirResource);
 
         $codings = $fhirResource->getCode()->getCoding();
@@ -82,6 +107,25 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         $systems = [(string)$codings[0]->getSystem(), (string)$codings[1]->getSystem()];
         $this->assertContains(FhirCodeSystemConstants::HL7_ICD10_CM, $systems);
         $this->assertContains(FhirCodeSystemConstants::SNOMED_CT, $systems);
+    }
+
+    public function testParseOpenEMRRecordUsesEachCodesOwnDescription(): void
+    {
+        $record = $this->getDefaultOpenEMRRecord();
+        $record['diagnosis'] = 'ICD10:E11.65;SNOMED-CT:44054006';
+        $record['title'] = 'Type 2 diabetes with hyperglycemia';
+
+        $fhirResource = $this->serviceWithCodeDescriptions([
+            'ICD10:E11.65' => 'Type 2 diabetes mellitus with hyperglycemia',
+            'SNOMED-CT:44054006' => 'Diabetes mellitus type 2',
+        ])->parseOpenEMRRecord($record);
+        $this->assertInstanceOf(FHIRCondition::class, $fhirResource);
+
+        $codings = $fhirResource->getCode()->getCoding();
+        $this->assertCount(2, $codings);
+        $this->assertEquals('Type 2 diabetes mellitus with hyperglycemia', $codings[0]->getDisplay());
+        $this->assertEquals('Diabetes mellitus type 2', $codings[1]->getDisplay());
+        $this->assertEquals('Type 2 diabetes with hyperglycemia', $fhirResource->getCode()->getText());
     }
 
     public function testParseOpenEMRRecord(): void

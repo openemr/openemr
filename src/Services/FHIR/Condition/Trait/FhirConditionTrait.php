@@ -173,23 +173,34 @@ trait FhirConditionTrait
      * Parse OpenEMR's stored "TYPE:CODE" diagnosis string into coding values.
      *
      * A code value can repeat across systems, so the parsed entries stay a list.
+     * Each coding takes its code's own description, like BaseService::addCoding(),
+     * and falls back to the problem title when the code tables have none.
      *
      * @return list<array{code: string, description: string, system: string|null}>
      */
-    private function parseDiagnosisCodes(string $diagnosis, string $description): array
+    private function parseDiagnosisCodes(string $diagnosis, string $title): array
     {
         $codeTypes = new CodeTypesService();
         $parsed = [];
         foreach (explode(';', $diagnosis) as $item) {
             $code = $codeTypes->parseCode($item);
             $codeType = is_string($code['code_type'] ?? null) ? $code['code_type'] : '';
+            $description = $this->lookupCodeDescription($codeTypes, $item);
             $parsed[] = [
                 'code' => is_string($code['code'] ?? null) ? $code['code'] : '',
-                'description' => $description,
+                'description' => $description !== '' ? $description : $title,
                 'system' => $codeTypes->getSystemForCodeType($codeType),
             ];
         }
         return $parsed;
+    }
+
+    /**
+     * The description of one "TYPE:CODE" value from the code tables, or '' when they have none.
+     */
+    protected function lookupCodeDescription(CodeTypesService $codeTypes, string $code): string
+    {
+        return $codeTypes->lookup_code_description($code);
     }
 
     protected function populateSubject($dataRecord, FHIRCondition $conditionResource)
