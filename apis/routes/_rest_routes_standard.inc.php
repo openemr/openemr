@@ -425,23 +425,9 @@ return [
 
         return $return;
     },
-    "GET /api/patient/:pid/appointment/:eid" => function ($pid, $eid, HttpRestRequest $request) {
+    "GET /api/patient/:pid/appointment/:eid" => function (string $pid, string $eid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "appt");
-        // Scope the lookup by pid so a leaked eid can't reach another
-        // patient's chart through the patient-compartment route. The
-        // underlying getOne($eid) is shared with the top-level
-        // /api/appointment/:eid route and intentionally remains
-        // pid-agnostic; the compartment check is applied here.
-        $return = (new AppointmentRestController())->getOne($eid);
-        $payload = json_decode((string) $return->getContent(), true);
-        $recordPidRaw = (is_array($payload) && isset($payload[0]) && is_array($payload[0]))
-            ? ($payload[0]['pid'] ?? null)
-            : null;
-        if (!is_numeric($recordPidRaw) || !is_numeric($pid) || (int) $recordPidRaw !== (int) $pid) {
-            return RestControllerHelper::responseHandler(['message' => 'record not found'], null, 404);
-        }
-
-        return $return;
+        return (new AppointmentRestController())->getOneScopedByPatient($pid, $eid);
     },
 
     "GET /api/list/:list_name" => function ($list_name, HttpRestRequest $request) {

@@ -63,13 +63,20 @@ class AppointmentRestController
     }
 
     /**
-     * Fetches a single appointment for a patient.
-     * @param $auuid - The appointment uuid.
-     * @param $patientUuid - The patient uuid.
+     * Fetches a single appointment scoped by patient pid.
+     *
+     * Shares the service-layer getAppointment($eid) lookup with
+     * getOne(). The patient-compartment check is performed against the
+     * raw service result (not the serialized Response body), so a
+     * payload-wrapping change in RestControllerHelper would not turn
+     * valid requests into 404s. Mirrors the pattern in delete().
+     *
+     * @param string $pid - The patient id (int in string form from the path).
+     * @param $eid - The appointment event id.
      */
     #[OA\Get(
         path: '/api/patient/{pid}/appointment/{eid}',
-        description: 'Retrieves a appointment for a patient',
+        description: 'Retrieves an appointment scoped by patient',
         tags: ['standard'],
         parameters: [
             new OA\Parameter(
@@ -91,9 +98,31 @@ class AppointmentRestController
             new OA\Response(response: '200', ref: '#/components/responses/standard'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
         ],
         security: [['openemr_auth' => []]]
     )]
+    public function getOneScopedByPatient(string $pid, string $eid): Response
+    {
+        $service = $this->appointmentService;
+        assert($service instanceof AppointmentService);
+        $existing = $service->getAppointment($eid);
+        $existingPidRaw = (isset($existing[0]) && is_array($existing[0]))
+            ? ($existing[0]['pid'] ?? null)
+            : null;
+        if (!is_numeric($existingPidRaw) || !is_numeric($pid) || (int) $existingPidRaw !== (int) $pid) {
+            return RestControllerHelper::responseHandler(['message' => 'record not found'], null, 404);
+        }
+        return RestControllerHelper::responseHandler($existing, null, 200);
+    }
+
+    /**
+     * Fetches a single appointment for a patient portal client, keyed
+     * by appointment uuid and the session patient uuid.
+     *
+     * @param $auuid - The appointment uuid.
+     * @param $patientUuid - The patient uuid.
+     */
     #[OA\Get(
         path: '/portal/patient/appointment/{auuid}',
         description: 'Returns a selected appointment by its uuid.',
