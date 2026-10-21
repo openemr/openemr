@@ -17,6 +17,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Validators\ProcessingResult;
 
 #[OA\Schema(
     schema: 'api_medical_problem_request',
@@ -283,7 +284,18 @@ class ConditionRestController
                 $expectedPatientId = (int) $resolvedPid;
             }
         }
-        $processingResult = $this->conditionService->update($uuid, $filteredData, $expectedPatientId);
+        // Reject at the controller when the path puuid is malformed or names no
+        // existing patient. The service's compartment check only runs when
+        // $expectedPatientId !== null, so passing null here would bind the UPDATE
+        // under the row's own pid and let a crafted path still mutate another
+        // patient's row. Reporting as not-found rather than invalid-uuid matches
+        // the service's shape and does not confirm whether a given puuid exists.
+        if ($expectedPatientId === null) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => 'Condition not found']);
+        } else {
+            $processingResult = $this->conditionService->update($uuid, $filteredData, $expectedPatientId);
+        }
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 

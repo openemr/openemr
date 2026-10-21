@@ -836,4 +836,99 @@ class PatientAllergyConditionApiTest extends TestCase
             "Condition must not have been overwritten through another patient's path."
         );
     }
+
+    /**
+     * PUT /api/patient/:puuid/allergy/:auuid — a path puuid that is a
+     * well-formed UUID but resolves to no patient must not fall through to
+     * the service's self-binding path. Without the controller-level guard
+     * the service's compartment check is skipped (because
+     * $expectedPatientId is null) and the row is updated under its own
+     * owning pid.
+     */
+    public function testPutAllergyRejectsUnknownPuuid(): void
+    {
+        $owningPatientUuid = $this->createPatient();
+        $createBody = $this->createAllergy($owningPatientUuid, [
+            "title" => "Allergy-UnknownPuuidGuard",
+            "type" => "allergy",
+            "reaction" => "hives",
+            "verification" => "confirmed",
+            "begdate" => "2024-04-04",
+        ]);
+        $this->assertIsArray($createBody["data"]);
+        $this->assertIsString($createBody["data"]["uuid"]);
+        $allergyUuid = $createBody["data"]["uuid"];
+
+        // Well-formed uuid that resolves to no patient. The service
+        // would otherwise skip the ownership check and bind the UPDATE
+        // under the row's own pid, so the leaked auuid alone would be
+        // enough to mutate the row through any path.
+        $unknownPuuid = "00000000-0000-4000-8000-000000000000";
+        $wrongPath = self::PATIENT_API_ENDPOINT . "/" . $unknownPuuid . "/allergy";
+        $putResponse = $this->testClient->put($wrongPath, $allergyUuid, [
+            "title" => "Mutated-Through-Unknown-Puuid",
+            "begdate" => "2024-04-04",
+        ]);
+        $this->assertNotEquals(
+            200,
+            $putResponse->getStatusCode(),
+            "Unknown-puuid PUT must not report success. Body: " . (string) $putResponse->getBody()
+        );
+
+        $owningPath = self::PATIENT_API_ENDPOINT . "/" . $owningPatientUuid . "/allergy";
+        $follow = $this->testClient->get($owningPath . "/" . $allergyUuid);
+        $this->assertEquals(200, $follow->getStatusCode());
+        $followBody = $this->decodeBody($follow);
+        $this->assertIsArray($followBody["data"]);
+        $this->assertNotEmpty($followBody["data"]);
+        $this->assertIsArray($followBody["data"][0]);
+        $this->assertSame(
+            "Allergy-UnknownPuuidGuard",
+            $followBody["data"][0]["title"] ?? null,
+            "Allergy must not have been overwritten through an unknown puuid."
+        );
+    }
+
+    /**
+     * PUT /api/patient/:puuid/medical_problem/:muuid — same shape as the
+     * unknown-puuid allergy guard above. Covers ConditionRestController::put.
+     */
+    public function testPutMedicalProblemRejectsUnknownPuuid(): void
+    {
+        $owningPatientUuid = $this->createPatient();
+        $createBody = $this->createCondition($owningPatientUuid, [
+            "title" => "Condition-UnknownPuuidGuard",
+            "type" => "medical_problem",
+            "diagnosis" => "ICD10:R10.9",
+            "begdate" => "2024-04-04",
+        ]);
+        $this->assertIsArray($createBody["data"]);
+        $this->assertIsString($createBody["data"]["uuid"]);
+        $conditionUuid = $createBody["data"]["uuid"];
+
+        $unknownPuuid = "00000000-0000-4000-8000-000000000000";
+        $wrongPath = self::PATIENT_API_ENDPOINT . "/" . $unknownPuuid . "/medical_problem";
+        $putResponse = $this->testClient->put($wrongPath, $conditionUuid, [
+            "title" => "Mutated-Through-Unknown-Puuid",
+            "begdate" => "2024-04-04",
+        ]);
+        $this->assertNotEquals(
+            200,
+            $putResponse->getStatusCode(),
+            "Unknown-puuid PUT must not report success. Body: " . (string) $putResponse->getBody()
+        );
+
+        $owningPath = self::PATIENT_API_ENDPOINT . "/" . $owningPatientUuid . "/medical_problem";
+        $follow = $this->testClient->get($owningPath . "/" . $conditionUuid);
+        $this->assertEquals(200, $follow->getStatusCode());
+        $followBody = $this->decodeBody($follow);
+        $this->assertIsArray($followBody["data"]);
+        $this->assertNotEmpty($followBody["data"]);
+        $this->assertIsArray($followBody["data"][0]);
+        $this->assertSame(
+            "Condition-UnknownPuuidGuard",
+            $followBody["data"][0]["title"] ?? null,
+            "Condition must not have been overwritten through an unknown puuid."
+        );
+    }
 }
