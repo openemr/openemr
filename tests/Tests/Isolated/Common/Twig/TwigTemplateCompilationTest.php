@@ -52,6 +52,7 @@ class TwigTemplateCompilationTest extends TestCase
         'interface/modules/custom_modules/oe-module-comlink-telehealth/templates',
         'interface/modules/custom_modules/oe-module-ehi-exporter/templates',
         'interface/modules/custom_modules/oe-module-faxsms/templates',
+        'interface/modules/custom_modules/oe-module-lbf-statements/templates',
     ];
 
     /**
