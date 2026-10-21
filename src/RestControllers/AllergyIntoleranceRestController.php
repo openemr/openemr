@@ -13,8 +13,10 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\AllergyIntoleranceService;
+use OpenEMR\Services\PatientService;
 
 #[OA\Schema(
     schema: 'api_allergy_request',
@@ -263,7 +265,19 @@ class AllergyIntoleranceRestController
     public function put($puuid, $uuid, $data)
     {
         $filteredData = $this->allergyIntoleranceService->filterData($data, self::WHITELISTED_FIELDS);
-        $processingResult = $this->allergyIntoleranceService->update($uuid, $filteredData);
+        // Resolve the path puuid to a pid and pass it as $expectedPatientId so the
+        // service's compartment check runs: a leaked allergy uuid supplied under
+        // one patient's path must not update a row belonging to another patient.
+        // Mirrors how AppointmentRestController::getOneScopedByPatient scopes by pid.
+        $expectedPatientId = null;
+        if (is_string($puuid) && UuidRegistry::isValidStringUUID($puuid)) {
+            $puuidBytes = UuidRegistry::uuidToBytes($puuid);
+            $resolvedPid = (new PatientService())->getPidByUuid($puuidBytes);
+            if (is_numeric($resolvedPid)) {
+                $expectedPatientId = (int) $resolvedPid;
+            }
+        }
+        $processingResult = $this->allergyIntoleranceService->update($uuid, $filteredData, $expectedPatientId);
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 

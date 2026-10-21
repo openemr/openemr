@@ -715,4 +715,125 @@ class PatientAllergyConditionApiTest extends TestCase
         $this->assertSame([], $body["data"] ?? null,
             "Unknown-UUID medical_problem lookup must not return any row.");
     }
+
+    /**
+     * PUT /api/patient/:puuid/allergy/:auuid — allergy created on patient 1
+     * must not be updatable through patient 2's path. The controller resolves
+     * the path puuid to a pid and passes it as $expectedPatientId; the service
+     * reports the row as not-found when the pid does not match. The follow-up
+     * GET through patient 1's path confirms the original value is unchanged.
+     */
+    public function testPutAllergyRejectsWrongPatient(): void
+    {
+        $owningPatientUuid = $this->createPatient();
+
+        $patient2Record = $this->patientRecord;
+        $patient2Record["fname"] = "WrongPutAllergy";
+        $patient2Record["lname"] = "Patient2";
+        $response2 = $this->testClient->post(
+            self::PATIENT_API_ENDPOINT,
+            $patient2Record
+        );
+        $this->assertEquals(201, $response2->getStatusCode());
+        $body2 = $this->decodeBody($response2);
+        $this->assertIsArray($body2["data"]);
+        $this->assertIsString($body2["data"]["uuid"]);
+        $otherPatientUuid = $body2["data"]["uuid"];
+
+        $createBody = $this->createAllergy($owningPatientUuid, [
+            "title" => "Allergy-WrongPutGuard",
+            "type" => "allergy",
+            "reaction" => "hives",
+            "verification" => "confirmed",
+            "begdate" => "2024-04-04",
+        ]);
+        $this->assertIsArray($createBody["data"]);
+        $this->assertIsString($createBody["data"]["uuid"]);
+        $allergyUuid = $createBody["data"]["uuid"];
+
+        $wrongPath = self::PATIENT_API_ENDPOINT . "/" . $otherPatientUuid . "/allergy";
+        $putResponse = $this->testClient->put($wrongPath, $allergyUuid, [
+            "title" => "Mutated-Across-Patient",
+            "begdate" => "2024-04-04",
+        ]);
+        // The update is rejected as not-found so a uuid probe cannot confirm
+        // the existence of another patient's allergy. We assert the row was
+        // not actually mutated regardless of the status code so the test
+        // stays strict even if the error-reporting shape ever shifts.
+        $this->assertNotEquals(
+            200,
+            $putResponse->getStatusCode(),
+            "Wrong-patient PUT must not report success. Body: " . (string) $putResponse->getBody()
+        );
+
+        $owningPath = self::PATIENT_API_ENDPOINT . "/" . $owningPatientUuid . "/allergy";
+        $follow = $this->testClient->get($owningPath . "/" . $allergyUuid);
+        $this->assertEquals(200, $follow->getStatusCode());
+        $followBody = $this->decodeBody($follow);
+        $this->assertIsArray($followBody["data"]);
+        $this->assertNotEmpty($followBody["data"]);
+        $this->assertIsArray($followBody["data"][0]);
+        $this->assertSame(
+            "Allergy-WrongPutGuard",
+            $followBody["data"][0]["title"] ?? null,
+            "Allergy must not have been overwritten through another patient's path."
+        );
+    }
+
+    /**
+     * PUT /api/patient/:puuid/medical_problem/:muuid — condition created on
+     * patient 1 must not be updatable through patient 2's path. Mirrors the
+     * allergy variant.
+     */
+    public function testPutMedicalProblemRejectsWrongPatient(): void
+    {
+        $owningPatientUuid = $this->createPatient();
+
+        $patient2Record = $this->patientRecord;
+        $patient2Record["fname"] = "WrongPutCondition";
+        $patient2Record["lname"] = "Patient2";
+        $response2 = $this->testClient->post(
+            self::PATIENT_API_ENDPOINT,
+            $patient2Record
+        );
+        $this->assertEquals(201, $response2->getStatusCode());
+        $body2 = $this->decodeBody($response2);
+        $this->assertIsArray($body2["data"]);
+        $this->assertIsString($body2["data"]["uuid"]);
+        $otherPatientUuid = $body2["data"]["uuid"];
+
+        $createBody = $this->createCondition($owningPatientUuid, [
+            "title" => "Condition-WrongPutGuard",
+            "type" => "medical_problem",
+            "diagnosis" => "ICD10:R10.9",
+            "begdate" => "2024-04-04",
+        ]);
+        $this->assertIsArray($createBody["data"]);
+        $this->assertIsString($createBody["data"]["uuid"]);
+        $conditionUuid = $createBody["data"]["uuid"];
+
+        $wrongPath = self::PATIENT_API_ENDPOINT . "/" . $otherPatientUuid . "/medical_problem";
+        $putResponse = $this->testClient->put($wrongPath, $conditionUuid, [
+            "title" => "Mutated-Across-Patient",
+            "begdate" => "2024-04-04",
+        ]);
+        $this->assertNotEquals(
+            200,
+            $putResponse->getStatusCode(),
+            "Wrong-patient PUT must not report success. Body: " . (string) $putResponse->getBody()
+        );
+
+        $owningPath = self::PATIENT_API_ENDPOINT . "/" . $owningPatientUuid . "/medical_problem";
+        $follow = $this->testClient->get($owningPath . "/" . $conditionUuid);
+        $this->assertEquals(200, $follow->getStatusCode());
+        $followBody = $this->decodeBody($follow);
+        $this->assertIsArray($followBody["data"]);
+        $this->assertNotEmpty($followBody["data"]);
+        $this->assertIsArray($followBody["data"][0]);
+        $this->assertSame(
+            "Condition-WrongPutGuard",
+            $followBody["data"][0]["title"] ?? null,
+            "Condition must not have been overwritten through another patient's path."
+        );
+    }
 }
