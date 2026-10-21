@@ -352,9 +352,9 @@ class X125010837P
                     $log .= "*** Pay to address has no state.\n";
                 }
                 $out .= "*";
-                // X12 requires a 9 digit zip but we output it anyways
-                if (strlen($claim->payToFacilityZip()) != 9) {
-                    $log .= "*** Pay to address zip is not 9 digits.\n";
+                // Unlike 2010AA and 2310C, the TR3 doesn't require ZIP+4 here: 5 or 9 digits.
+                if (!in_array(strlen($claim->payToFacilityZip()), [5, 9], true)) {
+                    $log .= "*** Pay to address zip is not 5 or 9 digits.\n";
                 }
                 $out .= $claim->payToFacilityZip();
                 $out .= "~\n";
