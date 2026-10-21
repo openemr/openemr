@@ -137,6 +137,9 @@ function unitsDist($dist): string
 // convert vitals service data to US values for graphing
 function convertHeightToUs($height): float
 {
+    if (!is_numeric($height)) {
+        return 0.0;
+    }
     return floatval(MeasurementUtils::cmToInches($height));
 }
 
