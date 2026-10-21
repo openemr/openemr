@@ -24,8 +24,10 @@ abstract class BaseFixtureManager
     private $hasInstalledFixtured;
     /** @var array<string, mixed>[] */
     private $fixtures = [];
+    /** @var array<string, list<int>> */
+    private array $installedFixtureIdsByTable = [];
 
-    public function __construct(private $fileName = "", private $tableName = "")
+    public function __construct(private string $fileName = "", private string $tableName = "")
     {
         $this->hasInstalledFixtured = false;
     }
@@ -105,18 +107,22 @@ abstract class BaseFixtureManager
     /**
      * Installs fixtures into the OpenEMR DB.
      *
-     * @param $tableName The target OpenEMR DB table name.
-     * @param $fixtures Array of fixture objects to install.
+     * @param string $tableName The target OpenEMR DB table name.
+     * @param array<array-key, mixed> $fixtures Fixture records to install.
      * @return int the number of fixtures installed.
      */
-    protected function installFixturesForTable($tableName, $fixtures)
+    protected function installFixturesForTable(string $tableName, array $fixtures): int
     {
         $insertCount = 0;
         $sqlInsert = "INSERT INTO " . escape_table_name($tableName) . " SET ";
 
         foreach ($fixtures as $fixture) {
+            if (!is_array($fixture)) {
+                throw new \UnexpectedValueException('Fixture records must be arrays.');
+            }
             $sqlColumnValues = "";
             $sqlBinds = [];
+            $fixtureId = null;
 
             foreach ($fixture as $field => $fieldValue) {
                 if (is_array($fieldValue) && $this->isForeignReference($fieldValue)) {
@@ -131,13 +137,30 @@ abstract class BaseFixtureManager
                     $sqlColumnValues .= $field . " = ?, ";
                     array_push($sqlBinds, $fieldValue);
                 }
+                if ($field === 'id' && is_numeric($fieldValue)) {
+                    $fixtureId = (int) $fieldValue;
+                }
             }
             $sqlColumnValues = rtrim($sqlColumnValues, " ,");
-            // sqlInsert throws on failure, so if we get here the insert succeeded
-            QueryUtils::sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
+            // sqlInsert throws on failure, so if we get here the insert succeeded.
+            $insertedId = QueryUtils::sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
+            $fixtureId ??= $insertedId;
+            if ($fixtureId > 0) {
+                $this->installedFixtureIdsByTable[$tableName][] = $fixtureId;
+            }
             $insertCount += 1;
         }
         return $insertCount;
+    }
+
+    /**
+     * Returns the primary keys of fixture rows inserted by this manager.
+     *
+     * @return list<int>
+     */
+    protected function getInstalledFixtureIds(string $tableName): array
+    {
+        return $this->installedFixtureIdsByTable[$tableName] ?? [];
     }
 
     public function installFixtures()
@@ -154,6 +177,7 @@ abstract class BaseFixtureManager
         // we have no generic way of signifying what the primary key of the table is so we force sub classes
         // to implement the remove fixture method
         $this->removeInstalledFixtures();
+        $this->installedFixtureIdsByTable = [];
         $this->hasInstalledFixtured = false;
     }
 
