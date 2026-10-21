@@ -185,9 +185,14 @@ trait FhirConditionTrait
         foreach (explode(';', $diagnosis) as $item) {
             $code = $codeTypes->parseCode($item);
             $codeType = is_string($code['code_type'] ?? null) ? $code['code_type'] : '';
+            $codeValue = is_string($code['code'] ?? null) ? $code['code'] : '';
+            // free text such as "headache", or the empty item after a trailing ';', is no coding
+            if ($codeType === '' || $codeValue === '') {
+                continue;
+            }
             $description = $this->lookupCodeDescription($codeTypes, $item);
             $parsed[] = [
-                'code' => is_string($code['code'] ?? null) ? $code['code'] : '',
+                'code' => $codeValue,
                 'description' => $description !== '' ? $description : $title,
                 'system' => $codeTypes->getSystemForCodeType($codeType),
             ];

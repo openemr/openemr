@@ -109,6 +109,22 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         $this->assertContains(FhirCodeSystemConstants::SNOMED_CT, $systems);
     }
 
+    public function testParseOpenEMRRecordSkipsUncodedDiagnosisItems(): void
+    {
+        // free text and the empty item after a trailing ';' carry no code system
+        $record = $this->getDefaultOpenEMRRecord();
+        $record['diagnosis'] = 'ICD10:I10.;headache;';
+        $record['title'] = 'Essential (primary) hypertension';
+
+        $fhirResource = $this->serviceWithCodeDescriptions([])->parseOpenEMRRecord($record);
+        $this->assertInstanceOf(FHIRCondition::class, $fhirResource);
+
+        $codings = $fhirResource->getCode()->getCoding();
+        $this->assertCount(1, $codings);
+        $this->assertEquals('I10.', $codings[0]->getCode());
+        $this->assertEquals('Essential (primary) hypertension', $fhirResource->getCode()->getText());
+    }
+
     public function testParseOpenEMRRecordUsesEachCodesOwnDescription(): void
     {
         $record = $this->getDefaultOpenEMRRecord();
