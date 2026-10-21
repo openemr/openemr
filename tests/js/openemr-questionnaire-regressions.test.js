@@ -218,8 +218,9 @@ describe('FHIRPath engine: tokenizer and new functions', () => {
     });
 
     test('repeatAll keeps duplicates that repeat would collapse', () => {
-        const env = { root: [{ step: { label: 'x', step: { label: 'x' } } }] };
-        expect(evalPath('%root.repeat(step).count()', env)).toEqual([2]);
+        const env = { root: [{ step: [{ label: 'x' }, { label: 'x' }] }] };
+        expect(evalPath('%root.repeat(step).count()', env)).toEqual([1]);
+        expect(evalPath('%root.repeatAll(step).count()', env)).toEqual([2]);
     });
 
     test('distinct removes duplicates', () => {

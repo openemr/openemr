@@ -585,19 +585,23 @@
                 prefixes.push(instanceKeyPrefix(storageKey, index));
             }
             const removedPrefix = prefixes[instanceIndex];
-            for (const key of [...this.answers.keys()]) {
-                if (key.startsWith(removedPrefix)) {
-                    this.answers.delete(key);
+            // Shift answers AND nested repeat counts: inner repeating groups keep
+            // their instance counts under keys like outer\u0000i\u0000inner, which
+            // must move with their instance or nested answers are lost on removal.
+            for (const map of [this.answers, this.repeatCounts]) {
+                for (const key of [...map.keys()]) {
+                    if (key.startsWith(removedPrefix)) {
+                        map.delete(key);
+                    }
                 }
-            }
-            for (let index = instanceIndex + 1; index < count; index++) {
-                const fromPrefix = prefixes[index];
-                const toPrefix = prefixes[index - 1];
-                for (const key of [...this.answers.keys()]) {
-                    if (key.startsWith(fromPrefix)) {
-                        const moved = toPrefix + key.slice(fromPrefix.length);
-                        this.answers.set(moved, this.answers.get(key));
-                        this.answers.delete(key);
+                for (let index = instanceIndex + 1; index < count; index++) {
+                    const fromPrefix = prefixes[index];
+                    const toPrefix = prefixes[index - 1];
+                    for (const key of [...map.keys()]) {
+                        if (key.startsWith(fromPrefix)) {
+                            map.set(toPrefix + key.slice(fromPrefix.length), map.get(key));
+                            map.delete(key);
+                        }
                     }
                 }
             }
@@ -1282,6 +1286,9 @@
             this.evaluator = new FhirPathEvaluator();
             this.compiledExpressions = new Map();
             this.compiledByString = new Map();
+            // compile-time warnings persist for the session; evaluation warnings
+            // are reset each refresh so repeated passes don't accumulate copies.
+            this.compileWarnings = [];
             this.warnings = [];
             this.compileExpressions();
         }
@@ -1310,7 +1317,7 @@
                         this.compiledExpressions.set(expression, ast);
                         this.compiledByString.set(expression.expression, ast);
                     } catch (error) {
-                        this.warnings.push({
+                        this.compileWarnings.push({
                             code: 'fhirpath-compile-error',
                             linkId: compiledItem.linkId,
                             expression: expression.expression,
@@ -1319,6 +1326,10 @@
                     }
                 }
             }
+        }
+
+        resetEvaluationWarnings() {
+            this.warnings = [];
         }
 
         buildEnvironment(runtime, compiledItem) {
@@ -1525,7 +1536,10 @@
         // so non-repeating questionnaires are unaffected.
         evaluateInstances() {
             this.instanceEnabled.clear();
-            const walk = (items, prefix, groupLinkId) => {
+            // chain carries every enclosing repeating-group instance, outermost
+            // first: [{ groupLinkId, prefix }, ...]. prefix is that instance's
+            // storage-key prefix.
+            const walk = (items, prefix, chain) => {
                 for (const item of items ?? []) {
                     if (typeof item?.linkId !== 'string') {
                         continue;
@@ -1534,44 +1548,47 @@
                     if (isRepeatingGroup(item)) {
                         const count = this.runtime.responseStore.getRepeatCount(storageKey);
                         for (let instanceIndex = 0; instanceIndex < count; instanceIndex++) {
-                            walk(item.item, instanceKeyPrefix(storageKey, instanceIndex), item.linkId);
+                            const instancePrefix = instanceKeyPrefix(storageKey, instanceIndex);
+                            walk(item.item, instancePrefix, [...chain, { groupLinkId: item.linkId, prefix: instancePrefix }]);
                         }
                         continue;
                     }
                     if (prefix !== '') {
-                        this.instanceEnabled.set(storageKey, this.evaluateInstanceItem(item, prefix, groupLinkId));
+                        this.instanceEnabled.set(storageKey, this.evaluateInstanceItem(item, chain));
                     }
-                    walk(item.item, prefix, groupLinkId);
+                    walk(item.item, prefix, chain);
                 }
             };
-            walk(this.runtime.questionnaire.item, '', null);
+            walk(this.runtime.questionnaire.item, '', []);
         }
 
-        evaluateInstanceItem(item, prefix, groupLinkId) {
-            // The enclosing repeating group's own enablement gates every instance.
-            if (groupLinkId && this.enabled.get(groupLinkId) === false) {
-                return false;
+        evaluateInstanceItem(item, chain) {
+            // Every enclosing repeating group's own enablement gates the instance.
+            for (const { groupLinkId } of chain) {
+                if (this.enabled.get(groupLinkId) === false) {
+                    return false;
+                }
             }
             const conditions = item.enableWhen ?? [];
             if (conditions.length === 0) {
                 return true;
             }
-            const results = conditions.map((condition) => {
-                const answers = this.resolveConditionAnswers(condition, prefix, groupLinkId);
-                return this.matchCondition(condition, answers);
-            });
+            const results = conditions.map((condition) => this.matchCondition(condition, this.resolveConditionAnswers(condition, chain)));
             const behavior = item.enableBehavior ?? (conditions.length > 1 ? 'any' : 'all');
             return behavior === 'any' ? results.some(Boolean) : results.every(Boolean);
         }
 
-        // Resolve a condition's referenced answers to the same repeat instance
-        // when the referenced question lives inside the same repeating group;
-        // otherwise fall back to the canonical (outer) answer.
-        resolveConditionAnswers(condition, prefix, groupLinkId) {
+        // Resolve a condition's referenced answers to the nearest enclosing repeat
+        // instance whose group contains the question; fall back to the canonical
+        // (outer, non-repeating) answer when no enclosing group matches.
+        resolveConditionAnswers(condition, chain) {
             const questionLinkId = condition.question;
-            const descendants = groupLinkId ? this.runtime.compiled.repeatGroupDescendants.get(groupLinkId) : null;
-            if (descendants && descendants.has(questionLinkId)) {
-                return this.runtime.responseStore.getAnswers(prefix + questionLinkId);
+            for (let index = chain.length - 1; index >= 0; index--) {
+                const { groupLinkId, prefix } = chain[index];
+                const descendants = this.runtime.compiled.repeatGroupDescendants.get(groupLinkId);
+                if (descendants && descendants.has(questionLinkId)) {
+                    return this.runtime.responseStore.getAnswers(prefix + questionLinkId);
+                }
             }
             return this.runtime.responseStore.getAnswers(questionLinkId);
         }
@@ -1645,86 +1662,99 @@
 
         validate() {
             const issues = [];
+
+            // Constraints (questionnaire-constraint) evaluate against the whole
+            // %resource, so they run once per compiled item (groups included).
             for (const compiledItem of this.runtime.compiled.items) {
-                const item = compiledItem.item;
-                if (compiledItem.hidden === true || !this.runtime.isEnabled(compiledItem.linkId) || item.type === 'display') {
+                if (compiledItem.hidden === true || !this.runtime.isEnabled(compiledItem.linkId)) {
                     continue;
                 }
-
-                // Constraints (questionnaire-constraint) apply to any item, groups included.
                 if (compiledItem.constraints.length > 0) {
                     issues.push(...this.runtime.expressionEngine.evaluateConstraints(this.runtime, compiledItem));
                 }
-
-                if (item.type === 'group') {
-                    continue;
-                }
-
-                const answers = this.runtime.responseStore.getAnswers(compiledItem.linkId);
-                const label = item.text || compiledItem.linkId;
-                const minOccurs = getIntegerExtension(item, EXTENSIONS.MIN_OCCURS);
-                const maxOccurs = getIntegerExtension(item, EXTENSIONS.MAX_OCCURS);
-                const requiredCount = minOccurs !== null ? minOccurs : (item.required === true ? 1 : 0);
-                if (requiredCount > 0 && answers.length < requiredCount) {
-                    issues.push({
-                        severity: 'error',
-                        code: minOccurs !== null ? 'min-occurs' : 'required',
-                        linkId: compiledItem.linkId,
-                        message: requiredCount === 1
-                            ? label + ' requires a value'
-                            : label + ' requires at least ' + requiredCount + ' answers',
-                    });
-                }
-                if (maxOccurs !== null && answers.length > maxOccurs) {
-                    issues.push({
-                        severity: 'error',
-                        code: 'max-occurs',
-                        linkId: compiledItem.linkId,
-                        message: label + ' allows at most ' + maxOccurs + ' answers',
-                    });
-                }
-                this.validateValueBounds(item, compiledItem.linkId, label, answers, issues);
-                if (Number.isInteger(item.maxLength)) {
-                    for (const answer of answers) {
-                        if (typeof answer.value === 'string' && answer.value.length > item.maxLength) {
-                            issues.push({
-                                severity: 'error',
-                                code: 'max-length',
-                                linkId: compiledItem.linkId,
-                                message: (item.text || compiledItem.linkId) + ' exceeds the maximum length',
-                            });
-                        }
-                    }
-                }
-                const regexPattern = getRegex(item);
-                if (regexPattern !== '') {
-                    let compiledRegex = null;
-                    try {
-                        compiledRegex = new RegExp('^(?:' + regexPattern + ')$');
-                    } catch {
-                        compiledRegex = null;
-                    }
-                    if (compiledRegex) {
-                        for (const answer of answers) {
-                            if (typeof answer.value === 'string' && answer.value !== '' && !compiledRegex.test(answer.value)) {
-                                issues.push({
-                                    severity: 'error',
-                                    code: 'regex',
-                                    linkId: compiledItem.linkId,
-                                    message: (item.text || compiledItem.linkId) + ' does not match the required format',
-                                });
-                            }
-                        }
-                    }
-                }
             }
+
+            // Answer validation traverses repeating-group instances so that each
+            // instance's children validate against their own instance answers and
+            // per-instance enablement, and issues target the correct node.
+            const visit = (items, prefix) => {
+                for (const item of items ?? []) {
+                    if (typeof item?.linkId !== 'string') {
+                        continue;
+                    }
+                    const storageKey = prefix + item.linkId;
+                    const compiledItem = this.runtime.compiled.itemsByLinkId.get(item.linkId);
+                    if (isRepeatingGroup(item)) {
+                        const count = this.runtime.responseStore.getRepeatCount(storageKey);
+                        for (let instanceIndex = 0; instanceIndex < count; instanceIndex++) {
+                            visit(item.item, instanceKeyPrefix(storageKey, instanceIndex));
+                        }
+                        continue;
+                    }
+                    if (item.type === 'group') {
+                        visit(item.item, prefix);
+                        continue;
+                    }
+                    if (item.type === 'display' || !compiledItem || compiledItem.hidden === true || !this.runtime.isEnabled(storageKey)) {
+                        continue;
+                    }
+                    this.validateItem(compiledItem, storageKey, issues);
+                }
+            };
+            visit(this.runtime.questionnaire.item, '');
+
             return {
                 valid: issues.length === 0,
                 issues,
             };
         }
 
-        validateValueBounds(item, linkId, label, answers, issues) {
+        validateItem(compiledItem, storageKey, issues) {
+            const item = compiledItem.item;
+            const answers = this.runtime.responseStore.getAnswers(storageKey);
+            const label = item.text || compiledItem.linkId;
+            const add = (severity, code, message) => issues.push({
+                severity, code, linkId: compiledItem.linkId, storageKey, message,
+            });
+
+            const minOccurs = getIntegerExtension(item, EXTENSIONS.MIN_OCCURS);
+            const maxOccurs = getIntegerExtension(item, EXTENSIONS.MAX_OCCURS);
+            const requiredCount = minOccurs !== null ? minOccurs : (item.required === true ? 1 : 0);
+            if (requiredCount > 0 && answers.length < requiredCount) {
+                add('error', minOccurs !== null ? 'min-occurs' : 'required',
+                    requiredCount === 1 ? label + ' requires a value' : label + ' requires at least ' + requiredCount + ' answers');
+            }
+            if (maxOccurs !== null && answers.length > maxOccurs) {
+                add('error', 'max-occurs', label + ' allows at most ' + maxOccurs + ' answers');
+            }
+            this.validateValueBounds(item, storageKey, label, answers, issues);
+            if (Number.isInteger(item.maxLength)) {
+                for (const answer of answers) {
+                    if (typeof answer.value === 'string' && answer.value.length > item.maxLength) {
+                        add('error', 'max-length', label + ' exceeds the maximum length');
+                    }
+                }
+            }
+            const regexPattern = getRegex(item);
+            if (regexPattern !== '') {
+                let compiledRegex = null;
+                try {
+                    compiledRegex = new RegExp('^(?:' + regexPattern + ')$');
+                } catch {
+                    compiledRegex = null;
+                }
+                if (compiledRegex) {
+                    for (const answer of answers) {
+                        if (typeof answer.value === 'string' && answer.value !== '' && !compiledRegex.test(answer.value)) {
+                            add('error', 'regex', label + ' does not match the required format');
+                        }
+                    }
+                }
+            }
+        }
+
+        validateValueBounds(item, storageKey, label, answers, issues) {
+            const linkId = storageKey.split(INSTANCE_SEPARATOR).pop();
             const minValue = getTypedExtensionValue(item, EXTENSIONS.MIN_VALUE);
             const maxValue = getTypedExtensionValue(item, EXTENSIONS.MAX_VALUE);
             const maxDecimalPlaces = getIntegerExtension(item, EXTENSIONS.MAX_DECIMAL_PLACES);
@@ -1736,13 +1766,13 @@
                 if (comparable !== undefined) {
                     if (minValue !== undefined && comparable < minValue) {
                         issues.push({
-                            severity: 'error', code: 'min-value', linkId,
+                            severity: 'error', code: 'min-value', linkId, storageKey,
                             message: label + ' must be at least ' + minValue,
                         });
                     }
                     if (maxValue !== undefined && comparable > maxValue) {
                         issues.push({
-                            severity: 'error', code: 'max-value', linkId,
+                            severity: 'error', code: 'max-value', linkId, storageKey,
                             message: label + ' must be at most ' + maxValue,
                         });
                     }
@@ -1751,7 +1781,7 @@
                     const decimals = (String(value).split('.')[1] ?? '').length;
                     if (decimals > maxDecimalPlaces) {
                         issues.push({
-                            severity: 'error', code: 'max-decimal-places', linkId,
+                            severity: 'error', code: 'max-decimal-places', linkId, storageKey,
                             message: label + ' allows at most ' + maxDecimalPlaces + ' decimal places',
                         });
                     }
@@ -2012,7 +2042,10 @@
                 return wrapper;
             }
             const display = document.createElement('div');
-            const category = getStringExtension(item, EXTENSIONS.DISPLAY_CATEGORY);
+            const categoryExtension = findExtension(item, EXTENSIONS.DISPLAY_CATEGORY);
+            const category = categoryExtension?.valueCodeableConcept?.coding
+                ?.find((coding) => typeof coding?.code === 'string')?.code
+                ?? getStringExtension(item, EXTENSIONS.DISPLAY_CATEGORY);
             const categoryClass = category === 'instructions' ? 'alert-info'
                 : (category === 'security' ? 'alert-warning' : 'alert-secondary');
             display.className = 'alert ' + categoryClass;
@@ -2575,7 +2608,7 @@
         showValidationIssues(issues) {
             this.clearValidationState();
             for (const issue of issues) {
-                this.nodes.get(issue.linkId)?.classList.add('oe-questionnaire-invalid');
+                this.nodes.get(issue.storageKey ?? issue.linkId)?.classList.add('oe-questionnaire-invalid');
             }
         }
     }
@@ -2637,6 +2670,10 @@
         }
 
         refreshState() {
+            // Clear evaluation warnings up front so repeated passes (evaluateAll
+            // runs twice per change, each up to 10 iterations) don't accumulate
+            // duplicate entries in the warning panel.
+            this.expressionEngine.resetEvaluationWarnings();
             this.behaviorEngine.evaluateAll();
             if (!this.initialExpressionsSeeded) {
                 // Seed initialExpression values once, after enablement is known
@@ -2682,7 +2719,20 @@
         }
 
         collectWarnings() {
-            return [...this.compiled.warnings, ...this.expressionEngine.warnings];
+            const merged = [
+                ...this.compiled.warnings,
+                ...this.expressionEngine.compileWarnings,
+                ...this.expressionEngine.warnings,
+            ];
+            const seen = new Set();
+            return merged.filter((warning) => {
+                const signature = [warning.code, warning.linkId, warning.expression, warning.message].join(INSTANCE_SEPARATOR);
+                if (seen.has(signature)) {
+                    return false;
+                }
+                seen.add(signature);
+                return true;
+            });
         }
 
         emitWarnings() {

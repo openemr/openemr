@@ -273,10 +273,9 @@ describe('displayCategory', () => {
                 extension: [{ url: X.DISPLAY_CATEGORY, valueCodeableConcept: { coding: [{ code: 'instructions' }] } }],
             },
         ]);
-        // displayCategory is commonly a CodeableConcept; the runtime also accepts a code string.
+        // displayCategory is commonly a CodeableConcept; the runtime reads its coding code.
         const alert = itemNode(container, 'd').querySelector('.alert');
-        // CodeableConcept form is not a plain string, so falls back to secondary; code-string form below is asserted.
-        expect(alert).not.toBeNull();
+        expect(alert.classList.contains('alert-info')).toBe(true);
     });
 
     test('instructions category (code string) uses alert-info', () => {

@@ -177,4 +177,125 @@ describe('nested repeating groups', () => {
         expect(innerValues(outers[0])).toEqual(['a', 'b']);
         expect(innerValues(outers[1])).toEqual(['c']);
     });
+
+    test('removing an outer instance preserves nested inner counts and answers', () => {
+        const { container, runtime } = nested();
+        const outerNode = container.querySelector('[data-link-id="outer"]');
+        outerNode.querySelector(':scope > .card-body > .oe-questionnaire-repeat-add').click();
+
+        const setVal = (instanceNode, value) => {
+            const input = instanceNode.querySelector('[data-link-id="innerVal"] input');
+            input.value = value;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+
+        // outer 1 gets two inner instances
+        const inner1 = directInstances(outerNode)[1].querySelector('[data-link-id="inner"]');
+        inner1.querySelector(':scope > .card-body > .oe-questionnaire-repeat-add').click();
+        const inner1Instances = directInstances(directInstances(outerNode)[1].querySelector('[data-link-id="inner"]'));
+        setVal(inner1Instances[0], 'x');
+        setVal(inner1Instances[1], 'y');
+
+        // remove outer instance 0
+        directInstances(outerNode)[0].querySelector('.oe-questionnaire-repeat-remove').click();
+
+        const outers = runtime.getQuestionnaireResponse().item.filter((entry) => entry.linkId === 'outer');
+        expect(outers).toHaveLength(1);
+        const innerValues = outers[0].item
+            .filter((i) => i.linkId === 'inner')
+            .map((innerItem) => innerItem.item.find((c) => c.linkId === 'innerVal').answer[0].valueString);
+        // both inner answers survive the outer removal (nested counts shifted)
+        expect(innerValues).toEqual(['x', 'y']);
+    });
+
+    test('enableWhen referencing an outer-scope answer resolves across nesting', () => {
+        const { container } = mount([
+            {
+                linkId: 'outer', type: 'group', text: 'Outer', repeats: true,
+                item: [
+                    { linkId: 'outerFlag', type: 'boolean', text: 'Outer flag' },
+                    {
+                        linkId: 'inner', type: 'group', text: 'Inner', repeats: true,
+                        item: [{
+                            linkId: 'dep', type: 'string', text: 'Dep',
+                            enableWhen: [{ question: 'outerFlag', operator: '=', answerBoolean: true }],
+                        }],
+                    },
+                ],
+            },
+        ]);
+        const outerNode = container.querySelector('[data-link-id="outer"]');
+        const outer0 = directInstances(outerNode)[0];
+        const inner0 = outer0.querySelector('[data-link-id="inner"]');
+        const dep = directInstances(inner0)[0].querySelector('[data-link-id="dep"]');
+
+        // dep depends on the outer-scope flag, initially off -> hidden
+        expect(dep.classList.contains('d-none')).toBe(true);
+
+        const yes = outer0.querySelectorAll('[data-link-id="outerFlag"] input[type="radio"]')[0];
+        yes.checked = true;
+        yes.dispatchEvent(new Event('change', { bubbles: true }));
+
+        const depAfter = directInstances(container.querySelector('[data-link-id="outer"] [data-link-id="inner"]'))[0]
+            .querySelector('[data-link-id="dep"]');
+        expect(depAfter.classList.contains('d-none')).toBe(false);
+    });
+});
+
+describe('per-instance validation', () => {
+    test('a required child of a repeating group validates against its own instance answer', () => {
+        const { container, runtime } = mount([
+            {
+                linkId: 'g', type: 'group', text: 'G', repeats: true,
+                item: [{ linkId: 'req', type: 'string', text: 'Required', required: true }],
+            },
+        ]);
+        // empty required child -> invalid
+        expect(runtime.validate().valid).toBe(false);
+        // fill the instance-0 field -> valid (canonical key stays empty; proves per-instance lookup)
+        const input = container.querySelector('[data-link-id="g"] .oe-questionnaire-group-instance [data-link-id="req"] input');
+        input.value = 'filled';
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        expect(runtime.validate().valid).toBe(true);
+    });
+
+    test('a regex child of a repeating group is validated per instance', () => {
+        const { container, runtime } = mount([
+            {
+                linkId: 'g', type: 'group', text: 'G', repeats: true,
+                item: [{
+                    linkId: 'zip', type: 'string', text: 'Zip',
+                    extension: [{ url: runtimeApi.EXTENSIONS.REGEX, valueString: '^[0-9]{5}$' }],
+                }],
+            },
+        ]);
+        const input = container.querySelector('[data-link-id="g"] .oe-questionnaire-group-instance [data-link-id="zip"] input');
+        input.value = 'abc';
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        const result = runtime.validate();
+        expect(result.valid).toBe(false);
+        expect(result.issues.some((i) => i.code === 'regex')).toBe(true);
+        input.value = '12345';
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        expect(runtime.validate().valid).toBe(true);
+    });
+});
+
+describe('warning accumulation', () => {
+    test('a failing expression does not grow the warning panel across edits', () => {
+        const CALC = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
+        const { container, runtime } = mount([
+            { linkId: 'a', type: 'string', text: 'A' },
+            {
+                linkId: 'bad', type: 'integer', text: 'Bad', readOnly: true,
+                extension: [{ url: CALC, valueExpression: { language: 'text/fhirpath', expression: 'this is ! broken (' } }],
+            },
+        ]);
+        const countWarnings = () => container.querySelectorAll('.oe-questionnaire-warnings li').length;
+        const first = countWarnings();
+        for (let i = 0; i < 5; i++) {
+            runtime.setAnswers('a', [{ valueKey: 'valueString', value: 'x' + i }]);
+        }
+        expect(countWarnings()).toBe(first);
+    });
 });
