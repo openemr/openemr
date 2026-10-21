@@ -28,7 +28,7 @@ stage="$(mktemp -d)"
 trap 'rm -rf "${stage}"' EXIT
 
 echo "==> Cloning oe-module-api-explorer (main HEAD)"
-git clone --quiet --depth 1 --branch main https://github.com/sjpadgett/oe-module-api-explorer.git "${stage}/explorer"
+git clone --quiet --depth 1 --branch main https://github.com/openemr/oe-module-api-explorer.git "${stage}/explorer"
 rm -rf "${stage}/explorer/.git"
 
 mkdir -p devtools
