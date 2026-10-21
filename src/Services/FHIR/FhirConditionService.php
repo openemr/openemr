@@ -123,7 +123,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
 
                 $catServices = $this->getServiceListForCategory(
                     // TODO: @adunsulag should we put inside TokenSearchValue the exploding of the comma separated values?
-                    new TokenSearchField('category', explode(",", $category))
+                    TokenSearchField::fromEscapedFHIRString('category', $category)
                 );
                 foreach ($catServices as $service) {
                     $servicesMap[$service::class] = $service;
