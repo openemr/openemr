@@ -363,3 +363,12 @@ CREATE TABLE `task` (
 #IfMissingColumn task version
 ALTER TABLE `task` ADD COLUMN `version` int(11) NOT NULL DEFAULT 1 COMMENT 'FHIR meta.versionId: 1 on create, raised by each update (If-Match)';
 #EndIf
+
+-- Address Book NPI requirement. NPI is US-only (CMS/NPPES). New installs use
+-- the globals.inc.php default of on. Upgrades insert the flag off and leave
+-- it off. Units for Visit Forms is not a country, so this upgrade does not
+-- turn the setting on. A site that wants it enables it explicitly. The insert
+-- stays inside #IfNotRow so a later run does not add the row again.
+#IfNotRow globals gl_name addrbook_require_npi
+INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES ('addrbook_require_npi', 0, '0');
+#EndIf
