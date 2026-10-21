@@ -262,7 +262,7 @@ paths:
       security:
         -
           openemr_auth: {  }
-  '/api/background_service/{name}/run':
+  '/api/background_service/{name}/$run':
     post:
       tags:
         - standard
