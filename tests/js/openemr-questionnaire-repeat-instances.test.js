@@ -299,3 +299,62 @@ describe('warning accumulation', () => {
         expect(countWarnings()).toBe(first);
     });
 });
+
+describe('CodeRabbit rev2 fixes', () => {
+    const CALC = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
+
+    test('enableWhenExpression gates an item inside a repeating group', () => {
+        const { container, runtime } = mount([
+            { linkId: 'flag', type: 'boolean', text: 'Flag' },
+            {
+                linkId: 'g', type: 'group', text: 'G', repeats: true,
+                item: [{
+                    linkId: 'dep', type: 'string', text: 'Dep',
+                    extension: [{
+                        url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression',
+                        valueExpression: { language: 'text/fhirpath', expression: "%resource.item.where(linkId='flag').answer.exists()" },
+                    }],
+                }],
+            },
+        ]);
+        const dep = () => container.querySelector('[data-link-id="g"] .oe-questionnaire-group-instance [data-link-id="dep"]');
+        expect(dep().classList.contains('d-none')).toBe(true);
+        runtime.setAnswers('flag', [{ valueKey: 'valueBoolean', value: true }]);
+        expect(dep().classList.contains('d-none')).toBe(false);
+    });
+
+    test('a newly added repeat instance receives item.initial values', () => {
+        const { container, runtime } = mount([
+            {
+                linkId: 'g', type: 'group', text: 'G', repeats: true,
+                item: [{ linkId: 'seed', type: 'string', text: 'Seed', initial: [{ valueString: 'default' }] }],
+            },
+        ]);
+        container.querySelector('[data-link-id="g"] .oe-questionnaire-repeat-add').click();
+        const groups = runtime.getQuestionnaireResponse().item.filter((entry) => entry.linkId === 'g');
+        expect(groups).toHaveLength(2);
+        // both the original and the added instance carry the initial value
+        expect(groups[0].item.find((i) => i.linkId === 'seed').answer[0].valueString).toBe('default');
+        expect(groups[1].item.find((i) => i.linkId === 'seed').answer[0].valueString).toBe('default');
+    });
+
+    test('a calculatedExpression inside a repeating group is skipped with a visible warning', () => {
+        const { container, runtime } = mount([
+            {
+                linkId: 'g', type: 'group', text: 'G', repeats: true,
+                item: [
+                    { linkId: 'x', type: 'integer', text: 'X' },
+                    {
+                        linkId: 'calc', type: 'integer', text: 'Calc', readOnly: true,
+                        extension: [{ url: CALC, valueExpression: { language: 'text/fhirpath', expression: '1 + 1' } }],
+                    },
+                ],
+            },
+        ]);
+        // a visible warning names the unsupported case
+        expect(container.querySelector('.oe-questionnaire-warnings').textContent).toContain('repeating group');
+        // nothing is written to a canonical key: the calc child has no answer in the instance
+        const group = runtime.getQuestionnaireResponse().item.find((entry) => entry.linkId === 'g');
+        expect((group.item || []).some((i) => i.linkId === 'calc')).toBe(false);
+    });
+});

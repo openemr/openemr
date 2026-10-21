@@ -570,6 +570,10 @@
         addRepeatInstance(storageKey) {
             const next = this.getRepeatCount(storageKey) + 1;
             this.repeatCounts.set(storageKey, next);
+            // Seed the new instance's item.initial / answerOption.initialSelected
+            // values. applyInitialAnswers only fills keys without answers, so
+            // existing instances are preserved.
+            this.applyInitialAnswers();
             return next;
         }
 
@@ -1326,6 +1330,25 @@
                     }
                 }
             }
+
+            // calculatedExpression / initialExpression are not evaluated
+            // per-instance (they would write to a canonical key that no repeat
+            // instance renders or serializes). Surface that as a compile warning
+            // so the gap is visible rather than silent.
+            for (const compiledItem of this.compiled.expressionItems) {
+                const insideRepeat = (this.compiled.repeatAncestors.get(compiledItem.linkId) ?? []).length > 0;
+                if (insideRepeat && (compiledItem.calculatedExpression || compiledItem.initialExpression)) {
+                    this.compileWarnings.push({
+                        code: 'expression-in-repeat-unsupported',
+                        linkId: compiledItem.linkId,
+                        message: 'calculatedExpression/initialExpression inside a repeating group is not evaluated per instance and is skipped.',
+                    });
+                }
+            }
+        }
+
+        isInsideRepeat(compiledItem) {
+            return (this.compiled.repeatAncestors.get(compiledItem.linkId) ?? []).length > 0;
         }
 
         resetEvaluationWarnings() {
@@ -1362,6 +1385,9 @@
         // Seed answers from initialExpression for items the user has not answered.
         evaluateInitialExpressions(runtime) {
             for (const compiledItem of this.compiled.expressionItems) {
+                if (this.isInsideRepeat(compiledItem)) {
+                    continue;
+                }
                 const expression = compiledItem.initialExpression;
                 const ast = expression && this.compiledExpressions.get(expression);
                 if (!ast || runtime.responseStore.hasAnswers(compiledItem.linkId)) {
@@ -1444,6 +1470,11 @@
         recalculate(runtime) {
             const resource = runtime.responseStore.buildQuestionnaireResponse((linkId) => runtime.isEnabled(linkId));
             for (const compiledItem of this.compiled.calculatedItems) {
+                if (this.isInsideRepeat(compiledItem)) {
+                    // Not evaluated per instance (warned at compile time); skip so
+                    // nothing is written to an unused canonical key.
+                    continue;
+                }
                 const item = compiledItem.item;
                 const environment = {
                     questionnaire: this.compiled.questionnaire,
@@ -1569,6 +1600,17 @@
                     return false;
                 }
             }
+
+            // enableWhenExpression gates the instance the same way it gates a
+            // canonical item in evaluateItem (combined with any enableWhen).
+            const compiledItem = this.runtime.compiled.itemsByLinkId.get(item.linkId);
+            if (compiledItem?.enableWhenExpression) {
+                const expressionResult = this.runtime.expressionEngine.evaluateEnableWhenExpression(this.runtime, compiledItem);
+                if (expressionResult === false) {
+                    return false;
+                }
+            }
+
             const conditions = item.enableWhen ?? [];
             if (conditions.length === 0) {
                 return true;
@@ -1704,7 +1746,7 @@
             visit(this.runtime.questionnaire.item, '');
 
             return {
-                valid: issues.length === 0,
+                valid: !issues.some((issue) => issue.severity === 'error'),
                 issues,
             };
         }
@@ -1978,6 +2020,9 @@
 
             const minOccurs = Math.max(getIntegerExtension(item, EXTENSIONS.MIN_OCCURS) ?? 1, 1);
             const maxOccurs = getIntegerExtension(item, EXTENSIONS.MAX_OCCURS);
+            if (this.runtime.responseStore.getRepeatCount(storageKey) < minOccurs) {
+                this.runtime.responseStore.setRepeatCount(storageKey, minOccurs);
+            }
 
             const rerender = () => {
                 body.replaceChildren();

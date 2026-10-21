@@ -173,6 +173,25 @@ describe('questionnaire-constraint', () => {
         runtime.setAnswers('b', [{ valueKey: 'valueInteger', value: 9 }]);
         expect(runtime.validate().valid).toBe(true);
     });
+    test('a warning-severity constraint does not invalidate the form', () => {
+        const warnConstraint = {
+            url: X.CONSTRAINT,
+            extension: [
+                { url: 'key', valueString: 'soft' },
+                { url: 'severity', valueCode: 'warning' },
+                { url: 'human', valueString: 'Soft advisory' },
+                { url: 'expression', valueString: "%resource.item.where(linkId='v').answer.valueInteger < 10" },
+            ],
+        };
+        const { runtime } = mount([
+            { linkId: 'v', type: 'integer', text: 'V', extension: [warnConstraint] },
+        ]);
+        runtime.setAnswers('v', [{ valueKey: 'valueInteger', value: 50 }]);
+        const result = runtime.validate();
+        // the advisory fires as a warning but the form stays valid
+        expect(result.issues.some((i) => i.code === 'constraint' && i.severity === 'warning')).toBe(true);
+        expect(result.valid).toBe(true);
+    });
 });
 
 describe('minValue / maxValue / maxDecimalPlaces', () => {
@@ -206,7 +225,7 @@ describe('minValue / maxValue / maxDecimalPlaces', () => {
 });
 
 describe('minOccurs / maxOccurs', () => {
-    test('a repeating group honors minOccurs for initial count and maxOccurs as an add cap', () => {
+    test('a repeating group shows minOccurs instances at mount and caps adds at maxOccurs', () => {
         const { container } = mount([
             {
                 linkId: 'g', type: 'group', text: 'G', repeats: true,
@@ -217,12 +236,10 @@ describe('minOccurs / maxOccurs', () => {
                 item: [{ linkId: 'c', type: 'string', text: 'C' }],
             },
         ]);
-        // minOccurs defaults the visible instance count only when loaded data drives it;
-        // maxOccurs caps the Add control.
-        const addButton = container.querySelector('[data-link-id="g"] .oe-questionnaire-repeat-add');
-        // one instance by default, maxOccurs 2 so Add is still enabled
-        expect(addButton.disabled).toBe(false);
-        addButton.click();
+        // minOccurs=2 -> two instances rendered at mount
+        const instances = container.querySelectorAll('[data-link-id="g"] .oe-questionnaire-group-instance');
+        expect(instances).toHaveLength(2);
+        // maxOccurs=2 already reached -> Add disabled
         expect(container.querySelector('[data-link-id="g"] .oe-questionnaire-repeat-add').disabled).toBe(true);
     });
 
