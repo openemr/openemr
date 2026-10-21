@@ -22,6 +22,7 @@ use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 #[Group('isolated')]
 #[Group('core')]
@@ -241,6 +242,29 @@ class OEGlobalsBagIsolatedTest extends TestCase
 
         $this->expectException(BadRequestException::class);
         $bag->all('code_types');
+    }
+
+    /**
+     * all($key) also keeps the parent's answer for a key that is present with a null value:
+     * ParameterBag reads `$this->parameters[$key] ?? []`, so null comes back as [] rather than
+     * throwing. This holds for a plain bag and for the singleton reading the live $GLOBALS.
+     */
+    public function testAllWithKeyReturnsAnEmptyArrayForANullValueLikeTheParent(): void
+    {
+        $this->assertSame([], (new ParameterBag(['null_global' => null]))->all('null_global'), 'parent contract');
+        $this->assertSame([], (new OEGlobalsBag(['null_global' => null]))->all('null_global'));
+
+        $key = 'oeglobalsbag_isolated_test_null_all';
+        $this->assertArrayNotHasKey($key, $GLOBALS);
+        $bag = OEGlobalsBag::getInstance();
+
+        try {
+            $GLOBALS[$key] = null;
+
+            $this->assertSame([], $bag->all($key));
+        } finally {
+            unset($GLOBALS[$key]);
+        }
     }
 
     /**

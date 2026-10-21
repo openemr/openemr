@@ -141,8 +141,9 @@ class OEGlobalsBag extends ParameterBag
 
     /**
      * With a key, reads the live value through {@see self::get()} instead of the construction-time
-     * snapshot, so the singleton sees globals written to $GLOBALS after getInstance(). Without a
-     * key, the parent's whole-snapshot behavior is unchanged.
+     * snapshot, so the singleton sees globals written to $GLOBALS after getInstance(). As in the
+     * parent, a key that is absent or holds null reads as []. Without a key, the parent's
+     * whole-snapshot behavior is unchanged.
      *
      * @template TKey of string|null
      *
@@ -158,7 +159,8 @@ class OEGlobalsBag extends ParameterBag
             return parent::all();
         }
 
-        $value = $this->get($key, []);
+        // Like the parent's `$this->parameters[$key] ?? []`: a key present with a null value reads as [].
+        $value = $this->get($key) ?? [];
         if (!is_array($value)) {
             throw new BadRequestException(sprintf(
                 'Unexpected value for parameter "%s": expecting "array", got "%s".',
