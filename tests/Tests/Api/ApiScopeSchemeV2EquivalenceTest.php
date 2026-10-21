@@ -114,54 +114,65 @@ class ApiScopeSchemeV2EquivalenceTest extends TestCase
 
     protected function tearDown(): void
     {
+        // Nested try/finally so the DB-persisted globals restoration always
+        // runs even if an earlier cleanup step (DELETE on oauth_clients,
+        // fixture-removal, etc) throws. Order:
+        //   inner try   = fixture + oauth client cleanup
+        //   inner finally = site_addr_oath + oauth_password_grant row restores
+        //   outer finally = in-memory oauth_password_grant restore
+        // Without this split, a failure in the inner try would skip the
+        // persisted restores and leak oauth_password_grant=3 (or any
+        // test-inserted site_addr_oath row) into the next test run.
         try {
-            foreach ($this->registeredClientIds as $clientId) {
-                QueryUtils::sqlStatementThrowException(
-                    'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
-                    [$clientId]
-                );
-                QueryUtils::sqlStatementThrowException(
-                    'DELETE FROM `oauth_trusted_user` WHERE `client_id` = ?',
-                    [$clientId]
-                );
-                QueryUtils::sqlStatementThrowException(
-                    'DELETE FROM `api_token` WHERE `client_id` = ?',
-                    [$clientId]
-                );
-            }
-            $this->registeredClientIds = [];
+            try {
+                foreach ($this->registeredClientIds as $clientId) {
+                    QueryUtils::sqlStatementThrowException(
+                        'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
+                        [$clientId]
+                    );
+                    QueryUtils::sqlStatementThrowException(
+                        'DELETE FROM `oauth_trusted_user` WHERE `client_id` = ?',
+                        [$clientId]
+                    );
+                    QueryUtils::sqlStatementThrowException(
+                        'DELETE FROM `api_token` WHERE `client_id` = ?',
+                        [$clientId]
+                    );
+                }
+                $this->registeredClientIds = [];
 
-            if ($this->appointmentFixtureManager !== null) {
-                $this->appointmentFixtureManager->removeFixtures();
-                $this->appointmentFixtureManager = null;
+                if ($this->appointmentFixtureManager !== null) {
+                    $this->appointmentFixtureManager->removeFixtures();
+                    $this->appointmentFixtureManager = null;
+                }
+                if ($this->fixtureManager !== null) {
+                    // Order matters: both removeCoverageFixtures and
+                    // removeAllergyIntoleranceFixtures scope their deletes by
+                    // pid-of-fixture-patient, and the latter *also* calls
+                    // removePatientFixtures internally. If patients disappear
+                    // first, insurance_data rows can no longer be identified as
+                    // test rows and leak into the next test run, where the next
+                    // POST hits a DUPLICATE_RECORD on (pid, type, date).
+                    $this->fixtureManager->removeCoverageFixtures();
+                    $this->fixtureManager->removeAllergyIntoleranceFixtures();
+                    $this->fixtureManager->removeInsuranceCompanyFixtures();
+                    $this->fixtureManager->removePatientFixtures();
+                    $this->fixtureManager = null;
+                }
+            } finally {
+                if ($this->siteAddrOathWasInserted) {
+                    QueryUtils::sqlStatementThrowException(
+                        'DELETE FROM `globals` WHERE gl_name = ?',
+                        ['site_addr_oath']
+                    );
+                } elseif ($this->originalSiteAddrOath !== null && $this->originalSiteAddrOath !== $this->baseUrl) {
+                    QueryUtils::sqlStatementThrowException(
+                        'UPDATE `globals` SET gl_value = ? WHERE gl_name = ?',
+                        [$this->originalSiteAddrOath, 'site_addr_oath']
+                    );
+                }
+                $this->restorePasswordGrantGlobal();
             }
-            if ($this->fixtureManager !== null) {
-                // Order matters: both removeCoverageFixtures and
-                // removeAllergyIntoleranceFixtures scope their deletes by
-                // pid-of-fixture-patient, and the latter *also* calls
-                // removePatientFixtures internally. If patients disappear
-                // first, insurance_data rows can no longer be identified as
-                // test rows and leak into the next test run, where the next
-                // POST hits a DUPLICATE_RECORD on (pid, type, date).
-                $this->fixtureManager->removeCoverageFixtures();
-                $this->fixtureManager->removeAllergyIntoleranceFixtures();
-                $this->fixtureManager->removeInsuranceCompanyFixtures();
-                $this->fixtureManager->removePatientFixtures();
-                $this->fixtureManager = null;
-            }
-
-            if ($this->siteAddrOathWasInserted) {
-                QueryUtils::sqlStatementThrowException(
-                    'DELETE FROM `globals` WHERE gl_name = ?',
-                    ['site_addr_oath']
-                );
-            } elseif ($this->originalSiteAddrOath !== null && $this->originalSiteAddrOath !== $this->baseUrl) {
-                QueryUtils::sqlStatementThrowException(
-                    'UPDATE `globals` SET gl_value = ? WHERE gl_name = ?',
-                    [$this->originalSiteAddrOath, 'site_addr_oath']
-                );
-            }
-            $this->restorePasswordGrantGlobal();
         } finally {
             $globals = OEGlobalsBag::getInstance();
             if ($this->originalPasswordGrantSettingWasSet) {
