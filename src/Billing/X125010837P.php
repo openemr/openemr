@@ -1,6 +1,7 @@
 <?php
 
-/* X125010837P Class
+/**
+ * X125010837P Class
  *
  * This program creates an X12 5010 837P file.
  *
@@ -8,9 +9,11 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @author Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
+ * @author Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -23,20 +26,23 @@ use OpenEMR\Core\OEGlobalsBag;
 
 class X125010837P
 {
-    /*
-     * @param  $pid
-     * @param  $encounter
-     * @param  $x12_partner
-     * @param  $log
-     * @param  bool $encounter_claim
-     * @param  $SEFLAG
-     * @param  $HLcount
-     * @param  $edicount
-     * @param  $HLBillingPayToProvider Place-holder for utilizing multiple billing providers
-     * @return string|string[]|null
+    /**
+     * Build one X12 5010 837P claim.
+     *
+     * The billing pay-to provider HL argument was removed until the generators support it.
+     * The last argument is the patient segment count.
+     *
+     * @param mixed $pid
+     * @param mixed $encounter
+     * @param mixed $x12_partner
+     * @param mixed $log
+     * @param bool  $encounter_claim
+     * @param mixed $SEFLAG
+     * @param mixed $HLcount
+     * @param mixed $edicount
+     * @param mixed $patSegmentCount
+     * @return string
      */
-
-    // removed $HLBillingPayToProvider until it's supported in the generators
     public static function genX12837P(
         $pid,
         $encounter,
@@ -49,6 +55,7 @@ class X125010837P
         &$patSegmentCount = 0,
         ?string $payerId = null
     ) {
+        // removed $HLBillingPayToProvider until it's supported in the generators
         $today = time();
         $out = '';
         $claim = new Claim($pid, $encounter, $x12_partner, $payerId);
@@ -289,8 +296,11 @@ class X125010837P
             }
             $out .= "*";
             // X12 requires a 9 digit zip in loop 2010AA but we output it anyways
-            if (strlen((string) $claim->billingFacilityZip()) != 9) {
-                $log .= "*** Billing facility zip is not 9 digits.\n";
+            if (self::nineDigitZipApplies($claim->billingFacilityCountry(), (string) $claim->billingFacilityZip())) {
+                $log .= self::BILLING_ZIP_LOG . "\n";
+            }
+            if (self::foreignPostalLosesLetters($claim->billingFacilityCountry(), $claim->billingFacilityPostalCode())) {
+                $log .= self::BILLING_POSTAL_LOSS_LOG . "\n";
             }
             $out .= $claim->billingFacilityZip();
             $out .= "~\n";
@@ -1038,8 +1048,11 @@ class X125010837P
                 $log .= "*** Missing service facility state.\n";
             }
             $out .= "*";
-            if (strlen((string) $claim->facilityZip()) != 9) {
-                $log .= "*** Service facility zip is not 9 digits.\n";
+            if (self::nineDigitZipApplies($claim->facilityCountry(), (string) $claim->facilityZip())) {
+                $log .= self::SERVICE_ZIP_LOG . "\n";
+            }
+            if (self::foreignPostalLosesLetters($claim->facilityCountry(), $claim->facilityPostalCode())) {
+                $log .= self::SERVICE_POSTAL_LOSS_LOG . "\n";
             }
             $out .= $claim->facilityZip();
             $out .= "~\n";
@@ -1649,7 +1662,7 @@ class X125010837P
             "~\n";
 
         // Remove any trailing empty fields (delimiters) from each segment.
-        $out = preg_replace('/\*+~/', '~', $out);
+        $out = preg_replace('/\*+~/', '~', $out) ?? $out;
 
         $log .= "\n";
         return $out;
@@ -1677,4 +1690,78 @@ class X125010837P
         return '*' . ($employment ? 'P' : '') . '*' . $relatedCause;
     }
 
+    /**
+     * Billing-provider ZIP, loop 2010AA. The 837P guide requires 9 digits for a US address.
+     */
+
+    /**
+     * A short ZIP is logged only for a United States facility.
+     *
+     * A blank country keeps the previous warning. A named country
+     * outside the United States does not.
+     */
+    private static function nineDigitZipApplies(string $country, string $zip): bool
+    {
+        if (strlen($zip) === 9) {
+            return false;
+        }
+        $letters = self::countryLetters($country);
+        if ($letters === '') {
+            return true;
+        }
+
+        return self::isUnitedStates($letters);
+    }
+
+    /**
+     * A named country outside the United States whose stored postal
+     * code contains a letter. Digit reduction drops that letter, and
+     * loop 2010AA or 2310C does not carry the country.
+     */
+    private static function foreignPostalLosesLetters(string $country, string $postal): bool
+    {
+        if (preg_match('/[A-Za-z]/', $postal) !== 1) {
+            return false;
+        }
+        $letters = self::countryLetters($country);
+        if ($letters === '') {
+            return false;
+        }
+
+        return !self::isUnitedStates($letters);
+    }
+
+    private static function countryLetters(string $country): string
+    {
+        return strtoupper(preg_replace('/[^A-Za-z]/', '', $country) ?? '');
+    }
+
+    /**
+     * @param non-empty-string $letters
+     */
+    private static function isUnitedStates(string $letters): bool
+    {
+        return in_array($letters, ['US', 'USA', 'UNITEDSTATES', 'UNITEDSTATESOFAMERICA'], true);
+    }
+
+    private const BILLING_ZIP_LOG = '*** Billing facility zip is not 9 digits. '
+        . '837P loop 2010AA requires a 9-digit ZIP for US addresses; payers may reject the claim.';
+
+    /**
+     * Billing-facility postal code, loop 2010AA. Letters do not survive digit reduction.
+     */
+    private const BILLING_POSTAL_LOSS_LOG = '*** Billing facility postal code lost letters when reduced to digits. '
+        . '837P loop 2010AA has no country code, so the stored postal code was not sent.';
+
+    /**
+     * Service-facility postal code, loop 2310C. Letters do not survive digit reduction.
+     */
+    private const SERVICE_POSTAL_LOSS_LOG = '*** Service facility postal code lost letters when reduced to digits. '
+        . '837P loop 2310C has no country code, so the stored postal code was not sent.';
+
+    /**
+     * Service-facility ZIP, loop 2310C. The 837P guide requires 9 digits for a US address.
+     */
+    private const SERVICE_ZIP_LOG = '*** Service facility zip is not 9 digits. '
+        . '837P loop 2310C requires a 9-digit ZIP for US addresses; payers may reject the claim.';
 }
