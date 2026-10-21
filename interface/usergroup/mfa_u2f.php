@@ -15,6 +15,7 @@
 require_once('../globals.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -123,6 +124,12 @@ function docancel() {
                             <input type='hidden' name='form_registration' value=''>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="clearPass" class="col-sm-2 col-form-label"><?php echo xlt('Please enter your OpenEMR login password'); ?></label>
+                        <div class="col-sm-4">
+                            <input type='password' class='form-control' name='clearPass' id='clearPass' autocomplete='current-password'>
+                        </div>
+                    </div>
 
                     <div class='col-sm-12'>
                         <ul>
@@ -146,6 +153,13 @@ function docancel() {
             <?php
         } elseif ($action == 'reg2') {
             CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+            // Require current-password confirmation before persisting a new U2F
+            // factor so a hijacked session cannot silently add an attacker-held
+            // key. Mirrors the mfa_totp.php `reg2` password reprompt.
+            $clearPass = $_POST['clearPass'] ?? '';
+            if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $clearPass)) {
+                die(xlt('Invalid password'));
+            }
             try {
                 $data = $u2f->doRegister(json_decode((string) $_POST['form_request']), json_decode((string) $_POST['form_registration']));
             } catch (\u2flib_server\Error $e) {

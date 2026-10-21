@@ -14,6 +14,8 @@
 require_once(__DIR__ . "/../../../../globals.php");
 /** @var string $srcdir */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -33,6 +35,9 @@ if ($search) {
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_create'] ?? null) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    if (!AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly'])) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo write: Fax copy to patient", xl("Copy Fax to Patient"));
+    }
     $clientApp = AppDispatch::getApiService('fax');
 
     if (!empty($_POST["pubpid"])) {

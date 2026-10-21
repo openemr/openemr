@@ -42,23 +42,16 @@ $fname = convert_safe_file_dir_name($_GET['key']);
 // of searching.
 // The edi directory is the default location.
 
-// the loc, if set, may tell us where the file is
-$location = $_GET['location'] ?? '';
+// Claim files live under the X12 partner SFTP directory and the EDI documents
+// directory. The historical `location=tmp` branch read arbitrary filenames
+// from the shared system temp directory, which other features (CCDA export,
+// mPDF) write into. Scope the lookup to the real claim directories only.
 $claim_file_found = false;
 $claim_file_dir = '';
-if ($location === 'tmp') {
-    $claim_file_dir = rtrim(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-    if (file_exists($claim_file_dir . $fname)) {
-        $claim_file_found = true;
-    }
-}
 
 // See if the file exists in the x-12 partner's SFTP directory
 // If it's not there, try the edi directory
-if (
-    false === $claim_file_found &&
-    isset($_GET['partner'])
-) {
+if (isset($_GET['partner'])) {
     $x12_partner_id = $_GET['partner'];
     // First look in the database for the file so we know
     // which partner directory to check

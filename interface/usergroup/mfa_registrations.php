@@ -15,6 +15,7 @@
 require_once("../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -48,12 +49,20 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 $message = '';
 if (!empty($_POST['form_delete_method'])) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-    // Delete the indicated MFA instance.
-    sqlStatement(
-        "DELETE FROM login_mfa_registrations WHERE user_id = ? AND method = ? AND name = ?",
-        [$userid, $_POST['form_delete_method'], $_POST['form_delete_name']]
-    );
-    $message = xl('Delete successful.');
+    // Require current-password confirmation before removing an MFA factor so a
+    // hijacked session cannot silently disable the user's second factor.
+    // Mirrors the password reprompt mfa_totp.php `action=reg2` performs for
+    // the register step.
+    $clearPass = $_POST['clearPass'] ?? '';
+    if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $clearPass)) {
+        $message = xl('Invalid password.');
+    } else {
+        sqlStatement(
+            "DELETE FROM login_mfa_registrations WHERE user_id = ? AND method = ? AND name = ?",
+            [$userid, $_POST['form_delete_method'], $_POST['form_delete_name']]
+        );
+        $message = xl('Delete successful.');
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -65,9 +74,14 @@ if (!empty($_POST['form_delete_method'])) {
 <script>
 
 function delclick(mfamethod, mfaname) {
+    var pass = prompt(<?php echo xlj('Please re-enter your OpenEMR login password to remove this authentication factor'); ?>);
+    if (pass === null || pass === '') {
+        return;
+    }
     var f = document.forms[0];
     f.form_delete_method.value = mfamethod;
     f.form_delete_name.value = mfaname;
+    f.clearPass.value = pass;
     top.restoreSession();
     f.submit();
 }
@@ -179,6 +193,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </div>
                             <input type='hidden' name='form_delete_method' value='' />
                             <input type='hidden' name='form_delete_name' value='' />
+                            <input type='hidden' name='clearPass' value='' />
                         </fieldset>
                     </div>
                 </form>

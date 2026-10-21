@@ -106,7 +106,7 @@ $check_res = $formid ? $check_res : [];
             var checkId = document.getElementById('clickId').value;
             document.getElementById("code" + checkId).value = code;
             document.getElementById("codetext" + checkId).value = codedesc;
-            document.getElementById("displaytext" + checkId).innerHTML  = codedesc;
+            document.getElementById("displaytext" + checkId).textContent = codedesc;
         }
 
         function checkVal(id) {

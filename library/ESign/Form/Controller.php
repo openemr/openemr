@@ -22,7 +22,9 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Fo
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Factory.php';
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Log.php';
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -116,13 +118,25 @@ class Form_Controller extends Abstract_Controller
         }
 
         if ($valid) {
-            $factory = new Form_Factory($formId, $formDir, $encounterId);
-            $signable = $factory->createSignable();
-            if ($signable->sign($session->get('authUserID'), $lock, $amendment)) {
-                $message = xlt("Form signed successfully");
-                $status = self::STATUS_SUCCESS;
+            // Mirror the per-form write-ACL + session-bound (pid, encounter)
+            // gating the encounter forms list uses before exposing the sign
+            // button. Rejects direct submissions that target forms whose
+            // registry declares an aco_spec the caller does not hold, or that
+            // reference a form row outside the caller's active chart context.
+            $formIdInt = is_numeric($formId) ? (int) $formId : 0;
+            $encounterIdInt = is_numeric($encounterId) ? (int) $encounterId : 0;
+            $formDirStr = is_string($formDir) ? $formDir : '';
+            if (!$this->callerMaySignForm($formDirStr, $formIdInt, $encounterIdInt)) {
+                $message = xlt("The password you entered is invalid");
             } else {
-                $message = xlt("An error occurred signing the form");
+                $factory = new Form_Factory($formId, $formDir, $encounterId);
+                $signable = $factory->createSignable();
+                if ($signable->sign($session->get('authUserID'), $lock, $amendment)) {
+                    $message = xlt("Form signed successfully");
+                    $status = self::STATUS_SUCCESS;
+                } else {
+                    $message = xlt("An error occurred signing the form");
+                }
             }
         } else {
             $message = (isset($gMessage) && !empty($gMessage)) ? $gMessage : xlt("The password you entered is invalid");
@@ -141,5 +155,56 @@ class Form_Controller extends Abstract_Controller
 
         echo json_encode($response);
         exit;
+    }
+
+    /**
+     * Verify the caller may sign the referenced encounter form.
+     *
+     * Mirrors the pre-render checks performed by
+     * interface/patient_file/encounter/forms.php: the form row must belong to
+     * the caller's active session (pid, encounter), and if the form's registry
+     * entry declares an aco_spec the caller must hold the matching write ACL.
+     */
+    private function callerMaySignForm(string $formDir, int $formId, int $encounterId): bool
+    {
+        if ($formId <= 0 || $encounterId <= 0 || $formDir === '') {
+            return false;
+        }
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $pidRaw = $session->get('pid');
+        $encRaw = $session->get('encounter');
+        $sessionPid = is_numeric($pidRaw) ? (int) $pidRaw : 0;
+        $sessionEncounter = is_numeric($encRaw) ? (int) $encRaw : 0;
+        if ($sessionPid <= 0 || $sessionEncounter <= 0 || $sessionEncounter !== $encounterId) {
+            return false;
+        }
+
+        $row = QueryUtils::querySingleRow(
+            'SELECT pid, encounter, formdir FROM forms WHERE id = ? LIMIT 1',
+            [$formId]
+        );
+        if (!is_array($row)) {
+            return false;
+        }
+        $rowPid = is_numeric($row['pid'] ?? null) ? (int) $row['pid'] : 0;
+        $rowEnc = is_numeric($row['encounter'] ?? null) ? (int) $row['encounter'] : 0;
+        $rowDir = is_string($row['formdir'] ?? null) ? $row['formdir'] : '';
+        if ($rowPid !== $sessionPid || $rowEnc !== $sessionEncounter || $rowDir !== $formDir) {
+            return false;
+        }
+
+        $registry = getRegistryEntryByDirectory($formDir, 'aco_spec');
+        $acoSpecRaw = is_array($registry) && isset($registry['aco_spec']) && is_string($registry['aco_spec'])
+            ? $registry['aco_spec']
+            : '';
+        if ($acoSpecRaw !== '') {
+            $acoSpec = explode('|', $acoSpecRaw);
+            if (count($acoSpec) >= 2 && !AclMain::aclCheckCore($acoSpec[0], $acoSpec[1], '', 'write')) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

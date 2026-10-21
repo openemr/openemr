@@ -13,13 +13,21 @@
 
 require_once(__DIR__ . "/../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-//  IF there is a pid and type then will set the entry in lists_touch table
+//  IF there is a pid and type then will set the entry in lists_touch table.
+//  The "None known" marker is a clinical write; mirror the issue-write ACL
+//  the UI applies to the noneCheck checkbox.
 if (!(empty($_POST['patient_id'])) && !(empty($_POST['type']))) {
-    setListTouch($_POST['patient_id'], $_POST['type']);
+    $type = $_POST['type'];
+    if (!AclMain::aclCheckIssue($type, '', 'write')) {
+        AccessDeniedHelper::deny('ACL check failed for issue write on lists_touch');
+    }
+    setListTouch($_POST['patient_id'], $type);
 }
