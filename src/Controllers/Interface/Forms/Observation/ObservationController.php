@@ -199,7 +199,8 @@ class ObservationController
             // Prepare template data
             $templateData = [
                 'observations' => $observations,
-                'formId' => $request->query->get('id', null)
+                'formId' => $request->query->get('id', null),
+                'csrf_token' => CsrfUtils::collectCsrfToken($session),
             ];
             if ($request->query->get('status') === 'saved') {
                 $templateData['statusMessage'] = xl('Observation saved successfully.');
@@ -497,8 +498,14 @@ class ObservationController
         if (!$this->getFormService()->hasFormPermission("observation")) {
             return $this->createResponse(xlt("Unauthorized access"), Response::HTTP_UNAUTHORIZED);
         }
-        $observationId = $request->query->getInt('id');
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if (!CsrfUtils::verifyCsrfToken($request->query->get('csrf_token'), session: $session)) {
+            return $this->createResponse(
+                xlt("Authentication Error"),
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+        $observationId = $request->query->getInt('id');
         $pid = $session->get('pid');
         $encounter = $session->get('encounter');
         $formId = $request->query->getInt('form_id', 0);

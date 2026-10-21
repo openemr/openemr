@@ -26,7 +26,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:02db4289ce2662c473dd1277f3bbebe90b398618c8581f3256d9da5f77214733
+    image: openemr/openemr:flex@sha256:d2069af61e0ae19866a140439a209c6ced49bb940eb260c56750f63c36108dc9
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -145,7 +145,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:da3c72f9886fca93037b740c93fe1697a7924fe6790a58733814cee61ec49af8
+    image: phpmyadmin:5.2.3@sha256:ea83e8920f789d20b8c011306655db081fe9fcdcc6c80b628228612f2dd0a731
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
@@ -155,7 +155,7 @@ services:
         condition: service_healthy
   couchdb:
     restart: always
-    image: couchdb:3.5.3@sha256:3611ce43bd32fe2368997fd41ec6e7270ec8d84aa5fc13c9828e5b15fd6bafe8
+    image: couchdb:3.5.3@sha256:4e8e0a366208a87d5059b0f4fcbefff13c32401a655d4629c19be6288ea77675
     ports:
     - "${WT_COUCHDB_PORT:-5984}:5984"
     - "${WT_COUCHDB_SSL_PORT:-6984}:6984"

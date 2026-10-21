@@ -38,7 +38,7 @@ class VitalSignsServiceDatabaseTest extends TestCase
     protected function tearDown(): void
     {
         $pids = [self::PID, self::OTHER_PID];
-        QueryUtils::sqlStatementThrowException("DELETE FROM `forms` WHERE `formdir` = 'vitals' AND `pid` IN (?, ?)", $pids);
+        QueryUtils::sqlStatementThrowException('DELETE FROM `forms` WHERE `pid` IN (?, ?)', $pids);
         QueryUtils::sqlStatementThrowException("DELETE FROM `form_vitals` WHERE `pid` IN (?, ?)", $pids);
         QueryUtils::sqlStatementThrowException("DELETE FROM `form_observation` WHERE `pid` IN (?, ?)", $pids);
         $this->assertSame(0, $this->rowsLeft(), 'the synthetic rows are removed');
@@ -135,6 +135,21 @@ class VitalSignsServiceDatabaseTest extends TestCase
             'blood pressure and weight are the imported exams\' copies; the BMI is only in the Vitals form');
     }
 
+    public function testADeletedExamDoesNotHideItsVitalsCopy(): void
+    {
+        // The measures leave a deleted exam out, so its Vitals copy is the reading left: deleted in
+        // the Observation form (activity 0), or with its Observation form deleted from the visit.
+        $this->observation(self::PID, '2026-03-02 09:00:00', '8480-6', '128', 'mm[Hg]', activity: 0);
+        $this->vitals(self::PID, '2026-03-02 09:00:00', ['bps' => '128']);
+        $this->observation(self::PID, '2026-03-09 09:00:00', '8480-6', '131', 'mm[Hg]', formDeleted: true);
+        $this->vitals(self::PID, '2026-03-09 09:00:00', ['bps' => '131']);
+        // An exam in an Observation form that is kept still hides its copy.
+        $this->observation(self::PID, '2026-03-16 09:00:00', '8480-6', '133', 'mm[Hg]', formDeleted: false);
+        $this->vitals(self::PID, '2026-03-16 09:00:00', ['bps' => '133']);
+
+        $this->assertSame([[self::PID, 'LOINC:8480-6', 128.0], [self::PID, 'LOINC:8480-6', 131.0]], $this->read(new QdmRequestOne((string)self::PID)));
+    }
+
     public function testReadingsAreComparedAtTheirStoredPrecision(): void
     {
         // form_vitals keeps BMI, height and weight to six places: two BMIs either side of 25 that round
@@ -195,19 +210,32 @@ class VitalSignsServiceDatabaseTest extends TestCase
         );
     }
 
-    private function observation(int $pid, string $date, string $loinc, string $value, string $unit): void
+    /**
+     * An exam with no form (form_id 0, as the QRDA import writes them), or, with $formDeleted, in an
+     * Observation form of its own that is kept (false) or deleted from the visit (true).
+     */
+    private function observation(int $pid, string $date, string $loinc, string $value, string $unit, int $activity = 1, ?bool $formDeleted = null): void
     {
+        $formId = 0;
+        if ($formDeleted !== null) {
+            $formId = (int)self::number(QueryUtils::fetchSingleValue('SELECT COALESCE(MAX(`form_id`), 0) + 1 AS id FROM `form_observation`', 'id'));
+            QueryUtils::sqlInsert(
+                "INSERT INTO `forms` (`date`, `encounter`, `form_name`, `form_id`, `pid`, `user`, `groupname`, `authorized`, `deleted`, `formdir`)"
+                . " VALUES (?, 0, 'Observation', ?, ?, 'test', 'Default', 1, ?, 'observation')",
+                [$date, $formId, $pid, $formDeleted ? 1 : 0],
+            );
+        }
         QueryUtils::sqlInsert(
             "INSERT INTO `form_observation` (`form_id`, `date`, `pid`, `encounter`, `user`, `groupname`, `authorized`, `activity`,"
-            . " `code`, `observation`, `ob_value`, `ob_unit`, `ob_type`) VALUES (0, ?, ?, 0, 'test', 'Default', 1, 1, ?, 'test exam', ?, ?, ?)",
-            [$date, $pid, "LOINC:$loinc", $value, $unit, PhysicalExamService::OB_TYPE_PHYSICAL_EXAM],
+            . " `code`, `observation`, `ob_value`, `ob_unit`, `ob_type`) VALUES (?, ?, ?, 0, 'test', 'Default', 1, ?, ?, 'test exam', ?, ?, ?)",
+            [$formId, $date, $pid, $activity, "LOINC:$loinc", $value, $unit, PhysicalExamService::OB_TYPE_PHYSICAL_EXAM],
         );
     }
 
     private function rowsLeft(): int
     {
         $pids = [self::PID, self::OTHER_PID];
-        return (int)self::number(QueryUtils::fetchSingleValue("SELECT COUNT(*) AS n FROM `forms` WHERE `formdir` = 'vitals' AND `pid` IN (?, ?)", 'n', $pids))
+        return (int)self::number(QueryUtils::fetchSingleValue('SELECT COUNT(*) AS n FROM `forms` WHERE `pid` IN (?, ?)', 'n', $pids))
             + (int)self::number(QueryUtils::fetchSingleValue('SELECT COUNT(*) AS n FROM `form_vitals` WHERE `pid` IN (?, ?)', 'n', $pids))
             + (int)self::number(QueryUtils::fetchSingleValue('SELECT COUNT(*) AS n FROM `form_observation` WHERE `pid` IN (?, ?)', 'n', $pids));
     }

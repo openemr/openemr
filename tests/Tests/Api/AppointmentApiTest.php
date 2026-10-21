@@ -177,12 +177,8 @@ class AppointmentApiTest extends TestCase
     public function testGetAppointmentByIdForPatient(): void
     {
         // Patient-compartment single-GET. The route handler delegates to
-        // the same AppointmentRestController::getOne as the top-level
-        // route, so the response shape matches testGetAppointmentById.
-        // The handler currently uses $eid alone — a wrong-pid path
-        // segment with a correct $eid returns the same row. A
-        // pid-scoping tightening is tracked separately; this test
-        // locks only the happy-path shape.
+        // AppointmentRestController::getOne with a pid-scope wrapper, so
+        // the happy-path response shape matches testGetAppointmentById.
         $dependencies = $this->fixtureManager->installDependencies();
         $pid = $dependencies['pid'];
 
@@ -196,6 +192,36 @@ class AppointmentApiTest extends TestCase
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertNotEmpty($responseBody);
         $this->assertEquals($this->appointmentEid, $responseBody[0]['pc_eid']);
+    }
+
+    #[Test]
+    public function testGetAppointmentByIdForPatientRejectsWrongPatient(): void
+    {
+        // Patient-compartment single-GET must honor the path pid: an eid
+        // that belongs to a different patient must not be reachable by
+        // substituting it under another patient's compartment. The
+        // route handler validates the fetched record's pid against the
+        // path pid and returns 404 when they diverge.
+        $dependencies = $this->fixtureManager->installDependencies();
+        $pid = $dependencies['pid'];
+
+        $otherPatient = QueryUtils::querySingleRow(
+            "SELECT pid FROM patient_data WHERE pubpid LIKE ? AND pid <> ? LIMIT 1",
+            [AppointmentFixtureManager::FIXTURE_PREFIX . "%", $pid]
+        );
+        $this->assertIsArray($otherPatient);
+        $this->assertIsNumeric($otherPatient['pid']);
+        $otherPid = (int) $otherPatient['pid'];
+
+        $actualResponse = $this->testClient->getOne(
+            self::PATIENT_APPOINTMENT_API_ENDPOINT . "/{$otherPid}/appointment",
+            (string) $this->appointmentEid
+        );
+        $this->assertEquals(
+            404,
+            $actualResponse->getStatusCode(),
+            'wrong-pid compartment GET must not return another patient\'s appointment'
+        );
     }
 
     #[Test]

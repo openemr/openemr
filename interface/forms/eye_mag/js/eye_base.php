@@ -1811,7 +1811,7 @@ function update_READONLY() {
     $.ajax({
            type   : 'POST',
            dataType : 'json',
-           url      :  "../../forms/eye_mag/save.php?copy=READONLY",
+           url      :  "../../forms/eye_mag/save.php?copy=READONLY&skip_timeout_reset=1",
            data   : data,
            success  : function(result) {
            $.map(result, function(valhere, keyhere) {
