@@ -1,7 +1,7 @@
 # ci/api-explorer
 
 End-to-end smoke that exercises OpenEMR's OAuth2 + FHIR surface from a real
-third-party client (`sjpadgett/oe-module-api-explorer`). Runs on every PR; its
+third-party client (`openemr/oe-module-api-explorer`). Runs on every PR; its
 job is to catch regressions in the OAuth2 code path that in-tree unit and
 isolated tests cannot see — real RFC 7591 DCR, real token endpoint for the
 `client_credentials`, `authorization_code` (confidential and public-with-PKCE),
@@ -16,7 +16,7 @@ dedicated flow in this smoke, and SMART launch is covered by the sibling
 ## What the smoke does
 
 1. Boots `docker/development-easy` with `docker compose up --wait`.
-2. Clones `sjpadgett/oe-module-api-explorer` at the current `main` HEAD into
+2. Clones `openemr/oe-module-api-explorer` at the current `main` HEAD into
    `devtools/oe-module-api-explorer/` (the explorer loads
    `../../interface/globals.php` and must sit two levels below the OpenEMR
    root; it is **not** an `interface/modules/custom_modules/` module).
@@ -151,7 +151,7 @@ those as the `api-explorer-driver-browser-postmortem` artifact.
 
 ## Credits
 
-[`sjpadgett/oe-module-api-explorer`](https://github.com/sjpadgett/oe-module-api-explorer)
+[`openemr/oe-module-api-explorer`](https://github.com/openemr/oe-module-api-explorer)
 is maintained by Jerry Padgett. OpenEMR CI depending on it is deliberately a
 cross-repo arrangement — see "Upstream tracking" above for how the smoke
 handles divergence.
