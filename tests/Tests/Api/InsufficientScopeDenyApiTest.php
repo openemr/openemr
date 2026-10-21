@@ -69,8 +69,19 @@ class InsufficientScopeDenyApiTest extends TestCase
         if (getenv('OPENEMR_ALLOW_OAUTH_HTTPS_SKIP') === '1') {
             $this->markTestSkipped('Skipping per OPENEMR_ALLOW_OAUTH_HTTPS_SKIP=1');
         }
-        $probe = $this->buildClient()->get($this->baseUrl . '/');
-        if ($probe->getHeaderLine('Server') === '') {
+        // Guzzle throws ConnectException on a hard network failure (no DNS
+        // resolution, connection refused, etc). Treat it the same as a probe
+        // response with no Server header so a local run without a webserver
+        // routes through the existing skip logic rather than failing hard
+        // with an uncaught Guzzle exception.
+        $probeServer = '';
+        try {
+            $probe = $this->buildClient()->get($this->baseUrl . '/');
+            $probeServer = $probe->getHeaderLine('Server');
+        } catch (\GuzzleHttp\Exception\ConnectException) {
+            $probeServer = '';
+        }
+        if ($probeServer === '') {
             if (getenv('CI') !== false) {
                 self::fail('OAuth flow requires a real webserver (Apache/nginx) — hard failure in CI');
             }
@@ -515,8 +526,20 @@ class InsufficientScopeDenyApiTest extends TestCase
         $this->seededPatient = ['pid' => $deps['pid'], 'facility_id' => $deps['facility_id']];
 
         $apptClient = new ApiTestClient($this->baseUrl, false);
-        $apptClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
-        $this->registeredClientIds[] = (string) $apptClient->getClientId();
+        // Register the client id BEFORE asserting the auth response so a
+        // non-200 token response still leaves cleanup able to drop the row.
+        // ApiTestClient::setAuthToken returns the token-endpoint response
+        // regardless of status, and getClientId() reflects the DCR state
+        // which happens before the token call.
+        $authResp = $apptClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $seedClientId = $apptClient->getClientId();
+        $this->assertNotNull($seedClientId, 'DCR must return a client id for cleanup.');
+        $this->registeredClientIds[] = $seedClientId;
+        $this->assertSame(
+            200,
+            $authResp->getStatusCode(),
+            'Seeding client auth must succeed. Body: ' . (string) $authResp->getBody()
+        );
 
         $apptData = $this->appointmentFixtureManager->getSingleAppointmentFixture($deps['facility_id']);
         $createResp = $apptClient->post(
