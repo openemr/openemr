@@ -148,6 +148,8 @@ class ApiTestClient
         'user/allergy.write',
         'user/appointment.read',
         'user/appointment.write',
+        'user/background_service.rs',
+        'user/background_service.$run',
         'user/dental_issue.read',
         'user/dental_issue.write',
         'user/document.read',
