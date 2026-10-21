@@ -140,7 +140,7 @@ function convertHeightToUs($height): float
     if (!is_numeric($height)) {
         return 0.0;
     }
-    return floatval(MeasurementUtils::cmToInches($height));
+    return floatval(MeasurementUtils::cmToInches((float) $height));
 }
 
 function convertWeightToUs($weight): float
