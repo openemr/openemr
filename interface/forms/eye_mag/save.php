@@ -36,6 +36,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\FeeSheetChargeLookup;
+use OpenEMR\Billing\HcpcsDrugDefaults;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
@@ -44,6 +45,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\CopyMode;
 use OpenEMR\Forms\EyeMag\FamilyHistory;
+use OpenEMR\Forms\EyeMag\FeeSheetLine;
 use OpenEMR\Forms\EyeMag\PmsfhPanel;
 use OpenEMR\Forms\EyeMag\SqlFragment;
 use OpenEMR\Forms\EyeMag\Zone;
@@ -857,7 +859,6 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $query = "delete from billing where encounter =?";
         sqlStatement($query, [$encounter]);
         $dups = [];
-        $ndc_info = '';
         foreach ($CODING as $item) { //need toremove duplicate codes
             if (!is_array($item)) {
                 continue;
@@ -867,15 +868,20 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             }
 
             $dups[$item["code"]] = "1";
-            // Same code row and price the fee sheet would use for this code.
+            // Same code row, price, units, NDC and modifier the fee sheet would use for this code.
             $codeType = is_string($item['codetype'] ?? null) ? $item['codetype'] : '';
             $code = is_string($item['code'] ?? null) ? $item['code'] : '';
+            $ndc_info = '';
             $patientId = filter_var($pid, FILTER_VALIDATE_INT);
             $charge = is_int($patientId) ? (new FeeSheetChargeLookup())->find($codeType, $code, $patientId) : null;
             if ($charge !== null) {
-                $item["codedesc"] = $charge['code_text'];// eg. = "NP EYE intermediate exam"
-                $item["units"] = $charge['units'];
-                $item["fee"] = $charge['fee'];
+                $drug = $codeType === 'HCPCS' ? HcpcsDrugDefaults::forCode($code) : null;
+                $line = FeeSheetLine::fromCharge($charge, $drug, is_string($item['modifier'] ?? null) ? $item['modifier'] : '');
+                $item["codedesc"] = $line->codeText;// eg. = "NP EYE intermediate exam"
+                $item["units"] = $line->units;
+                $item["fee"] = $line->fee;
+                $item["modifier"] = $line->modifier;
+                $ndc_info = $line->ndcInfo;
             }
             $billed = "0";
             $item["justify"] .= ":";
