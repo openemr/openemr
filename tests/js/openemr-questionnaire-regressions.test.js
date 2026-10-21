@@ -134,6 +134,23 @@ describe('runtime warnings surfaced in the DOM', () => {
         ]));
         expect(container.querySelector('.oe-questionnaire-warnings').classList.contains('d-none')).toBe(true);
     });
+
+    test('an omitted enableBehavior is advisory and does not trigger the warning panel', () => {
+        const { container } = mount(baseQuestionnaire([
+            { linkId: 'a', type: 'boolean', text: 'A' },
+            { linkId: 'b', type: 'boolean', text: 'B' },
+            {
+                linkId: 'dep', type: 'string', text: 'Dep',
+                enableWhen: [
+                    { question: 'a', operator: '=', answerBoolean: true },
+                    { question: 'b', operator: '=', answerBoolean: true },
+                ],
+            },
+        ]));
+        // the form renders fine; the missing-enableBehavior notice is console-only
+        expect(container.querySelector('[data-link-id="dep"]')).not.toBeNull();
+        expect(container.querySelector('.oe-questionnaire-warnings').classList.contains('d-none')).toBe(true);
+    });
 });
 
 describe('answerValueSet (contained, pre-expanded) and ordinalValue', () => {

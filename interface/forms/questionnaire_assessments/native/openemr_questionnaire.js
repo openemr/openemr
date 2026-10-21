@@ -443,6 +443,7 @@
                         compiled.warnings.push({
                             code: 'missing-enable-behavior',
                             linkId,
+                            severity: 'info',
                             message: 'Multiple enableWhen conditions found without enableBehavior; using any for compatibility.',
                         });
                     }
@@ -1862,7 +1863,12 @@
                 return;
             }
             node.replaceChildren();
-            if (!warnings || warnings.length === 0) {
+            // Only surface warnings that indicate real degradation (something was
+            // dropped or not rendered). Advisory notices such as an omitted
+            // enableBehavior are a documented compatibility default, not a
+            // failure, so they stay out of the alert panel (console only).
+            const blocking = (warnings ?? []).filter((warning) => warning.severity !== 'info');
+            if (blocking.length === 0) {
                 node.classList.add('d-none');
                 return;
             }
@@ -1871,11 +1877,11 @@
             alert.className = 'alert alert-warning mb-3';
             const heading = document.createElement('div');
             heading.className = 'font-weight-bold';
-            heading.textContent = 'This questionnaire could not be fully rendered';
+            heading.textContent = 'Some questionnaire items could not be fully rendered';
             alert.appendChild(heading);
             const list = document.createElement('ul');
             list.className = 'mb-0 pl-3';
-            for (const warning of warnings) {
+            for (const warning of blocking) {
                 const entry = document.createElement('li');
                 const linkIdLabel = warning.linkId ? '[' + warning.linkId + '] ' : '';
                 entry.textContent = linkIdLabel + (warning.message ?? warning.code ?? 'Unknown issue');
