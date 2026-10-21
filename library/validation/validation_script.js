@@ -28,13 +28,16 @@
  * @link    https://www.open-emr.org
  */
 window.OeFormValidation = (function(window) {
-    let xl = window.top.xl || function(str) { return str; };
+    // window.top can be momentarily null while a reused tab iframe re-navigates and
+    // the frame tree has not yet reconnected to the top browsing context; fall back to
+    // the current window so loading this module never throws.
+    let xl = (window.top || window).xl || function(str) { return str; };
     function submitme(new_validate,e,form_id, constraints, g_date_format) {
 
         top.restoreSession();
 
         if (!g_date_format) {
-            g_date_format = window.top.jsGlobals.date_display_format || "";
+            g_date_format = ((window.top || window).jsGlobals || {}).date_display_format || "";
         }
 
         //Use the old validation script if no parameter sent (backward compatibility)

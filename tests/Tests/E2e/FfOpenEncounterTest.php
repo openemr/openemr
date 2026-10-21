@@ -24,6 +24,4 @@ class FfOpenEncounterTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
     use EncounterOpenTrait;
-
-    private $crawler;
 }

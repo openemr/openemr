@@ -67,7 +67,7 @@ class ContactTelecom extends ORDataObject implements \JsonSerializable
         }
     }
 
-    protected function get_date_fields()
+    protected function get_date_fields(): array
     {
         return ['created_date', 'period_start', 'period_end'];
     }
@@ -116,7 +116,7 @@ class ContactTelecom extends ORDataObject implements \JsonSerializable
         $this->setIsObjectModified(true);
     }
 
-    private function loadContact($id)
+    private function loadContact($id): Contact
     {
         $contact = new Contact($id);
         $contact->setThrowExceptionOnError(true);

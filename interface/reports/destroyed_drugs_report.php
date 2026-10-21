@@ -15,10 +15,19 @@
 require_once("../globals.php");
 require_once("../drugs/drugs.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+$auth_drug_reports = OEGlobalsBag::getInstance()->get('inhouse_pharmacy') && (
+    AclMain::aclCheckCore('admin', 'drugs') ||
+    AclMain::aclCheckCore('inventory', 'reporting'));
+if (!$auth_drug_reports) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs or inventory/reporting: Destroyed Drugs Report", xl("Destroyed Drugs Report"));
+}
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {

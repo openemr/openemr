@@ -24,10 +24,10 @@ docker build -t openemr-binary:latest .
 
 ### Build Arguments
 
-- `OPENEMR_VERSION`: OpenEMR version (default: `7_0_4`)
-- `BINARY_RELEASE_DATE`: Release date for binary package (default: `12292025`)
+- `OPENEMR_VERSION`: OpenEMR version (default: `8_4_1`)
+- `BINARY_RELEASE_DATE`: Release date for binary package (default: `10032026`)
 - `PHP_VERSION`: PHP version used in binaries (default: `8.5`)
-- `ALPINE_VERSION`: Alpine Linux version (default: `3.22`)
+- `ALPINE_VERSION`: Alpine Linux version (default: `3.24`)
 
 `OPENEMR_VERSION`, `BINARY_RELEASE_DATE`, and `ALPINE_VERSION` are maintained
 by `.github/workflows/updatecli-docker-pins.yml`, which opens a pull request
@@ -39,12 +39,12 @@ always a human decision; see `.github/updatecli/binary-image.yaml` for what the
 bot verifies before proposing a forge bump.
 
 Override any of them to build an older combination — for example the
-December 2025 forge release:
+August 2026 forge release:
 
 ```bash
 docker build \
-  --build-arg OPENEMR_VERSION=7_0_4 \
-  --build-arg BINARY_RELEASE_DATE=12292025 \
+  --build-arg OPENEMR_VERSION=8_3_0 \
+  --build-arg BINARY_RELEASE_DATE=08232026 \
   -t openemr-binary:latest .
 ```
 

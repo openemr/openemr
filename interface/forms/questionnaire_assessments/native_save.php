@@ -124,15 +124,11 @@ try {
         add_report: true,
     );
 
-    if (!is_array($saved)) {
-        throw new RuntimeException(xlt('QuestionnaireResponse save failed.'));
-    }
-
     echo json_encode([
         'success' => true,
         'id' => $saved['id'] ?? null,
         'response_id' => $saved['response_id'] ?? '',
-        'new' => $saved['new'] ?? false,
+        'new' => $saved['new'],
     ], JSON_THROW_ON_ERROR);
 } catch (RuntimeException $e) {
     http_response_code(400);

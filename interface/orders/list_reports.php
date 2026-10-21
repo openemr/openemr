@@ -30,6 +30,7 @@ require_once("./gen_hl7_order.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -52,6 +53,10 @@ $errmsg = '';
 // Send selected unsent orders if requested. This does not support downloading
 // very well as it will only send the first of those.
 if (!empty($_POST['form_xmit'])) {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med write: transmit orders", xl("Procedure Orders and Reports"));
+    }
     foreach ($_POST['form_cb'] as $formid) {
         $row = sqlQuery("SELECT lab_id FROM procedure_order WHERE procedure_order_id = ?", [$formid]);
         $ppid = (int)$row['lab_id'];
@@ -163,6 +168,7 @@ function doWait(e){
         <h2><?php echo xlt('Procedure Orders and Reports'); ?></h2>
     </div>
 <form class="form-inline" method='post' action='list_reports.php' enctype='multipart/form-data'>
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession())); ?>" />
     <div class="container">
     <!-- This might be set by the results window: -->
     <input class="d-none row" type='text' name='form_external_refresh' value='' />
@@ -177,7 +183,7 @@ function doWait(e){
                     <select name='form_lab_id' id='form_lab_id' class='form-control'>
                         <option value="0"><?php echo xlt('All Labs'); ?></option>
                         <?php
-                        $ppres = sqlStatement("SELECT ppid, name, npi FROM procedure_providers ORDER BY name, ppid");
+                        $ppres = sqlStatement("SELECT ppid, name, npi FROM procedure_providers WHERE active = 1 ORDER BY name, ppid");
                         while ($pprow = sqlFetchArray($ppres)) {
                             echo "<option value='" . attr($pprow['ppid']) . "'";
                             if ($pprow['ppid'] == $processing_lab) {
@@ -265,7 +271,7 @@ function doWait(e){
             $s .= "  <td>&nbsp;</td>\n";
             $s .= "  <td>&nbsp;</td>\n";
                         $s .= "  <td><a href='javascript:openPtMatch(" . attr_js($matchkey) . ")'>";
-                        $tmp = is_array($decoded = json_decode((string) $matchkey, true)) ? $decoded : [];
+                        $tmp = is_array($decoded = json_decode($matchkey, true)) ? $decoded : [];
             $s .= xlt('Click to match patient') . ' "' . text($tmp['lname'] ?? '') . ', ' . text($tmp['fname'] ?? '') . '"';
             $s .= "</a>";
             $s .= "</td>\n";

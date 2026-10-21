@@ -27,7 +27,6 @@ use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsEditGlobals;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
-use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Panther\PantherTestCase;
 
 /**
@@ -57,8 +56,6 @@ class KkEditGlobalsTest extends PantherTestCase
     private const LABEL_NUM_MESSAGES = 'Number of Messages Displayed in Patient Summary';
     private const LABEL_WINDOW_TITLE = 'Add Patient Name To Window Title';
     private const LABEL_ENCOUNTER_PAGE_SIZE = 'Encounter Page Size';
-
-    private Crawler $crawler;
 
     /**
      * Test that the edit globals configuration page loads successfully.

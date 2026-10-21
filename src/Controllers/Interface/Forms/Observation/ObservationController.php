@@ -199,7 +199,8 @@ class ObservationController
             // Prepare template data
             $templateData = [
                 'observations' => $observations,
-                'formId' => $request->query->get('id', null)
+                'formId' => $request->query->get('id', null),
+                'csrf_token' => CsrfUtils::collectCsrfToken($session),
             ];
             if ($request->query->get('status') === 'saved') {
                 $templateData['statusMessage'] = xl('Observation saved successfully.');
@@ -306,9 +307,29 @@ class ObservationController
             // grab any ids before postData can overwrite them
             $originalIds = array_filter(array_map(fn($sub) => $sub['id'] ?? 0, $observation['sub_observations'] ?? []));
 
+            // Merge only the clinical fields the enhanced observation form
+            // legitimately edits. Server-controlled identity + provenance
+            // fields (id, pid, encounter, form_id, user, groupname, authorized,
+            // uuid, parent_observation_id, questionnaire_response_id) are set
+            // above and must not be overridden by request input.
+            $allowedPostFields = [
+                'code',
+                'description',
+                'ob_value',
+                'ob_unit',
+                'ob_status',
+                'date',
+                'date_end',
+                'code_type',
+                'table_code',
+                'ob_type',
+                'observation',
+                'ob_reason_code',
+                'ob_reason_status',
+                'ob_reason_text',
+            ];
             foreach ($postData as $fieldName => $value) {
-                // update only fields that exist in the observation
-                if (!in_array($fieldName, ['form_id', 'pid', 'encounter', 'userauthorized', 'groupname', 'user'])) {
+                if (in_array($fieldName, $allowedPostFields, true)) {
                     $observation[$fieldName] = $value;
                 }
             }
@@ -477,8 +498,14 @@ class ObservationController
         if (!$this->getFormService()->hasFormPermission("observation")) {
             return $this->createResponse(xlt("Unauthorized access"), Response::HTTP_UNAUTHORIZED);
         }
-        $observationId = $request->query->getInt('id');
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if (!CsrfUtils::verifyCsrfToken($request->query->get('csrf_token'), session: $session)) {
+            return $this->createResponse(
+                xlt("Authentication Error"),
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+        $observationId = $request->query->getInt('id');
         $pid = $session->get('pid');
         $encounter = $session->get('encounter');
         $formId = $request->query->getInt('form_id', 0);

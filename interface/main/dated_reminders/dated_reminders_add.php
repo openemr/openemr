@@ -13,10 +13,19 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+// Dated reminders reference patient notes; gate on patients/notes before the
+// getPatName() call resolves a request-supplied PatientID or the sendReminder()
+// path enqueues a message.
+if (!AclMain::aclCheckCore('patients', 'notes')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/notes: Dated Reminders", xl("Dated Reminders"));
+}
 
 $dateRanges = [];
 // $dateranges = array ( number_period => text to display ) == period is always in the singular
@@ -329,7 +338,7 @@ if (isset($this_message['pid'])) {
                                     <?php echo xlt('Link To Patient') ?>:
                                     <i id="link-tooltip" class="fa fa-info-circle text-primary ml-1" aria-hidden="true" data-original-title="" title=""></i>
                                 </label>
-                                <input type='text' id='patientName' name='patientName' class='form-control' value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()' title='<?php xla('Click to select patient'); ?>' readonly />
+                                <input type='text' id='patientName' name='patientName' class='form-control' value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' readonly />
                                 <input type="hidden" name="PatientID" id="PatientID" value="<?php echo attr($patientID) ?>" />
                                 <button type="button" class="btn btn-sm btn-outline-secondary mt-2" <?php echo ($patientID > 0 ? '' : 'style="display:none"') ?> id="removePatient">
                                     <i class="fa fa-unlink mr-1"></i><?php echo xlt('Unlink Patient') ?>

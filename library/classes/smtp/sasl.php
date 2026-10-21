@@ -213,7 +213,7 @@ class sasl_client_class
         <do>
 {/metadocument}
 */
-    public Function GetCredentials(&$credentials,$defaults,&$interactions)
+    public Function GetCredentials(&$credentials,$defaults,&$interactions): int
     {
         Reset($credentials);
         $end=(GetType($key=Key($credentials))!="string");

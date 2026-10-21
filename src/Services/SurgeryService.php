@@ -39,7 +39,7 @@ class SurgeryService extends BaseService
         return ['uuid', 'euuid', 'puuid', 'recorder_uuid'];
     }
 
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT
                     surgeries.id,
@@ -223,10 +223,8 @@ class SurgeryService extends BaseService
     /**
      * Returns a single surgery record by id.
      * @param $uuid - The procedure uuid identifier in string format.
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
      */
-    public function getOne($uuid, $puuidBind = null)
+    public function getOne($uuid, $puuidBind = null): ProcessingResult
     {
         $processingResult = new ProcessingResult();
 

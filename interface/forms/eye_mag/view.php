@@ -2430,9 +2430,9 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                             echo "checked='checked'";
                                                                                                                                       } ?> /><label for="CycloMydril" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('CycloMydril'); ?></label>
                                   </td>
-                                  <td><input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 1%" <?php if ($TROPICAMIDE == 'Tropicamide 1%') {
+                                  <td><?php $tropLegacy = ($TROPICAMIDE == 'Tropicamide 2.5%'); ?><input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="<?php echo attr($tropLegacy ? 'Tropicamide 2.5%' : 'Tropicamide 1%'); ?>" <?php if ($TROPICAMIDE == 'Tropicamide 1%' || $tropLegacy) {
                                             echo "checked='checked'";
-                                                                                                                                         } ?> /><label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Tropic 1%'); ?></label>
+                                      } ?> /><label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo $tropLegacy ? xlt('Tropic 2.5%') : xlt('Tropic 1%'); ?></label>
                                   </td>
                                 </tr>
                                 <tr>
@@ -3101,12 +3101,12 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                 <table style="position:relative;float:left;text-align:center;margin: 4 2;width:100%;font-size:1.0em;padding:4px;">
                                     <tr style="font-weight:bold;"><td style="width:50%;"></td><td><?php echo xlt('OD{{right eye}}'); ?></td><td><?php echo xlt('OS{{left eye}}'); ?></td></tr>
                                     <tr>
-                                        <td class="right"><span title="<?php xla('Near Point of Accommodation'); ?>"><?php echo xlt('NPA{{near point of Accommodation}}'); ?>:</span></td>
+                                        <td class="right"><span title="<?php echo xla('Near Point of Accommodation'); ?>"><?php echo xlt('NPA{{near point of Accommodation}}'); ?>:</span></td>
                                         <td><input type="text" id="ODNPA" style="width:70%;" class="neurosens2" name="ODNPA" value="<?php echo attr($ODNPA); ?>"></td>
                                         <td><input type="text" id="OSNPA" style="width:70%;" class="neurosens2" name="OSNPA" value="<?php echo attr($OSNPA); ?>"></td>
                                     </tr>
                                     <tr>
-                                        <td class="right"><span title="<?php xla('Near Point of Convergence'); ?>"><?php echo xlt('NPC{{near point of convergence}}'); ?>:</span></td>
+                                        <td class="right"><span title="<?php echo xla('Near Point of Convergence'); ?>"><?php echo xlt('NPC{{near point of convergence}}'); ?>:</span></td>
                                         <td colspan="2" ><input type="text" style="width:85%;" class="neurosens2" id="NPC" name="NPC" value="<?php echo attr($NPC); ?>">
                                         </td>
                                     </tr>
@@ -3724,10 +3724,6 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                *    e. double-click a DX appends this DX to the bottom of the IMP/Plan list
                                */
 
-                            if (!$PMSFH) {
-                                $PMSFH = build_PMSFH($pid);
-                            }
-
                               $total_DX = '0';
                             if ((($PMSFH[0]['POH'][0] ?? null) > '') && ($PMSFH[0]['PMH'][0] > '')) {
                                 $total_DX = '1';
@@ -3978,7 +3974,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                                 $label = text(substr((string) $row['title'], 0, 30));
                                                                 echo "<label for='TEST_$counter' class='input-helper input-helper--checkbox'>";
                                                                 echo $label . "</label>";
-                                                                echo '<div id="TEST_' . $counter . '_justmods" class="' . $class2 . ' indent20" style="margin-bottom: 5px;">' . xlt('Modifier(s)') . ': <input type="text" style="width:100px;" id="TEST_' . $counter . '_modifier" value="' . ($row['modifier'] ?? '') . '">';
+                                                                echo '<div id="TEST_' . $counter . '_justmods" class="' . $class2 . ' indent20" style="margin-bottom: 5px;">' . xlt('Modifier(s)') . ': <input type="text" style="width:100px;" id="TEST_' . $counter . '_modifier" value="' . attr($row['modifier'] ?? '') . '">';
                                                                 /*
                                                                 OK we are going to attach this test to a specific ICD10 code listed above.
                                                                 The codes are listed by number.
@@ -4129,7 +4125,9 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                       <tr>
                                           <td colspan="3" style="padding-left:20px;padding-top:4px;">
                                 <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]" style="width: 440px;height: 44px;"><?php if (($found ?? null) < (empty($PLAN_arr) ? 0 : count($PLAN_arr))) {
-                                    echo $PLAN_arr[count($PLAN_arr) - 1]['ORDER_DETAILS']; } ?></textarea>
+                                    $orderDetails = $PLAN_arr[count($PLAN_arr) - 1]['ORDER_DETAILS'] ?? null;
+                                    echo text(is_string($orderDetails) ? $orderDetails : '');
+                                                  } ?></textarea>
                                           </td>
                                       </tr>
                                   </table>

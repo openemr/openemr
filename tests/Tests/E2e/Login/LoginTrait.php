@@ -96,7 +96,11 @@ trait LoginTrait
         $form = $this->crawler->filter('#login_form')->form();
         $form['authUser'] = $name;
         $form['clearPass'] = $password;
-        $this->crawler = $this->client->submit($form);
+        // Panther's Client::submit() returns the base Symfony Crawler, not
+        // Panther's typed subclass; we don't read $this->crawler again until
+        // after the redirect wait so the submit return is dropped on the
+        // floor to keep the typed property pointing at a Panther Crawler.
+        $this->client->submit($form);
         if ($goalPass) {
             // The post-login redirect is asynchronous: submit() returns
             // once the POST responds, but the browser still needs to

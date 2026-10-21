@@ -18,7 +18,7 @@ use Laminas\ModuleManager\ModuleManager;
 
 class Module
 {
-    public function getAutoloaderConfig()
+    public function getAutoloaderConfig(): array
     {
         // TODO: verify that we need this namespace autoloader... it should be on by default...
         return [
@@ -30,7 +30,7 @@ class Module
         ];
     }
 
-    public function getServiceConfig()
+    public function getServiceConfig(): array
     {
         return [
             'factories' => [

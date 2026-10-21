@@ -52,7 +52,7 @@ class ControllerLog extends BaseController
 
         $this->set_view("view.php");
     }
-    public function _action_download()
+    public function _action_download(): Response
     {
         $form_begin_date = DateTimeToYYYYMMDDHHMMSS(Common::get('form_begin_date', ''));
         $form_end_date = DateTimeToYYYYMMDDHHMMSS(Common::get('form_end_date', ''));
@@ -82,7 +82,7 @@ class ControllerLog extends BaseController
         return $response;
     }
 
-    private function getLogRecordsFromRequest($form_begin_date, $form_end_date)
+    private function getLogRecordsFromRequest($form_begin_date, $form_end_date): array
     {
         $res = listingCDRReminderLog($form_begin_date, $form_end_date);
 
@@ -113,7 +113,7 @@ class ControllerLog extends BaseController
         return $records;
     }
 
-    private function getFormattedAlerts($alerts, &$row)
+    private function getFormattedAlerts($alerts, &$row): array
     {
         $formattedAlerts = [];
         foreach ($alerts as $targetInfo => $alert) {

@@ -20,6 +20,15 @@ use DateInterval;
 use DateTimeImmutable;
 use Exception;
 use JsonException;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256 as RsaSha256Signer;
+use Lcobucci\JWT\Token\Parser as JwtParser;
+use Lcobucci\JWT\UnencryptedToken;
+use Lcobucci\JWT\Validation\Constraint\IssuedBy;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
+use Lcobucci\JWT\Validation\Validator as JwtValidator;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptTrait;
@@ -34,6 +43,7 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
+use OpenEMR\Common\Auth\OpenIDConnect\ClientGrantTypePolicy;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomAuthCodeGrant;
@@ -70,6 +80,7 @@ use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
+use OpenEMR\RestControllers\SMART\ScopeConsentResolver;
 use OpenEMR\RestControllers\SMART\ScopePermissionParser;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\DecisionSupportInterventionService;
@@ -293,7 +304,7 @@ class AuthorizationController implements LoggerAwareInterface
                 'initiate_login_uri' => null, // for anything with a SMART 'launch/ehr' context we need to know how to initiate the login
                 'request_uris' => null,
                 'response_types' => null,
-                'grant_types' => null,
+                // grant_types is resolved separately below (ClientGrantTypePolicy)
                 // info on scope can be seen at
                 // OAUTH2 Dynamic Client Registration RFC 7591 Section 2 Page 9
                 // @see https://tools.ietf.org/html/rfc7591#section-2
@@ -344,7 +355,7 @@ class AuthorizationController implements LoggerAwareInterface
 
             foreach ($keys as $key => $supported_values) {
                 if ($data->has($key)) {
-                    if (in_array($key, ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'])) {
+                    if (in_array($key, ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'response_types', 'default_acr_values'])) {
                         $params[$key] = implode('|', $data->all($key));
                     } elseif (in_array($key, ['dsi_source_attributes'])) {
                         $params[$key] = $data->all($key);
@@ -430,8 +441,72 @@ class AuthorizationController implements LoggerAwareInterface
                     }
                 }
             }
+            // The grant types this client may use, enforced at the token endpoint by
+            // ClientGrantTypeGuardTrait. Validated when sent; derived when omitted.
+            $payload = $data->all();
+            $params['grant_types'] = implode('|', (new ClientGrantTypePolicy())->resolveRegistrationGrantTypes(
+                $payload['grant_types'] ?? null,
+                $data->get('application_type') === 'private',
+                ScopeEntity::scopeListHasContext($scope, 'system'),
+                $data->has('jwks') || $data->has('jwks_uri')
+            ));
             if (!$data->has('redirect_uris')) {
                 throw new OAuthServerException('redirect_uris is invalid', 0, 'invalid_redirect_uri');
+            }
+            // Validate each redirect_uri: must be a non-empty string
+            // parseable as an absolute URL with a scheme. RFC 7591 §2
+            // requires each entry be a valid URI, and the auth-code flow
+            // later issues a 302 to the value, so an unvalidated input
+            // like `/relative/path` or `"not-a-url"` would be stored
+            // and attempted at redirect time.
+            $redirectUris = $data->all('redirect_uris');
+            if ($redirectUris === []) {
+                throw new OAuthServerException(
+                    'redirect_uris must be a non-empty array',
+                    0,
+                    'invalid_redirect_uri'
+                );
+            }
+            foreach ($redirectUris as $redirectUri) {
+                if (!is_string($redirectUri) || trim($redirectUri) === '') {
+                    throw new OAuthServerException(
+                        'redirect_uri must be a non-empty string',
+                        0,
+                        'invalid_redirect_uri'
+                    );
+                }
+                $parsed = parse_url($redirectUri);
+                if (!is_array($parsed) || !isset($parsed['scheme']) || $parsed['scheme'] === '') {
+                    throw new OAuthServerException(
+                        'redirect_uri must be an absolute URL with a scheme',
+                        0,
+                        'invalid_redirect_uri'
+                    );
+                }
+                $scheme = strtolower($parsed['scheme']);
+                if ($scheme === 'http' || $scheme === 'https') {
+                    // Web redirect URIs must have a host; without it a form
+                    // like `https:relative-path` would be stored and
+                    // attempted at redirect time.
+                    if (!isset($parsed['host']) || $parsed['host'] === '') {
+                        throw new OAuthServerException(
+                            'web redirect_uri must have a non-empty host',
+                            0,
+                            'invalid_redirect_uri'
+                        );
+                    }
+                } elseif (!str_contains($scheme, '.')) {
+                    // RFC 8252 §7.1 private-use URI schemes for native apps
+                    // should be a reverse domain name under the client's
+                    // control (e.g. `com.example.app`) and therefore contain
+                    // at least one period. A non-web scheme with no period
+                    // is not a valid private-use URI either; reject.
+                    throw new OAuthServerException(
+                        'redirect_uri scheme must be http, https, or a reverse-domain private-use scheme (RFC 8252 §7.1)',
+                        0,
+                        'invalid_redirect_uri'
+                    );
+                }
             }
             if ($data->has('post_logout_redirect_uris') && !$data->has('post_logout_redirect_uris')) {
                 throw new OAuthServerException('post_logout_redirect_uris is invalid', 0, 'invalid_client_metadata');
@@ -566,9 +641,12 @@ class AuthorizationController implements LoggerAwareInterface
                     throw new OAuthServerException('No Access Code', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
                 }
             }
-            // TODO: @adunsulag this was the server path but can't we just have it be getPathInfo()?
-            $pathInfoValue = $request->server->get('PATH_INFO');
-            $pathInfo = is_string($pathInfoValue) ? $pathInfoValue : '';
+            // Use Symfony's getPathInfo() rather than the raw $_SERVER['PATH_INFO']
+            // superglobal: the latter is only populated by apache/nginx's own
+            // rewriters, while a front-controller setup (e.g. public/index.php
+            // under `php -S`) does not set it. getPathInfo() returns the same
+            // value apache would produce and works consistently across servers.
+            $pathInfo = $request->getPathInfo();
             $pos = strpos($pathInfo, '/client/');
             if ($pos === false) {
                 throw new OAuthServerException('Invalid path', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
@@ -578,8 +656,24 @@ class AuthorizationController implements LoggerAwareInterface
             if (!$client) {
                 throw new OAuthServerException('Invalid client', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
             }
-            if ($client['registration_access_token'] !== $token) {
+            // Constant-time compare so the response time doesn't vary with
+            // the position of the first differing byte of the stored token.
+            // The DB column is `registration_token` (not `registration_access_token`,
+            // which is the DCR response-body field name).
+            $storedToken = $client['registration_token'] ?? null;
+            if (!is_string($storedToken) || !is_string($token) || !hash_equals($storedToken, $token)) {
                 throw new OAuthServerException('Invalid registration token', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
+            }
+            // Mirror the enabled-flag check performed by the grant classes:
+            // a disabled client should not be able to retrieve its own
+            // credentials through this read endpoint any more than it
+            // can mint tokens through /token.
+            $isEnabled = $client['is_enabled'] ?? 0;
+            $enabled = is_int($isEnabled)
+                ? $isEnabled
+                : (is_string($isEnabled) && ctype_digit($isEnabled) ? (int) $isEnabled : 0);
+            if ($enabled !== 1) {
+                throw new OAuthServerException('Invalid client', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
             }
             $params['client_id'] = $client['client_id'];
             try {
@@ -594,16 +688,48 @@ class AuthorizationController implements LoggerAwareInterface
             $params['client_name'] = $client['client_name'];
             $params['redirect_uris'] = $redirectUri === '' ? [] : explode('|', $redirectUri);
 
-            // need to grab dsi information
+            // Build the response payload (including addDSIInformation which
+            // can throw) BEFORE rotating the stored registration_token.
+            // Otherwise an exception from payload assembly would invalidate
+            // the caller's current token on the server side with no new
+            // token delivered in the response.
+            $newRegToken = $this->getClientRepository()->generateRegistrationAccessToken();
+            $params['registration_access_token'] = $newRegToken;
+            $params['registration_client_uri'] = $this->authBaseFullUrl . '/client/' . $uri_path;
             $this->addDSIInformation($params, $client);
-            $response->withHeader("Cache-Control", "no-store");
-            $response->withHeader("Pragma", "no-cache");
-            $response->withHeader('Content-Type', 'application/json');
+            $responseJson = json_encode($params);
+
+            // Rotate the registration_access_token on every successful read.
+            // RFC 7592 §3 says the client treats the response as the new
+            // current configuration, so returning a freshly minted RAT in
+            // the response body makes a one-time disclosure of the stored
+            // RAT self-healing on next use. The UPDATE's WHERE clause
+            // includes the current token value so two concurrent reads
+            // using the same stored token cannot both succeed — the second
+            // update affects zero rows and the request is rejected.
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `oauth_clients` SET `registration_token` = ? WHERE `client_id` = ? AND `registration_token` = ?",
+                [$newRegToken, $client['client_id'], $storedToken]
+            );
+            if (QueryUtils::affectedRows() !== 1) {
+                throw new OAuthServerException('Invalid registration token', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
+            }
+
+            // PSR-7 messages are immutable; withHeader() returns a new
+            // instance. The DCR client-read response body carries the
+            // client_secret and the freshly rotated registration_access_token,
+            // so the no-store + Content-Type headers must actually be
+            // installed on the response that gets returned.
             $body = $response->getBody();
-            $body->write(json_encode($params));
+            $body->write($responseJson);
 
             $this->session->invalidate();
-            return $response->withStatus(Response::HTTP_OK)->withBody($body);
+            return $response
+                ->withStatus(Response::HTTP_OK)
+                ->withHeader("Cache-Control", "no-store")
+                ->withHeader("Pragma", "no-cache")
+                ->withHeader('Content-Type', 'application/json')
+                ->withBody($body);
         } catch (OAuthServerException $exception) {
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
@@ -989,11 +1115,33 @@ class AuthorizationController implements LoggerAwareInterface
                         }
                     }
                     EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::mfa(), $mfaUsername, $mfaAuthGroup, "OAuth2 MFA ($mfaType) code incorrect");
+                    // MfaUtils::checkTOTP / checkU2F both bump the
+                    // mfa_fail_counter / mfa_login_fail_counter and
+                    // enforce the block gate on the wrong-code path.
+                    // But !$mfaToken (validateToken rejected a
+                    // malformed submission) short-circuits the ||
+                    // before check ever runs — attribute that
+                    // failure explicitly so malformed spam can't
+                    // sidestep the throttle.
+                    if (!$mfaToken) {
+                        (new AuthUtils())->recordFailedMfaChallenge(is_string($mfaUsername) ? $mfaUsername : null);
+                    }
                     $invalid = xl("Sorry, Invalid code!");
                     $loginTwigVars['mfaRequired'] = true;
                     $loginTwigVars['invalid'] = $invalid;
                     return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
                 }
+                // Full auth (password + MFA) succeeded — zero the
+                // MFA-specific counters so this user / IP starts
+                // fresh for the next authentication session.
+                $userService = new UserService();
+                $userRow = $this->userId !== null ? $userService->getUser($this->userId) : false;
+                $mfaUsername = ($userRow !== false && isset($userRow['username'])) ? $userRow['username'] : null;
+                $ip = collectIpAddresses();
+                AuthUtils::resetMfaChallengeCounters(
+                    is_string($mfaUsername) ? $mfaUsername : null,
+                    $ip['ip_string']
+                );
             }
         } catch (Throwable $error) {
             $loginTwigVars['mfaRequired'] = true;
@@ -1167,22 +1315,51 @@ class AuthorizationController implements LoggerAwareInterface
         $scopeString ??= "";
         $userRole ??= UuidUserAccount::USER_ROLE_PATIENT;
 
+        // Only offer what the client is registered for. finalizeScopes() would drop anything else
+        // after the user approved it, so showing it here only misleads the user.
+        $scopes = $this->filterScopesToClientRegistration($scopes, $client);
+
         // Parse and structure scopes with granular permissions
-        $scopeParser = new ScopePermissionParser($this->getScopeRepository($session));
-        $structuredScopes = $scopeParser->parseScopes($scopes);
+        $scopeRepository = $this->getScopeRepository($session);
+        $structuredScopes = $this->buildConsentCards($scopes);
 
         $otherScopes = [];
         $hiddenScopes = [];
-        $scopeRepository = $this->getScopeRepository($session);
-        $fhirRequiredSmartScopes = $scopeRepository->fhirRequiredSmartScopes();
+        // OpenID Connect identity scopes (profile, email, phone, ...) are presented in the
+        // "Identity Information Requested" column rather than as scope checkboxes, and are
+        // posted back as hidden scopes so the grant matches what the user was shown.
+        $requiredSmartScopes = $scopeRepository->fhirRequiredSmartScopes();
+        $identityClaimScopes = array_values(array_filter(
+            $scopeRepository->getServerScopeList()->getOpenIDConnectScopes(),
+            static fn(mixed $identityScope): bool => is_string($identityScope) && !in_array($identityScope, $requiredSmartScopes, true)
+        ));
 
         foreach ($scopes as $scope) {
-            // Hidden scopes
+            if ($scope === '' || $this->isConsentCardScope($scope, $structuredScopes)) {
+                continue; // rendered as a resource card
+            }
+            if (in_array($scope, $identityClaimScopes, true)) {
+                $hiddenScopes[] = $scope;
+                continue;
+            }
+            if (!ScopeConsentResolver::hasSupportedConstraint($scope)) {
+                // a constraint the user cannot see or toggle is not offered (and never granted)
+                $this->logger->debug('scopeAuthorizeConfirm() scope with unsupported constraint not offered', ['scope' => $scope]);
+                continue;
+            }
             if ($scope == 'openid') {
                 $hiddenScopes[] = $scope;
-            } elseif (in_array($scope, $fhirRequiredSmartScopes)) {
-                $otherScopes[$scope] = $scopeRepository->lookupDescriptionForScope($scope);
+                continue;
             }
+            // Everything else -- fhirUser, launch, api:*, and operation scopes such as
+            // patient/DocumentReference.$docref or system/*.$export -- is an individual checkbox.
+            try {
+                $description = $scopeRepository->lookupDescriptionForScope($scope);
+            } catch (\InvalidArgumentException $exception) {
+                $this->logger->debug('scopeAuthorizeConfirm() no description for scope', ['scope' => $scope, 'exception' => $exception]);
+                $description = '';
+            }
+            $otherScopes[$scope] = $description !== '' ? $description : $scope;
         }
 
         // Process claims
@@ -1305,8 +1482,28 @@ class AuthorizationController implements LoggerAwareInterface
     {
         $response = $this->createServerResponse();
         $authRequest = $this->deserializeUserSession();
+        // The client restored by deserializeUserSession() carries no registration, so look it up.
+        // It can have been deleted or disabled since the consent page was shown; say so plainly
+        // rather than issuing a code no token request could redeem.
+        $clientId = $authRequest->getClient()->getIdentifier();
+        $registeredClient = $this->getClientRepository()->getClientEntity($clientId);
+        if ($registeredClient === false || !$registeredClient->isEnabled()) {
+            $this->logger->error(
+                'authorizeUser() client is no longer registered or enabled',
+                ['client_id' => $clientId]
+            );
+            $this->session->invalidate();
+            return $this->renderTwigPage(
+                'oauth2/authorize/scopes-authorize',
+                'error/general_http_error.html.twig',
+                ['statusCode' => Response::HTTP_BAD_REQUEST]
+            );
+        }
         try {
-            $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $request->request->all('scope'));
+            $authRequest = $this->updateAuthRequestWithUserApprovedScopes(
+                $authRequest,
+                $this->resolveUserApprovedScopes($authRequest, $request, $registeredClient)
+            );
             $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
             $server = $this->getAuthorizationServer($this->getScopeRepository($this->session), $include_refresh_token);
 
@@ -1377,6 +1574,72 @@ class AuthorizationController implements LoggerAwareInterface
         return false;
     }
 
+    /**
+     * Rebuild the consent cards from the validated auth request exactly as scopeAuthorizeConfirm()
+     * rendered them, then intersect each requested scope with the user's checkbox choices.
+     *
+     * @return list<string>
+     */
+    private function resolveUserApprovedScopes(AuthorizationRequest $authRequest, HttpRestRequest $request, ClientEntity $registeredClient): array
+    {
+        $requested = array_values(array_map(
+            static fn(ScopeEntityInterface $scope): string => $scope->getIdentifier(),
+            $authRequest->getScopes()
+        ));
+        // Filter against the registered client, exactly as the consent page did; the client on
+        // the restored auth request carries no registered scopes (they are not serialized).
+        $requested = $this->filterScopesToClientRegistration($requested, $registeredClient);
+
+        return (new ScopeConsentResolver())->resolve(
+            $requested,
+            $this->buildConsentCards($requested),
+            $request->request->all('scope'),
+            $request->request->all('grant')
+        );
+    }
+
+    /**
+     * @param list<string> $scopes
+     * @return array<array-key, mixed>
+     */
+    private function buildConsentCards(array $scopes): array
+    {
+        return (new ScopePermissionParser($this->getScopeRepository($this->session)))->parseScopes($scopes);
+    }
+
+    /**
+     * @param array<array-key, mixed> $structuredScopes
+     */
+    private function isConsentCardScope(string $scope, array $structuredScopes): bool
+    {
+        try {
+            $entity = ScopeEntity::createFromString($scope);
+        } catch (\InvalidArgumentException) {
+            return false;
+        }
+        return $entity->isResourcePermissionScope()
+            && array_key_exists(($entity->getContext() ?? '') . '-' . ($entity->getResource() ?? ''), $structuredScopes);
+    }
+
+    /**
+     * Drop resource permission scopes the client is not registered for (fails closed when the
+     * client or its registration is missing). See ScopeConsentResolver::filterToClientRegistration().
+     *
+     * @param list<string> $scopes
+     * @return list<string>
+     */
+    private function filterScopesToClientRegistration(array $scopes, ?ClientEntity $client): array
+    {
+        $registeredScopes = $client?->getScopes();
+        $registered = is_array($registeredScopes) ? array_values(array_filter($registeredScopes, is_string(...))) : [];
+        $filtered = (new ScopeConsentResolver())->filterToClientRegistration($scopes, $registered);
+        $dropped = array_values(array_diff($scopes, $filtered));
+        if ($dropped !== []) {
+            $this->logger->debug('Requested scopes are not in the client registration and were not offered', ['scopes' => $dropped]);
+        }
+        return $filtered;
+    }
+
     private function updateAuthRequestWithUserApprovedScopes(AuthorizationRequest $request, $approvedScopes): AuthorizationRequest
     {
         $this->logger->debug(
@@ -1394,7 +1657,7 @@ class AuthorizationController implements LoggerAwareInterface
                 $lookupKey = $approvedScopeEntity->getScopeLookupKey();
                 if (
                     isset($scopeValidatorArray[$lookupKey])
-                    && $scopeValidatorArray[$lookupKey]->containsScope($approvedScopeEntity)
+                    && $scopeValidatorArray[$lookupKey]->grantsScope($approvedScopeEntity)
                 ) {
                     $scopeUpdates[] = $approvedScopeEntity;
                 }
@@ -1469,8 +1732,23 @@ class AuthorizationController implements LoggerAwareInterface
         // authorization code which is normally only sent for new tokens
         // by the authorization grant flow.
         $code = $request->getParsedBody()['code'] ?? null;
+        // RFC 6749 §4: grant_type is REQUIRED on the token endpoint. Without
+        // it, assigning to the typed string $grantType property below throws
+        // TypeError and bubbles out as an HTTP 500, which both leaks a
+        // framework-level failure to the client and bypasses the standard
+        // OAuth2 error-response contract. Convert the missing-input case
+        // into the RFC-mandated invalid_request response here.
+        $grantTypeInput = $request->getParsedBody()['grant_type'] ?? null;
+        if (!is_string($grantTypeInput) || $grantTypeInput === '') {
+            return (new OAuthServerException(
+                'The grant_type parameter is required',
+                3,
+                'invalid_request',
+                Response::HTTP_BAD_REQUEST
+            ))->generateHttpResponse($response);
+        }
         // grantType could be authorization_code, password or refresh_token.
-        $this->grantType = $request->getParsedBody()['grant_type'];
+        $this->grantType = $grantTypeInput;
         $this->logger->debug("AuthorizationController->oauthAuthorizeToken() grant type received", ['grant_type' => $this->grantType]);
         if ($this->grantType === 'authorization_code') {
             // re-populate from saved session cache populated in authorizeUser().
@@ -1522,9 +1800,21 @@ class AuthorizationController implements LoggerAwareInterface
                 ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
             );
             $this->session->invalidate();
+            // Never surface $exception->getMessage() to the caller —
+            // it can carry SQL fragments, file paths, or other
+            // internal detail that a token-endpoint client (potentially
+            // unauthenticated) should not see. The message is already
+            // logged for admin diagnosis; return the OAuth2-shaped
+            // generic error instead.
             $body = $response->getBody();
-            $body->write($exception->getMessage());
-            return $response->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)->withBody($body);
+            $body->write((string) json_encode([
+                'error' => 'server_error',
+                'error_description' => 'An unexpected server error occurred processing the request.',
+            ]));
+            return $response
+                ->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)
+                ->withHeader('Content-Type', 'application/json')
+                ->withBody($body);
         }
     }
 
@@ -1558,6 +1848,72 @@ class AuthorizationController implements LoggerAwareInterface
         return json_decode(HttpUtils::base64url_decode($token), true);
     }
 
+    /**
+     * Parses an OIDC id_token_hint, verifies its signature against the
+     * server's OAuth2 public key, verifies the issuer matches this
+     * server's auth-base URL, and returns the full claims array.
+     *
+     * @return array<string, mixed>
+     * @throws OAuthServerException
+     */
+    private function parseAndVerifyIdTokenHint(string $idToken): array
+    {
+        try {
+            $token = (new JwtParser(new JoseEncoder()))->parse($idToken);
+        } catch (\Throwable $e) {
+            $this->logger->debug(
+                'AuthorizationController->parseAndVerifyIdTokenHint() parse failure',
+                ['error' => $e->getMessage()]
+            );
+            throw new OAuthServerException(
+                'Id token hint could not be parsed',
+                0,
+                'invalid_request',
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        if (!$token instanceof UnencryptedToken) {
+            throw new OAuthServerException(
+                'Id token hint has an unsupported shape',
+                0,
+                'invalid_request',
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $publicKeyContents = file_get_contents($this->publicKey);
+        if (!is_string($publicKeyContents) || $publicKeyContents === '') {
+            $this->logger->error(
+                'AuthorizationController->parseAndVerifyIdTokenHint() OAuth2 public key not readable',
+                ['path' => $this->publicKey]
+            );
+            throw new OAuthServerException(
+                'Id token hint cannot be verified',
+                0,
+                'invalid_request',
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+        try {
+            (new JwtValidator())->assert(
+                $token,
+                new SignedWith(new RsaSha256Signer(), InMemory::plainText($publicKeyContents)),
+                new IssuedBy($this->authBaseFullUrl),
+            );
+        } catch (RequiredConstraintsViolated $e) {
+            $this->logger->debug(
+                'AuthorizationController->parseAndVerifyIdTokenHint() constraint violation',
+                ['violations' => array_map(static fn ($v): string => (string) $v, $e->violations())]
+            );
+            throw new OAuthServerException(
+                'Id token hint failed verification',
+                0,
+                'invalid_request',
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        return $token->claims()->all();
+    }
+
     public function userSessionLogout(HttpRestRequest $request): ResponseInterface
     {
         $message = '';
@@ -1570,10 +1926,26 @@ class AuthorizationController implements LoggerAwareInterface
             }
             $post_logout_url = $request->query->get('post_logout_redirect_uri', '');
             $state = $request->query->get('state', '');
-            $token_parts = explode('.', $id_token);
-            $id_payload = $this->decodeToken($token_parts[1]);
 
-            $client_id = is_string($id_payload['aud'] ?? null) ? $id_payload['aud'] : '';
+            // Parse the id_token_hint via the same JWT library the issuing path
+            // uses (IdTokenSMARTResponse signs with Rsa\Sha256). Reject the
+            // hint if the signature doesn't match the server's OAuth2 public
+            // key or if the issuer does not match this server's auth-base URL.
+            // Expiration is deliberately not enforced: OIDC RP-Initiated
+            // Logout §4 permits a hint whose id_token has already expired.
+            $id_payload = $this->parseAndVerifyIdTokenHint($id_token);
+
+            // The verified parser may deliver `aud` as either a string or
+            // a single-element array per JWT serialization choices; the
+            // raw json_decode call this replaced produced a string. Normalize.
+            $aud = $id_payload['aud'] ?? null;
+            if (is_string($aud)) {
+                $client_id = $aud;
+            } elseif (is_array($aud) && isset($aud[0]) && is_string($aud[0])) {
+                $client_id = $aud[0];
+            } else {
+                $client_id = '';
+            }
             $user = $id_payload['sub'];
             $id_nonce = $id_payload['nonce'] ?? '';
             $trustedUser = $this->trustedUser($client_id, $user);
@@ -1655,7 +2027,7 @@ class AuthorizationController implements LoggerAwareInterface
      * @deprecated Use ServerConfig::getTokenUrl()
      * @return string
      */
-    public function getTokenUrl()
+    public function getTokenUrl(): string
     {
         return $this->authBaseFullUrl . self::getTokenPath();
     }

@@ -23,7 +23,7 @@ use function register_shutdown_function;
  */
 class CoverageHelper
 {
-    public static function createTargetedCodeCoverage(string $shutdownExportBasePath)
+    public static function createTargetedCodeCoverage(string $shutdownExportBasePath): CodeCoverage
     {
         // empty filter so we want coverage on EVERYTHING
         $filter = new Filter();

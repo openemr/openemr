@@ -125,15 +125,15 @@ if ($result) {
             <div class="row">
                 <div class="col-md-4 form-group">
                     <label for="email_sender"><?php echo xlt('Email Sender')?>:</label>
-                    <input class="form-control" type="text" name="email_sender" size="40" value="<?php echo attr($email_sender); ?>" placeholder="<?php xla('sender name'); ?>">
+                    <input class="form-control" type="text" name="email_sender" size="40" value="<?php echo attr($email_sender); ?>" placeholder="<?php echo xla('sender name'); ?>">
                 </div>
                 <div class="col-md-4 form-group">
                     <label for="email_subject"><?php echo xlt('Email Subject')?>:</label>
-                    <input class="form-control" type="text" name="email_subject" size="40" value="<?php echo attr($email_subject); ?>" placeholder="<?php xla('email subject'); ?>">
+                    <input class="form-control" type="text" name="email_subject" size="40" value="<?php echo attr($email_subject); ?>" placeholder="<?php echo xla('email subject'); ?>">
                 </div>
                 <div class="col-md-4 form-group">
                     <label for="provider_name"><?php echo xlt('Name of Provider')?>:</label>
-                    <input class="form-control" type="text" name="provider_name" size="40" value="<?php echo attr($provider_name); ?>" placeholder="<?php xla('provider name'); ?>">
+                    <input class="form-control" type="text" name="provider_name" size="40" value="<?php echo attr($provider_name); ?>" placeholder="<?php echo xla('provider name'); ?>">
                 </div>
             </div>
             <div class="row">

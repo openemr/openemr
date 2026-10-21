@@ -24,9 +24,9 @@ use Symfony\Component\HttpClient\HttpClient;
  * without Chrome/Selenium (Phase 4's E2eCriticalPathTest is when we'll
  * need Panther-with-Selenium for JS-heavy flows).
  *
- * The artifact endpoint is resolved from the ACCEPTANCE_ARTIFACT_URL
- * environment variable, defaulting to http://localhost:8580 (the port
- * that tests/Acceptance/bin/boot-docker.sh binds by default).
+ * Env-var-driven state (artifact URL, self-signed-cert trust opt-in)
+ * lives in `AcceptanceContext`; this class stays focused on the
+ * client-construction concern.
  */
 final class ArtifactBrowser
 {
@@ -59,8 +59,7 @@ final class ArtifactBrowser
 
     private static function isLocalArtifact(): bool
     {
-        $optIn = getenv('ACCEPTANCE_TRUST_SELF_SIGNED');
-        if ($optIn === '1' || $optIn === 'true') {
+        if (AcceptanceContext::trustSelfSigned()) {
             return true;
         }
         $host = parse_url(self::baseUrl(), PHP_URL_HOST);
@@ -72,13 +71,6 @@ final class ArtifactBrowser
      */
     public static function baseUrl(): string
     {
-        $url = getenv('ACCEPTANCE_ARTIFACT_URL');
-        if ($url !== false && $url !== '') {
-            $trimmed = rtrim($url, '/');
-            if ($trimmed !== '') {
-                return $trimmed;
-            }
-        }
-        return 'http://localhost:8580';
+        return AcceptanceContext::artifactUrl();
     }
 }

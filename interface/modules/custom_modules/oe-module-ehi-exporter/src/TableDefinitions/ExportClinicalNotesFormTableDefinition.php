@@ -23,7 +23,7 @@ class ExportClinicalNotesFormTableDefinition extends ExportTableDefinition
     const TABLE_NAME = 'form_clinic_note';
     const FORM_DIR = "clinic_note";
 
-    public function getRecords()
+    public function getRecords(): array
     {
         $selectQuery = $this->getSelectClause(); // make sure we only grab the clauses we allow
 

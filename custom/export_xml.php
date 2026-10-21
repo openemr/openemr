@@ -35,7 +35,7 @@ function custom_xml_Add($tag, $text): void
             $out .= "\t";
         }
 
-        $out .= "<$tag>$text</$tag>\n";
+        $out .= "<$tag>" . xmlEscape($text) . "</$tag>\n";
     }
 }
 

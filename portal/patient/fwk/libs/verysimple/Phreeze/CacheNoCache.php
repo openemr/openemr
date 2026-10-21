@@ -14,7 +14,7 @@
 class CacheNoCache implements ICache
 {
     private $ram =  [];
-    public function Get($key, $flags = null)
+    public function Get($key, $flags = null): null
     {
         return null;
     }

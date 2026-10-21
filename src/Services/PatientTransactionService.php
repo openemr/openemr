@@ -29,7 +29,7 @@ class PatientTransactionService extends BaseService
         parent::__construct(self::TABLE_NAME);
     }
 
-    public function getSelectStatement($predicateColumnName)
+    public function getSelectStatement($predicateColumnName): string
     {
 
         $criteriaItemsWhitelist = [
@@ -101,7 +101,7 @@ class PatientTransactionService extends BaseService
         ";
     }
 
-    private function getOneFromDb($tid)
+    private function getOneFromDb($tid): array
     {
 
         $sqlBindArray = [];
@@ -114,7 +114,7 @@ class PatientTransactionService extends BaseService
         return $records;
     }
 
-    public function getAll($pid)
+    public function getAll($pid): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         $sqlBindArray = [];
@@ -220,16 +220,11 @@ class PatientTransactionService extends BaseService
             $transactionId, $data["validThrough"],
         ];
 
-        $results = sqlInsert(
-            $sql,
-            $params
-        );
+        // lbt_data has no auto increment column, so sqlInsert()'s insert id is always 0.
+        // The rows are keyed by the transaction id; throws on failure.
+        QueryUtils::sqlStatementThrowException($sql, $params);
 
-        if (!$results) {
-            return false;
-        }
-
-        return $results;
+        return $transactionId;
     }
 
     public function update($tid, $data)

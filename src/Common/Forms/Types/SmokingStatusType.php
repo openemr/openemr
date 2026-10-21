@@ -29,7 +29,7 @@ class SmokingStatusType implements IOptionFormType {
     public const COLUMN_TOBACCO_INDEX_SMOKING_STATUS = 3;
     public const COLUMN_TOBACCO_INDEX_SMOKING_PACK_COUNT = 4;
 
-    public function buildPrintView($frow, $currvalue, $value_allowed = true)
+    public function buildPrintView($frow, $currvalue, $value_allowed = true): string
     {
         $printView = '';
         $field_id    = $frow['field_id'];
@@ -96,7 +96,7 @@ class SmokingStatusType implements IOptionFormType {
         return $printView;
     }
 
-    public function buildPlaintextView($frow, $currvalue)
+    public function buildPlaintextView($frow, $currvalue): string
     {
         $field_id    = $frow['field_id'];
         $list_id     = $frow['list_id'] ?? null;

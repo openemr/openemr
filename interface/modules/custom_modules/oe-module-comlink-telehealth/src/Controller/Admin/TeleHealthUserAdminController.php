@@ -67,12 +67,12 @@ class TeleHealthUserAdminController
         echo $this->twig->render("comlink/admin/user_admin-extension.html.twig", $userAdminTwigData);
     }
 
-    public function isTelehealthRenderEvent($event)
+    public function isTelehealthRenderEvent($event): bool
     {
         return $event instanceof UserEditRenderEvent;
     }
 
-    public function isTelehealthUserEvent($event)
+    public function isTelehealthUserEvent($event): bool
     {
         return $event instanceof UserUpdatedEvent || $event instanceof UserCreatedEvent;
     }

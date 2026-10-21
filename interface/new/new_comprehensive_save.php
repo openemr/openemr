@@ -17,6 +17,8 @@ $sessionAllowWrite = true;
 require_once("../globals.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -26,6 +28,10 @@ use OpenEMR\Services\ContactService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
+if (!AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly'])) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: New Patient", xl("New Patient"));
+}
 
 // Validation for non-unique external patient identifier.
 $alertmsg = '';

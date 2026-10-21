@@ -503,7 +503,7 @@ LIMIT 1)";
  * @param int $report_id id of report in database (if already bookmarked)
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget = '', $mode = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $batchSize = '', $report_id = null)
+function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget = '', $mode = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $batchSize = '', $report_id = null): array
 {
 
   // Default to a batchsize, if empty
@@ -620,7 +620,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
     }
 }
 
-function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
+function rules_clinic_get_providers($billing_facility, $pat_prov_rel): array
 {
     $results = [];
     if ($pat_prov_rel == "encounter") {
@@ -675,7 +675,7 @@ function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
  * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic_group_calculation($type = '', array $dateArray = [], $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
+function test_rules_clinic_group_calculation($type = '', array $dateArray = [], $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = ''): array
 {
     ServiceContainer::getLogger()->debug(
         "test_rules_clinic_group_calculation()",
@@ -798,7 +798,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = [], 
  * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
+function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = ''): array
 {
     $results = [];
     // If set the $provider to collate_outer (or collate_inner without plans organize mode),
@@ -936,7 +936,7 @@ function test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dat
  * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
+function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = ''): array
 {
 
   // If dateTarget is an array, then organize them.
@@ -1874,7 +1874,7 @@ function test_filter($patient_id, $rule, $dateTarget)
  * @param  string  $rule  id(string) of rule
  * @return array          listing of group ids
  */
-function returnTargetGroups($rule)
+function returnTargetGroups($rule): array
 {
 
     $sql = sqlStatementCdrEngine("SELECT DISTINCT `group_id` FROM `rule_target` " .
@@ -2000,7 +2000,7 @@ function test_targets($patient_id, $rule, ?string $group_id = null, $dateFocus =
  * @param bool $configurableOnly true if only want the configurable (per patient) plans (ie. ignore cqm plans)
  * @return array                      active plans
  */
-function resolve_plans_sql($type = '', $patient_id = '0', $configurableOnly = false)
+function resolve_plans_sql($type = '', $patient_id = '0', $configurableOnly = false): array
 {
 
     if ($configurableOnly) {
@@ -2134,7 +2134,7 @@ function set_plan_activity_patient($plan, $type, $setting, $patient_id): void
  * @param  string   $user             If a user is set, then will only show rules that user has permission to see
  * @return array                      rules
  */
-function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = false, $plan = '', $user = '')
+function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = false, $plan = '', $user = ''): array
 {
 
     if ($configurableOnly) {
@@ -2298,7 +2298,7 @@ function set_rule_activity_patient($rule, $type, $setting, $patient_id): void
  * @param  string  $reminder_method  string label of filter type
  * @return array                      reminder features
  */
-function resolve_reminder_sql($rule, $reminder_method)
+function resolve_reminder_sql($rule, $reminder_method): array
 {
     $sql = sqlStatementCdrEngine("SELECT `method_detail`, `value` FROM `rule_reminder` " .
     "WHERE `id`=? AND `method`=?", [$rule, $reminder_method]);
@@ -2319,7 +2319,7 @@ function resolve_reminder_sql($rule, $reminder_method)
  * @param  string  $include_flag   to allow selection for included or excluded filters
  * @return array                    filters
  */
-function resolve_filter_sql($rule, $filter_method, $include_flag = 1)
+function resolve_filter_sql($rule, $filter_method, $include_flag = 1): array
 {
     $sql = sqlStatementCdrEngine("SELECT `method_detail`, `value`, `required_flag` FROM `rule_filter` " .
     "WHERE `id`=? AND `method`=? AND `include_flag`=?", [$rule, $filter_method, $include_flag]);
@@ -2341,7 +2341,7 @@ function resolve_filter_sql($rule, $filter_method, $include_flag = 1)
  * @param  string   $include_flag   to allow selection for included or excluded targets
  * @return array                    targets
  */
-function resolve_target_sql($rule, ?string $group_id = null, $target_method = '', $include_flag = 1)
+function resolve_target_sql($rule, ?string $group_id = null, $target_method = '', $include_flag = 1): array
 {
 
     if ($group_id) {
@@ -2367,7 +2367,7 @@ function resolve_target_sql($rule, ?string $group_id = null, $target_method = ''
  * @param int $group_id group id of target group (if blank, then will ignore grouping)
  * @return array               actions
  */
-function resolve_action_sql($rule, $group_id = '')
+function resolve_action_sql($rule, $group_id = ''): array
 {
 
     if ($group_id) {
@@ -2918,7 +2918,7 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
  * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
  * @return bool true if check passed, otherwise false
  */
-function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
+function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget): bool
 {
 
     // Set date to current if not set
@@ -3088,7 +3088,7 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget): bool
    The new interval logic allows both targets to be valid during interval (3),
    generating the proper rule status
 */
-function sql_interval_string($table, $intervalType, $intervalValue, $dateFocus, $dateTarget)
+function sql_interval_string($table, $intervalType, $intervalValue, $dateFocus, $dateTarget): string
 {
 
     $dateSql = "";
@@ -3264,7 +3264,7 @@ function collect_database_label($label, $table)
  * @param  string  $type        either 'patient_reminder' or 'clinical_reminder'
  * @return array                see above for description of returned array
  */
-function calculate_reminder_dates($rule, ?string $dateTarget = null, $type = null)
+function calculate_reminder_dates($rule, ?string $dateTarget = null, $type = null): array
 {
 
     // Set date to current if not set
@@ -3341,7 +3341,7 @@ function calculate_reminder_dates($rule, ?string $dateTarget = null, $type = nul
  * @param  string $mode              Options are 'reminders-due' or 'reminders-all'
  * @return  array                     Reminders
  */
-function reminder_results_integrate($reminderOldArray, $reminderNew, $mode)
+function reminder_results_integrate($reminderOldArray, $reminderNew, $mode): array
 {
     $results = [];
 
@@ -3455,7 +3455,7 @@ function itemsNumberCompare($comp, $thres, $num_items): bool
  * @param  string  $comp  Comparison operator(eq,ne,gt,ge,lt,le)
  * @return string         contains sql compatible comparison operator
  */
-function convertCompSql($comp)
+function convertCompSql($comp): string
 {
 
     if ($comp == "eq") {
@@ -3516,7 +3516,7 @@ function convertDobtoAgeMonthDecimal($dob, $target)
    evaluated to true. $exclude_filter is the # of exclusion filters that evaluated
    to true. $pass_targ is # of targets that evalued to true
 */
-function calculate_percentage($pass_filt, $exclude_filt, $pass_targ)
+function calculate_percentage($pass_filt, $exclude_filt, $pass_targ): string
 {
     if ($pass_filt > 0) {
         if ($pass_filt == $exclude_filt) { // HR: don't want to divide by zero

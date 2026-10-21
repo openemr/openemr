@@ -15,10 +15,20 @@ require_once("../../../ccr/transmitCCD.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\PatientService;
+
+if (!AclMain::aclCheckCore('patients', 'notes', '', ['write', 'addonly'])) {
+    AccessDeniedHelper::deny(
+        'trusted-messages-ajax: patients/notes write/addonly',
+        format: AccessDeniedResponseFormat::Json
+    );
+}
 
 $result = ['success' => false];
 $pid = null;
@@ -77,6 +87,14 @@ if (!CsrfUtils::verifyCsrfToken($csrf, session: $session)) {
 
             // make sure the user can access this document
             if (!$document->can_access()) {
+                throw new AccessDeniedException("patients", "demo", "Access to patient data is denied");
+            }
+
+            // the document's foreign_id must match the pid passed on this
+            // request — the per-category check above is table-level and does
+            // not stop a caller from pointing a legitimate pid at an
+            // unrelated patient's document.
+            if ((int) $document->get_foreign_id() !== $pid) {
                 throw new AccessDeniedException("patients", "demo", "Access to patient data is denied");
             }
         }

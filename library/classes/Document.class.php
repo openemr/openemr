@@ -327,7 +327,23 @@ class Document extends ORDataObject
     {
         if (!empty($this->date_expires)) {
             $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $this->date_expires);
-            return $dateTime->getTimestamp() >= time();
+            if ($dateTime === false) {
+                // An unparsable expiration timestamp cannot establish that
+                // the document is still within its retention window; treat
+                // the document as expired so callers deny + clean up rather
+                // than serving stale content indefinitely.
+                return true;
+            }
+            // createFromFormat can return a valid DateTime for inputs that
+            // technically parse but overflow (e.g. "2024-02-30 12:00:00"
+            // rolls into March) or carry trailing data. Any warning or
+            // error means the retention window claim is not trustworthy;
+            // fail closed and treat the document as expired.
+            $parseErrors = DateTime::getLastErrors();
+            if ($parseErrors !== false && ($parseErrors['warning_count'] > 0 || $parseErrors['error_count'] > 0)) {
+                return true;
+            }
+            return $dateTime->getTimestamp() <= time();
         }
         return false;
     }
@@ -414,7 +430,7 @@ class Document extends ORDataObject
      *                        otherwise every document object is returned
      * @return Document[]
      */
-    public function documents_factory($foreign_id = "")
+    public function documents_factory($foreign_id = ""): array
     {
         $documents = [];
 
@@ -446,7 +462,7 @@ class Document extends ORDataObject
      * @param string $foreign_reference_id The table record that this document references
      * @return Document[]
      */
-    public function documents_factory_for_foreign_reference(string $foreign_reference_table, $foreign_reference_id = "")
+    public function documents_factory_for_foreign_reference(string $foreign_reference_table, $foreign_reference_id = ""): array
     {
         $documents = [];
 
@@ -630,6 +646,19 @@ class Document extends ORDataObject
     {
         return $this->date_expires;
     }
+
+    /**
+     * ORDataObject::populate_array() only assigns fields whose set_<field>
+     * method is callable; without this setter, date_expires was silently
+     * dropped on every `new Document($id)` load, leaving has_expired()
+     * always returning false regardless of the stored value.
+     *
+     * @param string|null $date_expires The datetime that the document expires at
+     */
+    public function set_date_expires(?string $date_expires): void
+    {
+        $this->date_expires = $date_expires;
+    }
     public function set_hash($hash): void
     {
         $this->hash = $hash;
@@ -703,14 +732,14 @@ class Document extends ORDataObject
     /**
     * get the url filename only
     */
-    public function get_url_file()
+    public function get_url_file(): string
     {
         return basename_international(preg_replace("|^(.*)://|", "", (string) $this->url));
     }
     /**
     * get the url path only
     */
-    public function get_url_path()
+    public function get_url_path(): string
     {
         return dirname((string) preg_replace("|^(.*)://|", "", (string) $this->url)) . "/";
     }
@@ -949,7 +978,7 @@ class Document extends ORDataObject
         $foreign_reference_id = null,
         $foreign_reference_table = null,
         $eid = "",
-    ) {
+    ): string {
         if (
             !empty($foreign_reference_id) && empty($foreign_reference_table)
             || empty($foreign_reference_id) && !empty($foreign_reference_table)
@@ -1177,7 +1206,7 @@ class Document extends ORDataObject
      * @return string  Returns false if the encryption failed, otherwise it returns a string
      * @throws RuntimeException If the data cannot be decrypted
      */
-    public function decrypt_content($data)
+    public function decrypt_content($data): string
     {
         $cryptoGen = ServiceContainer::getCrypto();
         try {
@@ -1194,7 +1223,7 @@ class Document extends ORDataObject
      * @throws BadMethodCallException If you attempt to retrieve a document that is not stored on the file system
      * @throws RuntimeException if the filesystem file does not exist or content cannot be accessed.
      */
-    protected function get_content_from_filesystem()
+    protected function get_content_from_filesystem(): string
     {
         $path = $this->get_filesystem_filepath();
         if (empty($path)) {

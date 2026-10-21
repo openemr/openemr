@@ -70,7 +70,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -87,7 +87,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
     }
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         $loincCategory = "LOINC:" . $category;
         $listService = new ListService();
@@ -101,7 +101,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
         return $this->service->isValidClinicalNoteCode($code);
     }
 
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDiagnosticReport
     {
         $report = new FHIRDiagnosticReport();
         $this->populateMeta($report, $dataRecord);

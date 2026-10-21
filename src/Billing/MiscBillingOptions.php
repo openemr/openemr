@@ -78,13 +78,32 @@ class MiscBillingOptions
         echo     "</select>";
     }
 
+    /**
+     * The user id held in a provider column, or null when it names no provider.
+     *
+     * `users.id` starts at 1, and the Box 17 select posts an empty string when
+     * nothing is chosen, which an int column stores as 0. So 0, an empty value
+     * and anything non-numeric all mean "no provider".
+     */
+    public static function providerId(mixed $value): ?int
+    {
+        if (is_int($value)) {
+            return $value > 0 ? $value : null;
+        }
+        if (is_string($value) && ctype_digit(trim($value))) {
+            $id = (int) trim($value);
+            return $id > 0 ? $id : null;
+        }
+        return null;
+    }
+
     public function getReferringProviders(): array
     {
         $query = "SELECT id, lname, fname,npi FROM users WHERE npi != '' AND npi IS NOT NULL ORDER BY lname, fname";
         return QueryUtils::fetchRecords($query, []);
     }
 
-    public function genReferringProviderSelect(string $selname, string $toptext, int $default = 0, bool $disabled = false): void
+    public function genReferringProviderSelect(string $selname, string $toptext, ?int $default = null, bool $disabled = false): void
     {
         $providers = $this->getReferringProviders();
         echo "<select name='" . attr($selname) . "' id='" . attr($selname) . "' class='form-control'";
@@ -97,7 +116,7 @@ class MiscBillingOptions
         foreach ($providers as $row) {
             $provid = $row['id'];
             echo "<option value='" . attr($provid) . "'";
-            if ($provid == $default) {
+            if ($default !== null && $provid == $default) {
                 echo " selected";
             }
 
@@ -113,7 +132,7 @@ class MiscBillingOptions
         return QueryUtils::fetchRecords($query, []);
     }
 
-    public function genOrderingProviderSelect(string $selname, string $toptext, int $default = 0, bool $disabled = false): void
+    public function genOrderingProviderSelect(string $selname, string $toptext, ?int $default = null, bool $disabled = false): void
     {
         $orderingProviders = $this->getOrderingProviders();
         echo "<select name='" . attr($selname) . "' id='" . attr($selname) . "' class='form-control'";
@@ -126,7 +145,7 @@ class MiscBillingOptions
         foreach ($orderingProviders as $row) {
             $provid = $row['id'];
             echo "<option value='" . attr($provid) . "'";
-            if ($provid == $default) {
+            if ($default !== null && $provid == $default) {
                 echo " selected";
             }
 

@@ -14,17 +14,43 @@
 namespace Ccr\Controller;
 
 use Application\Listener\Listener;
+use Carecoordination\Controller\CarecoordAuthzTrait;
 use Ccr\Model\CcrTable;
+use Document;
 use Documents\Controller\DocumentsController;
 use Documents\Plugin\Documents;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Stdlib\Parameters;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class CcrController extends AbstractActionController
 {
+    use CarecoordAuthzTrait;
+
     protected $ccrTable;
     protected $listenerObject;
+
+    /**
+     * Set to true by indexAction() when calling importAction() internally
+     * for pre-approval batch imports. The import handler consults this
+     * flag — never a request parameter — to decide whether to skip the
+     * CSRF check that external HTTP callers must pass.
+     */
+    private bool $internalBatchContext = false;
+
+    /**
+     * When indexAction() invokes importAction() internally for a batch
+     * import, the target document id is handed to the handler through
+     * this property — never through `$_REQUEST`. Laminas populates the
+     * request's query and post bags from `$_GET`/`$_POST` at build time
+     * and does not re-read `$_REQUEST`, so passing the id through the
+     * request globals is both unsafe and (post-refactor) ignored.
+     */
+    private ?int $internalBatchDocId = null;
 
     public function __construct(CcrTable $ccrTable, private readonly DocumentsController $documentsController)
     {
@@ -53,16 +79,27 @@ class CcrController extends AbstractActionController
         $uploaded_documents     = $this->getCcrTable()->fetch_uploaded_documents(['user' => $session->get('authUserID'), 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]);
 
         if (!empty($uploaded_documents[0]['id']) && $uploaded_documents[0]['id'] > 0) {
-            $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
-            $_REQUEST["batch_import"]   = 'YES';
-            $this->importAction();
+            $this->internalBatchContext = true;
+            $this->internalBatchDocId = (int) $uploaded_documents[0]['id'];
+            try {
+                $this->importAction();
+            } finally {
+                $this->internalBatchContext = false;
+                $this->internalBatchDocId = null;
+            }
         } else {
             // TODO: change to $this->Documents()
             $result = Documents::fetchXmlDocuments();
             foreach ($result as $row) {
                 if ($row['doc_type'] == 'CCR') {
-                    $_REQUEST["document_id"] = $row['doc_id'];
-                    $this->importAction();
+                    $this->internalBatchContext = true;
+                    $this->internalBatchDocId = (int) $row['doc_id'];
+                    try {
+                        $this->importAction();
+                    } finally {
+                        $this->internalBatchContext = false;
+                        $this->internalBatchDocId = null;
+                    }
                     $this->documentsController->getDocumentsTable()->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
                 }
             }
@@ -88,20 +125,73 @@ class CcrController extends AbstractActionController
     public function importAction()
     {
         $request     = $this->getRequest();
-        if ($request->getQuery('document_id')) {
-            $_REQUEST["document_id"] = $request->getQuery('document_id');
-            $category_details          = $this->getCcrTable()->fetch_cat_id('CCR');
-            $this->documentsController->getDocumentsTable()->updateDocumentCategory($category_details[0]['id'], $_REQUEST["document_id"]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+        // $internalBatchContext is set by indexAction() around its own
+        // import loop and is NEVER populated from request data — so the
+        // CSRF skip below cannot be flipped by a cross-site caller
+        // appending ?batch_import=YES.
+        $batchContext = $this->internalBatchContext;
+
+        // Under batchContext the document id arrives via a private property
+        // populated by indexAction(). External HTTP callers must send it on
+        // the query string or in the body — Laminas's request bags, not
+        // `$_REQUEST`, are the authoritative source for those.
+        $rawDocId = $batchContext
+            ? $this->internalBatchDocId
+            : ($request->getQuery('document_id') ?? $request->getPost('document_id'));
+        if ($rawDocId === null || $rawDocId === '') {
+            AccessDeniedHelper::deny('CcrController::importAction: document_id required');
+        }
+        $queryId = is_numeric($rawDocId) ? (int) $rawDocId : 0;
+        if ($queryId <= 0) {
+            AccessDeniedHelper::deny('CcrController::importAction: invalid document_id');
         }
 
-        $doc_id     = $_REQUEST["document_id"];
-        $content    = $this->getCcrTable()->getDocument($doc_id);
-        if ($request->getQuery('document_id')) {
-            $replace    = ['<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:'];
-            $to_replace = ['<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">',''];
-            $content    = str_replace($replace, $to_replace, $content);
-            $content    = preg_replace('/BirthName/', 'CurrentName', $content, 2);
+        if (!$batchContext) {
+            $rawCsrf = $request->getQuery('csrf_token_form') ?? $request->getPost('csrf_token_form', '');
+            $csrfToken = is_string($rawCsrf) ? $rawCsrf : '';
+            if (!CsrfUtils::verifyCsrfToken($csrfToken, $session)) {
+                AccessDeniedHelper::deny('CcrController::importAction: CSRF token invalid');
+            }
+            $document = new Document($queryId);
+            if (!$document->get_id()) {
+                AccessDeniedHelper::deny('CcrController::importAction: document not found');
+            }
+            if (!$document->can_access()) {
+                AccessDeniedHelper::deny('CcrController::importAction: source document ACL denied');
+            }
+            if ((int) $document->get_foreign_id() !== 0) {
+                AccessDeniedHelper::deny('CcrController::importAction: document already assigned to a patient');
+            }
         }
+
+        $category_details = $this->getCcrTable()->fetch_cat_id('CCR');
+        $ccrCategoryId = (int) ($category_details[0]['id'] ?? 0);
+        if ($ccrCategoryId <= 0) {
+            AccessDeniedHelper::deny('CcrController::importAction: CCR category missing');
+        }
+
+        $_REQUEST["document_id"] = $queryId;
+
+        // Read the document and sanity-check that it parses as XML BEFORE
+        // reclassifying the row into the CCR category. A malformed file
+        // that fails here never gets moved into the readable CCR bucket.
+        $content = (string) $this->getCcrTable()->getDocument($queryId);
+        $previousInternalErrors = libxml_use_internal_errors(true);
+        $xmlProbe = simplexml_load_string($content);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousInternalErrors);
+        if ($xmlProbe === false) {
+            AccessDeniedHelper::deny('CcrController::importAction: content is not well-formed XML');
+        }
+        $this->documentsController->getDocumentsTable()->updateDocumentCategory($ccrCategoryId, $queryId);
+
+        $doc_id = $queryId;
+        $replace    = ['<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:'];
+        $to_replace = ['<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">',''];
+        $content    = str_replace($replace, $to_replace, $content);
+        $content    = preg_replace('/BirthName/', 'CurrentName', $content, 2);
 
         //fields to which the corresponding elements are to be inserted
         //format - level 1 key is the main tag in the XML eg:- //Problems or //Problems/Problem according to the content in the XML.
@@ -224,7 +314,21 @@ class CcrController extends AbstractActionController
             $this->getCcrTable()->update_imported($doc_id);
             $this->getCcrTable()->update_document($doc_id, $audit_master_id);
 
-            if ($_REQUEST["batch_import"]   == 'YES') {
+            // Emit the ccr-import audit only once the parse succeeded and the
+            // audit-master row + document-audit link are in place, so the log
+            // never reflects a parse that silently failed earlier.
+            $authUser = is_string($u = $session->get('authUser')) ? $u : '';
+            $authProvider = is_string($p = $session->get('authProvider')) ? $p : '';
+            $amidInt = is_numeric($audit_master_id) ? (int) $audit_master_id : 0;
+            EventAuditLogger::getInstance()->newEvent(
+                'ccr-import',
+                $authUser,
+                $authProvider,
+                1,
+                "doc_id=$doc_id amid=$amidInt"
+            );
+
+            if ($batchContext) {
                 return;
             } else {
                 //echo('Imported');
@@ -249,12 +353,82 @@ class CcrController extends AbstractActionController
         $audit_master_id    = $request->getQuery('amid') ?: $request->getPost('amid', null);
         $pid                = $request->getQuery('pid') ?: $request->getPost('pid', null);
         $document_id        = $request->getQuery('document_id') ?: $request->getPost('document_id', null);
+        $amidInt = is_numeric($audit_master_id) ? (int) $audit_master_id : 0;
+        $pidInt = is_numeric($pid) ? (int) $pid : 0;
+        $docIdInt = is_numeric($document_id) ? (int) $document_id : 0;
 
-        if ($request->getPost('setval') == 'approve') {
-            $this->getCcrTable()->insertApprovedData($_REQUEST);
+        $setval = $request->getPost('setval');
+        if ($setval === 'approve' || $setval === 'discard') {
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        }
+        // Authorize the amid/pid pair on every branch of this action — the
+        // approve/discard writes go through CcrTable::insertApprovedData() /
+        // discardCCRData() with attacker-controlled pid/amid, and the
+        // view-render path below reads cross-patient demographics /
+        // problems / allergies for the request pid. isAuditMasterAccessible()
+        // rejects a claimed pid that disagrees with the stored row, so the
+        // subsequent $pid lookups are bound to a record the caller is
+        // authorized for.
+        if (!$this->isAuditMasterAccessible($amidInt, $pidInt)) {
+            AccessDeniedHelper::deny('CcrController::revandapprove: audit_master not accessible by caller');
+        }
+
+        // Resolve document_id and the stored pid from the authorized audit
+        // row rather than trusting the request parameters. The write path
+        // in insertApprovedData() runs `UPDATE documents SET foreign_id = ?
+        // WHERE id = ?` and `UPDATE patient_data SET … WHERE pid = ?` using
+        // whatever the POST bag supplies — if either id is not bound to
+        // the authorized amid, the attacker can reassign an unrelated
+        // document, zero out the foreign_id, or write to a pid other than
+        // the one the request authorized against.
+        $verifiedDocId = $this->resolveAuditMasterDocumentId($amidInt);
+        $storedPid = $this->resolveAuditMasterStoredPid($amidInt);
+        // For a bound audit row (storedPid > 0) the write stays on the
+        // audit's own patient. For a pre-approval row (storedPid === 0)
+        // the uploader is binding a target pid; isAuditMasterAccessible()
+        // already proved the uploader is patient-authorized for pidInt.
+        $writePid = $storedPid > 0 ? $storedPid : $pidInt;
+
+        if ($setval == 'approve') {
+            if ($verifiedDocId <= 0) {
+                AccessDeniedHelper::deny('CcrController::revandapprove approve: audit_master has no linked document');
+            }
+            if ($writePid <= 0) {
+                AccessDeniedHelper::deny('CcrController::revandapprove approve: no bound or claimed pid for the write');
+            }
+            // Bind the write-path identifiers to the values we just
+            // authorized. The controller reads amid/pid as GET-first then
+            // POST-fallback, so an attacker could otherwise pass authz
+            // identifiers through the query string and write-path
+            // identifiers through the POST body (insertApprovedData reads
+            // amid/pid/document_id from the POST bag it receives).
+            $post = $request->getPost();
+            $postData = $post instanceof Parameters ? $post->toArray() : [];
+            $postData['amid'] = $amidInt;
+            $postData['pid'] = $writePid;
+            $postData['document_id'] = $verifiedDocId;
+            $this->getCcrTable()->insertApprovedData($postData);
+            [$authUser, $authProvider] = $this->auditIdentity();
+            EventAuditLogger::getInstance()->newEvent(
+                'ccr-approve',
+                $authUser,
+                $authProvider,
+                1,
+                "amid=$amidInt doc_id=$verifiedDocId",
+                $writePid
+            );
             return $this->redirect()->toRoute('ccr', ['action' => 'index']);
-        } elseif ($request->getPost('setval') == 'discard') {
-            $this->getCcrTable()->discardCCRData(['audit_master_id' => $audit_master_id]);
+        } elseif ($setval == 'discard') {
+            $this->getCcrTable()->discardCCRData(['audit_master_id' => $amidInt]);
+            [$authUser, $authProvider] = $this->auditIdentity();
+            EventAuditLogger::getInstance()->newEvent(
+                'ccr-discard',
+                $authUser,
+                $authProvider,
+                1,
+                "amid=$amidInt",
+                $pidInt > 0 ? $pidInt : null
+            );
             return $this->redirect()->toRoute('ccr', ['action' => 'index']);
         }
 

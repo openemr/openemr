@@ -12,7 +12,7 @@ class NQF_0041_Numerator implements CqmFilterIF
     // inlining this as there are two duplicate Procedure classes, originally came from library/classes/ClinicalTypes/Procedure.php
     const INFLU_VACCINE = 'pro_influenza_vaccine';
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Numerator";
     }

@@ -15,12 +15,12 @@ use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
 class AssessmentService extends AbstractObservationService implements QdmServiceInterface
 {
-    public function getObservationType()
+    public function getObservationType(): string
     {
         return parent::OB_TYPE_ASSESSMENT;
     }
 
-    public function getModelClass()
+    public function getModelClass(): string
     {
         return AssessmentPerformed::class;
     }

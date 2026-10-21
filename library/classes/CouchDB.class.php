@@ -98,7 +98,7 @@ class CouchDB
     }
 
     // category is either documents or ccda
-    public function createDocId($category)
+    public function createDocId($category): string
     {
         return UuidRegistry::uuidToString((new UuidRegistry(['couchdb' => $category]))->createUuid());
     }

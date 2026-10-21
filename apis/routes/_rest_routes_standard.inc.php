@@ -425,11 +425,9 @@ return [
 
         return $return;
     },
-    "GET /api/patient/:pid/appointment/:eid" => function ($pid, $eid, HttpRestRequest $request) {
+    "GET /api/patient/:pid/appointment/:eid" => function (string $pid, string $eid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "appt");
-        $return = (new AppointmentRestController())->getOne($eid);
-
-        return $return;
+        return (new AppointmentRestController())->getOneScopedByPatient($pid, $eid);
     },
 
     "GET /api/list/:list_name" => function ($list_name, HttpRestRequest $request) {
@@ -691,7 +689,14 @@ return [
         RestConfig::request_authorization_check($request, "admin", "super");
         return (new BackgroundServiceRestController())->getOne($name);
     },
-    "POST /api/background_service/:name/run" => function (string $name, HttpRestRequest $request) {
+    // Named via the `$run` operation suffix (rather than a plain `/run`
+    // segment) so HttpRestParsedRoute's resource parsing keeps the resource
+    // on `background_service` and surfaces `$run` as the operation. That
+    // makes OAuth2 scope checks resolve to `<scope>/background_service.$run`
+    // rather than `<scope>/run.c`, which would require a resource scope
+    // that does not and should not exist. The run-all-due operation below
+    // uses the same convention for the same reason.
+    'POST /api/background_service/:name/$run' => function (string $name, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
         $body = file_get_contents("php://input");
         $data = [];
@@ -712,11 +717,6 @@ return [
     // and cannot bypass intervals. Any authenticated user calling it has
     // no more effect than the cron scheduler. ACL-gating it would prevent
     // the main-tab poll from working for non-admin users (see #11664).
-    //
-    // The `$run` operation suffix keeps HttpRestParsedRoute's resource
-    // parsing on `background_service` instead of the trailing path
-    // segment, so OAuth2 scope checks resolve to `<scope>/background_service.c`
-    // rather than `<scope>/run.c`.
     'POST /api/background_service/$run'
         => fn(HttpRestRequest $request): \Symfony\Component\HttpFoundation\Response => (new BackgroundServiceRestController())->runAllDue(),
 ];

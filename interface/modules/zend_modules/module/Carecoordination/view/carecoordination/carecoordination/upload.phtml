@@ -170,6 +170,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
         let url = "<?php echo $this->basePath();?>/carecoordination/deleteAudit";
         let fd = new FormData();
         fd.append('am_id', amid);
+        fd.append('csrf_token_form', <?php echo js_escape(\OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession())); ?>);
         fetch(url, {
             method: "POST",
             body: fd

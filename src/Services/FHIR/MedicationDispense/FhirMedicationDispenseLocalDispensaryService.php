@@ -264,7 +264,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
             $medicationDispenseResource->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['patient_uuid']));
         } else {
             $fhirReference = new FHIRReference();
-            $fhirReference->addExtension(UtilsService::createDataMissingExtension());
+            $fhirReference->addExtension(UtilsService::createDataAbsentReasonExtension());
             $medicationDispenseResource->setSubject($fhirReference);
         }
 

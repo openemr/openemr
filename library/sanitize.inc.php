@@ -80,13 +80,13 @@ function convert_very_strict_label($label)
 }
 
 // Check integer
-function check_integer($value)
+function check_integer($value): bool
 {
     return (empty(preg_match('/[^0-9]/', (string) $value)));
 }
 
 //Basename functionality for nonenglish languages (without this, basename function omits nonenglish characters).
-function basename_international($path)
+function basename_international($path): string
 {
     $parts = preg_split('~[\\\\/]~', (string) $path);
     foreach ($parts as $key => $value) {
@@ -170,7 +170,7 @@ function sanitizeNumber($number)
  * @return string                 SQL statement checking if passed column is empty
  */
 
-function dateEmptySql($sqlColumn, $time = false, $rev = false)
+function dateEmptySql($sqlColumn, $time = false, $rev = false): string
 {
     if (!$rev) {
         if ($time) {
@@ -196,18 +196,23 @@ function dateEmptySql($sqlColumn, $time = false, $rev = false)
  * @see https://learn.microsoft.com/en-us/windows/win32/intl/using-unicode-normalization-to-represent-strings - * Note if trying to understand string normalization, Microsoft has a good explanation here
  * @see https://www.unicode.org/faq/normalization.html#2 for explanation on why we use NFKC
  * @see https://stackoverflow.com/a/38855868
- * @param $string1
- * @param $string2
- * @return bool
  */
-function mb_is_string_equal_ci($string1, $string2): bool
+function mb_is_string_equal_ci(string $string1, string $string2): bool
 {
     if ($string1 == $string2) {
         return true;
     }
 
+    // Normalizer::normalize() returns false for malformed input (and the symfony
+    // polyfill declares no return type), so fall back to the raw string.
     $string1_normalized = Normalizer::normalize($string1, Normalizer::FORM_KC);
+    if (!is_string($string1_normalized)) {
+        $string1_normalized = $string1;
+    }
     $string2_normalized = Normalizer::normalize($string2, Normalizer::FORM_KC);
-    return mb_strtolower((string) $string1_normalized) === mb_strtolower((string) $string2_normalized)
-        || mb_strtoupper((string) $string1_normalized) === mb_strtoupper((string) $string2_normalized);
+    if (!is_string($string2_normalized)) {
+        $string2_normalized = $string2;
+    }
+    return mb_strtolower($string1_normalized) === mb_strtolower($string2_normalized)
+        || mb_strtoupper($string1_normalized) === mb_strtoupper($string2_normalized);
 }

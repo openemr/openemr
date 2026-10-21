@@ -219,7 +219,7 @@ class Rule
         $this->feedback = $feedback;
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -349,7 +349,7 @@ class Rule
         return true;
     }
 
-    public function getRuleTypeLabels()
+    public function getRuleTypeLabels(): array
     {
         $labels = [];
         foreach ($this->ruleTypes as $ruleType) {

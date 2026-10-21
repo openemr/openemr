@@ -45,7 +45,7 @@ class FhirObservationQuestionnaireItemServiceTest extends TestCase
     /**
      * Gets a minimal required record for testing mandatory fields only
      */
-    private function getMinimalObservationRecord()
+    private function getMinimalObservationRecord(): array
     {
         return [
             'uuid' => 'questionnaire-item-minimal-123',
@@ -61,7 +61,7 @@ class FhirObservationQuestionnaireItemServiceTest extends TestCase
         ];
     }
 
-    private function getDefaultObservationRecord()
+    private function getDefaultObservationRecord(): array
     {
         return [
             'uuid' => 'questionnaire-item-123'

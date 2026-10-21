@@ -58,11 +58,13 @@ options to choose from:
 - http://localhost:8106 (with Nginx and PHP-FPM 8.4)
 - http://localhost:8107 (with Nginx and PHP-FPM 8.5)
 - http://localhost:8108 (with Nginx and PHP-FPM 8.6)
+- http://localhost:8109 (with Nginx and PHP-FPM 8.7)
 - http://localhost:8154 (with Nginx and PHP-FPM 8.2 with redis)
 - http://localhost:8155 (with Nginx and PHP-FPM 8.3 with redis)
 - http://localhost:8156 (with Nginx and PHP-FPM 8.4 with redis)
 - http://localhost:8157 (with Nginx and PHP-FPM 8.5 with redis)
 - http://localhost:8158 (with Nginx and PHP-FPM 8.6 with redis)
+- http://localhost:8159 (with Nginx and PHP-FPM 8.7 with redis)
 - https://localhost:9084 with SSL and Alpine 3.22 (with Apache and PHP 8.2)
 - https://localhost:9085 with SSL and Alpine 3.23 (with Apache and PHP 8.3)
 - https://localhost:9086 with SSL and Alpine 3.23 (with Apache and PHP 8.4)
@@ -78,11 +80,13 @@ options to choose from:
 - https://localhost:9106 with SSL (with Nginx and PHP-FPM 8.4)
 - https://localhost:9107 with SSL (with Nginx and PHP-FPM 8.5)
 - https://localhost:9108 with SSL (with Nginx and PHP-FPM 8.6)
+- https://localhost:9109 with SSL (with Nginx and PHP-FPM 8.7)
 - https://localhost:9154 with SSL (with Nginx and PHP-FPM 8.2 with redis)
 - https://localhost:9155 with SSL (with Nginx and PHP-FPM 8.3 with redis)
 - https://localhost:9156 with SSL (with Nginx and PHP-FPM 8.4 with redis)
 - https://localhost:9157 with SSL (with Nginx and PHP-FPM 8.5 with redis)
 - https://localhost:9158 with SSL (with Nginx and PHP-FPM 8.6 with redis)
+- https://localhost:9159 with SSL (with Nginx and PHP-FPM 8.7 with redis)
 
 **Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear and replace your
 synchronized openemr directory and restart the development docker). On the main

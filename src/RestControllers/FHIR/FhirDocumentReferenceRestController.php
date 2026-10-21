@@ -5,7 +5,9 @@
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -15,9 +17,12 @@ use OpenApi\Attributes as OA;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\FHIR\SMART\ResourceConstraintFilterer;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirDocumentReferenceService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
+use OpenEMR\Validators\ProcessingResult;
 
 class FhirDocumentReferenceRestController
 {
@@ -28,8 +33,11 @@ class FhirDocumentReferenceRestController
      */
     private $service;
 
-    public function __construct(HttpRestRequest $request)
+    private readonly ResourceConstraintFilterer $constraintFilterer;
+
+    public function __construct(private readonly HttpRestRequest $request, ?ResourceConstraintFilterer $constraintFilterer = null)
     {
+        $this->constraintFilterer = $constraintFilterer ?? new ResourceConstraintFilterer();
         $this->fhirService = new FhirResourcesService();
         $this->service = new FhirDocumentReferenceService($request->getApiBaseFullUrl());
         $this->service->setSession($request->getSession());
@@ -134,7 +142,7 @@ class FhirDocumentReferenceRestController
     )]
     public function getOne($fhirId, $puuidBind = null)
     {
-        $processingResult = $this->service->getOne($fhirId, $puuidBind);
+        $processingResult = $this->filterByScopeConstraints($this->service->getOne($fhirId, $puuidBind));
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -229,7 +237,7 @@ class FhirDocumentReferenceRestController
     )]
     public function getAll($searchParams, $puuidBind = null)
     {
-        $processingResult = $this->service->getAll($searchParams, $puuidBind);
+        $processingResult = $this->filterByScopeConstraints($this->service->getAll($searchParams, $puuidBind));
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
@@ -242,5 +250,29 @@ class FhirDocumentReferenceRestController
         $bundleSearchResult = $this->fhirService->createBundle('DocumentReference', $bundleEntries, false);
         $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
         return $searchResponseBody;
+    }
+
+    /**
+     * Drops DocumentReferences the access token's scope constraints do not admit, e.g. a
+     * patient/DocumentReference.rs?category=...|clinical-note grant sees clinical notes only.
+     * The same check FhirGenericRestController applies to Observation and Condition.
+     */
+    private function filterByScopeConstraints(ProcessingResult $processingResult): ProcessingResult
+    {
+        if (!$processingResult->isValid() || !$processingResult->hasData()) {
+            return $processingResult;
+        }
+        $resources = $processingResult->getData();
+        if (!is_array($resources)) {
+            // nothing checkable to return; fail closed
+            return new ProcessingResult();
+        }
+        $filtered = new ProcessingResult();
+        foreach ($resources as $resource) {
+            if ($resource instanceof FHIRDomainResource && $this->constraintFilterer->canAccessResource($resource, $this->request)) {
+                $filtered->addData($resource);
+            }
+        }
+        return $filtered;
     }
 }

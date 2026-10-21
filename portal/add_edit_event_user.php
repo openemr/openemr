@@ -443,7 +443,7 @@ if ($form_action === "save") {
                     $endtime,
                     ($_POST['form_allday'] ?? ''),
                     $_POST['form_apptstatus'],
-                    ($_POST['form_prefcat'] ?? null),
+                    ($_POST['form_prefcat'] ?? 0),
                     $locationspec,
                     $facility,
                 ]

@@ -44,7 +44,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
         $this->lastTestActionData = new AmcItemizedActionData();
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_315g_2c Numerator";
     }
@@ -86,7 +86,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
      * @param $endDate The report end date
      * @return bool True if the test passes, false, if it does not
      */
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         $fhir_api = OEGlobalsBag::getInstance()->get('rest_fhir_api') ?? '0';
         $patient_api = OEGlobalsBag::getInstance()->get('rest_portal_api') ?? '0';
@@ -151,7 +151,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
     /*
      * This function lets us have language translation as well as interpreting any specific rule item data that is needed.
      */
-    private function parseDetailsToString($details)
+    private function parseDetailsToString($details): string
     {
         $newDetails = '';
         $type = $details['type'] ?? '';

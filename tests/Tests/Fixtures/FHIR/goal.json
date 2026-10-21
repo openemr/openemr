@@ -1,0 +1,33 @@
+[
+    {
+        "resourceType": "Goal",
+        "lifecycleStatus": "active",
+        "subject": {
+            "reference": "Patient/00000000-0000-0000-0000-000000000000"
+        },
+        "description": {
+            "coding": [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": "129004",
+                    "display": "test-fixture Healthy weight goal"
+                }
+            ],
+            "text": "test-fixture Healthy weight goal"
+        },
+        "startDate": "2024-02-01",
+        "target": [
+            {
+                "dueDate": "2024-12-31"
+            }
+        ],
+        "extension": [
+            {
+                "url": "http://hl7.org/fhir/StructureDefinition/encounter-associatedEncounter",
+                "valueReference": {
+                    "reference": "Encounter/00000000-0000-0000-0000-000000000000"
+                }
+            }
+        ]
+    }
+]

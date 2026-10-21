@@ -40,9 +40,8 @@ class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder
 
     /**
      * @param RuleCriteriaType $ruleCriteriaType
-     * @return RuleCriteria
      */
-    public function build($ruleCriteriaType, $value, $methodDetail)
+    public function build($ruleCriteriaType, $value, $methodDetail): RuleCriteria
     {
         $method = $ruleCriteriaType->method;
         $criteria = new RuleCriteriaAge(
@@ -59,7 +58,7 @@ class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder
      *
      * @param RuleCriteriaType $criteriaType
      */
-    public function newInstance($criteriaType)
+    public function newInstance($criteriaType): ?RuleCriteria
     {
         if ($criteriaType->code == RuleCriteriaType::ageMin) {
             return new RuleCriteriaAge('min');

@@ -12,7 +12,7 @@
  * @copyright Copyright (c) 2010 Andrew Moore <amoore@cpan.org>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -916,6 +916,8 @@ $config = 1; /////////////
         // xl('Placeholder')
         $gacl->add_object_section('Nation Notes', 'nationnotes', 10, 0, 'ACO');
         // xl('Nation Notes')
+        $gacl->add_object_section('CAMOS', 'camos', 10, 0, 'ACO');
+        // xl('CAMOS')
         $gacl->add_object_section('Patient Portal', 'patientportal', 10, 0, 'ACO');
         // xl('Patient Portal')
         $gacl->add_object_section('Menus', 'menus', 10, 0, 'ACO');
@@ -1062,6 +1064,10 @@ $config = 1; /////////////
         $gacl->add_object('nationnotes', 'Nation Notes Configure', 'nn_configure', 10, 0, 'ACO');
         // xl('Nation Notes Configure')
 
+        // Create ACO for CAMOS template curation.
+        $gacl->add_object('camos', 'CAMOS Template Curator', 'administer', 10, 0, 'ACO');
+        // xl('CAMOS Template Curator')
+
         // Create ACOs for Inventory.
         $gacl->add_object('inventory', 'Lots', 'lots', 10, 0, 'ACO');
         // xl('Lots')
@@ -1123,6 +1129,7 @@ $config = 1; /////////////
                 'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'],
                 'sensitivities' => ['normal', 'high'],
                 'nationnotes' => ['nn_configure'],
+                'camos' => ['administer'],
                 'patientportal' => ['portal'],
                 'menus' => ['modle'],
                 'groups' => ['gadd','gcalendar','glog','gdlog','gm']
@@ -1189,6 +1196,7 @@ $config = 1; /////////////
                 'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert',
                     'disclosure', 'rx', 'amendment', 'lab'],
                 'sensitivities' => ['normal', 'high'],
+                'camos' => ['administer'],
                 'groups' => ['gcalendar','glog']
             ],
             null,
@@ -1235,20 +1243,6 @@ $config = 1; /////////////
         // xl('Things that clinicians can read and enter but not modify')
         $gacl->add_acl(
             [
-                'patients' => ['med']
-            ],
-            null,
-            [$clin],
-            null,
-            null,
-            1,
-            1,
-            'write',
-            'Things that clinicians can read and modify'
-        );
-        // xl('Things that clinicians can read and modify')
-        $gacl->add_acl(
-            [
                 'placeholder' => ['filler']
             ],
             null,
@@ -1264,8 +1258,9 @@ $config = 1; /////////////
         $gacl->add_acl(
             [
                 'admin' => ['drugs'],
+                'camos' => ['administer'],
                 'encounters' => ['auth', 'coding', 'notes'],
-                'patients' => ['appt'],
+                'patients' => ['appt', 'med'],
                 'groups' => ['gcalendar', 'glog']
             ],
             null,
@@ -1410,6 +1405,7 @@ $config = 1; /////////////
                 'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'],
                 'sensitivities' => ['normal', 'high'],
                 'nationnotes' => ['nn_configure'],
+                'camos' => ['administer'],
                 'patientportal' => ['portal'],
                 'menus' => ['modle'],
                 'groups' => ['gadd','gcalendar','glog','gdlog','gm']

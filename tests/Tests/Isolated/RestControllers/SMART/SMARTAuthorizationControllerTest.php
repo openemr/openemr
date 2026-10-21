@@ -35,7 +35,7 @@ class SMARTAuthorizationControllerTest extends TestCase
         $this->markTestIncomplete("Test is incomplete");
     }
 
-    private function getDefaultSMARTAuthorizationController(SessionInterface $session, HttpRestRequest $request)
+    private function getDefaultSMARTAuthorizationController(SessionInterface $session, HttpRestRequest $request): SMARTAuthorizationController
     {
         CsrfUtils::setupCsrfKey($session);
         $request->request->set("csrf_token", CsrfUtils::collectCsrfToken($session, "oauth2")); // Simulate a CSRF token in the request

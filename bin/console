@@ -28,9 +28,8 @@ $skipGlobals = in_array('--skip-globals', $argv, true);
 // Don't pass --skip-globals to Symfony, and reindex array
 $argv = array_values(array_diff($argv, ['--skip-globals']));
 
-// Extract site if provided
-$siteArgs = preg_grep('/^--site=(.*)$/', $argv);
-$siteDefault = $siteArgs ? end(explode('=', reset($siteArgs))) : 'default';
+// Extract site if provided (--site=<site> or --site <site>)
+$siteDefault = OpenEMR\Common\Command\ConsoleSiteArgument::fromArgv($argv);
 $_SERVER['argv'] = $argv;
 
 $commandRunner = new \OpenEMR\Common\Command\SymfonyCommandRunner();

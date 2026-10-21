@@ -5,6 +5,7 @@ namespace OpenEMR\RestControllers\FHIR\Operations;
 use OpenApi\Attributes as OA;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
@@ -507,7 +508,7 @@ class FhirOperationExportRestController
         return $this->getResultForResourceDocument($resource, $document);
     }
 
-    private function getResultForResourceDocument($resource, \Document $document)
+    private function getResultForResourceDocument($resource, \Document $document): array
     {
         return [
             'url' => $this->request->getApiBaseFullUrl() . '/fhir/Binary/' . $document->get_id()
@@ -592,7 +593,8 @@ class FhirOperationExportRestController
     private function isValidResource($resource, $exportType)
     {
         $scope = 'system/' . $resource . '.read';
-        if (!$this->request->requestHasScope($scope)) {
+        // export cannot filter by constraint, so a category-restricted scope does not qualify
+        if (!$this->request->requestHasUnconstrainedScopeEntity(ScopeEntity::createFromString($scope))) {
             throw new AccessDeniedException($scope, '', 'You do not have permission to access this resource');
         }
         $resourceRegistry = $this->getExportServiceRegistry();
@@ -660,7 +662,8 @@ class FhirOperationExportRestController
     {
 
         $permission = 'system/' . $resource . '.read';
-        $hasAccess = $this->request->requestHasScope($permission);
+        // export cannot filter by constraint, so a category-restricted scope does not qualify
+        $hasAccess = $this->request->requestHasUnconstrainedScopeEntity(ScopeEntity::createFromString($permission));
         $this->logger->debug(
             "FhirExportRestController->hasAccessToResource() Checking resource access",
             ['permission' => $permission, 'hasAccess' => $hasAccess]
@@ -704,9 +707,8 @@ class FhirOperationExportRestController
     /**
      * Given an error outcome text create a Fhir Outcome issue for the error and return it.
      * @param $text
-     * @return FHIROperationOutcome
      */
-    private function createOperationOutcomeError($text)
+    private function createOperationOutcomeError($text): FHIROperationOutcome
     {
         $issue = new FHIROperationOutcomeIssue();
         $issueType = new FHIRIssueType();
@@ -724,7 +726,7 @@ class FhirOperationExportRestController
         return $operationOutcome;
     }
 
-    private function getPatientUuidsForGroup($groupId)
+    private function getPatientUuidsForGroup($groupId): array
     {
         if ($groupId === null || $groupId === '') {
             throw new \InvalidArgumentException("Group ID cannot be empty");

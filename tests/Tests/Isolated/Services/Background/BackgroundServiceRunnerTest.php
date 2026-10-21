@@ -387,6 +387,42 @@ class BackgroundServiceRunnerTest extends TestCase
         }
     }
 
+    public function testResolveSpawnerPassesTheSiteFromOeSiteDir(): void
+    {
+        // Children are separate processes that bootstrap their own site; the
+        // default spawner must be told this process's site, taken from
+        // OE_SITE_DIR (sites/<site_id>), or they run against `default`.
+        $priorFileroot = $GLOBALS['fileroot'] ?? null;
+        $priorSiteDir = $GLOBALS['OE_SITE_DIR'] ?? null;
+        $GLOBALS['fileroot'] = sys_get_temp_dir();
+        try {
+            $GLOBALS['OE_SITE_DIR'] = '/var/www/openemr/sites/clinic2';
+            $this->assertSame('clinic2', $this->defaultSpawnerSite());
+
+            unset($GLOBALS['OE_SITE_DIR']);
+            $this->assertNull($this->defaultSpawnerSite());
+        } finally {
+            if ($priorFileroot === null) {
+                unset($GLOBALS['fileroot']);
+            } else {
+                $GLOBALS['fileroot'] = $priorFileroot;
+            }
+            if ($priorSiteDir === null) {
+                unset($GLOBALS['OE_SITE_DIR']);
+            } else {
+                $GLOBALS['OE_SITE_DIR'] = $priorSiteDir;
+            }
+        }
+    }
+
+    private function defaultSpawnerSite(): mixed
+    {
+        $runner = new BackgroundServiceRunner(new NullLogger());
+        $spawner = (new \ReflectionMethod($runner, 'resolveSpawner'))->invoke($runner);
+        $this->assertInstanceOf(SymfonyBackgroundServiceSpawner::class, $spawner);
+        return (new \ReflectionProperty($spawner, 'site'))->getValue($spawner);
+    }
+
     public function testResolveSpawnerReturnsInjectedSpawnerWithoutConstructingDefault(): void
     {
         // When a spawner is injected via the constructor, resolveSpawner

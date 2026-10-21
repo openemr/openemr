@@ -17,7 +17,7 @@ class NumberToTextTest extends TestCase
         $this->assertEquals($text, $ntt->convert(), "'$numeral' converts to '$text'");
     }
     /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
-    public static function cases()
+    public static function cases(): array
     {
         return [ [ 0,     'zero'],
                   [ 1,     'one'],

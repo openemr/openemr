@@ -81,7 +81,6 @@ class HeaderTest extends TestCase
         $echoed = ob_get_clean();
 
         $this->assertSame('', $echoed, 'The {headerTemplate} plugin must not echo; it must only return markup.');
-        $this->assertIsString($returned, 'The {headerTemplate} plugin must return a markup string.');
         $this->assertStringContainsString('js/bootstrap.bundle.min.js', $returned);
     }
 

@@ -4,20 +4,16 @@
 //
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\InfoTxt;
 use OpenEMR\Core\OEGlobalsBag;
 
 function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 {
     $check = sqlQuery("select state from registry where directory=?", [$directory]);
     if ($check == false) {
-        $lines = @file(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/$directory/info.txt");
-        if ($lines) {
-            $name = $lines[0];
-            $category ??= $lines[1] ?? 'Miscellaneous';
-        } else {
-            $name = $directory;
-            $category = "Miscellaneous";
-        }
+        $info = InfoTxt::read(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/$directory/info.txt");
+        $name = $info->name ?? $directory;
+        $category = $info->category ?? 'Miscellaneous';
 
         return sqlInsert("insert into registry set
 			name=?,
@@ -121,7 +117,7 @@ function isRegistered($directory, $state = 1): bool
     return false;
 }
 
-function getTherapyGroupCategories()
+function getTherapyGroupCategories(): array
 {
     return [''];
 }
@@ -129,7 +125,7 @@ function getTherapyGroupCategories()
 // This gets an array including both standard and LBF visit form types,
 // one row per form type, sorted by category, priority, is lbf, name.
 //
-function getFormsByCategory($state = '1', $lbfonly = false)
+function getFormsByCategory($state = '1', $lbfonly = false): array
 {
     global $attendant_type;
     $all = [];
