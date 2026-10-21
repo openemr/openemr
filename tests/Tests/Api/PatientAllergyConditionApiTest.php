@@ -372,6 +372,7 @@ class PatientAllergyConditionApiTest extends TestCase
         $this->assertSame([], $body["validationErrors"] ?? ["SENTINEL"],
             "Create must produce no validation errors. Body: " . (string) $response->getBody());
         $this->assertIsArray($body["data"]);
+        $this->assertArrayHasKey("id", $body["data"]);
         $this->assertArrayHasKey("uuid", $body["data"]);
         $this->assertIsString($body["data"]["uuid"]);
         $this->assertMatchesRegularExpression(
@@ -483,6 +484,7 @@ class PatientAllergyConditionApiTest extends TestCase
         $this->assertSame([], $body["validationErrors"] ?? ["SENTINEL"],
             "Create must produce no validation errors. Body: " . (string) $response->getBody());
         $this->assertIsArray($body["data"]);
+        $this->assertArrayHasKey("id", $body["data"]);
         $this->assertArrayHasKey("uuid", $body["data"]);
         $this->assertIsString($body["data"]["uuid"]);
         $this->assertMatchesRegularExpression(
