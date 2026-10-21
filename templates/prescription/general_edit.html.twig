@@ -150,6 +150,8 @@
         {% if dispenseEnabled %}
         <div class="form-group">
             <input type="hidden" name="dispense_drug_id" value="{{prescription.get_drug_id()|attr}}" />
+            {# Verified by C_Prescription::dispenseAfterSave() before a sale is created. #}
+            <input type="hidden" name="csrf_token_form" value="{{ CSRF_TOKEN_FORM|attr }}" />
             <div class="card mt-3 dispense_option" style="display: none;">
                 <div class="card-header">
                     <h5>{{ "Dispense Options"|xlt }} <input type="button" name="toggle_dispense" class='btn btn-secondary btn-toggle-dispense btn-sm my-0 mr-1 ml-1' style="display: none" value="{{'Hide Dispense Options'|xla}}" /></h5>

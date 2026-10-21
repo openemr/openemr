@@ -18,6 +18,8 @@
 
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
@@ -374,6 +376,15 @@ class C_Prescription extends Controller
      */
     private function dispenseAfterSave(): void
     {
+        // Creating a sale mutates inventory: require the CSRF token and write
+        // permission, as the former dispense_drug.php create-sale path did
+        // after #14679. The prescription form carries the token in its
+        // dispense section.
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        if (!AclMain::aclCheckCore('admin', 'drugs', '', 'write')) {
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs write: Dispense Drug", xl("Dispense Drug"));
+        }
+
         $prescription = $this->prescriptions[0];
         $drugId = (int)($_POST['dispense_drug_id'] ?? $_POST['drug_id'] ?? 0);
         $quantity = (float)($_POST['disp_quantity'] ?? 0);
