@@ -92,6 +92,7 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
                 AND NOT EXISTS (
                     SELECT 1 FROM `form_observation` AS o
                     WHERE o.`pid` = v.`pid` AND o.`ob_type` = '" . AbstractObservationService::OB_TYPE_PHYSICAL_EXAM . "'
+                    AND " . AbstractObservationService::countedObservation('o') . "
                     AND o.`code` IN ($codes) AND DATE(o.`date`) = DATE(v.`date`)
                     AND TRIM(o.`ob_value`) REGEXP '^[0-9]+([.][0-9]+)?$'
                     AND CAST(TRIM(o.`ob_value`) AS DECIMAL(12,$scale)) = CAST($value AS DECIMAL(12,$scale))

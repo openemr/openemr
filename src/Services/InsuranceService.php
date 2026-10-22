@@ -151,6 +151,29 @@ class InsuranceService extends BaseService
 
         $processingResult = new ProcessingResult();
 
+        // When the caller supplied a pid (REST patient-compartment path), confirm
+        // the row keyed by $data['uuid'] actually belongs to that patient before
+        // writing. Without this check a leaked insurance uuid supplied under one
+        // patient's path could update a row on another patient's chart because
+        // the UPDATE below is keyed on uuid alone. Reported as not-found rather
+        // than forbidden so a uuid probe cannot confirm the existence of another
+        // patient's policy.
+        $callerPid = is_array($data) ? ($data['pid'] ?? null) : null;
+        $callerUuid = is_array($data) ? ($data['uuid'] ?? null) : null;
+        if (is_numeric($callerPid) && is_string($callerUuid) && $callerUuid !== '') {
+            $uuidBinaryCheck = UuidRegistry::uuidToBytes($callerUuid);
+            $rowPidRaw = QueryUtils::fetchSingleValue(
+                "SELECT pid FROM insurance_data WHERE uuid = ?",
+                'pid',
+                [$uuidBinaryCheck]
+            );
+            if (!is_numeric($rowPidRaw) || (int) $rowPidRaw !== (int) $callerPid) {
+                $notFound = new ProcessingResult();
+                $notFound->setValidationMessages(['uuid' => 'Insurance policy not found']);
+                return $notFound;
+            }
+        }
+
         $sql = " UPDATE insurance_data SET ";
         $sql .= "   provider=?,";
         $sql .= "   plan_name=?,";

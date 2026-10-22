@@ -4,10 +4,11 @@
  * Patient Insurance API Endpoint Test Cases
  *
  * Covers the patient-compartment insurance endpoints:
- *   GET  /api/patient/{puuid}/insurance              — list
- *   GET  /api/patient/{puuid}/insurance/{uuid}       — single
- *   POST /api/patient/{puuid}/insurance              — create
- *   PUT  /api/patient/{puuid}/insurance/{uuid}       — update
+ *   GET  /api/patient/{puuid}/insurance                  — list
+ *   GET  /api/patient/{puuid}/insurance/{uuid}           — single
+ *   POST /api/patient/{puuid}/insurance                  — create
+ *   PUT  /api/patient/{puuid}/insurance/{uuid}           — update
+ *   GET  /api/patient/{puuid}/insurance/$swap-insurance  — swap operation
  *
  * Insurance coverage lives in `insurance_data` keyed on `pid` + `type`
  * (primary/secondary/tertiary) + `date` (effective date). This test
@@ -88,7 +89,7 @@ class PatientInsuranceApiTest extends TestCase
     /**
      * @return array{uuid: string}
      */
-    private function postFixturePolicy(string $type = 'primary'): array
+    private function postFixturePolicy(string $type = 'primary', string $date = '2026-01-01'): array
     {
         $response = $this->testClient->post($this->listEndpoint(), [
             'type' => $type,
@@ -104,7 +105,7 @@ class PatientInsuranceApiTest extends TestCase
             'subscriber_state' => 'IL',
             'subscriber_sex' => 'Male',
             'accept_assignment' => 'TRUE',
-            'date' => '2026-01-01',
+            'date' => $date,
             'date_end' => null,
         ]);
         $this->assertEquals(200, $response->getStatusCode(), 'POST should 200. Body: ' . (string) $response->getBody());
@@ -200,5 +201,220 @@ class PatientInsuranceApiTest extends TestCase
         $this->assertIsArray($data);
         $this->assertEquals($renamed, $data['subscriber_lname'] ?? null);
         $this->assertEquals('456 Updated Street', $data['subscriber_street'] ?? null);
+    }
+
+    private function swapEndpoint(): string
+    {
+        return $this->listEndpoint() . '/$swap-insurance';
+    }
+
+    private function fetchPolicyType(string $uuid): ?string
+    {
+        $response = $this->testClient->getOne($this->listEndpoint(), $uuid);
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $data = $body['data'] ?? null;
+        if (!is_array($data)) {
+            return null;
+        }
+        $type = $data['type'] ?? null;
+        return is_string($type) ? $type : null;
+    }
+
+    #[Test]
+    public function testSwapInsuranceSwapsPrimaryAndSecondaryTypes(): void
+    {
+        // Seed two policies with distinct effective dates so the swap
+        // doesn't trip the pid+type+date uniqueness constraint.
+        $primary = $this->postFixturePolicy('primary', '2026-01-01');
+        $secondary = $this->postFixturePolicy('secondary', '2026-02-01');
+
+        $response = $this->testClient->get($this->swapEndpoint(), [
+            'type' => 'primary',
+            'uuid' => $secondary['uuid'],
+        ]);
+        $this->assertEquals(
+            200,
+            $response->getStatusCode(),
+            'Swap should 200. Body: ' . (string) $response->getBody()
+        );
+
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame(
+            [],
+            $body['validationErrors'] ?? ['SENTINEL'],
+            'Swap must produce no validation errors. Body: ' . (string) $response->getBody()
+        );
+        $this->assertSame([], $body['internalErrors'] ?? ['SENTINEL']);
+
+        // Response body is a single assoc row with 'src' and 'target'
+        // keys reflecting the policies after the swap.
+        $data = $body['data'] ?? null;
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey('src', $data);
+        $this->assertArrayHasKey('target', $data);
+        $this->assertIsArray($data['src']);
+        $this->assertIsArray($data['target']);
+        $this->assertSame('primary', $data['src']['type'] ?? null);
+        $this->assertSame('secondary', $data['target']['type'] ?? null);
+        $this->assertSame($secondary['uuid'], $data['src']['uuid'] ?? null);
+        $this->assertSame($primary['uuid'], $data['target']['uuid'] ?? null);
+
+        // Verify the swap persisted by re-reading each row.
+        $this->assertSame('secondary', $this->fetchPolicyType($primary['uuid']));
+        $this->assertSame('primary', $this->fetchPolicyType($secondary['uuid']));
+    }
+
+    #[Test]
+    public function testSwapInsuranceWithOnlyOnePolicyMovesItToTargetType(): void
+    {
+        // Only a primary exists — swap to secondary. There's no target
+        // policy to move the other way, so the response's 'target' slot
+        // should be null and the source row simply changes type.
+        $primary = $this->postFixturePolicy('primary', '2026-03-01');
+
+        $response = $this->testClient->get($this->swapEndpoint(), [
+            'type' => 'secondary',
+            'uuid' => $primary['uuid'],
+        ]);
+        $this->assertEquals(
+            200,
+            $response->getStatusCode(),
+            'Swap should 200. Body: ' . (string) $response->getBody()
+        );
+
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame([], $body['validationErrors'] ?? ['SENTINEL']);
+        $this->assertSame([], $body['internalErrors'] ?? ['SENTINEL']);
+
+        $data = $body['data'] ?? null;
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey('src', $data);
+        $this->assertArrayHasKey('target', $data);
+        $this->assertIsArray($data['src']);
+        $this->assertNull($data['target']);
+        $this->assertSame('secondary', $data['src']['type'] ?? null);
+        $this->assertSame($primary['uuid'], $data['src']['uuid'] ?? null);
+
+        // Verify the policy was moved to secondary.
+        $this->assertSame('secondary', $this->fetchPolicyType($primary['uuid']));
+    }
+
+    #[Test]
+    public function testSwapInsuranceWithUnknownInsuranceUuidReturnsValidationError(): void
+    {
+        // Unknown insurance uuid — the swap validator should reject
+        // without touching the database.
+        $unknownUuid = '00000000-0000-0000-0000-000000000000';
+
+        $response = $this->testClient->get($this->swapEndpoint(), [
+            'type' => 'primary',
+            'uuid' => $unknownUuid,
+        ]);
+        $this->assertEquals(
+            400,
+            $response->getStatusCode(),
+            'Unknown uuid swap should 400. Body: ' . (string) $response->getBody()
+        );
+
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertArrayHasKey('validationErrors', $body);
+        $this->assertIsArray($body['validationErrors']);
+        $this->assertNotEmpty($body['validationErrors']);
+    }
+
+    #[Test]
+    public function testPutRejectsWrongPatient(): void
+    {
+        // Create a policy on the setUp fixturePuuid, then try to update it
+        // through a different patient's path. InsuranceService::update resolves
+        // the row's owning pid and reports not-found when the pid supplied by
+        // the controller (from the path puuid) does not match. The follow-up
+        // GET through the owning patient's path confirms the row is intact.
+        $created = $this->postFixturePolicy();
+
+        // Pick another test-fixture patient. installPatientFixtures seeded the
+        // full set; pick one whose uuid differs from fixturePuuid.
+        $otherPuuidBytes = QueryUtils::fetchSingleValue(
+            "SELECT uuid FROM patient_data WHERE pubpid LIKE ? AND uuid <> ? ORDER BY pid DESC LIMIT 1",
+            'uuid',
+            [FixtureManager::PATIENT_FIXTURE_PUBPID_PREFIX . "%", UuidRegistry::uuidToBytes($this->fixturePuuid)]
+        );
+        $this->assertIsString($otherPuuidBytes);
+        $otherPuuid = UuidRegistry::uuidToString($otherPuuidBytes);
+
+        $wrongPath = "/apis/default/api/patient/" . $otherPuuid . "/insurance";
+        $putResponse = $this->testClient->put($wrongPath, $created['uuid'], [
+            'type' => 'primary',
+            'provider' => (string) $this->fixtureInsurerId,
+            'policy_number' => 'MUTATED-ACROSS-PATIENT',
+            'subscriber_lname' => 'MutatedLast',
+            'subscriber_fname' => 'MutatedFirst',
+            'subscriber_relationship' => 'self',
+            'subscriber_DOB' => '1980-01-01',
+            'subscriber_street' => '000 Mutated Street',
+            'subscriber_postal_code' => '00000',
+            'subscriber_city' => 'Mutatedville',
+            'subscriber_state' => 'XX',
+            'subscriber_sex' => 'Male',
+            'accept_assignment' => 'TRUE',
+            'date' => '2026-01-01',
+            'date_end' => null,
+        ]);
+        // Reported as not-found rather than forbidden so a uuid probe cannot
+        // confirm the existence of another patient's policy. We assert the
+        // row was not mutated regardless of the exact status code.
+        $this->assertNotEquals(
+            200,
+            $putResponse->getStatusCode(),
+            'Wrong-patient PUT must not report success. Body: ' . (string) $putResponse->getBody()
+        );
+
+        $owningPath = "/apis/default/api/patient/" . $this->fixturePuuid . "/insurance";
+        $follow = $this->testClient->getOne($owningPath, $created['uuid']);
+        $this->assertEquals(200, $follow->getStatusCode());
+        $followBody = json_decode((string) $follow->getBody(), true);
+        $this->assertIsArray($followBody);
+        $data = $followBody['data'] ?? null;
+        $this->assertIsArray($data);
+        $policyNumber = $data['policy_number'] ?? '';
+        $this->assertIsString($policyNumber);
+        $this->assertStringStartsWith(
+            'TEST-POLICY-',
+            $policyNumber,
+            'Insurance policy_number must not have been overwritten through another patient\'s path.'
+        );
+    }
+
+    #[Test]
+    public function testSwapInsuranceWithInvalidPatientUuidReturnsValidationError(): void
+    {
+        // Invalid puuid string — handler short-circuits with the
+        // puuid::INVALID_PUUID validation message.
+        $badPuuidEndpoint = '/apis/default/api/patient/not-a-real-uuid/insurance/$swap-insurance';
+
+        $response = $this->testClient->get($badPuuidEndpoint, [
+            'type' => 'primary',
+            'uuid' => '00000000-0000-0000-0000-000000000000',
+        ]);
+        $this->assertEquals(
+            400,
+            $response->getStatusCode(),
+            'Invalid puuid swap should 400. Body: ' . (string) $response->getBody()
+        );
+
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertArrayHasKey('validationErrors', $body);
+        $this->assertIsArray($body['validationErrors']);
+        $this->assertArrayHasKey(
+            'puuid::INVALID_PUUID',
+            $body['validationErrors'],
+            'invalid puuid should surface the puuid::INVALID_PUUID key so a response that only fails on the unknown insurance uuid cannot silently satisfy this assertion'
+        );
     }
 }
