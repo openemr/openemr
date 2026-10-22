@@ -44,8 +44,8 @@ class DrugSalesService extends BaseService
      */
     private const RESTRICT_SALES_TO_DEFAULT_WAREHOUSE_KEY = 'restrict_sales_to_default_warehouse';
 
-    /** Memoised result of clinicHasActiveWarehouses(); null until first asked. */
-    private ?bool $hasActiveWarehouses = null;
+    /** Memoised result of clinicUsesWarehouses(); null until first asked. */
+    private ?bool $usesWarehouses = null;
 
     public static function restrictSalesToDefaultWarehouse(): bool
     {
@@ -353,28 +353,28 @@ class DrugSalesService extends BaseService
             "WHERE " .
             "di.drug_id = ? AND di.destroy_date IS NULL AND di.on_hand != 0 ";
         // Honour the clinic-level policy: when restrict_sales_to_default_warehouse
-        // is on, we filter to the user's default warehouse. A user without one
-        // has no anchor for "on-site", so in a clinic that has configured
-        // warehouses the sale is refused with an explanation rather than
-        // silently dispensing from any warehouse (the pre-2026 loophole).
-        // Clinics without any active warehouse keep the legacy behaviour:
-        // their lots and users both carry an empty warehouse id, so the
-        // filter below still matches. Availability probes ($testonly) never
-        // throw; they simply find nothing on-site, which every caller already
-        // reports as insufficient inventory. The default_warehouse param is
-        // typed loose (legacy signature) so we accept null/'' alike.
+        // is on and the clinic actually uses warehouses (more than one active
+        // entry in the warehouse list — every install seeds a single "On Site"
+        // entry, and FeeSheet::$got_warehouses applies the same test), a user
+        // without a default warehouse has no anchor for "on-site". The sale is
+        // then refused with an explanation rather than silently dispensing
+        // from any warehouse (the pre-2026 loophole). Availability probes
+        // ($testonly) never throw; they report nothing available, which every
+        // caller already shows as insufficient inventory. With the policy on
+        // and a default warehouse set, sales are filtered to that warehouse;
+        // a single-warehouse clinic keeps the legacy behaviour. The
+        // default_warehouse param is typed loose (legacy signature) so we
+        // accept null/'' alike.
         $defaultWarehouseSet = $default_warehouse !== null && $default_warehouse !== '' && $default_warehouse !== false;
-        if (
-            !$testonly
-            && self::restrictSalesToDefaultWarehouse()
-            && !$defaultWarehouseSet
-            && $this->clinicHasActiveWarehouses()
-        ) {
-            throw new InvalidArgumentException(xl('Your clinic only allows dispensing from your default warehouse, but no default warehouse is configured for your user. Set one under Administration → Users.'));
+        if (self::restrictSalesToDefaultWarehouse() && $this->clinicUsesWarehouses() && !$defaultWarehouseSet) {
+            if (!$testonly) {
+                throw new InvalidArgumentException(xl('Your clinic only allows dispensing from your default warehouse, but no default warehouse is configured for your user. Set one under Administration → Users.'));
+            }
+            return false;
         }
 
         $sqlarr = [$drug_id];
-        if (self::restrictSalesToDefaultWarehouse()) {
+        if (self::restrictSalesToDefaultWarehouse() && $defaultWarehouseSet) {
             $query .= "AND di.warehouse_id = ? ";
             $sqlarr[] = $default_warehouse;
         }
@@ -662,19 +662,22 @@ class DrugSalesService extends BaseService
     }
 
     /**
-     * Whether the clinic has configured at least one active warehouse. The
-     * default-warehouse policy only means something when it has.
+     * Whether the clinic actually uses warehouses: more than one active entry
+     * in the warehouse list. Every install seeds a single "On Site" entry, so
+     * one entry means "no warehouse choice" — the same test the Fee Sheet
+     * applies via FeeSheet::$got_warehouses. The default-warehouse policy
+     * only means something when this is true.
      */
-    public function clinicHasActiveWarehouses(): bool
+    public function clinicUsesWarehouses(): bool
     {
-        if ($this->hasActiveWarehouses === null) {
+        if ($this->usesWarehouses === null) {
             $row = QueryUtils::fetchRecords(
                 "SELECT COUNT(*) AS c FROM list_options WHERE list_id = 'warehouse' AND activity = 1"
             )[0] ?? null;
             $countRaw = is_array($row) ? ($row['c'] ?? 0) : 0;
-            $this->hasActiveWarehouses = is_numeric($countRaw) && (int)$countRaw > 0;
+            $this->usesWarehouses = is_numeric($countRaw) && (int)$countRaw > 1;
         }
-        return $this->hasActiveWarehouses;
+        return $this->usesWarehouses;
     }
 
     /**

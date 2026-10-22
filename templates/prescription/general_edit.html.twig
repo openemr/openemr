@@ -525,10 +525,11 @@
 
     // Tracks the lot-picker mode delivered by the AJAX endpoint:
     //  - hasDefaultWarehouse: the user has a default warehouse configured.
-    //  - hasWarehouses: the clinic has at least one active warehouse. Only
-    //    then does a missing default matter: show the danger banner, skip
+    //  - hasWarehouses: the clinic uses warehouses (more than one active
+    //    warehouse entry; a fresh install only has "On Site"). Only then
+    //    does a missing default matter: show the danger banner, skip
     //    per-selection off-site flags, and skip the off-site confirm. A
-    //    clinic without warehouses dispenses as it always did.
+    //    single-warehouse clinic dispenses as it always did.
     //  - restrictToDefault: the clinic's restrict_sales_to_default_warehouse
     //    flag. When true, off-site lots are rendered disabled (sellDrug()
     //    would block them server-side anyway); when false, they are

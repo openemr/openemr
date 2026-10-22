@@ -429,7 +429,7 @@ class C_Prescription extends Controller
 
                 if ($saleId <= 0) {
                     $dispenseError = xl('Inventory is not available for this order');
-                    if ($inventoryId !== null && DrugSalesService::restrictSalesToDefaultWarehouse()) {
+                    if ($inventoryId !== null && DrugSalesService::restrictSalesToDefaultWarehouse() && $drugSalesService->clinicUsesWarehouses()) {
                         // Strict policy is on and the picker submitted a lot.
                         // When that lot sits outside the user's default
                         // warehouse, say so instead of the generic "no
