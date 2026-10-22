@@ -21,10 +21,12 @@ require_once("codes.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\FeeSheetAppointmentStatusPrompt;
 use OpenEMR\Billing\HcpcsDrugDefaults;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -620,6 +622,55 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
             // Otherwise return to the normal encounter summary frameset.
             //
             formHeader("Redirecting....");
+            // On Save, offer to set the visit's appointment status (global
+            // fee_sheet_save_appt_status); on Yes, also open the calendar on that date.
+            $isSave = CurrentRequest::get()->request->getString('bn_save') !== '';
+            $apptPrompt = $isSave && is_numeric($fs->pid) && is_string($fs->visit_date) ? (new FeeSheetAppointmentStatusPrompt(
+                OEGlobalsBag::getInstance()->getString(FeeSheetAppointmentStatusPrompt::GLOBAL_NAME)
+            ))->appointmentFor((int) $fs->pid, $fs->visit_date) : null;
+            $encounterId = is_numeric($fs->encounter) ? (string) $fs->encounter : null;
+            if ($apptPrompt !== null && $encounterId !== null) {
+                $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
+                $question = $apptPrompt->question();
+                ?>
+<script>
+(function () {
+    // The main window outlives this form's frame, which closes before the calendar loads.
+    const mainWindow = top;
+    const closeForm = function () {
+        parent.closeTab(window.name, true);
+    };
+    if (!confirm(<?php echo js_escape($question); ?>)) {
+        closeForm();
+        return;
+    }
+    const body = new FormData();
+    body.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>);
+    body.append('eid', <?php echo js_escape((string) $apptPrompt->eid); ?>);
+    body.append('encounter', <?php echo js_escape($encounterId); ?>);
+    mainWindow.restoreSession();
+    fetch(<?php echo js_escape($webRoot . '/interface/forms/fee_sheet/set_appointment_status.php'); ?>, {method: 'POST', body: body, credentials: 'same-origin'})
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (result) {
+            if (!result.ok) {
+                throw new Error('not set');
+            }
+            mainWindow.navigateTab(<?php echo js_escape($webRoot . $apptPrompt->calendarPath()); ?>, 'cal', function () {
+                mainWindow.activateTabByName('cal', true);
+            });
+        })
+        .catch(function () {
+            alert(<?php echo xlj('The appointment status could not be set.'); ?>);
+        })
+        .finally(closeForm);
+})();
+</script>
+                <?php
+                formFooter();
+                exit;
+            }
             formJump();
         }
 
