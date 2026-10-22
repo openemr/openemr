@@ -3,7 +3,7 @@
 **Author:** Jerry Padgett <sjpadgett@gmail.com>
 **Copyright:** Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
 
-OpenEMR can launch an enabled SMART EHR application from the patient FHIR Assessments workspace while preserving the existing native Start, Continue, and View/Edit assessment actions.
+OpenEMR can launch an enabled SMART EHR application from the patient Questionnaire Assessments workspace while preserving the existing native Start, Continue, and View/Edit assessment actions.
 
 ## Token response context
 
@@ -45,4 +45,4 @@ Patient, encounter, and appointment launch behavior remains in place. Existing A
 
 ## API Explorer testing
 
-Register the API Explorer SMART client after updating its scopes, then launch it from **Patient → Assessments → FHIR Assessments → Launch SMART App**. The Explorer displays the token diagnostics and retrieves the launch Patient, optional Encounter, Appointment, Questionnaire, and QuestionnaireResponse resources when present.
+Register the API Explorer SMART client after updating its scopes, then launch it from **Patient → Assessments → Questionnaires → Launch App**. The Explorer displays the token diagnostics and retrieves the launch Patient, optional Encounter, Appointment, Questionnaire, and QuestionnaireResponse resources when present.

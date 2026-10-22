@@ -27,10 +27,10 @@ use OpenEMR\Services\QuestionnaireService;
 
 $pid = PatientSessionUtil::getPid();
 if ($pid < 1) {
-    AccessDeniedHelper::denyWithTemplate('No patient selected.', xlt('FHIR Assessment'));
+    AccessDeniedHelper::denyWithTemplate('No patient selected.', xlt('Questionnaire Assessment'));
 }
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    AccessDeniedHelper::denyWithTemplate('ACL check failed for patient assessments.', xlt('FHIR Assessment'));
+    AccessDeniedHelper::denyWithTemplate('ACL check failed for patient assessments.', xlt('Questionnaire Assessment'));
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -119,7 +119,7 @@ if ($questionnaireResponseJson !== '') {
     }
 }
 $titleValue = $questionnaire['title'] ?? $questionnaire['name'] ?? null;
-$title = is_string($titleValue) && $titleValue !== '' ? $titleValue : xlt('FHIR Assessment');
+$title = is_string($titleValue) && $titleValue !== '' ? $titleValue : xlt('Questionnaire Assessment');
 $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
 $saveUrl = $webRoot . '/interface/forms/questionnaire_assessments/native_save.php';
 $csrfToken = CsrfUtils::collectCsrfToken(session: $session);

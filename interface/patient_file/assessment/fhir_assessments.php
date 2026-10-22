@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Patient FHIR assessment launcher.
+ * Patient questionnaire assessment launcher.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -213,7 +213,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
 <html>
 <head>
     <?php Header::setupHeader(); ?>
-    <title><?php echo xlt('FHIR Assessments'); ?></title>
+    <title><?php echo xlt('Questionnaire Assessments'); ?></title>
     <style>
         #assessment-frame {
             border: 0;
@@ -224,7 +224,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
 </head>
 <body class="body_top">
     <div class="<?php echo attr($container); ?> mt-3">
-        <h4><?php echo xlt('FHIR Assessments'); ?></h4>
+        <h4><?php echo xlt('Questionnaire Assessments'); ?></h4>
         <div class="row">
             <div class="col-sm-12">
                 <?php
@@ -252,7 +252,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <iframe id="assessment-frame" title="<?php echo xla('FHIR Assessment'); ?>"></iframe>
+                    <iframe id="assessment-frame" title="<?php echo xla('Questionnaire Assessment'); ?>"></iframe>
                 </div>
             </div>
 
@@ -529,7 +529,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         </div>
 
                         <?php if ($assessmentHistory === []) : ?>
-                            <div class="text-muted"><?php echo xlt('No FHIR assessment history found.'); ?></div>
+                            <div class="text-muted"><?php echo xlt('No questionnaire assessment history found.'); ?></div>
                         <?php else : ?>
                             <div class="table-responsive">
                                 <table class="table table-sm table-striped mb-0">
