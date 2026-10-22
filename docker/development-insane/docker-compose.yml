@@ -751,7 +751,7 @@ services:
       OPENEMR__ENVIRONMENT: "dev"
   redis:
     restart: always
-    image: redis:8.10.2@sha256:e5235e6c61f17150352c9185380591aa887001a4a748a081dcf656ed2b170538
+    image: redis:8.10.2@sha256:97ec88159e6d7cfb5ddef9015386087d58a912de80112f06ebdfa78fa5989901
   openldap:
     restart: always
     image: openemr/dev-ldap:insane@sha256:24b023a969e3a2e43bfab56e22474a036553c3d69687f8e0f9d8da968ed744a7
