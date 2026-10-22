@@ -416,6 +416,19 @@ class SmartV2ConstraintScopeApiTest extends TestCase
         // this gate.)
         $categoryCodes = $this->extractObservationCategoryCodes($entries);
         foreach ($categoryCodes as $entryCodes) {
+            // Require the laboratory category positively AND reject
+            // vital-signs. Without the positive check, a broken filter that
+            // returned an uncategorized Observation (an empty [] per-entry
+            // from extractObservationCategoryCodes after the uncategorized-
+            // normalization fix) would silently pass the vital-signs
+            // rejection.
+            $this->assertContains(
+                'laboratory',
+                $entryCodes,
+                'Every returned Observation under a laboratory-constrained'
+                    . ' scope must carry the laboratory category code.'
+                    . ' Entry categories: ' . implode(', ', $entryCodes)
+            );
             $this->assertNotContains(
                 'vital-signs',
                 $entryCodes,
