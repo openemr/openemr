@@ -25,11 +25,11 @@ class X125010837I
      * Build CLM05 from UB-04 box 4, the type of bill (e.g. 0771, or 771 without the leading zero).
      * CLM05 is the two-digit facility type code, the qualifier A and the claim frequency code,
      * so 0771 becomes 77:A:1. The frequency code may be a letter (e.g. 081A). Returns an empty
-     * string when the type of bill is not in that form.
+     * string when the type of bill is not in that form or the facility type starts with zero.
      */
     public static function claimFacilityCode(string $typeOfBill): string
     {
-        if (preg_match('/^0?(\d{2})([0-9A-Z])$/', strtoupper(trim($typeOfBill)), $matches) !== 1) {
+        if (preg_match('/^0?([1-9]\d)([0-9A-Z])$/', strtoupper(trim($typeOfBill)), $matches) !== 1) {
             return '';
         }
         return $matches[1] . ':A:' . $matches[2];
