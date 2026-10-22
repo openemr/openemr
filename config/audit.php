@@ -21,11 +21,13 @@ use OpenEMR\Common\Logging\{
     Audit,
     AuditConfig,
     AuditLoggerInterface,
+    AuditQueryDetail,
     BreakglassChecker,
     BreakglassCheckerInterface,
     EventAuditLogger,
     EventCategory,
 };
+use OpenEMR\Core\OEGlobalsBag;
 use Psr\Clock\ClockInterface;
 
 use function Firehed\Container\env;
@@ -38,8 +40,10 @@ return [
         $c->get(ConnectionManager::class)->get(ConnectionType::NonAudited),
     ),
 
-    AuditLoggerInterface::class => EventAuditLogger::class,
-    EventAuditLogger::class,
+    // One logger for both database drivers, so a request-mode summary
+    // covers legacy queries and DBAL queries together.
+    AuditLoggerInterface::class => fn (): AuditLoggerInterface => EventAuditLogger::getInstance(),
+    EventAuditLogger::class => fn (): EventAuditLogger => EventAuditLogger::getInstance(),
 
     AuditConfig::class => function (TC $c) {
         $enabledCategories = array_map(
@@ -52,6 +56,7 @@ return [
             queryEvents: $c->getBool('AUDIT_QUERIES'),
             httpRequestEvents: $c->getBool('AUDIT_HTTP_REQUESTS'),
             enabledEventTypes: $enabledCategories,
+            queryDetail: AuditQueryDetail::fromGlobal($c->getString('AUDIT_QUERY_DETAIL')),
         );
     },
     Audit\SinkInterface::class => Audit\MultiSink::class,
@@ -60,7 +65,12 @@ return [
         $auditConn = $c->get(ConnectionManager::class)
             ->get(ConnectionType::NonAudited);
         // Future: make this configurable
-        $sinks[] = new Audit\LogTablesSink(conn: $auditConn);
+        $sinks[] = new Audit\LogTablesSink(
+            conn: $auditConn,
+            chainKey: Audit\AuditChainKey::fromSiteDirectory(
+                OEGlobalsBag::getInstance()->getString('OE_SITE_DIR'),
+            )->value(),
+        );
         if ($c->getBool('ATNA_ENABLED')) {
             $sinks[] = $c->get(Audit\AtnaSink::class);
         }
@@ -84,6 +94,7 @@ return [
     ),
     'AUDIT_ENABLE' => env('AUDIT_ENABLE', 'true')->asBool(),
     'AUDIT_QUERIES' => env('AUDIT_QUERIES', 'true')->asBool(),
+    'AUDIT_QUERY_DETAIL' => env('AUDIT_QUERY_DETAIL', 'statement'),
     'AUDIT_HTTP_REQUESTS' => env('AUDIT_HTTP_REQUESTS', 'true')->asBool(),
     'AUDIT_EVENT_TYPES' => env('AUDIT_EVENT_TYPES', 'patient-record,scheduling,order,lab-order,lab-results,security-administration,other'),
     'AUDIT_BREAKGLASS_ACTIVITY' => env('AUDIT_BREAKGLASS_ACTIVITY', 'true')->asBool(),
