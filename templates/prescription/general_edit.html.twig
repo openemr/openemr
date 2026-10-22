@@ -507,11 +507,15 @@
             }
         }
 
-        f.dispense_after_save.value = "1";
         top.restoreSession();
-        if (CheckForErrors(f)) {
-            f.submit();
+        // Set the dispense flag only once the form validates. If it were set
+        // first and validation failed, a later plain Save would still carry
+        // dispense_after_save=1 and create a sale the user did not ask for.
+        if (!CheckForErrors(f)) {
+            return false;
         }
+        f.dispense_after_save.value = "1";
+        f.submit();
         return false;
     }
     function toggleDispense() {
