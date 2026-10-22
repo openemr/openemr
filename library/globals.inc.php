@@ -2844,9 +2844,23 @@ $GLOBALS_METADATA = [
             xl('Audit Logging SELECT Query'),
             'bool',                           // data type
             '0',                              // default off; enable for ONC certified deployments
-            xl('Enable logging of all SQL SELECT queries.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
+            xl('Enable logging of SQL SELECT queries.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
                 . ' ' . xl('Required for ONC certified deployments.')
-                . ' ' . xl('Warning: this logs every SELECT, so the audit log grows with query volume and can become far larger than the clinical data it describes.')
+                . ' ' . xl('The SELECT detail setting writes a row per query, or one summary per user action.')
+                . ' ' . xl('A row per query grows with query volume and can become far larger than the clinical data it describes.')
+        ],
+
+        'audit_events_query_mode' => [
+            xl('Audit Logging SELECT Detail'),
+            [
+                'statement' => xl('Every SELECT statement'),
+                'request' => xl('One summary per user action'),
+            ],
+            'statement',                      // a row per query until an administrator changes this
+            xl('Applies when SELECT logging is on.')
+                . ' ' . xl('Every SELECT statement keeps the query text.')
+                . ' ' . xl('One summary per user action records who, when, the patient, the page, and the tables read.')
+                . ' ' . xl('That summary is the record of the action. Certified sites stay on a row per query until an administrator selects the summary.')
         ],
 
         'audit_events_cdr' => [

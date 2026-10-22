@@ -468,3 +468,23 @@ CREATE TABLE `module_lbf_statement_runs` (
   KEY `pid_instance` (`pid`,`instance_form_id`)
 ) ENGINE=InnoDB;
 #EndIf
+
+
+-- Audit chain: each new checksum includes the previous one, and the anchor
+-- remembers the newest link so a deleted tail is visible.
+#IfMissingColumn log_comment_encrypt chain
+ALTER TABLE `log_comment_encrypt` ADD COLUMN `chain` char(128) DEFAULT NULL COMMENT 'HMAC of the previous chain, this log id, and the row checksum';
+#EndIf
+
+#IfNotIndex log_comment_encrypt log_id
+CREATE INDEX `log_id` ON `log_comment_encrypt` (`log_id`);
+#EndIf
+
+#IfNotTable log_chain_anchor
+CREATE TABLE `log_chain_anchor` (
+  `id` tinyint(3) NOT NULL,
+  `log_id` bigint(20) NOT NULL DEFAULT 0,
+  `chain` char(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+#EndIf

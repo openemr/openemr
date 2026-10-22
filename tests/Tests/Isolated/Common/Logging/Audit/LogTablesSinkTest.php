@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Logging\Audit;
 
 use Doctrine\DBAL\Connection;
+use OpenEMR\Common\Logging\Audit\AuditChain;
 use OpenEMR\Common\Logging\Audit\Event;
 use OpenEMR\Common\Logging\Audit\LogTablesSink;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -25,6 +26,8 @@ use PHPUnit\Framework\TestCase;
  */
 class LogTablesSinkTest extends TestCase
 {
+    private const string CHAIN_KEY = 'audit-chain-test-key';
+
     private Connection&MockObject $connection;
 
     protected function setUp(): void
@@ -99,7 +102,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('42');
 
-        $sink = new LogTablesSink(conn: $this->connection);
+        $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
     }
@@ -121,7 +124,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('99');
 
-        $sink = new LogTablesSink(conn: $this->connection);
+        $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
 
@@ -129,10 +132,14 @@ class LogTablesSinkTest extends TestCase
         self::assertSame('99', $capturedLogCommentData['log_id']);
         self::assertSame('No', $capturedLogCommentData['encrypt']);
         self::assertSame('', $capturedLogCommentData['checksum_api']);
-        self::assertSame('4', $capturedLogCommentData['version']);
+        self::assertSame('5', $capturedLogCommentData['version']);
         // Checksum should be a sha3-512 hash (128 hex chars)
         self::assertIsString($capturedLogCommentData['checksum']);
         self::assertSame(128, strlen($capturedLogCommentData['checksum']));
+        self::assertSame(
+            AuditChain::link(AuditChain::genesis(), '99', $capturedLogCommentData['checksum'], self::CHAIN_KEY),
+            $capturedLogCommentData['chain'],
+        );
     }
 
     public function testRecordSetsEncryptFlagToNo(): void
@@ -151,7 +158,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('1');
 
-        $sink = new LogTablesSink(conn: $this->connection);
+        $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
 
@@ -189,7 +196,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('1');
 
-        $sink = new LogTablesSink(conn: $this->connection);
+        $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
 
@@ -229,7 +236,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('1');
 
-        $sink = new LogTablesSink(conn: $this->connection);
+        $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
 
@@ -269,7 +276,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('42');
 
-        $sink = new LogTablesSink(conn: $this->connection);
+        $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
 
@@ -290,7 +297,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('1');
 
-        $sink = new LogTablesSink(conn: $this->connection);
+        $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
 
@@ -314,7 +321,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('55');
 
-        $sink = new LogTablesSink(conn: $this->connection);
+        $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
 
@@ -349,7 +356,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('1');
 
-        $sink = new LogTablesSink(conn: $this->connection);
+        $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
 
@@ -386,7 +393,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('55');
 
-        $sink = new LogTablesSink(conn: $this->connection);
+        $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
 
@@ -442,7 +449,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('55');
 
-        $sink = new LogTablesSink(conn: $this->connection);
+        $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
 
