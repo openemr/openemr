@@ -272,10 +272,19 @@ class PatientIssuesService extends BaseService
      */
     public function linkIssueToEncounter(string $pid, string $encounter, string $issueId, ?int $userCreatorId = null, int $resolved = 0): string
     {
-        $uuid = QueryUtils::fetchSingleValue("SELECT uuid AS count FROM issue_encounter WHERE " .
-            "pid = ? AND encounter = ? AND list_id = ?", 'uuid', [$pid, $encounter, $issueId]);
-        if (!empty($uuid)) {
-            return $uuid; // already connected
+        $existing = QueryUtils::querySingleRow(
+            "SELECT id, uuid FROM issue_encounter WHERE pid = ? AND encounter = ? AND list_id = ?",
+            [$pid, $encounter, $issueId]
+        );
+        if (is_array($existing)) {
+            $uuid = $existing['uuid'] ?? null;
+            if (is_string($uuid) && $uuid !== '') {
+                return $uuid; // already connected
+            }
+            // Linked by code that saves no uuid (e.g. the group encounter form): give the link one.
+            $uuid = UuidRegistry::getRegistryForTable("issue_encounter")->createUuid();
+            QueryUtils::sqlStatementThrowException("UPDATE issue_encounter SET uuid = ? WHERE id = ?", [$uuid, $existing['id']]);
+            return $uuid;
         }
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $userCreatorId ??= $session->get('authUserID');
