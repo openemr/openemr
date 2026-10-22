@@ -20,6 +20,7 @@ require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\FeeSheetAppointmentStatusPrompt;
 use OpenEMR\Billing\HcpcsDrugDefaults;
@@ -630,44 +631,10 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
             ))->appointmentFor((int) $fs->pid, $fs->visit_date) : null;
             $encounterId = is_numeric($fs->encounter) ? (string) $fs->encounter : null;
             if ($apptPrompt !== null && $encounterId !== null) {
-                $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
-                $question = $apptPrompt->question();
-                ?>
-<script>
-(function () {
-    // The main window outlives this form's frame, which closes before the calendar loads.
-    const mainWindow = top;
-    const closeForm = function () {
-        parent.closeTab(window.name, true);
-    };
-    if (!confirm(<?php echo js_escape($question); ?>)) {
-        closeForm();
-        return;
-    }
-    const body = new FormData();
-    body.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>);
-    body.append('eid', <?php echo js_escape((string) $apptPrompt->eid); ?>);
-    body.append('encounter', <?php echo js_escape($encounterId); ?>);
-    mainWindow.restoreSession();
-    fetch(<?php echo js_escape($webRoot . '/interface/forms/fee_sheet/set_appointment_status.php'); ?>, {method: 'POST', body: body, credentials: 'same-origin'})
-        .then(function (response) {
-            return response.json();
-        })
-        .then(function (result) {
-            if (!result.ok) {
-                throw new Error('not set');
-            }
-            mainWindow.navigateTab(<?php echo js_escape($webRoot . $apptPrompt->calendarPath()); ?>, 'cal', function () {
-                mainWindow.activateTabByName('cal', true);
-            });
-        })
-        .catch(function () {
-            alert(<?php echo xlj('The appointment status could not be set.'); ?>);
-        })
-        .finally(closeForm);
-})();
-</script>
-                <?php
+                echo ServiceContainer::getTwig()->render('forms/fee_sheet/appointment_status_prompt.html.twig', [
+                    'prompt' => $apptPrompt,
+                    'encounter' => $encounterId,
+                ]);
                 formFooter();
                 exit;
             }
