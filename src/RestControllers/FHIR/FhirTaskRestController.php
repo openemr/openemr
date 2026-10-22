@@ -194,7 +194,7 @@ class FhirTaskRestController
             new OA\Parameter(
                 name: 'code',
                 in: 'query',
-                description: 'The code of the Task resource: from http://hl7.org/fhir/CodeSystem/task-code, complete-questionnaire, make-contact, review-material or general-information.',
+                description: 'The code of the Task resource, for example fulfill (http://hl7.org/fhir/CodeSystem/task-code), complete-questionnaire (http://hl7.org/fhir/uv/sdc/CodeSystem/temp), or make-contact, review-material and general-information (http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes).',
                 required: false,
                 schema: new OA\Schema(type: 'string')
             ),
