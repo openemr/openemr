@@ -5,7 +5,9 @@
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Marcello Costagliola <marcello.costagliola1@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Marcello Costagliola <marcello.costagliola1@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -330,5 +332,87 @@ class PatientIssuesService extends BaseService
                 }
             }
         }
+    }
+
+    /**
+     * Most recent `lists` row by id. Null when no row matches.
+     *
+     * Moved from library/lists.inc.php (getListById).
+     *
+     * @return array<mixed>|null
+     */
+    public static function getListById(int|string $id, string $cols = '*'): ?array
+    {
+        $row = QueryUtils::querySingleRow(
+            "select " . escape_sql_column_name(process_cols_escape($cols), ['lists']) . " from lists where id=? order by date DESC limit 0,1",
+            [$id]
+        );
+
+        return is_array($row) ? $row : null;
+    }
+
+    /**
+     * Creates a `lists` row, returning the new list id.
+     *
+     * Moved from library/lists.inc.php (addList).
+     */
+    public static function addList(int|string $pid, string $type, string $title, string $comments, ?string $user, ?string $groupname, int|string $activity = '1'): int
+    {
+        return QueryUtils::sqlInsert(
+            "insert into lists (date, pid, type, title, activity, comments, user, groupname) values (NOW(), ?, ?, ?, ?, ?, ?, ?)",
+            [$pid, $type, $title, $activity, $comments, $user, $groupname]
+        );
+    }
+
+    /**
+     * Sets a `lists` row's `activity` flag to '0'.
+     *
+     * Moved from library/lists.inc.php (disappearList).
+     */
+    public static function disappearList(int|string $id): void
+    {
+        QueryUtils::sqlStatementThrowException("update lists set activity = '0' where id=?", [$id]);
+    }
+
+    /**
+     * Sets a `lists` row's `activity` flag to '1'.
+     *
+     * Moved from library/lists.inc.php (reappearList).
+     */
+    public static function reappearList(int|string $id): void
+    {
+        QueryUtils::sqlStatementThrowException("update lists set activity = '1' where id=?", [$id]);
+    }
+
+    /**
+     * The `lists_touch` timestamp for a patient/type. Null when no row matches, or when the
+     * matched row's `date` is not a string.
+     *
+     * Moved from library/lists.inc.php (getListTouch).
+     */
+    public static function getListTouch(int|string $patient_id, string $type): ?string
+    {
+        $row = QueryUtils::querySingleRow("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", [$patient_id, $type]);
+        if (!is_array($row)) {
+            return null;
+        }
+
+        return is_string($row['date']) ? $row['date'] : null;
+    }
+
+    /**
+     * Records that a patient/type combination has been touched, unless it already has been.
+     *
+     * Moved from library/lists.inc.php (setListTouch).
+     */
+    public static function setListTouch(int|string $patient_id, string $type): void
+    {
+        $row = QueryUtils::querySingleRow("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", [$patient_id, $type]);
+        if (is_array($row)) {
+            // Already touched, so can exit
+            return;
+        }
+
+        QueryUtils::sqlStatementThrowException("INSERT INTO `lists_touch` ( `pid`,`type`,`date` ) VALUES ( ?, ?, NOW() )", [$patient_id, $type]);
     }
 }
