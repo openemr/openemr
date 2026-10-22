@@ -1,0 +1,654 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Questionnaire Availability</title>
+    <!-- setupHeader stub -->
+</head>
+<body class="body_top">
+<div class="container-fluid">
+    <h2 class="mt-3">Questionnaire Availability</h2>
+    <p class="text-muted mb-3">
+        Tick where each questionnaire is offered. Open Limits to offer one only at a facility, for a provider, for a kind of visit or for one SMART app, or to change who may see it.
+    </p>
+
+                <div class="alert alert-danger">Another rule already has exactly these limits</div>
+
+            <form method="post" action="manage_questionnaire_availability.php?q=50" onsubmit="return top.restoreSession()">
+            <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+            <input type="hidden" name="action" value="save_grid" />
+            <div class="d-flex flex-wrap align-items-center mb-2">
+                <label class="sr-only" for="grid-filter">Filter questionnaires</label>
+                <input type="search" class="form-control form-control-sm mr-3 mb-1" id="grid-filter" style="max-width: 18rem;"
+                       placeholder="Filter by name or category" />
+                <span class="small text-muted mb-1">
+                    <span class="badge badge-info">limited</span>
+                    also offered where a limit applies
+                    &nbsp;
+                    <span class="badge badge-info">category</span>
+                    also offered by a category rule
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-striped" id="availability-grid">
+                    <thead>
+                    <tr>
+                        <th>Questionnaire</th>
+                                                    <th class="text-center">
+                                Patient dashboard
+                                                            </th>
+                                                    <th class="text-center">
+                                Encounter forms
+                                                            </th>
+                                                    <th class="text-center">
+                                Patient portal
+                                                            </th>
+                                                    <th class="text-center">
+                                SMART launch
+                                                                    <i class="fa fa-info-circle text-muted" title="Only questionnaires offered here can be launched into a SMART app from Available Assessments."></i>
+                                                            </th>
+                                                <th class="text-right">Limits</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                                            <tr class="table-active" data-filter="phq-9 assessment">
+                            <td>
+                                PHQ-9
+                                                                    <div class="small text-muted">Assessment</div>
+                                                            </td>
+                                                            <td class="text-center">
+                                    <input type="hidden" name="rendered[]" value="50|dashboard" />
+                                    <input type="checkbox" class="js-grid-box" name="offer[50][dashboard]" value="1"
+                                           title="Offered everywhere on this surface"
+                                           aria-label="PHQ-9: Patient dashboard"
+                                           checked />
+                                                                                                                                            </td>
+                                                            <td class="text-center">
+                                    <input type="hidden" name="rendered[]" value="50|encounter" />
+                                    <input type="checkbox" class="js-grid-box" name="offer[50][encounter]" value="1"
+                                           title="Offered everywhere on this surface"
+                                           aria-label="PHQ-9: Encounter forms"
+                                            />
+                                                                            <div><span class="badge badge-info" title="Also offered where its limits apply, even with this box unticked. Open Limits to see them.">limited</span></div>
+                                                                                                                                            </td>
+                                                            <td class="text-center">
+                                    <input type="hidden" name="rendered[]" value="50|portal" />
+                                    <input type="checkbox" class="js-grid-box" name="offer[50][portal]" value="1"
+                                           title="Offered everywhere on this surface"
+                                           aria-label="PHQ-9: Patient portal"
+                                            />
+                                                                                                                                            </td>
+                                                            <td class="text-center">
+                                    <input type="hidden" name="rendered[]" value="50|smart" />
+                                    <input type="checkbox" class="js-grid-box" name="offer[50][smart]" value="1"
+                                           title="Offered everywhere on this surface"
+                                           aria-label="PHQ-9: SMART launch"
+                                            />
+                                                                            <div><span class="badge badge-info" title="Also offered where its limits apply, even with this box unticked. Open Limits to see them.">limited</span></div>
+                                                                                                                                            </td>
+                                                        <td class="text-right text-nowrap">
+                                <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=50#limits" onclick="top.restoreSession()">
+                                    Limits
+                                                                            <span class="badge badge-info ml-1">3</span>
+                                                                    </a>
+                            </td>
+                        </tr>
+                                            <tr class="" data-filter="audit-c sdoh">
+                            <td>
+                                AUDIT-C
+                                                                    <div class="small text-muted">SDOH</div>
+                                                            </td>
+                                                            <td class="text-center">
+                                    <input type="hidden" name="rendered[]" value="56|dashboard" />
+                                    <input type="checkbox" class="js-grid-box" name="offer[56][dashboard]" value="1"
+                                           title="Offered everywhere on this surface"
+                                           aria-label="AUDIT-C: Patient dashboard"
+                                            />
+                                                                                                                <div><span class="badge badge-info" title="A category rule also offers it here, even with this box unticked.">category</span></div>
+                                                                                                        </td>
+                                                            <td class="text-center">
+                                    <input type="hidden" name="rendered[]" value="56|encounter" />
+                                    <input type="checkbox" class="js-grid-box" name="offer[56][encounter]" value="1"
+                                           title="Offered everywhere on this surface"
+                                           aria-label="AUDIT-C: Encounter forms"
+                                            />
+                                                                                                                                                    <div><span class="badge badge-warning" title="Not registered as an encounter form, so it cannot appear in encounters yet. Register it from the Questionnaire form in an encounter; this setting then applies.">not registered</span></div>
+                                                                    </td>
+                                                            <td class="text-center">
+                                    <input type="hidden" name="rendered[]" value="56|portal" />
+                                    <input type="checkbox" class="js-grid-box" name="offer[56][portal]" value="1"
+                                           title="Offered everywhere on this surface"
+                                           aria-label="AUDIT-C: Patient portal"
+                                           checked />
+                                                                                                                                            </td>
+                                                            <td class="text-center">
+                                    <input type="hidden" name="rendered[]" value="56|smart" />
+                                    <input type="checkbox" class="js-grid-box" name="offer[56][smart]" value="1"
+                                           title="Offered everywhere on this surface"
+                                           aria-label="AUDIT-C: SMART launch"
+                                            />
+                                                                            <div><span class="badge badge-info" title="Also offered where its limits apply, even with this box unticked. Open Limits to see them.">limited</span></div>
+                                                                                                                                            </td>
+                                                        <td class="text-right text-nowrap">
+                                <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=56#limits" onclick="top.restoreSession()">
+                                    Limits
+                                                                            <span class="badge badge-info ml-1">2</span>
+                                                                    </a>
+                            </td>
+                        </tr>
+                                            <tr class="" data-filter="back pain legacy_cat">
+                            <td>
+                                Back Pain
+                                                                    <div class="small text-muted">legacy_cat</div>
+                                                            </td>
+                                                            <td class="text-center">
+                                    <input type="hidden" name="rendered[]" value="57|dashboard" />
+                                    <input type="checkbox" class="js-grid-box" name="offer[57][dashboard]" value="1"
+                                           title="Offered everywhere on this surface"
+                                           aria-label="Back Pain: Patient dashboard"
+                                            />
+                                                                                                                                            </td>
+                                                            <td class="text-center">
+                                    <input type="hidden" name="rendered[]" value="57|encounter" />
+                                    <input type="checkbox" class="js-grid-box" name="offer[57][encounter]" value="1"
+                                           title="Offered everywhere on this surface"
+                                           aria-label="Back Pain: Encounter forms"
+                                            />
+                                                                                                                                                    <div><span class="badge badge-warning" title="Not registered as an encounter form, so it cannot appear in encounters yet. Register it from the Questionnaire form in an encounter; this setting then applies.">not registered</span></div>
+                                                                    </td>
+                                                            <td class="text-center">
+                                    <input type="hidden" name="rendered[]" value="57|portal" />
+                                    <input type="checkbox" class="js-grid-box" name="offer[57][portal]" value="1"
+                                           title="Offered everywhere on this surface"
+                                           aria-label="Back Pain: Patient portal"
+                                            />
+                                                                                                                                            </td>
+                                                            <td class="text-center">
+                                    <input type="hidden" name="rendered[]" value="57|smart" />
+                                    <input type="checkbox" class="js-grid-box" name="offer[57][smart]" value="1"
+                                           title="Offered everywhere on this surface"
+                                           aria-label="Back Pain: SMART launch"
+                                            />
+                                                                                                                                            </td>
+                                                        <td class="text-right text-nowrap">
+                                <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=57#limits" onclick="top.restoreSession()">
+                                    Limits
+                                                                    </a>
+                            </td>
+                        </tr>
+                                        </tbody>
+                </table>
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <span class="badge badge-warning ml-2" id="grid-dirty" hidden>Unsaved changes</span>
+        </form>
+
+            <div class="card mt-4" id="limits">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Limits for PHQ-9</strong>
+                <a class="btn btn-sm btn-link" href="manage_questionnaire_availability.php" onclick="top.restoreSession()">Close</a>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Each line is one rule. A rule offered Everywhere is the tick in the grid; a limited rule offers the questionnaire only where its limits match. Rules add up: it is offered if any rule that is on matches.
+                </p>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th>Offered on</th>
+                            <th>Where</th>
+                            <th>Who may see it</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                                                        <tr class="">
+                <td>Patient dashboard</td>
+        <td>Everywhere</td>
+        <td class="text-muted">Default (Patients: Medical/History)</td>
+        <td>
+                            <span class="badge badge-success">On</span>
+                    </td>
+        <td class="text-nowrap text-right">
+            <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=50&amp;edit=1#limits" onclick="top.restoreSession()">Edit</a>
+            <form method="post" action="manage_questionnaire_availability.php?q=50#limits" class="d-inline" onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="toggle_rule" />
+                <input type="hidden" name="assignment_id" value="1" />
+                <input type="hidden" name="to" value="off" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    Switch off
+                </button>
+            </form>
+            <form method="post" action="manage_questionnaire_availability.php?q=50#limits" class="d-inline"
+                  data-confirm="Remove this rule? Switch it off instead to keep a record of it."
+                  onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="delete_rule" />
+                <input type="hidden" name="assignment_id" value="1" />
+                <button type="submit" class="btn btn-sm btn-link text-danger">Remove</button>
+            </form>
+        </td>
+    </tr>
+
+                                                        <tr class="">
+                <td>Encounter forms</td>
+        <td>Everywhere</td>
+        <td class="text-muted">Default (Encounters: Notes)</td>
+        <td>
+                            <span class="badge badge-info">Off</span>
+                    </td>
+        <td class="text-nowrap text-right">
+            <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=50&amp;edit=2#limits" onclick="top.restoreSession()">Edit</a>
+            <form method="post" action="manage_questionnaire_availability.php?q=50#limits" class="d-inline" onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="toggle_rule" />
+                <input type="hidden" name="assignment_id" value="2" />
+                <input type="hidden" name="to" value="on" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    Switch on
+                </button>
+            </form>
+            <form method="post" action="manage_questionnaire_availability.php?q=50#limits" class="d-inline"
+                  data-confirm="Remove this rule? Switch it off instead to keep a record of it."
+                  onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="delete_rule" />
+                <input type="hidden" name="assignment_id" value="2" />
+                <button type="submit" class="btn btn-sm btn-link text-danger">Remove</button>
+            </form>
+        </td>
+    </tr>
+
+                                                        <tr class="">
+                <td>Encounter forms</td>
+        <td>Visit category: Well Child</td>
+        <td class="text-muted">Default (Encounters: Notes)</td>
+        <td>
+                            <span class="badge badge-success">On</span>
+                    </td>
+        <td class="text-nowrap text-right">
+            <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=50&amp;edit=3#limits" onclick="top.restoreSession()">Edit</a>
+            <form method="post" action="manage_questionnaire_availability.php?q=50#limits" class="d-inline" onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="toggle_rule" />
+                <input type="hidden" name="assignment_id" value="3" />
+                <input type="hidden" name="to" value="off" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    Switch off
+                </button>
+            </form>
+            <form method="post" action="manage_questionnaire_availability.php?q=50#limits" class="d-inline"
+                  data-confirm="Remove this rule? Switch it off instead to keep a record of it."
+                  onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="delete_rule" />
+                <input type="hidden" name="assignment_id" value="3" />
+                <button type="submit" class="btn btn-sm btn-link text-danger">Remove</button>
+            </form>
+        </td>
+    </tr>
+
+                                                        <tr class="table-active">
+                <td>Encounter forms</td>
+        <td>Facility: Main Clinic; Provider: #77 (inactive or removed); Visit category: Established Patient</td>
+        <td class="text-muted">Encounters: Notes</td>
+        <td>
+                            <span class="badge badge-success">On</span>
+                    </td>
+        <td class="text-nowrap text-right">
+            <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=50&amp;edit=4#limits" onclick="top.restoreSession()">Edit</a>
+            <form method="post" action="manage_questionnaire_availability.php?q=50#limits" class="d-inline" onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="toggle_rule" />
+                <input type="hidden" name="assignment_id" value="4" />
+                <input type="hidden" name="to" value="off" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    Switch off
+                </button>
+            </form>
+            <form method="post" action="manage_questionnaire_availability.php?q=50#limits" class="d-inline"
+                  data-confirm="Remove this rule? Switch it off instead to keep a record of it."
+                  onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="delete_rule" />
+                <input type="hidden" name="assignment_id" value="4" />
+                <button type="submit" class="btn btn-sm btn-link text-danger">Remove</button>
+            </form>
+        </td>
+    </tr>
+
+                                                        <tr class="">
+                <td>SMART launch</td>
+        <td>SMART app: Growth Chart</td>
+        <td class="text-muted">Default (Patients: Medical/History)</td>
+        <td>
+                            <span class="badge badge-success">On</span>
+                    </td>
+        <td class="text-nowrap text-right">
+            <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=50&amp;edit=7#limits" onclick="top.restoreSession()">Edit</a>
+            <form method="post" action="manage_questionnaire_availability.php?q=50#limits" class="d-inline" onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="toggle_rule" />
+                <input type="hidden" name="assignment_id" value="7" />
+                <input type="hidden" name="to" value="off" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    Switch off
+                </button>
+            </form>
+            <form method="post" action="manage_questionnaire_availability.php?q=50#limits" class="d-inline"
+                  data-confirm="Remove this rule? Switch it off instead to keep a record of it."
+                  onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="delete_rule" />
+                <input type="hidden" name="assignment_id" value="7" />
+                <button type="submit" class="btn btn-sm btn-link text-danger">Remove</button>
+            </form>
+        </td>
+    </tr>
+
+                                                </tbody>
+                    </table>
+                </div>
+
+                <h5 class="mt-3">Edit rule</h5>
+                <form method="post" action="manage_questionnaire_availability.php?q=50#limits" onsubmit="return top.restoreSession()" data-rule-form>
+                    <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                    <input type="hidden" name="action" value="save_rule" />
+                    <input type="hidden" name="target" value="questionnaire" />
+                    <input type="hidden" name="questionnaire_id" value="50" />
+                        <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="limit-surface">Offered on</label>
+            <select class="form-control" id="limit-surface" name="surface" data-surface-select>
+                                    <option value="dashboard"
+                            data-scopes="[&quot;facility&quot;]"
+                            data-hint="Patient dashboard can be limited by Facility."
+                            >Patient dashboard</option>
+                                    <option value="encounter"
+                            data-scopes="[&quot;facility&quot;,&quot;provider&quot;,&quot;visit_category_id&quot;]"
+                            data-hint="Encounter forms can be limited by Facility, Provider, Visit category."
+                            selected>Encounter forms</option>
+                                    <option value="portal"
+                            data-scopes="[]"
+                            data-hint="Patient portal cannot be limited yet."
+                            >Patient portal</option>
+                                    <option value="smart"
+                            data-scopes="[&quot;facility&quot;,&quot;client_id&quot;]"
+                            data-hint="SMART launch can be limited by Facility, SMART app."
+                            >SMART launch</option>
+                            </select>
+        </div>
+        <div class="form-group col-md-8">
+            <label for="limit-acl">Who may see it</label>
+            <select class="form-control" id="limit-acl" name="acl">
+                <option value="">Default for that surface</option>
+                                                    <optgroup label="Patients">
+                                                    <option value="patients|med" >Medical/History</option>
+                                                    <option value="patients|docs" >Documents</option>
+                                            </optgroup>
+                                    <optgroup label="Encounters">
+                                                    <option value="encounters|notes" selected>Notes</option>
+                                            </optgroup>
+                            </select>
+        </div>
+    </div>
+    <p class="small text-muted mb-2" data-scope-hint></p>
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label for="limit-facility">Only at facility</label>
+            <select class="form-control" id="limit-facility" name="facility" data-scope="facility">
+                <option value="">Any</option>
+                                    <option value="3" selected>Main Clinic</option>
+                                    <option value="4" >North Office</option>
+                            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="limit-provider">Only for provider</label>
+            <select class="form-control" id="limit-provider" name="provider" data-scope="provider">
+                <option value="">Any</option>
+                                    <option value="1" >Admin, Super</option>
+                                    <option value="8" >Smith, Jane</option>
+                                    <option value="77" selected>#77 (inactive or removed)</option>
+                            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="limit-visit">Only for visit category</label>
+            <select class="form-control" id="limit-visit" name="visit_category_id" data-scope="visit_category_id">
+                <option value="">Any</option>
+                                    <option value="5" selected>Established Patient</option>
+                                    <option value="9" >Well Child</option>
+                                    <option value="7" >New Patient</option>
+                            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="limit-app">Only for SMART app</label>
+            <select class="form-control" id="limit-app" name="client_id" data-scope="client_id">
+                <option value="">Any</option>
+                                                    <option value="app-a" >Growth Chart</option>
+                                    <option value="app-b" >PRO Collector</option>
+                            </select>
+        </div>
+    </div>
+            <input type="hidden" name="assignment_id" value="4" />
+        <input type="hidden" name="seq" value="1" />
+
+                                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        <a class="btn btn-link" href="manage_questionnaire_availability.php?q=50#limits" onclick="top.restoreSession()">Cancel</a>
+                                    </form>
+            </div>
+        </div>
+
+    <div class="card mt-4 mb-5" id="category-rules">
+        <div class="card-header"><strong>Category rules</strong></div>
+        <div class="card-body">
+            <p class="text-muted">
+                Offer every questionnaire in a category, including ones imported later, without ticking each one.
+            </p>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Offered on</th>
+                        <th>Where</th>
+                        <th>Who may see it</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                                                <tr class="">
+                    <td>SDOH</td>
+                <td>Patient dashboard</td>
+        <td>Everywhere</td>
+        <td class="text-muted">Default (Patients: Medical/History)</td>
+        <td>
+                            <span class="badge badge-success">On</span>
+                    </td>
+        <td class="text-nowrap text-right">
+            <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?edit=5#category-rules" onclick="top.restoreSession()">Edit</a>
+            <form method="post" action="manage_questionnaire_availability.php?q=50#category-rules" class="d-inline" onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="toggle_rule" />
+                <input type="hidden" name="assignment_id" value="5" />
+                <input type="hidden" name="to" value="off" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    Switch off
+                </button>
+            </form>
+            <form method="post" action="manage_questionnaire_availability.php?q=50#category-rules" class="d-inline"
+                  data-confirm="Remove this rule? Switch it off instead to keep a record of it."
+                  onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="delete_rule" />
+                <input type="hidden" name="assignment_id" value="5" />
+                <button type="submit" class="btn btn-sm btn-link text-danger">Remove</button>
+            </form>
+        </td>
+    </tr>
+
+                                        </tbody>
+                </table>
+            </div>
+
+            <h5 class="mt-3">Add a category rule</h5>
+            <form method="post" action="manage_questionnaire_availability.php?q=50#category-rules" onsubmit="return top.restoreSession()" data-rule-form>
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="save_rule" />
+                <input type="hidden" name="target" value="category" />
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="category-category">Category</label>
+                        <select class="form-control" id="category-category" name="category" required>
+                            <option value="">Choose a category</option>
+                                                            <option value="assessment" >Assessment</option>
+                                                            <option value="sdoh" >SDOH</option>
+                                                            <option value="legacy_cat" >legacy_cat</option>
+                                                    </select>
+                    </div>
+                </div>
+                    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="category-surface">Offered on</label>
+            <select class="form-control" id="category-surface" name="surface" data-surface-select>
+                                    <option value="dashboard"
+                            data-scopes="[&quot;facility&quot;]"
+                            data-hint="Patient dashboard can be limited by Facility."
+                            >Patient dashboard</option>
+                                    <option value="encounter"
+                            data-scopes="[&quot;facility&quot;,&quot;provider&quot;,&quot;visit_category_id&quot;]"
+                            data-hint="Encounter forms can be limited by Facility, Provider, Visit category."
+                            >Encounter forms</option>
+                                    <option value="portal"
+                            data-scopes="[]"
+                            data-hint="Patient portal cannot be limited yet."
+                            >Patient portal</option>
+                                    <option value="smart"
+                            data-scopes="[&quot;facility&quot;,&quot;client_id&quot;]"
+                            data-hint="SMART launch can be limited by Facility, SMART app."
+                            >SMART launch</option>
+                            </select>
+        </div>
+        <div class="form-group col-md-8">
+            <label for="category-acl">Who may see it</label>
+            <select class="form-control" id="category-acl" name="acl">
+                <option value="">Default for that surface</option>
+                                                    <optgroup label="Patients">
+                                                    <option value="patients|med" >Medical/History</option>
+                                                    <option value="patients|docs" >Documents</option>
+                                            </optgroup>
+                                    <optgroup label="Encounters">
+                                                    <option value="encounters|notes" >Notes</option>
+                                            </optgroup>
+                            </select>
+        </div>
+    </div>
+    <p class="small text-muted mb-2" data-scope-hint></p>
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label for="category-facility">Only at facility</label>
+            <select class="form-control" id="category-facility" name="facility" data-scope="facility">
+                <option value="">Any</option>
+                                    <option value="3" >Main Clinic</option>
+                                    <option value="4" >North Office</option>
+                            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="category-provider">Only for provider</label>
+            <select class="form-control" id="category-provider" name="provider" data-scope="provider">
+                <option value="">Any</option>
+                                    <option value="1" >Admin, Super</option>
+                                    <option value="8" >Smith, Jane</option>
+                                    <option value="77" >#77 (inactive or removed)</option>
+                            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="category-visit">Only for visit category</label>
+            <select class="form-control" id="category-visit" name="visit_category_id" data-scope="visit_category_id">
+                <option value="">Any</option>
+                                    <option value="5" >Established Patient</option>
+                                    <option value="9" >Well Child</option>
+                                    <option value="7" >New Patient</option>
+                            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="category-app">Only for SMART app</label>
+            <select class="form-control" id="category-app" name="client_id" data-scope="client_id">
+                <option value="">Any</option>
+                                                    <option value="app-a" >Growth Chart</option>
+                                    <option value="app-b" >PRO Collector</option>
+                            </select>
+        </div>
+    </div>
+
+                                    <button type="submit" class="btn btn-primary">Add category rule</button>
+                            </form>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    'use strict';
+
+    // In each rule form, limit fields the chosen surface never fills in are disabled, so they
+    // are not posted. The service refuses such a rule too; this keeps the form from offering it.
+    document.querySelectorAll('form[data-rule-form]').forEach(function (form) {
+        const surface = form.querySelector('[data-surface-select]');
+        const hint = form.querySelector('[data-scope-hint]');
+        const scopedFields = form.querySelectorAll('[data-scope]');
+        if (!surface) {
+            return;
+        }
+        const applySurface = function () {
+            const option = surface.options[surface.selectedIndex];
+            let allowed = [];
+            try {
+                allowed = JSON.parse(option?.dataset.scopes || '[]');
+            } catch (e) {
+                allowed = [];
+            }
+            scopedFields.forEach(function (field) {
+                field.disabled = !allowed.includes(field.dataset.scope);
+            });
+            if (hint) {
+                hint.textContent = option?.dataset.hint || '';
+            }
+        };
+        surface.addEventListener('change', applySurface);
+        applySurface();
+    });
+
+    document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!window.confirm(form.dataset.confirm)) {
+                event.preventDefault();
+            }
+        });
+    });
+
+    const dirty = document.getElementById('grid-dirty');
+    document.querySelectorAll('.js-grid-box').forEach(function (box) {
+        box.addEventListener('change', function () {
+            if (dirty) {
+                dirty.hidden = false;
+            }
+        });
+    });
+
+    const gridFilter = document.getElementById('grid-filter');
+    if (gridFilter) {
+        const gridRows = document.querySelectorAll('#availability-grid tbody tr');
+        gridFilter.addEventListener('input', function () {
+            const needle = gridFilter.value.trim().toLowerCase();
+            gridRows.forEach(function (row) {
+                row.hidden = needle !== '' && !(row.dataset.filter || '').includes(needle);
+            });
+        });
+    }
+})();
+</script>
+</body>
+</html>
