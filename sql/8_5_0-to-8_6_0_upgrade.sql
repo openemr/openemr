@@ -522,3 +522,26 @@ CREATE INDEX `pc_visit_list` ON `openemr_postcalendar_events` (`pc_aid`, `pc_eve
 INSERT INTO `openemr_postcalendar_categories` (`pc_constant_id`, `pc_catname`, `pc_catcolor`, `pc_catdesc`, `pc_recurrtype`, `pc_enddate`, `pc_recurrspec`, `pc_recurrfreq`, `pc_duration`, `pc_end_date_flag`, `pc_end_date_type`, `pc_end_date_freq`, `pc_end_all_day`, `pc_dailylimit`, `pc_cattype`, `pc_active`, `pc_seq`, `aco_spec`)
 SELECT 'visit_list', 'Visit List', '#9ec5fe', 'Provider block holding an untimed, ordered list of patients for the day.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 28800, 1, 3, 2, 0, 0, 1, 1, COALESCE(MAX(`pc_seq`), 0) + 1, 'encounters|notes' FROM `openemr_postcalendar_categories`;
 #EndIf
+
+-- Audit chain: each new checksum includes the previous one, and the anchor
+-- remembers the newest link so a deleted tail is visible.
+#IfMissingColumn log_comment_encrypt chain
+ALTER TABLE `log_comment_encrypt` ADD COLUMN `chain` char(128) DEFAULT NULL COMMENT 'HMAC of the previous chain, this log id, and the row checksum';
+#EndIf
+
+#IfNotIndex log_comment_encrypt log_id
+CREATE INDEX `log_id` ON `log_comment_encrypt` (`log_id`);
+#EndIf
+
+#IfNotTable log_chain_anchor
+CREATE TABLE `log_chain_anchor` (
+  `id` tinyint(3) NOT NULL,
+  `log_id` bigint(20) NOT NULL DEFAULT 0,
+  `chain` char(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- The installer and the upgrade applicator create the audit triggers.
+-- A server that cannot create them still finishes. The application
+-- also refuses updates and deletes of these tables.
