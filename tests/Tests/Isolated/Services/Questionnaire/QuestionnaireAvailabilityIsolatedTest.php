@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\Questionnaire;
 
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Services\Questionnaire\AssignmentRecord;
 use OpenEMR\Services\Questionnaire\AvailabilityContext;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
@@ -320,6 +321,36 @@ class QuestionnaireAvailabilityIsolatedTest extends TestCase
 
         $this->assertCount(3, $filtered);
         $this->assertContains('New Questionnaire', array_column($filtered, 'name'));
+    }
+
+    /**
+     * With the rules unreadable, a questionnaire row cannot be shown safely -- a limit or
+     * a switched-off rule may have withdrawn it. Those rows go; every other form and the
+     * generic launcher stay, so the encounter still renders and can still start one.
+     */
+    public function testAFailedLookupWithholdsOnlyQuestionnaireRows(): void
+    {
+        $service = new class extends QuestionnaireAvailabilityService {
+            public function getAvailableIds(AvailabilityContext $context): array
+            {
+                throw new SqlQueryException('SELECT', 'content_assignments unreadable');
+            }
+        };
+        $rows = [
+            ['directory' => 'vitals', 'name' => 'Vitals', 'form_foreign_id' => 12],
+            ['directory' => 'questionnaire_assessments', 'name' => 'New Questionnaire', 'form_foreign_id' => null],
+            ['directory' => 'questionnaire_assessments', 'name' => 'PHQ-9', 'form_foreign_id' => 50],
+            ['directory' => 'questionnaire_assessments', 'name' => 'AUDIT-C', 'form_foreign_id' => '56'],
+            ['directory' => 'newpatient', 'name' => 'New Encounter'],
+        ];
+
+        $filtered = $service->filterEncounterFormRows($rows, new AvailabilityContext(QuestionnaireSurface::Encounter));
+
+        $this->assertSame(
+            ['Vitals', 'New Questionnaire', 'New Encounter'],
+            array_column($filtered, 'name'),
+            'a foreign id on another form is not a questionnaire id'
+        );
     }
 
     public function testMalformedFormRowsAreDropped(): void

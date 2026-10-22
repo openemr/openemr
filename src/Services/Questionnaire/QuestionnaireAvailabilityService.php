@@ -222,10 +222,13 @@ class QuestionnaireAvailabilityService
             try {
                 $available ??= array_flip($this->getAvailableIds($context));
             } catch (SqlQueryException $e) {
-                // This runs while the encounter page is already rendering, so letting a
-                // failed query here take out the whole encounter is the wrong trade: the
-                // menu degrades to unfiltered, which is exactly what it showed before
-                // assignments existed. Logged at error level, not swallowed.
+                // This runs while the encounter page is already rendering, so a failed
+                // query must not take out the whole encounter. But the questionnaire rows
+                // fail closed: with the rules unreadable there is no telling which ones a
+                // restriction or a switched-off rule withdrew, and every other surface
+                // already refuses when the lookup fails. Other forms and the generic
+                // launcher stay, so a questionnaire can still be started from the
+                // encounter. Logged at error level, not swallowed.
                 //
                 // Narrowed to SqlQueryException on purpose. ForbiddenCatchTypeRule bars
                 // suppressing Error and ErrorException, and rightly so -- a TypeError or
@@ -233,10 +236,11 @@ class QuestionnaireAvailabilityService
                 // degraded menu. A query that cannot run is the one failure the caller
                 // can genuinely recover from.
                 ServiceContainer::getLogger()->error(
-                    'Questionnaire availability lookup failed; encounter form menu left unfiltered',
+                    'Questionnaire availability lookup failed; questionnaire forms withheld from the encounter form menu',
                     ['surface' => $context->surface->value, 'exception' => $e]
                 );
-                return $all;
+
+                return self::withoutAssignedQuestionnaireRows($all);
             }
 
             if (isset($available[$foreignId])) {
@@ -245,6 +249,28 @@ class QuestionnaireAvailabilityService
         }
 
         return $filtered;
+    }
+
+    /**
+     * Every row except the ones that stand for a particular questionnaire: other forms,
+     * and the generic launcher, whose form_foreign_id is empty.
+     *
+     * @param list<array<string, mixed>> $rows
+     * @return list<array<string, mixed>>
+     */
+    private static function withoutAssignedQuestionnaireRows(array $rows): array
+    {
+        $kept = [];
+        foreach ($rows as $row) {
+            if (
+                ($row['directory'] ?? null) !== self::ENCOUNTER_FORM_DIRECTORY
+                || self::asInt($row['form_foreign_id'] ?? null) <= 0
+            ) {
+                $kept[] = $row;
+            }
+        }
+
+        return $kept;
     }
 
     /**
