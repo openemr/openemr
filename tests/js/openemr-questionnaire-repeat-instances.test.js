@@ -338,7 +338,7 @@ describe('CodeRabbit rev2 fixes', () => {
         expect(groups[1].item.find((i) => i.linkId === 'seed').answer[0].valueString).toBe('default');
     });
 
-    test('a calculatedExpression inside a repeating group is skipped with a visible warning', () => {
+    test('a calculatedExpression inside a repeating group evaluates per instance', () => {
         const { container, runtime } = mount([
             {
                 linkId: 'g', type: 'group', text: 'G', repeats: true,
@@ -346,15 +346,76 @@ describe('CodeRabbit rev2 fixes', () => {
                     { linkId: 'x', type: 'integer', text: 'X' },
                     {
                         linkId: 'calc', type: 'integer', text: 'Calc', readOnly: true,
-                        extension: [{ url: CALC, valueExpression: { language: 'text/fhirpath', expression: '1 + 1' } }],
+                        extension: [{
+                            url: CALC,
+                            valueExpression: {
+                                language: 'text/fhirpath',
+                                // %context is this instance, so each instance's calc
+                                // uses only its own x.
+                                expression: "%context.item.where(linkId='x').answer.valueInteger * 10",
+                            },
+                        }],
                     },
                 ],
             },
         ]);
-        // a visible warning names the unsupported case
-        expect(container.querySelector('.oe-questionnaire-warnings').textContent).toContain('repeating group');
-        // nothing is written to a canonical key: the calc child has no answer in the instance
-        const group = runtime.getQuestionnaireResponse().item.find((entry) => entry.linkId === 'g');
-        expect((group.item || []).some((i) => i.linkId === 'calc')).toBe(false);
+        const groupNode = container.querySelector('[data-link-id="g"]');
+        groupNode.querySelector(':scope > .card-body > .oe-questionnaire-repeat-add').click();
+        const inst = directInstances(groupNode);
+        expect(inst).toHaveLength(2);
+
+        const setX = (instanceNode, value) => {
+            const input = instanceNode.querySelector('[data-link-id="x"] input');
+            input.value = String(value);
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        setX(inst[0], 2);
+        setX(inst[1], 5);
+
+        // the no-longer-applicable "unsupported in a repeating group" warning is gone
+        const warnings = container.querySelector('.oe-questionnaire-warnings');
+        expect(warnings ? warnings.textContent : '').not.toContain('repeating group');
+
+        // each instance's calc is its own x * 10, both in the DOM and the response
+        const calcInput = (instanceNode) => instanceNode.querySelector('[data-link-id="calc"] input');
+        expect(calcInput(directInstances(groupNode)[0]).value).toBe('20');
+        expect(calcInput(directInstances(groupNode)[1]).value).toBe('50');
+
+        const groups = runtime.getQuestionnaireResponse().item.filter((entry) => entry.linkId === 'g');
+        expect(groups).toHaveLength(2);
+        const calcOf = (groupItem) => groupItem.item.find((i) => i.linkId === 'calc').answer[0].valueInteger;
+        expect(calcOf(groups[0])).toBe(20);
+        expect(calcOf(groups[1])).toBe(50);
+    });
+
+    test('an initialExpression inside a repeating group seeds each instance', () => {
+        const INITIAL = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression';
+        // Two empty instances present at load: initialExpression is seeded once,
+        // after enablement, so every instance that exists at mount is seeded.
+        const container = createContainer();
+        const runtime = runtimeApi.mount({
+            questionnaire: {
+                resourceType: 'Questionnaire', status: 'active',
+                item: [{
+                    linkId: 'g', type: 'group', text: 'G', repeats: true,
+                    item: [{
+                        linkId: 'seeded', type: 'string', text: 'Seeded',
+                        extension: [{
+                            url: INITIAL,
+                            valueExpression: { language: 'text/fhirpath', expression: "'from-expression'" },
+                        }],
+                    }],
+                }],
+            },
+            questionnaireResponse: {
+                resourceType: 'QuestionnaireResponse', status: 'in-progress',
+                item: [{ linkId: 'g', item: [] }, { linkId: 'g', item: [] }],
+            },
+            container,
+        });
+        const groups = runtime.getQuestionnaireResponse().item.filter((entry) => entry.linkId === 'g');
+        expect(groups).toHaveLength(2);
+        expect(groups[0].item.find((i) => i.linkId === 'seeded').answer[0].valueString).toBe('from-expression');
+        expect(groups[1].item.find((i) => i.linkId === 'seeded').answer[0].valueString).toBe('from-expression');
     });
 });

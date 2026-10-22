@@ -1418,21 +1418,6 @@
                     }
                 }
             }
-
-            // calculatedExpression / initialExpression are not evaluated
-            // per-instance (they would write to a canonical key that no repeat
-            // instance renders or serializes). Surface that as a compile warning
-            // so the gap is visible rather than silent.
-            for (const compiledItem of this.compiled.expressionItems) {
-                const insideRepeat = (this.compiled.repeatAncestors.get(compiledItem.linkId) ?? []).length > 0;
-                if (insideRepeat && (compiledItem.calculatedExpression || compiledItem.initialExpression)) {
-                    this.compileWarnings.push({
-                        code: 'expression-in-repeat-unsupported',
-                        linkId: compiledItem.linkId,
-                        message: 'calculatedExpression/initialExpression inside a repeating group is not evaluated per instance and is skipped.',
-                    });
-                }
-            }
         }
 
         isInsideRepeat(compiledItem) {
@@ -1484,6 +1469,8 @@
         evaluateInitialExpressions(runtime) {
             for (const compiledItem of this.compiled.expressionItems) {
                 if (this.isInsideRepeat(compiledItem)) {
+                    // Repeat descendants are seeded per instance in
+                    // seedInitialExpressionInstances against their own keys.
                     continue;
                 }
                 const expression = compiledItem.initialExpression;
@@ -1568,8 +1555,9 @@
         recalculate(runtime) {
             for (const compiledItem of this.compiled.calculatedItems) {
                 if (this.isInsideRepeat(compiledItem)) {
-                    // Not evaluated per instance (warned at compile time); skip so
-                    // nothing is written to an unused canonical key.
+                    // Repeat descendants are evaluated per instance in
+                    // recalculateInstances so each instance writes to its own
+                    // storage key; skip the canonical pass here.
                     continue;
                 }
                 const item = compiledItem.item;
@@ -1603,6 +1591,166 @@
                     });
                 }
             }
+            this.recalculateInstances(runtime);
+        }
+
+        // Per-instance calculatedExpression for descendants of repeating groups.
+        // Each instance writes to its own instance-qualified storage key so the
+        // value renders and serializes for that instance (canonical items are
+        // handled above and never enter this walk).
+        recalculateInstances(runtime) {
+            this.walkRepeatInstances(runtime, (compiledItem, storageKey, nodePath) => {
+                const calculatedExpression = compiledItem.calculatedExpression;
+                const ast = calculatedExpression && this.compiledExpressions.get(calculatedExpression);
+                if (!ast) {
+                    return;
+                }
+                try {
+                    const environment = this.buildEnvironmentForInstance(runtime, compiledItem, nodePath);
+                    const value = firstValue(this.evaluator.evaluate(ast, environment, null));
+                    if (value === undefined) {
+                        runtime.responseStore.clearAnswer(storageKey);
+                        return;
+                    }
+                    runtime.responseStore.setAnswer(storageKey, {
+                        valueKey: runtime.answerValueKeyForItem(compiledItem.item),
+                        value,
+                    });
+                } catch (error) {
+                    this.warnings.push({
+                        code: 'fhirpath-evaluate-error',
+                        linkId: compiledItem.linkId,
+                        expression: calculatedExpression.expression,
+                        message: error instanceof Error ? error.message : String(error),
+                    });
+                }
+            });
+        }
+
+        // Per-instance initialExpression seeding, mirroring the canonical
+        // evaluateInitialExpressions: only fill an instance key with no answer.
+        seedInitialExpressionInstances(runtime) {
+            this.walkRepeatInstances(runtime, (compiledItem, storageKey, nodePath) => {
+                const expression = compiledItem.initialExpression;
+                const ast = expression && this.compiledExpressions.get(expression);
+                if (!ast || runtime.responseStore.hasAnswers(storageKey)) {
+                    return;
+                }
+                try {
+                    const environment = this.buildEnvironmentForInstance(runtime, compiledItem, nodePath);
+                    const value = firstValue(this.evaluator.evaluate(ast, environment, null));
+                    if (value !== undefined) {
+                        runtime.responseStore.setAnswer(storageKey, {
+                            valueKey: runtime.answerValueKeyForItem(compiledItem.item),
+                            value,
+                        });
+                    }
+                } catch (error) {
+                    this.warnings.push({
+                        code: 'fhirpath-evaluate-error',
+                        linkId: compiledItem.linkId,
+                        expression: expression.expression,
+                        message: error instanceof Error ? error.message : String(error),
+                    });
+                }
+            });
+        }
+
+        // Walk the questionnaire following repeating-group instance counts
+        // (mirrors the response store and renderer). For every leaf item that
+        // lives inside at least one repeat instance, invoke visit() with the
+        // compiled item, its instance-qualified storage key, and nodePath — the
+        // ordered list of enclosing group ancestors ({ linkId, index }, index
+        // null for a non-repeating group) used to resolve the instance's own
+        // response nodes for %context and in-scope variables.
+        walkRepeatInstances(runtime, visit) {
+            const walk = (items, storagePrefix, nodePath, insideRepeat) => {
+                for (const item of items ?? []) {
+                    if (typeof item?.linkId !== 'string') {
+                        continue;
+                    }
+                    const storageKey = storagePrefix + item.linkId;
+                    if (isRepeatingGroup(item)) {
+                        const count = runtime.responseStore.getRepeatCount(storageKey);
+                        for (let index = 0; index < count; index++) {
+                            walk(
+                                item.item,
+                                instanceKeyPrefix(storageKey, index),
+                                [...nodePath, { linkId: item.linkId, index }],
+                                true,
+                            );
+                        }
+                        continue;
+                    }
+                    if (item.type === 'group') {
+                        walk(item.item, storagePrefix, [...nodePath, { linkId: item.linkId, index: null }], insideRepeat);
+                        continue;
+                    }
+                    if (insideRepeat) {
+                        const compiledItem = runtime.compiled.itemsByLinkId.get(item.linkId);
+                        if (compiledItem) {
+                            visit(compiledItem, storageKey, nodePath);
+                        }
+                    }
+                    walk(item.item, storagePrefix, nodePath, insideRepeat);
+                }
+            };
+            walk(runtime.questionnaire.item, '', [], false);
+        }
+
+        // Instance-scoped environment: %resource stays the whole response, while
+        // %context and group-defined variables resolve to the specific instance's
+        // response nodes located by nodePath. Falls back to the canonical first
+        // match for ancestors defined outside any repeat.
+        buildEnvironmentForInstance(runtime, compiledItem, nodePath) {
+            const resource = runtime.responseStore.buildQuestionnaireResponse((linkId) => runtime.isEnabled(linkId));
+            const environment = {
+                questionnaire: this.compiled.questionnaire,
+                resource,
+                rootResource: resource,
+                context: resource,
+            };
+            // Descend the response in lockstep with nodePath, recording each
+            // enclosing group's instance node. For a repeating group pick the
+            // index-th sibling sharing that linkId; for a non-repeating group the
+            // single one — exactly how buildQuestionnaireResponse nests them.
+            const groupNodes = new Map();
+            let currentItems = resource.item ?? [];
+            let instanceNode = resource;
+            for (const { linkId, index } of nodePath) {
+                const matches = currentItems.filter((node) => node?.linkId === linkId);
+                const node = index === null ? matches[0] : matches[index];
+                if (!node) {
+                    instanceNode = null;
+                    break;
+                }
+                groupNodes.set(linkId, node);
+                instanceNode = node;
+                currentItems = node.item ?? [];
+            }
+            const scope = compiledItem.variableScope ?? compiledItem.variables.map((expression) => ({ definingLinkId: compiledItem.linkId, expression }));
+            for (const { definingLinkId, expression } of scope) {
+                const ast = this.compiledExpressions.get(expression);
+                if (!ast) {
+                    continue;
+                }
+                const definingContext = groupNodes.get(definingLinkId) ?? findResponseItemByLinkId(resource, definingLinkId) ?? resource;
+                try {
+                    environment.context = definingContext;
+                    environment[expression.name] = this.evaluator.evaluate(ast, environment, definingContext);
+                } catch (error) {
+                    this.warnings.push({
+                        code: 'fhirpath-evaluate-error',
+                        linkId: compiledItem.linkId,
+                        expression: expression.expression,
+                        message: error instanceof Error ? error.message : String(error),
+                    });
+                }
+            }
+            // %context for the consuming expression is the item's innermost
+            // enclosing repeat-instance node (the whole resource if unresolved).
+            environment.context = instanceNode ?? resource;
+            return environment;
         }
     }
 
@@ -2756,12 +2904,19 @@
         }
 
         refreshCalculatedValues() {
-            for (const compiledItem of this.runtime.compiled.calculatedItems) {
-                const input = this.inputs.get(compiledItem.linkId);
+            // Keyed by storage key so both canonical items (key === linkId) and
+            // repeat-instance items (group\0index\0child) refresh from their own
+            // stored value.
+            const calculatedLinkIds = new Set(this.runtime.compiled.calculatedItems.map((compiledItem) => compiledItem.linkId));
+            for (const [storageKey, input] of this.inputs) {
                 if (!(input instanceof HTMLInputElement)) {
                     continue;
                 }
-                input.value = firstValue(this.runtime.responseStore.getAnswers(compiledItem.linkId))?.value ?? '';
+                const linkId = storageKey.split(INSTANCE_SEPARATOR).pop();
+                if (!calculatedLinkIds.has(linkId)) {
+                    continue;
+                }
+                input.value = firstValue(this.runtime.responseStore.getAnswers(storageKey))?.value ?? '';
             }
         }
 
@@ -2847,6 +3002,7 @@
                 // author-provided initial answers.
                 this.initialExpressionsSeeded = true;
                 this.expressionEngine.evaluateInitialExpressions(this);
+                this.expressionEngine.seedInitialExpressionInstances(this);
             }
             this.expressionEngine.recalculate(this);
             this.behaviorEngine.evaluateAll();
