@@ -27,10 +27,7 @@
 
         // Special case: weight USA input allows # separator (lbs/oz format e.g. "5#4")
         if (element.id === 'weight_input_usa' && value.indexOf('#') >= 0) {
-            let parts = value.split('#');
-            let pounds = parseFloat(parts[0]) || 0;
-            let ounces = parseFloat(parts[1]) || 0;
-            value = String(pounds + ounces / 16);
+            value = String(convLbOztoLb(value));
         }
 
         let numValue = parseFloat(value);
@@ -259,7 +256,7 @@ function convUnit(system, unit, value)
 // Converts a pounds#ounces weight (e.g. "5#4" for 5 lb 4 oz) to decimal pounds.
 // Returns NaN when the value is not in that form or either part is not a number.
 function convLbOztoLb(value) {
-    var match = /^\s*(\d+(?:\.\d+)?)?\s*#\s*(\d+(?:\.\d+)?)?\s*$/.exec(value);
+    var match = /^\s*(\d+(?:\.\d*)?|\.\d+)?\s*#\s*(\d+(?:\.\d*)?|\.\d+)?\s*$/.exec(value);
     if (!match || (match[1] === undefined && match[2] === undefined)) {
         return NaN;
     }
