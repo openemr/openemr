@@ -131,27 +131,23 @@ files:
 # and need a manual cherry-pick if they matter for rel-800.
 # Same trade-off already accepted for acceptance-docker.yml itself.
 - path: .github/workflows/docker-build-release.yml
-  exclude-branches: [rel-800]
 # verify-oci-labels.sh is called from docker-build-release.yml in three
 # places; same rel-800 exclusion applies (that branch doesn't
 # carry the caller workflow — see the docker-build-release.yml entry
 # above for the load-time reusable-workflow-reference constraint).
 - path: .github/scripts/verify-oci-labels.sh
-  exclude-branches: [rel-800]
 # Phase 10c (openemr/openemr#TBD, 2026-07-30): expand-docker-tags.sh is
 # called from docker-build-release.yml's `expand_docker_tags` step;
 # same rel-800 exclusion applies (that branch doesn't carry
 # the caller workflow — see the docker-build-release.yml entry above
 # for the load-time reusable-workflow-reference constraint).
 - path: .github/scripts/expand-docker-tags.sh
-  exclude-branches: [rel-800]
 # Phase 10c (openemr/openemr#TBD, 2026-07-30): reusable-docker-publish.yml
 # is called via `uses: ./.github/workflows/reusable-docker-publish.yml`
 # from docker-build-release.yml (gated path) — same reusable-workflow-
 # reference load-time constraint as docker-build-release.yml itself.
 # Same rel-800 exclusion applies.
 - path: .github/workflows/reusable-docker-publish.yml
-  exclude-branches: [rel-800]
 # Phase 10e-3 (openemr/openemr#TBD, 2026-07-30): dockerhub-delete-tag.sh
 # is called from reusable-docker-publish.yml's cleanup-candidate job.
 # The reusable's `run: .github/scripts/dockerhub-delete-tag.sh` resolves
@@ -159,7 +155,6 @@ files:
 # carries the reusable must also carry the script. Same rel-800
 # exclusion applies (that branch doesn't carry the reusable).
 - path: .github/scripts/dockerhub-delete-tag.sh
-  exclude-branches: [rel-800]
 - .github/workflows/docker-test-core.yml
 - .github/workflows/docker-test-release.yml
 - .github/actions/test-actions-core/action.yml
@@ -196,13 +191,9 @@ files:
 # NOT in this set -- see the "Intentionally NOT in this list" block
 # above.
 - path: .github/workflows/release-prep.yml
-  exclude-branches: [rel-800]
 - path: .github/workflows/branch-cut-automation.yml
-  exclude-branches: [rel-800]
 - path: .github/workflows/patch-prep-automation.yml
-  exclude-branches: [rel-800]
 - path: .github/workflows/release-permissions-check.yml
-  exclude-branches: [rel-800]
 - path: .github/workflows/build-release.yml
   # rel-820 exclusion dropped 2026-07-28: rel-820 now has
   # acceptance-package.yml too (see the acceptance-surface block
@@ -211,7 +202,6 @@ files:
   # surface block below no longer excludes rel-820, so Phase 7c's
   # `uses: ./.github/workflows/acceptance-package.yml` reference
   # from build-release.yml resolves cleanly on rel-820.
-  exclude-branches: [rel-800]
 # Phase 10c (openemr/openemr#TBD, 2026-07-30): reusable-publish-release.yml
 # is called via `uses: ./.github/workflows/reusable-publish-release.yml`
 # from build-release.yml — GitHub Actions parses reusable-workflow
@@ -220,7 +210,6 @@ files:
 # can fire from. Same rel-800 exclusion applies for the same
 # reason (that branch predates the release-mechanism entirely).
 - path: .github/workflows/reusable-publish-release.yml
-  exclude-branches: [rel-800]
 # Phase 10e-5 (openemr/openemr#TBD, 2026-07-30): create-release-tag.sh
 # is called from reusable-publish-release.yml's "Create annotated tag
 # and GitHub release" step. The reusable's
@@ -229,7 +218,6 @@ files:
 # reusable must also carry the script. Same rel-800 exclusion
 # applies (that branch doesn't carry the reusable).
 - path: .github/scripts/create-release-tag.sh
-  exclude-branches: [rel-800]
 # G45 (openemr/openemr#TBD, 2026-09-20): assert-inputs-nonempty.sh is
 # called from reusable-publish-release.yml's Preflight step (added by
 # G37, #14050). Same runtime-resolves-against-branch-checkout reason
@@ -239,11 +227,8 @@ files:
 # `.github/scripts/assert-inputs-nonempty.sh: No such file or
 # directory` after 8/8 acceptance cells green.
 - path: .github/scripts/assert-inputs-nonempty.sh
-  exclude-branches: [rel-800]
 - path: .github/workflows/build-patch.yml
-  exclude-branches: [rel-800]
 - path: .github/actions/setup-php-composer/action.yml
-  exclude-branches: [rel-800]
 # Phase 10b (openemr/openemr#TBD, 2026-07-30): generate-app-token
 # is called via `uses: ./.github/actions/generate-app-token` from a
 # spread of release-mechanism workflows (build-release, release-prep,
@@ -282,21 +267,13 @@ files:
 # with no invoker -- but present. Skip for now; can add later if a
 # caller ever appears on rel-800.
 - path: .github/actions/run-acceptance-group/**
-  exclude-branches: [rel-800]
 - path: .github/actions/api-enable-artifact/**
-  exclude-branches: [rel-800]
 - path: .github/PULL_REQUEST_TEMPLATE/release-prep.md
-  exclude-branches: [rel-800]
 - path: .github/PULL_REQUEST_TEMPLATE/release-finalize.md
-  exclude-branches: [rel-800]
 - path: tools/release/**
-  exclude-branches: [rel-800]
 - path: src/Common/Command/ReleasePrep/**
-  exclude-branches: [rel-800]
 - path: src/Common/Command/ReleasePrepCommand.php
-  exclude-branches: [rel-800]
 - path: tests/Tests/Isolated/Release/**
-  exclude-branches: [rel-800]
 # Isolated tests + fixtures for src/Common/Command/ReleasePrep/**
 # (mirrors the production namespace under PSR-4). Kept in sync so
 # byte-identical propagation of a mutator change (e.g. #13496 adding
@@ -305,7 +282,6 @@ files:
 # (openemr/openemr#13498) when the mutator PHP synced without its
 # fixture/test file.
 - path: tests/Tests/Isolated/Common/Command/ReleasePrep/**
-  exclude-branches: [rel-800]
 
 # Artifact acceptance surface (added 2026-07-24 -- see
 # docs/artifact-acceptance-testing-plan.md for the full architecture
@@ -332,9 +308,7 @@ files:
 # stays excluded (further behind the composer surface + no
 # active-release-line concern).
 - path: .github/workflows/acceptance-docker.yml
-  exclude-branches: [rel-800]
 - path: .github/workflows/acceptance-package.yml
-  exclude-branches: [rel-800]
 # Phase 10e-4 (openemr/openemr#TBD, 2026-07-30): detect-acceptance-mode.sh
 # is called from acceptance-package.yml's detect-mode job. The workflow's
 # `run: .github/scripts/detect-acceptance-mode.sh` resolves at runtime
@@ -342,7 +316,6 @@ files:
 # workflow must also carry the script. Same rel-800 exclusion
 # applies (that branch doesn't carry acceptance-package.yml).
 - path: .github/scripts/detect-acceptance-mode.sh
-  exclude-branches: [rel-800]
 # Item 4 followup (openemr/openemr#TBD, 2026-09-22): three scripts
 # extracted from acceptance-docker.yml's inline shell/php-r logic so
 # they can be unit-tested (BATS + PHPUnit-isolated). Each is invoked
@@ -353,14 +326,12 @@ files:
 # class (script referenced by synced workflow but itself not in
 # manifest); adding the three entries preemptively per the pattern.
 - path: .github/scripts/detect-upgrade-cell-skip.sh
-  exclude-branches: [rel-800]
 # Sourced lib used by detect-upgrade-cell-skip.sh (and by
 # docker-release-orchestrator.yml's between-cycles tolerance step) --
 # both consumers rely on master_row_carries_next() reading
 # release-targets.yml identically, so the lib must sync with every
 # branch that carries either consumer.
 - path: .github/scripts/lib/release-targets-queries.sh
-  exclude-branches: [rel-800]
 # Sourced lib used by detect-acceptance-mode.sh (package side) AND
 # acceptance-docker.yml's resolve-from-tag step (docker side) --
 # both consumers derive per-row from_version from the checkout's
@@ -369,15 +340,10 @@ files:
 # Same rel-800 exclusion applies (rel-800 pre-dates the
 # acceptance-docker.yml surface and detect-acceptance-mode.sh too).
 - path: .github/scripts/lib/derive-from-version.sh
-  exclude-branches: [rel-800]
 - path: .github/scripts/parse-artifact-version.sh
-  exclude-branches: [rel-800]
 - path: .github/scripts/read-version-php.php
-  exclude-branches: [rel-800]
 - path: .github/docker/acceptance-docker-compose.yml
-  exclude-branches: [rel-800]
 - path: .github/docker/acceptance-package-compose.yml
-  exclude-branches: [rel-800]
 # Composite action used from acceptance-docker.yml (Phase 7d-1 arm64
 # ChromeDriver setup fix). Referenced via `uses: ./.github/actions/
 # setup-chromedriver-multiarch` — GitHub Actions resolves that path
@@ -387,6 +353,4 @@ files:
 # docker.yml is: that branch doesn't carry the caller workflow, so
 # it doesn't need the callee action either.
 - path: .github/actions/setup-chromedriver-multiarch/**
-  exclude-branches: [rel-800]
 - path: tests/Acceptance/**
-  exclude-branches: [rel-800]
