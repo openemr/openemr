@@ -27,10 +27,7 @@
 
         // Special case: weight USA input allows # separator (lbs/oz format e.g. "5#4")
         if (element.id === 'weight_input_usa' && value.indexOf('#') >= 0) {
-            let parts = value.split('#');
-            let pounds = parseFloat(parts[0]) || 0;
-            let ounces = parseFloat(parts[1]) || 0;
-            value = String(pounds + ounces / 16);
+            value = String(convLbOztoLb(value));
         }
 
         let numValue = parseFloat(value);
@@ -129,6 +126,9 @@
                 // all values are saved in usa system units
                 if (system !== "usa") {
                     inputSave.value = inputSave.value = convValue;
+                } else if (unit === "lbs" && value.indexOf("#") >= 0) {
+                    // the server only accepts numbers, so save pounds#ounces as decimal pounds
+                    inputSave.value = convLbOztoLb(value);
                 } else {
                     inputSave.value = value;
                 }
@@ -253,16 +253,22 @@ function convUnit(system, unit, value)
     }
 }
 
+// Converts a pounds#ounces weight (e.g. "5#4" for 5 lb 4 oz) to decimal pounds.
+// Returns NaN when the value is not in that form or either part is not a number.
+function convLbOztoLb(value) {
+    var match = /^\s*(\d+(?:\.\d*)?|\.\d+)?\s*#\s*(\d+(?:\.\d*)?|\.\d+)?\s*$/.exec(value);
+    if (!match || (match[1] === undefined && match[2] === undefined)) {
+        return NaN;
+    }
+    var pounds = match[1] === undefined ? 0 : parseFloat(match[1]);
+    var ounces = match[2] === undefined ? 0 : parseFloat(match[2]);
+    return pounds + ounces / 16;
+}
+
 function convLbtoKg(value) {
     var lb = value;
-    var hash_loc=lb.indexOf("#");
-    if(hash_loc>=0)
-    {
-        var pounds=lb.substr(0,hash_loc);
-        var ounces=lb.substr(hash_loc+1);
-        var num=parseInt(pounds)+parseInt(ounces)/16;
-        lb=num;
-        return lb;
+    if (lb.indexOf("#") >= 0) {
+        return convLbOztoLb(lb) * 0.45359237;
     }
     if (lb == "0") {
         return 0;
