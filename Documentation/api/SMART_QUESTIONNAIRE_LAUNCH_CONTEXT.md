@@ -7,7 +7,7 @@ OpenEMR can launch an enabled SMART EHR application from the patient Questionnai
 
 ## Token response context
 
-An assessment launch returns the normal patient and optional encounter context. The assessment resources are returned as standard SMART `fhirContext` references:
+An assessment launch returns the normal patient context. It does not carry the session encounter: assessments launched here are patient-level, so no `encounter` is returned for this intent even when an encounter is open in OpenEMR. The assessment resources are returned as standard SMART `fhirContext` references:
 
 ```json
 {
@@ -32,6 +32,7 @@ An assessment launch returns the normal patient and optional encounter context. 
 The browser submits only OpenEMR internal Questionnaire and QuestionnaireResponse row identifiers. The SMART launch controller resolves the FHIR UUIDs and validates that:
 
 - the Questionnaire exists and is active;
+- an active SMART availability rule offers the Questionnaire to the launching app at the user's facility (SMART launch is opt-in per questionnaire, set on the Availability tab of the Questionnaire Assessments workspace);
 - the current user can access patient medical information;
 - the QuestionnaireResponse belongs to the active patient;
 - the QuestionnaireResponse belongs to the selected Questionnaire;
@@ -41,8 +42,8 @@ The browser cannot provide arbitrary FHIR references or arbitrary `appContext` c
 
 ## Existing launch compatibility
 
-Patient, encounter, and appointment launch behavior remains in place. Existing Appointment context continues to be returned first in `fhirContext`; additional Questionnaire references are appended without replacing it.
+Patient, encounter, and appointment launch behavior for other intents remains in place. Existing Appointment context continues to be returned first in `fhirContext`; additional Questionnaire references are appended without replacing it.
 
 ## API Explorer testing
 
-Register the API Explorer SMART client after updating its scopes, then launch it from **Patient → Assessments → Questionnaires → Launch App**. The Explorer displays the token diagnostics and retrieves the launch Patient, optional Encounter, Appointment, Questionnaire, and QuestionnaireResponse resources when present.
+Register the API Explorer SMART client after updating its scopes, then launch it from **Patient → Assessments → Questionnaires → Launch App**. The Explorer displays the token diagnostics and retrieves the launch Patient, Questionnaire, and QuestionnaireResponse resources, plus an Appointment when one is in context. No Encounter is expected for an assessment launch.

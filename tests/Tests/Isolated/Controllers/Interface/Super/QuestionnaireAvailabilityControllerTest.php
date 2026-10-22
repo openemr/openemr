@@ -328,6 +328,7 @@ class QuestionnaireAvailabilityControllerTest extends TestCase
             'offer' => [
                 '50' => ['dashboard' => '1', 'portal' => '1'],
             ],
+            'grid_complete' => '1',
         ]);
 
         $this->assertCount(1, $this->service->assigned, 'only 50 on the portal is new');
@@ -335,6 +336,24 @@ class QuestionnaireAvailabilityControllerTest extends TestCase
         $this->assertSame(QuestionnaireSurface::Portal, $this->service->assigned[0]->surface);
         $this->assertSame([[6, false]], $this->service->activeChanges, 'AUDIT-C unticked on the portal');
         $this->assertSame(['Saved 2 change(s)'], $outcome->notices);
+    }
+
+    #[Test]
+    public function gridSaveWithoutTheEndMarkerSavesNothing(): void
+    {
+        // What a post cut short at max_input_vars looks like: the marker after the table
+        // never arrived, and neither did 50's dashboard tick.
+        $outcome = $this->post([
+            'action' => 'save_grid',
+            'rendered' => ['50|dashboard', '50|portal', '50|encounter', '56|portal', '57|dashboard'],
+            'offer' => [],
+        ]);
+
+        $this->assertSame([], $this->service->assigned);
+        $this->assertSame([], $this->service->activeChanges, 'missing boxes must not read as unticked');
+        $this->assertSame([], $outcome->notices);
+        $this->assertCount(1, $outcome->errors);
+        $this->assertStringContainsString('max_input_vars', $outcome->errors[0]);
     }
 
     #[Test]

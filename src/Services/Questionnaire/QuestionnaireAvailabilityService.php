@@ -85,14 +85,19 @@ class QuestionnaireAvailabilityService
      * require different permissions. An assignment with no `acl_section` falls back to
      * the surface default, which is the check that surface already performed.
      *
+     * Each distinct section/level pair is checked once per call. Most rows share the
+     * surface default, and every aclCheckCore() outside admin/super is a gacl query, so
+     * checking per row would repeat the same query once per questionnaire.
+     *
      * @return list<int>
      * @throws SqlQueryException if the assignment lookup cannot run
      */
     public function getAvailableIds(AvailabilityContext $context): array
     {
         $ids = [];
+        $aclDecisions = [];
         foreach ($this->fetchAssignments($context) as $assignment) {
-            if (!$this->isPermitted($assignment, $context->surface)) {
+            if (!$this->isPermitted($assignment, $context->surface, $aclDecisions)) {
                 continue;
             }
             $resourceId = $assignment['resource_id'];
@@ -806,8 +811,10 @@ class QuestionnaireAvailabilityService
      * to the broader surface default would do the opposite of what was asked.
      *
      * @param AssignmentRow $assignment
+     * @param array<string, bool> $aclDecisions "section|level" => decision, reused within one lookup
+     * @param-out array<string, bool> $aclDecisions
      */
-    private function isPermitted(array $assignment, QuestionnaireSurface $surface): bool
+    private function isPermitted(array $assignment, QuestionnaireSurface $surface, array &$aclDecisions): bool
     {
         $section = $assignment['acl_section'];
         $level = $assignment['acl_level'];
@@ -830,6 +837,6 @@ class QuestionnaireAvailabilityService
             return false;
         }
 
-        return AclMain::aclCheckCore($section, $level);
+        return $aclDecisions[$section . '|' . $level] ??= AclMain::aclCheckCore($section, $level);
     }
 }

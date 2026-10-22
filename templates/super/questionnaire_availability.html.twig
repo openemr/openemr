@@ -224,6 +224,9 @@
                     </tbody>
                 </table>
             </div>
+            {# Last field on purpose: the controller saves nothing unless it arrives, so a post
+               PHP cut short at max_input_vars cannot read missing boxes as unticked. #}
+            <input type="hidden" name="grid_complete" value="1" />
             <button type="submit" class="btn btn-primary">{{ 'Save'|xlt }}</button>
             <span class="badge badge-warning ml-2" id="grid-dirty" hidden>{{ 'Unsaved changes'|xlt }}</span>
         </form>

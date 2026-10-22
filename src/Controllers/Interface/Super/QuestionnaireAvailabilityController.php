@@ -338,10 +338,24 @@ class QuestionnaireAvailabilityController
      * nothing, so the authority is the full set of boxes rendered, not the keys that came
      * back. Only unscoped questionnaire rules are touched: a tick cannot express a limit.
      *
+     * That only holds if every rendered box arrived. PHP drops fields past max_input_vars
+     * with nothing but a log warning, and the grid posts two fields per box, so a large
+     * repository can lose the tail of the form -- or the checkbox half of one box, which
+     * would read as an untick. The form ends with a grid_complete marker; without it the
+     * post was cut short and nothing is saved.
+     *
      * @param InputBag<string> $post
      */
     private function saveGrid(InputBag $post): PostOutcome
     {
+        if ($post->getString('grid_complete') !== '1') {
+            $this->logger->warning('Questionnaire availability grid post arrived incomplete; check max_input_vars');
+
+            return new PostOutcome(errors: [
+                xl('The form was cut short before it reached the server, so nothing was saved. Ask your administrator to raise the PHP max_input_vars setting.'),
+            ]);
+        }
+
         $checked = [];
         foreach ($post->all('offer') as $questionnaireKey => $surfaces) {
             if (!is_array($surfaces) || !is_numeric($questionnaireKey)) {

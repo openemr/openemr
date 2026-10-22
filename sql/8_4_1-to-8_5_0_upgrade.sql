@@ -387,11 +387,14 @@ CREATE TABLE `content_assignments` (
   KEY `lookup` (`resource_type`,`surface`,`active`),
   KEY `resource` (`resource_type`,`resource_id`)
 ) ENGINE=InnoDB;
-#EndIf
 
 -- Backfill from current state so an upgraded site sees exactly what it saw before.
 -- Every questionnaire was reachable from the dashboard and every registry-registered one
 -- from the encounter; both become unscoped assignment rows.
+--
+-- Inside the #IfNotTable block so it runs once, when the table is created. Run on every
+-- upgrade pass instead, it would put back any assignment an admin has since removed in
+-- the availability manager.
 --
 -- Deliberately NOT filtered on questionnaire_repository.active or registry.state. Those
 -- flags are applied at read time -- the availability join requires qr.active = 1 and
@@ -399,34 +402,18 @@ CREATE TABLE `content_assignments` (
 -- currently inactive or disabled has no visible effect. Filtering here instead would
 -- change behaviour on upgrade: before, re-activating a questionnaire or re-enabling its
 -- registry row made it visible again; with the flags filtered it would have no assignment
--- and would stay hidden, with no UI yet to repair it. Backfilling everything keeps
--- re-activation working exactly as it does today.
---
--- Idempotent per questionnaire rather than per surface: a NOT EXISTS on the individual
--- row means a re-run completes a partial backfill instead of skipping every remaining
--- questionnaire as soon as one assignment is present. DISTINCT because a questionnaire
--- can hold more than one matching registry row.
+-- and would stay hidden. Backfilling everything keeps re-activation working exactly as it
+-- does today.
 INSERT INTO `content_assignments` (`resource_type`, `resource_id`, `surface`, `active`, `seq`)
-SELECT DISTINCT 'questionnaire', qr.`id`, 'dashboard', 1, 0
-  FROM `questionnaire_repository` qr
- WHERE NOT EXISTS (
-       SELECT 1 FROM `content_assignments` ca
-        WHERE ca.`resource_type` = 'questionnaire'
-          AND ca.`resource_id` = qr.`id`
-          AND ca.`surface` = 'dashboard'
-   );
+SELECT 'questionnaire', qr.`id`, 'dashboard', 1, 0
+  FROM `questionnaire_repository` qr;
 
 -- form_foreign_id > 0 stays: a questionnaire_assessments registry row without one is the
 -- generic "New Questionnaire" launcher, which stands for no questionnaire and needs no
--- assignment.
+-- assignment. DISTINCT because a questionnaire can hold more than one registry row.
 INSERT INTO `content_assignments` (`resource_type`, `resource_id`, `surface`, `active`, `seq`)
 SELECT DISTINCT 'questionnaire', r.`form_foreign_id`, 'encounter', 1, 0
   FROM `registry` r
  WHERE r.`directory` = 'questionnaire_assessments'
-   AND r.`form_foreign_id` > 0
-   AND NOT EXISTS (
-       SELECT 1 FROM `content_assignments` ca
-        WHERE ca.`resource_type` = 'questionnaire'
-          AND ca.`resource_id` = r.`form_foreign_id`
-          AND ca.`surface` = 'encounter'
-   );
+   AND r.`form_foreign_id` > 0;
+#EndIf
