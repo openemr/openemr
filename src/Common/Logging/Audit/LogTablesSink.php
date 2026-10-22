@@ -32,11 +32,41 @@ readonly class LogTablesSink implements SinkInterface
      */
     public function __construct(
         private Connection $conn,
+        private readonly string $chainKey,
     ) {
     }
 
     public function record(Event $event): void
     {
+        $this->conn->beginTransaction();
+        try {
+            $this->write($event);
+            $this->conn->commit();
+        } catch (\Throwable $failure) {
+            if ($this->conn->isTransactionActive()) {
+                $this->conn->rollBack();
+            }
+            throw $failure;
+        }
+    }
+
+    private function write(Event $event): void
+    {
+        $this->conn->executeStatement(
+            'INSERT INTO log_chain_anchor (id, log_id, chain) VALUES (1, 0, ?) ON DUPLICATE KEY UPDATE id = id',
+            [AuditChain::genesis()],
+        );
+        $anchor = $this->conn->fetchAssociative(
+            'SELECT chain FROM log_chain_anchor WHERE id = 1 FOR UPDATE',
+        );
+        $previous = AuditChain::genesis();
+        if (is_array($anchor)) {
+            $stored = $anchor['chain'] ?? null;
+            if (is_string($stored) && $stored !== '') {
+                $previous = $stored;
+            }
+        }
+
         $api = $event->api;
 
         // 1. insert entry into log table
@@ -86,13 +116,16 @@ readonly class LogTablesSink implements SinkInterface
             $checksumGenerateApi = hash('sha3-512', implode('', array_values($apiLogData)));
         }
 
+        $chain = AuditChain::link($previous, (string) $lastLogId, $checksum, $this->chainKey);
+
         // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
         $logCommentData = [
             'log_id' => $lastLogId,
             'encrypt' => 'No', // DB is a Yes/No enum instead of bool :( (see #12118)
             'checksum' => $checksum,
             'checksum_api' => $checksumGenerateApi,
-            'version' => '4',
+            'version' => '5',
+            'chain' => $chain,
         ];
         $this->conn->insert('log_comment_encrypt', $logCommentData);
 
@@ -100,5 +133,10 @@ readonly class LogTablesSink implements SinkInterface
         if ($api !== null) {
             $this->conn->insert('api_log', $apiLogData);
         }
+
+        $this->conn->executeStatement(
+            'UPDATE log_chain_anchor SET log_id = ?, chain = ? WHERE id = 1',
+            [(string) $lastLogId, $chain],
+        );
     }
 }
