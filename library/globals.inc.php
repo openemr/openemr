@@ -1383,6 +1383,101 @@ $GLOBALS_METADATA = [
             xl('Patient statements can be generated as plain text or with a modern graphical appearance.')
         ],
 
+        'statement_envelope' => [
+            xl('Statement envelope'),
+            [
+                'default' => xl('None'),
+                'hash9' => xl('#9 double-window'),
+                'hash10' => xl('#10 double-window'),
+                'custom' => xl('Custom')
+            ],
+            'default',
+            xl('Fits the statement to a window envelope.')
+        ],
+
+        'statement_envelope_help' => [
+            xl('Statement envelope help'),
+            GlobalSetting::DATA_TYPE_HTML_DISPLAY_SECTION,
+            '',
+            '',
+            [
+                GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK => \OpenEMR\Billing\StatementEnvelopeGlobalConfig::renderCustomFields(...)
+            ],
+        ],
+
+        'statement_env_units' => [
+            xl('Envelope units'),
+            [
+                'in' => xl('Inches'),
+                'cm' => xl('Centimeters'),
+            ],
+            'in',
+            xl('Units on the carton.')
+        ],
+
+        'statement_env_height' => [
+            xl('Envelope height'),
+            'text',
+            '3-7/8',
+            xl('Flap-up height.')
+        ],
+
+        'statement_env_return_height' => [
+            xl('Return height'),
+            'text',
+            '1-3/16',
+            xl('Return window height.')
+        ],
+
+        'statement_env_return_width' => [
+            xl('Return width'),
+            'text',
+            '3-1/2',
+            xl('Return window width.')
+        ],
+
+        'statement_env_return_left' => [
+            xl('Return from left'),
+            'text',
+            '3/8',
+            xl('Return window, from left.')
+        ],
+
+        'statement_env_return_bottom' => [
+            xl('Return from bottom'),
+            'text',
+            '2',
+            xl('Return window, from bottom.')
+        ],
+
+        'statement_env_to_height' => [
+            xl('Patient height'),
+            'text',
+            '1',
+            xl('Patient window height.')
+        ],
+
+        'statement_env_to_width' => [
+            xl('Patient width'),
+            'text',
+            '4',
+            xl('Patient window width.')
+        ],
+
+        'statement_env_to_left' => [
+            xl('Patient from left'),
+            'text',
+            '3/8',
+            xl('Patient window, from left.')
+        ],
+
+        'statement_env_to_bottom' => [
+            xl('Patient from bottom'),
+            'text',
+            '1/2',
+            xl('Patient window, from bottom.')
+        ],
+
         'billing_phone_number' => [
             xl('Custom Billing Phone Number'),
             'text',                           // data type
