@@ -25,6 +25,27 @@
         return item?.type === 'group' && item?.repeats === true;
     }
 
+    // Depth-first search for the first QuestionnaireResponse item with a given
+    // linkId; used to resolve %context for a group/item-defined FHIRPath variable.
+    function findResponseItemByLinkId(resource, linkId) {
+        const stack = [...(resource?.item ?? [])];
+        while (stack.length > 0) {
+            const node = stack.shift();
+            if (node?.linkId === linkId) {
+                return node;
+            }
+            if (Array.isArray(node?.item)) {
+                stack.unshift(...node.item);
+            }
+            for (const answer of node?.answer ?? []) {
+                if (Array.isArray(answer?.item)) {
+                    stack.unshift(...answer.item);
+                }
+            }
+        }
+        return null;
+    }
+
     const EXTENSIONS = Object.freeze({
         ITEM_CONTROL: 'http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl',
         ORDINAL_VALUE: 'http://hl7.org/fhir/StructureDefinition/ordinalValue',
@@ -134,7 +155,10 @@
     }
 
     function getOrdinalValue(node) {
-        const extension = findExtension(node, EXTENSIONS.ORDINAL_VALUE);
+        // ordinalValue may sit on the answerOption itself or inside its Coding
+        // (the latter when the option came from a ValueSet expansion entry).
+        const extension = findExtension(node, EXTENSIONS.ORDINAL_VALUE)
+            ?? findExtension(node?.valueCoding, EXTENSIONS.ORDINAL_VALUE);
         const value = extension?.valueDecimal ?? extension?.valueInteger;
         return typeof value === 'number' ? value : null;
     }
@@ -165,11 +189,13 @@
                     if (typeof entry.display === 'string') {
                         coding.display = entry.display;
                     }
-                    const option = { valueCoding: coding };
+                    // Keep the expansion entry's extensions (e.g. ordinalValue)
+                    // inside the Coding so they survive into the selected answer
+                    // and are reachable via FHIRPath select(valueCoding).extension.
                     if (Array.isArray(entry.extension)) {
-                        option.extension = entry.extension;
+                        coding.extension = deepClone(entry.extension);
                     }
-                    options.push(option);
+                    options.push({ valueCoding: coding });
                 }
                 walkContains(entry?.contains);
             }
@@ -249,10 +275,37 @@
         if (!key) {
             return null;
         }
-        return {
-            valueKey: key,
-            value: deepClone(answerOption[key]),
-        };
+        const value = deepClone(answerOption[key]);
+        const hasExtension = Array.isArray(answerOption.extension) && answerOption.extension.length > 0;
+
+        // An ordinal-bearing valueString option is a scored coded answer: the
+        // ordinalValue extension exists to weight it for scoring, and SDC
+        // scoring expressions read it via select(valueCoding).extension. Store
+        // it as a Coding (display = the string, extensions inside the coding) so
+        // it participates in those sums, matching LForms output. Plain string
+        // options (no ordinalValue) are left as valueString.
+        if (key === 'valueString' && hasExtension && findExtension(answerOption, EXTENSIONS.ORDINAL_VALUE)) {
+            return {
+                valueKey: 'valueCoding',
+                value: { display: value, extension: deepClone(answerOption.extension) },
+            };
+        }
+
+        const result = { valueKey: key, value };
+        // Preserve an option-level extension (e.g. ordinalValue). For object
+        // values (Coding/Quantity) nest it inside the value so it round-trips in
+        // that object; for primitives keep it on the answer so it can be
+        // serialized as a FHIR _value[x] sibling.
+        if (hasExtension) {
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+                if (!Array.isArray(value.extension)) {
+                    value.extension = deepClone(answerOption.extension);
+                }
+            } else {
+                result.extension = deepClone(answerOption.extension);
+            }
+        }
+        return result;
     }
 
     function getAnswerValue(answer) {
@@ -263,10 +316,13 @@
         if (!key) {
             return null;
         }
-        return {
-            valueKey: key,
-            value: deepClone(answer[key]),
-        };
+        const result = { valueKey: key, value: deepClone(answer[key]) };
+        // Round-trip a primitive value's extension from its _value[x] sibling.
+        const sibling = answer['_' + key];
+        if (sibling && Array.isArray(sibling.extension)) {
+            result.extension = deepClone(sibling.extension);
+        }
+        return result;
     }
 
     function answerDisplay(answer) {
@@ -486,6 +542,30 @@
                 compiled.repeatAncestors.set(compiledItem.linkId, ancestors);
             }
 
+            // Variable scope: a variable extension defined on an item is in scope
+            // for that item and all its descendants (FHIRPath %name). Precompute,
+            // for each item, the chain of variable-defining ancestors plus self,
+            // outermost first, so buildEnvironment can evaluate them in order and
+            // let an inner definition shadow an outer one of the same name.
+            for (const compiledItem of compiled.items) {
+                const scope = [];
+                const chain = [];
+                let cursor = compiledItem.linkId;
+                while (cursor) {
+                    chain.unshift(cursor);
+                    cursor = compiled.parentByLinkId.get(cursor);
+                }
+                for (const linkId of chain) {
+                    const ancestor = compiled.itemsByLinkId.get(linkId);
+                    if (ancestor && ancestor.variables.length > 0) {
+                        for (const expression of ancestor.variables) {
+                            scope.push({ definingLinkId: linkId, expression });
+                        }
+                    }
+                }
+                compiledItem.variableScope = scope;
+            }
+
             return compiled;
         }
     }
@@ -693,9 +773,16 @@
                     responseItem.text = item.text;
                 }
                 if (answers.length > 0) {
-                    responseItem.answer = answers.map((answer) => ({
-                        [answer.valueKey]: deepClone(answer.value),
-                    }));
+                    responseItem.answer = answers.map((answer) => {
+                        const entry = { [answer.valueKey]: deepClone(answer.value) };
+                        // Primitive-value extensions (e.g. ordinalValue on a
+                        // valueString) serialize as the FHIR _value[x] sibling;
+                        // object values carry their extension inside the object.
+                        if (Array.isArray(answer.extension) && answer.extension.length > 0) {
+                            entry['_' + answer.valueKey] = { extension: deepClone(answer.extension) };
+                        }
+                        return entry;
+                    });
                 }
                 if (childItems.length > 0) {
                     responseItem.item = childItems;
@@ -1364,22 +1451,32 @@
                 rootResource: resource,
                 context: resource,
             };
-            for (const variable of compiledItem.variables) {
-                const ast = this.compiledExpressions.get(variable);
+            // Evaluate variables in scope (ancestor-defined first, then self), so
+            // a variable defined on a group is available to descendant
+            // expressions, and an inner definition shadows an outer same-named
+            // one. %context for a variable is the response node of the item it is
+            // defined on (the whole resource for a root-level variable).
+            const scope = compiledItem.variableScope ?? compiledItem.variables.map((expression) => ({ definingLinkId: compiledItem.linkId, expression }));
+            for (const { definingLinkId, expression } of scope) {
+                const ast = this.compiledExpressions.get(expression);
                 if (!ast) {
                     continue;
                 }
+                const definingContext = findResponseItemByLinkId(resource, definingLinkId) ?? resource;
                 try {
-                    environment[variable.name] = this.evaluator.evaluate(ast, environment, null);
+                    environment.context = definingContext;
+                    environment[expression.name] = this.evaluator.evaluate(ast, environment, definingContext);
                 } catch (error) {
                     this.warnings.push({
                         code: 'fhirpath-evaluate-error',
                         linkId: compiledItem.linkId,
-                        expression: variable.expression,
+                        expression: expression.expression,
                         message: error instanceof Error ? error.message : String(error),
                     });
                 }
             }
+            // Restore %context to the resource for the consuming expression.
+            environment.context = resource;
             return environment;
         }
 
@@ -1469,7 +1566,6 @@
         }
 
         recalculate(runtime) {
-            const resource = runtime.responseStore.buildQuestionnaireResponse((linkId) => runtime.isEnabled(linkId));
             for (const compiledItem of this.compiled.calculatedItems) {
                 if (this.isInsideRepeat(compiledItem)) {
                     // Not evaluated per instance (warned at compile time); skip so
@@ -1477,37 +1573,13 @@
                     continue;
                 }
                 const item = compiledItem.item;
-                const environment = {
-                    questionnaire: this.compiled.questionnaire,
-                    resource,
-                    rootResource: resource,
-                    context: resource,
-                };
-                let failed = false;
-
-                for (const variable of compiledItem.variables) {
-                    const ast = this.compiledExpressions.get(variable);
-                    if (!ast) {
-                        failed = true;
-                        break;
-                    }
-                    try {
-                        environment[variable.name] = this.evaluator.evaluate(ast, environment, null);
-                    } catch (error) {
-                        this.warnings.push({
-                            code: 'fhirpath-evaluate-error',
-                            linkId: compiledItem.linkId,
-                            expression: variable.expression,
-                            message: error instanceof Error ? error.message : String(error),
-                        });
-                        failed = true;
-                        break;
-                    }
-                }
+                // Shared environment builder resolves in-scope variables
+                // (including ancestor-group variables) with the correct %context.
+                const environment = this.buildEnvironment(runtime, compiledItem);
 
                 const calculatedExpression = compiledItem.calculatedExpression;
                 const calculatedAst = this.compiledExpressions.get(calculatedExpression);
-                if (failed || !calculatedAst) {
+                if (!calculatedAst) {
                     continue;
                 }
 
@@ -1977,6 +2049,28 @@
             return wrapper;
         }
 
+        // Build a help toggle (button + collapsible panel) from a child display
+        // item carrying itemControl 'help'. Returns null when there is none.
+        buildHelp(item) {
+            const helpItem = (item.item ?? []).find((child) => child.type === 'display' && getItemControl(child) === 'help');
+            if (!helpItem) {
+                return null;
+            }
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'btn btn-sm btn-link oe-questionnaire-help-button py-0';
+            button.setAttribute('aria-expanded', 'false');
+            button.textContent = '?';
+            const panel = document.createElement('div');
+            panel.className = 'alert alert-info oe-questionnaire-help d-none';
+            panel.textContent = helpItem.text ?? '';
+            button.addEventListener('click', () => {
+                const hidden = panel.classList.toggle('d-none');
+                button.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+            });
+            return { helpItem, button, panel };
+        }
+
         renderGroup(item, wrapper, keyPrefix = '') {
             wrapper.classList.add('card', 'mb-3', 'oe-questionnaire-group');
             const header = document.createElement('div');
@@ -1991,11 +2085,21 @@
                 description.textContent = item.text;
                 header.appendChild(description);
             }
+            const help = this.buildHelp(item);
+            if (help) {
+                header.appendChild(help.button);
+            }
             wrapper.appendChild(header);
+            if (help) {
+                wrapper.appendChild(help.panel);
+            }
 
             const body = document.createElement('div');
             body.className = 'card-body';
             for (const child of item.item ?? []) {
+                if (help && child === help.helpItem) {
+                    continue;
+                }
                 body.appendChild(this.renderItem(child, keyPrefix));
             }
             wrapper.appendChild(body);
@@ -2018,7 +2122,14 @@
                 description.textContent = item.text;
                 header.appendChild(description);
             }
+            const help = this.buildHelp(item);
+            if (help) {
+                header.appendChild(help.button);
+            }
             wrapper.appendChild(header);
+            if (help) {
+                wrapper.appendChild(help.panel);
+            }
 
             const body = document.createElement('div');
             body.className = 'card-body';
@@ -2081,6 +2192,10 @@
             instance.appendChild(instanceHeader);
 
             for (const child of item.item ?? []) {
+                // The group's help display is surfaced once on the group header.
+                if (child.type === 'display' && getItemControl(child) === 'help') {
+                    continue;
+                }
                 instance.appendChild(this.renderItem(child, instancePrefix));
             }
             return instance;
