@@ -22,6 +22,8 @@ use OpenEMR\BC\{
     ServiceContainer,
 };
 use OpenEMR\Common\Auth\AuthEvent;
+use OpenEMR\Common\Logging\Audit\AuditRequestLabel;
+use OpenEMR\Common\Logging\Audit\SelectRequestSummary;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
@@ -45,8 +47,9 @@ class EventAuditLogger implements AuditLoggerInterface
         // connection. See notes in LogTablesSink and BreakglassChecker.
         $auditConn = DatabaseConnectionFactory::createDbal($opts, false);
 
+        $chainKey = Audit\AuditChainKey::fromSiteDirectory($bag->getString('OE_SITE_DIR'))->value();
         $sinks = [];
-        $sinks[] = new Audit\LogTablesSink(conn: $auditConn);
+        $sinks[] = new Audit\LogTablesSink(conn: $auditConn, chainKey: $chainKey);
 
         $enableAtna = $bag->getBoolean('enable_atna_audit');
         if ($enableAtna) {
@@ -82,6 +85,7 @@ class EventAuditLogger implements AuditLoggerInterface
             queryEvents: $bag->getBoolean('audit_events_query'),
             httpRequestEvents: $bag->getBoolean('audit_events_http-request'),
             enabledEventTypes: array_values($enabledEventCategories),
+            queryDetail: AuditQueryDetail::fromGlobal($bag->getString('audit_events_query_mode', 'statement')),
         );
 
         return new self(
@@ -93,6 +97,10 @@ class EventAuditLogger implements AuditLoggerInterface
         );
     }
 
+    private SelectRequestSummary $pendingSelects;
+
+    private bool $queryFlushArmed = false;
+
     public function __construct(
         private readonly Audit\SinkInterface $sink,
         private readonly SessionInterface $session,
@@ -100,6 +108,7 @@ class EventAuditLogger implements AuditLoggerInterface
         private readonly BreakglassCheckerInterface $breakglassChecker,
         private readonly ClockInterface $clock,
     ) {
+        $this->pendingSelects = new SelectRequestSummary();
     }
 
     /** @var ?positive-int */
@@ -498,6 +507,8 @@ class EventAuditLogger implements AuditLoggerInterface
             || (stripos($statement, "FROM `log` ") !== false)       // avoid infinite loop
             || (str_contains($statement, "sequences"))          // Don't log sequences - to avoid the affect due to GenID calls
             || (stripos($statement, "SELECT count(") === 0)         // Skip SELECT count() statements.
+            || (stripos($statement, "log_comment_encrypt") !== false) // the checksum row for this event
+            || (stripos($statement, "log_chain_anchor") !== false)  // the chain tip for this event
         ) {
             return;
         }
@@ -523,6 +534,7 @@ class EventAuditLogger implements AuditLoggerInterface
         /* Determine the audit event based on the database tables */
         $eventCategory = EventCategory::Other;
         $category = "other";
+        $matchedTable = '';
 
         /* When searching for table names, truncate the SQL statement,
          * removing any WHERE, SET, or VALUE clauses.
@@ -556,10 +568,12 @@ class EventAuditLogger implements AuditLoggerInterface
             if (str_contains($truncated_sql, $table)) {
                 $eventCategory = $eventCategoryMatch;
                 $category = $this->eventCategoryFinder($comments, $eventCategory->value, $table);
+                $matchedTable = $table;
                 break;
             } elseif (str_contains($truncated_sql, "form_")) {
                 $eventCategory = EventCategory::PatientRecord;
                 $category = $this->eventCategoryFinder($comments, $eventCategory->value, $table);
+                $matchedTable = 'form';
                 break;
             }
         }
@@ -576,6 +590,26 @@ class EventAuditLogger implements AuditLoggerInterface
             $pid = $this->patientRecordPatientId();
         }
 
+        $breakglass = $this->config->forceBreakglass
+            && $this->breakglassChecker->isBreakglassUser($user);
+        if (
+            $querytype === 'select'
+            && $this->config->queryDetail === AuditQueryDetail::Request
+            && !$breakglass
+        ) {
+            $patientId = null;
+            if (is_int($pid) && $pid > 0) {
+                $patientId = $pid;
+            } elseif (is_string($pid) && ctype_digit($pid) && (int) $pid > 0) {
+                $patientId = (int) $pid;
+            }
+            $this->pendingSelects->add($matchedTable, $eventCategory->value, $outcome !== false, $patientId);
+            $this->armQueryFlush();
+            return;
+        }
+
+        $this->flushPendingQuerySummary();
+
         $event = $eventCategory->value . "-" . $querytype;
 
         $group = $this->session->get('authProvider') ?? "";
@@ -583,6 +617,7 @@ class EventAuditLogger implements AuditLoggerInterface
         $this->recordLogItem($success, $event, $user, $group, $comments, $pid, $category);
     }
 
+    /**
     /**
      * The patient set for this request, else the session's open chart, else 0.
      */
@@ -600,6 +635,42 @@ class EventAuditLogger implements AuditLoggerInterface
         }
         return 0;
     }
+
+    /**
+     * Write the SELECT summary for this user action, if one is waiting.
+     *
+     * Registered for request shutdown. A later change in the same action
+     * flushes the summary first so the read is recorded before the write.
+     */
+    public function flushPendingQuerySummary(): void
+    {
+        if ($this->pendingSelects->isEmpty()) {
+            return;
+        }
+
+        $summary = $this->pendingSelects->consume(AuditRequestLabel::fromServer()->label);
+        $user = $this->session->get('authUser');
+        $group = $this->session->get('authProvider');
+        $this->recordLogItem(
+            $summary->success,
+            $summary->event,
+            is_string($user) ? $user : '',
+            is_string($group) ? $group : '',
+            $summary->comments,
+            $summary->patientId,
+            $summary->category,
+        );
+    }
+
+    private function armQueryFlush(): void
+    {
+        if ($this->queryFlushArmed) {
+            return;
+        }
+        $this->queryFlushArmed = true;
+        register_shutdown_function($this->flushPendingQuerySummary(...));
+    }
+
 
     /**
      * May-29-2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
