@@ -149,9 +149,17 @@ function checkBackgroundServices(): void
 
     /**
      * Setup background services for Weno when it is enabled
-     * this is to sync the prescription logs
+     * this is to sync the prescription logs.
+     * weno_rx_enable keeps its value when the module is disabled in Module
+     * Manager, so the module must also be enabled. Otherwise saving globals
+     * would restart services whose module code is not loaded.
      */
-    $wenoservices = (OEGlobalsBag::getInstance()->get('weno_rx_enable') ?? '') == 1 ? '1' : '0';
+    $wenoModuleActive = QueryUtils::fetchSingleValue(
+        "SELECT `mod_active` FROM `modules` WHERE `mod_directory` = ?",
+        'mod_active',
+        ['oe-module-weno']
+    );
+    $wenoservices = ($wenoModuleActive == 1 && OEGlobalsBag::getInstance()->getBoolean('weno_rx_enable')) ? '1' : '0';
     updateBackgroundService('WenoExchange', $wenoservices, 60);
     updateBackgroundService('WenoExchangePharmacies', $wenoservices, 1440);
 }
