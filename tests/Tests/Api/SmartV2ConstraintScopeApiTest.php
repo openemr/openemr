@@ -385,10 +385,20 @@ class SmartV2ConstraintScopeApiTest extends TestCase
     #[Test]
     public function testObservationLaboratoryConstraintReturnsEmptyBundleWhenNoLabs(): void
     {
-        // The seed path installs vital-signs Observations only. A
-        // laboratory-constrained scope must *not* surface them -- the
-        // bundle is 200 + empty entries, not 200 + the vital-signs
-        // Observation leaking through a different category constraint.
+        // Covers the sibling-exclusion half of the laboratory constraint
+        // (vital-signs must not leak through) and the chain-integrity half
+        // (DCR + mint + endpoint 200 for the advertised laboratory
+        // constrained scope). Positive-admission for laboratory is NOT
+        // asserted here: lab Observations are typically ingested through
+        // HL7 feeds, not the FHIR POST route, so a lab seed would require
+        // direct DB inserts into procedure_result + related tables.
+        // Deferred to a follow-up PR that adds that fixture scaffolding;
+        // the Observation vital-signs test covers positive-admission for
+        // the sibling vital-signs category, and the Condition tests cover
+        // the full admission+exclusion matrix. A broken filter that always
+        // returned an empty bundle on laboratory requests would therefore
+        // pass this test alone — the Observation vital-signs test catches
+        // the complementary case where vital-signs admission is broken.
         $seeded = $this->seedPatientAndVitalObservation();
 
         $scope = 'openid api:oemr user/Observation.rs'
@@ -445,19 +455,24 @@ class SmartV2ConstraintScopeApiTest extends TestCase
     #[Test]
     public function testDocumentReferenceClinicalNoteConstraintAnswers200(): void
     {
-        // DocumentReference seeding is substantial (clinical-note storage
-        // involves form_clinical_notes + encounter wiring) and not exercised
-        // elsewhere in the api suite. This test closes the smaller end of
-        // the loop: DCR + token-mint + endpoint 200 for the advertised
-        // clinical-note constrained scope. A seeded-pair contains-check
-        // for DocumentReference would mirror the Condition shape above and
-        // can land in a follow-up.
+        // Covers the chain-integrity half of the clinical-note constraint
+        // (DCR + mint + endpoint 200 + any returned entry must carry the
+        // clinical-note category). Positive-admission for clinical-note
+        // is NOT asserted here: `POST /fhir/DocumentReference` is
+        // explicitly not implemented on master (route catalog returns
+        // `fhirWriteNotImplemented()`), so a clinical-note seed would
+        // require direct DB inserts into form_clinical_notes + documents
+        // + encounter wiring. Deferred to a follow-up PR that adds that
+        // fixture scaffolding; the Condition tests cover the full
+        // admission+exclusion matrix on a different resource.
         //
         // The chain-integrity half still catches real regressions:
         //  - DCR rejecting the advertised constrained-scope string
         //  - finalizeScopes() silently dropping the ?category= query
         //  - FhirDocumentReferenceRestController returning 403 instead of
         //    filtering (the response code gate)
+        //  - a broken filter that returned a non-clinical-note category
+        //    entry (the per-entry foundClinicalNote assertion)
         $this->fixtureManager ??= new FixtureManager();
         $this->fixtureManager->installPatientFixtures();
         $patients = $this->fixtureManager->getPatientFixtures();
