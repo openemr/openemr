@@ -59,9 +59,6 @@ class QuestionnaireAvailabilityController
 {
     public const TEMPLATE = 'super/questionnaire_availability.html.twig';
 
-    /** Relative to interface/super/, where the entry script lives. */
-    public const PAGE_URL = 'manage_questionnaire_availability.php';
-
     public function __construct(
         private readonly QuestionnaireAvailabilityService $service,
         private readonly QuestionnaireAvailabilityLookups $lookups,
@@ -302,8 +299,6 @@ class QuestionnaireAvailabilityController
             $permissionLabels,
         );
 
-        $selectedUrl = $selectedId !== null ? self::PAGE_URL . '?q=' . $selectedId : self::PAGE_URL;
-
         $selectedRules = [];
         foreach ($selectedRecords as $record) {
             $selectedRules[] = $describe->row($record, $editing?->id, null);
@@ -321,8 +316,6 @@ class QuestionnaireAvailabilityController
             'notices' => $outcome->notices,
             'errors' => $outcome->errors,
             'csrfToken' => CsrfUtils::collectCsrfToken($this->session),
-            'pageUrl' => self::PAGE_URL,
-            'selectedUrl' => $selectedUrl,
             'surfaces' => $surfaces,
             'gridRows' => $gridRows,
             'selectedId' => $selectedId,

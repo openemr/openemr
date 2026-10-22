@@ -19,7 +19,8 @@ final readonly class RuleRow
     /**
      * @param string $where "Everywhere", or the rule's limits in words
      * @param string $permission who may see what the rule offers, in words
-     * @param string $editUrl opens this rule in its form
+     * @param ?int $questionnaireId the questionnaire a rule targets, null for a category rule;
+     *                              the template links the rule's Edit button with it
      * @param bool $highlighted the rule currently open for editing
      * @param ?string $categoryLabel set for a category rule, null for a questionnaire's rule
      */
@@ -29,7 +30,7 @@ final readonly class RuleRow
         public string $where,
         public string $permission,
         public bool $active,
-        public string $editUrl,
+        public ?int $questionnaireId,
         public bool $highlighted,
         public ?string $categoryLabel = null,
     ) {

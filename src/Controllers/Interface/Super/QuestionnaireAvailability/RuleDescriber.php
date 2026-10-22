@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability;
 
-use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailabilityController;
 use OpenEMR\Services\Questionnaire\AssignmentRecord;
 
 final readonly class RuleDescriber
@@ -57,17 +56,13 @@ final readonly class RuleDescriber
 
     public function row(AssignmentRecord $rule, ?int $editingId, ?string $categoryLabel): RuleRow
     {
-        $editUrl = $rule->resourceId !== null
-            ? QuestionnaireAvailabilityController::PAGE_URL . '?q=' . $rule->resourceId . '&edit=' . $rule->id . '#limits'
-            : QuestionnaireAvailabilityController::PAGE_URL . '?edit=' . $rule->id . '#category-rules';
-
         return new RuleRow(
             id: $rule->id,
             surfaceLabel: $this->surfaceLabels[$rule->surface->value] ?? $rule->surface->value,
             where: $this->where($rule),
             permission: $this->permission($rule),
             active: $rule->active,
-            editUrl: $editUrl,
+            questionnaireId: $rule->resourceId,
             highlighted: $editingId === $rule->id,
             categoryLabel: $categoryLabel,
         );
