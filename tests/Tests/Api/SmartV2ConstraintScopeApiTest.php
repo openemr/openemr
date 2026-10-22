@@ -486,9 +486,13 @@ class SmartV2ConstraintScopeApiTest extends TestCase
             if (!is_array($resource)) {
                 continue;
             }
+            // Normalize an uncategorized entry to an empty array so the
+            // foundClinicalNote assertion still runs. Previously
+            // `continue`-ing let a broken filter that returned an
+            // uncategorized DocumentReference pass this check silently.
             $categories = $resource['category'] ?? null;
             if (!is_array($categories)) {
-                continue;
+                $categories = [];
             }
             $foundClinicalNote = false;
             foreach ($categories as $concept) {
@@ -710,16 +714,24 @@ class SmartV2ConstraintScopeApiTest extends TestCase
         $tokens = $this->decodeJson((string) $tokenResp->getBody());
         $this->assertIsString($tokens['access_token'] ?? null);
         // If the requested scope includes a `?category=` constraint, verify
-        // the mint response echoes it verbatim -- regression gate against a
-        // future finalizeScopes() silently dropping the constraint and
-        // widening the issued scope.
+        // the mint response echoes EACH requested constrained token verbatim
+        // in the space-separated issued scope. A substring check on
+        // `?category=` would still pass if finalizeScopes() silently rewrote
+        // the system or code (health-concern -> problem-list-item) or
+        // reattached the constraint to a different resource scope.
         if (str_contains($scopeString, '?category=')) {
             $issuedScope = is_string($tokens['scope'] ?? null) ? $tokens['scope'] : '';
-            $this->assertStringContainsString(
-                '?category=',
-                $issuedScope,
-                'Token mint response must echo the V2 constrained scope verbatim. Got: ' . $issuedScope
-            );
+            $issuedTokens = explode(' ', $issuedScope);
+            foreach (explode(' ', $scopeString) as $requested) {
+                if (!str_contains($requested, '?category=')) {
+                    continue;
+                }
+                $this->assertContains(
+                    $requested,
+                    $issuedTokens,
+                    'Token mint response must echo the V2 constrained scope verbatim. Got: ' . $issuedScope
+                );
+            }
         }
         return [
             'access_token' => $tokens['access_token'],
@@ -811,6 +823,12 @@ class SmartV2ConstraintScopeApiTest extends TestCase
             }
             $categories = $resource['category'] ?? null;
             if (!is_array($categories)) {
+                // Record an empty code list so an uncategorized entry still
+                // reaches the per-entry assertion. Previously `continue`-ing
+                // let a broken filter that returned uncategorized entries
+                // pass the "every bundle entry must carry this category"
+                // check silently.
+                $perEntry[] = [];
                 continue;
             }
             $codes = [];
