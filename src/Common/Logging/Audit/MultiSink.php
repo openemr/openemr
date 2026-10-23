@@ -30,4 +30,11 @@ readonly class MultiSink implements SinkInterface
             $sink->record($event);
         }
     }
+
+    public function flush(): void
+    {
+        foreach ($this->sinks as $sink) {
+            $sink->flush();
+        }
+    }
 }
