@@ -105,6 +105,7 @@ class LogTablesSinkTest extends TestCase
         $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
+        $sink->flush();
     }
 
     public function testRecordInsertsIntoLogCommentEncryptWithCorrectChecksum(): void
@@ -127,6 +128,7 @@ class LogTablesSinkTest extends TestCase
         $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
+        $sink->flush();
 
         self::assertIsArray($capturedLogCommentData);
         self::assertSame('99', $capturedLogCommentData['log_id']);
@@ -161,6 +163,7 @@ class LogTablesSinkTest extends TestCase
         $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
+        $sink->flush();
 
         self::assertIsArray($capturedLogCommentData);
         self::assertSame('No', $capturedLogCommentData['encrypt']);
@@ -199,6 +202,7 @@ class LogTablesSinkTest extends TestCase
         $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
+        $sink->flush();
 
         // Null user/group should remain null
         self::assertIsArray($capturedLogData);
@@ -239,6 +243,7 @@ class LogTablesSinkTest extends TestCase
         $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
+        $sink->flush();
 
         self::assertIsArray($capturedLogData);
         self::assertNull($capturedLogData['patient_id']);
@@ -279,6 +284,7 @@ class LogTablesSinkTest extends TestCase
         $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
+        $sink->flush();
 
         self::assertSame(['log', 'log_comment_encrypt', 'api_log'], $insertedTables);
     }
@@ -300,6 +306,7 @@ class LogTablesSinkTest extends TestCase
         $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
+        $sink->flush();
 
         self::assertSame(['log', 'log_comment_encrypt'], $insertedTables);
     }
@@ -324,6 +331,7 @@ class LogTablesSinkTest extends TestCase
         $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
+        $sink->flush();
 
         self::assertNotNull($capturedApiLogData);
         self::assertSame('55', $capturedApiLogData['log_id']);
@@ -359,6 +367,7 @@ class LogTablesSinkTest extends TestCase
         $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
+        $sink->flush();
 
         // API checksum should be a sha3-512 hash (128 hex chars)
         self::assertIsArray($capturedLogCommentData);
@@ -396,6 +405,7 @@ class LogTablesSinkTest extends TestCase
         $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
+        $sink->flush();
 
         self::assertIsArray($capturedLogCommentData);
         self::assertIsArray($capturedApiLogData);
@@ -452,6 +462,7 @@ class LogTablesSinkTest extends TestCase
         $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
 
         $sink->record($event);
+        $sink->flush();
 
         self::assertIsArray($capturedLogCommentData);
         self::assertIsArray($capturedApiLogData);
@@ -474,4 +485,43 @@ class LogTablesSinkTest extends TestCase
 
         self::assertSame($legacyRecompute, $capturedLogCommentData['checksum_api']);
     }
+
+    public function testARequestWritesItsRowsInOneTransaction(): void
+    {
+        $this->connection->expects($this->once())->method('beginTransaction');
+        $this->connection->expects($this->once())->method('commit');
+        $this->connection->method('lastInsertId')->willReturnOnConsecutiveCalls('10', '11');
+        $this->connection->method('fetchAssociative')->willReturn(['chain' => \OpenEMR\Common\Logging\Audit\AuditChain::genesis()]);
+        $checksums = [];
+        $chains = [];
+        $this->connection->method('insert')->willReturnCallback(
+            function (string $table, array $data) use (&$checksums, &$chains): int {
+                if ($table === 'log_comment_encrypt') {
+                    $checksums[] = $data['checksum'];
+                    $chains[] = $data['chain'];
+                }
+                return 1;
+            }
+        );
+
+        $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
+        $sink->record($this->createEvent());
+        $sink->record($this->createEvent());
+        $sink->flush();
+
+        self::assertCount(2, $checksums);
+        self::assertIsString($checksums[0]);
+        self::assertIsString($checksums[1]);
+        self::assertIsString($chains[0]);
+        self::assertCount(2, $chains);
+        self::assertSame(
+            \OpenEMR\Common\Logging\Audit\AuditChain::link(\OpenEMR\Common\Logging\Audit\AuditChain::genesis(), '10', $checksums[0], self::CHAIN_KEY),
+            $chains[0],
+        );
+        self::assertSame(
+            \OpenEMR\Common\Logging\Audit\AuditChain::link($chains[0], '11', $checksums[1], self::CHAIN_KEY),
+            $chains[1],
+        );
+    }
+
 }
