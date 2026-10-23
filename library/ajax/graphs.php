@@ -17,6 +17,7 @@ require_once(__DIR__ . "/../../interface/globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\MeasurementUtils;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
@@ -39,9 +40,9 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 }
 
 // Conversion functions/constants
-function convertFtoC($a): float
+function convertFtoC(mixed $a): float
 {
-    return ($a - 32) * 0.5556;
+    return MeasurementUtils::fhToCelsiusFloat(is_numeric($a) ? (float) $a : 0.0);
 }
 function getLbstoKgMultiplier(): float
 {
