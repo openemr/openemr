@@ -25,6 +25,9 @@ class ADODB_mysqli_log extends ADODB_mysqli
      */
     public function Execute($sql, $inputarr = false, $insertNeedReturn = false)
     {
+        if (\OpenEMR\Common\Logging\Audit\AuditTableWriteGuard::rejects($sql)) {
+            throw new \OpenEMR\Common\Logging\Audit\AuditTableWriteRejected('The audit log cannot be changed.');
+        }
         $retval = parent::Execute($sql, $inputarr);
         if ($retval === false) {
             $outcome = false;

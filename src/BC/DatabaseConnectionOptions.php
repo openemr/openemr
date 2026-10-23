@@ -90,6 +90,20 @@ final readonly class DatabaseConnectionOptions
         $this->charset = 'utf8mb4';
     }
 
+    public function withCredentials(string $user, #[\SensitiveParameter] string $password): self
+    {
+        return new self(
+            dbname: $this->dbname,
+            user: $user,
+            password: $password,
+            host: $this->host,
+            port: $this->port,
+            unixSocket: $this->unixSocket,
+            sslCaPath: $this->sslCaPath,
+            sslClientCert: $this->sslClientCert,
+        );
+    }
+
     /**
      * Creates options for a site by loading its sqlconf.php file.
      *
