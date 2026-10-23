@@ -63,6 +63,27 @@ function submitform() {
         type: request_method,
         data: form_data
     }).done(function (r) { //
+        let message = '';
+        let payload = r;
+        if (typeof r === 'string') {
+            try {
+                payload = JSON.parse(r);
+            } catch (e) {
+                payload = null;
+            }
+        }
+        if (payload && typeof payload === 'object' && typeof payload.message === 'string') {
+            message = payload.message;
+        }
+        if (!(payload && typeof payload === 'object' && payload.status === 'saved')) {
+            if (message) {
+                alert(message);
+            }
+            return false;
+        }
+        if (message) {
+            alert(message);
+        }
         dlgclose('refreshme', false);
     });
     return false;
