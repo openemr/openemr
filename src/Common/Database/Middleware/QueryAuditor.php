@@ -14,6 +14,8 @@ namespace OpenEMR\Common\Database\Middleware;
 
 use Doctrine\DBAL\ParameterType;
 use Firehed\DbalLogger\DbalLogger;
+use OpenEMR\Common\Logging\Audit\AuditTableWriteGuard;
+use OpenEMR\Common\Logging\Audit\AuditTableWriteRejected;
 use OpenEMR\Common\Logging\AuditLoggerInterface;
 use Throwable;
 
@@ -43,6 +45,9 @@ final class QueryAuditor implements DbalLogger
      */
     public function startQuery(string $sql, ?array $params = null, ?array $types = null): void
     {
+        if (AuditTableWriteGuard::rejects($sql)) {
+            throw new AuditTableWriteRejected('The audit log cannot be changed.');
+        }
         $this->currentSql = $sql;
         $this->currentParams = $params;
     }
