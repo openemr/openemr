@@ -487,7 +487,7 @@ $formAction .= '&mode=' . urlencode($mode);
             </div>
             <?php } else { ?>
                 <input type="hidden" id="form_name" name="form_name" value="<?php echo attr($formName); ?>" />
-                <h4 class="mt-2"><?php echo text($assessmentTitle); ?></h4>
+                <h5 class="mt-2"><?php echo text($assessmentTitle); ?></h5>
             <?php } ?>
         </div>
 

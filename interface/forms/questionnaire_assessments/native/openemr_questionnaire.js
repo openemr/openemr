@@ -2540,16 +2540,16 @@
                 const sizes = character === '~' ? (run <= 2 ? [run] : []) : [3, 2, 1].filter((size) => size <= run);
                 let handled = false;
                 for (const size of leftFlanking ? sizes : []) {
-                    const openEnd = index + run;
-                    const close = markdownEmphasisClose(text, openEnd, character, size);
-                    if (close === -1 || close === openEnd) {
+                    const contentStart = index + run;
+                    const close = markdownEmphasisClose(text, contentStart, character, size);
+                    if (close === -1 || close === contentStart) {
                         continue;
                     }
                     flush();
                     if (run > size) {
                         nodes.push(doc.createTextNode(character.repeat(run - size)));
                     }
-                    const inner = parseMarkdownInline(text.slice(openEnd, close), doc, inLink);
+                    const inner = parseMarkdownInline(text.slice(contentStart, close), doc, inLink);
                     let element;
                     if (character === '~') {
                         element = appendAll(doc.createElement('del'), inner);
