@@ -279,34 +279,76 @@ class AuditLogIntegrityApiTest extends TestCase
             'Precondition failed: API probe call must return 200',
         );
 
-        // Two event='api' rows SHOULD land for one successful call:
-        //   row N  — BearerTokenAuthorizationStrategy "Token
-        //            successfully used ..." (user blank, success=1)
-        //   row N+1 — ApiResponseLoggerListener "api log"
-        //             (user=admin, success=1, joined api_log row)
-        // Assert both are present. A refactor that drops either one
-        // would reduce the audit trail and MUST trip this test.
+        // Two event='api' rows SHOULD land for THIS probe call:
+        //   row A  — BearerTokenAuthorizationStrategy "Token
+        //            successfully used ..." (user blank, success=1).
+        //            No api_log join because this row is written
+        //            BEFORE the dispatcher runs — api_log is written
+        //            by the response listener on kernel.terminate.
+        //   row B  — ApiResponseLoggerListener (user=admin,
+        //            success=1, joined api_log row with matching
+        //            client_id + request_url).
         //
-        // The listener row writes on kernel.terminate — bounded retry
-        // (20 × 50ms = 1s max) matches the api_log test's pattern.
-        $successApiRows = 0;
+        // Rabbit flagged that an unrelated parallel-test API call
+        // could inflate the aggregate count without this probe's
+        // specific rows being present. Bind each assertion separately:
+        //   - Row B via JOIN on api_log, matching client_id + request_url
+        //     (api_log carries both as plaintext columns).
+        //   - Row A by requiring that a bearer-validation row exists
+        //     with an id LESS THAN the listener row's id (same request
+        //     lifecycle: bearer check runs first, listener writes last)
+        //     AND no api_log join (listener rows always join; bearer
+        //     rows never do).
+        // The response listener records request_url as the dispatch
+        // internal path (e.g. "/apis/dispatch.php/default/api/version")
+        // rather than the client-facing path. Match on the trailing
+        // "/api/version" suffix — unique enough to bind to this probe.
+        $probePathSuffix = '/api/version';
+
+        // Row B first — poll for the listener row to settle.
+        $listenerRowId = 0;
         for ($attempt = 0; $attempt < 20; $attempt++) {
-            $successApiRows = $this->fetchIntScalar(
-                'SELECT COUNT(*) AS c FROM `log` '
-                . 'WHERE id > ? AND event = ? AND success = ?',
-                'c',
-                [$maxLogIdBefore, 'api', 1],
+            $listenerRowId = $this->fetchIntScalar(
+                'SELECT COALESCE(MAX(l.id), 0) AS lid FROM `log` l '
+                . 'JOIN `api_log` a ON a.log_id = l.id '
+                . 'WHERE l.id > ? AND l.event = ? AND l.success = ? '
+                . 'AND a.client_id = ? AND a.request_url LIKE ?',
+                'lid',
+                [$maxLogIdBefore, 'api', 1, $this->clientId, '%' . $probePathSuffix . '%'],
             );
-            if ($successApiRows >= 2) {
+            if ($listenerRowId > 0) {
                 break;
             }
             usleep(50_000);
         }
+        self::assertGreaterThan(
+            0,
+            $listenerRowId,
+            'ApiResponseLoggerListener must write a success row joined to an '
+            . 'api_log row carrying this probe\'s client_id + request_url. '
+            . "No matching row found for client $this->clientId at $probePathSuffix.",
+        );
+
+        // Row A — bearer-validation row. In the same request lifecycle
+        // as Row B, so its log.id is strictly less than $listenerRowId
+        // and greater than $maxLogIdBefore. Distinguished from the
+        // listener row by the absence of a joined api_log row.
+        $bearerRows = $this->fetchIntScalar(
+            'SELECT COUNT(*) AS c FROM `log` l '
+            . 'LEFT JOIN `api_log` a ON a.log_id = l.id '
+            . 'WHERE l.id > ? AND l.id < ? '
+            . 'AND l.event = ? AND l.success = ? '
+            . 'AND a.log_id IS NULL',
+            'c',
+            [$maxLogIdBefore, $listenerRowId, 'api', 1],
+        );
         self::assertGreaterThanOrEqual(
-            2,
-            $successApiRows,
-            'At least two event=api,success=1 rows must be written for a successful API call '
-            . "(BearerTokenAuthorizationStrategy + ApiResponseLoggerListener); got $successApiRows",
+            1,
+            $bearerRows,
+            'BearerTokenAuthorizationStrategy must write a success row '
+            . 'in the same request lifecycle as the listener row '
+            . "(id between $maxLogIdBefore and $listenerRowId, no api_log join). "
+            . "Got $bearerRows rows.",
         );
     }
 
