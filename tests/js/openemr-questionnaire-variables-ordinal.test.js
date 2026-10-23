@@ -179,11 +179,10 @@ describe('help itemControl on a group', () => {
         });
         const groupNode = node(container, 'g');
         expect(groupNode.querySelector('.oe-questionnaire-help-button')).not.toBeNull();
-        const panel = groupNode.querySelector('.oe-questionnaire-help');
-        expect(panel.textContent).toBe('Helpful');
-        expect(panel.classList.contains('d-none')).toBe(true);
+        // help content opens in a popup only when the button is pushed
+        expect(container.querySelector('.oe-questionnaire-popup')).toBeNull();
         groupNode.querySelector('.oe-questionnaire-help-button').click();
-        expect(panel.classList.contains('d-none')).toBe(false);
+        expect(container.querySelector('.oe-questionnaire-popup.oe-questionnaire-help').textContent).toContain('Helpful');
     });
 });
 

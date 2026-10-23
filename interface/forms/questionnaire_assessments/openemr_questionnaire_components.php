@@ -14,8 +14,10 @@ declare(strict_types=1);
 
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\SoftwareVersion;
 
-$questionnaireAssetRoot = OEGlobalsBag::getInstance()->getWebRoot()
+$questionnaireGlobals = OEGlobalsBag::getInstance();
+$questionnaireAssetRoot = $questionnaireGlobals->getWebRoot()
     . '/interface/forms/questionnaire_assessments/native';
 $questionnaireStylesheet = CacheUtils::addAssetCacheParamToPath(
     $questionnaireAssetRoot . '/openemr_questionnaire.css'
@@ -23,6 +25,8 @@ $questionnaireStylesheet = CacheUtils::addAssetCacheParamToPath(
 $questionnaireScript = CacheUtils::addAssetCacheParamToPath(
     $questionnaireAssetRoot . '/openemr_questionnaire.js'
 );
+// The runtime stamps this on QuestionnaireResponse.meta.tag (LForms parity).
+$questionnaireOpenemrVersion = SoftwareVersion::fromGlobals($questionnaireGlobals)->full;
 ?>
 <link href="<?php echo attr($questionnaireStylesheet); ?>" media="screen" rel="stylesheet" />
-<script src="<?php echo attr($questionnaireScript); ?>"></script>
+<script src="<?php echo attr($questionnaireScript); ?>" data-openemr-version="<?php echo attr($questionnaireOpenemrVersion); ?>"></script>

@@ -437,9 +437,6 @@ $formAction .= '&mode=' . urlencode($mode);
         <?php if ($topNote && !$isPortal) { ?>
             <div>
                 <p class="text-center bg-light text-dark"><?php echo $loincText; ?></p>
-                <?php if ($copyright !== '') { ?>
-                    <p id="copyrightNotice"><?php echo text($copyright); ?></p>
-                <?php } ?>
             </div>
         <?php } ?>
 

@@ -10,6 +10,24 @@
 
     const NATIVE_CONTROL_FORM_ID = 'oe-questionnaire-native-controls';
 
+    // QuestionnaireResponse provenance, mirroring what LForms stamps on its
+    // export: the base R4 QuestionnaireResponse profile, the questionnaire
+    // canonical (url|version), and a meta.tag naming the producing version.
+    const QR_BASE_PROFILE = 'http://hl7.org/fhir/4.0/StructureDefinition/QuestionnaireResponse';
+    const VERSION_TAG_SYSTEM = 'https://www.open-emr.org/fhir/CodeSystem/openemr-version';
+    const VERSION_TAG_PREFIX = 'openemrVersion: ';
+    // The host <script data-openemr-version="..."> tag supplies the OpenEMR
+    // version; read it while this script is executing (currentScript is only
+    // set during evaluation). options.openemrVersion overrides it per mount.
+    const SCRIPT_OPENEMR_VERSION = (() => {
+        try {
+            const value = global.document?.currentScript?.dataset?.openemrVersion;
+            return typeof value === 'string' ? value.trim() : '';
+        } catch {
+            return '';
+        }
+    })();
+
     // Separator for instance-qualified storage keys of children inside a
     // repeating group. NUL cannot occur in a FHIR linkId, so a plain linkId and
     // an instance-qualified key never collide: non-repeating questionnaires
@@ -66,6 +84,10 @@
         OPEN_LABEL: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-openLabel',
         DISPLAY_CATEGORY: 'http://hl7.org/fhir/StructureDefinition/questionnaire-displayCategory',
         CONSTRAINT: 'http://hl7.org/fhir/StructureDefinition/questionnaire-constraint',
+        OPTION_PREFIX: 'http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix',
+        UNIT_OPTION: 'http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption',
+        UNIT_OPEN: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-unitOpen',
+        ANSWER_CONSTRAINT: 'http://hl7.org/fhir/StructureDefinition/questionnaire-answerConstraint',
     });
 
     function deepClone(value) {
@@ -135,6 +157,74 @@
         const extension = findExtension(item, EXTENSIONS.ITEM_CONTROL);
         const coding = extension?.valueCodeableConcept?.coding ?? [];
         return coding.find((entry) => typeof entry?.code === 'string')?.code ?? '';
+    }
+
+    // Display-item text controls that are not rendered in place (FHIR
+    // questionnaire-item-control): 'help' and 'legal' are shown "in a dialog
+    // box or similar control if invoked by pushing a button"; 'flyover' is
+    // "temporarily visible over top of an item" on hover.
+    const DETACHED_DISPLAY_CONTROLS = Object.freeze(['help', 'legal', 'flyover']);
+    const RENDERING_MARKDOWN = 'http://hl7.org/fhir/StructureDefinition/rendering-markdown';
+
+    function isDetachedDisplay(item) {
+        return item?.type === 'display' && DETACHED_DISPLAY_CONTROLS.includes(getItemControl(item));
+    }
+
+    // The first help / legal / flyover display child of an item, by control.
+    function getDisplayControls(item) {
+        const controls = { help: null, legal: null, flyover: null };
+        for (const child of item?.item ?? []) {
+            if (isDetachedDisplay(child)) {
+                const control = getItemControl(child);
+                controls[control] = controls[control] ?? child;
+            }
+        }
+        return controls;
+    }
+
+    // Plain display text, or GFM when the text carries the rendering-markdown
+    // extension (_text.extension). rendering-xhtml is not trusted as markup;
+    // the plain text is used instead.
+    function plainDisplayText(item) {
+        return typeof item?.text === 'string' ? item.text : '';
+    }
+
+    function renderDisplayText(item, doc) {
+        const markdown = (item?._text?.extension ?? []).find((extension) => extension?.url === RENDERING_MARKDOWN)?.valueMarkdown;
+        if (typeof markdown === 'string' && markdown.trim() !== '') {
+            const wrapper = doc.createElement('div');
+            wrapper.className = 'oe-questionnaire-markdown';
+            wrapper.appendChild(renderMarkdown(markdown, doc));
+            return wrapper;
+        }
+        const text = doc.createElement('div');
+        text.className = 'oe-questionnaire-plain-text';
+        text.textContent = plainDisplayText(item);
+        return text;
+    }
+
+    // R4 lets answerOption constrain integer, date, time, string and Coding
+    // items, not only choice/open-choice (LForms exports drop-downs as string
+    // items with answerOption). Those render with the option controls.
+    const OPTION_CAPABLE_TYPES = Object.freeze(['string', 'text', 'integer', 'decimal', 'date', 'dateTime', 'time', 'coding']);
+
+    // questionnaire-answerConstraint (R5 backport): optionsOrString /
+    // optionsOrType allow a free-text answer beside the list; the default,
+    // optionsOnly, does not.
+    function allowsFreeTextAnswer(item) {
+        const constraint = getStringExtension(item, EXTENSIONS.ANSWER_CONSTRAINT);
+        return constraint === 'optionsOrString' || constraint === 'optionsOrType';
+    }
+
+    // Option label with its questionnaire-optionPrefix, shown as LForms does:
+    // "1. Never married" (no extra period when the prefix ends in punctuation).
+    function answerOptionLabel(option, optionAnswer) {
+        const text = answerDisplay(optionAnswer);
+        const prefix = getStringExtension(option, EXTENSIONS.OPTION_PREFIX).trim();
+        if (prefix === '') {
+            return text;
+        }
+        return /[.):]$/.test(prefix) ? prefix + ' ' + text : prefix + '. ' + text;
     }
 
     function getQuestionnaireUnit(item) {
@@ -276,33 +366,37 @@
             return null;
         }
         const value = deepClone(answerOption[key]);
-        const hasExtension = Array.isArray(answerOption.extension) && answerOption.extension.length > 0;
+        // Only ordinalValue travels from the option into the response. Other
+        // option extensions (questionnaire-optionPrefix, rendering-*, ...) are
+        // defined on Questionnaire.item.answerOption and do not belong on a
+        // QuestionnaireResponse answer.
+        const carried = findExtensions(answerOption, EXTENSIONS.ORDINAL_VALUE);
+        const hasExtension = carried.length > 0;
 
         // An ordinal-bearing valueString option is a scored coded answer: the
         // ordinalValue extension exists to weight it for scoring, and SDC
         // scoring expressions read it via select(valueCoding).extension. Store
-        // it as a Coding (display = the string, extensions inside the coding) so
-        // it participates in those sums, matching LForms output. Plain string
+        // it as a Coding (display = the string, ordinalValue inside the coding)
+        // so it participates in those sums, matching LForms output. Plain string
         // options (no ordinalValue) are left as valueString.
-        if (key === 'valueString' && hasExtension && findExtension(answerOption, EXTENSIONS.ORDINAL_VALUE)) {
+        if (key === 'valueString' && hasExtension) {
             return {
                 valueKey: 'valueCoding',
-                value: { display: value, extension: deepClone(answerOption.extension) },
+                value: { display: value, extension: deepClone(carried) },
             };
         }
 
         const result = { valueKey: key, value };
-        // Preserve an option-level extension (e.g. ordinalValue). For object
-        // values (Coding/Quantity) nest it inside the value so it round-trips in
-        // that object; for primitives keep it on the answer so it can be
-        // serialized as a FHIR _value[x] sibling.
+        // For object values (Coding/Quantity) nest ordinalValue inside the value
+        // so it round-trips in that object; for primitives keep it on the answer
+        // so it serializes as a FHIR _value[x] sibling.
         if (hasExtension) {
             if (value && typeof value === 'object' && !Array.isArray(value)) {
                 if (!Array.isArray(value.extension)) {
-                    value.extension = deepClone(answerOption.extension);
+                    value.extension = deepClone(carried);
                 }
             } else {
-                result.extension = deepClone(answerOption.extension);
+                result.extension = deepClone(carried);
             }
         }
         return result;
@@ -492,6 +586,21 @@
                                     + '" could not be resolved; only contained, pre-expanded ValueSets (referenced by #id) are supported.',
                             });
                         }
+                    }
+
+                    // answerOption.value[x] is required (1..1). Options without a
+                    // value cannot be answered; the item falls back to its
+                    // plain input (see renderInput).
+                    const answerOptions = Array.isArray(item.answerOption) ? item.answerOption : [];
+                    const valuelessOptions = answerOptions.filter((option) => getAnswerOptionValue(option) === null).length;
+                    if (valuelessOptions > 0) {
+                        compiled.warnings.push({
+                            code: 'answer-option-missing-value',
+                            linkId,
+                            severity: 'info',
+                            message: valuelessOptions + ' of ' + answerOptions.length
+                                + ' answerOption entries have no value[x] and were skipped.',
+                        });
                     }
 
                     const enableWhen = item.enableWhen ?? [];
@@ -2053,18 +2162,894 @@
         }
     }
 
+    // ---- GitHub Flavored Markdown (safe subset) -------------------------------
+    // Questionnaire.copyright and Questionnaire.description are FHIR `markdown`
+    // (GFM). The renderer builds DOM nodes directly and never assigns
+    // innerHTML, so questionnaire content cannot inject markup, attributes or
+    // script. Raw HTML in the source is shown as literal text (except <br>);
+    // links are limited to http(s)/mailto/tel; images render as links so a
+    // questionnaire cannot make the browser load remote content.
+    const MARKDOWN_SAFE_SCHEME = /^(?:https?|mailto|tel):/i;
+    const MARKDOWN_PUNCTUATION = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/;
+    const MARKDOWN_THEMATIC_BREAK = /^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$/;
+    const MARKDOWN_ATX_HEADING = /^ {0,3}(#{1,6})(?:[ \t]+(.*?))?(?:[ \t]+#+)?[ \t]*$/;
+    const MARKDOWN_FENCE = /^( {0,3})(`{3,}|~{3,})(.*)$/;
+    const MARKDOWN_BLOCKQUOTE = /^ {0,3}>/;
+    const MARKDOWN_TABLE_DELIMITER = /^ {0,3}\|?[ \t]*:?-+:?[ \t]*(?:\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*$/;
+    const MARKDOWN_NAMED_ENTITIES = Object.freeze({
+        amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+        copy: '©', reg: '®', trade: '™', mdash: '—', ndash: '–',
+        hellip: '…', laquo: '«', raquo: '»', deg: '°', middot: '·',
+        bull: '•', sect: '§', para: '¶', times: '×', plusmn: '±',
+    });
+
+    function decodeMarkdownEntities(text) {
+        return text.replace(/&(#\d{1,7}|#[xX][0-9a-fA-F]{1,6}|[A-Za-z][A-Za-z0-9]{1,31});/g, (match, body) => {
+            if (body[0] === '#') {
+                const hex = body[1] === 'x' || body[1] === 'X';
+                const code = parseInt(body.slice(hex ? 2 : 1), hex ? 16 : 10);
+                if (!Number.isFinite(code) || code === 0 || code > 0x10ffff || (code >= 0xd800 && code <= 0xdfff)) {
+                    return '�';
+                }
+                return String.fromCodePoint(code);
+            }
+            return Object.prototype.hasOwnProperty.call(MARKDOWN_NAMED_ENTITIES, body) ? MARKDOWN_NAMED_ENTITIES[body] : match;
+        });
+    }
+
+    // Returns a usable href, or null when the destination is not an absolute
+    // http(s)/mailto/tel URL (javascript:, data:, relative paths, ...).
+    function markdownSafeHref(raw) {
+        // Browsers ignore control characters and whitespace inside a scheme, so
+        // strip them before the scheme check rather than after.
+        const href = Array.from(decodeMarkdownEntities(String(raw ?? '')))
+            .filter((character) => {
+                const code = character.codePointAt(0);
+                return code > 0x20 && code !== 0x7f;
+            })
+            .join('');
+        return href !== '' && MARKDOWN_SAFE_SCHEME.test(href) ? href : null;
+    }
+
+    function markdownRun(text, index, character) {
+        let end = index;
+        while (text[end] === character) {
+            end++;
+        }
+        return end - index;
+    }
+
+    // Index of the closing backtick run of exactly `length`, or -1.
+    function markdownCodeClose(text, from, length) {
+        let index = from;
+        while (index < text.length) {
+            if (text[index] === '`') {
+                const run = markdownRun(text, index, '`');
+                if (run === length) {
+                    return index;
+                }
+                index += run;
+                continue;
+            }
+            index++;
+        }
+        return -1;
+    }
+
+    function markdownLeadingSpaces(line) {
+        return /^ */.exec(line)[0].length;
+    }
+
+    function createMarkdownLink(doc, href, title) {
+        const anchor = doc.createElement('a');
+        anchor.href = href;
+        anchor.target = '_blank';
+        anchor.rel = 'noopener noreferrer';
+        if (title) {
+            anchor.title = title;
+        }
+        return anchor;
+    }
+
+    // Parses an inline link `[label](destination "title")` whose '[' is at
+    // `start`. Returns { label, destination, title, end } or null.
+    function parseMarkdownLink(text, start) {
+        let depth = 0;
+        let index = start;
+        for (; index < text.length; index++) {
+            const character = text[index];
+            if (character === '\\') {
+                index++;
+                continue;
+            }
+            if (character === '`') {
+                const run = markdownRun(text, index, '`');
+                const close = markdownCodeClose(text, index + run, run);
+                index = (close === -1 ? index + run : close + run) - 1;
+                continue;
+            }
+            if (character === '[') {
+                depth++;
+            } else if (character === ']') {
+                depth--;
+                if (depth === 0) {
+                    break;
+                }
+            }
+        }
+        if (index >= text.length || text[index + 1] !== '(') {
+            return null;
+        }
+        const label = text.slice(start + 1, index);
+        let cursor = index + 2;
+        const skipSpace = () => {
+            while (cursor < text.length && /[ \t\n]/.test(text[cursor])) {
+                cursor++;
+            }
+        };
+        skipSpace();
+        let destination = '';
+        if (text[cursor] === '<') {
+            const close = text.indexOf('>', cursor + 1);
+            if (close === -1 || text.slice(cursor + 1, close).includes('\n')) {
+                return null;
+            }
+            destination = text.slice(cursor + 1, close);
+            cursor = close + 1;
+        } else {
+            const begin = cursor;
+            let parens = 0;
+            while (cursor < text.length) {
+                const character = text[cursor];
+                if (character === '\\' && cursor + 1 < text.length) {
+                    cursor += 2;
+                    continue;
+                }
+                if (/\s/.test(character) || character.charCodeAt(0) < 0x20) {
+                    break;
+                }
+                if (character === '(') {
+                    parens++;
+                } else if (character === ')') {
+                    if (parens === 0) {
+                        break;
+                    }
+                    parens--;
+                }
+                cursor++;
+            }
+            destination = text.slice(begin, cursor);
+        }
+        destination = destination.replace(/\\([!-/:-@[-`{-~])/g, '$1');
+        skipSpace();
+        let title = '';
+        const quote = text[cursor];
+        if (quote === '"' || quote === "'" || quote === '(') {
+            const close = text.indexOf(quote === '(' ? ')' : quote, cursor + 1);
+            if (close === -1) {
+                return null;
+            }
+            title = decodeMarkdownEntities(text.slice(cursor + 1, close));
+            cursor = close + 1;
+            skipSpace();
+        }
+        if (text[cursor] !== ')') {
+            return null;
+        }
+        return { label, destination, title, end: cursor + 1 };
+    }
+
+    // Index where a closing emphasis run of exactly `size` `character`s starts,
+    // or -1. Skips escapes and code spans; the run must be right-flanking (not
+    // preceded by whitespace) and, for '_', not followed by a word character.
+    function markdownEmphasisClose(text, from, character, size) {
+        let index = from;
+        while (index < text.length) {
+            const current = text[index];
+            if (current === '\\') {
+                index += 2;
+                continue;
+            }
+            if (current === '`') {
+                const run = markdownRun(text, index, '`');
+                const close = markdownCodeClose(text, index + run, run);
+                index = close === -1 ? index + run : close + run;
+                continue;
+            }
+            if (current === character) {
+                const run = markdownRun(text, index, character);
+                const before = text[index - 1];
+                const after = text[index + run] ?? ' ';
+                const rightFlanking = index > from && before !== undefined && !/\s/.test(before);
+                const underscoreOk = character !== '_' || !/[A-Za-z0-9]/.test(after);
+                if (run === size && rightFlanking && underscoreOk) {
+                    return index;
+                }
+                index += run;
+                continue;
+            }
+            index++;
+        }
+        return -1;
+    }
+
+    // Bare URL/email autolinks (GFM extension) at a word boundary.
+    function matchMarkdownAutolink(text, index) {
+        const rest = text.slice(index);
+        let match = /^(?:https?:\/\/|www\.)[^\s<]+/i.exec(rest);
+        let email = false;
+        if (!match) {
+            match = /^[A-Za-z0-9._+-]+@[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+/.exec(rest);
+            email = match !== null;
+        }
+        if (!match) {
+            return null;
+        }
+        let value = match[0];
+        // Trailing punctuation is not part of the link, nor is an unbalanced ')'.
+        for (;;) {
+            if (/[?!.,:*_~'"]$/.test(value)) {
+                value = value.slice(0, -1);
+                continue;
+            }
+            if (value.endsWith(')') && (value.match(/\)/g) ?? []).length > (value.match(/\(/g) ?? []).length) {
+                value = value.slice(0, -1);
+                continue;
+            }
+            break;
+        }
+        if (email && /[-_]$/.test(value)) {
+            return null;
+        }
+        if (value === '' || (!email && /^www\.$/i.test(value))) {
+            return null;
+        }
+        const href = email ? 'mailto:' + value : (/^www\./i.test(value) ? 'http://' + value : value);
+        return { text: value, href, end: index + value.length };
+    }
+
+    function parseMarkdownInline(text, doc, inLink = false) {
+        const nodes = [];
+        let buffer = '';
+        const flush = () => {
+            if (buffer !== '') {
+                nodes.push(doc.createTextNode(decodeMarkdownEntities(buffer)));
+                buffer = '';
+            }
+        };
+        const appendAll = (parent, children) => {
+            for (const child of children) {
+                parent.appendChild(child);
+            }
+            return parent;
+        };
+
+        let index = 0;
+        while (index < text.length) {
+            const character = text[index];
+
+            if (character === '\\' && index + 1 < text.length) {
+                const next = text[index + 1];
+                if (next === '\n') {
+                    flush();
+                    nodes.push(doc.createElement('br'));
+                    index += 2;
+                    continue;
+                }
+                if (MARKDOWN_PUNCTUATION.test(next)) {
+                    flush();
+                    nodes.push(doc.createTextNode(next));
+                    index += 2;
+                    continue;
+                }
+            }
+
+            if (character === '\n') {
+                const hardBreak = / {2,}$/.test(buffer);
+                buffer = buffer.replace(/ +$/, '');
+                if (hardBreak) {
+                    flush();
+                    nodes.push(doc.createElement('br'));
+                } else {
+                    buffer += '\n';
+                }
+                index++;
+                while (text[index] === ' ') {
+                    index++;
+                }
+                continue;
+            }
+
+            if (character === '`') {
+                const run = markdownRun(text, index, '`');
+                const close = markdownCodeClose(text, index + run, run);
+                if (close !== -1) {
+                    flush();
+                    let content = text.slice(index + run, close).replace(/\n/g, ' ');
+                    if (content.length > 1 && content.startsWith(' ') && content.endsWith(' ') && content.trim() !== '') {
+                        content = content.slice(1, -1);
+                    }
+                    const code = doc.createElement('code');
+                    code.textContent = content;
+                    nodes.push(code);
+                    index = close + run;
+                    continue;
+                }
+                buffer += text.slice(index, index + run);
+                index += run;
+                continue;
+            }
+
+            if (character === '<') {
+                const rest = text.slice(index);
+                const lineBreak = /^<br\s*\/?>/i.exec(rest);
+                if (lineBreak) {
+                    flush();
+                    nodes.push(doc.createElement('br'));
+                    index += lineBreak[0].length;
+                    continue;
+                }
+                const uri = /^<([A-Za-z][A-Za-z0-9+.-]{1,31}:[^\s<>]*)>/.exec(rest);
+                const mail = uri ? null : /^<([A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*)>/.exec(rest);
+                const href = uri ? markdownSafeHref(uri[1]) : (mail ? markdownSafeHref('mailto:' + mail[1]) : null);
+                if (href && !inLink) {
+                    flush();
+                    const anchor = createMarkdownLink(doc, href, '');
+                    anchor.textContent = (uri ?? mail)[1];
+                    nodes.push(anchor);
+                    index += (uri ?? mail)[0].length;
+                    continue;
+                }
+                // Any other markup is literal text.
+                buffer += character;
+                index++;
+                continue;
+            }
+
+            if (!inLink && (character === '[' || (character === '!' && text[index + 1] === '['))) {
+                const image = character === '!';
+                const parsed = parseMarkdownLink(text, image ? index + 1 : index);
+                if (parsed) {
+                    flush();
+                    const href = markdownSafeHref(parsed.destination);
+                    if (image) {
+                        // Never load remote images: show the alt text, linked when safe.
+                        const alt = decodeMarkdownEntities(parsed.label);
+                        if (href) {
+                            const anchor = createMarkdownLink(doc, href, parsed.title);
+                            anchor.textContent = alt !== '' ? alt : href;
+                            nodes.push(anchor);
+                        } else if (alt !== '') {
+                            nodes.push(doc.createTextNode(alt));
+                        }
+                    } else if (href) {
+                        nodes.push(appendAll(createMarkdownLink(doc, href, parsed.title), parseMarkdownInline(parsed.label, doc, true)));
+                    } else {
+                        nodes.push(...parseMarkdownInline(parsed.label, doc, true));
+                    }
+                    index = parsed.end;
+                    continue;
+                }
+            }
+
+            if (character === '*' || character === '_' || character === '~') {
+                const run = markdownRun(text, index, character);
+                const previous = text[index - 1] ?? ' ';
+                const next = text[index + run] ?? ' ';
+                const leftFlanking = !/\s/.test(next) && (character !== '_' || !/[A-Za-z0-9]/.test(previous));
+                const sizes = character === '~' ? (run <= 2 ? [run] : []) : [3, 2, 1].filter((size) => size <= run);
+                let handled = false;
+                for (const size of leftFlanking ? sizes : []) {
+                    const openEnd = index + run;
+                    const close = markdownEmphasisClose(text, openEnd, character, size);
+                    if (close === -1 || close === openEnd) {
+                        continue;
+                    }
+                    flush();
+                    if (run > size) {
+                        nodes.push(doc.createTextNode(character.repeat(run - size)));
+                    }
+                    const inner = parseMarkdownInline(text.slice(openEnd, close), doc, inLink);
+                    let element;
+                    if (character === '~') {
+                        element = appendAll(doc.createElement('del'), inner);
+                    } else if (size === 3) {
+                        element = doc.createElement('strong');
+                        element.appendChild(appendAll(doc.createElement('em'), inner));
+                    } else {
+                        element = appendAll(doc.createElement(size === 2 ? 'strong' : 'em'), inner);
+                    }
+                    nodes.push(element);
+                    index = close + size;
+                    handled = true;
+                    break;
+                }
+                if (!handled) {
+                    buffer += text.slice(index, index + run);
+                    index += run;
+                }
+                continue;
+            }
+
+            const previous = text[index - 1];
+            if (!inLink && (previous === undefined || /[\s*_~(]/.test(previous)) && /[A-Za-z0-9]/.test(character)) {
+                const autolink = matchMarkdownAutolink(text, index);
+                if (autolink) {
+                    const href = markdownSafeHref(autolink.href);
+                    if (href) {
+                        flush();
+                        const anchor = createMarkdownLink(doc, href, '');
+                        anchor.textContent = autolink.text;
+                        nodes.push(anchor);
+                        index = autolink.end;
+                        continue;
+                    }
+                }
+            }
+
+            buffer += character;
+            index++;
+        }
+        flush();
+        return nodes;
+    }
+
+    function splitMarkdownTableRow(line) {
+        let row = line.trim();
+        if (row.startsWith('|')) {
+            row = row.slice(1);
+        }
+        if (row.endsWith('|') && !row.endsWith('\\|')) {
+            row = row.slice(0, -1);
+        }
+        const cells = [];
+        let current = '';
+        for (let index = 0; index < row.length; index++) {
+            if (row[index] === '\\' && row[index + 1] === '|') {
+                current += '|';
+                index++;
+                continue;
+            }
+            if (row[index] === '|') {
+                cells.push(current.trim());
+                current = '';
+                continue;
+            }
+            current += row[index];
+        }
+        cells.push(current.trim());
+        return cells;
+    }
+
+    function matchMarkdownListItem(line) {
+        const match = /^( {0,3})([-+*]|\d{1,9}[.)])(?:( {1,4})(.*)| *)$/.exec(line);
+        if (!match) {
+            return null;
+        }
+        const ordered = /\d/.test(match[2][0]);
+        return {
+            ordered,
+            delimiter: ordered ? match[2].slice(-1) : match[2],
+            start: ordered ? parseInt(match[2], 10) : 1,
+            content: match[4] ?? '',
+            indent: match[1].length + match[2].length + (match[3] ? match[3].length : 1),
+        };
+    }
+
+    function isMarkdownBlockStart(line) {
+        return MARKDOWN_ATX_HEADING.test(line)
+            || MARKDOWN_FENCE.test(line)
+            || MARKDOWN_BLOCKQUOTE.test(line)
+            || MARKDOWN_THEMATIC_BREAK.test(line);
+    }
+
+    function parseMarkdownBlocks(lines, doc) {
+        const nodes = [];
+        let paragraph = [];
+        const inline = (text) => {
+            const fragment = doc.createDocumentFragment();
+            for (const node of parseMarkdownInline(text, doc)) {
+                fragment.appendChild(node);
+            }
+            return fragment;
+        };
+        const flushParagraph = () => {
+            if (paragraph.length === 0) {
+                return;
+            }
+            const element = doc.createElement('p');
+            element.appendChild(inline(paragraph.map((line) => line.replace(/^ +/, '')).join('\n').replace(/\s+$/, '')));
+            nodes.push(element);
+            paragraph = [];
+        };
+        const blank = (line) => /^\s*$/.test(line);
+
+        let index = 0;
+        while (index < lines.length) {
+            const line = lines[index];
+            if (blank(line)) {
+                flushParagraph();
+                index++;
+                continue;
+            }
+
+            const fence = MARKDOWN_FENCE.exec(line);
+            if (fence && !(fence[2][0] === '`' && fence[3].includes('`'))) {
+                flushParagraph();
+                const marker = fence[2];
+                const indent = fence[1].length;
+                const closing = new RegExp('^ {0,3}' + (marker[0] === '`' ? '`' : '~') + '{' + marker.length + ',}[ \\t]*$');
+                const body = [];
+                index++;
+                while (index < lines.length && !closing.test(lines[index])) {
+                    body.push(lines[index].slice(Math.min(indent, markdownLeadingSpaces(lines[index]))));
+                    index++;
+                }
+                index++;
+                const pre = doc.createElement('pre');
+                const code = doc.createElement('code');
+                const language = fence[3].trim().split(/\s+/)[0].replace(/[^A-Za-z0-9_+-]/g, '');
+                if (language !== '') {
+                    code.className = 'language-' + language;
+                }
+                code.textContent = body.join('\n');
+                pre.appendChild(code);
+                nodes.push(pre);
+                continue;
+            }
+
+            const heading = MARKDOWN_ATX_HEADING.exec(line);
+            if (heading) {
+                flushParagraph();
+                const element = doc.createElement('h' + heading[1].length);
+                element.appendChild(inline(heading[2] ?? ''));
+                nodes.push(element);
+                index++;
+                continue;
+            }
+
+            // Setext underline turns the open paragraph into a heading.
+            if (paragraph.length > 0 && /^ {0,3}(?:=+|-+)[ \t]*$/.test(line)) {
+                const element = doc.createElement(line.trim()[0] === '=' ? 'h1' : 'h2');
+                element.appendChild(inline(paragraph.map((entry) => entry.trim()).join('\n')));
+                nodes.push(element);
+                paragraph = [];
+                index++;
+                continue;
+            }
+
+            if (MARKDOWN_THEMATIC_BREAK.test(line)) {
+                flushParagraph();
+                nodes.push(doc.createElement('hr'));
+                index++;
+                continue;
+            }
+
+            if (MARKDOWN_BLOCKQUOTE.test(line)) {
+                flushParagraph();
+                const inner = [];
+                while (index < lines.length && MARKDOWN_BLOCKQUOTE.test(lines[index])) {
+                    inner.push(lines[index].replace(/^ {0,3}> ?/, ''));
+                    index++;
+                }
+                const quote = doc.createElement('blockquote');
+                for (const node of parseMarkdownBlocks(inner, doc)) {
+                    quote.appendChild(node);
+                }
+                nodes.push(quote);
+                continue;
+            }
+
+            if (line.includes('|') && index + 1 < lines.length && MARKDOWN_TABLE_DELIMITER.test(lines[index + 1])) {
+                const header = splitMarkdownTableRow(line);
+                const alignments = splitMarkdownTableRow(lines[index + 1]).map((cell) => {
+                    const left = cell.startsWith(':');
+                    const right = cell.endsWith(':');
+                    return left && right ? 'text-center' : (right ? 'text-right' : (left ? 'text-left' : ''));
+                });
+                if (header.length === alignments.length) {
+                    flushParagraph();
+                    const table = doc.createElement('table');
+                    table.className = 'table table-sm table-bordered';
+                    const buildRow = (cells, tag) => {
+                        const row = doc.createElement('tr');
+                        alignments.forEach((alignment, column) => {
+                            const cell = doc.createElement(tag);
+                            if (alignment !== '') {
+                                cell.className = alignment;
+                            }
+                            cell.appendChild(inline(cells[column] ?? ''));
+                            row.appendChild(cell);
+                        });
+                        return row;
+                    };
+                    const head = doc.createElement('thead');
+                    head.appendChild(buildRow(header, 'th'));
+                    table.appendChild(head);
+                    index += 2;
+                    const body = doc.createElement('tbody');
+                    while (index < lines.length && !blank(lines[index]) && lines[index].includes('|') && !isMarkdownBlockStart(lines[index])) {
+                        body.appendChild(buildRow(splitMarkdownTableRow(lines[index]), 'td'));
+                        index++;
+                    }
+                    if (body.childNodes.length > 0) {
+                        table.appendChild(body);
+                    }
+                    nodes.push(table);
+                    continue;
+                }
+            }
+
+            const listItem = matchMarkdownListItem(line);
+            // A list may interrupt a paragraph only when it is a bullet list or
+            // starts at 1, and its first item is not empty (GFM).
+            const canStartList = listItem && (paragraph.length === 0
+                || ((!listItem.ordered || listItem.start === 1) && listItem.content.trim() !== ''));
+            if (canStartList) {
+                flushParagraph();
+                const list = doc.createElement(listItem.ordered ? 'ol' : 'ul');
+                if (listItem.ordered && listItem.start !== 1) {
+                    list.setAttribute('start', String(listItem.start));
+                }
+                const items = [];
+                let loose = false;
+                while (index < lines.length) {
+                    const current = matchMarkdownListItem(lines[index]);
+                    if (!current || current.ordered !== listItem.ordered || current.delimiter !== listItem.delimiter
+                        || MARKDOWN_THEMATIC_BREAK.test(lines[index])) {
+                        break;
+                    }
+                    const itemLines = [current.content];
+                    let blankInside = false;
+                    index++;
+                    while (index < lines.length) {
+                        const next = lines[index];
+                        if (blank(next)) {
+                            let ahead = index + 1;
+                            while (ahead < lines.length && blank(lines[ahead])) {
+                                ahead++;
+                            }
+                            if (ahead < lines.length && markdownLeadingSpaces(lines[ahead]) >= current.indent) {
+                                for (; index < ahead; index++) {
+                                    itemLines.push('');
+                                }
+                                blankInside = true;
+                                continue;
+                            }
+                            break;
+                        }
+                        if (markdownLeadingSpaces(next) >= current.indent) {
+                            itemLines.push(next.slice(current.indent));
+                            index++;
+                            continue;
+                        }
+                        // Lazy continuation of the item's paragraph text.
+                        if (!blankInside && !matchMarkdownListItem(next) && !isMarkdownBlockStart(next)) {
+                            itemLines.push(next.trim());
+                            index++;
+                            continue;
+                        }
+                        break;
+                    }
+                    items.push({ lines: itemLines, blankInside });
+                    if (index < lines.length && blank(lines[index])) {
+                        let ahead = index;
+                        while (ahead < lines.length && blank(lines[ahead])) {
+                            ahead++;
+                        }
+                        const following = ahead < lines.length ? matchMarkdownListItem(lines[ahead]) : null;
+                        if (following && following.ordered === listItem.ordered && following.delimiter === listItem.delimiter) {
+                            loose = true;
+                            index = ahead;
+                            continue;
+                        }
+                        break;
+                    }
+                }
+                for (const item of items) {
+                    const element = doc.createElement('li');
+                    let itemLines = item.lines;
+                    const task = /^\[([ xX])\](?:[ \t]+|$)/.exec(itemLines[0]);
+                    if (task) {
+                        const box = doc.createElement('input');
+                        box.type = 'checkbox';
+                        box.disabled = true;
+                        box.checked = task[1] !== ' ';
+                        box.className = 'oe-questionnaire-task-box';
+                        element.classList.add('oe-questionnaire-task-item');
+                        element.appendChild(box);
+                        element.appendChild(doc.createTextNode(' '));
+                        itemLines = [itemLines[0].slice(task[0].length), ...itemLines.slice(1)];
+                    }
+                    for (const child of parseMarkdownBlocks(itemLines, doc)) {
+                        // Tight lists render item text without <p> wrappers.
+                        if (!loose && !item.blankInside && child.nodeName === 'P') {
+                            while (child.firstChild) {
+                                element.appendChild(child.firstChild);
+                            }
+                        } else {
+                            element.appendChild(child);
+                        }
+                    }
+                    list.appendChild(element);
+                }
+                nodes.push(list);
+                continue;
+            }
+
+            paragraph.push(line);
+            index++;
+        }
+        flushParagraph();
+        return nodes;
+    }
+
+    // Renders GFM `markdown` text to a DocumentFragment of safe DOM nodes.
+    function renderMarkdown(source, doc = document) {
+        const fragment = doc.createDocumentFragment();
+        const lines = String(source ?? '').replace(/\r\n?/g, '\n').replace(/\t/g, '    ').split('\n');
+        for (const node of parseMarkdownBlocks(lines, doc)) {
+            fragment.appendChild(node);
+        }
+        return fragment;
+    }
+
     class QuestionnaireRenderer {
         constructor(runtime) {
             this.runtime = runtime;
             this.nodes = new Map();
             this.inputs = new Map();
+            this.container = null;
+            this.popup = null;
+            this.popupSequence = 0;
+            this.documentListeners = null;
+        }
+
+        // ---- Popups for help / legal / copyright buttons ---------------------
+        // A non-modal dialog anchored under its button. One is open at a time;
+        // Escape, a click outside, or its close button dismiss it.
+        createPopupTrigger(kind, symbol, title, buildContent) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'btn btn-sm btn-link oe-questionnaire-popup-button oe-questionnaire-' + kind + '-button py-0';
+            button.textContent = symbol;
+            button.title = title;
+            button.setAttribute('aria-label', title);
+            button.setAttribute('aria-haspopup', 'dialog');
+            button.setAttribute('aria-expanded', 'false');
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (this.popup?.button === button) {
+                    this.closePopup(true);
+                    return;
+                }
+                this.openPopup(button, kind, title, buildContent);
+            });
+            return button;
+        }
+
+        openPopup(button, kind, title, buildContent) {
+            this.closePopup(false);
+            const host = this.container ?? document.body;
+            const panel = document.createElement('div');
+            panel.id = 'oe-questionnaire-popup-' + (++this.popupSequence);
+            panel.className = 'oe-questionnaire-popup oe-questionnaire-' + kind + ' card shadow';
+            panel.setAttribute('role', 'dialog');
+            panel.setAttribute('aria-label', title);
+            panel.tabIndex = -1;
+
+            const header = document.createElement('div');
+            header.className = 'oe-questionnaire-popup-header card-header';
+            const heading = document.createElement('span');
+            heading.className = 'font-weight-bold';
+            heading.textContent = title;
+            const close = document.createElement('button');
+            close.type = 'button';
+            close.className = 'close oe-questionnaire-popup-close';
+            close.setAttribute('aria-label', 'Close');
+            close.textContent = '×';
+            close.addEventListener('click', (event) => {
+                event.preventDefault();
+                this.closePopup(true);
+            });
+            header.append(heading, close);
+
+            const body = document.createElement('div');
+            body.className = 'oe-questionnaire-popup-body card-body';
+            body.appendChild(buildContent());
+            panel.append(header, body);
+            host.appendChild(panel);
+
+            button.setAttribute('aria-expanded', 'true');
+            button.setAttribute('aria-controls', panel.id);
+            this.popup = { button, panel };
+            this.positionPopup();
+            panel.focus();
+        }
+
+        positionPopup() {
+            if (!this.popup || !this.container) {
+                return;
+            }
+            const { button, panel } = this.popup;
+            const hostRect = this.container.getBoundingClientRect();
+            const buttonRect = button.getBoundingClientRect();
+            const maxLeft = Math.max(hostRect.width - panel.offsetWidth, 0);
+            const left = Math.min(Math.max(buttonRect.left - hostRect.left, 0), maxLeft);
+            panel.style.top = (buttonRect.bottom - hostRect.top + 4) + 'px';
+            panel.style.left = left + 'px';
+        }
+
+        closePopup(restoreFocus) {
+            if (!this.popup) {
+                return;
+            }
+            const { button, panel } = this.popup;
+            this.popup = null;
+            panel.remove();
+            button.setAttribute('aria-expanded', 'false');
+            button.removeAttribute('aria-controls');
+            if (restoreFocus && button.isConnected) {
+                button.focus();
+            }
+        }
+
+        bindDocumentListeners() {
+            if (this.documentListeners) {
+                return;
+            }
+            const onKeyDown = (event) => {
+                if (event.key === 'Escape' && this.popup) {
+                    this.closePopup(true);
+                }
+            };
+            const onPointerDown = (event) => {
+                if (this.popup && !this.popup.panel.contains(event.target) && !this.popup.button.contains(event.target)) {
+                    this.closePopup(false);
+                }
+            };
+            const onResize = () => this.positionPopup();
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('mousedown', onPointerDown);
+            document.addEventListener('touchstart', onPointerDown);
+            global.addEventListener?.('resize', onResize);
+            this.documentListeners = { onKeyDown, onPointerDown, onResize };
+        }
+
+        // Buttons for an item's help / legal display children, plus the
+        // flyover text (applied by the caller as a hover title).
+        buildDisplayControls(item) {
+            const controls = getDisplayControls(item);
+            const buttons = [];
+            if (controls.help) {
+                buttons.push(this.createPopupTrigger('help', '?', 'Help', () => renderDisplayText(controls.help, document)));
+            }
+            if (controls.legal) {
+                buttons.push(this.createPopupTrigger('legal', '§', 'Legal notice', () => renderDisplayText(controls.legal, document)));
+            }
+            return { buttons, flyover: controls.flyover ? plainDisplayText(controls.flyover) : '' };
+        }
+
+        applyFlyover(element, text) {
+            if (text !== '') {
+                element.title = text;
+                element.classList.add('oe-questionnaire-flyover');
+            }
         }
 
         mount(container) {
             this.ensureNativeControlForm();
+            this.closePopup(false);
+            this.container = container;
+            this.bindDocumentListeners();
             container.replaceChildren();
             container.classList.add('oe-questionnaire-runtime');
             container.classList.toggle('oe-questionnaire-guides', this.runtime.options.hideTreeLine === false);
+            const formHeader = this.renderFormHeader();
+            if (formHeader) {
+                container.appendChild(formHeader);
+            }
             this.warningsNode = document.createElement('div');
             this.warningsNode.className = 'oe-questionnaire-warnings d-none';
             this.warningsNode.setAttribute('role', 'alert');
@@ -2075,6 +3060,54 @@
             }
             container.appendChild(fragment);
             this.refresh();
+        }
+
+        // Form-level header: the title carries a copyright button (popup, as
+        // LForms does) and buttons for any top-level help / legal display
+        // items; Questionnaire.description follows inline. copyright and
+        // description are FHIR markdown (GFM) rendered by the safe renderer.
+        // Hosts can hide parts with options.showTitle / showCopyright /
+        // showDescription === false.
+        renderFormHeader() {
+            const questionnaire = this.runtime.questionnaire;
+            const options = this.runtime.options;
+            const text = (value) => (typeof value === 'string' ? value.trim() : '');
+            const titleText = text(questionnaire.title) || text(questionnaire.name);
+            const copyright = options.showCopyright === false ? '' : text(questionnaire.copyright);
+            const description = options.showDescription === false ? '' : text(questionnaire.description);
+            const showTitle = options.showTitle !== false && titleText !== '';
+            const rootControls = this.buildDisplayControls(questionnaire);
+            const buttons = [...rootControls.buttons];
+            if (copyright !== '') {
+                buttons.unshift(this.createPopupTrigger('copyright', '©', 'Copyright', () => {
+                    const content = document.createElement('div');
+                    content.className = 'oe-questionnaire-markdown';
+                    content.appendChild(renderMarkdown(copyright, document));
+                    return content;
+                }));
+            }
+            if (!showTitle && buttons.length === 0 && description === '') {
+                return null;
+            }
+            const header = document.createElement('div');
+            header.className = 'oe-questionnaire-header';
+            if (showTitle || buttons.length > 0) {
+                const title = document.createElement(showTitle ? 'h4' : 'div');
+                title.className = 'oe-questionnaire-title';
+                if (showTitle) {
+                    title.appendChild(document.createTextNode(titleText));
+                    this.applyFlyover(title, rootControls.flyover);
+                }
+                title.append(...buttons);
+                header.appendChild(title);
+            }
+            if (description !== '') {
+                const node = document.createElement('div');
+                node.className = 'oe-questionnaire-description oe-questionnaire-markdown';
+                node.appendChild(renderMarkdown(description, document));
+                header.appendChild(node);
+            }
+            return header;
         }
 
         renderWarnings(warnings) {
@@ -2131,6 +3164,13 @@
                 wrapper.dataset.instanceKey = storageKey;
             }
             wrapper.className = 'oe-questionnaire-item';
+            // help / legal / flyover text lives on the parent's (or the form
+            // title's) buttons; keep a hidden placeholder that refresh() never
+            // toggles back into view.
+            if (isDetachedDisplay(item)) {
+                wrapper.classList.add('oe-questionnaire-display', 'd-none');
+                return wrapper;
+            }
             this.nodes.set(storageKey, wrapper);
 
             if (isRepeatingGroup(item)) {
@@ -2144,10 +3184,12 @@
             }
 
             wrapper.classList.add('oe-questionnaire-question', 'form-group');
+            // Block row with an inline label so the help / legal buttons follow
+            // the label text (wrapping with it) instead of being pushed right.
             const header = document.createElement('div');
-            header.className = 'd-flex align-items-start justify-content-between';
+            header.className = 'oe-questionnaire-label-row';
             const label = document.createElement('label');
-            label.className = 'oe-questionnaire-label font-weight-bold mb-2';
+            label.className = 'oe-questionnaire-label font-weight-bold d-inline mb-0';
             const labelText = [item.prefix, item.text].filter(Boolean).join(item.prefix && item.text ? ' — ' : '');
             label.textContent = labelText || item.linkId;
             if (item.required === true) {
@@ -2164,32 +3206,14 @@
                 label.htmlFor = inputId;
             }
 
-            const helpItem = (item.item ?? []).find((child) => child.type === 'display' && getItemControl(child) === 'help');
-            let help = null;
-            if (helpItem) {
-                const helpButton = document.createElement('button');
-                helpButton.type = 'button';
-                helpButton.className = 'btn btn-sm btn-link oe-questionnaire-help-button py-0';
-                helpButton.setAttribute('aria-expanded', 'false');
-                helpButton.textContent = '?';
-                header.appendChild(helpButton);
-
-                help = document.createElement('div');
-                help.className = 'alert alert-info oe-questionnaire-help d-none';
-                help.textContent = helpItem.text ?? '';
-                helpButton.addEventListener('click', () => {
-                    const hidden = help.classList.toggle('d-none');
-                    helpButton.setAttribute('aria-expanded', hidden ? 'false' : 'true');
-                });
-            }
+            const controls = this.buildDisplayControls(item);
+            header.append(...controls.buttons);
+            this.applyFlyover(label, controls.flyover);
 
             wrapper.appendChild(header);
             wrapper.appendChild(input);
-            if (help) {
-                wrapper.appendChild(help);
-            }
             for (const child of item.item ?? []) {
-                if (child !== helpItem) {
+                if (!isDetachedDisplay(child)) {
                     wrapper.appendChild(this.renderItem(child, keyPrefix));
                 }
             }
@@ -2197,35 +3221,17 @@
             return wrapper;
         }
 
-        // Build a help toggle (button + collapsible panel) from a child display
-        // item carrying itemControl 'help'. Returns null when there is none.
-        buildHelp(item) {
-            const helpItem = (item.item ?? []).find((child) => child.type === 'display' && getItemControl(child) === 'help');
-            if (!helpItem) {
-                return null;
-            }
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'btn btn-sm btn-link oe-questionnaire-help-button py-0';
-            button.setAttribute('aria-expanded', 'false');
-            button.textContent = '?';
-            const panel = document.createElement('div');
-            panel.className = 'alert alert-info oe-questionnaire-help d-none';
-            panel.textContent = helpItem.text ?? '';
-            button.addEventListener('click', () => {
-                const hidden = panel.classList.toggle('d-none');
-                button.setAttribute('aria-expanded', hidden ? 'false' : 'true');
-            });
-            return { helpItem, button, panel };
-        }
-
-        renderGroup(item, wrapper, keyPrefix = '') {
-            wrapper.classList.add('card', 'mb-3', 'oe-questionnaire-group');
+        // Group card header. Help / legal buttons sit inside the heading,
+        // directly after its text, rather than on a line of their own.
+        buildGroupHeader(item) {
             const header = document.createElement('div');
             header.className = 'card-header';
             const title = document.createElement('h5');
-            title.className = 'mb-1';
-            title.textContent = item.prefix || item.text || item.linkId;
+            title.className = 'mb-1 oe-questionnaire-group-title';
+            title.appendChild(document.createTextNode(item.prefix || item.text || item.linkId));
+            const controls = this.buildDisplayControls(item);
+            title.append(...controls.buttons);
+            this.applyFlyover(title, controls.flyover);
             header.appendChild(title);
             if (item.prefix && item.text) {
                 const description = document.createElement('div');
@@ -2233,19 +3239,17 @@
                 description.textContent = item.text;
                 header.appendChild(description);
             }
-            const help = this.buildHelp(item);
-            if (help) {
-                header.appendChild(help.button);
-            }
-            wrapper.appendChild(header);
-            if (help) {
-                wrapper.appendChild(help.panel);
-            }
+            return header;
+        }
+
+        renderGroup(item, wrapper, keyPrefix = '') {
+            wrapper.classList.add('card', 'mb-3', 'oe-questionnaire-group');
+            wrapper.appendChild(this.buildGroupHeader(item));
 
             const body = document.createElement('div');
             body.className = 'card-body';
             for (const child of item.item ?? []) {
-                if (help && child === help.helpItem) {
+                if (isDetachedDisplay(child)) {
                     continue;
                 }
                 body.appendChild(this.renderItem(child, keyPrefix));
@@ -2258,26 +3262,7 @@
             const storageKey = keyPrefix + item.linkId;
             wrapper.classList.add('card', 'mb-3', 'oe-questionnaire-group', 'oe-questionnaire-repeating-group');
 
-            const header = document.createElement('div');
-            header.className = 'card-header';
-            const title = document.createElement('h5');
-            title.className = 'mb-1';
-            title.textContent = item.prefix || item.text || item.linkId;
-            header.appendChild(title);
-            if (item.prefix && item.text) {
-                const description = document.createElement('div');
-                description.className = 'small text-muted';
-                description.textContent = item.text;
-                header.appendChild(description);
-            }
-            const help = this.buildHelp(item);
-            if (help) {
-                header.appendChild(help.button);
-            }
-            wrapper.appendChild(header);
-            if (help) {
-                wrapper.appendChild(help.panel);
-            }
+            wrapper.appendChild(this.buildGroupHeader(item));
 
             const body = document.createElement('div');
             body.className = 'card-body';
@@ -2340,8 +3325,8 @@
             instance.appendChild(instanceHeader);
 
             for (const child of item.item ?? []) {
-                // The group's help display is surfaced once on the group header.
-                if (child.type === 'display' && getItemControl(child) === 'help') {
+                // help / legal / flyover displays surface once on the group header.
+                if (isDetachedDisplay(child)) {
                     continue;
                 }
                 instance.appendChild(this.renderItem(child, instancePrefix));
@@ -2351,10 +3336,6 @@
 
         renderDisplay(item, wrapper) {
             wrapper.classList.add('oe-questionnaire-display');
-            if (getItemControl(item) === 'help') {
-                wrapper.classList.add('d-none');
-                return wrapper;
-            }
             const display = document.createElement('div');
             const categoryExtension = findExtension(item, EXTENSIONS.DISPLAY_CATEGORY);
             const category = categoryExtension?.valueCodeableConcept?.coding
@@ -2386,6 +3367,12 @@
             const control = getItemControl(item);
             const answers = this.runtime.responseStore.getAnswers(storageKey);
             const inputId = safeId(storageKey);
+
+            if (OPTION_CAPABLE_TYPES.includes(item.type)
+                && resolveAnswerOptions(item, this.runtime.questionnaire).some((option) => getAnswerOptionValue(option) !== null)) {
+                const openText = (item.type === 'string' || item.type === 'text') && allowsFreeTextAnswer(item);
+                return this.renderChoice(item, container, control, answers, inputId, openText, storageKey);
+            }
 
             // Repeating scalar items (repeats=true on a non-choice, non-group
             // item) get an add/remove row list. choice/open-choice express
@@ -2472,8 +3459,8 @@
                     const label = document.createElement('label');
                     label.className = 'custom-control-label oe-questionnaire-choice-label';
                     label.htmlFor = input.id;
-                    label.textContent = answerDisplay(optionAnswer);
-                    label.title = answerDisplay(optionAnswer);
+                    label.textContent = answerOptionLabel(option, optionAnswer);
+                    label.title = label.textContent;
                     row.append(input, label);
                     container.appendChild(row);
                 });
@@ -2491,8 +3478,8 @@
                     if (!optionAnswer) return;
                     const optionElement = document.createElement('option');
                     optionElement.value = String(index);
-                    optionElement.textContent = answerDisplay(optionAnswer);
-                    optionElement.title = answerDisplay(optionAnswer);
+                    optionElement.textContent = answerOptionLabel(option, optionAnswer);
+                    optionElement.title = optionElement.textContent;
                     const optionOrdinal = getOrdinalValue(option);
                     if (optionOrdinal !== null) {
                         optionElement.dataset.ordinal = String(optionOrdinal);
@@ -2523,7 +3510,11 @@
                 openInput.type = 'text';
                 openInput.className = 'form-control' + (openLabelText !== '' ? '' : ' mt-2');
                 openInput.placeholder = openLabelText !== '' ? openLabelText : 'Other';
-                const customAnswer = selected.find((answer) => answer.valueKey === 'valueString');
+                // The free-text answer is a valueString that is not one of the
+                // options (string-typed options are valueString too).
+                const optionAnswers = options.map(getAnswerOptionValue).filter(Boolean);
+                const customAnswer = selected.find((answer) => answer.valueKey === 'valueString'
+                    && !optionAnswers.some((optionAnswer) => optionAnswer.valueKey === 'valueString' && equalPrimitive(optionAnswer.value, answer.value)));
                 openInput.value = customAnswer?.value ?? '';
                 openInput.disabled = item.readOnly === true;
                 openInput.addEventListener('change', () => {
@@ -2683,11 +3674,54 @@
             valueColumn.appendChild(valueInput);
             const unitColumn = document.createElement('div');
             unitColumn.className = 'col-md-6';
-            const unitInput = document.createElement('input');
-            unitInput.type = 'text';
-            unitInput.className = 'form-control';
-            unitInput.placeholder = 'Unit';
-            unitInput.value = quantity.unit ?? quantity.code ?? '';
+            // questionnaire-unitOption lists the allowed units (Codings). Closed
+            // by default -> a select; sdc-questionnaire-unitOpen
+            // optionsOrString / optionsOrType -> free text with suggestions.
+            const unitOptions = findExtensions(item, EXTENSIONS.UNIT_OPTION)
+                .map((extension) => extension?.valueCoding)
+                .filter((coding) => coding && (typeof coding.code === 'string' || typeof coding.display === 'string'));
+            const unitLabel = (coding) => coding.display ?? coding.code;
+            const unitOpen = ['optionsOrString', 'optionsOrType'].includes(getStringExtension(item, EXTENSIONS.UNIT_OPEN));
+            const currentUnit = quantity.unit ?? quantity.code ?? '';
+            let unitInput;
+            if (unitOptions.length > 0 && !unitOpen) {
+                unitInput = document.createElement('select');
+                unitInput.className = 'form-control oe-questionnaire-unit-select';
+                unitInput.setAttribute('aria-label', 'Unit');
+                const blank = document.createElement('option');
+                blank.value = '';
+                blank.textContent = '';
+                unitInput.appendChild(blank);
+                unitOptions.forEach((coding, index) => {
+                    const option = document.createElement('option');
+                    option.value = String(index);
+                    option.textContent = unitLabel(coding);
+                    option.selected = currentUnit !== '' && (coding.code === quantity.code || unitLabel(coding) === currentUnit);
+                    unitInput.appendChild(option);
+                });
+                if (currentUnit === '' && unitOptions.length > 0) {
+                    // LForms preselects the first unit option.
+                    unitInput.value = '0';
+                }
+            } else {
+                unitInput = document.createElement('input');
+                unitInput.type = 'text';
+                unitInput.className = 'form-control';
+                unitInput.placeholder = 'Unit';
+                unitInput.setAttribute('aria-label', 'Unit');
+                unitInput.value = currentUnit;
+                if (unitOptions.length > 0) {
+                    const list = document.createElement('datalist');
+                    list.id = inputId + '-units';
+                    for (const coding of unitOptions) {
+                        const option = document.createElement('option');
+                        option.value = unitLabel(coding);
+                        list.appendChild(option);
+                    }
+                    unitInput.setAttribute('list', list.id);
+                    unitColumn.appendChild(list);
+                }
+            }
             unitInput.disabled = item.readOnly === true;
             unitColumn.appendChild(unitInput);
             row.append(valueColumn, unitColumn);
@@ -2696,11 +3730,33 @@
                     this.runtime.setAnswers(storageKey, []);
                     return;
                 }
-                const unit = unitInput.value.trim();
                 const next = { value: Number.parseFloat(valueInput.value) };
-                if (unit !== '') {
-                    next.unit = unit;
-                    next.code = unit;
+                if (unitInput.tagName === 'SELECT') {
+                    const coding = unitInput.value === '' ? null : unitOptions[Number(unitInput.value)];
+                    if (coding) {
+                        next.unit = unitLabel(coding);
+                        if (typeof coding.system === 'string') {
+                            next.system = coding.system;
+                        }
+                        if (typeof coding.code === 'string') {
+                            next.code = coding.code;
+                        }
+                    }
+                } else {
+                    const unit = unitInput.value.trim();
+                    const coding = unitOptions.find((entry) => unitLabel(entry) === unit);
+                    if (coding) {
+                        next.unit = unitLabel(coding);
+                        if (typeof coding.system === 'string') {
+                            next.system = coding.system;
+                        }
+                        if (typeof coding.code === 'string') {
+                            next.code = coding.code;
+                        }
+                    } else if (unit !== '') {
+                        next.unit = unit;
+                        next.code = unit;
+                    }
                 }
                 this.runtime.setAnswers(storageKey, [{ valueKey: 'valueQuantity', value: next }]);
             };
@@ -3019,7 +4075,36 @@
         }
 
         getQuestionnaireResponse() {
-            return this.responseStore.buildQuestionnaireResponse((linkId) => this.isEnabled(linkId));
+            const response = this.responseStore.buildQuestionnaireResponse((linkId) => this.isEnabled(linkId));
+            this.applyResponseMetadata(response);
+            return response;
+        }
+
+        // LForms parity for the exported response: questionnaire canonical,
+        // base profile (only when the response declares none) and a version
+        // tag that replaces any earlier tag of ours. Other meta (versionId,
+        // lastUpdated, security, other tags) carried by a loaded response is
+        // preserved. Questionnaire.meta itself is not copied: its versionId,
+        // lastUpdated and profiles describe the Questionnaire, not this response.
+        applyResponseMetadata(response) {
+            const questionnaire = this.questionnaire;
+            if (typeof questionnaire.url === 'string' && questionnaire.url.trim() !== '') {
+                const version = typeof questionnaire.version === 'string' ? questionnaire.version.trim() : '';
+                response.questionnaire = version !== '' ? questionnaire.url.trim() + '|' + version : questionnaire.url.trim();
+            }
+            const meta = response.meta !== null && typeof response.meta === 'object' && !Array.isArray(response.meta) ? response.meta : {};
+            if (!Array.isArray(meta.profile) || meta.profile.length === 0) {
+                meta.profile = [QR_BASE_PROFILE];
+            }
+            const optionVersion = typeof this.options.openemrVersion === 'string' ? this.options.openemrVersion.trim() : '';
+            const openemrVersion = optionVersion !== '' ? optionVersion : SCRIPT_OPENEMR_VERSION;
+            if (openemrVersion !== '') {
+                const tags = (Array.isArray(meta.tag) ? meta.tag : []).filter((tag) =>
+                    !(tag?.system === VERSION_TAG_SYSTEM || (typeof tag?.code === 'string' && tag.code.startsWith(VERSION_TAG_PREFIX))));
+                tags.push({ system: VERSION_TAG_SYSTEM, code: VERSION_TAG_PREFIX + openemrVersion });
+                meta.tag = tags;
+            }
+            response.meta = meta;
         }
 
         onChange(listener) {
@@ -3077,6 +4162,7 @@
         FhirPathParser,
         FhirPathEvaluator,
         QuestionnaireRuntime,
+        renderMarkdown,
         runtime: null,
         mount({ questionnaire, questionnaireResponse = null, container, options = {} }) {
             const runtime = new QuestionnaireRuntime({

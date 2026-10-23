@@ -2,6 +2,66 @@
 
 .oe-questionnaire-runtime {
   --oe-questionnaire-indent: 1rem;
+
+  /* Anchor for help / legal / copyright popups. */
+  position: relative;
+}
+
+/* Form header: title with copyright button, then description (issue #14736). */
+.oe-questionnaire-runtime .oe-questionnaire-header {
+  margin-bottom: 1rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-title {
+  margin-bottom: 0.25rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-description {
+  border-top: 1px solid rgb(0 0 0 / 12%);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+/* Rendered GitHub Flavored Markdown (copyright, description, help, legal). */
+.oe-questionnaire-runtime .oe-questionnaire-markdown p,
+.oe-questionnaire-runtime .oe-questionnaire-markdown ul,
+.oe-questionnaire-runtime .oe-questionnaire-markdown ol {
+  margin-bottom: 0.5rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-markdown table {
+  margin-bottom: 0.5rem;
+  width: auto;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-markdown h1,
+.oe-questionnaire-runtime .oe-questionnaire-markdown h2,
+.oe-questionnaire-runtime .oe-questionnaire-markdown h3,
+.oe-questionnaire-runtime .oe-questionnaire-markdown h4,
+.oe-questionnaire-runtime .oe-questionnaire-markdown h5,
+.oe-questionnaire-runtime .oe-questionnaire-markdown h6 {
+  font-size: 1.05em;
+  font-weight: 700;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-markdown blockquote {
+  border-left: 0.2rem solid rgb(0 0 0 / 15%);
+  margin-bottom: 0.5rem;
+  padding-left: 0.75rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-markdown pre {
+  margin-bottom: 0.5rem;
+  white-space: pre-wrap;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-markdown .oe-questionnaire-task-item {
+  list-style: none;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-markdown > :last-child {
+  margin-bottom: 0;
 }
 
 .oe-questionnaire-runtime .oe-questionnaire-group {
@@ -33,9 +93,13 @@
   padding-bottom: 0;
 }
 
+/* Label is inline so help / legal buttons follow its text (issue #14736). */
+.oe-questionnaire-runtime .oe-questionnaire-label-row {
+  margin-bottom: 0.25rem;
+}
+
 .oe-questionnaire-runtime .oe-questionnaire-label {
   line-height: 1.35;
-  margin-bottom: 0.25rem;
 }
 
 .oe-questionnaire-runtime .oe-questionnaire-control {
@@ -52,19 +116,48 @@
   margin-bottom: 0.15rem !important;
 }
 
-.oe-questionnaire-runtime .oe-questionnaire-help-button {
+/* help (?), legal (section sign) and copyright buttons; content opens in a popup. */
+.oe-questionnaire-runtime .oe-questionnaire-popup-button {
   border: 1px solid currentcolor;
   border-radius: 50%;
   font-weight: 700;
   height: 1.6rem;
   line-height: 1.25rem;
+  margin-left: 0.35rem;
   min-width: 1.6rem;
   text-decoration: none;
+  vertical-align: middle;
 }
 
-.oe-questionnaire-runtime .oe-questionnaire-help {
-  margin: 0.75rem 0 0;
+.oe-questionnaire-runtime .oe-questionnaire-popup {
+  font-size: 0.9rem;
+  font-weight: 400;
+  max-width: min(28rem, calc(100% - 1rem));
+  position: absolute;
+  text-align: left;
+  z-index: 1060;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-popup-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0.75rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-popup-body {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 0.6rem 0.75rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-plain-text {
   white-space: pre-wrap;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-flyover {
+  cursor: help;
+  text-decoration: underline dotted;
 }
 
 .oe-questionnaire-runtime .oe-questionnaire-display {
