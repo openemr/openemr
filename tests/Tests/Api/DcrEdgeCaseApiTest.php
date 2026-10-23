@@ -112,6 +112,10 @@ class DcrEdgeCaseApiTest extends TestCase
         $this->assertNotEmpty($body['grant_types']);
         $this->assertArrayHasKey('token_endpoint_auth_method', $body);
         $this->assertSame('client_secret_post', $body['token_endpoint_auth_method']);
+        $this->assertArrayHasKey('contacts', $body);
+        $this->assertSame(['e2e@test.example'], $body['contacts']);
+        $this->assertArrayHasKey('scope', $body);
+        $this->assertSame('openid', $body['scope']);
 
         // OpenEMR DCR-management extensions (RFC 7592)
         $this->assertArrayHasKey('registration_access_token', $body);
@@ -262,6 +266,17 @@ class DcrEdgeCaseApiTest extends TestCase
             $this->assertArrayHasKey('client_id', $body);
             $this->assertIsString($body['client_id']);
             $this->clientIds[] = $body['client_id'];
+            // RFC 7591 §3.2.1 — server MUST echo the stored metadata.
+            // If the server accepts the IDN form, it must round-trip
+            // the exact unicode value (no silent punycode conversion,
+            // no silent trailing-slash normalization). A policy change
+            // that silently rewrites the host would surface as a diff.
+            $this->assertArrayHasKey('redirect_uris', $body);
+            $this->assertSame(
+                [$idnUri],
+                $body['redirect_uris'],
+                'Accepted IDN redirect_uri must round-trip without alteration'
+            );
         } else {
             $this->assertGreaterThanOrEqual(400, $status, 'Non-success must be 4xx, not 2xx-non-200');
             $this->assertArrayHasKey('error', $body);
