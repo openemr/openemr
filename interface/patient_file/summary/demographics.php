@@ -15,6 +15,7 @@
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
  * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
@@ -24,6 +25,7 @@
  * @copyright Copyright (c) 2021-2022 Robert Down <robertdown@live.com
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -64,6 +66,7 @@ use OpenEMR\Patient\Cards\InsuranceViewCard;
 use OpenEMR\Patient\Cards\PortalCard;
 use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use OpenEMR\Reminder\BirthdayReminder;
+use OpenEMR\Services\ActiveMedicationListService;
 use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\Services\Forms\CarePlanFormService;
 use OpenEMR\Services\FormService;
@@ -1101,6 +1104,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $allergy = (AclMain::aclCheckIssue('allergy') ? 1 : 0) && !in_array('card_allergies', $hiddenCards) ? 1 : 0;
                 $pl = (AclMain::aclCheckIssue('medical_problem') ? 1 : 0) && !in_array('card_medicalproblems', $hiddenCards) ? 1 : 0;
                 $meds = (AclMain::aclCheckIssue('medication') ? 1 : 0) && !in_array('card_medication', $hiddenCards) ? 1 : 0;
+                if (!$thisauth) {
+                    $meds = 0;
+                }
                 $rx = !OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions') && AclMain::aclCheckCore('patients', 'rx') && !in_array('card_prescriptions', $hiddenCards) ? 1 : 0;
                 $cards = max(1, ($allergy + $pl + $meds));
                 $col = "p-1 ";
@@ -1167,7 +1173,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 // MEDICATION CARD
                 if ($meds === 1) {
-                    $_rawMedList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medication'])->getData();
+                    $medListService = new ActiveMedicationListService();
+                    $activeMeds = $medListService->getActiveList($carePlanCardPid);
                     $id = 'medication_ps_expand';
                     $viewArgs = [
                         'title' => xl('Medications'),
@@ -1176,11 +1183,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'forceAlwaysOpen' => false,
                         'initiallyCollapsed' => getUserSetting($id) == 0,
                         'linkMethod' => "javascript",
-                        'list' => filterActiveIssues($_rawMedList),
+                        'list' => $activeMeds,
+                        'inactiveCount' => count($medListService->getInactiveList($carePlanCardPid, $activeMeds)),
                         'listTouched' => !empty(getListTouch($pid, 'medication')),
                         'auth' => true,
                         'btnLabel' => 'Edit',
-                        'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
+                        'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medication')",
+                        'printPid' => $carePlanCardPid,
                     ];
                     echo "<div class=\"$col\">";
                     echo $t->render('patient/card/medication.html.twig', $viewArgs);
