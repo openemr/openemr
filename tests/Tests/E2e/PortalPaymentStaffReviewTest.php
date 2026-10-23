@@ -11,7 +11,9 @@
  * payment for no patient. This opens one patient's chart (or none), then
  * another patient's pending portal payment from Portal Activity, and checks
  * that the page is the paying patient's with the amount filled in, and that
- * posting it records the payment for that patient only.
+ * posting it records the payment for that patient only. A record that stops
+ * being a payment before it is posted is refused, not posted to the open
+ * chart.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -72,18 +74,7 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
             if ($openAnotherChart) {
                 $this->client->request('GET', '/interface/patient_file/summary/demographics.php?set_pid=' . $this->openPid);
             }
-            // As staff do: Portal Activity, then the payment's row, which loads
-            // portal_payment.php into a dialog on that page.
-            $this->client->request('GET', '/portal/patient/onsiteactivityviews');
-            $this->client->executeScript('window.restoreSession = function () { return true; };');
-            $row = 'table.collection tbody tr[id="' . $this->recordId . '"] td';
-            $this->client->waitFor($row, 30);
-            $this->client->executeScript('document.querySelector(arguments[0]).click();', [$row]);
-            $this->client->waitFor('#invoiceForm', 30);
-            $this->client->wait(10)->until(
-                fn(): bool => $this->client->executeScript('return typeof jsondata !== "undefined";') === true,
-                'The payment dialog did not load the stored payment'
-            );
+            $this->openPaymentFromPortalActivity();
 
             $page = $this->client->executeScript(
                 'var form = document.forms["invoiceForm"];'
@@ -137,6 +128,62 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
                 $this->cleanUpFixtureData();
             }
         }
+    }
+
+    #[Test]
+    #[Depends('testLoginAuthorized')]
+    public function testAPaymentRecordThatChangedIsNotPostedToTheOpenChart(): void
+    {
+        $this->insertFixtureData();
+        try {
+            $this->base();
+            $this->login(LoginTestData::username, LoginTestData::password);
+            $this->client->request('GET', '/interface/patient_file/summary/demographics.php?set_pid=' . $this->openPid);
+            $this->openPaymentFromPortalActivity();
+
+            // The record stops being a payment between opening the dialog and posting.
+            QueryUtils::sqlStatementThrowException("UPDATE onsite_portal_activity SET activity = 'profile' WHERE id = ?", [$this->recordId]);
+            $this->client->executeScript('window.alert = function () {}; window.confirm = function () { return true; };');
+            $this->client->executeScript('document.querySelector("button[form=invoiceForm][type=submit]").click();');
+            $this->client->wait(30)->until(
+                fn(): bool => str_contains($this->client->getCurrentURL(), 'portal_payment.php'),
+                'Posting did not reach portal_payment.php'
+            );
+            $this->client->waitFor('body', 30);
+
+            $recorded = QueryUtils::fetchSingleValue(
+                'SELECT COUNT(*) AS c FROM ar_session WHERE patient_id IN (?, ?)',
+                'c',
+                [$this->payingPid, $this->openPid]
+            );
+            $this->assertSame(0, $this->toInt($recorded), 'A record that is no longer a payment must not be posted to anyone');
+        } finally {
+            try {
+                if (isset($this->client)) {
+                    $this->client->quit();
+                }
+            } finally {
+                $this->cleanUpFixtureData();
+            }
+        }
+    }
+
+    /**
+     * As staff do: Portal Activity, then the payment's row, which loads
+     * portal_payment.php into a dialog on that page.
+     */
+    private function openPaymentFromPortalActivity(): void
+    {
+        $this->client->request('GET', '/portal/patient/onsiteactivityviews');
+        $this->client->executeScript('window.restoreSession = function () { return true; };');
+        $row = 'table.collection tbody tr[id="' . $this->recordId . '"] td';
+        $this->client->waitFor($row, 30);
+        $this->client->executeScript('document.querySelector(arguments[0]).click();', [$row]);
+        $this->client->waitFor('#invoiceForm', 30);
+        $this->client->wait(10)->until(
+            fn(): bool => $this->client->executeScript('return typeof jsondata !== "undefined";') === true,
+            'The payment dialog did not load the stored payment'
+        );
     }
 
     private function insertFixtureData(): void

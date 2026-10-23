@@ -80,13 +80,15 @@ $recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
 // Staff open a patient's portal payment from Portal Activity (recid). It is that
 // record's patient's payment, whichever chart is open in the session (or none), so
 // the page and the posting use the record's patient. The form carries recid on its
-// action, so the save finds the same patient. A portal patient stays on the session
-// patient.
+// action, so the save finds the same patient. A recid that isn't a payment record
+// (deleted or changed since the dialog opened) is refused rather than falling back
+// to the open chart. A portal patient stays on the session patient.
 if (!$isPortal && $recid) {
     $paymentRecord = $appsql->getPortalAuditRec($recid);
-    if (is_array($paymentRecord) && ($paymentRecord['activity'] ?? null) === 'payment' && is_numeric($paymentRecord['patient_id'] ?? null)) {
-        $pid = (int) $paymentRecord['patient_id'];
+    if (!is_array($paymentRecord) || ($paymentRecord['activity'] ?? null) !== 'payment' || !is_numeric($paymentRecord['patient_id'] ?? null)) {
+        throw new \RuntimeException('Invalid portal payment record');
     }
+    $pid = (int) $paymentRecord['patient_id'];
 }
 // Otherwise $pid is the session patient, set by globals.php (PHPStan can't see through require_once).
 if (!isset($pid)) {
