@@ -46,6 +46,9 @@ final class SelectRequestSummary
     /** @var array<string, true> */
     private array $categories = [];
 
+    /** @var array<string, true> */
+    private array $details = [];
+
     private ?int $patientId = null;
 
     public function isEmpty(): bool
@@ -53,7 +56,7 @@ final class SelectRequestSummary
         return $this->count === 0;
     }
 
-    public function add(string $table, string $category, bool $success, ?int $patientId): void
+    public function add(string $table, string $category, bool $success, ?int $patientId, string $detail = ''): void
     {
         $this->count++;
         if (!$success) {
@@ -61,6 +64,9 @@ final class SelectRequestSummary
         }
         if ($category !== '') {
             $this->categories[$category] = true;
+        }
+        if ($detail !== '' && $detail !== $category) {
+            $this->details[$detail] = true;
         }
         if ($table !== '' && !isset($this->tables[$table])) {
             if (count($this->tables) >= self::TABLE_LIMIT) {
@@ -97,6 +103,9 @@ final class SelectRequestSummary
             . '; selects=' . $this->count
             . '; failed=' . $this->failures
             . '; tables=' . $tableList;
+        if ($this->details !== []) {
+            $comments .= '; data=' . implode(',', array_keys($this->details));
+        }
 
         $summary = new SelectAuditSummary(
             event: $category . '-select',
@@ -111,6 +120,7 @@ final class SelectRequestSummary
         $this->tables = [];
         $this->tablesTruncated = false;
         $this->categories = [];
+        $this->details = [];
         $this->patientId = null;
 
         return $summary;
