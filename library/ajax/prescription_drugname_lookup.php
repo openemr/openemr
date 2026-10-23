@@ -14,7 +14,9 @@
  * @copyright Copyright (c) 2008 Jason Morrill <jason@italktech.net>
  * @copyright Copyright (c) 2017 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -33,7 +35,9 @@ if (isset($_GET['term'])) {
     $return_arr = [];
     $term = filter_input(INPUT_GET, "term");
     if ($is_rxnorm) {
-        $sql = "SELECT `str` as name, `RXCUI` as `rxnorm` FROM `rxnconso` WHERE `SAB` = 'RXNORM' AND `str` LIKE ? GROUP BY `RXCUI` ORDER BY `str` LIMIT 100";
+        $sql = "SELECT `str` as name, `RXCUI` as `rxnorm` FROM "
+            . escape_table_name('RXNCONSO')
+            . " WHERE `SAB` = 'RXNORM' AND `str` LIKE ? GROUP BY `RXCUI` ORDER BY `str` LIMIT 100";
     } elseif ($is_rxcui) {
         $sql = "SELECT `code_text` as name, `code` as rxnorm FROM `codes` WHERE `code_text` LIKE ? AND `code_type` = ? GROUP BY `code` ORDER BY `code_text` LIMIT 100";
     } else {
