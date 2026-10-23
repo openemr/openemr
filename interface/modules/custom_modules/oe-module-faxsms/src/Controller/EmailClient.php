@@ -111,6 +111,7 @@ class EmailClient extends AppDispatch implements EmailChannelInterface
     }
 
     /**
+     * @param string $body Plain-text reminder body
      * @throws InvalidEmailAddressException
      * @throws SmtpNotConfiguredException
      * @throws EmailSendFailedException
@@ -130,14 +131,13 @@ class EmailClient extends AppDispatch implements EmailChannelInterface
             ));
         }
         $from_name = text(OEGlobalsBag::getInstance()->get("Patient Reminder Sender Name") ?? 'UNK');
-        $desc = text($body);
         $mail = new MyMailer();
         $from = text(OEGlobalsBag::getInstance()->getString("practice_return_email_path"));
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $mail->AddAddress($email, $email);
         $mail->Subject = xlt("A Reminder for You");
-        $mail->Body = $desc;
+        $mail->Body = $body;
 
         if (!$mail->Send()) {
             throw new EmailSendFailedException($mail->ErrorInfo);
