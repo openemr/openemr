@@ -382,7 +382,7 @@ $formAction .= '&mode=' . urlencode($mode);
             }
 
             document.getElementById('questionnaire_response').value = JSON.stringify(
-                questionnaireRuntime.getQuestionnaireResponse()
+                questionnaireRuntime.getQuestionnaireResponse({ complete: true })
             );
             return true;
         }

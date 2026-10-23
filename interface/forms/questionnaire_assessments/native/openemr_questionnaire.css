@@ -250,3 +250,70 @@
 .oe-questionnaire-runtime.oe-questionnaire-guides .oe-questionnaire-group > .card-body {
   border-left: 0.2rem solid rgb(0 0 0 / 12%);
 }
+
+/* lower / upper item controls: the bounds' meaning at either end of the answers. */
+.oe-questionnaire-runtime .oe-questionnaire-scale {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-scale > .custom-control {
+  margin-bottom: 0;
+}
+
+/* itemMedia / itemAnswerMedia */
+.oe-questionnaire-runtime .oe-questionnaire-media {
+  display: block;
+  height: auto;
+  margin: 0.25rem 0;
+  max-height: 16rem;
+  max-width: 100%;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-choice-label .oe-questionnaire-media {
+  max-height: 4rem;
+}
+
+/* header and footer item controls keep the group in view */
+.oe-questionnaire-runtime .oe-questionnaire-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-sticky-footer {
+  bottom: 0;
+  position: sticky;
+  z-index: 2;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-columns > .custom-control {
+  break-inside: avoid;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-slider .custom-range {
+  flex: 1 1 auto;
+}
+
+/* table (questions as rows, answers as columns) and gtable (a row per repetition) */
+.oe-questionnaire-runtime .oe-questionnaire-matrix th[scope='col'],
+.oe-questionnaire-runtime .oe-questionnaire-matrix td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-matrix th[scope='row'] {
+  font-weight: normal;
+  text-align: left;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-grid td {
+  vertical-align: top;
+}
+
+/* Wide tables scroll inside their group, not the page, with or without Bootstrap's table-responsive. */
+.oe-questionnaire-runtime .oe-questionnaire-group .table-responsive {
+  overflow-x: auto;
+}

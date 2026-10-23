@@ -28,6 +28,66 @@
         }
     })();
 
+    // The runtime's own words, in English. The host translates them the
+    // same way it supplies the version: <script data-openemr-strings="{...}">
+    // with the same keys (OpenEMR's include fills it with xl()), and
+    // options.strings overrides per mount. {0}, {1} are filled in order, so
+    // a translation can reorder them.
+    const DEFAULT_STRINGS = Object.freeze({
+        add: '+ Add {0}',
+        addItem: 'item',
+        remove: 'Remove',
+        instance: '#{0}',
+        yes: 'Yes',
+        no: 'No',
+        other: 'Other',
+        unit: 'Unit',
+        referencePlaceholder: 'Reference (e.g. Patient/123)',
+        currentFile: 'Current: {0}',
+        close: 'Close',
+        help: 'Help',
+        legal: 'Legal notice',
+        copyright: 'Copyright',
+        warningsHeading: 'Some questionnaire items could not be fully rendered',
+        unknownIssue: 'Unknown issue',
+        unsupportedType: 'Unsupported Questionnaire item type: {0}',
+        requiresValue: '{0} requires a value',
+        requiresAtLeast: '{0} requires at least {1} answers',
+        allowsAtMost: '{0} allows at most {1} answers',
+        maxLength: '{0} exceeds the maximum length',
+        minLength: '{0} needs at least {1} characters',
+        mimeType: '{0} must be a file of type {1}',
+        maxSize: '{0} must be at most {1} bytes',
+        regex: '{0} does not match the required format',
+        minValue: '{0} must be at least {1}',
+        maxValue: '{0} must be at most {1}',
+        maxDecimalPlaces: '{0} allows at most {1} decimal places',
+        moreInfo: 'More information',
+        referenceTo: 'Reference to {0} (e.g. {1}/123)',
+        referenceType: '{0} must refer to {1}',
+        signHere: 'Sign here',
+        signaturePad: 'Signature pad: draw your signature',
+        typeToSign: 'Or type your full name to sign',
+        clear: 'Clear',
+        signatureRequired: '{0} needs a signature',
+        thisForm: 'This form',
+        expand: 'Expand',
+        collapse: 'Collapse',
+    });
+    const SCRIPT_STRINGS = (() => {
+        try {
+            const value = global.document?.currentScript?.dataset?.openemrStrings;
+            const parsed = typeof value === 'string' && value !== '' ? JSON.parse(value) : {};
+            return parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+        } catch {
+            return {};
+        }
+    })();
+
+    function formatString(template, args) {
+        return String(template).replace(/\{(\d+)\}/g, (match, position) => (args[Number(position)] === undefined ? match : String(args[Number(position)])));
+    }
+
     // Separator for instance-qualified storage keys of children inside a
     // repeating group. NUL cannot occur in a FHIR linkId, so a plain linkId and
     // an instance-qualified key never collide: non-repeating questionnaires
@@ -67,6 +127,7 @@
     const EXTENSIONS = Object.freeze({
         ITEM_CONTROL: 'http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl',
         ORDINAL_VALUE: 'http://hl7.org/fhir/StructureDefinition/ordinalValue',
+        ITEM_WEIGHT: 'http://hl7.org/fhir/StructureDefinition/itemWeight',
         QUESTIONNAIRE_UNIT: 'http://hl7.org/fhir/StructureDefinition/questionnaire-unit',
         VARIABLE: 'http://hl7.org/fhir/StructureDefinition/variable',
         CALCULATED_EXPRESSION: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
@@ -88,7 +149,59 @@
         UNIT_OPTION: 'http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption',
         UNIT_OPEN: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-unitOpen',
         ANSWER_CONSTRAINT: 'http://hl7.org/fhir/StructureDefinition/questionnaire-answerConstraint',
+        MIN_LENGTH: 'http://hl7.org/fhir/StructureDefinition/minLength',
+        MIME_TYPE: 'http://hl7.org/fhir/StructureDefinition/mimeType',
+        MAX_SIZE: 'http://hl7.org/fhir/StructureDefinition/maxSize',
+        OPTION_EXCLUSIVE: 'http://hl7.org/fhir/StructureDefinition/questionnaire-optionExclusive',
+        CRITICAL_EXTENSION: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-rendering-criticalExtension',
+        ITEM_MEDIA: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemMedia',
+        ITEM_ANSWER_MEDIA: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemAnswerMedia',
+        COLLAPSIBLE: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-collapsible',
+        COLUMN_COUNT: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-columnCount',
+        SLIDER_STEP_VALUE: 'http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue',
+        SUPPORT_HYPERLINK: 'http://hl7.org/fhir/StructureDefinition/questionnaire-supportHyperlink',
+        USAGE_MODE: 'http://hl7.org/fhir/StructureDefinition/questionnaire-usageMode',
+        UNIT_VALUE_SET: 'http://hl7.org/fhir/StructureDefinition/questionnaire-unitValueSet',
+        REFERENCE_RESOURCE: 'http://hl7.org/fhir/StructureDefinition/questionnaire-referenceResource',
+        TARGET_CONSTRAINT: 'http://hl7.org/fhir/StructureDefinition/targetConstraint',
+        MIN_QUANTITY: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-minQuantity',
+        MAX_QUANTITY: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-maxQuantity',
+        CQF_EXPRESSION: 'http://hl7.org/fhir/StructureDefinition/cqf-expression',
+        ANSWER_EXPRESSION: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression',
+        ANSWER_OPTIONS_TOGGLE: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerOptionsToggleExpression',
+        LAUNCH_CONTEXT: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext',
+        SIGNATURE_REQUIRED: 'http://hl7.org/fhir/StructureDefinition/questionnaire-signatureRequired',
+        RESPONSE_SIGNATURE: 'http://hl7.org/fhir/StructureDefinition/questionnaireresponse-signature',
+        SUB_QUESTIONNAIRE: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire',
+        SHORT_TEXT: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-shortText',
+        WIDTH: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-width',
+        KEYBOARD: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-keyboard',
     });
+
+    // sdc-questionnaire-keyboard codes as the inputmode hint browsers understand.
+    const KEYBOARD_INPUT_MODES = Object.freeze({ phone: 'tel', email: 'email', number: 'decimal', url: 'url', chat: 'text' });
+
+    // cqf-expression on the item elements the runtime evaluates (_required, _readOnly, _text).
+    const DYNAMIC_ELEMENTS = Object.freeze(['required', 'readOnly', 'text']);
+
+    // Extensions SDC 4.0.0's Advanced Rendering and Advanced Behavior
+    // profiles list that this runtime doesn't act on. Those that change what
+    // is captured or valid get a visible warning; presentation-only ones a
+    // console note. Population and extraction extensions (launchContext,
+    // observationExtract ...) are left out: they don't change the form shown.
+    const SDC_BASE = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/';
+    const CORE_BASE = 'http://hl7.org/fhir/StructureDefinition/';
+    const UNSUPPORTED_BEHAVIOR_EXTENSIONS = Object.freeze([
+        SDC_BASE + 'sdc-questionnaire-candidateExpression',
+        SDC_BASE + 'sdc-questionnaire-lookupQuestionnaire',
+        CORE_BASE + 'cqf-expression',
+        CORE_BASE + 'questionnaire-referenceProfile',
+    ]);
+    const UNSUPPORTED_PRESENTATION_EXTENSIONS = Object.freeze([
+        SDC_BASE + 'sdc-questionnaire-choiceColumn',
+        SDC_BASE + 'sdc-questionnaire-entryMode',
+        CORE_BASE + 'rendering-style',
+    ]);
 
     function deepClone(value) {
         return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
@@ -170,6 +283,17 @@
         return item?.type === 'display' && DETACHED_DISPLAY_CONTROLS.includes(getItemControl(item));
     }
 
+    // Display-item text controls shown beside a question's answer area
+    // rather than as their own paragraph: 'prompt' "below or within the
+    // answer-entry area", 'unit' "adjacent to the answer space", 'lower' and
+    // 'upper' to the left and right of the answer choices. Under a group they
+    // render as ordinary text.
+    const ADJACENT_DISPLAY_CONTROLS = Object.freeze(['prompt', 'unit', 'lower', 'upper']);
+
+    function isAdjacentDisplay(item) {
+        return item?.type === 'display' && ADJACENT_DISPLAY_CONTROLS.includes(getItemControl(item));
+    }
+
     // The first help / legal / flyover display child of an item, by control.
     function getDisplayControls(item) {
         const controls = { help: null, legal: null, flyover: null };
@@ -180,6 +304,57 @@
             }
         }
         return controls;
+    }
+
+    // rendering-markdown on a primitive (_text, _prefix, _display, _valueString),
+    // which SDC's Advanced Rendering lists for titles, prefixes, item text and
+    // answer options. The plain value stays the fallback.
+    function markdownFor(holder, key) {
+        const markdown = (holder?.['_' + key]?.extension ?? []).find((extension) => extension?.url === RENDERING_MARKDOWN)?.valueMarkdown;
+        return typeof markdown === 'string' && markdown.trim() !== '' ? markdown : null;
+    }
+
+    // Inline markdown for a label (prefix kept as plain text before it), else the plain text.
+    function setInlineText(element, plain, markdown, prefix = '') {
+        if (markdown === null) {
+            element.textContent = plain;
+            return;
+        }
+        element.replaceChildren(...(prefix !== '' ? [document.createTextNode(prefix)] : []), ...parseMarkdownInline(markdown, document));
+    }
+
+    function answerOptionMarkdown(option) {
+        return markdownFor(option, 'valueString') ?? markdownFor(option?.valueCoding, 'display');
+    }
+
+    // An itemMedia / itemAnswerMedia Attachment: an image when it is one and
+    // its source is safe (http(s) url or inline data), else a link to it.
+    function mediaElement(attachment, alt) {
+        if (!attachment || typeof attachment !== 'object') {
+            return null;
+        }
+        const contentType = typeof attachment.contentType === 'string' ? attachment.contentType : '';
+        const source = typeof attachment.data === 'string' && attachment.data !== '' && /^image\//.test(contentType)
+            ? 'data:' + contentType + ';base64,' + attachment.data
+            : markdownSafeHref(attachment.url);
+        if (source === null || source.startsWith('mailto:') || source.startsWith('tel:')) {
+            return null;
+        }
+        const label = typeof attachment.title === 'string' && attachment.title !== '' ? attachment.title : alt;
+        if (contentType === '' || contentType.startsWith('image/')) {
+            const image = document.createElement('img');
+            image.className = 'oe-questionnaire-media';
+            image.src = source;
+            image.alt = label ?? '';
+            return image;
+        }
+        const link = document.createElement('a');
+        link.className = 'oe-questionnaire-media-link';
+        link.href = source;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = label || source;
+        return link;
     }
 
     // Plain display text, or GFM when the text carries the rendering-markdown
@@ -245,9 +420,12 @@
     }
 
     function getOrdinalValue(node) {
-        // ordinalValue may sit on the answerOption itself or inside its Coding
-        // (the latter when the option came from a ValueSet expansion entry).
-        const extension = findExtension(node, EXTENSIONS.ORDINAL_VALUE)
+        // itemWeight (which replaces the deprecated ordinalValue) or
+        // ordinalValue, on the answerOption itself or inside its Coding (the
+        // latter when the option came from a ValueSet expansion entry).
+        const extension = findExtension(node, EXTENSIONS.ITEM_WEIGHT)
+            ?? findExtension(node?.valueCoding, EXTENSIONS.ITEM_WEIGHT)
+            ?? findExtension(node, EXTENSIONS.ORDINAL_VALUE)
             ?? findExtension(node?.valueCoding, EXTENSIONS.ORDINAL_VALUE);
         const value = extension?.valueDecimal ?? extension?.valueInteger;
         return typeof value === 'number' ? value : null;
@@ -329,6 +507,17 @@
         return typeof value === 'number' && Number.isFinite(value) ? Math.trunc(value) : null;
     }
 
+    // The mimeType extension repeats: one valueCode per allowed type.
+    function attachmentMimeTypes(item) {
+        return findExtensions(item, EXTENSIONS.MIME_TYPE)
+            .map((extension) => extension?.valueCode)
+            .filter((code) => typeof code === 'string' && code !== '');
+    }
+
+    function isExclusiveOption(option) {
+        return getBooleanExtension(option, EXTENSIONS.OPTION_EXCLUSIVE) === true;
+    }
+
     function getStringExtension(item, url) {
         const extension = findExtension(item, url);
         const value = extension?.valueString ?? extension?.valueCode;
@@ -344,17 +533,112 @@
         return value === 'horizontal' ? 'horizontal' : 'vertical';
     }
 
+    // questionnaire-constraint (R4) and targetConstraint (its successor in
+    // SDC 4.0.0, whose expression is an Expression rather than a string).
     function getConstraints(item) {
-        return findExtensions(item, EXTENSIONS.CONSTRAINT).map((extension) => {
+        return [...findExtensions(item, EXTENSIONS.CONSTRAINT), ...findExtensions(item, EXTENSIONS.TARGET_CONSTRAINT)].map((extension) => {
             const parts = extension?.extension ?? [];
             const read = (url) => extensionValueX(parts.find((part) => part?.url === url));
+            const expression = read('expression');
             return {
                 key: read('key'),
                 severity: read('severity') ?? 'error',
                 human: read('human') ?? 'Value does not satisfy a constraint',
-                expression: read('expression'),
+                expression: expression !== null && typeof expression === 'object'
+                    ? (expression.language === 'text/fhirpath' ? expression.expression : undefined)
+                    : expression,
             };
         }).filter((constraint) => typeof constraint.expression === 'string' && constraint.expression !== '');
+    }
+
+    // An item element's own expression (cqf-expression on _required, ...).
+    function elementExpression(item, element) {
+        const expression = (item?.['_' + element]?.extension ?? []).find((extension) => extension?.url === EXTENSIONS.CQF_EXPRESSION)?.valueExpression;
+        return expression && typeof expression === 'object' ? expression : null;
+    }
+
+    // answerOptionsToggleExpression: the options it names are available only while its expression is true.
+    function getOptionToggles(item) {
+        return findExtensions(item, EXTENSIONS.ANSWER_OPTIONS_TOGGLE).map((extension) => {
+            const parts = extension?.extension ?? [];
+            return {
+                options: parts.filter((part) => part?.url === 'option').map(extensionValueX).filter((value) => value !== undefined),
+                expression: parts.find((part) => part?.url === 'expression')?.valueExpression ?? null,
+            };
+        }).filter((toggle) => toggle.expression && toggle.options.length > 0);
+    }
+
+    // answerExpression results as answerOptions.
+    function valuesToAnswerOptions(values, item) {
+        return asCollection(values).map((value) => {
+            if (value !== null && typeof value === 'object') {
+                return 'reference' in value ? { valueReference: value } : { valueCoding: value };
+            }
+            if (typeof value === 'number') {
+                return Number.isInteger(value) ? { valueInteger: value } : { valueString: String(value) };
+            }
+            if (typeof value === 'string' && (item.type === 'date' || item.type === 'time')) {
+                return item.type === 'date' ? { valueDate: value } : { valueTime: value };
+            }
+            return { valueString: String(value) };
+        });
+    }
+
+    // The renderer's node for a signature pad: not a linkId, so it never collides with one.
+    function signatureNodeKey(key) {
+        return INSTANCE_SEPARATOR + 'signature' + INSTANCE_SEPARATOR + key;
+    }
+
+    // UTF-8 text to and from base64, without TextEncoder (not in every embedding).
+    function utf8Base64(text) {
+        return btoa(encodeURIComponent(text).replace(/%([0-9A-F]{2})/g, (match, hex) => String.fromCharCode(Number.parseInt(hex, 16))));
+    }
+
+    function base64Utf8(data) {
+        return decodeURIComponent(Array.from(atob(data), (character) => '%' + character.charCodeAt(0).toString(16).padStart(2, '0')).join(''));
+    }
+
+    // SDC modular forms: each display item carrying subQuestionnaire is
+    // replaced by the referenced Questionnaire's items, from the forms the
+    // host supplies (options.subQuestionnaires, by canonical, with or without
+    // |version), recursively; their contained resources join the form's.
+    // One the host didn't supply stays as it is, and is reported.
+    function assembleQuestionnaire(questionnaire, supplied) {
+        const lookup = (canonical) => supplied[canonical] ?? supplied[String(canonical).split('|')[0]] ?? null;
+        const contained = [...(questionnaire.contained ?? [])];
+        const seen = new Set();
+        const expand = (items) => (items ?? []).flatMap((item) => {
+            const canonical = findExtension(item, EXTENSIONS.SUB_QUESTIONNAIRE)?.valueCanonical;
+            const sub = item.type === 'display' && typeof canonical === 'string' && !seen.has(canonical) ? lookup(canonical) : null;
+            if (sub && Array.isArray(sub.item)) {
+                seen.add(canonical);
+                for (const resource of sub.contained ?? []) {
+                    if (!contained.some((existing) => existing?.id === resource?.id)) {
+                        contained.push(deepClone(resource));
+                    }
+                }
+                const inlined = expand(deepClone(sub.item));
+                seen.delete(canonical);
+                return inlined;
+            }
+            return [Array.isArray(item.item) ? { ...item, item: expand(item.item) } : item];
+        });
+        const assembled = { ...questionnaire, item: expand(questionnaire.item) };
+        if (contained.length > 0) {
+            assembled.contained = contained;
+        }
+        return assembled;
+    }
+
+    // usageMode display / display-non-empty: shown when reviewing a form, not while filling it.
+    function isDisplayOnly(item) {
+        return ['display', 'display-non-empty'].includes(getStringExtension(item, EXTENSIONS.USAGE_MODE));
+    }
+
+    function referenceTypes(item) {
+        return findExtensions(item, EXTENSIONS.REFERENCE_RESOURCE)
+            .map((extension) => extension?.valueCode)
+            .filter((code) => typeof code === 'string' && code !== '');
     }
 
     function getAnswerOptionValue(answerOption) {
@@ -498,6 +782,134 @@
         return `${year}-${month}-${day}T${hour}:${minute}:${second}${fractionalSeconds}${offsetSign}${offsetHours}:${offsetRemainder}`;
     }
 
+    // FHIRPath calendar durations (singular and plural) and the UCUM units
+    // that date arithmetic accepts in their place, by the field they move.
+    const CALENDAR_UNITS = Object.freeze({
+        year: 'year', years: 'year', month: 'month', months: 'month', week: 'week', weeks: 'week',
+        day: 'day', days: 'day', hour: 'hour', hours: 'hour', minute: 'minute', minutes: 'minute',
+        second: 'second', seconds: 'second',
+    });
+    const UCUM_CALENDAR_UNITS = Object.freeze({ a: 'year', mo: 'month', wk: 'week', d: 'day', h: 'hour', min: 'minute', s: 'second' });
+    const FHIR_DATE_PATTERN = /^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(\.\d+)?)?(Z|[+-]\d{2}:\d{2})?)?$/;
+
+    function fhirToday(now = new Date()) {
+        return now.getFullYear() + '-' + padDateTimePart(now.getMonth() + 1) + '-' + padDateTimePart(now.getDate());
+    }
+
+    function fhirNow(now = new Date()) {
+        return toFhirDateTime(fhirToday(now) + 'T' + padDateTimePart(now.getHours()) + ':'
+            + padDateTimePart(now.getMinutes()) + ':' + padDateTimePart(now.getSeconds()));
+    }
+
+    // A FHIR date or dateTime moved by a calendar duration, kept at its own
+    // precision. A month or year past the end of a shorter month lands on its
+    // last day (2026-01-31 + 1 month = 2026-02-28). A unit finer than the
+    // value's precision gives null, as does anything that isn't a date.
+    function shiftFhirDate(value, quantity, sign) {
+        const match = typeof value === 'string' ? FHIR_DATE_PATTERN.exec(value) : null;
+        const unit = CALENDAR_UNITS[String(quantity?.unit ?? '').toLowerCase()] ?? UCUM_CALENDAR_UNITS[quantity?.unit] ?? null;
+        const amount = sign * Math.trunc(Number(quantity?.value));
+        if (!match || unit === null || !Number.isFinite(amount)) {
+            return null;
+        }
+        const [, year, month, day, hour, minute, second, fraction = '', zone = ''] = match;
+        const precision = hour !== undefined ? 'time' : (day !== undefined ? 'day' : (month !== undefined ? 'month' : 'year'));
+        const finest = { year: ['year'], month: ['year', 'month'], day: ['year', 'month', 'week', 'day'] }[precision];
+        if (finest !== undefined && !finest.includes(unit)) {
+            return null;
+        }
+        let date;
+        if (unit === 'year' || unit === 'month') {
+            const months = Number(year) * 12 + (month !== undefined ? Number(month) - 1 : 0) + (unit === 'year' ? 12 * amount : amount);
+            const newYear = Math.floor(months / 12);
+            const newMonth = ((months % 12) + 12) % 12;
+            const lastDay = new Date(Date.UTC(newYear, newMonth + 1, 0)).getUTCDate();
+            date = new Date(Date.UTC(newYear, newMonth, Math.min(day !== undefined ? Number(day) : 1, lastDay),
+                Number(hour ?? 0), Number(minute ?? 0), Number(second ?? 0)));
+        } else {
+            date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour ?? 0), Number(minute ?? 0), Number(second ?? 0)));
+            const milliseconds = { week: 604800000, day: 86400000, hour: 3600000, minute: 60000, second: 1000 }[unit];
+            date = new Date(date.getTime() + amount * milliseconds);
+        }
+        const yearText = String(date.getUTCFullYear()).padStart(4, '0');
+        const monthText = padDateTimePart(date.getUTCMonth() + 1);
+        const dayText = padDateTimePart(date.getUTCDate());
+        if (precision === 'year') return yearText;
+        if (precision === 'month') return yearText + '-' + monthText;
+        if (precision === 'day') return yearText + '-' + monthText + '-' + dayText;
+        return yearText + '-' + monthText + '-' + dayText + 'T' + padDateTimePart(date.getUTCHours()) + ':' + padDateTimePart(date.getUTCMinutes())
+            + (second !== undefined ? ':' + padDateTimePart(date.getUTCSeconds()) + fraction : '') + zone;
+    }
+
+    // FHIRPath's type test (is, as, ofType) over the plain JSON the runtime
+    // evaluates. Dates are JSON strings, so a string that reads as a date,
+    // dateTime or time counts as that type rather than as a string.
+    const FHIR_TIME_PATTERN = /^\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?$/;
+    function fhirPathTypeMatches(value, typeName) {
+        const name = String(typeName).toLowerCase();
+        const isDateLike = typeof value === 'string' && (FHIR_DATE_PATTERN.test(value) || FHIR_TIME_PATTERN.test(value));
+        switch (name) {
+            case 'boolean':
+                return typeof value === 'boolean';
+            case 'integer':
+                return typeof value === 'number' && Number.isInteger(value);
+            case 'decimal':
+                return typeof value === 'number';
+            case 'string':
+            case 'code':
+            case 'uri':
+            case 'url':
+            case 'canonical':
+            case 'id':
+            case 'markdown':
+                return typeof value === 'string' && !isDateLike;
+            case 'date':
+                return typeof value === 'string' && FHIR_DATE_PATTERN.test(value) && !value.includes('T');
+            case 'datetime':
+                return typeof value === 'string' && FHIR_DATE_PATTERN.test(value);
+            case 'time':
+                return typeof value === 'string' && FHIR_TIME_PATTERN.test(value);
+            case 'coding':
+                return value !== null && typeof value === 'object' && ('code' in value || 'system' in value) && !('value' in value);
+            case 'quantity':
+                return value !== null && typeof value === 'object' && typeof value.value === 'number';
+            case 'reference':
+                return value !== null && typeof value === 'object' && typeof value.reference === 'string';
+            case 'attachment':
+                return value !== null && typeof value === 'object' && ('contentType' in value || 'data' in value || 'url' in value) && !('reference' in value);
+            default:
+                return value !== null && typeof value === 'object' && value.resourceType === typeName;
+        }
+    }
+
+    // A Coding's weight (SDC weight(), formerly ordinal()): its own itemWeight
+    // or ordinalValue, else that of the answerOption carrying the same code
+    // anywhere in the Questionnaire.
+    function codingWeight(coding, questionnaire) {
+        const own = getOrdinalValue({ valueCoding: coding });
+        if (own !== null) {
+            return own;
+        }
+        const visit = (items) => {
+            for (const item of items ?? []) {
+                for (const option of item.answerOption ?? []) {
+                    if (option.valueCoding && equalPrimitive(option.valueCoding, coding)) {
+                        const weight = getOrdinalValue(option);
+                        if (weight !== null) {
+                            return weight;
+                        }
+                    }
+                }
+                const nested = visit(item.item);
+                if (nested !== null) {
+                    return nested;
+                }
+            }
+            return null;
+        };
+        return coding !== null && typeof coding === 'object' ? visit(questionnaire?.item) : null;
+    }
+
     class QuestionnaireCompiler {
         compile(questionnaire) {
             if (!questionnaire || questionnaire.resourceType !== 'Questionnaire') {
@@ -542,11 +954,16 @@
                         parentLinkId,
                         depth,
                         itemControl: getItemControl(item),
-                        hidden: isHiddenItem(item),
+                        hidden: isHiddenItem(item) || isDisplayOnly(item),
                         calculatedExpression: findExtension(item, EXTENSIONS.CALCULATED_EXPRESSION)?.valueExpression ?? null,
                         initialExpression: findExtension(item, EXTENSIONS.INITIAL_EXPRESSION)?.valueExpression ?? null,
                         enableWhenExpression: findExtension(item, EXTENSIONS.ENABLE_WHEN_EXPRESSION)?.valueExpression ?? null,
                         constraints: getConstraints(item),
+                        requiredExpression: elementExpression(item, 'required'),
+                        readOnlyExpression: elementExpression(item, 'readOnly'),
+                        textExpression: elementExpression(item, 'text'),
+                        answerExpression: findExtension(item, EXTENSIONS.ANSWER_EXPRESSION)?.valueExpression ?? null,
+                        optionToggles: getOptionToggles(item),
                         variables: findExtensions(item, EXTENSIONS.VARIABLE)
                             .map((extension) => extension?.valueExpression)
                             .filter((expression) => expression && typeof expression.name === 'string'),
@@ -569,6 +986,11 @@
                         || compiledItem.enableWhenExpression
                         || compiledItem.constraints.length > 0
                         || compiledItem.variables.length > 0
+                        || compiledItem.requiredExpression
+                        || compiledItem.readOnlyExpression
+                        || compiledItem.textExpression
+                        || compiledItem.answerExpression
+                        || compiledItem.optionToggles.length > 0
                     ) {
                         compiled.expressionItems.push(compiledItem);
                     }
@@ -628,6 +1050,25 @@
             };
 
             walk(questionnaire.item);
+            this.checkExtensions(questionnaire, compiled);
+            const signatureType = (holder) => {
+                const extension = findExtension(holder, EXTENSIONS.SIGNATURE_REQUIRED);
+                return extension ? (extension.valueCodeableConcept?.coding ?? []) : null;
+            };
+            compiled.signatureRequirements = [];
+            if (signatureType(questionnaire) !== null) {
+                compiled.signatureRequirements.push({ key: '', type: signatureType(questionnaire) });
+            }
+            for (const compiledItem of compiled.items) {
+                const type = signatureType(compiledItem.item);
+                if (type !== null) {
+                    compiled.signatureRequirements.push({ key: compiledItem.linkId, type });
+                }
+            }
+            compiled.launchContextNames = findExtensions(questionnaire, EXTENSIONS.LAUNCH_CONTEXT)
+                .map((extension) => (extension?.extension ?? []).find((part) => part?.url === 'name'))
+                .map((part) => part?.valueCoding?.code ?? part?.valueId)
+                .filter((name) => typeof name === 'string' && name !== '');
 
             // Precompute, for every item, the chain of repeating-group ancestors
             // (outermost first), and for every repeating group the set of its
@@ -676,6 +1117,92 @@
             }
 
             return compiled;
+        }
+
+        // SDC's rendering-criticalExtension names extensions a form can't be
+        // shown without; one this runtime doesn't support stops the render
+        // ("should display an error message or warning and refrain from
+        // presenting the instance"). Other spec extensions it doesn't act on
+        // are reported once each, with the first item that carries them.
+        checkExtensions(questionnaire, compiled) {
+            const supported = new Set([...Object.values(EXTENSIONS).filter((url) => url !== EXTENSIONS.CQF_EXPRESSION), RENDERING_MARKDOWN, CORE_BASE + 'rendering-xhtml']);
+            const critical = [...(questionnaire.extension ?? []), ...(questionnaire.modifierExtension ?? [])]
+                .filter((extension) => extension?.url === EXTENSIONS.CRITICAL_EXTENSION)
+                .map((extension) => extension.valueCanonical ?? extension.valueUri ?? extension.valueUrl)
+                .filter((url) => typeof url === 'string' && url !== '');
+            compiled.unsupportedCritical = critical.filter((url) => !supported.has(url.split('|')[0]));
+            for (const url of compiled.unsupportedCritical) {
+                compiled.warnings.push({
+                    code: 'critical-extension-unsupported',
+                    severity: 'error',
+                    message: 'This form needs ' + url + ', which this renderer does not support, so it is not shown.',
+                });
+            }
+
+            // A subQuestionnaire still here wasn't supplied by the host, so its part of the form is missing.
+            for (const compiledItem of compiled.items) {
+                const canonical = findExtension(compiledItem.item, EXTENSIONS.SUB_QUESTIONNAIRE)?.valueCanonical;
+                if (compiledItem.item.type === 'display' && typeof canonical === 'string') {
+                    compiled.warnings.push({
+                        code: 'sub-questionnaire-missing',
+                        linkId: compiledItem.linkId,
+                        message: 'This form includes ' + canonical + ', which was not supplied, so that part is not shown.',
+                    });
+                }
+            }
+
+            const handledControls = ['drop-down', 'check-box', 'radio-button', 'autocomplete', 'slider', 'spinner', 'text-box', 'list',
+                'table', 'gtable', 'header', 'footer', 'help', 'legal', 'flyover', 'prompt', 'unit', 'lower', 'upper', 'inline'];
+            for (const compiledItem of compiled.items) {
+                const itemControl = compiledItem.itemControl;
+                if (itemControl !== '' && !handledControls.includes(itemControl)) {
+                    compiled.warnings.push({
+                        code: 'item-control-unsupported',
+                        linkId: compiledItem.linkId,
+                        severity: 'info',
+                        message: 'Item control "' + itemControl + '" is not supported here; the item is shown the default way.',
+                    });
+                }
+            }
+
+            const firstUse = new Map();
+            const evaluatedElements = DYNAMIC_ELEMENTS.map((element) => '_' + element);
+            const visit = (node, linkId, key = '') => {
+                if (Array.isArray(node)) {
+                    node.forEach((child) => visit(child, linkId, key));
+                    return;
+                }
+                if (node === null || typeof node !== 'object') {
+                    return;
+                }
+                const here = typeof node.linkId === 'string' ? node.linkId : linkId;
+                for (const extension of [...(node.extension ?? []), ...(node.modifierExtension ?? [])]) {
+                    const evaluated = extension?.url === EXTENSIONS.CQF_EXPRESSION && evaluatedElements.includes(key);
+                    if (typeof extension?.url === 'string' && !evaluated && !firstUse.has(extension.url)) {
+                        firstUse.set(extension.url, here);
+                    }
+                }
+                for (const [childKey, value] of Object.entries(node)) {
+                    if (childKey !== 'contained' && value !== null && typeof value === 'object') {
+                        visit(value, here, childKey);
+                    }
+                }
+            };
+            visit(questionnaire.item, undefined);
+            visit(questionnaire.extension ?? [], undefined);
+            for (const [url, linkId] of firstUse) {
+                const behavior = UNSUPPORTED_BEHAVIOR_EXTENSIONS.includes(url);
+                if (!behavior && !UNSUPPORTED_PRESENTATION_EXTENSIONS.includes(url)) {
+                    continue;
+                }
+                compiled.warnings.push({
+                    code: 'extension-unsupported',
+                    linkId,
+                    severity: behavior ? 'warning' : 'info',
+                    message: url.slice(url.lastIndexOf('/') + 1) + ' is not supported here, so it has no effect'
+                        + (behavior ? ' on what is captured or checked.' : ' on how the form looks.'),
+                });
+            }
         }
     }
 
@@ -1024,19 +1551,32 @@
                     continue;
                 }
 
+                // Date, dateTime and time literals: @2026-10-23, @2026-10-23T10:30:00Z, @T10:30.
+                if (character === '@') {
+                    const match = /^@(?:T\d{2}(?::\d{2}(?::\d{2}(?:\.\d+)?)?)?|\d{4}(?:-\d{2}(?:-\d{2})?)?(?:T(?:\d{2}(?::\d{2}(?::\d{2}(?:\.\d+)?)?)?)?(?:Z|[+-]\d{2}:\d{2})?)?)/
+                        .exec(source.slice(index));
+                    if (!match || match[0] === '@') {
+                        throw new Error('Invalid FHIRPath date literal at position ' + index + '.');
+                    }
+                    const literal = match[0].slice(1);
+                    push('date', literal.endsWith('T') ? literal.slice(0, -1) : literal, index);
+                    index += match[0].length;
+                    continue;
+                }
+
                 const twoCharacter = source.slice(index, index + 2);
-                if (['!=', '>=', '<='].includes(twoCharacter)) {
+                if (['!=', '>=', '<=', '!~'].includes(twoCharacter)) {
                     push('operator', twoCharacter, index);
                     index += 2;
                     continue;
                 }
 
-                if (['=', '>', '<', '+', '-', '*', '/'].includes(character)) {
+                if (['=', '>', '<', '+', '-', '*', '/', '|', '&', '~'].includes(character)) {
                     push('operator', character, index++);
                     continue;
                 }
 
-                if (['%', '.', ',', '(', ')', '{', '}'].includes(character)) {
+                if (['%', '.', ',', '(', ')', '{', '}', '[', ']'].includes(character)) {
                     push(character, character, index++);
                     continue;
                 }
@@ -1057,9 +1597,38 @@
         parse(source) {
             this.tokens = this.tokenizer.tokenize(source);
             this.index = 0;
-            const expression = this.parseOr();
+            const expression = this.parseExpression();
             this.expect('eof');
             return expression;
+        }
+
+        // FHIRPath operator precedence, loosest first: implies; or, xor; and;
+        // in, contains; =, ~, !=, !~; >, <, >=, <=; |; is, as; +, -, &;
+        // *, /, div, mod; unary + and -; then invocation and indexing.
+        parseExpression() {
+            let expression = this.parseOr();
+            while (this.consumeKeyword('implies')) {
+                expression = { type: 'binary', operator: 'implies', left: expression, right: this.parseOr() };
+            }
+            return expression;
+        }
+
+        consumeOperator(values) {
+            const token = this.current();
+            if (token.type === 'operator' && values.includes(token.value)) {
+                this.index++;
+                return token.value;
+            }
+            return null;
+        }
+
+        consumeAnyKeyword(keywords) {
+            for (const keyword of keywords) {
+                if (this.consumeKeyword(keyword)) {
+                    return keyword;
+                }
+            }
+            return null;
         }
 
         current() {
@@ -1095,62 +1664,120 @@
 
         parseOr() {
             let expression = this.parseAnd();
-            while (this.consumeKeyword('or')) {
-                expression = { type: 'binary', operator: 'or', left: expression, right: this.parseAnd() };
+            let operator;
+            while ((operator = this.consumeAnyKeyword(['or', 'xor']))) {
+                expression = { type: 'binary', operator, left: expression, right: this.parseAnd() };
             }
             return expression;
         }
 
         parseAnd() {
-            let expression = this.parseComparison();
+            let expression = this.parseMembership();
             while (this.consumeKeyword('and')) {
-                expression = { type: 'binary', operator: 'and', left: expression, right: this.parseComparison() };
+                expression = { type: 'binary', operator: 'and', left: expression, right: this.parseMembership() };
+            }
+            return expression;
+        }
+
+        parseMembership() {
+            let expression = this.parseEquality();
+            let operator;
+            while ((operator = this.consumeAnyKeyword(['in', 'contains']))) {
+                expression = { type: 'binary', operator, left: expression, right: this.parseEquality() };
+            }
+            return expression;
+        }
+
+        parseEquality() {
+            let expression = this.parseComparison();
+            let operator;
+            while ((operator = this.consumeOperator(['=', '!=', '~', '!~']))) {
+                expression = { type: 'binary', operator, left: expression, right: this.parseComparison() };
             }
             return expression;
         }
 
         parseComparison() {
-            let expression = this.parseAdditive();
-            const token = this.current();
-            if (token.type === 'operator' && ['=', '!=', '>', '<', '>=', '<='].includes(token.value)) {
-                this.index++;
-                expression = { type: 'binary', operator: token.value, left: expression, right: this.parseAdditive() };
+            let expression = this.parseUnion();
+            let operator;
+            while ((operator = this.consumeOperator(['>', '<', '>=', '<=']))) {
+                expression = { type: 'binary', operator, left: expression, right: this.parseUnion() };
             }
             return expression;
         }
 
+        parseUnion() {
+            let expression = this.parseTypeOperator();
+            while (this.consumeOperator(['|'])) {
+                expression = { type: 'binary', operator: '|', left: expression, right: this.parseTypeOperator() };
+            }
+            return expression;
+        }
+
+        parseTypeOperator() {
+            let expression = this.parseAdditive();
+            let operator;
+            while ((operator = this.consumeAnyKeyword(['is', 'as']))) {
+                const typeName = this.parseTypeSpecifier();
+                expression = { type: 'typeOperator', operator, source: expression, typeName };
+            }
+            return expression;
+        }
+
+        // A type name, optionally namespaced (System.Integer, FHIR.Coding).
+        parseTypeSpecifier() {
+            let name = this.expect('identifier').value;
+            while (this.consume('.')) {
+                name = this.expect('identifier').value;
+            }
+            return name;
+        }
+
         parseAdditive() {
             let expression = this.parseMultiplicative();
-            while (this.current().type === 'operator' && ['+', '-'].includes(this.current().value)) {
-                const operator = this.current().value;
-                this.index++;
+            let operator;
+            while ((operator = this.consumeOperator(['+', '-', '&']))) {
                 expression = { type: 'binary', operator, left: expression, right: this.parseMultiplicative() };
             }
             return expression;
         }
 
         parseMultiplicative() {
-            let expression = this.parsePostfix();
-            while (this.current().type === 'operator' && ['*', '/'].includes(this.current().value)) {
-                const operator = this.current().value;
-                this.index++;
-                expression = { type: 'binary', operator, left: expression, right: this.parsePostfix() };
+            let expression = this.parseUnary();
+            let operator;
+            while ((operator = this.consumeOperator(['*', '/']) ?? this.consumeAnyKeyword(['div', 'mod']))) {
+                expression = { type: 'binary', operator, left: expression, right: this.parseUnary() };
             }
             return expression;
         }
 
+        parseUnary() {
+            const operator = this.consumeOperator(['+', '-']);
+            if (operator === '-') {
+                return { type: 'binary', operator: '*', left: { type: 'literal', value: -1 }, right: this.parseUnary() };
+            }
+            return this.parsePostfix();
+        }
+
         parsePostfix() {
             let expression = this.parsePrimary();
-            while (this.consume('.')) {
-                const name = this.expect('identifier').value;
-                if (this.consume('(')) {
-                    const args = this.parseArguments();
-                    expression = { type: 'method', name, source: expression, args };
+            for (;;) {
+                if (this.consume('.')) {
+                    const name = this.expect('identifier').value;
+                    if (this.consume('(')) {
+                        const args = this.parseArguments();
+                        expression = { type: 'method', name, source: expression, args };
+                    } else {
+                        expression = { type: 'property', name, source: expression };
+                    }
+                } else if (this.consume('[')) {
+                    const index = this.parseExpression();
+                    this.expect(']');
+                    expression = { type: 'index', source: expression, index };
                 } else {
-                    expression = { type: 'property', name, source: expression };
+                    return expression;
                 }
             }
-            return expression;
         }
 
         parsePrimary() {
@@ -1170,7 +1797,23 @@
 
             const numberToken = this.consume('number');
             if (numberToken) {
+                // A quantity literal: a number with a calendar duration (4 days)
+                // or a quoted UCUM unit (4 'mg').
+                const unitToken = this.current();
+                if (unitToken.type === 'identifier' && CALENDAR_UNITS[unitToken.value.toLowerCase()] !== undefined) {
+                    this.index++;
+                    return { type: 'literal', value: { value: numberToken.value, unit: CALENDAR_UNITS[unitToken.value.toLowerCase()] } };
+                }
+                if (unitToken.type === 'string') {
+                    this.index++;
+                    return { type: 'literal', value: { value: numberToken.value, unit: unitToken.value, code: unitToken.value } };
+                }
                 return { type: 'literal', value: numberToken.value };
+            }
+
+            const dateToken = this.consume('date');
+            if (dateToken) {
+                return { type: 'literal', value: dateToken.value };
             }
 
             if (this.consume('{')) {
@@ -1179,7 +1822,7 @@
             }
 
             if (this.consume('(')) {
-                const expression = this.parseOr();
+                const expression = this.parseExpression();
                 this.expect(')');
                 return expression;
             }
@@ -1206,7 +1849,7 @@
                 return args;
             }
             do {
-                args.push(this.parseOr());
+                args.push(this.parseExpression());
             } while (this.consume(','));
             this.expect(')');
             return args;
@@ -1243,6 +1886,21 @@
                     return this.evaluateFunction(ast, environment, context);
                 case 'binary':
                     return this.evaluateBinary(ast, environment, context);
+                case 'index': {
+                    const collection = asCollection(this.evaluate(ast.source, environment, context));
+                    const position = firstValue(this.evaluate(ast.index, environment, context));
+                    return Number.isInteger(position) && position >= 0 && position < collection.length ? [collection[position]] : [];
+                }
+                case 'typeOperator': {
+                    const collection = asCollection(this.evaluate(ast.source, environment, context));
+                    if (collection.length > 1) {
+                        throw new Error('FHIRPath "' + ast.operator + '" needs a single item, not ' + collection.length + '.');
+                    }
+                    if (ast.operator === 'is') {
+                        return collection.length === 0 ? [] : [fhirPathTypeMatches(collection[0], ast.typeName)];
+                    }
+                    return collection.filter((value) => fhirPathTypeMatches(value, ast.typeName));
+                }
                 default:
                     throw new Error('Unsupported FHIRPath AST node: ' + ast.type + '.');
             }
@@ -1390,6 +2048,223 @@
                 case 'sum':
                     return [asCollection(source).reduce((sum, value) => sum + Number(value), 0)];
                 default:
+                    return this.evaluateMoreMethods(name, ast, asCollection(source), environment, context);
+            }
+        }
+
+        // FHIRPath 2.0.0 functions beyond the scoped ones above, FHIR's
+        // extension(), and SDC's weight() (ordinal() before it).
+        evaluateMoreMethods(name, ast, collection, environment, context) {
+            const arg = (position) => this.evaluate(ast.args[position], environment, context);
+            const argValue = (position) => firstValue(arg(position));
+            const typeArgument = () => {
+                const node = ast.args[0];
+                if (node?.type === 'identifier') return node.name;
+                if (node?.type === 'property') return node.name;
+                throw new Error('FHIRPath ' + ast.name + '() needs a type name.');
+            };
+            // Functions defined on a single input: empty in, empty out; more than one is an error.
+            const onSingle = (apply) => {
+                if (collection.length === 0) return [];
+                if (collection.length > 1) {
+                    throw new Error('FHIRPath ' + ast.name + '() needs a single item, not ' + collection.length + '.');
+                }
+                const result = apply(collection[0]);
+                return result === null || result === undefined || (typeof result === 'number' && !Number.isFinite(result)) ? [] : [result];
+            };
+            const onString = (apply) => onSingle((value) => (typeof value === 'string' ? apply(value) : null));
+            const onNumber = (apply) => onSingle((value) => (typeof value === 'number' ? apply(value) : null));
+            const signature = (value) => JSON.stringify(value);
+            const distinct = (values) => {
+                const seen = new Set();
+                return values.filter((value) => !seen.has(signature(value)) && seen.add(signature(value)));
+            };
+            const children = (values) => {
+                const output = [];
+                for (const value of values) {
+                    if (value !== null && typeof value === 'object') {
+                        for (const child of Object.values(value)) {
+                            output.push(...(Array.isArray(child) ? child : [child]));
+                        }
+                    }
+                }
+                return output.filter((value) => value !== null && value !== undefined);
+            };
+            switch (name) {
+                case 'not':
+                    return collection.length === 0 ? [] : [!collectionBoolean(collection)];
+                case 'oftype':
+                    return collection.filter((value) => fhirPathTypeMatches(value, typeArgument()));
+                case 'is':
+                    return onSingle((value) => fhirPathTypeMatches(value, typeArgument()));
+                case 'as':
+                    return onSingle((value) => (fhirPathTypeMatches(value, typeArgument()) ? value : null));
+                case 'single':
+                    return onSingle((value) => value);
+                case 'tail':
+                    return collection.slice(1);
+                case 'skip':
+                    return collection.slice(Math.max(0, Number(argValue(0)) || 0));
+                case 'take':
+                    return collection.slice(0, Math.max(0, Number(argValue(0)) || 0));
+                case 'union':
+                    return distinct([...collection, ...arg(0)]);
+                case 'combine':
+                    return [...collection, ...arg(0)];
+                case 'intersect': {
+                    const other = new Set(arg(0).map(signature));
+                    return distinct(collection.filter((value) => other.has(signature(value))));
+                }
+                case 'exclude': {
+                    const other = new Set(arg(0).map(signature));
+                    return collection.filter((value) => !other.has(signature(value)));
+                }
+                case 'isdistinct':
+                    return [distinct(collection).length === collection.length];
+                case 'subsetof': {
+                    const other = new Set(arg(0).map(signature));
+                    return [collection.every((value) => other.has(signature(value)))];
+                }
+                case 'supersetof': {
+                    const own = new Set(collection.map(signature));
+                    return [arg(0).every((value) => own.has(signature(value)))];
+                }
+                case 'alltrue':
+                    return [collection.every((value) => value === true)];
+                case 'anytrue':
+                    return [collection.some((value) => value === true)];
+                case 'allfalse':
+                    return [collection.every((value) => value === false)];
+                case 'anyfalse':
+                    return [collection.some((value) => value === false)];
+                case 'hasvalue':
+                    return [collection.length === 1 && (collection[0] === null || typeof collection[0] !== 'object')];
+                case 'trace':
+                    return collection;
+                case 'children':
+                    return children(collection);
+                case 'descendants': {
+                    const output = [];
+                    let frontier = children(collection);
+                    for (let depth = 0; frontier.length > 0 && depth < 100; depth++) {
+                        output.push(...frontier);
+                        frontier = children(frontier);
+                    }
+                    return output;
+                }
+                case 'extension': {
+                    const url = argValue(0);
+                    return children(collection.map((value) => ({ extension: value?.extension ?? [] })))
+                        .filter((extension) => extension?.url === url);
+                }
+                case 'weight':
+                case 'ordinal': {
+                    const questionnaire = environment.questionnaire;
+                    return collection.map((value) => codingWeight(value, questionnaire)).filter((weight) => weight !== null);
+                }
+                case 'min':
+                case 'max': {
+                    const numbers = collection.filter((value) => typeof value === 'number');
+                    if (numbers.length === 0) return [];
+                    return [name === 'min' ? Math.min(...numbers) : Math.max(...numbers)];
+                }
+                case 'avg': {
+                    const numbers = collection.filter((value) => typeof value === 'number');
+                    return numbers.length === 0 ? [] : [numbers.reduce((sum, value) => sum + value, 0) / numbers.length];
+                }
+                // Strings.
+                case 'length':
+                    return onString((value) => value.length);
+                case 'upper':
+                    return onString((value) => value.toUpperCase());
+                case 'lower':
+                    return onString((value) => value.toLowerCase());
+                case 'trim':
+                    return onString((value) => value.trim());
+                case 'tochars':
+                    return collection.length === 1 && typeof collection[0] === 'string' ? [...collection[0]] : [];
+                case 'indexof':
+                    return onString((value) => value.indexOf(String(argValue(0))));
+                case 'substring':
+                    return onString((value) => {
+                        const start = Number(argValue(0));
+                        if (!Number.isInteger(start) || start < 0 || start >= value.length) return null;
+                        return ast.args.length > 1 ? value.substring(start, start + Math.max(0, Number(argValue(1)))) : value.slice(start);
+                    });
+                case 'startswith':
+                    return onString((value) => value.startsWith(String(argValue(0))));
+                case 'endswith':
+                    return onString((value) => value.endsWith(String(argValue(0))));
+                case 'contains':
+                    return onString((value) => value.includes(String(argValue(0))));
+                case 'replace':
+                    return onString((value) => value.split(String(argValue(0))).join(String(argValue(1))));
+                case 'matches':
+                    return onString((value) => new RegExp(String(argValue(0)), 'u').test(value));
+                case 'replacematches':
+                    return onString((value) => value.replace(new RegExp(String(argValue(0)), 'gu'), String(argValue(1))));
+                case 'split':
+                    return collection.length === 1 && typeof collection[0] === 'string' ? collection[0].split(String(argValue(0))) : [];
+                case 'join':
+                    return [collection.map((value) => String(value)).join(ast.args.length > 0 ? String(argValue(0)) : '')];
+                // Conversions.
+                case 'tostring':
+                    return onSingle((value) => (value !== null && typeof value === 'object' ? null : String(value)));
+                case 'tointeger':
+                    return onSingle((value) => {
+                        if (typeof value === 'number') return Number.isInteger(value) ? value : null;
+                        if (typeof value === 'boolean') return value ? 1 : 0;
+                        return typeof value === 'string' && /^[+-]?\d+$/.test(value) ? Number.parseInt(value, 10) : null;
+                    });
+                case 'todecimal':
+                    return onSingle((value) => {
+                        if (typeof value === 'number') return value;
+                        if (typeof value === 'boolean') return value ? 1 : 0;
+                        return typeof value === 'string' && /^[+-]?\d+(\.\d+)?$/.test(value) ? Number.parseFloat(value) : null;
+                    });
+                case 'toboolean':
+                    return onSingle((value) => {
+                        if (typeof value === 'boolean') return value;
+                        const text = String(value).toLowerCase();
+                        if (['true', 't', 'yes', 'y', '1', '1.0'].includes(text)) return true;
+                        if (['false', 'f', 'no', 'n', '0', '0.0'].includes(text)) return false;
+                        return null;
+                    });
+                case 'convertstostring':
+                case 'convertstointeger':
+                case 'convertstodecimal':
+                case 'convertstoboolean': {
+                    if (collection.length === 0) return [];
+                    const converted = this.evaluateMoreMethods(name.replace('convertsto', 'to'), ast, collection, environment, context);
+                    return [converted.length > 0];
+                }
+                // Math.
+                case 'abs':
+                    return onNumber(Math.abs);
+                case 'ceiling':
+                    return onNumber(Math.ceil);
+                case 'floor':
+                    return onNumber(Math.floor);
+                case 'truncate':
+                    return onNumber(Math.trunc);
+                case 'sqrt':
+                    return onNumber((value) => (value < 0 ? null : Math.sqrt(value)));
+                case 'exp':
+                    return onNumber(Math.exp);
+                case 'ln':
+                    return onNumber((value) => (value <= 0 ? null : Math.log(value)));
+                case 'log':
+                    return onNumber((value) => (value <= 0 ? null : Math.log(value) / Math.log(Number(argValue(0)))));
+                case 'power':
+                    return onNumber((value) => Math.pow(value, Number(argValue(0))));
+                case 'round':
+                    return onNumber((value) => {
+                        const precision = ast.args.length > 0 ? Number(argValue(0)) : 0;
+                        if (!Number.isInteger(precision) || precision < 0) return null;
+                        const factor = 10 ** precision;
+                        return Math.round(value * factor) / factor;
+                    });
+                default:
                     throw new Error('Unsupported FHIRPath method: ' + ast.name + '.');
             }
         }
@@ -1425,8 +2300,16 @@
                     const condition = collectionBoolean(this.evaluate(ast.args[0], environment, context));
                     return this.evaluate(condition ? ast.args[1] : ast.args[2], environment, context);
                 }
+                case 'today':
+                    return [fhirToday()];
+                case 'now':
+                    return [fhirNow()];
+                case 'timeofday':
+                    return [fhirNow().slice(11, 19)];
                 default:
-                    throw new Error('Unsupported FHIRPath function: ' + ast.name + '.');
+                    // A function called without a source applies to the
+                    // current context: not(), exists(), length() ...
+                    return this.evaluateMethod({ type: 'method', name: ast.name, source: { type: 'special', name: 'this' }, args: ast.args }, environment, context);
             }
         }
 
@@ -1446,14 +2329,72 @@
                 }
                 return [collectionBoolean(this.evaluate(ast.right, environment, context))];
             }
+            if (operator === 'xor') {
+                return [collectionBoolean(this.evaluate(ast.left, environment, context)) !== collectionBoolean(this.evaluate(ast.right, environment, context))];
+            }
+            if (operator === 'implies') {
+                const left = this.evaluate(ast.left, environment, context);
+                if (left.length > 0 && !collectionBoolean(left)) {
+                    return [true];
+                }
+                const right = this.evaluate(ast.right, environment, context);
+                if (collectionBoolean(right)) {
+                    return [true];
+                }
+                return left.length === 0 ? [] : [false];
+            }
 
             const left = this.evaluate(ast.left, environment, context);
             const right = this.evaluate(ast.right, environment, context);
+            // Equivalence (~): strings compare case- and whitespace-insensitively, and two empties are equivalent.
+            const equivalent = (a, b) => {
+                const normalise = (value) => (typeof value === 'string' ? value.trim().replace(/\s+/g, ' ').toLowerCase() : value);
+                return a.length === b.length && a.every((value, index) => {
+                    const other = b[index];
+                    return typeof value === 'string' && typeof other === 'string' ? normalise(value) === normalise(other) : equalPrimitive(value, other);
+                });
+            };
             switch (operator) {
                 case '=':
                     return [collectionsEqual(left, right)];
                 case '!=':
                     return [!collectionsEqual(left, right)];
+                case '~':
+                    return [equivalent(asCollection(left), asCollection(right))];
+                case '!~':
+                    return [!equivalent(asCollection(left), asCollection(right))];
+                case '|': {
+                    const seen = new Set();
+                    return [...asCollection(left), ...asCollection(right)].filter((value) => {
+                        const signature = JSON.stringify(value);
+                        return !seen.has(signature) && seen.add(signature);
+                    });
+                }
+                case 'in':
+                case 'contains': {
+                    const item = operator === 'in' ? asCollection(left) : asCollection(right);
+                    const within = operator === 'in' ? asCollection(right) : asCollection(left);
+                    if (item.length === 0) {
+                        return [];
+                    }
+                    return [within.some((value) => equalPrimitive(value, item[0]))];
+                }
+                case '&': {
+                    const text = (collection) => {
+                        const value = firstValue(collection);
+                        return value === undefined || value === null ? '' : String(value);
+                    };
+                    return [text(left) + text(right)];
+                }
+                case 'div':
+                case 'mod': {
+                    const leftValue = Number(firstValue(left));
+                    const rightValue = Number(firstValue(right));
+                    if (!Number.isFinite(leftValue) || !Number.isFinite(rightValue) || rightValue === 0) {
+                        return [];
+                    }
+                    return [operator === 'div' ? Math.trunc(leftValue / rightValue) : leftValue % rightValue];
+                }
                 case '>':
                 case '<':
                 case '>=':
@@ -1472,8 +2413,20 @@
                 case '-':
                 case '*':
                 case '/': {
-                    const leftValue = Number(firstValue(left));
-                    const rightValue = Number(firstValue(right));
+                    const leftFirst = firstValue(left);
+                    const rightFirst = firstValue(right);
+                    // A date or dateTime plus or minus a calendar duration (today() - 18 years).
+                    if ((operator === '+' || operator === '-') && typeof leftFirst === 'string'
+                        && rightFirst !== null && typeof rightFirst === 'object' && 'unit' in rightFirst) {
+                        const shifted = shiftFhirDate(leftFirst, rightFirst, operator === '+' ? 1 : -1);
+                        return shifted === null ? [] : [shifted];
+                    }
+                    // String concatenation: + on two strings.
+                    if (operator === '+' && typeof leftFirst === 'string' && typeof rightFirst === 'string') {
+                        return [leftFirst + rightFirst];
+                    }
+                    const leftValue = Number(leftFirst);
+                    const rightValue = Number(rightFirst);
                     if (!Number.isFinite(leftValue) || !Number.isFinite(rightValue)) {
                         return [];
                     }
@@ -1509,6 +2462,11 @@
                     compiledItem.calculatedExpression,
                     compiledItem.initialExpression,
                     compiledItem.enableWhenExpression,
+                    compiledItem.requiredExpression,
+                    compiledItem.readOnlyExpression,
+                    compiledItem.textExpression,
+                    compiledItem.answerExpression,
+                    ...compiledItem.optionToggles.map((toggle) => toggle.expression),
                     ...compiledItem.constraints.map((constraint) => ({
                         language: 'text/fhirpath',
                         expression: constraint.expression,
@@ -1537,6 +2495,21 @@
             }
         }
 
+        // SDC launchContext: the resources the host supplies
+        // (options.launchContext, by name) for the names the form declares,
+        // as %patient, %encounter, %user ... A declared name the host didn't
+        // supply is reported once, and expressions using it come out empty.
+        launchContext(runtime) {
+            const supplied = runtime.options?.launchContext ?? {};
+            const variables = {};
+            for (const name of this.compiled.launchContextNames ?? []) {
+                if (supplied[name] !== undefined && supplied[name] !== null) {
+                    variables[name] = supplied[name];
+                }
+            }
+            return variables;
+        }
+
         isInsideRepeat(compiledItem) {
             return (this.compiled.repeatAncestors.get(compiledItem.linkId) ?? []).length > 0;
         }
@@ -1548,6 +2521,7 @@
         buildEnvironment(runtime, compiledItem) {
             const resource = runtime.responseStore.buildQuestionnaireResponse((linkId) => runtime.isEnabled(linkId));
             const environment = {
+                ...this.launchContext(runtime),
                 questionnaire: this.compiled.questionnaire,
                 resource,
                 rootResource: resource,
@@ -1635,6 +2609,58 @@
                 });
                 return null;
             }
+        }
+
+        evaluateFor(runtime, compiledItem, expression) {
+            const ast = expression && this.compiledExpressions.get(expression);
+            if (!ast) {
+                return null;
+            }
+            try {
+                return this.evaluator.evaluate(ast, this.buildEnvironment(runtime, compiledItem), null);
+            } catch (error) {
+                this.warnings.push({
+                    code: 'fhirpath-evaluate-error',
+                    linkId: compiledItem.linkId,
+                    expression: expression.expression,
+                    message: error instanceof Error ? error.message : String(error),
+                });
+                return null;
+            }
+        }
+
+        // Required, read-only and text by expression, answers by
+        // answerExpression, and which options answerOptionsToggleExpression
+        // turns off, for each item that has them. Evaluated against the
+        // whole response, as for an item outside any repeat.
+        evaluateDynamic(runtime) {
+            const state = new Map();
+            for (const compiledItem of this.compiled.expressionItems) {
+                const { requiredExpression, readOnlyExpression, textExpression, answerExpression, optionToggles } = compiledItem;
+                if (!requiredExpression && !readOnlyExpression && !textExpression && !answerExpression && optionToggles.length === 0) {
+                    continue;
+                }
+                const boolean = (expression) => {
+                    const result = expression ? this.evaluateFor(runtime, compiledItem, expression) : null;
+                    return result === null || result.length === 0 ? null : collectionBoolean(result);
+                };
+                const text = textExpression ? this.evaluateFor(runtime, compiledItem, textExpression) : null;
+                const answers = answerExpression ? this.evaluateFor(runtime, compiledItem, answerExpression) : null;
+                const offOptions = [];
+                for (const toggle of optionToggles) {
+                    if (boolean(toggle.expression) !== true) {
+                        offOptions.push(...toggle.options);
+                    }
+                }
+                state.set(compiledItem.linkId, {
+                    required: boolean(requiredExpression),
+                    readOnly: boolean(readOnlyExpression),
+                    text: text !== null && text.length > 0 ? String(text[0]) : null,
+                    answerOptions: answers === null ? null : valuesToAnswerOptions(answers, compiledItem.item),
+                    offOptions,
+                });
+            }
+            return state;
         }
 
         evaluateConstraints(runtime, compiledItem) {
@@ -1822,6 +2848,7 @@
         buildEnvironmentForInstance(runtime, compiledItem, nodePath) {
             const resource = runtime.responseStore.buildQuestionnaireResponse((linkId) => runtime.isEnabled(linkId));
             const environment = {
+                ...this.launchContext(runtime),
                 questionnaire: this.compiled.questionnaire,
                 resource,
                 rootResource: resource,
@@ -2086,6 +3113,19 @@
             };
             visit(this.runtime.questionnaire.item, '');
 
+            // signatureRequired: the form, or an enabled item, must be signed.
+            for (const requirement of this.runtime.compiled.signatureRequirements) {
+                const item = this.runtime.compiled.itemsByLinkId.get(requirement.key)?.item;
+                if ((requirement.key !== '' && (!item || !this.runtime.isEnabled(requirement.key))) || this.runtime.signatures.has(requirement.key)) {
+                    continue;
+                }
+                const label = requirement.key === '' ? (this.runtime.questionnaire.title || this.runtime.t('thisForm')) : (item.text || requirement.key);
+                issues.push({
+                    severity: 'error', code: 'signature-required', linkId: requirement.key || undefined,
+                    storageKey: signatureNodeKey(requirement.key), message: this.runtime.t('signatureRequired', label),
+                });
+            }
+
             return {
                 valid: !issues.some((issue) => issue.severity === 'error'),
                 issues,
@@ -2102,19 +3142,70 @@
 
             const minOccurs = getIntegerExtension(item, EXTENSIONS.MIN_OCCURS);
             const maxOccurs = getIntegerExtension(item, EXTENSIONS.MAX_OCCURS);
-            const requiredCount = minOccurs !== null ? minOccurs : (item.required === true ? 1 : 0);
+            const requiredCount = minOccurs !== null ? minOccurs : (this.runtime.isRequired(compiledItem.linkId, item) ? 1 : 0);
             if (requiredCount > 0 && answers.length < requiredCount) {
                 add('error', minOccurs !== null ? 'min-occurs' : 'required',
-                    requiredCount === 1 ? label + ' requires a value' : label + ' requires at least ' + requiredCount + ' answers');
+                    requiredCount === 1 ? this.runtime.t('requiresValue', label) : this.runtime.t('requiresAtLeast', label, requiredCount));
             }
             if (maxOccurs !== null && answers.length > maxOccurs) {
-                add('error', 'max-occurs', label + ' allows at most ' + maxOccurs + ' answers');
+                add('error', 'max-occurs', this.runtime.t('allowsAtMost', label, maxOccurs));
             }
             this.validateValueBounds(item, storageKey, label, answers, issues);
             if (Number.isInteger(item.maxLength)) {
                 for (const answer of answers) {
                     if (typeof answer.value === 'string' && answer.value.length > item.maxLength) {
-                        add('error', 'max-length', label + ' exceeds the maximum length');
+                        add('error', 'max-length', this.runtime.t('maxLength', label));
+                    }
+                }
+            }
+            const minLength = getIntegerExtension(item, EXTENSIONS.MIN_LENGTH);
+            if (minLength !== null) {
+                for (const answer of answers) {
+                    if (typeof answer.value === 'string' && answer.value !== '' && answer.value.length < minLength) {
+                        add('error', 'min-length', this.runtime.t('minLength', label, minLength));
+                    }
+                }
+            }
+            if (item.type === 'attachment') {
+                const mimeTypes = attachmentMimeTypes(item);
+                const maxSize = getTypedExtensionValue(item, EXTENSIONS.MAX_SIZE);
+                for (const answer of answers) {
+                    const attachment = answer.value ?? {};
+                    if (mimeTypes.length > 0 && !mimeTypes.includes(attachment.contentType)) {
+                        add('error', 'mime-type', this.runtime.t('mimeType', label, mimeTypes.join(', ')));
+                    }
+                    if (typeof maxSize === 'number' && Number.isFinite(attachment.size) && attachment.size > maxSize) {
+                        add('error', 'max-size', this.runtime.t('maxSize', label, maxSize));
+                    }
+                }
+            }
+            const types = referenceTypes(item);
+            if (item.type === 'reference' && types.length > 0) {
+                for (const answer of answers) {
+                    const reference = String(answer.value?.reference ?? '');
+                    if (reference !== '' && !types.some((type) => reference.startsWith(type + '/') || reference.includes('/' + type + '/'))) {
+                        add('error', 'reference-type', this.runtime.t('referenceType', label, types.join(', ')));
+                    }
+                }
+            }
+            if (item.type === 'quantity') {
+                const bounds = [
+                    [EXTENSIONS.MIN_QUANTITY, 'min-quantity', 'minValue', (value, bound) => value < bound],
+                    [EXTENSIONS.MAX_QUANTITY, 'max-quantity', 'maxValue', (value, bound) => value > bound],
+                ];
+                for (const [url, code, key, outside] of bounds) {
+                    const bound = getTypedExtensionValue(item, url);
+                    if (!bound || typeof bound.value !== 'number') {
+                        continue;
+                    }
+                    // Only an answer in the bound's unit is compared; no unit conversion here.
+                    const boundUnit = bound.code ?? bound.unit ?? '';
+                    for (const answer of answers) {
+                        const quantity = answer.value ?? {};
+                        const unit = quantity.code ?? quantity.unit ?? '';
+                        if (typeof quantity.value === 'number' && (boundUnit === '' || unit === boundUnit) && outside(quantity.value, bound.value)) {
+                            add('error', code, this.runtime.t(key, label, (bound.value + ' ' + (bound.unit ?? bound.code ?? '')).trim()));
+                        }
                     }
                 }
             }
@@ -2129,7 +3220,7 @@
                 if (compiledRegex) {
                     for (const answer of answers) {
                         if (typeof answer.value === 'string' && answer.value !== '' && !compiledRegex.test(answer.value)) {
-                            add('error', 'regex', label + ' does not match the required format');
+                            add('error', 'regex', this.runtime.t('regex', label));
                         }
                     }
                 }
@@ -2150,13 +3241,13 @@
                     if (minValue !== undefined && comparable < minValue) {
                         issues.push({
                             severity: 'error', code: 'min-value', linkId, storageKey,
-                            message: label + ' must be at least ' + minValue,
+                            message: this.runtime.t('minValue', label, minValue),
                         });
                     }
                     if (maxValue !== undefined && comparable > maxValue) {
                         issues.push({
                             severity: 'error', code: 'max-value', linkId, storageKey,
-                            message: label + ' must be at most ' + maxValue,
+                            message: this.runtime.t('maxValue', label, maxValue),
                         });
                     }
                 }
@@ -2165,7 +3256,7 @@
                     if (decimals > maxDecimalPlaces) {
                         issues.push({
                             severity: 'error', code: 'max-decimal-places', linkId, storageKey,
-                            message: label + ' allows at most ' + maxDecimalPlaces + ' decimal places',
+                            message: this.runtime.t('maxDecimalPlaces', label, maxDecimalPlaces),
                         });
                     }
                 }
@@ -2910,6 +4001,7 @@
             this.runtime = runtime;
             this.nodes = new Map();
             this.inputs = new Map();
+            this.dynamicRendered = new Map();
             this.container = null;
             this.popup = null;
             this.popupSequence = 0;
@@ -2958,7 +4050,7 @@
             const close = document.createElement('button');
             close.type = 'button';
             close.className = 'close oe-questionnaire-popup-close';
-            close.setAttribute('aria-label', 'Close');
+            close.setAttribute('aria-label', this.runtime.t('close'));
             close.textContent = '×';
             close.addEventListener('click', (event) => {
                 event.preventDefault();
@@ -3034,12 +4126,55 @@
             const controls = getDisplayControls(item);
             const buttons = [];
             if (controls.help) {
-                buttons.push(this.createPopupTrigger('help', '?', 'Help', () => renderDisplayText(controls.help, document)));
+                buttons.push(this.createPopupTrigger('help', '?', this.runtime.t('help'), () => renderDisplayText(controls.help, document)));
             }
             if (controls.legal) {
-                buttons.push(this.createPopupTrigger('legal', '§', 'Legal notice', () => renderDisplayText(controls.legal, document)));
+                buttons.push(this.createPopupTrigger('legal', '§', this.runtime.t('legal'), () => renderDisplayText(controls.legal, document)));
             }
             return { buttons, flyover: controls.flyover ? plainDisplayText(controls.flyover) : '' };
+        }
+
+        // supportHyperlink: links to more about the item, opened in a new tab.
+        supportLinks(item) {
+            return findExtensions(item, EXTENSIONS.SUPPORT_HYPERLINK)
+                .map((extension) => markdownSafeHref(extension?.valueUri ?? extension?.valueUrl))
+                .filter((href) => href !== null && /^https?:/i.test(href))
+                .map((href) => {
+                    const link = document.createElement('a');
+                    link.className = 'oe-questionnaire-support-link small ml-1';
+                    link.href = href;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.textContent = this.runtime.t('moreInfo');
+                    return link;
+                });
+        }
+
+        // collapsible (default-open / default-closed): the group's header
+        // toggles its body; header and footer item controls keep a group in view.
+        applyGroupPresentation(item, wrapper, header, body) {
+            const control = getItemControl(item);
+            if (control === 'header' || control === 'footer') {
+                wrapper.classList.add('oe-questionnaire-sticky-' + control);
+            }
+            const collapsible = getTypedExtensionValue(item, EXTENSIONS.COLLAPSIBLE);
+            if (collapsible !== 'default-open' && collapsible !== 'default-closed') {
+                return;
+            }
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'btn btn-sm btn-link oe-questionnaire-collapse-toggle p-0 mr-1';
+            body.id = body.id || safeId('collapse-' + (wrapper.dataset.instanceKey ?? item.linkId));
+            toggle.setAttribute('aria-controls', body.id);
+            const set = (open) => {
+                toggle.setAttribute('aria-expanded', String(open));
+                toggle.textContent = open ? '▾' : '▸';
+                toggle.setAttribute('aria-label', this.runtime.t(open ? 'collapse' : 'expand'));
+                body.classList.toggle('d-none', !open);
+            };
+            toggle.addEventListener('click', () => set(toggle.getAttribute('aria-expanded') !== 'true'));
+            set(collapsible === 'default-open');
+            header.querySelector('.oe-questionnaire-group-title')?.prepend(toggle);
         }
 
         applyFlyover(element, text) {
@@ -3056,6 +4191,11 @@
             this.bindDocumentListeners();
             container.replaceChildren();
             container.classList.add('oe-questionnaire-runtime');
+            // The form's own language, so its text is read in that language (WCAG 3.1.2).
+            const language = typeof this.runtime.questionnaire.language === 'string' ? this.runtime.questionnaire.language.trim() : '';
+            if (language !== '') {
+                container.lang = language;
+            }
             container.classList.toggle('oe-questionnaire-guides', this.runtime.options.hideTreeLine === false);
             const formHeader = this.renderFormHeader();
             if (formHeader) {
@@ -3065,9 +4205,17 @@
             this.warningsNode.className = 'oe-questionnaire-warnings d-none';
             this.warningsNode.setAttribute('role', 'alert');
             container.appendChild(this.warningsNode);
+            if ((this.runtime.compiled.unsupportedCritical ?? []).length > 0) {
+                // The form says it can't be shown without these; show why, not the form.
+                this.renderWarnings(this.runtime.collectWarnings());
+                return;
+            }
             const fragment = document.createDocumentFragment();
             for (const item of this.runtime.questionnaire.item ?? []) {
                 fragment.appendChild(this.renderItem(item));
+            }
+            if (this.runtime.compiled.signatureRequirements.some((requirement) => requirement.key === '')) {
+                fragment.appendChild(this.renderSignature(''));
             }
             container.appendChild(fragment);
             this.refresh();
@@ -3090,7 +4238,7 @@
             const rootControls = this.buildDisplayControls(questionnaire);
             const buttons = [...rootControls.buttons];
             if (copyright !== '') {
-                buttons.unshift(this.createPopupTrigger('copyright', '©', 'Copyright', () => {
+                buttons.unshift(this.createPopupTrigger('copyright', '©', this.runtime.t('copyright'), () => {
                     const content = document.createElement('div');
                     content.className = 'oe-questionnaire-markdown';
                     content.appendChild(renderMarkdown(copyright, document));
@@ -3141,14 +4289,14 @@
             alert.className = 'alert alert-warning mb-3';
             const heading = document.createElement('div');
             heading.className = 'font-weight-bold';
-            heading.textContent = 'Some questionnaire items could not be fully rendered';
+            heading.textContent = this.runtime.t('warningsHeading');
             alert.appendChild(heading);
             const list = document.createElement('ul');
             list.className = 'mb-0 pl-3';
             for (const warning of blocking) {
                 const entry = document.createElement('li');
                 const linkIdLabel = warning.linkId ? '[' + warning.linkId + '] ' : '';
-                entry.textContent = linkIdLabel + (warning.message ?? warning.code ?? 'Unknown issue');
+                entry.textContent = linkIdLabel + (warning.message ?? warning.code ?? this.runtime.t('unknownIssue'));
                 list.appendChild(entry);
             }
             alert.appendChild(list);
@@ -3202,34 +4350,278 @@
             const label = document.createElement('label');
             label.className = 'oe-questionnaire-label font-weight-bold d-inline mb-0';
             const labelText = [item.prefix, item.text].filter(Boolean).join(item.prefix && item.text ? ' — ' : '');
-            label.textContent = labelText || item.linkId;
+            setInlineText(label, labelText || item.linkId, markdownFor(item, 'text'), item.prefix && item.text ? item.prefix + ' — ' : '');
             if (item.required === true) {
                 const required = document.createElement('span');
                 required.className = 'text-danger ml-1';
                 required.textContent = '*';
+                // The required state is announced from aria-required below, not as "star".
+                required.setAttribute('aria-hidden', 'true');
                 label.appendChild(required);
             }
             header.appendChild(label);
 
             const inputId = safeId(storageKey);
+            label.id = inputId + '-label';
             const input = this.renderInput(item, storageKey);
-            if (input.querySelector('#' + inputId)) {
-                label.htmlFor = inputId;
-            }
+            this.connectLabel(item, label, input, inputId, item.required === true);
 
             const controls = this.buildDisplayControls(item);
-            header.append(...controls.buttons);
+            header.append(...controls.buttons, ...this.supportLinks(item));
             this.applyFlyover(label, controls.flyover);
+            this.applyAdjacentDisplays(item, input);
 
             wrapper.appendChild(header);
+            const media = mediaElement(getTypedExtensionValue(item, EXTENSIONS.ITEM_MEDIA), item.text);
+            if (media) {
+                wrapper.appendChild(media);
+            }
             wrapper.appendChild(input);
+            if (keyPrefix === '' && this.runtime.compiled.signatureRequirements.some((requirement) => requirement.key === item.linkId)) {
+                wrapper.appendChild(this.renderSignature(item.linkId));
+            }
             for (const child of item.item ?? []) {
-                if (!isDetachedDisplay(child)) {
+                if (!isDetachedDisplay(child) && !isAdjacentDisplay(child)) {
                     wrapper.appendChild(this.renderItem(child, keyPrefix));
                 }
             }
 
             return wrapper;
+        }
+
+        // Ties a question's label to its answer area: <label for> a single
+        // entry, or a radiogroup / group named by the question for radios and
+        // checkboxes, so assistive technology reads the question with each
+        // answer (WCAG 1.3.1, 4.1.2); aria-required when it is required.
+        connectLabel(item, label, input, inputId, required) {
+            const single = input.querySelector('#' + inputId);
+            if (single) {
+                label.htmlFor = inputId;
+                if (required) {
+                    single.setAttribute('aria-required', 'true');
+                }
+            } else if (input.querySelector('input[type="radio"], input[type="checkbox"]')) {
+                const radios = input.querySelector('input[type="checkbox"]') === null;
+                input.setAttribute('role', radios ? 'radiogroup' : 'group');
+                input.setAttribute('aria-labelledby', label.id);
+                if (required && radios) {
+                    input.setAttribute('aria-required', 'true');
+                }
+            }
+        }
+
+        // The expression-driven parts of the questions that have them:
+        // text, required, read-only, the answer list (answerExpression,
+        // rebuilt when it changes) and options turned off by
+        // answerOptionsToggleExpression.
+        applyDynamicState() {
+            for (const [linkId, state] of this.runtime.dynamicState ?? []) {
+                const node = this.nodes.get(linkId);
+                const compiledItem = this.runtime.compiled.itemsByLinkId.get(linkId);
+                if (!node || !compiledItem || !node.classList.contains('oe-questionnaire-question')) {
+                    continue;
+                }
+                const item = compiledItem.item;
+                const label = node.querySelector(':scope > .oe-questionnaire-label-row > .oe-questionnaire-label');
+                let control = node.querySelector(':scope > .oe-questionnaire-control');
+                if (state.answerOptions !== null && control) {
+                    const signature = JSON.stringify(state.answerOptions);
+                    if (this.dynamicRendered.has(linkId) && this.dynamicRendered.get(linkId) !== signature) {
+                        const fresh = this.renderInput(item, linkId);
+                        control.replaceWith(fresh);
+                        control = fresh;
+                        this.connectLabel(item, label, fresh, safeId(linkId), this.runtime.isRequired(linkId, item));
+                    }
+                    this.dynamicRendered.set(linkId, signature);
+                }
+                if (label && state.text !== null && label.firstChild?.nodeType === Node.TEXT_NODE) {
+                    label.firstChild.textContent = [item.prefix, state.text].filter(Boolean).join(item.prefix ? ' — ' : '');
+                }
+                if (label && state.required !== null) {
+                    let mark = label.querySelector(':scope > .text-danger');
+                    if (state.required && !mark) {
+                        mark = document.createElement('span');
+                        mark.className = 'text-danger ml-1';
+                        mark.textContent = '*';
+                        mark.setAttribute('aria-hidden', 'true');
+                        label.appendChild(mark);
+                    } else if (!state.required && mark) {
+                        mark.remove();
+                    }
+                    const target = control?.querySelector('#' + safeId(linkId)) ?? (control?.getAttribute('role') === 'radiogroup' ? control : null);
+                    if (target) {
+                        if (state.required) {
+                            target.setAttribute('aria-required', 'true');
+                        } else {
+                            target.removeAttribute('aria-required');
+                        }
+                    }
+                }
+                if (control && state.readOnly !== null) {
+                    for (const field of control.querySelectorAll('input, select, textarea, button')) {
+                        field.disabled = state.readOnly;
+                    }
+                }
+                if (control && compiledItem.optionToggles.length > 0) {
+                    // Re-applied on every change, so an option comes back when its expression turns true.
+                    const options = this.runtime.answerOptionsFor(item);
+                    const off = (index) => {
+                        const value = getAnswerOptionValue(options[index]);
+                        return value !== null && state.offOptions.some((candidate) => equalPrimitive(candidate, value.value));
+                    };
+                    const readOnly = state.readOnly ?? item.readOnly === true;
+                    for (const field of control.querySelectorAll('input[type="radio"], input[type="checkbox"], option')) {
+                        if (field.value !== '') {
+                            field.disabled = (field.tagName !== 'OPTION' && readOnly) || off(Number(field.value));
+                        }
+                    }
+                }
+            }
+        }
+
+        // A signature for signatureRequired: drawn on a pad, or typed as a
+        // full name for anyone who can't draw one (keyboard, screen reader).
+        renderSignature(key) {
+            const box = document.createElement('div');
+            box.className = 'oe-questionnaire-signature mt-2';
+            this.nodes.set(signatureNodeKey(key), box);
+            const idBase = safeId('signature-' + (key || 'form'));
+            const heading = document.createElement('div');
+            heading.className = 'small font-weight-bold';
+            heading.id = idBase + '-heading';
+            heading.textContent = this.runtime.t('signHere');
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 120;
+            canvas.className = 'oe-questionnaire-signature-pad border d-block';
+            canvas.setAttribute('role', 'img');
+            canvas.setAttribute('aria-label', this.runtime.t('signaturePad'));
+            const typedLabel = document.createElement('label');
+            typedLabel.className = 'small mt-1 mb-0 d-block';
+            typedLabel.htmlFor = idBase + '-typed';
+            typedLabel.textContent = this.runtime.t('typeToSign');
+            const typed = document.createElement('input');
+            typed.type = 'text';
+            typed.id = idBase + '-typed';
+            typed.className = 'form-control form-control-sm';
+            typed.autocomplete = 'name';
+            const clear = document.createElement('button');
+            clear.type = 'button';
+            clear.className = 'btn btn-sm btn-link p-0 mt-1';
+            clear.textContent = this.runtime.t('clear');
+            const existing = this.runtime.signatures.get(key);
+            const context = typeof canvas.getContext === 'function' ? (() => {
+                try {
+                    return canvas.getContext('2d');
+                } catch {
+                    return null;
+                }
+            })() : null;
+            if (existing?.sigFormat === 'text/plain') {
+                try {
+                    typed.value = base64Utf8(existing.data);
+                } catch {
+                    typed.value = '';
+                }
+            } else if (existing && context) {
+                const image = new Image();
+                image.onload = () => context.drawImage(image, 0, 0);
+                image.src = 'data:' + existing.sigFormat + ';base64,' + existing.data;
+            }
+            if (context) {
+                let drawing = false;
+                const point = (event) => {
+                    const rect = canvas.getBoundingClientRect();
+                    return [(event.clientX - rect.left) * (canvas.width / (rect.width || canvas.width)), (event.clientY - rect.top) * (canvas.height / (rect.height || canvas.height))];
+                };
+                canvas.addEventListener('pointerdown', (event) => {
+                    drawing = true;
+                    context.beginPath();
+                    context.moveTo(...point(event));
+                });
+                canvas.addEventListener('pointermove', (event) => {
+                    if (drawing) {
+                        context.lineTo(...point(event));
+                        context.stroke();
+                    }
+                });
+                const finish = () => {
+                    if (!drawing) {
+                        return;
+                    }
+                    drawing = false;
+                    typed.value = '';
+                    this.runtime.setSignature(key, { data: canvas.toDataURL('image/png').split(',')[1], sigFormat: 'image/png' });
+                };
+                canvas.addEventListener('pointerup', finish);
+                canvas.addEventListener('pointerleave', finish);
+            } else {
+                canvas.classList.add('d-none');
+            }
+            typed.addEventListener('change', () => {
+                const name = typed.value.trim();
+                context?.clearRect(0, 0, canvas.width, canvas.height);
+                this.runtime.setSignature(key, name === '' ? null : { data: utf8Base64(name), sigFormat: 'text/plain', name });
+            });
+            clear.addEventListener('click', () => {
+                context?.clearRect(0, 0, canvas.width, canvas.height);
+                typed.value = '';
+                this.runtime.setSignature(key, null);
+            });
+            box.append(heading, canvas, typedLabel, typed, clear);
+            return box;
+        }
+
+        // A question's prompt, unit, lower and upper display children, placed
+        // in or beside its answer area.
+        applyAdjacentDisplays(item, control) {
+            const texts = {};
+            for (const child of item.item ?? []) {
+                if (isAdjacentDisplay(child)) {
+                    texts[getItemControl(child)] = texts[getItemControl(child)] ?? plainDisplayText(child);
+                }
+            }
+            const note = (kind, text) => {
+                const node = document.createElement('span');
+                node.className = 'oe-questionnaire-' + kind + ' small text-muted';
+                node.textContent = text;
+                return node;
+            };
+            const entry = control.querySelector('input:not([type="radio"]):not([type="checkbox"]):not([type="file"]), textarea');
+            if (texts.prompt) {
+                if (entry && entry.placeholder === '') {
+                    entry.placeholder = texts.prompt;
+                } else {
+                    const prompt = note('prompt', texts.prompt);
+                    prompt.classList.add('d-block');
+                    control.appendChild(prompt);
+                }
+            }
+            if (texts.unit) {
+                if (entry && entry.tagName === 'INPUT' && !entry.closest('.input-group')) {
+                    const group = document.createElement('div');
+                    group.className = 'input-group';
+                    entry.replaceWith(group);
+                    const append = document.createElement('div');
+                    append.className = 'input-group-append';
+                    const unit = document.createElement('span');
+                    unit.className = 'input-group-text oe-questionnaire-unit';
+                    unit.textContent = texts.unit;
+                    append.appendChild(unit);
+                    group.append(entry, append);
+                } else if (!entry?.closest('.input-group')) {
+                    control.appendChild(note('unit', ' ' + texts.unit));
+                }
+            }
+            if (texts.lower) {
+                control.prepend(note('lower', texts.lower));
+            }
+            if (texts.upper) {
+                control.appendChild(note('upper', texts.upper));
+            }
+            if (texts.lower || texts.upper) {
+                control.classList.add('oe-questionnaire-scale');
+            }
         }
 
         // Group card header. Help / legal buttons sit inside the heading,
@@ -3239,26 +4631,41 @@
             header.className = 'card-header';
             const title = document.createElement('h5');
             title.className = 'mb-1 oe-questionnaire-group-title';
-            title.appendChild(document.createTextNode(item.prefix || item.text || item.linkId));
+            const titleMarkdown = item.prefix ? markdownFor(item, 'prefix') : markdownFor(item, 'text');
+            if (titleMarkdown !== null) {
+                title.append(...parseMarkdownInline(titleMarkdown, document));
+            } else {
+                title.appendChild(document.createTextNode(item.prefix || item.text || item.linkId));
+            }
             const controls = this.buildDisplayControls(item);
-            title.append(...controls.buttons);
+            title.append(...controls.buttons, ...this.supportLinks(item));
             this.applyFlyover(title, controls.flyover);
             header.appendChild(title);
             if (item.prefix && item.text) {
                 const description = document.createElement('div');
                 description.className = 'small text-muted';
-                description.textContent = item.text;
+                setInlineText(description, item.text, markdownFor(item, 'text'));
                 header.appendChild(description);
+            }
+            const media = mediaElement(getTypedExtensionValue(item, EXTENSIONS.ITEM_MEDIA), item.text);
+            if (media) {
+                header.appendChild(media);
             }
             return header;
         }
 
         renderGroup(item, wrapper, keyPrefix = '') {
             wrapper.classList.add('card', 'mb-3', 'oe-questionnaire-group');
-            wrapper.appendChild(this.buildGroupHeader(item));
+            const header = this.buildGroupHeader(item);
+            wrapper.appendChild(header);
 
             const body = document.createElement('div');
             body.className = 'card-body';
+            this.applyGroupPresentation(item, wrapper, header, body);
+            if (getItemControl(item) === 'table' && this.renderMatrix(item, body, keyPrefix)) {
+                wrapper.appendChild(body);
+                return wrapper;
+            }
             for (const child of item.item ?? []) {
                 if (isDetachedDisplay(child)) {
                     continue;
@@ -3269,15 +4676,201 @@
             return wrapper;
         }
 
+        // table: "questions within the group are rows in the table with
+        // possible answers as columns", for groups of choice questions that
+        // share their answers (the PHQ-9's shape). Each row is the question's
+        // node, so enableWhen and validation work as usual; each answer is
+        // named by its row and column headers. A group with anything else in
+        // it renders as usual.
+        renderMatrix(item, body, keyPrefix) {
+            const children = (item.item ?? []).filter((child) => !isDetachedDisplay(child));
+            const choice = (child) => (child.type === 'choice' || child.type === 'open-choice' || OPTION_CAPABLE_TYPES.includes(child.type))
+                && (child.item ?? []).every(isDetachedDisplay)
+                && this.runtime.answerOptionsFor(child).some((option) => getAnswerOptionValue(option) !== null);
+            if (children.length === 0 || !children.every(choice)) {
+                return false;
+            }
+            const columns = [];
+            for (const child of children) {
+                for (const option of this.runtime.answerOptionsFor(child)) {
+                    const value = getAnswerOptionValue(option);
+                    if (value !== null && !columns.some((column) => column.value.valueKey === value.valueKey && equalPrimitive(column.value.value, value.value))) {
+                        columns.push({ value, label: answerOptionLabel(option, value) });
+                    }
+                }
+            }
+            const tableId = safeId(keyPrefix + item.linkId) + '-matrix';
+            const table = document.createElement('table');
+            table.className = 'table table-sm oe-questionnaire-matrix';
+            const headRow = table.createTHead().insertRow();
+            headRow.appendChild(document.createElement('td'));
+            columns.forEach((column, index) => {
+                const heading = document.createElement('th');
+                heading.scope = 'col';
+                heading.id = tableId + '-col-' + index;
+                heading.textContent = column.label;
+                headRow.appendChild(heading);
+            });
+            const tbody = table.createTBody();
+            for (const child of children) {
+                const storageKey = keyPrefix + child.linkId;
+                const row = tbody.insertRow();
+                row.dataset.linkId = child.linkId;
+                if (keyPrefix !== '') {
+                    row.dataset.instanceKey = storageKey;
+                }
+                row.className = 'oe-questionnaire-item oe-questionnaire-question';
+                this.nodes.set(storageKey, row);
+                const heading = document.createElement('th');
+                heading.scope = 'row';
+                heading.id = safeId(storageKey) + '-label';
+                heading.className = 'oe-questionnaire-label';
+                heading.textContent = [child.prefix, child.text].filter(Boolean).join(child.prefix && child.text ? ' — ' : '') || child.linkId;
+                if (this.runtime.isRequired(child.linkId, child)) {
+                    const required = document.createElement('span');
+                    required.className = 'text-danger ml-1';
+                    required.textContent = '*';
+                    required.setAttribute('aria-hidden', 'true');
+                    heading.appendChild(required);
+                }
+                row.appendChild(heading);
+                const options = this.runtime.answerOptionsFor(child);
+                const repeats = child.repeats === true;
+                columns.forEach((column, columnIndex) => {
+                    const cell = row.insertCell();
+                    const optionIndex = options.findIndex((option) => {
+                        const value = getAnswerOptionValue(option);
+                        return value !== null && value.valueKey === column.value.valueKey && equalPrimitive(value.value, column.value.value);
+                    });
+                    if (optionIndex === -1) {
+                        return;
+                    }
+                    const optionAnswer = getAnswerOptionValue(options[optionIndex]);
+                    const input = document.createElement('input');
+                    input.type = repeats ? 'checkbox' : 'radio';
+                    input.name = safeId(storageKey);
+                    input.id = safeId(storageKey) + '-' + optionIndex;
+                    input.value = String(optionIndex);
+                    input.setAttribute('form', NATIVE_CONTROL_FORM_ID);
+                    input.setAttribute('aria-labelledby', heading.id + ' ' + tableId + '-col-' + columnIndex);
+                    input.checked = this.runtime.responseStore.getAnswers(storageKey).some((answer) => answer.valueKey === optionAnswer.valueKey && equalPrimitive(answer.value, optionAnswer.value));
+                    input.disabled = child.readOnly === true;
+                    const ordinal = getOrdinalValue(options[optionIndex]);
+                    if (ordinal !== null) {
+                        input.dataset.ordinal = String(ordinal);
+                    }
+                    input.addEventListener('change', () => {
+                        const current = this.runtime.responseStore.getAnswers(storageKey);
+                        const same = (answer) => answer.valueKey === optionAnswer.valueKey && equalPrimitive(answer.value, optionAnswer.value);
+                        if (repeats) {
+                            this.runtime.setAnswers(storageKey, input.checked ? [...current, optionAnswer] : current.filter((answer) => !same(answer)));
+                        } else if (input.checked) {
+                            this.runtime.setAnswers(storageKey, [optionAnswer]);
+                        }
+                    });
+                    cell.appendChild(input);
+                });
+            }
+            const scroll = document.createElement('div');
+            scroll.className = 'table-responsive';
+            scroll.appendChild(table);
+            body.appendChild(scroll);
+            return true;
+        }
+
+        // gtable: "questions within the group are columns in the table with
+        // each group repetition as a row" (a medication list, a log). Each
+        // cell is its question's node for that repetition, named by its
+        // column header.
+        renderGridTable(item, keyPrefix, count, minOccurs, rerender) {
+            const storageKey = keyPrefix + item.linkId;
+            const columns = (item.item ?? []).filter((child) => !isDetachedDisplay(child) && child.type !== 'display');
+            const tableId = safeId(storageKey) + '-grid';
+            const table = document.createElement('table');
+            table.className = 'table table-sm oe-questionnaire-grid';
+            const headRow = table.createTHead().insertRow();
+            columns.forEach((child, index) => {
+                const heading = document.createElement('th');
+                heading.scope = 'col';
+                heading.id = tableId + '-col-' + index;
+                heading.textContent = getStringExtension(child, EXTENSIONS.SHORT_TEXT) || child.text || child.linkId;
+                const width = getTypedExtensionValue(child, EXTENSIONS.WIDTH);
+                const widthUnit = width?.code ?? width?.unit;
+                if (typeof width?.value === 'number' && ['%', 'em', 'rem', 'px'].includes(widthUnit)) {
+                    heading.style.width = width.value + widthUnit;
+                }
+                if (child.required === true) {
+                    const required = document.createElement('span');
+                    required.className = 'text-danger ml-1';
+                    required.textContent = '*';
+                    required.setAttribute('aria-hidden', 'true');
+                    heading.appendChild(required);
+                }
+                headRow.appendChild(heading);
+            });
+            headRow.appendChild(document.createElement('td'));
+            const tbody = table.createTBody();
+            for (let instanceIndex = 0; instanceIndex < count; instanceIndex++) {
+                const instancePrefix = instanceKeyPrefix(storageKey, instanceIndex);
+                const row = tbody.insertRow();
+                row.className = 'oe-questionnaire-group-instance';
+                row.dataset.instanceIndex = String(instanceIndex);
+                columns.forEach((child, columnIndex) => {
+                    const key = instancePrefix + child.linkId;
+                    const cell = row.insertCell();
+                    if (child.type === 'group') {
+                        cell.appendChild(this.renderItem(child, instancePrefix));
+                        return;
+                    }
+                    cell.dataset.linkId = child.linkId;
+                    cell.dataset.instanceKey = key;
+                    cell.className = 'oe-questionnaire-item oe-questionnaire-question';
+                    this.nodes.set(key, cell);
+                    const control = this.renderInput(child, key);
+                    const headingId = tableId + '-col-' + columnIndex;
+                    const single = control.querySelector('#' + safeId(key));
+                    if (single) {
+                        single.setAttribute('aria-labelledby', headingId);
+                        if (child.required === true) {
+                            single.setAttribute('aria-required', 'true');
+                        }
+                    } else if (control.querySelector('input[type="radio"], input[type="checkbox"]')) {
+                        control.setAttribute('role', control.querySelector('input[type="checkbox"]') ? 'group' : 'radiogroup');
+                        control.setAttribute('aria-labelledby', headingId);
+                    }
+                    cell.appendChild(control);
+                });
+                const actions = row.insertCell();
+                if (item.readOnly !== true && count > minOccurs) {
+                    const removeButton = document.createElement('button');
+                    removeButton.type = 'button';
+                    removeButton.className = 'btn btn-sm btn-link text-danger oe-questionnaire-repeat-remove py-0';
+                    removeButton.textContent = this.runtime.t('remove');
+                    removeButton.addEventListener('click', () => {
+                        this.runtime.responseStore.removeRepeatInstance(storageKey, instanceIndex);
+                        rerender();
+                        this.runtime.notifyStructureChanged();
+                    });
+                    actions.appendChild(removeButton);
+                }
+            }
+            const scroll = document.createElement('div');
+            scroll.className = 'table-responsive';
+            scroll.appendChild(table);
+            return scroll;
+        }
+
         renderRepeatingGroup(item, wrapper, keyPrefix) {
             const storageKey = keyPrefix + item.linkId;
             wrapper.classList.add('card', 'mb-3', 'oe-questionnaire-group', 'oe-questionnaire-repeating-group');
 
-            wrapper.appendChild(this.buildGroupHeader(item));
+            const header = this.buildGroupHeader(item);
+            wrapper.appendChild(header);
 
             const body = document.createElement('div');
             body.className = 'card-body';
             wrapper.appendChild(body);
+            this.applyGroupPresentation(item, wrapper, header, body);
 
             const minOccurs = Math.max(getIntegerExtension(item, EXTENSIONS.MIN_OCCURS) ?? 1, 1);
             const maxOccurs = getIntegerExtension(item, EXTENSIONS.MAX_OCCURS);
@@ -3288,13 +4881,17 @@
             const rerender = () => {
                 body.replaceChildren();
                 const count = this.runtime.responseStore.getRepeatCount(storageKey);
-                for (let instanceIndex = 0; instanceIndex < count; instanceIndex++) {
-                    body.appendChild(this.renderGroupInstance(item, keyPrefix, instanceIndex, count, minOccurs, rerender));
+                if (getItemControl(item) === 'gtable') {
+                    body.appendChild(this.renderGridTable(item, keyPrefix, count, minOccurs, rerender));
+                } else {
+                    for (let instanceIndex = 0; instanceIndex < count; instanceIndex++) {
+                        body.appendChild(this.renderGroupInstance(item, keyPrefix, instanceIndex, count, minOccurs, rerender));
+                    }
                 }
                 const addButton = document.createElement('button');
                 addButton.type = 'button';
                 addButton.className = 'btn btn-sm btn-outline-primary oe-questionnaire-repeat-add';
-                addButton.textContent = '+ Add ' + (item.text || 'item');
+                addButton.textContent = this.runtime.t('add', item.text || this.runtime.t('addItem'));
                 addButton.disabled = item.readOnly === true || (maxOccurs !== null && count >= maxOccurs);
                 addButton.addEventListener('click', () => {
                     this.runtime.responseStore.addRepeatInstance(storageKey);
@@ -3319,13 +4916,13 @@
             instanceHeader.className = 'oe-questionnaire-group-instance-header';
             const label = document.createElement('span');
             label.className = 'small text-muted';
-            label.textContent = '#' + (instanceIndex + 1);
+            label.textContent = this.runtime.t('instance', instanceIndex + 1);
             instanceHeader.appendChild(label);
             if (item.readOnly !== true && count > minOccurs) {
                 const removeButton = document.createElement('button');
                 removeButton.type = 'button';
                 removeButton.className = 'btn btn-sm btn-link text-danger oe-questionnaire-repeat-remove py-0';
-                removeButton.textContent = 'Remove';
+                removeButton.textContent = this.runtime.t('remove');
                 removeButton.addEventListener('click', () => {
                     this.runtime.responseStore.removeRepeatInstance(storageKey, instanceIndex);
                     rerender();
@@ -3366,8 +4963,17 @@
             }
             const text = document.createElement('span');
             text.className = 'oe-questionnaire-display-text';
-            text.textContent = item.text ?? '';
+            const markdown = markdownFor(item, 'text');
+            if (markdown !== null) {
+                text.appendChild(renderMarkdown(markdown, document));
+            } else {
+                text.textContent = item.text ?? '';
+            }
             display.appendChild(text);
+            const media = mediaElement(getTypedExtensionValue(item, EXTENSIONS.ITEM_MEDIA), item.text);
+            if (media) {
+                display.appendChild(media);
+            }
             wrapper.appendChild(display);
             return wrapper;
         }
@@ -3380,7 +4986,7 @@
             const inputId = safeId(storageKey);
 
             if (OPTION_CAPABLE_TYPES.includes(item.type)
-                && resolveAnswerOptions(item, this.runtime.questionnaire).some((option) => getAnswerOptionValue(option) !== null)) {
+                && this.runtime.answerOptionsFor(item).some((option) => getAnswerOptionValue(option) !== null)) {
                 const openText = (item.type === 'string' || item.type === 'text') && allowsFreeTextAnswer(item);
                 return this.renderChoice(item, container, control, answers, inputId, openText, storageKey);
             }
@@ -3420,7 +5026,7 @@
                 default: {
                     const unsupported = document.createElement('div');
                     unsupported.className = 'alert alert-warning';
-                    unsupported.textContent = 'Unsupported Questionnaire item type: ' + item.type;
+                    unsupported.textContent = this.runtime.t('unsupportedType', item.type);
                     container.appendChild(unsupported);
                     return container;
                 }
@@ -3428,15 +5034,24 @@
         }
 
         renderChoice(item, container, control, answers, inputId, allowOpenChoice, storageKey = item.linkId) {
-            const options = resolveAnswerOptions(item, this.runtime.questionnaire);
+            const options = this.runtime.answerOptionsFor(item);
             const selected = answers;
             const repeats = item.repeats === true;
             const useCheckboxes = repeats || control === 'check-box';
-            const useRadios = !useCheckboxes && (control === 'radio-button' || (control !== 'drop-down' && options.length <= 6));
+            // spinner ("a list of ... ordered values scrolled through via arrows") is a drop-down here.
+            const useRadios = !useCheckboxes && (control === 'radio-button' || (control !== 'drop-down' && control !== 'spinner' && options.length <= 6));
 
             const orientation = getChoiceOrientation(item);
+            if (control === 'autocomplete' && !repeats) {
+                return this.renderAutocomplete(item, container, options, selected, inputId, allowOpenChoice, storageKey);
+            }
             if (useCheckboxes || useRadios) {
                 const inputType = useCheckboxes ? 'checkbox' : 'radio';
+                const columns = getIntegerExtension(item, EXTENSIONS.COLUMN_COUNT);
+                if (columns !== null && columns > 1 && orientation !== 'horizontal') {
+                    container.classList.add('oe-questionnaire-columns');
+                    container.style.columnCount = String(columns);
+                }
                 options.forEach((option, index) => {
                     const optionAnswer = getAnswerOptionValue(option);
                     if (!optionAnswer) return;
@@ -3459,9 +5074,21 @@
                     input.addEventListener('change', () => {
                         if (useCheckboxes) {
                             const current = this.runtime.responseStore.getAnswers(storageKey);
-                            const next = input.checked
+                            const same = (answer, value) => answer.valueKey === value.valueKey && equalPrimitive(answer.value, value.value);
+                            let next = input.checked
                                 ? [...current, optionAnswer]
-                                : current.filter((answer) => !(answer.valueKey === optionAnswer.valueKey && equalPrimitive(answer.value, optionAnswer.value)));
+                                : current.filter((answer) => !same(answer, optionAnswer));
+                            // optionExclusive: "None of these" clears the others, and any other clears it.
+                            if (input.checked) {
+                                const exclusive = options.filter(isExclusiveOption).map(getAnswerOptionValue).filter(Boolean);
+                                next = isExclusiveOption(option)
+                                    ? [optionAnswer]
+                                    : next.filter((answer) => !exclusive.some((value) => same(answer, value)));
+                            }
+                            for (const box of container.querySelectorAll('input[type="checkbox"]')) {
+                                const boxAnswer = getAnswerOptionValue(options[Number(box.value)]);
+                                box.checked = boxAnswer !== null && next.some((answer) => same(answer, boxAnswer));
+                            }
                             this.runtime.setAnswers(storageKey, next);
                         } else if (input.checked) {
                             this.runtime.setAnswers(storageKey, [optionAnswer]);
@@ -3470,8 +5097,14 @@
                     const label = document.createElement('label');
                     label.className = 'custom-control-label oe-questionnaire-choice-label';
                     label.htmlFor = input.id;
-                    label.textContent = answerOptionLabel(option, optionAnswer);
-                    label.title = label.textContent;
+                    const plainLabel = answerOptionLabel(option, optionAnswer);
+                    const optionPrefix = plainLabel.slice(0, plainLabel.length - answerDisplay(optionAnswer).length);
+                    setInlineText(label, plainLabel, answerOptionMarkdown(option), optionPrefix);
+                    label.title = plainLabel;
+                    const answerMedia = mediaElement(getTypedExtensionValue(option, EXTENSIONS.ITEM_ANSWER_MEDIA), plainLabel);
+                    if (answerMedia) {
+                        label.appendChild(answerMedia);
+                    }
                     row.append(input, label);
                     container.appendChild(row);
                 });
@@ -3520,7 +5153,7 @@
                 const openInput = document.createElement('input');
                 openInput.type = 'text';
                 openInput.className = 'form-control' + (openLabelText !== '' ? '' : ' mt-2');
-                openInput.placeholder = openLabelText !== '' ? openLabelText : 'Other';
+                openInput.placeholder = openLabelText !== '' ? openLabelText : this.runtime.t('other');
                 // The free-text answer is a valueString that is not one of the
                 // options (string-typed options are valueString too).
                 const optionAnswers = options.map(getAnswerOptionValue).filter(Boolean);
@@ -3539,11 +5172,54 @@
             return container;
         }
 
+        // autocomplete: "a list of potential matches based on text entered",
+        // for long answer lists. The typed text is matched to an option's
+        // label; an open choice keeps unmatched text as its own answer.
+        renderAutocomplete(item, container, options, selected, inputId, allowOpenChoice, storageKey) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = inputId;
+            input.className = 'form-control oe-questionnaire-autocomplete';
+            input.autocomplete = 'off';
+            input.disabled = item.readOnly === true;
+            const list = document.createElement('datalist');
+            list.id = inputId + '-options';
+            input.setAttribute('list', list.id);
+            const labelled = options.map((option) => ({ option, answer: getAnswerOptionValue(option) }))
+                .filter((entry) => entry.answer !== null)
+                .map((entry) => ({ ...entry, label: answerOptionLabel(entry.option, entry.answer) }));
+            for (const entry of labelled) {
+                const element = document.createElement('option');
+                element.value = entry.label;
+                list.appendChild(element);
+            }
+            const current = labelled.find((entry) => selected.some((answer) => answer.valueKey === entry.answer.valueKey && equalPrimitive(answer.value, entry.answer.value)));
+            const custom = selected.find((answer) => answer.valueKey === 'valueString');
+            input.value = current?.label ?? (allowOpenChoice ? custom?.value ?? '' : '');
+            input.addEventListener('change', () => {
+                const text = input.value.trim();
+                const match = labelled.find((entry) => entry.label === text)
+                    ?? labelled.find((entry) => entry.label.toLowerCase() === text.toLowerCase());
+                if (text === '') {
+                    this.runtime.setAnswers(storageKey, []);
+                } else if (match) {
+                    this.runtime.setAnswers(storageKey, [match.answer]);
+                } else if (allowOpenChoice) {
+                    this.runtime.setAnswers(storageKey, [{ valueKey: 'valueString', value: text }]);
+                } else {
+                    this.runtime.setAnswers(storageKey, []);
+                }
+            });
+            container.append(input, list);
+            this.inputs.set(storageKey, container);
+            return container;
+        }
+
         renderBoolean(item, container, answers, inputId, storageKey = item.linkId) {
             const selected = firstValue(answers)?.value;
             [
-                { value: true, label: 'Yes' },
-                { value: false, label: 'No' },
+                { value: true, label: this.runtime.t('yes') },
+                { value: false, label: this.runtime.t('no') },
             ].forEach((option, index) => {
                 const row = document.createElement('div');
                 row.className = 'custom-control custom-radio custom-control-inline';
@@ -3572,6 +5248,11 @@
         }
 
         renderNumber(item, container, answers, inputId, storageKey = item.linkId) {
+            const sliderMin = getTypedExtensionValue(item, EXTENSIONS.MIN_VALUE);
+            const sliderMax = getTypedExtensionValue(item, EXTENSIONS.MAX_VALUE);
+            if (getItemControl(item) === 'slider' && typeof sliderMin === 'number' && typeof sliderMax === 'number') {
+                return this.renderSlider(item, container, answers, inputId, storageKey, sliderMin, sliderMax);
+            }
             const inputGroup = document.createElement('div');
             inputGroup.className = getQuestionnaireUnit(item) ? 'input-group' : '';
             const input = document.createElement('input');
@@ -3606,6 +5287,42 @@
                 inputGroup.appendChild(append);
             }
             container.appendChild(inputGroup);
+            this.inputs.set(storageKey, input);
+            return container;
+        }
+
+        // slider: a range between minValue and maxValue, stepped by
+        // sliderStepValue (1 by default). Nothing is answered until the
+        // slider is moved; the current value is shown beside it.
+        renderSlider(item, container, answers, inputId, storageKey, min, max) {
+            const row = document.createElement('div');
+            row.className = 'oe-questionnaire-slider d-flex align-items-center';
+            const input = document.createElement('input');
+            input.type = 'range';
+            input.id = inputId;
+            input.className = 'custom-range';
+            input.min = String(min);
+            input.max = String(max);
+            const step = getTypedExtensionValue(item, EXTENSIONS.SLIDER_STEP_VALUE);
+            input.step = typeof step === 'number' && step > 0 ? String(step) : (item.type === 'integer' ? '1' : 'any');
+            const current = firstValue(answers)?.value;
+            input.value = typeof current === 'number' ? String(current) : String(min);
+            input.disabled = item.readOnly === true;
+            const output = document.createElement('output');
+            output.className = 'ml-2 oe-questionnaire-slider-value';
+            output.htmlFor = inputId;
+            output.textContent = typeof current === 'number' ? String(current) : '–';
+            const commit = () => {
+                const value = item.type === 'integer' ? Number.parseInt(input.value, 10) : Number.parseFloat(input.value);
+                output.textContent = String(value);
+                this.runtime.setAnswers(storageKey, Number.isFinite(value) ? [{ valueKey: this.runtime.answerValueKeyForItem(item), value }] : []);
+            };
+            input.addEventListener('change', commit);
+            input.addEventListener('input', () => {
+                output.textContent = input.value;
+            });
+            row.append(input, output);
+            container.appendChild(row);
             this.inputs.set(storageKey, input);
             return container;
         }
@@ -3647,6 +5364,10 @@
             input.className = 'form-control';
             input.value = firstValue(answers)?.value ?? '';
             input.disabled = item.readOnly === true;
+            const keyboard = getTypedExtensionValue(item, EXTENSIONS.KEYBOARD)?.code;
+            if (KEYBOARD_INPUT_MODES[keyboard]) {
+                input.inputMode = KEYBOARD_INPUT_MODES[keyboard];
+            }
             if (Number.isInteger(item.maxLength)) {
                 input.maxLength = item.maxLength;
             }
@@ -3688,9 +5409,11 @@
             // questionnaire-unitOption lists the allowed units (Codings). Closed
             // by default -> a select; sdc-questionnaire-unitOpen
             // optionsOrString / optionsOrType -> free text with suggestions.
-            const unitOptions = findExtensions(item, EXTENSIONS.UNIT_OPTION)
-                .map((extension) => extension?.valueCoding)
-                .filter((coding) => coding && (typeof coding.code === 'string' || typeof coding.display === 'string'));
+            const unitValueSet = containedResourceById(this.runtime.questionnaire, getTypedExtensionValue(item, EXTENSIONS.UNIT_VALUE_SET));
+            const unitOptions = [
+                ...findExtensions(item, EXTENSIONS.UNIT_OPTION).map((extension) => extension?.valueCoding),
+                ...(unitValueSet?.resourceType === 'ValueSet' ? expansionToAnswerOptions(unitValueSet).map((option) => option.valueCoding) : []),
+            ].filter((coding) => coding && (typeof coding.code === 'string' || typeof coding.display === 'string'));
             const unitLabel = (coding) => coding.display ?? coding.code;
             const unitOpen = ['optionsOrString', 'optionsOrType'].includes(getStringExtension(item, EXTENSIONS.UNIT_OPEN));
             const currentUnit = quantity.unit ?? quantity.code ?? '';
@@ -3698,7 +5421,7 @@
             if (unitOptions.length > 0 && !unitOpen) {
                 unitInput = document.createElement('select');
                 unitInput.className = 'form-control oe-questionnaire-unit-select';
-                unitInput.setAttribute('aria-label', 'Unit');
+                unitInput.setAttribute('aria-label', this.runtime.t('unit'));
                 const blank = document.createElement('option');
                 blank.value = '';
                 blank.textContent = '';
@@ -3718,8 +5441,8 @@
                 unitInput = document.createElement('input');
                 unitInput.type = 'text';
                 unitInput.className = 'form-control';
-                unitInput.placeholder = 'Unit';
-                unitInput.setAttribute('aria-label', 'Unit');
+                unitInput.placeholder = this.runtime.t('unit');
+                unitInput.setAttribute('aria-label', this.runtime.t('unit'));
                 unitInput.value = currentUnit;
                 if (unitOptions.length > 0) {
                     const list = document.createElement('datalist');
@@ -3783,7 +5506,9 @@
             input.type = 'text';
             input.id = inputId;
             input.className = 'form-control';
-            input.placeholder = getEntryFormat(item) || 'Reference (e.g. Patient/123)';
+            const types = referenceTypes(item);
+            input.placeholder = getEntryFormat(item)
+                || (types.length > 0 ? this.runtime.t('referenceTo', types.join(', '), types[0]) : this.runtime.t('referencePlaceholder'));
             input.value = firstValue(answers)?.value?.reference ?? '';
             input.disabled = item.readOnly === true;
             input.addEventListener('change', () => {
@@ -3805,10 +5530,14 @@
             input.id = inputId;
             input.className = 'form-control-file';
             input.disabled = item.readOnly === true;
+            const mimeTypes = attachmentMimeTypes(item);
+            if (mimeTypes.length > 0) {
+                input.accept = mimeTypes.join(',');
+            }
             const info = document.createElement('div');
             info.className = 'small text-muted mt-1 oe-questionnaire-attachment-info';
             if (existing?.title) {
-                info.textContent = 'Current: ' + existing.title;
+                info.textContent = this.runtime.t('currentFile', existing.title);
             }
             input.addEventListener('change', () => {
                 const file = input.files && input.files[0];
@@ -3934,7 +5663,7 @@
                         const removeButton = document.createElement('button');
                         removeButton.type = 'button';
                         removeButton.className = 'btn btn-sm btn-link text-danger oe-questionnaire-repeat-remove py-0';
-                        removeButton.textContent = 'Remove';
+                        removeButton.textContent = this.runtime.t('remove');
                         removeButton.addEventListener('click', () => {
                             const current = this.runtime.responseStore.getAnswers(storageKey);
                             current.splice(index, 1);
@@ -3965,6 +5694,7 @@
                 const hidden = compiledItem?.hidden === true;
                 node.classList.toggle('d-none', !this.runtime.isEnabled(storageKey) || hidden);
             }
+            this.applyDynamicState();
             this.refreshCalculatedValues();
             this.renderWarnings(this.runtime.collectWarnings());
             this.clearValidationState();
@@ -3991,12 +5721,60 @@
             for (const node of this.nodes.values()) {
                 node.classList.remove('oe-questionnaire-invalid');
             }
+            for (const message of this.container?.querySelectorAll('.oe-questionnaire-error') ?? []) {
+                message.remove();
+            }
+            for (const control of this.container?.querySelectorAll('[data-oeq-invalid]') ?? []) {
+                control.removeAttribute('aria-invalid');
+                control.removeAttribute('aria-describedby');
+                control.removeAttribute('data-oeq-invalid');
+            }
         }
 
+        // Each issue's message is shown at its question and tied to the
+        // question's control (aria-invalid, aria-describedby), so the error
+        // is identified in text where it is, not by colour alone.
         showValidationIssues(issues) {
             this.clearValidationState();
+            const messages = new Map();
             for (const issue of issues) {
-                this.nodes.get(issue.storageKey ?? issue.linkId)?.classList.add('oe-questionnaire-invalid');
+                const key = issue.storageKey ?? issue.linkId;
+                const node = this.nodes.get(key);
+                if (!node) {
+                    continue;
+                }
+                node.classList.add('oe-questionnaire-invalid');
+                if (typeof issue.message !== 'string' || issue.message === '') {
+                    continue;
+                }
+                if (!messages.has(key)) {
+                    const message = document.createElement('div');
+                    message.className = 'oe-questionnaire-error invalid-feedback d-block';
+                    message.id = safeId(key) + '-error';
+                    const control = node.querySelector(':scope > .oe-questionnaire-control');
+                    if (node.tagName === 'TR') {
+                        node.querySelector(':scope > th')?.appendChild(message);
+                        for (const field of node.querySelectorAll('input')) {
+                            field.setAttribute('aria-invalid', 'true');
+                            field.setAttribute('aria-describedby', message.id);
+                            field.setAttribute('data-oeq-invalid', '');
+                        }
+                    } else if (control) {
+                        control.after(message);
+                        const target = control.querySelector('#' + safeId(key)) ?? (control.getAttribute('role') ? control : null);
+                        if (target) {
+                            target.setAttribute('aria-invalid', 'true');
+                            target.setAttribute('aria-describedby', message.id);
+                            target.setAttribute('data-oeq-invalid', '');
+                        }
+                    } else {
+                        node.appendChild(message);
+                    }
+                    messages.set(key, message);
+                }
+                const line = document.createElement('div');
+                line.textContent = issue.message;
+                messages.get(key).appendChild(line);
             }
         }
     }
@@ -4004,6 +5782,9 @@
     class QuestionnaireRuntime {
         constructor({ questionnaire, questionnaireResponse = null, options = {} }) {
             this.questionnaire = deepClone(questionnaire);
+            if (options.subQuestionnaires && typeof options.subQuestionnaires === 'object') {
+                this.questionnaire = assembleQuestionnaire(this.questionnaire, options.subQuestionnaires);
+            }
             this.questionnaireResponse = questionnaireResponse ? deepClone(questionnaireResponse) : null;
             this.options = options;
             this.compiler = new QuestionnaireCompiler();
@@ -4013,10 +5794,93 @@
             this.initialExpressionsSeeded = false;
             this.validationEngine = new ValidationEngine(this);
             this.expressionEngine = new SdcExpressionEngine(this.compiled);
+            for (const name of this.compiled.launchContextNames) {
+                if (this.options.launchContext?.[name] === undefined) {
+                    this.compiled.warnings.push({
+                        code: 'launch-context-missing',
+                        severity: 'info',
+                        message: 'The form asks for %' + name + ' (launchContext), which the host did not supply; expressions using it come out empty.',
+                    });
+                }
+            }
             this.renderer = new QuestionnaireRenderer(this);
             this.container = null;
             this.changeListeners = new Set();
+            // Signatures by requirement key ('' for the form, else the item's linkId).
+            this.signatures = new Map();
+            const loadSignature = (key, holder) => {
+                const signature = findExtension(holder, EXTENSIONS.RESPONSE_SIGNATURE)?.valueSignature;
+                if (signature && typeof signature.data === 'string') {
+                    this.signatures.set(key, { data: signature.data, sigFormat: signature.sigFormat ?? 'image/png', when: signature.when, loaded: signature });
+                }
+            };
+            for (const requirement of this.compiled.signatureRequirements) {
+                loadSignature(requirement.key, requirement.key === '' ? this.questionnaireResponse : findResponseItemByLinkId(this.questionnaireResponse, requirement.key));
+            }
             this.refreshState();
+        }
+
+        // The response item for a linkId outside any repeat, created with its
+        // parent groups when the response has none.
+        ensureResponseItem(response, linkId) {
+            const chain = [];
+            for (let cursor = linkId; cursor; cursor = this.compiled.parentByLinkId.get(cursor)) {
+                chain.unshift(cursor);
+            }
+            let level = response;
+            for (const id of chain) {
+                level.item = level.item ?? [];
+                let node = level.item.find((entry) => entry?.linkId === id);
+                if (!node) {
+                    const text = this.compiled.itemsByLinkId.get(id)?.item?.text;
+                    node = text ? { linkId: id, text } : { linkId: id };
+                    level.item.push(node);
+                }
+                level = node;
+            }
+            return level;
+        }
+
+        setSignature(key, signature) {
+            if (signature) {
+                this.signatures.set(key, { ...signature, when: new Date().toISOString() });
+            } else {
+                this.signatures.delete(key);
+            }
+            this.renderer.clearValidationState();
+            this.emitChange(null);
+        }
+
+        // questionnaireresponse-signature on the response or its item, for
+        // each requirement signed. who is the host's options.signer when it
+        // gives one, else the typed name.
+        applySignatures(response) {
+            for (const requirement of this.compiled.signatureRequirements) {
+                const signature = this.signatures.get(requirement.key);
+                let holder = requirement.key === '' ? response : findResponseItemByLinkId(response, requirement.key);
+                if (!holder && signature && this.isEnabled(requirement.key)) {
+                    // A signed item with no answer still needs its response item to carry the signature.
+                    holder = this.ensureResponseItem(response, requirement.key);
+                }
+                if (!holder) {
+                    continue;
+                }
+                holder.extension = (holder.extension ?? []).filter((extension) => extension?.url !== EXTENSIONS.RESPONSE_SIGNATURE);
+                if (!signature) {
+                    if (holder.extension.length === 0) {
+                        delete holder.extension;
+                    }
+                    continue;
+                }
+                const valueSignature = signature.loaded ?? {
+                    type: requirement.type.length > 0 ? requirement.type : [{ system: 'urn:iso-astm:E1762-95:2013', code: '1.2.840.10065.1.12.1.7', display: 'Consent Signature' }],
+                    when: signature.when,
+                    who: this.options.signer ?? { display: signature.name ?? '' },
+                    sigFormat: signature.sigFormat,
+                    data: signature.data,
+                };
+                holder.extension.push({ url: EXTENSIONS.RESPONSE_SIGNATURE, valueSignature });
+            }
         }
 
         mount(container) {
@@ -4027,6 +5891,14 @@
             this.renderer.mount(container);
             this.emitWarnings();
             return this;
+        }
+
+        // One of the runtime's own strings, in the host's language when it supplied one.
+        t(key, ...args) {
+            const fromOptions = this.options?.strings?.[key];
+            const template = typeof fromOptions === 'string' ? fromOptions
+                : (typeof SCRIPT_STRINGS[key] === 'string' ? SCRIPT_STRINGS[key] : DEFAULT_STRINGS[key] ?? key);
+            return formatString(template, args);
         }
 
         answerValueKeyForItem(item) {
@@ -4072,7 +5944,20 @@
                 this.expressionEngine.seedInitialExpressionInstances(this);
             }
             this.expressionEngine.recalculate(this);
+            this.dynamicState = this.expressionEngine.evaluateDynamic(this);
             this.behaviorEngine.evaluateAll();
+        }
+
+        // Required as the item's requiredExpression says, else as item.required.
+        isRequired(linkId, item) {
+            const dynamic = this.dynamicState?.get(linkId)?.required;
+            return dynamic === null || dynamic === undefined ? item?.required === true : dynamic;
+        }
+
+        // The item's answer options: answerExpression's when it has one, else its own.
+        answerOptionsFor(item) {
+            const dynamic = this.dynamicState?.get(item.linkId)?.answerOptions;
+            return Array.isArray(dynamic) ? dynamic : resolveAnswerOptions(item, this.questionnaire);
         }
 
         isEnabled(linkId) {
@@ -4085,9 +5970,19 @@
             return result;
         }
 
-        getQuestionnaireResponse() {
+        // { complete: true } is for a host saving a response that passed
+        // validate(): R4's completed ("the current content is regarded as
+        // definitive"), or amended when the loaded response was already
+        // completed or amended. Without it the status stays as loaded, or
+        // in-progress for a new response.
+        getQuestionnaireResponse({ complete = false } = {}) {
             const response = this.responseStore.buildQuestionnaireResponse((linkId) => this.isEnabled(linkId));
+            if (complete) {
+                const loaded = this.questionnaireResponse?.status;
+                response.status = loaded === 'completed' || loaded === 'amended' ? 'amended' : 'completed';
+            }
             this.applyResponseMetadata(response);
+            this.applySignatures(response);
             return response;
         }
 
@@ -4164,6 +6059,7 @@
     global.OpenEMRQuestionnaire = {
         version: '0.2.0',
         EXTENSIONS,
+        DEFAULT_STRINGS,
         QuestionnaireCompiler,
         QuestionnaireResponseStore,
         QuestionnaireBehaviorEngine,
