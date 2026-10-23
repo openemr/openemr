@@ -1254,7 +1254,15 @@
                 if (value === null || value === undefined || typeof value !== 'object') {
                     continue;
                 }
-                const projected = value[property];
+                let projected = value[property];
+                if (projected === undefined) {
+                    // FHIR choice elements (value[x], effective[x], ...) are
+                    // addressed without their type suffix in FHIRPath:
+                    // answer.value reaches valueInteger / valueCoding / ...
+                    const choiceKey = Object.keys(value).find((key) =>
+                        key.length > property.length && key.startsWith(property) && /^[A-Z]/.test(key.charAt(property.length)));
+                    projected = choiceKey === undefined ? undefined : value[choiceKey];
+                }
                 if (Array.isArray(projected)) {
                     output.push(...projected);
                 } else if (projected !== undefined && projected !== null) {
@@ -1899,36 +1907,39 @@
             this.instanceEnabled.clear();
             // chain carries every enclosing repeating-group instance, outermost
             // first: [{ groupLinkId, prefix }, ...]. prefix is that instance's
-            // storage-key prefix.
-            const walk = (items, prefix, chain) => {
+            // storage-key prefix. parentKey is the storage key of the item's
+            // parent (canonical linkId outside any repeat), so an item is gated
+            // by its actual parent's per-instance state, at any depth.
+            const walk = (items, prefix, chain, parentKey) => {
                 for (const item of items ?? []) {
                     if (typeof item?.linkId !== 'string') {
                         continue;
                     }
                     const storageKey = prefix + item.linkId;
+                    // Every item inside a repeat instance — including a nested
+                    // repeating group itself — gets its own enablement.
+                    if (prefix !== '') {
+                        this.instanceEnabled.set(storageKey, this.evaluateInstanceItem(item, chain, parentKey));
+                    }
                     if (isRepeatingGroup(item)) {
                         const count = this.runtime.responseStore.getRepeatCount(storageKey);
                         for (let instanceIndex = 0; instanceIndex < count; instanceIndex++) {
                             const instancePrefix = instanceKeyPrefix(storageKey, instanceIndex);
-                            walk(item.item, instancePrefix, [...chain, { groupLinkId: item.linkId, prefix: instancePrefix }]);
+                            walk(item.item, instancePrefix, [...chain, { groupLinkId: item.linkId, prefix: instancePrefix }], storageKey);
                         }
                         continue;
                     }
-                    if (prefix !== '') {
-                        this.instanceEnabled.set(storageKey, this.evaluateInstanceItem(item, chain));
-                    }
-                    walk(item.item, prefix, chain);
+                    walk(item.item, prefix, chain, storageKey);
                 }
             };
-            walk(this.runtime.questionnaire.item, '', []);
+            walk(this.runtime.questionnaire.item, '', [], null);
         }
 
-        evaluateInstanceItem(item, chain) {
-            // Every enclosing repeating group's own enablement gates the instance.
-            for (const { groupLinkId } of chain) {
-                if (this.enabled.get(groupLinkId) === false) {
-                    return false;
-                }
+        evaluateInstanceItem(item, chain, parentKey) {
+            // The parent (already evaluated: the walk is top-down) gates its
+            // children, so a disabled group anywhere above disables the item.
+            if (parentKey !== null && !this.isEnabled(parentKey)) {
+                return false;
             }
 
             // enableWhenExpression gates the instance the same way it gates a
