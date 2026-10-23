@@ -165,6 +165,17 @@ class OidcIdTokenClaimsApiTest extends TestCase
 
         $this->assertIsString($claims['sub']);
         $this->assertNotSame('', $claims['sub'], 'sub must identify the end-user');
+        // Bind sub to the seeded admin's uuid, not just "any non-empty
+        // string". A refactor that returned a client_id or empty string
+        // under some code path would still have passed the loose check.
+        $adminUser = (new \OpenEMR\Services\UserService())->getUserByUsername('admin');
+        $this->assertIsArray($adminUser, 'Seeded admin user must exist');
+        $this->assertIsString($adminUser['uuid'] ?? null);
+        $this->assertSame(
+            $adminUser['uuid'],
+            $claims['sub'],
+            'sub claim must equal the admin user uuid (not an arbitrary string)'
+        );
 
         // `aud` must match the client the token was issued for — not
         // another client, not empty. league/oauth2-server uses a
@@ -177,6 +188,11 @@ class OidcIdTokenClaimsApiTest extends TestCase
 
         $this->assertIsInt($claims['iat']);
         $this->assertIsInt($claims['exp']);
+        $this->assertGreaterThan(
+            time(),
+            $claims['exp'],
+            'exp must be in the future at assertion time (a freshly-minted token must not be already-expired)'
+        );
         $this->assertGreaterThan(
             $claims['iat'],
             $claims['exp'],
@@ -217,12 +233,24 @@ class OidcIdTokenClaimsApiTest extends TestCase
         $this->assertIsString($idToken);
         $header = $this->decodeJwtHeader($idToken);
         $this->assertArrayHasKey('alg', $header);
+        // Pin the alg to RS256 directly in addition to the
+        // discovery-agreement check. assertContains alone would pass
+        // if both the discovery value AND the id_token header
+        // silently flipped to the same non-RS256 value (e.g. HS256,
+        // which would make the public JWKS useless for verification).
+        // OIDC Core defaults to RS256 but does not mandate it; this
+        // explicit pin reflects OpenEMR's declared contract.
+        $this->assertSame(
+            'RS256',
+            $header['alg'],
+            'id_token must be signed with RS256 (OpenEMR\'s declared signing algorithm)'
+        );
         $this->assertContains(
             $header['alg'],
             $advertised,
             sprintf(
                 'id_token header alg "%s" must appear in id_token_signing_alg_values_supported (%s)',
-                is_string($header['alg']) ? $header['alg'] : var_export($header['alg'], true),
+                $header['alg'],
                 implode(',', array_filter($advertised, is_string(...)))
             )
         );
@@ -341,6 +369,18 @@ class OidcIdTokenClaimsApiTest extends TestCase
                 'fhirUser must be an absolute URL to a FHIR Practitioner/Patient/Person resource. Got: %s',
                 $claims['fhirUser']
             )
+        );
+        // Bind the fhirUser URL's uuid to the seeded admin, not just
+        // "any FHIR URL shape". OpenEMR's admin seed resolves to a
+        // Person resource (not a Practitioner — admin does not have
+        // an npi/users_facility row by default).
+        $adminUser = (new \OpenEMR\Services\UserService())->getUserByUsername('admin');
+        $this->assertIsArray($adminUser);
+        $this->assertIsString($adminUser['uuid'] ?? null);
+        $this->assertStringEndsWith(
+            '/Person/' . $adminUser['uuid'],
+            $claims['fhirUser'],
+            'fhirUser must end with /Person/{admin uuid} (admin resolves as a Person resource; a Practitioner path indicates the test env was reseeded)'
         );
     }
 
