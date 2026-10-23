@@ -42,6 +42,19 @@ abstract class AbstractQdmService
         $this->codeTypesService = $codeTypesService;
     }
 
+    /**
+     * Which lists rows (problems, concerns, allergies) the measures count, as SQL: not marked
+     * Entered in Error or Refuted in the issue's Verification Status (lists.verification, from
+     * the condition-verification and allergyintolerance-verification lists), which the issue
+     * screen offers for both. Any other status is kept, including the column's default, empty.
+     *
+     * @param string $table lists or its alias, as it appears in the query
+     */
+    public static function countedListEntry(string $table): string
+    {
+        return "$table.`verification` NOT IN ('entered-in-error', 'refuted')";
+    }
+
     public static function convertToObjectIdBSONFormat($id)
     {
         // max bigint size will fit in 16 characters so we will always have enough space for this.
