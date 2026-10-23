@@ -240,10 +240,12 @@ class PortalMailArchiveTest extends TestCase
             'SELECT id FROM `log` WHERE user = ? AND event = ? AND groupname = ?' .
             ')',
             [self::AUDIT_USER, 'delete', 'Portal'],
+            true,
         );
         QueryUtils::sqlStatementThrowException(
             'DELETE FROM `log` WHERE user = ? AND event = ? AND groupname = ?',
             [self::AUDIT_USER, 'delete', 'Portal'],
+            true,
         );
     }
 }
