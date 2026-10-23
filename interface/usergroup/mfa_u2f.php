@@ -17,6 +17,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -156,7 +157,7 @@ function docancel() {
             // Require current-password confirmation before persisting a new U2F
             // factor so a hijacked session cannot silently add an attacker-held
             // key. Mirrors the mfa_totp.php `reg2` password reprompt.
-            $clearPass = $_POST['clearPass'] ?? '';
+            $clearPass = CurrentRequest::get()->request->getString('clearPass', '');
             if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $clearPass)) {
                 die(xlt('Invalid password'));
             }

@@ -17,6 +17,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
@@ -53,7 +54,7 @@ if (!empty($_POST['form_delete_method'])) {
     // hijacked session cannot silently disable the user's second factor.
     // Mirrors the password reprompt mfa_totp.php `action=reg2` performs for
     // the register step.
-    $clearPass = $_POST['clearPass'] ?? '';
+    $clearPass = CurrentRequest::get()->request->getString('clearPass', '');
     if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $clearPass)) {
         $message = xl('Invalid password.');
     } else {
