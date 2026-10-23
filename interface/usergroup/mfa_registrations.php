@@ -75,14 +75,23 @@ if (!empty($_POST['form_delete_method'])) {
 <script>
 
 function delclick(mfamethod, mfaname) {
-    var pass = prompt(<?php echo xlj('Please re-enter your OpenEMR login password to remove this authentication factor'); ?>);
-    if (pass === null || pass === '') {
+    document.getElementById('delete_target_method').value = mfamethod;
+    document.getElementById('delete_target_name').value = mfaname;
+    document.getElementById('delete_target_display').textContent = mfaname;
+    document.getElementById('delete_pass').value = '';
+    $('#deleteConfirmModal').modal('show');
+}
+
+function confirmDelete() {
+    var pass = document.getElementById('delete_pass').value;
+    if (!pass) {
         return;
     }
     var f = document.forms[0];
-    f.form_delete_method.value = mfamethod;
-    f.form_delete_name.value = mfaname;
+    f.form_delete_method.value = document.getElementById('delete_target_method').value;
+    f.form_delete_name.value = document.getElementById('delete_target_name').value;
     f.clearPass.value = pass;
+    $('#deleteConfirmModal').modal('hide');
     top.restoreSession();
     f.submit();
 }
@@ -202,6 +211,27 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
 
     </div><!--end of container div -->
+
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteConfirmModalLabel"><?php echo xlt('Confirm Delete'); ?></h5>
+                </div>
+                <div class="modal-body">
+                    <p><?php echo xlt('Re-enter your OpenEMR login password to remove this authentication factor'); ?>: <strong id="delete_target_display"></strong></p>
+                    <input type="hidden" id="delete_target_method" value="" />
+                    <input type="hidden" id="delete_target_name" value="" />
+                    <input type="password" class="form-control" id="delete_pass" autocomplete="current-password" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()"><?php echo xlt('Delete'); ?></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 </html>

@@ -101,12 +101,18 @@ function docancel() {
         ///////////////////////////////////////////////////////////////////////
 
         if ($action == 'reg1') {
+            $error = CurrentRequest::get()->query->getString('error', '');
             [$request, $signs] = $u2f->getRegisterData();
             ?>
         <div class="row">
             <div class="col-sm-12">
                 <fieldset>
                     <legend><?php echo xlt('Register U2F Key for') . " " . text($user_full_name); ?></legend>
+                    <?php if ($error == "auth") { ?>
+                        <div class="alert alert-danger alert-msg login-failure m-1">
+                            <?php echo xlt('Invalid password'); ?>
+                        </div>
+                    <?php } ?>
                     <div class='col-sm-12'>
                         <p><?php echo xlt("Instructions");?>:
                             <ul>
@@ -159,7 +165,8 @@ function docancel() {
             // key. Mirrors the mfa_totp.php `reg2` password reprompt.
             $clearPass = CurrentRequest::get()->request->getString('clearPass', '');
             if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $clearPass)) {
-                die(xlt('Invalid password'));
+                header("Location: mfa_u2f.php?action=reg1&error=auth");
+                exit();
             }
             try {
                 $data = $u2f->doRegister(json_decode((string) $_POST['form_request']), json_decode((string) $_POST['form_registration']));
