@@ -862,16 +862,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method alphaCodeType\\(\\) on FeeSheetHtml\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get\\(\\) on string\\|Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method genPriceLevelSelect\\(\\) on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',

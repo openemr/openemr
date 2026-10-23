@@ -8,35 +8,43 @@ require_once(__DIR__ . '/php/eye_mag_functions.php');
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\EyeFormData;
+
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_dilation_med_defaults;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_dilation_med_options;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate('ACL check failed for admin/super: Dilation Medications', xl('Dilation Medications'));
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$request = CurrentRequest::get();
+$posted = $request->request->all();
 $listId = 'Eye_Dilation_Meds';
 $defaults = eye_mag_dilation_med_defaults();
 $saved = false;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', session: $session)) {
+if ($request->isMethod('POST')) {
+    if (!CsrfUtils::verifyCsrfToken(EyeFormData::text($posted['csrf_token_form'] ?? ''), session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $submittedTitles = is_array($_POST['title'] ?? null) ? $_POST['title'] : [];
-    sqlBeginTrans();
-    try {
-        sqlStatement('DELETE FROM list_options WHERE list_id = ?', [$listId]);
+    $submittedTitles = EyeFormData::row($posted['title'] ?? []);
+    QueryUtils::inTransaction(static function () use ($submittedTitles, $listId, $defaults): void {
+        QueryUtils::sqlStatementThrowException('DELETE FROM list_options WHERE list_id = ?', [$listId]);
         $sequence = 10;
         foreach ($defaults as $field => [$defaultTitle, $storedValue]) {
-            $title = trim((string)($submittedTitles[$field] ?? ''));
+            $title = trim(EyeFormData::text($submittedTitles[$field] ?? ''));
             if ($title === '') {
                 $title = $defaultTitle;
             }
             $title = mb_substr($title, 0, 80, 'UTF-8');
-            sqlStatement(
+            QueryUtils::sqlStatementThrowException(
                 "INSERT INTO list_options
                     (list_id, option_id, title, seq, option_value, mapping, notes, codes, activity)
                  VALUES (?, ?, ?, ?, 0, '', ?, '', 1)",
@@ -44,17 +52,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
             $sequence += 10;
         }
-        sqlStatement(
+        QueryUtils::sqlStatementThrowException(
             "INSERT IGNORE INTO list_options
                 (list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, activity)
              VALUES ('lists', ?, ?, 0, 1, 0, '', '', '', 0)",
             [$listId, 'Eye Dilation Medications']
         );
-        sqlCommitTrans();
-    } catch (Throwable $exception) {
-        sqlRollbackTrans();
-        throw $exception;
-    }
+    });
     $saved = true;
 }
 
@@ -65,16 +69,16 @@ foreach (eye_mag_dilation_med_options() as $option) {
 
 // The Eye Form opens this page in a modal and reads the titles back as JSON, both after a
 // save and when the modal closes, so its labels update without reloading the form.
-if (($_GET['format'] ?? $_POST['format'] ?? '') === 'json') {
+if (($request->query->all()['format'] ?? $posted['format'] ?? '') === 'json') {
     header('Content-Type: application/json');
     echo json_encode(['saved' => $saved, 'titles' => $titles]);
     exit;
 }
 
-$csrfToken = (string)CsrfUtils::collectCsrfToken(session: $session);
+$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
 ?>
 <!doctype html>
-<html lang="<?php echo attr($GLOBALS['language_iso_code'] ?? 'en'); ?>">
+<html lang="<?php echo attr(OEGlobalsBag::getInstance()->getString('language_iso_code', 'en')); ?>">
 <head>
     <?php Header::setupHeader(['opener']); ?>
     <title><?php echo xlt('Dilation Medications'); ?></title>

@@ -8,14 +8,21 @@ require_once(__DIR__ . '/../../globals.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\EyeFormData;
+use OpenEMR\Forms\EyeMag\ProviderSignature;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$authUserId = (int)($session->get('authUserID') ?? 0);
-$asset = (string)($_REQUEST['asset'] ?? 'signature');
-$providerId = (int)($_REQUEST['provider_id'] ?? 0);
+$authUserId = EyeFormData::integer($session->get('authUserID'));
+$request = CurrentRequest::get();
+$parameters = array_replace($request->query->all(), $request->request->all());
+$asset = EyeFormData::text($parameters['asset'] ?? 'signature');
+$providerId = EyeFormData::integer($parameters['provider_id'] ?? 0);
 $isAdmin = AclMain::aclCheckCore('admin', 'super');
 $isSignature = $asset === 'signature';
 $isLogo = $asset === 'logo';
@@ -31,11 +38,11 @@ if ($isSignature) {
         http_response_code(403);
         die(xlt('Only the provider of record may change this signature.'));
     }
-    $provider = sqlQuery(
+    $provider = EyeFormData::row(QueryUtils::querySingleRow(
         "SELECT id, fname, lname, suffix FROM users WHERE id = ? AND active = 1 LIMIT 1",
         [$providerId]
-    );
-    if (empty($provider['id'])) {
+    ));
+    if (EyeFormData::integer($provider['id'] ?? 0) <= 0) {
         http_response_code(404);
         die(xlt('Provider not found.'));
     }
@@ -45,38 +52,40 @@ if ($isSignature) {
 }
 
 $webroot = OEGlobalsBag::getInstance()->getWebRoot();
-$signaturePath = OEGlobalsBag::getInstance()->getProjectDir() . '/interface/forms/eye_mag/images/sign_' . $providerId . '.jpg';
-$signatureUrl = $webroot . '/interface/forms/eye_mag/images/sign_' . $providerId . '.jpg';
-$logoDirectory = $GLOBALS['OE_SITE_DIR'] . '/images';
+$providerSignature = ProviderSignature::fromGlobals(OEGlobalsBag::getInstance());
+$signaturePath = $providerSignature->sitePath($providerId);
+$signatureUrl = $providerSignature->siteUrl($providerId);
+$siteDirectory = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+$logoDirectory = $siteDirectory . '/images';
 $logoPath = $logoDirectory . '/practice_logo.gif';
-$siteName = basename((string)$GLOBALS['OE_SITE_DIR']);
+$siteName = basename($siteDirectory);
 $logoUrl = $webroot . '/sites/' . rawurlencode($siteName) . '/images/practice_logo.gif';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($request->isMethod('POST')) {
     header('Content-Type: application/json');
 
-    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', session: $session)) {
+    if (!CsrfUtils::verifyCsrfToken(EyeFormData::text($request->request->all()['csrf_token_form'] ?? ''), session: $session)) {
         http_response_code(403);
         echo json_encode(['success' => false, 'error' => xlt('Invalid request token. Please reopen the editor.')]);
         exit;
     }
 
-    $upload = $_FILES['asset_file'] ?? null;
-    if (!is_array($upload) || ($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+    $upload = $request->files->get('asset_file');
+    if (!$upload instanceof UploadedFile || !$upload->isValid()) {
         http_response_code(400);
         echo json_encode(['success' => false, 'error' => xlt('No image received.')]);
         exit;
     }
-    if ((int)($upload['size'] ?? 0) > 2 * 1024 * 1024) {
+    if ($upload->getSize() > 2 * 1024 * 1024) {
         http_response_code(400);
         echo json_encode(['success' => false, 'error' => xlt('Image too large (2MB maximum).')]);
         exit;
     }
 
     $mimeDetector = new finfo(FILEINFO_MIME_TYPE);
-    $mime = (string)$mimeDetector->file($upload['tmp_name']);
-    $allowed = $isSignature ? ['image/jpeg', 'image/png'] : ['image/jpeg', 'image/png', 'image/gif'];
-    if (!in_array($mime, $allowed, true)) {
+    $mime = (string)$mimeDetector->file($upload->getPathname());
+    $allowed = in_array($mime, ['image/jpeg', 'image/png'], true) || ($isLogo && $mime === 'image/gif');
+    if (!$allowed) {
         http_response_code(400);
         echo json_encode([
             'success' => false,
@@ -85,26 +94,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $image = @imagecreatefromstring((string)file_get_contents($upload['tmp_name']));
+    $image = @imagecreatefromstring((string)file_get_contents($upload->getPathname()));
     if ($image === false) {
         http_response_code(400);
         echo json_encode(['success' => false, 'error' => xlt('The image could not be read.')]);
         exit;
     }
 
-    if ($isSignature) {
-        $saved = @imagejpeg($image, $signaturePath, 90);
-        $savedPath = $signaturePath;
-        $previewUrl = $signatureUrl;
-    } else {
+    if ($asset === 'logo') {
         if (!is_dir($logoDirectory)) {
             @mkdir($logoDirectory, 0755, true);
         }
         $saved = @imagegif($image, $logoPath);
         $savedPath = $logoPath;
         $previewUrl = $logoUrl;
+    } else {
+        $signatureDirectory = dirname($signaturePath);
+        $directoryReady = is_dir($signatureDirectory)
+            || @mkdir($signatureDirectory, 0755, true)
+            || is_dir($signatureDirectory);
+        $saved = $directoryReady && !is_link($signaturePath) && @imagejpeg($image, $signaturePath, 90);
+        $savedPath = $signaturePath;
+        $previewUrl = $signatureUrl;
     }
-    imagedestroy($image);
+    unset($image);
 
     if (!$saved) {
         http_response_code(500);
@@ -122,19 +135,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-$csrfToken = (string)CsrfUtils::collectCsrfToken(session: $session);
+$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
 $providerName = trim(
-    (string)($provider['fname'] ?? '') . ' ' .
-    (string)($provider['lname'] ?? '') . ' ' .
-    (string)($provider['suffix'] ?? '')
+    EyeFormData::text($provider['fname'] ?? '') . ' ' .
+    EyeFormData::text($provider['lname'] ?? '') . ' ' .
+    EyeFormData::text($provider['suffix'] ?? '')
 );
-$currentPath = $isSignature ? $signaturePath : $logoPath;
-$currentUrl = $isSignature ? $signatureUrl : $logoUrl;
+$currentPath = $isSignature ? $providerSignature->path($providerId) : $logoPath;
+$currentUrl = $isSignature ? $providerSignature->url($providerId) : $logoUrl;
 $hasCurrent = file_exists($currentPath);
 $currentPreview = $hasCurrent ? $currentUrl . '?t=' . (int)@filemtime($currentPath) : '';
 ?>
 <!doctype html>
-<html lang="<?php echo attr($GLOBALS['language_iso_code'] ?? 'en'); ?>">
+<html lang="<?php echo attr(OEGlobalsBag::getInstance()->getString('language_iso_code', 'en')); ?>">
 <head>
     <?php Header::setupHeader(['opener', 'pure']); ?>
     <title><?php echo $isSignature ? xlt('My Signature') : xlt('Practice Logo'); ?></title>
@@ -244,7 +257,7 @@ $currentPreview = $hasCurrent ? $currentUrl . '?t=' . (int)@filemtime($currentPa
     function saveBlob(blob, filename) {
         const body = new FormData();
         body.append('asset', <?php echo js_escape($asset); ?>);
-        body.append('provider_id', <?php echo attr_js($providerId); ?>);
+        body.append('provider_id', <?php echo attr_js((string) $providerId); ?>);
         body.append('csrf_token_form', csrf);
         body.append('asset_file', blob, filename);
         if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();

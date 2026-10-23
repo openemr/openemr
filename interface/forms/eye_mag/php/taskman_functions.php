@@ -17,11 +17,14 @@
  */
 
 use Mpdf\Mpdf;
-
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\EyeFormData;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
+
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_append_materials_handout_pdf;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_report_filename;
 
 $facilityService = new FacilityService();
 
@@ -56,7 +59,7 @@ function make_task($ajax_req): void
         $dated = $dated->format('Y/m/d');
         $sent_date = oeFormatShortDate($dated);
     }
-    if (!($doc['ID'] ?? '') && $task['ID'] && (strtotime((string) $task['REQ_DATE']) < (time() - 60))) {
+    if (!($doc['ID'] ?? '') && $task['ID'] && (strtotime(EyeFormData::text($task['REQ_DATE'])) < (time() - 60))) {
         // The task was requested more than a minute ago (prevents multi-clicks from "re-generating" the PDF),
         // but the document was deleted (to redo it)...
         // Delete the task, recreate the task, and send the newly made PDF.
@@ -191,19 +194,19 @@ function deliver_document($task): bool
     if (!empty($from_data['suffix'])) {
         $from_name .= ", " . $from_data['suffix'];
     }
-    $from_fax       = preg_replace("/[^0-9]/", "", (string) $facility_data['fax']);
+    $from_fax       = preg_replace("/[^0-9]/", "", EyeFormData::text($facility_data['fax']));
     $email_sender   = OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email');
 
     $to_data        = sqlQuery($query, [$task['TO_ID']]);
-    $to_fax         = preg_replace("/[^0-9]/", "", (string) $to_data['fax']);
+    $to_fax         = preg_replace("/[^0-9]/", "", EyeFormData::text($to_data['fax']));
 
     $mail           = new MyMailer();
 
     $to_email       = $to_fax . "@" . OEGlobalsBag::getInstance()->getString('hylafax_server');
     //consider using admin email = Notification Email Address
     //this must be a fax server approved From: address
-    $file_to_attach = preg_replace('/^file:\/\//', "", (string) $task['DOC_url']);
-    $file_name      = preg_replace('/^.*\//', "", (string) $task['DOC_url']);
+    $file_to_attach = preg_replace('/^file:\/\//', "", EyeFormData::text($task['DOC_url']));
+    $file_name      = preg_replace('/^.*\//', "", EyeFormData::text($task['DOC_url']));
 
     $mail->AddReplyTo($email_sender, $from_name);
     $mail->SetFrom($email_sender, $from_name);
@@ -232,7 +235,7 @@ function deliver_document($task): bool
  */
 function show_task($ajax_req): void
 {
-    //$_REQUEST['show_task'] = task_id, or all or by date range?
+    //CurrentRequest::get()->get('show_task') = task_id, or all or by date range?
     //Could be a HTML5 table layout?
     //Think about how to display this and should it link to things/documents that were sent, or just status of the request
     //as listed in the field COMMENTS?  Think, think, think...A bear of little brain...
@@ -277,7 +280,7 @@ function make_document($task)
         $to_name .= ", " . $to_data['suffix'];
     }
     $task['to_name'] = $to_name;
-    $to_fax         = preg_replace("/[^0-9]/", "", (string) $to_data['fax']);
+    $to_fax         = preg_replace("/[^0-9]/", "", EyeFormData::text($to_data['fax']));
     $task['to_fax'] = $to_fax;
 
     $query          = "SELECT * FROM patient_data where pid=?";
@@ -351,15 +354,15 @@ function make_document($task)
         $ID             = sqlQuery($query, [$category_name]);
         $category_id    = $ID['id'];
 
-        $filename = eye_mag_report_filename((int) $pid, (int) $encounter);
+        $filename = eye_mag_report_filename(EyeFormData::integer($pid), EyeFormData::integer($encounter));
     }
 
     $config_mpdf = Config_Mpdf::getConfigMpdf();
     // A clinical record keeps at least a 1/2in (12.7mm) side gutter, for
     // printers' unprintable edge, hole punching and fax headers, even when
     // the site-wide PDF margin globals are set narrower (the default is 5mm).
-    $config_mpdf['margin_left'] = max(12.7, (float) ($config_mpdf['margin_left'] ?? 0));
-    $config_mpdf['margin_right'] = max(12.7, (float) ($config_mpdf['margin_right'] ?? 0));
+    $config_mpdf['margin_left'] = max(12.7, EyeFormData::number($config_mpdf['margin_left'] ?? 0));
+    $config_mpdf['margin_right'] = max(12.7, EyeFormData::number($config_mpdf['margin_right'] ?? 0));
     $pdf = new mPDF($config_mpdf);
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     if ($session->get('language_direction') === 'rtl') {
@@ -562,7 +565,7 @@ mpdf-->
     //$pdf->WriteHTML($stylesheet,\Mpdf\HTMLParserMode::HEADER_CSS);
     $pdf->WriteHTML($header);
     $pdf->writeHTML($content);
-    eye_mag_append_materials_handout_pdf($pdf, (int) $form_id, (int) $pid);
+    eye_mag_append_materials_handout_pdf($pdf, EyeFormData::integer($form_id), EyeFormData::integer($pid));
 
     $temp_filename = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
     $pdf->Output($temp_filename, 'F');

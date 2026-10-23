@@ -14,8 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once(__DIR__ . "/drawing_backgrounds.php");
+require_once(__DIR__ . "/clinical_helpers.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
@@ -24,10 +24,23 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\CopyForward;
 use OpenEMR\Forms\EyeMag\CopyMode;
+use OpenEMR\Forms\EyeMag\EyeFormData;
 use OpenEMR\Forms\EyeMag\FamilyHistory;
 use OpenEMR\Forms\EyeMag\PmsfhPanel;
 use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_colgroup;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_comment_tail_cells;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_distance_cells;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_header_cells;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_lower_cells;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_dilation_med_options;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_iop_method_labels;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_neuro_prior;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_patient_photo;
+use function OpenEMR\Forms\EyeMag\Drawing\eye_mag_drawing_background_options;
+use function OpenEMR\Forms\EyeMag\Drawing\eye_mag_drawing_background_preference;
 
 $facilityService = new FacilityService();
 
@@ -200,145 +213,6 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
         </span>
     </span>';
     return $output_return;
-}
-
-/** Render historical Neuro findings without attaching editable current-exam controls. */
-function eye_mag_neuro_prior(array $exam, string $motilityDisplay): string
-{
-    $motilityDisplay = $motilityDisplay === 'H' ? 'H' : 'X';
-    $value = static function (string $field) use ($exam): string {
-        return is_scalar($exam[$field] ?? '') ? (string)($exam[$field] ?? '') : '';
-    };
-    $input = static function (string $field) use ($value): string {
-        return '<input disabled type="text" id="PRIOR_' . attr($field) . '" value="' . attr($value($field)) . '">';
-    };
-    $actInput = static function (string $field) use ($value): string {
-        return '<textarea disabled rows="2" id="PRIOR_' . attr($field) . '">' . text($value($field)) . '</textarea>';
-    };
-    $checked = static function (string $field) use ($value): string {
-        return in_array($value($field), ['1', 'on'], true) ? ' checked' : '';
-    };
-    $line = static function (float $x1, float $y1, float $x2, float $y2): string {
-        return sprintf('<line x1="%.3f" y1="%.3f" x2="%.3f" y2="%.3f"/>', $x1, $y1, $x2, $y2);
-    };
-    $chart = static function (string $eye) use ($motilityDisplay, $value, $line): string {
-        $fields = $eye === 'OD'
-            ? ['MOTILITY_RS', 'MOTILITY_RI', 'MOTILITY_RR', 'MOTILITY_RL', 'MOTILITY_RRSO', 'MOTILITY_RRIO', 'MOTILITY_RLSO', 'MOTILITY_RLIO']
-            : ['MOTILITY_LS', 'MOTILITY_LI', 'MOTILITY_LR', 'MOTILITY_LL', 'MOTILITY_LRSO', 'MOTILITY_LRIO', 'MOTILITY_LLSO', 'MOTILITY_LLIO'];
-        $html = '<svg viewBox="0 0 74 68" role="img" data-display="' . $motilityDisplay . '" aria-label="' . attr($eye . ' ' . $motilityDisplay) . '">';
-        if ($motilityDisplay === 'H') {
-            $html .= $line(8, 5, 8, 57) . $line(66, 5, 66, 57) . $line(8, 31, 66, 31);
-            $rays = [[8, 31, 0, -1, 4, 22, 5], [37, 31, -1, 0, 2, 16, 4], [8, 31, 0, 1, 5, 22, 5],
-                [66, 31, 0, -1, 6, 22, 5], [37, 31, 1, 0, 3, 16, 4], [66, 31, 0, 1, 7, 22, 5]];
-        } else {
-            $d = 0.70710678;
-            $rays = [];
-            foreach ([[0, -1], [0, 1], [-1, 0], [1, 0], [-$d, -$d], [-$d, $d], [$d, -$d], [$d, $d]] as $index => $direction) {
-                [$dx, $dy] = $direction;
-                $html .= $line(37, 34, 37 + $dx * 30, 34 + $dy * 30);
-                $rays[] = [37, 34, $dx, $dy, $index, 25, 5];
-            }
-        }
-        foreach ($rays as [$cx, $cy, $dx, $dy, $index, $outer, $spacing]) {
-            $field = $fields[$index];
-            $grade = max(0, min(4, (int)$value($field)));
-            $html .= '<g data-field="' . attr($field) . '" data-grade="' . $grade . '">';
-            for ($tick = 0; $tick < $grade; ++$tick) {
-                $distance = $outer - $tick * $spacing;
-                $x = $cx + $dx * $distance;
-                $y = $cy + $dy * $distance;
-                $html .= $line($x + $dy * 4, $y - $dx * 4, $x - $dy * 4, $y + $dx * 4);
-            }
-            $html .= '</g>';
-        }
-        return $html . '</svg>';
-    };
-    $actViews = ['SCDIST' => xlt('scDist{{without correction distance}}'), 'CCDIST' => xlt('ccDist{{with correction distance}}'),
-        'SCNEAR' => xlt('scNear{{without correction near}}'), 'CCNEAR' => xlt('ccNear{{with correction at near}}')];
-    $hasActFindings = false;
-    foreach (array_keys($actViews) as $view) {
-        for ($position = 1; $position <= 11; ++$position) {
-            $hasActFindings = $hasActFindings || trim($value('ACT' . $position . $view)) !== '';
-        }
-    }
-    ob_start();
-    ?>
-    <div class="eye-neuro-prior">
-      <div class="eye-neuro-prior-layout">
-        <div class="eye-neuro-prior-left">
-          <section class="eye-neuro-prior-card borderShadow eye-neuro-prior-stereo">
-            <div class="eye-neuro-prior-heading">
-              <strong><?php echo xlt('Stereopsis'); ?>:</strong>
-              <label><?php echo xlt('Unable'); ?> <input disabled type="checkbox"<?php echo $value('STEREO_FLY') === 'U/A' ? ' checked' : ''; ?>></label>
-            </div>
-            <table>
-              <tr><th><?php echo xlt('Fly'); ?>:</th><td><span class="eye-neuro-prior-segments">
-                <span class="<?php echo $value('STEREO_FLY') === 'Yes' ? 'is-selected' : ''; ?>"><?php echo xlt('Yes'); ?></span><span class="<?php echo $value('STEREO_FLY') === 'No' ? 'is-selected' : ''; ?>"><?php echo xlt('No'); ?></span>
-              </span></td></tr>
-              <tr><th><label for="PRIOR_STEREO_ANIMALS"><?php echo xlt('Animals'); ?>:</label></th><td><span class="eye-neuro-prior-score"><?php echo $input('STEREO_ANIMALS'); ?><span>/3</span></span></td></tr>
-              <tr><th><label for="PRIOR_STEREO_CIRCLES"><?php echo xlt('Circles'); ?>:</label></th><td><span class="eye-neuro-prior-score"><?php echo $input('STEREO_CIRCLES'); ?><span>/9</span></span></td></tr>
-              <tr><td colspan="2" class="eye-neuro-prior-fixation"><?php echo xlt('Fixation Pref'); ?>: <span class="eye-neuro-prior-segments">
-                <?php foreach (['OD', 'OS', 'OU', 'Alt'] as $option) { ?>
-                  <span class="<?php echo $value('STEREO_FIXATION_PREF') === $option ? 'is-selected' : ''; ?>"><?php echo text($option); ?></span>
-                <?php } ?>
-              </span></td></tr>
-              <?php if (trim($value('STEREOPSIS')) !== '') { ?>
-                <tr><th><label for="PRIOR_STEREOPSIS"><?php echo xlt('Previous/Other'); ?>:</label></th><td><?php echo $input('STEREOPSIS'); ?></td></tr>
-              <?php } ?>
-            </table>
-          </section>
-          <section class="eye-neuro-prior-card borderShadow eye-neuro-prior-motility">
-            <div class="eye-neuro-prior-heading"><strong><?php echo xlt('Motility'); ?>:</strong>
-              <span class="eye-neuro-prior-segments"><span class="<?php echo $motilityDisplay === 'X' ? 'is-selected' : ''; ?>">X</span><span class="<?php echo $motilityDisplay === 'H' ? 'is-selected' : ''; ?>">H</span></span>
-              <label><?php echo xlt('Normal'); ?> <input disabled type="checkbox"<?php echo $checked('MOTILITYNORMAL'); ?>></label>
-            </div>
-            <div class="eye-neuro-prior-charts">
-              <div><strong><?php echo xlt('OD{{right eye}}'); ?></strong><?php echo $chart('OD'); ?></div>
-              <div><strong><?php echo xlt('OS{{left eye}}'); ?></strong><?php echo $chart('OS'); ?></div>
-            </div>
-          </section>
-        </div>
-        <section class="eye-neuro-prior-card borderShadow eye-neuro-prior-act">
-          <div class="eye-neuro-prior-heading"><strong><?php echo xlt('Alternate Cover Test'); ?>:</strong>
-            <label><?php echo xlt('Ortho{{orthophoric}}'); ?> <input disabled type="checkbox"<?php echo $checked('ACT'); ?>></label>
-          </div>
-          <details class="eye-neuro-prior-act-details"<?php echo $hasActFindings ? ' open' : ''; ?>>
-            <summary><?php echo xlt('Measurements'); ?></summary>
-            <?php foreach ($actViews as $view => $title) { ?>
-              <div class="eye-neuro-prior-act-view"><strong><?php echo $title; ?></strong>
-                <div class="eye-neuro-prior-gaze-labels"><span><?php echo xlt('R{{right}}'); ?></span><span><?php echo xlt('L{{left}}'); ?></span></div>
-                <div class="eye-neuro-prior-act-grid">
-                  <?php for ($position = 1; $position <= 9; ++$position) { ?>
-                    <span><?php echo $actInput('ACT' . $position . $view); ?></span>
-                  <?php } ?>
-                </div>
-                <div class="eye-neuro-prior-head-tilt">
-                  <label><?php echo xlt('Right head tilt'); ?> <?php echo $actInput('ACT10' . $view); ?></label>
-                  <label><?php echo xlt('Left head tilt'); ?> <?php echo $actInput('ACT11' . $view); ?></label>
-                </div>
-              </div>
-            <?php } ?>
-          </details>
-          <table class="eye-neuro-prior-values">
-            <colgroup><col class="eye-neuro-prior-label-col"><col><col></colgroup>
-            <tr><td></td><th><?php echo xlt('OD{{right eye}}'); ?></th><th><?php echo xlt('OS{{left eye}}'); ?></th></tr>
-            <?php foreach ([[xlt('Color'), 'ODCOLOR', 'OSCOLOR'], [xlt('Red Desat{{red desaturation}}'), 'ODREDDESAT', 'OSREDDESAT'], [xlt('Coins'), 'ODCOINS', 'OSCOINS'], [xlt('NPA{{near point of Accommodation}}'), 'ODNPA', 'OSNPA']] as [$label, $right, $left]) { ?>
-              <tr><th><label for="PRIOR_<?php echo attr($right); ?>"><?php echo $label; ?>:</label></th><td><?php echo $input($right); ?></td><td><?php echo $input($left); ?></td></tr>
-            <?php } ?>
-            <tr><th><label for="PRIOR_NPC"><?php echo xlt('NPC{{near point of convergence}}'); ?>:</label></th><td colspan="2"><?php echo $input('NPC'); ?></td></tr>
-            <tr class="eye-neuro-prior-amplitudes"><th><?php echo xlt('Amplitudes'); ?>:</th><th><?php echo xlt('Distance'); ?></th><th><?php echo xlt('Near'); ?></th></tr>
-            <tr><th><label for="PRIOR_DACCDIST"><?php echo xlt('Divergence'); ?>:</label></th><td><?php echo $input('DACCDIST'); ?></td><td><?php echo $input('DACCNEAR'); ?></td></tr>
-            <tr><th><label for="PRIOR_CACCDIST"><?php echo xlt('Convergence'); ?>:</label></th><td><?php echo $input('CACCDIST'); ?></td><td><?php echo $input('CACCNEAR'); ?></td></tr>
-            <tr><th><label for="PRIOR_VERTFUSAMPS"><?php echo xlt('Vert. Fusional'); ?>:</label></th><td colspan="2"><?php echo $input('VERTFUSAMPS'); ?></td></tr>
-          </table>
-        </section>
-      </div>
-      <div class="eye-neuro-prior-comments"><label for="PRIOR_NEURO_COMMENTS"><strong><?php echo xlt('Comments'); ?>:</strong></label>
-        <textarea disabled id="PRIOR_NEURO_COMMENTS"><?php echo text($value('NEURO_COMMENTS')); ?></textarea>
-      </div>
-    </div>
-    <?php
-    return ob_get_clean();
 }
 
 
@@ -626,7 +500,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                       <tr>
                             <?php foreach ($dilationRow as $dilationOption) {
                                 $dilationField = $dilationOption['field'];
-                                $dilationCurrent = trim((string)($$dilationField ?? ''));
+                                $dilationCurrent = trim((string)(${$dilationField} ?? ''));
                                 $dilationChecked = !in_array($dilationCurrent, ['', '0', 'off'], true);
                                 $dilationTitle = $dilationOption['title'];
                                 $dilationValue = $dilationOption['stored_value'];
@@ -819,7 +693,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
             "SELECT option_id FROM list_options WHERE list_id = 'Eye_Motility_Display'
              AND is_default = 1 AND activity = 1 ORDER BY seq LIMIT 1"
         );
-        echo eye_mag_neuro_prior(is_array($result) ? $result : [], (string)($priorMotilityPreference['option_id'] ?? 'X'));
+        echo eye_mag_neuro_prior(EyeFormData::row($result), (string)($priorMotilityPreference['option_id'] ?? 'X'));
     } elseif ($zone == "IMPPLAN") {
         if ($report == '0') {
             $output =  priors_select($zone, $orig_id, $id_to_show, $pid);
@@ -2430,34 +2304,32 @@ function canvas_select($zone, $encounter, $pid): string
  *  @param string $side OU by default.  Future functionality will allow OD and OS values- not implemented yet.
  *  @return void : outputs the ZONE specific HTML5 CANVAS widget
  */
-function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = ''): void
+function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = '', mixed $formId = 0, mixed $neuroDrawingJson = ''): void
 {
     global $form_folder;
-    global $NEURO_DRAWING_JSON;
-    global $id;
     $drawingSession = SessionWrapperFactory::getInstance()->getActiveSession();
-    $toolPreference = sqlQuery(
+    $toolPreference = QueryUtils::querySingleRow(
         "SELECT GOVALUE FROM form_eye_mag_prefs WHERE PEZONE='DRAW_TOOL' AND id=? AND LOCATION=?",
-        [(int) $drawingSession->get('authUserID'), $zone . '_TOOL']
+        [EyeFormData::integer($drawingSession->get('authUserID')), $zone . '_TOOL']
     );
     $drawingTool = ($toolPreference['GOVALUE'] ?? '') === 'draw' ? 'draw' : 'select';
-    $backgroundProviderId = (int) $drawingSession->get('authUserID');
+    $backgroundProviderId = EyeFormData::integer($drawingSession->get('authUserID'));
     $backgroundOptions = eye_mag_drawing_background_options($zone, $backgroundProviderId, $side);
     $backgroundPreference = eye_mag_drawing_background_preference($zone, $backgroundProviderId);
     $backgroundOptionsByKey = array_column($backgroundOptions, null, 'key');
     if (!isset($backgroundOptionsByKey[$backgroundPreference])) {
         $backgroundPreference = $zone === 'SDRETINA' ? 'large-retina' : 'default';
     }
-    $overlayRow = !empty($id) ? sqlQuery(
+    $overlayRow = EyeFormData::integer($formId) > 0 ? QueryUtils::querySingleRow(
         "SELECT overlay_json, background_key FROM form_eye_mag_drawing_overlays WHERE form_id=? AND pid=? AND zone=?",
-        [(int) $id, (int) $pid, (string) $zone]
+        [EyeFormData::integer($formId), EyeFormData::integer($pid), (string) $zone]
     ) : [];
-    $drawingOverlayJson = (string) ($overlayRow['overlay_json'] ?? '');
+    $drawingOverlayJson = EyeFormData::text($overlayRow['overlay_json'] ?? '');
     if ($drawingOverlayJson === '' && $zone === 'NEURO') {
-        $drawingOverlayJson = (string) ($NEURO_DRAWING_JSON ?? '');
+        $drawingOverlayJson = EyeFormData::text($neuroDrawingJson);
     }
     $drawingOverlayJson = $drawingOverlayJson !== '' ? $drawingOverlayJson : '[]';
-    $drawingBackground = (string) ($overlayRow['background_key'] ?? '');
+    $drawingBackground = EyeFormData::text($overlayRow['background_key'] ?? '');
     if ($drawingBackground === '') {
         $drawingBackground = $zone === 'SDRETINA' ? 'large-retina' : 'default';
     }
@@ -2484,27 +2356,27 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <?php
 
                 $sql = "SELECT * from documents where name like ? AND foreign_id = ? AND deleted = 0 ORDER by id DESC";
-                $doc = sqlQuery($sql, ["%" . $base_name . "%", (int) $pid]);
-                $has_saved_drawing = (int)($doc['id'] ?? 0) > 0;
+                $doc = QueryUtils::querySingleRow($sql, ["%" . $base_name . "%", EyeFormData::integer($pid)]);
+                $has_saved_drawing = EyeFormData::integer($doc['id'] ?? 0) > 0;
                 if (!$has_saved_drawing && $drawingOverlayJson === '[]') {
                     $drawingBackground = $backgroundPreference;
                 }
                 $activeBackground = $backgroundOptionsByKey[$drawingBackground] ?? null;
-                if (!$activeBackground && strpos($drawingBackground, 'saved-') === 0) {
+                if (!$activeBackground && str_starts_with($drawingBackground, 'saved-')) {
                     // Deleted library entries still supply backgrounds already used in exams.
                     $archivedBackgrounds = array_column(eye_mag_drawing_background_options($zone, $backgroundProviderId, $side, true), null, 'key');
                     $activeBackground = $archivedBackgrounds[$drawingBackground] ?? null;
                 }
-                $activeBackground = $activeBackground ?? $backgroundOptionsByKey[$zone === 'SDRETINA' ? 'large-retina' : 'default'];
+                $activeBackground ??= $backgroundOptionsByKey[$zone === 'SDRETINA' ? 'large-retina' : 'default'];
                 $base_filetoshow = $activeBackground['url'];
                 $structuredBackground = !in_array($drawingBackground, ['blank', 'practice'], true)
-                    && strpos($drawingBackground, 'custom-') !== 0
-                    && strpos($drawingBackground, 'saved-') !== 0
-                    && !empty($activeBackground['structured']);
+                    && !str_starts_with($drawingBackground, 'custom-')
+                    && !str_starts_with($drawingBackground, 'saved-')
+                    && $activeBackground['structured'];
                 if ($has_saved_drawing) {
                     $filetoshow = OEGlobalsBag::getInstance()->getWebRoot()
                         . "/controller.php?document&retrieve&patient_id=" . attr_url($pid)
-                        . "&document_id=" . attr_url($doc['id'])
+                        . "&document_id=" . attr_url(EyeFormData::text($doc['id'] ?? ''))
                         . "&as_file=false&original_file=true&disable_exit=false&show_original=true";
                 } else {
                     //base image.
@@ -2542,7 +2414,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                      data-url="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot() . '/interface/forms/eye_mag/drawing_background.php'); ?>"
                      data-csrf="<?php echo attr(\OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken(session: $drawingSession)); ?>"
                      data-default="<?php echo attr($backgroundPreference); ?>"
-                     data-options="<?php echo attr(json_encode($backgroundOptions)); ?>"></div>
+                     data-options="<?php echo attr(json_encode($backgroundOptions, JSON_THROW_ON_ERROR)); ?>"></div>
                 <div class="tools">
                 <div class="eye-raster-tools" aria-label="<?php echo xla('Freehand drawing colors and brush sizes'); ?>">
                 <div id="sketch_tooled_<?php echo attr($zone); ?>_8" class="eye-current-pencil">
@@ -2837,7 +2709,6 @@ function document_engine($pid): array
 function display($pid, $encounter, $category_value): array
 {
     global $form_folder;
-    global $id;
     global $documents;
     $episode = '';
        /**
@@ -2931,15 +2802,15 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
     global $provider_id;
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    $authUserId = (int)($session->get('authUserID') ?? 0);
-    $providerId = (int)($provider_id ?? 0);
+    $authUserId = EyeFormData::integer($session->get('authUserID'));
+    $providerId = EyeFormData::integer($provider_id);
     $isProviderOfRecord = $providerId > 0 && $authUserId === $providerId;
     $isAdmin = AclMain::aclCheckCore('admin', 'super');
     $assetManagerUrl = OEGlobalsBag::getInstance()->getWebRoot() . '/interface/forms/eye_mag/asset_manager.php';
 
-    $providerNAME = $prov_data['fname'] . " " . $prov_data['lname'];
+    $providerNAME = EyeFormData::text($prov_data['fname'] ?? '') . " " . EyeFormData::text($prov_data['lname'] ?? '');
     if ($prov_data['suffix']) {
-        $providerNAME .= ", " . $prov_data['suffix'];
+        $providerNAME .= ", " . EyeFormData::text($prov_data['suffix']);
     }
 
     if (!empty($_REQUEST['display']) && ($_REQUEST['display'] == "fullscreen")) {
@@ -3108,33 +2979,9 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
     <?php
         return;
 }
-/**
- *  This is currently a floating div top with patient demographics and such.
- *  Used in fullscreen mode at the top.
- *
- *  @param string $pid patient_id
- *  @param string $encounter is the current encounter number
- *  @return void
- */
-/** Resolve the configured photo category without translating or normalizing its name. */
-function eye_mag_patient_photo($pid): array
-{
-    $categoryName = OEGlobalsBag::getInstance()->getString('patient_photo_category_name');
-    if ((int) $pid <= 0 || trim($categoryName) === '') {
-        return [];
-    }
 
-    return sqlQuery(
-        "SELECT doc.id, doc.mimetype FROM documents doc
-         JOIN categories_to_documents link ON link.document_id = doc.id
-         JOIN categories category ON category.id = link.category_id
-         WHERE category.name = ? AND doc.foreign_id = ? AND doc.deleted = 0
-         ORDER BY doc.id DESC LIMIT 1",
-        [$categoryName, (int) $pid]
-    ) ?: [];
-}
 
-function menu_overhaul_left($pid, $encounter): void
+function menu_overhaul_left(string $pid, string $encounter): void
 {
     global $form_folder;
     global $pat_data;
@@ -3405,7 +3252,7 @@ function report_header($pid, $direction = 'shell', $allowLogoEdit = false)
  *      The codebases are determined in Admin->Forms->Lists->Code Types and include those Codesets flagged
  *      as active and as Diagnostic codes.  The terms "ptosis right eyelid" are sent to the
  *      standard openEMR code search engine.
- *  @param string $FIELDS - all the clinical fields we are going to scour for clinical terms to code.
+ *  @param array<array-key,mixed> $FIELDS - all the clinical fields we are going to scour for clinical terms to code.
  *  @return mixed the codes found
  */
 function start_your_engines($FIELDS)
@@ -3414,6 +3261,7 @@ function start_your_engines($FIELDS)
     global $pid;
     global $codes_found;
     global $PMSFH;
+    $FIELDS = EyeFormData::textRow(EyeFormData::row($FIELDS));
     $clinical_terms = [];
     $hit_RVO = [];
     $code = '';
@@ -3467,14 +3315,14 @@ function start_your_engines($FIELDS)
         }
 
         $matches = [];
-        preg_match("/\b$term\b/", ($FIELDS[$amihere['location']] ?? ''), $matches);
+        preg_match("/\b$term\b/", ($FIELDS[EyeFormData::text($amihere['location'])] ?? ''), $matches);
         if (!empty($matches)) {
             //the term is in the field
             $within_array = 'no';
-            if (isset($positives[$amihere['location']]) > '') { //true if anything was already found in this field
+            if (isset($positives[EyeFormData::text($amihere['location'])]) > '') { //true if anything was already found in this field
                 //do any of the previous hits found in in this location contain this term already?
                 //if so stop; if not, continue onward to add to Builder.
-                foreach ($positives[$amihere['location']] as $v) {
+                foreach ($positives[EyeFormData::text($amihere['location'])] as $v) {
                     if (preg_match("/\b$term\b/", (string) $v)) {
                         $within_array = 'yes';
                         break;
@@ -3486,8 +3334,8 @@ function start_your_engines($FIELDS)
                 continue;
             }
 
-            $positives[$amihere['location']][] = $term;
-            if (preg_match("/^(OD)/", (string) $amihere['location'])) {
+            $positives[EyeFormData::text($amihere['location'])][] = $term;
+            if (preg_match("/^(OD)/", EyeFormData::text($amihere['location']))) {
                 $side = "right eye";
                 $side1 = "OD";
                 $side2 = "R";
@@ -3509,9 +3357,9 @@ function start_your_engines($FIELDS)
 
                 $code_found['code'] = $code_type . ":" . $code;
                 $code_found['code_type'] = $code_type;
-                [$sub_term, $newdata] = coding_engine($term, $code_found, $amihere['location']);
+                [$sub_term, $newdata] = coding_engine($term, $code_found, EyeFormData::text($amihere['location']));
                 $codes_found[$sub_term][] = $newdata;
-                $positives[$amihere['location']][] = $term;
+                $positives[EyeFormData::text($amihere['location'])][] = $term;
             } else { //no code was defined, further processing needed.
                 if ($option_values) {
                     // This clinical finding (term) can be found in more than one disease process ('option_values')
@@ -3636,7 +3484,7 @@ function start_your_engines($FIELDS)
                             $code_found = coding_carburetor($DM_text, $MAC_text);
                             if (isset($code_found)) { //there are matches, present them to the engine
                                 foreach ($code_found as $found) {
-                                    [$sub_term, $newdata] = coding_engine($label, $found, $amihere['location'], $side1);
+                                    [$sub_term, $newdata] = coding_engine($label, $found, EyeFormData::text($amihere['location']), $side1);
                                     // The carburetor is a simple machine - it has no boolean options -
                                     // so "with" and "without" match a search for "with"...
                                     // We need to be specific to whittle down the options.
@@ -3729,9 +3577,9 @@ function start_your_engines($FIELDS)
                                     if (isset($code_found)) { //there are matches, present them to the Builder
                                         foreach ($code_found as $found) {
                                             $term = "Post-cataract CME";
-                                            [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location'], $side1);
+                                            [$sub_term, $newdata] = coding_engine($term, $found, EyeFormData::text($amihere['location']), $side1);
                                             $codes_found[$sub_term][] = $newdata;
-                                            $positives[$amihere['location']][] = $term;
+                                            $positives[EyeFormData::text($amihere['location'])][] = $term;
                                             $hit_IOL = '1';
                                         }
 
@@ -3753,12 +3601,12 @@ function start_your_engines($FIELDS)
                             //should we have another big Dx often altering what a finding means to a coder; this is a placeholder.
                             //include $option in our code search for this term
                             $term_now = $term . " " . $option;
-                            $code_found = coding_carburetor($term_now, $FIELDS[$amihere['location']]);
+                            $code_found = coding_carburetor($term_now, $FIELDS[EyeFormData::text($amihere['location'])]);
                             if (isset($code_found)) { //there are matches, present them to the Builder
                                 foreach ($code_found as $found) {
-                                    [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location'], $side1);
+                                    [$sub_term, $newdata] = coding_engine($term, $found, EyeFormData::text($amihere['location']), $side1);
                                     $codes_found[$sub_term][] = $newdata;
-                                    $positives[$amihere['location']][] = $term_now;
+                                    $positives[EyeFormData::text($amihere['location'])][] = $term_now;
                                 }
                             }
                         }
@@ -3766,12 +3614,12 @@ function start_your_engines($FIELDS)
                 } else {
                     //there are no options and no code identified,
                     //search via carburetor for possible matches to term and description of the form field
-                    $code_found = coding_carburetor($term, $FIELDS[$amihere['location']]);
+                    $code_found = coding_carburetor($term, $FIELDS[EyeFormData::text($amihere['location'])]);
                     if ($code_found !== null) { //there are matches, present them to the Builder
                         foreach ($code_found as $found) {
-                            [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location']);
+                            [$sub_term, $newdata] = coding_engine($term, $found, EyeFormData::text($amihere['location']));
                             $codes_found[$sub_term][] = $newdata;
-                            $positives[$amihere['location']][] = $term;
+                            $positives[EyeFormData::text($amihere['location'])][] = $term;
                         }
                     }
                 }
@@ -3881,7 +3729,7 @@ function cmp($a, $b): int
  * @param string $bywhat == byday or byhour
  * @return string
  */
-function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday', mixed $currentDate = ''): string
 {
     ob_start();
     global $PMSFH;
@@ -3890,13 +3738,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
     global $provider_id;
     global $documents;
     global $encounter_data;
-    global $dated;
     global $visit_date;
+    $currentDate = EyeFormData::text($currentDate);
     $OCT_date = []; $VF_date = []; $VISITS_date = []; $time_OU = []; $GONIO_date = [];
     $GONIO = []; $ODIOP = []; $OSIOP = []; $ODIOPTARGETS = []; $OSIOPTARGETS = [];
     $GONIO_values = []; $OCT_values = []; $VF_values = []; $OD_values = []; $OS_values = [];
     $OD_methods = []; $OS_methods = []; $ODIOPTARGET_values = []; $OSIOPTARGET_values = [];
     $OD_time_values = []; $OS_time_values = [];
+    $OD_time_methods = []; $OS_time_methods = [];
     $current_OCT = ''; $current_VF = ''; $old_OCTs = ''; $old_VFs = '';
     $FAILED_drug = ''; $FAILED_drugs = ''; $gonios = ''; $hideme = ''; $time = '';
     $count = 0;
@@ -3940,6 +3789,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
             $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
         }
         foreach ($priors as $visit) {
+            $visit = EyeFormData::textRow(EyeFormData::row($visit));
             //we need to build the lists - dates_OU,times_OU,gonio_OU,OCT_OU,VF_OU,ODIOP,OSIOP,IOPTARGETS
             if ($visit['date'] == '') {
                 continue;
@@ -4006,7 +3856,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
             $i++;
         }
     } else { //there are no priors, get info from this visit
-            $VISITS_date[0] = $dated;
+            $VISITS_date[0] = $currentDate;
         if ($encounter_data['IOPTIME']) {
             $time_here = explode(":", (string) $encounter_data['IOPTIME']);
             $time = $time_here[0] . ":" . $time_here[1];
@@ -4014,7 +3864,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
         }
 
         if ($encounter_data['ODGONIO'] || $encounter_data['OSGONIO']) {
-            $GONIO_date[$i] = $dated;
+            $GONIO_date[$i] = $currentDate;
         }
 
             $ODIOP[$i]['time'] = $time;
@@ -4072,10 +3922,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
 
     $date_OU = array_unique($list);
     usort($date_OU, cmp(...));
-    $times_OU = $time_OU ?? [];
+    $times_OU = $time_OU;
     usort($times_OU, cmp(...));
     $timeLabelsOU = array_map(
-        static fn(string $time): string => oeFormatTime($time, 'global'),
+        static fn(string $time): string => DateFormatterUtils::oeFormatTime($time, 'global'),
         $times_OU
     );
 
@@ -4121,9 +3971,9 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
 
         for ($k = 0; $k < count($VISITS_date); $k++) {
             if ($date_OU[$a] == $VISITS_date[$k]) {
-                if (preg_match('/[a-z]/i', ($ODIOP[$k]['IOP'] ?? ''))) {
+                if (preg_match('/[a-z]/i', EyeFormData::text($ODIOP[$k]['IOP'] ?? ''))) {
                     $ODIOP[$k]['IOP'] = '';}
-                if (preg_match('/[a-z]/i', ($OSIOP[$k]['IOP'] ?? ''))) {
+                if (preg_match('/[a-z]/i', EyeFormData::text($OSIOP[$k]['IOP'] ?? ''))) {
                     $OSIOP[$k]['IOP'] = '';}
                 $OD_values[$a] = ($ODIOP[$k]['IOP'] ?? '');
                 $OD_methods[$a] = $ODIOP[$k]['method'] ?? '';
@@ -4308,6 +4158,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                         $count = 0;
                         $hideme = '';
                         foreach ($priors as $visit) {
+                            $visit = EyeFormData::textRow(EyeFormData::row($visit));
                             if (($visit['ODGONIO'] > " ") || ($visit['OSGONIO'] > " ")) { // something is here
                                 if ($count > 0) {
                                     $hideme = "hideme_gonios nodisplay";// show the first only, hide the rest for now
@@ -4363,6 +4214,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                     $count = '0';
                     $hideme = '';
                     foreach ($priors as $visit) {
+                        $visit = EyeFormData::textRow(EyeFormData::row($visit));
                         if (($visit['ODCUP'] > "") || ($visit['OSCUP'] > "")) {
                             if ($count > 0) {
                                 $hideme = "hideme_cups nodisplay";
@@ -4453,20 +4305,20 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                      *  Below is the Chart.js code to render IOP by day and IOP by time
                      *
                      */
-                    var visit_date = '<?php echo attr($dated); ?>';
+                    var visit_date = '<?php echo attr($currentDate); ?>';
                     var dateFormat = 'YYYY-MM-DD';
 
                     var config_byhour = {
                         type: 'line',
                         data: {
-                            labels: <?php echo js_escape($timeLabelsOU); ?>,
-                            rawTimes: <?php echo js_escape($times_OU); ?>,
+                            labels: <?php echo json_encode($timeLabelsOU, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
+                            rawTimes: <?php echo json_encode($times_OU, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                             datasets: [
                                 {
                                     type: 'line',
                                     label: "OD",
-                                    data: <?php echo js_escape($OD_time_values); ?>,
-                                    iopMethods: <?php echo js_escape($OD_time_methods); ?>,
+                                    data: <?php echo json_encode($OD_time_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
+                                    iopMethods: <?php echo json_encode($OD_time_methods, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     borderColor : "#44a3a7",
                                     backgroundColor : "#44a3a7",
@@ -4485,8 +4337,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                 {
                                     type: 'line',
                                     label: 'OS',
-                                    data: <?php echo js_escape($OS_time_values); ?>,
-                                    iopMethods: <?php echo js_escape($OS_time_methods); ?>,
+                                    data: <?php echo json_encode($OS_time_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
+                                    iopMethods: <?php echo json_encode($OS_time_methods, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     borderColor : "#000099",
                                     backgroundColor : "#000099",
@@ -4573,13 +4425,13 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                     var config_byday = {
                         type: 'line',
                         data: {
-                            labels: <?php echo js_escape($date_OU); ?>,
+                            labels: <?php echo json_encode($date_OU, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                             datasets: [
                                 {
                                     axis: 'y',
                                     type: 'line',
                                     label: "Target OD",
-                                    data: <?php echo js_escape($ODIOPTARGET_values); ?>,
+                                    data: <?php echo json_encode($ODIOPTARGET_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     borderColor : "#f28282",
                                     backgroundColor : "#f28282",
@@ -4599,7 +4451,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                     axis: 'y',
                                     type: 'line',
                                     label: "Target OS",
-                                    data: <?php echo js_escape($OSIOPTARGET_values); ?>,
+                                    data: <?php echo json_encode($OSIOPTARGET_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     borderColor : "#AA8282",
                                     backgroundColor : "#AA8282",
@@ -4620,8 +4472,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                     axis: 'y',
                                     type: 'line',
                                     label: "OD",
-                                    data: <?php echo js_escape($OD_values); ?>,
-                                    iopMethods: <?php echo js_escape($OD_methods); ?>,
+                                    data: <?php echo json_encode($OD_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
+                                    iopMethods: <?php echo json_encode($OD_methods, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     borderColor : "#44a3a7",
                                     backgroundColor : "#44a3a7",
@@ -4641,8 +4493,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                     axis: 'y',
                                     type: 'line',
                                     label: 'OS',
-                                    data: <?php echo js_escape($OS_values); ?>,
-                                    iopMethods: <?php echo js_escape($OS_methods); ?>,
+                                    data: <?php echo json_encode($OS_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
+                                    iopMethods: <?php echo json_encode($OS_methods, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     lineTension: 3,
                                     borderColor : "#000099",
@@ -4664,7 +4516,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                     label: "VF",
                                     strokeColor: '#5CABFA',
                                     fillColor:"#5CABFA",
-                                    data: <?php echo js_escape($VF_values); ?>,
+                                    data: <?php echo json_encode($VF_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: true,
                                     backgroundColor: '#5CABFA'
                                 },
@@ -4672,7 +4524,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                     axis: 'y',
                                     type: 'bar',
                                     label: "OCT",
-                                    data: <?php echo js_escape($OCT_values); ?>, //0/null is not done, 1 if performed.
+                                    data: <?php echo json_encode($OCT_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>, //0/null is not done, 1 if performed.
                                     fill: true,
                                     backgroundColor: '#71B37C'
                                 },
@@ -4680,7 +4532,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                     axis: 'y',
                                     type: 'bar',
                                     label: "Gonio",
-                                    data: <?php echo js_escape($GONIO_values); ?>,
+                                    data: <?php echo json_encode($GONIO_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     strokeColor: 'rgba(209, 30, 93, 0.3)',
                                     fillColor:'rgba(209, 30, 93, 0.3)',
@@ -4823,6 +4675,7 @@ function display_VisualAcuities($pid = 0): string
         $array_va_CTLODVA = [];
         $array_va_CTLOSVA = [];
         foreach ($flip_priors as $prior) {
+            $prior = EyeFormData::textRow(EyeFormData::row($prior));
             if ($prior['visit_date'] > $visit_date) {
                 continue;
             }
@@ -4966,31 +4819,31 @@ function display_VisualAcuities($pid = 0): string
                                     <td><?php echo text($prior['visit_date']); ?></td>
                                 <?php
                                 if ($VA_SCODVA || $VA_SCOSVA) { ?>
-                                            <td class="vasc_class"><?php echo text($prior['SCODVA']); ?></td><td class="vasc_class"><?php echo text($prior['SCOSVA']); ?></td>
+                                            <td class="vasc_class"><?php echo text(EyeFormData::text($prior['SCODVA'])); ?></td><td class="vasc_class"><?php echo text(EyeFormData::text($prior['SCOSVA'])); ?></td>
                                             <?php
                                 }
                                 if ($VA_CCODVA || $VA_CCOSVA) { ?>
-                                            <td class="vacc_class"><?php echo text($prior['CCODVA']); ?></td><td class="vacc_class"><?php echo text($prior['CCOSVA']); ?></td>
+                                            <td class="vacc_class"><?php echo text(EyeFormData::text($prior['CCODVA'])); ?></td><td class="vacc_class"><?php echo text(EyeFormData::text($prior['CCOSVA'])); ?></td>
                                             <?php
                                 }
                                 if ($VA_PHODVA || $VA_PHOSVA) { ?>
-                                            <td class="vaph_class"><?php echo text($prior['PHODVA']); ?></td><td class="vaph_class"><?php echo text($prior['PHOSVA']); ?></td>
+                                            <td class="vaph_class"><?php echo text(EyeFormData::text($prior['PHODVA'])); ?></td><td class="vaph_class"><?php echo text(EyeFormData::text($prior['PHOSVA'])); ?></td>
                                             <?php
                                 }
                                 if ($VA_ARODVA || $VA_AROSVA) { ?>
-                                            <td class="vaar_class"><?php echo text($prior['ARODVA']); ?></td><td class="vaar_class"><?php echo text($prior['AROSVA']); ?></td>
+                                            <td class="vaar_class"><?php echo text(EyeFormData::text($prior['ARODVA'])); ?></td><td class="vaar_class"><?php echo text(EyeFormData::text($prior['AROSVA'])); ?></td>
                                             <?php
                                 }
                                 if ($VA_MRODVA || $VA_MROSVA) { ?>
-                                            <td class="vamr_class"><?php echo text($prior['MRODVA']); ?></td><td class="vamr_class"><?php echo text($prior['MROSVA']); ?></td>
+                                            <td class="vamr_class"><?php echo text(EyeFormData::text($prior['MRODVA'])); ?></td><td class="vamr_class"><?php echo text(EyeFormData::text($prior['MROSVA'])); ?></td>
                                             <?php
                                 }
                                 if ($VA_CRODVA || $VA_CROSVA) { ?>
-                                            <td class="vacr_class"><?php echo text($prior['CRODVA']); ?></td><td class="vacr_class"><?php echo text($prior['CROSVA']); ?></td>
+                                            <td class="vacr_class"><?php echo text(EyeFormData::text($prior['CRODVA'])); ?></td><td class="vacr_class"><?php echo text(EyeFormData::text($prior['CROSVA'])); ?></td>
                                             <?php
                                 }
                                 if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
-                                            <td class="vactl_class"><?php echo text($prior['CTLODVA']); ?></td><td class="vactl_class"><?php echo text($prior['CTLOSVA']); ?></td>
+                                            <td class="vactl_class"><?php echo text(EyeFormData::text($prior['CTLODVA'])); ?></td><td class="vactl_class"><?php echo text(EyeFormData::text($prior['CTLOSVA'])); ?></td>
                                         <?php } ?>
                                 </tr>
 
@@ -5262,337 +5115,10 @@ function display_VisualAcuities($pid = 0): string
 }
 
 
-/**
- * Display a compact acuity history table and a clinically ordered trend chart.
- * The table retains the exact entered values; the chart uses logMAR only for positioning.
- */
-function display_VisualAcuitiesModern($pid = 0): string
-{
-    global $priors;
-    global $dated;
-
-    $typeDefinitions = [
-        'BC' => ['label' => xlt('BC{{Best corrected visual acuity}}')],
-        'SC' => ['label' => xlt('SC{{Acuity without correction}}'), 'od' => 'SCODVA', 'os' => 'SCOSVA'],
-        'CC' => ['label' => xlt('Current Rx'), 'od' => 'CCODVA', 'os' => 'CCOSVA'],
-        'PH' => ['label' => xlt('PH{{Pinhole acuity}}'), 'od' => 'PHODVA', 'os' => 'PHOSVA'],
-        'AR' => ['label' => xlt('AR{{Autorefraction acuity}}'), 'od' => 'ARODVA', 'os' => 'AROSVA'],
-        'MR' => ['label' => xlt('MR{{Manifest Refraction acuity}}'), 'od' => 'MRODVA', 'os' => 'MROSVA'],
-        'CR' => ['label' => xlt('CR{{Cycloplegic Refraction acuity}}'), 'od' => 'CRODVA', 'os' => 'CROSVA'],
-        'CTL' => ['label' => xlt('CTL{{Contact Lens acuity}}'), 'od' => 'CTLODVA', 'os' => 'CTLOSVA'],
-    ];
-    $correctedTypes = ['CC', 'AR', 'MR', 'CR', 'CTL'];
-
-    $toLogMar = static function ($raw): ?float {
-        $value = trim((string) $raw);
-        if ($value === '') {
-            return null;
-        }
-
-        $normalized = strtoupper($value);
-        if (preg_match('/\b(?:NLP|NO\s+LIGHT\s+PERCEPTION)\b/', $normalized)) {
-            return 4.0;
-        }
-        if (preg_match('/\b(?:LP|PL|LIGHT\s+PERCEPTION)(?:\s*(?:WITH|W\/|\+)\s*(?:PROJECTION|PR))?\b/', $normalized)) {
-            // Projection is clinically useful metadata, but it is not a separate measured acuity.
-            return 3.0;
-        }
-
-        $distanceToFeet = static function (float $distance, string $unit): float {
-            return str_starts_with($unit, 'M') ? $distance * 3.28084 : $distance;
-        };
-        if (preg_match('/\b(?:CF|COUNT(?:ING)?\s+FINGERS?)\s*(?:AT|@)?\s*(\d+(?:\.\d+)?)?\s*(FT|FEET|FOOT|M|METER|METERS|METRE|METRES)?\b/', $normalized, $matches)) {
-            if (!empty($matches[1])) {
-                $distanceFeet = $distanceToFeet((float) $matches[1], $matches[2] ?? 'FT');
-                return $distanceFeet > 0 ? round(log10(200 / $distanceFeet), 3) : 2.0;
-            }
-            return 2.0;
-        }
-        if (preg_match('/\b(?:HM|HAND\s+MOTION|HAND\s+MOVEMENTS?)\s*(?:AT|@)?\s*(\d+(?:\.\d+)?)?\s*(FT|FEET|FOOT|M|METER|METERS|METRE|METRES)?\b/', $normalized, $matches)) {
-            if (!empty($matches[1])) {
-                $distanceFeet = $distanceToFeet((float) $matches[1], $matches[2] ?? 'FT');
-                return $distanceFeet > 0 ? round(log10(1000 / $distanceFeet), 3) : 2.3;
-            }
-            return 2.3;
-        }
-
-        $numerator = 20.0;
-        $denominator = 0.0;
-        if (preg_match('/(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/', $value, $matches)) {
-            $numerator = (float) $matches[1];
-            $denominator = (float) $matches[2];
-        } elseif (preg_match('/^\s*(\d+(?:\.\d+)?)/', $value, $matches)) {
-            $denominator = (float) $matches[1];
-        }
-        if ($numerator <= 0 || $denominator <= 0) {
-            return null;
-        }
-        $logMar = log10($denominator / $numerator);
-        if (preg_match('/([+-])\s*(\d+)/', $value, $modifier)) {
-            $letterAdjustment = min(5, (int) $modifier[2]) * 0.02;
-            $logMar += $modifier[1] === '+' ? -$letterAdjustment : $letterAdjustment;
-        }
-        return round($logMar, 3);
-    };
-
-    $rows = [];
-    $hasType = array_fill_keys(array_keys($typeDefinitions), false);
-    $history = is_array($priors) ? $priors : [];
-    usort($history, static function ($a, $b): int {
-        return strtotime((string) ($a['visit_date'] ?? '')) <=> strtotime((string) ($b['visit_date'] ?? ''));
-    });
-    $currentVisitTimestamp = strtotime((string) $dated);
-
-    foreach ($history as $prior) {
-        $visitTimestamp = strtotime((string) ($prior['visit_date'] ?? ''));
-        if (!$visitTimestamp || ($currentVisitTimestamp && $visitTimestamp > $currentVisitTimestamp)) {
-            continue;
-        }
-
-        $wear = sqlQuery(
-            "SELECT ODVA, OSVA FROM form_eye_mag_wearing WHERE PID=? AND FORM_ID=? AND RX_NUMBER=1",
-            [$pid, $prior['form_id']]
-        );
-        $prior['CCODVA'] = $wear['ODVA'] ?? '';
-        $prior['CCOSVA'] = $wear['OSVA'] ?? '';
-        $values = [];
-        foreach ($typeDefinitions as $type => $definition) {
-            if ($type === 'BC') {
-                continue;
-            }
-            $values[$type] = [
-                'OD' => trim((string) ($prior[$definition['od']] ?? '')),
-                'OS' => trim((string) ($prior[$definition['os']] ?? '')),
-            ];
-            if ($values[$type]['OD'] !== '' || $values[$type]['OS'] !== '') {
-                $hasType[$type] = true;
-            }
-        }
-
-        $values['BC'] = ['OD' => '', 'OS' => ''];
-        foreach (['OD', 'OS'] as $eye) {
-            $bestRaw = '';
-            $bestLogMar = null;
-            foreach ($correctedTypes as $type) {
-                $candidateRaw = $values[$type][$eye];
-                if ($candidateRaw === '') {
-                    continue;
-                }
-                if ($bestRaw === '') {
-                    $bestRaw = $candidateRaw;
-                }
-                $candidateLogMar = $toLogMar($candidateRaw);
-                if ($candidateLogMar !== null && ($bestLogMar === null || $candidateLogMar < $bestLogMar)) {
-                    $bestRaw = $candidateRaw;
-                    $bestLogMar = $candidateLogMar;
-                }
-            }
-            $values['BC'][$eye] = $bestRaw;
-            if ($bestRaw !== '') {
-                $hasType['BC'] = true;
-            }
-        }
-
-        $rows[] = [
-            'date' => date('Y-m-d', $visitTimestamp),
-            'display_date' => $prior['visit_date'],
-            'values' => $values,
-        ];
-    }
-
-    $visibleTableTypes = array_values(array_filter(
-        array_keys($typeDefinitions),
-        static fn($type): bool => !empty($hasType[$type])
-    ));
-    $eyeColors = ['OD' => '#2563eb', 'OS' => '#ea580c'];
-    $dashPatterns = [
-        'BC' => [], 'SC' => [2, 4], 'CC' => [8, 4], 'PH' => [3, 3],
-        'AR' => [12, 4], 'MR' => [10, 3, 2, 3], 'CR' => [6, 3], 'CTL' => [1, 3],
-    ];
-    $chartDatasets = [];
-    foreach ($visibleTableTypes as $type) {
-        foreach (['OD', 'OS'] as $eye) {
-            $points = [];
-            $hasPlottableValue = false;
-            foreach ($rows as $row) {
-                $rawValue = $row['values'][$type][$eye] ?? '';
-                $logMar = $toLogMar($rawValue);
-                if ($logMar === null) {
-                    $points[] = null;
-                } else {
-                    $hasPlottableValue = true;
-                    // Higher logMAR means poorer vision; keep it above better vision on this chart.
-                    $points[] = $logMar;
-                }
-            }
-            if (!$hasPlottableValue) {
-                continue;
-            }
-            $chartDatasets[] = [
-                'label' => $type . ' ' . $eye,
-                'data' => $points,
-                'exactValues' => array_column(array_map(
-                    static fn($row): array => ['value' => $row['values'][$type][$eye] ?? ''],
-                    $rows
-                ), 'value'),
-                'borderColor' => $eyeColors[$eye],
-                'backgroundColor' => $eyeColors[$eye],
-                'borderDash' => $dashPatterns[$type],
-                'borderWidth' => $type === 'BC' ? 3 : 2,
-                'hidden' => $type !== 'BC',
-                'pointRadius' => $type === 'BC' ? 4 : 3,
-                'pointHoverRadius' => 6,
-                'spanGaps' => true,
-                'tension' => 0.25,
-            ];
-        }
-    }
-    $jsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT;
-    $chartLabelsJson = json_encode(array_column($rows, 'date'), $jsonFlags) ?: '[]';
-    $chartDatasetsJson = json_encode($chartDatasets, $jsonFlags) ?: '[]';
-
-    ob_start();
-    ?>
-    <div class="vahx-header">
-        <h5 class="m-0"><?php echo xlt('Visual Acuity History'); ?></h5>
-        <span class="closeButton fas fa-times" id="Close_VAHx" name="Close_VAHx"></span>
-    </div>
-    <?php if (empty($rows)) { ?>
-        <div class="alert alert-info mb-0"><?php echo xlt('Visual acuity history will appear after a prior visit is available.'); ?></div>
-    <?php } else { ?>
-        <div class="vahx-layout">
-            <section class="vahx-table-wrap" aria-label="<?php echo xla('Visual acuity history table'); ?>">
-                <div class="vahx-table-scroll">
-                    <table class="table table-sm table-bordered">
-                        <thead>
-                            <tr>
-                                <th rowspan="2" class="vahx-date"><?php echo xlt('Date'); ?></th>
-                                <?php foreach ($visibleTableTypes as $type) { ?>
-                                    <th colspan="2"><?php echo text($typeDefinitions[$type]['label']); ?></th>
-                                <?php } ?>
-                            </tr>
-                            <tr>
-                                <?php foreach ($visibleTableTypes as $type) { ?>
-                                    <th><?php echo xlt('OD{{Right eye}}'); ?></th>
-                                    <th><?php echo xlt('OS{{Left eye}}'); ?></th>
-                                <?php } ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach (array_reverse($rows) as $row) { ?>
-                                <tr>
-                                    <td class="vahx-date"><?php echo text($row['display_date']); ?></td>
-                                    <?php foreach ($visibleTableTypes as $type) { ?>
-                                        <td><?php echo text($row['values'][$type]['OD'] ?: '—'); ?></td>
-                                        <td><?php echo text($row['values'][$type]['OS'] ?: '—'); ?></td>
-                                    <?php } ?>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-            <section class="vahx-chart-panel" aria-label="<?php echo xla('Visual acuity trend chart'); ?>">
-                <div class="vahx-chart-wrap"><canvas id="canvas_VA"></canvas></div>
-                <?php if (!empty($chartDatasets)) { ?>
-                    <div class="vahx-series-title"><?php echo xlt('Series — select additional measurements to compare'); ?></div>
-                    <div class="vahx-series-controls" id="VAHX_series_controls"></div>
-                <?php } else { ?>
-                    <div class="text-muted mt-2"><?php echo xlt('No numeric Snellen acuities are available to chart.'); ?></div>
-                <?php } ?>
-            </section>
-        </div>
-        <?php if (!empty($chartDatasets)) { ?>
-            <script>
-                (function () {
-                    var canvas = document.getElementById('canvas_VA');
-                    if (!canvas || typeof Chart === 'undefined') return;
-                    if (window.eyeMagVaChart) window.eyeMagVaChart.destroy();
-                    var chartTextColor = window.getComputedStyle(document.body).color;
-                    var datasets = <?php echo $chartDatasetsJson; ?>;
-                    window.eyeMagVaChart = new Chart(canvas.getContext('2d'), {
-                        type: 'line',
-                        data: {
-                            labels: <?php echo $chartLabelsJson; ?>,
-                            datasets: datasets
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            interaction: {mode: 'nearest', intersect: false},
-                            plugins: {
-                                legend: {display: false},
-                                title: {
-                                    display: true,
-                                    color: chartTextColor,
-                                    text: <?php echo xlj('Best Corrected Visual Acuity Over Time'); ?>
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function (context) {
-                                            var exactValue = context.dataset.exactValues[context.dataIndex] || '';
-                                            return context.dataset.label + ': ' + exactValue;
-                                        }
-                                    }
-                                }
-                            },
-                            scales: {
-                                x: {
-                                    ticks: {color: chartTextColor, maxRotation: 45, minRotation: 0},
-                                    grid: {color: 'rgba(127,127,127,0.16)'},
-                                    title: {display: true, color: chartTextColor, text: <?php echo xlj('Visit Date'); ?>}
-                                },
-                                y: {
-                                    suggestedMin: -0.1,
-                                    suggestedMax: 1.3,
-                                    ticks: {
-                                        color: chartTextColor,
-                                        callback: function (value) {
-                                            var logMar = Number(value);
-                                            if (logMar >= 3.5) return 'NLP';
-                                            if (logMar >= 2.65) return 'LP';
-                                            if (logMar >= 2.15) return 'HM';
-                                            if (logMar >= 1.75) return 'CF';
-                                            var denominator = Math.max(10, Math.round(20 * Math.pow(10, logMar)));
-                                            return '20/' + denominator;
-                                        }
-                                    },
-                                    grid: {color: 'rgba(127,127,127,0.16)'},
-                                    title: {display: true, color: chartTextColor, text: <?php echo xlj('Visual Acuity (better toward top)'); ?>}
-                                }
-                            }
-                        }
-                    });
-
-                    var controls = document.getElementById('VAHX_series_controls');
-                    datasets.forEach(function (dataset, index) {
-                        var button = document.createElement('button');
-                        button.type = 'button';
-                        button.className = 'vahx-series-toggle' + (dataset.hidden ? '' : ' active');
-                        button.textContent = dataset.label;
-                        button.style.setProperty('--vahx-color', dataset.borderColor);
-                        button.setAttribute('aria-pressed', dataset.hidden ? 'false' : 'true');
-                        button.addEventListener('click', function () {
-                            var visible = window.eyeMagVaChart.isDatasetVisible(index);
-                            window.eyeMagVaChart.setDatasetVisibility(index, !visible);
-                            button.classList.toggle('active', !visible);
-                            button.setAttribute('aria-pressed', !visible ? 'true' : 'false');
-                            window.eyeMagVaChart.update();
-                        });
-                        controls.appendChild(button);
-                    });
-                })();
-            </script>
-        <?php } ?>
-    <?php } ?>
-    <?php
-    return ob_get_clean();
-}
-
 # gets the provider from the encounter file , or from the logged on user or from the patient file
 function findProvider($pid, $encounter)
 {
-    $find_provider = sqlQuery("SELECT * FROM form_encounter " .
+    $find_provider = QueryUtils::querySingleRow("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", [$pid,$encounter]);
     $providerid = $find_provider['provider_id'] ?? '';
@@ -5600,14 +5126,14 @@ function findProvider($pid, $encounter)
        //find the default providerID from the calendar
         $visit_date = date('Y-m-d', strtotime($find_provider['date'] ?? ''));
         $query = "select * from openemr_postcalendar_events where pc_pid=? and pc_eventDate=?";
-        $find_provider3 = sqlQuery($query, [$pid,$visit_date]);
+        $find_provider3 = QueryUtils::querySingleRow($query, [$pid,$visit_date]);
         $new_providerid = $find_provider3['pc_aid'] ?? '';
         if (($new_providerid < '1') || (!$new_providerid)) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             $get_authorized = $session->get('userauthorized');
             if ($get_authorized == 1) {
-                $find_provider2 = sqlQuery("SELECT providerID FROM patient_data WHERE pid = ? ", [$pid]);
-                $new_providerid = $find_provider2['providerID'];
+                $find_provider2 = QueryUtils::querySingleRow("SELECT providerID FROM patient_data WHERE pid = ? ", [$pid]);
+                $new_providerid = $find_provider2['providerID'] ?? '';
             }
         }
 
@@ -5619,13 +5145,14 @@ function findProvider($pid, $encounter)
     return $providerid;
 }
 
-function generate_lens_treatments($W, $LTs_present)
+function generate_lens_treatments(mixed $W, mixed $LTs_present): string
 {
+    $W = EyeFormData::text($W);
     ob_start();
     $query = "SELECT * FROM list_options where list_id =? and activity='1' ORDER BY seq";
     $TXs_data = sqlStatement($query, ["Eye_Lens_Treatments"]);
     $counter = 0;
-    $TXs_arr = explode("|", (string) $LTs_present);
+    $TXs_arr = explode("|", EyeFormData::text($LTs_present));
     $tabindex = $W . "0144";
     while ($row = sqlFetchArray($TXs_data)) {
         $checked = '';
@@ -5635,7 +5162,7 @@ function generate_lens_treatments($W, $LTs_present)
         }
 
         echo "<div class='treat-row'><input type='checkbox' id='TXs_" . $W . "_" . $counter . "' name='LENS_TREATMENTS_" . $W . "[]' $checked value='" . attr($ID) . "' tabindex='$tabindex'> ";
-        $label = text(substr((string) $row['title'], 0, 30));
+        $label = text(substr(EyeFormData::text($row['title']), 0, 30));
         echo "<label for='TXs_" . $W . "_" . $counter . "' class='input-helper input-helper--checkbox' title='" . attr($row['notes']) . "'>";
         echo $label . "</label></div>";
         $counter++;
@@ -5644,489 +5171,9 @@ function generate_lens_treatments($W, $LTs_present)
 
     $output = ob_get_contents();
     ob_end_clean();
-    return $output;
+    return $output ?: '';
 }
 
-function eye_mag_dilation_med_defaults(): array
-{
-    return [
-        'CYCLOMYDRIL' => ['CycloMydril', 'Cyclomydril'],
-        'TROPICAMIDE' => ['Tropic 1%', 'Tropicamide 1%'],
-        'NEO25' => ['Neo 2.5%', 'Neosynephrine 2.5%'],
-        'NEO10' => ['Neo 10%', 'Neosynephrine 10%'],
-        'CYCLOGYL' => ['Cyclo 1%', 'Cyclopentolate 1%'],
-        'ATROPINE' => ['Atropine 1%', 'Atropine 1%'],
-    ];
-}
-
-/**
- * Return the practice-wide document category used by Communication Engine handouts.
- *
- * OpenEMR's document tree is a nested set, so use its CategoryTree implementation
- * rather than inserting category rows directly. The advisory lock prevents two
- * simultaneous first loads from attempting to create the same nodes.
- */
-function eye_mag_ensure_handout_category(): int
-{
-    $handout = sqlQuery(
-        "SELECT c.id
-           FROM categories c
-           JOIN categories p ON p.id = c.parent
-          WHERE c.name = 'Handouts' AND p.name = 'Patient Education'
-          ORDER BY c.id
-          LIMIT 1"
-    );
-    if (!empty($handout['id'])) {
-        return (int) $handout['id'];
-    }
-
-    $lockName = 'eye_mag_patient_education_handouts';
-    $lock = sqlQuery("SELECT GET_LOCK(?, 5) AS acquired", [$lockName]);
-    if ((int) ($lock['acquired'] ?? 0) !== 1) {
-        return 0;
-    }
-
-    try {
-        $handout = sqlQuery(
-            "SELECT c.id
-               FROM categories c
-               JOIN categories p ON p.id = c.parent
-              WHERE c.name = 'Handouts' AND p.name = 'Patient Education'
-              ORDER BY c.id
-              LIMIT 1"
-        );
-        if (!empty($handout['id'])) {
-            return (int) $handout['id'];
-        }
-
-        require_once($GLOBALS['srcdir'] . '/classes/Tree.class.php');
-        require_once($GLOBALS['srcdir'] . '/classes/CategoryTree.class.php');
-
-        $tree = new CategoryTree(1);
-        $patientEducation = sqlQuery(
-            "SELECT id FROM categories WHERE parent = 1 AND name = 'Patient Education' ORDER BY id LIMIT 1"
-        );
-        $patientEducationId = !empty($patientEducation['id'])
-            ? (int) $patientEducation['id']
-            : (int) $tree->add_node(1, 'Patient Education');
-
-        return (int) $tree->add_node($patientEducationId, 'Handouts');
-    } finally {
-        sqlQuery("SELECT RELEASE_LOCK(?) AS released", [$lockName]);
-    }
-}
-
-
-/** Ordered, unique IDs; NULL means an encounter still uses the legacy single ID. */
-function eye_mag_material_ids(array $materials): array
-{
-    $ids = isset($materials['handout_document_ids'])
-        ? json_decode((string) $materials['handout_document_ids'], true)
-        : [$materials['handout_document_id'] ?? 0];
-    $result = [];
-    foreach (is_array($ids) ? $ids : [] as $id) {
-        if ((is_int($id) || is_string($id)) && ctype_digit((string) $id) && (int) $id > 0) {
-            $result[(int) $id] = (int) $id;
-        }
-    }
-    return array_values($result);
-}
-
-/** Only current-patient or practice-wide PDFs in Patient Education / Handouts. */
-function eye_mag_material_handout(int $documentId, int $pid): array
-{
-    return sqlQuery(
-        "SELECT d.id, d.name, d.url, d.foreign_id
-           FROM documents d
-           JOIN categories_to_documents ctd ON ctd.document_id = d.id
-           JOIN categories c ON c.id = ctd.category_id
-      LEFT JOIN categories p ON p.id = c.parent
-          WHERE d.id = ? AND d.deleted = 0
-            AND (d.mimetype = 'application/pdf' OR LOWER(d.url) LIKE '%.pdf')
-            AND (d.foreign_id = ? OR d.foreign_id IN (0, -1))
-            AND ((c.name = 'Handouts' AND p.name = 'Patient Education')
-                 OR c.name = 'Patient Education/Handouts')
-          LIMIT 1",
-        [$documentId, $pid]
-    ) ?: [];
-}
-
-/** Save the complete selection, never replace it with the last PDF added. */
-function eye_mag_save_materials(int $formId, int $pid, array $posted): void
-{
-
-    $previous = sqlQuery(
-        "SELECT handout_document_id, handout_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
-        [$formId, $pid]
-    ) ?: [];
-    $oldIds = eye_mag_material_ids($previous);
-    if (isset($posted['MATERIALS_HANDOUT_IDS']) && is_string($posted['MATERIALS_HANDOUT_IDS'])
-        && is_array(json_decode($posted['MATERIALS_HANDOUT_IDS'], true))) {
-        $ids = eye_mag_material_ids(['handout_document_ids' => $posted['MATERIALS_HANDOUT_IDS']]);
-    } elseif (isset($previous['handout_document_ids']) || isset($posted['MATERIALS_HANDOUT_IDS'])) {
-        // An old browser tab or malformed payload must not collapse a saved list.
-        $ids = $oldIds;
-    } else {
-        $ids = eye_mag_material_ids(['handout_document_id' => $posted['MATERIALS_HANDOUT_ID'] ?? 0]);
-    }
-    $ids = array_values(array_filter($ids, static function ($id) use ($oldIds, $pid) {
-        // Retain unavailable existing selections so the user can see/remove them;
-        // both viewing and report generation independently recheck document access.
-        return in_array($id, $oldIds, true) || !empty(eye_mag_material_handout($id, $pid));
-    }));
-    sqlStatement(
-        "REPLACE INTO form_eye_mag_materials (form_id,pid,content,include_text,handout_document_id,handout_document_ids,updated_at)
-         VALUES (?,?,?,?,?,?,NOW())",
-        [$formId, $pid, (string) ($posted['MATERIALS_TO_PRINT'] ?? ''),
-            (int) ($posted['MATERIALS_TEXT_INCLUDED'] ?? 0) === 1 ? 1 : 0,
-            $ids[0] ?? null, json_encode($ids)]
-    );
-}
-
-/**
- * Read once per report request. The acknowledgment, embedded original and
- * appended pages must all use the same bytes, even if the master is replaced.
- * The resulting report is the snapshot; this does not freeze the template at Add.
- */
-function eye_mag_materials_for_report(int $formId, int $pid): array
-{
-    static $snapshots = [];
-    $key = $pid . ':' . $formId;
-    if (isset($snapshots[$key])) {
-        return $snapshots[$key];
-    }
-
-    $materials = sqlQuery(
-        "SELECT content, include_text, handout_document_id, handout_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
-        [$formId, $pid]
-    ) ?: [];
-    $materials['handouts'] = [];
-    foreach (eye_mag_material_ids($materials) as $documentId) {
-        $item = ['document_id' => $documentId, 'name' => '', 'pdf_data' => ''];
-        $handout = eye_mag_material_handout($documentId, $pid);
-        if ($handout) {
-            $item['name'] = trim((string) ($handout['name'] ?? '')) ?: basename((string) $handout['url']);
-            try {
-                // Document handles encrypted and non-filesystem storage as well.
-                $document = new Document($documentId);
-                $bytes = $document->get_data();
-                if (is_string($bytes) && str_starts_with($bytes, '%PDF-')) {
-                    $item['pdf_data'] = $bytes;
-                }
-            } catch (\Throwable $exception) {
-                // The report displays an explicit unavailable warning, not a receipt.
-            }
-        }
-        $materials['handouts'][] = $item;
-    }
-    return $snapshots[$key] = $materials;
-}
-
-/** Embed exact originals, including fillable fields, without touching core reports. */
-function eye_mag_embed_materials($pdf, int $formId, int $pid, array $materials): bool
-{
-    if (!is_object($pdf) || !method_exists($pdf, 'SetAssociatedFiles')) {
-        return false;
-    }
-    $files = $pdf->associatedFiles ?? [];
-    $originals = [];
-    if ((int) ($materials['include_text'] ?? 0) === 1 && trim((string) ($materials['content'] ?? '')) !== '') {
-        $originals[] = ['name' => 'patient-instructions-' . $pid . '-' . $formId . '.txt',
-            'content' => $materials['content'], 'mime' => 'text/plain',
-            'description' => xl('Patient instructions')];
-    }
-    foreach ($materials['handouts'] ?? [] as $handout) {
-        if (!empty($handout['pdf_data'])) {
-            // Document ID also distinguishes handouts with identical display names.
-            $originals[] = ['name' => 'patient-handout-' . $pid . '-' . $formId . '-' . $handout['document_id'] . '.pdf',
-                'content' => $handout['pdf_data'], 'mime' => 'application/pdf',
-                'description' => $handout['name']];
-        }
-    }
-    foreach ($originals as $original) {
-        $duplicate = false;
-        foreach ($files as $file) {
-            if (($file['name'] ?? '') === $original['name'] && ($file['content'] ?? null) === $original['content']) {
-                $duplicate = true;
-                break;
-            }
-        }
-        if (!$duplicate) {
-            $files[] = $original + ['AFRelationship' => 'Supplement'];
-        }
-    }
-    $pdf->SetAssociatedFiles($files);
-    return true;
-}
-
-/** Stored copies are versions, never replacements of a previously issued report. */
-function eye_mag_report_filename(int $pid, int $encounter): string
-{
-    return 'Eye_Report_' . $pid . '_' . $encounter . '_' . gmdate('Ymd_His') . '_' . bin2hex(random_bytes(6)) . '.pdf';
-}
-
-/** Append visible pages where possible; the embedded original remains authoritative. */
-function eye_mag_append_materials_handout_pdf($pdf, int $formId, int $pid): bool
-{
-    $materials = eye_mag_materials_for_report($formId, $pid);
-    eye_mag_embed_materials($pdf, $formId, $pid, $materials);
-    if (!is_object($pdf) || !method_exists($pdf, 'setSourceFile') || empty($materials['handouts'])) {
-        return false;
-    }
-    $allAppended = true;
-    foreach ($materials['handouts'] as $handout) {
-        if (empty($handout['pdf_data']) || !eye_mag_append_handout_pages($pdf, $handout['pdf_data'])) {
-            $allAppended = false;
-        }
-    }
-    return $allAppended;
-}
-
-/** Isolate each import so an unsupported PDF cannot suppress later handouts. */
-function eye_mag_append_handout_pages($pdf, string $bytes): bool
-{
-    $temporaryFile = null;
-    try {
-        $temporaryFile = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), 'eye_handout_');
-        if ($temporaryFile === false || file_put_contents($temporaryFile, $bytes) === false) {
-            return false;
-        }
-        $pageCount = $pdf->setSourceFile($temporaryFile);
-        for ($page = 1; $page <= $pageCount; ++$page) {
-            $pdf->AddPage();
-            $template = $pdf->importPage($page);
-            $pdf->useTemplate($template, ['adjustPageSize' => true]);
-        }
-        return $pageCount > 0;
-    } catch (\Throwable $exception) {
-        // Some encrypted/interactive PDFs cannot be imported by FPDI. Their
-        // exact original is still in the report's Attachments panel.
-        return false;
-    } finally {
-        if ($temporaryFile && is_file($temporaryFile)) {
-            unlink($temporaryFile);
-        }
-    }
-}
-
-
-/** Return the six fixed dilation slots with their practice-defined labels. */
-function eye_mag_dilation_med_options(): array
-{
-    static $options;
-    if (is_array($options)) {
-        return $options;
-    }
-
-    $listId = 'Eye_Dilation_Meds';
-    $defaults = eye_mag_dilation_med_defaults();
-
-
-    $titles = [];
-    $result = sqlStatement(
-        "SELECT option_id, title, notes FROM list_options
-          WHERE list_id = ? AND activity = 1
-          ORDER BY seq, option_id",
-        [$listId]
-    );
-    while ($row = sqlFetchArray($result)) {
-        $field = strtoupper(trim((string)($row['option_id'] ?? '')));
-        if (!isset($defaults[$field])) {
-            $storedValue = trim((string)($row['notes'] ?? ''));
-            foreach ($defaults as $defaultField => $default) {
-                if ($storedValue === $default[1]) {
-                    $field = $defaultField;
-                    break;
-                }
-            }
-        }
-        if (!isset($defaults[$field]) || isset($titles[$field])) {
-            continue;
-        }
-        $titles[$field] = trim((string)($row['title'] ?? ''));
-    }
-
-    $options = [];
-    foreach ($defaults as $field => [$defaultTitle, $storedValue]) {
-        $options[] = [
-            'field' => $field,
-            'title' => ($titles[$field] ?? '') !== '' ? $titles[$field] : $defaultTitle,
-            'stored_value' => $storedValue,
-        ];
-    }
-
-    return $options;
-}
-
-/** Fixed IOP storage slots and their practice-facing defaults. */
-function eye_mag_iop_method_defaults(): array
-{
-    return [
-        'AP' => ['AP', 'Applanation'],
-        'TPN' => ['TP', 'Tonopen or other handheld tonometer'],
-        'FT' => ['FT', 'Finger tension'],
-        'POST' => ['Dil', 'Dilated IOP'],
-    ];
-}
-
-
-/** Return every fixed IOP slot, including slots hidden by the practice. */
-function eye_mag_iop_method_options(): array
-{
-    $defaults = eye_mag_iop_method_defaults();
-
-
-    $stored = [];
-    $result = sqlStatement(
-        "SELECT option_id, title, activity FROM list_options
-          WHERE list_id = ?
-          ORDER BY seq, option_id",
-        ['Eye_IOP_Methods']
-    );
-    while ($row = sqlFetchArray($result)) {
-        $method = strtoupper(trim((string)($row['option_id'] ?? '')));
-        if (isset($defaults[$method])) {
-            $stored[$method] = $row;
-        }
-    }
-
-    $options = [];
-    foreach ($defaults as $method => [$defaultTitle, $description]) {
-        $title = trim((string)($stored[$method]['title'] ?? ''));
-        $options[$method] = [
-            'method' => $method,
-            'title' => $title !== '' ? $title : $defaultTitle,
-            'description' => $description,
-            'active' => !isset($stored[$method]) || (int)$stored[$method]['activity'] === 1,
-        ];
-    }
-
-    return $options;
-}
-
-/** Return the practice-facing label for each stable IOP storage slot. */
-function eye_mag_iop_method_labels(): array
-{
-    $labels = [];
-    foreach (eye_mag_iop_method_options() as $method => $option) {
-        $labels[$method] = $option['title'];
-    }
-    return $labels;
-}
-
-
-/** Return X or H for the practice-wide motility-chart presentation. */
-function eye_mag_motility_display_preference(): string
-{
-
-    $selected = sqlQuery(
-        "SELECT option_id FROM list_options
-          WHERE list_id = 'Eye_Motility_Display' AND is_default = 1 AND activity = 1
-          ORDER BY seq LIMIT 1"
-    );
-    return strtoupper((string)($selected['option_id'] ?? 'X')) === 'H' ? 'H' : 'X';
-}
-
-function display_wear_colgroup(): void
-{
-    ?>
-    <colgroup>
-      <col class="wear-col-eye">
-      <col class="wear-col-rx">
-      <col class="wear-col-rx">
-      <col class="wear-col-rx">
-      <col class="wear-col-rx">
-      <col class="wear-col-prism">
-      <col class="wear-col-vd">
-      <col class="wear-col-slab">
-      <col class="wear-col-type">
-      <col class="wear-col-lens">
-    </colgroup>
-    <?php
-}
-
-function display_wear_header_cells($W, array $values): void
-{
-    $field = static fn(string $name): string => (string)($values[$name] ?? '');
-    ?>
-    <td class="wear-column-title wear-prism-title" title="<?php echo xla('Prism amount and direction'); ?>"><?php echo xlt('Prism'); ?>
-      <?php foreach (['ODHPD','ODHBASE','ODVPD','ODVBASE','OSHPD','OSHBASE','OSVPD','OSVBASE'] as $legacyPrism) { ?>
-        <input type="hidden" id="<?php echo attr($legacyPrism . '_' . $W); ?>" name="<?php echo attr($legacyPrism . '_' . $W); ?>" value="<?php echo attr($field($legacyPrism)); ?>">
-      <?php } ?>
-    </td>
-    <td name="W_wide" class="wear-column-title wear-vd-title" title="<?php echo xla('Vertex Distance'); ?>"><?php echo xlt('VD{{abbreviation for Vertex Distance}}'); ?></td>
-    <td name="W_wide" class="wear-column-title wear-slab-title" title="<?php echo xla('Slab Off'); ?>"><?php echo xlt('Slab Off'); ?></td>
-    <td rowspan="6" class="right rx-type-cell">
-      <span class="rx-type-title"><?php echo xlt('Rx Type{{Type of glasses prescription}}'); ?></span><br>
-      <?php
-        $rxTypes = [
-          '0' => xlt('Single'),
-          '1' => xlt('Bifocal'),
-          '2' => xlt('Trifocal'),
-          '3' => xlt('Prog.{{Progressive lenses}}'),
-        ];
-        foreach ($rxTypes as $rxValue => $rxLabel) {
-            $rxId = ($rxValue === '0' ? 'Single' : ($rxValue === '1' ? 'Bifocal' : ($rxValue === '2' ? 'Trifocal' : 'Progressive'))) . '_' . $W;
-            ?>
-          <label for="<?php echo attr($rxId); ?>" class="wear-rx-type-option">
-            <span><?php echo text($rxLabel); ?></span>
-            <input type="radio" value="<?php echo attr($rxValue); ?>" id="<?php echo attr($rxId); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php echo $field('RX_TYPE') === $rxValue ? 'checked="checked"' : ''; ?>>
-          </label>
-        <?php } ?>
-    </td>
-    <td name="W_wide2" rowspan="6" class="wear-expanded-lens-cell">
-      <a href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Material" target="RTop"
-         title="<?php echo xla('Click here to edit list of available Lens Materials'); ?>" name="Lens_mat">
-        <span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i>
-      </a>
-      <div class="wear-lens-material-select">
-        <?php echo generate_select_list('LENS_MATERIAL_' . $W, 'Eye_Lens_Material', $field('LENS_MATERIAL'), '', '--Lens Material--', '', 'restoreSession;submit_form();', '', ['style' => 'width:120px']); ?>
-      </div>
-      <a href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Treatments" target="RTop"
-         title="<?php echo xla('Click here to edit list of available Lens Treatment Options'); ?>" name="Lens_txs">
-        <span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i>
-      </a>
-      <div class="wear-lens-treatments"><?php echo generate_lens_treatments($W, $field('LENS_TREATMENTS')); ?></div>
-    </td>
-    <?php
-}
-
-function display_wear_distance_cells($W, string $eye, array $values): void
-{
-    $eye = $eye === 'OS' ? 'OS' : 'OD';
-    ?>
-    <td class="wear-prism-cell"><input type="text" class="prism prism-summary-input" id="<?php echo attr($eye . 'PRISM_' . $W); ?>" name="<?php echo attr($eye . 'PRISM_' . $W); ?>" value="<?php echo attr($values[$eye . 'PRISM'] ?? ''); ?>"></td>
-    <td name="W_wide"><input type="text" class="prism" id="<?php echo attr($eye . 'VERTEXDIST_' . $W); ?>" name="<?php echo attr($eye . 'VERTEXDIST_' . $W); ?>" value="<?php echo attr($values[$eye . 'VERTEXDIST'] ?? ''); ?>"></td>
-    <td name="W_wide" class="wear-slab-cell"><input type="text" class="prism" id="<?php echo attr($eye . 'SLABOFF_' . $W); ?>" name="<?php echo attr($eye . 'SLABOFF_' . $W); ?>" value="<?php echo attr($values[$eye . 'SLABOFF'] ?? ''); ?>"></td>
-    <?php
-}
-
-function display_wear_lower_cells($W, string $eye, array $values): void
-{
-    $eye = $eye === 'OS' ? 'OS' : 'OD';
-    ?>
-    <td class="wear-mpd-cell wear-pd-cell <?php echo $eye === 'OD' ? 'wear-pd-label-cell' : 'wear-pd-input-cell'; ?>">
-      <input type="hidden" id="<?php echo attr($eye . 'MPDD_' . $W); ?>" name="<?php echo attr($eye . 'MPDD_' . $W); ?>" value="<?php echo attr($values[$eye . 'MPDD'] ?? ''); ?>">
-      <input type="hidden" id="<?php echo attr($eye . 'MPDN_' . $W); ?>" name="<?php echo attr($eye . 'MPDN_' . $W); ?>" value="<?php echo attr($values[$eye . 'MPDN'] ?? ''); ?>">
-      <?php if ($eye === 'OD') { ?>
-        <label for="BPDD_<?php echo attr($W); ?>"><?php echo xlt('PD'); ?></label>
-      <?php } else { ?>
-        <input type="text" class="prism wear-pd-input" id="BPDD_<?php echo attr($W); ?>" name="BPDD_<?php echo attr($W); ?>" value="<?php echo attr($values['BPDD'] ?? ''); ?>">
-        <input type="hidden" id="BPDN_<?php echo attr($W); ?>" name="BPDN_<?php echo attr($W); ?>" value="<?php echo attr($values['BPDN'] ?? ''); ?>">
-      <?php } ?>
-    </td>
-    <td name="W_wide"></td>
-    <td name="W_wide"></td>
-    <?php
-}
-
-function display_wear_comment_tail_cells(): void
-{
-    ?>
-    <td></td>
-    <td name="W_wide" colspan="2"></td>
-    <?php
-}
 
 /**
  *  Function to display the fields for a currently worn glasses/spectacle Rx.
@@ -6135,14 +5182,15 @@ function display_wear_comment_tail_cells(): void
 function generate_specRx($W)
 {
     global $pid,$form_id,$encounter,$display_W_width;
+    $W = EyeFormData::text($W);
 
     $query  = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? and RX_NUMBER =?";
-    $wear   = sqlQuery($query, [$pid,$form_id,$encounter,$W]);
+    $wear = EyeFormData::textRow(EyeFormData::row(QueryUtils::querySingleRow($query, [$pid,$form_id,$encounter,$W])));
     if ($wear) {
         $RX_VALUE = '1';
-        @extract($wear);
-        $ODPRISM = trim((string)($ODPRISM ?? '')) ?: trim(trim(($ODHPD ?? '') . ' ' . ($ODHBASE ?? '')) . ' ' . trim(($ODVPD ?? '') . ' ' . ($ODVBASE ?? '')));
-        $OSPRISM = trim((string)($OSPRISM ?? '')) ?: trim(trim(($OSHPD ?? '') . ' ' . ($OSHBASE ?? '')) . ' ' . trim(($OSVPD ?? '') . ' ' . ($OSVBASE ?? '')));
+        extract($wear, EXTR_SKIP);
+        $ODPRISM = trim(EyeFormData::text($wear['ODPRISM'] ?? '')) ?: trim(trim((EyeFormData::text($wear['ODHPD'] ?? '')) . ' ' . (EyeFormData::text($wear['ODHBASE'] ?? ''))) . ' ' . trim((EyeFormData::text($wear['ODVPD'] ?? '')) . ' ' . (EyeFormData::text($wear['ODVBASE'] ?? ''))));
+        $OSPRISM = trim(EyeFormData::text($wear['OSPRISM'] ?? '')) ?: trim(trim((EyeFormData::text($wear['OSHPD'] ?? '')) . ' ' . (EyeFormData::text($wear['OSHBASE'] ?? ''))) . ' ' . trim((EyeFormData::text($wear['OSVPD'] ?? '')) . ' ' . (EyeFormData::text($wear['OSVBASE'] ?? ''))));
     } else {
         $RX_VALUE = '';
         $display_W = 'nodisplay';
@@ -6150,10 +5198,12 @@ function generate_specRx($W)
         $OSPRISM = '';
     }
 
+    $ODNEARVA = $wear['ODNEARVA'] ?? '';
+    $OSNEARVA = $wear['OSNEARVA'] ?? '';
     $wearDetails = [
-        'ODPRISM' => $ODPRISM ?? '', 'OSPRISM' => $OSPRISM ?? '',
-        'ODHPD' => $ODHPD ?? '', 'ODHBASE' => $ODHBASE ?? '', 'ODVPD' => $ODVPD ?? '', 'ODVBASE' => $ODVBASE ?? '',
-        'OSHPD' => $OSHPD ?? '', 'OSHBASE' => $OSHBASE ?? '', 'OSVPD' => $OSVPD ?? '', 'OSVBASE' => $OSVBASE ?? '',
+        'ODPRISM' => $ODPRISM, 'OSPRISM' => $OSPRISM,
+        'ODHPD' => EyeFormData::text($wear['ODHPD'] ?? ''), 'ODHBASE' => EyeFormData::text($wear['ODHBASE'] ?? ''), 'ODVPD' => EyeFormData::text($wear['ODVPD'] ?? ''), 'ODVBASE' => EyeFormData::text($wear['ODVBASE'] ?? ''),
+        'OSHPD' => EyeFormData::text($wear['OSHPD'] ?? ''), 'OSHBASE' => EyeFormData::text($wear['OSHBASE'] ?? ''), 'OSVPD' => EyeFormData::text($wear['OSVPD'] ?? ''), 'OSVBASE' => EyeFormData::text($wear['OSVBASE'] ?? ''),
         'ODMPDD' => $ODMPDD ?? '', 'ODMPDN' => $ODMPDN ?? '', 'OSMPDD' => $OSMPDD ?? '', 'OSMPDN' => $OSMPDN ?? '',
         'BPDD' => $BPDD ?? '', 'BPDN' => $BPDN ?? '',
         'ODVERTEXDIST' => $ODVERTEXDIST ?? '', 'OSVERTEXDIST' => $OSVERTEXDIST ?? '',
@@ -6194,7 +5244,7 @@ function generate_specRx($W)
                         </tr>
                         <tr>
                           <td style="font-weight:bold;"><?php echo xlt('OD{{right eye}}'); ?>:</td>
-                          <td><?php if (!empty(${"ODSPH_$W"})) {
+                          <td><?php if ((EyeFormData::text(${"ODSPH_$W"} ?? '') !== '')) {
                                 echo ${"ODSPH_$W"};} ?><input type="text" class="sphere" id="ODSPH_<?php echo attr($W); ?>" name="ODSPH_<?php echo attr($W); ?>"  value="<?php echo attr($ODSPH ?? ''); ?>" tabindex="<?php echo attr($W); ?>0100"></td>
                           <td><input type="text" class="cylinder" id="ODCYL_<?php echo attr($W); ?>" name="ODCYL_<?php echo attr($W); ?>"  value="<?php echo attr($ODCYL ?? ''); ?>" tabindex="<?php echo attr($W); ?>0101"></td>
                           <td><input type="text" class="axis" id="ODAXIS_<?php echo attr($W); ?>" name="ODAXIS_<?php echo attr($W); ?>" value="<?php echo attr($ODAXIS ?? ''); ?>" tabindex="<?php echo attr($W); ?>0102"></td>
@@ -6215,7 +5265,7 @@ function generate_specRx($W)
                           <td class="WMid"><input type="text" class="presbyopia" id="ODMIDADD_<?php echo attr($W); ?>" name="ODMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($ODMIDADD ?? ''); ?>"></td>
                           <td class="WAdd2"><input type="text" class="presbyopia" id="ODADD_<?php echo attr($W); ?>" name="ODADD_<?php echo attr($W); ?>" value="<?php echo attr($ODADD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0106"></td>
                           <td></td>
-                          <td><input class="jaeger" type="text" id="ODNEARVA_<?php echo attr($W); ?>" name="ODNEARVA_<?php echo attr($W); ?>" value="<?php echo attr($ODNEARVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0110"></td>
+                          <td><input class="jaeger" type="text" id="ODNEARVA_<?php echo attr($W); ?>" name="ODNEARVA_<?php echo attr($W); ?>" value="<?php echo attr($ODNEARVA); ?>" tabindex="<?php echo attr($W); ?>0110"></td>
                           <?php display_wear_lower_cells($W, 'OD', $wearDetails); ?>
                         </tr>
                         <tr class="WNEAR">
@@ -6223,7 +5273,7 @@ function generate_specRx($W)
                           <td class="WMid"><input type="text" class="presbyopia" id="OSMIDADD_<?php echo attr($W); ?>" name="OSMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($OSMIDADD ?? ''); ?>"></td>
                           <td class="WAdd2"><input type="text" class="presbyopia" id="OSADD_<?php echo attr($W); ?>" name="OSADD_<?php echo attr($W); ?>" value="<?php echo attr($OSADD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0107"></td>
                           <td></td>
-                          <td><input class="jaeger" type="text" id="OSNEARVA_<?php echo attr($W); ?>" name="OSNEARVA_<?php echo attr($W); ?>" value="<?php echo attr($OSNEARVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0111"></td>
+                          <td><input class="jaeger" type="text" id="OSNEARVA_<?php echo attr($W); ?>" name="OSNEARVA_<?php echo attr($W); ?>" value="<?php echo attr($OSNEARVA); ?>" tabindex="<?php echo attr($W); ?>0111"></td>
                           <?php display_wear_lower_cells($W, 'OS', $wearDetails); ?>
                         </tr>
                         <tr>
@@ -6241,43 +5291,6 @@ function generate_specRx($W)
     return $output;
 }
 
-/**
- * Return the most recent earlier Eye Forms containing documented refraction
- * or Wear data. A prescription does not require VA to qualify.
- */
-function eye_mag_prior_refractions($pid, $beforeId, $limit = 3)
-{
-    $limit = max(1, min(10, (int)$limit));
-    $sql = "SELECT r.id
-              FROM form_eye_refraction r
-              JOIN form_eye_acuity a ON a.id=r.id AND a.pid=r.pid
-             WHERE r.pid=? AND r.id < ?
-               AND (
-                    TRIM(CONCAT_WS('',
-                        r.ARODSPH,r.ARODCYL,r.ARODAXIS,r.ARODPRISM,r.ARODADD,
-                        r.AROSSPH,r.AROSCYL,r.AROSAXIS,r.AROSPRISM,r.AROSADD,
-                        r.MRODSPH,r.MRODCYL,r.MRODAXIS,r.MRODPRISM,r.MRODADD,
-                        r.MROSSPH,r.MROSCYL,r.MROSAXIS,r.MROSPRISM,r.MROSADD,
-                        r.CRODSPH,r.CRODCYL,r.CRODAXIS,r.CRODPRISM,
-                        r.CROSSPH,r.CROSCYL,r.CROSAXIS,r.CROSPRISM,
-                        r.CTLODSPH,r.CTLODCYL,r.CTLODAXIS,r.CTLODBC,r.CTLODDIAM,r.CTLODADD,
-                        r.CTLOSSPH,r.CTLOSCYL,r.CTLOSAXIS,r.CTLOSBC,r.CTLOSDIAM,r.CTLOSADD,
-                        a.ARODVA,a.AROSVA,a.MRODVA,a.MROSVA,a.CRODVA,a.CROSVA,a.CTLODVA,a.CTLOSVA
-                    )) <> ''
-                    OR EXISTS (
-                        SELECT 1 FROM form_eye_mag_wearing w
-                         WHERE w.PID=r.pid AND w.FORM_ID=r.id
-                           AND TRIM(CONCAT_WS('',
-                               w.ODSPH,w.ODCYL,w.ODAXIS,w.ODVA,w.ODADD,w.ODNEARVA,
-                               w.OSSPH,w.OSCYL,w.OSAXIS,w.OSVA,w.OSADD,w.OSNEARVA,
-                               w.ODPRISM,w.OSPRISM,w.ODHPD,w.ODHBASE,w.ODVPD,w.ODVBASE,
-                               w.OSHPD,w.OSHBASE,w.OSVPD,w.OSVBASE,w.COMMENTS
-                           )) <> ''
-                    )
-               )
-             ORDER BY r.id DESC LIMIT " . $limit;
-    return sqlStatement($sql, [$pid, $beforeId]);
-}
 
 /**
  * Function to display Refractive Data for an encounter
@@ -6307,40 +5320,43 @@ function display_refractive_data($encounter_data): void
     $PAMODVA ??= null; $PAMOSVA ??= null; $PHODVA ??= null; $PHOSVA ??= null; $RX_TYPE ??= null;
     $VABINOC ??= null; $date ??= null; $display_Add ??= null; $i ??= null; $id ??= null; $pend ??= null;
     $pid ??= null;
-    $count_rx = '0';
+    $count_rx = 0;
+    $wearValues = [];
 
     $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? ORDER BY RX_NUMBER";
 
     $wear = sqlStatement($query, [$pid,$id]);
     while ($wearing = sqlFetchArray($wear)) {
+        $wearing = EyeFormData::textRow(EyeFormData::row($wearing));
         $count_rx++;
-        ${"display_W_$count_rx"} = '';
-        ${"ODSPH_$count_rx"} = $wearing['ODSPH'];
-        ${"ODCYL_$count_rx"} = $wearing['ODCYL'];
-        ${"ODAXIS_$count_rx"} = $wearing['ODAXIS'];
-        ${"OSSPH_$count_rx"} = $wearing['OSSPH'];
-        ${"OSCYL_$count_rx"} = $wearing['OSCYL'];
-        ${"OSAXIS_$count_rx"} = $wearing['OSAXIS'];
-        ${"ODMIDADD_$count_rx"} = $wearing['ODMIDADD'];
-        ${"OSMIDADD_$count_rx"} = $wearing['OSMIDADD'];
-        ${"ODADD_$count_rx"} = $wearing['ODADD'];
-        ${"OSADD_$count_rx"} = $wearing['OSADD'];
-        ${"ODVA_$count_rx"} = $wearing['ODVA'];
-        ${"OSVA_$count_rx"} = $wearing['OSVA'];
-        ${"ODNEARVA_$count_rx"} = $wearing['ODNEARVA'];
-        ${"OSNEARVA_$count_rx"} = $wearing['OSNEARVA'];
-        ${"ODPRISM_$count_rx"} = trim((string)($wearing['ODPRISM'] ?? '')) ?: trim(trim(($wearing['ODHPD'] ?? '') . ' ' . ($wearing['ODHBASE'] ?? '')) . ' ' . trim(($wearing['ODVPD'] ?? '') . ' ' . ($wearing['ODVBASE'] ?? '')));
-        ${"OSPRISM_$count_rx"} = trim((string)($wearing['OSPRISM'] ?? '')) ?: trim(trim(($wearing['OSHPD'] ?? '') . ' ' . ($wearing['OSHBASE'] ?? '')) . ' ' . trim(($wearing['OSVPD'] ?? '') . ' ' . ($wearing['OSVBASE'] ?? '')));
-        ${"COMMENTS_$count_rx"} = $wearing['COMMENTS'];
-        ${"W_$count_rx"} = '1';
-        ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
+        $wearValues[$count_rx]["display_W"] = '';
+        $wearValues[$count_rx]["ODSPH"] = $wearing['ODSPH'];
+        $wearValues[$count_rx]["ODCYL"] = $wearing['ODCYL'];
+        $wearValues[$count_rx]["ODAXIS"] = $wearing['ODAXIS'];
+        $wearValues[$count_rx]["OSSPH"] = $wearing['OSSPH'];
+        $wearValues[$count_rx]["OSCYL"] = $wearing['OSCYL'];
+        $wearValues[$count_rx]["OSAXIS"] = $wearing['OSAXIS'];
+        $wearValues[$count_rx]["ODMIDADD"] = $wearing['ODMIDADD'];
+        $wearValues[$count_rx]["OSMIDADD"] = $wearing['OSMIDADD'];
+        $wearValues[$count_rx]["ODADD"] = $wearing['ODADD'];
+        $wearValues[$count_rx]["OSADD"] = $wearing['OSADD'];
+        $wearValues[$count_rx]["ODVA"] = $wearing['ODVA'];
+        $wearValues[$count_rx]["OSVA"] = $wearing['OSVA'];
+        $wearValues[$count_rx]["ODNEARVA"] = $wearing['ODNEARVA'];
+        $wearValues[$count_rx]["OSNEARVA"] = $wearing['OSNEARVA'];
+        $wearValues[$count_rx]["ODPRISM"] = trim((string)($wearing['ODPRISM'] ?? '')) ?: trim(trim(($wearing['ODHPD'] ?? '') . ' ' . ($wearing['ODHBASE'] ?? '')) . ' ' . trim(($wearing['ODVPD'] ?? '') . ' ' . ($wearing['ODVBASE'] ?? '')));
+        $wearValues[$count_rx]["OSPRISM"] = trim((string)($wearing['OSPRISM'] ?? '')) ?: trim(trim(($wearing['OSHPD'] ?? '') . ' ' . ($wearing['OSHBASE'] ?? '')) . ' ' . trim(($wearing['OSVPD'] ?? '') . ' ' . ($wearing['OSVBASE'] ?? '')));
+        $wearValues[$count_rx]["COMMENTS"] = $wearing['COMMENTS'];
+        $wearValues[$count_rx]["W"] = '1';
+        $wearValues[$count_rx]["RX_TYPE"] = $wearing['RX_TYPE'];
     }
 
+    $encounter_data = EyeFormData::row($encounter_data);
     $sectionHasData = static function (string $prefix) use ($encounter_data): bool {
         foreach ($encounter_data as $field => $value) {
-            $normalized = trim((string)$value);
+            $normalized = trim(EyeFormData::text($value));
             if (
-                strpos((string)$field, $prefix) === 0
+                str_starts_with(EyeFormData::text($field), $prefix)
                 && $normalized !== ''
                 && !in_array($normalized, ['-', '–', '—'], true)
             ) {
@@ -6367,47 +5383,47 @@ function display_refractive_data($encounter_data): void
             <?php
                //$count_rx++;
             for ($i = 1; $i <= $count_rx; $i++) {
-                if (${"RX_TYPE_$i"} == "0") {
+                if ($wearValues[$i]["RX_TYPE"] == "0") {
                     $RX_TYPE = '';
-                } elseif (${"RX_TYPE_$i"} == "1") {
+                } elseif ($wearValues[$i]["RX_TYPE"] == "1") {
                     $RX_TYPE = xlt('Bifocals');
-                } elseif (${"RX_TYPE_$i"} == "2") {
+                } elseif ($wearValues[$i]["RX_TYPE"] == "2") {
                     $RX_TYPE = xlt('Trifocals');
-                } elseif (${"RX_TYPE_$i"} == "3") {
+                } elseif ($wearValues[$i]["RX_TYPE"] == "3") {
                     $RX_TYPE = xlt('Progressive');
                 }
                 ?>
                 <tr>
                     <td class="bold"><?php echo xlt('Wear RX') . " #" . $i . ": "; ?></td>
                     <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
-                    <td ><?php echo (text(${"ODSPH_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODCYL_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODAXIS_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODPRISM_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODVA_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODMIDADD_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODADD_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODNEARVA_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODSPH"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODCYL"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODAXIS"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODPRISM"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODVA"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODMIDADD"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODADD"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODNEARVA"]) ?: "-"); ?></td>
                    </tr>
                    <tr>
                     <td><?php echo $RX_TYPE; ?></td>
                     <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
-                    <td ><?php echo (text(${"OSSPH_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"OSCYL_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"OSAXIS_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"OSPRISM_$i"}) ?: "-");  ?></td>
-                    <td ><?php echo (text(${"OSVA_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"OSMIDADD_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"OSADD_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"OSNEARVA_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSSPH"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSCYL"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSAXIS"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSPRISM"]) ?: "-");  ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSVA"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSMIDADD"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSADD"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSNEARVA"]) ?: "-"); ?></td>
                    </tr>
                     <?php
-                    if (${"COMMENTS_$i"}) {
+                    if (($wearValues[EyeFormData::integer($i)]['COMMENTS'] ?? '')) {
                         ?>
                         <tr>
                            <td></td>
                            <td colspan="2"><?php echo xlt('Comments'); ?>:</td>
-                           <td colspan="7"><?php echo text(${"COMMENTS_$i"}); ?></td>
+                           <td colspan="7"><?php echo text($wearValues[EyeFormData::integer($i)]['COMMENTS']); ?></td>
                         </tr>
                         <?php
                     }
@@ -6441,12 +5457,12 @@ function display_refractive_data($encounter_data): void
                        <td ><?php echo (text($ARNEAROSVA) ?: "-"); ?></td>
                    </tr>
                     <?php
-                    if (${"COMMENTS_$i"}) {
+                    if (($wearValues[EyeFormData::integer($i)]['COMMENTS'] ?? '')) {
                         ?>
                         <tr>
                            <td></td><td></td>
                            <td>Comments:</td>
-                           <td colspan="7"><?php echo text(${"COMMENTS_$i"}); ?></td>
+                           <td colspan="7"><?php echo text($wearValues[EyeFormData::integer($i)]['COMMENTS']); ?></td>
                         </tr>
                         <?php
                     }?>
@@ -6673,7 +5689,7 @@ function display_refractive_data($encounter_data): void
  */
 function in_array_r($needle, $haystack, $strict = false): bool
 {
-    if (empty($haystack)) {
+    if (!is_array($haystack) || $haystack === []) {
         return false;
     }
     foreach ($haystack as $item) {

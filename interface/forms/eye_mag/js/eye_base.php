@@ -2459,6 +2459,10 @@ function show_by_setting() {
 }
 
 $(function () {
+                  // The issues iframe shares these helpers, but has no exam controls.
+                  if (!document.getElementById('EXAM_KB')) {
+                      return;
+                  }
                   check_lock();
 
                   var retinalDrawing = $('#Draw_SDRETINA');

@@ -8,33 +8,41 @@ require_once(__DIR__ . '/php/eye_mag_functions.php');
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\EyeFormData;
+
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_iop_method_defaults;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_iop_method_options;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate('ACL check failed for admin/super: IOP Measurement Types', xl('IOP Measurement Types'));
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$request = CurrentRequest::get();
+$posted = $request->request->all();
 $defaults = eye_mag_iop_method_defaults();
 $saved = false;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', session: $session)) {
+if ($request->isMethod('POST')) {
+    if (!CsrfUtils::verifyCsrfToken(EyeFormData::text($posted['csrf_token_form'] ?? ''), session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $visible = is_array($_POST['visible'] ?? null) ? $_POST['visible'] : [];
-    $submittedLabel = trim((string)($_POST['tpn_label'] ?? ''));
+    $visible = EyeFormData::row($posted['visible'] ?? []);
+    $submittedLabel = trim(EyeFormData::text($posted['tpn_label'] ?? ''));
     $tpnLabel = $submittedLabel !== '' ? mb_substr($submittedLabel, 0, 24, 'UTF-8') : $defaults['TPN'][0];
 
-    sqlBeginTrans();
-    try {
+    QueryUtils::inTransaction(static function () use ($defaults, $tpnLabel, $visible): void {
         $sequence = 10;
         foreach ($defaults as $method => [$defaultTitle, $description]) {
             $title = $method === 'TPN' ? $tpnLabel : $defaultTitle;
             $activity = isset($visible[$method]) ? 1 : 0;
-            sqlStatement(
+            QueryUtils::sqlStatementThrowException(
                 "INSERT INTO list_options
                     (list_id, option_id, title, seq, option_value, mapping, notes, codes, activity)
                  VALUES ('Eye_IOP_Methods', ?, ?, ?, 0, '', ?, '', ?)
@@ -44,24 +52,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
             $sequence += 10;
         }
-        sqlStatement(
+        QueryUtils::sqlStatementThrowException(
             "INSERT IGNORE INTO list_options
                 (list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, activity)
              VALUES ('lists', 'Eye_IOP_Methods', 'Eye IOP Measurement Types', 0, 1, 0, '', '', '', 0)"
         );
-        sqlCommitTrans();
-    } catch (Throwable $exception) {
-        sqlRollbackTrans();
-        throw $exception;
-    }
+    });
     $saved = true;
 }
 
 $options = eye_mag_iop_method_options();
-$csrfToken = (string)CsrfUtils::collectCsrfToken(session: $session);
+$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
 ?>
 <!doctype html>
-<html lang="<?php echo attr($GLOBALS['language_iso_code'] ?? 'en'); ?>">
+<html lang="<?php echo attr(OEGlobalsBag::getInstance()->getString('language_iso_code', 'en')); ?>">
 <head>
     <?php Header::setupHeader(['opener']); ?>
     <title><?php echo xlt('IOP Measurement Types'); ?></title>

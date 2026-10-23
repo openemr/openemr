@@ -23,6 +23,20 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\EyeFormData;
+
+use function OpenEMR\Forms\EyeMag\Clinical\display_VisualAcuitiesModern;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_colgroup;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_comment_tail_cells;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_distance_cells;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_header_cells;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_lower_cells;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_dilation_med_options;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_ensure_handout_category;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_iop_method_options;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_material_ids;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_motility_display_preference;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_prior_refractions;
 
 require_once(__DIR__ . "/../../globals.php");
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/FeeSheetHtml.class.php");
@@ -52,6 +66,7 @@ while ($prefs = sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
     ${$LOCATION} = text($prefs['GOVALUE']);
 }
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // These settings are sticky user preferences linked to a given page.
 // Could do ALL preferences this way instead of the modified extract above...
 // mdsupport - user_settings prefix
@@ -72,7 +87,7 @@ if ($id > 0) {
         "SELECT pid, encounter FROM forms WHERE form_id = ? AND formdir = 'eye_mag' AND deleted != '1'",
         [$id]
     );
-    if ($formOwner === null) {
+    if ($formOwner === false) {
         http_response_code(404);
         die(xlt('Form not found'));
     }
@@ -97,7 +112,7 @@ if ($id > 0) {
 $materialsHandoutCategoryId = eye_mag_ensure_handout_category();
 $iopMethodOptions = eye_mag_iop_method_options();
 $motilityDisplay = eye_mag_motility_display_preference();
-$motilityCsrfToken = (string)CsrfUtils::collectCsrfToken($session);
+$motilityCsrfToken = EyeFormData::text(CsrfUtils::collectCsrfToken($session));
 
 
 $query10 = "select  *,form_encounter.date as encounter_date
@@ -141,6 +156,8 @@ $query10 = "select  *,form_encounter.date as encounter_date
 
 $encounter_data = sqlQuery($query10, [$id, $pid, $encounter]);
 @extract($encounter_data);
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$iopMethodOptions = eye_mag_iop_method_options();
 // Default columns from joined form_eye_* tables so PHPStan can verify them after @extract.
 $ACT ??= null; $ACT10CCDIST ??= null; $ACT10CCNEAR ??= null; $ACT10SCDIST ??= null; $ACT10SCNEAR ??= null;
 $ACT11CCDIST ??= null; $ACT11CCNEAR ??= null; $ACT11SCDIST ??= null; $ACT11SCNEAR ??= null;
@@ -212,29 +229,29 @@ $id = $form_id;
 [$ODIOPTARGET, $OSIOPTARGET] = getIOPTARGETS($pid, $id, $provider_id);
 
 $query          = "SELECT * FROM patient_data where pid=?";
-$pat_data       =  sqlQuery($query, [$pid]);
+$pat_data       =  EyeFormData::row(QueryUtils::querySingleRow($query, [$pid]));
 
 $query          = "SELECT * FROM users where id = ?";
-$prov_data      = sqlQuery($query, [$provider_id]);
+$prov_data      = EyeFormData::row(QueryUtils::querySingleRow($query, [$provider_id]));
 
 // Encounter-level long-form material supplied to the patient after the visit.
 // This lives outside the 3,000-character per-diagnosis Plan column.
 
 $CRODPRISM ??= '';
 $CROSPRISM ??= '';
-$clinicalBPDD = trim((string)($encounter_data['BPDD'] ?? ''));
+$clinicalBPDD = trim(EyeFormData::text($encounter_data['BPDD'] ?? ''));
 if ($clinicalBPDD === '' && is_numeric($ODPDMeasured ?? null) && is_numeric($OSPDMeasured ?? null)) {
-    $clinicalBPDD = rtrim(rtrim(number_format((float)$ODPDMeasured + (float)$OSPDMeasured, 2, '.', ''), '0'), '.');
+    $clinicalBPDD = rtrim(rtrim(number_format(EyeFormData::number($ODPDMeasured) + EyeFormData::number($OSPDMeasured), 2, '.', ''), '0'), '.');
 }
-$materialsRow = sqlQuery(
+$materialsRow = QueryUtils::querySingleRow(
     "SELECT content, include_text, handout_document_id, handout_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
     [$id, $pid]
 );
 $materialsToPrint = $materialsRow['content'] ?? '';
-$materialsTextIncluded = (int) ($materialsRow['include_text'] ?? 0) === 1;
+$materialsTextIncluded = EyeFormData::integer($materialsRow['include_text'] ?? 0) === 1;
 $materialsHandoutIds = eye_mag_material_ids($materialsRow ?: []);
 $materialsHandouts = [];
-$materialsHandoutResult = sqlStatement(
+$materialsHandoutResult = QueryUtils::sqlStatementThrowException(
     "SELECT DISTINCT d.id, d.name, d.url, d.foreign_id
        FROM documents d
        JOIN categories_to_documents ctd ON ctd.document_id = d.id
@@ -248,14 +265,14 @@ $materialsHandoutResult = sqlStatement(
    ORDER BY COALESCE(NULLIF(d.name, ''), d.url)",
     [$pid]
 );
-while ($materialsHandout = sqlFetchArray($materialsHandoutResult)) {
+while ($materialsHandout = QueryUtils::fetchArrayFromResultSet($materialsHandoutResult)) {
     $materialsHandouts[] = $materialsHandout;
 }
 
 
 $query = "SELECT * FROM users WHERE id=?";
-$pcp_data =  sqlQuery($query, [$pat_data['providerID']]);
-$ref_data =  sqlQuery($query, [$pat_data['ref_providerID']]);
+$pcp_data =  EyeFormData::row(QueryUtils::querySingleRow($query, [$pat_data['providerID']]));
+$ref_data =  EyeFormData::row(QueryUtils::querySingleRow($query, [$pat_data['ref_providerID']]));
 $insurance_info[1] = getInsuranceData($pid, "primary");
 $insurance_info[2] = getInsuranceData($pid, "secondary");
 $insurance_info[3] = getInsuranceData($pid, "tertiary");
@@ -322,10 +339,10 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
             echo show_PMSFH_panel($PMSFH);
         })(),
         "page" => send_json_values($PMSFH),
-        "GFS" => display_GlaucomaFlowSheet($pid),
-        "VAHx" => (function () use ($id, $pid): void {
-            priors_select("ALL", $id, $id, $pid);
-            echo display_VisualAcuitiesModern($pid);
+        "GFS" => display_GlaucomaFlowSheet($pid, 'byday', $dated),
+        "VAHx" => (function () use ($id, $pid, &$priors, $dated): void {
+            priors_select("ALL", $id, $id, EyeFormData::text($pid));
+            echo display_VisualAcuitiesModern($pid, is_array($priors) ? array_map(EyeFormData::row(...), $priors) : [], EyeFormData::text($dated));
         })(),
         default => null,
     };
@@ -340,9 +357,9 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
 
       <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'chart' ]); ?>
-      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo attr_url(filemtime(__DIR__ . '/css/style.css')); ?>" type="text/css">
-      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/dotphrases.css?v=<?php echo attr_url(filemtime(__DIR__ . '/css/dotphrases.css')); ?>" type="text/css">
-      <script>window.eyeMagDpCssV = "<?php echo attr(filemtime(__DIR__ . '/css/dotphrases.css')); ?>";</script>
+      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" type="text/css">
+      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/dotphrases.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" type="text/css">
+      <script>window.eyeMagDpCssV = "<?php echo attr(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>";</script>
 
   </head>
   <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
@@ -385,7 +402,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
       </div>
       <div id="Layer3" name="Layer3" class="container-fluid">
         <?php
-        $output_priors = priors_select("ALL", $id, $id, $pid);
+        $output_priors = priors_select("ALL", $id, $id, EyeFormData::text($pid));
 
         menu_overhaul_left($pid, $encounter);
         //define if this is a new or est patients for coding auto-suggestions
@@ -419,55 +436,56 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
               <input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>">
               <?php
               // Dot phrases visible to this user: their own (private + shared) + all active shared rows.
-              $dpAuthUserID = (int)($session->get('authUserID') ?? 0);
-              $dpIsAdmin = \OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'super');
-              $dpQuery = "SELECT id,phrase_key,name,owner_uid,visibility,content_type,content,zones,improvement_of
+                $dpAuthUserID = EyeFormData::integer($session->get('authUserID') ?? 0);
+                $dpIsAdmin = \OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'super');
+                $dpQuery = "SELECT id,phrase_key,name,owner_uid,visibility,content_type,content,zones,improvement_of
                           FROM form_eye_dotphrases
                           WHERE owner_uid=? OR (visibility='shared' AND active=1)
                           ORDER BY CASE WHEN owner_uid=? THEN 1 ELSE 0 END,name,id";
-                $dpResult = sqlStatement($dpQuery, [$dpAuthUserID, $dpAuthUserID]);
+                $dpResult = QueryUtils::sqlStatementThrowException($dpQuery, [$dpAuthUserID, $dpAuthUserID]);
                 $dpPhrases = [];
                 $dpPhraseMeta = [];
-                while ($dpRow = sqlFetchArray($dpResult)) {
+                while ($dpRow = QueryUtils::fetchArrayFromResultSet($dpResult)) {
+                    $dpRow = EyeFormData::textRow(EyeFormData::row($dpRow));
                     $dpPhrases[$dpRow['phrase_key']] = ($dpRow['content_type'] === 'object')
                       ? json_decode($dpRow['content'], true)
                       : $dpRow['content'];
                     $dpPhraseMeta[$dpRow['phrase_key']] = [
-                      'id'            => (int) $dpRow['id'],
+                      'id'            => EyeFormData::integer($dpRow['id']),
                       'name'          => $dpRow['name'],
-                      'owner_uid'     => (int) $dpRow['owner_uid'],
+                      'owner_uid'     => EyeFormData::integer($dpRow['owner_uid']),
                       'visibility'    => $dpRow['visibility'],
                       'zones'         => $dpRow['zones'],
-                      'improvement_of'=> (int) ($dpRow['improvement_of'] ?? 0),
+                      'improvement_of'=> EyeFormData::integer($dpRow['improvement_of'] ?? 0),
                     ];
                 }
                 $dpJsonAttrs = JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG;
-                $dpPatientName = trim(($pat_data['fname'] ?? '') . ' ' . ($pat_data['lname'] ?? ''));
-                $dpProviderName = trim(($prov_data['fname'] ?? '') . ' ' . ($prov_data['lname'] ?? ''));
+                $dpPatientName = trim((EyeFormData::text($pat_data['fname'] ?? '')) . ' ' . (EyeFormData::text($pat_data['lname'] ?? '')));
+                $dpProviderName = trim((EyeFormData::text($prov_data['fname'] ?? '')) . ' ' . (EyeFormData::text($prov_data['lname'] ?? '')));
                 $dpAge = '';
-                if (!empty($pat_data['DOB']) && $pat_data['DOB'] !== '0000-00-00') {
+                if (EyeFormData::text($pat_data['DOB'] ?? '') !== '' && EyeFormData::text($pat_data['DOB'] ?? '') !== '0000-00-00') {
                     try {
-                        $dpAge = (string) (new DateTime($pat_data['DOB']))->diff(new DateTime($dated))->y;
-                    } catch (Exception $e) {
+                        $dpAge = EyeFormData::text((new DateTime(EyeFormData::text($pat_data['DOB'])))->diff(new DateTime($dated))->y);
+                    } catch (DateMalformedStringException) {
                         $dpAge = '';
                     }
                 }
                 $dpSubstitutions = [
                   'PATIENT_NAME' => $dpPatientName,
-                  'FIRST_NAME'   => $pat_data['fname'] ?? '',
-                  'LAST_NAME'    => $pat_data['lname'] ?? '',
-                  'DOB'          => !empty($pat_data['DOB']) && $pat_data['DOB'] !== '0000-00-00' ? oeFormatShortDate($pat_data['DOB']) : '',
+                  'FIRST_NAME'   => EyeFormData::text($pat_data['fname'] ?? ''),
+                  'LAST_NAME'    => EyeFormData::text($pat_data['lname'] ?? ''),
+                  'DOB'          => EyeFormData::text($pat_data['DOB'] ?? '') !== '' && EyeFormData::text($pat_data['DOB'] ?? '') !== '0000-00-00' ? oeFormatShortDate(EyeFormData::text($pat_data['DOB'] ?? '')) : '',
                   'AGE'          => $dpAge,
                   'PRONOUN'      => $pat_data['pronoun'] ?? '',
                   'PROVIDER'     => $dpProviderName,
                   'VISIT_DATE'   => $visit_date,
                 ];
                 ?>
-              <input type="hidden" name="DOTPHRASES_USER" id="DOTPHRASES_USER" value="<?php echo attr(json_encode($dpPhrases, $dpJsonAttrs)); ?>">
-              <input type="hidden" name="DOTPHRASES_META" id="DOTPHRASES_META" value="<?php echo attr(json_encode($dpPhraseMeta, $dpJsonAttrs)); ?>">
-              <input type="hidden" name="DOTPHRASES_AUTH" id="DOTPHRASES_AUTH" value="<?php echo attr($dpAuthUserID); ?>">
-              <input type="hidden" name="DOTPHRASES_ADMIN" id="DOTPHRASES_ADMIN" value="<?php echo attr($dpIsAdmin ? 1 : 0); ?>">
-              <input type="hidden" name="DOTPHRASES_SUBST" id="DOTPHRASES_SUBST" value="<?php echo attr(json_encode($dpSubstitutions, $dpJsonAttrs)); ?>">
+              <input type="hidden" name="DOTPHRASES_USER" id="DOTPHRASES_USER" value="<?php echo attr(json_encode($dpPhrases, $dpJsonAttrs | JSON_THROW_ON_ERROR)); ?>">
+              <input type="hidden" name="DOTPHRASES_META" id="DOTPHRASES_META" value="<?php echo attr(json_encode($dpPhraseMeta, $dpJsonAttrs | JSON_THROW_ON_ERROR)); ?>">
+              <input type="hidden" name="DOTPHRASES_AUTH" id="DOTPHRASES_AUTH" value="<?php echo attr((string) $dpAuthUserID); ?>">
+              <input type="hidden" name="DOTPHRASES_ADMIN" id="DOTPHRASES_ADMIN" value="<?php echo attr($dpIsAdmin ? '1' : '0'); ?>">
+              <input type="hidden" name="DOTPHRASES_SUBST" id="DOTPHRASES_SUBST" value="<?php echo attr(json_encode($dpSubstitutions, $dpJsonAttrs | JSON_THROW_ON_ERROR)); ?>">
               <input type="hidden" name="encounter" id="encounter" value="<?php echo attr($encounter); ?>">
               <input type="hidden" name="visit_date" id="visit_date" value="<?php echo attr($encounter_date); ?>">
               <input type="hidden" name="PREFS_VA" id="PREFS_VA" value="<?php echo attr($VA ?? ''); ?>">
@@ -659,7 +677,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
                     <!-- start  HPI Right -->
                     <div id="HPI_right" name="HPI_right" class="exam_section_right borderShadow">
-                        <?php display_draw_section("HPI", $encounter, $pid); ?>
+                        <?php display_draw_section("HPI", $encounter, $pid, 'OU', '', $id, $NEURO_DRAWING_JSON ?? ''); ?>
                       <!-- start    QP_HPI_Build -->
                       <div id="QP_HPI" name="QP_HPI" class="QP_class left">
                         <div id="HPI_text_list" name="HPI_text_list">
@@ -948,7 +966,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                       <a class="nodisplay left_PMSFH_tab" id="right-panel-link" href="#right-panel">
                         <img src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/eye_mag/images/PMSFHx.png">
                       </a>
-                      <?php display_draw_section("PMH", $encounter, $pid); ?>
+                      <?php display_draw_section("PMH", $encounter, $pid, 'OU', '', $id, $NEURO_DRAWING_JSON ?? ''); ?>
                       <div id="QP_PMH" name="QP_PMH" class="QP_class" style="max-height:100%">
                         <?php echo display_PRIOR_section("PMSFH", $id, $id, $pid); ?>
                       </div>
@@ -966,67 +984,28 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
               <!-- start of the CLINICAL BOX -->
                 <?php
-                $display_W_1 = "nodisplay";
-                $display_W_2 = "nodisplay";
-                $display_W_3 = "nodisplay";
-                $display_W_4 = "nodisplay";
-                $RX_count = '1';
-
-                $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? ORDER BY RX_NUMBER";
-                $wear = sqlStatement($query, [$pid,$form_id,$encounter]);
-                while ($wearing = sqlFetchArray($wear)) {
-                    if (!empty($count_rx)) {
-                        $count_rx++;
-                    } else {
-                        $count_rx = 1;
+                $wearValues = [];
+                $count_rx = 0;
+                $wearRows = QueryUtils::fetchRecords(
+                    "SELECT * FROM form_eye_mag_wearing WHERE PID=? AND FORM_ID=? AND ENCOUNTER=? ORDER BY RX_NUMBER",
+                    [$pid, $form_id, $encounter]
+                );
+                foreach ($wearRows as $wearing) {
+                    ++$count_rx;
+                    $wearing = EyeFormData::textRow(EyeFormData::row($wearing));
+                    foreach (['OD', 'OS'] as $eye) {
+                        $wearing[$eye . 'PRISM'] = trim($wearing[$eye . 'PRISM'] ?? '')
+                            ?: trim(trim(($wearing[$eye . 'HPD'] ?? '') . ' ' . ($wearing[$eye . 'HBASE'] ?? ''))
+                                . ' ' . trim(($wearing[$eye . 'VPD'] ?? '') . ' ' . ($wearing[$eye . 'VBASE'] ?? '')));
                     }
-                    ${"display_W_$count_rx"}        = '';
-                    ${"ODSPH_$count_rx"}            = $wearing['ODSPH'];
-                    ${"ODCYL_$count_rx"}            = $wearing['ODCYL'];
-                    ${"ODAXIS_$count_rx"}           = $wearing['ODAXIS'];
-                    ${"OSSPH_$count_rx"}            = $wearing['OSSPH'];
-                    ${"OSCYL_$count_rx"}            = $wearing['OSCYL'];
-                    ${"OSAXIS_$count_rx"}           = $wearing['OSAXIS'];
-                    ${"ODMIDADD_$count_rx"}         = $wearing['ODMIDADD'];
-                    ${"OSMIDADD_$count_rx"}         = $wearing['OSMIDADD'];
-                    ${"ODADD_$count_rx"}            = $wearing['ODADD'];
-                    ${"OSADD_$count_rx"}            = $wearing['OSADD'];
-                    ${"ODVA_$count_rx"}             = $wearing['ODVA'];
-                    ${"OSVA_$count_rx"}             = $wearing['OSVA'];
-                    ${"ODNEARVA_$count_rx"}         = $wearing['ODNEARVA'];
-                    ${"OSNEARVA_$count_rx"}         = $wearing['OSNEARVA'];
-                    ${"ODPRISM_$count_rx"}          = trim((string)($wearing['ODPRISM'] ?? '')) ?: trim(trim(($wearing['ODHPD'] ?? '') . ' ' . ($wearing['ODHBASE'] ?? '')) . ' ' . trim(($wearing['ODVPD'] ?? '') . ' ' . ($wearing['ODVBASE'] ?? '')));
-                    ${"OSPRISM_$count_rx"}          = trim((string)($wearing['OSPRISM'] ?? '')) ?: trim(trim(($wearing['OSHPD'] ?? '') . ' ' . ($wearing['OSHBASE'] ?? '')) . ' ' . trim(($wearing['OSVPD'] ?? '') . ' ' . ($wearing['OSVBASE'] ?? '')));
-                    ${"W_$count_rx"}                = '1';
-                    ${"RX_TYPE_$count_rx"}          = $wearing['RX_TYPE'];
-                    ${"ODHPD_$count_rx"}            = $wearing['ODHPD'];
-                    ${"ODHBASE_$count_rx"}          = $wearing['ODHBASE'];
-                    ${"ODVPD_$count_rx"}            = $wearing['ODVPD'];
-                    ${"ODVBASE_$count_rx"}          = $wearing['ODVBASE'];
-                    ${"ODSLABOFF_$count_rx"}        = $wearing['ODSLABOFF'];
-                    ${"ODVERTEXDIST_$count_rx"}     = $wearing['ODVERTEXDIST'];
-                    ${"OSHPD_$count_rx"}            = $wearing['OSHPD'];
-                    ${"OSHBASE_$count_rx"}          = $wearing['OSHBASE'];
-                    ${"OSVPD_$count_rx"}            = $wearing['OSVPD'];
-                    ${"OSVBASE_$count_rx"}          = $wearing['OSVBASE'];
-                    ${"OSSLABOFF_$count_rx"}        = $wearing['OSSLABOFF'];
-                    ${"OSVERTEXDIST_$count_rx"}     = $wearing['OSVERTEXDIST'];
-                    ${"ODMPDD_$count_rx"}           = $wearing['ODMPDD'];
-                    ${"ODMPDN_$count_rx"}           = $wearing['ODMPDN'];
-                    ${"OSMPDD_$count_rx"}           = $wearing['OSMPDD'];
-                    ${"OSMPDN_$count_rx"}           = $wearing['OSMPDN'];
-                    ${"BPDD_$count_rx"}             = $wearing['BPDD'];
-                    ${"BPDN_$count_rx"}             = $wearing['BPDN'];
-                    ${"LENS_MATERIAL_$count_rx"}    = $wearing['LENS_MATERIAL'];
-                    ${"LENS_TREATMENTS_$count_rx"}  = $wearing['LENS_TREATMENTS'];
-                    ${"COMMENTS_$count_rx"}         = $wearing['COMMENTS'];
+                    $wearValues[$count_rx] = $wearing;
                 }
 
                 // Data for the Wear shortcuts. Prior W uses every Wear entry
                 // from the most recent earlier Eye Form; Last Rx uses the most
                 // recently dispensed spectacle prescription (never a contact lens).
                 $wearImports = ['prior' => [], 'lastRx' => null];
-                $priorWearVisit = sqlQuery(
+                $priorWearVisit = QueryUtils::querySingleRow(
                     "SELECT FORM_ID, ENCOUNTER
                        FROM form_eye_mag_wearing
                       WHERE PID=? AND FORM_ID < ?
@@ -1035,33 +1014,33 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                     [$pid, $form_id]
                 );
                 if (!empty($priorWearVisit['FORM_ID'])) {
-                    $priorWearResult = sqlStatement(
+                    $priorWearResult = QueryUtils::sqlStatementThrowException(
                         "SELECT * FROM form_eye_mag_wearing
                           WHERE PID=? AND FORM_ID=? AND ENCOUNTER=?
                           ORDER BY RX_NUMBER",
                         [$pid, $priorWearVisit['FORM_ID'], $priorWearVisit['ENCOUNTER']]
                     );
-                    while ($priorWear = sqlFetchArray($priorWearResult)) {
+                    while ($priorWear = QueryUtils::fetchArrayFromResultSet($priorWearResult)) {
                         $wearImports['prior'][] = $priorWear;
                     }
                 }
 
-                $dispensedResult = sqlStatement(
+                $dispensedResult = QueryUtils::sqlStatementThrowException(
                     "SELECT * FROM form_eye_mag_dispense WHERE pid=? ORDER BY date DESC, id DESC LIMIT 20",
                     [$pid]
                 );
-                while ($dispensedRx = sqlFetchArray($dispensedResult)) {
-                    $dispenseSource = strtoupper(trim((string)($dispensedRx['REFTYPE'] ?? '')));
+                while ($dispensedRx = QueryUtils::fetchArrayFromResultSet($dispensedResult)) {
+                    $dispenseSource = strtoupper(trim(EyeFormData::text($dispensedRx['REFTYPE'] ?? '')));
                     $isContactLens = $dispenseSource === 'CTL'
-                        || trim((string)($dispensedRx['ODBC'] ?? '') . (string)($dispensedRx['OSBC'] ?? '')
-                            . (string)($dispensedRx['ODDIAM'] ?? '') . (string)($dispensedRx['OSDIAM'] ?? '')) !== '';
+                        || trim(EyeFormData::text($dispensedRx['ODBC'] ?? '') . EyeFormData::text($dispensedRx['OSBC'] ?? '')
+                            . EyeFormData::text($dispensedRx['ODDIAM'] ?? '') . EyeFormData::text($dispensedRx['OSDIAM'] ?? '')) !== '';
                     if ($isContactLens) {
                         continue;
                     }
-                    $hasSpectacleRx = trim((string)($dispensedRx['ODSPH'] ?? '') . (string)($dispensedRx['ODCYL'] ?? '')
-                        . (string)($dispensedRx['ODAXIS'] ?? '') . (string)($dispensedRx['OSSPH'] ?? '')
-                        . (string)($dispensedRx['OSCYL'] ?? '') . (string)($dispensedRx['OSAXIS'] ?? '')
-                        . (string)($dispensedRx['ODADD2'] ?? '') . (string)($dispensedRx['OSADD2'] ?? '')) !== '';
+                    $hasSpectacleRx = trim(EyeFormData::text($dispensedRx['ODSPH'] ?? '') . EyeFormData::text($dispensedRx['ODCYL'] ?? '')
+                        . EyeFormData::text($dispensedRx['ODAXIS'] ?? '') . EyeFormData::text($dispensedRx['OSSPH'] ?? '')
+                        . EyeFormData::text($dispensedRx['OSCYL'] ?? '') . EyeFormData::text($dispensedRx['OSAXIS'] ?? '')
+                        . EyeFormData::text($dispensedRx['ODADD2'] ?? '') . EyeFormData::text($dispensedRx['OSADD2'] ?? '')) !== '';
                     if ($hasSpectacleRx) {
                         $wearImports['lastRx'] = $dispensedRx;
                         break;
@@ -1319,12 +1298,12 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                   <div id="Visions_A" name="Visions_A">
                       <b>OD</b>
                       <input type="TEXT" tabindex="40" id="SCODVA" name="SCODVA" value="<?php echo attr($SCODVA); ?>">
-                      <input type="TEXT" tabindex="42" id="ODVA_1_copy" name="ODVA_1_copy" value="<?php echo attr($ODVA_1 ?? ''); ?>">
+                      <input type="TEXT" tabindex="42" id="ODVA_1_copy" name="ODVA_1_copy" value="<?php echo attr($wearValues[1]["ODVA"] ?? ''); ?>">
                       <input type="TEXT" tabindex="44" id="PHODVA_copy" name="PHODVA_copy" value="<?php echo attr($PHODVA ?? ''); ?>">
                       <br />
                       <b>OS</b>
                       <input type="TEXT" tabindex="41" id="SCOSVA" name="SCOSVA" value="<?php echo attr($SCOSVA ?? ''); ?>">
-                      <input type="TEXT" tabindex="43" id="OSVA_1_copy" name="OSVA_1_copy" value="<?php echo attr($OSVA_1 ?? ''); ?>">
+                      <input type="TEXT" tabindex="43" id="OSVA_1_copy" name="OSVA_1_copy" value="<?php echo attr($wearValues[1]["OSVA"] ?? ''); ?>">
                       <input type="TEXT" tabindex="45" id="PHOSVA_copy" name="PHOSVA_copy" value="<?php echo attr($PHOSVA ?? ''); ?>">
                       <br />
                       <span id="more_visions_1" name="more_visions_1"><b><?php echo xlt('Acuity'); ?></b> </span>
@@ -1394,11 +1373,11 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                       <div id="Lyr42"
                            data-method-ap-label="<?php echo attr($iopMethodOptions['AP']['title']); ?>"
                            data-method-tpn-label="<?php echo attr($iopMethodOptions['TPN']['title']); ?>">
-                          <div class="iop-method-grid" style="--iop-method-count: <?php echo attr((string)$iopMethodCount); ?>;">
+                          <div class="iop-method-grid" style="--iop-method-count: <?php echo attr(EyeFormData::text($iopMethodCount)); ?>;">
                               <b><?php echo xlt('OD{{right eye}}'); ?></b>
                               <?php foreach ($activeIopMethods as $method => $option) {
                                     $field = $iopFields[$method]; ?>
-                                  <input type="text"<?php echo isset($field['od_tab']) ? ' tabindex="' . attr((string)$field['od_tab']) . '"' : ''; ?>
+                                  <input type="text"<?php echo isset($field['od_tab']) ? ' tabindex="' . attr(EyeFormData::text($field['od_tab'])) . '"' : ''; ?>
                                          name="<?php echo attr($field['od']); ?>" id="<?php echo attr($field['od']); ?>"
                                          value="<?php echo attr($field['od_value']); ?>"
                                          title="<?php echo attr($option['description'] . ', right eye'); ?>">
@@ -1406,7 +1385,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                               <b><?php echo xlt('OS{{left eye}}'); ?></b>
                               <?php foreach ($activeIopMethods as $method => $option) {
                                     $field = $iopFields[$method]; ?>
-                                  <input type="text"<?php echo isset($field['os_tab']) ? ' tabindex="' . attr((string)$field['os_tab']) . '"' : ''; ?>
+                                  <input type="text"<?php echo isset($field['os_tab']) ? ' tabindex="' . attr(EyeFormData::text($field['os_tab'])) . '"' : ''; ?>
                                          name="<?php echo attr($field['os']); ?>" id="<?php echo attr($field['os']); ?>"
                                          value="<?php echo attr($field['os_value']); ?>"
                                          title="<?php echo attr($option['description'] . ', left eye'); ?>">
@@ -1675,14 +1654,14 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
                 <!-- start Visual Acuity chart section -->
                 <div id="LayerVision_VAHx" class="borderShadow nodisplay">
-                    <?php echo display_VisualAcuitiesModern($pid); ?>
+                    <?php echo display_VisualAcuitiesModern($pid, is_array($priors) ? array_map(EyeFormData::row(...), $priors) : [], EyeFormData::text($dated)); ?>
                 </div>
                 <!-- end Visual Acuity chart section -->
 
                 <!-- start IOP chart section -->
                 <?php (($IOP ?? null) == 1) ? ($display_IOP = "") : ($display_IOP = "nodisplay"); ?>
                 <div id="LayerVision_IOP" class="borderShadow <?php echo $display_IOP; ?>">
-                    <?php echo display_GlaucomaFlowSheet($pid); ?>
+                    <?php echo display_GlaucomaFlowSheet($pid, 'byday', $dated); ?>
                 </div>
                 <!-- end IOP chart section -->
 
@@ -1704,7 +1683,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                         <div id="PRIORS_REFRACTIONS_left_text" name="PRIORS_REFRACTIONS_left_text">
                             <?php
                                 $result = eye_mag_prior_refractions($pid, $id, 3);
-                            while ($visit = sqlFetchArray($result)) {
+                            foreach ($result as $visit) {
                                 echo display_PRIOR_section('REFRACTIONS', $visit['id'], $visit['id'], $pid);
                             }
                                 //display_PRIOR_section('REFRACTIONS', $id, $id, $pid, '1');
@@ -1728,14 +1707,14 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                       <i onclick="top.restoreSession();  dispensed('<?php echo attr($pid); ?>');return false;"
                          title="<?php echo xla("List of previously dispensed Spectacle and Contact Lens Rxs"); ?>" class="closeButton_4 fa fa-list-ul"></i>
                       <?php $wearDetails1 = [
-                          'ODPRISM' => $ODPRISM_1 ?? '', 'OSPRISM' => $OSPRISM_1 ?? '',
-                          'ODHPD' => $ODHPD_1 ?? '', 'ODHBASE' => $ODHBASE_1 ?? '', 'ODVPD' => $ODVPD_1 ?? '', 'ODVBASE' => $ODVBASE_1 ?? '',
-                          'OSHPD' => $OSHPD_1 ?? '', 'OSHBASE' => $OSHBASE_1 ?? '', 'OSVPD' => $OSVPD_1 ?? '', 'OSVBASE' => $OSVBASE_1 ?? '',
-                          'ODMPDD' => $ODMPDD_1 ?? '', 'ODMPDN' => $ODMPDN_1 ?? '', 'OSMPDD' => $OSMPDD_1 ?? '', 'OSMPDN' => $OSMPDN_1 ?? '',
-                          'BPDD' => $BPDD_1 ?? '', 'BPDN' => $BPDN_1 ?? '',
-                          'ODVERTEXDIST' => $ODVERTEXDIST_1 ?? '', 'OSVERTEXDIST' => $OSVERTEXDIST_1 ?? '',
-                          'ODSLABOFF' => $ODSLABOFF_1 ?? '', 'OSSLABOFF' => $OSSLABOFF_1 ?? '',
-                          'RX_TYPE' => $RX_TYPE_1 ?? '', 'LENS_MATERIAL' => $LENS_MATERIAL_1 ?? '', 'LENS_TREATMENTS' => $LENS_TREATMENTS_1 ?? '',
+                          'ODPRISM' => $wearValues[1]["ODPRISM"] ?? '', 'OSPRISM' => $wearValues[1]["OSPRISM"] ?? '',
+                          'ODHPD' => $wearValues[1]["ODHPD"] ?? '', 'ODHBASE' => $wearValues[1]["ODHBASE"] ?? '', 'ODVPD' => $wearValues[1]["ODVPD"] ?? '', 'ODVBASE' => $wearValues[1]["ODVBASE"] ?? '',
+                          'OSHPD' => $wearValues[1]["OSHPD"] ?? '', 'OSHBASE' => $wearValues[1]["OSHBASE"] ?? '', 'OSVPD' => $wearValues[1]["OSVPD"] ?? '', 'OSVBASE' => $wearValues[1]["OSVBASE"] ?? '',
+                          'ODMPDD' => $wearValues[1]["ODMPDD"] ?? '', 'ODMPDN' => $wearValues[1]["ODMPDN"] ?? '', 'OSMPDD' => $wearValues[1]["OSMPDD"] ?? '', 'OSMPDN' => $wearValues[1]["OSMPDN"] ?? '',
+                          'BPDD' => $wearValues[1]["BPDD"] ?? '', 'BPDN' => $wearValues[1]["BPDN"] ?? '',
+                          'ODVERTEXDIST' => $wearValues[1]["ODVERTEXDIST"] ?? '', 'OSVERTEXDIST' => $wearValues[1]["OSVERTEXDIST"] ?? '',
+                          'ODSLABOFF' => $wearValues[1]["ODSLABOFF"] ?? '', 'OSSLABOFF' => $wearValues[1]["OSSLABOFF"] ?? '',
+                          'RX_TYPE' => $wearValues[1]["RX_TYPE"] ?? '', 'LENS_MATERIAL' => $wearValues[1]["LENS_MATERIAL"] ?? '', 'LENS_TREATMENTS' => $wearValues[1]["LENS_TREATMENTS"] ?? '',
                       ]; ?>
                       <table id="wearing_1" class="wear-rx-table">
                         <?php display_wear_colgroup(); ?>
@@ -1766,47 +1745,47 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                         </tr>
                         <tr>
                           <td><b><?php echo xlt('OD{{right eye}}'); ?>:</b></td>
-                          <td><input type="text" class="sphere" id="ODSPH_1" name="ODSPH_1"  value="<?php echo attr($ODSPH_1 ?? ''); ?>" tabindex="100"></td>
-                          <td><input type="text" class="cylinder" id="ODCYL_1" name="ODCYL_1"  value="<?php echo attr($ODCYL_1 ?? ''); ?>" tabindex="101"></td>
-                          <td><input type="text" class="axis" id="ODAXIS_1" name="ODAXIS_1" value="<?php echo attr($ODAXIS_1 ?? ''); ?>" tabindex="102"></td>
-                          <td><input type="text" class="acuity" id="ODVA_1" name="ODVA_1" value="<?php echo attr($ODVA_1 ?? ''); ?>" tabindex="108"></td>
+                          <td><input type="text" class="sphere" id="ODSPH_1" name="ODSPH_1"  value="<?php echo attr($wearValues[1]["ODSPH"] ?? ''); ?>" tabindex="100"></td>
+                          <td><input type="text" class="cylinder" id="ODCYL_1" name="ODCYL_1"  value="<?php echo attr($wearValues[1]["ODCYL"] ?? ''); ?>" tabindex="101"></td>
+                          <td><input type="text" class="axis" id="ODAXIS_1" name="ODAXIS_1" value="<?php echo attr($wearValues[1]["ODAXIS"] ?? ''); ?>" tabindex="102"></td>
+                          <td><input type="text" class="acuity" id="ODVA_1" name="ODVA_1" value="<?php echo attr($wearValues[1]["ODVA"] ?? ''); ?>" tabindex="108"></td>
                           <?php display_wear_distance_cells(1, 'OD', $wearDetails1); ?>
                         </tr>
                         <tr>
                           <td><b><?php echo xlt('OS{{left eye}}'); ?>:</b></td>
-                          <td><input type="text" class="sphere" id="OSSPH_1" name="OSSPH_1" value="<?php echo attr($OSSPH_1 ?? ''); ?>" tabindex="103"></td>
-                          <td><input type="text" class="cylinder" id="OSCYL_1" name="OSCYL_1" value="<?php echo attr($OSCYL_1 ?? ''); ?>" tabindex="104"></td>
-                          <td><input type="text" class="axis" id="OSAXIS_1" name="OSAXIS_1" value="<?php echo attr($OSAXIS_1 ?? ''); ?>" tabindex="105"></td>
-                          <td><input type="text" class="acuity" id="OSVA_1" name="OSVA_1" value="<?php echo attr($OSVA_1 ?? ''); ?>" tabindex="109"></td>
+                          <td><input type="text" class="sphere" id="OSSPH_1" name="OSSPH_1" value="<?php echo attr($wearValues[1]["OSSPH"] ?? ''); ?>" tabindex="103"></td>
+                          <td><input type="text" class="cylinder" id="OSCYL_1" name="OSCYL_1" value="<?php echo attr($wearValues[1]["OSCYL"] ?? ''); ?>" tabindex="104"></td>
+                          <td><input type="text" class="axis" id="OSAXIS_1" name="OSAXIS_1" value="<?php echo attr($wearValues[1]["OSAXIS"] ?? ''); ?>" tabindex="105"></td>
+                          <td><input type="text" class="acuity" id="OSVA_1" name="OSVA_1" value="<?php echo attr($wearValues[1]["OSVA"] ?? ''); ?>" tabindex="109"></td>
                           <?php display_wear_distance_cells(1, 'OS', $wearDetails1); ?>
                         </tr>
                         <tr class="WNEAR">
                           <td><b><?php echo xlt('OD{{right eye}}'); ?>:</b></td>
-                            <?php echo '<input type="hidden" name="RXStart_1" id="RXStart_1" value="' . ($RX_TYPE_1 ?? '') . '">'; ?>
-                          <td class="WMid"><input type="text" class="presbyopia" id="ODMIDADD_1" name="ODMIDADD_1" value="<?php echo attr($ODMIDADD_1 ?? ''); ?>"></td>
-                          <td class="WAdd2"><input type="text" class="presbyopia" id="ODADD_1" name="ODADD_1" value="<?php echo attr($ODADD_1 ?? ''); ?>" tabindex="106"></td>
+                            <?php echo '<input type="hidden" name="RXStart_1" id="RXStart_1" value="' . ($wearValues[1]["RX_TYPE"] ?? '') . '">'; ?>
+                          <td class="WMid"><input type="text" class="presbyopia" id="ODMIDADD_1" name="ODMIDADD_1" value="<?php echo attr($wearValues[1]["ODMIDADD"] ?? ''); ?>"></td>
+                          <td class="WAdd2"><input type="text" class="presbyopia" id="ODADD_1" name="ODADD_1" value="<?php echo attr($wearValues[1]["ODADD"] ?? ''); ?>" tabindex="106"></td>
                           <td></td>
-                          <td><input class="jaeger" type="text" id="ODNEARVA_1" name="ODNEARVA_1" value="<?php echo attr($ODNEARVA_1 ?? ''); ?>" tabindex="110"></td>
+                          <td><input class="jaeger" type="text" id="ODNEARVA_1" name="ODNEARVA_1" value="<?php echo attr($wearValues[1]["ODNEARVA"] ?? ''); ?>" tabindex="110"></td>
                           <?php display_wear_lower_cells(1, 'OD', $wearDetails1); ?>
                         </tr>
                         <tr class="WNEAR">
                           <td><b><?php echo xlt('OS{{left eye}}'); ?>:</b></td>
-                          <td class="WMid"><input type="text" class="presbyopia" id="OSMIDADD_1" name="OSMIDADD_1" value="<?php echo attr($OSMIDADD_1 ?? ''); ?>"></td>
-                          <td class="WAdd2"><input type="text" class="presbyopia" id="OSADD_1" name="OSADD_1" value="<?php echo attr($OSADD_1 ?? ''); ?>" tabindex="107"></td>
+                          <td class="WMid"><input type="text" class="presbyopia" id="OSMIDADD_1" name="OSMIDADD_1" value="<?php echo attr($wearValues[1]["OSMIDADD"] ?? ''); ?>"></td>
+                          <td class="WAdd2"><input type="text" class="presbyopia" id="OSADD_1" name="OSADD_1" value="<?php echo attr($wearValues[1]["OSADD"] ?? ''); ?>" tabindex="107"></td>
                           <td></td>
-                          <td><input class="jaeger" type="text" id="OSNEARVA_1" name="OSNEARVA_1" value="<?php echo attr($OSNEARVA_1 ?? ''); ?>" tabindex="110"></td>
+                          <td><input class="jaeger" type="text" id="OSNEARVA_1" name="OSNEARVA_1" value="<?php echo attr($wearValues[1]["OSNEARVA"] ?? ''); ?>" tabindex="110"></td>
                           <?php display_wear_lower_cells(1, 'OS', $wearDetails1); ?>
                         </tr>
                         <tr>
                           <td class="right bold current-glasses-comments-label"><?php echo xlt('Comments'); ?>:</td>
                           <td colspan="4" class="current-glasses-comments-cell">
-                            <textarea id="COMMENTS_1" name="COMMENTS_1" class="current-glasses-comments" tabindex="111"><?php echo text($COMMENTS_1 ?? ''); ?></textarea>
+                            <textarea id="COMMENTS_1" name="COMMENTS_1" class="current-glasses-comments" tabindex="111"><?php echo text($wearValues[1]["COMMENTS"] ?? ''); ?></textarea>
                           </td>
                           <?php display_wear_comment_tail_cells(); ?>
                         </tr>
                         <tr>
                           <td colspan="6">
-                            <textarea id="COMMENTS_1" name="COMMENTS_1" tabindex="111"><?php echo text($COMMENTS_1 ?? ''); ?></textarea>
+                            <textarea id="COMMENTS_1" name="COMMENTS_1" tabindex="111"><?php echo text($wearValues[1]["COMMENTS"] ?? ''); ?></textarea>
                           </td>
                           <td colspan="8">
                           </td>
@@ -2292,7 +2271,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                       </tr>
                       <tr><td><b><?php echo xlt('OD{{right eye}}'); ?>:</b></td>
                         <td><input type="text" id="SCODVA_copy_brd" name="SCODVA_copy_brd" value="<?php echo attr($SCODVA); ?>" tabindex="10300"></td>
-                        <td><input type="text" id="ODVA_1_copy_brd" name="ODVA_1_copy_brd" value="<?php echo attr($ODVA_1 ?? ''); ?>" tabindex="10302"></td>
+                        <td><input type="text" id="ODVA_1_copy_brd" name="ODVA_1_copy_brd" value="<?php echo attr($wearValues[1]["ODVA"] ?? ''); ?>" tabindex="10302"></td>
                         <td><input type="text" id="ARODVA_copy_brd" name="ARODVA_copy_brd" value="<?php echo attr($ARODVA); ?>" tabindex="10304"></td>
                         <td><input type="text" id="MRODVA_copy_brd" name="MRODVA_copy_brd" value="<?php echo attr($MRODVA); ?>" tabindex="10306"></td>
                         <td><input type="text" id="CRODVA_copy_brd" name="CRODVA_copy_brd" value="<?php echo attr($CRODVA); ?>" tabindex="10308"></td>
@@ -2301,7 +2280,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                       </tr>
                       <tr><td><b><?php echo xlt('OS{{left eye}}'); ?>:</b></td>
                         <td><input type="text" id="SCOSVA_copy"     name="SCOSVA_copy"     value="<?php echo attr($SCOSVA); ?>" tabindex="10301"></td>
-                        <td><input type="text" id="OSVA_1_copy_brd" name="OSVA_1_copy_brd" value="<?php echo attr($OSVA_1 ?? ''); ?>" tabindex="10303"></td>
+                        <td><input type="text" id="OSVA_1_copy_brd" name="OSVA_1_copy_brd" value="<?php echo attr($wearValues[1]["OSVA"] ?? ''); ?>" tabindex="10303"></td>
                         <td><input type="text" id="AROSVA_copy_brd" name="AROSVA_copy_brd" value="<?php echo attr($AROSVA); ?>" tabindex="10305"></td>
                         <td><input type="text" id="MROSVA_copy_brd" name="MROSVA_copy_brd" value="<?php echo attr($MROSVA); ?>" tabindex="10307"></td>
                         <td><input type="text" id="CROSVA_copy_brd" name="CROSVA_copy_brd" value="<?php echo attr($CROSVA); ?>" tabindex="10309"></td>
@@ -2321,7 +2300,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                       </tr>
                       <tr><td><b><?php echo xlt('OD{{right eye}}'); ?>:</b></td>
                         <td><input class="jaeger" type="text" id="SCNEARODVA" title="<?php echo xla('Near Acuity without Correction'); ?>" name="SCNEARODVA" value="<?php echo attr($SCNEARODVA); ?>" tabindex="10320"></td>
-                        <td><input class="jaeger" type="text" id="ODNEARVA_1_copy_brd" title="<?php echo xla('Near Acuity with Correction'); ?>" name="ODNEARVA_1_copy_brd" value="<?php echo attr($ODNEARVA_1 ?? ''); ?>" tabindex="10322"></td>
+                        <td><input class="jaeger" type="text" id="ODNEARVA_1_copy_brd" title="<?php echo xla('Near Acuity with Correction'); ?>" name="ODNEARVA_1_copy_brd" value="<?php echo attr($wearValues[1]["ODNEARVA"] ?? ''); ?>" tabindex="10322"></td>
                         <td><input class="jaeger" type="text" id="ARNEARODVA_copy_brd" title="<?php echo xla('Near Acuity AutoRefraction'); ?>" name="ARNEARODVA_copy_brd" value="<?php echo attr($ARNEARODVA); ?>" tabindex="10324"></td>
                         <td><input class="jaeger" type="text" id="MRNEARODVA_copy_brd" title="<?php echo xla('Near Acuity Manifest Refraction'); ?>" name="MRNEARODVA_copy_brd" value="<?php echo attr($MRNEARODVA); ?>" tabindex="10326"></td>
                         <td><input type="text" id="PAMODVA_copy_brd" title="<?php echo xla('Potential Acuity Meter'); ?>" name="PAMODVA_copy_brd" value="<?php echo attr($PAMODVA); ?>" tabindex="10328"></td>
@@ -2330,7 +2309,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                       </tr>
                       <tr><td><b><?php echo xlt('OS{{left eye}}'); ?>:</b></td>
                         <td><input class="jaeger" type="text" id="SCNEAROSVA" title="<?php echo xla('Near Acuity without Correction'); ?>" name="SCNEAROSVA" value="<?php echo attr($SCNEAROSVA); ?>" tabindex="10321"></td>
-                        <td><input class="jaeger" type="text" id="OSNEARVA_1_copy_brd" title="<?php echo xla('Near Acuity with Correction'); ?>" name="OSNEARVA_1_copy_brd" value="<?php echo attr($OSNEARVA_1 ?? ''); ?>" tabindex="10323"></td>
+                        <td><input class="jaeger" type="text" id="OSNEARVA_1_copy_brd" title="<?php echo xla('Near Acuity with Correction'); ?>" name="OSNEARVA_1_copy_brd" value="<?php echo attr($wearValues[1]["OSNEARVA"] ?? ''); ?>" tabindex="10323"></td>
                         <td><input class="jaeger" type="text" id="ARNEAROSVA_copy" title="<?php echo xla('Near Acuity AutoRefraction'); ?>" name="ARNEAROSVA_copy" value="<?php echo attr($ARNEAROSVA); ?>" tabindex="10325"></td>
                         <td><input class="jaeger" type="text" id="MRNEAROSVA_copy" title="<?php echo xla('Near Acuity Manifest Refraction'); ?>" name="MRNEAROSVA_copy" value="<?php echo attr($MRNEAROSVA); ?>" tabindex="10327"></td>
                         <td><input type="text" id="PAMOSVA_copy_brd" title="<?php echo xla('Potential Acuity Meter'); ?>" name="PAMOSVA_copy_brd" value="<?php echo attr($PAMOSVA); ?>" tabindex="10329"></td>
@@ -2591,7 +2570,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                         </div>
                       </div>
                       <div id="EXT_right" name="EXT_right" class="exam_section_right borderShadow text_clinical">
-                        <?php display_draw_section("EXT", $encounter, $pid); ?>
+                        <?php display_draw_section("EXT", $encounter, $pid, 'OU', '', $id, $NEURO_DRAWING_JSON ?? ''); ?>
                         <div id="PRIORS_EXT_left_text" name="PRIORS_EXT_left_text" class="PRIORS_class PRIORS">
                             <i class="fa fa-spinner fa-spin"></i>
                         </div>
@@ -2721,20 +2700,20 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                               <table id="dil_listbox">
                                 <?php foreach (array_chunk(eye_mag_dilation_med_options(), 2) as $dilationRow) { ?>
                                 <tr>
-                                  <?php foreach ($dilationRow as $dilationOption) {
-                                      $dilationField = $dilationOption['field'];
-                                      $dilationCurrent = trim((string)($$dilationField ?? ''));
-                                      $dilationChecked = !in_array($dilationCurrent, ['', '0', 'off'], true);
-                                      $dilationTitle = $dilationOption['title'];
-                                      $dilationValue = $dilationOption['stored_value'];
+                                    <?php foreach ($dilationRow as $dilationOption) {
+                                        $dilationField = $dilationOption['field'];
+                                        $dilationCurrent = trim(EyeFormData::text(${$dilationField} ?? ''));
+                                        $dilationChecked = !in_array($dilationCurrent, ['', '0', 'off'], true);
+                                        $dilationTitle = $dilationOption['title'];
+                                        $dilationValue = $dilationOption['stored_value'];
                                       // Preserve the strength recorded on historical exams when saving.
-                                      if ($dilationField === 'TROPICAMIDE' && $dilationCurrent === 'Tropicamide 2.5%') {
-                                          $dilationValue = $dilationCurrent;
-                                          $dilationTitle = xl('Tropic 2.5%');
-                                      }
-                                      $dilationLabel = mb_strimwidth($dilationTitle, 0, 15, '…', 'UTF-8');
-                                      $dilationId = 'DIL_' . $dilationField;
-                                      ?>
+                                        if ($dilationField === 'TROPICAMIDE' && $dilationCurrent === 'Tropicamide 2.5%') {
+                                            $dilationValue = $dilationCurrent;
+                                            $dilationTitle = xl('Tropic 2.5%');
+                                        }
+                                        $dilationLabel = mb_strimwidth($dilationTitle, 0, 15, '…', 'UTF-8');
+                                        $dilationId = 'DIL_' . $dilationField;
+                                        ?>
                                   <td>
                                       <input type="checkbox" class="dil_drug" id="<?php echo attr($dilationId); ?>"
                                              name="<?php echo attr($dilationField); ?>"
@@ -2860,7 +2839,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                       <div id="PRIORS_ANTSEG_left_text" name="PRIORS_ANTSEG_left_text" class="PRIORS_class PRIORS">
                                       <i class="fa fa-spinner fa-spin"></i>
                       </div>
-                        <?php display_draw_section("ANTSEG", $encounter, $pid); ?>
+                        <?php display_draw_section("ANTSEG", $encounter, $pid, 'OU', '', $id, $NEURO_DRAWING_JSON ?? ''); ?>
                       <div id="QP_ANTSEG" name="QP_ANTSEG" class="QP_class">
                           <input type="hidden" id="ANTSEG_prefix" name="ANTSEG_prefix" value="">
                           <div class="qp10">
@@ -3086,7 +3065,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                          name="PRIORS_RETINA_left_text"
                          class="PRIORS_class PRIORS"><i class="fa fa-spinner fa-spin"></i>
                     </div>
-                    <?php display_draw_section("RETINA", $encounter, $pid); ?>
+                    <?php display_draw_section("RETINA", $encounter, $pid, 'OU', '', $id, $NEURO_DRAWING_JSON ?? ''); ?>
                     <div id="QP_RETINA" name="QP_RETINA" class="QP_class">
                       <input type="hidden" id="RETINA_prefix" name="RETINA_prefix" value="" />
                       <div class="qp10">
@@ -3131,7 +3110,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
                           <span class="closeButton fa fa-times float-right z100" id="BUTTON_TEXTD_SDRETINA" name="BUTTON_TEXTD_SDRETINA" value="1"></span>
 
-                          <?php display_draw_section("SDRETINA", $encounter, $pid); ?>
+                          <?php display_draw_section("SDRETINA", $encounter, $pid, 'OU', '', $id, $NEURO_DRAWING_JSON ?? ''); ?>
                       </div>
                   </div>
 
@@ -3204,7 +3183,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                 </span>
                               </td>
                             </tr>
-                            <?php if (trim((string)($STEREOPSIS ?? '')) !== '') { ?>
+                            <?php if (trim(EyeFormData::text($STEREOPSIS ?? '')) !== '') { ?>
                             <tr class="stereopsis-legacy-row">
                               <td class="right"><label for="STEREOPSIS"><?php echo xlt('Previous/Other'); ?>:</label></td>
                               <td><input type="text" class="neurosens" name="STEREOPSIS" id="STEREOPSIS"
@@ -3877,7 +3856,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                   <div id="NEURO_right" class="exam_section_right borderShadow text_clinical">
                     <div id="PRIORS_NEURO_left_text" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS"><i class="fa fa-spinner fa-spin"></i>
                     </div>
-                    <?php display_draw_section("NEURO", $encounter, $pid); ?>
+                    <?php display_draw_section("NEURO", $encounter, $pid, 'OU', '', $id, $NEURO_DRAWING_JSON ?? ''); ?>
                     <div id="QP_NEURO" name="QP_NEURO" class="QP_class">
                       <input type="hidden" id="NEURO_ACT_zone" name="NEURO_ACT_zone" value="<?php echo $ACT_SHOW ?? ''; ?>">
                       <input type="hidden" id="NEURO_ACT_strab" name="NEURO_ACT_strab" value="">
@@ -4049,14 +4028,14 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                     ?>
                   <div class="size50">
                   <div id="IMPPLAN_right" class="exam_section_right borderShadow text_clinical clear_both ">
-                        <?php display_draw_section("IMPPLAN", $encounter, $pid); ?>
+                        <?php display_draw_section("IMPPLAN", $encounter, $pid, 'OU', '', $id, $NEURO_DRAWING_JSON ?? ''); ?>
 
                       <div id="PRIORS_IMPPLAN_left_text" name="PRIORS_IMPPLAN_left_text" class="PRIORS_class PRIORS"><i class="fa fa-spinner fa-spin"></i>
                       </div>
                       <div id="QP_IMPPLAN" name="QP_IMPPLAN" class="QP_class2">
                           <span id="iPLAN_BUILD" name="iPLAN_BUILD" class="bold"><?php echo xlt('Impression/Plan'); ?></span>
                           <div id="IP_P_1">
-                                <?php echo $selector = priors_select("IMPPLAN", $id, $id, $pid); ?>
+                                <?php echo $selector = priors_select("IMPPLAN", $id, $id, EyeFormData::text($pid)); ?>
                           </div>
                           <span class="closeButton fa fa-times float-right z100" id="BUTTON_TEXTD_IMPPLAN" name="BUTTON_TEXTD_IMPPLAN" value="1"></span>
                           <br />
@@ -4216,7 +4195,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                                   $fs_category = $row['fs_category'];
                                                                   $fs_option   = $row['fs_option'];
                                                                   $fs_codes    = $row['fs_codes'];
-                                                                  if (!empty($fs_codes)) {
+                                                                  if (($fs_codes ?? []) !== []) {
                                                                       [$code_type_here, $code] = explode("|", (string) $fs_codes);
                                                                   }
                                                                   if ($fs_category !== $last_category) {
@@ -4475,7 +4454,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                       </tr>
                                       <tr>
                                           <td colspan="3" style="padding-left:20px;padding-top:4px;">
-                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]" style="width: 440px;height: 44px;"><?php if (($found ?? null) < (empty($PLAN_arr) ? 0 : count($PLAN_arr))) {
+                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]" style="width: 440px;height: 44px;"><?php if (($found ?? null) < (is_array($PLAN_arr ?? null) ? count($PLAN_arr) : 0)) {
                                     $orderDetails = $PLAN_arr[count($PLAN_arr) - 1]['ORDER_DETAILS'] ?? null;
                                     echo text(is_string($orderDetails) ? $orderDetails : '');
                                                   } ?></textarea>
@@ -4725,7 +4704,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                           </tr>
                                           <tr><td>&nbsp;</td></tr>
                                           <tr><td class="top bold"><?php echo xlt('Insurance'); ?>:</td><td><?php echo text($ins_coA); ?></td></tr>
-                                            <?php if (!empty($ins_coB)) { ?>
+                                            <?php if ((EyeFormData::text($ins_coB ?? '') !== '')) { ?>
                                           <tr><td class="top bold"><?php echo xlt('Secondary'); ?>:</td><td><?php echo text($ins_coB); ?></td></tr>
                                             <?php } ?>
                                           <tr><td class="top bold"><?php echo xlt('Pharmacy'); ?>:</td>
@@ -4771,9 +4750,9 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                               <select id="MATERIALS_HANDOUT_PICKER" class="form-control">
                                                   <option value=""><?php echo xlt('Select a PDF handout'); ?></option>
                                                   <?php foreach ($materialsHandouts as $materialsHandout) {
-                                                        $handoutName = trim((string) ($materialsHandout['name'] ?? ''));
+                                                        $handoutName = trim(EyeFormData::text($materialsHandout['name'] ?? ''));
                                                         if ($handoutName === '') {
-                                                            $handoutName = basename((string) ($materialsHandout['url'] ?? ''));
+                                                            $handoutName = basename(EyeFormData::text($materialsHandout['url'] ?? ''));
                                                         }
                                                         ?>
                                                       <option value="<?php echo attr($materialsHandout['id']); ?>"
@@ -4786,9 +4765,9 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                   </button>
                                               </div>
                                           </div>
-                                          <input type="hidden" name="MATERIALS_HANDOUT_IDS" id="MATERIALS_HANDOUT_IDS" value="<?php echo attr(json_encode($materialsHandoutIds)); ?>">
+                                          <input type="hidden" name="MATERIALS_HANDOUT_IDS" id="MATERIALS_HANDOUT_IDS" value="<?php echo attr(json_encode($materialsHandoutIds, JSON_THROW_ON_ERROR)); ?>">
                                           <?php
-                                            $materialsTextSummary = trim((string) preg_replace('/\s+/', ' ', (string) $materialsToPrint));
+                                            $materialsTextSummary = trim(EyeFormData::text(preg_replace('/\s+/', ' ', EyeFormData::text($materialsToPrint))));
                                             if (strlen($materialsTextSummary) > 90) {
                                                 $materialsTextSummary = substr($materialsTextSummary, 0, 87) . '...';
                                             }
@@ -4818,7 +4797,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                               </div>
                                               </template>
                                           </div>
-                                          <?php if (empty($materialsHandouts)) { ?>
+                                          <?php if (($materialsHandouts === [])) { ?>
                                               <small class="text-muted"><?php echo xlt('No practice PDFs have been added yet. Use Add Practice PDF above; new uploads appear the next time the Eye Form is opened.'); ?></small>
                                           <?php } else { ?>
                                               <small class="text-muted"><?php echo xlt('Practice PDFs are stored in Documents under Patient Education / Handouts. New uploads appear the next time the Eye Form is opened.'); ?></small>
@@ -5009,7 +4988,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
         var obj =[];
         <?php
         //also add in any obj.Clinical data if the form was already opened
-        $codes_found = start_your_engines($encounter_data);
+        $codes_found = start_your_engines(EyeFormData::row($encounter_data));
         if ($codes_found) { ?>
         obj.Clinical = [<?php echo json_encode($codes_found[0] ?? ''); ?>];
             <?php
@@ -5017,7 +4996,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
         var base = '<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>';
     </script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script>
     // Translations for the My Phrases Builder (dotphrases.js).  Keys are
     // read by dpT() with English fallbacks; %KEY%/%N% are placeholders.
@@ -5089,17 +5068,17 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
         deployed: <?php echo xlj('Deployed %KEY% - %N% field(s) written to chart.'); ?>
     };
     </script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/dotphrases.js?v=<?php echo attr_url(filemtime(__DIR__ . '/js/dotphrases.js')); ?>"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/shortcut.js-2-01-B/shortcut.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/dotphrases.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/shortcut.js-2-01-B/shortcut.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script>
       if (window.jQuery && typeof window.jQuery.fn.draggable !== 'function') {
-          document.write('<script src="' + <?php echo json_encode(OEGlobalsBag::getInstance()->getWebRoot() . '/interface/forms/' . $form_folder . '/js/jquery-ui-1-11-4/jquery-ui.min.js'); ?> + '"><\/script>');
+          document.write('<script src="' + <?php echo json_encode(OEGlobalsBag::getInstance()->getWebRoot() . '/interface/forms/' . $form_folder . '/js/jquery-ui-1-11-4/jquery-ui.min.js?v=' . OEGlobalsBag::getInstance()->getString('v_js_includes')); ?> + '"><\/script>');
       }
     </script>
     <?php require __DIR__ . '/php/neuro_pattern_strings.php'; ?>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/neuro_patterns.js?v=<?php echo attr_url(filemtime(__DIR__ . '/js/neuro_patterns.js')); ?>"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>&v=<?php echo attr_url(filemtime(__DIR__ . '/js/eye_base.php')); ?>"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/visual_acuity_history.js?v=<?php echo attr_url(filemtime(__DIR__ . '/js/visual_acuity_history.js')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/neuro_patterns.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>&v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/visual_acuity_history.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script>
       window.eyeMagDocumentNotesStrings = {
         enterPatientMaterial: <?php echo xlj('Enter patient material text before adding it.'); ?>,
@@ -5111,11 +5090,11 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
         done: <?php echo xlj('Done'); ?>
       };
     </script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/document_notes.js?v=<?php echo attr_url(filemtime(__DIR__ . '/js/document_notes.js')); ?>"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js?v=<?php echo attr_url(filemtime(__DIR__ . '/js/canvasdraw.js')); ?>"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/public/assets/konva/konva.js"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/konva_overlay.js?v=<?php echo attr_url(filemtime(__DIR__ . '/js/konva_overlay.js')); ?>"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/drawing_library.js?v=<?php echo attr_url(filemtime(__DIR__ . '/js/drawing_library.js')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/document_notes.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/public/assets/konva/konva.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/konva_overlay.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/drawing_library.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <div id="right-panel" name="right-panel" class="panel_side" >
       <div class="text-center" style="margin-top: 10px;">
         <span class="fa fa-file-alt" id="PANEL_TEXT" name="PANEL_TEXT"></span>

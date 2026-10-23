@@ -11,48 +11,55 @@ require_once($srcdir . '/gprelations.inc.php');
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Forms\EyeMag\EyeFormData;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = \OpenEMR\Common\Session\PatientSessionUtil::getPid();
-$docid = (int) ($_REQUEST['docid'] ?? 0);
-$document = $docid ? sqlQuery('SELECT id,foreign_id,url FROM documents WHERE id=?', [$docid]) : false;
-if (!$document) {
+$request = CurrentRequest::get();
+$posted = $request->request->all();
+$input = array_replace($request->query->all(), $posted);
+$pid = PatientSessionUtil::getPid();
+$docid = EyeFormData::integer($input['docid'] ?? 0);
+$document = $docid > 0 ? QueryUtils::querySingleRow('SELECT id,foreign_id,url FROM documents WHERE id=?', [$docid]) : false;
+if ($document === false || $document === []) {
     http_response_code(404);
     die(xlt('Document not found'));
 }
 
-$patientId = (int) $document['foreign_id'];
-if ($patientId !== (int) $pid) {
+$patientId = EyeFormData::integer($document['foreign_id']);
+if ($patientId !== $pid) {
     AccessDeniedHelper::deny('Document does not belong to the active patient');
 }
 if (!AclMain::aclCheckCore('patients', 'notes')) {
     AccessDeniedHelper::deny('Not authorized to view patient notes');
 }
-$patient = getPatientData($patientId, 'fname,lname,DOB,pronoun,squad');
-if (!empty($patient['squad']) && !AclMain::aclCheckCore('squads', $patient['squad'])) {
+$patient = EyeFormData::textRow(EyeFormData::row(getPatientData($patientId, 'fname,lname,DOB,pronoun,squad')));
+if (($patient['squad'] ?? '') !== '' && !AclMain::aclCheckCore('squads', $patient['squad'])) {
     AccessDeniedHelper::deny('Not authorized for patient squad');
 }
 
 $canAdd = AclMain::aclCheckCore('patients', 'notes', '', ['write', 'addonly']);
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($request->isMethod('POST')) {
     if (!$canAdd) {
         AccessDeniedHelper::deny('Not authorized to add patient notes');
     }
-    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', session: $session)) {
+    if (!CsrfUtils::verifyCsrfToken(EyeFormData::text($posted['csrf_token_form'] ?? ''), session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
-    $body = trim((string) ($_POST['note'] ?? ''));
+    $body = trim(EyeFormData::text($posted['note'] ?? ''));
     if ($body !== '') {
-        $noteId = addPnote($patientId, $body, $userauthorized, '1', 'Clinical', $session->get('authUser'));
+        $noteId = addPnote($patientId, $body, EyeFormData::integer($session->get('userauthorized')), 1, 'Clinical', EyeFormData::text($session->get('authUser')));
         setGpRelation(1, $docid, 6, $noteId);
     }
     header('Location: document_notes.php?docid=' . urlencode((string) $docid));
     exit;
 }
 
-$notes = getPnotesByDate(
+$notesResult = getPnotesByDate(
     '',
     'all',
     'id,date,body,user,title',
@@ -62,9 +69,10 @@ $notes = getPnotesByDate(
     '',
     $docid
 );
+$notes = is_array($notesResult) ? $notesResult : [];
 
-$authUserId = (int) ($session->get('authUserID') ?? 0);
-$phraseResult = sqlStatement(
+$authUserId = EyeFormData::integer($session->get('authUserID'));
+$phraseRows = QueryUtils::fetchRecords(
     "SELECT phrase_key,name,content,owner_uid
      FROM form_eye_dotphrases
      WHERE content_type='text' AND (owner_uid=? OR (visibility='shared' AND active=1))
@@ -72,19 +80,19 @@ $phraseResult = sqlStatement(
     [$authUserId, $authUserId]
 );
 $phrases = [];
-while ($phrase = sqlFetchArray($phraseResult)) {
-    $phrases[strtolower($phrase['phrase_key'])] = [
-        'name' => $phrase['name'],
-        'content' => $phrase['content'],
+foreach ($phraseRows as $phrase) {
+    $phrases[strtolower(EyeFormData::text($phrase['phrase_key']))] = [
+        'name' => EyeFormData::text($phrase['name']),
+        'content' => EyeFormData::text($phrase['content']),
     ];
 }
 
-$provider = sqlQuery('SELECT fname,lname FROM users WHERE id=?', [(int) ($session->get('authUserID') ?? 0)]);
+$provider = EyeFormData::textRow(EyeFormData::row(QueryUtils::querySingleRow('SELECT fname,lname FROM users WHERE id=?', [$authUserId])));
 $age = '';
-if (!empty($patient['DOB']) && $patient['DOB'] !== '0000-00-00') {
+if (($patient['DOB'] ?? '') !== '' && $patient['DOB'] !== '0000-00-00') {
     try {
         $age = (string) (new DateTime($patient['DOB']))->diff(new DateTime())->y;
-    } catch (Exception $e) {
+    } catch (DateMalformedStringException) {
         $age = '';
     }
 }
@@ -92,7 +100,7 @@ $substitutions = [
     'PATIENT_NAME' => trim(($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '')),
     'FIRST_NAME' => $patient['fname'] ?? '',
     'LAST_NAME' => $patient['lname'] ?? '',
-    'DOB' => !empty($patient['DOB']) && $patient['DOB'] !== '0000-00-00' ? oeFormatShortDate($patient['DOB']) : '',
+    'DOB' => ($patient['DOB'] ?? '') !== '' && $patient['DOB'] !== '0000-00-00' ? oeFormatShortDate($patient['DOB']) : '',
     'AGE' => $age,
     'PRONOUN' => $patient['pronoun'] ?? '',
     'PROVIDER' => trim(($provider['fname'] ?? '') . ' ' . ($provider['lname'] ?? '')),
@@ -107,12 +115,12 @@ $substitutions = [
 </head>
 <body class="body_top">
 <main class="container-fluid p-3">
-    <h3><?php echo xlt('Notes for'); ?> <?php echo text(basename((string) $document['url'])); ?></h3>
+    <h3><?php echo xlt('Notes for'); ?> <?php echo text(basename(EyeFormData::text($document['url']))); ?></h3>
 
     <?php if ($canAdd) : ?>
     <form method="post" id="document-note-form" class="card mb-3">
         <div class="card-body">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>">
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
             <div class="form-row align-items-end mb-2">
                 <div class="col-md-8">
                     <label for="my-phrase" class="font-weight-bold"><?php echo xlt('My Phrases'); ?></label>
@@ -137,10 +145,11 @@ $substitutions = [
     <section class="card">
         <div class="card-header font-weight-bold"><?php echo xlt('Linked Notes'); ?></div>
         <div class="card-body">
-            <?php if (empty($notes)) : ?>
+            <?php if ($notes === []) : ?>
                 <p class="text-muted mb-0"><?php echo xlt('No notes have been added to this document.'); ?></p>
             <?php else : ?>
-                <?php foreach ($notes as $note) : ?>
+                <?php foreach ($notes as $noteValue) :
+                    $note = EyeFormData::textRow(EyeFormData::row($noteValue)); ?>
                     <article class="border-bottom mb-3 pb-2">
                         <div class="font-weight-bold"><?php echo text($note['user']); ?> · <?php echo text($note['date']); ?></div>
                         <div><?php echo nl2br(text($note['body'])); ?></div>
