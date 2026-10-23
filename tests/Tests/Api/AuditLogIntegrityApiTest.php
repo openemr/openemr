@@ -167,11 +167,24 @@ class AuditLogIntegrityApiTest extends TestCase
             'Precondition failed: API probe call must return 200 to produce a success audit row',
         );
 
-        $apiLogRow = QueryUtils::fetchRecords(
-            'SELECT user_id, client_id, method, request, request_url '
-            . 'FROM api_log WHERE client_id = ? ORDER BY id DESC LIMIT 1',
-            [$this->clientId],
-        );
+        // ApiResponseLoggerListener writes the api_log row on
+        // kernel.terminate, AFTER the HTTP response flushes to the
+        // client. That means the Guzzle response arrives before the
+        // row commits — a direct SELECT right after $callResp can
+        // miss it. Bounded retry polling (20 × 50ms = 1s max) waits
+        // for the terminate-time write to settle before asserting.
+        $apiLogRow = [];
+        for ($attempt = 0; $attempt < 20; $attempt++) {
+            $apiLogRow = QueryUtils::fetchRecords(
+                'SELECT user_id, client_id, method, request, request_url '
+                . 'FROM api_log WHERE client_id = ? ORDER BY id DESC LIMIT 1',
+                [$this->clientId],
+            );
+            if (count($apiLogRow) === 1) {
+                break;
+            }
+            usleep(50_000);
+        }
         self::assertCount(
             1,
             $apiLogRow,
@@ -229,18 +242,19 @@ class AuditLogIntegrityApiTest extends TestCase
         // against which endpoint" from this row + the paired api_log
         // row written by ApiResponseLoggerListener. This test locks
         // that the entry fires at all; the exact comments shape is
-        // intentionally not asserted because the `log.comments`
-        // column is encrypted at rest.
+        // intentionally not asserted because `log.comments` is
+        // populated by the EventAuditLogger pipeline (which base64
+        // encodes the payload before insert via log_comment_encrypt
+        // -- the table name is misleading; `encrypt` is a per-row
+        // enum flag currently set to 'No' for these events, and the
+        // paired columns are sha3-512 tamper-detection checksums,
+        // not ciphertext).
         //
-        // We capture the max log id BEFORE the API call so an
-        // unrelated audit row written in parallel by another worker
-        // cannot be mistaken for this call's entry.
-        $maxLogIdBefore = $this->fetchIntScalar(
-            'SELECT COALESCE(MAX(id), 0) AS max_id FROM `log`',
-            'max_id',
-            [],
-        );
-
+        // Mint FIRST, then capture the baseline, so the mint's own
+        // kernel.terminate audit rows do not count toward the probe
+        // call's expected 2 success rows. The mint writes its own
+        // ApiResponseLoggerListener row post-flush; a 100ms wait
+        // lets that row commit before we snapshot the max id.
         $mint = PasswordGrant::mintUserRoleToken(
             $this->baseUrl,
             $this->clientId,
@@ -248,6 +262,13 @@ class AuditLogIntegrityApiTest extends TestCase
             self::SCOPE,
         );
         $accessToken = $mint['access_token'];
+        usleep(100_000); // 100ms: wait for mint's terminate-time audit row
+
+        $maxLogIdBefore = $this->fetchIntScalar(
+            'SELECT COALESCE(MAX(id), 0) AS max_id FROM `log`',
+            'max_id',
+            [],
+        );
 
         $callResp = $this->buildClient()->get($this->baseUrl . self::PROBE_URL_PATH, [
             'headers' => ['Authorization' => 'Bearer ' . $accessToken],
@@ -265,12 +286,22 @@ class AuditLogIntegrityApiTest extends TestCase
         //             (user=admin, success=1, joined api_log row)
         // Assert both are present. A refactor that drops either one
         // would reduce the audit trail and MUST trip this test.
-        $successApiRows = $this->fetchIntScalar(
-            'SELECT COUNT(*) AS c FROM `log` '
-            . 'WHERE id > ? AND event = ? AND success = ?',
-            'c',
-            [$maxLogIdBefore, 'api', 1],
-        );
+        //
+        // The listener row writes on kernel.terminate — bounded retry
+        // (20 × 50ms = 1s max) matches the api_log test's pattern.
+        $successApiRows = 0;
+        for ($attempt = 0; $attempt < 20; $attempt++) {
+            $successApiRows = $this->fetchIntScalar(
+                'SELECT COUNT(*) AS c FROM `log` '
+                . 'WHERE id > ? AND event = ? AND success = ?',
+                'c',
+                [$maxLogIdBefore, 'api', 1],
+            );
+            if ($successApiRows >= 2) {
+                break;
+            }
+            usleep(50_000);
+        }
         self::assertGreaterThanOrEqual(
             2,
             $successApiRows,
