@@ -207,10 +207,23 @@ class AuditLogIntegrityApiTest extends TestCase
             $row['client_id'],
             'api_log.client_id must carry the OAuth2 client whose bearer was presented',
         );
-        self::assertGreaterThan(
-            0,
+        // Bind the user_id to the resolved admin id specifically, not
+        // just "any positive integer." A regression that wrote a
+        // different user's id to api_log.user_id (e.g. the first row
+        // of users, or a service account) would still have passed the
+        // previous assertGreaterThan(0, ...) check.
+        $adminIdRaw = QueryUtils::fetchSingleValue(
+            "SELECT id FROM users WHERE username = 'admin' AND active = 1",
+            'id',
+            [],
+        );
+        self::assertIsNumeric($adminIdRaw, 'Seeded active admin user must exist');
+        $adminId = (int) $adminIdRaw;
+        self::assertGreaterThan(0, $adminId);
+        self::assertSame(
+            $adminId,
             $row['user_id'],
-            'api_log.user_id must carry the resolved user id (admin), not 0',
+            'api_log.user_id must equal the seeded admin id (not just a positive integer)',
         );
         self::assertSame(
             'GET',
