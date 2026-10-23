@@ -16,9 +16,9 @@ declare(strict_types=1);
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Billing\FeeSheetAppointmentStatusPrompt;
+use OpenEMR\Billing\FeeSheetAppointmentStatusSetter;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -41,24 +41,18 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
 }
 
 $pid = $session->get('pid');
-$encounter = $request->request->getInt('encounter');
-$eid = $request->request->getInt('eid');
-
-// Only the appointment the fee sheet would ask about, for an encounter of the current patient.
-$visitDate = is_numeric($pid) ? QueryUtils::fetchSingleValue(
-    'SELECT DATE(date) AS visit_date FROM form_encounter WHERE pid = ? AND encounter = ?',
-    'visit_date',
-    [(int) $pid, $encounter]
-) : null;
-$prompt = is_string($visitDate)
-    ? (new FeeSheetAppointmentStatusPrompt(OEGlobalsBag::getInstance()->getString(FeeSheetAppointmentStatusPrompt::GLOBAL_NAME)))
-        ->appointmentFor((int) $pid, $visitDate)
-    : null;
-if ($prompt === null || $prompt->eid !== $eid) {
+$username = $session->get('authUser');
+$setter = new FeeSheetAppointmentStatusSetter(
+    new FeeSheetAppointmentStatusPrompt(OEGlobalsBag::getInstance()->getString(FeeSheetAppointmentStatusPrompt::GLOBAL_NAME)),
+    new AppointmentService()
+);
+$set = is_numeric($pid) && is_string($username) && $setter->set(
+    (int) $pid,
+    $request->request->getInt('encounter'),
+    $request->request->getInt('eid'),
+    $username
+);
+if (!$set) {
     http_response_code(409);
-    echo json_encode(['ok' => false]);
-    exit;
 }
-
-(new AppointmentService())->updateAppointmentStatus($prompt->eid, $prompt->statusCode, $session->get('authUserID'), $encounter);
-echo json_encode(['ok' => true]);
+echo json_encode(['ok' => $set]);
