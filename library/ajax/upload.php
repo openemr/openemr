@@ -93,8 +93,15 @@ $patient_id = filter_input(INPUT_GET, 'patient_id');
 $category_id = filter_input(INPUT_GET, 'parent_id');
 
 if ($isPortal ?? false) {
+    // The upload box is only rendered when portal uploads are enabled, so a request while they are off is not a normal use.
+    if (!OEGlobalsBag::getInstance()->getBoolean('allow_portal_uploads')) {
+        AccessDeniedHelper::deny("Portal document uploads are disabled");
+    }
     $owner = OEGlobalsBag::getInstance()->get('userauthorized');
     $files = getMultiple();
+    // Same file types the portal upload box offers (see initFileDrop in onsitedocuments.js); the browser filter is not a safeguard.
+    $allowedExtensions = ['pdf', 'png', 'jpg', 'jpeg', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'tsv', 'ppt', 'pptx', 'odt', 'rtf'];
+    $rtn = [];
     if (count($files["file"] ?? []) > 0) {
         $messageService = new MessageService();
         $data = [];
@@ -104,12 +111,17 @@ if ($isPortal ?? false) {
         $note['from'] = 'portal-user';
         $note['message_status'] = 'New';
         $note['title'] = 'New Document';
-        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", [$category_id])['id'] ?: 3;
+        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", [$category_id])['id'] ?? 3;
         foreach ($files["file"] as $file) {
-            $name = $file['name'];
-            $type = $file['type'];
-            $tmp_name = $file['tmp_name'];
-            $size = $file['size'];
+            $name = (string)($file['name'] ?? '');
+            $type = $file['type'] ?? '';
+            $tmp_name = $file['tmp_name'] ?? '';
+            $size = $file['size'] ?? 0;
+            $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+            if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !in_array($extension, $allowedExtensions, true)) {
+                $rtn[] = ['ok' => false, 'name' => $name, 'error' => 'not_accepted'];
+                continue;
+            }
             $data = addNewDocument(
                 $name,
                 $type,
@@ -123,12 +135,19 @@ if ($isPortal ?? false) {
                 '',
                 true
             );
-            $rtn[] = $data;
+            // addNewDocument() returns false when the document could not be saved: only a returned document id counts as saved.
+            if (is_array($data) && !empty($data['doc_id'])) {
+                $rtn[] = ['ok' => true, 'name' => $name, 'doc_id' => (int)$data['doc_id']];
+            } else {
+                $rtn[] = ['ok' => false, 'name' => $name, 'error' => 'not_saved'];
+            }
         }
-        // give user a break and send just one message for multi documents
+        // give user a break and send just one message for multi documents, and only for documents that were saved
         $names = '';
         foreach ($rtn as $data) {
-            $names .= '"' . $data['name'] . '", ';
+            if (!empty($data['ok'])) {
+                $names .= '"' . preg_replace('/[<>"&\']/', '', $data['name']) . '", ';
+            }
         }
         if (!empty($names)) {
             $note['body'] = xl('A Portal Patient has uploaded new documents titled') .
@@ -137,8 +156,10 @@ if ($isPortal ?? false) {
                 xl("Please review and take any necessary actions");
             $messageService->insert($pid, $note);
         }
-        echo text(json_encode($rtn));
     }
+    // The page reads this JSON to tell the patient what happened; text() would HTML-escape quotes and break it.
+    header('Content-Type: application/json');
+    echo json_encode($rtn, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
     exit;
 }
 if (!empty($_FILES)) {
