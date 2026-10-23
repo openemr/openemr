@@ -457,13 +457,17 @@ class AuthorizationGrantPublicClientPkceTest extends TestCase
         return [$csrf, $action];
     }
 
+    /**
+     * An HTTP client that does not send the authorize URL as the Referer.
+     */
     private function buildClient(): Client
     {
         return new Client([
             'verify' => false,
             'http_errors' => false,
             'cookies' => new CookieJar(),
-            'allow_redirects' => ['max' => 10, 'strict' => true, 'referer' => true, 'protocols' => ['http', 'https']],
+            // A random client id in the Referer trips the nginx word filter.
+            'allow_redirects' => ['max' => 10, 'strict' => true, 'referer' => false, 'protocols' => ['http', 'https']],
             'timeout' => 15,
         ]);
     }
