@@ -19,7 +19,8 @@ final class StatementRecipient
 {
     /**
      * The statement's "to" block: a name, then address lines. A guardian's name is used
-     * when set; their address too when they have one, else the patient's.
+     * when set; their address too when it has a street and a city, else the patient's, so a
+     * partial guardian address never makes an unmailable statement.
      *
      * @param array<mixed> $patient a patient_data row: names, address and guardian columns
      * @return list<string>
@@ -29,7 +30,7 @@ final class StatementRecipient
         $get = static fn (string $column): string => is_string($patient[$column] ?? null) ? trim($patient[$column]) : '';
 
         $guardian = $get('guardiansname');
-        if ($guardian !== '' && ($get('guardianaddress') !== '' || $get('guardiancity') !== '')) {
+        if ($guardian !== '' && $get('guardianaddress') !== '' && $get('guardiancity') !== '') {
             return self::block($guardian, [$get('guardianaddress')], $get('guardiancity'), $get('guardianstate'), $get('guardianpostalcode'));
         }
 

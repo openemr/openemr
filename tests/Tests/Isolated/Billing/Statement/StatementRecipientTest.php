@@ -49,6 +49,14 @@ final class StatementRecipientTest extends TestCase
                 ['guardiansname' => 'Pat Parent', 'guardianaddress' => '', 'guardiancity' => null],
                 ['Pat Parent', ...$patientAddress],
             ],
+            'guardian city but no street: the guardian at the patient\'s' => [
+                ['guardiansname' => 'Pat Parent', 'guardianaddress' => '', 'guardiancity' => 'Barre', 'guardianstate' => 'VT', 'guardianpostalcode' => '05641'],
+                ['Pat Parent', ...$patientAddress],
+            ],
+            'guardian street but no city: the guardian at the patient\'s' => [
+                ['guardiansname' => 'Pat Parent', 'guardianaddress' => '9 Elm St', 'guardiancity' => ''],
+                ['Pat Parent', ...$patientAddress],
+            ],
             'guardian name blank: the patient, whatever the guardian address' => [
                 ['guardiansname' => '  ', 'guardianaddress' => '9 Elm St', 'guardiancity' => 'Barre'],
                 ['Ann Patient', ...$patientAddress],
