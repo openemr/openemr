@@ -16,8 +16,8 @@ namespace OpenEMR\Common\Logging;
 
 /**
  * Statement keeps a row for every SELECT. Request keeps one summary of the
- * user action. An unrecognized stored value stays on statement so a bad
- * setting does not drop the per-query record.
+ * user action. An unrecognized stored value uses the summary, so a bad
+ * setting does not start a row per query.
  */
 enum AuditQueryDetail: string
 {
@@ -26,6 +26,6 @@ enum AuditQueryDetail: string
 
     public static function fromGlobal(string $value): self
     {
-        return self::tryFrom($value) ?? self::Statement;
+        return self::tryFrom($value) ?? self::Request;
     }
 }

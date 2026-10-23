@@ -25,7 +25,7 @@ class AuditConfig
         public readonly bool $queryEvents,
         public readonly bool $httpRequestEvents,
         private readonly array $enabledEventTypes,
-        public readonly AuditQueryDetail $queryDetail = AuditQueryDetail::Statement,
+        public readonly AuditQueryDetail $queryDetail = AuditQueryDetail::Request,
     ) {
     }
 
