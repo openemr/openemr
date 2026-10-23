@@ -29,6 +29,9 @@ FROM alpine:${ALPINE_VERSION} AS base
 # Important: When updating PHP version, also update php.ini file to match
 ARG PHP_VERSION=8.5
 ENV PHP_VERSION=${PHP_VERSION}
+# Fails the build rather than ship a PHP missing a security fix that Alpine
+# has not packaged yet
+ARG PHP_MIN_VERSION=8.5.12
 # Create abbreviated version (e.g., "8.5" -> "85") for package naming
 ARG PHP_VERSION_ABBR=${PHP_VERSION//./}
 ENV PHP_VERSION_ABBR=${PHP_VERSION_ABBR}
@@ -83,7 +86,7 @@ RUN apk add --no-cache \
 # Performance: php-opcache, php-pecl-apcu, php-redis, php-session
 # Other: php-fpm, php-phar, php-zip, php-zlib, php-ldap, php-sockets, php-tokenizer
 RUN apk add --no-cache \
-    php${PHP_VERSION_ABBR} \
+    "php${PHP_VERSION_ABBR}>=${PHP_MIN_VERSION}" \
     php${PHP_VERSION_ABBR}-apache2 \
     php${PHP_VERSION_ABBR}-bcmath \
     php${PHP_VERSION_ABBR}-calendar \
