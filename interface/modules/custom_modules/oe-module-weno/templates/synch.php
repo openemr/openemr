@@ -64,11 +64,6 @@ try {
 if ($result == true) {
     $wenoLog->insertWenoLog("Sync Report", "Success");
     http_response_code(200);
-} elseif ($logProperties->wasSkippedForLock()) {
-    // Another sync (the widget's auto-sync, another tab, or the background
-    // service) is already running. Answer 409 so the widget can say so
-    // instead of reporting a credentials failure.
-    http_response_code(409);
 } else {
     http_response_code(500);
 }

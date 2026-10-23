@@ -1,90 +1,50 @@
-// Only one prescription sync runs from this page at a time. After returning
-// from e-Prescribe the widget starts one on its own (sync_report). A Sync click
-// while that was running started a second sync on the server; both write the
-// same report file, so the click failed. The Sync button is disabled while a
-// sync runs, and the server answers 409 if a sync from elsewhere (another tab,
-// the background service) is already running.
+// True while a sync started from this widget is running. The widget starts
+// one on its own after returning from e-Prescribe (sync_report); the Sync
+// button is disabled until it finishes so it cannot start a second one.
 let wenoSyncRunning = false;
 
-function wenoSyncText(text) {
-    return typeof xl === 'function' ? xl(text) : text;
-}
-
-function setWenoSyncBusy(busy) {
-    wenoSyncRunning = busy;
+function setWenoSyncRunning(running) {
+    wenoSyncRunning = running;
     const button = document.getElementById("sync-button");
-    const icon = document.getElementById("sync-icon");
     if (button) {
-        button.setAttribute("aria-disabled", busy ? "true" : "false");
-        button.classList.toggle("disabled", busy);
-        button.style.pointerEvents = busy ? "none" : "";
-        button.style.opacity = busy ? "0.5" : "";
-        button.title = busy ? wenoSyncText("A prescription sync is running.") : "";
+        button.classList.toggle("disabled", running);
+        button.style.pointerEvents = running ? "none" : "";
+        button.setAttribute("aria-disabled", running ? "true" : "false");
     }
-    if (icon) {
-        icon.classList.toggle("fa-spin", busy);
+    const syncIcon = document.getElementById("sync-icon");
+    if (syncIcon) {
+        syncIcon.classList.toggle("fa-spin", running);
     }
-}
-
-function postWenoSync() {
-    top.restoreSession();
-    const formData = new FormData();
-    formData.append("key", "sync");
-    return fetch('../../modules/custom_modules/oe-module-weno/templates/synch.php', {
-        method: 'POST',
-        body: formData
-    });
-}
-
-// Shows a short-lived notice, then puts back whatever the element showed
-// before (the server may have rendered a setup notice into #sync-alert).
-function showWenoSyncInfo(element, msg) {
-    if (!element) {
-        return;
-    }
-    const previousClass = element.className;
-    const previousHtml = element.innerHTML;
-    element.classList.remove("d-none", "alert-success", "alert-danger");
-    element.classList.add("alert", "alert-info");
-    element.textContent = msg;
-    setTimeout(function () {
-        element.className = previousClass;
-        element.innerHTML = previousHtml;
-    }, 5000);
-}
-
-// Unlike the info notice, an error stays on screen until the page reloads.
-function showWenoSyncError(element, msg) {
-    if (!element) {
-        return;
-    }
-    element.classList.remove("d-none", "alert-success", "alert-info");
-    element.classList.add("alert", "alert-danger");
-    element.textContent = msg;
 }
 
 function sync_weno() {
     if (wenoSyncRunning) {
         return;
     }
+    top.restoreSession();
     const syncIcon = document.getElementById("sync-icon");
     const syncAlert = document.getElementById("sync-alert");
-    setWenoSyncBusy(true);
+    const url = '../../modules/custom_modules/oe-module-weno/templates/synch.php';
 
-    postWenoSync().then(response => {
-        if (response.status === 409) {
-            setWenoSyncBusy(false);
-            showWenoSyncInfo(syncAlert, wenoSyncText("A prescription sync is already running. Use Reload after it finishes."));
-            return;
-        }
+    setWenoSyncRunning(true);
+
+    let formData = new FormData();
+    formData.append("key", "sync");
+
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    }).then(response => {
         if (!response.ok) {
+            // If the response status code is not in the 200-299 range, reject the promise
             throw new Error('Server responded with an error status: ' + response.status);
+        } else {
+            // setting alert details
+            wenoAlertManager("success", syncAlert, syncIcon);
+            refreshDemographics();
         }
-        // Both alert paths reload the page, so the button stays disabled.
-        wenoAlertManager("success", syncAlert, syncIcon);
-        refreshDemographics();
     }).catch(error => {
-        console.log(error.message);
+        console.log(error.message)
         wenoAlertManager("failed", syncAlert, syncIcon);
     });
 }
@@ -93,30 +53,23 @@ function sync_report(pid = '') {
     if (wenoSyncRunning) {
         return;
     }
-    setWenoSyncBusy(true);
+    top.restoreSession();
+    setWenoSyncRunning(true);
+    const url = '../../modules/custom_modules/oe-module-weno/templates/synch.php';
+    let formData = new FormData();
+    formData.append("key", "sync");
 
-    postWenoSync().then(response => {
-        if (response.status === 409) {
-            // Another sync is already importing; say so on the
-            // "Checking Sync Report" notice instead of hiding it.
-            showWenoSyncInfo(
-                document.getElementById("resync-alert"),
-                wenoSyncText("A prescription sync is already running. Use Reload after it finishes.")
-            );
-            setWenoSyncBusy(false);
-            return;
-        }
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    }).then(response => {
         if (!response.ok) {
             throw new Error('Server responded with an error status: ' + response.status);
         }
         refreshDemographics();
     }).catch(error => {
         console.log(error.message);
-        showWenoSyncError(
-            document.getElementById("resync-alert"),
-            wenoSyncText("The prescription report could not be refreshed. The prescriptions shown may be out of date.")
-        );
-        setWenoSyncBusy(false);
+        setWenoSyncRunning(false);
     });
 }
 

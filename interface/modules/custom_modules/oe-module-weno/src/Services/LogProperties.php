@@ -63,11 +63,6 @@ class LogProperties
      * @var TransmitProperties
      */
     private $provider;
-    /**
-     * True when the last logSync() call was skipped because another sync held
-     * the sync lock. Lets callers tell lock contention from a failed sync.
-     */
-    private bool $skippedForLock = false;
 
     /**
      * LogProperties constructor.
@@ -175,44 +170,9 @@ class LogProperties
     }
 
     /**
-     * Download the Weno sync report and import it. Only one sync runs at a
-     * time; a call made while another sync is running is skipped and returns
-     * false, and wasSkippedForLock() then reports true (see SyncLock).
-     * A lock directory or lock file that cannot be created or opened is not
-     * contention: SyncLock throws, so callers report it as a failure.
-     *
      * @throws Exception
-     * @throws \RuntimeException when the sync lock cannot be created or opened.
      */
     public function logSync($tasked = 'background'): bool
-    {
-        $this->skippedForLock = false;
-        $lock = SyncLock::forSite(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR'));
-        if (!$lock->tryAcquire()) {
-            $this->skippedForLock = true;
-            (new WenoLogService())->insertWenoLog("Sync Report", "Skipped, another sync is already running.");
-            return false;
-        }
-        try {
-            return $this->runLogSync(is_string($tasked) ? $tasked : 'background');
-        } finally {
-            $lock->release();
-        }
-    }
-
-    /**
-     * Whether the last logSync() returned false only because another sync was
-     * already running, rather than because the sync itself failed.
-     */
-    public function wasSkippedForLock(): bool
-    {
-        return $this->skippedForLock;
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function runLogSync(string $tasked): bool
     {
         $wenoLog = new WenoLogService();
         $provider_info['email'] = $this->weno_admin_email;
