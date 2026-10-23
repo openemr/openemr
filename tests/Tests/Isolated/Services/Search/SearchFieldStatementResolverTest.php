@@ -259,6 +259,41 @@ class SearchFieldStatementResolverTest extends TestCase
     }
 
     #[Test]
+    public function testTokenFieldMissingModifierReadsTheRequestValue(): void
+    {
+        // a FHIR request sends :missing=true or :missing=false as a string, not a boolean
+        $notMissing = new TokenSearchField('sex', ['false']);
+        $notMissing->setModifier(SearchModifier::MISSING);
+        $this->assertSame(
+            "(sex IS NOT NULL AND (CAST(sex AS CHAR) != '' OR TRIM(CAST(sex AS BINARY)) != '')) ",
+            SearchFieldStatementResolver::resolveTokenField($notMissing)->getFragment()
+        );
+
+        $missing = new TokenSearchField('sex', ['true']);
+        $missing->setModifier(SearchModifier::MISSING);
+        $this->assertSame(
+            "(sex IS NULL OR (CAST(sex AS CHAR) = '' AND TRIM(CAST(sex AS BINARY)) = '')) ",
+            SearchFieldStatementResolver::resolveTokenField($missing)->getFragment()
+        );
+    }
+
+    #[Test]
+    public function testStringFieldMissingModifierFragments(): void
+    {
+        $missing = SearchFieldStatementResolver::resolveStringSearchField(
+            new StringSearchField('lname', ['true'], SearchModifier::MISSING)
+        );
+        $this->assertSame("(lname IS NULL OR lname = '')", $missing->getFragment());
+        $this->assertSame([], $missing->getBoundValues());
+
+        $notMissing = SearchFieldStatementResolver::resolveStringSearchField(
+            new StringSearchField('lname', ['false'], SearchModifier::MISSING)
+        );
+        $this->assertSame("(lname IS NOT NULL AND lname != '')", $notMissing->getFragment());
+        $this->assertSame([], $notMissing->getBoundValues());
+    }
+
+    #[Test]
     public function testReferenceFieldFragmentAndBinds(): void
     {
         $fragment = SearchFieldStatementResolver::resolveReferenceField(

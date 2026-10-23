@@ -242,6 +242,9 @@ class SearchFieldStatementResolver
         $modifier = $searchField->getModifier(); // we aren't going to deal with modifiers just yet
         $values = $searchField->getValues();
         $clauses = [];
+        if ($modifier === SearchModifier::MISSING && count($values) !== 1) {
+            throw new SearchFieldException($field, "the missing modifier takes one value, true or false");
+        }
 
         foreach ($values as $value) {
             /** @var TokenSearchValue $value  */
@@ -251,7 +254,7 @@ class SearchFieldStatementResolver
                 // first invalid byte (often to '') with the sql_mode OpenEMR sets, or NULL in strict
                 // mode, so the uuid looked missing. A value whose bytes are not all spaces is never
                 // missing; every value the CHAR cast can read compares exactly as before.
-                if ($value->getCode() === false) {
+                if (!self::isMissingRequested($field, $value->getCode())) {
                     // often our tokens get treated as string values so we will do this here also
                     $clauses[] = "(" . $field . " IS NOT NULL AND (CAST(" . $field . " AS CHAR) != ''"
                         . " OR TRIM(CAST(" . $field . " AS BINARY)) != '')) ";
@@ -301,6 +304,20 @@ class SearchFieldStatementResolver
     }
 
     /**
+     * A FHIR request sends :missing as the string 'true' or 'false', and internal callers pass a boolean or null.
+     * Search values are not typed, so the match narrows the value here.
+     * @throws SearchFieldException for any other value
+     */
+    public static function isMissingRequested(string $field, mixed $value): bool
+    {
+        return match ($value) {
+            true, 'true', null => true,
+            false, 'false' => false,
+            default => throw new SearchFieldException($field, "the missing modifier must be true or false"),
+        };
+    }
+
+    /**
      * Given a search field and any modifier's it may have it converts it to the corresponding SearchQueryFragment
      * @param StringSearchField $searchField
      */
@@ -316,8 +333,17 @@ class SearchFieldStatementResolver
         $searchFragment = new SearchQueryFragment();
         $modifier = $searchField->getModifier();
         $values = $searchField->getValues();
+        if ($modifier === SearchModifier::MISSING && count($values) !== 1) {
+            throw new SearchFieldException($field, "the missing modifier takes one value, true or false");
+        }
 
         foreach ($values as $value) {
+            if ($modifier === SearchModifier::MISSING) {
+                $clauses[] = self::isMissingRequested($field, $value)
+                    ? "(" . $field . " IS NULL OR " . $field . " = '')"
+                    : "(" . $field . " IS NOT NULL AND " . $field . " != '')";
+                continue;
+            }
             $result = match ($modifier) {
                 SearchModifier::PREFIX => [$field . ' LIKE ?', $value . '%'],
                 SearchModifier::SUFFIX => [$field . ' LIKE ?', '%' . $value],
