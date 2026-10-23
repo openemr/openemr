@@ -574,10 +574,10 @@ class EventAuditLogger implements AuditLoggerInterface
                 $category = $this->eventCategoryFinder($comments, $eventCategory->value, $table);
                 $matchedTable = $table;
                 break;
-            } elseif (str_contains($truncated_sql, "form_")) {
+            } elseif (preg_match('/\b(form_[a-z0-9_]+)/i', $truncated_sql, $formMatch) === 1) {
+                $matchedTable = strtolower($formMatch[1]);
                 $eventCategory = EventCategory::PatientRecord;
-                $category = $this->eventCategoryFinder($comments, $eventCategory->value, $table);
-                $matchedTable = 'form';
+                $category = $this->eventCategoryFinder($comments, $eventCategory->value, $matchedTable);
                 break;
             }
         }
@@ -588,9 +588,9 @@ class EventAuditLogger implements AuditLoggerInterface
             return;
         }
 
-        /* If the event is a patient-record, then note the patient id */
+        /* A chart, order, lab, or schedule read belongs to the open patient. */
         $pid = 0;
-        if ($eventCategory === EventCategory::PatientRecord) {
+        if ($this->selectHasSessionPatient($eventCategory)) {
             $pid = $this->patientRecordPatientId();
         }
 
@@ -607,7 +607,7 @@ class EventAuditLogger implements AuditLoggerInterface
             } elseif (is_string($pid) && ctype_digit($pid) && (int) $pid > 0) {
                 $patientId = (int) $pid;
             }
-            $this->pendingSelects->add($matchedTable, $eventCategory->value, $outcome !== false, $patientId);
+            $this->pendingSelects->add($matchedTable, $eventCategory->value, $outcome !== false, $patientId, $category);
             $this->armQueryFlush();
             return;
         }
@@ -621,7 +621,6 @@ class EventAuditLogger implements AuditLoggerInterface
         $this->recordLogItem($success, $event, $user, $group, $comments, $pid, $category);
     }
 
-    /**
     /**
      * The patient set for this request, else the session's open chart, else 0.
      */
@@ -681,7 +680,28 @@ class EventAuditLogger implements AuditLoggerInterface
     public function flushAuditWrites(): void
     {
         $this->flushPendingQuerySummary();
-        $this->sink->flush();
+        try {
+            $this->sink->flush();
+        } catch (\RuntimeException) {
+            // The audit tables are not ready. The page still finishes.
+            error_log('OpenEMR audit log was not written');
+        }
+    }
+
+    /**
+     * Whether this read is about the patient already open in the session.
+     */
+    private function selectHasSessionPatient(EventCategory $category): bool
+    {
+        return match ($category) {
+            EventCategory::PatientRecord,
+            EventCategory::Order,
+            EventCategory::LabOrder,
+            EventCategory::LabResult,
+            EventCategory::Scheduling => true,
+            EventCategory::SecurityAdministration,
+            EventCategory::Other => false,
+        };
     }
 
 

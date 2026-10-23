@@ -47,13 +47,13 @@ readonly class LogTablesSink implements SinkInterface
      */
     public function flush(): void
     {
-        $events = $this->buffer->drain();
+        $events = $this->buffer->pending();
         if ($events === []) {
             return;
         }
 
-        $this->conn->beginTransaction();
         try {
+            $this->conn->beginTransaction();
             $this->conn->executeStatement(
                 'INSERT INTO log_chain_anchor (id, log_id, chain) VALUES (1, 0, ?) ON DUPLICATE KEY UPDATE id = id',
                 [AuditChain::genesis()],
@@ -76,11 +76,12 @@ readonly class LogTablesSink implements SinkInterface
                 [$this->buffer->lastLogId, $previous],
             );
             $this->conn->commit();
-        } catch (\Throwable $failure) {
+            $this->buffer->drain();
+        } catch (\Doctrine\DBAL\Exception $failure) {
             if ($this->conn->isTransactionActive()) {
                 $this->conn->rollBack();
             }
-            throw $failure;
+            throw new \RuntimeException('The audit log could not be written', 0, $failure);
         }
     }
 
