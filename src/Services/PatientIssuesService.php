@@ -281,9 +281,17 @@ class PatientIssuesService extends BaseService
             if (is_string($uuid) && $uuid !== '') {
                 return $uuid; // already connected
             }
-            // Linked by code that saves no uuid (e.g. the group encounter form): give the link one.
-            $uuid = UuidRegistry::getRegistryForTable("issue_encounter")->createUuid();
-            QueryUtils::sqlStatementThrowException("UPDATE issue_encounter SET uuid = ? WHERE id = ?", [$uuid, $existing['id']]);
+            // Linked by code that saves no uuid (e.g. the group encounter form): give the link
+            // one, unless a concurrent request already did, and return the one stored.
+            $id = $existing['id'] ?? null;
+            if (!is_int($id) && !is_string($id)) {
+                throw new \RuntimeException('issue_encounter row has no id');
+            }
+            UuidRegistry::createMissingUuidForRow('issue_encounter', 'id', $id);
+            $uuid = QueryUtils::fetchSingleValue("SELECT uuid FROM issue_encounter WHERE id = ?", 'uuid', [$id]);
+            if (!is_string($uuid) || $uuid === '') {
+                throw new \RuntimeException('issue_encounter row has no uuid after repair');
+            }
             return $uuid;
         }
         $session = SessionWrapperFactory::getInstance()->getActiveSession();

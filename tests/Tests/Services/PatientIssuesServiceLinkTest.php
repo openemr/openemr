@@ -70,6 +70,11 @@ class PatientIssuesServiceLinkTest extends TestCase
         $this->assertCount(1, $links);
         $this->assertNotSame('', $uuid);
         $this->assertSame($uuid, $links[0]['uuid']);
+        $this->assertCount(
+            1,
+            QueryUtils::fetchRecords("SELECT 1 FROM uuid_registry WHERE uuid = ? AND table_name = 'issue_encounter'", [$uuid]),
+            'the new uuid is registered once'
+        );
     }
 
     /**
