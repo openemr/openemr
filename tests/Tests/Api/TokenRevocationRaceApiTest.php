@@ -49,7 +49,14 @@ class TokenRevocationRaceApiTest extends TestCase
     /** @var list<string> */
     private array $registeredClientIds = [];
     private mixed $originalPasswordGrantSetting = null;
-    private bool $originalPasswordGrantSettingWasSet = false;
+    // Nullable so tearDown can distinguish "snapshot not taken" (setUp
+    // failed/skipped before the globals read) from "snapshot taken,
+    // setting was absent before setUp." PHPUnit still invokes
+    // tearDown after a setUp failure, so without the null guard the
+    // default false would make tearDown remove oauth_password_grant
+    // even when the setting existed before the test, bleeding into
+    // later tests in the same process.
+    private ?bool $originalPasswordGrantSettingWasSet = null;
 
     protected function setUp(): void
     {
@@ -72,12 +79,18 @@ class TokenRevocationRaceApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        $globals = OEGlobalsBag::getInstance();
-        if ($this->originalPasswordGrantSettingWasSet) {
-            $globals->set('oauth_password_grant', $this->originalPasswordGrantSetting);
-        } else {
-            $globals->remove('oauth_password_grant');
-            unset($GLOBALS['oauth_password_grant']);
+        // Skip password-grant globals restore if setUp did not record a
+        // snapshot (e.g. a server-probe failure skipped the test).
+        // Still proceed with client cleanup — any oauth_clients rows
+        // registered before the setUp exit must still be removed.
+        if ($this->originalPasswordGrantSettingWasSet !== null) {
+            $globals = OEGlobalsBag::getInstance();
+            if ($this->originalPasswordGrantSettingWasSet) {
+                $globals->set('oauth_password_grant', $this->originalPasswordGrantSetting);
+            } else {
+                $globals->remove('oauth_password_grant');
+                unset($GLOBALS['oauth_password_grant']);
+            }
         }
         foreach ($this->registeredClientIds as $clientId) {
             QueryUtils::sqlStatementThrowException(
@@ -126,17 +139,23 @@ class TokenRevocationRaceApiTest extends TestCase
         ];
         $endpoint = $this->baseUrl . '/apis/default/fhir/Patient';
 
-        // Worker-affinity note: both requests reuse $http, so Guzzle
-        // keep-alive routes them through the same TCP connection and
-        // (on PHP-FPM/Apache) the same worker process. More importantly,
-        // the invariant under test does not depend on worker identity:
-        // BearerTokenAuthorizationStrategy::authorizeRequest calls
-        // AccessTokenRepository::isAccessTokenRevokedInDatabase($jti)
-        // on every request, so a fresh DB SELECT happens regardless of
-        // which worker handles the request. If a per-process token cache
-        // were ever introduced, this test would still catch the
-        // regression because keep-alive pins both requests to the same
-        // worker.
+        // Scope note: this test locks the "re-check revocation on
+        // every request" invariant by exercising a happens-before
+        // sequence (succeed → revoke → fail) against the server's
+        // actual DB-backed check in
+        // BearerTokenAuthorizationStrategy::authorizeRequest →
+        // AccessTokenRepository::isAccessTokenRevokedInDatabase.
+        //
+        // It does NOT detect a worker-local token cache. Apache's MPM
+        // (or PHP-FPM in other deployments) can distribute sequential
+        // requests across worker processes; Guzzle keep-alive reuses
+        // one TCP connection but the dispatcher may still route the
+        // next request through a different child. If a per-worker
+        // cache were introduced, catching it reliably would need
+        // either a single-worker test environment or a cache-probe
+        // endpoint. The current test is a regression gate against
+        // the fresh-DB-read invariant, not a per-process cache
+        // detector.
         $before = $http->get($endpoint, ['headers' => $headers]);
         $this->assertSame(
             200,
@@ -266,12 +285,16 @@ class TokenRevocationRaceApiTest extends TestCase
         $data = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id']);
+        // Track the client row for tearDown cleanup BEFORE the
+        // remaining fallible operations (client_secret assertion +
+        // grant_types UPDATE). If either fails after DCR succeeded,
+        // teardown still needs to remove the row.
+        $this->registeredClientIds[] = $data['client_id'];
         $this->assertIsString($data['client_secret']);
         QueryUtils::sqlStatementThrowException(
             'UPDATE `oauth_clients` SET `grant_types` = ?, `is_enabled` = 1 WHERE `client_id` = ?',
             ['password', $data['client_id']]
         );
-        $this->registeredClientIds[] = $data['client_id'];
         return [$data['client_id'], $data['client_secret']];
     }
 
