@@ -14,6 +14,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -214,6 +215,38 @@ try {
         ['exception' => $e]
     );
     die("<p class='text-danger h5 m-3'>" . xlt('Can not continue') . '</p>');
+}
+
+$assessmentTitle = '';
+if ($mode !== 'new') {
+    $titlePid = $nonNegativeInt($session->get('pid', 0)) ?? 0;
+    $titleEncounter = $nonNegativeInt($session->get('encounter', 0)) ?? 0;
+    // Resolve the saved encounter rather than the currently selected encounter.
+    if ($mode === 'update') {
+        $formContext = QueryUtils::querySingleRow(
+            'SELECT encounter FROM forms WHERE form_id = ? AND formdir = ? AND pid = ? AND deleted = 0 LIMIT 1',
+            [$formid, 'questionnaire_assessments', $titlePid]
+        );
+        $titleEncounter = $nonNegativeInt($formContext['encounter'] ?? null) ?? 0;
+    }
+    $titlePatient = QueryUtils::querySingleRow('SELECT fname, mname, lname FROM patient_data WHERE pid = ?', [$titlePid]);
+    $patientName = trim(implode(' ', array_filter([
+        $scalarString($titlePatient['fname'] ?? null),
+        $scalarString($titlePatient['mname'] ?? null),
+        $scalarString($titlePatient['lname'] ?? null),
+    ], static fn (string $part): bool => $part !== '')));
+    $titleVisit = QueryUtils::querySingleRow(
+        'SELECT date FROM form_encounter WHERE pid = ? AND encounter = ? LIMIT 1',
+        [$titlePid, $titleEncounter]
+    );
+    $encounterDate = $scalarString($titleVisit['date'] ?? null);
+    $assessmentTitle = $formName;
+    if ($patientName !== '') {
+        $assessmentTitle .= ' ' . xl('for') . ' ' . $patientName;
+    }
+    if ($encounterDate !== '') {
+        $assessmentTitle .= ' ' . xl('on') . ' ' . $scalarString(oeFormatShortDate(substr($encounterDate, 0, 10)));
+    }
 }
 
 $topNote = true;
@@ -442,7 +475,8 @@ $formAction .= '&mode=' . urlencode($mode);
                     } ?>
                 </select>
             </div>
-            <div class="input-group <?php echo $mode === 'new' ? 'isNew' : 'd-none'; ?>">
+            <?php if ($mode === 'new') { ?>
+            <div class="input-group isNew">
                 <label class="font-weight-bold my-2" for="form_name"><?php echo xlt('Form Name'); ?>:</label>
                 <input
                     required
@@ -454,6 +488,10 @@ $formAction .= '&mode=' . urlencode($mode);
                     value="<?php echo attr($formName); ?>"
                 />
             </div>
+            <?php } else { ?>
+                <input type="hidden" id="form_name" name="form_name" value="<?php echo attr($formName); ?>" />
+                <h4 class="mt-2"><?php echo text($assessmentTitle); ?></h4>
+            <?php } ?>
         </div>
 
         <?php if ($mode !== 'new') { ?>
