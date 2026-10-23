@@ -661,6 +661,23 @@ class DrugSalesService extends BaseService
     }
 
     /**
+     * Display title of a warehouse list entry, '' when unknown or unset.
+     */
+    public function getWarehouseTitle(string $warehouseId): string
+    {
+        if ($warehouseId === '') {
+            return '';
+        }
+        $row = QueryUtils::fetchRecords(
+            "SELECT title FROM list_options WHERE list_id = 'warehouse' AND option_id = ?",
+            [$warehouseId]
+        )[0] ?? null;
+        $raw = is_array($row) ? ($row['title'] ?? '') : '';
+        $title = is_scalar($raw) ? (string)$raw : '';
+        return $title !== '' ? (string)xl_list_label($title) : '';
+    }
+
+    /**
      * The warehouse a lot is stored in, or null when the lot does not exist.
      */
     public function getLotWarehouseId(int $inventoryId): ?string

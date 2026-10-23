@@ -201,7 +201,8 @@
                             <select class="input-sm form-control" name="dispense_inventory_id" id="dispense_inventory_id" disabled>
                                 <option value="">{{'Select an in-house drug to load lots'|xlt}}</option>
                             </select>
-                            <small class="text-muted">{{'Default selection is the lot that expires next from your default warehouse.'|xlt}}</small>
+                            {# Read-only status of the clinic's warehouse policy for the current user; filled by loadLotsForDrug(). #}
+                            <div id="warehouse_policy_status" class="small text-muted mt-1" style="display:none;"></div>
                             <div id="off_site_warning" class="alert alert-warning mt-2" style="display:none;">
                                 <strong>{{'Off-site lot selected.'|xlt}}</strong>
                                 {{'This lot is not in your on-site (default) warehouse. Make sure you are physically dispensing from this exact lot. If the lot is in fact on-site, transfer it into your on-site warehouse first via Inventory → Management → Edit Lot.'|xlt}}
@@ -562,6 +563,7 @@
         $('#off_site_warning').hide();
         $('#no_default_warehouse_warning').hide();
         $('#strict_mode_notice').hide();
+        $('#warehouse_policy_status').hide();
         $sel.prop('disabled', true).empty();
         if (!drugId || drugId <= 0) {
             $sel.append($('<option>').val('').text({{'Select an in-house drug to load lots'|xlj}}));
@@ -589,6 +591,19 @@
             $('#no_default_warehouse_warning .no-default-loose').toggle(noDefault && !lotPickerRestrictToDefault);
             $('#no_default_warehouse_warning .no-default-strict').toggle(noDefault && lotPickerRestrictToDefault);
             $('.btn-presc-dispense').prop('disabled', false);
+            // Status line: the clinic setting as it applies to this user. It
+            // only reports; the setting itself lives in Administration → Globals.
+            var defaultWarehouseName = (data && (data.default_warehouse_title || data.default_warehouse)) || '';
+            var policyText;
+            if (lotPickerRestrictToDefault && lotPickerHasDefaultWarehouse) {
+                policyText = {{'Dispensing is restricted to your default warehouse:'|xlj}} + ' ' + defaultWarehouseName + '. ' +
+                    {{'Preselected is the lot from there that expires next.'|xlj}};
+            } else if (lotPickerRestrictToDefault) {
+                policyText = {{'Your clinic restricts dispensing to the default warehouse, but this is not in effect for you: no default warehouse is set.'|xlj}};
+            } else {
+                policyText = {{'Your clinic allows dispensing from any warehouse. Lots outside your default warehouse are marked off-site.'|xlj}};
+            }
+            $('#warehouse_policy_status').text(policyText).show();
             // In strict mode, surface why off-site lots in the dropdown
             // are greyed out — only when there are off-site lots to explain.
             var hasOffSite = false;
