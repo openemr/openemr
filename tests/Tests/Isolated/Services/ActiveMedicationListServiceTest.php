@@ -405,4 +405,37 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertStringContainsString('class="table table-sm"', $filled);
         $this->assertStringContainsString('>note<', $filled);
     }
+
+    public function testMergeKeepsTheIssueWhenTheStartMatches(): void
+    {
+        $rows = ActiveMedicationListService::merge(
+            [
+                [
+                    'title' => 'Metformin',
+                    'drug_dosage_instructions' => '500 mg daily',
+                    'begdate' => '2024-01-01',
+                ],
+                [
+                    'title' => 'Aspirin',
+                    'drug_dosage_instructions' => '81 mg daily',
+                ],
+            ],
+            [
+                [
+                    'drug' => 'Metformin',
+                    'dosage' => '1000 mg',
+                    'start_date' => '2024-01-01',
+                ],
+                [
+                    'drug' => 'Aspirin',
+                    'dosage' => '325 mg',
+                ],
+            ]
+        );
+        $this->assertCount(2, $rows);
+        $this->assertSame('issue', $rows[0]['source']);
+        $this->assertSame('500 mg daily', $rows[0]['dose']);
+        $this->assertSame('issue', $rows[1]['source']);
+        $this->assertSame('81 mg daily', $rows[1]['dose']);
+    }
 }
