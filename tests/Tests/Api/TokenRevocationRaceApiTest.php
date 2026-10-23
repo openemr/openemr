@@ -126,6 +126,17 @@ class TokenRevocationRaceApiTest extends TestCase
         ];
         $endpoint = $this->baseUrl . '/apis/default/fhir/Patient';
 
+        // Worker-affinity note: both requests reuse $http, so Guzzle
+        // keep-alive routes them through the same TCP connection and
+        // (on PHP-FPM/Apache) the same worker process. More importantly,
+        // the invariant under test does not depend on worker identity:
+        // BearerTokenAuthorizationStrategy::authorizeRequest calls
+        // AccessTokenRepository::isAccessTokenRevokedInDatabase($jti)
+        // on every request, so a fresh DB SELECT happens regardless of
+        // which worker handles the request. If a per-process token cache
+        // were ever introduced, this test would still catch the
+        // regression because keep-alive pins both requests to the same
+        // worker.
         $before = $http->get($endpoint, ['headers' => $headers]);
         $this->assertSame(
             200,
