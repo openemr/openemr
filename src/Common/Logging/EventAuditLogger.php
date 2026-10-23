@@ -43,6 +43,10 @@ class EventAuditLogger implements AuditLoggerInterface
 
         $site = $bag->getString('OE_SITE_DIR');
         $opts = DatabaseConnectionOptions::forSite($site);
+        $auditCredential = Audit\AuditDatabaseCredential::read($site);
+        if ($auditCredential instanceof Audit\AuditDatabaseCredential) {
+            $opts = $opts->withCredentials($auditCredential->user, $auditCredential->password);
+        }
         // IMPORTANT: this connection must be separate from the main application
         // connection. See notes in LogTablesSink and BreakglassChecker.
         $auditConn = DatabaseConnectionFactory::createDbal($opts, false);
@@ -668,7 +672,16 @@ class EventAuditLogger implements AuditLoggerInterface
             return;
         }
         $this->queryFlushArmed = true;
-        register_shutdown_function($this->flushPendingQuerySummary(...));
+        register_shutdown_function($this->flushAuditWrites(...));
+    }
+
+    /**
+     * Writes the SELECT summary, then the buffered audit rows, in one transaction.
+     */
+    public function flushAuditWrites(): void
+    {
+        $this->flushPendingQuerySummary();
+        $this->sink->flush();
     }
 
 
@@ -714,19 +727,7 @@ class EventAuditLogger implements AuditLoggerInterface
      */
     public function recordDisclosure($dates, $event, $pid, $recipient, $description, $user)
     {
-        $sql = <<<'SQL'
-        INSERT INTO extended_log (date, event, user, recipient, patient_id, description)
-        VALUES (?, ?, ?, ?, ?, ?)
-        SQL;
-        $values = [
-            $dates,
-            $event,
-            $user,
-            $recipient,
-            $pid,
-            $description,
-        ];
-        sqlInsertClean_audit($sql, $values);
+        (new PhiAccessDisclosureService())->record($dates, $event, $pid, $recipient, $description, $user);
     }
 
     /**
@@ -743,23 +744,7 @@ class EventAuditLogger implements AuditLoggerInterface
      */
     public function updateRecordedDisclosure($dates, $event, $recipient, $description, $disclosure_id)
     {
-        $sql = <<<'SQL'
-        UPDATE extended_log
-        SET
-            event = ?,
-            date = ?,
-            recipient = ?,
-            description = ?
-        WHERE id = ?
-        SQL;
-        $values = [
-            $event,
-            $dates,
-            $recipient,
-            $description,
-            $disclosure_id,
-        ];
-        sqlInsertClean_audit($sql, $values);
+        (new PhiAccessDisclosureService())->update($dates, $event, $recipient, $description, $disclosure_id);
     }
 
     /**
@@ -769,8 +754,7 @@ class EventAuditLogger implements AuditLoggerInterface
      */
     public function deleteDisclosure($deletelid)
     {
-        $sql = "delete from extended_log where id='" . add_escape_custom($deletelid) . "'";
-        sqlInsertClean_audit($sql);
+        (new PhiAccessDisclosureService())->delete($deletelid);
     }
 
     /**
@@ -840,6 +824,7 @@ class EventAuditLogger implements AuditLoggerInterface
         );
 
         $this->sink->record($auditEvent);
+        $this->armQueryFlush();
     }
 
     /**

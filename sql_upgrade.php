@@ -568,6 +568,8 @@ header('Content-type: text/html; charset=utf-8');
                     echo "<p class='text-success'>" . $line . "...</p><br />\n";
                     $versionService->update($desiredVersion);
 
+                    echo "<p class='text-success'>" . text(\OpenEMR\Common\Logging\Audit\AuditLogPrivilegeApplicator::ensure()) . "</p><br />\n";
+
                     echo "<p><p class='text-success'>" . xlt("Database and Access Control upgrade finished.") . "</p></p>\n";
                     echo "</div></body></html>\n";
                     exit();

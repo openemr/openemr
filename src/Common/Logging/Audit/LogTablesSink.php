@@ -33,14 +33,48 @@ readonly class LogTablesSink implements SinkInterface
     public function __construct(
         private Connection $conn,
         private readonly string $chainKey,
+        private AuditEventBuffer $buffer = new AuditEventBuffer(),
     ) {
     }
 
     public function record(Event $event): void
     {
+        $this->buffer->add($event);
+    }
+
+    /**
+     * Writes every event buffered for this request in one transaction.
+     */
+    public function flush(): void
+    {
+        $events = $this->buffer->drain();
+        if ($events === []) {
+            return;
+        }
+
         $this->conn->beginTransaction();
         try {
-            $this->write($event);
+            $this->conn->executeStatement(
+                'INSERT INTO log_chain_anchor (id, log_id, chain) VALUES (1, 0, ?) ON DUPLICATE KEY UPDATE id = id',
+                [AuditChain::genesis()],
+            );
+            $anchor = $this->conn->fetchAssociative(
+                'SELECT chain FROM log_chain_anchor WHERE id = 1 FOR UPDATE',
+            );
+            $previous = AuditChain::genesis();
+            if (is_array($anchor)) {
+                $stored = $anchor['chain'] ?? null;
+                if (is_string($stored) && $stored !== '') {
+                    $previous = $stored;
+                }
+            }
+            foreach ($events as $event) {
+                $previous = $this->write($event, $previous);
+            }
+            $this->conn->executeStatement(
+                'UPDATE log_chain_anchor SET log_id = ?, chain = ? WHERE id = 1',
+                [$this->buffer->lastLogId, $previous],
+            );
             $this->conn->commit();
         } catch (\Throwable $failure) {
             if ($this->conn->isTransactionActive()) {
@@ -50,23 +84,17 @@ readonly class LogTablesSink implements SinkInterface
         }
     }
 
-    private function write(Event $event): void
+    public function __destruct()
     {
-        $this->conn->executeStatement(
-            'INSERT INTO log_chain_anchor (id, log_id, chain) VALUES (1, 0, ?) ON DUPLICATE KEY UPDATE id = id',
-            [AuditChain::genesis()],
-        );
-        $anchor = $this->conn->fetchAssociative(
-            'SELECT chain FROM log_chain_anchor WHERE id = 1 FOR UPDATE',
-        );
-        $previous = AuditChain::genesis();
-        if (is_array($anchor)) {
-            $stored = $anchor['chain'] ?? null;
-            if (is_string($stored) && $stored !== '') {
-                $previous = $stored;
-            }
+        try {
+            $this->flush();
+        } catch (\RuntimeException) {
+            // The request is already ending.
         }
+    }
 
+    private function write(Event $event, string $previous): string
+    {
         $api = $event->api;
 
         // 1. insert entry into log table
@@ -89,6 +117,7 @@ readonly class LogTablesSink implements SinkInterface
         ];
         $this->conn->insert('log', $logData);
         $lastLogId = $this->conn->lastInsertId();
+        $this->buffer->lastLogId = (string) $lastLogId;
 
         $checksum = hash('sha3-512', implode('', array_values($logData)));
 
@@ -116,7 +145,7 @@ readonly class LogTablesSink implements SinkInterface
             $checksumGenerateApi = hash('sha3-512', implode('', array_values($apiLogData)));
         }
 
-        $chain = AuditChain::link($previous, (string) $lastLogId, $checksum, $this->chainKey);
+        $chain = AuditChain::link($previous, $this->buffer->lastLogId, $checksum, $this->chainKey);
 
         // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
         $logCommentData = [
@@ -134,9 +163,6 @@ readonly class LogTablesSink implements SinkInterface
             $this->conn->insert('api_log', $apiLogData);
         }
 
-        $this->conn->executeStatement(
-            'UPDATE log_chain_anchor SET log_id = ?, chain = ? WHERE id = 1',
-            [(string) $lastLogId, $chain],
-        );
+        return $chain;
     }
 }
