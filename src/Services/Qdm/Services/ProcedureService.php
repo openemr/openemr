@@ -37,6 +37,7 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
                     LEFT JOIN procedure_report REP ON O.procedure_order_id = REP.procedure_order_id
                     LEFT JOIN procedure_result RES ON REP.procedure_report_id = RES.procedure_report_id
                 WHERE O.procedure_order_type = 'order' AND O.activity != 0
+                AND " . self::notInDeletedForm('O.procedure_order_id', 'O.patient_id', 'procedure_order') . "
                 ";
 
         return $sql;

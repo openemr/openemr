@@ -125,6 +125,25 @@ abstract class AbstractQdmService
     }
 
     /**
+     * SQL that is true unless the row's form was deleted from the visit: delete_form.php sets
+     * forms.deleted = 1 and leaves the form's own rows in place. The form has to be the row's
+     * patient's too, since form ids can repeat across patients (the procedure order and others
+     * pick theirs with an unlocked MAX() + 1). A row with no forms row is kept.
+     *
+     * @param string $formId  the column holding the row's form id, as it appears in the query
+     * @param string $pid     the column holding the row's patient, as it appears in the query
+     * @param string $formdir the form's directory, as forms.formdir records it
+     */
+    public static function notInDeletedForm(string $formId, string $pid, string $formdir): string
+    {
+        return "NOT EXISTS (
+                    SELECT 1 FROM `forms`
+                    WHERE `forms`.`form_id` = $formId AND `forms`.`pid` = $pid
+                      AND `forms`.`formdir` = '$formdir' AND `forms`.`deleted` = 1
+                )";
+    }
+
+    /**
      * @return QdmRequestInterface
      */
     public function getRequest(): QdmRequestInterface
