@@ -33,6 +33,18 @@ $userid = $session->get('authUserID');
 $action = $_REQUEST['action'];
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
+
+// Validate the reg2 password gate before any HTML output so the redirect-back
+// to reg1 on bad password can send its Location header without depending on
+// output buffering being on.
+if ($action == 'reg2') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    $clearPass = CurrentRequest::get()->request->getString('clearPass', '');
+    if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $clearPass)) {
+        header("Location: mfa_u2f.php?action=reg1&error=auth");
+        exit();
+    }
+}
 ?>
 <html>
 <head>
@@ -159,15 +171,8 @@ function docancel() {
         </div>
             <?php
         } elseif ($action == 'reg2') {
-            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-            // Require current-password confirmation before persisting a new U2F
-            // factor so a hijacked session cannot silently add an attacker-held
-            // key. Mirrors the mfa_totp.php `reg2` password reprompt.
-            $clearPass = CurrentRequest::get()->request->getString('clearPass', '');
-            if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $clearPass)) {
-                header("Location: mfa_u2f.php?action=reg1&error=auth");
-                exit();
-            }
+            // CSRF + password reprompt already validated above the HTML output;
+            // just complete the registration here.
             try {
                 $data = $u2f->doRegister(json_decode((string) $_POST['form_request']), json_decode((string) $_POST['form_registration']));
             } catch (\u2flib_server\Error $e) {

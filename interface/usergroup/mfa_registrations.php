@@ -219,9 +219,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <h5 class="modal-title" id="deleteConfirmModalLabel"><?php echo xlt('Confirm Delete'); ?></h5>
                 </div>
                 <div class="modal-body">
-                    <p><?php echo xlt('Re-enter your OpenEMR login password to remove this authentication factor'); ?>: <strong id="delete_target_display"></strong></p>
+                    <p><?php echo xlt('Removing authentication factor'); ?>: <strong id="delete_target_display"></strong></p>
                     <input type="hidden" id="delete_target_method" value="" />
                     <input type="hidden" id="delete_target_name" value="" />
+                    <label for="delete_pass"><?php echo xlt('Re-enter your OpenEMR login password to confirm'); ?></label>
                     <input type="password" class="form-control" id="delete_pass" autocomplete="current-password" />
                 </div>
                 <div class="modal-footer">
