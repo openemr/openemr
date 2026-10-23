@@ -348,6 +348,68 @@ class OAuth2AttackScenarioTest extends TestCase
         $this->assertRejected($resp, 'Basic-auth password grant must reject a wrong client_secret');
     }
 
+    // ----- Authorize endpoint — response_type coverage -----
+
+    #[Test]
+    public function testAuthorizeRejectsImplicitResponseType(): void
+    {
+        // response_type=token selects the implicit grant per RFC 6749
+        // §4.2. The implicit grant is deprecated by RFC 9700 (OAuth 2.0
+        // Security BCP) §2.1.2 and OAuth 2.1 drops it entirely. OpenEMR
+        // does not enable the implicit grant in its authorization
+        // server, so a /authorize GET with response_type=token must be
+        // rejected rather than issue a token in the redirect fragment.
+        [$cid, $_csec] = $this->dcrConfidentialAuthCodeClient('ImplicitResponseType');
+        $resp = $this->authorizeGet($cid, ['response_type' => 'token']);
+        $this->assertAuthorizeRejected($resp, 'Authorize must reject response_type=token (implicit grant disabled)');
+    }
+
+    #[Test]
+    public function testAuthorizeRejectsIdTokenResponseType(): void
+    {
+        // response_type=id_token is the OIDC implicit flow (OIDC Core
+        // §3.2) and inherits the implicit-grant deprecation per RFC
+        // 9700 §2.1.2. OpenEMR enables only the auth-code grant for
+        // SMART-on-FHIR, so id_token must be rejected rather than
+        // return an id_token in the fragment.
+        [$cid, $_csec] = $this->dcrConfidentialAuthCodeClient('IdTokenResponseType');
+        $resp = $this->authorizeGet($cid, ['response_type' => 'id_token']);
+        $this->assertAuthorizeRejected($resp, 'Authorize must reject response_type=id_token (OIDC implicit flow disabled)');
+    }
+
+    #[Test]
+    public function testAuthorizeRejectsUnknownResponseType(): void
+    {
+        // RFC 6749 §4.1.2.1 requires rejection of unrecognized
+        // response_type values. "foo" matches no registered grant and
+        // must be rejected rather than default to any known behavior.
+        [$cid, $_csec] = $this->dcrConfidentialAuthCodeClient('UnknownResponseType');
+        $resp = $this->authorizeGet($cid, ['response_type' => 'foo']);
+        $this->assertAuthorizeRejected($resp, 'Authorize must reject an unknown response_type value');
+    }
+
+    #[Test]
+    public function testAuthorizeRejectsEmptyResponseType(): void
+    {
+        // An empty response_type is a malformed request per RFC 6749
+        // §4.1.1 (response_type is REQUIRED). The server must reject
+        // rather than default to response_type=code.
+        [$cid, $_csec] = $this->dcrConfidentialAuthCodeClient('EmptyResponseType');
+        $resp = $this->authorizeGet($cid, ['response_type' => '']);
+        $this->assertAuthorizeRejected($resp, 'Authorize must reject an empty response_type parameter');
+    }
+
+    #[Test]
+    public function testAuthorizeRejectsMissingResponseType(): void
+    {
+        // RFC 6749 §4.1.1 makes response_type REQUIRED. A request that
+        // omits it entirely must be rejected rather than default to
+        // response_type=code.
+        [$cid, $_csec] = $this->dcrConfidentialAuthCodeClient('MissingResponseType');
+        $resp = $this->authorizeGet($cid, ['response_type' => null]);
+        $this->assertAuthorizeRejected($resp, 'Authorize must reject a request that omits response_type entirely');
+    }
+
     // ----- Refresh-token deny-paths -----
 
     #[Test]
@@ -1093,6 +1155,23 @@ class OAuth2AttackScenarioTest extends TestCase
     }
 
     /**
+     * DCR + enable authorization_code grant + is_enabled=1. Suitable
+     * for /authorize endpoint deny-path tests.
+     *
+     * @param array<string, mixed> $overrides
+     * @return array{0: string, 1: string}
+     */
+    private function dcrConfidentialAuthCodeClient(string $tag, array $overrides = []): array
+    {
+        [$cid, $csec, $_body] = $this->dcrFull($tag, $overrides);
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `oauth_clients` SET `grant_types` = ?, `is_enabled` = 1 WHERE `client_id` = ?',
+            ['authorization_code', $cid]
+        );
+        return [$cid, $csec];
+    }
+
+    /**
      * @return array{access_token: string}
      */
     private function passwordGrantForTest(string $clientId, string $clientSecret, string $scope): array
@@ -1178,6 +1257,71 @@ class OAuth2AttackScenarioTest extends TestCase
             'body' => (string) $response->getBody(),
             'headers' => $response->getHeaders(),
         ];
+    }
+
+    /**
+     * GET /oauth2/default/authorize with a baseline set of valid
+     * parameters plus caller-supplied overrides. A null value for a
+     * key omits that parameter entirely from the query string —
+     * useful for exercising "missing response_type" vs
+     * "response_type=".
+     *
+     * No redirect-following: the deny-path assertions compare the
+     * status and body of the immediate response, not what the server
+     * would redirect to.
+     *
+     * @param array<string, string|null> $overrides
+     * @return AttackResponse
+     */
+    private function authorizeGet(string $clientId, array $overrides = []): array
+    {
+        $params = array_merge([
+            'client_id' => $clientId,
+            'redirect_uri' => 'https://client.example/cb',
+            'response_type' => 'code',
+            'scope' => 'openid api:oemr',
+            'state' => 'attack-' . bin2hex(random_bytes(4)),
+            'nonce' => 'n-' . bin2hex(random_bytes(4)),
+        ], $overrides);
+        $params = array_filter($params, static fn ($v): bool => $v !== null);
+        $response = $this->buildClient()->get(
+            $this->baseUrl . '/oauth2/default/authorize?' . http_build_query($params),
+            ['allow_redirects' => false]
+        );
+        return [
+            'status' => $response->getStatusCode(),
+            'body' => (string) $response->getBody(),
+            'headers' => $response->getHeaders(),
+        ];
+    }
+
+    /**
+     * Assert an /authorize deny-path response. The authorize endpoint
+     * may reject either as a direct 4xx with a JSON error body, or as
+     * a 302 redirect to the client's redirect_uri with error+
+     * error_description parameters (RFC 6749 §4.1.2.1). Both shapes
+     * are acceptable — the invariant is "server did not proceed to
+     * the login/consent flow for the bad response_type."
+     *
+     * @param AttackResponse $response
+     */
+    private function assertAuthorizeRejected(array $response, string $context): void
+    {
+        $status = $response['status'];
+        if ($status >= 300 && $status < 400) {
+            $location = $response['headers']['Location'][0] ?? '';
+            $this->assertStringContainsString(
+                'error=',
+                (string) parse_url($location, PHP_URL_QUERY),
+                $context . ' — 3xx redirect must carry an `error` query parameter. Location: ' . $location
+            );
+            return;
+        }
+        $this->assertGreaterThanOrEqual(400, $status, $context . ' — status ' . $status . ' body: ' . $response['body']);
+        $this->assertLessThan(500, $status, $context . ' — status ' . $status . ' body: ' . $response['body']);
+        $body = json_decode($response['body'], true);
+        $this->assertIsArray($body, $context . ' — response body is not JSON: ' . $response['body']);
+        $this->assertArrayHasKey('error', $body, $context . ' — response body has no `error` field: ' . $response['body']);
     }
 
     /**
