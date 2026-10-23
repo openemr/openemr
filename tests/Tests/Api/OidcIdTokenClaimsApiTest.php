@@ -256,11 +256,18 @@ class OidcIdTokenClaimsApiTest extends TestCase
             'OIDC §3.1.3.7-11: id_token MUST include nonce if nonce was in authorize request'
         );
         $this->assertIsString($claims['nonce']);
-        // runToConsentPage uses bin2hex(random_bytes(8)) → 16 hex chars
-        $this->assertMatchesRegularExpression(
-            '/^[0-9a-f]{16}$/',
+        // Verbatim-echo gate: the id_token nonce MUST be the exact
+        // value the authorize request sent, not just the same shape.
+        // Rabbit flagged that a format-only match (regex /^[0-9a-f]{16}$/)
+        // would still pass if the server regenerated the nonce
+        // internally — breaking the replay-protection anchor OIDC
+        // Core §15.5.2 relies on. mintUserRoleToken now surfaces the
+        // nonce generated during flow prep so this test can compare
+        // the exact value.
+        $this->assertSame(
+            $mint['nonce'],
             $claims['nonce'],
-            'nonce must survive the flow unmodified'
+            'id_token nonce must match the authorize-request nonce exactly'
         );
     }
 
