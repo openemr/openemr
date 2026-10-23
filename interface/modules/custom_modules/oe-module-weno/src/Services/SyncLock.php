@@ -44,21 +44,35 @@ final class SyncLock
     /**
      * Take the lock without waiting.
      *
+     * A false return means only that another sync holds the lock. Not being
+     * able to create the lock directory or open the lock file is a filesystem
+     * problem, not contention, so it throws instead; otherwise a persistent
+     * I/O failure would look like "another sync is running" forever.
+     *
      * @return bool true when this instance now holds the lock (or already did),
-     *              false when another sync holds it or the lock file cannot be opened.
+     *              false when another sync holds it.
+     * @throws \RuntimeException when the lock directory or lock file cannot be created or opened.
      */
     public function tryAcquire(): bool
     {
         if ($this->handle !== null) {
             return true;
         }
+        // So lastErrorSuffix() reports this call's failure, not an older one.
+        error_clear_last();
         if (!is_dir($this->directory) && !@mkdir($this->directory, 0775, true) && !is_dir($this->directory)) {
-            return false;
+            throw new \RuntimeException(
+                'Weno sync lock directory cannot be created: ' . $this->directory . self::lastErrorSuffix()
+            );
         }
         $handle = @fopen($this->lockPath(), 'c');
         if ($handle === false) {
-            return false;
+            throw new \RuntimeException(
+                'Weno sync lock file cannot be opened: ' . $this->lockPath() . self::lastErrorSuffix()
+            );
         }
+        // The file is open, so a failed non-blocking flock() means another
+        // process holds the lock.
         if (!flock($handle, LOCK_EX | LOCK_NB)) {
             fclose($handle);
             return false;
@@ -80,6 +94,12 @@ final class SyncLock
     public function lockPath(): string
     {
         return $this->directory . '/' . self::LOCK_FILE;
+    }
+
+    private static function lastErrorSuffix(): string
+    {
+        $message = error_get_last()['message'] ?? '';
+        return $message === '' ? '' : ' (' . $message . ')';
     }
 
     public function __destruct()

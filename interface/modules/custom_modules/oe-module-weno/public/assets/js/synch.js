@@ -36,17 +36,20 @@ function postWenoSync() {
     });
 }
 
+// Shows a short-lived notice, then puts back whatever the element showed
+// before (the server may have rendered a setup notice into #sync-alert).
 function showWenoSyncInfo(element, msg) {
     if (!element) {
         return;
     }
+    const previousClass = element.className;
+    const previousHtml = element.innerHTML;
     element.classList.remove("d-none", "alert-success", "alert-danger");
     element.classList.add("alert", "alert-info");
     element.textContent = msg;
     setTimeout(function () {
-        element.classList.add("d-none");
-        element.classList.remove("alert", "alert-info");
-        element.textContent = "";
+        element.className = previousClass;
+        element.innerHTML = previousHtml;
     }, 5000);
 }
 
@@ -71,7 +74,7 @@ function sync_weno() {
     postWenoSync().then(response => {
         if (response.status === 409) {
             setWenoSyncBusy(false);
-            showWenoSyncInfo(syncAlert, wenoSyncText("A prescription sync is already running. Please try again shortly."));
+            showWenoSyncInfo(syncAlert, wenoSyncText("A prescription sync is already running. Use Reload after it finishes."));
             return;
         }
         if (!response.ok) {
@@ -98,7 +101,7 @@ function sync_report(pid = '') {
             // "Checking Sync Report" notice instead of hiding it.
             showWenoSyncInfo(
                 document.getElementById("resync-alert"),
-                wenoSyncText("A prescription sync is already running. Please try again shortly.")
+                wenoSyncText("A prescription sync is already running. Use Reload after it finishes.")
             );
             setWenoSyncBusy(false);
             return;

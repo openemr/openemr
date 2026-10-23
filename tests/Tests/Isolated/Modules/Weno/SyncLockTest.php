@@ -33,12 +33,16 @@ class SyncLockTest extends TestCase
 
     protected function tearDown(): void
     {
-        $lockFile = $this->dir . '/logsync.lock';
-        if (is_file($lockFile)) {
-            unlink($lockFile);
+        $lockPath = $this->dir . '/logsync.lock';
+        if (is_dir($lockPath)) {
+            rmdir($lockPath);
+        } elseif (is_file($lockPath)) {
+            unlink($lockPath);
         }
         if (is_dir($this->dir)) {
             rmdir($this->dir);
+        } elseif (is_file($this->dir)) {
+            unlink($this->dir);
         }
     }
 
@@ -91,6 +95,28 @@ class SyncLockTest extends TestCase
         self::assertTrue($lock->tryAcquire());
         self::assertTrue($lock->tryAcquire());
         $lock->release();
+    }
+
+    public function testUncreatableDirectoryThrowsInsteadOfReportingContention(): void
+    {
+        // A regular file where the lock directory should be: mkdir() fails.
+        file_put_contents($this->dir, '');
+        $lock = new SyncLock($this->dir);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('lock directory cannot be created');
+        $lock->tryAcquire();
+    }
+
+    public function testUnopenableLockFileThrowsInsteadOfReportingContention(): void
+    {
+        // A directory where the lock file should be: fopen() fails.
+        mkdir($this->dir . '/logsync.lock', 0775, true);
+        $lock = new SyncLock($this->dir);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('lock file cannot be opened');
+        $lock->tryAcquire();
     }
 
     public function testForSiteUsesWenoLogDirectory(): void

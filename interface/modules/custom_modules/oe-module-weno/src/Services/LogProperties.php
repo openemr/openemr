@@ -178,8 +178,11 @@ class LogProperties
      * Download the Weno sync report and import it. Only one sync runs at a
      * time; a call made while another sync is running is skipped and returns
      * false, and wasSkippedForLock() then reports true (see SyncLock).
+     * A lock directory or lock file that cannot be created or opened is not
+     * contention: SyncLock throws, so callers report it as a failure.
      *
      * @throws Exception
+     * @throws \RuntimeException when the sync lock cannot be created or opened.
      */
     public function logSync($tasked = 'background'): bool
     {

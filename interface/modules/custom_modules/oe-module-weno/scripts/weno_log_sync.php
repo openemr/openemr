@@ -98,11 +98,13 @@ function downloadWenoPrescriptionLog(): void
         exit;
     }
 
-    if ($rtn != true) {
-        error_log("Background services failed for prescription log.");
-    } else {
+    if ($rtn == true) {
         $wenoLog->insertWenoLog("Sync Report", "Success");
         error_log("Background services success for prescription log.");
+    } elseif (!$logSync->wasSkippedForLock()) {
+        // A run skipped because another sync (e.g. from the widget) was
+        // already running is not a failure; logSync() logged the skip.
+        error_log("Background services failed for prescription log.");
     }
 }
 
