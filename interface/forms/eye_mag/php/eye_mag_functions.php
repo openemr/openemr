@@ -14,20 +14,36 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+require_once(__DIR__ . "/drawing_backgrounds.php");
+require_once(__DIR__ . "/clinical_helpers.php");
+
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Forms\EyeMag\BaseDrawing;
 use OpenEMR\Forms\EyeMag\CopyForward;
 use OpenEMR\Forms\EyeMag\CopyMode;
+use OpenEMR\Forms\EyeMag\EyeFormData;
 use OpenEMR\Forms\EyeMag\FamilyHistory;
 use OpenEMR\Forms\EyeMag\PmsfhPanel;
 use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_colgroup;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_comment_tail_cells;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_distance_cells;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_header_cells;
+use function OpenEMR\Forms\EyeMag\Clinical\display_wear_lower_cells;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_dilation_med_options;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_iop_method_labels;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_neuro_prior;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_patient_photo;
+use function OpenEMR\Forms\EyeMag\Drawing\eye_mag_drawing_background_options;
+use function OpenEMR\Forms\EyeMag\Drawing\eye_mag_drawing_background_preference;
 
 $facilityService = new FacilityService();
+
 
 /**
  *  This function returns HTML old record selector widget when needed (4 input values)
@@ -198,6 +214,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
     </span>';
     return $output_return;
 }
+
 
 /**
  *  This function returns ZONE specific HTML for a PRIOR record (3 input values)
@@ -479,54 +496,34 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                         ?></span>
                     <br />
                     <table id="PRIORS_dil_listbox">
+                      <?php foreach (array_chunk(eye_mag_dilation_med_options(), 2) as $dilationRow) { ?>
                       <tr>
+                            <?php foreach ($dilationRow as $dilationOption) {
+                                $dilationField = $dilationOption['field'];
+                                $dilationCurrent = trim((string)(${$dilationField} ?? ''));
+                                $dilationChecked = !in_array($dilationCurrent, ['', '0', 'off'], true);
+                                $dilationTitle = $dilationOption['title'];
+                                $dilationValue = $dilationOption['stored_value'];
+                                if ($dilationField === 'TROPICAMIDE' && $dilationCurrent === 'Tropicamide 2.5%') {
+                                    $dilationTitle = xl('Tropic 2.5%');
+                                    $dilationValue = $dilationCurrent;
+                                }
+                                $dilationLabel = mb_strimwidth($dilationTitle, 0, 15, '…', 'UTF-8');
+                                $dilationId = 'PRIORS_DIL_' . $dilationField;
+                                ?>
                         <td>
-                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_CycloMydril" name="PRIORS_CYCLOMYDRIL" value="Cyclomydril" <?php
-                            if ($CYCLOMYDRIL == 'Cyclomydril') {
-                                echo "checked='checked'";
-                            } ?> />
-                            <label for="CycloMydril" class="input-helper input-helper--checkbox"><?php echo text('CycloMydril'); ?></label>
+                            <input disabled type="checkbox" class="dil_drug" id="<?php echo attr($dilationId); ?>"
+                                   name="PRIORS_<?php echo attr($dilationField); ?>"
+                                   value="<?php echo attr($dilationValue); ?>"
+                                   <?php echo $dilationChecked ? "checked='checked'" : ''; ?>>
+                            <label for="<?php echo attr($dilationId); ?>" class="input-helper input-helper--checkbox dil_drug_label"
+                                   title="<?php echo attr($dilationTitle); ?>"><?php echo text($dilationLabel); ?></label>
                         </td>
-                        <td>
-                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Tropicamide" name="PRIORS_TROPICAMIDE" value="Tropicamide 1%" <?php
-                            if ($TROPICAMIDE == 'Tropicamide 1%' || $TROPICAMIDE == 'Tropicamide 2.5%') {
-                                echo "checked='checked'";
-                            } ?> />
-                            <label for="PRIORS_Tropicamide" class="input-helper input-helper--checkbox"><?php echo ($TROPICAMIDE == 'Tropicamide 2.5%') ? xlt('Tropic 2.5%') : xlt('Tropic 1%'); ?></label>
-                        </td>
+                        <?php } ?>
+                            <?php if (count($dilationRow) === 1) {
+                                ?><td></td><?php } ?>
                       </tr>
-                      <tr>
-                        <td>
-                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Neo25" name="PRIORS_NEO25" value="Neosynephrine 2.5%"  <?php
-                            if ($NEO25 == 'Neosynephrine 2.5%') {
-                                echo "checked='checked'";
-                            } ?> />
-                            <label for="Neo25" class="input-helper input-helper--checkbox"><?php echo text('Neo 2.5%'); ?></label>
-                        </td>
-                        <td>
-                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Neo10" name="PRIORS_NEO10" value="Neosynephrine 10%"  <?php
-                            if ($NEO10 ?? '' == 'Neosynephrine 10%') {
-                                echo "checked='checked'";
-                            } ?> />
-                            <label for="Neo10" class="input-helper input-helper--checkbox"><?php echo text('Neo 10%'); ?></label>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Cyclogyl" style="left:150px;" name="PRIORS_CYCLOGYL" value="Cyclopentolate 1%"  <?php
-                            if ($CYCLOGYL == 'Cyclopentolate 1%') {
-                                echo "checked='checked'";
-                            } ?> />
-                            <label for="Cyclogyl" class="input-helper input-helper--checkbox"><?php echo text('Cyclo 1%'); ?></label>
-                        </td>
-                        <td>
-                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Atropine" name="PRIORS_ATROPINE" value="Atropine 1%"  <?php
-                            if ($ATROPINE == 'Atropine 1%') {
-                                echo "checked='checked'";
-                            } ?> />
-                            <label for="Atropine" class="input-helper input-helper--checkbox"><?php echo text('Atropine 1%'); ?></label>
-                        </td>
-                      </tr>
+                      <?php } ?>
                     </table>
                   </td>
                 </tr>
@@ -684,899 +681,19 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         </div>
         <?php
     } elseif ($zone == "NEURO") {
-        if ($report == '0') {
-            $output = priors_select($zone, $orig_id, $id_to_show, $pid);
-        }
+        $output = $report == '0' ? priors_select($zone, $orig_id, $id_to_show, $pid) : '';
         ?>
-        <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
-        <div name="prior_selector">
-                <?php
-                echo $output;
-                ?>
-        </div>
-        <span style="font-weight:bold;"><?php echo xlt('Prior Exam'); ?>:</span>
-        <br />
-        <div style="float:left;margin-top:0.8em;font-size:0.8em;">
-            <div id="PRIOR_NEURO_text_list" class="borderShadow PRIORS" style="border:1pt solid black;float:left;width:195px;padding:10px;text-align:center;margin:2 2;font-weight:bold;">
-                <table style="font-size:1.0em;font-weight:600;">
-                    <tr>
-                        <td></td><td style="text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td><td style="text-align:center;"><?php echo xlt('OS{{left eye}}'); ?></td></tr>
-                    <tr>
-                        <td class="right">
-                            <?php echo xlt('Color'); ?>:
-                        </td>
-                        <td>
-                            <input disabled type="text" id="PRIOR_ODCOLOR" name="PRIOR_ODCOLOR" value="<?php
-                            if ($ODCOLOR) {
-                                echo  attr($ODCOLOR);
-                            } else {
-                                echo "   /   ";
-                            } ?>"/>
-                        </td>
-                        <td>
-                            <input disabled type="text" id="PRIOR_OSCOLOR" name="PRIOR_OSCOLOR" value="<?php
-                            if ($OSCOLOR) {
-                                echo  attr($OSCOLOR);
-                            } else {
-                                echo "   /   ";
-                            } ?>"/>
-                        </td>
-                        <td style="text-align:bottom;">
-                                               &nbsp;<span title="<?php echo xla('Insert normals - 11/11'); ?>" class="fa fa-reply"></span>
-                                            </td>
-                                        </tr>
-                    <tr>
-                        <td class="right" style="white-space: nowrap;font-size:0.9em;">
-                            <span title="<?php echo xla('Variation in red color discrimination between the eyes (eg. OD=100, OS=75)'); ?>"><?php echo xlt('Red Desat{{red desaturation}}'); ?>:</span>
-                        </td>
-                        <td>
-                            <input disabled type="text" size="6" name="PRIOR_ODREDDESAT" id="PRIOR_ODREDDESAT" value="<?php echo attr($ODREDDESAT); ?>"/>
-                        </td>
-                        <td>
-                            <input disabled type="text" size="6" name="PRIOR_OSREDDESAT" id="PRIOR_OSREDDESAT" value="<?php echo attr($OSREDDESAT); ?>"/>
-                        </td>
-                        <td>&nbsp;
-                            <span id="" class="fa fa-reply" name="" title="<?php echo xla('Insert normals - 100/100'); ?>"></span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="right" style="white-space: nowrap;font-size:0.9em;">
-                            <span title="<?php echo xla('Variation in white (muscle) light brightness discrimination between the eyes (eg. OD=$1.00, OS=$0.75)'); ?>"><?php echo xlt('Coins'); ?>:</span>
-                        </td>
-                        <td>
-                            <input disabled type="text" size="6" name="PRIOR_ODCOINS" id="PRIOR_ODCOINS" value="<?php echo attr($ODCOINS); ?>"/>
-                        </td>
-                        <td>
-                            <input disabled type="text" size="6" name="PRIOR_OSCOINS" id="PRIOR_OSCOINS" value="<?php echo attr($OSCOINS); ?>"/>
-                        </td>
-                        <td>&nbsp;
-                            <span id="" class="fa fa-reply" name="" title="<?php echo xla('Insert normals - 100/100'); ?>"></span>
-                         </td>
-                    </tr>
-                </table>
-            </div>
-            <div class="borderShadow" style="position: relative;
-
-float: right;
-
-text-align: center;
-
-width: 260px;
-
-z-index: 1;
-
-margin: 2px 0 2px 2px;">
-                <span class="closeButton fa fa-th" id="PRIOR_Close_ACTMAIN" name="PRIOR_Close_ACTMAIN"></span>
-                <table class="ACT_top bold">
-                    <tr style="text-align:left;height:26px;vertical-align:middle;width:180px;">
-                        <td >
-                            <span id="PRIOR_ACTTRIGGER" name="PRIOR_ACTTRIGGER" style="text-decoration:underline;"><?php echo ('Alternate Cover Test'); ?>:</span>
-                        </td>
-                        <td>
-                            <span id="PRIOR_ACTNORMAL_CHECK" name="PRIOR_ACTNORMAL_CHECK">
-                            <label for="PRIOR_ACT" class="input-helper input-helper--checkbox"><?php echo xlt('Ortho'); ?></label>
-                            <input disabled type="checkbox" name="PRIOR_ACT" id="PRIOR_ACT" checked="<?php
-                            if ($ACT == '1') {
-                                echo "checked";
-                            } ?>"></span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align:center;">
-                            <br />
-                            <div id="PRIOR_ACTMAIN" name="PRIOR_ACTMAIN" class="ACT_TEXT nodisplay" style="position:relative;z-index:1;margin 10 auto;">
-                               <table cellpadding="0" style="position:relative;margin: 7 5 19 5;">
-                                    <tr>
-                                        <td id="PRIOR_ACT_tab_SCDIST" name="PRIOR_ACT_tab_SCDIST" class="ACT_selected"> <?php echo xlt('scDist{{ACT without Correction Distance}}'); ?> </td>
-                                        <td id="PRIOR_ACT_tab_CCDIST" name="PRIOR_ACT_tab_CCDIST" class="ACT_deselected"> <?php echo xlt('ccDist{{ACT with Correction Distance}}'); ?> </td>
-                                        <td id="PRIOR_ACT_tab_SCNEAR" name="PRIOR_ACT_tab_SCNEAR" class="ACT_deselected"> <?php echo xlt('scNear{{ACT without Correction Near}}'); ?> </td>
-                                        <td id="PRIOR_ACT_tab_CCNEAR" name="PRIOR_ACT_tab_CCNEAR" class="ACT_deselected"> <?php echo xlt('ccNear{{ACT with Correction Near}}'); ?> </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="4" style="text-align:center;font-size:0.8em;">
-                                            <div id="PRIOR_ACT_SCDIST" name="PRIOR_ACT_SCDIST" class="ACT_box">
-                                                <br />
-                                                <table>
-                                                    <tr>
-                                                        <td class="text-center"><?php echo xlt('R{{right}}'); ?></td>
-                                                        <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
-                                                        <textarea disabled id="PRIOR_ACT1SCDIST" name="PRIOR_ACT1SCDIST" class="ACT"><?php echo text($ACT1SCDIST); ?></textarea></td>
-                                                        <td style="border:1pt solid black;border-top:0pt;text-align:center;">
-                                                        <textarea disabled id="PRIOR_ACT2SCDIST"  name="PRIOR_ACT2SCDIST"class="ACT"><?php echo text($ACT2SCDIST); ?></textarea></td>
-                                                        <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
-                                                        <textarea disabled id="PRIOR_ACT3SCDIST"  name="PRIOR_ACT3SCDIST" class="ACT"><?php echo text($ACT3SCDIST); ?></textarea></td>
-                                                        <td class="text-center"><?php echo xlt('L{{left}}'); ?></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center"><i class="fa fa-reply rotate-left"></i></td>
-                                                        <td style="border:1pt solid black;border-left:0pt;text-align:right;">
-                                                        <textarea disabled id="PRIOR_ACT4SCDIST" name="PRIOR_ACT4SCDIST" class="ACT"><?php echo text($ACT4SCDIST); ?></textarea></td>
-                                                        <td style="border:1pt solid black;text-align:center;">
-                                                        <textarea disabled id="PRIOR_ACT5SCDIST" name="PRIOR_ACT5SCDIST" class="ACT"><?php echo text($ACT5SCDIST); ?></textarea></td>
-                                                        <td style="border:1pt solid black;border-right:0pt;text-align:left;">
-                                                        <textarea disabled id="PRIOR_ACT6SCDIST" name="PRIOR_ACT6SCDIST" class="ACT"><?php echo text($ACT6SCDIST); ?></textarea></td>
-                                                        <td class="text-center"><i class="fa fa-reply flip-left"></i></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="border:0; border-top:2pt solid black;border-right:2pt solid black;text-align:right;">
-                                                            <textarea disabled id="PRIOR_ACT10SCDIST" name="PRIOR_ACT10SCDIST" class="ACT"><?php echo text($ACT10SCDIST); ?></textarea></td>
-                                                        <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:right;">
-                                                            <textarea disabled id="PRIOR_ACT7SCDIST" name="PRIOR_ACT7SCDIST" class="ACT"><?php echo text($ACT7SCDIST); ?></textarea></td>
-                                                        <td style="border:1pt solid black;border-bottom:0pt;text-align:center;">
-                                                            <textarea disabled id="PRIOR_ACT8SCDIST" name="PRIOR_ACT8SCDIST" class="ACT"><?php echo text($ACT8SCDIST); ?></textarea></td>
-                                                        <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:left;">
-                                                            <textarea disabled id="PRIOR_ACT9SCDIST" name="PRIOR_ACT9SCDIST" class="ACT"><?php echo text($ACT9SCDIST); ?></textarea></td>
-                                                        <td style="border:0; border-top:2pt solid black;border-left:2pt solid black;text-align:left;vertical-align:middle;">
-                                                            <textarea disabled id="PRIOR_ACT11SCDIST" name="PRIOR_ACT11SCDIST" class="ACT"><?php echo text($ACT11SCDIST); ?></textarea>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                                <br />
-                                            </div>
-                                            <div id="PRIOR_ACT_CCDIST" name="PRIOR_ACT_CCDIST" class="nodisplay ACT_box">
-                                                <br />
-                                                <table>
-                                                   <tr>
-                                                        <td class="text-center"><?php echo xlt('R{{right}}'); ?></td>
-                                                        <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
-                                                        <textarea disabled id="PRIOR_ACT1CCDIST" name="PRIOR_ACT1CCDIST" class="ACT"><?php echo text($ACT1CCDIST); ?></textarea></td>
-                                                        <td style="border:1pt solid black;border-top:0pt;text-align:center;">
-                                                        <textarea disabled id="PRIOR_ACT2CCDIST"  name="PRIOR_ACT2CCDIST"class="ACT"><?php echo text($ACT2CCDIST); ?></textarea></td>
-                                                        <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
-                                                        <textarea disabled id="PRIOR_ACT3CCDIST"  name="PRIOR_ACT3CCDIST" class="ACT"><?php echo text($ACT3CCDIST); ?></textarea></td>
-                                                        <td class="text-center"><?php echo xlt('L{{left}}'); ?></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center"><i class="fa fa-reply rotate-left"></i></td>
-                                                        <td style="border:1pt solid black;border-left:0pt;text-align:right;">
-                                                        <textarea disabled id="PRIOR_ACT4CCDIST" name="PRIOR_ACT4CCDIST" class="ACT"><?php echo text($ACT4CCDIST); ?></textarea></td>
-                                                        <td style="border:1pt solid black;text-align:center;">
-                                                        <textarea disabled id="PRIOR_ACT5CCDIST" name="PRIOR_ACT5CCDIST" class="ACT"><?php echo text($ACT5CCDIST); ?></textarea></td>
-                                                        <td class="text-center">
-                                                        <textarea disabled id="PRIOR_ACT6CCDIST" name="PRIOR_ACT6CCDIST" class="ACT"><?php echo text($ACT6CCDIST); ?></textarea></td>
-                                                        <td><i class="fa fa-reply flip-left"></i></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="border:0; border-top:2pt solid black;border-right:2pt solid black;text-align:right;">
-                                                            <textarea disabled id="PRIOR_ACT10CCDIST" name="PRIOR_ACT10CCDIST" class="ACT"><?php echo text($ACT10CCDIST); ?></textarea></td>
-                                                        <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:right;">
-                                                            <textarea disabled id="PRIOR_ACT7CCDIST" name="PRIOR_ACT7CCDIST" class="ACT"><?php echo text($ACT7CCDIST); ?></textarea></td>
-                                                        <td style="border:1pt solid black;border-bottom:0pt;text-align:center;">
-                                                            <textarea disabled id="PRIOR_ACT8CCDIST" name="PRIOR_ACT8CCDIST" class="ACT"><?php echo text($ACT8CCDIST); ?></textarea></td>
-                                                        <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:left;">
-                                                            <textarea disabled id="PRIOR_ACT9CCDIST" name="PRIOR_ACT9CCDIST" class="ACT"><?php echo text($ACT9CCDIST); ?></textarea></td>
-                                                        <td style="border:0; border-top:2pt solid black;border-left:2pt solid black;text-align:left;vertical-align:middle;">
-                                                            <textarea disabled id="PRIOR_ACT11CCDIST" name="PRIOR_ACT11CCDIST" class="ACT"><?php echo text($ACT11CCDIST); ?></textarea></td>
-                                                    </tr>
-                                                </table>
-                                                <br />
-                                            </div>
-                                            <div id="PRIOR_ACT_SCNEAR" name="PRIOR_ACT_SCNEAR" class="nodisplay ACT_box">
-                                                <br />
-                                                <table>
-                                                    <tr>
-                                                        <td class="text-center"><?php echo xlt('R{{right}}'); ?></td>
-                                                        <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
-                                                        <textarea disabled id="PRIOR_ACT1SCNEAR" name="PRIOR_ACT1SCNEAR" class="ACT"><?php echo text($ACT1SCNEAR); ?></textarea></td>
-                                                        <td style="border:1pt solid black;border-top:0pt;text-align:center;">
-                                                        <textarea disabled id="PRIOR_ACT2SCNEAR"  name="PRIOR_ACT2SCNEAR"class="ACT"><?php echo text($ACT2SCNEAR); ?></textarea></td>
-                                                        <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
-                                                        <textarea disabled id="PRIOR_ACT3SCNEAR"  name="PRIOR_ACT3SCNEAR" class="ACT"><?php echo text($ACT3SCNEAR); ?></textarea></td>
-                                                        <td style="text-align:center;"><?php echo xlt('L{{left}}'); ?></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center"><i class="fa fa-reply rotate-left"></i></td>
-                                                        <td style="border:1pt solid black;border-left:0pt;text-align:right;">
-                                                        <textarea disabled id="PRIOR_ACT4SCNEAR" name="PRIOR_ACT4SCNEAR" class="ACT"><?php echo text($ACT4SCNEAR); ?></textarea></td>
-                                                        <td style="border:1pt solid black;text-align:center;">
-                                                        <textarea disabled id="PRIOR_ACT5SCNEAR" name="PRIOR_ACT5SCNEAR" class="ACT"><?php echo text($ACT5SCNEAR); ?></textarea></td>
-                                                        <td style="border:1pt solid black;border-right:0pt;text-align:left;">
-                                                        <textarea disabled id="PRIOR_ACT6SCNEAR" name="PRIOR_ACT6SCNEAR" class="ACT"><?php echo text($ACT6SCNEAR); ?></textarea></td>
-                                                        <td class="text-center"><i class="fa fa-reply flip-left"></i></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="border:0; border-top:2pt solid black;border-right:2pt solid black;text-align:right;">
-                                                            <textarea disabled id="PRIOR_ACT10SCNEAR" name="PRIOR_ACT10SCNEAR" class="ACT"><?php echo text($ACT10SCNEAR); ?></textarea></td>
-                                                        <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:right;">
-                                                            <textarea disabled id="PRIOR_ACT7SCNEAR" name="PRIOR_ACT7SCNEAR" class="ACT"><?php echo text($ACT7SCNEAR); ?></textarea></td>
-                                                        <td style="border:1pt solid black;border-bottom:0pt;text-align:center;">
-                                                            <textarea disabled id="PRIOR_ACT8SCNEAR" name="PRIOR_ACT8SCNEAR" class="ACT"><?php echo text($ACT8SCNEAR); ?></textarea></td>
-                                                        <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:left;">
-                                                            <textarea disabled id="PRIOR_ACT9SCNEAR" name="PRIOR_ACT9SCNEAR" class="ACT"><?php echo text($ACT9SCNEAR); ?></textarea></td>
-                                                        <td style="border:0; border-top:2pt solid black;border-left:2pt solid black;text-align:left;vertical-align:middle;">
-                                                            <textarea disabled id="PRIOR_ACT11SCNEAR" name="PRIOR_ACT11SCNEAR" class="ACT"><?php echo text($ACT11SCNEAR); ?></textarea>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                                <br />
-                                            </div>
-                                            <div id="PRIOR_ACT_CCNEAR" name="PRIOR_ACT_CCNEAR" class="nodisplay ACT_box">
-                                                <br />
-                                                <table>
-                                                    <tr>
-                                                        <td class="text-center"><?php echo xlt('R{{right}}'); ?></td>
-                                                        <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
-                                                        <textarea disabled id="PRIOR_ACT1CCNEAR" name="PRIOR_ACT1CCNEAR" class="ACT"><?php echo text($ACT1CCNEAR); ?></textarea></td>
-                                                        <td style="border:1pt solid black;border-top:0pt;text-align:center;">
-                                                        <textarea disabled id="PRIOR_ACT2CCNEAR"  name="PRIOR_ACT2CCNEAR"class="ACT"><?php echo text($ACT2CCNEAR); ?></textarea></td>
-                                                        <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
-                                                        <textarea disabled id="PRIOR_ACT3CCNEAR"  name="PRIOR_ACT3CCNEAR" class="ACT"><?php echo text($ACT3CCNEAR); ?></textarea></td>
-                                                        <td class="text-center"><?php echo xlt('L{{left}}'); ?></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center"><i class="fa fa-reply rotate-left"></i></td>
-                                                        <td style="border:1pt solid black;border-left:0pt;text-align:right;">
-                                                        <textarea disabled id="PRIOR_ACT4CCNEAR" name="PRIOR_ACT4CCNEAR" class="ACT"><?php echo text($ACT4CCNEAR); ?></textarea></td>
-                                                        <td style="border:1pt solid black;text-align:center;">
-                                                        <textarea disabled id="PRIOR_ACT5CCNEAR" name="PRIOR_ACT5CCNEAR" class="ACT"><?php echo text($ACT5CCNEAR); ?></textarea></td>
-                                                        <td style="border:1pt solid black;border-right:0pt;text-align:left;">
-                                                        <textarea disabled id="PRIOR_ACT6CCNEAR" name="PRIOR_ACT6CCNEAR" class="ACT"><?php echo text($ACT6CCNEAR); ?></textarea></td>
-                                                        <td class="text-center"><i class="fa fa-reply flip-left"></i></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="border:0; border-top:2pt solid black;border-right:2pt solid black;text-align:right;">
-                                                            <textarea disabled id="PRIOR_ACT10CCNEAR" name="PRIOR_ACT10CCNEAR" class="ACT"><?php echo text($ACT10CCNEAR); ?></textarea></td>
-                                                        <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:right;">
-                                                            <textarea disabled id="PRIOR_ACT7CCNEAR" name="PRIOR_ACT7CCNEAR" class="ACT"><?php echo text($ACT7CCNEAR); ?></textarea></td>
-                                                        <td style="border:1pt solid black;border-bottom:0pt;text-align:center;">
-                                                            <textarea disabled id="PRIOR_ACT8CCNEAR" name="PRIOR_ACT8CCNEAR" class="ACT"><?php echo text($ACT8CCNEAR); ?></textarea></td>
-                                                        <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:left;">
-                                                            <textarea disabled id="PRIOR_ACT9CCNEAR" name="PRIOR_ACT9CCNEAR" class="ACT"><?php echo text($ACT9CCNEAR); ?></textarea></td>
-                                                        <td style="border:0; border-top:2pt solid black;border-left:2pt solid black;text-align:left;vertical-align:middle;">
-                                                            <textarea disabled id="PRIOR_ACT11CCNEAR" name="PRIOR_ACT11CCNEAR" class="ACT"><?php echo text($ACT11CCNEAR); ?></textarea>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                               <br />
-                                            </div>
-                                        </td>
-                                    </tr>
-                               </table>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-                <br />
-                <div id="PRIOR_NPCNPA" name="PRIOR_NPCNPA">
-                    <table style="position:relative;float:left;text-align:center;margin: 4px 2px;width:100%;font-size:1.0em;padding:4px;">
-                        <tr style="">
-                            <td style="width:50%;"></td>
-                            <td style="font-weight:bold;"><?php echo xlt('OD{{right eye}}'); ?></td>
-                            <td style="font-weight:bold;"><?php echo xlt('OS{{left eye}}'); ?></td>
-                        </tr>
-                        <tr>
-                            <td class="right"><span title="<?php echo xla('Near Point of Accommodation'); ?>"><?php echo xlt('NPA{{near point of Accommodation}}'); ?>:</span></td>
-                            <td><input disabled type="text" id="PRIOR_ODNPA" style="width:70%;" name="PRIOR_ODNPA" value="<?php echo attr($ODNPA); ?>"></td>
-                            <td><input disabled type="text" id="PRIOR_OSNPA" style="width:70%;" name="PRIOR_OSNPA" value="<?php echo attr($OSNPA); ?>"></td>
-                        </tr>
-                        <tr>
-                            <td class="right"><span title="<?php echo xla('Near Point of Convergence'); ?>"><?php echo xlt('NPC{{near point of convergence}}'); ?>:</span></td>
-                            <td colspan="2" ><input disabled type="text" style="width:85%;" id="PRIOR_NPC" name="PRIOR_NPC" value="<?php echo attr($NPC); ?>">
-                            </td>
-                        </tr>
-                         <tr>
-                            <td class="right">
-                                <?php echo xlt('Stereopsis'); ?>:
-                            </td>
-                            <td colspan="2">
-                                <input disabled type="text" style="width:85%;" name="PRIOR_STEREOPSIS" id="PRIOR_STEREOPSIS" value="<?php echo attr($STEREOPSIS); ?>">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="3">&nbsp;</td>
-                        </tr>
-                        <tr><td class="bold underline"><?php echo xlt('Amplitudes'); ?>:</td>
-                            <td ><?php echo xlt('Distance'); ?></td>
-                            <td><?php echo xlt('Near'); ?></td>
-                        </tr>
-                        <tr>
-                            <td style="text-align:right;"><?php echo xlt('Divergence'); ?>:</td>
-                            <td><input disabled type="text" id="PRIOR_DACCDIST" name="PRIOR_DACCDIST" value="<?php echo attr($DACCDIST); ?>"></td>
-                            <td><input disabled type="text" id="PRIOR_DACCNEAR" name="PRIOR_DACCNEAR" value="<?php echo attr($DACCNEAR); ?>"></td></tr>
-                        <tr>
-                            <td style="text-align:right;"><?php echo xlt('Convergence'); ?>:</td>
-                            <td><input disabled type="text" id="PRIOR_CACCDIST" name="PRIOR_CACCDIST" value="<?php echo attr($CACCDIST); ?>"></td>
-                            <td><input disabled type="text" id="PRIOR_CACCNEAR" name="PRIOR_CACCNEAR" value="<?php echo attr($CACCNEAR); ?>"></td></tr>
-                        </tr>
-                         <tr>
-                            <td class="right">
-                                <?php echo xlt('Vertical Fusional'); ?>:
-                            </td>
-                            <td colspan="2">
-                                <input disabled type="text" style="width:90%;" name="PRIOR_VERTFUSAMPS" id="PRIOR_VERTFUSAMPS" value="<?php echo attr($VERTFUSAMPS); ?>">
-                                <br />
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-
-            </div>
-                <?php
-                $hash_tag = '<i class="fa fa-minus"></i>';
-                if ($MOTILITY_RS > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_RS; ++$index) {
-                        $here = "PRIOR_MOTILITY_RS_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_RI > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_RI; ++$index) {
-                        $here = "PRIOR_MOTILITY_RI_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_LS > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_LS; ++$index) {
-                        $here = "PRIOR_MOTILITY_LS_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_LI > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_LI; ++$index) {
-                        $here = "PRIOR_MOTILITY_LI_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_RRSO > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_RRSO; ++$index) {
-                        $here = "PRIOR_MOTILITY_RRSO_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_LRSO > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_LRSO; ++$index) {
-                        $here = "PRIOR_MOTILITY_LRSO_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_RLIO > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_RLIO; ++$index) {
-                        $here = "PRIOR_MOTILITY_RLIO_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_LLIO > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_LLIO; ++$index) {
-                        $here = "PRIOR_MOTILITY_LLIO_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_RLSO > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_RLSO; ++$index) {
-                        $here = "PRIOR_MOTILITY_RLSO_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_LLSO > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_LLSO; ++$index) {
-                        $here = "PRIOR_MOTILITY_LLSO_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_RRIO > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_RRIO; ++$index) {
-                        $here = "PRIOR_MOTILITY_RRIO_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_LRIO > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_LRIO; ++$index) {
-                        $here = "PRIOR_MOTILITY_LRIO_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-
-                $hash_tag = '<i class="fa fa-minus rotate-left"></i>';
-                if ($MOTILITY_LR > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_LR; ++$index) {
-                        $here = "PRIOR_MOTILITY_LR_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_LL > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_LL; ++$index) {
-                        $here = "PRIOR_MOTILITY_LL_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_RR > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_RR; ++$index) {
-                        $here = "PRIOR_MOTILITY_RR_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-
-                if ($MOTILITY_RL > '0') {
-                    $PRIOR_MOTILITYNORMAL = '';
-                    for ($index = 1; $index <= $MOTILITY_RL; ++$index) {
-                        $here = "PRIOR_MOTILITY_RL_" . $index;
-                        ${$here} = $hash_tag;
-                    }
-                }
-                ?>
-            <div id="PRIOR_NEURO_MOTILITY" class="text_clinical borderShadow"
-                style="float:left;font-size:0.9em;margin:2 2;padding: 0 10;font-weight:bold;height:134px;width:195px;">
-                <div>
-                    <table style="width:100%;margin:0 0 1 0;">
-                        <tr>
-                            <td style="width:40%;font-size:0.9em;margin:0 auto;font-weight:bold;"><?php echo xlt('Motility'); ?>:</td>
-                            <td style="font-size:0.9em;vertical-align:middle;text-align:right;top:0.0in;right:0.1in;height:30px;">
-                                <label for="PRIOR_MOTILITYNORMAL" class="input-helper input-helper--checkbox"><?php echo xlt('Normal'); ?></label>
-                                <input disabled id="PRIOR_MOTILITYNORMAL" name="PRIOR_MOTILITYNORMAL" type="checkbox" value="1" <?php
-                                if ($MOTILITYNORMAL > '0') {
-                                    echo "checked";
-                                } ?> disabled>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <input disabled type="hidden" name="PRIOR_MOTILITY_RS"  id="PRIOR_MOTILITY_RS" value="<?php echo attr($MOTILITY_RS); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_RI"  id="PRIOR_MOTILITY_RI" value="<?php echo attr($MOTILITY_RI); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_RR"  id="PRIOR_MOTILITY_RR" value="<?php echo attr($MOTILITY_RR); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_RL"  id="PRIOR_MOTILITY_RL" value="<?php echo attr($MOTILITY_RL); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_LS"  id="PRIOR_MOTILITY_LS" value="<?php echo attr($MOTILITY_LS); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_LI"  id="PRIOR_MOTILITY_LI" value="<?php echo attr($MOTILITY_LI); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_LR"  id="PRIOR_MOTILITY_LR" value="<?php echo attr($MOTILITY_LR); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_LL"  id="PRIOR_MOTILITY_LL" value="<?php echo attr($MOTILITY_LL); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_RRSO"  id="PRIOR_MOTILITY_RRSO" value="<?php echo attr($MOTILITY_RRSO); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_RLSO"  id="PRIOR_MOTILITY_RLSO" value="<?php echo attr($MOTILITY_RLSO); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_RRIO"  id="PRIOR_MOTILITY_RRIO" value="<?php echo attr($MOTILITY_RRIO); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_RLIO"  id="PRIOR_MOTILITY_RLIO" value="<?php echo attr($MOTILITY_RLIO); ?>">
-
-                <input disabled type="hidden" name="PRIOR_MOTILITY_LRSO"  id="PRIOR_MOTILITY_LRSO" value="<?php echo attr($MOTILITY_LRSO); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_LLSO"  id="PRIOR_MOTILITY_LLSO" value="<?php echo attr($MOTILITY_LLSO); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_LRIO"  id="PRIOR_MOTILITY_LRIO" value="<?php echo attr($MOTILITY_LRIO); ?>">
-                <input disabled type="hidden" name="PRIOR_MOTILITY_LLIO"  id="PRIOR_MOTILITY_LLIO" value="<?php echo attr($MOTILITY_LLIO); ?>">
-
-                <div style="float:left;left:0.4in;text-decoration:underline;"><?php echo xlt('OD{{right eye}}'); ?></div>
-                <div style="float:right;right:0.4in;text-decoration:underline;"><?php echo xlt('OS{{left eye}}'); ?></div><br />
-                <div class="divTable" style="background: url(../../forms/<?php echo $form_folder; ?>/images/eom.bmp) no-repeat center center;background-size: 90% 75%;height:0.77in;width:0.71in;padding:1px;margin:6 1 1 2;">
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRSO_4 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_4_3" id="PRIOR_MOTILITY_RS_4_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_4_1" id="PRIOR_MOTILITY_RS_4_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_4" id="PRIOR_MOTILITY_RS_4"><?php echo text($PRIOR_MOTILITY_RS_4 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_4_2" id="PRIOR_MOTILITY_RS_4_2">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_4_4" id="PRIOR_MOTILITY_RS_4_4">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLSO_4 ?? ''); ?></div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRSO_3 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_3_1" id="PRIOR_MOTILITY_RS_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_3" id="PRIOR_MOTILITY_RS_3"><?php echo text($PRIOR_MOTILITY_RS_3 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_3_2" id="PRIOR_MOTILITY_RS_3_2">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLSO_3 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRSO_2 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_2_1" id="PRIOR_MOTILITY_RS_2_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_2" id="PRIOR_MOTILITY_RS_2"><?php echo text($PRIOR_MOTILITY_RS_2 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_2_2" id="PRIOR_MOTILITY_RS_2_2">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLSO_2 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRSO_1 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_1_1" id="PRIOR_MOTILITY_RS_1_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_1" id="PRIOR_MOTILITY_RS_1"><?php echo text($PRIOR_MOTILITY_RS_1 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_1_2" id="PRIOR_MOTILITY_RS_1_2">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLSO_1 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_0_1" id="PRIOR_MOTILITY_RS_0_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_0" id="PRIOR_MOTILITY_RS_0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_0_1" id="PRIOR_MOTILITY_RS_0_1">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divMiddleRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_4" id="PRIOR_MOTILITY_RR_4"><?php echo text($PRIOR_MOTILITY_RR_4 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_3" id="PRIOR_MOTILITY_RR_3"><?php echo text($PRIOR_MOTILITY_RR_3 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_2" id="PRIOR_MOTILITY_RR_2"><?php echo text($PRIOR_MOTILITY_RR_2 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_1" id="PRIOR_MOTILITY_RR_1"><?php echo text($PRIOR_MOTILITY_RR_1 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_0" id="PRIOR_MOTILITY_RR_0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_R0" id="PRIOR_MOTILITY_R0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_0" id="PRIOR_MOTILITY_RL_0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_1" id="PRIOR_MOTILITY_RL_1"><?php echo text($PRIOR_MOTILITY_RL_1 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_2" id="PRIOR_MOTILITY_RL_2"><?php echo text($PRIOR_MOTILITY_RL_2 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_3" id="PRIOR_MOTILITY_RL_3"><?php echo text($PRIOR_MOTILITY_RL_3 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_4" id="PRIOR_MOTILITY_RL_4"><?php echo text($PRIOR_MOTILITY_RL_4 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_0_1" id="PRIOR_MOTILITY_RI_0_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_0" name="PRIOR_MOTILITY_RI_0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_0_2" id="PRIOR_MOTILITY_RI_0_2">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRIO_1 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_1_1" id="PRIOR_MOTILITY_RI_1_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_1" name="PRIOR_MOTILITY_RI_1"><?php echo text($PRIOR_MOTILITY_RI_1 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_1_2" id="PRIOR_MOTILITY_RI_1_2">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLIO_1 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRIO_2 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_2_1" id="PRIOR_MOTILITY_RI_2_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_2" name="PRIOR_MOTILITY_RI_2"><?php echo text($PRIOR_MOTILITY_RI_2 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_2_2" id="PRIOR_MOTILITY_RI_2_2">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLIO_2 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRIO_3 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_3_5" id="PRIOR_MOTILITY_RI_3_5">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_3_3" id="PRIOR_MOTILITY_RI_3_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_3_1" id="PRIOR_MOTILITY_RI_3_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_3" name="PRIOR_MOTILITY_RI_3"><?php echo text($PRIOR_MOTILITY_RI_3 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_3_2" id="PRIOR_MOTILITY_RI_3_2">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_3_4" id="PRIOR_MOTILITY_RI_3_4">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_3_6" id="PRIOR_MOTILITY_RI_3_6">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLIO_3 ?? ''); ?></div>
-                        <div class="divCell"></div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRIO_4 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_4_5" id="PRIOR_MOTILITY_RI_4_5">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_4_3" id="PRIOR_MOTILITY_RI_4_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_4_1" id="PRIOR_MOTILITY_RI_4_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_4" name="PRIOR_MOTILITY_RI_4"><?php echo text($PRIOR_MOTILITY_RI_4 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_4_2" id="PRIOR_MOTILITY_RI_4_2">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_4_4" id="PRIOR_MOTILITY_RI_4_4">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RI_4_6" id="PRIOR_MOTILITY_RI_4_6">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLIO_4 ?? ''); ?></div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                </div>
-                <div class="divTable" style="float:right;background: url(../../forms/<?php echo $form_folder; ?>/images/eom.bmp) no-repeat center center;background-size: 90% 75%;height:0.77in;width:0.71in;padding:1px;margin:6 2 0 0;">
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LRSO_4 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_4_3" id="PRIOR_MOTILITY_LS_4_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_4_1" id="PRIOR_MOTILITY_LS_4_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_4" id="PRIOR_MOTILITY_LS_4"><?php echo text($PRIOR_MOTILITY_LS_4 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_4_2" id="PRIOR_MOTILITY_LS_4_2">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_4_4" id="PRIOR_MOTILITY_LS_4_4">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LLSO_4 ?? ''); ?></div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LRSO_3 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_3_1" id="PRIOR_MOTILITY_LS_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_3" id="PRIOR_MOTILITY_LS_3"><?php echo text($PRIOR_MOTILITY_LS_3 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_3_2" id="PRIOR_MOTILITY_LS_3_2">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LLSO_3 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LRSO_2 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_2_1" id="PRIOR_MOTILITY_LS_2_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_2" id="PRIOR_MOTILITY_LS_2"><?php echo text($PRIOR_MOTILITY_LS_2 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_2_2" id="PRIOR_MOTILITY_LS_2_2">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LLSO_2 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LRSO_1 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_1_1" id="PRIOR_MOTILITY_LS_1_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_1" id="PRIOR_MOTILITY_LS_1"><?php echo text($PRIOR_MOTILITY_LS_1 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_1_2" id="PRIOR_MOTILITY_LS_1_2">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LLSO_1 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_0_1" id="PRIOR_MOTILITY_LS_0_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_0" id="PRIOR_MOTILITY_LS_0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_0_1" id="PRIOR_MOTILITY_LS_0_1">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divMiddleRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_4" id="PRIOR_MOTILITY_LR_4"><?php echo text($PRIOR_MOTILITY_LR_4 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_3" id="PRIOR_MOTILITY_LR_3"><?php echo text($PRIOR_MOTILITY_LR_3 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_2" id="PRIOR_MOTILITY_LR_2"><?php echo text($PRIOR_MOTILITY_LR_2 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_1" id="PRIOR_MOTILITY_LR_1"><?php echo text($PRIOR_MOTILITY_LR_1 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_0" id="PRIOR_MOTILITY_LR_0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_L0" id="PRIOR_MOTILITY_L0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_0" id="PRIOR_MOTILITY_LL_0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_1" id="PRIOR_MOTILITY_LL_1"><?php echo text($PRIOR_MOTILITY_LL_1 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_2" id="PRIOR_MOTILITY_LL_2"><?php echo text($PRIOR_MOTILITY_LL_2 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_3" id="PRIOR_MOTILITY_LL_3"><?php echo text($PRIOR_MOTILITY_LL_3 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_4" id="PRIOR_MOTILITY_LL_4"><?php echo text($PRIOR_MOTILITY_LL_4 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_4_1" id="PRIOR_MOTILITY_LR_4_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_3_1" id="PRIOR_MOTILITY_LR_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_2_1" id="PRIOR_MOTILITY_LR_2_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RO_I_1" id="PRIOR_MOTILITY_RO_I_1">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_LI_0" name="PRIOR_MOTILITY_LI_0">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_1" id="PRIOR_MOTILITY_LO_I_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_2_2" id="PRIOR_MOTILITY_LL_2_2">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_3_2" id="PRIOR_MOTILITY_LL_3_2">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_4_2" id="PRIOR_MOTILITY_LL_4_2">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                     <div class="divRow">
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_4_3" id="PRIOR_MOTILITY_LR_4_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_3_3" id="PRIOR_MOTILITY_LR_3_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RO_I_2" id="PRIOR_MOTILITY_RO_I_2"><?php echo text($PRIOR_MOTILITY_LRIO_1 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_LI_1" name="PRIOR_MOTILITY_LI_1"><?php echo text($PRIOR_MOTILITY_LI_1 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_2" id="PRIOR_MOTILITY_LO_I_2"><?php echo text($PRIOR_MOTILITY_LLIO_1 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_3_4" id="PRIOR_MOTILITY_LL_3_4">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_4_4" id="PRIOR_MOTILITY_LL_4_4">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell" name="PRIOR_MOTILITY_RO_I_3_1" id="PRIOR_MOTILITY_RO_I_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RO_I_3" id="PRIOR_MOTILITY_RO_I_3">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LRIO_2 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_2_1" id="PRIOR_MOTILITY_LI_2_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_LI_2" name="PRIOR_MOTILITY_LI_2"><?php echo text($PRIOR_MOTILITY_LI_2 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_2_2" id="PRIOR_MOTILITY_LI_2_2">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LLIO_2 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_2" id="PRIOR_MOTILITY_RO_I_2">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_3_1" id="PRIOR_MOTILITY_LO_I_3_1">&nbsp;</div>
-                        </div>
-                    <div class="divRow">
-                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_3" id="PRIOR_MOTILITY_RO_I_3">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LRIO_3 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_3_5" id="PRIOR_MOTILITY_LI_3_5">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_3_3" id="PRIOR_MOTILITY_LI_3_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_3_1" id="PRIOR_MOTILITY_LI_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_3"   id="PRIOR_MOTILITY_LI_3"><?php echo text($PRIOR_MOTILITY_LI_3 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_3_2" id="PRIOR_MOTILITY_LI_3_2">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_3_4" id="PRIOR_MOTILITY_LI_3_4">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_3_6" id="PRIOR_MOTILITY_LI_3_6">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LLIO_3 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_3" id="PRIOR_MOTILITY_LO_I_3">&nbsp;</div>
-
-                    </div>
-                    <div class="divRow">
-                        <div class="divCell" name="PRIOR_MOTILITY_RO_I_4" id="PRIOR_MOTILITY_RO_I_4"><?php echo text($PRIOR_MOTILITY_LRIO_4 ?? ''); ?></div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_4_5" id="PRIOR_MOTILITY_LI_4_5">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_4_3" id="PRIOR_MOTILITY_LI_4_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_4_1" id="PRIOR_MOTILITY_LI_4_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_LI_4" name="PRIOR_MOTILITY_LI_4"><?php echo text($PRIOR_MOTILITY_LI_4 ?? ''); ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_4_2" id="PRIOR_MOTILITY_LI_4_2">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_4_4" id="PRIOR_MOTILITY_LI_4_4">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_4_6" id="PRIOR_MOTILITY_LI_4_6">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_4" id="PRIOR_MOTILITY_LO_I_4"><?php echo text($PRIOR_MOTILITY_LLIO_4 ?? ''); ?></div>
-                    </div>
-                    <div class="divRow"><div class="divCell">&nbsp;</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <br />
-        <div class="QP_lengthen">
-            <span style="font-weight:bold;"><?php echo xlt('Comments'); ?>:</span>
-            <br />
-            <textarea disabled id="PRIOR_NEURO_COMMENTS" name="PRIOR_NEURO_COMMENTS"><?php echo text($NEURO_COMMENTS); ?></textarea>
-        </div>
-        <input type="hidden" name="PRIOR_PREFS_ACT_SHOW"  id="PRIOR_PREFS_ACT_SHOW" value="<?php echo attr($ACT_SHOW ?? ''); ?>">
-
-        <script>
-            $("#PRIOR_ACTTRIGGER").mouseover(function() {
-                                                   $("#PRIOR_ACTTRIGGER").toggleClass('buttonRefraction_selected').toggleClass('underline');
-                                                   });
-            $("#PRIOR_ACTTRIGGER").mouseout(function() {
-                                                  $("#PRIOR_ACTTRIGGER").toggleClass('buttonRefraction_selected').toggleClass('underline');
-                                                  });
-            $("#PRIOR_ACTTRIGGER").click(function() {
-                                               $("#PRIOR_ACTMAIN").toggleClass('nodisplay'); //.toggleClass('fullscreen');
-                                               $("#PRIOR_NPCNPA").toggleClass('nodisplay');
-                                               $("#PRIOR_ACTNORMAL_CHECK").toggleClass('nodisplay');
-                                               $("#PRIOR_ACTTRIGGER").toggleClass('underline');
-                                               $("#PRIOR_Close_ACTMAIN").toggleClass('fa-random').toggleClass('fa-eye');
-                                               });
-            $("[name^='PRIOR_ACT_tab_']").click(function()  {
-                                                var section = this.id.match(/PRIOR_ACT_tab_(.*)/)[1];
-                                                $("[name^='PRIOR_ACT_']").addClass('nodisplay');
-                                                $("[name^='PRIOR_ACT_tab_']").removeClass('nodisplay').removeClass('ACT_selected').addClass('ACT_deselected');
-                                                $("#PRIOR_ACT_tab_" + section).addClass('ACT_selected').removeClass('ACT_deselected');
-                                                $("#PRIOR_ACT_" + section).removeClass('nodisplay');
-                                                $("#PRIOR_PREFS_ACT_SHOW").val(section);
-                                                });
-
-            $("[name^='PRIOR_Close_']").click(function()  {
-                                              var section = this.id.match(/PRIOR_Close_(.*)$/)[1];
-                                              if (section =="ACTMAIN") {
-                                                $("#PRIOR_ACTTRIGGER").trigger( "click" );
-                                              } else {
-                                                $("#LayerVision_"+section+"_lightswitch").click();
-                                              }
-                                              });
-            if ($("#PREFS_ACT_VIEW").val() == '1') {
-                $("#PRIOR_ACTMAIN").toggleClass('nodisplay');
-                $("#PRIOR_NPCNPA").toggleClass('nodisplay');
-                $("#PRIOR_ACTNORMAL_CHECK").toggleClass('nodisplay');
-                $("#PRIOR_ACTTRIGGER").toggleClass('underline');
-                var show = $("#PREFS_ACT_SHOW").val();
-                $("#PRIOR_ACT_tab_"+show).trigger('click');
-            }
-        </script>
+        <input disabled type="hidden" id="PRIORS_NEURO_prefix" name="PRIORS_NEURO_prefix" value="">
+        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_NEURO" name="Close_PRIORS_NEURO"></span>
+        <div name="prior_selector"><?php echo $output; ?></div>
+        <strong><?php echo xlt('Prior Exam'); ?>:</strong>
         <?php
+        // Read the current chart style without seeding preferences while viewing a prior exam.
+        $priorMotilityPreference = sqlQuery(
+            "SELECT option_id FROM list_options WHERE list_id = 'Eye_Motility_Display'
+             AND is_default = 1 AND activity = 1 ORDER BY seq LIMIT 1"
+        );
+        echo eye_mag_neuro_prior(EyeFormData::row($result), (string)($priorMotilityPreference['option_id'] ?? 'X'));
     } elseif ($zone == "IMPPLAN") {
         if ($report == '0') {
             $output =  priors_select($zone, $orig_id, $id_to_show, $pid);
@@ -3070,6 +2187,7 @@ function display_QP($zone, $provider_id)
         return $QP_panel;
 }
 
+/** Return the drawing toolbar and prior-image selection controls for an exam zone. */
 function canvas_select($zone, $encounter, $pid): string
 {
     /* This will provide a way to scroll back through prior VISIT images, to copy forward to today's visit,
@@ -3128,7 +2246,7 @@ function canvas_select($zone, $encounter, $pid): string
         }
    //
         if (count($canvi) > '1') {
-            $select = '<div class="">';
+            $select = '<div class="eye-canvas-history">';
             $select .= '<span id="old_canvas_leftest_' . attr($zone) . '"
                         name="old_canvas_leftest"
                         class="fa fa-fast-backward fa-sm PRIORS hand"
@@ -3187,9 +2305,35 @@ function canvas_select($zone, $encounter, $pid): string
  *  @param string $side OU by default.  Future functionality will allow OD and OS values- not implemented yet.
  *  @return void : outputs the ZONE specific HTML5 CANVAS widget
  */
-function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = ''): void
+function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = '', mixed $formId = 0, mixed $neuroDrawingJson = ''): void
 {
     global $form_folder;
+    $drawingSession = SessionWrapperFactory::getInstance()->getActiveSession();
+    $toolPreference = QueryUtils::querySingleRow(
+        "SELECT GOVALUE FROM form_eye_mag_prefs WHERE PEZONE='DRAW_TOOL' AND id=? AND LOCATION=?",
+        [EyeFormData::integer($drawingSession->get('authUserID')), $zone . '_TOOL']
+    );
+    $drawingTool = ($toolPreference['GOVALUE'] ?? '') === 'draw' ? 'draw' : 'select';
+    $backgroundProviderId = EyeFormData::integer($drawingSession->get('authUserID'));
+    $backgroundOptions = eye_mag_drawing_background_options($zone, $backgroundProviderId, $side);
+    $backgroundPreference = eye_mag_drawing_background_preference($zone, $backgroundProviderId);
+    $backgroundOptionsByKey = array_column($backgroundOptions, null, 'key');
+    if (!isset($backgroundOptionsByKey[$backgroundPreference])) {
+        $backgroundPreference = $zone === 'SDRETINA' ? 'large-retina' : 'default';
+    }
+    $overlayRow = EyeFormData::integer($formId) > 0 ? QueryUtils::querySingleRow(
+        "SELECT overlay_json, background_key FROM form_eye_mag_drawing_overlays WHERE form_id=? AND pid=? AND zone=?",
+        [EyeFormData::integer($formId), EyeFormData::integer($pid), (string) $zone]
+    ) : [];
+    $drawingOverlayJson = EyeFormData::text($overlayRow['overlay_json'] ?? '');
+    if ($drawingOverlayJson === '' && $zone === 'NEURO') {
+        $drawingOverlayJson = EyeFormData::text($neuroDrawingJson);
+    }
+    $drawingOverlayJson = $drawingOverlayJson !== '' ? $drawingOverlayJson : '[]';
+    $drawingBackground = EyeFormData::text($overlayRow['background_key'] ?? '');
+    if ($drawingBackground === '') {
+        $drawingBackground = $zone === 'SDRETINA' ? 'large-retina' : 'default';
+    }
     $filepath = OEGlobalsBag::getInstance()->get('oer_config')['documents']['repository'] . $pid . "/";
     $base_name = $pid . "_" . $encounter . "_" . $side . "_" . $zone . "_VIEW";
 
@@ -3209,11 +2353,72 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
         } ?>
         <?php
             $output = canvas_select($zone, $encounter, $pid);
-            echo $output;
         ?>
+                <?php
+
+                $sql = "SELECT * from documents where name like ? AND foreign_id = ? AND deleted = 0 ORDER by id DESC";
+                $doc = QueryUtils::querySingleRow($sql, ["%" . $base_name . "%", EyeFormData::integer($pid)]);
+                $has_saved_drawing = EyeFormData::integer($doc['id'] ?? 0) > 0;
+                if (!$has_saved_drawing && $drawingOverlayJson === '[]') {
+                    $drawingBackground = $backgroundPreference;
+                }
+                $activeBackground = $backgroundOptionsByKey[$drawingBackground] ?? null;
+                if (!$activeBackground && str_starts_with($drawingBackground, 'saved-')) {
+                    // Deleted library entries still supply backgrounds already used in exams.
+                    $archivedBackgrounds = array_column(eye_mag_drawing_background_options($zone, $backgroundProviderId, $side, true), null, 'key');
+                    $activeBackground = $archivedBackgrounds[$drawingBackground] ?? null;
+                }
+                $activeBackground ??= $backgroundOptionsByKey[$zone === 'SDRETINA' ? 'large-retina' : 'default'];
+                $base_filetoshow = $activeBackground->url;
+                $structuredBackground = !in_array($drawingBackground, ['blank', 'practice'], true)
+                    && !str_starts_with($drawingBackground, 'custom-')
+                    && !str_starts_with($drawingBackground, 'saved-')
+                    && $activeBackground->structured;
+                if ($has_saved_drawing) {
+                    $filetoshow = OEGlobalsBag::getInstance()->getWebRoot()
+                        . "/controller.php?document&retrieve&patient_id=" . attr_url($pid)
+                        . "&document_id=" . attr_url(EyeFormData::text($doc['id'] ?? ''))
+                        . "&as_file=false&original_file=true&disable_exit=false&show_original=true";
+                } else {
+                    //base image.
+                    $filetoshow = $base_filetoshow;
+                }
+                ?>
+
+                <input type="hidden" id="url_<?php echo attr($zone); ?>" name="url_<?php echo attr($zone); ?>" value="<?php echo attr($filetoshow); ?>" />
+                <input type="hidden" id="base_url_<?php echo attr($zone); ?>" name="base_url_<?php echo attr($zone); ?>" value="<?php echo attr($base_filetoshow); ?>" />
+                <input type="hidden" id="current_background_<?php echo attr($zone); ?>" value="<?php echo attr($drawingBackground); ?>" />
+                <input type="hidden" id="selWidth_<?php echo attr($zone); ?>" value="1">
+                <input type="hidden" id="selColor_<?php echo attr($zone); ?>" value="#000" />
+
+                <input type="hidden" id="<?php echo attr($zone); ?>_KONVA_JSON" value="<?php echo attr($drawingOverlayJson); ?>" />
+                <div class="eye-drawing-command-row">
+                <?php echo $output; ?>
+                <div id="<?php echo attr($zone); ?>_KONVA_TOOLS" class="eye-konva-tools" data-zone="<?php echo attr($zone); ?>"
+                     data-tool="<?php echo attr($drawingTool); ?>"
+                     data-preference-url="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot() . '/interface/forms/eye_mag/save.php'); ?>"
+                     data-csrf="<?php echo attr(\OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken(session: $drawingSession)); ?>"
+                     role="toolbar" aria-label="<?php echo xla('Editable image annotation tools'); ?>">
+                    <button type="button" data-konva-tool="draw" title="<?php echo xla('Draw freehand'); ?>"><i class="fas fa-pencil-alt"></i></button>
+                    <button type="button" data-konva-tool="select" title="<?php echo xla('Select and move annotations'); ?>"><i class="fas fa-mouse-pointer"></i></button>
+                    <button type="button" data-konva-add="text" title="<?php echo xla('Add editable text'); ?>">T</button>
+                    <button type="button" data-konva-add="rect" title="<?php echo xla('Add rectangle'); ?>"><i class="far fa-square"></i></button>
+                    <button type="button" data-konva-add="ellipse" title="<?php echo xla('Add ellipse'); ?>"><i class="far fa-circle"></i></button>
+                    <button type="button" data-konva-add="arrow" title="<?php echo xla('Add arrow'); ?>"><i class="fas fa-long-arrow-alt-right"></i></button>
+                    <button type="button" data-konva-action="library" data-zone="<?php echo attr($zone); ?>" title="<?php echo xla('Saved overlays and backgrounds'); ?>" aria-label="<?php echo xla('Saved overlays and backgrounds'); ?>"><i class="far fa-images"></i></button>
+                    <button type="button" data-konva-action="transparency" title="<?php echo xla('Toggle selected object background transparency'); ?>"><i class="fas fa-adjust"></i></button>
+                    <button type="button" data-konva-action="delete" title="<?php echo xla('Delete selected annotation'); ?>"><i class="fas fa-trash-alt"></i></button>
+                </div>
+                </div>
         <div id="<?php echo attr($zone); ?>_canvas">
-            <div class="tools">
-                <div id="sketch_tooled_<?php echo attr($zone); ?>_8">
+                <div class="eye-drawing-library-config" hidden data-zone="<?php echo attr($zone); ?>"
+                     data-url="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot() . '/interface/forms/eye_mag/drawing_background.php'); ?>"
+                     data-csrf="<?php echo attr(\OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken(session: $drawingSession)); ?>"
+                     data-default="<?php echo attr($backgroundPreference); ?>"
+                     data-options="<?php echo attr(json_encode($backgroundOptions, JSON_THROW_ON_ERROR)); ?>"></div>
+                <div class="tools">
+                <div class="eye-raster-tools" aria-label="<?php echo xla('Freehand drawing colors and brush sizes'); ?>">
+                <div id="sketch_tooled_<?php echo attr($zone); ?>_8" class="eye-current-pencil">
                     <span id="sketch_tool_<?php echo attr($zone);?>_color"
                           class="color_indicator"
                           data-jscolor="{ previewElement:'#sketch_tool_<?php echo attr($zone); ?>_color',
@@ -3226,27 +2431,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                           data-target="selColor_<?php echo attr($zone); ?>"
                     ></span>
                 </div>
-                <?php
-
-                $sql = "SELECT * from documents where name like ? ORDER by id DESC";
-                $doc = sqlQuery($sql, ["%" . $base_name . "%"]);
-                // The site's own base drawing if it has one, else the form's.
-                $base_filetoshow = BaseDrawing::fromGlobals(OEGlobalsBag::getInstance())->url($side, $zone);
-                if ((($doc['id'] ?? null) > '0')) {
-                    $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']);
-                } else {
-                    //base image.
-                    $filetoshow = $base_filetoshow;
-                }
-                ?>
-
-                <input type="hidden" id="url_<?php echo attr($zone); ?>" name="url_<?php echo attr($zone); ?>" value="<?php echo $filetoshow; ?>" />
-                <input type="hidden" id="base_url_<?php echo attr($zone); ?>" name="base_url_<?php echo attr($zone); ?>" value="<?php echo $base_filetoshow; ?>" />
-                <input type="hidden" id="selWidth_<?php echo attr($zone); ?>" value="1">
-                <input type="hidden" id="selColor_<?php echo attr($zone); ?>" value="#000" />
-
-
-
+                <span class="eye-pencil-colors">
                 <img id="sketch_tools_<?php echo attr($zone); ?>_1" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#1AA2E1");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_blue.png" style="height:30px;width:15px;">
                 <img id="sketch_tools_<?php echo attr($zone); ?>_2" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ff0");'  src="../../forms/<?php echo $form_folder; ?>/images/pencil_yellow.png" style="height:30px;width:15px;">
                 <img id="sketch_tools_<?php echo attr($zone); ?>_3" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ffad00");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_orange.png" style="height:30px;width:15px;">
@@ -3254,17 +2439,20 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <img id="sketch_tools_<?php echo attr($zone); ?>_5" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#E10A17");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_red.png" style="height:30px;width:15px;">
                 <img id="sketch_tools_<?php echo attr($zone); ?>_6" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#000");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_black.png" style="height:50px;width:15px;">
                 <img id="sketch_tools_<?php echo attr($zone); ?>_7" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#fff");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_white.png" style="height:30px;width:15px;">
-
-                <span style="min-width:1in;">&nbsp;</span>
+                </span>
                 <!-- now to pencil size -->
+                <span class="eye-brush-sizes">
                 <img id="sketch_sizes_<?php echo attr($zone); ?>_1" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("1");' src="../../forms/<?php echo $form_folder; ?>/images/brush_1.png" style="height:20px;width:20px; border-bottom: 2pt solid black;">
                 <img id="sketch_sizes_<?php echo attr($zone); ?>_3" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("3");' src="../../forms/<?php echo $form_folder; ?>/images/brush_3.png" style="height:20px;width:20px;">
                 <img id="sketch_sizes_<?php echo attr($zone); ?>_5" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("5");' src="../../forms/<?php echo $form_folder; ?>/images/brush_5.png" style="height:20px;width:20px;">
                 <img id="sketch_sizes_<?php echo attr($zone); ?>_10" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("10");' src="../../forms/<?php echo $form_folder; ?>/images/brush_10.png" style="height:20px;width:20px;">
                 <img id="sketch_sizes_<?php echo attr($zone); ?>_15" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("15");' src="../../forms/<?php echo $form_folder; ?>/images/brush_15.png" style="height:20px;width:20px;">
+                </span>
+                </div>
             </div>
 
             <div class="borderShadow">
+                <div class="eye-drawing-stage" data-structured-background="<?php echo $structuredBackground ? '1' : '0'; ?>" data-has-saved-drawing="<?php echo $has_saved_drawing ? '1' : '0'; ?>">
                 <canvas id="myCanvas_<?php echo attr($zone); ?>"
                         name="myCanvas_<?php echo attr($zone); ?>"
                     <?php
@@ -3278,13 +2466,55 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                     ?>
                         width="<?php echo attr($width_canvas); ?>"
                         height="<?php echo attr($height_canvas); ?>"></canvas>
+                    <div id="<?php echo attr($zone); ?>_konva_stage" class="eye-konva-stage" data-zone="<?php echo attr($zone); ?>" aria-label="<?php echo xla('Editable image annotations'); ?>"></div>
+                <?php if ($zone === 'NEURO') { ?>
+                    <svg id="NEURO_structured_overlay" class="neuro-structured-overlay"
+                         viewBox="0 0 450 250" preserveAspectRatio="none" aria-hidden="true">
+                        <g id="NEURO_overlay_motility_diagrams"></g>
+                        <!-- Repaint the fixed Stereo template on every composite. This
+                             removes structured marks that were flattened by an earlier
+                             save before the current values are drawn. -->
+                        <g id="NEURO_overlay_stereo_template" fill="#111"
+                           style="font-family:Arial,sans-serif;font-size:14px;font-weight:400;">
+                            <rect x="326" y="34" width="124" height="216" fill="#fff"></rect>
+                            <rect x="24" y="215" width="302" height="35" fill="#fff"></rect>
+                            <text x="350" y="59">Stereo:</text>
+                            <text x="354" y="92" text-anchor="middle">+</text>
+                            <text x="378" y="92" text-anchor="middle">−</text>
+                            <text x="392" y="92">Fly</text>
+                            <line x1="350" y1="137" x2="378" y2="137" stroke="#777" stroke-width="1"></line>
+                            <text x="383" y="141">/ 3 An</text>
+                            <line x1="350" y1="188" x2="378" y2="188" stroke="#777" stroke-width="1"></line>
+                            <text x="383" y="192">/ 9 C</text>
+                            <text x="36" y="240">Fixation pref:</text>
+                            <text x="150" y="240" text-anchor="middle">OD</text>
+                            <text x="191" y="240" text-anchor="middle">OS</text>
+                            <text x="233" y="240" text-anchor="middle">OU</text>
+                            <text x="278" y="240" text-anchor="middle">ALT</text>
+                            <text x="374" y="240" text-anchor="middle">Unable</text>
+                        </g>
+                        <text id="NEURO_overlay_animals" class="neuro-overlay-value" x="364" y="137" text-anchor="middle"></text>
+                        <text id="NEURO_overlay_circles" class="neuro-overlay-value" x="364" y="188" text-anchor="middle"></text>
+                        <ellipse id="NEURO_overlay_fly_yes" class="neuro-overlay-mark" cx="354" cy="87" rx="10" ry="10"></ellipse>
+                        <ellipse id="NEURO_overlay_fly_no" class="neuro-overlay-mark" cx="378" cy="87" rx="10" ry="10"></ellipse>
+                        <ellipse id="NEURO_overlay_fixation_od" class="neuro-overlay-mark" cx="150" cy="233" rx="17" ry="11"></ellipse>
+                        <ellipse id="NEURO_overlay_fixation_os" class="neuro-overlay-mark" cx="191" cy="233" rx="17" ry="11"></ellipse>
+                        <ellipse id="NEURO_overlay_fixation_ou" class="neuro-overlay-mark" cx="233" cy="233" rx="18" ry="11"></ellipse>
+                        <ellipse id="NEURO_overlay_fixation_alt" class="neuro-overlay-mark" cx="278" cy="233" rx="21" ry="11"></ellipse>
+                        <ellipse id="NEURO_overlay_unable" class="neuro-overlay-mark" cx="374" cy="233" rx="28" ry="11"></ellipse>
+                        <ellipse id="NEURO_overlay_motility_od" class="neuro-overlay-mark" cx="115" cy="68" rx="24" ry="12"></ellipse>
+                        <ellipse id="NEURO_overlay_motility_os" class="neuro-overlay-mark" cx="244" cy="68" rx="24" ry="12"></ellipse>
+                    </svg>
+                <?php } ?>
+                </div>
             </div>
             <div style="margin-top: 7px;">
                 <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
                 <button onclick="javascript:cRedo('<?php echo attr($zone); ?>');return false;" id="Redo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Redo"); ?></button>
                 <button onclick="javascript:drawImage('<?php echo attr($zone); ?>');return false;" id="Revert_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Revert"); ?></button>
-                <button onclick="javascript:cReload('<?php echo attr($zone); ?>');return false;" id="Clear_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("New"); ?></button>
+                <button onclick="javascript:eyeDrawingStartNew('<?php echo attr($zone); ?>');return false;" id="Clear_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("New"); ?></button>
                 <button id="Blank_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Blank"); ?></button>
+                <button type="button" id="SaveAs_Canvas_<?php echo attr($zone); ?>" data-drawing-save-as="<?php echo attr($zone); ?>"><?php echo xlt('Save As'); ?></button>
             </div>
         </div>
         <div id="<?php echo attr($zone); ?>_olddrawing" name="<?php echo attr($zone); ?>_olddrawing"></div>
@@ -3312,14 +2542,19 @@ function copy_forward(Zone|CopyMode $mode, string $copy_from, string $pid): void
         return;
     }
 
+    $stereoFields = ['STEREO_FLY', 'STEREO_ANIMALS', 'STEREO_CIRCLES', 'STEREO_FIXATION_PREF'];
     if ($mode instanceof Zone) {
-        echo json_encode(CopyForward::pick($record, $mode->fields()));
+        $fields = $mode->fields();
+        if ($mode === Zone::NEURO) {
+            $fields = array_merge($fields, $stereoFields);
+        }
+        echo json_encode(CopyForward::pick($record, $fields));
         return;
     }
 
     $result = match ($mode) {
         CopyMode::IMPPLAN => ['IMPPLAN' => build_IMPPLAN_items($pid, $copy_from)],
-        CopyMode::ALL => CopyForward::pick($record, CopyForward::allFields()),
+        CopyMode::ALL => CopyForward::pick($record, array_merge(CopyForward::allFields(), $stereoFields)),
         CopyMode::READONLY => $record + ['IMPPLAN' => build_IMPPLAN_items($pid, $copy_from)],
     };
 
@@ -3475,7 +2710,6 @@ function document_engine($pid): array
 function display($pid, $encounter, $category_value): array
 {
     global $form_folder;
-    global $id;
     global $documents;
     $episode = '';
        /**
@@ -3509,6 +2743,10 @@ function display($pid, $encounter, $category_value): array
         $categoryName = is_string($documents['zones'][$category_value][$j]['name'] ?? null)
             ? $documents['zones'][$category_value][$j]['name']
             : '';
+        $categoryDisplayName = $categoryName;
+        if (in_array($category_value, ['POSTSEG', 'RETINA'], true) && strcasecmp(trim($categoryDisplayName), 'Fundus') === 0) {
+            $categoryDisplayName = xl('Photo');
+        }
         $categoryId = $documents['zones'][$category_value][$j]['id'] ?? '';
         $uploadUrl = OEGlobalsBag::getInstance()->getWebRoot()
             . '/controller.php?document&upload&patient_id=' . urlencode((string) $pid)
@@ -3518,9 +2756,9 @@ function display($pid, $encounter, $category_value): array
             . '/controller.php?document&view&patient_id=' . urlencode((string) $pid)
             . '&doc_id=' . urlencode((string) $id_to_show);
         $episode .= "<tr>
-        <td class='right'><span class='font-weight-bold'>" . text($categoryName) . "</span>:&nbsp;</td>
+        <td class='right'><span class='font-weight-bold'>" . text($categoryDisplayName) . "</span>:&nbsp;</td>
         <td>
-            <a onclick=\"openNewForm(" . attr_js($uploadUrl) . ", " . attr_js(xl('Upload') . ' ' . $categoryName) . ");\" href='#'>
+            <a onclick=\"openNewForm(" . attr_js($uploadUrl) . ", " . attr_js(xl('Upload') . ' ' . $categoryDisplayName) . ");\" href='#'>
             <img src='../../forms/" . $form_folder . "/images/upload_file.png' class='little_image'>
             </a>
         </td>
@@ -3532,7 +2770,7 @@ function display($pid, $encounter, $category_value): array
         <td>";
         //open via OpenEMR Documents with treemenu
         if ($count_here > '0') {
-            $episode .= '<a onclick="openNewForm(' . attr_js($viewUrl) . ', ' . attr_js(xl('Documents') . ': ' . $categoryName) . ');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" /></a>';
+            $episode .= '<a onclick="openNewForm(' . attr_js($viewUrl) . ', ' . attr_js(xl('Documents') . ': ' . $categoryDisplayName) . ');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" /></a>';
         }
 
         $episode .= '</td></tr>';
@@ -3564,9 +2802,16 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
     global $display;
     global $provider_id;
 
-    $providerNAME = $prov_data['fname'] . " " . $prov_data['lname'];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUserId = EyeFormData::integer($session->get('authUserID'));
+    $providerId = EyeFormData::integer($provider_id);
+    $isProviderOfRecord = $providerId > 0 && $authUserId === $providerId;
+    $isAdmin = AclMain::aclCheckCore('admin', 'super');
+    $assetManagerUrl = OEGlobalsBag::getInstance()->getWebRoot() . '/interface/forms/eye_mag/asset_manager.php';
+
+    $providerNAME = EyeFormData::text($prov_data['fname'] ?? '') . " " . EyeFormData::text($prov_data['lname'] ?? '');
     if ($prov_data['suffix']) {
-        $providerNAME .= ", " . $prov_data['suffix'];
+        $providerNAME .= ", " . EyeFormData::text($prov_data['suffix']);
     }
 
     if (!empty($_REQUEST['display']) && ($_REQUEST['display'] == "fullscreen")) {
@@ -3586,15 +2831,21 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                 <img src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/sites/default/images/login_logo.gif" class="little_image">
                 <span class="brand"><?php echo xlt('Eye Exam'); ?></span>
             </div>
-            <div class="navbar-collapse oer-navbar-collapse mr-auto mt-2 mt-lg-0" id="oer-navbar-collapse-1">
+            <button class="navbar-toggler eye-mag-menu-toggle" type="button"
+                    data-toggle="collapse" data-target="#oer-navbar-collapse-1"
+                    aria-controls="oer-navbar-collapse-1" aria-expanded="false"
+                    aria-label="<?php echo xla('Toggle Eye Form menu'); ?>">
+                <span class="fas fa-bars" aria-hidden="true"></span>
+            </button>
+            <div class="collapse navbar-collapse oer-navbar-collapse mr-auto mt-2 mt-lg-0" id="oer-navbar-collapse-1">
                 <ul class="navbar-nav mr-auto">
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li class="nav-lik" id="menu_PRINT_narrative" name="menu_PRINT_report"><a class="nav-link black" id="BUTTON_PRINT_report" target="_new" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=0&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>"><?php echo xlt("Print Report"); ?></a></li>
+                            <li class="nav-lik" id="menu_PRINT_narrative" name="menu_PRINT_report"><a class="nav-link black" id="BUTTON_PRINT_report" target="_new" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=0&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>"><?php echo xlt("Print Report"); ?><span class="menu_icon"><i class="fa fa-print"></i></span></a></li>
                             <li class="nav-ite" id="menu_PRINT_narrative_2" name="menu_PRINT_report_2"><a class="nav-link black" id="BUTTON_PRINT_report_2" target="_new" href="#"
                                 onclick="top.restoreSession(); create_task('<?php echo attr($provider_id); ?>','Report','menu'); return false;">
-                                <?php echo xlt("Save Report as PDF"); ?></a></li>
+                                <?php echo xlt("Save Report as PDF"); ?><span class="menu_icon"><i class="fa fa-file-pdf"></i></span></a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
@@ -3608,6 +2859,24 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                                    href="JavaScript:void(0);">
                                 <?php echo xlt("Default Values"); ?> &nbsp;
                                 <span class="menu_icon"><i class="fa fa-pencil-alt fa-fw"></i> </span></a></li>
+                            <?php if ($isProviderOfRecord) { ?>
+                            <li id="menu_My_Signature" name="menu_My_Signature">
+                                <a class="nav-link black" href="JavaScript:void(0);"
+                                   onclick="if (typeof top.restoreSession === 'function') { top.restoreSession(); } else if (typeof window.restoreSession === 'function') { window.restoreSession(); } dlgopen(<?php echo attr(js_escape($assetManagerUrl . '?asset=signature&provider_id=' . $providerId)); ?>, 'eye_signature', 780, 720, '', <?php echo attr(xlj('My Signature')); ?>); return false;">
+                                    <?php echo xlt('My Signature'); ?>
+                                    <span class="menu_icon"><i class="fa fa-signature fa-fw"></i></span>
+                                </a>
+                            </li>
+                            <?php } ?>
+                            <?php if ($isAdmin) { ?>
+                            <li id="menu_Practice_Logo" name="menu_Practice_Logo">
+                                <a class="nav-link black" href="JavaScript:void(0);"
+                                   onclick="if (typeof top.restoreSession === 'function') { top.restoreSession(); } else if (typeof window.restoreSession === 'function') { window.restoreSession(); } dlgopen(<?php echo attr(js_escape($assetManagerUrl . '?asset=logo')); ?>, 'eye_practice_logo', 720, 470, '', <?php echo attr(xlj('Practice Logo')); ?>); return false;">
+                                    <?php echo xlt('Practice Logo'); ?>
+                                    <span class="menu_icon"><i class="fa fa-image fa-fw"></i></span>
+                                </a>
+                            </li>
+                            <?php } ?>
                             <li id="menu_TEXT" name="menu_TEXT" class="active">
                                 <a class="nav-link black" href="#"><?php echo xlt("Text"); ?><span class="menu_icon">Ctl-T</span></a></li>
                             <li id="menu_DRAW" name="menu_DRAW">
@@ -3618,22 +2887,6 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                                 <a class="nav-link black" href="#"><?php echo xlt("Prior Visits"); ?><span class="menu_icon">Ctl-P</span></a></li>
                             <li id="menu_KB" name="menu_KB">
                                 <a class="nav-link black" href="#"><?php echo xlt("Shorthand"); ?><span class="menu_icon">Ctl-K</span></a></li>
-                            <?php
-                                /*
-                                // This only shows up in fullscreen currently so hide it.
-                                // If the decision is made to show this is framed openEMR, then display it
-                                */
-                            if ($display !== "fullscreen") { ?>
-                                    <li class="divider"></li>
-                                    <li id="menu_fullscreen" name="menu_fullscreen" <?php echo ($fullscreen ?? ''); ?>>
-                                        <!-- AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams -->
-                                        <a class="nav-link black"
-                                           onclick="openNewForm(<?php echo attr_js(OEGlobalsBag::getInstance()->getWebRoot()); ?> + '/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();(function(){const p=new URLSearchParams({display:'fullscreen',encounter:<?php echo attr_js(urlencode((string) $encounter)); ?>});dopopup(<?php echo attr_js($_SERVER['REQUEST_URI']); ?> + '&' + p.toString());})();"
-                                           href="JavaScript:void(0);"
-                                           ><?php echo xlt('Fullscreen'); ?></a>
-                                    </li>
-                                    <?php
-                            } ?>
                         </ul>
                     </li>
 
@@ -3650,6 +2903,18 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                             <li class="divider"></li>
                             <li id="menu_Right_Panel" name="menu_Right_Panel"><a class="nav-link black" href="#"><?php echo xlt("PMSFH Panel"); ?><span class="menu_icon"><i class="fa fa-list" ></i></span></a></li>
                             <li id="menu_left_tabs" name="menu_left_tabs"><a class="nav-link black" href="#"><?php echo xlt("Chart View"); ?><span class="menu_icon"><i class="fa fa-user-md" ></i></span></a></li>
+                            <?php
+                            // Fullscreen belongs with the other display modes, under Chart
+                            // View.  It only makes sense framed (fullscreen itself hides it).
+                            if ($display !== "fullscreen") { ?>
+                            <li id="menu_fullscreen" name="menu_fullscreen" <?php echo ($fullscreen ?? ''); ?>>
+                                <a class="nav-link black"
+                                   title="<?php echo xla('Open this form without the surrounding OpenEMR frame'); ?>"
+                                   onclick="openNewForm(<?php echo attr_js(OEGlobalsBag::getInstance()->getWebRoot()); ?> + '/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();(function(){const p=new URLSearchParams({display:'fullscreen',encounter:<?php echo attr_js(urlencode((string) $encounter)); ?>});dopopup(<?php echo attr_js($_SERVER['REQUEST_URI']); ?> + '&' + p.toString());})();"
+                                   href="JavaScript:void(0);"
+                                   ><?php echo xlt('Fullscreen'); ?><span class="menu_icon"><i class="fa fa-window-maximize"></i></span></a>
+                            </li>
+                            <?php } ?>
                         </ul>
                     </li>
                     <li class="dropdown">
@@ -3657,7 +2922,13 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                            id="menu_dropdown_library" role="button"
                            aria-expanded="true"><?php echo xlt("Library"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li id="menu_IOP_graph" name="menu_IOP_graph" ><a class="nav-link black" href="#"><?php echo xlt("IOP Graph"); ?></a></li>
+                            <li id="menu_IOP_graph" name="menu_IOP_graph" ><a class="nav-link black" href="#"><?php echo xlt("IOP Graph"); ?><span class="menu_icon"><i class="fa fa-chart-line"></i></span></a></li>
+                            <li id="menu_My_Phrases" name="menu_My_Phrases">
+                                <a class="nav-link black"
+                                   href="JavaScript:void(0);"
+                                   title="<?php echo xla('Open My Phrases Builder to manage, create or deploy dot phrases'); ?>"
+                                   onclick="if (typeof window.eyeMagBuilderOpen === 'function') eyeMagBuilderOpen();"
+                                   ><?php echo xlt("My Phrases"); ?><span class="menu_icon"><i class="fa fa-dot-circle" ></i></span></a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
@@ -3691,18 +2962,28 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
             </div><!-- /.navbar-collapse -->
         </div>
     </nav>
+    <script>
+        document.addEventListener('click', function (event) {
+            var clickedLink = event.target.closest
+                ? event.target.closest('#oer-navbar-collapse-1 .dropdown-menu a')
+                : null;
+            if (window.innerWidth >= 992 || !clickedLink) {
+                return;
+            }
+            var menu = document.getElementById('oer-navbar-collapse-1');
+            var toggle = document.querySelector('.eye-mag-menu-toggle');
+            if (menu && toggle && menu.classList.contains('show')) {
+                toggle.click();
+            }
+        });
+    </script>
     <?php
         return;
 }
-/**
- *  This is currently a floating div top with patient demographics and such.
- *  Used in fullscreen mode at the top.
- *
- *  @param string $pid patient_id
- *  @param string $encounter is the current encounter number
- *  @return void
- */
-function menu_overhaul_left($pid, $encounter): void
+
+
+/** Render the encounter sidebar with patient, provider, and document actions. */
+function menu_overhaul_left(string $pid, string $encounter): void
 {
     global $form_folder;
     global $pat_data;
@@ -3768,13 +3049,14 @@ function menu_overhaul_left($pid, $encounter): void
         <div id="left_menu3" name="left_menu3" class="col-sm-3" style="font-size:1.0em;">
             <?php             //if the patient has a photograph, use it else use generic avitar thing.
 
-            if (!empty($documents['docs_in_name']['Patient Photograph'][0])) {
+            $patientPhoto = eye_mag_patient_photo($pid);
+            if (!empty($patientPhoto['id'])) {
                 ?>
                 <object><embed
-                            src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/controller.php?document&retrieve&patient_id=<?php echo attr($pid); ?>&document_id=<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['id']); ?>&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture"
+                            src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/controller.php?document&retrieve&patient_id=<?php echo attr($pid); ?>&document_id=<?php echo attr($patientPhoto['id']); ?>&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture"
 
-                            Xsrc="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/controller.php?document&amp;retrieve&amp;patient_id=<?php echo attr($pid); ?>&amp;document_id=<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['id']); ?>&amp;as_file=false" frameborder="0"
-                     type="<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['mimetype']); ?>" allowscriptaccess="always" allowfullscreen="false" height="100"></embed></object>
+                            Xsrc="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/controller.php?document&retrieve&patient_id=<?php echo attr($pid); ?>&document_id=<?php echo attr($patientPhoto['id']); ?>&as_file=false" frameborder="0"
+                     type="<?php echo attr($patientPhoto['mimetype']); ?>" allowscriptaccess="always" allowfullscreen="false" height="100"></embed></object>
                 <?php
             } else {
                 ?>
@@ -3865,9 +3147,10 @@ function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
  * This prints a header for documents.  Keeps the brand uniform...
  *  @param string $pid patient_id
  *  @param string $direction, options "web" or anything else.  Web provides apache-friendly url links.
+ *  @param bool $allowLogoEdit show the non-printing Practice Logo editor link
  *  @return string|false the header HTML
  */
-function report_header($pid, $direction = 'shell')
+function report_header($pid, $direction = 'shell', $allowLogoEdit = false)
 {
     global $encounter;
     global $visit_date;
@@ -3885,35 +3168,47 @@ function report_header($pid, $direction = 'shell')
     $facility = $pc_facility ? $facilityService->getById($pc_facility) : $facilityService->getPrimaryBillingLocation();
 
     $DOB = oeFormatShortDate($titleres['DOB']);
+    // Browser images fill their third of the header. mPDF resolves image
+    // percentages against the page, so give it a column-safe physical width.
+    $logoStyle = $direction === 'web'
+        ? 'display:block;width:100%;max-width:100%;height:auto;'
+        : 'width:55mm;max-width:100%;height:auto;';
     /******************************************************************/
     ob_start();
     // Use logo if it exists as 'practice_logo.gif' in the site dir
     // old code used the global custom dir which is no longer a valid
     //need to fix logo for multi-site
     ?>
-    <table style="width:100%;">
+    <table style="width:100%;table-layout:fixed;">
         <tr>
-            <td style='width:150px;text-align:top;'>
+            <td style='width:33%;vertical-align:top;padding-right:12px;'>
                 <?php
                 if ($direction == "web") {
-                    $practice_logo = OEGlobalsBag::getInstance()->getWebRoot() . "/sites/default/images/practice_logo.gif";
-                    if (file_exists($OE_SITE_DIR . "/images/practice_logo.gif")) {
-                        echo "<img src='$practice_logo' align='left' style='width:150px;margin:0px 10px;'><br />\n";
+                    $practiceLogoPath = $OE_SITE_DIR . "/images/practice_logo.gif";
+                    $practice_logo = OEGlobalsBag::getInstance()->getWebRoot() . "/sites/" . rawurlencode(basename((string)$OE_SITE_DIR)) . "/images/practice_logo.gif";
+                    if (file_exists($practiceLogoPath)) {
+                        $practice_logo .= '?t=' . (int)@filemtime($practiceLogoPath);
+                        echo "<img src='" . attr($practice_logo) . "' style='" . attr($logoStyle) . "'><br />\n";
+                    }
+                    if ($allowLogoEdit) { ?>
+                        <a href="#" class="no-print" style="display:inline-block;font-size:.85rem;margin-left:10px;"
+                           onclick="openEyeAssetEditor('logo', 0); return false;"><?php echo xlt('Edit'); ?></a>
+                        <?php
                     }
                 } else {
                     $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
                     if (file_exists($practice_logo)) {
-                        echo "<img src='$practice_logo' align='left' style='width:100px;margin:0px 10px;'><br />\n";
+                        echo "<img src='" . attr($practice_logo) . "' style='" . attr($logoStyle) . "'><br />\n";
                     } else {
                         $practice_logo = "$OE_SITE_DIR/images/login_logo.gif";
                         if (file_exists($practice_logo)) {
-                            echo "<img src='$practice_logo' align='left' style='width:100px;margin:0px 10px;'><br />\n";
+                            echo "<img src='" . attr($practice_logo) . "' style='" . attr($logoStyle) . "'><br />\n";
                         }
                     }
                 }
                 ?>
             </td>
-            <td style='width:40%;'>
+            <td style='width:33%;vertical-align:top;'>
                 <em style="font-weight:bold;font-size:1.4em;"><?php echo text($facility['name']); ?></em><br />
                 <?php echo text($facility['street']); ?><br />
                 <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br />
@@ -3925,7 +3220,7 @@ function report_header($pid, $direction = 'shell')
                     $visit_date = $visit['date'];
                 ?>
             </td>
-                <td>
+                <td style='width:34%;vertical-align:top;'>
                 <em style="font-weight:bold;font-size:1.4em;"><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></em><br />
                 <span style="font-weight:bold;"><?php echo xlt('DOB'); ?>:</span> <?php echo text($DOB); ?><br />
                 <span style="font-weight:bold;"><?php echo xlt('Generated on'); ?>:</span> <?php echo text(oeFormatShortDate()); ?><br />
@@ -3959,7 +3254,7 @@ function report_header($pid, $direction = 'shell')
  *      The codebases are determined in Admin->Forms->Lists->Code Types and include those Codesets flagged
  *      as active and as Diagnostic codes.  The terms "ptosis right eyelid" are sent to the
  *      standard openEMR code search engine.
- *  @param string $FIELDS - all the clinical fields we are going to scour for clinical terms to code.
+ *  @param array<array-key,mixed> $FIELDS - all the clinical fields we are going to scour for clinical terms to code.
  *  @return mixed the codes found
  */
 function start_your_engines($FIELDS)
@@ -3968,6 +3263,7 @@ function start_your_engines($FIELDS)
     global $pid;
     global $codes_found;
     global $PMSFH;
+    $FIELDS = EyeFormData::textRow(EyeFormData::row($FIELDS));
     $clinical_terms = [];
     $hit_RVO = [];
     $code = '';
@@ -4021,14 +3317,14 @@ function start_your_engines($FIELDS)
         }
 
         $matches = [];
-        preg_match("/\b$term\b/", ($FIELDS[$amihere['location']] ?? ''), $matches);
+        preg_match("/\b$term\b/", ($FIELDS[EyeFormData::text($amihere['location'])] ?? ''), $matches);
         if (!empty($matches)) {
             //the term is in the field
             $within_array = 'no';
-            if (isset($positives[$amihere['location']]) > '') { //true if anything was already found in this field
+            if (isset($positives[EyeFormData::text($amihere['location'])]) > '') { //true if anything was already found in this field
                 //do any of the previous hits found in in this location contain this term already?
                 //if so stop; if not, continue onward to add to Builder.
-                foreach ($positives[$amihere['location']] as $v) {
+                foreach ($positives[EyeFormData::text($amihere['location'])] as $v) {
                     if (preg_match("/\b$term\b/", (string) $v)) {
                         $within_array = 'yes';
                         break;
@@ -4040,8 +3336,8 @@ function start_your_engines($FIELDS)
                 continue;
             }
 
-            $positives[$amihere['location']][] = $term;
-            if (preg_match("/^(OD)/", (string) $amihere['location'])) {
+            $positives[EyeFormData::text($amihere['location'])][] = $term;
+            if (preg_match("/^(OD)/", EyeFormData::text($amihere['location']))) {
                 $side = "right eye";
                 $side1 = "OD";
                 $side2 = "R";
@@ -4063,9 +3359,9 @@ function start_your_engines($FIELDS)
 
                 $code_found['code'] = $code_type . ":" . $code;
                 $code_found['code_type'] = $code_type;
-                [$sub_term, $newdata] = coding_engine($term, $code_found, $amihere['location']);
+                [$sub_term, $newdata] = coding_engine($term, $code_found, EyeFormData::text($amihere['location']));
                 $codes_found[$sub_term][] = $newdata;
-                $positives[$amihere['location']][] = $term;
+                $positives[EyeFormData::text($amihere['location'])][] = $term;
             } else { //no code was defined, further processing needed.
                 if ($option_values) {
                     // This clinical finding (term) can be found in more than one disease process ('option_values')
@@ -4190,7 +3486,7 @@ function start_your_engines($FIELDS)
                             $code_found = coding_carburetor($DM_text, $MAC_text);
                             if (isset($code_found)) { //there are matches, present them to the engine
                                 foreach ($code_found as $found) {
-                                    [$sub_term, $newdata] = coding_engine($label, $found, $amihere['location'], $side1);
+                                    [$sub_term, $newdata] = coding_engine($label, $found, EyeFormData::text($amihere['location']), $side1);
                                     // The carburetor is a simple machine - it has no boolean options -
                                     // so "with" and "without" match a search for "with"...
                                     // We need to be specific to whittle down the options.
@@ -4283,9 +3579,9 @@ function start_your_engines($FIELDS)
                                     if (isset($code_found)) { //there are matches, present them to the Builder
                                         foreach ($code_found as $found) {
                                             $term = "Post-cataract CME";
-                                            [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location'], $side1);
+                                            [$sub_term, $newdata] = coding_engine($term, $found, EyeFormData::text($amihere['location']), $side1);
                                             $codes_found[$sub_term][] = $newdata;
-                                            $positives[$amihere['location']][] = $term;
+                                            $positives[EyeFormData::text($amihere['location'])][] = $term;
                                             $hit_IOL = '1';
                                         }
 
@@ -4307,12 +3603,12 @@ function start_your_engines($FIELDS)
                             //should we have another big Dx often altering what a finding means to a coder; this is a placeholder.
                             //include $option in our code search for this term
                             $term_now = $term . " " . $option;
-                            $code_found = coding_carburetor($term_now, $FIELDS[$amihere['location']]);
+                            $code_found = coding_carburetor($term_now, $FIELDS[EyeFormData::text($amihere['location'])]);
                             if (isset($code_found)) { //there are matches, present them to the Builder
                                 foreach ($code_found as $found) {
-                                    [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location'], $side1);
+                                    [$sub_term, $newdata] = coding_engine($term, $found, EyeFormData::text($amihere['location']), $side1);
                                     $codes_found[$sub_term][] = $newdata;
-                                    $positives[$amihere['location']][] = $term_now;
+                                    $positives[EyeFormData::text($amihere['location'])][] = $term_now;
                                 }
                             }
                         }
@@ -4320,12 +3616,12 @@ function start_your_engines($FIELDS)
                 } else {
                     //there are no options and no code identified,
                     //search via carburetor for possible matches to term and description of the form field
-                    $code_found = coding_carburetor($term, $FIELDS[$amihere['location']]);
+                    $code_found = coding_carburetor($term, $FIELDS[EyeFormData::text($amihere['location'])]);
                     if ($code_found !== null) { //there are matches, present them to the Builder
                         foreach ($code_found as $found) {
-                            [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location']);
+                            [$sub_term, $newdata] = coding_engine($term, $found, EyeFormData::text($amihere['location']));
                             $codes_found[$sub_term][] = $newdata;
-                            $positives[$amihere['location']][] = $term;
+                            $positives[EyeFormData::text($amihere['location'])][] = $term;
                         }
                     }
                 }
@@ -4435,7 +3731,7 @@ function cmp($a, $b): int
  * @param string $bywhat == byday or byhour
  * @return string
  */
-function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday', mixed $currentDate = ''): string
 {
     ob_start();
     global $PMSFH;
@@ -4444,17 +3740,20 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
     global $provider_id;
     global $documents;
     global $encounter_data;
-    global $dated;
     global $visit_date;
+    $currentDate = EyeFormData::text($currentDate);
     $OCT_date = []; $VF_date = []; $VISITS_date = []; $time_OU = []; $GONIO_date = [];
     $GONIO = []; $ODIOP = []; $OSIOP = []; $ODIOPTARGETS = []; $OSIOPTARGETS = [];
     $GONIO_values = []; $OCT_values = []; $VF_values = []; $OD_values = []; $OS_values = [];
     $OD_methods = []; $OS_methods = []; $ODIOPTARGET_values = []; $OSIOPTARGET_values = [];
     $OD_time_values = []; $OS_time_values = [];
+    $OD_time_methods = []; $OS_time_methods = [];
     $current_OCT = ''; $current_VF = ''; $old_OCTs = ''; $old_VFs = '';
     $FAILED_drug = ''; $FAILED_drugs = ''; $gonios = ''; $hideme = ''; $time = '';
     $count = 0;
     $ODIOPTARGET = ''; $OSIOPTARGET = '';
+
+    $iopMethodLabels = eye_mag_iop_method_labels();
 
     if (!$documents) {
         [$documents] = document_engine($pid);
@@ -4492,6 +3791,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
             $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
         }
         foreach ($priors as $visit) {
+            $visit = EyeFormData::textRow(EyeFormData::row($visit));
             //we need to build the lists - dates_OU,times_OU,gonio_OU,OCT_OU,VF_OU,ODIOP,OSIOP,IOPTARGETS
             if ($visit['date'] == '') {
                 continue;
@@ -4514,20 +3814,20 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
 
             if ($visit['ODIOPAP'] > '') {
                 $ODIOP[$i]['IOP'] = $visit['ODIOPAP'];
-                $ODIOP[$i]['method'] = "AP";
+                $ODIOP[$i]['method'] = $iopMethodLabels['AP'];
             } elseif ($visit['ODIOPTPN'] > '') {
                 $ODIOP[$i]['IOP'] = $visit['ODIOPTPN'];
-                $ODIOP[$i]['method'] = "TPN";
+                $ODIOP[$i]['method'] = $iopMethodLabels['TPN'];
             } else {
                 $ODIOP[$i]['IOP'] = "";
             }
 
             if ($visit['OSIOPAP'] > '') {
                 $OSIOP[$i]['IOP'] = $visit['OSIOPAP'];
-                $OSIOPMETHOD[$i]['method'] = "AP";
+                $OSIOP[$i]['method'] = $iopMethodLabels['AP'];
             } elseif ($visit['OSIOPTPN'] > '') {
                 $OSIOP[$i]['IOP'] = $visit['OSIOPTPN'];
-                $OSIOPMETHOD[$i]['method'] = "TPN";
+                $OSIOP[$i]['method'] = $iopMethodLabels['TPN'];
             } else {
                 $OSIOP[$i]['IOP'] = "null";
                 //we are ignoring finger tension for graphing purposes but include this should another form of IOP measurement arrive...
@@ -4558,7 +3858,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
             $i++;
         }
     } else { //there are no priors, get info from this visit
-            $VISITS_date[0] = $dated;
+            $VISITS_date[0] = $currentDate;
         if ($encounter_data['IOPTIME']) {
             $time_here = explode(":", (string) $encounter_data['IOPTIME']);
             $time = $time_here[0] . ":" . $time_here[1];
@@ -4566,7 +3866,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
         }
 
         if ($encounter_data['ODGONIO'] || $encounter_data['OSGONIO']) {
-            $GONIO_date[$i] = $dated;
+            $GONIO_date[$i] = $currentDate;
         }
 
             $ODIOP[$i]['time'] = $time;
@@ -4574,18 +3874,18 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
 
         if ($encounter_data['ODIOPAP'] > '') {
             $ODIOP[$i]['IOP'] = !is_int($encounter_data['ODIOPAP']) ? '' : $encounter_data['ODIOPAP'];
-            $ODIOP[$i]['method'] = "AP";
+            $ODIOP[$i]['method'] = $iopMethodLabels['AP'];
         } elseif ($encounter_data['ODIOPTPN'] > '') {
             $ODIOP[$i]['IOP'] = $encounter_data['ODIOPTPN'];
-            $ODIOP[$i]['method'] = "TPN";
+            $ODIOP[$i]['method'] = $iopMethodLabels['TPN'];
         }
 
         if ($encounter_data['OSIOPAP'] > '') {
             $OSIOP[$i]['IOP'] = !is_int($encounter_data['OSIOPAP']) ? '' : $encounter_data['OSIOPAP'];
-            $OSIOP[$i]['method'] = "AP";
+            $OSIOP[$i]['method'] = $iopMethodLabels['AP'];
         } elseif ($encounter_data['OSIOPTPN'] > '') {
             $OSIOP[$i]['IOP'] = $encounter_data['OSIOPTPN'];
-            $OSIOP[$i]['method'] = "TPN";
+            $OSIOP[$i]['method'] = $iopMethodLabels['TPN'];
         } else {
             //we are ignoring finger tension for graphing purposes but include this should another form of IOP measurement arrive...
             //What about the Triggerfish contact lens continuous IOP device for example...  iCare device, etc
@@ -4626,6 +3926,11 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
     usort($date_OU, cmp(...));
     $times_OU = $time_OU;
     usort($times_OU, cmp(...));
+    $timeLabelsOU = array_map(
+        /** Format each pressure-measurement time using the practice time display setting. */
+        static fn(string $time): string => DateFormatterUtils::oeFormatTime($time, 'global'),
+        $times_OU
+    );
 
     for ($a = 0; $a < count($date_OU); $a++) {
         if (!empty($GONIO_date)) {
@@ -4644,7 +3949,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
         if ($count_OCT > 0) {
             foreach ($OCT_date as $OCT) {
                 if ($date_OU[$a] == $OCT) {
-                    $OCT_values[$a] = "Completed";
+                    $OCT_values[$a] = "4";
                     break;
                 }
             }
@@ -4664,14 +3969,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
         }
 
         if (!($VF_values[$a] ?? null)) {
-            $VF_values[] = "";
+            $VF_values[$a] = "";
         }
 
         for ($k = 0; $k < count($VISITS_date); $k++) {
             if ($date_OU[$a] == $VISITS_date[$k]) {
-                if (preg_match('/[a-z]/i', ($ODIOP[$k]['IOP'] ?? ''))) {
+                if (preg_match('/[a-z]/i', EyeFormData::text($ODIOP[$k]['IOP'] ?? ''))) {
                     $ODIOP[$k]['IOP'] = '';}
-                if (preg_match('/[a-z]/i', ($OSIOP[$k]['IOP'] ?? ''))) {
+                if (preg_match('/[a-z]/i', EyeFormData::text($OSIOP[$k]['IOP'] ?? ''))) {
                     $OSIOP[$k]['IOP'] = '';}
                 $OD_values[$a] = ($ODIOP[$k]['IOP'] ?? '');
                 $OD_methods[$a] = $ODIOP[$k]['method'] ?? '';
@@ -4713,9 +4018,13 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
             if ($times_OU[$a] == $time_OU[$k]) {
                 $OD_time_values[$a] = ($ODIOP[$k]['IOP'] ?? '');
                 $OS_time_values[$a] = ($OSIOP[$k]['IOP'] ?? '');
+                $OD_time_methods[$a] = ($ODIOP[$k]['method'] ?? '');
+                $OS_time_methods[$a] = ($OSIOP[$k]['method'] ?? '');
                 break;
             }
         }
+        $OD_time_methods[$a] ??= '';
+        $OS_time_methods[$a] ??= '';
     }
 
     ?> <p style="font-weight:bold;"> <?php echo xlt('Glaucoma Zone'); ?>:</p>
@@ -4818,10 +4127,6 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                 ?>
                 <tr>
                     <td colspan="3" class="GFS_title"><?php echo xlt('Optic Nerve Analysis'); ?>:&nbsp;
-                   <pre>
-                       <?php
-
-                  // var_dump($documents); ?></pre>
                         <?php
                         if ($count_OCT > '0') { //need to decide how many to show on open, and hide the rest?  For now show first, hide rest.
                             $count = 0;
@@ -4856,6 +4161,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                         $count = 0;
                         $hideme = '';
                         foreach ($priors as $visit) {
+                            $visit = EyeFormData::textRow(EyeFormData::row($visit));
                             if (($visit['ODGONIO'] > " ") || ($visit['OSGONIO'] > " ")) { // something is here
                                 if ($count > 0) {
                                     $hideme = "hideme_gonios nodisplay";// show the first only, hide the rest for now
@@ -4911,6 +4217,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                     $count = '0';
                     $hideme = '';
                     foreach ($priors as $visit) {
+                        $visit = EyeFormData::textRow(EyeFormData::row($visit));
                         if (($visit['ODCUP'] > "") || ($visit['OSCUP'] > "")) {
                             if ($count > 0) {
                                 $hideme = "hideme_cups nodisplay";
@@ -4968,7 +4275,28 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                     $class_1 = "";
                 }
                 ?>
+                    <div id="gfs_byday_header" class="gfs-chart-header <?php echo attr($class_2); ?>">
+                        <div class="gfs-chart-title"><?php echo xlt('Intraocular Pressures by Date'); ?></div>
+                        <div class="gfs-chart-legend-row">
+                            <button type="button" data-dataset-index="0"><span class="gfs-legend-swatch gfs-target-od"></span><?php echo xlt('Target OD'); ?></button>
+                            <button type="button" data-dataset-index="1"><span class="gfs-legend-swatch gfs-target-os"></span><?php echo xlt('Target OS'); ?></button>
+                            <button type="button" data-dataset-index="2"><span class="gfs-legend-swatch gfs-iop-od"></span><?php echo xlt('OD'); ?></button>
+                            <button type="button" data-dataset-index="3"><span class="gfs-legend-swatch gfs-iop-os"></span><?php echo xlt('OS'); ?></button>
+                        </div>
+                        <div class="gfs-chart-legend-row">
+                            <button type="button" data-dataset-index="4"><span class="gfs-legend-swatch gfs-test-vf"></span><?php echo xlt('VF'); ?></button>
+                            <button type="button" data-dataset-index="5"><span class="gfs-legend-swatch gfs-test-oct"></span><?php echo xlt('OCT'); ?></button>
+                            <button type="button" data-dataset-index="6"><span class="gfs-legend-swatch gfs-test-gonio"></span><?php echo xlt('Gonio'); ?></button>
+                        </div>
+                    </div>
                     <canvas id="canvas_byday" class="<?php echo $class_2; ?>"></canvas>
+                    <div id="gfs_byhour_header" class="gfs-chart-header <?php echo attr($class_1); ?>">
+                        <div class="gfs-chart-title"><?php echo xlt('Intraocular Pressures by Time of Day'); ?></div>
+                        <div class="gfs-chart-legend-row">
+                            <button type="button" data-dataset-index="0"><span class="gfs-legend-swatch gfs-iop-od"></span><?php echo xlt('OD'); ?></button>
+                            <button type="button" data-dataset-index="1"><span class="gfs-legend-swatch gfs-iop-os"></span><?php echo xlt('OS'); ?></button>
+                        </div>
+                    </div>
                     <canvas id="canvas_byhour" class="<?php echo $class_1; ?>"></canvas>
                     <hr />
                     <button id="dailyData" class="<?php echo $class_1; ?>"><?php echo xlt('Show IOP by Date'); ?></button>
@@ -4980,19 +4308,20 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                      *  Below is the Chart.js code to render IOP by day and IOP by time
                      *
                      */
-                    var visit_date = '<?php echo attr($dated); ?>';
+                    var visit_date = '<?php echo attr($currentDate); ?>';
                     var dateFormat = 'YYYY-MM-DD';
-                    var timeFormat = 'HH tt';
 
                     var config_byhour = {
                         type: 'line',
                         data: {
-                            labels: <?php echo js_escape($times_OU); ?>,
+                            labels: <?php echo json_encode($timeLabelsOU, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
+                            rawTimes: <?php echo json_encode($times_OU, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                             datasets: [
                                 {
                                     type: 'line',
                                     label: "OD",
-                                    data: <?php echo js_escape($OD_time_values); ?>,
+                                    data: <?php echo json_encode($OD_time_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
+                                    iopMethods: <?php echo json_encode($OD_time_methods, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     borderColor : "#44a3a7",
                                     backgroundColor : "#44a3a7",
@@ -5011,7 +4340,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                 {
                                     type: 'line',
                                     label: 'OS',
-                                    data: <?php echo js_escape($OS_time_values); ?>,
+                                    data: <?php echo json_encode($OS_time_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
+                                    iopMethods: <?php echo json_encode($OS_time_methods, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     borderColor : "#000099",
                                     backgroundColor : "#000099",
@@ -5031,8 +4361,20 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                         options: {
                             plugins: {
                                 title: {
-                                    display: true,
+                                    display: false,
                                     text: '<?php echo xla("Intraocular Pressures by Time of Day"); ?>'
+                                },
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        afterLabel: function(context) {
+                                            var methods = context.dataset.iopMethods || [];
+                                            var method = methods[context.dataIndex] || '';
+                                            return method ? '<?php echo xla('Method'); ?>: ' + method : '';
+                                        }
+                                    }
                                 }
                             },
 
@@ -5064,6 +4406,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
 
                     $('#dailyData').click(function(event) {
                                           event.preventDefault();
+                                          $('#gfs_byday_header').removeClass('nodisplay');
+                                          $('#gfs_byhour_header').addClass('nodisplay');
                                           $('#canvas_byday').removeClass('nodisplay');
                                           $('#canvas_byhour').addClass('nodisplay');
 
@@ -5073,6 +4417,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                           });
                     $('#hourlyData').click(function(event) {
                                            event.preventDefault();
+                                           $('#gfs_byday_header').addClass('nodisplay');
+                                           $('#gfs_byhour_header').removeClass('nodisplay');
                                            $('#canvas_byhour').removeClass('nodisplay');
                                            $('#canvas_byday').addClass('nodisplay');
                                            $('#dailyData').removeClass('nodisplay');
@@ -5082,13 +4428,13 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                     var config_byday = {
                         type: 'line',
                         data: {
-                            labels: <?php echo js_escape($date_OU); ?>,
+                            labels: <?php echo json_encode($date_OU, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                             datasets: [
                                 {
                                     axis: 'y',
                                     type: 'line',
                                     label: "Target OD",
-                                    data: <?php echo js_escape($ODIOPTARGET_values); ?>,
+                                    data: <?php echo json_encode($ODIOPTARGET_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     borderColor : "#f28282",
                                     backgroundColor : "#f28282",
@@ -5108,7 +4454,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                     axis: 'y',
                                     type: 'line',
                                     label: "Target OS",
-                                    data: <?php echo js_escape($OSIOPTARGET_values); ?>,
+                                    data: <?php echo json_encode($OSIOPTARGET_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     borderColor : "#AA8282",
                                     backgroundColor : "#AA8282",
@@ -5129,7 +4475,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                     axis: 'y',
                                     type: 'line',
                                     label: "OD",
-                                    data: <?php echo js_escape($OD_values); ?>,
+                                    data: <?php echo json_encode($OD_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
+                                    iopMethods: <?php echo json_encode($OD_methods, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     borderColor : "#44a3a7",
                                     backgroundColor : "#44a3a7",
@@ -5149,7 +4496,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                     axis: 'y',
                                     type: 'line',
                                     label: 'OS',
-                                    data: <?php echo js_escape($OS_values); ?>,
+                                    data: <?php echo json_encode($OS_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
+                                    iopMethods: <?php echo json_encode($OS_methods, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     lineTension: 3,
                                     borderColor : "#000099",
@@ -5171,7 +4519,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                     label: "VF",
                                     strokeColor: '#5CABFA',
                                     fillColor:"#5CABFA",
-                                    data: <?php echo js_escape($VF_values); ?>,
+                                    data: <?php echo json_encode($VF_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: true,
                                     backgroundColor: '#5CABFA'
                                 },
@@ -5179,7 +4527,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                     axis: 'y',
                                     type: 'bar',
                                     label: "OCT",
-                                    data: <?php echo js_escape($OCT_values); ?>, //0/null is not done, 1 if performed.
+                                    data: <?php echo json_encode($OCT_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>, //0/null is not done, 1 if performed.
                                     fill: true,
                                     backgroundColor: '#71B37C'
                                 },
@@ -5187,7 +4535,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                     axis: 'y',
                                     type: 'bar',
                                     label: "Gonio",
-                                    data: <?php echo js_escape($GONIO_values); ?>,
+                                    data: <?php echo json_encode($GONIO_values, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR); ?>,
                                     fill: false,
                                     strokeColor: 'rgba(209, 30, 93, 0.3)',
                                     fillColor:'rgba(209, 30, 93, 0.3)',
@@ -5198,8 +4546,20 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                         options: {
                             plugins: {
                                 title: {
-                                    display: true,
+                                    display: false,
                                     text: '<?php echo xla("Intraocular Pressures by Date"); ?>'
+                                },
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        afterLabel: function(context) {
+                                            var methods = context.dataset.iopMethods || [];
+                                            var method = methods[context.dataIndex] || '';
+                                            return method ? '<?php echo xla('Method'); ?>: ' + method : '';
+                                        }
+                                    }
                                 }
                             },
                             responsive: true,
@@ -5237,6 +4597,20 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
 
                     var myLine = new Chart(ctx1, config_byday);
                     var myLine2 = new Chart(ctx2, config_byhour);
+                    $('#gfs_byday_header [data-dataset-index]').on('click', function() {
+                        var datasetIndex = parseInt($(this).attr('data-dataset-index'), 10);
+                        var wasVisible = myLine.isDatasetVisible(datasetIndex);
+                        myLine.setDatasetVisibility(datasetIndex, !wasVisible);
+                        $(this).toggleClass('is-hidden', wasVisible);
+                        myLine.update();
+                    });
+                    $('#gfs_byhour_header [data-dataset-index]').on('click', function() {
+                        var datasetIndex = parseInt($(this).attr('data-dataset-index'), 10);
+                        var wasVisible = myLine2.isDatasetVisible(datasetIndex);
+                        myLine2.setDatasetVisibility(datasetIndex, !wasVisible);
+                        $(this).toggleClass('is-hidden', wasVisible);
+                        myLine2.update();
+                    });
 
                 </script>
                 <?php
@@ -5304,6 +4678,7 @@ function display_VisualAcuities($pid = 0): string
         $array_va_CTLODVA = [];
         $array_va_CTLOSVA = [];
         foreach ($flip_priors as $prior) {
+            $prior = EyeFormData::textRow(EyeFormData::row($prior));
             if ($prior['visit_date'] > $visit_date) {
                 continue;
             }
@@ -5447,31 +4822,31 @@ function display_VisualAcuities($pid = 0): string
                                     <td><?php echo text($prior['visit_date']); ?></td>
                                 <?php
                                 if ($VA_SCODVA || $VA_SCOSVA) { ?>
-                                            <td class="vasc_class"><?php echo text($prior['SCODVA']); ?></td><td class="vasc_class"><?php echo text($prior['SCOSVA']); ?></td>
+                                            <td class="vasc_class"><?php echo text(EyeFormData::text($prior['SCODVA'])); ?></td><td class="vasc_class"><?php echo text(EyeFormData::text($prior['SCOSVA'])); ?></td>
                                             <?php
                                 }
                                 if ($VA_CCODVA || $VA_CCOSVA) { ?>
-                                            <td class="vacc_class"><?php echo text($prior['CCODVA']); ?></td><td class="vacc_class"><?php echo text($prior['CCOSVA']); ?></td>
+                                            <td class="vacc_class"><?php echo text(EyeFormData::text($prior['CCODVA'])); ?></td><td class="vacc_class"><?php echo text(EyeFormData::text($prior['CCOSVA'])); ?></td>
                                             <?php
                                 }
                                 if ($VA_PHODVA || $VA_PHOSVA) { ?>
-                                            <td class="vaph_class"><?php echo text($prior['PHODVA']); ?></td><td class="vaph_class"><?php echo text($prior['PHOSVA']); ?></td>
+                                            <td class="vaph_class"><?php echo text(EyeFormData::text($prior['PHODVA'])); ?></td><td class="vaph_class"><?php echo text(EyeFormData::text($prior['PHOSVA'])); ?></td>
                                             <?php
                                 }
                                 if ($VA_ARODVA || $VA_AROSVA) { ?>
-                                            <td class="vaar_class"><?php echo text($prior['ARODVA']); ?></td><td class="vaar_class"><?php echo text($prior['AROSVA']); ?></td>
+                                            <td class="vaar_class"><?php echo text(EyeFormData::text($prior['ARODVA'])); ?></td><td class="vaar_class"><?php echo text(EyeFormData::text($prior['AROSVA'])); ?></td>
                                             <?php
                                 }
                                 if ($VA_MRODVA || $VA_MROSVA) { ?>
-                                            <td class="vamr_class"><?php echo text($prior['MRODVA']); ?></td><td class="vamr_class"><?php echo text($prior['MROSVA']); ?></td>
+                                            <td class="vamr_class"><?php echo text(EyeFormData::text($prior['MRODVA'])); ?></td><td class="vamr_class"><?php echo text(EyeFormData::text($prior['MROSVA'])); ?></td>
                                             <?php
                                 }
                                 if ($VA_CRODVA || $VA_CROSVA) { ?>
-                                            <td class="vacr_class"><?php echo text($prior['CRODVA']); ?></td><td class="vacr_class"><?php echo text($prior['CROSVA']); ?></td>
+                                            <td class="vacr_class"><?php echo text(EyeFormData::text($prior['CRODVA'])); ?></td><td class="vacr_class"><?php echo text(EyeFormData::text($prior['CROSVA'])); ?></td>
                                             <?php
                                 }
                                 if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
-                                            <td class="vactl_class"><?php echo text($prior['CTLODVA']); ?></td><td class="vactl_class"><?php echo text($prior['CTLOSVA']); ?></td>
+                                            <td class="vactl_class"><?php echo text(EyeFormData::text($prior['CTLODVA'])); ?></td><td class="vactl_class"><?php echo text(EyeFormData::text($prior['CTLOSVA'])); ?></td>
                                         <?php } ?>
                                 </tr>
 
@@ -5528,7 +4903,7 @@ function display_VisualAcuities($pid = 0): string
                                     borderColor : "#AA8282",
                                     backgroundColor : "#AA8282",
                                     pointBorderColor : "black",
-                                    pointBackgroundColor : "#f28282",
+                                    pointBackgroundColor : "#AA8282",
                                     pointBorderWidth : 3,
                                     lineTension: 0.3,
                                     borderCapStyle: 'round',
@@ -5548,10 +4923,10 @@ function display_VisualAcuities($pid = 0): string
                                     label: "<?php echo xla("OD CC{{Visual Acuity with correction right eye}}"); ?>",
                                     data: <?php echo js_escape($VA_CCODVA); ?>,
                                     fill: false,
-                                    borderColor : "#AA8282",
+                                    borderColor : "red",
                                     backgroundColor : "red",
                                     pointBorderColor : "black",
-                                    pointBackgroundColor : "#f28282",
+                                    pointBackgroundColor : "red",
                                     pointBorderWidth : 3,
                                     lineTension: 0.3,
                                     borderCapStyle: 'round',
@@ -5568,10 +4943,10 @@ function display_VisualAcuities($pid = 0): string
                                     label: "<?php echo xla("OS CC{{Visual Acuity with correction left eye}}"); ?>",
                                     data: <?php echo js_escape($VA_CCOSVA); ?>,
                                     fill: false,
-                                    borderColor : "#AA8282",
+                                    borderColor : "blue",
                                     backgroundColor : "blue",
                                     pointBorderColor : "black",
-                                    pointBackgroundColor : "#f28282",
+                                    pointBackgroundColor : "blue",
                                     pointBorderWidth : 3,
                                     lineTension: 0.3,
                                     borderCapStyle: 'round',
@@ -5591,10 +4966,10 @@ function display_VisualAcuities($pid = 0): string
                                     label: "<?php echo xla("OD MR{{Visual Acuity with Manifest refraction right eye}}"); ?>",
                                     data: <?php echo js_escape($VA_MRODVA); ?>,
                                     fill: false,
-                                    borderColor : "#AA8282",
+                                    borderColor : "navy",
                                     backgroundColor : "navy",
                                     pointBorderColor : "black",
-                                    pointBackgroundColor : "#f28282",
+                                    pointBackgroundColor : "navy",
                                     pointBorderWidth : 3,
                                     lineTension: 0.3,
                                     borderCapStyle: 'round',
@@ -5611,10 +4986,10 @@ function display_VisualAcuities($pid = 0): string
                                     label: "<?php echo xla("OS MR{{Visual Acuity with Manifest refraction left eye}}"); ?>",
                                     data: <?php echo js_escape($VA_MROSVA); ?>,
                                     fill: false,
-                                    borderColor : "#AA8282",
+                                    borderColor : "yellow",
                                     backgroundColor : "yellow",
                                     pointBorderColor : "black",
-                                    pointBackgroundColor : "#f28282",
+                                    pointBackgroundColor : "yellow",
                                     pointBorderWidth : 3,
                                     lineTension: 0.3,
                                     borderCapStyle: 'round',
@@ -5634,10 +5009,10 @@ function display_VisualAcuities($pid = 0): string
                                     label: "<?php echo xla("OD CTL{{Va with Contact Lens right eye}}"); ?>",
                                     data: <?php echo js_escape($VA_CTLODVA); ?>,
                                     fill: false,
-                                    borderColor : "#AA8282",
+                                    borderColor : "orange",
                                     backgroundColor : "orange",
                                     pointBorderColor : "black",
-                                    pointBackgroundColor : "green",
+                                    pointBackgroundColor : "orange",
                                     pointBorderWidth : 3,
                                     lineTension: 0.3,
                                     borderCapStyle: 'round',
@@ -5654,10 +5029,10 @@ function display_VisualAcuities($pid = 0): string
                                     label: "<?php echo xla("OS CTL{{Va with Contact Lens left eye}}"); ?>",
                                     data: <?php echo js_escape($VA_CTLOSVA); ?>,
                                     fill: false,
-                                    borderColor : "#AA8282",
+                                    borderColor : "purple",
                                     backgroundColor : "purple",
                                     pointBorderColor : "black",
-                                    pointBackgroundColor : "#f28282",
+                                    pointBackgroundColor : "purple",
                                     pointBorderWidth : 3,
                                     lineTension: 0.3,
                                     borderCapStyle: 'round',
@@ -5713,6 +5088,18 @@ function display_VisualAcuities($pid = 0): string
                     var ctx3 = document.getElementById("canvas_VA").getContext("2d");
 
                     var myLine = new Chart(ctx3, config_byVA);
+                    // Apply the provider's stored exclusions and auto cross-out datasets
+                    // that have no values documented at all.
+                    var vahx_excluded = (($('#PREFS_VAHX_EXCLUDE').val()) || '').split(',').filter(function (s) { return s !== ''; });
+                    config_byVA.data.datasets.forEach(function (ds, i) {
+                        var hasData = (ds.data || []).some(function (v) {
+                            return (v !== '' && v !== null && typeof v !== 'undefined');
+                        });
+                        if (!hasData || vahx_excluded.indexOf(ds.label) !== -1) {
+                            myLine.setDatasetVisibility(i, false);
+                        }
+                    });
+                    myLine.update();
 
                 </script>
                 <?php
@@ -5732,9 +5119,10 @@ function display_VisualAcuities($pid = 0): string
 
 
 # gets the provider from the encounter file , or from the logged on user or from the patient file
+/** Resolve the encounter provider using calendar and patient-provider fallbacks. */
 function findProvider($pid, $encounter)
 {
-    $find_provider = sqlQuery("SELECT * FROM form_encounter " .
+    $find_provider = QueryUtils::querySingleRow("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", [$pid,$encounter]);
     $providerid = $find_provider['provider_id'] ?? '';
@@ -5742,14 +5130,14 @@ function findProvider($pid, $encounter)
        //find the default providerID from the calendar
         $visit_date = date('Y-m-d', strtotime($find_provider['date'] ?? ''));
         $query = "select * from openemr_postcalendar_events where pc_pid=? and pc_eventDate=?";
-        $find_provider3 = sqlQuery($query, [$pid,$visit_date]);
+        $find_provider3 = QueryUtils::querySingleRow($query, [$pid,$visit_date]);
         $new_providerid = $find_provider3['pc_aid'] ?? '';
         if (($new_providerid < '1') || (!$new_providerid)) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             $get_authorized = $session->get('userauthorized');
             if ($get_authorized == 1) {
-                $find_provider2 = sqlQuery("SELECT providerID FROM patient_data WHERE pid = ? ", [$pid]);
-                $new_providerid = $find_provider2['providerID'];
+                $find_provider2 = QueryUtils::querySingleRow("SELECT providerID FROM patient_data WHERE pid = ? ", [$pid]);
+                $new_providerid = $find_provider2['providerID'] ?? '';
             }
         }
 
@@ -5761,13 +5149,15 @@ function findProvider($pid, $encounter)
     return $providerid;
 }
 
-function generate_lens_treatments($W, $LTs_present)
+/** Return active lens-treatment checkboxes with the current prescription's selections. */
+function generate_lens_treatments(mixed $W, mixed $LTs_present): string
 {
+    $W = EyeFormData::text($W);
     ob_start();
     $query = "SELECT * FROM list_options where list_id =? and activity='1' ORDER BY seq";
     $TXs_data = sqlStatement($query, ["Eye_Lens_Treatments"]);
     $counter = 0;
-    $TXs_arr = explode("|", (string) $LTs_present);
+    $TXs_arr = explode("|", EyeFormData::text($LTs_present));
     $tabindex = $W . "0144";
     while ($row = sqlFetchArray($TXs_data)) {
         $checked = '';
@@ -5776,18 +5166,19 @@ function generate_lens_treatments($W, $LTs_present)
             $checked = "checked='yes'";
         }
 
-        echo "<input type='checkbox' id='TXs_" . $W . "_" . $counter . "' name='LENS_TREATMENTS_" . $W . "[]' $checked value='" . attr($ID) . "' tabindex='$tabindex'> ";
-        $label = text(substr((string) $row['title'], 0, 30));
+        echo "<div class='treat-row'><input type='checkbox' id='TXs_" . $W . "_" . $counter . "' name='LENS_TREATMENTS_" . $W . "[]' $checked value='" . attr($ID) . "' tabindex='$tabindex'> ";
+        $label = text(substr(EyeFormData::text($row['title']), 0, 30));
         echo "<label for='TXs_" . $W . "_" . $counter . "' class='input-helper input-helper--checkbox' title='" . attr($row['notes']) . "'>";
-        echo $label . "</label><br />";
+        echo $label . "</label></div>";
         $counter++;
         $tabindex++;
     }
 
     $output = ob_get_contents();
     ob_end_clean();
-    return $output;
+    return $output ?: '';
 }
+
 
 /**
  *  Function to display the fields for a currently worn glasses/spectacle Rx.
@@ -5796,16 +5187,34 @@ function generate_lens_treatments($W, $LTs_present)
 function generate_specRx($W)
 {
     global $pid,$form_id,$encounter,$display_W_width;
+    $W = EyeFormData::text($W);
 
     $query  = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? and RX_NUMBER =?";
-    $wear   = sqlQuery($query, [$pid,$form_id,$encounter,$W]);
+    $wear = EyeFormData::textRow(EyeFormData::row(QueryUtils::querySingleRow($query, [$pid,$form_id,$encounter,$W])));
     if ($wear) {
         $RX_VALUE = '1';
-        @extract($wear);
+        extract($wear, EXTR_SKIP);
+        $ODPRISM = trim(EyeFormData::text($wear['ODPRISM'] ?? '')) ?: trim(trim((EyeFormData::text($wear['ODHPD'] ?? '')) . ' ' . (EyeFormData::text($wear['ODHBASE'] ?? ''))) . ' ' . trim((EyeFormData::text($wear['ODVPD'] ?? '')) . ' ' . (EyeFormData::text($wear['ODVBASE'] ?? ''))));
+        $OSPRISM = trim(EyeFormData::text($wear['OSPRISM'] ?? '')) ?: trim(trim((EyeFormData::text($wear['OSHPD'] ?? '')) . ' ' . (EyeFormData::text($wear['OSHBASE'] ?? ''))) . ' ' . trim((EyeFormData::text($wear['OSVPD'] ?? '')) . ' ' . (EyeFormData::text($wear['OSVBASE'] ?? ''))));
     } else {
         $RX_VALUE = '';
         $display_W = 'nodisplay';
+        $ODPRISM = '';
+        $OSPRISM = '';
     }
+
+    $ODNEARVA = $wear['ODNEARVA'] ?? '';
+    $OSNEARVA = $wear['OSNEARVA'] ?? '';
+    $wearDetails = [
+        'ODPRISM' => $ODPRISM, 'OSPRISM' => $OSPRISM,
+        'ODHPD' => EyeFormData::text($wear['ODHPD'] ?? ''), 'ODHBASE' => EyeFormData::text($wear['ODHBASE'] ?? ''), 'ODVPD' => EyeFormData::text($wear['ODVPD'] ?? ''), 'ODVBASE' => EyeFormData::text($wear['ODVBASE'] ?? ''),
+        'OSHPD' => EyeFormData::text($wear['OSHPD'] ?? ''), 'OSHBASE' => EyeFormData::text($wear['OSHBASE'] ?? ''), 'OSVPD' => EyeFormData::text($wear['OSVPD'] ?? ''), 'OSVBASE' => EyeFormData::text($wear['OSVBASE'] ?? ''),
+        'ODMPDD' => $ODMPDD ?? '', 'ODMPDN' => $ODMPDN ?? '', 'OSMPDD' => $OSMPDD ?? '', 'OSMPDN' => $OSMPDN ?? '',
+        'BPDD' => $BPDD ?? '', 'BPDN' => $BPDN ?? '',
+        'ODVERTEXDIST' => $ODVERTEXDIST ?? '', 'OSVERTEXDIST' => $OSVERTEXDIST ?? '',
+        'ODSLABOFF' => $ODSLABOFF ?? '', 'OSSLABOFF' => $OSSLABOFF ?? '',
+        'RX_TYPE' => $RX_TYPE ?? '', 'LENS_MATERIAL' => $LENS_MATERIAL ?? '', 'LENS_TREATMENTS' => $LENS_TREATMENTS ?? '',
+    ];
 
     ob_start();
     ?>
@@ -5820,70 +5229,32 @@ function generate_specRx($W)
                        title="<?php echo xla("Dispense Rx"); ?>" class="closeButton_3 fa fa-print"></i>
                       <i onclick="top.restoreSession();  dispensed('<?php echo attr($pid); ?>');return false;"
                          title="<?php echo xla("List of previously dispensed Spectacle and Contact Lens Rxs"); ?>" class="closeButton_4 fa fa-list-ul"></i>
-                      <table id="wearing_<?php echo attr($W); ?>" >
+                      <table id="wearing_<?php echo attr($W); ?>" class="wear-rx-table">
+                        <?php display_wear_colgroup(); ?>
                         <tr>
-                          <th colspan="7"><?php echo xlt('Current Glasses'); ?>: #<?php echo attr($W); ?>
+                          <th colspan="10" class="refraction-panel-title wear-panel-heading">
+                            <div class="wear-header-bar">
+                              <span class="wear-header-title"><?php echo xlt('Current Glasses'); ?>: #<?php echo attr($W); ?></span>
+                              <span id="W_source_label_<?php echo attr($W); ?>" class="wear-source-label badge badge-info"></span>
+                            </div>
                           </th>
                         </tr>
                         <tr>
-                          <td></td>
                           <td><i class="fa fa-gamepad" name="reverseme" title="<?php echo xla('Convert between plus and minus cylinder'); ?>"aria-hidden="true" id="revW<?php echo attr($W); ?>" ></i></td>
                           <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
                           <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
                           <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                           <td><?php echo xlt('Acuity'); ?></td>
-                                                    <td name="W_wide"></td>
-                          <td name="W_wide" title="<?php echo xla('Horizontal Prism Power'); ?>"><?php echo xlt('HP{{abbreviation for Horizontal Prism Power}}'); ?></td>
-                          <td name="W_wide" title="<?php echo xla('Horizontal Prism Base'); ?>"><?php echo xlt('HB{{abbreviation for Horizontal Prism Base}}'); ?></td>
-                          <td name="W_wide" title="<?php echo xla('Vertical Prism Power'); ?>"><?php echo xlt('VP{{abbreviation for Vertical Prism Power}}'); ?></td>
-                          <td name="W_wide" title="<?php echo xla('Vertical Prism Base'); ?>"><?php echo xlt('VB{{abbreviation for Vertical Prism Base}}'); ?></td>
-                          <td name="W_wide" title="<?php echo xla('Slab Off'); ?>"><?php echo xlt('Slab Off'); ?></td>
-                          <td name="W_wide" title="<?php echo xla('Vertex Distance'); ?>"><?php echo xlt('VD{{abbreviation for Vertex Distance}}'); ?></td>
-                          <td name="W_wide" title="<?php echo xla('Monocular Pupillary Diameter - Distance'); ?>"><?php echo xlt('MPD-D{{abbreviation for Monocular Pupillary Diameter - Distance}}'); ?></td>
-                          <td name="W_wide" title="<?php echo xla('Monocular Pupillary Diameter - Near'); ?>"><?php echo xlt('MPD-N{{abbreviation for Monocular Pupillary Diameter - Near}}'); ?></td>
-
-                          <td rowspan="6" class="right">
-                            <?php echo xlt('Rx Type{{Type of glasses prescription}}'); ?></span><br />
-                            <label for="Single_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Single'); ?></label>
-                            <input type="radio" value="0" id="Single_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php
-                            if (($RX_TYPE ?? null) == '0') {
-                                echo 'checked="checked"';
-                            } ?> /></span><br /><br />
-                            <label for="Bifocal_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Bifocal'); ?></label>
-                            <input type="radio" value="1" id="Bifocal_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php
-                            if (($RX_TYPE ?? null) == '1') {
-                                echo 'checked="checked"';
-                            } ?> /></span><br /><br />
-                            <label for="Trifocal_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Trifocal'); ?></label>
-                            <input type="radio" value="2" id="Trifocal_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php
-                            if (($RX_TYPE ?? null) == '2') {
-                                echo 'checked="checked"';
-                            } ?> /></span><br /><br />
-                            <label for="Progressive_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Prog.{{Progressive lenses}}'); ?></label>
-                            <input type="radio" value="3" id="Progressive_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php
-                            if (($RX_TYPE ?? null) == '3') {
-                                echo 'checked="checked"';
-                            } ?> /></span><br />
-                          </td>
+                          <?php display_wear_header_cells($W, $wearDetails); ?>
                         </tr>
                         <tr>
-                          <td rowspan="2"><?php echo xlt('Dist{{distance}}'); ?></td>
                           <td style="font-weight:bold;"><?php echo xlt('OD{{right eye}}'); ?>:</td>
-                          <td><?php if (!empty(${"ODSPH_$W"})) {
+                          <td><?php if ((EyeFormData::text(${"ODSPH_$W"} ?? '') !== '')) {
                                 echo ${"ODSPH_$W"};} ?><input type="text" class="sphere" id="ODSPH_<?php echo attr($W); ?>" name="ODSPH_<?php echo attr($W); ?>"  value="<?php echo attr($ODSPH ?? ''); ?>" tabindex="<?php echo attr($W); ?>0100"></td>
                           <td><input type="text" class="cylinder" id="ODCYL_<?php echo attr($W); ?>" name="ODCYL_<?php echo attr($W); ?>"  value="<?php echo attr($ODCYL ?? ''); ?>" tabindex="<?php echo attr($W); ?>0101"></td>
                           <td><input type="text" class="axis" id="ODAXIS_<?php echo attr($W); ?>" name="ODAXIS_<?php echo attr($W); ?>" value="<?php echo attr($ODAXIS ?? ''); ?>" tabindex="<?php echo attr($W); ?>0102"></td>
                           <td><input type="text" class="acuity" id="ODVA_<?php echo attr($W); ?>" name="ODVA_<?php echo attr($W); ?>" value="<?php echo attr($ODVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0108"></td>
-
-                          <td name="W_wide"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODHPD_<?php echo attr($W); ?>" name="ODHPD_<?php echo attr($W); ?>" value="<?php echo attr($ODHPD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0112"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODHBASE_<?php echo attr($W); ?>" name="ODHBASE_<?php echo attr($W); ?>" value="<?php echo attr($ODHBASE ?? ''); ?>" tabindex="<?php echo attr($W); ?>0114"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODVPD_<?php echo attr($W); ?>" name="ODVPD_<?php echo attr($W); ?>" value="<?php echo attr($ODVPD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0116"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODVBASE_<?php echo attr($W); ?>" name="ODVBASE_<?php echo attr($W); ?>" value="<?php echo attr($ODVBASE ?? ''); ?>" tabindex="<?php echo attr($W); ?>0118"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODSLABOFF_<?php echo attr($W); ?>" name="ODSLABOFF_<?php echo attr($W); ?>" value="<?php echo attr($ODSLABOFF ?? ''); ?>" tabindex="<?php echo attr($W); ?>0120"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODVERTEXDIST_<?php echo attr($W); ?>" name="ODVERTEXDIST_<?php echo attr($W); ?>" value="<?php echo attr($ODVERTEXDIST ?? ''); ?>" tabindex="<?php echo attr($W); ?>0122"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODMPDD_<?php echo attr($W); ?>" name="ODMPDD_<?php echo attr($W); ?>" value="<?php echo attr($ODMPDD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0124"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODMPDN_<?php echo attr($W); ?>" name="ODMPDN_<?php echo attr($W); ?>" value="<?php echo attr($ODMPDN ?? ''); ?>" tabindex="<?php echo attr($W); ?>0126"></td>
+                          <?php display_wear_distance_cells($W, 'OD', $wearDetails); ?>
                         </tr>
                         <tr>
                           <td style="font-weight:bold;"><?php echo xlt('OS{{left eye}}'); ?>:</td>
@@ -5891,69 +5262,31 @@ function generate_specRx($W)
                           <td><input type="text" class="cylinder" id="OSCYL_<?php echo attr($W); ?>" name="OSCYL_<?php echo attr($W); ?>" value="<?php echo attr($OSCYL ?? ''); ?>" tabindex="<?php echo attr($W); ?>0104"></td>
                           <td><input type="text" class="axis" id="OSAXIS_<?php echo attr($W); ?>" name="OSAXIS_<?php echo attr($W); ?>" value="<?php echo attr($OSAXIS ?? ''); ?>" tabindex="<?php echo attr($W); ?>0105"></td>
                           <td><input type="text" class="acuity" id="OSVA_<?php echo attr($W); ?>" name="OSVA_<?php echo attr($W); ?>" value="<?php echo attr($OSVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0109"></td>
-
-                          <td name="W_wide"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSHPD_<?php echo attr($W); ?>" name="OSHPD_<?php echo attr($W); ?>" value="<?php echo attr($OSHPD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0113"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSHBASE_<?php echo attr($W); ?>" name="OSHBASE_<?php echo attr($W); ?>" value="<?php echo attr($OSHBASE ?? ''); ?>" tabindex="<?php echo attr($W); ?>0115"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSVPD_<?php echo attr($W); ?>" name="OSVPD_<?php echo attr($W); ?>" value="<?php echo attr($OSVPD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0117"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSVBASE_<?php echo attr($W); ?>" name="OSVBASE_<?php echo attr($W); ?>" value="<?php echo attr($OSVBASE ?? ''); ?>" tabindex="<?php echo attr($W); ?>0119"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSSLABOFF_<?php echo attr($W); ?>" name="OSSLABOFF_<?php echo attr($W); ?>" value="<?php echo attr($OSSLABOFF ?? ''); ?>" tabindex="<?php echo attr($W); ?>0121"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSVERTEXDIST_<?php echo attr($W); ?>" name="OSVERTEXDIST_<?php echo attr($W); ?>" value="<?php echo attr($OSVERTEXDIST ?? ''); ?>" tabindex="<?php echo attr($W); ?>0123"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSMPDD_<?php echo attr($W); ?>" name="OSMPDD_<?php echo attr($W); ?>" value="<?php echo attr($OSMPDD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0125"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSMPDN_<?php echo attr($W); ?>" name="OSMPDN_<?php echo attr($W); ?>" value="<?php echo attr($OSMPDN ?? ''); ?>" tabindex="<?php echo attr($W); ?>0127"></td>
+                          <?php display_wear_distance_cells($W, 'OS', $wearDetails); ?>
                         </tr>
                         <tr class="WNEAR">
-                          <td rowspan=2><?php echo xlt('Mid{{middle Rx strength}}'); ?>/<br /><?php echo xlt('Near'); ?></td>
                           <td style="font-weight:bold;"><?php echo xlt('OD{{right eye}}'); ?>:</td>
                             <?php echo '<input type="hidden" name="RXStart_' . $W . ' id="RXStart_' . $W . '" value="' . attr($RX_TYPE ?? '') . '">'; ?>
                           <td class="WMid"><input type="text" class="presbyopia" id="ODMIDADD_<?php echo attr($W); ?>" name="ODMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($ODMIDADD ?? ''); ?>"></td>
                           <td class="WAdd2"><input type="text" class="presbyopia" id="ODADD_<?php echo attr($W); ?>" name="ODADD_<?php echo attr($W); ?>" value="<?php echo attr($ODADD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0106"></td>
                           <td></td>
-                          <td><input class="jaeger" type="text" id="NEARODVA_<?php echo attr($W); ?>" name="NEARODVA_<?php echo attr($W); ?>" value="<?php echo attr($NEARODVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0110"></td>
-
-                          <td name="W_wide"></td>
-
-                          <td name="W_wide" title="<?php echo xla('Binocular Pupillary Diameter - Distance'); ?>"><?php echo xlt('PD-D{{abbreviation for Binocular Pupillary Diameter - Distance}}'); ?></td>
-                          <td name="W_wide" title="<?php echo xla('Binocular Pupillary Diameter - Near'); ?>"><?php echo xlt('PD-N{{abbreviation for Binocular Pupillary Diameter - Near}}'); ?></td>
-                          <td name="W_wide" title="<?php echo xla('Lens Material'); ?>" colspan="2">
-                            <a href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Material" target="RTop"
-                                  title="<?php echo xla('Click here to edit list of available Lens Materials'); ?>"
-                                  name="Lens_mat"><span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil-alt-alt fa-fw"></i> </a>
-                          </td>
-                          <td name="W_wide2" colspan="4" rowspan="4">
-                            <a href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Treatments" target="RTop"
-                                  title="<?php echo xla('Click here to edit list of available Lens Treatment Options'); ?>"
-                                  name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil-alt-alt fa-fw"></i> </a>
-                            <br />
-                            <?php  echo generate_lens_treatments($W, ($LENS_TREATMENTS ?? '')); ?>
-                          </td>
+                          <td><input class="jaeger" type="text" id="ODNEARVA_<?php echo attr($W); ?>" name="ODNEARVA_<?php echo attr($W); ?>" value="<?php echo attr($ODNEARVA); ?>" tabindex="<?php echo attr($W); ?>0110"></td>
+                          <?php display_wear_lower_cells($W, 'OD', $wearDetails); ?>
                         </tr>
                         <tr class="WNEAR">
                           <td style="font-weight:bold;"><?php echo xlt('OS{{left eye}}'); ?>:</td>
                           <td class="WMid"><input type="text" class="presbyopia" id="OSMIDADD_<?php echo attr($W); ?>" name="OSMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($OSMIDADD ?? ''); ?>"></td>
                           <td class="WAdd2"><input type="text" class="presbyopia" id="OSADD_<?php echo attr($W); ?>" name="OSADD_<?php echo attr($W); ?>" value="<?php echo attr($OSADD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0107"></td>
                           <td></td>
-                          <td><input class="jaeger" type="text" id="NEAROSVA_<?php echo attr($W); ?>" name="NEAROSVA_<?php echo attr($W); ?>" value="<?php echo attr($NEAROSVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0111"></td>
-
-                          <td name="W_wide"></td>
-
-                          <td name="W_wide"><input type="text" class="prism" id="BPDD_<?php echo attr($W); ?>" name="BPDD_<?php echo attr($W); ?>" value="<?php echo attr($BPDD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0128"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="BPDN_<?php echo attr($W); ?>" name="BPDN_<?php echo attr($W); ?>" value="<?php echo attr($BPDN ?? ''); ?>" tabindex="<?php echo attr($W); ?>0129"></td>
-                          <td name="W_wide" title="<?php echo xla('Lens Material Options'); ?>" colspan="2">
-                            <?php echo generate_select_list("LENS_MATERIAL_" . $W, "Eye_Lens_Material", ($LENS_MATERIAL  ?? ''), '', ' ', '', 'restoreSession;submit_form();', '', ['style' => 'width:120px','tabindex' => $W . '0130']); ?>
-                          </td>
+                          <td><input class="jaeger" type="text" id="OSNEARVA_<?php echo attr($W); ?>" name="OSNEARVA_<?php echo attr($W); ?>" value="<?php echo attr($OSNEARVA); ?>" tabindex="<?php echo attr($W); ?>0111"></td>
+                          <?php display_wear_lower_cells($W, 'OS', $wearDetails); ?>
                         </tr>
                         <tr>
-                          <td style="font-weight:bold;" colspan="2"><?php echo xlt('Comments'); ?>:
+                          <td class="right bold current-glasses-comments-label"><?php echo xlt('Comments'); ?>:</td>
+                          <td colspan="4" class="current-glasses-comments-cell">
+                            <textarea id="COMMENTS_<?php echo attr($W); ?>" name="COMMENTS_<?php echo attr($W); ?>" class="current-glasses-comments" tabindex="<?php echo attr($W); ?>0110"><?php echo text($COMMENTS ?? ''); ?></textarea>
                           </td>
-                          <td colspan="4" class="up"></td>
-                        </tr>
-                        <tr>
-                          <td colspan="6">
-                            <textarea id="COMMENTS_<?php echo attr($W); ?>" name="COMMENTS_W" tabindex="<?php echo attr($W); ?>0110"><?php echo text($COMMENTS ?? ''); ?></textarea>
-                          </td>
-                          <td colspan="2">
-                          </td>
+                          <?php display_wear_comment_tail_cells(); ?>
                         </tr>
                       </table>
     </div>
@@ -5962,6 +5295,7 @@ function generate_specRx($W)
     ob_end_clean();
     return $output;
 }
+
 
 /**
  * Function to display Refractive Data for an encounter
@@ -5991,36 +5325,54 @@ function display_refractive_data($encounter_data): void
     $PAMODVA ??= null; $PAMOSVA ??= null; $PHODVA ??= null; $PHOSVA ??= null; $RX_TYPE ??= null;
     $VABINOC ??= null; $date ??= null; $display_Add ??= null; $i ??= null; $id ??= null; $pend ??= null;
     $pid ??= null;
-    $count_rx = '0';
+    $count_rx = 0;
+    $wearValues = [];
 
     $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? ORDER BY RX_NUMBER";
 
     $wear = sqlStatement($query, [$pid,$id]);
     while ($wearing = sqlFetchArray($wear)) {
+        $wearing = EyeFormData::textRow(EyeFormData::row($wearing));
         $count_rx++;
-        ${"display_W_$count_rx"} = '';
-        ${"ODSPH_$count_rx"} = $wearing['ODSPH'];
-        ${"ODCYL_$count_rx"} = $wearing['ODCYL'];
-        ${"ODAXIS_$count_rx"} = $wearing['ODAXIS'];
-        ${"OSSPH_$count_rx"} = $wearing['OSSPH'];
-        ${"OSCYL_$count_rx"} = $wearing['OSCYL'];
-        ${"OSAXIS_$count_rx"} = $wearing['OSAXIS'];
-        ${"ODMIDADD_$count_rx"} = $wearing['ODMIDADD'];
-        ${"OSMIDADD_$count_rx"} = $wearing['OSMIDADD'];
-        ${"ODADD_$count_rx"} = $wearing['ODADD'];
-        ${"OSADD_$count_rx"} = $wearing['OSADD'];
-        ${"ODVA_$count_rx"} = $wearing['ODVA'];
-        ${"OSVA_$count_rx"} = $wearing['OSVA'];
-        ${"ODNEARVA_$count_rx"} = $wearing['ODNEARVA'];
-        ${"OSNEARVA_$count_rx"} = $wearing['OSNEARVA'];
-        ${"ODPRISM_$count_rx"} = $wearing['ODPRISM'];
-        ${"OSPRISM_$count_rx"} = $wearing['OSPRISM'];
-        ${"COMMENTS_$count_rx"} = $wearing['COMMENTS'];
-        ${"W_$count_rx"} = '1';
-        ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
+        $wearValues[$count_rx]["display_W"] = '';
+        $wearValues[$count_rx]["ODSPH"] = $wearing['ODSPH'];
+        $wearValues[$count_rx]["ODCYL"] = $wearing['ODCYL'];
+        $wearValues[$count_rx]["ODAXIS"] = $wearing['ODAXIS'];
+        $wearValues[$count_rx]["OSSPH"] = $wearing['OSSPH'];
+        $wearValues[$count_rx]["OSCYL"] = $wearing['OSCYL'];
+        $wearValues[$count_rx]["OSAXIS"] = $wearing['OSAXIS'];
+        $wearValues[$count_rx]["ODMIDADD"] = $wearing['ODMIDADD'];
+        $wearValues[$count_rx]["OSMIDADD"] = $wearing['OSMIDADD'];
+        $wearValues[$count_rx]["ODADD"] = $wearing['ODADD'];
+        $wearValues[$count_rx]["OSADD"] = $wearing['OSADD'];
+        $wearValues[$count_rx]["ODVA"] = $wearing['ODVA'];
+        $wearValues[$count_rx]["OSVA"] = $wearing['OSVA'];
+        $wearValues[$count_rx]["ODNEARVA"] = $wearing['ODNEARVA'];
+        $wearValues[$count_rx]["OSNEARVA"] = $wearing['OSNEARVA'];
+        $wearValues[$count_rx]["ODPRISM"] = trim((string)($wearing['ODPRISM'] ?? '')) ?: trim(trim(($wearing['ODHPD'] ?? '') . ' ' . ($wearing['ODHBASE'] ?? '')) . ' ' . trim(($wearing['ODVPD'] ?? '') . ' ' . ($wearing['ODVBASE'] ?? '')));
+        $wearValues[$count_rx]["OSPRISM"] = trim((string)($wearing['OSPRISM'] ?? '')) ?: trim(trim(($wearing['OSHPD'] ?? '') . ' ' . ($wearing['OSHBASE'] ?? '')) . ' ' . trim(($wearing['OSVPD'] ?? '') . ' ' . ($wearing['OSVBASE'] ?? '')));
+        $wearValues[$count_rx]["COMMENTS"] = $wearing['COMMENTS'];
+        $wearValues[$count_rx]["W"] = '1';
+        $wearValues[$count_rx]["RX_TYPE"] = $wearing['RX_TYPE'];
     }
 
-    if ($ODVA || $OSVA || $ARODSPH || $AROSSPH || $MRODSPH || $MROSSPH || $CRODSPH || $CROSSPH || $CTLODSPH || $CTLOSSPH) { ?>
+    $encounter_data = EyeFormData::row($encounter_data);
+    /** Detect documented refraction fields while ignoring blank and placeholder-only values. */
+    $sectionHasData = static function (string $prefix) use ($encounter_data): bool {
+        foreach ($encounter_data as $field => $value) {
+            $normalized = trim(EyeFormData::text($value));
+            if (
+                str_starts_with(EyeFormData::text($field), $prefix)
+                && $normalized !== ''
+                && !in_array($normalized, ['-', '–', '—'], true)
+            ) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    if ($sectionHasData('AR') || $sectionHasData('MR') || $sectionHasData('CR') || $sectionHasData('CTL') || $count_rx > 0) { ?>
         <table class="refraction_tables">
            <tr class="text-center bold underline" style="background-color: #F3EEC7;">
                 <td ><?php echo oeFormatShortDate($date); ?></td>
@@ -6028,7 +5380,7 @@ function display_refractive_data($encounter_data): void
                 <td ><?php echo xlt('Sph{{Sphere}}'); ?></td>
                 <td ><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
                 <td ><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
-                <td ><?php echo xlt('Prism'); ?></td>
+                <td ><?php echo xlt('Prisms'); ?></td>
                 <td ><?php echo xlt('Acuity'); ?></td>
                 <td ><?php echo xlt('Mid{{Middle Distance Add}}'); ?></td>
                 <td ><?php echo xlt('ADD{{Near Add}}'); ?></td>
@@ -6037,47 +5389,47 @@ function display_refractive_data($encounter_data): void
             <?php
                //$count_rx++;
             for ($i = 1; $i <= $count_rx; $i++) {
-                if (${"RX_TYPE_$i"} == "0") {
+                if ($wearValues[$i]["RX_TYPE"] == "0") {
                     $RX_TYPE = '';
-                } elseif (${"RX_TYPE_$i"} == "1") {
+                } elseif ($wearValues[$i]["RX_TYPE"] == "1") {
                     $RX_TYPE = xlt('Bifocals');
-                } elseif (${"RX_TYPE_$i"} == "2") {
+                } elseif ($wearValues[$i]["RX_TYPE"] == "2") {
                     $RX_TYPE = xlt('Trifocals');
-                } elseif (${"RX_TYPE_$i"} == "3") {
+                } elseif ($wearValues[$i]["RX_TYPE"] == "3") {
                     $RX_TYPE = xlt('Progressive');
                 }
                 ?>
                 <tr>
                     <td class="bold"><?php echo xlt('Wear RX') . " #" . $i . ": "; ?></td>
                     <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
-                    <td ><?php echo (text(${"ODSPH_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODCYL_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODAXIS_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODPRISM_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODVA_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODMIDADD_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODADD_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"ODNEARVA_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODSPH"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODCYL"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODAXIS"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODPRISM"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODVA"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODMIDADD"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODADD"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["ODNEARVA"]) ?: "-"); ?></td>
                    </tr>
                    <tr>
                     <td><?php echo $RX_TYPE; ?></td>
                     <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
-                    <td ><?php echo (text(${"OSSPH_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"OSCYL_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"OSAXIS_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"OSPRISM_$i"}) ?: "-");  ?></td>
-                    <td ><?php echo (text(${"OSVA_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"OSMIDADD_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"OSADD_$i"}) ?: "-"); ?></td>
-                    <td ><?php echo (text(${"OSNEARVA_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSSPH"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSCYL"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSAXIS"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSPRISM"]) ?: "-");  ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSVA"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSMIDADD"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSADD"]) ?: "-"); ?></td>
+                    <td ><?php echo (text($wearValues[$i]["OSNEARVA"]) ?: "-"); ?></td>
                    </tr>
                     <?php
-                    if (${"COMMENTS_$i"}) {
+                    if (($wearValues[EyeFormData::integer($i)]['COMMENTS'] ?? '')) {
                         ?>
                         <tr>
                            <td></td>
                            <td colspan="2"><?php echo xlt('Comments'); ?>:</td>
-                           <td colspan="7"><?php echo text(${"COMMENTS_$i"}); ?></td>
+                           <td colspan="7"><?php echo text($wearValues[EyeFormData::integer($i)]['COMMENTS']); ?></td>
                         </tr>
                         <?php
                     }
@@ -6085,7 +5437,7 @@ function display_refractive_data($encounter_data): void
                     <?php
             }
 
-            if ($ARODSPH || $AROSSPH) { ?>
+            if ($sectionHasData('AR')) { ?>
                    <tr style="border-bottom:1pt solid black;">
                        <td class="bold"><?php echo xlt('AutoRef'); ?></td>
                        <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -6111,12 +5463,12 @@ function display_refractive_data($encounter_data): void
                        <td ><?php echo (text($ARNEAROSVA) ?: "-"); ?></td>
                    </tr>
                     <?php
-                    if (${"COMMENTS_$i"}) {
+                    if (($wearValues[EyeFormData::integer($i)]['COMMENTS'] ?? '')) {
                         ?>
                         <tr>
                            <td></td><td></td>
                            <td>Comments:</td>
-                           <td colspan="7"><?php echo text(${"COMMENTS_$i"}); ?></td>
+                           <td colspan="7"><?php echo text($wearValues[EyeFormData::integer($i)]['COMMENTS']); ?></td>
                         </tr>
                         <?php
                     }?>
@@ -6124,7 +5476,7 @@ function display_refractive_data($encounter_data): void
                     <?php
             }
 
-            if ($MRODSPH || $MROSSPH) { ?>
+            if ($sectionHasData('MR')) { ?>
                    <tr>
                        <td class="bold"><?php echo xlt('MR (Dry)'); ?></td>
                        <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -6154,7 +5506,7 @@ function display_refractive_data($encounter_data): void
                     <?php
             }
 
-            if ($CRODSPH || $CROSSPH) { ?>
+            if ($sectionHasData('CR')) { ?>
                    <tr>
                        <td class="bold"><?php echo xlt('CR (Wet)'); ?></td>
                        <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -6183,7 +5535,7 @@ function display_refractive_data($encounter_data): void
                     <?php
             }
 
-            if ($CTLODSPH || $CTLOSSPH) { ?>
+            if ($sectionHasData('CTL')) { ?>
                    <tr class="bold text-center underline">
                        <td></td>
                        <td><?php echo xlt('Eye'); ?></td>
@@ -6343,7 +5695,7 @@ function display_refractive_data($encounter_data): void
  */
 function in_array_r($needle, $haystack, $strict = false): bool
 {
-    if (empty($haystack)) {
+    if (!is_array($haystack) || $haystack === []) {
         return false;
     }
     foreach ($haystack as $item) {

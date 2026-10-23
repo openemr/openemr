@@ -16,7 +16,13 @@ const compat = new FlatCompat({
 export default [{
     ignores: [
         "**/node_modules",
-        "interface/forms/eye_mag/js",
+        "interface/forms/eye_mag/js/**/*",
+        "!interface/forms/eye_mag/js/document_notes.js",
+        "!interface/forms/eye_mag/js/dotphrases.js",
+        "!interface/forms/eye_mag/js/drawing_library.js",
+        "!interface/forms/eye_mag/js/konva_overlay.js",
+        "!interface/forms/eye_mag/js/neuro_patterns.js",
+        "!interface/forms/eye_mag/js/visual_acuity_history.js",
         "interface/forms/questionnaire_assessments/lforms",
         "interface/main/calendar/modules/PostCalendar/pnincludes/*.js",
         "interface/modules/custom_modules/oe-module-comlink-telehealth/public/assets/js/dist",

@@ -39,11 +39,14 @@ use OpenEMR\Billing\FeeSheetChargeLookup;
 use OpenEMR\Billing\HcpcsDrugDefaults;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\CopyMode;
+use OpenEMR\Forms\EyeMag\EyeFormData;
 use OpenEMR\Forms\EyeMag\FamilyHistory;
 use OpenEMR\Forms\EyeMag\FeeSheetLine;
 use OpenEMR\Forms\EyeMag\PmsfhPanel;
@@ -51,7 +54,11 @@ use OpenEMR\Forms\EyeMag\SqlFragment;
 use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\PatientIssuesService;
-use Symfony\Component\HttpFoundation\Request;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_append_materials_handout_pdf;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_prior_refractions;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_report_filename;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_save_materials;
+use function OpenEMR\Forms\EyeMag\Drawing\eye_mag_drawing_background_key_valid;
 
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once("php/" . $form_name . "_functions.php");
@@ -66,7 +73,9 @@ $pid = $session->get('pid');
 // Captured here, at the top, because the form-save paths below rewrite $_POST
 // and $_REQUEST in place as they normalize fields. Reading the request through
 // this object gets the values the browser actually sent.
-$request = Request::createFromGlobals();
+$request = CurrentRequest::get();
+$posted = $request->request->all();
+$input = array_replace($request->query->all(), $posted);
 
 // Validate the mode before any downstream branch (lock flow, ACL check,
 // mutation dispatch) runs. An unrecognized mode has no valid dispatch target
@@ -87,6 +96,234 @@ if ($requestMode !== '' && !in_array($requestMode, $allowedModes, true)) {
 $requiredAccess = $requestMode === 'update' ? 'write' : ['write', 'addonly'];
 if (!AclMain::aclCheckCore('patients', 'med', '', $requiredAccess)) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Eye Form Save", xl("Eye Form"));
+}
+
+if (($posted['action'] ?? '') === 'drawing_tool_preference') {
+    header('Content-Type: application/json');
+    $userId = EyeFormData::integer($session->get('authUserID'));
+    if (!$userId || !is_string($posted['csrf_token_form'] ?? null)
+        || !CsrfUtils::verifyCsrfToken($posted['csrf_token_form'], $session)) {
+        http_response_code(403);
+        echo json_encode(['ok' => false]);
+        exit;
+    }
+    $drawingZone = EyeFormData::text($posted['zone'] ?? '');
+    $drawingTool = EyeFormData::text($posted['tool'] ?? '');
+    if (!in_array($drawingZone, ['HPI', 'PMH', 'EXT', 'ANTSEG', 'RETINA', 'SDRETINA', 'NEURO', 'IMPPLAN'], true)
+        || !in_array($drawingTool, ['draw', 'select'], true)) {
+        http_response_code(400);
+        echo json_encode(['ok' => false]);
+        exit;
+    }
+    $location = $drawingZone . '_TOOL';
+    QueryUtils::sqlStatementThrowException(
+        "REPLACE INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
+         VALUES ('DRAW_TOOL', ?, 'Drawing tool', ?, ?, 0, ?, 0)",
+        [$location, $userId, $location, $drawingTool]
+    );
+    echo json_encode(['ok' => true]);
+    exit;
+}
+
+/**
+ * Dot Phrase access control API
+ * Any authenticated user can create phrases and share/edit/delete their own.
+ * Administrators (acl admin/super) can delete any phrase. Responses are JSON.
+ */
+if (($input['action'] ?? '') === 'dotphrase') {
+    if (($input['sub'] ?? '') !== 'list') {
+        if ($request->getMethod() !== 'POST') {
+            http_response_code(405);
+            header('Allow: POST');
+            exit;
+        }
+        \OpenEMR\Common\Csrf\CsrfUtils::checkCsrfInput(INPUT_POST, $session, dieOnFail: true);
+    }
+    $authUserID = EyeFormData::integer($session->get('authUserID') ?? 0);
+    $isAdmin = AclMain::aclCheckCore('admin', 'super');
+    $sub = $input['sub'] ?? '';
+    $out = ['ok' => false, 'msg' => 'unknown subaction'];
+
+    $keyFromPost = static function (string $raw): string {
+        $key = trim($raw);
+        if ($key === '') {
+            return '';
+        }
+        if ($key[0] !== '.') {
+            $key = '.' . $key;
+        }
+        return strtolower($key);
+    };
+
+    if (!$authUserID) {
+        $out['msg'] = 'not authenticated';
+    } else {
+        switch ($sub) {
+            case 'list':
+                $q = "SELECT d.id,d.phrase_key,d.name,d.owner_uid,d.visibility,d.content_type,d.content,
+                             d.zones,d.improvement_of,d.updated_at,
+                             TRIM(CONCAT(COALESCE(u.fname,''),' ',COALESCE(u.lname,''))) AS creator_name
+                      FROM form_eye_dotphrases d
+                      LEFT JOIN users u ON u.id=d.owner_uid
+                      WHERE d.owner_uid=? OR (d.visibility='shared' AND d.active=1)
+                      ORDER BY d.name,d.id";
+                $r = QueryUtils::sqlStatementThrowException($q, [$authUserID]);
+                $rows = [];
+                while ($row = QueryUtils::fetchArrayFromResultSet($r)) {
+                    $rows[] = $row;
+                }
+                $out = ['ok' => true, 'phrases' => $rows];
+                break;
+
+            case 'create':
+                $key = $keyFromPost(EyeFormData::text($posted['phrase_key'] ?? ''));
+                $name = trim(EyeFormData::text($posted['name'] ?? ''));
+                $contentType = ($posted['content_type'] ?? 'text') === 'object' ? 'object' : 'text';
+                $content = EyeFormData::text($posted['content'] ?? '');
+                $zones = trim(EyeFormData::text($posted['zones'] ?? ''));
+                if ($key === '' || $name === '') {
+                    $out['msg'] = 'phrase key and name are required';
+                    break;
+                }
+                if ($contentType === 'object' && json_decode($content, true) === null) {
+                    $out['msg'] = 'object content must be valid JSON';
+                    break;
+                }
+                $now = date('Y-m-d H:i:s');
+                $ins = "INSERT INTO form_eye_dotphrases
+                        (phrase_key,name,owner_uid,visibility,active,content_type,content,zones,created_at,updated_at)
+                        VALUES (?,?,?,?,?,?,?,?,?,?)";
+                QueryUtils::sqlStatementThrowException($ins, [$key, $name, $authUserID, 'private', 1, $contentType, $content, $zones, $now, $now]);
+                $out = ['ok' => true, 'msg' => 'created', 'id' => EyeFormData::integer(QueryUtils::getLastInsertId())];
+                break;
+
+            case 'update':
+                $id = EyeFormData::identifier($posted['id'] ?? 0);
+                $row = $id ? QueryUtils::querySingleRow("SELECT * FROM form_eye_dotphrases WHERE id=?", [$id]) : false;
+                if (!$row) {
+                    $out['msg'] = 'not found';
+                    break;
+                }
+                if (EyeFormData::integer($row['owner_uid']) !== $authUserID) {
+                    $out['msg'] = 'not your phrase';
+                    break;
+                }
+                $name = trim(EyeFormData::text($posted['name'] ?? $row['name']));
+                $contentType = ($posted['content_type'] ?? $row['content_type']) === 'object' ? 'object' : 'text';
+                $content = EyeFormData::text($posted['content'] ?? $row['content']);
+                $zones = trim(EyeFormData::text($posted['zones'] ?? $row['zones']));
+                $key = isset($posted['phrase_key']) ? $keyFromPost(EyeFormData::text($posted['phrase_key'])) : EyeFormData::text($row['phrase_key']);
+                if ($name === '' || $key === '') {
+                    $out['msg'] = 'phrase key and name are required';
+                    break;
+                }
+                if ($contentType === 'object' && json_decode($content, true) === null) {
+                    $out['msg'] = 'object content must be valid JSON';
+                    break;
+                }
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE form_eye_dotphrases
+                     SET phrase_key=?,name=?,content_type=?,content=?,zones=?,updated_at=?
+                     WHERE id=?",
+                    [$key, $name, $contentType, $content, $zones, date('Y-m-d H:i:s'), $id]
+                );
+                $out = ['ok' => true, 'msg' => 'updated'];
+                break;
+
+            case 'delete':
+                $id = EyeFormData::identifier($posted['id'] ?? 0);
+                $row = $id ? QueryUtils::querySingleRow("SELECT * FROM form_eye_dotphrases WHERE id=?", [$id]) : false;
+                if (!$row) {
+                    $out['msg'] = 'not found';
+                    break;
+                }
+                if (EyeFormData::integer($row['owner_uid']) !== $authUserID && !$isAdmin) {
+                    $out['msg'] = 'owner or admin only';
+                    break;
+                }
+                QueryUtils::sqlStatementThrowException("DELETE FROM form_eye_dotphrases WHERE id=?", [$id]);
+                $out = ['ok' => true, 'msg' => 'deleted'];
+                break;
+
+            case 'share':
+                $id = EyeFormData::identifier($posted['id'] ?? 0);
+                $row = $id ? QueryUtils::querySingleRow("SELECT * FROM form_eye_dotphrases WHERE id=?", [$id]) : false;
+                if (!$row) {
+                    $out['msg'] = 'not found';
+                    break;
+                }
+                if (EyeFormData::integer($row['owner_uid']) !== $authUserID) {
+                    $out['msg'] = 'not your phrase';
+                    break;
+                }
+                // Share-back: if this is an improved copy, retire the shared row it improved.
+                $sourceId = EyeFormData::integer($row['improvement_of'] ?? 0);
+                if ($sourceId) {
+                    QueryUtils::sqlStatementThrowException("UPDATE form_eye_dotphrases SET active=0 WHERE id=? AND visibility='shared'", [$sourceId]);
+                }
+                QueryUtils::sqlStatementThrowException("UPDATE form_eye_dotphrases SET visibility='shared', active=1, updated_at=? WHERE id=?",
+                    [date('Y-m-d H:i:s'), $id]);
+                $out = ['ok' => true, 'msg' => 'shared'];
+                break;
+
+            case 'unshare':
+                $id = EyeFormData::identifier($posted['id'] ?? 0);
+                $row = $id ? QueryUtils::querySingleRow("SELECT * FROM form_eye_dotphrases WHERE id=?", [$id]) : false;
+                if (!$row) {
+                    $out['msg'] = 'not found';
+                    break;
+                }
+                if (EyeFormData::integer($row['owner_uid']) !== $authUserID) {
+                    $out['msg'] = 'not your phrase';
+                    break;
+                }
+                QueryUtils::sqlStatementThrowException("UPDATE form_eye_dotphrases SET visibility='private', updated_at=? WHERE id=?",
+                    [date('Y-m-d H:i:s'), $id]);
+                $out = ['ok' => true, 'msg' => 'unshared'];
+                break;
+
+            case 'import':
+                $sourceId = EyeFormData::identifier($posted['id'] ?? 0);
+                $source = $sourceId ? QueryUtils::querySingleRow(
+                    "SELECT * FROM form_eye_dotphrases WHERE id=? AND visibility='shared' AND active=1",
+                    [$sourceId]
+                ) : false;
+                if (!$source) {
+                    $out['msg'] = 'shared phrase not found';
+                    break;
+                }
+                $now = date('Y-m-d H:i:s');
+                // If the user already imported this source, refresh their copy instead of duplicating.
+                $existing = QueryUtils::querySingleRow(
+                    "SELECT id FROM form_eye_dotphrases WHERE owner_uid=? AND improvement_of=?",
+                    [$authUserID, $sourceId]
+                );
+                if ($existing) {
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE form_eye_dotphrases
+                         SET phrase_key=?,name=?,content_type=?,content=?,zones=?,updated_at=?
+                         WHERE id=?",
+                        [$source['phrase_key'], $source['name'], $source['content_type'],
+                         $source['content'], $source['zones'], $now, $existing['id']]
+                    );
+                    $out = ['ok' => true, 'msg' => 'refreshed', 'id' => EyeFormData::integer($existing['id'])];
+                } else {
+                    QueryUtils::sqlStatementThrowException(
+                        "INSERT INTO form_eye_dotphrases
+                         (phrase_key,name,owner_uid,visibility,active,content_type,content,zones,improvement_of,created_at,updated_at)
+                         VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                        [$source['phrase_key'], $source['name'], $authUserID, 'private', 1,
+                         $source['content_type'], $source['content'], $source['zones'], $sourceId, $now, $now]
+                    );
+                    $out = ['ok' => true, 'msg' => 'imported', 'id' => EyeFormData::integer(QueryUtils::getLastInsertId())];
+                }
+                break;
+        }
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($out);
+    exit;
 }
 
 $returnurl = 'encounter_top.php';
@@ -123,6 +360,11 @@ if ($_REQUEST['AJAX_PREFS'] ?? '') {
                 VALUES
                 ('PREFS','VAHx','Vision History',?,'VAHx','1001',?,'1')";
     sqlQuery($query, [$authUserID, $_REQUEST['PREFS_VAHx'] ?? '']);
+
+    $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
+                VALUES
+                ('PREFS','VAHX_EXCLUDE','VAHx excluded datasets',?,'VAHX_EXCLUDE','1002',?,'1')";
+    QueryUtils::querySingleRow($query, [$authUserID, $input['PREFS_VAHX_EXCLUDE'] ?? '']);
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
                 VALUES
@@ -307,6 +549,7 @@ if ($encounter == "") {
 $form_id = $_REQUEST['form_id'] ?? '';
 $zone = $_REQUEST['zone'] ?? '';
 
+
 $providerID = findProvider($pid, $encounter);
 if ($providerID == '0') {
     $providerID = $userauthorized;//who is the default provider?
@@ -383,38 +626,21 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         'form_eye_neuro','form_eye_locking'];
 
     foreach ($tables as $table_name) {
-        $query = "INSERT INTO " . $table_name . " ('id','pid') VALUES (?,?)";
-        $result = sqlStatement($query, [$newid, $pid]);
+        $query = "INSERT INTO " . $table_name . " (`id`,`pid`) VALUES (?,?)";
+        $result = QueryUtils::sqlStatementThrowException($query, [$newid,$pid]);
     }
 } elseif (($_REQUEST["mode"]  ?? '') == "update") {
     // The user has write privileges to work with...
 
     if (($_REQUEST['action'] ?? '') == "store_PDF") {
-         /**
-          * We want to store/overwrite the current PDF version of this encounter's f
-          * Currently this is only called 'beforeunload', ie. when you finish the form
-          * In this current paradigm, anytime the form is opened, then closed, the PDF
-          * is overwritten.  With esign implemented, the PDF should be locked.  I suppose
-          * with esign the form can't even be opened so the only way to get to the PDF
-          * is through the Documents->Encounters links.
-          */
+        // Retain every explicitly stored version, including its patient materials.
         $query = "select id from categories where name = 'Encounters'";
         $result = sqlStatement($query);
         $ID = sqlFetchArray($result);
         $category_id = $ID['id'] ?? null;
         $PDF_OUTPUT = '1';
 
-        $filename = $pid . "_" . $encounter . ".pdf";
-        $filepath = OEGlobalsBag::getInstance()->get('oer_config')['documents']['repository'] . $pid;
-        foreach (glob($filepath . '/' . $filename) as $file) {
-            unlink($file);
-        }
-
-        $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like ?)";
-        sqlQuery($sql, ['%' . $filename]);
-        $sql = "DELETE from documents where documents.url like ?";
-        sqlQuery($sql, ['%' . $filename]);
-        // We want to overwrite so only one PDF is stored per form/encounter
+        $filename = eye_mag_report_filename(EyeFormData::integer($pid), EyeFormData::integer($encounter));
         $config_mpdf = Config_Mpdf::getConfigMpdf();
         $pdf = new mPDF($config_mpdf);
         if ($session->get('language_direction') === 'rtl') {
@@ -449,6 +675,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         //$pdf->writeHTML($content, 2);
 
         $pdf->writeHTML($content);
+        eye_mag_append_materials_handout_pdf($pdf, EyeFormData::integer($form_id), EyeFormData::integer($pid));
         $tmpdir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp/'; // Best to get a known system temp directory to ensure a writable directory.
         $temp_filename = $tmpdir . $filename;
         $content_pdf = $pdf->Output($temp_filename, 'F');
@@ -487,8 +714,13 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
 
     //change PCP/referring doc
     if (($_POST['action'] ?? '') == 'docs') {
+        // Both Demographics provider fields are nullable integers. Empty select
+        // values must be NULL, not '', or strict SQL mode rejects the whole update.
+        $pcpId = EyeFormData::identifier($posted['pcp'] ?? 0);
+        $referringId = EyeFormData::identifier($posted['rDOC'] ?? 0);
         $query = "update patient_data set ref_providerID=?,providerID=? where pid =?";
-        sqlQuery($query, [$_POST['rDOC'], $_POST['pcp'], $pid]);
+        QueryUtils::sqlStatementThrowException($query, [$referringId ?: null, $pcpId ?: null, $pid]);
+        $DOCS = [];
 
         $DOCS = [];
         $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
@@ -1041,6 +1273,10 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $_POST['NEO25'] = '0';
     }
 
+    if (!($posted['NEO10'] ?? '')) {
+        $posted['NEO10'] = '0';
+    }
+
     if (!($_POST['TROPICAMIDE'] ?? '')) {
         $_POST['TROPICAMIDE'] = '0';
     }
@@ -1117,6 +1353,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                     $row['Field'] == 'LOCKED' or
                     $row['Field'] == 'LOCKEDBY' or
                     $row['Field'] == 'activity' or
+                    $row['Field'] == 'NEURO_DRAWING_JSON' or
                     $row['Field'] == 'PLAN' or
                     $row['Field'] == 'Resource'
                 ) {
@@ -1133,6 +1370,10 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             $success = sqlStatement($sql, $fields);
         }
     }
+
+    if (array_key_exists('MATERIALS_TO_PRINT', $posted)) {
+        eye_mag_save_materials(EyeFormData::integer($form_id), EyeFormData::integer($pid), $posted);
+    }
     //now save any Wear RXs (1-4) entered.
 
     $rx_number = '1';
@@ -1144,9 +1385,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             `ODHPD`,`ODHBASE`,`ODVPD`,`ODVBASE`,`ODSLABOFF`,`ODVERTEXDIST`,
             `OSHPD`,`OSHBASE`,`OSVPD`,`OSVBASE`,`OSSLABOFF`,`OSVERTEXDIST`,
             `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
-            `LENS_TREATMENTS`
-            ) VALUES
-            (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`
+            ) VALUES (" . implode(',', array_fill(0, 42, '?')) . ")";
             $LENS_TREATMENTS_1 = implode("|", $_POST['LENS_TREATMENTS_1'] ?? []);
             sqlQuery($query, [$encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_1'], $_POST['ODCYL_1'], $_POST['ODAXIS_1'],
                 $_POST['ODVA_1'], $_POST['ODADD_1'], $_POST['ODNEARVA_1'], $_POST['OSSPH_1'], $_POST['OSCYL_1'], $_POST['OSAXIS_1'],
@@ -1155,7 +1395,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 $_POST['ODHPD_1'], $_POST['ODHBASE_1'], $_POST['ODVPD_1'], $_POST['ODVBASE_1'], $_POST['ODSLABOFF_1'], $_POST['ODVERTEXDIST_1'],
                 $_POST['OSHPD_1'], $_POST['OSHBASE_1'], $_POST['OSVPD_1'], $_POST['OSVBASE_1'], $_POST['OSSLABOFF_1'], $_POST['OSVERTEXDIST_1'],
                 $_POST['ODMPDD_1'], $_POST['ODMPDN_1'], $_POST['OSMPDD_1'], $_POST['OSMPDN_1'], $_POST['BPDD_1'], $_POST['BPDN_1'], $_POST['LENS_MATERIAL_1'],
-                $LENS_TREATMENTS_1]);
+                $LENS_TREATMENTS_1, $posted['ODPRISM_1'] ?? '', $posted['OSPRISM_1'] ?? '']);
             $rx_number++;
     } else {
         $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
@@ -1170,8 +1410,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         `ODHPD`,`ODHBASE`,`ODVPD`,`ODVBASE`,`ODSLABOFF`,`ODVERTEXDIST`,
         `OSHPD`,`OSHBASE`,`OSVPD`,`OSVBASE`,`OSSLABOFF`,`OSVERTEXDIST`,
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
-        `LENS_TREATMENTS`
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`
+        ) VALUES (" . implode(',', array_fill(0, 42, '?')) . ")";
         $LENS_TREATMENTS_2 = implode("|", $_POST['LENS_TREATMENTS_2'] ?? []);
         sqlQuery($query, [$encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_2'], $_POST['ODCYL_2'], $_POST['ODAXIS_2'],
             $_POST['ODVA_2'], $_POST['ODADD_2'], $_POST['ODNEARVA_2'] ?? '', $_POST['OSSPH_2'], $_POST['OSCYL_2'], $_POST['OSAXIS_2'],
@@ -1180,7 +1420,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             $_POST['ODHPD_2'], $_POST['ODHBASE_2'], $_POST['ODVPD_2'], $_POST['ODVBASE_2'], $_POST['ODSLABOFF_2'], $_POST['ODVERTEXDIST_2'],
             $_POST['OSHPD_2'], $_POST['OSHBASE_2'], $_POST['OSVPD_2'], $_POST['OSVBASE_2'], $_POST['OSSLABOFF_2'], $_POST['OSVERTEXDIST_2'],
             $_POST['ODMPDD_2'], $_POST['ODMPDN_2'], $_POST['OSMPDD_2'], $_POST['OSMPDN_2'], $_POST['BPDD_2'], $_POST['BPDN_2'], $_POST['LENS_MATERIAL_2'],
-            $LENS_TREATMENTS_2]);
+            $LENS_TREATMENTS_2, $posted['ODPRISM_2'] ?? '', $posted['OSPRISM_2'] ?? '']);
         $rx_number++;
     } else {
         $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
@@ -1195,8 +1435,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         `ODHPD`,`ODHBASE`,`ODVPD`,`ODVBASE`,`ODSLABOFF`,`ODVERTEXDIST`,
         `OSHPD`,`OSHBASE`,`OSVPD`,`OSVBASE`,`OSSLABOFF`,`OSVERTEXDIST`,
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
-        `LENS_TREATMENTS`
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`
+        ) VALUES (" . implode(',', array_fill(0, 42, '?')) . ")";
         $LENS_TREATMENTS_3 = implode("|", $_POST['LENS_TREATMENTS_3'] ?? []);
         sqlQuery($query, [$encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_3'], $_POST['ODCYL_3'], $_POST['ODAXIS_3'],
             $_POST['ODVA_3'], $_POST['ODADD_3'], $_POST['ODNEARVA_3'] ?? '', $_POST['OSSPH_3'], $_POST['OSCYL_3'], $_POST['OSAXIS_3'],
@@ -1205,7 +1445,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             $_POST['ODHPD_3'], $_POST['ODHBASE_3'], $_POST['ODVPD_3'], $_POST['ODVBASE_3'], $_POST['ODSLABOFF_3'], $_POST['ODVERTEXDIST_3'],
             $_POST['OSHPD_3'], $_POST['OSHBASE_3'], $_POST['OSVPD_3'], $_POST['OSVBASE_3'], $_POST['OSSLABOFF_3'], $_POST['OSVERTEXDIST_3'],
             $_POST['ODMPDD_3'], $_POST['ODMPDN_3'], $_POST['OSMPDD_3'], $_POST['OSMPDN_3'], $_POST['BPDD_3'], $_POST['BPDN_3'], $_POST['LENS_MATERIAL_3'],
-            $LENS_TREATMENTS_3]);
+            $LENS_TREATMENTS_3, $posted['ODPRISM_3'] ?? '', $posted['OSPRISM_3'] ?? '']);
         $rx_number++;
     } else {
         $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
@@ -1220,8 +1460,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         `ODHPD`,`ODHBASE`,`ODVPD`,`ODVBASE`,`ODSLABOFF`,`ODVERTEXDIST`,
         `OSHPD`,`OSHBASE`,`OSVPD`,`OSVBASE`,`OSSLABOFF`,`OSVERTEXDIST`,
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
-        `LENS_TREATMENTS`
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`
+        ) VALUES (" . implode(',', array_fill(0, 42, '?')) . ")";
         $LENS_TREATMENTS_4 = implode("|", $_POST['LENS_TREATMENTS_4'] ?? []);
         sqlQuery($query, [$encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_4'], $_POST['ODCYL_4'], $_POST['ODAXIS_4'],
             $_POST['ODVA_4'], $_POST['ODADD_4'], $_POST['ODNEARVA_4'] ?? '', $_POST['OSSPH_4'], $_POST['OSCYL_4'], $_POST['OSAXIS_4'],
@@ -1230,14 +1470,39 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             $_POST['ODHPD_4'], $_POST['ODHBASE_4'], $_POST['ODVPD_4'], $_POST['ODVBASE_4'], $_POST['ODSLABOFF_4'], $_POST['ODVERTEXDIST_4'],
             $_POST['OSHPD_4'], $_POST['OSHBASE_4'], $_POST['OSVPD_4'], $_POST['OSVBASE_4'], $_POST['OSSLABOFF_4'], $_POST['OSVERTEXDIST_4'],
             $_POST['ODMPDD_4'], $_POST['ODMPDN_4'], $_POST['OSMPDD_4'], $_POST['OSMPDN_4'], $_POST['BPDD_4'], $_POST['BPDN_4'], $_POST['LENS_MATERIAL_4'],
-            $LENS_TREATMENTS_4]);
+            $LENS_TREATMENTS_4, $posted['ODPRISM_4'] ?? '', $posted['OSPRISM_4'] ?? '']);
         $rx_number++;
     } else {
         $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
         sqlQuery($query, [$encounter, $pid, $form_id, '4']);
     }
+    if (($posted['W_5'] ?? '') == '1') {
+        // Store the fifth panel too; the UI has long offered five Wear panels.
+        $query = "REPLACE INTO `form_eye_mag_wearing` (`ENCOUNTER` ,`FORM_ID` ,`PID` ,`RX_NUMBER` ,`ODSPH` ,`ODCYL` ,`ODAXIS` ,
+        `ODVA` ,`ODADD` ,`ODNEARVA` ,`OSSPH` ,`OSCYL` ,`OSAXIS` ,
+        `OSVA` ,`OSADD` ,`OSNEARVA` ,`ODMIDADD` ,`OSMIDADD` ,
+        `RX_TYPE` ,`COMMENTS`,
+        `ODHPD`,`ODHBASE`,`ODVPD`,`ODVBASE`,`ODSLABOFF`,`ODVERTEXDIST`,
+        `OSHPD`,`OSHBASE`,`OSVPD`,`OSVBASE`,`OSSLABOFF`,`OSVERTEXDIST`,
+        `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
+        `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`
+        ) VALUES (" . implode(',', array_fill(0, 42, '?')) . ")";
+        $LENS_TREATMENTS_5 = implode("|", array_map(EyeFormData::text(...), is_array($posted['LENS_TREATMENTS_5'] ?? null) ? $posted['LENS_TREATMENTS_5'] : []));
+        QueryUtils::querySingleRow($query, [$encounter, $form_id, $pid, $rx_number, $posted['ODSPH_5'] ?? '', $posted['ODCYL_5'] ?? '', $posted['ODAXIS_5'] ?? '',
+            $posted['ODVA_5'] ?? '', $posted['ODADD_5'] ?? '', $posted['ODNEARVA_5'] ?? '', $posted['OSSPH_5'] ?? '', $posted['OSCYL_5'] ?? '', $posted['OSAXIS_5'] ?? '',
+            $posted['OSVA_5'] ?? '', $posted['OSADD_5'] ?? '', $posted['OSNEARVA_5'] ?? '', $posted['ODMIDADD_5'] ?? '', $posted['OSMIDADD_5'] ?? '',
+            EyeFormData::integer($posted['RX_TYPE_5'] ?? 0), $posted['COMMENTS_5'] ?? '',
+            $posted['ODHPD_5'] ?? '', $posted['ODHBASE_5'] ?? '', $posted['ODVPD_5'] ?? '', $posted['ODVBASE_5'] ?? '', $posted['ODSLABOFF_5'] ?? '', $posted['ODVERTEXDIST_5'] ?? '',
+            $posted['OSHPD_5'] ?? '', $posted['OSHBASE_5'] ?? '', $posted['OSVPD_5'] ?? '', $posted['OSVBASE_5'] ?? '', $posted['OSSLABOFF_5'] ?? '', $posted['OSVERTEXDIST_5'] ?? '',
+            $posted['ODMPDD_5'] ?? '', $posted['ODMPDN_5'] ?? '', $posted['OSMPDD_5'] ?? '', $posted['OSMPDN_5'] ?? '', $posted['BPDD_5'] ?? '', $posted['BPDN_5'] ?? '', $posted['LENS_MATERIAL_5'] ?? '',
+            $LENS_TREATMENTS_5, $posted['ODPRISM_5'] ?? '', $posted['OSPRISM_5'] ?? '']);
+        $rx_number++;
+    } else {
+        $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
+        QueryUtils::querySingleRow($query, [$encounter, $pid, $form_id, '5']);
+    }
 
-    for ($i = $rx_number; $i < 5; $i++) {
+    for ($i = $rx_number; $i < 6; $i++) {
         $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
         sqlQuery($query, [$encounter, $pid, $form_id, $i]);
     }
@@ -1255,32 +1520,9 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
 } elseif (($_REQUEST["mode"]  ?? '') == "retrieve") {
     if ($_REQUEST['PRIORS_query']) {
         if ($_REQUEST['zone'] == 'REFRACTIONS') {
-            //TODO:  Fix this so it works!
-//have to do query to join with _base pn pid since pid is not in sub files
-            //get the last 3 encounters with refraction data, not Wear data, and display all that encounters Rx/W data.
-            $sql = "SELECT id,date FROM form_eye_refraction WHERE
-                    pid=? AND id < ? AND
-                    (MRODVA <> '' OR
-                      MROSVA <> '' OR
-                      ARODVA <> '' OR
-                      AROSVA <> '' OR
-                      CRODVA <> '' OR
-                      CROSVA <> '' OR
-                      CTLODVA <> '' OR
-                      CTLOSVA <> ''
-                    )
-                    ORDER BY id DESC LIMIT 3";
+            $result = eye_mag_prior_refractions($pid, $input['orig_id'], 3);
 
-            //$result = sqlStatement($sql, array($pid, $_REQUEST['orig_id']));
-
-            $sql = "SELECT id from form_eye_refraction where
-                      id in (SELECT id from form_eye_base where pid=? ORDER BY `date` DESC)
-                      ORDER by id DESC LIMIT 10;
-            ";
-
-            $result = sqlStatement($sql, [$pid]);
-
-            while ($visit = sqlFetchArray($result)) {
+            foreach ($result as $visit) {
                 echo display_PRIOR_section('REFRACTIONS', $visit['id'], $visit['id'], $pid);
             }
             exit;
@@ -1303,6 +1545,40 @@ if ($_REQUEST['canvas'] ?? '') {
     $side = "OU";
     $base_name = $pid . "_" . $encounter . "_" . $side . "_" . $zone . "_VIEW";
     $filename = $base_name . ".jpg";
+
+    $drawingZones = ['HPI', 'PMH', 'EXT', 'ANTSEG', 'RETINA', 'SDRETINA', 'NEURO', 'IMPPLAN'];
+    if (!in_array($zone, $drawingZones, true)) {
+        http_response_code(400);
+        echo "Invalid drawing zone.";
+        exit;
+    }
+    $overlayJson = EyeFormData::text($posted['overlayJson'] ?? '[]');
+    $decodedOverlay = json_decode($overlayJson, true);
+    if (!is_array($decodedOverlay) || strlen($overlayJson) > 1048576) {
+        http_response_code(400);
+        echo "Invalid drawing annotation data.";
+        exit;
+    }
+    $backgroundKey = EyeFormData::text($posted['backgroundKey'] ?? '');
+    if (!eye_mag_drawing_background_key_valid($backgroundKey)) {
+        http_response_code(400);
+        echo "Invalid drawing background.";
+        exit;
+    }
+    QueryUtils::sqlStatementThrowException(
+        "INSERT INTO form_eye_mag_drawing_overlays
+            (form_id, pid, zone, overlay_json, background_key, updated_at)
+         VALUES (?, ?, ?, ?, ?, NOW())
+         ON DUPLICATE KEY UPDATE pid=VALUES(pid), overlay_json=VALUES(overlay_json),
+             background_key=VALUES(background_key), updated_at=NOW()",
+        [EyeFormData::integer($id), EyeFormData::integer($pid), $zone, $overlayJson, $backgroundKey]
+    );
+    if ($zone === 'NEURO') {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE form_eye_neuro SET NEURO_DRAWING_JSON=? WHERE id=? AND pid=?",
+            [$overlayJson, EyeFormData::integer($id), EyeFormData::integer($pid)]
+        );
+    }
 
     // we receive a canvas: adding or replacing this image
     // Does it exist already? If so delete it. Yep.

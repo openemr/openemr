@@ -100,7 +100,7 @@ function fill_QP_field(PEZONE, ODOSOU, LOCATION_text, selection, fill_action, Co
     $('#'+PEZONE+'_prefix').val('off').trigger('change');
 }
 
-/*
+/**
  * This is the core function of the form.
  * It submits the data in the background via ajax.
  * It is the reason we don't use a submit button.
@@ -113,11 +113,18 @@ function fill_QP_field(PEZONE, ODOSOU, LOCATION_text, selection, fill_action, Co
 function submit_form(action) {
     var url = "../../forms/eye_mag/save.php?sub=1&mode=update&id=" + $("#form_id").val();
     if ($("#COPY_SECTION").value == "READONLY") return;
-    formData = $("form#eye_mag").serialize();
+        // Sync _copy edits into their base fields before serializing, so values persist
+    // even when blur never fired (e.g. Enter-key or programmatic save).
+    $("input[name$='_copy']", "#eye_mag").each(function() {
+        var newValue = $(this).attr('name').replace('_copy', '');
+        $("#" + newValue).val($(this).val());
+        $("#" + newValue + "_copy_brd").val($(this).val());
+    });
+formData = $("form#eye_mag").serialize();
     if (formData =='') return;
     $("#menustate").val('0');
     top.restoreSession();
-    $.ajax({
+    return $.ajax({
            type   : 'POST',
            url    : url,
            data   : formData //,           dataType: "json"
@@ -260,18 +267,93 @@ function check_lock(modify) {
         }
     }
 }
-/*
- * Function to save a canvas by zone
- */
-function submit_canvas(zone) {
-    var id_here = document.getElementById('myCanvas_'+zone);
-    var dataURL = id_here.toDataURL('image/jpeg','1');
+/** Serialize each zone's complete export and POST so older saves cannot overwrite newer work. */
+function submit_canvas(zone, force) {
+    var queues = window.eyeDrawingSaveQueues = window.eyeDrawingSaveQueues || {};
+    /** Wait for the current drawing, then capture and persist a matching image and editable state. */
+    function save() {
+        var ready = typeof window.eyeDrawingInkReady === 'function' ? window.eyeDrawingInkReady(zone) : Promise.resolve();
+        return ready.then(function () {
+            var canvas = document.getElementById('myCanvas_' + zone);
+            if (!canvas || (!force && typeof isEyeCanvasDirty === 'function' && !isEyeCanvasDirty(zone))) return;
+            var overlay = window.eyeDrawingOverlays && window.eyeDrawingOverlays[zone];
+            var exported = overlay ? overlay.exportSnapshot(canvas) : Promise.resolve({
+                dataURL: canvas.toDataURL('image/jpeg', 1),
+                overlayJson: '[]',
+                revision: typeof getEyeCanvasRevision === 'function' ? getEyeCanvasRevision(zone) : undefined,
+                backgroundKey: $('#current_background_' + zone).val() || 'default'
+            });
+            return exported.then(function (snapshot) {
+                snapshot.overlay = overlay;
+                return persist_canvas(zone, snapshot.dataURL, snapshot.overlayJson, snapshot);
+            });
+        });
+    }
+    queues[zone] = (queues[zone] || Promise.resolve()).then(save).catch(function (error) {
+        if (typeof markEyeCanvasDirty === 'function') markEyeCanvasDirty(zone);
+        window.alert((error && error.message) || <?php echo xlj('The drawing could not be saved. Please try again.'); ?>);
+    });
+    return queues[zone];
+}
+
+// Provider defaults are separate from the background already saved in this exam.
+/** Select a zone background and update structured-overlay state for the new drawing. */
+function eyeDrawingUseChosenBackground(zone, key) {
+    var config = document.querySelector('.eye-drawing-library-config[data-zone="' + zone + '"]');
+    if (!config) return false;
+    var options = JSON.parse(config.getAttribute('data-options') || '[]');
+    var option = options.find(function (item) { return item.key === (key || config.getAttribute('data-default')); });
+    if (!option) return false;
+    $('#base_url_' + zone).val(option.url);
+    $('#url_' + zone).val(option.url);
+    $('#current_background_' + zone).val(option.key);
+    $('#myCanvas_' + zone).closest('.eye-drawing-stage')
+        .attr('data-structured-background', option.structured ? '1' : '0')
+        .attr('data-has-saved-drawing', '0');
+    $(document).trigger('eye:background-changed', [zone]);
+    return true;
+}
+
+/** Check that a zone has no saved drawing, unsaved ink, or editable annotations. */
+function eyeDrawingBackgroundIsFresh(zone) {
+    var stage = $('#myCanvas_' + zone).closest('.eye-drawing-stage');
+    var overlay = window.eyeDrawingOverlays && window.eyeDrawingOverlays[zone];
+    return stage.attr('data-has-saved-drawing') !== '1'
+        && !(typeof isEyeCanvasDirty === 'function' && isEyeCanvasDirty(zone))
+        && !(overlay && overlay.getJSON() !== '[]');
+}
+
+/** Load and verify a replacement background before the current drawing is changed. */
+function eyeDrawingPrepareBackground(option) {
+    return new Promise(function (resolve, reject) {
+        var preparedImage = new Image();
+        /** Resolve the prepared background only when the loaded image has usable dimensions. */
+        preparedImage.onload = function () {
+            if (preparedImage.naturalWidth > 0 && preparedImage.naturalHeight > 0) resolve(preparedImage);
+            else reject(new Error(<?php echo xlj('The background image could not be opened. This drawing is unchanged.'); ?>));
+        };
+        /** Reject the replacement background when its image cannot be loaded. */
+        preparedImage.onerror = function () {
+            reject(new Error(<?php echo xlj('The background image could not be opened. This drawing is unchanged.'); ?>));
+        };
+        preparedImage.src = option.url;
+    });
+}
+
+/** Open the drawing-library workflow for starting a new drawing in this zone. */
+function eyeDrawingStartNew(zone) {
+    if (window.eyeDrawingLibrary) window.eyeDrawingLibrary.startNew(zone);
+    return false;
+}
+
+/** Store the composite image, annotations, and background, marking the zone saved on success. */
+function persist_canvas(zone, dataURL, overlayJson, savedState) {
     const params = new URLSearchParams({
         id: $("#form_id").val(),
         canvas: zone
     });
     top.restoreSession();
-    $.ajax({
+    return $.ajax({
            type: "POST",
            url: "../../forms/eye_mag/save.php?" + params.toString(),
            data: {
@@ -279,13 +361,33 @@ function submit_canvas(zone) {
            'zone'        : zone,
            'visit_date'  : $("#visit_date").val(),
            'encounter'   : $("#encounter").val(),
-           'pid'         : $("#pid").val()
+           'pid'         : $("#pid").val(),
+           'overlayJson' : overlayJson,
+           'backgroundKey': savedState.backgroundKey
            }
 
            }).done(function(o) {
+                   if (typeof clearEyeCanvasDirty === 'function') {
+                       clearEyeCanvasDirty(zone, savedState.revision);
+                   }
+                   var drawingOverlay = window.eyeDrawingOverlays && window.eyeDrawingOverlays[zone];
+                   if (drawingOverlay && drawingOverlay === savedState.overlay) {
+                       drawingOverlay.markSaved(overlayJson);
+                   }
+                   if (typeof getEyeCanvasRevision === 'function' && getEyeCanvasRevision(zone) !== savedState.revision) return;
+                   $('#myCanvas_' + zone).closest('.eye-drawing-stage').attr('data-has-saved-drawing', '1');
+                   if (zone === 'NEURO') {
+                       $("#NEURO_structured_overlay").removeClass('nodisplay')
+                           .closest('.eye-drawing-stage').attr('data-has-saved-drawing', '1');
+                       $("#NEURO_structured_overlay").trigger('drawing-created');
+                   }
+                   }).fail(function() {
+                       if (typeof markEyeCanvasDirty === 'function') {
+                           markEyeCanvasDirty(zone);
+                       }
                    });
 }
-/*
+/**
  *  Function to update the user's preferences
  */
 function update_PREFS() {
@@ -335,7 +437,9 @@ function update_PREFS() {
             'setting_NEURO'         : $('#setting_NEURO').val(),
             'setting_IMPPLAN'       : $('#setting_IMPPLAN').val(),
         };
-        top.restoreSession();
+        if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
+            top.restoreSession();
+        }
         $.ajax({
                type     : 'POST',
                url      : url,
@@ -513,7 +617,7 @@ function submit_PMSFH() {
  *  END OF PMSFH FUNCTIONS
  */
 
-/*
+/**
  *  Function to refresh the issues, the panels and the Impression/coding areas.
  */
 function refresh_page() {
@@ -525,7 +629,11 @@ function refresh_page() {
         'pid'              : $('#pid').val(),
         'refresh'          : 'page'
     };
-    top.restoreSession();
+    if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
+        top.restoreSession();
+    } else if (typeof window.restoreSession === 'function') {
+        window.restoreSession();
+    }
     $.ajax({
            type     : 'POST',
            url          : url,
@@ -541,7 +649,7 @@ function refresh_page() {
     return false;
 }
 
-/*
+/**
  *  Function to refresh the Glaucoma Flow Sheet.
  */
 function refresh_GFS() {
@@ -557,36 +665,57 @@ function refresh_GFS() {
         //var indexToUpdate = config_byday.data.labels.length-1;
     var ODIOP=0;
     var OSIOP=0;
+    var ODMethod='';
+    var OSMethod='';
+    var APLabel = $('#Lyr42').attr('data-method-ap-label') || 'AP';
+    var TPNLabel = $('#Lyr42').attr('data-method-tpn-label') || 'TP';
     if ( $('#ODIOPAP').val()) {
         ODIOP =  $('#ODIOPAP').val();
+        ODMethod = APLabel;
     } else if (  $('#ODIOPTPN').val()) {
         ODIOP =  $('#ODIOPTPN').val();
+        ODMethod = TPNLabel;
     }
 
     if ( $('#OSIOPAP').val() >'0') {
         OSIOP =  $('#OSIOPAP').val();
+        OSMethod = APLabel;
     } else if (  $('#OSIOPTPN').val() > '0') {
         OSIOP =  $('#OSIOPTPN').val();
+        OSMethod = TPNLabel;
     }
 
     config_byday.data.datasets[0].data[indexToUpdate] = $('#ODIOPTARGET').val();
     config_byday.data.datasets[1].data[indexToUpdate] = $('#OSIOPTARGET').val();
     config_byday.data.datasets[2].data[indexToUpdate] = ODIOP;
     config_byday.data.datasets[3].data[indexToUpdate] = OSIOP;
+    config_byday.data.datasets[2].iopMethods = config_byday.data.datasets[2].iopMethods || [];
+    config_byday.data.datasets[3].iopMethods = config_byday.data.datasets[3].iopMethods || [];
+    config_byday.data.datasets[2].iopMethods[indexToUpdate] = ODMethod;
+    config_byday.data.datasets[3].iopMethods[indexToUpdate] = OSMethod;
     myLine.update();
 
     var time = $('#IOPTIME').val();
-    times = time.match(/^(\d{1,2}):(\d{2})/);
-    if (times[1] < 10) times[1] = "0"+''+times[1];
-    time = times[1]+':'+times[2];
+    var times = time.match(/^\s*(\d{1,2}):(\d{2})(?:\s*([ap])\.?m\.?)?/i);
+    if (!times) { return; }
+    var hour = parseInt(times[1], 10);
+    var meridiem = (times[3] || '').toLowerCase();
+    if (meridiem === 'p' && hour < 12) { hour += 12; }
+    if (meridiem === 'a' && hour === 12) { hour = 0; }
+    time = (hour < 10 ? '0' : '') + hour + ':' + times[2];
     var indexToUpdate2 = '0';
-    $.each(config_byhour.data.labels, function(key,value) {
+    var rawTimes = config_byhour.data.rawTimes || config_byhour.data.labels;
+    $.each(rawTimes, function(key,value) {
            if (value == time) {
            indexToUpdate2 = key;
            }
            });
     config_byhour.data.datasets[0].data[indexToUpdate2] = ODIOP;
     config_byhour.data.datasets[1].data[indexToUpdate2] = OSIOP;
+    config_byhour.data.datasets[0].iopMethods = config_byhour.data.datasets[0].iopMethods || [];
+    config_byhour.data.datasets[1].iopMethods = config_byhour.data.datasets[1].iopMethods || [];
+    config_byhour.data.datasets[0].iopMethods[indexToUpdate2] = ODMethod;
+    config_byhour.data.datasets[1].iopMethods[indexToUpdate2] = OSMethod;
     myLine2.update();
         // Update one of the points in the second dataset
         //  myLine.data.datasets[1].data[indexToUpdate].val($('#ODIOPAP').val());
@@ -672,7 +801,7 @@ function build_Chronics(obj) {
 }
 /*
  * Function to autocreate a PDF of this form as a document linked to this encounter.
- * Each time it is runs it updates by replacing the encounter's PDF.
+ * Each invocation retains a new version of the encounter's PDF.
  * This used to be fired often,  but it is a server resource beast.
  * Use it sparingly, and intentionally only.
  * Currently only invoked via the bootstrap menu: Menu->File->Print/Store PDF
@@ -724,7 +853,7 @@ function show_right() {
     $("#IMPPLAN_1").addClass("clear_both");
     hide_PRIORS();
 }
-/*
+/**
  * Function to implode the form and hide the right side of every section.
  */
 function hide_right() {
@@ -742,6 +871,7 @@ function hide_right() {
     $("#NEURO_right").addClass('nodisplay');
     $("#RETINA_right").addClass('nodisplay');
     $("#SDRETINA_right").addClass('nodisplay');
+    $("#IMPPLAN_right").addClass('nodisplay');
     $("#PMH_1").removeClass("clear_both");
     $("#ANTSEG_1").removeClass("clear_both");
     $("#RETINA_1").removeClass("clear_both");
@@ -789,7 +919,7 @@ function hide_left() {
     $("#IMPPLAN_left").addClass('nodisplay');
     $("[name $='_left']").addClass('nodisplay');
 }
-/*
+/**
  * Function to display only the DRAW panels of every section.
  * The technical section, between HPI and Clinical section is still visible.
  */
@@ -810,42 +940,43 @@ function show_DRAW() {
     $("#NEURO_right").addClass('canvas');
     $("#IMPPLAN_right").addClass('canvas');
     $(".Draw_class").removeClass('nodisplay');
+    $("#Draw_NEURO").trigger('eye:drawing-opened');
     if ($("#PREFS_CLINICAL").val() !='1') {
         $("#PREFS_CLINICAL").val('1');
         $("#PREFS_EXAM").val('DRAW');
     }
     update_PREFS();
 }
-/*
- * Function to display only the TEXT panels in every section.
+/**
+ * Display left TEXT panels, retaining the Impression/Plan options accordion.
  */
-function show_TEXT() {
+function show_TEXT(persistPreference) {
     $(".TEXT_class").removeClass('nodisplay');
     show_left();
     hide_right(); //this hides the right half
     hide_QP();
     hide_DRAW();
     hide_PRIORS();
+    // Impression/Plan is the text-mode exception: keep its builder available.
+    $("#IMPPLAN_right").removeClass('nodisplay').addClass('canvas');
+    $("#QP_IMPPLAN").removeClass('nodisplay');
     if ($("#PREFS_CLINICAL").val() !='1') {
             // we want to show text_only which are found on left half
         $("#PREFS_CLINICAL").val('1');
     }
     $("#PREFS_EXAM").val('TEXT');
-    $("#IMPPLAN_right").addClass('canvas').removeClass('nodisplay');
-    $("#QP_IMPPLAN").removeClass('nodisplay');
-    $("#DRAW_"+zone).addClass('nodisplay');
-    $("#IMPPLAN_left").removeClass('nodisplay');
-    $("#PREFS_IMPPLAN_RIGHT").val('QP');
-    update_PREFS();
+    if (persistPreference !== false) {
+        update_PREFS();
+    }
 }
-/*
+/**
  * Function to display the PRIORS panels in every right section.
  */
 function show_PRIORS() {
     $("#NEURO_sections").removeClass('nodisplay');
     hide_DRAW();
     $("#EXT_right").addClass("PRIORS_color");
-    show_TEXT();
+    show_TEXT(false);
     show_right();
     hide_QP();
     $("#QP_HPI").removeClass('nodisplay');
@@ -866,14 +997,14 @@ function show_PRIORS() {
     $("#PREFS_EXAM").val('PRIORS');
     update_PREFS();
 }
-/*
+/**
  * Function to show the Quick Picks panel on the right side of every section.
  */
 function show_QP() {
     hide_DRAW();
     hide_PRIORS();
     hide_KB();
-    show_TEXT();
+    show_TEXT(false);
     show_right();
     show_left();
     $("#HPI_right").addClass('canvas');
@@ -889,7 +1020,7 @@ function show_QP() {
     $("#PREFS_EXAM").val('QP');
     update_PREFS();
 }
-/*
+/**
  * Function to display only one DRAW panel of one section.
  */
 function show_DRAW_section(zone) {
@@ -898,6 +1029,9 @@ function show_DRAW_section(zone) {
     $("#"+zone+"_right").addClass('canvas').removeClass('nodisplay');
     $("#Draw_"+zone).addClass('canvas');
     $("#Draw_"+zone).removeClass('nodisplay');
+    if (zone === 'NEURO') {
+        $("#Draw_NEURO").trigger('eye:drawing-opened');
+    }
     $("#PREFS_"+zone+"_DRAW").val(1);
     update_PREFS();
 }
@@ -933,23 +1067,35 @@ function show_PRIOR_CANVAS_section(section, newValue) {
     const params = new URLSearchParams({
         document_id: newValue,
         patient_id: pid,
-        as_file: 'false'
+        as_file: 'false',
+        original_file: 'true',
+        disable_exit: 'false',
+        show_original: 'true'
     });
     const result = base + '/controller.php?document&retrieve&' + params;
     const cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
-    const filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
+    const filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow prior-canvas-image-wrap'><img class='prior-canvas-image' src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
 
+    $("#Draw_"+zone).addClass('is-viewing-prior');
     $("#"+zone+"_canvas").addClass('nodisplay');
     $("#"+zone+"_olddrawing").html(filler);
     $("#"+zone+"_olddrawing").removeClass('nodisplay');
 }
 
+// Browsing history must not replace or redraw the current encounter's canvas.
+/** Return a zone from its prior drawing preview to the editable current canvas. */
+function show_CURRENT_CANVAS_section(zone) {
+    $("#Draw_"+zone).removeClass('is-viewing-prior');
+    $("#"+zone+"_canvas").removeClass('nodisplay');
+    $("#"+zone+"_olddrawing").addClass('nodisplay');
+}
+
+/** Replace a zone canvas image and switch its drawing selector back to the current visit. */
 function replace_CANVAS(zone, url) {
     $("#url_"+zone).val(url);
     cReplace(zone);
     $("#SELECT_CANVAS_"+zone).val('current');
-    $("#"+zone+"_canvas").removeClass('nodisplay');
-    $("#"+zone+"_olddrawing").addClass('nodisplay');
+    show_CURRENT_CANVAS_section(zone);
 }
 /**
  * Function to show one of the Quick Picks section on the right side of its section.
@@ -965,6 +1111,16 @@ function show_QP_section(zone,scroll) {
         scrollTo(zone+"_left");
     }
    }
+
+/** Hide the quick-pick panel for one examination zone. */
+function hide_QP_section(zone) {
+    $("#QP_"+zone).addClass('nodisplay');
+}
+
+/** Hide the prior-visit text panel for one examination zone. */
+function hide_PRIORS_section(zone) {
+    $("#PRIORS_"+zone+"_left_text").addClass('nodisplay');
+}
 /*
  * Function to hide all the DRAW panels of every section.
  */
@@ -1130,19 +1286,31 @@ function show_CC(CC_X) {
 
 /* START Functions related to CODING */
 
-/*
- * Function to determine if add on NeuroSensory(92060) code can be billed.
+/**
+ * Update the suggested NeuroSensory (92060) code from recorded exam findings.
  */
 function check_CPT_92060() {
     var neuro1='';
     var neuro2 ='';
-    if ($("#STEREOPSIS").val() > '') (neuro1="1");
+    $(".neurosens").each(function() {
+        var isUncheckedChoice = (this.type === 'radio' || this.type === 'checkbox') && !this.checked;
+        if (!isUncheckedChoice && $(this).val() > '') {
+            neuro1="1";
+        }
+    });
     $(".neurosens2").each(function(index) {
                           if ($( this ).val() > '') {
                           neuro2="1";
                           }
                           });
-    if (neuro1 && neuro2){
+    var hasPrismData = false;
+    $("textarea.ACT[id^='ACT'], input[id^='SPCT_']").each(function() {
+        if ($.trim($(this).val() || '') !== '') {
+            hasPrismData = true;
+            return false;
+        }
+    });
+    if ((neuro1 && neuro2) || hasPrismData){
         $("#neurosens_code").removeClass('nodisplay');
         CPT_92060 = 'here';
     } else {
@@ -1975,7 +2143,11 @@ $(function () {
  */
 function update_DOCS() {
     var url = "../../forms/eye_mag/save.php?mode=update";
-    top.restoreSession();
+    if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+    /** Warn that the selected PCP or referring provider could not be saved. */
+    function reportDocsSaveFailure() {
+        window.alert(<?php echo xlj('The PCP/referring provider selection could not be saved. Please try again before leaving the form.'); ?>);
+    }
     $.ajax({
            type         : 'POST',
            url          :  url,
@@ -1993,9 +2165,17 @@ function update_DOCS() {
                    code_400(); //the user does not have write privileges!
                    return;
                    }
-                   obj = JSON.parse(result);
-                   build_DOCS(obj);
-    });
+                   try {
+                       var docs = JSON.parse(result);
+                       if (!docs || typeof docs !== 'object') {
+                           reportDocsSaveFailure();
+                           return;
+                       }
+                       build_DOCS(docs);
+                   } catch (error) {
+                       reportDocsSaveFailure();
+                   }
+    }).fail(reportDocsSaveFailure);
 }
 
 /**
@@ -2028,7 +2208,7 @@ function build_DOCS(DOCS) {
         $("#ref_address").html(DOCS['ref']['address']);
         $("#ref_phone").html(DOCS['ref']['phone']);
         $("#ref_phonew2").html(DOCS['ref']['phonew2']);
-        $("#ref_fax").html(DOCS['ref']['fax']);
+        $("#ref_fax").text(DOCS['ref']['fax']);
         $("#ref_fax_info").html(DOCS['ref']['fax_info']);
     } else {
         $("#ref_name").html('');
@@ -2157,6 +2337,15 @@ function scrollTo(target) {
   }
 }
 
+/** Wait for two animation frames before scrolling to the final panel position. */
+function scrollToAfterLayout(target) {
+  window.requestAnimationFrame(function() {
+    window.requestAnimationFrame(function() {
+      scrollTo(target);
+    });
+  });
+}
+
 function update_appt_status(new_status) {
   var url = "../../forms/eye_mag/save.php?mode=update";
   top.restoreSession();
@@ -2222,7 +2411,8 @@ function show_by_setting() {
     for (index = '0'; index < zones.length; ++index) {
         if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
             show_DRAW_section(zones[index]);
-        } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
+        } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP'
+                || $("#PREFS_"+zones[index]+"_RIGHT").val() =='DF') {
             show_QP_section(zones[index],'1');
         }
     }
@@ -2255,15 +2445,58 @@ function show_by_setting() {
         $("#SDRETINA_right").addClass('nodisplay').removeClass('canvas');
         $("#Draw_SDRETINA").addClass('nodisplay');
     }
-    if ($("#PREFS_VAHx").val() == '1') {
-        $("#LayerVision_VAHx").removeClass('nodisplay');
+    var vaHistoryOpen = $("#PREFS_VAHx").val() === '1';
+    $("#LayerVision_VAHx").toggleClass('nodisplay', !vaHistoryOpen);
+    $("#LayerVision_VAHx_lightswitch")
+        .toggleClass('buttonRefraction_selected', vaHistoryOpen)
+        .attr('aria-expanded', String(vaHistoryOpen));
+    var visionPreference = $("#PREFS_VA").val();
+    var rememberedRefractionPanel = ["W", "MR", "CR", "CTL", "ADDITIONAL", "VAX", "RXHX"].some(function(section) {
+        return $("#PREFS_" + section).val() === '1';
+    });
+    // Older preference rows can have a blank parent even though one or more
+    // refraction children are remembered as open. Treat that legacy blank as
+    // open, while continuing to honor an explicit parent value of 0.
+    if (visionPreference === '1' || (visionPreference === '' && rememberedRefractionPanel)) {
+        $("#PREFS_VA").val('1');
+        $("#REFRACTION_sections").removeClass('nodisplay');
+    } else {
+        $("#REFRACTION_sections").addClass('nodisplay');
+    }
+
+    // TEXT is a complete display mode, not only a selected toolbar state.
+    // Reapply it after the zone-specific setup so the next Eye Form opens
+    // with left text panels and the Impression/Plan options accordion visible.
+    if ($("#PREFS_EXAM").val() === 'TEXT') {
+        show_TEXT(false);
     }
 
     return true;
 }
 
 $(function () {
+                  // The issues iframe shares these helpers, but has no exam controls.
+                  if (!document.getElementById('EXAM_KB')) {
+                      return;
+                  }
                   check_lock();
+
+                  var retinalDrawing = $('#Draw_SDRETINA');
+                  /** Reflect the actual retinal drawing-panel visibility in its toggle button state. */
+                  function syncRetinalDrawingButton() {
+                      var visible = retinalDrawing.is(':visible');
+                      $('#BUTTON_DRAW_SDRETINA').toggleClass('is-active', visible)
+                          .attr('aria-pressed', visible ? 'true' : 'false');
+                  }
+                  // Follow actual visibility, including restored preferences, the
+                  // close icon, Chart View, and the form-wide Text/Draw controls.
+                  if (retinalDrawing.length) {
+                      var retinalDrawingObserver = new MutationObserver(syncRetinalDrawingButton);
+                      retinalDrawing.parents().addBack().each(function () {
+                          retinalDrawingObserver.observe(this, {attributes: true, attributeFilter: ['class', 'style']});
+                      });
+                      syncRetinalDrawingButton();
+                  }
 
                   var allPanels = $('.building_blocks > dd').hide();
                   var allPanels2 = $('.building_blocks2 > dd').hide();
@@ -2293,7 +2526,10 @@ $(function () {
                     }
 
                   });
-                  $('[title]').tooltip();
+                  // container:'body' - Bootstrap otherwise inserts each tooltip next to its
+                  // element, inside that zone's stacking context, so no z-index can lift it
+                  // above the PMSFH side panels (inline z-index 999999).
+                  $('[title]').tooltip({container: 'body'});
                   $('#form_PCP,#form_rDOC').on('change', function() {
                                                    update_DOCS();
                                                    });
@@ -2644,6 +2880,104 @@ $(function () {
                   }
                   }
 
+                  /** Create the right- and left-eye H diagrams and connect their points to motility fields. */
+                  function buildMotilityHCharts() {
+                      var charts = $("#NEURO_MOTILITY .motility-h-charts");
+                      if (!charts.length || charts.children().length) { return; }
+
+                      var eyes = [
+                          { label: 'OD', points: [
+                              ['MOTILITY_RRSO', 'left', 'top'], ['MOTILITY_RR', 'left', 'middle'],
+                              ['MOTILITY_RRIO', 'left', 'bottom'], ['MOTILITY_RLSO', 'right', 'top'],
+                              ['MOTILITY_RL', 'right', 'middle'], ['MOTILITY_RLIO', 'right', 'bottom']
+                          ] },
+                          { label: 'OS', points: [
+                              ['MOTILITY_LRSO', 'left', 'top'], ['MOTILITY_LR', 'left', 'middle'],
+                              ['MOTILITY_LRIO', 'left', 'bottom'], ['MOTILITY_LLSO', 'right', 'top'],
+                              ['MOTILITY_LL', 'right', 'middle'], ['MOTILITY_LLIO', 'right', 'bottom']
+                          ] }
+                      ];
+
+                      $.each(eyes, function(_eyeIndex, eye) {
+                          var chart = $('<div class="motility-h-eye"></div>');
+                          chart.append($('<span class="motility-h-eye-label"></span>').text(eye.label));
+                          chart.append('<span class="motility-h-line is-left"></span><span class="motility-h-line is-middle"></span><span class="motility-h-line is-right"></span>');
+                          $.each(eye.points, function(_pointIndex, point) {
+                              chart.append($('<button type="button" class="motility-h-point"></button>')
+                                  .attr({
+                                      'data-field': point[0],
+                                      'data-side': point[1],
+                                      'data-level': point[2],
+                                      'aria-label': eye.label + ' ' + point[2] + ' ' + point[1]
+                                  }));
+                          });
+                          charts.append(chart);
+                      });
+                  }
+
+                  /** Render the saved motility grades as H-diagram tick marks and accessible labels. */
+                  function renderMotilityHCharts() {
+                      $("#NEURO_MOTILITY .motility-h-point").each(function() {
+                          var value = parseInt($("#" + $(this).data('field')).val(), 10) || 0;
+                          var marks = '';
+                          for (var mark = 0; mark < Math.min(value, 4); ++mark) {
+                              marks += '<i class="motility-h-mark"></i>';
+                          }
+                          $(this).html(marks).attr('aria-label', $(this).attr('aria-label').replace(/, grade [0-4]$/, '') + ', grade ' + value);
+                      });
+                  }
+
+                  /** Switch between H and X motility charts and optionally persist the practice preference. */
+                  function showMotilityDisplay(display, savePreference) {
+                      display = display === 'H' ? 'H' : 'X';
+                      var switcher = $("#NEURO_MOTILITY .motility-display-switch");
+                      switcher.attr('data-display', display);
+                      switcher.find('.motility-display-button').removeClass('is-selected').attr('aria-pressed', 'false');
+                      switcher.find('[data-motility-display="' + display + '"]').addClass('is-selected').attr('aria-pressed', 'true');
+                      $("#NEURO_MOTILITY .divTable").toggleClass('nodisplay', display === 'H');
+                      $("#NEURO_MOTILITY .motility-h-charts").toggleClass('nodisplay', display !== 'H');
+                      if (display === 'H') { renderMotilityHCharts(); }
+                      if (typeof updateNeuroStructuredOverlay === 'function') { updateNeuroStructuredOverlay(); }
+
+                      if (savePreference) {
+                          var body = new URLSearchParams();
+                          body.append('display', display);
+                          body.append('csrf_token_form', switcher.data('csrf'));
+                          if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+                          fetch(switcher.data('save-url'), {
+                              method: 'POST',
+                              credentials: 'same-origin',
+                              headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+                              body: body.toString()
+                          }).then(function(response) {
+                              if (!response.ok) { throw new Error('Unable to save motility display'); }
+                              return response.json();
+                          }).catch(function() {
+                              switcher.attr('title', <?php echo xlj('The chart changed for this form, but the practice preference could not be saved.'); ?>);
+                          });
+                          scheduleNeuroMotilityOverlaySave();
+                      }
+                  }
+
+                  buildMotilityHCharts();
+                  showMotilityDisplay($("#NEURO_MOTILITY .motility-display-switch").data('display'), false);
+                  $("#NEURO_MOTILITY .motility-display-button").on('click', function() {
+                      showMotilityDisplay($(this).data('motility-display'), true);
+                  });
+                  $("#NEURO_MOTILITY").on('click', '.motility-h-point', function() {
+                      var field = $(this).data('field');
+                      var value = parseInt($("#" + field).val(), 10) || 0;
+                      $("#" + field).val(value >= 4 ? 0 : value + 1);
+                      $("#MOTILITYNORMAL").prop('checked', false);
+                      renderMotilityHCharts();
+                      updateNeuroStructuredOverlay();
+                      scheduleNeuroMotilityOverlaySave();
+                      submit_form('3');
+                  });
+                  $("#MOTILITYNORMAL").on('click', function() {
+                      setTimeout(renderMotilityHCharts, 0);
+                  });
+
                   $(".chronic_HPI,.count_HPI").on("blur", function() {
                                                     check_exam_detail();
                                                     });
@@ -2660,10 +2994,264 @@ $(function () {
                                             $("#DIL_MEDS").val(timestamp);
                                         }});
 
-                  //neurosens exam = stereopsis + strab||NPC||NPA||etc
-                  $(".neurosens,.neurosens2").on("blur", function() {
+                  // Retain stereo + other findings, and include any ACT/SPCT entry.
+                  $(".neurosens,.neurosens2, textarea.ACT[id^='ACT'], input[id^='SPCT_']").on("input blur change", function() {
                                                    check_CPT_92060();
-                                                   });
+                  });
+                  /** Clear incompatible stereopsis findings when the examination is marked unable. */
+                  function clearStereopsisForUnable() {
+                      $("input[name='STEREO_FLY'][type='radio']").prop('checked', false);
+                      $("#STEREO_ANIMALS, #STEREO_CIRCLES").val('');
+                      $("input[name='STEREO_FIXATION_PREF'][type='radio']").prop('checked', false);
+                      check_CPT_92060();
+                  }
+                  var neuroMotilityOverlaySaveTimer = null;
+                  var neuroOverlayPending = false;
+                  var neuroOverlaySaveAttempts = 0;
+                  /** Check whether both the Neuro drawing and its containing panel are visible. */
+                  function neuroDrawingPanelIsVisible() {
+                      return $("#Draw_NEURO").is(':visible') && $("#NEURO_right").is(':visible');
+                  }
+                  /** Detect stereopsis selections or motility grades that belong in the drawing overlay. */
+                  function neuroStructuredOverlayHasValues() {
+                      if ($.trim($("#STEREO_ANIMALS").val()) !== '' || $.trim($("#STEREO_CIRCLES").val()) !== '') {
+                          return true;
+                      }
+                      if ($("#STEREO_UNABLE, #MOTILITYNORMAL").is(':checked') ||
+                          $("input[name='STEREO_FLY'][type='radio']:checked").length ||
+                          $("input[name='STEREO_FIXATION_PREF'][type='radio']:checked").length) {
+                          return true;
+                      }
+                      var hasMotilityGrade = false;
+                      $("input[type='hidden'][name^='MOTILITY_']").each(function() {
+                          if ((parseInt($(this).val(), 10) || 0) > 0) {
+                              hasMotilityGrade = true;
+                              return false;
+                          }
+                      });
+                      return hasMotilityGrade;
+                  }
+                  /** Debounce visible structured-overlay saves until the background and annotations are ready. */
+                  function scheduleNeuroMotilityOverlaySave() {
+                      var overlay = $("#NEURO_structured_overlay");
+                      if (!overlay.length) {
+                          return;
+                      }
+                      if (overlay.closest('.eye-drawing-stage').attr('data-structured-background') === '0') return;
+                      neuroOverlayPending = true;
+                      if (!neuroDrawingPanelIsVisible()) {
+                          return;
+                      }
+                      window.clearTimeout(neuroMotilityOverlaySaveTimer);
+                      neuroMotilityOverlaySaveTimer = window.setTimeout(function() {
+                          updateNeuroStructuredOverlay();
+                          var neuroImage = window.image && window.image.NEURO;
+                          var overlayReady = window.eyeDrawingOverlays && window.eyeDrawingOverlays.NEURO;
+                          var imageReady = neuroImage && neuroImage.complete && neuroImage.naturalWidth > 0;
+                          if (!overlayReady || !imageReady) {
+                              if (++neuroOverlaySaveAttempts < 20) {
+                                  scheduleNeuroMotilityOverlaySave();
+                              }
+                              return;
+                          }
+                          neuroOverlaySaveAttempts = 0;
+                          neuroOverlayPending = false;
+                          submit_canvas('NEURO', true);
+                      }, 650);
+                  }
+                  /** Refresh a newly visible Neuro overlay and save pending or previously unrecorded findings. */
+                  function activateNeuroStructuredOverlay() {
+                      window.setTimeout(function() {
+                          if (!neuroDrawingPanelIsVisible()) {
+                              return;
+                          }
+                          updateNeuroStructuredOverlay();
+                          var hasSavedDrawing = $("#NEURO_structured_overlay").closest('.eye-drawing-stage')
+                              .attr('data-has-saved-drawing') === '1';
+                          if (neuroOverlayPending || (!hasSavedDrawing && neuroStructuredOverlayHasValues())) {
+                              scheduleNeuroMotilityOverlaySave();
+                          }
+                      }, 0);
+                  }
+                  /** Rebuild the SVG motility diagrams for the selected H or X display. */
+                  function renderNeuroMotilityOverlay() {
+                      var group = document.getElementById('NEURO_overlay_motility_diagrams');
+                      if (!group) { return; }
+                      while (group.firstChild) { group.removeChild(group.firstChild); }
+
+                      var svgNamespace = 'http://www.w3.org/2000/svg';
+                      var display = $("#NEURO_MOTILITY .motility-display-switch").attr('data-display') === 'H' ? 'H' : 'X';
+                      var stroke = '#18324f';
+
+                      /** Append an SVG element with the supplied attributes to the motility diagram group. */
+                      function element(name, attributes) {
+                          var node = document.createElementNS(svgNamespace, name);
+                          $.each(attributes, function(attribute, value) {
+                              node.setAttribute(attribute, value);
+                          });
+                          group.appendChild(node);
+                          return node;
+                      }
+                      /** Draw one SVG motility line with the current stroke color and requested width. */
+                      function line(x1, y1, x2, y2, width) {
+                          element('line', {
+                              x1: x1, y1: y1, x2: x2, y2: y2,
+                              stroke: stroke, 'stroke-width': width || 2,
+                              'stroke-linecap': 'square'
+                          });
+                      }
+                      /** Read a motility grade and constrain its tick count to zero through four. */
+                      function grade(field) {
+                          return Math.max(0, Math.min(4, parseInt($("#" + field).val(), 10) || 0));
+                      }
+                      /** Draw grade ticks perpendicular to a motility ray at evenly spaced positions. */
+                      function rayTicks(cx, cy, dx, dy, field, outerDistance) {
+                          var count = grade(field);
+                          var halfTick = 5;
+                          for (var index = 0; index < count; ++index) {
+                              var distance = outerDistance - (index * 7);
+                              var tx = cx + (dx * distance);
+                              var ty = cy + (dy * distance);
+                              var px = -dy * halfTick;
+                              var py = dx * halfTick;
+                              line(tx - px, ty - py, tx + px, ty + py, 2);
+                          }
+                      }
+                      /** Draw one eye H diagram with grade ticks on its six tested directions. */
+                      function drawH(centerX, fields) {
+                          var left = centerX - 41;
+                          var right = centerX + 41;
+                          var middle = 147;
+                          line(left, 110, left, 184, 2.5);
+                          line(right, 110, right, 184, 2.5);
+                          line(left, middle, right, middle, 2.5);
+                          rayTicks(left, middle, 0, -1, fields.upperLeft, 31);
+                          rayTicks(centerX, middle, -1, 0, fields.left, 31);
+                          rayTicks(left, middle, 0, 1, fields.lowerLeft, 31);
+                          rayTicks(right, middle, 0, -1, fields.upperRight, 31);
+                          rayTicks(centerX, middle, 1, 0, fields.right, 31);
+                          rayTicks(right, middle, 0, 1, fields.lowerRight, 31);
+                      }
+                      /** Draw one eye X diagram with grade ticks on its eight tested directions. */
+                      function drawX(centerX, fields) {
+                          var centerY = 147;
+                          var diagonal = 0.70710678;
+                          var directions = [
+                              [0, -1, fields.up], [0, 1, fields.down],
+                              [-1, 0, fields.left], [1, 0, fields.right],
+                              [-diagonal, -diagonal, fields.upperLeft],
+                              [-diagonal, diagonal, fields.lowerLeft],
+                              [diagonal, -diagonal, fields.upperRight],
+                              [diagonal, diagonal, fields.lowerRight]
+                          ];
+                          $.each(directions, function(_index, direction) {
+                              line(centerX, centerY, centerX + direction[0] * 39, centerY + direction[1] * 39, 1.5);
+                              rayTicks(centerX, centerY, direction[0], direction[1], direction[2], 34);
+                          });
+                      }
+
+                      element('rect', {x: 42, y: 101, width: 107, height: 93, fill: '#fff'});
+                      element('rect', {x: 174, y: 101, width: 107, height: 93, fill: '#fff'});
+
+                      var rightEye = {
+                          up: 'MOTILITY_RS', down: 'MOTILITY_RI', left: 'MOTILITY_RR', right: 'MOTILITY_RL',
+                          upperLeft: 'MOTILITY_RRSO', lowerLeft: 'MOTILITY_RRIO',
+                          upperRight: 'MOTILITY_RLSO', lowerRight: 'MOTILITY_RLIO'
+                      };
+                      var leftEye = {
+                          up: 'MOTILITY_LS', down: 'MOTILITY_LI', left: 'MOTILITY_LR', right: 'MOTILITY_LL',
+                          upperLeft: 'MOTILITY_LRSO', lowerLeft: 'MOTILITY_LRIO',
+                          upperRight: 'MOTILITY_LLSO', lowerRight: 'MOTILITY_LLIO'
+                      };
+                      if (display === 'H') {
+                          drawH(95, rightEye);
+                          drawH(227, leftEye);
+                      } else {
+                          drawX(95, rightEye);
+                          drawX(227, leftEye);
+                      }
+                  }
+                  /** Synchronize stereopsis and motility artwork with the current structured findings. */
+                  function updateNeuroStructuredOverlay() {
+                      var overlay = $("#NEURO_structured_overlay");
+                      if (!overlay.length) { return; }
+                      if (overlay.closest('.eye-drawing-stage').attr('data-structured-background') === '0') {
+                          overlay.addClass('nodisplay');
+                          return;
+                      }
+                      // The live overlay may be shown on the base image without creating a
+                      // drawing document. Persistence remains gated separately in
+                      // scheduleNeuroMotilityOverlaySave().
+                      overlay.removeClass('nodisplay');
+
+                      var unable = $("#STEREO_UNABLE").is(':checked');
+                      var fly = unable ? '' : ($("input[name='STEREO_FLY'][type='radio']:checked").val() || '');
+                      var fixation = unable ? '' : ($("input[name='STEREO_FIXATION_PREF'][type='radio']:checked").val() || '');
+                      $("#NEURO_overlay_animals").text(unable ? '' : $.trim($("#STEREO_ANIMALS").val()));
+                      $("#NEURO_overlay_circles").text(unable ? '' : $.trim($("#STEREO_CIRCLES").val()));
+                      $("#NEURO_overlay_fly_yes").toggleClass('is-visible', !unable && fly === 'Yes');
+                      $("#NEURO_overlay_fly_no").toggleClass('is-visible', !unable && fly === 'No');
+                      $("#NEURO_overlay_unable").toggleClass('is-visible', unable);
+
+                      $("[id^='NEURO_overlay_fixation_']").removeClass('is-visible');
+                      if (!unable && fixation) {
+                          $("#NEURO_overlay_fixation_" + fixation.toLowerCase()).addClass('is-visible');
+                      }
+
+                      var motilityNormal = $("#MOTILITYNORMAL").is(':checked');
+                      $("#NEURO_overlay_motility_od, #NEURO_overlay_motility_os")
+                          .toggleClass('is-visible', motilityNormal);
+                      renderNeuroMotilityOverlay();
+                  }
+                  $("#STEREO_UNABLE").on('change', function() {
+                      if (this.checked) {
+                          clearStereopsisForUnable();
+                      }
+                  });
+                  if ($("#STEREO_UNABLE").is(':checked')) {
+                      clearStereopsisForUnable();
+                  }
+                  $("#NEURO_stereopsis").on('input change',
+                      "input[name='STEREO_FLY'][type='radio'], #STEREO_ANIMALS, #STEREO_CIRCLES", function() {
+                          var flyIsBlank = $("input[name='STEREO_FLY'][type='radio']:checked").length === 0;
+                          var animals = $.trim($("#STEREO_ANIMALS").val());
+                          var circles = $.trim($("#STEREO_CIRCLES").val());
+                          var hasValue = (this.type === 'radio') ? this.checked : $.trim($(this).val()) !== '';
+
+                          if (hasValue) {
+                              $("#STEREO_UNABLE").prop('checked', false);
+                          }
+
+                          if (this.id === 'STEREO_CIRCLES' && /^[4-9]$/.test(circles)) {
+                              if (flyIsBlank) {
+                                  $("#STEREO_FLY_YES").prop('checked', true);
+                              }
+                              if (animals === '') {
+                                  $("#STEREO_ANIMALS").val('3');
+                              }
+                          } else if (this.id === 'STEREO_ANIMALS' && animals === '3' && flyIsBlank && circles === '') {
+                              $("#STEREO_FLY_YES").prop('checked', true);
+                          }
+
+                          check_CPT_92060();
+                      });
+                  $("#NEURO_STEREO_ANIMALS").on('click', function() {
+                      $("#STEREO_ANIMALS").val('3').trigger('input');
+                      submit_form("eye_mag");
+                  });
+                  $("#NEURO_STEREO_CIRCLES").on('click', function() {
+                      $("#STEREO_CIRCLES").val('9').trigger('input');
+                      $("#STEREO_FIXATION_OU").prop('checked', true).trigger('change');
+                      submit_form("eye_mag");
+                  });
+                  $("#NEURO_stereopsis input, #MOTILITYNORMAL").on('input change', function() {
+                      updateNeuroStructuredOverlay();
+                      scheduleNeuroMotilityOverlaySave();
+                  });
+                  $("#NEURO_structured_overlay").on('drawing-created', updateNeuroStructuredOverlay);
+                  $("#Draw_NEURO").on('eye:drawing-opened', activateNeuroStructuredOverlay);
+                  updateNeuroStructuredOverlay();
+                  activateNeuroStructuredOverlay();
 
                   //  functions to improve flow of refraction input
                   $("input[name$='PRISM'],input[class^='prism']").on("blur", function() {
@@ -2902,9 +3490,12 @@ $(function () {
                                                 }
                                                 update_PREFS();
                                              } else {
-                                                 $("#BUTTON_TAB_"+menuitem).trigger('click');
-                                                 $("#tabs-left-"+menuitem).trigger('click');
-                                                 menu_select(menuitem);
+                                                 var $zoneSetting = $("#setting_" + menuitem);
+                                                 if ($zoneSetting.length && $zoneSetting.val() != '1') {
+                                                     $("#tabs-left-" + menuitem).trigger('click');
+                                                 } else {
+                                                     menu_select(menuitem);
+                                                 }
                                             }
                     });
 
@@ -3247,6 +3838,45 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              $("#RETINA_prefix_"+ newValue).addClass("eye_button_selected");
                                              }
                                              });
+                  /** Arrange the Neuro quick-pick groups into dedicated left and right columns once. */
+                  function layoutNeuroQuickPicks() {
+                      var quickPicks = $("#QP_NEURO");
+                      if (!quickPicks.length || $("#NEURO_QP_LAYOUT").length) { return; }
+
+                      var layout = $('<div id="NEURO_QP_LAYOUT"></div>');
+                      var left = $('<div id="NEURO_QP_LEFT"></div>');
+                      var right = $('<div id="NEURO_QP_RIGHT"></div>');
+                      var combined = $('<div id="NEURO_LATERALITY_DEVIATION"></div>');
+
+                      left.append($("#NEURO_P_3 .ACT_boxed"));
+                      combined.append($("#NEURO_DEVIATION"), $("#NEURO_LATERALITY"), $("#NEURO_RECORD_WRAP"));
+                      left.append(combined);
+                      right.append($("#NEURO_SPCT_CARD"), $("#NEURO_PATTERN_ANALYSIS"));
+                      layout.append(left, right);
+                      quickPicks.append(layout);
+                      $("#NEURO_P_2, #NEURO_P_3").remove();
+                  }
+
+                  layoutNeuroQuickPicks();
+                  // Guidance is optional: a failed/delayed script must not abort
+                  // the rest of the Eye Form's document-ready handlers.
+                  var prismGuidanceUpdater = null;
+                  /** Refresh or initialize prism-pattern guidance and report an unavailable pattern helper. */
+                  function updatePrismPatternGuidance() {
+                      if (prismGuidanceUpdater) {
+                          prismGuidanceUpdater();
+                      } else if (window.EyeNeuroPatterns && typeof window.EyeNeuroPatterns.bind === 'function') {
+                          prismGuidanceUpdater = window.EyeNeuroPatterns.bind($);
+                      } else {
+                          $("#NEURO_PATTERN_ANALYSIS .neuro-pattern-guidance").empty().append(
+                              $('<div class="guidance-note"></div>').text(
+                                  <?php echo xlj('Pattern guidance is unavailable. Reload the Eye Form to try again.'); ?>
+                              )
+                          );
+                      }
+                  }
+                  window.addEventListener('eye-neuro-patterns-ready', updatePrismPatternGuidance);
+                  updatePrismPatternGuidance();
                   $("#NEURO_ACT_zone").on("change", function() {
                                               var newValue = $(this).val();
                                               $("[name^='NEURO_ACT_zone']").removeClass('eye_button_selected');
@@ -3314,7 +3944,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                            var zone = $("#NEURO_ACT_zone").val();
                                            var strab = $("#NEURO_value").val() + ' '+ $("#NEURO_side").val() + $("#NEURO_ACT_strab").val();
 
-                                           $("#ACT"+number+zone).val(strab).css("background-color","#F0F8FF");
+                                           $("#ACT"+number+zone).val(strab).css("background-color","#F0F8FF").trigger('input');
 
 
                                            });
@@ -3329,9 +3959,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   var section = "#"+this.id.match(/(.*)_lightswitch$/)[1];
                                                   var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];
                                                   var elem = document.getElementById("PREFS_"+section2);
-                                                  $("#PREFS_VA").val('0');
                                                   if ((section2 != "IOP") && (section2 != "VAHx")) {
                                                         $("#REFRACTION_sections").removeClass('nodisplay');
+                                                        $("#PREFS_VA").val('1');
                                                   }
                                                   if (elem.value == "0" || elem.value =='') {
                                                   elem.value='1';
@@ -3361,6 +3991,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                     $("#LayerVision_VAHx").addClass('nodisplay');
                                                   }
                                                   $(this).removeClass("buttonRefraction_selected");
+                                                  }
+                                                  if (section2 === "VAHx") {
+                                                      $(this).attr('aria-expanded', String(elem.value === '1'));
                                                   }
                                                   $(this).css( 'cursor', 'pointer' );
                                                   update_PREFS();
@@ -3420,6 +4053,10 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                  $("#" + newValue).val(hereValue).css("background-color","#F0F8FF");;
                                                  $("#" + newValue + "_copy_brd").val(hereValue).css("background-color","#F0F8FF");;
                                                  });
+                  // Lens Treatments selections save like the input fields do
+                  $("input[name^='LENS_TREATMENTS']").on('change', function() {
+                      submit_form();
+                  });
                   $("input[name$='_copy_brd']").on("change", function() {
                                                        var hereValue = $(this).val();
                                                        var newValue = $(this).attr('name').replace('_copy_brd', '');
@@ -3744,6 +4381,8 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              $("#MOTILITY_LLSO_"+index).html('');
                                              $("#MOTILITY_LLIO_"+index).html('');
                                              }
+                                             updateNeuroStructuredOverlay();
+                                             scheduleNeuroMotilityOverlaySave();
                                              submit_form('eye_mag');
                                              });
 
@@ -3795,6 +4434,8 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                  }
                                                  }
 
+                                                 updateNeuroStructuredOverlay();
+                                                 scheduleNeuroMotilityOverlaySave();
                                                  submit_form('3');
                                                  });
 
@@ -3966,6 +4607,11 @@ $("body").on("click","[name^='old_canvas']", function() {
                                          $("#ACT_tab_"+show).trigger('click');
                                          update_PREFS();
                                          });
+                  $("#ACT").on("change", function() {
+                      if (!this.checked && $("#ACTMAIN").hasClass('nodisplay')) {
+                          $("#ACTTRIGGER").trigger("click");
+                      }
+                  });
                   $("#NEURO_COLOR").on("click", function() {
                                           $("#ODCOLOR").val("11/11");
                                           $("#OSCOLOR").val("11/11");
@@ -3997,17 +4643,18 @@ $("body").on("click","[name^='old_canvas']", function() {
                                            var zone = this.id.match(/Redo_Canvas_(.*)/)[1];
                                            submit_canvas(zone);
                                            });
-                  $("[id^='Clear_']").on("click", function() {
-                                            var zone = this.id.match(/Clear_Canvas_(.*)/)[1];
-                                            submit_canvas(zone);
-                                            });
                   $("[id^='Blank_']").on("click", function() {
 
                                            var zone = this.id.match(/Blank_Canvas_(.*)/)[1];
-                                           $("#url_"+zone).val("../../forms/eye_mag/images/BLANK_BASE.jpg");
-                                           //canvas.renderAll();
+                                           eyeDrawingUseChosenBackground(zone, 'blank');
+                                           markEyeCanvasDirty(zone);
                                            drawImage(zone);
+                                           return false;
                                            });
+
+                  $(document).on('eye:background-changed', function(event, zone) {
+                      if (zone === 'NEURO') updateNeuroStructuredOverlay();
+                  });
 
                   $("#COPY_SECTION").on("change", function() {
                                             var start = $("#COPY_SECTION").val();
@@ -4045,6 +4692,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                    dataType : 'json',
                                                    url      :  "../../forms/eye_mag/save.php",
                                                    data   : data,
+                                                   /** Apply the selected prior section to the current form, including Impression/Plan items. */
                                                    success  : function(result) {
                                                    //we have to process impplan differently
                                                    if (zone =='IMPPLAN') {
@@ -4095,6 +4743,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                          $("#"+keyhere+"_copy_brd").val(valhere).css("background-color","#F0F8FF");;
                                                          }
                                                          });
+                                                   if (zone === "NEURO") { updatePrismPatternGuidance(); }
                                                    if (zone != "READONLY") { submit_form("eye_mag"); }
                                                    }
                                                    }});
@@ -4116,8 +4765,12 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   $("#Draw_"+zone).removeClass('nodisplay');
                                                   $("#PREFS_"+zone+"_RIGHT").val('DRAW');
 
+                                                  if (zone === 'NEURO') {
+                                                      $("#Draw_NEURO").trigger('eye:drawing-opened');
+                                                  }
+
                                                   update_PREFS();
-                                                  //scrollTo(zone+"_left");
+                                                  scrollToAfterLayout(zone+"_left");
                                                   }
                                                   });
                   $("[id^='BUTTON_QP_']").on("click", function() {
@@ -4208,7 +4861,10 @@ $("body").on("click","[name^='old_canvas']", function() {
                    codetype:  obj.PMSFH['POH'][value]['codetype']
                    */
 
-                  $('#make_new_IMP').on("click", function() {
+                  $('#make_new_IMP').on("click", function(event) {
+                                           // The arrow sits inside the Builder's accordion header; without this the
+                                           // same click also toggles the header and collapses the Builder.
+                                           event.stopPropagation();
                                            var issue='';
                                            if (IMP_order.length ==0) rebuild_IMP($( "#build_DX_list" ));
                                            if (obj.IMPPLAN_items ==null) obj.IMPPLAN_items = [];
@@ -4294,14 +4950,11 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                          });
                 $("[name='CANVAS_selector']").on("change", function(){
                     //we are going to display an old image from a previous encounter
-                    zone = this.id.match(/CANVAS_(.*)/)[1];
+                    var zone = this.id.match(/CANVAS_(.*)/)[1];
                     if (this.value != 'current') {
                         show_PRIOR_CANVAS_section(zone, this.value);
-                        $("#"+zone+"_canvas").addClass('nodisplay');
-                        $("#"+zone+"_olddrawing").removeClass('nodisplay');
                     } else {
-                        $("#"+zone+"_canvas").removeClass('nodisplay');
-                        $("#"+zone+"_olddrawing").addClass('nodisplay');
+                        show_CURRENT_CANVAS_section(zone);
                     }
                 });
 
@@ -4400,16 +5053,10 @@ $("body").on("click","[name^='old_canvas']", function() {
                         var item = this.id.match(/tabs-left-(.*)/)[1];
                         var value = $("#setting_"+item).val();
                         if (value !='1') {
-                            $("#setting_"+item).val('1');
-                            $(this).removeClass('ui-state-default');
-                            $('#'+ item +'_1').removeClass('nodisplay');
-                            menu_select(item);
+                            restorePanelFromChartView(item);
                         } else {
-                            $("#setting_"+item).val('0');
-                            $(this).addClass('ui-state-default');
-                            $('#'+ item +'_1').addClass('nodisplay');
+                            minimizePanelToChartView(item);
                         }
-                        update_PREFS();
                   });
 
                   $(document).on('change','[name="visit_status"]', function (event) {
@@ -4449,14 +5096,225 @@ $("body").on("click","[name^='old_canvas']", function() {
                     build_CODING_list();
                   });
 
+                    /** Save a collapsed panel preference and animate the panel into its Chart View tab. */
+                    function minimizePanelToChartView(item) {
+                        var $panel = $("#" + item + "_1");
+                        var $chartView = $("#tabs-left-" + item);
+
+                        $("#tabs_left").removeClass('nodisplay');
+                        $chartView.addClass('ui-state-default');
+                        $("#setting_" + item).val('0');
+                        update_PREFS();
+
+                        if (!$panel.length || $panel.hasClass('eye-panel-minimizing')) {
+                            return;
+                        }
+
+                        /** Finish panel minimization once, clearing animation state and restoring the chart position. */
+                        var finishMinimize = function () {
+                            if ($panel.data('eye-panel-minimize-finished')) {
+                                return;
+                            }
+                            $panel.data('eye-panel-minimize-finished', true);
+                            $panel.addClass('nodisplay').removeClass('eye-panel-minimizing');
+                            $panel.css('opacity', '');
+                            $chartView.addClass('eye-chart-view-received');
+                            window.setTimeout(function () {
+                                $chartView.removeClass('eye-chart-view-received');
+                                $panel.removeData('eye-panel-minimize-finished');
+                            }, 1100);
+                        };
+
+                        var panelElement = $panel.get(0);
+                        var chartElement = $chartView.get(0);
+                        if (!panelElement || !chartElement) {
+                            $panel.addClass('eye-panel-minimizing').fadeTo(280, 0, finishMinimize);
+                            return;
+                        }
+
+                        var panelRect = panelElement.getBoundingClientRect();
+                        var chartRect = chartElement.getBoundingClientRect();
+                        if (!panelRect.width || !panelRect.height) {
+                            $panel.addClass('eye-panel-minimizing').fadeTo(280, 0, finishMinimize);
+                            return;
+                        }
+                        if (!chartRect.width || !chartRect.height) {
+                            var chartItems = ['HPI', 'PMH', 'EXT', 'ANTSEG', 'RETINA', 'NEURO', 'IMPPLAN'];
+                            var chartIndex = Math.max(0, chartItems.indexOf(item));
+                            chartRect = {
+                                height: 30,
+                                left: 8,
+                                top: 150 + (chartIndex * 34),
+                                width: 76
+                            };
+                        }
+
+                        var chartLabel = $.trim($chartView.text()) || item;
+                        var $ghost = $('<div>', {
+                            'aria-hidden': 'true',
+                            'class': 'eye-panel-minimize-ghost'
+                        });
+                        $('<span>', {'class': 'eye-panel-minimize-label'})
+                            .text(chartLabel)
+                            .appendTo($ghost);
+                        $('<span>', {'class': 'eye-panel-minimize-destination'})
+                            .text(<?php echo xlj('Chart View'); ?>)
+                            .appendTo($ghost);
+                        $ghost.css({
+                            height: panelRect.height,
+                            left: panelRect.left,
+                            top: panelRect.top,
+                            width: panelRect.width
+                        }).appendTo(document.body);
+
+                        $panel.addClass('eye-panel-minimizing');
+                        $panel.stop(true).animate({opacity: 0.12}, 300);
+
+                        /** Remove the temporary animation image and complete panel minimization. */
+                        var finishFlight = function () {
+                            $ghost.remove();
+                            finishMinimize();
+                        };
+                        if ($ghost.get(0).animate) {
+                            var flight = $ghost.get(0).animate([
+                                {
+                                    height: panelRect.height + 'px',
+                                    left: panelRect.left + 'px',
+                                    opacity: 0.96,
+                                    top: panelRect.top + 'px',
+                                    width: panelRect.width + 'px'
+                                },
+                                {
+                                    height: chartRect.height + 'px',
+                                    left: chartRect.left + 'px',
+                                    opacity: 0.22,
+                                    top: chartRect.top + 'px',
+                                    width: chartRect.width + 'px'
+                                }
+                            ], {
+                                duration: 720,
+                                easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                                fill: 'forwards'
+                            });
+                            flight.onfinish = finishFlight;
+                            flight.oncancel = finishFlight;
+                        } else {
+                            $ghost.animate({
+                                height: chartRect.height,
+                                left: chartRect.left,
+                                opacity: 0.22,
+                                top: chartRect.top,
+                                width: chartRect.width
+                            }, 720, finishFlight);
+                        }
+                    }
+
+                    /** Restore a collapsed panel, save its preference, and animate it back into the chart. */
+                    function restorePanelFromChartView(item) {
+                        var $panel = $("#" + item + "_1");
+                        var $chartView = $("#tabs-left-" + item);
+                        if (!$panel.length || $panel.hasClass('eye-panel-restoring') || $panel.hasClass('eye-panel-minimizing')) {
+                            return;
+                        }
+
+                        $("#setting_" + item).val('1');
+                        $chartView.removeClass('ui-state-default');
+                        $panel.removeClass('nodisplay').addClass('eye-panel-restoring').css('opacity', 0);
+                        update_PREFS();
+
+                        // Put the restored panel in view before measuring its destination.
+                        menu_select(item);
+                        $('html, body').stop(true, true);
+
+                        var panelElement = $panel.get(0);
+                        var chartElement = $chartView.get(0);
+                        var panelRect = panelElement.getBoundingClientRect();
+                        var chartRect = chartElement ? chartElement.getBoundingClientRect() : null;
+                        if (!chartRect || !chartRect.width || !chartRect.height) {
+                            var chartItems = ['HPI', 'PMH', 'EXT', 'ANTSEG', 'RETINA', 'NEURO', 'IMPPLAN'];
+                            var chartIndex = Math.max(0, chartItems.indexOf(item));
+                            chartRect = {
+                                height: 30,
+                                left: 8,
+                                top: 150 + (chartIndex * 34),
+                                width: 76
+                            };
+                        }
+
+                        var finished = false;
+                        /** Complete panel restoration once and remove the temporary animation image. */
+                        var finishRestore = function () {
+                            if (finished) {
+                                return;
+                            }
+                            finished = true;
+                            $ghost.remove();
+                            $panel.removeClass('eye-panel-restoring').css('opacity', '');
+                        };
+
+                        if (!panelRect.width || !panelRect.height) {
+                            $panel.stop(true).fadeTo(280, 1, function () {
+                                $panel.removeClass('eye-panel-restoring').css('opacity', '');
+                            });
+                            return;
+                        }
+
+                        var chartLabel = $.trim($chartView.text()) || item;
+                        var $ghost = $('<div>', {
+                            'aria-hidden': 'true',
+                            'class': 'eye-panel-minimize-ghost eye-panel-restore-ghost'
+                        });
+                        $('<span>', {'class': 'eye-panel-minimize-label'})
+                            .text(chartLabel)
+                            .appendTo($ghost);
+                        $('<span>', {'class': 'eye-panel-minimize-destination'})
+                            .text(<?php echo xlj('Opening'); ?>)
+                            .appendTo($ghost);
+                        $ghost.css({
+                            height: chartRect.height,
+                            left: chartRect.left,
+                            opacity: 0.3,
+                            top: chartRect.top,
+                            width: chartRect.width
+                        }).appendTo(document.body);
+
+                        if ($ghost.get(0).animate) {
+                            var flight = $ghost.get(0).animate([
+                                {
+                                    height: chartRect.height + 'px',
+                                    left: chartRect.left + 'px',
+                                    opacity: 0.3,
+                                    top: chartRect.top + 'px',
+                                    width: chartRect.width + 'px'
+                                },
+                                {
+                                    height: panelRect.height + 'px',
+                                    left: panelRect.left + 'px',
+                                    opacity: 0.96,
+                                    top: panelRect.top + 'px',
+                                    width: panelRect.width + 'px'
+                                }
+                            ], {
+                                duration: 720,
+                                easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                                fill: 'forwards'
+                            });
+                            flight.onfinish = finishRestore;
+                            flight.oncancel = finishRestore;
+                        } else {
+                            $ghost.animate({
+                                height: panelRect.height,
+                                left: panelRect.left,
+                                opacity: 0.96,
+                                top: panelRect.top,
+                                width: panelRect.width
+                            }, 720, finishRestore);
+                        }
+                    }
+
                     $('[id^="BUTTON_TAB_"]').on('click', function () {
                         var item = this.id.match(/BUTTON_TAB_(.*)/)[1];
-
-                        $('#tabs-left-'+item).addClass('ui-state-default');
-                        $("#setting_"+item).val('0');
-                        $("#"+item+'_1').addClass('nodisplay');
-                        $("#tabs_left").removeClass('nodisplay');
-                        update_PREFS();
+                        minimizePanelToChartView(item);
                     });
 
                   $("input,textarea,text").on("focus", function(){
