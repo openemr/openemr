@@ -151,15 +151,21 @@ function checkBackgroundServices(): void
      * Setup background services for Weno when it is enabled
      * this is to sync the prescription logs.
      * weno_rx_enable keeps its value when the module is disabled in Module
-     * Manager, so the module must also be enabled. Otherwise saving globals
+     * Manager, so the module state must agree too. Otherwise saving globals
      * would restart services whose module code is not loaded.
+     * This matches the module's own rule (ModuleService::setModuleState()):
+     * the services run only when mod_active = 1 and mod_ui_active = 0, i.e.
+     * enabled and configured. mod_ui_active = 1 means installed, disabled, or
+     * enabled with setup incomplete.
      */
-    $wenoModuleActive = QueryUtils::fetchSingleValue(
-        "SELECT `mod_active` FROM `modules` WHERE `mod_directory` = ?",
-        'mod_active',
+    $wenoModule = QueryUtils::querySingleRow(
+        "SELECT `mod_active`, `mod_ui_active` FROM `modules` WHERE `mod_directory` = ?",
         ['oe-module-weno']
     );
-    $wenoservices = ($wenoModuleActive == 1 && OEGlobalsBag::getInstance()->getBoolean('weno_rx_enable')) ? '1' : '0';
+    $wenoReady = is_array($wenoModule)
+        && ($wenoModule['mod_active'] ?? 0) == 1
+        && ($wenoModule['mod_ui_active'] ?? 1) == 0;
+    $wenoservices = ($wenoReady && OEGlobalsBag::getInstance()->getBoolean('weno_rx_enable')) ? '1' : '0';
     updateBackgroundService('WenoExchange', $wenoservices, 60);
     updateBackgroundService('WenoExchangePharmacies', $wenoservices, 1440);
 }
