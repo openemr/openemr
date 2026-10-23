@@ -35,6 +35,12 @@ final readonly class AuditRequestLabel
         'password',
         'secret',
         'token',
+        'access_token',
+        'refresh_token',
+        'id_token',
+        'jwt',
+        'api_key',
+        'apikey',
     ];
 
     public function __construct(public string $label)
@@ -105,7 +111,11 @@ final readonly class AuditRequestLabel
             return true;
         }
 
-        return str_contains($lower, 'password') || str_contains($lower, 'passwd');
+        return str_contains($lower, 'password')
+            || str_contains($lower, 'passwd')
+            || str_contains($lower, 'token')
+            || str_contains($lower, 'secret')
+            || str_contains($lower, 'jwt');
     }
 
     private static function cap(string $label): string

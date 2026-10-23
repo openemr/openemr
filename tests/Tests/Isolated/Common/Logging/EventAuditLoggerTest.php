@@ -582,4 +582,72 @@ class EventAuditLoggerTest extends TestCase
             clock: $this->clock,
         );
     }
+
+    public function testRequestModeNamesVitalsAndAMedicationList(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$captured): void {
+                $captured[] = $event;
+            });
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent("SELECT id FROM lists WHERE type = 'medication' AND pid = 4", true);
+        $logger->auditSQLEvent('SELECT id FROM form_vitals WHERE pid = 4', true);
+        $logger->flushPendingQuerySummary();
+
+        self::assertCount(1, $captured);
+        self::assertSame(4, $captured[0]->patientId);
+        $comments = base64_decode($captured[0]->comments, true);
+        self::assertIsString($comments);
+        self::assertStringContainsString('tables=lists,form_vitals', $comments);
+        self::assertStringContainsString('data=Medication,Vitals', $comments);
+    }
+
+    public function testAPrescriptionReadKeepsTheOpenPatient(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$captured): void {
+                $captured[] = $event;
+            });
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = new EventAuditLogger(
+            sink: $sink,
+            session: $this->session,
+            config: new AuditConfig(
+                enabled: true,
+                forceBreakglass: false,
+                queryEvents: true,
+                httpRequestEvents: false,
+                enabledEventTypes: [EventCategory::Order],
+                queryDetail: AuditQueryDetail::Request,
+            ),
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+        $logger->auditSQLEvent('SELECT id, drug FROM prescriptions WHERE patient_id = 4', true);
+        $logger->flushPendingQuerySummary();
+
+        self::assertSame('order-select', $captured[0]->event);
+        self::assertSame(4, $captured[0]->patientId);
+    }
 }
