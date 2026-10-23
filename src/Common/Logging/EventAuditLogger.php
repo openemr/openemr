@@ -87,7 +87,7 @@ class EventAuditLogger implements AuditLoggerInterface
             queryEvents: $bag->getBoolean('audit_events_query'),
             httpRequestEvents: $bag->getBoolean('audit_events_http-request'),
             enabledEventTypes: array_values($enabledEventCategories),
-            queryDetail: AuditQueryDetail::fromGlobal($bag->getString('audit_events_query_mode', 'statement')),
+            queryDetail: AuditQueryDetail::fromGlobal($bag->getString('audit_events_query_mode', 'request')),
         );
 
         return new self(
