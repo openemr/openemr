@@ -127,7 +127,7 @@ class Form_Controller extends Abstract_Controller
             $encounterIdInt = is_numeric($encounterId) ? (int) $encounterId : 0;
             $formDirStr = is_string($formDir) ? $formDir : '';
             if (!$this->callerMaySignForm($formDirStr, $formIdInt, $encounterIdInt)) {
-                $message = xlt("The password you entered is invalid");
+                $message = xlt("You are not authorized to sign this form");
             } else {
                 $factory = new Form_Factory($formId, $formDir, $encounterId);
                 $signable = $factory->createSignable();
