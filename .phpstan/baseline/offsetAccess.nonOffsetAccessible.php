@@ -40442,11 +40442,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/EmployerService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \\(int\\|string\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/EmployerService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'assessment\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/EncounterService.php',
