@@ -36,16 +36,16 @@ class DrugSalesService extends BaseService
     /**
      * Global toggle key. When set (default), sellDrug() restricts inventory
      * selection to the user's default warehouse and rejects off-site lots
-     * even when the caller pins them via $inventory_id. When the admin
-     * disables it, the lot picker can dispense from any warehouse, with
-     * off-site selections surfaced via UI warnings.
+     * even when the caller pins them via $inventory_id. The restriction
+     * needs that anchor: a user without a default warehouse is not
+     * restricted and sells from any lot, as before the flag existed; the
+     * lot picker tells them so. When the admin disables the flag, the lot
+     * picker can dispense from any warehouse, with off-site selections
+     * surfaced via UI warnings.
      *
      * Replaces the 2013 hardcoded SELL_FROM_ONE_WAREHOUSE flag.
      */
     private const RESTRICT_SALES_TO_DEFAULT_WAREHOUSE_KEY = 'restrict_sales_to_default_warehouse';
-
-    /** Memoised result of clinicUsesWarehouses(); null until first asked. */
-    private ?bool $usesWarehouses = null;
 
     public static function restrictSalesToDefaultWarehouse(): bool
     {
@@ -353,25 +353,12 @@ class DrugSalesService extends BaseService
             "WHERE " .
             "di.drug_id = ? AND di.destroy_date IS NULL AND di.on_hand != 0 ";
         // Honour the clinic-level policy: when restrict_sales_to_default_warehouse
-        // is on and the clinic actually uses warehouses (more than one active
-        // entry in the warehouse list — every install seeds a single "On Site"
-        // entry, and FeeSheet::$got_warehouses applies the same test), a user
-        // without a default warehouse has no anchor for "on-site". The sale is
-        // then refused with an explanation rather than silently dispensing
-        // from any warehouse (the pre-2026 loophole). Availability probes
-        // ($testonly) never throw; they report nothing available, which every
-        // caller already shows as insufficient inventory. With the policy on
-        // and a default warehouse set, sales are filtered to that warehouse;
-        // a single-warehouse clinic keeps the legacy behaviour. The
-        // default_warehouse param is typed loose (legacy signature) so we
-        // accept null/'' alike.
+        // is on, sales are filtered to the user's default warehouse. The
+        // restriction needs that anchor — a user without a default warehouse
+        // is not restricted and sells from any lot, exactly as before the
+        // flag existed (the lot picker tells them so). The default_warehouse
+        // param is typed loose (legacy signature) so we accept null/'' alike.
         $defaultWarehouseSet = $default_warehouse !== null && $default_warehouse !== '' && $default_warehouse !== false;
-        if (self::restrictSalesToDefaultWarehouse() && $this->clinicUsesWarehouses() && !$defaultWarehouseSet) {
-            if (!$testonly) {
-                throw new InvalidArgumentException(xl('Your clinic only allows dispensing from your default warehouse, but no default warehouse is configured for your user. Set one under Administration → Users.'));
-            }
-            return false;
-        }
 
         $sqlarr = [$drug_id];
         if (self::restrictSalesToDefaultWarehouse() && $defaultWarehouseSet) {
@@ -564,10 +551,9 @@ class DrugSalesService extends BaseService
      *   transferred to the on-site warehouse first.
      *
      * "On site" is defined as $defaultWarehouse (the user's
-     * users.default_warehouse). A user without a default warehouse in a
-     * clinic that has warehouses sees every lot as off-site — there is no
-     * anchor to compare against. In a clinic without configured warehouses
-     * every lot is on-site, because lots and users both carry ''.
+     * users.default_warehouse). Without a default warehouse there is no
+     * anchor: every lot in a named warehouse is flagged off-site, and the UI
+     * ignores the flag and shows a hint instead of restricting anything.
      *
      * Excluded in both modes: expired lots, destroyed lots, lots with
      * on_hand <= 0, and lots in warehouses marked seq > 99 (the
@@ -643,9 +629,9 @@ class DrugSalesService extends BaseService
             // raw title if no translation is registered.
             $warehouseTitle = $rawTitle !== '' ? (string)xl_list_label($rawTitle) : '';
             // A lot is on-site when it sits in the user's default warehouse.
-            // In a clinic without configured warehouses both sides are '',
-            // so every lot counts as on-site; a user without a default in a
-            // clinic that has warehouses sees every lot as off-site.
+            // Unassigned lots ('') match a user without a default; such a
+            // user sees every lot in a named warehouse flagged, and the UI
+            // ignores the flag in that case.
             $isOffSite = $warehouseId !== $defaultWarehouse;
             $lots[] = [
                 'inventory_id'    => $toInt($row['inventory_id'] ?? 0),
@@ -659,25 +645,6 @@ class DrugSalesService extends BaseService
             ];
         }
         return $lots;
-    }
-
-    /**
-     * Whether the clinic actually uses warehouses: more than one active entry
-     * in the warehouse list. Every install seeds a single "On Site" entry, so
-     * one entry means "no warehouse choice" — the same test the Fee Sheet
-     * applies via FeeSheet::$got_warehouses. The default-warehouse policy
-     * only means something when this is true.
-     */
-    public function clinicUsesWarehouses(): bool
-    {
-        if ($this->usesWarehouses === null) {
-            $row = QueryUtils::fetchRecords(
-                "SELECT COUNT(*) AS c FROM list_options WHERE list_id = 'warehouse' AND activity = 1"
-            )[0] ?? null;
-            $countRaw = is_array($row) ? ($row['c'] ?? 0) : 0;
-            $this->usesWarehouses = is_numeric($countRaw) && (int)$countRaw > 1;
-        }
-        return $this->usesWarehouses;
     }
 
     /**
