@@ -94,6 +94,7 @@ foreach ($result as $prefs) {
     ${$LOCATION} = text($prefs['GOVALUE']);
 }
 
+/** Resolve the requested Eye Form record and render its encounter report. */
 function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): void
 {
     global $form_folder;
@@ -237,6 +238,7 @@ function left_overs(): void
  *  It relies on the presence of the PMSFH,IMPPLAN arrays.
  *  Rest of fields are pulled from the DB.
  */
+/** Render the selected exam narrative, prescriptions, drawings, and patient materials. */
 function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $materialsPdf = null): void
 {
     global $form_folder;
@@ -343,6 +345,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
     $display_Add ??= null; $encounter_date ??= null; $pend ??= null;
     // End column defaults.
     $reportRefractions = ReportRenderer::refractions(EyeFormData::integer($pid), EyeFormData::integer($encounter), EyeFormData::integer($form_id));
+    /** Determine whether the report contains a documented refraction section with the requested label. */
     $hasReportRefraction = static function (string $label) use ($reportRefractions): bool {
         foreach ($reportRefractions as $section) {
             if (str_starts_with($section['label'], $label)) {
@@ -2360,6 +2363,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
 
 
 
+/** Render a zone's saved drawing for screen or PDF output, skipping untouched base images. */
 function display_draw_image($zone, $encounter, $pid): void
 {
     global $form_folder;
@@ -2412,7 +2416,8 @@ function display_draw_image($zone, $encounter, $pid): void
             $tempDocC->onReturnRetrieveKey();
             $fileTemp = $tempDocC->retrieve_action((string) $pid, $doc['id'], false, true, true, true);
                         $fileTemp = EyeFormData::text($fileTemp);
-            if (ReportRenderer::drawingIsUntouchedBase($fileTemp, $zone)) {
+            $drawingRenderer = new ReportRenderer(OEGlobalsBag::getInstance()->getProjectDir());
+            if ($drawingRenderer->drawingIsUntouchedBase($fileTemp, $zone)) {
                 return;
             }
             // tmp file in ../documents/temp since need to be available via webroot
@@ -2465,6 +2470,7 @@ function display_draw_image($zone, $encounter, $pid): void
 
 
 
+/** Escape an alternate-cover-test value and preserve its line breaks in report cells. */
 function report_ACT($term): string
 {
     $term = nl2br(htmlspecialchars(EyeFormData::text($term), ENT_NOQUOTES));

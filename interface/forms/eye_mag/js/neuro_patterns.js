@@ -1,6 +1,5 @@
 /**
  * Measurement-pattern guidance, not a diagnosis or billing decision.
- * See NEURO_PATTERN_GUIDANCE.md for mappings, limitations and clinical references.
  * Pure analysis is exported for regression tests; bind() connects the current exam.
  */
 (function (root, factory) {
@@ -29,6 +28,7 @@
         OS: {adduction: 'LR', abduction: 'LL', elevation: 'LS', depression: 'LI', up: ['LRSO', 'LLSO'], down: ['LRIO', 'LLIO']}
     };
 
+    /** Parse clinical deviation notation into signed horizontal and vertical measurements; reject ambiguity. */
     function parse(raw) {
         var original = String(raw == null ? '' : raw).trim();
         if (!original) { return null; }
@@ -74,23 +74,28 @@
         return result;
     }
 
+    /** Return evidence-linked guidance from entered measurements without modifying the exam. */
     function analyze(values) {
         values = values || {};
         var findings = [], parsed = {}, invalid = [];
+        /** Cache notation parsing and return one valid axis, or null when that component is absent. */
         function get(field, axis) {
             if (!Object.prototype.hasOwnProperty.call(parsed, field)) { parsed[field] = parse(values[field]); }
             var item = parsed[field];
             return item && item.valid ? item[axis] : null;
         }
+        /** Record a finding with its entered evidence and any fields needed to complete the comparison. */
         function add(code, context, eye, fields, data, missing) {
             findings.push({code: code, context: context || '', eye: eye || '', data: data || {},
                 evidence: (fields || []).filter(function (field) { return String(values[field] == null ? '' : values[field]).trim() !== ''; })
                     .map(function (field) { return {field: field, value: String(values[field])}; }), missing: missing || []});
         }
+        /** Read an entered motility limitation grade from zero through four. */
         function grade(suffix) {
             var raw = String(values['MOTILITY_' + suffix] == null ? '' : values['MOTILITY_' + suffix]).trim();
             return /^[0-4]$/.test(raw) ? Number(raw) : null;
         }
+        /** Use a direct vertical limitation or agreement between both diagonal measurements. */
         function verticalMotor(map, direction) {
             var direct = grade(map[direction]);
             var diagonals = map[direction === 'elevation' ? 'up' : 'down'].map(grade);
@@ -105,15 +110,20 @@
         });
         if (normalConflict) { add('normalConflict'); }
 
+        /** Return a valid parsed deviation while preserving absent components as null. */
         function item(field) {
             get(field, 'h');
             return parsed[field] && parsed[field].valid ? parsed[field] : null;
         }
+        /** Distinguish a recorded value, including zero, from an unentered measurement. */
         function hasValue(field) { return String(values[field] == null ? '' : values[field]).trim() !== ''; }
 
         contexts.forEach(function (context) {
+            /** Resolve a gaze position within the current correction and distance context. */
             function act(position) { return 'ACT' + position + context; }
+            /** Read horizontal deviation in this context, preserving absent components as null. */
             function h(position) { return get(act(position), 'h'); }
+            /** Read vertical deviation in this context, preserving absent components as null. */
             function v(position) { return get(act(position), 'v'); }
             var fields = Object.keys(positions).map(act).concat(['SPCT_' + context]);
             fields.forEach(function (field) {
@@ -149,7 +159,7 @@
                 var evidence = ['SPCT_' + context, act(5)];
                 if (a * s < 0 || Math.abs(a) < Math.abs(s)) {
                     add('spctConflict', context, '', evidence, {axis: axis});
-                } else {
+                } else if (Math.abs(a) > Math.abs(s)) {
                     add('dissociated', context, '', evidence, {axis: axis, delta: +(Math.abs(a) - Math.abs(s)).toFixed(2)});
                 }
             });
@@ -188,6 +198,7 @@
                 // only a small, similar vertical in every position.
                 var fusional = hasValue('VERTFUSAMPS') ? ['VERTFUSAMPS'] : [];
                 // Report each step that can be completed, so partial data is still useful.
+                /** Record the stronger or equal vertical pattern using the measurements supporting that comparison. */
                 var compare = function (a, b, aKey, bKey, sameKey) {
                     if (a === null || b === null) { return 'stepPending'; }
                     if (Math.abs(a - b) <= 2) { return sameKey; }
@@ -404,9 +415,12 @@
         return findings;
     }
 
+    /** Connect current-exam fields to translated guidance and return its refresh function. */
     function bind($) {
         var strings = window.eyeNeuroPatternStrings || {};
+        /** Look up a translated guidance label, retaining its key when unavailable. */
         function t(key) { return strings[key] || key; }
+        /** Translate exam field identifiers into clinical context and patient-direction labels. */
         function fieldLabel(field) {
             var match = field.match(/^ACT(\d+)(SC|CC)(DIST|NEAR)$/);
             if (match) { return t(match[2] + match[3]) + ' ' + t(positions[match[1]]); }
@@ -444,6 +458,7 @@
             group[1].forEach(function (code) { groupOf[code] = {key: group[0], index: index}; });
         });
         var translated = ['axis', 'step2', 'step3', 'larger', 'hKind', 'vKind'];
+        /** Recompute guidance, group it by clinical comparison and render evidence as plain text. */
         function update() {
             var values = {};
             $('#NEURO_1 textarea.ACT[id^="ACT"], #NEURO_1 input[id^="SPCT_"], #NEURO_1 input[id^="MOTILITY_"]').each(function () {

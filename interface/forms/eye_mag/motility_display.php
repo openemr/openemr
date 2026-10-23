@@ -1,6 +1,16 @@
 <?php
 
-/** Save the practice-wide Eye Form motility-chart presentation. */
+/**
+ * Save the practice-wide Eye Form motility-chart presentation.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2026 Ray Magauran <rmagauran@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
 
 require_once(__DIR__ . '/../../globals.php');
 require_once(__DIR__ . '/php/eye_mag_functions.php');
@@ -35,6 +45,7 @@ if (!in_array($display, ['X', 'H'], true)) {
     exit;
 }
 
+/** Switch the practice motility default atomically so only the chosen notation is selected. */
 QueryUtils::inTransaction(static function () use ($display): void {
     QueryUtils::sqlStatementThrowException(
         "UPDATE list_options SET is_default = 0 WHERE list_id = 'Eye_Motility_Display'"

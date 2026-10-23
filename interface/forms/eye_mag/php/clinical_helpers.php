@@ -22,6 +22,8 @@ use Mpdf\Mpdf;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\EyeFormData;
+use OpenEMR\Forms\EyeMag\PatientHandout;
+use OpenEMR\Forms\EyeMag\PatientMaterials;
 
 /**
  * Render historical Neuro findings without editable current-exam controls.
@@ -30,11 +32,17 @@ use OpenEMR\Forms\EyeMag\EyeFormData;
 function eye_mag_neuro_prior(array $exam, string $motilityDisplay): string
 {
     $motilityDisplay = $motilityDisplay === 'H' ? 'H' : 'X';
+    /** Read a prior exam field as text without accepting nested or object values. */
     $value = (static fn(string $field): string => is_scalar($exam[$field] ?? '') ? EyeFormData::text($exam[$field] ?? '') : '');
+    /** Render a disabled prior-exam input with its field name and value escaped. */
     $input = (static fn(string $field): string => '<input disabled type="text" id="PRIOR_' . attr($field) . '" value="' . attr($value($field)) . '">');
+    /** Render multiline alternate-cover-test findings as escaped, read-only prior values. */
     $actInput = (static fn(string $field): string => '<textarea disabled rows="2" id="PRIOR_' . attr($field) . '">' . text($value($field)) . '</textarea>');
+    /** Restore a prior checkbox only for the stored checked values. */
     $checked = (static fn(string $field): string => in_array($value($field), ['1', 'on'], true) ? ' checked' : '');
+    /** Build one SVG stroke for the prior motility chart. */
     $line = (static fn(float $x1, float $y1, float $x2, float $y2): string => sprintf('<line x1="%.3f" y1="%.3f" x2="%.3f" y2="%.3f"/>', $x1, $y1, $x2, $y2));
+    /** Render one eye's prior motility diagram using the selected notation and recorded limitations. */
     $chart = static function (string $eye) use ($motilityDisplay, $value, $line): string {
         $fields = $eye === 'OD'
             ? ['MOTILITY_RS', 'MOTILITY_RI', 'MOTILITY_RR', 'MOTILITY_RL', 'MOTILITY_RRSO', 'MOTILITY_RRIO', 'MOTILITY_RLSO', 'MOTILITY_RLIO']
@@ -204,6 +212,7 @@ function display_VisualAcuitiesModern(mixed $pid = 0, array $priors = [], string
     ];
     $correctedTypes = ['CC', 'AR', 'MR', 'CR', 'CTL'];
 
+    /** Convert documented acuity to a logMAR estimate, retaining unknown values as gaps. */
     $toLogMar = static function (mixed $raw): ?float {
         $value = trim(EyeFormData::text($raw));
         if ($value === '') {
@@ -219,6 +228,7 @@ function display_VisualAcuitiesModern(mixed $pid = 0, array $priors = [], string
             return 3.0;
         }
 
+        /** Normalize recorded test distances to feet for low-vision acuity estimates. */
         $distanceToFeet = (static fn(float $distance, string $unit): float => str_starts_with($unit, 'M') ? $distance * 3.28084 : $distance);
         if (preg_match('/\b(?:CF|COUNT(?:ING)?\s+FINGERS?)\s*(?:AT|@)?\s*(\d+(?:\.\d+)?)?\s*(FT|FEET|FOOT|M|METER|METERS|METRE|METRES)?\b/', $normalized, $matches)) {
             if (isset($matches[1]) && $matches[1] !== '' && $matches[1] !== '0') {
@@ -257,6 +267,7 @@ function display_VisualAcuitiesModern(mixed $pid = 0, array $priors = [], string
     $rows = [];
     $hasType = array_fill_keys(array_keys($typeDefinitions), false);
     $history = $priors;
+    /** Order prior acuity records chronologically for the history table and chart. */
     usort($history, static fn(array $a, array $b): int => strtotime(EyeFormData::text($a['visit_date'] ?? '')) <=> strtotime(EyeFormData::text($b['visit_date'] ?? '')));
     $currentVisitTimestamp = strtotime(EyeFormData::text($dated));
 
@@ -319,6 +330,7 @@ function display_VisualAcuitiesModern(mixed $pid = 0, array $priors = [], string
 
     $visibleTableTypes = array_values(array_filter(
         array_keys($typeDefinitions),
+        /** Retain only acuity types with documented values in the selected history. */
         static fn($type): bool => $hasType[$type]
     ));
     $eyeColors = ['OD' => '#2563eb', 'OS' => '#ea580c'];
@@ -349,6 +361,7 @@ function display_VisualAcuitiesModern(mixed $pid = 0, array $priors = [], string
                 'label' => $type . ' ' . $eye,
                 'data' => $points,
                 'exactValues' => array_column(array_map(
+                    /** Keep the original acuity text beside its plotted numeric estimate. */
                     static fn($row): array => ['value' => $row['values'][$type][$eye] ?? ''],
                     $rows
                 ), 'value'),
@@ -506,7 +519,11 @@ function display_VisualAcuitiesModern(mixed $pid = 0, array $priors = [], string
     return ob_get_clean() ?: '';
 }
 
-/** @return array<string,array{string,string}> */
+/**
+ * Return the stable dilation fields with their default labels and stored medication values.
+ *
+ * @return array<string,array{string,string}>
+ */
 function eye_mag_dilation_med_defaults(): array
 {
     return [
@@ -641,6 +658,7 @@ function eye_mag_save_materials(int $formId, int $pid, array $posted): void
     $ids = array_values(array_filter($ids,
         // Retain unavailable existing selections so the user can see/remove them;
         // both viewing and report generation independently recheck document access.
+        /** Retain existing handout selections or newly selected documents the patient may access. */
         static fn(int $id): bool => in_array($id, $oldIds, true) || eye_mag_material_handout($id, $pid) !== []));
     QueryUtils::sqlStatementThrowException(
         "REPLACE INTO form_eye_mag_materials (form_id,pid,content,include_text,handout_document_id,handout_document_ids,updated_at)
@@ -655,11 +673,10 @@ function eye_mag_save_materials(int $formId, int $pid, array $posted): void
  * Read once per report request. The acknowledgment, embedded original and
  * appended pages must all use the same bytes, even if the master is replaced.
  * The resulting report is the snapshot; this does not freeze the template at Add.
- * @return array{content:string,include_text:int,handout_document_id:int|null,handout_document_ids:string|null,handouts:list<array{document_id:int,name:string,pdf_data:string}>}
  */
-function eye_mag_materials_for_report(int $formId, int $pid): array
+function eye_mag_materials_for_report(int $formId, int $pid): PatientMaterials
 {
-    /** @var array<string,array{content:string,include_text:int,handout_document_id:int|null,handout_document_ids:string|null,handouts:list<array{document_id:int,name:string,pdf_data:string}>}> $snapshots */
+    /** @var array<string,PatientMaterials> $snapshots */
     static $snapshots = [];
     $key = $pid . ':' . $formId;
     if (isset($snapshots[$key])) {
@@ -670,53 +687,51 @@ function eye_mag_materials_for_report(int $formId, int $pid): array
         "SELECT content, include_text, handout_document_id, handout_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
         [$formId, $pid]
     ) ?: [];
-    $materials = [
-        'content' => EyeFormData::text($materials['content'] ?? ''),
-        'include_text' => EyeFormData::integer($materials['include_text'] ?? 0),
-        'handout_document_id' => isset($materials['handout_document_id']) ? EyeFormData::integer($materials['handout_document_id']) : null,
-        'handout_document_ids' => isset($materials['handout_document_ids']) ? EyeFormData::text($materials['handout_document_ids']) : null,
-        'handouts' => [],
-    ];
+    $handouts = [];
     foreach (eye_mag_material_ids($materials) as $documentId) {
-        $item = ['document_id' => $documentId, 'name' => '', 'pdf_data' => ''];
+        $name = '';
+        $pdfData = '';
         $handout = eye_mag_material_handout($documentId, $pid);
         if ($handout) {
-            $item['name'] = trim(EyeFormData::text($handout['name'] ?? '')) ?: basename(EyeFormData::text($handout['url']));
+            $name = trim(EyeFormData::text($handout['name'] ?? '')) ?: basename(EyeFormData::text($handout['url']));
             try {
                 // Document handles encrypted and non-filesystem storage as well.
                 $document = new Document($documentId);
                 $bytes = $document->get_data();
                 if (is_string($bytes) && str_starts_with($bytes, '%PDF-')) {
-                    $item['pdf_data'] = $bytes;
+                    $pdfData = $bytes;
                 }
             } catch (\BadMethodCallException | \RuntimeException) {
                 // The report displays an explicit unavailable warning, not a receipt.
             }
         }
-        $materials['handouts'][] = $item;
+        $handouts[] = new PatientHandout($documentId, $name, $pdfData);
     }
-    return $snapshots[$key] = $materials;
+    return $snapshots[$key] = new PatientMaterials(
+        EyeFormData::text($materials['content'] ?? ''),
+        EyeFormData::integer($materials['include_text'] ?? 0) === 1,
+        $handouts,
+    );
 }
 
 /**
  * Embed exact originals, including fillable fields, without touching core reports.
- * @param array{content:string,include_text:int,handout_document_id:int|null,handout_document_ids:string|null,handouts:list<array{document_id:int,name:string,pdf_data:string}>} $materials
  */
-function eye_mag_embed_materials(Mpdf $pdf, int $formId, int $pid, array $materials): bool
+function eye_mag_embed_materials(Mpdf $pdf, int $formId, int $pid, PatientMaterials $materials): bool
 {
     $files = is_array($pdf->associatedFiles) ? $pdf->associatedFiles : [];
     $originals = [];
-    if ($materials['include_text'] === 1 && trim($materials['content']) !== '') {
+    if ($materials->includeText && trim($materials->content) !== '') {
         $originals[] = ['name' => 'patient-instructions-' . $pid . '-' . $formId . '.txt',
-            'content' => $materials['content'], 'mime' => 'text/plain',
+            'content' => $materials->content, 'mime' => 'text/plain',
             'description' => xl('Patient instructions')];
     }
-    foreach ($materials['handouts'] as $handout) {
-        if ($handout['pdf_data'] !== '') {
+    foreach ($materials->handouts as $handout) {
+        if ($handout->pdfData !== '') {
             // Document ID also distinguishes handouts with identical display names.
-            $originals[] = ['name' => 'patient-handout-' . $pid . '-' . $formId . '-' . $handout['document_id'] . '.pdf',
-                'content' => $handout['pdf_data'], 'mime' => 'application/pdf',
-                'description' => $handout['name']];
+            $originals[] = ['name' => 'patient-handout-' . $pid . '-' . $formId . '-' . $handout->documentId . '.pdf',
+                'content' => $handout->pdfData, 'mime' => 'application/pdf',
+                'description' => $handout->name];
         }
     }
     foreach ($originals as $original) {
@@ -749,12 +764,12 @@ function eye_mag_append_materials_handout_pdf(Mpdf $pdf, int $formId, int $pid):
 {
     $materials = eye_mag_materials_for_report($formId, $pid);
     eye_mag_embed_materials($pdf, $formId, $pid, $materials);
-    if ($materials['handouts'] === []) {
+    if ($materials->handouts === []) {
         return false;
     }
     $allAppended = true;
-    foreach ($materials['handouts'] as $handout) {
-        if ($handout['pdf_data'] === '' || !eye_mag_append_handout_pages($pdf, $handout['pdf_data'])) {
+    foreach ($materials->handouts as $handout) {
+        if ($handout->pdfData === '' || !eye_mag_append_handout_pages($pdf, $handout->pdfData)) {
             $allAppended = false;
         }
     }
@@ -911,6 +926,7 @@ function eye_mag_motility_display_preference(): string
     return strtoupper(EyeFormData::text($selected['option_id'] ?? 'X')) === 'H' ? 'H' : 'X';
 }
 
+/** Emit the shared column layout for current-glasses prescription tables. */
 function display_wear_colgroup(): void
 {
     ?>
@@ -929,11 +945,16 @@ function display_wear_colgroup(): void
     <?php
 }
 
-/** @param array<string,mixed> $values */
+/**
+ * Render prescription controls while retaining legacy prism fields for saved glasses.
+ *
+ * @param array<string,mixed> $values
+ */
 function display_wear_header_cells(mixed $W, array $values): void
 {
     $W = EyeFormData::text($W);
     $values = EyeFormData::textRow($values);
+    /** Read a normalized prescription field for the wearing-table controls. */
     $field = static fn(string $name): string => EyeFormData::text($values[$name] ?? '');
     ?>
     <td class="wear-column-title wear-prism-title" title="<?php echo xla('Prism amount and direction'); ?>"><?php echo xlt('Prism'); ?>
@@ -978,7 +999,11 @@ function display_wear_header_cells(mixed $W, array $values): void
     <?php
 }
 
-/** @param array<string,mixed> $values */
+/**
+ * Render the selected eye's prism, vertex distance, and slab-off inputs.
+ *
+ * @param array<string,mixed> $values
+ */
 function display_wear_distance_cells(mixed $W, string $eye, array $values): void
 {
     $W = EyeFormData::text($W);
@@ -991,7 +1016,11 @@ function display_wear_distance_cells(mixed $W, string $eye, array $values): void
     <?php
 }
 
-/** @param array<string,mixed> $values */
+/**
+ * Render binocular PD controls while preserving saved monocular and near PD values.
+ *
+ * @param array<string,mixed> $values
+ */
 function display_wear_lower_cells(mixed $W, string $eye, array $values): void
 {
     $W = EyeFormData::text($W);
@@ -1013,6 +1042,7 @@ function display_wear_lower_cells(mixed $W, string $eye, array $values): void
     <?php
 }
 
+/** Complete the comment row with cells aligned to the prescription table. */
 function display_wear_comment_tail_cells(): void
 {
     ?>

@@ -1,6 +1,16 @@
 <?php
 
-/** Save a logged-in user's drawing-background preference without touching an encounter. */
+/**
+ * Save a logged-in user's drawing-background preference without touching an encounter.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2026 Ray Magauran <rmagauran@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
 
 require_once __DIR__ . '/../../globals.php';
 require_once __DIR__ . '/php/drawing_backgrounds.php';
@@ -26,7 +36,11 @@ use function OpenEMR\Forms\EyeMag\Drawing\eye_mag_drawing_background_zone_valid;
 header('Content-Type: application/json');
 header('Cache-Control: no-store');
 
-/** @param array<string, mixed> $payload */
+/**
+ * Send a JSON response with its HTTP status and stop processing the drawing request.
+ *
+ * @param array<string, mixed> $payload
+ */
 $reply = static function (int $status, array $payload): never
 {
     http_response_code($status);
@@ -39,35 +53,35 @@ $post = $request->request->all();
 $files = $request->files->all();
 if (!$request->isMethod('POST')) {
     header('Allow: POST');
-    $reply(405, ['success' => false, 'error' => 'Use POST to change a background.']);
+    $reply(405, ['success' => false, 'error' => xl('Use POST to change a background.')]);
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $authId = $session->get('authUserID');
 if ((!is_int($authId) && !is_string($authId)) || !preg_match('/\A[1-9][0-9]*\z/D', (string) $authId)) {
-    $reply(403, ['success' => false, 'error' => 'Sign in to change your background.']);
+    $reply(403, ['success' => false, 'error' => xl('Sign in to change your background.')]);
 }
 $providerId = (int) $authId;
 $requiredAccess = ($post['action'] ?? null) === 'list' ? '' : 'write';
 if (!AclMain::aclCheckCore('patients', 'med', '', $requiredAccess)) {
-    $reply(403, ['success' => false, 'error' => 'You are not authorized to edit Eye Form drawings.']);
+    $reply(403, ['success' => false, 'error' => xl('You are not authorized to edit Eye Form drawings.')]);
 }
 $token = $post['csrf_token_form'] ?? null;
 if (!eye_mag_drawing_background_csrf_verify($token, $session)) {
-    $reply(403, ['success' => false, 'error' => 'Your session could not be verified. Reload and try again.']);
+    $reply(403, ['success' => false, 'error' => xl('Your session could not be verified. Reload and try again.')]);
 }
 
 $action = $post['action'] ?? null;
 $zone = $post['zone'] ?? null;
 if (!is_string($action) || !in_array($action, ['list', 'save', 'select', 'upload', 'rename', 'delete'], true) || !eye_mag_drawing_background_zone_valid($zone)) {
-    $reply(400, ['success' => false, 'error' => 'Choose a valid drawing background.']);
+    $reply(400, ['success' => false, 'error' => xl('Choose a valid drawing background.')]);
 }
 $allowedFields = ['action', 'zone', 'csrf_token_form'];
 if (in_array($action, ['select', 'rename', 'delete'], true)) $allowedFields[] = 'key';
 if (in_array($action, ['save', 'rename'], true)) $allowedFields[] = 'name';
 $expectedFiles = $action === 'upload' ? ['background_file'] : ($action === 'save' ? ['image_file'] : []);
 if (array_diff(array_keys($post), $allowedFields) || array_keys($files) !== $expectedFiles) {
-    $reply(400, ['success' => false, 'error' => 'Invalid background request.']);
+    $reply(400, ['success' => false, 'error' => xl('Invalid background request.')]);
 }
 
 try {
@@ -103,6 +117,7 @@ try {
     if ($action !== 'save') {
         if (str_starts_with($key, 'saved-')) {
             $paths = eye_mag_drawing_background_paths($zone, $providerId);
+            /** Recheck the saved image under its library lock before making it the provider's default. */
             eye_mag_drawing_background_library_locked($paths, static function () use ($paths, $zone, $providerId, $key): void {
                 eye_mag_drawing_background_library_metadata($paths, $key);
                 eye_mag_drawing_background_save_preference($zone, $providerId, $key);
@@ -112,8 +127,8 @@ try {
         }
     }
     $reply(200, ['success' => true, 'key' => $key, 'options' => $options]);
-} catch (InvalidArgumentException $e) {
-    $reply(400, ['success' => false, 'error' => $e->getMessage()]);
+} catch (InvalidArgumentException) {
+    $reply(400, ['success' => false, 'error' => xl('Choose a valid drawing background, image, or overlay name.')]);
 } catch (RuntimeException | RandomException) {
-    $reply(500, ['success' => false, 'error' => 'The background could not be saved. Please try again.']);
+    $reply(500, ['success' => false, 'error' => xl('The background could not be saved. Please try again.')]);
 }

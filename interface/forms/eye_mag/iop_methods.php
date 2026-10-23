@@ -1,6 +1,16 @@
 <?php
 
-/** Practice-wide visibility and display name settings for Eye Form IOP methods. */
+/**
+ * Practice-wide visibility and display name settings for Eye Form IOP methods.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2026 Ray Magauran <rmagauran@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
 
 require_once(__DIR__ . '/../../globals.php');
 require_once(__DIR__ . '/php/eye_mag_functions.php');
@@ -37,6 +47,7 @@ if ($request->isMethod('POST')) {
     $submittedLabel = trim(EyeFormData::text($posted['tpn_label'] ?? ''));
     $tpnLabel = $submittedLabel !== '' ? mb_substr($submittedLabel, 0, 24, 'UTF-8') : $defaults['TPN'][0];
 
+    /** Save method visibility and labels together with any missing default list entries. */
     QueryUtils::inTransaction(static function () use ($defaults, $tpnLabel, $visible): void {
         $sequence = 10;
         foreach ($defaults as $method => [$defaultTitle, $description]) {

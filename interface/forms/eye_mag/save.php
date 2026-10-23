@@ -198,7 +198,7 @@ if (($input['action'] ?? '') === 'dotphrase') {
                 break;
 
             case 'update':
-                $id = EyeFormData::integer($posted['id'] ?? 0);
+                $id = EyeFormData::identifier($posted['id'] ?? 0);
                 $row = $id ? QueryUtils::querySingleRow("SELECT * FROM form_eye_dotphrases WHERE id=?", [$id]) : false;
                 if (!$row) {
                     $out['msg'] = 'not found';
@@ -231,7 +231,7 @@ if (($input['action'] ?? '') === 'dotphrase') {
                 break;
 
             case 'delete':
-                $id = EyeFormData::integer($posted['id'] ?? 0);
+                $id = EyeFormData::identifier($posted['id'] ?? 0);
                 $row = $id ? QueryUtils::querySingleRow("SELECT * FROM form_eye_dotphrases WHERE id=?", [$id]) : false;
                 if (!$row) {
                     $out['msg'] = 'not found';
@@ -246,7 +246,7 @@ if (($input['action'] ?? '') === 'dotphrase') {
                 break;
 
             case 'share':
-                $id = EyeFormData::integer($posted['id'] ?? 0);
+                $id = EyeFormData::identifier($posted['id'] ?? 0);
                 $row = $id ? QueryUtils::querySingleRow("SELECT * FROM form_eye_dotphrases WHERE id=?", [$id]) : false;
                 if (!$row) {
                     $out['msg'] = 'not found';
@@ -267,7 +267,7 @@ if (($input['action'] ?? '') === 'dotphrase') {
                 break;
 
             case 'unshare':
-                $id = EyeFormData::integer($posted['id'] ?? 0);
+                $id = EyeFormData::identifier($posted['id'] ?? 0);
                 $row = $id ? QueryUtils::querySingleRow("SELECT * FROM form_eye_dotphrases WHERE id=?", [$id]) : false;
                 if (!$row) {
                     $out['msg'] = 'not found';
@@ -283,7 +283,7 @@ if (($input['action'] ?? '') === 'dotphrase') {
                 break;
 
             case 'import':
-                $sourceId = EyeFormData::integer($posted['id'] ?? 0);
+                $sourceId = EyeFormData::identifier($posted['id'] ?? 0);
                 $source = $sourceId ? QueryUtils::querySingleRow(
                     "SELECT * FROM form_eye_dotphrases WHERE id=? AND visibility='shared' AND active=1",
                     [$sourceId]
@@ -716,8 +716,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
     if (($_POST['action'] ?? '') == 'docs') {
         // Both Demographics provider fields are nullable integers. Empty select
         // values must be NULL, not '', or strict SQL mode rejects the whole update.
-        $pcpId = EyeFormData::integer($posted['pcp'] ?? 0);
-        $referringId = EyeFormData::integer($posted['rDOC'] ?? 0);
+        $pcpId = EyeFormData::identifier($posted['pcp'] ?? 0);
+        $referringId = EyeFormData::identifier($posted['rDOC'] ?? 0);
         $query = "update patient_data set ref_providerID=?,providerID=? where pid =?";
         QueryUtils::sqlStatementThrowException($query, [$referringId ?: null, $pcpId ?: null, $pid]);
         $DOCS = [];

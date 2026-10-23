@@ -16,22 +16,48 @@ namespace OpenEMR\Forms\EyeMag;
 
 final class EyeFormData
 {
+    /** Normalize scalar legacy values to text and discard arrays or objects. */
     public static function text(mixed $value): string
     {
         return is_scalar($value) ? (string) $value : '';
     }
 
+    /** Convert numeric scalar request or database values to integers, using zero for other input. */
     public static function integer(mixed $value): int
     {
         return is_scalar($value) && is_numeric($value) ? (int) $value : 0;
     }
 
+    /**
+     * Parse a positive decimal identifier; absent, malformed and overflowing values return zero.
+     */
+    public static function identifier(mixed $value): int
+    {
+        if (is_int($value)) {
+            return $value > 0 ? $value : 0;
+        }
+        if (!is_string($value) || preg_match('/\A[0-9]+\z/D', $value) !== 1) {
+            return 0;
+        }
+        $digits = ltrim($value, '0');
+        $maximum = (string) PHP_INT_MAX;
+        if ($digits === '' || strlen($digits) > strlen($maximum) || (strlen($digits) === strlen($maximum) && strcmp($digits, $maximum) > 0)) {
+            return 0;
+        }
+        return (int) $digits;
+    }
+
+    /** Convert numeric scalar request or database values to decimals, using zero for other input. */
     public static function number(mixed $value): float
     {
         return is_scalar($value) && is_numeric($value) ? (float) $value : 0.0;
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * Keep only string-keyed fields from a database or request row.
+     *
+     * @return array<string, mixed>
+     */
     public static function row(mixed $value): array
     {
         if (!is_array($value)) {
@@ -46,7 +72,11 @@ final class EyeFormData
         return $row;
     }
 
-    /** @return array<string, scalar|null> */
+    /**
+     * Discard nested and object values before a legacy row is used in scalar fields.
+     *
+     * @return array<string, scalar|null>
+     */
     public static function scalarRow(mixed $value): array
     {
         $row = [];
@@ -59,6 +89,8 @@ final class EyeFormData
     }
 
     /**
+     * Normalize each legacy field to scalar text, using blanks for nested values.
+     *
      * @param array<string, mixed> $value
      * @return array<string, string>
      */

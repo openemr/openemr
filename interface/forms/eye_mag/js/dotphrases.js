@@ -20,6 +20,7 @@
     var AUTOCOMPLETE_ELEMENT = null;
     var POPUP_MOUSEDOWN = false; // Track if user is currently clicking popup
     var DEBUG_DOTPHRASES = false;
+    /** Emit optional diagnostics without interrupting phrase entry. */
     function debugLog() {
         if (DEBUG_DOTPHRASES && window.console && typeof console.log === "function") {
             console.log.apply(console, arguments);
@@ -30,12 +31,16 @@
     // framed, so the modal covers the whole application window instead of
     // just this frame.  Everything is same-origin, so the sheet is
     // injected up there and the modal is re-parented on open.
+    /** Resolve the same-origin host document, falling back to this form. */
     function dpTopDoc() {
         try {
             if (window.top && window.top.document && window.top !== window) return window.top.document;
-        } catch (e) {}
+        } catch (error) {
+            debugLog('The top document is unavailable; using the form document.', error);
+        }
         return document;
     }
+    /** Keep the host document's builder stylesheet at this form's asset version. */
     function dpEnsureStyles() {
         var d = dpTopDoc();
         if (d === document) return;               // frameless: view.php loads it
@@ -59,55 +64,46 @@
     // Translated string lookup: view.php renders window.eyeMagDpT via xlj()
     // (one key per builder string); English fallbacks keep the builder
     // usable if the dictionary has not loaded.
+    /** Look up a translated UI label supplied by the current form page. */
     function dpT(key, fallback) {
         var d = window.eyeMagDpT || {};
         return (d[key] !== undefined && d[key] !== '') ? d[key] : (fallback || key);
     }
 
+    /** Decode only the authenticated page's initial phrase dictionary. */
+    function pagePhrases() {
+        var hidden = document.getElementById('DOTPHRASES_USER');
+        if (!hidden || !hidden.value) return {};
+        try {
+            var parsed = JSON.parse(hidden.value);
+            return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+        } catch (error) {
+            debugLog('The initial phrase list could not be decoded.', error);
+            return {};
+        }
+    }
+
+    // The current authenticated page and server list own this state. Never
+    // restore a shared browser's phrases from a previous user's session.
+    var USER_PHRASES = pagePhrases();
+    /** Select the current page's text phrases and normalize their triggers. */
     function loadUserPhrases(){
         var user = {};
-        try {
-            if (window.eyeMagUserPhrases && typeof window.eyeMagUserPhrases === 'object') {
-                Object.keys(window.eyeMagUserPhrases).forEach(function(key){
-                    if (typeof window.eyeMagUserPhrases[key] !== 'object') {
-                        user[key.toLowerCase()] = window.eyeMagUserPhrases[key];
-                    }
-                });
-            }
-            var hidden = document.getElementById('DOTPHRASES_USER');
-            if (hidden && hidden.value) {
-                var parsed = JSON.parse(hidden.value);
-                Object.keys(parsed).forEach(function(key){
-                    if (typeof parsed[key] !== 'object') user[key.toLowerCase()] = parsed[key];
-                });
-            }
-        } catch(e) {}
+        Object.keys(USER_PHRASES).forEach(function(key){
+            if (typeof USER_PHRASES[key] === 'string') user[key.toLowerCase()] = USER_PHRASES[key];
+        });
         return user;
     }
 
+    /** Select field-map phrases, excluding null values and JSON lists. */
     function loadUserObjectPhrases(){
         var user = {};
-        try {
-            if (window.eyeMagUserPhrases && typeof window.eyeMagUserPhrases === 'object') {
-                for (var storedKey in window.eyeMagUserPhrases) {
-                    if (window.eyeMagUserPhrases[storedKey] && typeof window.eyeMagUserPhrases[storedKey] === 'object') {
-                        user[storedKey.toLowerCase()] = window.eyeMagUserPhrases[storedKey];
-                    }
-                }
+        Object.keys(USER_PHRASES).forEach(function(key){
+            var value = USER_PHRASES[key];
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+                user[key.toLowerCase()] = value;
             }
-            if (window.eyeMagObjectPhrases && typeof window.eyeMagObjectPhrases === 'object') {
-                for (var key in window.eyeMagObjectPhrases) {
-                    user[key.toLowerCase()] = window.eyeMagObjectPhrases[key];
-                }
-            }
-            var hidden = document.getElementById('DOTPHRASES_USER');
-            if (hidden && hidden.value) {
-                var parsed = JSON.parse(hidden.value);
-                Object.keys(parsed).forEach(function(key){
-                    if (parsed[key] && typeof parsed[key] === 'object') user[key.toLowerCase()] = parsed[key];
-                });
-            }
-        } catch(e) {}
+        });
         return user;
     }
 
@@ -124,7 +120,9 @@
         if (metaEl && metaEl.value) {
             PHRASE_META = JSON.parse(metaEl.value) || {};
         }
-    } catch(e) {}
+    } catch (error) {
+        debugLog('The initial phrase metadata could not be decoded.', error);
+    }
 
     // Patient/visit values used by variable tokens in single-field phrases.
     // view.php supplies these as JSON so the same substitutions work in every
@@ -132,7 +130,9 @@
     try {
         var substEl = document.getElementById('DOTPHRASES_SUBST');
         if (substEl && substEl.value) window.eyeMagSubst = JSON.parse(substEl.value) || {};
-    } catch(e) {}
+    } catch (error) {
+        debugLog('The phrase substitution values could not be decoded.', error);
+    }
 
     // Field id → zone classification, derived from the zone containers in view.php.
     var ZONE_CONTAINERS = ['HPI_1','PMH_1','EXT_1','ANTSEG_1','RETINA_1','SDRETINA_1','NEURO_1','IMPPLAN_1'];
@@ -157,6 +157,7 @@
     // The exam zones with dot-phrase panels.  SDRETINA shares RETINA and has
     // no standalone phrase section.
     var DF_ZONES = ['HPI','PMH','EXT','ANTSEG','RETINA','NEURO','IMPPLAN'];
+    /** Resolve a phrase's supported zones from metadata or captured field IDs. */
     function phraseZones(phraseKey) {
         var k = (phraseKey || '').toLowerCase();
         var meta = PHRASE_META[k];
@@ -174,6 +175,7 @@
         return zones;
     }
 
+    /** Map a live or captured field ID to its Eye Form zone. */
     function phraseFieldZone(fieldId) {
         if (FIELD_ZONE[fieldId]) return FIELD_ZONE[fieldId];
         var wanted = String(fieldId || '').toLowerCase();
@@ -188,6 +190,7 @@
         return null;
     }
 
+    /** List the captured fields that belong to one phrase zone. */
     function phraseFieldsForZone(phraseKey, zone) {
         var map = ACTIVE_OBJECT_PHRASES[(phraseKey || '').toLowerCase()];
         if (!map || typeof map !== 'object') return [];
@@ -196,8 +199,7 @@
         });
     }
 
-    var TOKEN_PATTERN = /(\.[A-Za-z0-9_]{2,})$/;
-
+    /** Read the trigger immediately before the caret, without changing text. */
     function getDotPhrasePrefix(el) {
         var pos = el.selectionStart;
         if (pos == null) return null;
@@ -208,6 +210,7 @@
         return match ? match[1] : null;
     }
 
+    /** Return up to five text or field-map matches in trigger order. */
     function getMatchingPhrases(prefix) {
         if (!prefix || prefix.length < 1) return [];
         var lowerPrefix = prefix.toLowerCase();
@@ -229,7 +232,8 @@
         return matches.slice(0, 5);
     }
 
-    function showAutocompletePopup(el, matches, prefix) {
+    /** Render trigger and preview text literally; phrases must never become HTML. */
+    function showAutocompletePopup(el, matches) {
         hideAutocompletePopup();
 
         if (!matches || matches.length === 0) return;
@@ -261,19 +265,23 @@
             item.onmouseover = function() { item.style.backgroundColor = '#f0f0f0'; };
             item.onmouseout = function() { item.style.backgroundColor = '#fff'; };
 
-            item.innerHTML = '<strong>' + match.key + '</strong><br/><span style="color:#666;font-size:11px">' +
-                             (match.text.length > 40 ? match.text.substring(0, 40) + '...' : match.text) + '</span>';
+            var trigger = document.createElement('strong');
+            trigger.textContent = match.key;
+            var preview = document.createElement('span');
+            preview.style.cssText = 'color:#666;font-size:11px';
+            preview.textContent = match.text.length > 40 ? match.text.substring(0, 40) + '...' : match.text;
+            item.append(trigger, document.createElement('br'), preview);
 
             popup.appendChild(item);
         });
 
         // Detect mousedown on popup to prevent blur from hiding it
-        popup.addEventListener('mousedown', function(e) {
+        popup.addEventListener('mousedown', function() {
             debugLog('Popup mousedown detected');
             POPUP_MOUSEDOWN = true;
         });
 
-        popup.addEventListener('mouseup', function(e) {
+        popup.addEventListener('mouseup', function() {
             debugLog('Popup mouseup detected');
             POPUP_MOUSEDOWN = false;
         });
@@ -295,6 +303,7 @@
         AUTOCOMPLETE_ELEMENT = el;
     }
 
+    /** Remove the popup and its association with the active text control. */
     function hideAutocompletePopup() {
         if (AUTOCOMPLETE_POPUP) {
             AUTOCOMPLETE_POPUP.remove();
@@ -303,6 +312,7 @@
         }
     }
 
+    /** Apply one selected phrase and notify the form's existing change handlers. */
     function selectAutocompletePhrase(el, phraseKey) {
         debugLog('selectAutocompletePhrase called with phraseKey=' + phraseKey);
 
@@ -368,6 +378,7 @@
     // first line as the impression, the remaining text as its plan, adds an
     // obj.IMPPLAN_items record, and persists it.  Route phrase data through
     // that workflow so PLAN_0 cannot overwrite an unrelated existing item.
+    /** Feed structured impression/plan content through the form's native workflow. */
     function applyImpPlanPhrase(map) {
         var handled = {};
         var imp = document.getElementById('IMP');
@@ -385,6 +396,7 @@
         return handled;
     }
 
+    /** Fill captured fields, expand visit variables, and consume the typed trigger. */
     function applyObjectPhrase(keyLower, triggerEl, token){
         var map = ACTIVE_OBJECT_PHRASES[keyLower];
         if (!map) return;
@@ -409,6 +421,7 @@
         }
     }
 
+    /** Expand a complete trigger at the caret while preserving surrounding text. */
     function expandIfDotPhrase(el){
         var prefix = getDotPhrasePrefix(el);
         if (!prefix || prefix.length < 2) return; // Need at least . + 2 chars
@@ -438,6 +451,7 @@
         hideAutocompletePopup();
     }
 
+    /** Handle dismissal and expansion keys, deferring expansion until caret updates finish. */
     function handleKey(e){
         var el = e.target;
         if (el.tagName !== 'TEXTAREA' && !(el.tagName === 'INPUT' && el.type === 'text')) return;
@@ -457,11 +471,13 @@
         }
     }
 
+    /** Rebuild active phrases from defaults and the current authenticated page state. */
     window.updateDotPhrases = function() {
         ACTIVE_PHRASES = Object.assign({}, DEFAULT_PHRASES, loadUserPhrases());
         ACTIVE_OBJECT_PHRASES = loadUserObjectPhrases();
     };
 
+    /** Offer matches only inside this Eye Form after at least three trigger letters. */
     function handleInput(e){
         var el = e.target;
         if (el.tagName !== 'TEXTAREA' && !(el.tagName === 'INPUT' && el.type === 'text')) return;
@@ -471,12 +487,13 @@
         var prefix = getDotPhrasePrefix(el);
         if (prefix && prefix.length >= 4) { // . + 3 letters minimum
             var matches = getMatchingPhrases(prefix);
-            showAutocompletePopup(el, matches, prefix);
+            showAutocompletePopup(el, matches);
         } else {
             hideAutocompletePopup();
         }
     }
 
+    /** Expand a completed trigger on leaving its field unless a popup selection is pending. */
     function handleBlur(e){
         var el = e.target;
         if (el.tagName !== 'TEXTAREA' && !(el.tagName === 'INPUT' && el.type === 'text')) return;
@@ -488,44 +505,13 @@
             return;
         }
 
-        // Refresh cache from localStorage in case phrases were recently added
-        var stored = localStorage.getItem('eyeMagUserPhrases');
-        if (stored) {
-            try {
-                var data = JSON.parse(stored);
-                Object.keys(data).forEach(function(k){
-                    var lowerKey = k.toLowerCase();
-                    if (typeof data[k] === 'object') ACTIVE_OBJECT_PHRASES[lowerKey]=data[k]; else ACTIVE_PHRASES[lowerKey]=data[k];
-                });
-            } catch(e) {}
-        }
         expandIfDotPhrase(el);
         hideAutocompletePopup();
     }
 
-    function scanAll(el){
-        var originalPos = el.selectionStart;
-        var beforeLength = el.value.length;
-        var replaced = false;
-        el.value = el.value.replace(/(\.[A-Za-z0-9_]{2,})(?=[\s,.;\)])/g, function(m){
-            var key = m.toLowerCase();
-            if (ACTIVE_OBJECT_PHRASES[key]) { applyObjectPhrase(key, el, m); replaced = true; return ''; }
-            if (ACTIVE_PHRASES[key]) {
-                var phrase = ACTIVE_PHRASES[key];
-                if (window.eyeMagSubst) {
-                    phrase = phrase.replace(/\{\{([A-Z_]+)\}\}/g, function(x,k){ return (k in window.eyeMagSubst)? window.eyeMagSubst[k] : ''; });
-                }
-                replaced = true; return phrase;
-            }
-            return m;
-        });
-        if (replaced) {
-            var afterLength = el.value.length;
-            var delta = afterLength - beforeLength;
-            el.selectionStart = el.selectionEnd = originalPos + delta;
-        }
-    }
 
+
+    /** Bind phrase entry and expose page-local editing/import/export helpers. */
     function initHandlers(){
         document.addEventListener('keydown', handleKey, true);
         document.addEventListener('input', handleInput, true);
@@ -562,86 +548,51 @@
             }
         });
 
-        window.eyeMagAddDotPhrase = function(key, text){ if (!key.startsWith('.')) key='.'+key; var k=key.toLowerCase(); ACTIVE_PHRASES[k] = text; persist(k, text); };
+        /** Add text to the current page; callers use the server API for durable storage. */
+        window.eyeMagAddDotPhrase = function(key, text){ if (!key.startsWith('.')) key='.'+key; var k=key.toLowerCase(); ACTIVE_PHRASES[k] = text; USER_PHRASES[k] = text; };
+        /** Return a copy of active text phrases without exposing the mutable lookup table. */
         window.eyeMagListDotPhrases = function(){ return Object.assign({}, ACTIVE_PHRASES); };
-        window.eyeMagAddDotPhraseObject = function(key, obj){ if (!key.startsWith('.')) key='.'+key; var k=key.toLowerCase(); ACTIVE_OBJECT_PHRASES[k] = obj; persist(k, obj); };
+        /** Register a multi-field phrase in page state under a normalized trigger. */
+        window.eyeMagAddDotPhraseObject = function(key, obj){ if (!key.startsWith('.')) key='.'+key; var k=key.toLowerCase(); ACTIVE_OBJECT_PHRASES[k] = obj; USER_PHRASES[k] = obj; };
+        /** Return the active multi-field phrase lookup for the current page. */
         window.eyeMagListDotPhraseObjects = function(){ return Object.assign({}, ACTIVE_OBJECT_PHRASES); };
-        window.eyeMagDeleteDotPhrase = function(key){ var k=(key||'').toLowerCase(); delete ACTIVE_PHRASES[k]; removePersist(k); };
-        window.eyeMagDeleteDotPhraseObject = function(key){ var k=(key||'').toLowerCase(); delete ACTIVE_OBJECT_PHRASES[k]; removePersist(k); };
-        window.eyeMagUpdateDotPhrase = function(key, text){ if (!key.startsWith('.')) key='.'+key; var k=key.toLowerCase(); ACTIVE_PHRASES[k]=text; persist(k,text); };
-        window.eyeMagUpdateDotPhraseObject = function(key, obj){ if (!key.startsWith('.')) key='.'+key; var k=key.toLowerCase(); ACTIVE_OBJECT_PHRASES[k]=obj; persist(k,obj); };
+        /** Remove text from both active and user page state so refresh cannot restore it. */
+        window.eyeMagDeleteDotPhrase = function(key){ var k=(key||'').toLowerCase(); delete ACTIVE_PHRASES[k]; delete USER_PHRASES[k]; };
+        /** Remove a multi-field phrase from both page lookups without browser persistence. */
+        window.eyeMagDeleteDotPhraseObject = function(key){ var k=(key||'').toLowerCase(); delete ACTIVE_OBJECT_PHRASES[k]; delete USER_PHRASES[k]; };
+        /** Replace page-local text under a normalized trigger after the caller saves it. */
+        window.eyeMagUpdateDotPhrase = function(key, text){ if (!key.startsWith('.')) key='.'+key; var k=key.toLowerCase(); ACTIVE_PHRASES[k]=text; USER_PHRASES[k]=text; };
+        /** Replace the page-local multi-field definition under a normalized trigger. */
+        window.eyeMagUpdateDotPhraseObject = function(key, obj){ if (!key.startsWith('.')) key='.'+key; var k=key.toLowerCase(); ACTIVE_OBJECT_PHRASES[k]=obj; USER_PHRASES[k]=obj; };
+        /** Export this page's user phrases as JSON for transfer or backup. */
         window.eyeMagExportPhrases = function(){
-            try { var stored = localStorage.getItem('eyeMagUserPhrases'); return stored || '{}'; } catch(e){ return '{}'; }
+            return JSON.stringify(USER_PHRASES);
         };
+        /** Decode a phrase object and merge or replace page state; reject invalid JSON. */
         window.eyeMagImportPhrases = function(json, merge){
             try {
                 var data = JSON.parse(json||'{}');
-                var existing = {};
-                try { var s=localStorage.getItem('eyeMagUserPhrases'); if (s) existing = JSON.parse(s); } catch(e){}
-                var combined = merge === false ? data : Object.assign(existing, data);
-                localStorage.setItem('eyeMagUserPhrases', JSON.stringify(combined));
-                // Reload runtime caches
-                Object.keys(combined).forEach(function(k){
-                    var lowerKey = k.toLowerCase();
-                    if (typeof combined[k] === 'object') { ACTIVE_OBJECT_PHRASES[lowerKey]=combined[k]; delete ACTIVE_PHRASES[lowerKey]; }
-                    else { ACTIVE_PHRASES[lowerKey]=combined[k]; delete ACTIVE_OBJECT_PHRASES[lowerKey]; }
-                });
-                window.eyeMagUserPhrases = combined;
+                if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
+                USER_PHRASES = merge === false ? data : Object.assign({}, USER_PHRASES, data);
+                window.updateDotPhrases();
                 return true;
-            } catch(e){ return false; }
+            } catch (error) {
+                debugLog('The imported phrase list could not be decoded.', error);
+                return false;
+            }
         };
-        // Load persisted and sync with server data
-        try {
-            var serverData = {};
-            var hidden = document.getElementById('DOTPHRASES_USER');
-            if (hidden && hidden.value) {
-                try { serverData = JSON.parse(hidden.value); } catch(e){}
-            }
-
-            var localData = {};
-            var stored = localStorage.getItem('eyeMagUserPhrases');
-            if (stored) {
-                try { localData = JSON.parse(stored); } catch(e){}
-            }
-
-            // Merge Server data into Local data (Server takes precedence for consistency)
-            var merged = Object.assign({}, localData, serverData);
-
-            // Update LocalStorage and Runtime
-            localStorage.setItem('eyeMagUserPhrases', JSON.stringify(merged));
-            window.eyeMagUserPhrases = merged;
-
-            Object.keys(merged).forEach(function(k){
-                var lowerKey = k.toLowerCase();
-                if (typeof merged[k] === 'object') ACTIVE_OBJECT_PHRASES[lowerKey]=merged[k]; else ACTIVE_PHRASES[lowerKey]=merged[k];
-            });
-        } catch(e) {}
-    }
-
-    function persist(key,val){
-        try {
-            var stored = localStorage.getItem('eyeMagUserPhrases');
-            var data = stored ? JSON.parse(stored) : {};
-            data[key] = val;
-            localStorage.setItem('eyeMagUserPhrases', JSON.stringify(data));
-            window.eyeMagUserPhrases = data;
-        } catch(e) {}
-    }
-
-    function removePersist(key){
-        try {
-            var stored = localStorage.getItem('eyeMagUserPhrases');
-            var data = stored ? JSON.parse(stored) : {};
-            delete data[key];
-            localStorage.setItem('eyeMagUserPhrases', JSON.stringify(data));
-            window.eyeMagUserPhrases = data;
-        } catch(e) {}
     }
 
     // ── Server sync (form_eye_dotphrases via save.php?action=dotphrase) ──
+    /**
+     * Send a phrase API operation with the current session and CSRF token.
+     * @param {string} sub Server subaction.
+     * @param {Object} [payload] Form fields for the operation.
+     * @returns {Promise<Object>} Parsed server response; callers inspect its ok flag.
+     */
     function serverRequest(sub, payload) {
         var form = new FormData();
-        var token = d.getElementById('csrf_token_form');
+        var token = document.getElementById('csrf_token_form');
         form.append('csrf_token_form', token ? token.value : '');
         Object.keys(payload || {}).forEach(function(k){ form.append(k, payload[k]); });
         if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
@@ -653,8 +604,11 @@
         }).then(function(res){ return res.json(); });
     }
 
-    // Rebuild runtime caches + PHRASE_META from the server's authoritative list,
-    // keeping DEFAULT_PHRASES and any local-only phrases intact.
+    /**
+     * Replace page-local phrases and access metadata with the authoritative list.
+     * Shared copies load first so the current user's private copy wins a trigger.
+     * @param {Array<Object>} phrases Rows visible to the authenticated user.
+     */
     function serverRefreshCache(phrases) {
         if (!phrases || !Array.isArray(phrases)) return;
         SERVER_PHRASES = phrases.map(function(source){
@@ -663,11 +617,12 @@
             row.owner_uid = parseInt(row.owner_uid, 10) || 0;
             row.phrase_key = String(row.phrase_key || '').toLowerCase();
             if (row.content_type === 'object' && typeof row.content === 'string') {
-                try { row.content = JSON.parse(row.content); } catch (e) { row.content = {}; }
+                try { row.content = JSON.parse(row.content); } catch { row.content = {}; }
             }
             return row;
         });
         PHRASE_META = {};
+        USER_PHRASES = {};
         ACTIVE_PHRASES = Object.assign({}, DEFAULT_PHRASES);
         ACTIVE_OBJECT_PHRASES = {};
         // Shared rows load first and this user's rows load last. If both use
@@ -684,14 +639,17 @@
             if (row.content_type === 'object') {
                 var obj = row.content;
                 ACTIVE_OBJECT_PHRASES[k] = (obj && typeof obj === 'object') ? obj : {};
+                USER_PHRASES[k] = ACTIVE_OBJECT_PHRASES[k];
                 delete ACTIVE_PHRASES[k];
             } else {
                 ACTIVE_PHRASES[k] = row.content || '';
+                USER_PHRASES[k] = ACTIVE_PHRASES[k];
                 delete ACTIVE_OBJECT_PHRASES[k];
             }
         });
     }
 
+    /** Perform an operation on an exact row ID, then refresh its visible state. */
     function serverActionById(sub, id) {
         return serverRequest(sub, {id: id}).then(function(r){
             if (r && r.ok) return serverRequest('list', {}).then(function(list){
@@ -702,7 +660,7 @@
         });
     }
 
-    // Create or update a phrase on the server, then refresh the cache.
+    /** Create or update a phrase, replacing page state only after server success. */
     function serverSavePhrase(payload) {
         var sub = payload.id ? 'update' : 'create';
         return serverRequest(sub, payload).then(function(r){
@@ -714,9 +672,13 @@
         });
     }
 
+    /** Reload authorized phrases from the server and replace cached page metadata. */
     window.eyeMagServerList = function(){ return serverRequest('list', {}).then(function(r){ if (r && r.ok) serverRefreshCache(r.phrases); return r; }); };
+    /** Persist a phrase and refresh page state only after successful server creation. */
     window.eyeMagServerCreate = function(payload){ return serverSavePhrase(payload); };
+    /** Persist an existing phrase and refresh the page from its authorized server list. */
     window.eyeMagServerUpdate = function(payload){ return serverSavePhrase(payload); };
+    /** Delete the server row for a trigger and reload authorized phrases after success. */
     window.eyeMagServerDelete = function(phraseKey){
         var meta = PHRASE_META[(phraseKey || '').toLowerCase()];
         if (!meta || !meta.id) return Promise.resolve({ok:false, msg:'not on server'});
@@ -728,6 +690,7 @@
             return r;
         });
     };
+    /** Share the identified server phrase and refresh its visibility metadata after success. */
     window.eyeMagServerShare = function(phraseKey){
         var meta = PHRASE_META[(phraseKey || '').toLowerCase()];
         if (!meta || !meta.id) return Promise.resolve({ok:false, msg:'not on server'});
@@ -739,6 +702,7 @@
             return r;
         });
     };
+    /** Withdraw sharing for the identified phrase and reload the permitted server list. */
     window.eyeMagServerUnshare = function(phraseKey){
         var meta = PHRASE_META[(phraseKey || '').toLowerCase()];
         if (!meta || !meta.id) return Promise.resolve({ok:false, msg:'not on server'});
@@ -750,6 +714,7 @@
             return r;
         });
     };
+    /** Copy a permitted shared phrase into the user's server library and refresh page state. */
     window.eyeMagServerImport = function(phraseKey){
         var meta = PHRASE_META[(phraseKey || '').toLowerCase()];
         if (!meta || !meta.id) return Promise.resolve({ok:false, msg:'not on server'});
@@ -761,10 +726,15 @@
             return r;
         });
     };
+    /** Resolve a normalized trigger to its current server ownership and visibility metadata. */
     window.eyeMagPhraseMeta = function(phraseKey){ return PHRASE_META[(phraseKey || '').toLowerCase()] || null; };
+    /** Expose the exam zones addressed by a text or multi-field phrase. */
     window.eyeMagPhraseZones = function(phraseKey){ return phraseZones(phraseKey); };
+    /** Open the phrase library using the current authenticated phrase list. */
     window.eyeMagBuilderOpen = function(){ managerShow(); };
+    /** Toggle the phrase builder while retaining its current editing state. */
     window.eyeMagBuilderToggle = function(){ managerToggle(); };
+    /** Find phrase suggestions restricted to the requested exam zone when supplied. */
     window.eyeMagPhraseMatches = function(q, zone){ return dfMatches(q, zone || ''); };
 
     // ── Dot Phrase Builder ────────────────────────────────────────────
@@ -793,6 +763,7 @@
         if (ad) MANAGER_IS_ADMIN = ad.value === '1';
     })();
 
+    /** Create a builder control with shared spacing and optional literal label text. */
     function managerField(tag, text) {
         if (tag === 'label') {
             var l = document.createElement('label');
@@ -808,6 +779,7 @@
         return el;
     }
 
+    /** Open the phrase list and refresh server permissions before rendering row actions. */
     function managerShow(zone) {
         if (!MANAGER_EL) managerBuild();
         MANAGER_ORIGIN_ZONE = zone || null;
@@ -824,34 +796,18 @@
         }
     }
 
+    /** Hide the reusable builder without discarding its DOM or bound handlers. */
     function managerHide() {
         if (MANAGER_EL) MANAGER_EL.style.display = 'none';
     }
 
+    /** Close the visible builder or reopen its list for the originating zone. */
     function managerToggle(zone) {
         if (MANAGER_EL && MANAGER_EL.style.display === 'flex') { managerHide(); return; }
         managerShow(zone);
     }
 
-    // Retained for callers that explicitly want a full multi-field capture.
-    function managerShowCreateFull() {
-        if (!MANAGER_EL) managerBuild();
-        MANAGER_ORIGIN_ZONE = null;
-        MANAGER_EDIT_KEY = null;
-        MANAGER_EDIT_ROW = null;
-        MANAGER_CREATE_MULTI = true;
-        MANAGER_VIEW = 'create';
-        dpEnsureStyles();
-        dpTopDoc().body.appendChild(MANAGER_EL);
-        MANAGER_EL.style.display = 'flex';
-        if (window.eyeMagServerList) {
-            window.eyeMagServerList().then(function(){ managerRenderView(); });
-        } else {
-            managerRenderView();
-        }
-    }
-
-    // Themed confirmation dialog (no native confirm()).
+    /** Request confirmation in the host document and invoke onConfirm only after acceptance. */
     function managerConfirm(message, confirmLabel, onConfirm) {
         var overlay = document.createElement('div');
         overlay.className = 'dpm-confirm-overlay';
@@ -871,6 +827,7 @@
         ok.type = 'button';
         ok.className = 'btn btn-danger btn-sm';
         ok.textContent = confirmLabel || dpT('confirm','Confirm');
+        /** Dismiss this confirmation without affecting other builder dialogs. */
         function close(){ if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }
         cancel.addEventListener('click', close);
         ok.addEventListener('click', function(){ close(); onConfirm(); });
@@ -882,7 +839,7 @@
         dpTopDoc().body.appendChild(overlay);
     }
 
-    // Themed toast notification (no native alert()).
+    /** Display a temporary plain-text status message in the builder's host document. */
     function managerToast(msg, type) {
         var t = document.createElement('div');
         t.className = 'dpm-toast';
@@ -893,6 +850,7 @@
         setTimeout(function(){ if (t.parentNode) t.parentNode.removeChild(t); }, 3200);
     }
 
+    /** Create the reusable builder shell and bind its close and propagation handlers. */
     function managerBuild() {
         MANAGER_EL = document.createElement('div');
         MANAGER_EL.id = 'DOTPHRASE_MANAGER';
@@ -900,7 +858,10 @@
 
         var head = document.createElement('div');
         head.className = 'dpm-head';
-        head.innerHTML = '<div class="dpm-title">' + dpT('builder_title','My Phrases Builder') + '</div>';
+        var title = document.createElement('div');
+        title.className = 'dpm-title';
+        title.textContent = dpT('builder_title','My Phrases Builder');
+        head.appendChild(title);
         var close = document.createElement('span');
         close.className = 'fa fa-times dpm-close';
         close.title = dpT('close','Close');
@@ -918,6 +879,7 @@
     }
 
     // Dispatch view rendering based on MANAGER_VIEW state.
+    /** Render the current list or create/edit mode inside the existing builder shell. */
     function managerRenderView() {
         var body = MANAGER_EL && MANAGER_EL.querySelector('#DOTPHRASE_MANAGER_VIEW');
         if (!body) return;
@@ -927,9 +889,11 @@
         else managerRenderList(body);
     }
 
+    /** Build a searchable phrase table with actions scoped to each exact server row. */
     function managerRenderList(body) {
         body.innerHTML = '';
 
+        /** Create a non-submitting toolbar button using literal text. */
         function mkBtn(text, cls) {
             var b = document.createElement('button');
             b.type = 'button';
@@ -938,6 +902,7 @@
             return b;
         }
 
+        /** Create an icon action with matching visible tooltip and accessible name. */
         function mkIconBtn(icon, title, cls) {
             var b = document.createElement('button');
             var i = document.createElement('i');
@@ -1015,17 +980,20 @@
         listWrap.appendChild(table);
         body.appendChild(listWrap);
 
+        /** Decode a field-map row while keeping malformed content out of previews. */
         function rowContent(row) {
             if (row.content_type !== 'object') return {};
             if (row.content && typeof row.content === 'object') return row.content;
-            try { return JSON.parse(row.content || '{}'); } catch (e) { return {}; }
+            try { return JSON.parse(row.content || '{}'); } catch { return {}; }
         }
 
+        /** Resolve a readable creator name with a translated user-number fallback. */
         function creator(row) {
             var name = String(row.creator_name || '').trim();
             return name || (row.owner_uid ? dpT('user_number','User #%ID%').replace('%ID%', row.owner_uid) : dpT('built_in','Built-in'));
         }
 
+        /** Return sorted zones from stored metadata or captured field identifiers. */
         function rowZones(row) {
             var zones = String(row.zones || '').split(',').map(function(zone){ return zone.trim().toUpperCase(); }).filter(Boolean);
             if (!zones.length && row.content_type === 'object') {
@@ -1037,23 +1005,28 @@
             return zones.sort();
         }
 
+        /** Normalize phrase whitespace for searching, sorting and compact previews. */
         function textContent(row) {
             return String(row.content || '').replace(/\s+/g, ' ').trim();
         }
 
+        /** Choose comparable display content for either text or field-map rows. */
         function contentSortValue(row) {
             return row.content_type === 'object' ? rowZones(row).join(' ') : textContent(row);
         }
 
+        /** Limit table previews to 135 characters without changing stored clinical text. */
         function textPreview(row) {
             var content = textContent(row);
             return content.length > 135 ? content.substring(0, 135).replace(/\s+$/, '') + '\u2026' : content;
         }
 
+        /** Match the normalized search query against row labels, content and creator. */
         function matches(row, q) {
             return [row.name, row.phrase_key, creator(row), contentSortValue(row)].join(' ').toLowerCase().indexOf(q) !== -1;
         }
 
+        /** Rebuild filtered, sorted rows and update accessible actions and sort indicators. */
         function renderRows() {
             var q = (search.value || '').toLowerCase().trim();
             tbody.innerHTML = '';
@@ -1064,6 +1037,7 @@
             });
             var rows = entries.filter(function(row){ return !q || matches(row, q); });
             rows.sort(function(a, b){
+                /** Resolve the active column's case-insensitive comparison value. */
                 function value(row) {
                     if (sort.field === 'contents') return contentSortValue(row).toLowerCase();
                     if (sort.field === 'creator') return creator(row).toLowerCase();
@@ -1180,7 +1154,7 @@
                             if (!row.id) {
                                 if (ACTIVE_OBJECT_PHRASES[key]) delete ACTIVE_OBJECT_PHRASES[key];
                                 else delete ACTIVE_PHRASES[key];
-                                if (window.removePersist) removePersist(key);
+                                delete USER_PHRASES[key];
                                 managerRenderView();
                             } else {
                                 serverActionById('delete', row.id).then(function(r){
@@ -1198,7 +1172,13 @@
             });
 
             if (shown === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="dpm-empty">' + dpT('no_matches','No phrases match your search.') + '</td></tr>';
+                var emptyRow = document.createElement('tr');
+                var emptyCell = document.createElement('td');
+                emptyCell.colSpan = 5;
+                emptyCell.className = 'dpm-empty';
+                emptyCell.textContent = dpT('no_matches','No phrases match your search.');
+                emptyRow.appendChild(emptyCell);
+                tbody.appendChild(emptyRow);
             }
         }
 
@@ -1212,6 +1192,7 @@
     // chosen sections pre-seeded with their current values so the phrase
     // records exactly what the user wants re-applied.  Plain-text phrases
     // get a simple expansion-text box instead.
+    /** Build the text or field-capture editor, preserving the exact row selected for editing. */
     function managerRenderCreate(body) {
         body.innerHTML = '';
 
@@ -1225,13 +1206,15 @@
         var isObject = forceMulti || (meta && meta.content_type
             ? meta.content_type === 'object'
             : !!ACTIVE_OBJECT_PHRASES[editKey]);
+        /** Prefer the selected server row's field map over trigger-based runtime fallback. */
         function editObjectContent() {
             if (meta && meta.content_type === 'object') {
                 if (meta.content && typeof meta.content === 'object') return meta.content;
-                try { return JSON.parse(meta.content || '{}'); } catch (e) { return {}; }
+                try { return JSON.parse(meta.content || '{}'); } catch { return {}; }
             }
             return ACTIVE_OBJECT_PHRASES[editKey] || {};
         }
+        /** Prefer the selected server row's text over trigger-based runtime fallback. */
         function editTextContent() {
             if (meta && meta.content_type === 'text') return meta.content || '';
             return ACTIVE_PHRASES[editKey] || '';
@@ -1249,6 +1232,7 @@
         back.addEventListener('click', function(){ MANAGER_VIEW = 'list'; MANAGER_EDIT_KEY = null; MANAGER_EDIT_ROW = null; managerRenderView(); });
         headRow.appendChild(back);
 
+        /** Pair header text with its control and size the input in character-width units. */
         function labeled(label, input, chw) {
             var box = document.createElement('div');
             box.style.cssText = 'display:flex; align-items:center; gap:6px; white-space:nowrap;';
@@ -1303,6 +1287,7 @@
         contentBox.style.cssText = 'flex:1 1 auto; min-height:0; display:flex; flex-direction:column; margin-top:8px;';
         body.appendChild(contentBox);
 
+        /** Render the selected phrase type with variable tokens or editable zone captures. */
         function renderContent() {
             var ctype = isObject ? 'object' : 'text';
             MANAGER_EL.classList.toggle('dpm-single-mode', ctype === 'text');
@@ -1331,6 +1316,7 @@
                     ['PROVIDER', dpT('var_provider','Provider')],
                     ['VISIT_DATE', dpT('var_visit_date','Visit date')]
                 ];
+                /** Replace the current text selection with a patient or visit variable token. */
                 function insertToken(token) {
                     var start = area.selectionStart || 0;
                     var end = area.selectionEnd || start;
@@ -1385,7 +1371,7 @@
             var existing = phraseZones(editKey);
 
             zona.forEach(function(zone){
-                var on = !!editKey
+                var on = editKey
                     ? (existing.indexOf(zone) !== -1)
                     : (forceMulti || zone === origins || (!origins && zone === 'EXT'));
                 var row = managerField('label', '');
@@ -1405,6 +1391,7 @@
             // a flat list of DB field ids.  Each clone's controls keep the
             // live form's current values; editing an existing phrase overlays
             // the stored phrase values on top.  data-df-id maps them back.
+            /** Rebuild selected capture zones from live fields and overlay existing phrase values. */
             function renderFields() {
                 var selected = {};
                 Array.prototype.forEach.call(zones.querySelectorAll('input[type=checkbox]'), function(c){
@@ -1492,6 +1479,7 @@
             contentBox.appendChild(layout);
         }
 
+        /** Switch text versus field-map mode and update its active button styling. */
         function setType(obj) {
             isObject = obj;
             singleBtn.className = 'btn btn-sm ' + (!isObject ? 'btn-primary' : 'btn-secondary');
@@ -1565,63 +1553,6 @@
         renderContent();
     }
 
-    // Import view: every shared phrase owned by someone else, adopt as a
-    // private copy (server sets improvement_of -> source).
-    function managerRenderImport(body) {
-        body.innerHTML = '';
-
-        var back = managerField('button', '\u2190 ' + dpT('all_phrases','All phrases'));
-        back.type = 'button';
-        back.className = 'btn btn-secondary btn-sm';
-        back.style.marginBottom = '8px';
-        back.addEventListener('click', function(){ MANAGER_VIEW = 'list'; managerRenderView(); });
-        body.appendChild(back);
-
-        var intro = managerField('div', dpT('import_intro','Shared phrases from other users — Import copies them as your own private phrase you can then edit and improve.'));
-        intro.style.cssText = 'color:#666; margin-bottom:8px;';
-        body.appendChild(intro);
-
-        var list = managerField('div', '');
-        list.className = 'dpm-list';
-        body.appendChild(list);
-
-        var shared = [];
-        Object.keys(PHRASE_META).forEach(function(key){
-            var m = PHRASE_META[key];
-            if (m.visibility === 'shared' && m.owner_uid !== MANAGER_AUTH_UID) shared.push({key: key, meta: m});
-        });
-        if (shared.length === 0) {
-            list.innerHTML = '<div class="dpm-empty">' + dpT('no_shared','No shared phrases from other users.') + '</div>';
-            return;
-        }
-        shared.forEach(function(row){
-            var item = managerField('div', '');
-            item.className = 'dpm-row';
-            var z = phraseZones(row.key);
-            var zonesHtml = z.length ? z.map(function(zn){ return '<span class="dpm-zone">' + zn + '</span>'; }).join(' ') : '';
-            var t = document.createElement('span');
-            t.className = 'dpm-row-body';
-            t.innerHTML = '<strong>' + row.key.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</strong> ' +
-                (row.meta.name ? '<span style="color:#666;">' + row.meta.name.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>' : '') +
-                ' ' + zonesHtml +
-                ' <span class="dpm-vis">' + dpT('by_user','by user') + ' ' + row.meta.owner_uid + '</span>';
-            item.appendChild(t);
-            var btns = managerField('div', '');
-            btns.className = 'dpm-row-actions';
-            var imp = managerField('button', dpT('import','Import'));
-            imp.className = 'btn btn-info btn-xs';
-            imp.addEventListener('click', function(){
-                window.eyeMagServerImport(row.key).then(function(r){
-                    if (r && r.ok) managerRenderView();
-                    else if (r && !r.ok) managerToast(r.msg || 'Import failed.', 'error');
-                });
-            });
-            btns.appendChild(imp);
-            item.appendChild(btns);
-            list.appendChild(item);
-        });
-    }
-
     // Mirror the live left panel's real structure (same tables, classes and
     // containing blocks as the PRIORS panel), not a flattened table or a
     // dimension-copied reconstruction. Only interactive chrome is removed;
@@ -1629,6 +1560,7 @@
     // .borderShadow/.QP_lengthen, and each field's own class) is kept so the
     // SAME CSS that lays out the left panel and PRIORS lays out this mirror.
     // ids are deduped into data-df-id; every control is disabled read-only.
+    /** Clone a zone's clinical layout, removing interaction and duplicate IDs for a read-only mirror. */
     function dfBuildDisplayContent(zone) {
         var src = document.getElementById(zone + '_left');
         if (!src) return null;
@@ -1735,6 +1667,7 @@
         return clone;
     }
 
+    /** Replace one phrase mirror with the zone's disabled clinical layout. */
     function dfMirrorBuild(zone, mirrorEl) {
         if (!mirrorEl) return;
         var content = dfBuildDisplayContent(zone);
@@ -1750,6 +1683,7 @@
         mirrorEl.appendChild(content);
     }
 
+    /** Retain phrases already admitted by the server list, including built-in defaults. */
     function dfAuthorized(key) {
         var meta = PHRASE_META[key.toLowerCase()];
         if (!meta) return true;          // defaults / local-only phrases stay visible
@@ -1757,6 +1691,7 @@
         return true;                      // server list already restricted to what the user may read
     }
 
+    /** Return matching triggers, limiting zone searches to field maps that can populate that zone. */
     function dfMatches(query, zone) {
         var q = (query || '').toLowerCase().trim();
         if (q.length < 3) return [];
@@ -1787,6 +1722,11 @@
     // Deploy a phrase's stored values straight into the live chart (no
     // panel preview).  Non-empty values are written across every zone the
     // phrase belongs to, and marked with the dot-phrase provenance color.
+    /**
+     * Apply nonempty captured values through existing clinical field handlers.
+     * @param {string} key Phrase trigger to deploy.
+     * @returns {number} Number of handled impression/plan or ordinary clinical fields.
+     */
     function dfDeploy(key) {
         var k = (key || '').toLowerCase();
         var map = ACTIVE_OBJECT_PHRASES[k];
@@ -1811,11 +1751,13 @@
         return applied;
     }
 
+    /** Bind text-entry expansion and the shared phrase-menu controls once the page is ready. */
     function init() {
         initHandlers();
         initMidMenu();
     }
 
+    /** Connect the global phrase search and builder button to current visible phrase state. */
     function initMidMenu() {
         var icon = document.getElementById('BUTTON_mid_dp_builder');
         if (icon) icon.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); managerShow(); });
@@ -1825,13 +1767,13 @@
         ac.addEventListener('input', function(){
             var items = dfMatches(ac.value, '');
             if (!ac.dataset.popover) {
-                var pop = document.createElement('div');
-                pop.style.cssText = 'background:#fff; border:1px solid #cbd5dc; border-radius:4px; box-shadow:2px 2px 6px rgba(0,0,0,.18); max-height:160px; overflow:auto; position:absolute; z-index:9000;';
-                pop.className = 'DF_popover';
+                var createdPopup = document.createElement('div');
+                createdPopup.style.cssText = 'background:#fff; border:1px solid #cbd5dc; border-radius:4px; box-shadow:2px 2px 6px rgba(0,0,0,.18); max-height:160px; overflow:auto; position:absolute; z-index:9000;';
+                createdPopup.className = 'DF_popover';
                 ac.style.position = 'relative';
                 var wrap = ac.parentNode;
                 wrap.style.position = 'relative';
-                wrap.appendChild(pop);
+                wrap.appendChild(createdPopup);
                 ac.dataset.popover = '1';
             }
             var pop = ac.parentNode.querySelector('.DF_popover');

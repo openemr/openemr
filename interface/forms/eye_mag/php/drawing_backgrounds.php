@@ -1,6 +1,16 @@
 <?php
 
-/** Provider drawing backgrounds. This helper deliberately does not bootstrap OpenEMR. */
+/**
+ * Provider drawing backgrounds. This helper deliberately does not bootstrap OpenEMR.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2026 Ray Magauran <rmagauran@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Forms\EyeMag\Drawing;
 
@@ -11,15 +21,19 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\BaseDrawing;
+use OpenEMR\Forms\EyeMag\DrawingBackgroundOption;
+use OpenEMR\Forms\EyeMag\SavedOverlayMetadata;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+/** Collect a drawing-library CSRF token from the authenticated session. */
 function eye_mag_drawing_background_csrf_token(SessionInterface $session): string
 {
     return CsrfUtils::collectCsrfToken(session: $session);
 }
 
+/** Reject absent or invalid drawing-library tokens without exposing session errors. */
 function eye_mag_drawing_background_csrf_verify(mixed $token, SessionInterface $session): bool
 {
     if (!is_string($token) || $token === '') {
@@ -32,13 +46,21 @@ function eye_mag_drawing_background_csrf_verify(mixed $token, SessionInterface $
     }
 }
 
-/** @phpstan-assert-if-true =string $zone */
+/**
+ * Accept only the Eye Form zones that support drawing backgrounds.
+ *
+ * @phpstan-assert-if-true =string $zone
+ */
 function eye_mag_drawing_background_zone_valid(mixed $zone): bool
 {
     return is_string($zone) && in_array($zone, ['HPI', 'PMH', 'EXT', 'ANTSEG', 'RETINA', 'SDRETINA', 'NEURO', 'IMPPLAN'], true);
 }
 
-/** @phpstan-assert-if-true =string $key */
+/**
+ * Accept stock selections and bounded internal keys for uploaded or saved images.
+ *
+ * @phpstan-assert-if-true =string $key
+ */
 function eye_mag_drawing_background_key_valid(mixed $key): bool
 {
     return is_string($key) && strlen($key) <= 32 && (in_array($key, ['', 'default', 'large-retina', 'retina', 'practice', 'blank'], true)
@@ -46,11 +68,13 @@ function eye_mag_drawing_background_key_valid(mixed $key): bool
         || preg_match('/\A(?:custom|saved)-[a-f0-9]{16}\z/D', $key) === 1);
 }
 
+/** Select the large retinal background for scleral depression and the normal default elsewhere. */
 function eye_mag_drawing_background_default(mixed $zone): string
 {
     return $zone === 'SDRETINA' ? 'large-retina' : 'default';
 }
 
+/** Return the active application web root without a trailing separator. */
 function eye_mag_drawing_background_webroot(): string
 {
     return rtrim(OEGlobalsBag::getInstance()->getWebRoot(), '/');
@@ -84,7 +108,7 @@ function eye_mag_drawing_background_paths(mixed $zone, mixed $providerId): array
 
 /**
  * The caller supplies the logged-in user's server-side ID, never a request provider ID.
- * @return list<array{key: string, label: string, url: string, structured: bool, saved?: bool, archived?: bool}>
+ * @return list<DrawingBackgroundOption>
  */
 function eye_mag_drawing_background_options(mixed $zone, mixed $providerId, mixed $side = 'OU', bool $includeArchived = false): array
 {
@@ -92,26 +116,26 @@ function eye_mag_drawing_background_options(mixed $zone, mixed $providerId, mixe
         throw new InvalidArgumentException('Invalid drawing background zone.');
     }
     $base = eye_mag_drawing_background_webroot() . '/interface/forms/eye_mag/images/';
-    $options = [[
-        'key' => eye_mag_drawing_background_default($zone),
-        'label' => $zone === 'SDRETINA' ? 'Large retinal drawing' : 'Default drawing',
-        'url' => BaseDrawing::fromGlobals(OEGlobalsBag::getInstance())->url($side, $zone),
-        'structured' => true,
-    ]];
+    $options = [new DrawingBackgroundOption(
+        eye_mag_drawing_background_default($zone),
+        $zone === 'SDRETINA' ? xl('Large retinal drawing') : xl('Default drawing'),
+        BaseDrawing::fromGlobals(OEGlobalsBag::getInstance())->url($side, $zone),
+        true,
+    )];
     if ($zone === 'SDRETINA') {
-        $options[] = ['key' => 'retina', 'label' => 'ROP', 'url' => $base . $side . '_RETINA_BASE.jpg', 'structured' => true];
+        $options[] = new DrawingBackgroundOption('retina', xl('ROP'), $base . $side . '_RETINA_BASE.jpg', true);
     }
-    foreach (['EXT' => 'External eye', 'ANTSEG' => 'Anterior segment', 'RETINA' => 'Retina', 'NEURO' => 'Neuro / motility', 'SDRETINA' => 'Large retinal drawing'] as $stockZone => $label) {
+    foreach (['EXT' => xl('External eye'), 'ANTSEG' => xl('Anterior segment'), 'RETINA' => xl('Retina'), 'NEURO' => xl('Neuro / motility'), 'SDRETINA' => xl('Large retinal drawing')] as $stockZone => $label) {
         if ($stockZone === $zone || ($zone === 'SDRETINA' && $stockZone === 'RETINA')) {
             continue;
         }
-        $options[] = ['key' => 'stock-' . strtolower($stockZone), 'label' => $label,
-            'url' => $base . 'OU_' . $stockZone . '_BASE.jpg', 'structured' => $zone === 'NEURO' && $stockZone === 'NEURO'];
+        $options[] = new DrawingBackgroundOption('stock-' . strtolower($stockZone), $label,
+            $base . 'OU_' . $stockZone . '_BASE.jpg', $zone === 'NEURO' && $stockZone === 'NEURO');
     }
     try {
         $paths = eye_mag_drawing_background_paths($zone, $providerId);
         if (is_file($paths['practice']) && is_readable($paths['practice'])) {
-            $options[] = ['key' => 'practice', 'label' => 'Practice background', 'url' => $paths['practice_url'], 'structured' => false];
+            $options[] = new DrawingBackgroundOption('practice', xl('Practice background'), $paths['practice_url'], false);
         }
         foreach (eye_mag_drawing_background_library_options($paths, $includeArchived) as $savedOption) {
             $options[] = $savedOption;
@@ -124,16 +148,17 @@ function eye_mag_drawing_background_options(mixed $zone, mixed $providerId, mixe
             if (preg_match('/\A[a-f0-9]{16}\z/D', $name) !== 1 || !is_file($file) || !is_readable($file) || is_link($file)) {
                 continue;
             }
-            $options[] = ['key' => 'custom-' . $name, 'label' => 'Uploaded background ' . ++$customIndex,
-                'url' => $paths['url'] . '/' . $name . '.jpg', 'structured' => false];
+            $options[] = new DrawingBackgroundOption('custom-' . $name, xl('Uploaded background') . ' ' . ++$customIndex,
+                $paths['url'] . '/' . $name . '.jpg', false);
         }
     } catch (RuntimeException) {
         // Defaults remain usable before a site's images directory has been provisioned.
     }
-    $options[] = ['key' => 'blank', 'label' => 'Blank background', 'url' => $base . 'BLANK_BASE.jpg', 'structured' => false];
+    $options[] = new DrawingBackgroundOption('blank', xl('Blank background'), $base . 'BLANK_BASE.jpg', false);
     return $options;
 }
 
+/** Resolve a provider's saved zone default, falling back when its image is unavailable. */
 function eye_mag_drawing_background_preference(mixed $zone, mixed $providerId): string
 {
     if (!eye_mag_drawing_background_zone_valid($zone) || !is_numeric($providerId) || (int) $providerId <= 0) {
@@ -148,13 +173,14 @@ function eye_mag_drawing_background_preference(mixed $zone, mixed $providerId): 
         $key = eye_mag_drawing_background_default($zone);
     }
     foreach (eye_mag_drawing_background_options($zone, $providerId) as $option) {
-        if ($option['key'] === $key) {
+        if ($option->key === $key) {
             return $key;
         }
     }
     return eye_mag_drawing_background_default($zone);
 }
 
+/** Persist a validated background key for one provider and drawing zone. */
 function eye_mag_drawing_background_save_preference(mixed $zone, mixed $providerId, mixed $key): void
 {
     if (!eye_mag_drawing_background_zone_valid($zone) || !eye_mag_drawing_background_key_valid($key)
@@ -262,6 +288,7 @@ function eye_mag_drawing_background_upload(mixed $zone, mixed $providerId, mixed
     return 'custom-' . $hash;
 }
 
+/** Normalize a saved-image name and reject invalid UTF-8, control characters, or excessive length. */
 function eye_mag_drawing_background_library_name(mixed $name): string
 {
     if (!is_string($name) || preg_match('//u', $name) !== 1 || preg_match('/[\x00-\x1f\x7f]/', $name)) {
@@ -278,9 +305,8 @@ function eye_mag_drawing_background_library_name(mixed $name): string
 /**
  * Read only valid named entries; retained PNGs remain available to existing encounters.
  * @param array<string, string> $paths
- * @return array{version: 1, key: string, label: string, sha256: string, deleted?: mixed}
  */
-function eye_mag_drawing_background_library_metadata(array $paths, mixed $key, bool $includeArchived = false): array
+function eye_mag_drawing_background_library_metadata(array $paths, mixed $key, bool $includeArchived = false): SavedOverlayMetadata
 {
     if (!is_string($key) || preg_match('/\Asaved-[a-f0-9]{16}\z/D', $key) !== 1) {
         throw new InvalidArgumentException('Choose a saved overlay.');
@@ -298,13 +324,19 @@ function eye_mag_drawing_background_library_metadata(array $paths, mixed $key, b
         || (!$includeArchived && ($metadata['deleted'] ?? false) === true)) {
         throw new InvalidArgumentException('That saved overlay is not available for your account.');
     }
-    $metadata['label'] = eye_mag_drawing_background_library_name($metadata['label'] ?? null);
-    return $metadata;
+    return new SavedOverlayMetadata(
+        $key,
+        eye_mag_drawing_background_library_name($metadata['label'] ?? null),
+        $metadata['sha256'],
+        ($metadata['deleted'] ?? false) === true,
+    );
 }
 
 /**
+ * List valid saved overlays in natural label order, optionally including archived entries.
+ *
  * @param array<string, string> $paths
- * @return list<array{key: string, label: string, url: string, structured: bool, saved?: bool, archived?: bool}>
+ * @return list<DrawingBackgroundOption>
  */
 function eye_mag_drawing_background_library_options(array $paths, bool $includeArchived = false): array
 {
@@ -316,12 +348,11 @@ function eye_mag_drawing_background_library_options(array $paths, bool $includeA
         } catch (InvalidArgumentException) {
             continue;
         }
-        $option = ['key' => 'saved-' . $hash, 'label' => $metadata['label'], 'url' => $paths['library_url'] . '/' . $hash . '.png',
-            'structured' => false, 'saved' => true];
-        if (($metadata['deleted'] ?? false) === true) $option['archived'] = true;
-        $options[] = $option;
+        $options[] = new DrawingBackgroundOption('saved-' . $hash, $metadata->label, $paths['library_url'] . '/' . $hash . '.png',
+            false, true, $metadata->deleted);
     }
-    usort($options, static fn($left, $right): int => strnatcasecmp($left['label'], $right['label']) ?: strcmp($left['key'], $right['key']));
+    /** Compare saved overlays by natural label order, using stable keys to break ties. */
+    usort($options, static fn(DrawingBackgroundOption $left, DrawingBackgroundOption $right): int => strnatcasecmp($left->label, $right->label) ?: strcmp($left->key, $right->key));
     return $options;
 }
 
@@ -352,12 +383,13 @@ function eye_mag_drawing_background_library_locked(array $paths, callable $opera
 }
 
 /**
+ * Atomically replace saved-overlay metadata within the provider's zone library.
+ *
  * @param array<string, string> $paths
- * @param array{version: 1, key: string, label: string, sha256: string, deleted?: mixed} $metadata
  */
-function eye_mag_drawing_background_library_replace(array $paths, array $metadata): void
+function eye_mag_drawing_background_library_replace(array $paths, SavedOverlayMetadata $metadata): void
 {
-    $destination = $paths['library_directory'] . '/' . substr($metadata['key'], 6) . '.json';
+    $destination = $paths['library_directory'] . '/' . substr($metadata->key, 6) . '.json';
     $bytes = json_encode($metadata, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n";
     $temporary = @tempnam($paths['library_directory'], '.saving-');
     if ($temporary === false || realpath(dirname($temporary)) !== realpath($paths['library_directory'])) {
@@ -384,18 +416,17 @@ function eye_mag_drawing_background_library_manage(mixed $zone, mixed $providerI
     }
     if ($action === 'rename') $name = eye_mag_drawing_background_library_name($name);
     eye_mag_drawing_background_library_metadata($paths, $key, $action === 'delete');
+    /** Rename or archive the locked library entry and clear its default selection when deleted. */
     eye_mag_drawing_background_library_locked($paths, static function () use ($paths, $key, $name, $action, $zone, $providerId): void {
         $metadata = eye_mag_drawing_background_library_metadata($paths, $key, $action === 'delete');
         if ($action === 'rename') {
-            if ($metadata['label'] !== $name) {
-                $metadata['label'] = $name;
-                eye_mag_drawing_background_library_replace($paths, $metadata);
+            if ($metadata->label !== $name) {
+                eye_mag_drawing_background_library_replace($paths, $metadata->withLabel($name));
             }
             return;
         }
-        if (($metadata['deleted'] ?? false) !== true) {
-            $metadata['deleted'] = true;
-            eye_mag_drawing_background_library_replace($paths, $metadata);
+        if (!$metadata->deleted) {
+            eye_mag_drawing_background_library_replace($paths, $metadata->archived());
         }
         $location = $zone . '_BACKGROUND';
         $row = QueryUtils::querySingleRow("SELECT GOVALUE FROM form_eye_mag_prefs WHERE PEZONE = 'DRAW_BACKGROUND' AND id = ? AND LOCATION = ? LIMIT 1", [(int) $providerId, $location]);
@@ -476,11 +507,12 @@ function eye_mag_drawing_background_library_save(mixed $zone, mixed $providerId,
     if (!$encoded || !is_string($bytes) || $bytes === '') {
         throw new RuntimeException('The image could not be prepared.');
     }
+    /** Reuse an identical named overlay or store a new PNG and metadata pair under the library lock. */
     return eye_mag_drawing_background_library_locked($paths, static function () use ($paths, $bytes, $name): string {
         $sha = hash('sha256', $bytes);
         foreach (eye_mag_drawing_background_library_options($paths) as $option) {
-            $entry = eye_mag_drawing_background_library_metadata($paths, $option['key']);
-            if ($entry['label'] === $name && hash_equals($entry['sha256'], $sha)) return $entry['key'];
+            $entry = eye_mag_drawing_background_library_metadata($paths, $option->key);
+            if ($entry->label === $name && hash_equals($entry->sha256, $sha)) return $entry->key;
         }
         $hash = substr(hash('sha256', $bytes . "\0" . $name), 0, 16);
         // A previous item with this content may have been renamed or deleted.
@@ -488,7 +520,7 @@ function eye_mag_drawing_background_library_save(mixed $zone, mixed $providerId,
             $hash = bin2hex(random_bytes(8));
         }
         $key = 'saved-' . $hash;
-        $metadata = json_encode(['version' => 1, 'key' => $key, 'label' => $name, 'sha256' => $sha], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n";
+        $metadata = json_encode(new SavedOverlayMetadata($key, $name, $sha), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n";
         eye_mag_drawing_background_library_store($paths['library_directory'] . '/' . $hash . '.png', $bytes);
         eye_mag_drawing_background_library_store($paths['library_directory'] . '/' . $hash . '.json', $metadata);
         return $key;

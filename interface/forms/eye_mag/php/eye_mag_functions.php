@@ -2187,6 +2187,7 @@ function display_QP($zone, $provider_id)
         return $QP_panel;
 }
 
+/** Return the drawing toolbar and prior-image selection controls for an exam zone. */
 function canvas_select($zone, $encounter, $pid): string
 {
     /* This will provide a way to scroll back through prior VISIT images, to copy forward to today's visit,
@@ -2368,11 +2369,11 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                     $activeBackground = $archivedBackgrounds[$drawingBackground] ?? null;
                 }
                 $activeBackground ??= $backgroundOptionsByKey[$zone === 'SDRETINA' ? 'large-retina' : 'default'];
-                $base_filetoshow = $activeBackground['url'];
+                $base_filetoshow = $activeBackground->url;
                 $structuredBackground = !in_array($drawingBackground, ['blank', 'practice'], true)
                     && !str_starts_with($drawingBackground, 'custom-')
                     && !str_starts_with($drawingBackground, 'saved-')
-                    && $activeBackground['structured'];
+                    && $activeBackground->structured;
                 if ($has_saved_drawing) {
                     $filetoshow = OEGlobalsBag::getInstance()->getWebRoot()
                         . "/controller.php?document&retrieve&patient_id=" . attr_url($pid)
@@ -2981,6 +2982,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
 }
 
 
+/** Render the encounter sidebar with patient, provider, and document actions. */
 function menu_overhaul_left(string $pid, string $encounter): void
 {
     global $form_folder;
@@ -3925,6 +3927,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday', mixed $currentDate =
     $times_OU = $time_OU;
     usort($times_OU, cmp(...));
     $timeLabelsOU = array_map(
+        /** Format each pressure-measurement time using the practice time display setting. */
         static fn(string $time): string => DateFormatterUtils::oeFormatTime($time, 'global'),
         $times_OU
     );
@@ -5116,6 +5119,7 @@ function display_VisualAcuities($pid = 0): string
 
 
 # gets the provider from the encounter file , or from the logged on user or from the patient file
+/** Resolve the encounter provider using calendar and patient-provider fallbacks. */
 function findProvider($pid, $encounter)
 {
     $find_provider = QueryUtils::querySingleRow("SELECT * FROM form_encounter " .
@@ -5145,6 +5149,7 @@ function findProvider($pid, $encounter)
     return $providerid;
 }
 
+/** Return active lens-treatment checkboxes with the current prescription's selections. */
 function generate_lens_treatments(mixed $W, mixed $LTs_present): string
 {
     $W = EyeFormData::text($W);
@@ -5352,6 +5357,7 @@ function display_refractive_data($encounter_data): void
     }
 
     $encounter_data = EyeFormData::row($encounter_data);
+    /** Detect documented refraction fields while ignoring blank and placeholder-only values. */
     $sectionHasData = static function (string $prefix) use ($encounter_data): bool {
         foreach ($encounter_data as $field => $value) {
             $normalized = trim(EyeFormData::text($value));

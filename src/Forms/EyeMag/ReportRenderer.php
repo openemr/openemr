@@ -4,6 +4,7 @@
  * Eye Form report sections and PDF drawing layouts.
  *
  * @package OpenEMR
+ * @link https://www.open-emr.org
  * @author Ray Magauran <magauran@MedFetch.com>
  * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,12 +16,17 @@ namespace OpenEMR\Forms\EyeMag;
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Core\OEGlobalsBag;
 
 class ReportRenderer
 {
+    /** Retain the application path used to compare saved drawings with bundled base images. */
+    public function __construct(private readonly string $projectDir)
+    {
+    }
 
     /**
+     * Append a refraction section only when either eye or its notes contain clinical data.
+     *
      * @param list<array{label:string,od:array<string,string>,os:array<string,string>,notes:string}> $sections
      * @param array<string,string> $od
      * @param array<string,string> $os
@@ -33,7 +39,11 @@ class ReportRenderer
         $sections[] = ['label' => $label, 'od' => $od, 'os' => $os, 'notes' => trim($notes)];
     }
 
-    /** @param array<string,string> $row */
+    /**
+     * Detect documented refraction measurements without counting the eye label as data.
+     *
+     * @param array<string,string> $row
+     */
     private static function hasRefractionValues(array $row): bool
     {
         foreach ($row as $key => $value) {
@@ -45,6 +55,8 @@ class ReportRenderer
     }
 
     /**
+     * Complete one eye's refraction row with blank defaults for unrecorded measurements.
+     *
      * @param array<string,string> $values
      * @return array<string,string>
      */
@@ -57,10 +69,11 @@ class ReportRenderer
         ], $values);
     }
 
-/**
- * Collect only documented refraction sections for reports and encounter previews.
- */
-/** @return list<array{label:string,od:array<string,string>,os:array<string,string>,notes:string}> */
+    /**
+     * Collect only documented refraction sections for reports and encounter previews.
+     *
+     * @return list<array{label:string,od:array<string,string>,os:array<string,string>,notes:string}>
+     */
     public static function refractions(int $pid, int $encounter, int $formId): array
     {
         $record = QueryUtils::querySingleRow(
@@ -145,7 +158,11 @@ class ReportRenderer
         return $sections;
     }
 
-/** @param list<array{label:string,od:array<string,string>,os:array<string,string>,notes:string}> $sections */
+    /**
+     * Render documented refractions with paired eye rows and any section notes.
+     *
+     * @param list<array{label:string,od:array<string,string>,os:array<string,string>,notes:string}> $sections
+     */
     public static function renderRefractionSummary(array $sections): void
     {
         if ($sections === []) {
@@ -198,17 +215,17 @@ class ReportRenderer
         <?php
     }
 
-/**
- * Acknowledge both kinds of instructions and preserve originals in PDF output.
- * @param callable(int,int):array{content:string,include_text:int,handout_document_id:int|null,handout_document_ids:string|null,handouts:list<array{document_id:int,name:string,pdf_data:string}>} $loadMaterials
- * @param callable(Mpdf,int,int,array{content:string,include_text:int,handout_document_id:int|null,handout_document_ids:string|null,handouts:list<array{document_id:int,name:string,pdf_data:string}>}):bool $embedMaterials
- */
+    /**
+     * Acknowledge both kinds of instructions and preserve originals in PDF output.
+     * @param callable(int,int):PatientMaterials $loadMaterials
+     * @param callable(Mpdf,int,int,PatientMaterials):bool $embedMaterials
+     */
     public static function materialsText(int $pid, int $formId, ?Mpdf $materialsPdf, bool $pdfOutput, callable $loadMaterials, callable $embedMaterials): void
     {
         $materials = $loadMaterials($formId, $pid);
-        $content = EyeFormData::text($materials['content']);
-        $includeText = EyeFormData::integer($materials['include_text']) === 1 && trim($content) !== '';
-        $includeHandout = $materials['handouts'] !== [];
+        $content = $materials->content;
+        $includeText = $materials->includeText && trim($content) !== '';
+        $includeHandout = $materials->handouts !== [];
         if (!$includeText && !$includeHandout) {
             return;
         }
@@ -224,12 +241,12 @@ class ReportRenderer
             echo '<p><b>' . xlt('Patient instructions included') . '</b></p>';
             echo '<div style="white-space:pre-wrap;padding:6px;">' . nl2br(text($content)) . '</div>';
         }
-        foreach ($materials['handouts'] as $handout) {
-            if ($handout['pdf_data'] === '' || ($pdfOutput && !$embedded)) {
+        foreach ($materials->handouts as $handout) {
+            if ($handout->pdfData === '' || ($pdfOutput && !$embedded)) {
                 echo '<p><b>' . xlt('Selected PDF handout could not be included. Restore or replace it and generate the report again.') . '</b></p>';
-                echo '<p>' . text($handout['name'] ?: (xl('Document') . ' #' . EyeFormData::text($handout['document_id']))) . '</p>';
+                echo '<p>' . text($handout->name ?: (xl('Document') . ' #' . $handout->documentId)) . '</p>';
             } else {
-                echo '<p><b>' . xlt('Patient PDF instructions included') . ':</b> ' . text($handout['name']) . '</p>';
+                echo '<p><b>' . xlt('Patient PDF instructions included') . ':</b> ' . text($handout->name) . '</p>';
                 if ($pdfOutput) {
                     echo '<p>' . xlt('An exact copy of the original PDF is embedded in this report. Use a PDF reader with an Attachments panel to open or print it.') . '</p>';
                 }
@@ -238,18 +255,18 @@ class ReportRenderer
         echo '</div>';
     }
 
-/**
- * Ignore legacy canvas documents produced by the old mouseout handler when
- * the clinician never marked the base image. JPEG re-encoding can alter edge
- * pixels slightly, so only differences greater than the verified compression
- * noise are treated as clinical marks.
- */
-    public static function drawingIsUntouchedBase(string $drawingData, string $zone): bool
+    /**
+     * Ignore legacy canvas documents produced by the old mouseout handler when
+     * the clinician never marked the base image. JPEG re-encoding can alter edge
+     * pixels slightly, so only differences greater than the verified compression
+     * noise are treated as clinical marks.
+     */
+    public function drawingIsUntouchedBase(string $drawingData, string $zone): bool
     {
         if (!function_exists('imagecreatefromstring')) {
             return false;
         }
-        $baseFile = OEGlobalsBag::getInstance()->getProjectDir()
+        $baseFile = $this->projectDir
         . '/interface/forms/eye_mag/images/OU_' . $zone . '_BASE.jpg';
         if (!is_file($baseFile)) {
             return false;
@@ -286,12 +303,12 @@ class ReportRenderer
         return true;
     }
 
-/**
- * End of the PDF body: strip every inline font-size outside the letterhead so
- * the whole report inherits one size from .rpt-body. The markup carries over a
- * hundred inline sizes (px, em, rem), and mPDF lets them beat any stylesheet
- * rule, so they cannot be overridden from CSS alone.
- */
+    /**
+     * End of the PDF body: strip every inline font-size outside the letterhead so
+     * the whole report inherits one size from .rpt-body. The markup carries over a
+     * hundred inline sizes (px, em, rem), and mPDF lets them beat any stylesheet
+     * rule, so they cannot be overridden from CSS alone.
+     */
     public static function flushPdf(bool $pdfOutput): void
     {
         if (!$pdfOutput) {
@@ -303,15 +320,16 @@ class ReportRenderer
             if (str_starts_with($part, '<div class="rpt-letterhead">')) {
                 continue;
             }
-            $parts[$i] = preg_replace_callback('~\bstyle\s*=\s*(["\'])(.*?)\1~s', fn($m): string => 'style=' . $m[1] . preg_replace('~font-size\s*:\s*[^;"\']+;?~i', '', $m[2]) . $m[1], $part) ?? $part;
+            /** Remove inline font sizes so report content inherits the PDF body size. */
+            $parts[$i] = preg_replace_callback('~\bstyle\s*=\s*(["\'])(.*?)\1~s', fn(array $m): string => 'style=' . $m[1] . preg_replace('~font-size\s*:\s*[^;"\']+;?~i', '', $m[2]) . $m[1], $part) ?? $part;
         }
         echo '<div class="rpt-body">' . implode('', $parts) . '</div>';
     }
 
-/**
- * Section heading for an exam zone: a banded heading in the PDF, the
- * underlined label on screen.
- */
+    /**
+     * Section heading for an exam zone: a banded heading in the PDF, the
+     * underlined label on screen.
+     */
     public static function zoneHeading(string $title, bool $pdfOutput): void
     {
         if ($pdfOutput) {
@@ -323,10 +341,10 @@ class ReportRenderer
         }
     }
 
-/**
- * Right / Left column header of a zone table. In the PDF every zone uses the
- * same fixed column widths, so the finding labels line up across all zones.
- */
+    /**
+     * Right / Left column header of a zone table. In the PDF every zone uses the
+     * same fixed column widths, so the finding labels line up across all zones.
+     */
     public static function rlHeader(bool $pdfOutput): void
     {
         $w = $pdfOutput ? ['38%', '24%', '38%'] : ['150px', '100px', '150px'];
@@ -337,23 +355,23 @@ class ReportRenderer
         . '</tr>';
     }
 
-/**
- * Output one exam zone (heading + findings table) with its drawing.
- * On screen the zone prints immediately, drawing to its right. For the PDF it
- * is queued for self::pdfZoneLayout(), and the pixel widths written for
- * the screen are dropped so the fixed header widths set the columns.
- */
-/**
- * @param list<array{section:string,drawing:string,fullwidth?:bool}> $pdf_zones
- * @param callable(string,mixed,mixed):void $displayDrawing
- */
+    /**
+     * Output one exam zone (heading + findings table) with its drawing.
+     * On screen the zone prints immediately, drawing to its right. For the PDF it
+     * is queued for self::pdfZoneLayout(), and the pixel widths written for
+     * the screen are dropped so the fixed header widths set the columns.
+     *
+     * @param list<array{section:string,drawing:string,fullwidth?:bool}> $pdf_zones
+     * @param callable(string,mixed,mixed):void $displayDrawing
+     */
     public static function zoneEmit(string $section, string $zone, mixed $encounter, mixed $pid, array &$pdf_zones, bool $pdfOutput, callable $displayDrawing): void
     {
         ob_start();
         $displayDrawing($zone, $encounter, $pid);
         $drawing = trim(EyeFormData::text(ob_get_clean()));
         if ($pdfOutput) {
-            $section = preg_replace_callback('~<td\b([^>]*)>~', function ($m) {
+            /** Remove screen-only cell widths while retaining the shared right and left header columns. */
+            $section = preg_replace_callback('~<td\b([^>]*)>~', function (array $m): string {
                 if (str_contains($m[1], 'class="rl-')) {
                     return $m[0];
                 }
@@ -368,12 +386,13 @@ class ReportRenderer
         . '</tr></table></div>';
     }
 
-/**
- * PDF layout of the exam zones, in two half-width columns. A zone with a
- * drawing takes a row, the drawing pinned to its right. A zone without one
- * moves up into the free right half of the row above when there is room.
- */
-/** @param list<array{section:string,drawing:string,fullwidth?:bool}> $zones */
+    /**
+     * PDF layout of the exam zones, in two half-width columns. A zone with a
+     * drawing takes a row, the drawing pinned to its right. A zone without one
+     * moves up into the free right half of the row above when there is room.
+     *
+     * @param list<array{section:string,drawing:string,fullwidth?:bool}> $zones
+     */
     public static function pdfZoneLayout(array $zones): void
     {
         $rows = [];
@@ -407,17 +426,20 @@ class ReportRenderer
         }
     }
 
-/**
- * Render the practice-selected motility notation without relying on nested
- * tables or background images, which mPDF can clip inside the five-column
- * summary. Both X and H charts show one perpendicular tick for each 25%
- * limitation grade.
- */
-/** @param array<string,mixed> $values */
+    /**
+     * Render the practice-selected motility notation without relying on nested
+     * tables or background images, which mPDF can clip inside the five-column
+     * summary. Both X and H charts show one perpendicular tick for each 25%
+     * limitation grade.
+     *
+     * @param array<string,mixed> $values
+     */
     public static function motilityDiagram(string $display, array $values, bool $pdfOutput): string
     {
         $display = strtoupper($display) === 'H' ? 'H' : 'X';
+        /** Clamp each recorded motility limitation to the supported zero-to-four grade range. */
         $grade = static fn(string $key): int => max(0, min(4, EyeFormData::integer($values[$key] ?? 0)));
+        /** Create a single SVG stroke with explicit geometry and line width. */
         $line = static fn(float $x1, float $y1, float $x2, float $y2, float $width = 1.8): string => sprintf(
         '<line x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f" stroke="#111" stroke-width="%.2f" stroke-linecap="square"/>',
         $x1,
@@ -432,6 +454,7 @@ class ReportRenderer
             $svg .= $line(21, 25, 21, 95, 2.5)
             . $line(99, 25, 99, 95, 2.5)
             . $line(21, 60, 99, 60, 2.5);
+            /** Draw perpendicular limitation ticks along the selected H-chart direction. */
             $ticks = static function (float $cx, float $cy, float $dx, float $dy, string $key, float $outer) use ($grade, $line): string {
                 $output = '';
                 for ($index = 0; $index < $grade($key); ++$index) {
@@ -477,24 +500,26 @@ class ReportRenderer
         . '" style="display:block;margin:0 auto;width:' . $size . ';height:' . $size . ';" />';
     }
 
-/**
- * One Alternate Cover Test grid, drawn with the same separators as the form:
- * a 3x3 tic-tac-toe of gaze positions with the head-tilt cells below.
- */
-/**
- * @param array<int,mixed> $v
- * @param callable(mixed):string $formatCell
- */
+    /**
+     * One Alternate Cover Test grid, drawn with the same separators as the form:
+     * a 3x3 tic-tac-toe of gaze positions with the head-tilt cells below.
+     *
+     * @param array<int,mixed> $v
+     * @param callable(mixed):string $formatCell
+     */
     public static function actGrid(string $title, array $v, bool $pdfOutput, callable $formatCell): void
     {
         // Every cell, labels included, is the same fixed square, so all grids are
         // the same size whether a gaze position holds data or not. 5 x 13mm fits "ORTHO" at the 9pt body size.
         $side = $pdfOutput ? '13mm' : '58px';
         $size = "width:$side;height:$side;min-width:$side;max-width:$side;";
+        /** Wrap cell content in a fixed-size alternate-cover-test square. */
         $td = fn(string $content, string $style = ''): string => '<td class="act-cell" style="' . $size . 'text-align:center;vertical-align:middle;overflow:hidden;' . $style . '">' . $content . '</td>';
+        /** Format a recorded gaze value with the borders for its grid position. */
         $cell = fn(int $k, string $border): string => $td($formatCell($v[$k] ?? ''), $border);
         $thin = '1pt solid #000';
         $thick = '2pt solid #000';
+        /** Use an SVG head-tilt arrow in PDFs and the matching icon on screen. */
         $icon = fn(string $cls): string => $pdfOutput ? self::actArrow(str_contains($cls, 'reply')) : '<i class="fas ' . $cls . '"></i>';
         echo '<table style="border:1pt solid grey;border-collapse:collapse;table-layout:fixed;"><tr><td class="act-tab" colspan="5" style="height:' . ($pdfOutput ? '4.5mm' : '25px') . ';'
         . ($pdfOutput ? '' : 'background-color:#2d6775;color:#fff;padding:2px 6px;') . '">' . text($title) . '</td></tr>';
@@ -517,11 +542,11 @@ class ReportRenderer
         . '</tr></table>';
     }
 
-/**
- * mPDF draws neither Font Awesome glyphs nor CSS rotation, so the PDF gets
- * the same curved "down and outward" head-tilt arrows as inline SVG: the tail
- * starts at the grid side and the head points down on the outside.
- */
+    /**
+     * mPDF draws neither Font Awesome glyphs nor CSS rotation, so the PDF gets
+     * the same curved "down and outward" head-tilt arrows as inline SVG: the tail
+     * starts at the grid side and the head points down on the outside.
+     */
     public static function actArrow(bool $left_side): string
     {
         $path = $left_side

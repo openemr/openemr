@@ -1,6 +1,16 @@
 <?php
 
-/** Practice-wide display names for the Eye Form's six fixed dilation slots. */
+/**
+ * Practice-wide display names for the Eye Form's six fixed dilation slots.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2026 Ray Magauran <rmagauran@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
 
 require_once(__DIR__ . '/../../globals.php');
 require_once(__DIR__ . '/php/eye_mag_functions.php');
@@ -35,6 +45,7 @@ if ($request->isMethod('POST')) {
     }
 
     $submittedTitles = EyeFormData::row($posted['title'] ?? []);
+    /** Replace all practice dilation labels in one transaction while retaining their stored medication values. */
     QueryUtils::inTransaction(static function () use ($submittedTitles, $listId, $defaults): void {
         QueryUtils::sqlStatementThrowException('DELETE FROM list_options WHERE list_id = ?', [$listId]);
         $sequence = 10;

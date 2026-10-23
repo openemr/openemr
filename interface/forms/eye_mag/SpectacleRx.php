@@ -53,6 +53,7 @@ require_once("php/" . $form_folder . "_functions.php");
 
 $RX_expir = "+1 years";
 $CTL_expir = "+6 months";
+/** Prefer the combined prism description, falling back to legacy horizontal and vertical components. */
 $dispensePrismText = static function ($combined, $horizontalPower, $horizontalBase, $verticalPower, $verticalBase): string {
     $combined = trim(EyeFormData::text($combined));
     if ($combined !== '') {
@@ -1210,6 +1211,7 @@ if (CurrentRequest::get()->request->get('dispensed', CurrentRequest::get()->quer
         });
     </script>
     <script>
+        /** Open the signature or practice-logo editor and refresh the prescription after it closes. */
         function openEyeAssetEditor(asset, providerId) {
             const params = new URLSearchParams({asset: asset});
             if (providerId) params.set('provider_id', String(providerId));

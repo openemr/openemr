@@ -5,6 +5,13 @@
 (function ($, window) {
     'use strict';
 
+    var strings = window.eyeMagDrawingStrings || {};
+    var activeZone = '';
+    /** Read drawing labels emitted by PHP in the current user's language. */
+    function drawT(key, fallback) {
+        return typeof strings[key] === 'string' && strings[key] !== '' ? strings[key] : fallback;
+    }
+
     $(function () {
         if (typeof window.Konva === 'undefined') {
             return;
@@ -28,6 +35,7 @@
             rotateEnabled: true,
             keepRatio: false,
             enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+            /** Reject object resizing below the usable minimum while preserving the prior transform. */
             boundBoxFunc: function (oldBox, newBox) {
                 return (Math.abs(newBox.width) < 12 || Math.abs(newBox.height) < 12) ? oldBox : newBox;
             }
@@ -43,15 +51,25 @@
         var toolbar = $('#' + zone + '_KONVA_TOOLS');
         var toolSaveQueue = Promise.resolve();
 
+        /** Keep document shortcuts scoped to the most recently used drawing zone. */
+        function activateZone() {
+            activeZone = zone;
+        }
+        $(container).closest('.eye-drawing-stage').on('pointerdown focusin', activateZone);
+        toolbar.on('pointerdown focusin click', activateZone);
+        stage.on('pointerdown', activateZone);
+
         // Undo/redo stacks store serialized JSON snapshots
         var undoStack = [];
         var redoStack = [];
         var MAX_UNDO_STACK = 50;
 
+        /** Capture editable object JSON, excluding selection handles and the background. */
         function captureSnapshot() {
             return serialize();
         }
 
+        /** Keep bounded, distinct history snapshots and discard obsolete redo history. */
         function pushSnapshot() {
             var snap = captureSnapshot();
             // Don't push duplicate consecutive snapshots
@@ -66,6 +84,7 @@
             redoStack = [];
         }
 
+        /** Restore the previous object snapshot and schedule persistence for this zone. */
         function undo() {
             var current = captureSnapshot();
             if (!undoStack.length || (undoStack.length === 1 && current === undoStack[0])) {
@@ -82,6 +101,7 @@
             scheduleSave();
         }
 
+        /** Restore one undone object snapshot and schedule persistence for this zone. */
         function redo() {
             if (!redoStack.length) {
                 return;
@@ -100,6 +120,7 @@
         transformerLayer.add(arrowStartHandle, arrowEndHandle);
         stage.add(transformerLayer);
 
+        /** Place arrow endpoint handles in stage coordinates after object transforms. */
         function positionArrowHandles(arrow) {
             if (!arrow || arrow.getClassName() !== 'Arrow') {
                 arrowStartHandle.hide();
@@ -116,6 +137,7 @@
             arrowEndHandle.show();
         }
 
+        /** Map a dragged endpoint back into the selected arrow's local coordinates. */
         function moveArrowEndpoint(handle, isStart) {
             if (!selected || selected.getClassName() !== 'Arrow') {
                 return;
@@ -129,6 +151,7 @@
             objectLayer.batchDraw();
         }
 
+        /** Resolve child hits to their selectable top-level annotation. */
         function annotationRoot(node) {
             if (!node || node === stage) {
                 return null;
@@ -139,6 +162,7 @@
             return node.findAncestor ? node.findAncestor('.eye-overlay-object', true) : null;
         }
 
+        /** Select an annotation and configure handles appropriate to its object type. */
         function selectNode(node) {
             selected = node || null;
             var isArrow = selected && selected.getClassName() === 'Arrow';
@@ -150,6 +174,7 @@
             transformerLayer.batchDraw();
         }
 
+        /** Update the hidden form field with editable annotation JSON and return that JSON. */
         function serialize() {
             var objects = [];
             objectLayer.getChildren().forEach(function (node) {
@@ -162,11 +187,13 @@
             return json;
         }
 
+        /** Record an annotation change in history and queue its canvas autosave. */
         function changed() {
             pushSnapshot();
             scheduleSave();
         }
 
+        /** Debounce annotation persistence while immediately updating the hidden JSON field. */
         function scheduleSave() {
             serialize();
             window.clearTimeout(saveTimer);
@@ -177,6 +204,7 @@
             }, 500);
         }
 
+        /** Attach selection, edit and change handlers to a restored or newly created annotation. */
         function bindNode(node) {
             node.name('eye-overlay-object');
             node.draggable(true);
@@ -202,30 +230,34 @@
             return node;
         }
 
+        /** Recognize reusable-image groups by their stored local library URL. */
         function isImageObject(node) {
             return node && node.getClassName() === 'Group' && !!node.getAttr('eyeImageUrl');
         }
 
+        /** Accept only stable same-origin provider-library image paths for restored images. */
         function libraryUrl(value) {
             var url;
             try {
                 url = new URL(String(value || ''), window.location.href);
-            } catch (error) {
-                throw new Error('The saved image URL is invalid.');
+            } catch {
+                throw new Error(drawT('invalidSavedImageUrl', 'The saved image URL is invalid.'));
             }
             // Library images are stable local files. Never restore a data URL,
             // temporary upload URL, remote image, or a patient document URL.
             if (url.origin !== window.location.origin || url.username || url.password || url.search || url.hash ||
                 !/^(?:\/[a-z0-9_.~-]+)*\/sites\/[a-z0-9_.~-]+\/images\/eye_mag\/providers\/[1-9][0-9]*\/(HPI|PMH|EXT|ANTSEG|RETINA|SDRETINA|NEURO|IMPPLAN)\/(library\/[a-f0-9]{16}\.png|[a-f0-9]+\.jpe?g)$/i.test(url.pathname)) {
-                throw new Error('Choose an image from the saved drawing library.');
+                throw new Error(drawT('chooseSavedImage', 'Choose an image from the saved drawing library.'));
             }
             return url.pathname;
         }
 
+        /** Check whether an image still belongs to this zone before applying async results. */
         function isLiveImage(node) {
             return node.getLayer() === objectLayer;
         }
 
+        /** Restore permitted image transforms and build its independent opaque backing. */
         function imageObject(data, savedAttrs) {
             var attrs = savedAttrs || {};
             var imageAttrs = {
@@ -258,10 +290,12 @@
             return bindNode(node);
         }
 
+        /** Load image pixels, optionally fit them to the stage, and support removal while loading. */
         function hydrateImage(node, fitToStage) {
             var image = new Image();
             var settled = false;
             var ready = new Promise(function (resolve, reject) {
+                /** Settle image loading once, detach handlers and treat removed images as cancelled. */
                 function finish(error, cancelled) {
                     if (settled) {
                         return;
@@ -301,7 +335,7 @@
                     finish();
                 };
                 image.onerror = function () {
-                    finish(new Error('The saved drawing image could not be opened.'));
+                    finish(new Error(drawT('savedImageOpenFailed', 'The saved drawing image could not be opened.')));
                 };
                 image.src = node.getAttr('eyeImageUrl');
             });
@@ -312,10 +346,12 @@
             return ready;
         }
 
+        /** Find reusable-image groups whose pending pixel loads must complete before export. */
         function imageObjects() {
             return objectLayer.getChildren().filter(isImageObject);
         }
 
+        /** Wait until every current reusable image is loaded, including images added while waiting. */
         function waitForImages() {
             var images = imageObjects();
             return Promise.all(images.map(function (node) {
@@ -332,6 +368,7 @@
             });
         }
 
+        /** Insert, select and load a reusable image; remove it cleanly if loading fails. */
         function insertImage(data) {
             var node;
             try {
@@ -360,12 +397,14 @@
             });
         }
 
+        /** Cancel a pending image load before removing its annotation. */
         function cancelImage(node) {
             if (node._eyeImageCancel) {
                 node._eyeImageCancel();
             }
         }
 
+        /** Remove editable annotations, optionally without adding a user-visible history entry. */
         function clearObjects(silent) {
             selectNode(null);
             objectLayer.getChildren().slice().forEach(function (node) {
@@ -382,12 +421,13 @@
             }
         }
 
+        /** Restore annotation objects while retaining valid entries if another entry is malformed. */
         function loadJson(json) {
             clearObjects(true);
             var objects;
             try {
                 objects = JSON.parse(json || '[]');
-            } catch (error) {
+            } catch {
                 objects = [];
             }
             if (!Array.isArray(objects)) {
@@ -404,7 +444,7 @@
                         var node = window.Konva.Node.create(JSON.stringify(objectData));
                         objectLayer.add(bindNode(node));
                     }
-                } catch (error) {
+                } catch {
                     // Preserve the rest of the drawing if one legacy object is malformed.
                 }
             });
@@ -412,10 +452,12 @@
             serialize();
         }
 
+        /** Use the zone's current pencil color for newly created annotations. */
         function currentColor() {
             return $('#selColor_' + zone).val() || '#18324f';
         }
 
+        /** Apply the zone's pencil color to the currently selected text annotation. */
         function applyTextColor() {
             if (!selected || selected.getClassName() !== 'Label') {
                 return;
@@ -428,13 +470,14 @@
             }
         }
 
+        /** Create a translated placeholder label and immediately open its text editor. */
         function addText() {
             var label = new window.Konva.Label({ x: 175, y: 105 });
             label.add(new window.Konva.Tag({
                 fill: '#ffffff', opacity: 1, strokeEnabled: false, cornerRadius: 2
             }));
             label.add(new window.Konva.Text({
-                text: 'Text', fill: currentColor(), fontFamily: 'Arial', fontSize: 18, padding: 5
+                text: drawT('text', 'Text'), fill: currentColor(), fontFamily: 'Arial', fontSize: 18, padding: 5
             }));
             objectLayer.add(bindNode(label));
             selectNode(label);
@@ -443,6 +486,7 @@
             editText(label);
         }
 
+        /** Create the selected clinical annotation shape with the zone's current color. */
         function addShape(type) {
             var common = {
                 x: 185, y: 90, stroke: currentColor(), strokeWidth: 3,
@@ -465,6 +509,7 @@
             changed();
         }
 
+        /** Edit text in a positioned textarea and map user-resized dimensions back to the drawing. */
         function editText(label) {
             var textNode = label.findOne('Text');
             if (!textNode) {
@@ -478,7 +523,7 @@
             var textScaleY = scaleY * Math.abs(label.scaleY());
             var textarea = document.createElement('textarea');
             textarea.value = textNode.text();
-            textarea.setAttribute('aria-label', 'Edit image text');
+            textarea.setAttribute('aria-label', drawT('editImageText', 'Edit image text'));
             document.body.appendChild(textarea);
             textarea.style.position = 'fixed';
             textarea.style.zIndex = '10000001';
@@ -494,13 +539,17 @@
             textarea.style.border = '1px solid #18324f';
             textarea.style.background = '#fff';
             var initialEditorRect = textarea.getBoundingClientRect();
+            var finished = false;
             textarea.focus();
             textarea.select();
 
+            /** Commit or cancel text editing once, including synchronous blur triggered by editor removal. */
             function finish(save) {
-                if (!textarea.parentNode) {
+                if (finished || !textarea.parentNode) {
                     return;
                 }
+                // Removing the editor can synchronously fire blur before removal completes.
+                finished = true;
                 if (save) {
                     var editorRect = textarea.getBoundingClientRect();
                     if (Math.abs(editorRect.width - initialEditorRect.width) > 0.5) {
@@ -509,7 +558,7 @@
                     if (Math.abs(editorRect.height - initialEditorRect.height) > 0.5) {
                         textNode.height(Math.max(12, editorRect.height / textScaleY));
                     }
-                    textNode.text(textarea.value || 'Text');
+                    textNode.text(textarea.value || drawT('text', 'Text'));
                     objectLayer.draw();
                     transformer.forceUpdate();
                     changed();
@@ -528,6 +577,7 @@
             });
         }
 
+        /** Switch draw/select interaction and serialize writes of the provider's tool preference. */
         function setMode(mode, remember) {
             mode = mode === 'draw' ? 'draw' : 'select';
             var drawMode = mode === 'draw';
@@ -553,6 +603,7 @@
             }
         }
 
+        /** Toggle backing fill without changing the visibility of annotation content. */
         function toggleTransparency() {
             if (!selected) {
                 return;
@@ -580,6 +631,7 @@
             changed();
         }
 
+        /** Remove the selected annotation, cancel pending hydration and save the change. */
         function deleteSelected() {
             if (!selected) {
                 return;
@@ -592,6 +644,7 @@
             changed();
         }
 
+        /** Rasterize visible structured Neuro measurements for the composite export. */
         function svgCanvas() {
             return new Promise(function (resolve) {
                 var svg = document.getElementById(zone + '_structured_overlay');
@@ -635,13 +688,14 @@
             });
         }
 
+        /** Export loaded annotations on transparency, optionally cropped to the selected object. */
         function exportReusable(options) {
             options = options || {};
             return waitForImages().then(function () {
                 serialize();
                 if (options.selectedOnly) {
                     if (!selected || selected.getLayer() !== objectLayer) {
-                        throw new Error('Select an object to save.');
+                        throw new Error(drawT('selectObjectToSave', 'Select an object to save.'));
                     }
                     var bounds = selected.getClientRect({ relativeTo: objectLayer });
                     var x = Math.floor(bounds.x);
@@ -658,6 +712,7 @@
             });
         }
 
+        /** Compose the chosen background, structured values and loaded annotations. */
         function exportCompositeCanvas(sourceCanvas) {
             return Promise.all([waitForImages(), svgCanvas()]).then(function (results) {
                 serialize();
@@ -674,6 +729,7 @@
             });
         }
 
+        /** Encode the complete drawing as the JPEG used by encounter persistence. */
         function exportComposite(sourceCanvas) {
             return exportCompositeCanvas(sourceCanvas).then(function (composite) {
                 return composite.toDataURL('image/jpeg', 1);
@@ -690,6 +746,7 @@
         arrowEndHandle.on('dragend', changed);
 
         stage.on('click tap', function (event) {
+            activateZone();
             selectNode(annotationRoot(event.target));
         });
         // Pencil onclick handlers set the zone's color before this bubbled event.
@@ -711,21 +768,22 @@
             .on('click', '[data-konva-action="redo"]', redo);
 
         document.addEventListener('keydown', function (event) {
-            if (document.querySelector('.eye-image-modal[open]')) {
+            if (activeZone !== zone || document.querySelector('.eye-image-modal[open]') ||
+                event.target.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) {
                 return;
             }
-            if ((event.key === 'Delete' || event.key === 'Backspace') && selected && !/INPUT|TEXTAREA/.test(event.target.tagName)) {
+            if ((event.key === 'Delete' || event.key === 'Backspace') && selected) {
                 event.preventDefault();
                 deleteSelected();
             }
             // Ctrl+Z / Cmd+Z undo
-            if ((event.key === 'z' || event.key === 'Z') && (event.ctrlKey || event.metaKey) && !event.shiftKey && !/INPUT|TEXTAREA/.test(event.target.tagName)) {
+            if ((event.key === 'z' || event.key === 'Z') && (event.ctrlKey || event.metaKey) && !event.shiftKey) {
                 event.preventDefault();
                 undo();
             }
             // Ctrl+Y / Cmd+Y redo (or Ctrl+Shift+Z)
-            if ((event.key === 'y' || event.key === 'Y' || event.key === 'z' || event.key === 'Z') &&
-                ((event.ctrlKey || event.metaKey) && event.shiftKey) && !/INPUT|TEXTAREA/.test(event.target.tagName)) {
+            if ((event.ctrlKey || event.metaKey) &&
+                (event.key === 'y' || event.key === 'Y' || ((event.key === 'z' || event.key === 'Z') && event.shiftKey))) {
                 event.preventDefault();
                 redo();
             }
@@ -744,17 +802,22 @@
             exportReusable: exportReusable,
             insertImage: insertImage,
             ready: waitForImages,
+            /** Report a selection only while its annotation still belongs to this drawing zone. */
             hasSelected: function () { return !!selected && selected.getLayer() === objectLayer; },
+            /** Check for clinical annotations while excluding selection controls and background elements. */
             hasContent: function () { return objectLayer.getChildren().some(function (node) { return node.hasName('eye-overlay-object'); }); },
             getJSON: serialize,
+            /** Cancel pending persistence and clear annotations as one undoable library operation. */
             clear: function () {
                 window.clearTimeout(saveTimer);
                 clearObjects(true);
                 pushSnapshot();
             },
+            /** Record the latest serialized annotations as the baseline used by Revert. */
             markSaved: function () {
                 initialJson = serialize();
             },
+            /** Restore this zone's saved annotation baseline without changing other drawing zones. */
             revert: function () {
                 loadJson(initialJson);
             },

@@ -30,7 +30,9 @@ var eyeCanvasRestoring = Object.create(null);
 var eyeCanvasReady = Object.create(null);
 var eyeCanvasFinishLoading = Object.create(null);
 var eyeCanvasRestoreError = Object.create(null);
+/** Report whether background or history restoration currently blocks drawing in this zone. */
 function eyeDrawingIsRestoring(zone) { return eyeCanvasRestoring[zone] === true; }
+/** Wait for the newest restoration and propagate failures before exporting this zone. */
 function eyeDrawingInkReady(zone) {
     var pending = eyeCanvasReady[zone];
     return Promise.resolve(pending).then(function () {
@@ -38,8 +40,11 @@ function eyeDrawingInkReady(zone) {
         if (eyeCanvasRestoreError[zone]) throw eyeCanvasRestoreError[zone];
     });
 }
+/** Return the separate transparent ink layer used for reusable overlay exports. */
 function eyeDrawingInkCanvas(zone) { return eyeCanvasInk[zone] || null; }
+/** Identify patient drawings whose background and earlier ink cannot be separated. */
 function eyeDrawingHasFlattenedBase(zone) { return eyeCanvasFlattened[zone] === true; }
+/** Reset exportable ink and invalidate pending restoration when a background is replaced. */
 function resetEyeDrawingInk(zone, canvas, source) {
     var ink = document.createElement('canvas');
     ink.width = canvas.width;
@@ -52,21 +57,25 @@ function resetEyeDrawingInk(zone, canvas, source) {
     eyeCanvasFlattened[zone] = /controller\.php\?document(?:&|$)/.test(source);
 }
 
+/** Flag this zone for persistence after an actual drawing or background change. */
 function markEyeCanvasDirty(zone)
 {
     eyeCanvasDirty[zone] = true;
 }
 
+/** Clear this zone's pending-change flag after initialization or a successful save. */
 function clearEyeCanvasDirty(zone)
 {
     eyeCanvasDirty[zone] = false;
 }
 
+/** Tell the form whether this zone has drawing changes awaiting persistence. */
 function isEyeCanvasDirty(zone)
 {
     return eyeCanvasDirty[zone] === true;
 }
 
+/** Bind pointer drawing and history to one zone, then load its current background. */
 function InitThis(zone)
 {
     clearEyeCanvasDirty(zone);
@@ -113,6 +122,7 @@ function InitThis(zone)
     drawImage(zone);
 }
 
+/** Load the current background, ignore superseded loads and preserve the source aspect ratio. */
 function drawImage(zone, preparedImage)
 {
     if (preparedImage && (!preparedImage.complete || !(preparedImage.naturalWidth > 0) || !(preparedImage.naturalHeight > 0))) {
@@ -132,6 +142,7 @@ function drawImage(zone, preparedImage)
         // or the base image.
         // The PHP code determines which when the page is called
         // and stores it in this id-->
+    /** Paint only the current background request, reset its ink layer and seed drawing history. */
     function renderLoadedImage() {
                         // A newer request owns this canvas. An old image load must
                         // never redraw it or trigger the newer request's save hook.
@@ -214,6 +225,7 @@ function drawImage(zone, preparedImage)
     return true;
 }
 
+/** Continue freehand ink at pointer coordinates on both the visible canvas and transparent layer. */
 function Draw(x, y, isDown,zone)
 {
     if (eyeCanvasRestoring[zone]) return;
@@ -224,17 +236,7 @@ function Draw(x, y, isDown,zone)
         ctx[zone].lineWidth = $('#selWidth_' + zone).val();
         ctx[zone].lineJoin = "round";
         ctx[zone].moveTo(lastX, lastY);
-        // Offset drawing coordinates so hash marks appear inside H pattern bars
-        // rather than ON vertical lines. OD (left side) shifts right, OS (right side) shifts left.
-        var drawX = x;
-        var canvasWidth = ctx[zone].canvas.width;
-        var zoneOffset = 4; // pixels to offset inward from vertical lines
-        if (x < canvasWidth / 2) {
-            drawX = x + zoneOffset;   // OD side: shift right into H bar
-        } else {
-            drawX = x - zoneOffset;   // OS side: shift left into H bar
-        }
-        ctx[zone].lineTo(drawX, y);
+        ctx[zone].lineTo(x, y);
         ctx[zone].closePath();
         ctx[zone].stroke();
         var ink = eyeDrawingInkCanvas(zone);
@@ -245,7 +247,7 @@ function Draw(x, y, isDown,zone)
             inkContext.lineWidth = ctx[zone].lineWidth;
             inkContext.lineJoin = ctx[zone].lineJoin;
             inkContext.moveTo(lastX, lastY);
-            inkContext.lineTo(drawX, y);
+            inkContext.lineTo(x, y);
             inkContext.closePath();
             inkContext.stroke();
         }
@@ -254,6 +256,7 @@ function Draw(x, y, isDown,zone)
     lastY = y;
 }
 
+/** Snapshot the composite, transparent ink and flattened-state flag as one undo step. */
 function cPush(zone)
 {
     if (eyeCanvasRestoring[zone]) return;
@@ -274,12 +277,14 @@ function cPush(zone)
     eyeCanvasFlattenedHistory[zone].push(eyeCanvasFlattened[zone] === true);
 }
 
+/** Restore matching composite and ink snapshots without letting older loads replace newer history. */
 function restoreEyeDrawingStep(zone) {
     var step = cStep[zone];
     var generation = (eyeCanvasRestoreGeneration[zone] || 0) + 1;
     eyeCanvasRestoreGeneration[zone] = generation;
     eyeCanvasRestoring[zone] = true;
     eyeCanvasRestoreError[zone] = null;
+    /** Decode one history snapshot and reject damaged images before changing the visible drawing. */
     function load(source) {
         if (!source) return Promise.resolve(null);
         return new Promise(function (resolve, reject) {
@@ -308,6 +313,7 @@ function restoreEyeDrawingStep(zone) {
         if (eyeCanvasRestoreGeneration[zone] === generation) eyeCanvasRestoring[zone] = false;
     });
 }
+/** Restore the previous ink and background snapshot when no restoration is already pending. */
 function cUndo(zone)
 {
     if (eyeCanvasRestoring[zone]) return;
@@ -317,6 +323,7 @@ function cUndo(zone)
         restoreEyeDrawingStep(zone);
     }
 }
+/** Restore the next available snapshot and mark the resulting drawing for persistence. */
 function cRedo(zone)
 {
     if (eyeCanvasRestoring[zone]) return;
@@ -326,6 +333,7 @@ function cRedo(zone)
         restoreEyeDrawingStep(zone);
     }
 }
+/** Replace the drawing with its selected base after checking any preloaded image is usable. */
 function cReload(zone, preparedImage)
 {
     if (preparedImage && (!preparedImage.complete || !(preparedImage.naturalWidth > 0) || !(preparedImage.naturalHeight > 0))) {
@@ -335,6 +343,7 @@ function cReload(zone, preparedImage)
     $('#url_' + zone).val($('#base_url_' + zone).val());
     return drawImage(zone, preparedImage);
 }
+/** Switch a prior patient drawing into the editable canvas and reload its saved image. */
 function cReplace(zone)
 {
     markEyeCanvasDirty(zone);
@@ -346,6 +355,7 @@ function cReplace(zone)
     cPush(zone);
     drawImage(zone);
 }
+/** Start this zone on the blank background and record the replacement in drawing history. */
 function cBlank(zone)
 {
     markEyeCanvasDirty(zone);
@@ -363,5 +373,4 @@ InitThis('ANTSEG');
 InitThis('RETINA');
 InitThis('SDRETINA');
 InitThis('NEURO');
-InitThis('IMPPLAN');
 InitThis('IMPPLAN');

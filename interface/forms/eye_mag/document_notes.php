@@ -1,6 +1,16 @@
 <?php
 
-/** Document-linked clinical notes with Eye Form My Phrases support. */
+/**
+ * Document-linked clinical notes with Eye Form My Phrases support.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2026 Ray Magauran <rmagauran@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
 
 require_once(__DIR__ . '/../../globals.php');
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
@@ -23,7 +33,7 @@ $request = CurrentRequest::get();
 $posted = $request->request->all();
 $input = array_replace($request->query->all(), $posted);
 $pid = PatientSessionUtil::getPid();
-$docid = EyeFormData::integer($input['docid'] ?? 0);
+$docid = EyeFormData::identifier($input['docid'] ?? 0);
 $document = $docid > 0 ? QueryUtils::querySingleRow('SELECT id,foreign_id,url FROM documents WHERE id=?', [$docid]) : false;
 if ($document === false || $document === []) {
     http_response_code(404);
@@ -91,7 +101,7 @@ $provider = EyeFormData::textRow(EyeFormData::row(QueryUtils::querySingleRow('SE
 $age = '';
 if (($patient['DOB'] ?? '') !== '' && $patient['DOB'] !== '0000-00-00') {
     try {
-        $age = (string) (new DateTime($patient['DOB']))->diff(new DateTime())->y;
+        $age = (string) (new DateTimeImmutable($patient['DOB']))->diff(new DateTimeImmutable())->y;
     } catch (DateMalformedStringException) {
         $age = '';
     }
@@ -167,6 +177,7 @@ $substitutions = [
     var textarea = document.getElementById('note');
     var button = document.getElementById('insert-phrase');
     if (!select || !textarea || !button) return;
+    /** Replace supported phrase variables with values from the current patient and provider context. */
     function expand(value) {
         return String(value || '').replace(/\{\{([A-Z_]+)\}\}/g, function (match, key) {
             return Object.prototype.hasOwnProperty.call(substitutions, key) ? substitutions[key] : '';

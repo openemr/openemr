@@ -1,5 +1,6 @@
 /* Dynamic Visual Acuity History refresh and controls. */
 (function () {
+    /** Reload saved visual-acuity history and replace the previous chart instance. */
     function refreshVisualAcuityHistory() {
         var formData = {
             action: 'refresh',
@@ -25,21 +26,22 @@
         });
     }
 
+    /** Update this visit's pressure values and refresh time-based history when available. */
     function refreshGlaucomaFlowSheetOnLoad() {
-        if (typeof config_byday === 'undefined' || typeof myLine === 'undefined') return;
-        var visitIndex = config_byday.data.labels.indexOf(visit_date);
+        if (typeof window.config_byday === 'undefined' || typeof window.myLine === 'undefined') return;
+        var visitIndex = window.config_byday.data.labels.indexOf(window.visit_date);
         if (visitIndex < 0) return;
 
         var odIop = $('#ODIOPAP').val() || $('#ODIOPTPN').val() || 0;
         var osIop = $('#OSIOPAP').val() || $('#OSIOPTPN').val() || 0;
-        config_byday.data.datasets[0].data[visitIndex] = $('#ODIOPTARGET').val() || 0;
-        config_byday.data.datasets[1].data[visitIndex] = $('#OSIOPTARGET').val() || 0;
-        config_byday.data.datasets[2].data[visitIndex] = odIop;
-        config_byday.data.datasets[3].data[visitIndex] = osIop;
-        myLine.update();
+        window.config_byday.data.datasets[0].data[visitIndex] = $('#ODIOPTARGET').val() || 0;
+        window.config_byday.data.datasets[1].data[visitIndex] = $('#OSIOPTARGET').val() || 0;
+        window.config_byday.data.datasets[2].data[visitIndex] = odIop;
+        window.config_byday.data.datasets[3].data[visitIndex] = osIop;
+        window.myLine.update();
 
-        if (/^\d{1,2}:\d{2}/.test($('#IOPTIME').val() || '') && typeof refresh_GFS === 'function') {
-            refresh_GFS();
+        if (/^\d{1,2}:\d{2}/.test($('#IOPTIME').val() || '') && typeof window.refresh_GFS === 'function') {
+            window.refresh_GFS();
         }
     }
 
@@ -54,8 +56,11 @@
             vaRefreshPending = true;
         });
 
-        $(document).on('ajaxComplete.eyeMagVaHistorySave', function (event, xhr, settings) {
+        // ajaxSuccess excludes failed HTTP requests and response conversion errors.
+        $(document).on('ajaxSuccess.eyeMagVaHistorySave', function (event, xhr, settings) {
             if (!vaRefreshPending || !settings.url || settings.url.indexOf('/eye_mag/save.php') === -1) return;
+            // The form uses HTTP 200 with this sentinel when another user owns it.
+            if (String(xhr.responseText || '').trim() === 'Code 400') return;
             window.clearTimeout(vaRefreshTimer);
             vaRefreshTimer = window.setTimeout(function () {
                 vaRefreshPending = false;

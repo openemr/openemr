@@ -100,7 +100,7 @@ function fill_QP_field(PEZONE, ODOSOU, LOCATION_text, selection, fill_action, Co
     $('#'+PEZONE+'_prefix').val('off').trigger('change');
 }
 
-/*
+/**
  * This is the core function of the form.
  * It submits the data in the background via ajax.
  * It is the reason we don't use a submit button.
@@ -267,7 +267,7 @@ function check_lock(modify) {
         }
     }
 }
-/*
+/**
  * Function to save a canvas by zone
  */
 function submit_canvas(zone, force, ready) {
@@ -297,6 +297,7 @@ function submit_canvas(zone, force, ready) {
 }
 
 // Provider defaults are separate from the background already saved in this exam.
+/** Select a zone background and update structured-overlay state for the new drawing. */
 function eyeDrawingUseChosenBackground(zone, key) {
     var config = document.querySelector('.eye-drawing-library-config[data-zone="' + zone + '"]');
     if (!config) return false;
@@ -313,6 +314,7 @@ function eyeDrawingUseChosenBackground(zone, key) {
     return true;
 }
 
+/** Check that a zone has no saved drawing, unsaved ink, or editable annotations. */
 function eyeDrawingBackgroundIsFresh(zone) {
     var stage = $('#myCanvas_' + zone).closest('.eye-drawing-stage');
     var overlay = window.eyeDrawingOverlays && window.eyeDrawingOverlays[zone];
@@ -321,13 +323,16 @@ function eyeDrawingBackgroundIsFresh(zone) {
         && !(overlay && overlay.getJSON() !== '[]');
 }
 
+/** Load and verify a replacement background before the current drawing is changed. */
 function eyeDrawingPrepareBackground(option) {
     return new Promise(function (resolve, reject) {
         var preparedImage = new Image();
+        /** Resolve the prepared background only when the loaded image has usable dimensions. */
         preparedImage.onload = function () {
             if (preparedImage.naturalWidth > 0 && preparedImage.naturalHeight > 0) resolve(preparedImage);
             else reject(new Error(<?php echo xlj('The background image could not be opened. This drawing is unchanged.'); ?>));
         };
+        /** Reject the replacement background when its image cannot be loaded. */
         preparedImage.onerror = function () {
             reject(new Error(<?php echo xlj('The background image could not be opened. This drawing is unchanged.'); ?>));
         };
@@ -335,11 +340,13 @@ function eyeDrawingPrepareBackground(option) {
     });
 }
 
+/** Open the drawing-library workflow for starting a new drawing in this zone. */
 function eyeDrawingStartNew(zone) {
     if (window.eyeDrawingLibrary) window.eyeDrawingLibrary.startNew(zone);
     return false;
 }
 
+/** Store the composite image, annotations, and background, marking the zone saved on success. */
 function persist_canvas(zone, dataURL, overlayJson) {
     const params = new URLSearchParams({
         id: $("#form_id").val(),
@@ -379,7 +386,7 @@ function persist_canvas(zone, dataURL, overlayJson) {
                        }
                    });
 }
-/*
+/**
  *  Function to update the user's preferences
  */
 function update_PREFS() {
@@ -609,7 +616,7 @@ function submit_PMSFH() {
  *  END OF PMSFH FUNCTIONS
  */
 
-/*
+/**
  *  Function to refresh the issues, the panels and the Impression/coding areas.
  */
 function refresh_page() {
@@ -641,7 +648,7 @@ function refresh_page() {
     return false;
 }
 
-/*
+/**
  *  Function to refresh the Glaucoma Flow Sheet.
  */
 function refresh_GFS() {
@@ -845,7 +852,7 @@ function show_right() {
     $("#IMPPLAN_1").addClass("clear_both");
     hide_PRIORS();
 }
-/*
+/**
  * Function to implode the form and hide the right side of every section.
  */
 function hide_right() {
@@ -911,7 +918,7 @@ function hide_left() {
     $("#IMPPLAN_left").addClass('nodisplay');
     $("[name $='_left']").addClass('nodisplay');
 }
-/*
+/**
  * Function to display only the DRAW panels of every section.
  * The technical section, between HPI and Clinical section is still visible.
  */
@@ -939,7 +946,7 @@ function show_DRAW() {
     }
     update_PREFS();
 }
-/*
+/**
  * Display left TEXT panels, retaining the Impression/Plan options accordion.
  */
 function show_TEXT(persistPreference) {
@@ -961,7 +968,7 @@ function show_TEXT(persistPreference) {
         update_PREFS();
     }
 }
-/*
+/**
  * Function to display the PRIORS panels in every right section.
  */
 function show_PRIORS() {
@@ -989,7 +996,7 @@ function show_PRIORS() {
     $("#PREFS_EXAM").val('PRIORS');
     update_PREFS();
 }
-/*
+/**
  * Function to show the Quick Picks panel on the right side of every section.
  */
 function show_QP() {
@@ -1012,7 +1019,7 @@ function show_QP() {
     $("#PREFS_EXAM").val('QP');
     update_PREFS();
 }
-/*
+/**
  * Function to display only one DRAW panel of one section.
  */
 function show_DRAW_section(zone) {
@@ -1075,12 +1082,14 @@ function show_PRIOR_CANVAS_section(section, newValue) {
 }
 
 // Browsing history must not replace or redraw the current encounter's canvas.
+/** Return a zone from its prior drawing preview to the editable current canvas. */
 function show_CURRENT_CANVAS_section(zone) {
     $("#Draw_"+zone).removeClass('is-viewing-prior');
     $("#"+zone+"_canvas").removeClass('nodisplay');
     $("#"+zone+"_olddrawing").addClass('nodisplay');
 }
 
+/** Replace a zone canvas image and switch its drawing selector back to the current visit. */
 function replace_CANVAS(zone, url) {
     $("#url_"+zone).val(url);
     cReplace(zone);
@@ -1102,10 +1111,12 @@ function show_QP_section(zone,scroll) {
     }
    }
 
+/** Hide the quick-pick panel for one examination zone. */
 function hide_QP_section(zone) {
     $("#QP_"+zone).addClass('nodisplay');
 }
 
+/** Hide the prior-visit text panel for one examination zone. */
 function hide_PRIORS_section(zone) {
     $("#PRIORS_"+zone+"_left_text").addClass('nodisplay');
 }
@@ -1274,7 +1285,7 @@ function show_CC(CC_X) {
 
 /* START Functions related to CODING */
 
-/*
+/**
  * Update the suggested NeuroSensory (92060) code from recorded exam findings.
  */
 function check_CPT_92060() {
@@ -2132,6 +2143,7 @@ $(function () {
 function update_DOCS() {
     var url = "../../forms/eye_mag/save.php?mode=update";
     if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+    /** Warn that the selected PCP or referring provider could not be saved. */
     function reportDocsSaveFailure() {
         window.alert(<?php echo xlj('The PCP/referring provider selection could not be saved. Please try again before leaving the form.'); ?>);
     }
@@ -2324,6 +2336,7 @@ function scrollTo(target) {
   }
 }
 
+/** Wait for two animation frames before scrolling to the final panel position. */
 function scrollToAfterLayout(target) {
   window.requestAnimationFrame(function() {
     window.requestAnimationFrame(function() {
@@ -2466,6 +2479,7 @@ $(function () {
                   check_lock();
 
                   var retinalDrawing = $('#Draw_SDRETINA');
+                  /** Reflect the actual retinal drawing-panel visibility in its toggle button state. */
                   function syncRetinalDrawingButton() {
                       var visible = retinalDrawing.is(':visible');
                       $('#BUTTON_DRAW_SDRETINA').toggleClass('is-active', visible)
@@ -2863,6 +2877,7 @@ $(function () {
                   }
                   }
 
+                  /** Create the right- and left-eye H diagrams and connect their points to motility fields. */
                   function buildMotilityHCharts() {
                       var charts = $("#NEURO_MOTILITY .motility-h-charts");
                       if (!charts.length || charts.children().length) { return; }
@@ -2897,6 +2912,7 @@ $(function () {
                       });
                   }
 
+                  /** Render the saved motility grades as H-diagram tick marks and accessible labels. */
                   function renderMotilityHCharts() {
                       $("#NEURO_MOTILITY .motility-h-point").each(function() {
                           var value = parseInt($("#" + $(this).data('field')).val(), 10) || 0;
@@ -2908,6 +2924,7 @@ $(function () {
                       });
                   }
 
+                  /** Switch between H and X motility charts and optionally persist the practice preference. */
                   function showMotilityDisplay(display, savePreference) {
                       display = display === 'H' ? 'H' : 'X';
                       var switcher = $("#NEURO_MOTILITY .motility-display-switch");
@@ -2978,6 +2995,7 @@ $(function () {
                   $(".neurosens,.neurosens2, textarea.ACT[id^='ACT'], input[id^='SPCT_']").on("input blur change", function() {
                                                    check_CPT_92060();
                   });
+                  /** Clear incompatible stereopsis findings when the examination is marked unable. */
                   function clearStereopsisForUnable() {
                       $("input[name='STEREO_FLY'][type='radio']").prop('checked', false);
                       $("#STEREO_ANIMALS, #STEREO_CIRCLES").val('');
@@ -2987,9 +3005,11 @@ $(function () {
                   var neuroMotilityOverlaySaveTimer = null;
                   var neuroOverlayPending = false;
                   var neuroOverlaySaveAttempts = 0;
+                  /** Check whether both the Neuro drawing and its containing panel are visible. */
                   function neuroDrawingPanelIsVisible() {
                       return $("#Draw_NEURO").is(':visible') && $("#NEURO_right").is(':visible');
                   }
+                  /** Detect stereopsis selections or motility grades that belong in the drawing overlay. */
                   function neuroStructuredOverlayHasValues() {
                       if ($.trim($("#STEREO_ANIMALS").val()) !== '' || $.trim($("#STEREO_CIRCLES").val()) !== '') {
                           return true;
@@ -3008,6 +3028,7 @@ $(function () {
                       });
                       return hasMotilityGrade;
                   }
+                  /** Debounce visible structured-overlay saves until the background and annotations are ready. */
                   function scheduleNeuroMotilityOverlaySave() {
                       var overlay = $("#NEURO_structured_overlay");
                       if (!overlay.length) {
@@ -3035,6 +3056,7 @@ $(function () {
                           submit_canvas('NEURO', true);
                       }, 650);
                   }
+                  /** Refresh a newly visible Neuro overlay and save pending or previously unrecorded findings. */
                   function activateNeuroStructuredOverlay() {
                       window.setTimeout(function() {
                           if (!neuroDrawingPanelIsVisible()) {
@@ -3048,6 +3070,7 @@ $(function () {
                           }
                       }, 0);
                   }
+                  /** Rebuild the SVG motility diagrams for the selected H or X display. */
                   function renderNeuroMotilityOverlay() {
                       var group = document.getElementById('NEURO_overlay_motility_diagrams');
                       if (!group) { return; }
@@ -3057,6 +3080,7 @@ $(function () {
                       var display = $("#NEURO_MOTILITY .motility-display-switch").attr('data-display') === 'H' ? 'H' : 'X';
                       var stroke = '#18324f';
 
+                      /** Append an SVG element with the supplied attributes to the motility diagram group. */
                       function element(name, attributes) {
                           var node = document.createElementNS(svgNamespace, name);
                           $.each(attributes, function(attribute, value) {
@@ -3065,6 +3089,7 @@ $(function () {
                           group.appendChild(node);
                           return node;
                       }
+                      /** Draw one SVG motility line with the current stroke color and requested width. */
                       function line(x1, y1, x2, y2, width) {
                           element('line', {
                               x1: x1, y1: y1, x2: x2, y2: y2,
@@ -3072,9 +3097,11 @@ $(function () {
                               'stroke-linecap': 'square'
                           });
                       }
+                      /** Read a motility grade and constrain its tick count to zero through four. */
                       function grade(field) {
                           return Math.max(0, Math.min(4, parseInt($("#" + field).val(), 10) || 0));
                       }
+                      /** Draw grade ticks perpendicular to a motility ray at evenly spaced positions. */
                       function rayTicks(cx, cy, dx, dy, field, outerDistance) {
                           var count = grade(field);
                           var halfTick = 5;
@@ -3087,6 +3114,7 @@ $(function () {
                               line(tx - px, ty - py, tx + px, ty + py, 2);
                           }
                       }
+                      /** Draw one eye H diagram with grade ticks on its six tested directions. */
                       function drawH(centerX, fields) {
                           var left = centerX - 41;
                           var right = centerX + 41;
@@ -3101,6 +3129,7 @@ $(function () {
                           rayTicks(centerX, middle, 1, 0, fields.right, 31);
                           rayTicks(right, middle, 0, 1, fields.lowerRight, 31);
                       }
+                      /** Draw one eye X diagram with grade ticks on its eight tested directions. */
                       function drawX(centerX, fields) {
                           var centerY = 147;
                           var diagonal = 0.70710678;
@@ -3139,6 +3168,7 @@ $(function () {
                           drawX(227, leftEye);
                       }
                   }
+                  /** Synchronize stereopsis and motility artwork with the current structured findings. */
                   function updateNeuroStructuredOverlay() {
                       var overlay = $("#NEURO_structured_overlay");
                       if (!overlay.length) { return; }
@@ -3805,6 +3835,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              $("#RETINA_prefix_"+ newValue).addClass("eye_button_selected");
                                              }
                                              });
+                  /** Arrange the Neuro quick-pick groups into dedicated left and right columns once. */
                   function layoutNeuroQuickPicks() {
                       var quickPicks = $("#QP_NEURO");
                       if (!quickPicks.length || $("#NEURO_QP_LAYOUT").length) { return; }
@@ -3827,6 +3858,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                   // Guidance is optional: a failed/delayed script must not abort
                   // the rest of the Eye Form's document-ready handlers.
                   var prismGuidanceUpdater = null;
+                  /** Refresh or initialize prism-pattern guidance and report an unavailable pattern helper. */
                   function updatePrismPatternGuidance() {
                       if (prismGuidanceUpdater) {
                           prismGuidanceUpdater();
@@ -4655,6 +4687,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                    dataType : 'json',
                                                    url      :  "../../forms/eye_mag/save.php",
                                                    data   : data,
+                                                   /** Apply the selected prior section to the current form, including Impression/Plan items. */
                                                    success  : function(result) {
                                                    //we have to process impplan differently
                                                    if (zone =='IMPPLAN') {
@@ -5058,6 +5091,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                     build_CODING_list();
                   });
 
+                    /** Save a collapsed panel preference and animate the panel into its Chart View tab. */
                     function minimizePanelToChartView(item) {
                         var $panel = $("#" + item + "_1");
                         var $chartView = $("#tabs-left-" + item);
@@ -5071,6 +5105,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                             return;
                         }
 
+                        /** Finish panel minimization once, clearing animation state and restoring the chart position. */
                         var finishMinimize = function () {
                             if ($panel.data('eye-panel-minimize-finished')) {
                                 return;
@@ -5130,6 +5165,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         $panel.addClass('eye-panel-minimizing');
                         $panel.stop(true).animate({opacity: 0.12}, 300);
 
+                        /** Remove the temporary animation image and complete panel minimization. */
                         var finishFlight = function () {
                             $ghost.remove();
                             finishMinimize();
@@ -5168,6 +5204,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         }
                     }
 
+                    /** Restore a collapsed panel, save its preference, and animate it back into the chart. */
                     function restorePanelFromChartView(item) {
                         var $panel = $("#" + item + "_1");
                         var $chartView = $("#tabs-left-" + item);
@@ -5200,6 +5237,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         }
 
                         var finished = false;
+                        /** Complete panel restoration once and remove the temporary animation image. */
                         var finishRestore = function () {
                             if (finished) {
                                 return;

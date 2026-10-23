@@ -20,6 +20,7 @@ final readonly class ProviderSignature
 {
     private const SITE_DIRECTORY = '/images/eye_mag/signatures/';
 
+    /** Keep the active site and legacy application paths needed to locate provider signatures. */
     public function __construct(
         private string $siteDir,
         private string $siteWebRoot,
@@ -28,6 +29,7 @@ final readonly class ProviderSignature
     ) {
     }
 
+    /** Read the site and application roots once when constructing the signature locator. */
     public static function fromGlobals(OEGlobalsBag $globals): self
     {
         return new self(
@@ -44,6 +46,7 @@ final readonly class ProviderSignature
         return $this->siteDir . self::SITE_DIRECTORY . 'sign_' . $providerId . '.jpg';
     }
 
+    /** Prefer a regular signature file in the active site and retain the legacy fallback. */
     public function path(int $providerId): string
     {
         $sitePath = $this->sitePath($providerId);
@@ -52,11 +55,13 @@ final readonly class ProviderSignature
             : $this->projectDir . '/interface/forms/eye_mag/images/sign_' . $providerId . '.jpg';
     }
 
+    /** Build the active site URL used for newly saved provider signatures. */
     public function siteUrl(int $providerId): string
     {
         return $this->siteWebRoot . self::SITE_DIRECTORY . 'sign_' . $providerId . '.jpg';
     }
 
+    /** Return the public URL corresponding to the selected site or legacy signature file. */
     public function url(int $providerId): string
     {
         return $this->path($providerId) === $this->sitePath($providerId)

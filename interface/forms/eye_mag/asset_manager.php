@@ -2,7 +2,15 @@
 
 /**
  * Manage the Eye Form provider signature and practice logo.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2026 Ray Magauran <rmagauran@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 require_once(__DIR__ . '/../../globals.php');
 
@@ -22,7 +30,7 @@ $authUserId = EyeFormData::integer($session->get('authUserID'));
 $request = CurrentRequest::get();
 $parameters = array_replace($request->query->all(), $request->request->all());
 $asset = EyeFormData::text($parameters['asset'] ?? 'signature');
-$providerId = EyeFormData::integer($parameters['provider_id'] ?? 0);
+$providerId = EyeFormData::identifier($parameters['provider_id'] ?? 0);
 $isAdmin = AclMain::aclCheckCore('admin', 'super');
 $isSignature = $asset === 'signature';
 $isLogo = $asset === 'logo';
@@ -113,7 +121,16 @@ if ($request->isMethod('POST')) {
         $directoryReady = is_dir($signatureDirectory)
             || @mkdir($signatureDirectory, 0755, true)
             || is_dir($signatureDirectory);
-        $saved = $directoryReady && !is_link($signaturePath) && @imagejpeg($image, $signaturePath, 90);
+        $flat = imagecreatetruecolor(imagesx($image), imagesy($image));
+        $saved = false;
+        if ($flat !== false) {
+            $white = imagecolorallocate($flat, 255, 255, 255);
+            if ($white !== false && imagefill($flat, 0, 0, $white)
+                && imagecopy($flat, $image, 0, 0, 0, 0, imagesx($image), imagesy($image))) {
+                $saved = $directoryReady && !is_link($signaturePath) && @imagejpeg($flat, $signaturePath, 90);
+            }
+            unset($flat);
+        }
         $savedPath = $signaturePath;
         $previewUrl = $signatureUrl;
     }
@@ -249,15 +266,17 @@ $currentPreview = $hasCurrent ? $currentUrl . '?t=' . (int)@filemtime($currentPa
     const preview = document.getElementById('asset_preview');
     const empty = document.getElementById('asset_empty');
 
+    /** Display an asset-editor message with its success or error state. */
     function showStatus(message, ok) {
         status.textContent = message || '';
         status.className = 'asset-status ' + (ok ? 'success' : 'error');
     }
 
+    /** Upload the signature or logo with its CSRF token and refresh the saved preview. */
     function saveBlob(blob, filename) {
         const body = new FormData();
         body.append('asset', <?php echo js_escape($asset); ?>);
-        body.append('provider_id', <?php echo attr_js((string) $providerId); ?>);
+        body.append('provider_id', <?php echo js_escape((string) $providerId); ?>);
         body.append('csrf_token_form', csrf);
         body.append('asset_file', blob, filename);
         if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
@@ -286,8 +305,11 @@ $currentPreview = $hasCurrent ? $currentUrl . '?t=' . (int)@filemtime($currentPa
     const typedName = document.getElementById('typed_name');
     const typedFont = document.getElementById('typed_font');
     const typedPreview = document.getElementById('typed_preview');
+    /** Read the selected font family for the typed provider signature. */
     function fontFamily() { return typedFont.options[typedFont.selectedIndex].value; }
+    /** Read the optional style prefix for the selected signature font. */
     function fontStyle() { return typedFont.options[typedFont.selectedIndex].dataset.style || ''; }
+    /** Refresh the typed signature preview using the provider name and selected font. */
     function updateTypedPreview() {
         typedPreview.textContent = typedName.value;
         typedPreview.style.font = (fontStyle() + '42px ' + fontFamily()).trim();
@@ -306,6 +328,7 @@ $currentPreview = $hasCurrent ? $currentUrl . '?t=' . (int)@filemtime($currentPa
         context.fillStyle = '#111';
         context.textBaseline = 'middle';
         let size = 64;
+        /** Apply the current font size, family, and style to the signature rendering canvas. */
         function setFont() { context.font = (fontStyle() + size + 'px ' + fontFamily()).trim(); }
         setFont();
         while (context.measureText(name).width > canvas.width - 40 && size > 24) { size -= 4; setFont(); }
@@ -323,6 +346,7 @@ $currentPreview = $hasCurrent ? $currentUrl . '?t=' . (int)@filemtime($currentPa
     let hasInk = false;
     let lastX = 0;
     let lastY = 0;
+    /** Convert pointer coordinates into the signature canvas coordinate system. */
     function point(event) {
         const box = pad.getBoundingClientRect();
         return [(event.clientX - box.left) * pad.width / box.width, (event.clientY - box.top) * pad.height / box.height];

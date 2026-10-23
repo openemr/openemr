@@ -1,11 +1,14 @@
 /* Eye Form document-note dialog. Replaces the sparse read-only pnotes summary. */
 (function () {
     var strings = window.eyeMagDocumentNotesStrings || {};
+    /** Read a translated document label with an English fallback for older callers. */
     function docT(key, fallback) {
         return typeof strings[key] === 'string' && strings[key] !== '' ? strings[key] : fallback;
     }
 
+    /** Bind saved material selections, reusable print windows and PDF handout actions. */
     function enableMaterialsPrint() {
+        /** Open a patient document in an encounter tab when the host supports it. */
         function openDocumentPage(url, label) {
             if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
                 top.restoreSession();
@@ -26,14 +29,16 @@
 
         var materialsSaving = false;
         var materialsSaveAgain = false;
+        /** Serialize autosaves so a change during an in-flight save is sent afterward. */
         function saveMaterialsSelection() {
-            if (typeof submit_form !== 'function') return;
+            if (typeof window.submit_form !== 'function') return;
             if (materialsSaving) {
                 materialsSaveAgain = true;
                 return;
             }
             materialsSaving = true;
-            var request = submit_form();
+            var request = window.submit_form();
+            /** Release the material-save lock and send any selection changes queued during that request. */
             function finished() {
                 materialsSaving = false;
                 if (materialsSaveAgain) {
@@ -45,6 +50,7 @@
             else finished();
         }
 
+        /** Collapse whitespace and shorten material text for the included-material summary. */
         function summarizeText(value) {
             var summary = String(value || '').replace(/\s+/g, ' ').trim();
             return summary.length > 90 ? summary.slice(0, 87) + '...' : summary;
@@ -63,9 +69,10 @@
 
                 var printWindow = window.open('', 'eye_materials_print', 'width=850,height=700');
                 if (!printWindow) return;
-                printWindow.document.title = 'Materials to Print';
+                printWindow.document.title = docT('materialsToPrint', 'Materials to Print');
+                printWindow.document.body.replaceChildren();
                 var heading = printWindow.document.createElement('h2');
-                heading.textContent = 'Materials to Print';
+                heading.textContent = docT('materialsToPrint', 'Materials to Print');
                 var content = printWindow.document.createElement('div');
                 content.style.whiteSpace = 'pre-wrap';
                 content.style.font = '12pt/1.5 sans-serif';
@@ -87,7 +94,7 @@
         var addHandout = document.getElementById('ADD_MATERIALS_HANDOUT');
         if (addHandout) {
             addHandout.addEventListener('click', function () {
-                openDocumentPage(addHandout.getAttribute('data-upload-url'), 'Add Practice PDF Handout');
+                openDocumentPage(addHandout.getAttribute('data-upload-url'), docT('addPracticeHandout', 'Add Practice PDF Handout'));
             });
         }
 
@@ -98,11 +105,12 @@
         var handoutTemplate = document.getElementById('MATERIALS_PDF_ROW');
         if (!handout || !includedHandouts || !openHandout || !addedHandouts || !handoutTemplate) return;
         var selectedIds;
-        try { selectedIds = JSON.parse(includedHandouts.value); } catch (error) { selectedIds = []; }
+        try { selectedIds = JSON.parse(includedHandouts.value); } catch { selectedIds = []; }
         selectedIds = Array.isArray(selectedIds) ? selectedIds.map(String).filter(function (id, index, ids) {
             return /^[1-9][0-9]*$/.test(id) && ids.indexOf(id) === index;
         }) : [];
 
+        /** Render unique selected documents and preserve unavailable IDs for later removal. */
         function renderHandouts() {
             addedHandouts.replaceChildren();
             selectedIds.forEach(function (id) {
@@ -127,13 +135,15 @@
             includedHandouts.value = JSON.stringify(selectedIds);
         }
 
+        /** Retrieve the selected handout using its document and owning patient identifiers. */
         function openPdf(documentId, patientId) {
             if (!documentId) return;
             patientId = Math.max(0, parseInt(patientId || '0', 10) || 0);
-            openDocumentPage(base + '/controller.php?document&retrieve&patient_id=' + encodeURIComponent(patientId) +
-                '&document_id=' + encodeURIComponent(documentId) + '&as_file=false&original_file=true&disable_exit=false&show_original=true', 'Patient Education Handout');
+            openDocumentPage(window.base + '/controller.php?document&retrieve&patient_id=' + encodeURIComponent(patientId) +
+                '&document_id=' + encodeURIComponent(documentId) + '&as_file=false&original_file=true&disable_exit=false&show_original=true', docT('patientEducationHandout', 'Patient Education Handout'));
         }
 
+        /** Open a visible PDF print window that retains a manual browser print fallback. */
         function printPdf(documentId, patientId) {
             if (!documentId) return;
             if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
@@ -145,30 +155,31 @@
                 return;
             }
             printWindow.opener = null;
-            printWindow.document.title = 'Print PDF Handout';
+            printWindow.document.title = docT('printPdfHandout', 'Print PDF Handout');
             printWindow.document.body.style.cssText = 'margin:0;height:100vh;display:flex;flex-direction:column';
             var help = printWindow.document.createElement('p');
-            help.textContent = 'If the print dialog does not open, use the PDF viewer’s Print button.';
+            help.textContent = docT('pdfPrintHelp', 'If the print dialog does not open, use the PDF viewer’s Print button.');
             help.style.cssText = 'font:14px sans-serif;margin:10px';
             var frame = printWindow.document.createElement('iframe');
-            frame.title = 'PDF handout to print';
+            frame.title = docT('pdfHandoutToPrint', 'PDF handout to print');
             frame.style.cssText = 'width:100%;flex:1;border:0';
             frame.addEventListener('load', function () {
                 try {
                     frame.contentWindow.focus();
                     frame.contentWindow.print();
-                } catch (error) {
+                } catch {
                     // Some browsers isolate their PDF viewer; its own print
                     // control remains available in this visible window.
                 }
             }, { once: true });
             patientId = Math.max(0, parseInt(patientId || '0', 10) || 0);
-            frame.src = base + '/controller.php?document&retrieve&patient_id=' + encodeURIComponent(patientId) +
+            frame.src = window.base + '/controller.php?document&retrieve&patient_id=' + encodeURIComponent(patientId) +
                 '&document_id=' + encodeURIComponent(documentId) + '&as_file=false&original_file=true&disable_exit=false&show_original=true';
             printWindow.document.body.appendChild(help);
             printWindow.document.body.appendChild(frame);
         }
 
+        /** Make handout selection available whenever the folder contains a PDF. */
         function updateHandoutButton() {
             // Keep the action available whenever the Handouts folder contains
             // a PDF. With one PDF, the click handler can select it directly;
@@ -202,13 +213,14 @@
         updateHandoutButton();
     }
 
+    /** Open document-linked notes in the host dialog after verifying a document is selected. */
     window.showpnotes = function (docid) {
         if (!docid) {
             window.alert(docT('uploadDocument', 'Upload a document before adding notes.'));
             return false;
         }
-        var url = base + '/interface/forms/eye_mag/document_notes.php?docid=' + encodeURIComponent(docid);
-        dlgopen(url, 'eye_document_notes', 'modal-xl', 650, '', '', {
+        var url = window.base + '/interface/forms/eye_mag/document_notes.php?docid=' + encodeURIComponent(docid);
+        window.dlgopen(url, 'eye_document_notes', 'modal-xl', 650, '', '', {
             buttons: [{text: docT('done', 'Done'), close: true, style: 'default btn-sm'}],
             sizeHeight: 'auto',
             allowResize: true,

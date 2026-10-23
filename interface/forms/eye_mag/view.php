@@ -340,6 +340,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
         })(),
         "page" => send_json_values($PMSFH),
         "GFS" => display_GlaucomaFlowSheet($pid, 'byday', $dated),
+        /** Reload prior exams and return the visual-acuity history after an AJAX refresh. */
         "VAHx" => (function () use ($id, $pid, &$priors, $dated): void {
             priors_select("ALL", $id, $id, EyeFormData::text($pid));
             echo display_VisualAcuitiesModern($pid, is_array($priors) ? array_map(EyeFormData::row(...), $priors) : [], EyeFormData::text($dated));
@@ -1075,6 +1076,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                         ];
                         const wearPdMismatchTitle = <?php echo json_encode(xl('This Wear PD differs from the synchronized Auto Refraction, Manifest Refraction, and Additional Data Points PD.')); ?>;
 
+                        /** Normalize numeric pupillary distances and optional millimeter suffixes for comparison. */
                         function comparablePd(value) {
                             const cleaned = String(value || '').trim().replace(/\s*mm$/i, '');
                             if (/^[+]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(cleaned)) {
@@ -1083,6 +1085,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                             return cleaned.toLowerCase();
                         }
 
+                        /** Mark Wear pupillary distances that differ from the synchronized clinical distance. */
                         function updateWearPdMismatches() {
                             const shared = String($('#BPDD').val() || $('.shared-clinical-pd').first().val() || '').trim();
                             $('.wear-pd-input').each(function() {
@@ -1099,6 +1102,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                             });
                         }
 
+                        /** Copy a clinical pupillary distance to the shared fields and refresh Wear mismatch markers. */
                         function syncClinicalPd(source) {
                             const value = source ? source.value : ($('#BPDD').val() || $('.shared-clinical-pd').first().val() || '');
                             $('.shared-clinical-pd').each(function() {
@@ -1113,6 +1117,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                             syncClinicalPd(this);
                         });
                         $(document).on('input change', '.wear-pd-input', updateWearPdMismatches);
+                        /** Check whether a Wear slot has no prescription measurements or selected lens treatments. */
                         function slotIsBlank(slot) {
                             const hasValue = wearFields.some(function(field) {
                                 return $.trim(String($('#' + field + '_' + slot).val() || '')) !== '';
@@ -1121,6 +1126,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                             return !hasValue && !hasTreatment;
                         }
 
+                        /** Find the first unused or empty Wear panel, returning null when all five are occupied. */
                         function nextSlot() {
                             if (slotIsBlank(1)) {
                                 return 1;
@@ -1133,6 +1139,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                             return null;
                         }
 
+                        /** Read imported Wear values with combined-prism and legacy add-power fallbacks. */
                         function sourceValue(data, field) {
                             if (field === 'ODPRISM' || field === 'OSPRISM') {
                                 const eye = field.substring(0, 2);
@@ -1151,6 +1158,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                             return data[field] ?? '';
                         }
 
+                        /** Fill a Wear panel from an imported prescription, including lens type and treatments. */
                         function populateSlot(slot, data, designation) {
                             $('#W_' + slot).val('1');
                             $('#LayerVision_W_' + slot).removeClass('nodisplay');
@@ -1338,6 +1346,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                     'FT' => ['od' => 'ODIOPFTN', 'os' => 'OSIOPFTN', 'od_value' => $ODIOPFTN, 'os_value' => $OSIOPFTN],
                     'POST' => ['od' => 'ODIOPPOST', 'os' => 'OSIOPPOST', 'od_value' => $ODIOPPOST, 'os_value' => $OSIOPPOST],
                 ];
+                /** Include only practice-enabled IOP methods when sizing and rendering the tension panel. */
                 $activeIopMethods = array_filter($iopMethodOptions, static fn(array $option): bool => $option['active']);
                 $iopMethodCount = max(1, count($activeIopMethods));
                 $iopPanelWidth = max(1.65, 0.88 + ($iopMethodCount * 0.48));
@@ -4835,6 +4844,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
          * on save via BroadcastChannel, and again whenever the modal closes (X, Close, Esc).
          */
         var eyeMagDilationUrl = <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot() . '/interface/forms/eye_mag/dilation_meds.php'); ?>;
+        /** Update current-visit and prior-visit dilation labels from the practice medication titles. */
         function eyeMagApplyDilationTitles(titles) {
             Object.keys(titles || {}).forEach(function (field) {
                 var title = String(titles[field]);
@@ -4849,6 +4859,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                 });
             });
         }
+        /** Fetch the latest practice dilation titles after the medication editor closes. */
         function eyeMagRefreshDilationTitles() {
             if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
             fetch(eyeMagDilationUrl + '?format=json', {credentials: 'same-origin'})
@@ -4856,6 +4867,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                 .then(function (result) { if (result) eyeMagApplyDilationTitles(result.titles); })
                 .catch(function () {});
         }
+        /** Open the practice dilation-medication editor and refresh its labels when it closes. */
         function eyeMagOpenDilationEditor() {
             dlgopen(eyeMagDilationUrl, 'eye_dilation_meds', 'modal-md', 520, '', <?php echo xlj('Dilation Medications'); ?>, {
                 type: 'iframe',
@@ -4866,6 +4878,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
             return false;
         }
         if ('BroadcastChannel' in window) {
+            /** Apply practice dilation-title updates broadcast by the medication editor. */
             new BroadcastChannel('eye_mag_dilation_meds').onmessage = function (event) {
                 eyeMagApplyDilationTitles(event.data);
             };
@@ -4935,6 +4948,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
             alert(<?php echo xlj('You are not authorized to add/edit issues'); ?>);
             <?php endif; ?>
         }
+        /** Open the dispense-prescription dialog for the selected refraction and current lens type. */
         function doscript(type,id,encounter,rx_number) {
             let rxType = document.querySelector('input[name="RX_TYPE_1"]:checked')?.value;
             const params = new URLSearchParams({
@@ -5087,11 +5101,76 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
         unavailableHandout: <?php echo xlj('Unavailable PDF'); ?>,
         noPdfs: <?php echo xlj('No PDFs are available in Patient Education / Handouts.'); ?>,
         uploadDocument: <?php echo xlj('Upload a document before adding notes.'); ?>,
-        done: <?php echo xlj('Done'); ?>
+        done: <?php echo xlj('Done'); ?>,
+        materialsToPrint: <?php echo xlj('Materials to Print'); ?>,
+        addPracticeHandout: <?php echo xlj('Add Practice PDF Handout'); ?>,
+        patientEducationHandout: <?php echo xlj('Patient Education Handout'); ?>,
+        printPdfHandout: <?php echo xlj('Print PDF Handout'); ?>,
+        pdfPrintHelp: <?php echo xlj('If the print dialog does not open, use the PDF viewer’s Print button.'); ?>,
+        pdfHandoutToPrint: <?php echo xlj('PDF handout to print'); ?>
       };
     </script>
     <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/document_notes.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script>
+      window.eyeMagDrawingStrings = {
+        libraryTitle: <?php echo xlj('Saved overlays · {zone}'); ?>,
+        saveAsTitle: <?php echo xlj('Save As · {zone}'); ?>,
+        deleteOverlayConfirm: <?php echo xlj('Delete “{name}” from Saved overlays?'); ?>,
+        deleteNamedOverlay: <?php echo xlj('Delete {name}'); ?>,
+        renameNamedOverlay: <?php echo xlj('Rename {name}'); ?>,
+        includeBackground: <?php echo xlj('Include background'); ?>,
+        selectedAnnotationOnly: <?php echo xlj('Selected annotation only'); ?>,
+        drawingUnavailable: <?php echo xlj('This drawing is unavailable.'); ?>,
+        imageSaveFailed: <?php echo xlj('The image could not be saved.'); ?>,
+        close: <?php echo xlj('Close'); ?>,
+        drawingLoading: <?php echo xlj('Please wait for this drawing to finish loading.'); ?>,
+        replaceDrawingConfirm: <?php echo xlj('Replace the current drawing and annotations with this background?'); ?>,
+        imageUnavailable: <?php echo xlj('This image is no longer available.'); ?>,
+        savedOverlays: <?php echo xlj('Saved overlays'); ?>,
+        backgrounds: <?php echo xlj('Backgrounds'); ?>,
+        insertOverlay: <?php echo xlj('Insert overlay'); ?>,
+        useBackground: <?php echo xlj('Use as background'); ?>,
+        setDefault: <?php echo xlj('Set my default'); ?>,
+        renameOverlay: <?php echo xlj('Rename saved overlay'); ?>,
+        saveName: <?php echo xlj('Save name'); ?>,
+        cancel: <?php echo xlj('Cancel'); ?>,
+        enterOverlayName: <?php echo xlj('Enter a name for this overlay.'); ?>,
+        overlayRenamed: <?php echo xlj('Overlay renamed.'); ?>,
+        overlayDeleted: <?php echo xlj('Overlay deleted.'); ?>,
+        addImage: <?php echo xlj('Add an image'); ?>,
+        imageFileHint: <?php echo xlj('JPEG or PNG image, up to 2 MB'); ?>,
+        imageName: <?php echo xlj('Image name'); ?>,
+        saveImage: <?php echo xlj('Save image'); ?>,
+        myDefault: <?php echo xlj('My default'); ?>,
+        deleteOverlay: <?php echo xlj('Delete saved overlay'); ?>,
+        rename: <?php echo xlj('Rename'); ?>,
+        emptyOverlays: <?php echo xlj('Use Save As below the canvas to save an overlay here.'); ?>,
+        annotationsUnavailable: <?php echo xlj('Image annotations are unavailable.'); ?>,
+        defaultSaved: <?php echo xlj('Your default is saved for future drawings in this zone.'); ?>,
+        chooseImageAndName: <?php echo xlj('Choose an image and enter its name.'); ?>,
+        imageSaved: <?php echo xlj('Image saved.'); ?>,
+        loading: <?php echo xlj('Loading…'); ?>,
+        imagePrepareFailed: <?php echo xlj('The image could not be prepared.'); ?>,
+        imageToSave: <?php echo xlj('Image to save'); ?>,
+        cropKeyboardHint: <?php echo xlj('Crop preview. Arrow keys move the selection; Shift and arrow keys resize it; Enter applies; Escape cancels.'); ?>,
+        crop: <?php echo xlj('Crop'); ?>,
+        resetCrop: <?php echo xlj('Reset crop'); ?>,
+        cropHint: <?php echo xlj('Drag to select an area, then Apply crop.'); ?>,
+        name: <?php echo xlj('Name'); ?>,
+        saveAs: <?php echo xlj('Save As'); ?>,
+        applyCrop: <?php echo xlj('Apply crop'); ?>,
+        flattenedBackground: <?php echo xlj('This saved canvas includes its background. Select an annotation to save it separately.'); ?>,
+        previewPrepareFailed: <?php echo xlj('The preview could not be prepared.'); ?>,
+        enterImageName: <?php echo xlj('Enter a name for this image.'); ?>,
+        invalidSavedImageUrl: <?php echo xlj('The saved image URL is invalid.'); ?>,
+        chooseSavedImage: <?php echo xlj('Choose an image from the saved drawing library.'); ?>,
+        savedImageOpenFailed: <?php echo xlj('The saved drawing image could not be opened.'); ?>,
+        text: <?php echo xlj('Text'); ?>,
+        editImageText: <?php echo xlj('Edit image text'); ?>,
+        selectObjectToSave: <?php echo xlj('Select an object to save.'); ?>
+      };
+    </script>
     <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/public/assets/konva/konva.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/konva_overlay.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/drawing_library.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
