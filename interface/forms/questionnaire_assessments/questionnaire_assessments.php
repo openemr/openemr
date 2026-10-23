@@ -442,7 +442,7 @@ $formAction .= '&mode=' . urlencode($mode);
                     } ?>
                 </select>
             </div>
-            <div class="input-group <?php echo $mode === 'new' ? 'isNew d-none' : ''; ?>">
+            <div class="input-group <?php echo $mode === 'new' ? 'isNew' : 'd-none'; ?>">
                 <label class="font-weight-bold my-2" for="form_name"><?php echo xlt('Form Name'); ?>:</label>
                 <input
                     required
