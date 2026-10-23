@@ -93,31 +93,6 @@ class SyncLockTest extends TestCase
         $lock->release();
     }
 
-    public function testIsHeldElsewhereReportsOtherHolder(): void
-    {
-        $holder = new SyncLock($this->dir);
-        $checker = new SyncLock($this->dir);
-
-        self::assertFalse($checker->isHeldElsewhere());
-
-        self::assertTrue($holder->tryAcquire());
-        self::assertTrue($checker->isHeldElsewhere());
-        self::assertFalse($holder->isHeldElsewhere());
-
-        $holder->release();
-        self::assertFalse($checker->isHeldElsewhere());
-    }
-
-    public function testIsHeldElsewhereDoesNotKeepLock(): void
-    {
-        $checker = new SyncLock($this->dir);
-        self::assertFalse($checker->isHeldElsewhere());
-
-        $other = new SyncLock($this->dir);
-        self::assertTrue($other->tryAcquire());
-        $other->release();
-    }
-
     public function testForSiteUsesWenoLogDirectory(): void
     {
         self::assertSame(

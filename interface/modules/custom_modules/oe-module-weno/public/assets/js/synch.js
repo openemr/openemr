@@ -50,11 +50,14 @@ function showWenoSyncInfo(element, msg) {
     }, 5000);
 }
 
-function hideResyncNotice() {
-    const notice = document.getElementById("resync-alert");
-    if (notice) {
-        notice.classList.add("d-none");
+// Unlike the info notice, an error stays on screen until the page reloads.
+function showWenoSyncError(element, msg) {
+    if (!element) {
+        return;
     }
+    element.classList.remove("d-none", "alert-success", "alert-info");
+    element.classList.add("alert", "alert-danger");
+    element.textContent = msg;
 }
 
 function sync_weno() {
@@ -91,8 +94,12 @@ function sync_report(pid = '') {
 
     postWenoSync().then(response => {
         if (response.status === 409) {
-            // Another sync is already importing; nothing more to do here.
-            hideResyncNotice();
+            // Another sync is already importing; say so on the
+            // "Checking Sync Report" notice instead of hiding it.
+            showWenoSyncInfo(
+                document.getElementById("resync-alert"),
+                wenoSyncText("A prescription sync is already running. Please try again shortly.")
+            );
             setWenoSyncBusy(false);
             return;
         }
@@ -102,7 +109,10 @@ function sync_report(pid = '') {
         refreshDemographics();
     }).catch(error => {
         console.log(error.message);
-        hideResyncNotice();
+        showWenoSyncError(
+            document.getElementById("resync-alert"),
+            wenoSyncText("The prescription report could not be refreshed. The prescriptions shown may be out of date.")
+        );
         setWenoSyncBusy(false);
     });
 }

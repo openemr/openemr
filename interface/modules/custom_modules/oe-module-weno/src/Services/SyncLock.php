@@ -77,22 +77,6 @@ final class SyncLock
         $this->handle = null;
     }
 
-    /**
-     * Whether another sync currently holds the lock. Checked by briefly taking
-     * and dropping it, so it never blocks.
-     */
-    public function isHeldElsewhere(): bool
-    {
-        if ($this->handle !== null) {
-            return false;
-        }
-        if (!$this->tryAcquire()) {
-            return is_file($this->lockPath());
-        }
-        $this->release();
-        return false;
-    }
-
     public function lockPath(): string
     {
         return $this->directory . '/' . self::LOCK_FILE;
