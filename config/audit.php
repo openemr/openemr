@@ -94,7 +94,7 @@ return [
     ),
     'AUDIT_ENABLE' => env('AUDIT_ENABLE', 'true')->asBool(),
     'AUDIT_QUERIES' => env('AUDIT_QUERIES', 'true')->asBool(),
-    'AUDIT_QUERY_DETAIL' => env('AUDIT_QUERY_DETAIL', 'statement'),
+    'AUDIT_QUERY_DETAIL' => env('AUDIT_QUERY_DETAIL', 'request'),
     'AUDIT_HTTP_REQUESTS' => env('AUDIT_HTTP_REQUESTS', 'true')->asBool(),
     'AUDIT_EVENT_TYPES' => env('AUDIT_EVENT_TYPES', 'patient-record,scheduling,order,lab-order,lab-results,security-administration,other'),
     'AUDIT_BREAKGLASS_ACTIVITY' => env('AUDIT_BREAKGLASS_ACTIVITY', 'true')->asBool(),
