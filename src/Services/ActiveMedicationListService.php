@@ -3,7 +3,8 @@
 /**
  * ActiveMedicationListService
  *
- * One row per drug name. Issue titles win over prescriptions.
+ * One row per drug name. A later start replaces the earlier row.
+ * The same start, or no start, keeps the issue.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -97,6 +98,9 @@ class ActiveMedicationListService extends BaseService
     }
 
     /**
+     * A later start is current. The same start keeps the row already kept,
+     * which is the issue when issues are merged first.
+     *
      * @param array{start: ?string} $candidate
      * @param array{start: ?string} $kept
      */
@@ -105,7 +109,7 @@ class ActiveMedicationListService extends BaseService
         $candidateStart = $candidate['start'];
         $keptStart = $kept['start'];
         if ($candidateStart === $keptStart) {
-            return true;
+            return false;
         }
         if (!is_string($candidateStart)) {
             return false;
