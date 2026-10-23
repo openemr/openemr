@@ -1,0 +1,927 @@
+/*
+ * dotphrases.css — My Phrases Builder styles.
+ * This sheet is loaded by the eye form frame AND injected into the top
+ * OpenEMR document when the builder opens, so the modal can cover the
+ * whole application window. Every rule is scoped to #DOTPHRASE_MANAGER
+ * or .DF_class (the builder's capture sections) — nothing leaks into
+ * the surrounding UI.
+ */
+
+.DF_class .df_popover-item:hover {
+  background: #eef5f8;
+}
+
+/* DF right-panel mirror: reset only the container.  Inner blocks keep their
+   live/PRIORS geometry (float:right measurements, absolute R/L grid/comments)
+   so the mirror is structurally identical to the left panel and PRIORS. */
+.DF_class .TEXT_class {
+  border: none;
+  box-shadow: none;
+  box-sizing: border-box;
+  margin: 0;
+  max-width: 100%;
+  padding: 0;
+  width: 100%;
+}
+
+.DF_class table,
+.DF_class textarea,
+.DF_class input[type="text"],
+.DF_class select {
+  max-width: 100%;
+}
+
+.DF_class textarea {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* The DF mirror keeps the live left panel's own geometry.  The shared
+   #*_left_1 float rules below now also match [data-df-id] clones, and the
+   .narrow_textarea/.wide_textarea/.QP_lengthen blocks keep their native
+   absolute positioning relative to the *_right card (same as PRIORS).  Only
+   the create-modal clones need the static, flow-fitting treatment — but at
+   each block's NATIVE width, so the measurements grid still floats beside
+   the R/L box exactly as it does in the pt panels (the old width:96% on
+   .narrow_textarea stretched the borderShadow box over the measurements
+   and everything below it). */
+/* The R/L boxes keep their NATIVE absolute geometry, exactly as in the
+   form panels: anchored left at 0.1in / top 0.4in inside a positioned
+   TEXT_class parent, sized by content, with the measurements grid floated
+   to their right.  (A relative in-flow box here gets stretched by the
+   sibling float and pushed around by the borderShadow margins.) */
+#DOTPHRASE_MANAGER .dpm-create-section .TEXT_class {
+  /* Keeps the bottom-anchored Comments below the absolute columns without
+     the dead space the form's taller 415px panel floor leaves here. */
+  min-height: 355px;
+  position: relative;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section .wide_textarea,
+#DOTPHRASE_MANAGER .dpm-create-section .narrow_textarea {
+  box-sizing: border-box;
+  left: 0.1in;
+  margin: 0;
+  max-width: 100%;
+  padding: 10px;
+  position: absolute;
+  top: 0;
+  z-index: auto;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section .wide_textarea {
+  width: 96%;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section .narrow_textarea {
+  width: 3.5in;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section .wide_textarea th {
+  min-width: auto;
+  text-align: center;
+}
+
+/* The form's rows get ~5px of breathing room under each textarea from the
+   inline-block baseline strut of its stylesheet context; the top document
+   collapses that.  The explicit margin makes every field row measure the
+   same 47px as the form (header rows have no textarea and are untouched). */
+#DOTPHRASE_MANAGER .dpm-create-section .wide_textarea textarea,
+#DOTPHRASE_MANAGER .dpm-create-section .narrow_textarea textarea {
+  margin: 0 2px 5px;
+  max-width: 100%;
+}
+
+/* Zone comments boxes (.QP_lengthen/.QP_shorten) keep their native absolute
+   position in the right-panel mirror (relative to *_right, as in PRIORS).
+   Only the create-modal clones are pulled into normal flow. */
+#DOTPHRASE_MANAGER .dpm-create-section .QP_lengthen,
+#DOTPHRASE_MANAGER .dpm-create-section .QP_shorten {
+  /* In flow, cleared below the absolute columns (276px tall from the
+     content top + 10px gap).  Being in flow, a taller Comments block
+     GROWS the section — absolute anchoring let it bleed into the next
+     section instead. */
+  box-sizing: border-box;
+  clear: both;
+  left: auto;
+  margin: 286px 0 0;
+  max-width: 100%;
+  padding: 0 0.1in;
+  position: static;
+  right: auto;
+  width: auto;
+  z-index: auto;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section .QP_lengthen textarea,
+#DOTPHRASE_MANAGER .dpm-create-section .QP_shorten textarea {
+  box-sizing: border-box;
+  max-width: 100%;
+  width: 100%;
+}
+
+/* Mirror R/L clinical textareas keep their live geometry (sized by the
+   .narrow_textarea/.wide_textarea class rules).  The create modal keeps them
+   compact. */
+#DOTPHRASE_MANAGER .dpm-create-section textarea.right,
+#DOTPHRASE_MANAGER .dpm-create-section textarea.left {
+  box-sizing: border-box;
+  height: 0.44in;
+  max-width: 100%;
+  max-height: 0.44in;
+  min-height: 0.44in;
+  overflow-y: auto;
+  resize: none;
+  width: 100%;
+}
+
+/* Mirror middle label column (.ident): let longer labels wrap (e.g.
+   "Medial Canthi") so the row height follows the textarea. */
+.DF_class .ident,
+#DOTPHRASE_MANAGER .dpm-create-section .ident {
+  padding: 0 6px;
+  vertical-align: middle;
+  /* white-space: nowrap; */
+}
+
+/* My Phrases panels mimic the PRIORS display (no white card; header sits
+   on the panel background) but editable fields read light green so users
+   can tell they are live. */
+.DF_class input:not([disabled]):not([readonly]),
+.DF_class textarea:not([disabled]):not([readonly]),
+.DF_class select:not([disabled]):not([readonly]) {
+  background-color: #d9f2d9;
+}
+
+.DF_class input[disabled],
+.DF_class textarea[disabled],
+.DF_class select[disabled],
+.DF_class input[readonly],
+.DF_class textarea[readonly] {
+  background-color: #eef0f6;
+}
+
+/* DF (dot-phrase) context: the dotted provenance background the create
+   modal's capture sections render on. */
+.DF_class {
+  background-color: rgba(238, 247, 239, .72);
+  background-image: radial-gradient(rgba(76, 125, 84, .12) 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+/* The pt-panel left-side (OS) purple edge cue carries no meaning in the
+   capture sections — drop it there. */
+#DOTPHRASE_MANAGER .dpm-create-section .left,
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id$="_OS"],
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id$="_LEFT"] {
+  box-shadow: none;
+}
+
+/* Native narrow-table header row (OD / OS): centered over its columns.
+   The form's .narrow_textarea th/td rules never reach the top document,
+   so the header cells otherwise inherit the builder's left alignment. */
+#DOTPHRASE_MANAGER .dpm-create-section .narrow_textarea tr.bold td {
+  text-align: center;
+}
+
+/* The left-side controls in a right-panel mirror remain visually distinct
+   from the matching right-side controls without changing their geometry. */
+.DF_class input.left,
+.DF_class textarea.left,
+.DF_class select.left,
+.DF_class [data-df-id$="_OS"],
+.DF_class [data-df-id$="_LEFT"] {
+  box-shadow: inset 3px 0 0 #7b61a8, 0 0 0 1px rgba(123, 97, 168, .22);
+}
+
+.DF_class .df-phrase-populated {
+  background-color: #d9f2d9 !important;
+  box-shadow: inset 3px 0 0 #4c9b57, 0 0 0 2px rgba(76, 175, 80, .28);
+}
+
+.DF_class .DF_mirror_wrapper > .text_clinical,
+.DF_class .DF_mirror_wrapper > .TEXT_class,
+.DF_class .DF_mirror_wrapper > div {
+  box-sizing: border-box;
+  float: none;
+  margin: 0;
+  max-width: 100%;
+  min-height: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.DF_class .DF_mirror_wrapper .borderShadow {
+  min-height: 0;
+}
+
+.DF_class .DF_mirror_wrapper table {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.DF_class .DF_mirror_wrapper textarea,
+.DF_class .DF_mirror_wrapper input[type="text"],
+.DF_class .DF_mirror_wrapper select {
+  box-sizing: border-box;
+}
+
+.DF_class .DF_mirror_wrapper textarea,
+.DF_class .DF_mirror_wrapper input[type="text"],
+.DF_class .DF_mirror_wrapper select {
+  max-width: none;
+}
+
+.DF_class .DF_mirror_wrapper .dil_drug {
+  height: auto;
+  margin: 0;
+  width: auto;
+}
+
+/* Keep DF mirrors out of the global PRIORS/input palette.  Geometry is
+   inherited from each control's own source class — never forced here.  Only
+   the provenance colors differ: neutral when empty, green when populated. */
+.DF_class .DF_mirror_wrapper .df-phrase-populated {
+  background-color: #d9f2d9 !important;
+  border-color: #4c9b57 !important;
+}
+
+/* Empty/read-only mirror controls must remain neutral; only controls that
+   carry a value from the selected phrase receive the green provenance cue. */
+.DF_class .DF_mirror_wrapper input:not(.df-phrase-populated),
+.DF_class .DF_mirror_wrapper textarea:not(.df-phrase-populated),
+.DF_class .DF_mirror_wrapper select:not(.df-phrase-populated) {
+  background-color: #eef0f6 !important;
+  border-color: #c8cdd6 !important;
+}
+
+.DF_class .DF_mirror_wrapper input.df-phrase-populated,
+.DF_class .DF_mirror_wrapper textarea.df-phrase-populated,
+.DF_class .DF_mirror_wrapper select.df-phrase-populated {
+  background-color: #d9f2d9 !important;
+  border-color: #4c9b57 !important;
+}
+
+/* ── Dot Phrase Builder modal — native Eye Form look ─────────────── */
+#DOTPHRASE_MANAGER {
+  background: var(--white, #fff);
+  border: 1px solid var(--border-color, var(--dark, #343a40));
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  color: var(--dark);
+  display: flex;
+  flex-direction: column;
+  font-size: 0.95em;
+  max-height: calc(100vh - 48px);
+  max-width: calc(100vw - 24px);
+  overflow: hidden;
+  padding: 0;
+}
+
+#DOTPHRASE_MANAGER.dpm-list-mode,
+#DOTPHRASE_MANAGER.dpm-multi-mode {
+  height: calc(100vh - 48px);
+  width: 1600px;
+}
+
+#DOTPHRASE_MANAGER.dpm-single-mode {
+  height: auto;
+  max-height: calc(100vh - 48px);
+  width: 900px;
+}
+
+#DOTPHRASE_MANAGER .dpm-head {
+  align-items: center;
+  background: var(--primary, #1a5870);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  color: var(--white);
+  display: flex;
+  flex: none;
+  justify-content: space-between;
+  padding: 12px 18px;
+}
+
+#DOTPHRASE_MANAGER .dpm-title {
+  color: var(--white);
+  font-size: 1.1em;
+  font-weight: bold;
+  margin: 0;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+#DOTPHRASE_MANAGER .dpm-close {
+  color: var(--white);
+  cursor: pointer;
+  font-size: 1.1em;
+  opacity: 0.9;
+}
+
+#DOTPHRASE_MANAGER .dpm-close:hover {
+  color: var(--white);
+  opacity: 1;
+}
+
+#DOTPHRASE_MANAGER .dpm-body {
+  background: var(--light, #f8f9fa);
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 14px 18px 16px;
+}
+
+/* The panels inside the builder sit as white cards on the Eye Form's paper
+   background: the Sections list (left) and capture fields (right) in the
+   create view, and the phrase list in the list view. */
+#DOTPHRASE_MANAGER .dpm-zones,
+#DOTPHRASE_MANAGER .dpm-fields,
+#DOTPHRASE_MANAGER .dpm-list-wrap {
+  background: var(--white, #fff);
+  border-radius: 6px;
+}
+
+#DOTPHRASE_MANAGER .dpm-tabs {
+  margin: 0 0 14px;
+}
+
+#DOTPHRASE_MANAGER .dpm-list {
+  background: var(--white);
+  border: 1px solid #cbd5dc;
+  border-radius: 4px;
+  margin: 0 0 16px;
+  max-height: 30vh;
+  overflow-y: auto;
+}
+
+/* Phrase list table: fills the remaining modal height, scrolls with a fixed
+   sticky column-header row. */
+#DOTPHRASE_MANAGER .dpm-list-wrap {
+  background: var(--white);
+  border: 1px solid var(--dark);
+  border-radius: 6px;
+  box-shadow: 5px 5px 9px #dad7d7;
+  flex: 1 1 auto;
+  margin: 7px;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px;
+  position: relative;
+}
+
+#DOTPHRASE_MANAGER .dpm-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 1220px;
+  table-layout: fixed;
+  width: 100%;
+}
+
+#DOTPHRASE_MANAGER .dpm-table th:nth-child(1) { width: 16%; }
+#DOTPHRASE_MANAGER .dpm-table th:nth-child(2) { width: 13%; }
+#DOTPHRASE_MANAGER .dpm-table th:nth-child(3) { width: 39%; }
+#DOTPHRASE_MANAGER .dpm-table th:nth-child(4) { width: 16%; }
+
+#DOTPHRASE_MANAGER .dpm-table thead th {
+  background: var(--light, #eef3f7);
+  border-bottom: 2px solid #cbd5dc;
+  color: var(--dark);
+  font-size: 1em;
+  font-weight: 700;
+  padding: 8px 10px;
+  position: sticky;
+  text-align: left;
+  top: 0;
+  z-index: 2;
+}
+
+#DOTPHRASE_MANAGER .dpm-table thead th.dpm-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+#DOTPHRASE_MANAGER .dpm-table thead th.dpm-sortable:hover {
+  color: var(--primary, #1a5870);
+}
+
+#DOTPHRASE_MANAGER .dpm-table tbody td {
+  border-bottom: 1px solid #e7ecef;
+  padding: 8px 10px;
+  vertical-align: middle;
+}
+
+#DOTPHRASE_MANAGER .dpm-tr:nth-child(even) {
+  background: rgba(127, 127, 127, 0.06);
+}
+
+#DOTPHRASE_MANAGER .dpm-tr:hover {
+  background: rgba(127, 127, 127, 0.12);
+}
+
+#DOTPHRASE_MANAGER .dpm-td-name {
+  font-weight: 600;
+}
+
+#DOTPHRASE_MANAGER .dpm-td-key {
+  color: var(--primary, #0b5cad);
+  font-family: SFMono-Regular, Menlo, monospace;
+}
+
+#DOTPHRASE_MANAGER .dpm-td-actions {
+  text-align: right;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+#DOTPHRASE_MANAGER .dpm-td-contents {
+  color: var(--dark, #343a40);
+  font-size: 0.88em;
+  min-width: 360px;
+  width: 42%;
+}
+
+#DOTPHRASE_MANAGER .dpm-text-preview {
+  max-width: 620px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#DOTPHRASE_MANAGER .dpm-td-actions .dpm-action-icon {
+  align-items: center;
+  display: inline-flex;
+  font-size: 13px;
+  height: 28px;
+  justify-content: center;
+  margin: 0 2px;
+  padding: 0;
+  width: 30px;
+}
+
+#DOTPHRASE_MANAGER .dpm-table thead th.dpm-actions-col {
+  text-align: right;
+  width: 145px;
+}
+
+#DOTPHRASE_MANAGER .dpm-row {
+  align-items: flex-start;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid #e7ecef;
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+}
+
+#DOTPHRASE_MANAGER .dpm-row:nth-child(even) {
+  background: #f4f7f9;
+  border-left-color: var(--primary, #1a5870);
+}
+
+#DOTPHRASE_MANAGER .dpm-row-body {
+  flex: 1;
+  min-width: 0;
+}
+
+#DOTPHRASE_MANAGER .dpm-row-actions {
+  flex: none;
+  white-space: nowrap;
+}
+
+#DOTPHRASE_MANAGER .dpm-form label {
+  color: var(--dark);
+  display: block;
+  font-weight: bold;
+  margin: 12px 0 4px;
+}
+
+#DOTPHRASE_MANAGER .dpm-form .btn-row {
+  margin-top: 16px;
+  text-align: right;
+}
+
+#DOTPHRASE_MANAGER .dpm-fieldrow {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+#DOTPHRASE_MANAGER .dpm-empty {
+  color: var(--danger);
+  padding: 14px;
+  text-align: center;
+}
+
+#DOTPHRASE_MANAGER .dpm-toolbar {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+#DOTPHRASE_MANAGER .dpm-search {
+  margin-left: auto;
+  max-width: 260px;
+  width: 240px;
+}
+
+#DOTPHRASE_MANAGER .dpm-single-text {
+  min-height: 170px;
+  resize: vertical;
+  width: 100%;
+}
+
+#DOTPHRASE_MANAGER .dpm-variable-title {
+  color: var(--secondary, #6c757d);
+  font-size: 0.82em;
+  margin: 12px 0 5px;
+}
+
+#DOTPHRASE_MANAGER .dpm-variable-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+#DOTPHRASE_MANAGER .dpm-variable {
+  background: var(--white, #fff);
+  border: 1px solid var(--primary, #1a5870);
+  border-radius: 999px;
+  color: var(--primary, #1a5870);
+  cursor: grab;
+  font-size: 0.8em;
+  padding: 4px 10px;
+}
+
+#DOTPHRASE_MANAGER .dpm-variable:hover,
+#DOTPHRASE_MANAGER .dpm-variable:focus {
+  background: var(--primary, #1a5870);
+  color: var(--white, #fff);
+}
+
+#DOTPHRASE_MANAGER .dpm-zone {
+  background: #eef3f7;
+  border: 1px solid #cbd5dc;
+  border-radius: 3px;
+  color: #0b5cad;
+  display: inline-block;
+  font-size: 10px;
+  margin-left: 4px;
+  padding: 0 5px;
+}
+
+#DOTPHRASE_MANAGER .dpm-vis {
+  background: #e8f5e9;
+  border-radius: 3px;
+  color: #2e7d32;
+  display: inline-block;
+  font-size: 10px;
+  margin-left: 4px;
+  padding: 0 5px;
+}
+
+#DOTPHRASE_MANAGER .dpm-vis-local {
+  background: #f3e8f5;
+  color: #6a1b9a;
+}
+
+#DOTPHRASE_MANAGER .dpm-zones,
+#DOTPHRASE_MANAGER .dpm-fields {
+  border: 1px solid #cbd5dc;
+  border-radius: 6px;
+  padding: 8px;
+}
+
+/* The right pane is the priority: it grows to fill the modal, and only the
+   captured zone panels scroll once they outgrow the visible area.  The
+   panels lay out in a wrapping row at the form's own 550px width: two
+   across when they fit, stacked when they don't. */
+#DOTPHRASE_MANAGER .dpm-fields {
+  align-content: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section {
+  box-sizing: border-box;
+  flex: 0 0 550px;
+  max-width: 550px;
+  width: 550px;
+}
+
+/* IMPPLAN "New Dx" box: the form's #IMP width (335px) — the capture's
+   id-deduped clone carries it as data-df-id. */
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id="IMP"] {
+  max-width: 335px;
+  width: 335px;
+}
+
+/* The capture fields pane: white card, the form's dark border and a
+   soft wide shadow. */
+#DOTPHRASE_MANAGER .dpm-fields {
+  background: var(--white, #fff);
+  border: 1px solid var(--dark, #333);
+  border-radius: 6px;
+  box-shadow: 2px 2px 20px #c8baba;
+}
+
+#DOTPHRASE_MANAGER .dpm-zone-row {
+  cursor: pointer;
+  font-weight: normal;
+}
+
+#DOTPHRASE_MANAGER .dpm-zone-row input[type=checkbox] {
+  margin: 0;
+}
+
+/* Create/Edit capture sections: the right pane clones each real zone panel
+   so sections keep the form's genuine labels, layout and borders (PRIORS
+   shape).  The clone must fit the modal column instead of inheriting the
+   left panel's fixed 550px float */
+/* The top application document centers body text; the builder must not
+   inherit it — captions, IMPPLAN labels and prose all default left. */
+#DOTPHRASE_MANAGER {
+  text-align: left;
+}
+
+/* Captions are single-line flex rows so the RETINA dilation control
+   rides beside the title without stretching the bar taller. */
+#DOTPHRASE_MANAGER .dpm-create-caption {
+  align-items: center;
+  display: flex;
+}
+
+/* Dilation-consent control parked beside the zone name in the RETINA
+   caption bar, matching the Eye Form's zone-title row. */
+#DOTPHRASE_MANAGER .dpm-create-caption .dpm-dil-title {
+  align-items: center;
+  display: inline-flex;
+  font-size: 0.85em;
+  font-weight: normal;
+  gap: 6px;
+  line-height: 1;
+  margin-left: 12px;
+  vertical-align: middle;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-caption .dpm-dil-title input[type=checkbox] {
+  margin: 0;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section .DF_mirror_wrapper {
+
+  box-sizing: border-box;
+  padding: 8px;
+  width: 100%;
+}
+
+/* Dilation box inside a capture section: keep the live form's cell metrics
+   (175px left-aligned box, padded two-column drug table so the checkboxes
+   align like the Eye Form), and render the Time input as a full-width
+   centered row spanning both drug columns, under them. */
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id="dil_box"] {
+  padding-top: 5px;
+  text-align: left;
+  width: 175px;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id="dil_listbox"] {
+  padding: 4px 4px 4px 0;
+  width: 100%;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id="dil_listbox"] td {
+  text-align: left;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section input[type=text][data-df-id="DIL_MEDS"] {
+  clear: both;
+  display: block;
+  float: none !important;
+  margin: 6px auto 2px;
+  text-align: center;
+  width: 95%;
+}
+
+/* The right-side measurement grids pin level with the R/L box: absolute
+   at the same 0.4in top line, right-anchored inside the positioned
+   TEXT_class.  Every zone's two columns therefore start at one height,
+   regardless of stray heading or field content above the grid (RETINA's
+   zone-heading remnant and DIL_RISKS row were pushing its grid lower). */
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id="EXT_left_1"],
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id="ANTSEG_left_1"],
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id="RETINA_left_1"] {
+  float: none;
+  margin: 0 10px 10px 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+/* Wrapper normalization for capture clones.  .narrow_textarea/.wide_textarea
+   also carry .borderShadow, so they are EXCLUDED here: forcing them to
+   width:100% blew the R/L box out to full section width, covering the
+   floated measurements grid and the sections below.  Their in-flow widths
+   are handled by the dedicated rules above (3.5in / 96%). */
+#DOTPHRASE_MANAGER .dpm-create-section .exam_section_left,
+#DOTPHRASE_MANAGER .dpm-create-section .borderShadow:not(.narrow_textarea):not(.wide_textarea),
+#DOTPHRASE_MANAGER .dpm-create-section .text_clinical,
+#DOTPHRASE_MANAGER .dpm-create-section .TEXT_class {
+  box-sizing: border-box;
+  float: none;
+  margin: 0;
+  max-width: 100%;
+  padding: 2px 6px;
+  width: 100%;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section table,
+#DOTPHRASE_MANAGER .dpm-create-section textarea,
+#DOTPHRASE_MANAGER .dpm-create-section input[type="text"],
+#DOTPHRASE_MANAGER .dpm-create-section select {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+#EXT_left_1,
+#ANTSEG_left_1,
+#RETINA_left_1,
+#NEURO_left_1,
+#PRIORS_EXT_left_1,
+#PRIORS_ANTSEG_left_1,
+#PRIORS_RETINA_left_1,
+#PRIORS_NEURO_left_1,
+.DF_class [data-df-id="EXT_left_1"],
+.DF_class [data-df-id="ANTSEG_left_1"],
+.DF_class [data-df-id="RETINA_left_1"],
+.DF_class [data-df-id="NEURO_left_1"] {
+  float: right;
+  font-size: 12px;
+  margin-bottom: 5px;
+  position: relative;
+  text-align: right;
+  top: 0.1in;
+}
+
+#EXT_left_1 table:nth-of-type(1),
+#ANTSEG_left_1 table:nth-of-type(1),
+#RETINA_left_1 table:nth-of-type(1),
+#PRIORS_EXT_left_1 table:nth-of-type(1),
+#PRIORS_ANTSEG_left_1 table:nth-of-type(1),
+#PRIORS_RETINA_left_1 table:nth-of-type(1),
+.DF_class [data-df-id="EXT_left_1"] table:nth-of-type(1),
+.DF_class [data-df-id="ANTSEG_left_1"] table:nth-of-type(1),
+.DF_class [data-df-id="RETINA_left_1"] table:nth-of-type(1),
+.DF_class [data-df-id="NEURO_left_1"] table:nth-of-type(1) {
+  float: right;
+  position: relative;
+}
+
+#EXT_left_1 table:nth-of-type(2),
+#PRIORS_EXT_left_1 table:nth-of-type(2),
+#ANTSEG_left_1 table:nth-of-type(2),
+#PRIORS_ANTSEG_left_1 table:nth-of-type(2),
+#RETINA_left_1 table:nth-of-type(2),
+#PRIORS_RETINA_left_1 table:nth-of-type(2),
+.DF_class [data-df-id="EXT_left_1"] table:nth-of-type(2),
+.DF_class [data-df-id="ANTSEG_left_1"] table:nth-of-type(2),
+.DF_class [data-df-id="RETINA_left_1"] table:nth-of-type(2),
+.DF_class [data-df-id="NEURO_left_1"] table:nth-of-type(2) {
+  clear: both;
+  float: right;
+  font-size: 1em;
+  margin-bottom: 10px;
+  padding-left: 2px;
+  text-align: center;
+}
+
+#RETINA_left_1 table:nth-of-type(3),
+#PRIORS_RETINA_left_1 table:nth-of-type(3),
+.DF_class [data-df-id="RETINA_left_1"] table:nth-of-type(3) {
+  clear: both;
+  float: right;
+  font-size: 1em;
+  padding-left: 2px;
+  text-align: center;
+}
+
+#RETINA_left_1 table:nth-of-type(4),
+#PRIORS_RETINA_left_1 table:nth-of-type(4),
+.DF_class [data-df-id="RETINA_left_1"] table:nth-of-type(4) {
+    clear: both;
+    float: right;
+    font-size: 1em;
+    padding-left: 2px;
+    text-align: center;
+}
+
+/* Native source classes carried by the mirror clones — scoped copies so
+   the capture sections render identically outside the eye form frame. */
+#DOTPHRASE_MANAGER .dpm-create-section .borderShadow {
+  background: var(--white, #fff);
+  border: 1px solid var(--dark, #333);
+  border-radius: 6px;
+  box-shadow: 5px 5px 9px #dad7d7;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section .narrow_textarea textarea {
+  font-size: 0.8em;
+  height: 0.44in;
+  max-height: 0.44in;
+  max-width: 1.3in;
+  width: 1.3in;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section .wide_textarea textarea {
+  box-shadow: 1px 1px 2px #c0c0c0;
+  font-size: 0.9em;
+  height: 0.44in;
+  max-height: 0.64in;
+  max-width: 2.1in;
+  width: 2.1in;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section .dil_drug_label {
+  padding-right: 4px;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section input[type="checkbox"] {
+  margin: 0;
+}
+
+/* Global field sizing from the form's stylesheet (measurement inputs are
+   45px centered squares; textareas inherit the form's font scale). */
+#DOTPHRASE_MANAGER .dpm-create-section input[type=text] {
+  display: inline-block;
+  height: 22px;
+  padding: 0.2em 0.4em;
+  text-align: center;
+  width: 45px;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section textarea {
+  font-size: 0.9em;
+}
+
+/* Hiding classes carried by cloned content (inactive drawers, reference
+   blocks).  Their style.css definitions only exist inside the eye form
+   frame, so they are repeated here — scoped to the builder so nothing in
+   the surrounding UI is affected. */
+#DOTPHRASE_MANAGER .nodisplay,
+#DOTPHRASE_MANAGER .hidden {
+  display: none;
+}
+
+/* Text-alignment and padding helpers used throughout the form's markup. */
+#DOTPHRASE_MANAGER .dpm-create-section .center {
+  text-align: center;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section .left {
+  text-align: left;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section .right {
+  text-align: right;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section .top {
+  vertical-align: top;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section .pad10 {
+  padding: 10px;
+}
+
+/* HPI capture field metrics (scoped copies of the live #CC1/#HPI1 and
+   textarea.HPI_text rules — the clones keep only data-df-id). */
+#DOTPHRASE_MANAGER .dpm-create-section textarea.HPI_text {
+  max-width: 95%;
+  min-width: 95%;
+  overflow: auto;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id="CC1"] {
+  height: 53px;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id="HPI1"] {
+  max-height: 2in;
+  min-height: 1.4in;
+  width: 2.1in;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id="HPI_HELP"],
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id="CHRONIC_HELP"] {
+  font-weight: 600;
+  vertical-align: text-top;
+}
+
+#DOTPHRASE_MANAGER .dpm-create-section [data-df-id="CODE_HIGH_HELP"] {
+  color: #876f6f;
+  font-size: 0.8em;
+  font-weight: 400;
+  margin-top: 10px;
+  text-align: center;
+  width: 85%;
+}

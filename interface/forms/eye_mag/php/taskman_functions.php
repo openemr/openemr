@@ -17,6 +17,7 @@
  */
 
 use Mpdf\Mpdf;
+
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
@@ -350,18 +351,15 @@ function make_document($task)
         $ID             = sqlQuery($query, [$category_name]);
         $category_id    = $ID['id'];
 
-        $filename       = "Report_" . $encounter . ".pdf";
-        foreach (glob($filepath . '/' . $filename) as $file) {
-            unlink($file);
-        }
-
-        $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like ?)";
-        sqlQuery($sql, ["%" . $filename]);
-        $sql = "DELETE from documents where documents.url like ?";
-        sqlQuery($sql, ["%" . $filename]);
+        $filename = eye_mag_report_filename((int) $pid, (int) $encounter);
     }
 
     $config_mpdf = Config_Mpdf::getConfigMpdf();
+    // A clinical record keeps at least a 1/2in (12.7mm) side gutter, for
+    // printers' unprintable edge, hole punching and fax headers, even when
+    // the site-wide PDF margin globals are set narrower (the default is 5mm).
+    $config_mpdf['margin_left'] = max(12.7, (float) ($config_mpdf['margin_left'] ?? 0));
+    $config_mpdf['margin_right'] = max(12.7, (float) ($config_mpdf['margin_right'] ?? 0));
     $pdf = new mPDF($config_mpdf);
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     if ($session->get('language_direction') === 'rtl') {
@@ -506,7 +504,7 @@ function make_document($task)
         echo '<pagebreak resetpagenum="1" pagenumstyle="1" suppress="off" />';
     }
 
-    narrative($pid, $encounter, $task['DOC_TYPE'], $form_id);
+    narrative($pid, $encounter, $task['DOC_TYPE'], $form_id, 'full', $pdf);
     ?>
     </body>
     </html>
@@ -564,6 +562,7 @@ mpdf-->
     //$pdf->WriteHTML($stylesheet,\Mpdf\HTMLParserMode::HEADER_CSS);
     $pdf->WriteHTML($header);
     $pdf->writeHTML($content);
+    eye_mag_append_materials_handout_pdf($pdf, (int) $form_id, (int) $pid);
 
     $temp_filename = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
     $pdf->Output($temp_filename, 'F');

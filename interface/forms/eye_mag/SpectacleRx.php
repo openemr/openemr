@@ -36,6 +36,8 @@ require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/report.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$authUserId = (int)($session->get('authUserID') ?? 0);
+$canEditLogo = AclMain::aclCheckCore('admin', 'super');
 $facilityService = new FacilityService();
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
@@ -46,8 +48,26 @@ $form_name = "Eye Form";
 $form_folder = "eye_mag";
 require_once("php/" . $form_folder . "_functions.php");
 
+
 $RX_expir = "+1 years";
 $CTL_expir = "+6 months";
+$dispensePrismText = static function ($combined, $horizontalPower, $horizontalBase, $verticalPower, $verticalBase): string {
+    $combined = trim((string)$combined);
+    if ($combined !== '') {
+        return $combined;
+    }
+
+    $parts = [];
+    $horizontalPower = trim((string)$horizontalPower);
+    $verticalPower = trim((string)$verticalPower);
+    if ($horizontalPower !== '') {
+        $parts[] = trim($horizontalPower . ' ' . trim((string)$horizontalBase));
+    }
+    if ($verticalPower !== '') {
+        $parts[] = trim($verticalPower . ' ' . trim((string)$verticalBase));
+    }
+    return implode(' ', $parts);
+};
 
 // pid comes from the session (patient context), not the request. The prior
 // fallback chain (request pid -> request id -> session) is collapsed here into
@@ -80,19 +100,24 @@ $query = "select  *,form_encounter.date as encounter_date
                     forms.form_id=form_eye_postseg.id and
                     forms.form_id=form_eye_neuro.id and
                     forms.form_id=form_eye_locking.id and
+                    forms.form_id=? and
                     forms.encounter=? and
                     forms.pid=? ";
 
-    $data = QueryUtils::querySingleRow($query, [$_REQUEST['encounter'] ?? '', $pid]) ?: [];
+    $data = QueryUtils::querySingleRow($query, [$form_id, $_REQUEST['encounter'] ?? '', $pid]) ?: [];
     $data['ODMPDD'] = $data['ODPDMeasured'] ?? null;
     $data['OSMPDD'] = $data['OSPDMeasured'] ?? null;
-    $data['BPDD']   = (int) $data['ODMPDD'] + (int) $data['OSMPDD'];
+    $data['BPDD']   = trim((string)($data['BPDD'] ?? ''));
+    if ($data['BPDD'] === '' && is_numeric($data['ODMPDD']) && is_numeric($data['OSMPDD'])) {
+        $data['BPDD'] = rtrim(rtrim(number_format((float)$data['ODMPDD'] + (float)$data['OSMPDD'], 2, '.', ''), '0'), '.');
+    }
     @extract($data);
 
     // Defaults for the form columns extracted from the joined form_eye_*
     // tables above. The query always returns a row for the encounter, but
     // individual columns can be NULL when never populated in the UI; PHPStan
     // can't see through @extract() so declare every read up-front.
+    $encounter = $_REQUEST['encounter'] ?? $session->get('encounter');
     $ODPDMeasured ??= '';
     $OSPDMeasured ??= '';
     $ODHPD ??= '';
@@ -112,13 +137,33 @@ $query = "select  *,form_encounter.date as encounter_date
     $BPDN ??= '';
     $LENS_MATERIAL ??= '';
     $LENS_TREATMENTS ??= '';
+    // Prefill lens material/treatments from the Wear section (same encounter)
+    // so the dispense form opens with the patient's current picks, changeable.
+    // A value already set above (edit path) always wins over the wear default.
+    if ($LENS_MATERIAL === '' || $LENS_TREATMENTS === '') {
+        $wearLens = sqlQuery(
+            "SELECT LENS_MATERIAL, LENS_TREATMENTS FROM form_eye_mag_wearing WHERE PID=? AND FORM_ID=? AND ENCOUNTER=? ORDER BY RX_NUMBER LIMIT 1",
+            [$pid ?? null, $form_id ?? null, $encounter ?? null]
+        );
+        if (!empty($wearLens)) {
+            if ($LENS_MATERIAL === '' && !empty($wearLens['LENS_MATERIAL'])) {
+                $LENS_MATERIAL = $wearLens['LENS_MATERIAL'];
+            }
+            if ($LENS_TREATMENTS === '' && !empty($wearLens['LENS_TREATMENTS'])) {
+                $LENS_TREATMENTS = $wearLens['LENS_TREATMENTS'];
+            }
+        }
+    }
     $CTL_COMMENTS ??= '';
     $CTLODQUANTITY ??= '';
     $CTLOSQUANTITY ??= '';
 
     $ODMPDD     = $ODPDMeasured;
     $OSMPDD     = $OSPDMeasured;
-    $BPDD       = (int) $ODMPDD + (int) $OSMPDD;
+    $BPDD       = trim((string)($BPDD ?? ''));
+    if ($BPDD === '' && is_numeric($ODMPDD) && is_numeric($OSMPDD)) {
+        $BPDD = rtrim(rtrim(number_format((float)$ODMPDD + (float)$OSMPDD, 2, '.', ''), '0'), '.');
+    }
 
     // Mutation branches below (mode=update/remove, RXTYPE=..., dispensed=1)
     // do not send an encounter, so the querySingleRow above returns [] and
@@ -172,6 +217,24 @@ if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in disp
             if (isset($_POST[$row['Field']])) {
                 $fields[$row['Field']] = $_POST[$row['Field']];
             }
+        }
+        // Lens treatments post as LENS_TREATMENTS_<W>[] (one checkbox group per
+        // Rx block), never as the bare column name — so the loop above never
+        // sees them. Merge every posted group pipe-joined (the read side
+        // explodes on "|") so picks are actually retained.
+        $treatPicked = [];
+        foreach ($_POST as $pKey => $pVal) {
+            if (strpos((string)$pKey, 'LENS_TREATMENTS_') === 0 && is_array($pVal)) {
+                foreach ($pVal as $one) {
+                    $one = trim((string)$one);
+                    if ($one !== '' && !in_array($one, $treatPicked, true)) {
+                        $treatPicked[] = $one;
+                    }
+                }
+            }
+        }
+        if (!empty($treatPicked)) {
+            $fields['LENS_TREATMENTS'] = implode('|', $treatPicked);
         }
         $fields['RXTYPE'] = $RXTYPE;
         $insert_this_id = formUpdate($table_name, $fields, $updateId, $session->get('userauthorized'));
@@ -299,7 +362,32 @@ if ($refType !== null) {
         $OSMIDADD = $wearing['OSMIDADD'] ?? null;
         $OSADD2 = $wearing['OSADD'] ?? null;
 
-        //do LT and Lens materials
+        // The extended Wear view's prism, monocular PDs and binocular PD
+        // (distance/near) travel with the duplicate dispense so the
+        // printed Rx carries the same lens data as the original.
+        $ODHPD  = $wearing['ODHPD'] ?? '';
+        $ODHBASE = $wearing['ODHBASE'] ?? '';
+        $ODVPD  = $wearing['ODVPD'] ?? '';
+        $ODVBASE = $wearing['ODVBASE'] ?? '';
+        $OSHPD  = $wearing['OSHPD'] ?? '';
+        $OSHBASE = $wearing['OSHBASE'] ?? '';
+        $OSVPD  = $wearing['OSVPD'] ?? '';
+        $OSVBASE = $wearing['OSVBASE'] ?? '';
+        $ODPRISM = trim((string)($wearing['ODPRISM'] ?? '')) ?: trim(trim($ODHPD . ' ' . $ODHBASE) . ' ' . trim($ODVPD . ' ' . $ODVBASE));
+        $OSPRISM = trim((string)($wearing['OSPRISM'] ?? '')) ?: trim(trim($OSHPD . ' ' . $OSHBASE) . ' ' . trim($OSVPD . ' ' . $OSVBASE));
+        $ODMPDD = $wearing['ODMPDD'] ?? '';
+        $ODMPDN = $wearing['ODMPDN'] ?? '';
+        $OSMPDD = $wearing['OSMPDD'] ?? '';
+        $OSMPDN = $wearing['OSMPDN'] ?? '';
+        $BPDD   = $wearing['BPDD'] ?? '';
+        $BPDN   = $wearing['BPDN'] ?? '';
+
+        // Lens material/treatments travel with the duplicate dispense from the
+        // SAME wear row (selected by rx_number above) — never row 1. The
+        // generic Wear fallback earlier only covers non-W paths.
+        $LENS_MATERIAL = $wearing['LENS_MATERIAL'] ?? '';
+        $LENS_TREATMENTS = $wearing['LENS_TREATMENTS'] ?? '';
+
     } else {
         // Every refraction stores the same eight measurements on the joined
         // record under its own column prefix, so the method picks the columns
@@ -313,6 +401,10 @@ if ($refType !== null) {
         $OSAXIS     = $data[$prefix . 'OSAXIS'];
         $OSPRISM    = $data[$prefix . 'OSPRISM'];
         $COMMENTS   = $data[$refType->commentsColumn()];
+        $ODHPD = $ODPRISM ?? '';
+        $OSHPD = $OSPRISM ?? '';
+        $ODHBASE = $data[$prefix . 'ODBASE'] ?? '';
+        $OSHBASE = $data[$prefix . 'OSBASE'] ?? '';
 
         if ($refType->hasAddPower()) {
             $ODADD2 = $data[$prefix . 'ODADD'];
@@ -376,6 +468,24 @@ if ($_REQUEST['dispensed'] ?? '') {
         <?php Header::setupHeader(['opener', 'pure', 'jscolor']); ?>
 
         <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" type="text/css">
+
+    <style>
+        @page { size: letter; margin: 0.75in; }
+        @media print {
+            html, body { background: #fff !important; color: #000 !important; }
+            .borderShadow, .bordershadow { box-shadow: none !important; border: 1px solid #444 !important; }
+            input[type="text"], textarea {
+                border: none !important;
+                border-bottom: 1px dotted #333 !important;
+                background: #fff !important;
+                color: #000 !important;
+            }
+            input[type="radio"], input[type="checkbox"] { color: #000 !important; }
+            select { background: #fff !important; color: #000 !important; }
+            .btn, .btn-print { border: 1px solid #000 !important; background: #fff !important; color: #000 !important; }
+            a { color: #000 !important; text-decoration: none !important; }
+        }
+    </style>
 
         <style>
             .title {
@@ -552,9 +662,54 @@ if ($_REQUEST['dispensed'] ?? '') {
                                         <input type="hidden" name="REFTYPE" value="<?php echo attr($row['REFTYPE']); ?>"/>
                                     </td>
                                 </tr>
+                                <?php
+                                $matValue = trim((string)($row['LENS_MATERIAL'] ?? ''));
+                                if ($matValue !== '') {
+                                    // Resolve stock option_ids to human titles; fall back to
+                                    // the raw value for anything custom-typed.
+                                    $matTitle = $matValue;
+                                    $matRow = sqlQuery(
+                                        "SELECT title FROM list_options WHERE list_id = 'Eye_Lens_Material' AND option_id = ? AND activity = '1' LIMIT 1",
+                                        [$matTitle]
+                                    );
+                                    if (!empty($matRow['title'])) {
+                                        $matTitle = (string)$matRow['title'];
+                                    }
+                                    ?>
+                                <tr>
+                                    <td class="text-right align-middle font-weight-bold">
+                                        <?php echo xlt('Lens Material'); ?>:
+                                    </td>
+                                    <td>&nbsp;&nbsp;<?php echo text($matTitle); ?></td>
+                                </tr>
+                                <?php }
+                                $treatShown = [];
+                                foreach (explode('|', (string)($row['LENS_TREATMENTS'] ?? '')) as $treatOne) {
+                                    $treatOne = trim($treatOne);
+                                    if ($treatOne === '') {
+                                        continue;
+                                    }
+                                    $treatRow = sqlQuery(
+                                        "SELECT title FROM list_options WHERE list_id = 'Eye_Lens_Treatments' AND option_id = ? AND activity = '1' LIMIT 1",
+                                        [$treatOne]
+                                    );
+                                    $treatShown[] = !empty($treatRow['title']) ? (string)$treatRow['title'] : $treatOne;
+                                }
+                                if (!empty($treatShown)) { ?>
+                                <tr>
+                                    <td class="text-right align-middle font-weight-bold">
+                                        <?php echo xlt('Lens Treatments'); ?>:
+                                    </td>
+                                    <td>&nbsp;&nbsp;<?php echo text(implode(', ', $treatShown)); ?></td>
+                                </tr>
+                                <?php } ?>
                                 <tr>
                                     <td colspan="2" class="text-center"> <?php
-                                    if (!$rowRefType?->isContactLens()) { ?>
+                                    if (!$rowRefType?->isContactLens()) {
+                                        $rowOdPrismTxt = $dispensePrismText($row['ODPRISM'] ?? '', $row['ODHPD'] ?? '', $row['ODHBASE'] ?? '', $row['ODVPD'] ?? '', $row['ODVBASE'] ?? '');
+                                        $rowOsPrismTxt = $dispensePrismText($row['OSPRISM'] ?? '', $row['OSHPD'] ?? '', $row['OSHBASE'] ?? '', $row['OSVPD'] ?? '', $row['OSVBASE'] ?? '');
+                                        $rowHasPrism = $rowOdPrismTxt !== '' || $rowOsPrismTxt !== '';
+                                        ?>
                                                 <table id="SpectacleRx" name="SpectacleRx" class="refraction" style="top:0px;">
                                                     <tr class="font-weight-bold">
                                                         <td></td>
@@ -562,6 +717,9 @@ if ($_REQUEST['dispensed'] ?? '') {
                                                         <td class="center font-weight-bold underline"><?php echo xlt('Sph{{Sphere}}'); ?></td>
                                                         <td class="center font-weight-bold underline"><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
                                                         <td class="center font-weight-bold underline"><?php echo xlt('Axis{{Axis in a glasses prescription}}'); ?></td>
+                                                        <?php if ($rowHasPrism) { ?>
+                                                        <td class="center font-weight-bold underline"><?php echo xlt('Prisms'); ?></td>
+                                                        <?php } ?>
                                                         <td rowspan="5" class="text-right align-middle font-weight-bold underline" colspan="2"
                                                             style="min-width:100px;">
                                                             <?php echo xlt('Rx Type'); ?><br/><br/>
@@ -581,14 +739,18 @@ if ($_REQUEST['dispensed'] ?? '') {
                                                         <td><?php echo text($row['ODSPH']); ?></td>
                                                         <td><?php echo text($row['ODCYL']); ?></td>
                                                         <td><?php echo text($row['ODAXIS']); ?></td>
-                                                        <td><?php echo text($row['ODPRISM']); ?></td>
+                                                        <?php if ($rowHasPrism) { ?>
+                                                        <td><?php echo text($rowOdPrismTxt); ?></td>
+                                                        <?php } ?>
                                                     </tr>
                                                     <tr>
                                                         <td class="font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?></td>
                                                         <td><?php echo text($row['OSSPH']); ?></td>
                                                         <td><?php echo text($row['OSCYL']); ?></td>
                                                         <td><?php echo text($row['OSAXIS']); ?></td>
-                                                        <td><?php echo text($row['OSPRISM']); ?></td>
+                                                        <?php if ($rowHasPrism) { ?>
+                                                        <td><?php echo text($rowOsPrismTxt); ?></td>
+                                                        <?php } ?>
                                                     </tr>
                                                     <tr class="NEAR">
                                                         <td class="text-nowrap" rowspan="2"><span class="font-weight-bold text-decoration-none"><?php echo xlt('ADD'); ?>
@@ -612,6 +774,15 @@ if ($_REQUEST['dispensed'] ?? '') {
                                                         <?php echo text($row['CRCOMMENTS']); ?>
                                                         </td>
                                                     </tr>
+                                                    <?php if (!empty($row['BPDD']) || !empty($row['BPDN'])) { ?>
+                                                    <tr>
+                                                        <td colspan="2" class="text-right font-weight-bold"><?php echo xlt('PD{{pupillary distance}}'); ?>:</td>
+                                                        <td colspan="4" class="text-left"><?php
+                                                            echo text($row['BPDD']);
+                                                            echo !empty($row['BPDN']) ? ' (' . xlt('Near') . ' ' . text($row['BPDN']) . ')' : ''; ?>
+                                                        </td>
+                                                    </tr>
+                                                    <?php } ?>
                                                 </table>
                                                 <?php
                                     } else {
@@ -836,6 +1007,51 @@ if ($_REQUEST['dispensed'] ?? '') {
         input[type="radio"] {
             width: 15px;
         }
+        .rx-form-wrap {
+            margin: 0 auto;
+            max-width: 100%;
+            width: 820px;
+        }
+        #SpectacleRx {
+            table-layout: auto;
+            width: 100%;
+        }
+        #SpectacleRx input[type="text"].dispense-prism-input {
+            box-sizing: border-box;
+            min-width: 112px;
+            width: 112px;
+        }
+        #SpectacleRx input[type="text"].dispense-pd-input {
+            min-width: 75px;
+            width: 75px;
+        }
+        .dispense-pd-values {
+            align-items: center;
+            display: flex;
+            gap: 18px;
+            justify-content: flex-start;
+        }
+        .dispense-pd-values strong {
+            margin-right: 4px;
+        }
+        .dispense-treatment-list {
+            align-items: center;
+            display: grid;
+            gap: 4px 32px;
+            grid-template-columns: repeat(2, minmax(180px, 1fr));
+            justify-content: center;
+            margin: 0 auto;
+            max-width: 460px;
+            text-align: left;
+            width: 100%;
+        }
+        .dispense-treatment-list .treat-row {
+            align-items: center;
+            height: 100%;
+            justify-content: flex-start;
+            margin: 0;
+            min-width: 0;
+        }
         .underline {
             text-decoration:underline !important
         }
@@ -854,7 +1070,7 @@ if ($_REQUEST['dispensed'] ?? '') {
         /* specifically include & exclude from printing */
         @media print {
                 .no-print {
-                    display: none;
+                    display: none !important;
                 }
         }
 
@@ -901,6 +1117,13 @@ if ($_REQUEST['dispensed'] ?? '') {
                        data: formData
                    });
         }
+
+        // Prism base directions act the same as they do on the form: all caps on blur (bi -> BI)
+        $("input[name$='PRISM'],input[class^='prism']").on("blur", function() {
+            var str = $(this).val();
+            str = str.toUpperCase();
+            $(this).val(str);
+        });
 
         //add sph and cyl, flip cyl sign, rotate axis 90.
         function reverse_cylinder() {
@@ -965,12 +1188,47 @@ if ($_REQUEST['dispensed'] ?? '') {
         }
         $(function () {
             var win = top.printLogSetup ? top : opener.top;
-            win.printLogSetup(document.getElementById('printbutton'));
+            var printButton = document.getElementById('printbutton');
+            win.printLogSetup(printButton);
+            printButton.addEventListener('click', function (event) {
+                var pd = document.getElementById('BPDD');
+                if (pd && !String(pd.value || '').trim()) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    alert(<?php echo xlj('Binocular PD is required before printing this prescription.'); ?>);
+                    pd.focus();
+                }
+            }, true);
+            // Dispense field-state tracking: mark fields the user edits so the
+            // "changed" (light blue) style applies. Matches the eye form's
+            // focus/change color pattern.
+            $('#SpectacleRx').on('change', 'input[type="text"], textarea, select', function () {
+                $(this).attr('data-changed', '1');
+            });
         });
+    </script>
+    <script>
+        function openEyeAssetEditor(asset, providerId) {
+            const params = new URLSearchParams({asset: asset});
+            if (providerId) params.set('provider_id', String(providerId));
+            const url = <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot() . '/interface/forms/eye_mag/asset_manager.php'); ?> + '?' + params.toString();
+            top.restoreSession();
+            const editor = dlgopen(
+                url,
+                asset === 'signature' ? 'eye_signature' : 'eye_practice_logo',
+                asset === 'signature' ? 780 : 720,
+                asset === 'signature' ? 720 : 470,
+                '',
+                asset === 'signature' ? <?php echo xlj('My Signature'); ?> : <?php echo xlj('Practice Logo'); ?>
+            );
+            if (editor && typeof editor.then === 'function') {
+                editor.then(function () { window.location.reload(); });
+            }
+        }
     </script>
 </head>
 <body>
-<?php echo report_header((string) $pid, "web");  ?>
+<?php echo report_header((string) $pid, "web", $canEditLogo);  ?>
 <br/><br/>
 <?php
 if ($refType?->isContactLens()) {
@@ -995,20 +1253,31 @@ if ($refType?->isContactLens()) {
     <input type="hidden" name="id" id="id" value="<?php echo attr($insert_this_id); ?>">
     <input type="hidden" name="encounter" id="encounter" value="<?php echo attr($encounter); ?>">
 
-    <div style="width: 650px;">
+    <div class="rx-form-wrap">
         <table class="mx-auto">
             <tr>
                 <td>
                     <?php
-                    if (!$refType?->isContactLens()) { ?>
+                    if (!$refType?->isContactLens()) {
+                        // Prefer the combined prism fields and retain the legacy
+                        // components as a fallback for older prescriptions.
+                        $odPrismTxt = $dispensePrismText($ODPRISM ?? '', $ODHPD ?? '', $ODHBASE ?? '', $ODVPD ?? '', $ODVBASE ?? '');
+                        $osPrismTxt = $dispensePrismText($OSPRISM ?? '', $OSHPD ?? '', $OSHBASE ?? '', $OSVPD ?? '', $OSVBASE ?? '');
+                        $hasPrism = $odPrismTxt !== '' || $osPrismTxt !== '';
+                        $spectacleCols = $hasPrism ? 7 : 6;
+                        $nearSpacerCols = $hasPrism ? 2 : 1;
+                        ?>
                             <table id="SpectacleRx" name="SpectacleRx" class="refraction bordershadow"
-                                   style="min-width:610px;top:0px;">
+                                   style="top:0px;margin:0 auto;">
                                 <tr class="font-weight-bold text-center">
-                                    <td><i name="reverse" id="reverse" class="fa fa-gamepad fa-2x"></i></td>
+                                    <td><i name="reverse" id="reverse" class="fa fa-gamepad fa-2x no-print"></i></td>
                                     <td></td>
                                     <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
                                     <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
                                     <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
+                                    <?php if ($hasPrism) { ?>
+                                    <td><?php echo xlt('Prism'); ?></td>
+                                    <?php } ?>
                                     <td rowspan="5" class="text-right align-middle font-weight-bold" colspan="1" >
                                         <span class="font-weight-bold underline"><?php echo xlt('Rx Type'); ?></span>
                                         <br/><br/>
@@ -1046,7 +1315,6 @@ if ($refType?->isContactLens()) {
                                         </span>
                                         <br/>
                                     </td>
-                                    <td></td>
                                 </tr>
                                 <tr class="center">
                                     <td rowspan="2" colspan="1" class="text-right align-middle font-weight-bold"><?php echo xlt('Distance'); ?>: </td>
@@ -1055,6 +1323,16 @@ if ($refType?->isContactLens()) {
                                     <td><input type="text" id="ODCYL" name="ODCYL" disabled value="<?php echo attr($ODCYL); ?>"></td>
                                     <td><input type="text" id="ODAXIS" name="ODAXIS" disabled value="<?php echo attr($ODAXIS); ?>">
                                     </td>
+                                    <?php if ($hasPrism) { ?>
+                                    <td>
+                                        <input type="text" class="prism dispense-prism-input" id="ODPRISM" name="ODPRISM"
+                                               value="<?php echo attr($odPrismTxt); ?>">
+                                        <input type="hidden" id="ODHPD" name="ODHPD" value="<?php echo attr($ODHPD); ?>">
+                                        <input type="hidden" id="ODHBASE" name="ODHBASE" value="<?php echo attr($ODHBASE); ?>">
+                                        <input type="hidden" id="ODVPD" name="ODVPD" value="<?php echo attr($ODVPD); ?>">
+                                        <input type="hidden" id="ODVBASE" name="ODVBASE" value="<?php echo attr($ODVBASE); ?>">
+                                    </td>
+                                    <?php } ?>
                                 </tr>
                                 <tr class="center">
                                     <td name="W_wide" class="text-right align-middle font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?></td>
@@ -1062,6 +1340,16 @@ if ($refType?->isContactLens()) {
                                     <td><input type="text" id="OSCYL" name="OSCYL" disabled value="<?php echo attr($OSCYL); ?>"></td>
                                     <td><input type="text" id="OSAXIS" name="OSAXIS" disabled value="<?php echo attr($OSAXIS); ?>">
                                     </td>
+                                    <?php if ($hasPrism) { ?>
+                                    <td>
+                                        <input type="text" class="prism dispense-prism-input" id="OSPRISM" name="OSPRISM"
+                                               value="<?php echo attr($osPrismTxt); ?>">
+                                        <input type="hidden" id="OSHPD" name="OSHPD" value="<?php echo attr($OSHPD); ?>">
+                                        <input type="hidden" id="OSHBASE" name="OSHBASE" value="<?php echo attr($OSHBASE); ?>">
+                                        <input type="hidden" id="OSVPD" name="OSVPD" value="<?php echo attr($OSVPD); ?>">
+                                        <input type="hidden" id="OSVBASE" name="OSVBASE" value="<?php echo attr($OSVBASE); ?>">
+                                    </td>
+                                    <?php } ?>
                                 </tr>
                                 <tr class="NEAR center">
                                     <td rowspan="2" colspan="1" class="text-right align-middle font-weight-bold text-nowrap"><?php echo xlt('ADD'); ?>:<br/>
@@ -1072,6 +1360,7 @@ if ($refType?->isContactLens()) {
                                                               value="<?php echo attr($ODMIDADD); ?>"></td>
                                     <td class="WAdd2"><input type="text" id="ODADD2" name="ODADD2" disabled
                                                              value="<?php echo attr($ODADD2); ?>"></td>
+                                    <td colspan="<?php echo attr($nearSpacerCols); ?>"></td>
                                 </tr>
                                 <tr class="NEAR center">
                                     <td class="text-right align-middle font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?></td>
@@ -1079,21 +1368,34 @@ if ($refType?->isContactLens()) {
                                         <input type="text" id="OSMIDADD" name="OSMIDADD" disabled value="<?php echo attr($OSMIDADD); ?>"></td>
                                     <td class="WAdd2">
                                         <input type="text" id="OSADD2" name="OSADD2" disabled value="<?php echo attr($OSADD2); ?>"></td>
+                                    <td colspan="<?php echo attr($nearSpacerCols); ?>"></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" class="center font-weight-bold"><?php echo xlt('Comments'); ?>: </td>
-                                    <td colspan="4">
-                                    <textarea class="w-100" style="height:3em;" id="CRCOMMENTS" disabled
-                                              name="CRCOMMENTS"><?php echo text($COMMENTS); ?></textarea>
+                                    <td colspan="2" class="font-weight-bold" style="text-align:left;"><?php echo xlt('Binocular PD'); ?>: </td>
+                                    <td colspan="<?php echo attr($spectacleCols - 2); ?>">
+                                        <div class="dispense-pd-values">
+                                            <input type="text" class="dispense-pd-input" id="BPDD" name="BPDD" required
+                                                   value="<?php echo attr($BPDD); ?>" onchange="submit_form();">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="font-weight-bold" style="text-align:left;"><?php echo xlt('Comments'); ?>: </td>
+                                    <td colspan="<?php echo attr($spectacleCols - 2); ?>">
+                                    <?php // Editable before printing. Posted as COMMENTS, the form_eye_mag_dispense
+                                    // column, so the dispensed record keeps what was actually printed. ?>
+                                    <textarea class="w-100" style="height:3em;" id="CRCOMMENTS"
+                                              name="COMMENTS" onchange="submit_form();"><?php echo text($COMMENTS); ?></textarea>
                                     </td>
                                 </tr>
                                 <!-- start Dispense data -->
-                                <tr class="header closeButton">
-                                    <td colspan="9" class="right">
+                                <tr class="header closeButton no-print">
+                                    <td colspan="<?php echo attr($spectacleCols); ?>" class="right">
                                                 <span><?php
                                                 if (
-                                                    $ODHPD || $ODHBASE || $ODVPD || $ODVBASE || $ODSLABOFF || $ODVERTEXDIST ||
-                                                        $OSHPD || $OSHBASE || $OSVPD || $OSVBASE || $OSSLABOFF || $OSVERTEXDIST ||
+                                                    $REFTYPE !== 'W' ||
+                                                        $ODPRISM || $ODHPD || $ODHBASE || $ODVPD || $ODVBASE || $ODSLABOFF || $ODVERTEXDIST ||
+                                                        $OSPRISM || $OSHPD || $OSHBASE || $OSVPD || $OSVBASE || $OSSLABOFF || $OSVERTEXDIST ||
                                                         $ODMPDD || $ODMPDN || $OSMPDD || $OSMPDN || $BPDD || $BPDN ||
                                                         $LENS_MATERIAL || $LENS_TREATMENTS
                                                 ) {
@@ -1108,114 +1410,67 @@ if ($refType?->isContactLens()) {
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="7">
+                                    <td colspan="<?php echo attr($spectacleCols); ?>">
                                         <hr/>
                                     </td>
                                 </tr>
+                                <?php
+                                // Prism is edited in the main OD/OS refraction rows above.
+                                // Preserve the ancillary lab values without repeating prism.
+                                $showLabValues = trim((string)($ODSLABOFF ?? '') . (string)($OSSLABOFF ?? '') . (string)($ODVERTEXDIST ?? '') . (string)($OSVERTEXDIST ?? '')) !== '';
+                                if ($showLabValues) { ?>
                                 <tr class="dispense_data" style="font-weight:bold;text-align:center;">
-                                    <td name="W_wide" colspan="1"></td>
-                                    <td name="W_wide"
-                                        title="<?php echo xla('Horizontal Prism Power'); ?>"><?php echo xlt('Horiz Prism{{abbreviation for Horizontal Prism Power}}'); ?></td>
-                                    <td name="W_wide"
-                                        title="<?php echo xla('Horizontal Prism Base'); ?>"><?php echo xlt('Horiz Base{{abbreviation for Horizontal Prism Base}}'); ?></td>
-                                    <td name="W_wide"
-                                        title="<?php echo xla('Vertical Prism Power'); ?>"><?php echo xlt('Vert Prism{{abbreviation for Vertical Prism Power}}'); ?></td>
-                                    <td name="W_wide"
-                                        title="<?php echo xla('Vertical Prism Base'); ?>"><?php echo xlt('Vert Base{{abbreviation for Vertical Prism Base}}'); ?></td>
-                                    <td name="W_wide"
-                                        title="<?php echo xla('Slab Off'); ?>"><?php echo xlt('Slab Off'); ?></td>
-                                    <td name="W_wide"
-                                        title="<?php echo xla('Vertex Distance'); ?>"><?php echo xlt('Vert Distance{{abbreviation for Vertex Distance}}'); ?></td>
+                                    <td colspan="2"></td>
+                                    <td colspan="2"><?php echo xlt('Slab Off'); ?></td>
+                                    <td colspan="<?php echo attr($spectacleCols - 4); ?>"><?php echo xlt('Vert Distance{{abbreviation for Vertex Distance}}'); ?></td>
                                 </tr>
                                 <tr class="dispense_data">
-                                    <td name="W_wide" style="text-align:right;font-weight:bold;"
-                                        colspan="1"><?php echo xlt('OD{{right eye}}'); ?></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="ODHPD" name="ODHPD"
-                                                             value="<?php echo attr($ODHPD); ?>"></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="ODHBASE" name="ODHBASE"
-                                                             value="<?php echo attr($ODHBASE); ?>"></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="ODVPD" name="ODVPD"
-                                                             value="<?php echo attr($ODVPD); ?>"></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="ODVBASE" name="ODVBASE"
-                                                             value="<?php echo attr($ODVBASE); ?>"></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="ODSLABOFF" name="ODSLABOFF"
-                                                             value="<?php echo attr($ODSLABOFF); ?>"></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="ODVERTEXDIST" name="ODVERTEXDIST"
-                                                             value="<?php echo attr($ODVERTEXDIST); ?>"></td>
+                                    <td colspan="2" class="font-weight-bold text-right"><?php echo xlt('OD{{right eye}}'); ?></td>
+                                    <td colspan="2"><input type="text" class="prism" id="ODSLABOFF" name="ODSLABOFF" value="<?php echo attr($ODSLABOFF); ?>"></td>
+                                    <td colspan="<?php echo attr($spectacleCols - 4); ?>"><input type="text" class="prism" id="ODVERTEXDIST" name="ODVERTEXDIST" value="<?php echo attr($ODVERTEXDIST); ?>"></td>
                                 </tr>
                                 <tr class="dispense_data">
-                                    <td name="W_wide" style="text-align:right;font-weight:bold;"
-                                        colspan="1"><?php echo xlt('OS{{left eye}}'); ?></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="OSHPD" name="OSHPD"
-                                                             value="<?php echo attr($OSHPD); ?>"></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="OSHBASE" name="OSHBASE"
-                                                             value="<?php echo attr($OSHBASE); ?>"></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="OSVPD" name="OSVPD"
-                                                             value="<?php echo attr($OSVPD); ?>"></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="OSVBASE" name="OSVBASE"
-                                                             value="<?php echo attr($OSVBASE); ?>"></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="OSSLABOFF" name="OSSLABOFF"
-                                                             value="<?php echo attr($OSSLABOFF); ?>"></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="OSVERTEXDIST" name="OSVERTEXDIST"
-                                                             value="<?php echo attr($OSVERTEXDIST); ?>"></td>
+                                    <td colspan="2" class="font-weight-bold text-right"><?php echo xlt('OS{{left eye}}'); ?></td>
+                                    <td colspan="2"><input type="text" class="prism" id="OSSLABOFF" name="OSSLABOFF" value="<?php echo attr($OSSLABOFF); ?>"></td>
+                                    <td colspan="<?php echo attr($spectacleCols - 4); ?>"><input type="text" class="prism" id="OSVERTEXDIST" name="OSVERTEXDIST" value="<?php echo attr($OSVERTEXDIST); ?>"></td>
                                 </tr>
+                                <?php } ?>
                                 <tr class="dispense_data">
-                                    <td colspan="7" class="center">
+                                    <td colspan="<?php echo attr($spectacleCols); ?>" class="center">
                                         <hr/>
                                     </td>
                                 </tr>
-                                <tr class="dispense_data" style="font-weight:bold;text-align:center;">
-                                    <td></td>
-                                    <td name="W_wide"
-                                        title="<?php echo xla('Monocular Pupillary Diameter - Distance'); ?>"><?php echo xlt('MPD-D{{abbreviation for Monocular Pupillary Diameter - Distance}}'); ?></td>
-                                    <td name="W_wide"
-                                        title="<?php echo xla('Monocular Pupillary Diameter - Near'); ?>"><?php echo xlt('MPD-N{{abbreviation for Monocular Pupillary Diameter - Near}}'); ?></td>
-                                    <td name="W_wide"
-                                        title="<?php echo xla('Binocular Pupillary Diameter - Distance'); ?>"><?php echo xlt('BPD-D{{abbreviation for Binocular Pupillary Diameter - Distance}}'); ?></td>
-                                    <td name="W_wide"
-                                        title="<?php echo xla('Binocular Pupillary Diameter - Near'); ?>"><?php echo xlt('BPD-N{{abbreviation for Binocular Pupillary Diameter - Near}}'); ?></td>
-
-                                    <td colspan="2">Lens Material:</td>
+                                <?php
+                                // Print scope (owner): MPD/BPD cells never print (PD above
+                                // covers it); material prints only when selected,
+                                // treatments only when indicated. Screen editing kept.
+                                $matPrint = trim((string)($LENS_MATERIAL ?? '')) !== '';
+                                $treatPrint = false;
+                                foreach (explode('|', (string)($LENS_TREATMENTS ?? '')) as $treatOne) {
+                                    if (trim($treatOne) !== '') {
+                                        $treatPrint = true;
+                                        break;
+                                    }
+                                }
+                                ?>
+                                <tr class="dispense_data<?php echo $matPrint ? '' : ' no-print'; ?>" style="font-weight:bold;text-align:center;">
+                                    <td colspan="<?php echo attr($spectacleCols); ?>"><?php echo xlt('Lens Material'); ?>:</td>
                                 </tr>
-                                <tr>
-                                    <td name="W_wide" style="text-align:right;font-weight:bold;"
-                                        colspan="1"><?php echo xlt('OD{{right eye}}'); ?></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="ODMPDD" name="ODMPDD"
-                                                             value="<?php echo attr($ODMPDD); ?>"></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="ODMPDN" name="ODMPDN"
-                                                             value="<?php echo attr($ODMPDN); ?>"></td>
-                                    <td name="W_wide" rowspan="2" style="vertical-align:middle;"><input type="text"
-                                                                                                        class="prism"
-                                                                                                        id="BPDD"
-                                                                                                        name="BPDD"
-                                                                                                        value="<?php echo attr($BPDD); ?>">
-                                    </td>
-                                    <td name="W_wide" rowspan="2" style="vertical-align:middle;"><input type="text"
-                                                                                                        class="prism"
-                                                                                                        id="BPDN"
-                                                                                                        name="BPDN"
-                                                                                                        value="<?php echo attr($BPDN); ?>">
-                                    </td>
-                                    <td colspan="2">   <?php
-                                        echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', ['style' => 'width:120px']);
+                                <tr class="<?php echo $matPrint ? '' : 'no-print'; ?>">
+                                    <td colspan="<?php echo attr($spectacleCols); ?>" style="text-align:center;"><?php
+                                        echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', ['style' => 'width:120px;height:25px;']);
                                     ?>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td name="W_wide" style="text-align:right;font-weight:bold;"
-                                        colspan="1"><?php echo xlt('OS{{left eye}}'); ?></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="OSMPDD" name="OSMPDD"
-                                                             value="<?php echo attr($OSMPDD); ?>"></td>
-                                    <td name="W_wide"><input type="text" class="prism" id="OSMPDN" name="OSMPDN"
-                                                             value="<?php echo attr($OSMPDN); ?>"></td>
-                                </tr>
-                                <tr style="font-weight:bold;text-align:center;">
-                                    <td colspan="3"><?php echo xlt('Lens Treatments'); ?>
+                                <tr style="font-weight:bold;text-align:center;" class="<?php echo $treatPrint ? '' : 'no-print'; ?>">
+                                    <td colspan="<?php echo attr($spectacleCols); ?>"><?php echo xlt('Lens Treatments'); ?>
                                     </td>
                                 </tr>
-                                <tr style="text-align:left;vertical-align:top;">
-                                    <td colspan="4" class="bold left">
+                                <tr style="text-align:center;vertical-align:top;" class="<?php echo $treatPrint ? '' : 'no-print'; ?>">
+                                    <td colspan="<?php echo attr($spectacleCols); ?>" class="bold center">
+                                        <div class="dispense-treatment-list">
                                         <?php echo generate_lens_treatments($W ?? '', $LENS_TREATMENTS); ?>
+                                        </div>
                                     </td>
                                 </tr>
                             </table>&nbsp;<br/><br/><br/>
@@ -1334,12 +1589,24 @@ if ($refType?->isContactLens()) {
             </tr>
             <tr>
                 <?php
-                    $signature = OEGlobalsBag::getInstance()->get("webserver_root") . "/interface/forms/eye_mag/images/sign_" . attr($session->get('authUserID')) . ".jpg";
+                    // The signature belongs to the Rx's rendering provider, not
+                    // whoever happens to be viewing/printing it — otherwise only
+                    // the creator ever sees ink. Fall back to the session user
+                    // when the record carries no provider.
+                    $sigUid = (int)($prov_data['id'] ?? 0);
+                    if ($sigUid <= 0) {
+                        $sigUid = (int)$session->get('authUserID');
+                    }
+                    $canEditSignature = $sigUid > 0 && $authUserId === $sigUid;
+                    $signature = OEGlobalsBag::getInstance()->getProjectDir() . "/interface/forms/eye_mag/images/sign_" . $sigUid . ".jpg";
                 if (file_exists($signature)) {
+                    // Cache-bust so a re-uploaded signature replaces the old
+                    // one in the browser instead of showing the cached copy.
+                    $sigMtime = (int)@filemtime($signature);
                     ?>
                 <td class="center" style="margin:25px auto;">
                             <span style="position:relative;padding-left:40px;">
-                                <img src='<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/eye_mag/images/sign_<?php echo attr($session->get('authUserID')); ?>.jpg'
+                                <img src='<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/eye_mag/images/sign_<?php echo attr($sigUid); ?>.jpg?t=<?php echo attr($sigMtime); ?>'
                                      style="width:240px;height:85px;border-block-end: 1pt solid black;margin:5px;"/>
                                     </span><br/>
 
@@ -1360,7 +1627,11 @@ if ($refType?->isContactLens()) {
                         <br/><?php echo xlt('State License Number'); ?>: <?php echo text($prov_data['state_license_number']); ?>
                     <?php } ?>
 
-                    <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked" disabled></small>
+                    <?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked" disabled>
+                    <?php if ($canEditSignature) { ?>
+                        <a href="#" class="no-print" style="font-size:.85rem;margin-left:10px;"
+                           onclick="openEyeAssetEditor('signature', <?php echo attr_js($sigUid); ?>); return false;"><?php echo xlt('Edit'); ?></a>
+                    <?php } ?>
                 </td>
             </tr>
             <tr class="no-print">

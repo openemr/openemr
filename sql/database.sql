@@ -12248,6 +12248,23 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Defaults_for_GENERAL', 'RMRD', '+3', 110, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'RUL', 'normal lids and lashes', 10, 0, 0, '', 'EXT', '', 0, 0, 1, '');
 
+-- Eye Form dilation medications and practice display settings.
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, activity) VALUES ('lists', 'Eye_Dilation_Meds', 'Eye Dilation Medications', 0, 1, 0);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity) VALUES ('Eye_Dilation_Meds', 'CYCLOMYDRIL', 'CycloMydril', 10, 'Cyclomydril', 1);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity) VALUES ('Eye_Dilation_Meds', 'TROPICAMIDE', 'Tropic 1%', 20, 'Tropicamide 1%', 1);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity) VALUES ('Eye_Dilation_Meds', 'NEO25', 'Neo 2.5%', 30, 'Neosynephrine 2.5%', 1);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity) VALUES ('Eye_Dilation_Meds', 'NEO10', 'Neo 10%', 40, 'Neosynephrine 10%', 1);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity) VALUES ('Eye_Dilation_Meds', 'CYCLOGYL', 'Cyclo 1%', 50, 'Cyclopentolate 1%', 1);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity) VALUES ('Eye_Dilation_Meds', 'ATROPINE', 'Atropine 1%', 60, 'Atropine 1%', 1);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('lists', 'Eye_IOP_Methods', 'Eye IOP Measurement Types', 0, '', 1, 0);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('Eye_IOP_Methods', 'AP', 'AP', 10, 'Applanation', 0, 1);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('Eye_IOP_Methods', 'TPN', 'TP', 20, 'Tonopen or other handheld tonometer', 0, 1);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('Eye_IOP_Methods', 'FT', 'FT', 30, 'Finger tension', 0, 1);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('Eye_IOP_Methods', 'POST', 'Dil', 40, 'Dilated IOP', 0, 1);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('lists', 'Eye_Motility_Display', 'Eye Motility Display', 0, '', 1, 0);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('Eye_Motility_Display', 'X', 'X', 10, 'Eight-position spoke chart', 1, 1);
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('Eye_Motility_Display', 'H', 'H', 20, 'Six cardinal positions', 0, 1);
+
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'Eye_Lens_Material', 'Eye Lens Material', 1, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('Eye_Lens_Material', 'LM_CG', 'Crown Glass', 10, 0, 0, '', 'Excellent optics. Low cost. Downsides: heavy, breakable. Abbe Value: 59', '', 0, 0, 1, ''),
@@ -13062,6 +13079,8 @@ CREATE TABLE `form_eye_mag_dispense` (
   `OSBC` varchar(50) DEFAULT NULL,
   `RXCOMMENTS` text,
   `COMMENTS` text,
+  `ODPRISM` varchar(255) NOT NULL DEFAULT '',
+  `OSPRISM` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `pid` (`pid`,`encounter`,`id`)
 ) ENGINE=InnoDB;
@@ -13226,6 +13245,8 @@ CREATE TABLE `form_eye_mag_wearing` (
   `LENS_TREATMENTS` varchar(100) DEFAULT NULL,
   `RX_TYPE` varchar(25) DEFAULT NULL,
   `COMMENTS` text,
+  `ODPRISM` varchar(255) NOT NULL DEFAULT '',
+  `OSPRISM` varchar(255) NOT NULL DEFAULT '',
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `FORM_ID` (`FORM_ID`,`ENCOUNTER`,`PID`,`RX_NUMBER`)
 ) ENGINE=InnoDB;
@@ -13560,6 +13581,68 @@ CREATE TABLE `medex_recalls` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `form_eye_dotphrases`
+--
+
+DROP TABLE IF EXISTS `form_eye_dotphrases`;
+CREATE TABLE `form_eye_dotphrases` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `phrase_key` varchar(128) NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `owner_uid` int(11) NOT NULL,
+  `visibility` enum('private','shared') NOT NULL DEFAULT 'private',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `content_type` enum('text','object') NOT NULL DEFAULT 'text',
+  `content` text NOT NULL,
+  `zones` varchar(64) NOT NULL DEFAULT '',
+  `improvement_of` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `owner_uid` (`owner_uid`),
+  KEY `phrase_key` (`phrase_key`),
+  KEY `visible` (`visibility`,`active`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_mag_drawing_overlays`
+--
+
+DROP TABLE IF EXISTS `form_eye_mag_drawing_overlays`;
+CREATE TABLE `form_eye_mag_drawing_overlays` (
+  `form_id` bigint(20) NOT NULL,
+  `pid` bigint(20) NOT NULL,
+  `zone` varchar(24) NOT NULL,
+  `overlay_json` longtext NOT NULL,
+  `background_key` varchar(32) NOT NULL DEFAULT '',
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`form_id`,`zone`),
+  KEY `pid` (`pid`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_mag_materials`
+--
+
+DROP TABLE IF EXISTS `form_eye_mag_materials`;
+CREATE TABLE `form_eye_mag_materials` (
+  `form_id` bigint(20) NOT NULL,
+  `pid` bigint(20) NOT NULL,
+  `content` longtext NOT NULL,
+  `include_text` tinyint(1) NOT NULL DEFAULT 0,
+  `handout_document_id` bigint(20) DEFAULT NULL,
+  `handout_document_ids` longtext DEFAULT NULL COMMENT 'JSON list; NULL keeps the legacy single selection, [] means none',
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`form_id`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `form_eye_base`
 --
 DROP TABLE IF EXISTS `form_eye_base`;
@@ -13804,6 +13887,8 @@ CREATE TABLE `form_eye_refraction` (
   `CTLOSADD`          varchar(25)  DEFAULT NULL,
   `NVOCHECKED`        varchar(25)  DEFAULT NULL,
   `ADDCHECKED`        varchar(25)  DEFAULT NULL,
+  `CRODPRISM` varchar(255) NOT NULL DEFAULT '',
+  `CROSPRISM` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY `refraction_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
   )
@@ -13835,6 +13920,7 @@ CREATE TABLE `form_eye_biometrics` (
   `OSW2W`         varchar (20) DEFAULT NULL,
   `ODLT`          varchar (20) DEFAULT NULL,
   `OSLT`          varchar (20) DEFAULT NULL,
+  `BPDD` varchar(20) NOT NULL DEFAULT '',
   PRIMARY KEY `biometrics_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
 )
@@ -14064,6 +14150,15 @@ CREATE TABLE `form_eye_neuro` (
   `OSCOINS` text,
   `ODREDDESAT` varchar (20) DEFAULT NULL,
   `OSREDDESAT` varchar (20) DEFAULT NULL,
+  `NEURO_DRAWING_JSON` longtext DEFAULT NULL,
+  `STEREO_FLY` varchar(3) DEFAULT NULL,
+  `STEREO_ANIMALS` varchar(5) DEFAULT NULL,
+  `STEREO_CIRCLES` varchar(5) DEFAULT NULL,
+  `STEREO_FIXATION_PREF` varchar(3) DEFAULT NULL,
+  `SPCT_SCDIST` text,
+  `SPCT_CCDIST` text,
+  `SPCT_SCNEAR` text,
+  `SPCT_CCNEAR` text,
   PRIMARY KEY `neuro_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
  )

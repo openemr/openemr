@@ -135,6 +135,342 @@ a:active {
   width: 100%;
 }
 
+.eye-panel-minimize-ghost {
+  align-items: center;
+  background: var(--light, #e8f0f8);
+  border: 2px solid var(--primary, #0064b4);
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: var(--dark, #17324d);
+  display: flex;
+  flex-direction: column;
+  font-size: 1.15rem;
+  font-weight: 700;
+  justify-content: center;
+  margin: 0 !important;
+  overflow: hidden;
+  padding: 12px;
+  pointer-events: none;
+  position: fixed !important;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 28%);
+  z-index: 100000;
+}
+
+.eye-panel-minimize-destination {
+  font-size: 0.78em;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+.eye-panel-minimizing {
+  pointer-events: none;
+}
+
+.eye-panel-restoring {
+  pointer-events: none;
+}
+
+#tabs_left .ui-tabs-nav li.eye-chart-view-received {
+  animation: eye-chart-view-received 1050ms ease-out;
+  background: #d8ebff !important;
+}
+
+@keyframes eye-chart-view-received {
+  0%, 100% {
+    box-shadow: none;
+  }
+  35% {
+    box-shadow: 0 0 0 7px rgb(0 100 180 / 36%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #tabs_left .ui-tabs-nav li.eye-chart-view-received {
+    animation: none;
+  }
+}
+
+.stereopsis-fields {
+  align-items: end;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: 1.15fr 1fr 1fr;
+  text-align: left;
+}
+
+.stereopsis-fields label,
+.stereopsis-legacy {
+  font-size: 0.82em;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.stereopsis-fields select,
+.stereopsis-fields input,
+.stereopsis-legacy input {
+  box-sizing: border-box;
+  display: block;
+  height: 26px;
+  margin-top: 2px;
+  width: 100%;
+}
+
+.stereopsis-score {
+  align-items: center;
+  display: inline-flex;
+  gap: 2px;
+  justify-content: flex-start;
+  width: 45px;
+}
+
+.stereopsis-score input {
+  min-width: 0;
+  padding-left: 2px;
+  padding-right: 2px;
+  width: 29px;
+}
+
+#NEURO_stereopsis .stereopsis-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3px;
+  text-align: left;
+}
+
+#NEURO_stereopsis .stereopsis-row td {
+  padding-bottom: 2px;
+}
+
+#NEURO_stereopsis .stereopsis-default-cell {
+  cursor: pointer;
+  padding-left: 3px;
+  text-align: center;
+  width: 18px;
+}
+
+#NEURO_stereopsis .stereopsis-unable-label {
+  align-items: center;
+  display: inline-flex;
+  font-weight: 600;
+  gap: 3px;
+  margin: 0;
+}
+
+#NEURO_stereopsis .stereopsis-legacy-row input {
+  width: 94px;
+}
+
+#NEURO_stereopsis .fixation-pref-row td {
+  font-size: 11px;
+  padding-top: 2px;
+  white-space: nowrap;
+}
+
+#NEURO_stereopsis .stereopsis-segments {
+  display: inline-flex;
+  gap: 0;
+  vertical-align: middle;
+}
+
+#NEURO_stereopsis .stereopsis-segments input[type="radio"] {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+#NEURO_stereopsis .stereopsis-segments label {
+  background: linear-gradient(#fff, #e1e8f0);
+  border: 1px solid #52677d;
+  box-shadow: 0 1px 1px rgb(0 0 0 / 18%);
+  color: var(--dark, #17324d);
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  line-height: 1.15;
+  margin: 0 0 0 -1px;
+  padding: 2px 5px;
+  user-select: none;
+}
+
+#NEURO_stereopsis .stereopsis-segments input:first-of-type + label {
+  border-radius: 4px 0 0 4px;
+  margin-left: 0;
+}
+
+#NEURO_stereopsis .stereopsis-segments label:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+#NEURO_stereopsis .stereopsis-segments input[type="radio"]:checked + label,
+#BUTTON_DRAW_SDRETINA.is-active {
+  background: linear-gradient(#d9f2dd, #b7dfc0);
+  border-color: #3f8f52;
+  box-shadow: inset 0 2px 3px rgb(22 88 42 / 32%);
+  color: #174b25;
+  position: relative;
+  top: 1px;
+}
+
+.stereopsis-legacy {
+  align-items: center;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: auto 1fr;
+  margin-top: 5px;
+}
+
+.stereopsis-prior input {
+  background: #eef2ff;
+}
+
+.eye-drawing-stage {
+  display: inline-block;
+  line-height: 0;
+  position: relative;
+}
+
+.neuro-structured-overlay {
+  height: 100%;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 4;
+}
+
+.eye-konva-stage {
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 3;
+}
+
+.eye-konva-stage.is-draw-mode {
+  pointer-events: none;
+}
+
+.eye-drawing-command-row {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 82px 0 8px;
+  width: 100%;
+}
+
+.eye-drawing-command-row .eye-konva-tools {
+  align-items: center;
+  background-image: none;
+  display: inline-flex;
+  float: none;
+  gap: 2px;
+  margin: 0 8px;
+  position: relative;
+  vertical-align: middle;
+  z-index: 2;
+}
+
+.eye-konva-tools button {
+  align-items: center;
+  background: #f7f9fb;
+  border: 1px solid #718096;
+  border-radius: 3px;
+  color: #18324f;
+  display: inline-flex;
+  font-size: 12px;
+  height: 25px;
+  justify-content: center;
+  min-width: 26px;
+  padding: 2px 5px;
+}
+
+.eye-konva-tools button.is-active {
+  background: #cdebd3;
+  box-shadow: inset 0 1px 3px #66806b;
+}
+
+/* Keep history navigation in place, but do not offer edits on a prior image. */
+.Draw_class.is-viewing-prior .eye-konva-tools {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.eye-drawing-background-label {
+  font-size: 0.82em;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.eye-drawing-background {
+  font-size: 0.82em;
+  height: 26px;
+  max-width: 170px;
+}
+
+.eye-canvas-history {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex: 0 0 auto;
+  margin: 0;
+  width: auto;
+}
+
+.prior-canvas-image-wrap {
+  text-align: center;
+}
+
+.prior-canvas-image {
+  display: block;
+  height: auto;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+.neuro-overlay-value {
+  fill: #111;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.neuro-overlay-mark {
+  fill: none;
+  stroke: #d41414;
+  stroke-width: 2.5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.neuro-overlay-value:empty,
+.neuro-overlay-mark:not(.is-visible) {
+  display: none;
+}
+
+#NPCNPA .neuro-eye-col {
+  width: 74px;
+}
+
+#NPCNPA .neuro-default-col {
+  width: 28px;
+}
+
+#NPCNPA .neuro-default-cell {
+  padding-left: 3px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+#NPCNPA .neuro-amplitudes-spacer {
+  height: 7px;
+}
+
 #tabs_left .ui-tabs-panel {
   height: 40em;
 }
@@ -327,7 +663,6 @@ input[type=text] {
   width: 45px;
 }
 
-
 /* REFRACTION PANEL */
 
 #REFRACTION_sections {
@@ -365,6 +700,7 @@ input[type=text] {
   box-sizing: content-box !important;
   display: inline-block;
   min-height: 2.3in;
+  vertical-align: top;
   width: 4.3in;
 }
 
@@ -385,22 +721,166 @@ input[type=text] {
 }
 
 #CTL_box table {
-  margin: 0 auto 5px;
+  margin: 0 auto 1px;
 }
 
 #LayerVision_W {
   display: inline-block;
   font-size: 1em;
-  margin: 1px auto;
   max-width: 90%;
   min-height: 2.2in;
   padding: 0;
+  vertical-align: top;
+}
+
+#LayerVision_RXHX,
+#LayerVision_MR,
+#LayerVision_CTL {
+  box-sizing: border-box !important;
+  height: 2.5in;
+  max-height: 2.5in;
+  min-height: 2.5in;
+  vertical-align: top;
+  width: calc(4.3in + 22px);
+}
+
+#LayerVision_W > .current_W {
+  box-sizing: border-box !important;
+  height: auto;
+  max-height: none;
+  min-height: 0;
+  vertical-align: top;
+}
+
+#LayerVision_W > .current_W:not(.refraction_wide) {
+  height: 2.5in;
+  max-height: 2.5in;
+  min-height: 2.5in;
+  overflow: hidden;
+  width: calc(4.3in + 22px);
+}
+
+#LayerVision_W > .current_W.refraction_wide {
+  height: 2.5in;
+  max-height: 2.5in;
+  min-height: 2.5in;
+  overflow: hidden;
+}
+
+.current_W:not(.refraction_wide) .wear-rx-table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100% !important;
+}
+
+.current_W:not(.refraction_wide) .wear-col-eye {
+  width: 38px;
+}
+
+.current_W:not(.refraction_wide) .wear-col-rx {
+  width: 48px;
+}
+
+.current_W:not(.refraction_wide) .wear-col-prism {
+  width: 75px;
+}
+
+.current_W:not(.refraction_wide) .wear-col-type {
+  width: 76px;
+}
+
+.current_W:not(.refraction_wide) .wear-col-vd,
+.current_W:not(.refraction_wide) .wear-col-slab,
+.current_W:not(.refraction_wide) .wear-col-lens {
+  display: none;
+}
+
+.current_W:not(.refraction_wide) .wear-rx-table input[type="text"] {
+  box-sizing: border-box;
+  width: 42px;
+}
+
+.current_W:not(.refraction_wide) .wear-rx-table input[type="text"].prism-summary-input {
+  min-width: 68px;
+  width: 68px;
+}
+
+.current_W:not(.refraction_wide) td.rx-type-cell {
+  min-width: 76px;
+  padding: 8px 4px;
+}
+
+.current_W:not(.refraction_wide) .current-glasses-comments-cell {
+  vertical-align: bottom !important;
+}
+
+.current_W:not(.refraction_wide) .current-glasses-comments {
+  display: block;
+  margin-bottom: 0;
+  transform: translateX(6px);
+}
+
+.wear-rx-type-option {
+  align-items: center;
+  display: flex;
+  font-size: inherit;
+  gap: 6px;
+  justify-content: flex-end;
+  margin: 0 0 4px;
+  padding: 0;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.wear-rx-type-option input[type="radio"] {
+  flex: 0 0 auto;
+  margin: 0;
 }
 
 .refraction_wide {
+  box-sizing: border-box;
   margin: 0 auto;
-  max-width: 890px;
-  width: 850px;
+  max-width: 880px;
+  width: min(860px, 96vw);
+}
+
+.refraction_wide .wear-rx-table {
+  border-collapse: collapse;
+  height: 2.3in;
+  table-layout: fixed;
+}
+
+.refraction_wide .wear-rx-table input[type="text"] {
+  box-sizing: border-box;
+}
+
+.refraction_wide .wear-rx-table .wear-col-eye {
+  width: 48px;
+}
+
+.refraction_wide .wear-rx-table .wear-col-rx {
+  width: 66px;
+}
+
+.refraction_wide .wear-rx-table .wear-col-prism {
+  width: 108px;
+}
+
+.refraction_wide .wear-rx-table .wear-col-vd,
+.refraction_wide .wear-rx-table .wear-col-slab {
+  width: 58px;
+}
+
+.refraction_wide .wear-rx-table .wear-col-type {
+  width: 88px;
+}
+
+.refraction_wide .wear-rx-table .wear-col-lens {
+  width: 166px;
+}
+
+.refraction_wide .wear-rx-table tr:not(:first-child) {
+  height: 26px;
 }
 
 .refraction td {
@@ -415,6 +895,195 @@ input[type=text] {
   color: var(--dark);
   font-size: 0.8em;
   padding: 2px 8px;
+}
+
+.refraction .refraction-panel-title {
+  font-size: 1em;
+  font-weight: 700;
+  line-height: 1.25;
+  padding: 4px 8px;
+  text-align: center;
+}
+
+.refraction .rx-type-title {
+  display: block;
+  font-size: 1em;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: underline;
+}
+
+.refraction td.rx-type-cell {
+  line-height: 1.1;
+  min-width: 82px;
+  padding: 11px 15px;
+  text-align: center;
+  vertical-align: text-top;
+}
+
+.wear-column-title {
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle !important;
+}
+
+.wear-prism-title,
+.wear-prism-cell,
+.wear-mpd-cell {
+  box-sizing: border-box;
+  max-width: 108px;
+  min-width: 108px;
+  width: 108px;
+}
+
+.wear-vd-title,
+.wear-slab-title,
+.wear-slab-cell {
+  box-sizing: border-box;
+  max-width: 58px;
+  min-width: 58px;
+  width: 58px;
+}
+
+.wear-prism-cell {
+  padding: 1px 2px !important;
+  text-align: center !important;
+}
+
+.current_W:not(.refraction_wide) .wear-prism-title,
+.current_W:not(.refraction_wide) .wear-prism-cell,
+.current_W:not(.refraction_wide) .wear-mpd-cell {
+  max-width: 82px;
+  min-width: 82px;
+  width: 82px;
+}
+
+.wear-mpd-cell {
+  padding: 1px 2px !important;
+}
+
+.wear-slab-cell {
+  padding: 1px 2px !important;
+  text-align: center;
+}
+
+.wear-pd-cell {
+  padding: 0 2px !important;
+  text-align: center;
+}
+
+.wear-pd-cell label {
+  display: block;
+  font-weight: 700;
+  margin: 0;
+}
+
+.wear-pd-label-cell {
+  vertical-align: bottom !important;
+}
+
+.wear-pd-input-cell {
+  vertical-align: top !important;
+}
+
+.wear-pd-cell input[type="text"] {
+  box-sizing: border-box;
+  display: block;
+  margin: 0 auto;
+  width: 50px;
+}
+
+.shared-pd-cell {
+  padding: 2px 4px !important;
+  text-align: center !important;
+  vertical-align: bottom !important;
+  width: 62px;
+}
+
+.shared-pd-cell label {
+  display: block;
+  font-weight: 700;
+  margin: 0 0 2px;
+}
+
+.shared-pd-cell.additional-pd-cell {
+  vertical-align: middle !important;
+}
+
+.refraction input[type="text"].shared-clinical-pd {
+  box-sizing: border-box;
+  width: 58px;
+}
+
+.autoref-comments-row #CRCOMMENTS {
+  box-sizing: border-box;
+  display: block;
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.autoref-comments-row .autoref-comments-cell,
+.autoref-comments-row .autoref-pd-cell {
+  padding-bottom: 0 !important;
+  vertical-align: bottom !important;
+}
+
+.autoref-comments-row .autoref-pd-stack {
+  align-items: center;
+  display: inline-flex;
+  flex-direction: column;
+  margin-bottom: 0;
+}
+
+.autoref-comments-row .autoref-pd-stack input {
+  display: block;
+}
+
+.current_W input.wear-pd-mismatch {
+  background-color: #f8d7da !important;
+  border-color: #dc3545 !important;
+  color: #842029 !important;
+}
+
+.wear-expanded-lens-cell {
+  min-width: 165px;
+  padding: 11px 15px !important;
+  text-align: left !important;
+  vertical-align: top !important;
+}
+
+.wear-lens-material-select {
+  margin: 2px 0 4px;
+}
+
+.wear-lens-treatments {
+  font-size: 0.88em;
+  margin-top: 1px;
+  max-height: 48px;
+  overflow-y: auto;
+}
+
+.wear-lens-treatments .treat-row {
+  gap: 4px;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.refraction_wide .current-glasses-comments {
+  display: block;
+  height: 3.4em;
+  margin-bottom: 0;
+  min-height: 3.4em;
+}
+
+.refraction_wide .current-glasses-comments-cell {
+  vertical-align: bottom !important;
+}
+
+.refraction_wide .wear-lens-treatments {
+  font-size: 0.82em;
+  max-height: 100px;
 }
 
 .refraction ul {
@@ -433,6 +1102,11 @@ input[type=text] {
   padding: 0.2em 0.4em;
   text-align: center;
   width: 50px;
+}
+
+.refraction input[type=text].prism-summary-input {
+  min-width: 75px;
+  width: 75px;
 }
 
 .refraction select {
@@ -557,6 +1231,86 @@ input[type=text] {
 
 .GFS_table {
   width: 100%;
+}
+
+.gfs-chart-header {
+  margin-bottom: 2px;
+  text-align: center;
+}
+
+.gfs-chart-title {
+  font-size: 0.85em;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.gfs-chart-legend-row {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  min-height: 18px;
+}
+
+.gfs-chart-legend-row button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 0.75em;
+  gap: 5px;
+  padding: 1px 0;
+}
+
+.gfs-chart-legend-row button.is-hidden {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.gfs-legend-swatch {
+  border-top: 3px solid;
+  display: inline-block;
+  width: 22px;
+}
+
+.gfs-target-od {
+  border-color: #f28282;
+  border-top-style: dashed;
+}
+
+.gfs-target-os {
+  border-color: #aa8282;
+  border-top-style: dashed;
+}
+
+.gfs-iop-od {
+  border-color: #44a3a7;
+}
+
+.gfs-iop-os {
+  border-color: #000099;
+}
+
+.gfs-test-vf,
+.gfs-test-oct,
+.gfs-test-gonio {
+  border: 0;
+  height: 10px;
+  width: 14px;
+}
+
+.gfs-test-vf {
+  background: #5cabfa;
+}
+
+.gfs-test-oct {
+  background: #71b37c;
+}
+
+.gfs-test-gonio {
+  background: red;
 }
 
 .GFS_title,
@@ -895,26 +1649,77 @@ display: block;
 }
 
 .tools {
+  align-items: center;
   border: 0 solid var(--dark);
   color: var(--dark);
+  display: flex;
+  flex-direction: row;
   font-weight: bold;
   height: 50px;
+  justify-content: center;
   line-height: 30px;
   margin-bottom: -3px;
   padding: 10px;
   text-align: center;
   text-decoration: none;
   vertical-align: middle;
-  width: 50px;
   width: 100%;
 }
 
-.tools div {
-  background-image: url('../../../forms/eye_mag/images/pencil_white.png');
-  background-size: 35px 50px;
-  float: left;
-  margin-right: 50px;
+.tools .eye-raster-tools {
+  align-items: flex-end;
+  background-image: none;
+  display: flex;
+  float: none;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  gap: 4px;
+  justify-content: center;
+  margin: 0;
   position: relative;
+  transform: translateY(12px);
+  width: auto;
+}
+
+/* Let the canvas border cover the pencil bases without moving the canvas
+   or changing either toolbar row's layout height. */
+.Draw_class .tools + .borderShadow {
+  z-index: 1;
+}
+
+.tools .eye-current-pencil {
+  background-image: url('../../../forms/eye_mag/images/pencil_white.png');
+  background-repeat: no-repeat;
+  background-size: 35px 50px;
+  flex: 0 0 35px;
+  height: 50px;
+  margin-right: 6px;
+  position: relative;
+  width: 35px;
+}
+
+.eye-pencil-colors,
+.eye-brush-sizes {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 2px;
+  justify-content: center;
+}
+
+.eye-brush-sizes {
+  align-self: center;
+  margin-left: 16px;
+  transform: translateY(-12px);
+}
+
+.eye-pencil-colors {
+  align-items: flex-end;
+}
+
+.eye-pencil-colors img {
+  /* Keep more color visible above the canvas, including after selection changes. */
+  min-height: 40px;
 }
 
 .color_indicator {
@@ -961,8 +1766,6 @@ display: block;
   color: var(--dark);
   text-decoration: underline;
 }
-
-
 
 /* CSS for QP_buttons */
 .eye_button {
@@ -1055,6 +1858,157 @@ display: block;
   width: 0.71in;
   /*cellspacing:poor IE support for  this*/
   /* border-collapse:separate;*/
+}
+
+.motility-display-switch {
+  display: inline-flex;
+  left: 72px;
+  margin: 0;
+  position: absolute;
+  top: 3px;
+  vertical-align: middle;
+  z-index: 2;
+}
+
+.motility-display-button {
+  background: #f5f7fa;
+  border: 1px solid #718096;
+  color: #18324f;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  min-width: 24px;
+  padding: 0 5px;
+}
+
+.motility-display-button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.motility-display-button:last-child {
+  border-left: 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.motility-display-button.is-selected {
+  background: #bfe8c9;
+  box-shadow: inset 0 2px 3px rgb(0 0 0 / 24%);
+  color: #0b4c22;
+  transform: translateY(1px);
+}
+
+.motility-h-charts {
+  align-items: start;
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin: -2px auto 1px;
+}
+
+.motility-h-eye {
+  height: 68px;
+  position: relative;
+  width: 74px;
+}
+
+.motility-h-eye-label {
+  display: none;
+}
+
+.motility-h-line {
+  background: #18324f;
+  position: absolute;
+}
+
+.motility-h-line.is-left,
+.motility-h-line.is-right {
+  height: 52px;
+  top: 5px;
+  width: 2px;
+}
+
+.motility-h-line.is-left {
+  left: 7px;
+}
+
+.motility-h-line.is-right {
+  right: 7px;
+}
+
+.motility-h-line.is-middle {
+  height: 2px;
+  left: 7px;
+  right: 7px;
+  top: 30px;
+}
+
+.motility-h-point {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: #18324f;
+  display: flex;
+  height: 24px;
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  touch-action: manipulation;
+  width: 22px;
+  z-index: 1;
+}
+
+.motility-h-point[data-level="top"],
+.motility-h-point[data-level="bottom"] {
+  flex-direction: column;
+}
+
+.motility-h-point[data-side="left"] {
+  left: 6px;
+}
+
+.motility-h-point[data-side="right"] {
+  right: 6px;
+}
+
+/* Center vertical movement hashes on the widened H uprights. */
+.motility-h-point[data-side="left"]:not([data-level="middle"]) {
+  left: -3px;
+}
+
+.motility-h-point[data-side="right"]:not([data-level="middle"]) {
+  right: -3px;
+}
+
+.motility-h-point[data-level="top"] {
+  top: -4px;
+}
+
+.motility-h-point[data-level="middle"] {
+  top: 18px;
+}
+
+.motility-h-point[data-level="bottom"] {
+  top: 43px;
+}
+
+.motility-h-mark {
+  background: #18324f;
+  flex: 0 0 auto;
+  display: block;
+  height: 2px;
+  margin: 1px 0;
+  width: 10px;
+}
+
+.motility-h-point[data-level="middle"] .motility-h-mark {
+  height: 10px;
+  margin: 0 1px;
+  width: 2px;
+}
+
+.motility-h-point:focus-visible {
+  outline: 2px solid #1c73b8;
+  outline-offset: 1px;
 }
 
 .divRow {
@@ -1304,6 +2258,141 @@ textarea.EXTTEXT {
   text-decoration: none;
 }
 
+.closeButton_6 {
+  display: inline-block;
+  float: right;
+  font-size: 12px;
+  padding: 0 5px;
+  position: absolute;
+  right: 118px;
+  top: 8px;
+}
+
+.closeButton_6:hover {
+  background-color: var(--warning);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* Refraction tables are painted after their absolutely positioned controls.
+ * Keep the top-right controls above the table so they receive pointer events. */
+.refraction > .closeButton,
+.refraction > .closeButton_2,
+.refraction > .closeButton_3,
+.refraction > .closeButton_4,
+.refraction > .closeButton_5,
+.refraction > .closeButton_6 {
+  z-index: 20;
+}
+
+.DotPhraseIconInline {
+  background: var(--dark, #333);
+  border-radius: 50%;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-block;
+  height: 10px;
+  margin: 0 3px 0 5px;
+  vertical-align: baseline;
+  width: 10px;
+}
+
+.DotPhraseIconInline:hover {
+  background: var(--danger);
+  cursor: pointer;
+}
+
+.DotPhraseIconInline.df_red {
+  background: var(--danger);
+}
+
+.DotPhraseIconInline.df_red:hover {
+  background: var(--dark);
+}
+
+input.df-live-populated,
+textarea.df-live-populated,
+select.df-live-populated {
+  background-color: #d9f2d9 !important;
+}
+
+/* The mid-page phrase search carries its identity in the placeholder
+   (no label): small and light so it reads as a hint, not content. */
+#mid_dp_search::placeholder {
+  color: #94a3ad;
+  font-size: 0.8em;
+  font-weight: 400;
+}
+
+.mid_dp {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+/* Themed confirmation dialog + toast. */
+.dpm-confirm-overlay {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: fixed;
+  z-index: 13000;
+}
+
+.dpm-confirm-box {
+  background: var(--white);
+  border: 1px solid var(--dark);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  max-width: 420px;
+  padding: 20px 22px;
+  width: 90%;
+}
+
+.dpm-confirm-msg {
+  color: var(--dark);
+  font-size: 0.98em;
+  margin-bottom: 16px;
+}
+
+.dpm-confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.dpm-toast {
+  background: var(--dark);
+  border-radius: 6px;
+  bottom: 24px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  color: var(--white);
+  font-size: 0.9em;
+  left: 50%;
+  max-width: 80vw;
+  padding: 10px 18px;
+  position: fixed;
+  transform: translateX(-50%);
+  transition: opacity 0.4s;
+  z-index: 14000;
+}
+
+.dpm-toast[data-type="error"] {
+  background: var(--danger);
+}
+
+.dpm-toast[data-type="warn"] {
+  background: #b8860b;
+}
+
+.dpm-toast[data-type="ok"] {
+  background: var(--success);
+}
+
 /* testing out the tabs header stuff for ACT */
 #header ul {
   list-style: none;
@@ -1361,7 +2450,6 @@ h1 {
   text-align: right;
 }
 
-
 /* done testing ACT header tabs */
 /* ACT_TEXT test */
 .ACT_TEXT {
@@ -1414,7 +2502,7 @@ h1 {
   border-left: 1px solid var(--dark);
   border-right: 1px solid var(--dark);
   border-top: 0;
-  box-shadow: 0 3px 4px 0 #888;
+  box-shadow: 0 1px 4px 0px #888;
   padding: 10px;
   position: relative;
   z-index: 10;
@@ -1518,9 +2606,21 @@ input[type=text].fullscreen {
 }
 
 .PRIORS textarea,
-input {
+.PRIORS input {
   background-color: #ccf;
   color: var(--dark);
+}
+
+/* Lens-treatment rows: checkbox and label share a baseline so the list
+ * reads as aligned rows instead of drifting pairs. */
+.treat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 3px 0;
+}
+.treat-row label {
+  margin: 0;
 }
 
 .PRIORS a {
@@ -1578,11 +2678,17 @@ input {
 }
 
 .navbar-custom,
-.navbar-nav,
 .nav > .active > a,
 .navbar-nav > .active > a:hover,
 .navbar-nav > .active > a:focus {
   background-color: #c9dbf2;
+}
+
+/* The menu list takes the bar's colour. Painting it separately left a
+   half-width #c9dbf2 strip whenever a theme recolours .navbar (a custom
+   theme forces it to white with !important). */
+.navbar-custom .navbar-nav {
+  background-color: transparent;
 }
 
 .dropdown {
@@ -1627,6 +2733,76 @@ input {
     background-color:var(--warning);
     height:24px;
     */
+}
+
+.eye-mag-menu-toggle {
+  align-items: center;
+  border: 1px solid currentColor;
+  color: var(--dark);
+  cursor: pointer;
+  font-size: 1.1rem;
+  height: 34px;
+  justify-content: center;
+  margin-left: auto;
+  padding: 4px 10px;
+  width: 42px;
+}
+
+@media (max-width: 991.98px) {
+  .navbar-custom > .container-fluid {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .navbar-custom .navbar-brand {
+    align-items: center;
+    display: inline-flex;
+    height: 34px;
+  }
+
+  .navbar-custom .oer-navbar-collapse {
+    flex-basis: 100%;
+    max-height: calc(100vh - 48px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 4px 6px 10px;
+    width: 100%;
+  }
+
+  .navbar-custom .navbar-nav,
+  .navbar-custom .navbar-right {
+    margin: 0;
+    width: 100%;
+  }
+
+  .navbar-custom .navbar-nav > li {
+    margin: 0;
+    width: 100%;
+  }
+
+  .navbar-custom .navbar-nav > li > a,
+  .navbar-custom .navbar-right > li > span {
+    align-items: center;
+    display: flex;
+    min-height: 38px;
+    padding: 8px 12px;
+    width: 100%;
+  }
+
+  .navbar-custom .dropdown-menu {
+    border: 0;
+    box-shadow: none;
+    float: none;
+    margin: 0 0 4px;
+    position: static;
+    width: 100%;
+  }
+
+  .navbar-custom .dropdown-menu > li > a {
+    padding: 8px 18px;
+  }
 }
 
 a:hover,
@@ -1695,6 +2871,66 @@ a:focus {
   padding-top: 22px;
   text-align: left;
   width: 140px;
+}
+
+#QP_PMH {
+  box-sizing: border-box;
+  display: flex;
+  font-size: 12px;
+  gap: 8px;
+  line-height: 1.25;
+  max-height: none !important;
+  min-width: 0;
+  width: 100%;
+}
+
+#QP_PMH::after {
+  clear: both;
+  content: "";
+  display: block;
+}
+
+#QP_PMH > .QP_block,
+#QP_PMH > .QP_block_outer {
+  box-sizing: border-box;
+  flex: 1 1 0;
+  float: none;
+  font-size: 1em;
+  margin: 0;
+  min-width: 0;
+  padding: 4px 8px;
+  width: auto;
+}
+
+#QP_PMH .PMSFH_table,
+#QP_PMH .PMSFH_header {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+#QP_PMH .PMSFH_table {
+  margin: 0 0 10px;
+  padding: 3px 8px;
+}
+
+#QP_PMH .PMSFH_table td {
+  min-width: 0;
+  padding: 3px 5px;
+}
+
+#QP_PMH .PMSFH_header span,
+#QP_PMH .PMSFH_table span {
+  font-family: inherit !important;
+  line-height: 1.25;
+}
+
+#QP_PMH .PMSFH_header span {
+  font-size: 12px !important;
+}
+
+#QP_PMH .PMSFH_table span {
+  font-size: 11px !important;
+  font-weight: 400;
 }
 
 #right-panel div span {
@@ -2156,9 +3392,8 @@ View.php
   float: left;
   height: 1.05in;
   padding: 0.02in;
-  width: 2.5in;
+  width: 2.8in;
 }
-
 
 #DA_EXAM_sections {
   display: inline-table;
@@ -2284,6 +3519,13 @@ View.php
   top: 0.7in;
 }
 
+.iop-method-editor {
+  color: inherit;
+  font-size: 0.8em;
+  margin-left: 2px;
+  text-decoration: none;
+}
+
 #Lyr41 {
   border: 0;
   font-family: sans-serif;
@@ -2303,39 +3545,36 @@ View.php
 
 #Lyr42 {
   font-size: 0.9em;
+  left: 0.48in;
   padding: 0;
   position: absolute;
-  right: 0.1in;
-  text-align: right;
   top: 0.3in;
 }
 
-#Lyr42 input {
+#Lyr42 .iop-method-grid {
+  align-items: center;
+  display: grid;
+  gap: 2px 4px;
+  grid-template-columns: 28px repeat(var(--iop-method-count), 0.44in);
+  text-align: center;
+}
+
+#Lyr42 .iop-method-grid > b {
+  text-align: right;
+}
+
+#Lyr42 .iop-method-grid input {
   height: 0.18in;
-  left: 0.5in;
-  margin: 2px;
-  width: 0.5in;
+  margin: 0;
+  width: 0.44in;
 }
 
-#Lyr42 > span:nth-of-type(1) {
+#Lyr42 .iop-method-label {
   font-size: 0.8em;
-  left: 0.4in;
-  position: absolute;
-  top: 0.5in;
-}
-
-#Lyr42 > span:nth-of-type(2) {
-  font-size: 0.8em;
-  left: 0.95in;
-  position: absolute;
-  top: 0.5in;
-}
-
-#Lyr42 > span:nth-of-type(3) {
-  font-size: 0.8em;
-  left: 1.525in;
-  position: absolute;
-  top: 0.5in;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 #Lyr50 {
@@ -2525,21 +3764,120 @@ View.php
 }
 
 #LayerVision_VAHx {
-    display: inline-block;
-    max-width: 1000px;
-    width: 83%;
+  display: inline-block;
+  max-width: 1500px;
+  padding: 0.75rem;
+  width: 96%;
 }
 
-#LayerVision_VAHx table{
-    width: 90%;
-    margin: 30px auto;
+#LayerVision_VAHx .vahx-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
 }
 
-#LayerVision_VAHx tr:nth-child(even) {
-    background-color: #D6EEEE;
+#LayerVision_VAHx .vahx-layout {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(420px, 1fr) minmax(480px, 1.15fr);
 }
-#LayerVision_VAHx  td {
-    border: 1px dotted #999;
+
+#LayerVision_VAHx .vahx-table-wrap,
+#LayerVision_VAHx .vahx-chart-panel {
+  background: var(--white, #fff);
+  border: 1px solid var(--gray-300, #dee2e6);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.35rem rgba(0, 0, 0, 0.08);
+  min-width: 0;
+  padding: 0.75rem;
+}
+
+#LayerVision_VAHx .vahx-table-scroll {
+  overflow-x: auto;
+}
+
+#LayerVision_VAHx table {
+  margin: 0;
+  width: 100%;
+}
+
+#LayerVision_VAHx th,
+#LayerVision_VAHx td {
+  border-color: var(--gray-300, #dee2e6);
+  padding: 0.35rem 0.45rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+#LayerVision_VAHx thead th {
+  background: var(--gray-100, #f8f9fa);
+  color: var(--body-color, #212529);
+  font-size: 0.8rem;
+}
+
+#LayerVision_VAHx tbody tr:nth-child(even) {
+  background: rgba(127, 127, 127, 0.07);
+}
+
+#LayerVision_VAHx .vahx-date {
+  font-weight: 600;
+  text-align: left;
+}
+
+#LayerVision_VAHx .vahx-chart-wrap {
+  height: 360px;
+  position: relative;
+}
+
+#LayerVision_VAHx .vahx-series-title {
+  color: var(--gray-700, #495057);
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin: 0.65rem 0 0.35rem;
+}
+
+#LayerVision_VAHx .vahx-series-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+#LayerVision_VAHx .vahx-series-toggle {
+  background: var(--gray-100, #f8f9fa);
+  border: 1px solid var(--gray-300, #dee2e6);
+  border-radius: 999px;
+  color: var(--body-color, #212529);
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  padding: 0.28rem 0.6rem;
+}
+
+#LayerVision_VAHx .vahx-series-toggle::before {
+  background: var(--vahx-color);
+  border-radius: 50%;
+  content: '';
+  display: inline-block;
+  height: 0.55rem;
+  margin-right: 0.35rem;
+  width: 0.55rem;
+}
+
+#LayerVision_VAHx .vahx-series-toggle.active {
+  background: var(--vahx-color);
+  border-color: var(--vahx-color);
+  color: #fff;
+}
+
+#LayerVision_VAHx .vahx-series-toggle.active::before {
+  background: #fff;
+}
+
+@media (max-width: 1100px) {
+  #LayerVision_VAHx .vahx-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 #LayerVision2 {
@@ -2550,9 +3888,8 @@ View.php
 
 #Add_Glasses {
   background: #c9dbf2;
-  font-size: 0.9em;
   font-weight: bold;
-  margin-left: 30px;
+  margin-left: 0;
 }
 
 .copier {
@@ -2590,18 +3927,57 @@ View.php
 }
 
 td[name=W_wide2] {
-  padding-left: 20px;
+  padding: 5px 8px;
   text-align: left;
   vertical-align: top;
 }
 
-textarea[name=COMMENTS_W] {
-  height: 3em;
+.current-glasses-comments-label {
+  padding-right: 8px;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.current-glasses-comments-cell {
+  padding-right: 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.current-glasses-comments,
+textarea[name=COMMENTS_W].current-glasses-comments {
+  box-sizing: border-box;
+  height: 4.8em;
+  max-width: 100%;
+  min-height: 4.8em;
+  min-width: 12rem;
+  resize: vertical;
   width: 100%;
 }
 
 #LayerVision_MR > table {
   margin-bottom: 5px;
+}
+
+#LayerVision_MR .manifest-wet-method {
+  padding: 2px 4px;
+  vertical-align: middle;
+}
+
+#LayerVision_MR .manifest-wet-method select {
+  box-sizing: border-box;
+  width: 82px;
+}
+
+#LayerVision_MR .manifest-pd-label {
+  font-weight: 700;
+  padding: 2px 4px;
+  text-align: center;
+}
+
+#LayerVision_MR .manifest-pd-input {
+  padding: 2px 4px !important;
+  text-align: center !important;
 }
 
 #CRCOMMENTS {
@@ -2615,10 +3991,10 @@ textarea[name=COMMENTS_W] {
 
 #CTL_box {
   background-color: #fffbeb;
-  border: 1px inset #c9c3c3;
+  border: 1px outset #c9c3c3;
   border-radius: 5px;
   font-size: 1.2em;
-  margin: 5px auto;
+  margin: 7px auto;
 }
 
 #CTL_COMMENTS {
@@ -2634,9 +4010,47 @@ textarea[name=COMMENTS_W] {
   white-space: nowrap;
 }
 
-#mid_menu span {
-  margin: 2px 5px;
-  padding: 8px 10px;
+#mid_menu > span.btn {
+  align-items: center;
+  border: 1px solid var(--dark);
+  border-radius: 6px;
+  box-shadow: 5px 5px 9px #dad7d7;
+  box-sizing: border-box;
+  display: inline-flex;
+  font-size: 13px;
+  gap: 6px;
+  justify-content: center;
+  line-height: 1.2;
+  margin: 0;
+  min-height: 42px;
+  padding: 8px 12px;
+  vertical-align: middle;
+}
+
+#mid_menu > span.btn i,
+#mid_menu > span.btn b {
+  line-height: 1;
+}
+
+#mid_menu > span.btn-secondary {
+  background-color: #fff;
+  color: #1f2933;
+}
+
+#mid_menu > span.btn-secondary:hover,
+#mid_menu > span.btn-secondary:focus {
+  background-color: #eef6ff;
+  border-color: #3f6fa6;
+  color: #111827;
+}
+
+#mid_menu .oldies_prefix {
+  align-items: center;
+  display: inline-flex;
+  gap: 5px;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
 }
 
 #mid_menu span span {
@@ -2644,8 +4058,12 @@ textarea[name=COMMENTS_W] {
   padding: 0;
 }
 
-#IOP_dil {
-  font-size: 0.7em;
+#mid_menu select.PRIORS {
+  font-size: 12px !important;
+  height: 24px;
+  line-height: 1.2;
+  margin: 0 2px;
+  padding: 1px 22px 1px 6px !important;
 }
 
 #ALL_keyboard_left {
@@ -2686,24 +4104,247 @@ div[name=prior_selector] {
 }
 
 #NEURO_P_2 {
-  float: right;
-  margin: 0 1.5em;
-  padding-top: 4em;
   text-align: center;
 }
 
 #NEURO_P_3 {
-  margin: 0.5em auto;
-  padding-left: 2.5em;
-  top: 0;
+  text-align: center;
 }
 
 .NEURO_P_21 {
   border: 1px solid var(--dark);
   font-weight: 600;
-  margin: 20px 4px 4px;
-  padding: 4px 10px;
+  margin: 0;
+  padding: 4px 6px;
   text-align: center;
+}
+
+#NEURO_QP_LAYOUT {
+  align-items: start;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: minmax(285px, 1.15fr) minmax(220px, 0.85fr);
+  padding: 28px 8px 8px;
+}
+
+#QP_NEURO {
+  box-sizing: border-box;
+  max-height: none;
+  width: 100%;
+}
+
+#NEURO_QP_LEFT,
+#NEURO_QP_RIGHT {
+  min-width: 0;
+}
+
+#NEURO_QP_LEFT .ACT_boxed {
+  box-sizing: border-box;
+  margin: 3px 0;
+  max-width: none;
+  padding: 3px;
+  width: 100%;
+}
+
+#NEURO_RECORD_WRAP {
+  margin: 0;
+  text-align: center;
+}
+
+#NEURO_RECORD {
+  font-size: 11px;
+  height: 23px;
+  line-height: 19px;
+  padding: 1px 12px;
+  vertical-align: middle;
+}
+
+#NEURO_RX_DISTANCE,
+#NEURO_POSITION_GAZE,
+#NEURO_PRISM_DIOPTERS {
+  align-items: center;
+  column-gap: 3px;
+  display: grid;
+  justify-items: stretch;
+  row-gap: 1px;
+}
+
+#NEURO_RX_DISTANCE > .underline,
+#NEURO_POSITION_GAZE > .underline,
+#NEURO_PRISM_DIOPTERS > .underline {
+  grid-column: 1 / -1;
+}
+
+#NEURO_RX_DISTANCE > br,
+#NEURO_POSITION_GAZE > br,
+#NEURO_PRISM_DIOPTERS > br,
+#NEURO_LATERALITY > br,
+#NEURO_DEVIATION > br {
+  display: none;
+}
+
+#NEURO_RX_DISTANCE {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+#NEURO_POSITION_GAZE {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+#NEURO_PRISM_DIOPTERS {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+#NEURO_PRISM_DIOPTERS #NEURO_value_25 {
+  grid-column: 3;
+}
+
+#NEURO_RX_DISTANCE .eye_button,
+#NEURO_POSITION_GAZE .eye_button,
+#NEURO_POSITION_GAZE .eye_button_blank,
+#NEURO_PRISM_DIOPTERS .eye_button {
+  box-sizing: border-box;
+  margin: 1px 0;
+  min-width: 0;
+  padding-left: 2px;
+  padding-right: 2px;
+  width: 100%;
+}
+
+#NEURO_LATERALITY_DEVIATION {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: 1.35fr 1fr;
+  grid-template-rows: auto 1fr;
+  margin-top: 3px;
+  text-align: center;
+}
+
+#NEURO_LATERALITY_DEVIATION .NEURO_P_21 {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 3px;
+  width: auto;
+}
+
+#NEURO_DEVIATION {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
+
+#NEURO_LATERALITY {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+#NEURO_LATERALITY_DEVIATION #NEURO_RECORD_WRAP {
+  align-items: center;
+  display: flex;
+  grid-column: 2;
+  grid-row: 2;
+  justify-content: center;
+  min-height: 44px;
+}
+
+#NEURO_LATERALITY,
+#NEURO_DEVIATION {
+  align-items: center;
+  column-gap: 3px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  row-gap: 1px;
+}
+
+#NEURO_LATERALITY > .underline,
+#NEURO_DEVIATION > .underline {
+  grid-column: 1 / -1;
+}
+
+#NEURO_LATERALITY .eye_button,
+#NEURO_DEVIATION .eye_button {
+  box-sizing: border-box;
+  margin: 1px 0;
+  min-width: 0;
+  padding-left: 2px;
+  padding-right: 2px;
+  width: 100%;
+}
+
+#NEURO_DEVIATION #NEURO_ACT_strab_hypoT_int {
+  grid-column: 2;
+}
+
+#NEURO_SPCT_CARD,
+#NEURO_PATTERN_ANALYSIS {
+  box-sizing: border-box;
+  margin-bottom: 6px;
+  padding: 6px;
+  width: 100%;
+}
+
+.neuro-spct-grid {
+  align-items: center;
+  display: grid;
+  gap: 3px 6px;
+  grid-template-columns: auto minmax(90px, 1fr);
+  margin-top: 4px;
+}
+
+.neuro-spct-grid label {
+  font-size: 11px;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.neuro-spct-grid input {
+  box-sizing: border-box;
+  height: 24px;
+  min-width: 0;
+  width: 100%;
+}
+
+.neuro-pattern-guidance {
+  font-size: 11px;
+  line-height: 1.3;
+  margin-top: 4px;
+  min-height: 52px;
+  max-height: 195px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.neuro-pattern-guidance ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.neuro-pattern-guidance li + li {
+  margin-top: 4px;
+}
+
+.neuro-pattern-guidance .guidance-evidence {
+  margin: 2px 0;
+  overflow-wrap: anywhere;
+}
+
+.neuro-pattern-guidance .guidance-note {
+  color: #59636e;
+  font-style: italic;
+}
+
+/* Group titles between findings: Primary position, Distance versus near, ... */
+.neuro-pattern-guidance li.guidance-heading {
+  font-weight: 700;
+  list-style: none;
+  margin-left: -18px;
+  margin-top: 6px;
+}
+
+@media (max-width: 900px) {
+  #NEURO_QP_LAYOUT {
+    grid-template-columns: 1fr;
+  }
 }
 
 #IMP {
@@ -2750,7 +4391,6 @@ div[name=prior_selector] {
   padding-right: 20px;
 }
 
-
 #DIL_RISKS {
   margin-left: 100px;
 }
@@ -2760,33 +4400,7 @@ div[name=prior_selector] {
   text-align: left;
 }
 
-#EXT_left_1,
-#ANTSEG_left_1,
-#RETINA_left_1,
-#NEURO_left_1,
-#PRIORS_EXT_left_1,
-#PRIORS_ANTSEG_left_1,
-#PRIORS_RETINA_left_1,
-#PRIORS_NEURO_left_1 {
-  float: right;
-  font-size: 12px;
-  margin-bottom: 5px;
-  position: relative;
-  text-align: right;
-  top: 0.1in;
-}
-
-#EXT_left_1 table:nth-of-type(1),
-#ANTSEG_left_1 table:nth-of-type(1),
-#RETINA_left_1 table:nth-of-type(1),
-#PRIORS_EXT_left_1 table:nth-of-type(1),
-#PRIORS_ANTSEG_left_1 table:nth-of-type(1),
-#PRIORS_RETINA_left_1 table:nth-of-type(1) {
-  float: right;
-  position: relative;
-}
-
-#NEURO_color {
+#NEURO_stereopsis {
   border: 1px solid var(--dark);
   float: left;
   font-size: 0.9em;
@@ -2803,43 +4417,12 @@ div[name=prior_selector] {
   font-weight: bold;
   margin: 2px;
   padding: 0 15px;
+  position: relative;
   width: 195px;
 }
 
 #NEURO_MOTILITY table {
   width: 100%;
-}
-
-#EXT_left_1 table:nth-of-type(2),
-#PRIORS_EXT_left_1 table:nth-of-type(2),
-#ANTSEG_left_1 table:nth-of-type(2),
-#PRIORS_ANTSEG_left_1 table:nth-of-type(2),
-#RETINA_left_1 table:nth-of-type(2),
-#PRIORS_RETINA_left_1 table:nth-of-type(2) {
-  clear: both;
-  float: right;
-  font-size: 1em;
-  margin-bottom: 10px;
-  padding-left: 2px;
-  text-align: center;
-}
-
-#RETINA_left_1 table:nth-of-type(3),
-#PRIORS_RETINA_left_1 table:nth-of-type(3) {
-  clear: both;
-  float: right;
-  font-size: 1em;
-  padding-left: 2px;
-  text-align: center;
-}
-
-#RETINA_left_1 table:nth-of-type(4),
-#PRIORS_RETINA_left_1 table:nth-of-type(4) {
-    clear: both;
-    float: right;
-    font-size: 1em;
-    padding-left: 2px;
-    text-align: center;
 }
 
 .diagnosis {
@@ -2875,14 +4458,24 @@ div[name=prior_selector] {
 #dil_box,
 #PRIORS_dil_box {
   bottom: 0;
-  padding-top: 5px;
+  padding-top: 14px;
   text-align: left;
   width: 175px;
 }
 
 #dil_listbox,
-#PRIORS_dil_box {
+#PRIORS_dil_listbox {
   padding: 4px 4px 4px 0;
+  table-layout: fixed;
+  width: 100%;
+}
+
+#dil_listbox td,
+#PRIORS_dil_listbox td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 50%;
 }
 
 #dil_listbox_title,
@@ -2897,7 +4490,20 @@ input[type="checkbox"] {
 }
 
 .dil_drug_label {
+  display: inline-block;
+  max-width: 105px;
+  overflow: hidden;
   padding-right: 4px;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.dil-list-editor {
+  display: inline-block;
+  margin-left: 3px;
+  text-decoration: none !important;
+  vertical-align: middle;
 }
 
 .PMSFH_table {
@@ -2940,6 +4546,7 @@ input[type="checkbox"] {
 }
 
 #ACTMAIN {
+  margin-top: 4px;
   position: relative;
   z-index: 1;
 }
@@ -2950,6 +4557,7 @@ input[type="checkbox"] {
 
 #ACTTABLE {
   border-collapse: separate;
+  border-spacing: 2px 0;
   font-size: 1em;
   position: relative;
   text-align: center;
@@ -3028,3 +4636,281 @@ input[type="checkbox"] {
     min-width: 1040px;
     min-height: 500px;
 }
+
+/* Tooltips ($('[title]').tooltip() in eye_base.php) must sit above every
+   panel: the jquery.panelslider side panels get an inline z-index of 999999,
+   and the fixed Eye Exam title bar is 9999999. Covers jQuery UI and
+   Bootstrap tooltips, whichever plugin owns .tooltip() on the page. */
+.ui-tooltip,
+.tooltip {
+  z-index: 10000000 !important;
+}
+
+/* Historical Neuro cards use the current exam's compact structure without editable controls. */
+.eye-neuro-prior {
+  container-type: inline-size;
+  clear: both;
+  font-size: 0.9em;
+  padding-top: 8px;
+  width: 100%;
+}
+
+.eye-neuro-prior-layout {
+  align-items: start;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 195px) minmax(0, 1fr);
+}
+
+.eye-neuro-prior-left {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.eye-neuro-prior-card {
+  border: 1px solid var(--dark, #343a40);
+  border-radius: 6px;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 8px;
+}
+
+.eye-neuro-prior-heading {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.eye-neuro-prior label {
+  font-weight: inherit;
+  margin: 0;
+}
+
+.eye-neuro-prior table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.eye-neuro-prior th,
+.eye-neuro-prior td {
+  overflow-wrap: anywhere;
+  padding: 2px 3px;
+  vertical-align: middle;
+}
+
+.eye-neuro-prior th {
+  font-weight: normal;
+  text-align: right;
+}
+
+.eye-neuro-prior td {
+  text-align: center;
+}
+
+.eye-neuro-prior input[type="text"],
+.eye-neuro-prior textarea {
+  box-sizing: border-box;
+  color: inherit;
+  margin: 0;
+  max-width: 100%;
+  min-width: 0;
+  opacity: 1;
+  width: 100%;
+}
+
+.eye-neuro-prior input[type="checkbox"] {
+  margin: 0 0 0 3px;
+  vertical-align: middle;
+}
+
+.eye-neuro-prior-segments,
+.eye-neuro-prior-score {
+  align-items: center;
+  display: inline-flex;
+}
+
+.eye-neuro-prior-segments > span {
+  border: 1px solid #627483;
+  line-height: 1.5;
+  padding: 0 3px;
+}
+
+.eye-neuro-prior-segments > span + span {
+  border-left: 0;
+}
+
+.eye-neuro-prior-segments .is-selected {
+  background: #bfe8c9;
+  color: #0b4c22;
+  font-weight: bold;
+}
+
+.eye-neuro-prior-score input[type="text"] {
+  max-width: 36px;
+  text-align: center;
+}
+
+.eye-neuro-prior-fixation {
+  white-space: nowrap;
+}
+
+.eye-neuro-prior-charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  text-align: center;
+}
+
+.eye-neuro-prior-charts strong {
+  display: block;
+  font-size: 0.9em;
+}
+
+.eye-neuro-prior-charts svg {
+  display: block;
+  height: auto;
+  margin: 0 auto;
+  max-width: 100%;
+  width: 74px;
+}
+
+.eye-neuro-prior-charts line {
+  stroke: #18324f;
+  stroke-width: 1;
+}
+
+.eye-neuro-prior-charts g line {
+  stroke-width: 1.5;
+}
+
+.eye-neuro-prior-label-col {
+  width: 42%;
+}
+
+.eye-neuro-prior-amplitudes th {
+  padding-top: 12px;
+}
+
+.eye-neuro-prior-act-details > summary {
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+
+.eye-neuro-prior-act-view {
+  margin-bottom: 10px;
+}
+
+.eye-neuro-prior-act-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 3px 0;
+}
+
+.eye-neuro-prior-act-grid > span {
+  border: 1px solid currentColor;
+  padding: 2px;
+}
+
+.eye-neuro-prior-head-tilt {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.eye-neuro-prior-comments {
+  margin: 10px 16px 0;
+}
+
+.eye-neuro-prior-comments textarea {
+  display: block;
+  min-height: 44px;
+}
+
+@container (max-width: 410px) {
+  .eye-neuro-prior-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .eye-neuro-prior-left {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (max-width: 320px) {
+  .eye-neuro-prior-left {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+
+.eye-neuro-prior-gaze-labels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.eye-neuro-prior-act textarea {
+  min-height: 32px;
+  resize: vertical;
+}
+
+/* Reusable images stay behind the drawing toolbar and Save As buttons. */
+.eye-image-modal {
+  width: min(720px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 40px);
+  padding: 0;
+  border: 1px solid #8393a2;
+  border-radius: 8px;
+  color: #172b3d;
+  background: #fff;
+  box-shadow: 0 12px 48px #0004;
+}
+.eye-image-modal::backdrop { background: #14243580; }
+.eye-image-modal-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #d8e0e7; }
+.eye-image-modal-heading h3 { margin: 0; font-size: 18px; }
+.eye-image-modal-heading button { font-size: 24px; line-height: 1; background: transparent; border: 0; padding: 3px 8px; }
+.eye-image-modal-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.eye-image-modal button { cursor: pointer; }
+.eye-image-modal button:disabled { cursor: default; opacity: .55; }
+.eye-image-modal button:focus-visible, .eye-image-modal input:focus-visible { outline: 2px solid #176c9b; outline-offset: 2px; }
+.eye-image-modal input[type=text] { display: block; width: 100%; box-sizing: border-box; padding: 7px 9px; margin-top: 4px; border: 1px solid #8e9eac; border-radius: 4px; }
+.eye-image-modal label { font-weight: normal; margin: 0; }
+.eye-image-modal-status { margin: 0 16px 12px; min-height: 1.3em; font-size: 13px; }
+.eye-library-tabs, .eye-library-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.eye-library-tabs button, .eye-library-actions button, [data-library-save], [data-library-upload] { padding: 7px 12px; border: 1px solid #8e9eac; border-radius: 4px; background: #f2f5f7; color: #172b3d; }
+.eye-library-tabs button[aria-pressed=true] { background: #deedf5; border-color: #176c9b; }
+.eye-library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; max-height: min(48vh, 420px); overflow-y: auto; padding: 3px; }
+.eye-library-card { display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-width: 0; padding: 6px; border: 2px solid #d8e0e7; border-radius: 5px; background: #fff; text-align: center; }
+.eye-library-card[aria-pressed=true] { border-color: #176c9b; box-shadow: 0 0 0 1px #176c9b; }
+.eye-library-card img, .eye-save-preview { object-fit: contain; background-color: #fff; background-image: linear-gradient(45deg,#e7ebee 25%,transparent 25%),linear-gradient(-45deg,#e7ebee 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e7ebee 75%),linear-gradient(-45deg,transparent 75%,#e7ebee 75%); background-size: 16px 16px; background-position: 0 0,0 8px,8px -8px,-8px 0; }
+.eye-library-card img { width: 100%; height: 90px; }
+.eye-library-card span { overflow-wrap: anywhere; font-size: 13px; }
+.eye-library-card small { color: #176c9b; font-size: 11px; }
+.eye-library-empty { grid-column: 1 / -1; padding: 24px 4px; margin: 0; }
+.eye-library-upload { border-top: 1px solid #d8e0e7; padding-top: 12px; }
+.eye-library-upload summary { cursor: pointer; }
+.eye-library-upload[open] input, .eye-library-upload[open] button { margin-top: 10px; max-width: 100%; }
+.eye-save-preview { width: 100%; max-height: 300px; border: 1px solid #d8e0e7; border-radius: 4px; }
+.eye-save-note { color: #526575; }
+.eye-drawing-save-modal { width: min(550px, calc(100vw - 32px)); }
+[data-library-save] { align-self: flex-end; }
+
+.eye-library-tile { position: relative; display: flex; flex-direction: column; min-width: 0; gap: 3px; }
+.eye-library-tile .eye-library-card { width: 100%; flex: 1; }
+.eye-library-delete { position: absolute; top: 6px; right: 6px; width: 25px; height: 25px; padding: 0; border: 1px solid #aab6bf; border-radius: 50%; background: #fff; color: #743333; font-size: 21px; line-height: 21px; }
+.eye-library-delete:hover { background: #fff0f0; border-color: #a33b3b; }
+.eye-library-rename-button { align-self: flex-end; padding: 3px 5px; border: 0; background: transparent; color: #176c9b; text-decoration: underline; font-size: 12px; }
+.eye-library-rename:not([hidden]) { display: flex; flex-direction: column; gap: 9px; padding: 12px; border: 1px solid #c8d8e3; border-radius: 4px; background: #f5f9fc; }
+
+.eye-save-crop-stage { position: relative; align-self: center; width: 100%; overflow: hidden; line-height: 0; }
+.eye-save-crop-stage .eye-save-preview { display: block; width: 100%; max-height: none; max-width: 100%; box-sizing: border-box; user-select: none; -webkit-user-drag: none; }
+.eye-save-crop-stage.eye-crop-active { cursor: crosshair; touch-action: none; }
+.eye-save-crop-selection { position: absolute; box-sizing: border-box; border: 1px solid #176c9b; box-shadow: 0 0 0 999px #10293880; pointer-events: none; }
+.eye-save-crop-stage:focus-visible { outline: 2px solid #176c9b; outline-offset: 2px; }
+.eye-save-crop-hint { color: #526575; }
+
+.eye-save-crop-stage .eye-save-preview { border: 0; border-radius: 0; }
