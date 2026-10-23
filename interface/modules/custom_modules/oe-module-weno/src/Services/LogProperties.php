@@ -170,9 +170,30 @@ class LogProperties
     }
 
     /**
+     * Download the Weno sync report and import it. Only one sync runs at a
+     * time; a call made while another sync is running is skipped and returns
+     * false (see SyncLock).
+     *
      * @throws Exception
      */
     public function logSync($tasked = 'background'): bool
+    {
+        $lock = SyncLock::forSite(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR'));
+        if (!$lock->tryAcquire()) {
+            (new WenoLogService())->insertWenoLog("Sync Report", "Skipped, another sync is already running.");
+            return false;
+        }
+        try {
+            return $this->runLogSync(is_string($tasked) ? $tasked : 'background');
+        } finally {
+            $lock->release();
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function runLogSync(string $tasked): bool
     {
         $wenoLog = new WenoLogService();
         $provider_info['email'] = $this->weno_admin_email;

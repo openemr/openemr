@@ -15,6 +15,7 @@ require_once(dirname(__DIR__, 4) . "/globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
+use OpenEMR\Modules\WenoModule\Services\SyncLock;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
@@ -48,6 +49,13 @@ if ($task == 'downloadStatusLog') {
         http_response_code(500);
     }
 
+    exit;
+}
+// Another sync (the widget's auto-sync, another tab, or the background
+// service) is already running. Answer 409 so the widget can say so instead
+// of reporting a credentials failure.
+if (SyncLock::forSite(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR'))->isHeldElsewhere()) {
+    http_response_code(409);
     exit;
 }
 // Check if the task is to sync the log

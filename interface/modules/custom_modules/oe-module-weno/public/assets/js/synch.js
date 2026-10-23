@@ -1,48 +1,109 @@
-function sync_weno() {
+// Only one prescription sync runs from this page at a time. After returning
+// from e-Prescribe the widget starts one on its own (sync_report). A Sync click
+// while that was running started a second sync on the server; both write the
+// same report file, so the click failed. The Sync button is disabled while a
+// sync runs, and the server answers 409 if a sync from elsewhere (another tab,
+// the background service) is already running.
+let wenoSyncRunning = false;
+
+function wenoSyncText(text) {
+    return typeof xl === 'function' ? xl(text) : text;
+}
+
+function setWenoSyncBusy(busy) {
+    wenoSyncRunning = busy;
+    const button = document.getElementById("sync-button");
+    const icon = document.getElementById("sync-icon");
+    if (button) {
+        button.setAttribute("aria-disabled", busy ? "true" : "false");
+        button.classList.toggle("disabled", busy);
+        button.style.pointerEvents = busy ? "none" : "";
+        button.style.opacity = busy ? "0.5" : "";
+        button.title = busy ? wenoSyncText("A prescription sync is running.") : "";
+    }
+    if (icon) {
+        icon.classList.toggle("fa-spin", busy);
+    }
+}
+
+function postWenoSync() {
     top.restoreSession();
-    const syncIcon = document.getElementById("sync-icon");
-    const syncAlert = document.getElementById("sync-alert");
-    const url = '../../modules/custom_modules/oe-module-weno/templates/synch.php';
-
-    syncIcon.classList.add("fa-spin");
-
-    let formData = new FormData();
+    const formData = new FormData();
     formData.append("key", "sync");
-
-    fetch(url, {
+    return fetch('../../modules/custom_modules/oe-module-weno/templates/synch.php', {
         method: 'POST',
         body: formData
-    }).then(response => {
-        if (!response.ok) {
-            // If the response status code is not in the 200-299 range, reject the promise
-            throw new Error('Server responded with an error status: ' + response.status);
-        } else {
-            // setting alert details
-            wenoAlertManager("success", syncAlert, syncIcon);
-            refreshDemographics();
+    });
+}
+
+function showWenoSyncInfo(element, msg) {
+    if (!element) {
+        return;
+    }
+    element.classList.remove("d-none", "alert-success", "alert-danger");
+    element.classList.add("alert", "alert-info");
+    element.textContent = msg;
+    setTimeout(function () {
+        element.classList.add("d-none");
+        element.classList.remove("alert", "alert-info");
+        element.textContent = "";
+    }, 5000);
+}
+
+function hideResyncNotice() {
+    const notice = document.getElementById("resync-alert");
+    if (notice) {
+        notice.classList.add("d-none");
+    }
+}
+
+function sync_weno() {
+    if (wenoSyncRunning) {
+        return;
+    }
+    const syncIcon = document.getElementById("sync-icon");
+    const syncAlert = document.getElementById("sync-alert");
+    setWenoSyncBusy(true);
+
+    postWenoSync().then(response => {
+        if (response.status === 409) {
+            setWenoSyncBusy(false);
+            showWenoSyncInfo(syncAlert, wenoSyncText("A prescription sync is already running. Please try again shortly."));
+            return;
         }
+        if (!response.ok) {
+            throw new Error('Server responded with an error status: ' + response.status);
+        }
+        // Both alert paths reload the page, so the button stays disabled.
+        wenoAlertManager("success", syncAlert, syncIcon);
+        refreshDemographics();
     }).catch(error => {
-        console.log(error.message)
+        console.log(error.message);
         wenoAlertManager("failed", syncAlert, syncIcon);
     });
 }
 
 function sync_report(pid = '') {
-    top.restoreSession();
-    const url = '../../modules/custom_modules/oe-module-weno/templates/synch.php';
-    let formData = new FormData();
-    formData.append("key", "sync");
+    if (wenoSyncRunning) {
+        return;
+    }
+    setWenoSyncBusy(true);
 
-    fetch(url, {
-        method: 'POST',
-        body: formData
-    }).then(response => {
+    postWenoSync().then(response => {
+        if (response.status === 409) {
+            // Another sync is already importing; nothing more to do here.
+            hideResyncNotice();
+            setWenoSyncBusy(false);
+            return;
+        }
         if (!response.ok) {
             throw new Error('Server responded with an error status: ' + response.status);
         }
         refreshDemographics();
     }).catch(error => {
         console.log(error.message);
+        hideResyncNotice();
+        setWenoSyncBusy(false);
     });
 }
 

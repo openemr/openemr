@@ -171,7 +171,7 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
            onclick="top.restoreSession(); setPrescribeLocation();">
             <span><i class="fa fa-pencil-alt mr-1"></i><?php echo xlt("Prescribe"); ?></span>
         </a>
-        <a role="button" class="text-primary" onclick="top.restoreSession(); sync_weno();">
+        <a role="button" id="sync-button" class="text-primary" aria-disabled="false" onclick="top.restoreSession(); sync_weno();">
             <span><i id="sync-icon" class="fa-solid fa-refresh mr-1"></i><?php echo xlt("Sync"); ?></span>
         </a>
         <a role="button" class="text-primary" onclick="refreshDemographics();">
@@ -187,7 +187,7 @@ if ($reSync === true) {
     $_GET['resync'] = '';
     unset($_GET['resync']);
     echo "<script>sync_report(" . js_escape($pid) . ")</script>";
-    echo '<div class="alert alert-success">' . xlt('Checking Sync Report, please wait! Prescriptions may not be ready for 30 minutes or more.') . '</div>';
+    echo '<div id="resync-alert" class="alert alert-success">' . xlt('Checking Sync Report, please wait! Prescriptions may not be ready for 30 minutes or more.') . '</div>';
 }
 ?>
 <?php // One #sync-alert only - the id was duplicated, so JS targeting it hit the
