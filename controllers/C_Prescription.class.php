@@ -108,6 +108,16 @@ class C_Prescription extends Controller
             }
 
             $this->assign("dispenseEnabled", true);
+            // Warehouse policy as it applies to the current user, so the
+            // dispense card can show its status before any lots are loaded.
+            $policyService = new DrugSalesService();
+            $policyUserRaw = SessionWrapperFactory::getInstance()->getActiveSession()->get('authUser');
+            $policyUserDefault = $policyService->getUserDefaultWarehouse(is_string($policyUserRaw) ? $policyUserRaw : '');
+            $this->assign("warehousePolicyRestrict", DrugSalesService::restrictSalesToDefaultWarehouse());
+            $this->assign(
+                "warehouseDefaultTitle",
+                $policyUserDefault !== '' ? ($policyService->getWarehouseTitle($policyUserDefault) ?: $policyUserDefault) : ''
+            );
             $this->assign("defaultPharmacySupplyType", "FF");
             $this->assign("DRUG_ARRAY_VALUES", $drug_array_values);
             $this->assign("DRUG_ARRAY_OUTPUT", $drug_array_output);

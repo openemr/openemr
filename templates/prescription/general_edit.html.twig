@@ -201,8 +201,16 @@
                             <select class="input-sm form-control" name="dispense_inventory_id" id="dispense_inventory_id" disabled>
                                 <option value="">{{'Select an in-house drug to load lots'|xlt}}</option>
                             </select>
-                            {# Read-only status of the clinic's warehouse policy for the current user; filled by loadLotsForDrug(). #}
-                            <div id="warehouse_policy_status" class="small text-muted mt-1" style="display:none;"></div>
+                            {# Read-only status of the clinic's warehouse policy for the current user. Rendered
+                               server-side so it is visible as soon as the card opens; loadLotsForDrug() refreshes it. #}
+                            {% if warehousePolicyRestrict and warehouseDefaultTitle %}
+                                {% set warehousePolicyText = 'Dispensing is restricted to your default warehouse:'|xl ~ ' ' ~ warehouseDefaultTitle ~ '. ' ~ 'Preselected is the lot from there that expires next.'|xl %}
+                            {% elseif warehousePolicyRestrict %}
+                                {% set warehousePolicyText = 'Your clinic restricts dispensing to the default warehouse, but this is not in effect for you: no default warehouse is set.'|xl %}
+                            {% else %}
+                                {% set warehousePolicyText = 'Your clinic allows dispensing from any warehouse. Lots outside your default warehouse are marked off-site.'|xl %}
+                            {% endif %}
+                            <div id="warehouse_policy_status" class="small text-muted mt-1">{{ warehousePolicyText|text }}</div>
                             <div id="off_site_warning" class="alert alert-warning mt-2" style="display:none;">
                                 <strong>{{'Off-site lot selected.'|xlt}}</strong>
                                 {{'This lot is not in your on-site (default) warehouse. Make sure you are physically dispensing from this exact lot. If the lot is in fact on-site, transfer it into your on-site warehouse first via Inventory → Management → Edit Lot.'|xlt}}
@@ -210,10 +218,10 @@
                             <div id="strict_mode_notice" class="alert alert-info mt-2" style="display:none;">
                                 {{'Off-site lots are shown for reference only. Your clinic only allows dispensing from your default warehouse — transfer a lot via Inventory → Management → Edit Lot first if you need to dispense from it.'|xlt}}
                             </div>
-                            <div id="no_default_warehouse_warning" class="alert alert-warning mt-2" style="display:none;">
+                            <div id="no_default_warehouse_warning" class="alert alert-warning mt-2"{% if warehouseDefaultTitle %} style="display:none;"{% endif %}>
                                 <strong>{{'No default warehouse set.'|xlt}}</strong>
-                                <span class="no-default-loose">{{'Please set a default warehouse for your user under Administration → Users. Without one, it is unclear whether the lots shown above are on-site or not.'|xlt}}</span>
-                                <span class="no-default-strict">{{'Your clinic restricts dispensing to the user’s default warehouse, but none is configured for you, so lots from all warehouses are offered. Ask an administrator to set one under Administration → Users.'|xlt}}</span>
+                                <span class="no-default-loose"{% if warehousePolicyRestrict %} style="display:none;"{% endif %}>{{'Please set a default warehouse for your user under Administration → Users. Without one, it is unclear whether the lots shown above are on-site or not.'|xlt}}</span>
+                                <span class="no-default-strict"{% if not warehousePolicyRestrict %} style="display:none;"{% endif %}>{{'Your clinic restricts dispensing to the user’s default warehouse, but none is configured for you, so lots from all warehouses are offered. Ask an administrator to set one under Administration → Users.'|xlt}}</span>
                             </div>
                         </div>
                     </div>
@@ -561,9 +569,7 @@
         var $sel = $('#dispense_inventory_id');
         var requestSeq = ++lotRequestSeq;
         $('#off_site_warning').hide();
-        $('#no_default_warehouse_warning').hide();
         $('#strict_mode_notice').hide();
-        $('#warehouse_policy_status').hide();
         $sel.prop('disabled', true).empty();
         if (!drugId || drugId <= 0) {
             $sel.append($('<option>').val('').text({{'Select an in-house drug to load lots'|xlj}}));
