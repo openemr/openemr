@@ -1253,6 +1253,12 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
                 <!-- start of the VISION BOX -->
                 <div id="LayerVision" class="vitals">
+                  <button type="button" id="LayerVision_VAHx_lightswitch" name="LayerVision_VAHx_lightswitch"
+                          class="closeButton vision-history-toggle" title="<?php echo xla('Display the Visual Acuity History'); ?>"
+                          aria-label="<?php echo xla('Display the Visual Acuity History'); ?>"
+                          aria-controls="LayerVision_VAHx" aria-expanded="false">
+                      <i class="fa fa-chart-line" aria-hidden="true"></i>
+                  </button>
                   <div id="Lyr30" class="top_left">
                     <th class="text_clinical"><b id="vision_tab" title="Show/hide the refraction panels"><?php echo xlt('Vision'); ?>:</b></th>
                   </div>
@@ -1299,9 +1305,8 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                           </span>
                   </div>
 
-                  <div id="Lyr31" id="HxAcuities">
-                      <span title="Display the Visual Acuity History" id="LayerVision_VAHx_lightswitch" name="LayerVision_VAHx_lightswitch">
-                      <?php echo xlt('V{{One letter abbreviation for Vision}}'); ?></span>
+                  <div id="Lyr31">
+                      <?php echo xlt('V{{One letter abbreviation for Vision}}'); ?>
                   </div>
                   <div id="Visions_A" name="Visions_A">
                       <b>OD</b>
@@ -5044,6 +5049,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
         delete_title: <?php echo xlj('Delete this phrase'); ?>,
         delete_confirm: <?php echo xlj('Delete phrase %KEY%? This cannot be undone.'); ?>,
         action_failed: <?php echo xlj('Action failed.'); ?>,
+        request_failed: <?php echo xlj('The request could not be completed.'); ?>,
         delete_failed: <?php echo xlj('Delete failed.'); ?>,
         save_failed: <?php echo xlj('Save failed.'); ?>,
         back_title: <?php echo xlj('Back to all phrases'); ?>,

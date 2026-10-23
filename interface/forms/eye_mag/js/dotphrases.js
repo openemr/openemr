@@ -588,7 +588,7 @@
      * Send a phrase API operation with the current session and CSRF token.
      * @param {string} sub Server subaction.
      * @param {Object} [payload] Form fields for the operation.
-     * @returns {Promise<Object>} Parsed server response; callers inspect its ok flag.
+     * @returns {Promise<Object>} Server response or request failure; callers inspect its ok flag.
      */
     function serverRequest(sub, payload) {
         var form = new FormData();
@@ -601,7 +601,10 @@
             body: form,
             credentials: 'same-origin',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        }).then(function(res){ return res.json(); });
+        }).then(function(res){ return res.json(); }).catch(function(error){
+            debugLog('The phrase request failed.', error);
+            return {ok: false, msg: dpT('request_failed', 'The request could not be completed.')};
+        });
     }
 
     /**
@@ -790,7 +793,10 @@
         dpTopDoc().body.appendChild(MANAGER_EL);
         MANAGER_EL.style.display = 'flex';
         if (window.eyeMagServerList) {
-            window.eyeMagServerList().then(function(r){ if (!(r && r.ok)) managerRenderView(); else managerRenderView(); });
+            window.eyeMagServerList().then(function(r){
+                managerRenderView();
+                if (!(r && r.ok)) managerToast((r && r.msg) || dpT('request_failed', 'The request could not be completed.'), 'error');
+            });
         } else {
             managerRenderView();
         }

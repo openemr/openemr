@@ -267,33 +267,33 @@ function check_lock(modify) {
         }
     }
 }
-/**
- * Function to save a canvas by zone
- */
-function submit_canvas(zone, force, ready) {
-    if (!ready && typeof window.eyeDrawingInkReady === 'function') {
-        window.eyeDrawingInkReady(zone).then(function () { submit_canvas(zone, force, true); }).catch(function (error) { window.alert(error.message); });
-        return;
-    }
-    var id_here = document.getElementById('myCanvas_'+zone);
-    if (!id_here) {
-        return;
-    }
-    if (!force && typeof isEyeCanvasDirty === 'function' && !isEyeCanvasDirty(zone)) {
-        return;
-    }
-
-    var drawingOverlay = window.eyeDrawingOverlays && window.eyeDrawingOverlays[zone];
-    if (drawingOverlay) {
-        drawingOverlay.exportComposite(id_here).then(function(dataURL) {
-            persist_canvas(zone, dataURL, drawingOverlay.getJSON());
-        }).catch(function(error) {
-            window.alert(error.message || <?php echo xlj('The drawing could not be saved. Please try again.'); ?>);
+/** Serialize each zone's complete export and POST so older saves cannot overwrite newer work. */
+function submit_canvas(zone, force) {
+    var queues = window.eyeDrawingSaveQueues = window.eyeDrawingSaveQueues || {};
+    /** Wait for the current drawing, then capture and persist a matching image and editable state. */
+    function save() {
+        var ready = typeof window.eyeDrawingInkReady === 'function' ? window.eyeDrawingInkReady(zone) : Promise.resolve();
+        return ready.then(function () {
+            var canvas = document.getElementById('myCanvas_' + zone);
+            if (!canvas || (!force && typeof isEyeCanvasDirty === 'function' && !isEyeCanvasDirty(zone))) return;
+            var overlay = window.eyeDrawingOverlays && window.eyeDrawingOverlays[zone];
+            var exported = overlay ? overlay.exportSnapshot(canvas) : Promise.resolve({
+                dataURL: canvas.toDataURL('image/jpeg', 1),
+                overlayJson: '[]',
+                revision: typeof getEyeCanvasRevision === 'function' ? getEyeCanvasRevision(zone) : undefined,
+                backgroundKey: $('#current_background_' + zone).val() || 'default'
+            });
+            return exported.then(function (snapshot) {
+                snapshot.overlay = overlay;
+                return persist_canvas(zone, snapshot.dataURL, snapshot.overlayJson, snapshot);
+            });
         });
-        return;
     }
-
-    persist_canvas(zone, id_here.toDataURL('image/jpeg','1'), '');
+    queues[zone] = (queues[zone] || Promise.resolve()).then(save).catch(function (error) {
+        if (typeof markEyeCanvasDirty === 'function') markEyeCanvasDirty(zone);
+        window.alert((error && error.message) || <?php echo xlj('The drawing could not be saved. Please try again.'); ?>);
+    });
+    return queues[zone];
 }
 
 // Provider defaults are separate from the background already saved in this exam.
@@ -347,13 +347,13 @@ function eyeDrawingStartNew(zone) {
 }
 
 /** Store the composite image, annotations, and background, marking the zone saved on success. */
-function persist_canvas(zone, dataURL, overlayJson) {
+function persist_canvas(zone, dataURL, overlayJson, savedState) {
     const params = new URLSearchParams({
         id: $("#form_id").val(),
         canvas: zone
     });
     top.restoreSession();
-    $.ajax({
+    return $.ajax({
            type: "POST",
            url: "../../forms/eye_mag/save.php?" + params.toString(),
            data: {
@@ -363,17 +363,18 @@ function persist_canvas(zone, dataURL, overlayJson) {
            'encounter'   : $("#encounter").val(),
            'pid'         : $("#pid").val(),
            'overlayJson' : overlayJson,
-           'backgroundKey': $("#current_background_" + zone).val() || 'default'
+           'backgroundKey': savedState.backgroundKey
            }
 
            }).done(function(o) {
                    if (typeof clearEyeCanvasDirty === 'function') {
-                       clearEyeCanvasDirty(zone);
+                       clearEyeCanvasDirty(zone, savedState.revision);
                    }
                    var drawingOverlay = window.eyeDrawingOverlays && window.eyeDrawingOverlays[zone];
-                   if (drawingOverlay) {
-                       drawingOverlay.markSaved();
+                   if (drawingOverlay && drawingOverlay === savedState.overlay) {
+                       drawingOverlay.markSaved(overlayJson);
                    }
+                   if (typeof getEyeCanvasRevision === 'function' && getEyeCanvasRevision(zone) !== savedState.revision) return;
                    $('#myCanvas_' + zone).closest('.eye-drawing-stage').attr('data-has-saved-drawing', '1');
                    if (zone === 'NEURO') {
                        $("#NEURO_structured_overlay").removeClass('nodisplay')
@@ -2444,9 +2445,11 @@ function show_by_setting() {
         $("#SDRETINA_right").addClass('nodisplay').removeClass('canvas');
         $("#Draw_SDRETINA").addClass('nodisplay');
     }
-    if ($("#PREFS_VAHx").val() == '1') {
-        $("#LayerVision_VAHx").removeClass('nodisplay');
-    }
+    var vaHistoryOpen = $("#PREFS_VAHx").val() === '1';
+    $("#LayerVision_VAHx").toggleClass('nodisplay', !vaHistoryOpen);
+    $("#LayerVision_VAHx_lightswitch")
+        .toggleClass('buttonRefraction_selected', vaHistoryOpen)
+        .attr('aria-expanded', String(vaHistoryOpen));
     var visionPreference = $("#PREFS_VA").val();
     var rememberedRefractionPanel = ["W", "MR", "CR", "CTL", "ADDITIONAL", "VAX", "RXHX"].some(function(section) {
         return $("#PREFS_" + section).val() === '1';
@@ -3956,7 +3959,6 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   var section = "#"+this.id.match(/(.*)_lightswitch$/)[1];
                                                   var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];
                                                   var elem = document.getElementById("PREFS_"+section2);
-                                                  $("#PREFS_VA").val('0');
                                                   if ((section2 != "IOP") && (section2 != "VAHx")) {
                                                         $("#REFRACTION_sections").removeClass('nodisplay');
                                                         $("#PREFS_VA").val('1');
@@ -3989,6 +3991,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                     $("#LayerVision_VAHx").addClass('nodisplay');
                                                   }
                                                   $(this).removeClass("buttonRefraction_selected");
+                                                  }
+                                                  if (section2 === "VAHx") {
+                                                      $(this).attr('aria-expanded', String(elem.value === '1'));
                                                   }
                                                   $(this).css( 'cursor', 'pointer' );
                                                   update_PREFS();

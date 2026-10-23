@@ -20,6 +20,7 @@ var zone;
 var cPushArray = new Array();
 var cStep = new Array();
 var eyeCanvasDirty = Object.create(null);
+var eyeCanvasRevision = Object.create(null);
 // Keep newly drawn ink separate so reusable overlays retain real transparency.
 var eyeCanvasInk = Object.create(null);
 var eyeCanvasInkHistory = Object.create(null);
@@ -60,12 +61,20 @@ function resetEyeDrawingInk(zone, canvas, source) {
 /** Flag this zone for persistence after an actual drawing or background change. */
 function markEyeCanvasDirty(zone)
 {
+    eyeCanvasRevision[zone] = getEyeCanvasRevision(zone) + 1;
     eyeCanvasDirty[zone] = true;
 }
 
-/** Clear this zone's pending-change flag after initialization or a successful save. */
-function clearEyeCanvasDirty(zone)
+/** Identify the latest ink, annotation or background change in one zone. */
+function getEyeCanvasRevision(zone)
 {
+    return eyeCanvasRevision[zone] || 0;
+}
+
+/** Clear pending changes only when the acknowledged save includes the latest revision. */
+function clearEyeCanvasDirty(zone, savedRevision)
+{
+    if (savedRevision !== undefined && savedRevision !== getEyeCanvasRevision(zone)) return;
     eyeCanvasDirty[zone] = false;
 }
 

@@ -488,7 +488,7 @@ function display_VisualAcuitiesModern(mixed $pid = 0, array $priors = [], string
                                         }
                                     },
                                     grid: {color: 'rgba(127,127,127,0.16)'},
-                                    title: {display: true, color: chartTextColor, text: <?php echo xlj('Visual Acuity (better toward top)'); ?>}
+                                    title: {display: true, color: chartTextColor, text: <?php echo xlj('Visual Acuity (worse toward top)'); ?>}
                                 }
                             }
                         }

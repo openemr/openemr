@@ -196,6 +196,7 @@
         /** Debounce annotation persistence while immediately updating the hidden JSON field. */
         function scheduleSave() {
             serialize();
+            if (typeof window.markEyeCanvasDirty === 'function') window.markEyeCanvasDirty(zone);
             window.clearTimeout(saveTimer);
             saveTimer = window.setTimeout(function () {
                 if (typeof window.submit_canvas === 'function') {
@@ -712,20 +713,44 @@
             });
         }
 
-        /** Compose the chosen background, structured values and loaded annotations. */
-        function exportCompositeCanvas(sourceCanvas) {
-            return Promise.all([waitForImages(), svgCanvas()]).then(function (results) {
-                serialize();
+        /** Capture matching pixels, editable JSON and revision before asynchronous SVG rendering. */
+        function exportCompositeSnapshot(sourceCanvas) {
+            var revision = typeof window.getEyeCanvasRevision === 'function' ? window.getEyeCanvasRevision(zone) : undefined;
+            var inkReady = typeof window.eyeDrawingInkReady === 'function' ? window.eyeDrawingInkReady(zone) : Promise.resolve();
+            return Promise.all([waitForImages(), inkReady]).then(function () {
+                if (typeof window.getEyeCanvasRevision === 'function' && window.getEyeCanvasRevision(zone) !== revision) {
+                    return exportCompositeSnapshot(sourceCanvas);
+                }
+                var json = serialize();
+                var backgroundKey = $('#current_background_' + zone).val() || 'default';
                 var composite = document.createElement('canvas');
                 composite.width = width;
                 composite.height = height;
                 var context = composite.getContext('2d');
                 context.drawImage(sourceCanvas || baseCanvas, 0, 0, width, height);
-                if (results[1]) {
-                    context.drawImage(results[1], 0, 0, width, height);
-                }
-                context.drawImage(objectLayer.toCanvas({ x: 0, y: 0, width: width, height: height, pixelRatio: 1 }), 0, 0, width, height);
-                return composite;
+                var annotations = objectLayer.toCanvas({ x: 0, y: 0, width: width, height: height, pixelRatio: 1 });
+                return svgCanvas().then(function (structured) {
+                    if (structured) context.drawImage(structured, 0, 0, width, height);
+                    context.drawImage(annotations, 0, 0, width, height);
+                    return {canvas: composite, overlayJson: json, revision: revision, backgroundKey: backgroundKey};
+                });
+            });
+        }
+
+        /** Compose the chosen background, structured values and loaded annotations. */
+        function exportCompositeCanvas(sourceCanvas) {
+            return exportCompositeSnapshot(sourceCanvas).then(function (snapshot) { return snapshot.canvas; });
+        }
+
+        /** Encode an immutable save payload whose image and JSON describe the same revision. */
+        function exportSnapshot(sourceCanvas) {
+            return exportCompositeSnapshot(sourceCanvas).then(function (snapshot) {
+                return {
+                    dataURL: snapshot.canvas.toDataURL('image/jpeg', 1),
+                    overlayJson: snapshot.overlayJson,
+                    revision: snapshot.revision,
+                    backgroundKey: snapshot.backgroundKey
+                };
             });
         }
 
@@ -797,6 +822,7 @@
         pushSnapshot();
         setMode(toolbar.attr('data-tool'), false);
         var overlayApi = {
+            exportSnapshot: exportSnapshot,
             exportComposite: exportComposite,
             exportCompositeCanvas: exportCompositeCanvas,
             exportReusable: exportReusable,
@@ -813,9 +839,9 @@
                 clearObjects(true);
                 pushSnapshot();
             },
-            /** Record the latest serialized annotations as the baseline used by Revert. */
-            markSaved: function () {
-                initialJson = serialize();
+            /** Record the acknowledged request's annotations as the baseline used by Revert. */
+            markSaved: function (savedJson) {
+                initialJson = typeof savedJson === 'string' ? savedJson : serialize();
             },
             /** Restore this zone's saved annotation baseline without changing other drawing zones. */
             revert: function () {

@@ -1629,6 +1629,13 @@ display: block;
   background-color: var(--danger);
 }
 
+.vision-history-toggle {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  line-height: 1;
+}
+
 .buttonRefraction_selected {
   background-color: #fffe06;
   border: var(--red);
@@ -3413,12 +3420,17 @@ View.php
   font-size: 1.0em;
 }
 
-#tabs_vision {
-    font-size: 0.5em;
-    line-height: normal;
-    margin: 3px auto 0px;
-    list-style: none;
+#LayerVision > .top_right {
+  right: 44px;
 }
+
+#tabs_vision {
+  font-size: 0.6em;
+  line-height: normal;
+  list-style: none;
+  margin: 3px auto 0;
+}
+
 #tabs_vision li {
     display: inline;
 }
@@ -3483,6 +3495,7 @@ View.php
 #Visions_B > input {
   height: 0.19in;
   margin: 2px;
+  text-align: center;
   width: 0.5in;
 }
 

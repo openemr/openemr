@@ -619,20 +619,14 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                         $fileTemp = EyeFormData::text($fileTemp);
                         if ((bool) ($fileTemp)) {
                             if ($PDF_OUTPUT) {
-                                // tmp file in ../documents/temp since need to be available via webroot
-                                $tmp_base = tempnam(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/documents/temp', "oer");
-                                // mPDF can't decode an image unless the filename ends with a known extension.
-                                $sniffed = '.jpg';
+                                // Embed the photo directly so PDF generation leaves no temporary copy.
+                                $photoMime = 'image/jpeg';
                                 if (str_starts_with($fileTemp, "\x89PNG")) {
-                                    $sniffed = '.png';
+                                    $photoMime = 'image/png';
                                 } elseif (str_starts_with($fileTemp, "GIF8")) {
-                                    $sniffed = '.gif';
+                                    $photoMime = 'image/gif';
                                 }
-                                $from_file_tmp_web_name = $tmp_base . $sniffed;
-                                rename($tmp_base, $from_file_tmp_web_name);
-                                file_put_contents($from_file_tmp_web_name, $fileTemp);
-                                echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;'>";
-                                $tmp_files_remove[] = $from_file_tmp_web_name;
+                                echo "<img src='data:" . $photoMime . ';base64,' . base64_encode($fileTemp) . "' style='width:220px;'>";
                             } else {
                                 $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url(EyeFormData::text($pid)) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
                                 echo "<img src='" . $filetoshow . "' style='width:220px;'>";
