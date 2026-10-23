@@ -34,6 +34,14 @@ final class AuditEventBuffer
     /**
      * @return list<Event>
      */
+    public function pending(): array
+    {
+        return $this->events;
+    }
+
+    /**
+     * @return list<Event>
+     */
     public function drain(): array
     {
         $events = $this->events;

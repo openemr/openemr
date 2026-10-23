@@ -23,7 +23,7 @@ class AuditRequestLabelTest extends TestCase
     {
         $label = AuditRequestLabel::fromParts(
             'get',
-            '/interface/main/finder/dynamic_finder.php?csrf_token_form=abc&searchparm=Smith&password=secret&set_pid=1',
+            '/interface/main/finder/dynamic_finder.php?csrf_token_form=abc&searchparm=Smith&password=secret&access_token=abc&jwt=zzz&api_key=k&set_pid=1',
             null,
         );
 

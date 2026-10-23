@@ -53,4 +53,18 @@ class SelectRequestSummaryTest extends TestCase
         self::assertStringEndsWith(',...', $row->comments);
         self::assertStringNotContainsString('table_31', $row->comments);
     }
+
+    public function testSpecificDataCategoriesAreNamed(): void
+    {
+        $summary = new SelectRequestSummary();
+        $summary->add('lists', 'patient-record', true, 4, 'Medication');
+        $summary->add('lists', 'patient-record', true, 4, 'Allergy');
+        $summary->add('form_vitals', 'patient-record', true, 4, 'Vitals');
+
+        $row = $summary->consume('GET /interface/patient_file/summary/demographics.php');
+
+        self::assertStringContainsString('tables=lists,form_vitals', $row->comments);
+        self::assertStringContainsString('data=Medication,Allergy,Vitals', $row->comments);
+        self::assertSame(4, $row->patientId);
+    }
 }

@@ -524,4 +524,29 @@ class LogTablesSinkTest extends TestCase
         );
     }
 
+
+    public function testAFailedFlushKeepsTheBufferedRow(): void
+    {
+        $event = $this->createEvent();
+        $driver = \Doctrine\DBAL\Driver\PDO\Exception::new(new \PDOException('missing', 1146));
+        $this->connection->expects($this->exactly(2))
+            ->method('beginTransaction')
+            ->willReturnOnConsecutiveCalls(
+                $this->throwException(new \Doctrine\DBAL\Exception\ConnectionException($driver, null)),
+                true,
+            );
+        $this->connection->expects($this->exactly(2))->method('insert')->willReturn(1);
+        $this->connection->method('lastInsertId')->willReturn('7');
+        $this->connection->method('fetchAssociative')->willReturn(['chain' => AuditChain::genesis()]);
+        $this->connection->method('isTransactionActive')->willReturn(false);
+
+        $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
+        $sink->record($event);
+        try {
+            $sink->flush();
+            self::fail('A missing audit table must not look like a successful write');
+        } catch (\RuntimeException) {
+        }
+        $sink->flush();
+    }
 }
