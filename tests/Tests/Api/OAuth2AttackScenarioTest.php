@@ -410,6 +410,40 @@ class OAuth2AttackScenarioTest extends TestCase
         $this->assertAuthorizeRejected($resp, 'Authorize must reject a request that omits response_type entirely');
     }
 
+    #[Test]
+    public function testAuthorizeCodeResponseTypeIsAcceptedControl(): void
+    {
+        // Positive control for the four deny-path tests above. With
+        // the registered redirect_uri + a valid response_type=code,
+        // the server must proceed to the login/consent flow rather
+        // than reject. Without this control, a URI mismatch (or any
+        // request-level validation that fires before response_type
+        // is inspected) could cause the deny-path tests to pass
+        // vacuously — assertAuthorizeRejected would accept the
+        // mismatch error and the response_type logic would never be
+        // exercised. Expected behavior: 302 to the login form (not a
+        // JSON error, not a 302 to redirect_uri?error=...).
+        [$cid, $_csec] = $this->dcrConfidentialAuthCodeClient('CodeResponseControl');
+        $resp = $this->authorizeGet($cid, ['response_type' => 'code']);
+        // The server either answers 200 (renders login/consent) or
+        // 302 to its own login path (not to the client's redirect_uri
+        // with error=). Both are "proceeded to the flow"; neither is
+        // a deny-path rejection.
+        $this->assertContains(
+            $resp['status'],
+            [200, 302, 307],
+            'Authorize must proceed to login/consent for response_type=code with registered redirect_uri. Status: ' . $resp['status'] . ', body: ' . $resp['body']
+        );
+        if ($resp['status'] === 302 || $resp['status'] === 307) {
+            $location = $resp['headers']['Location'][0] ?? '';
+            $this->assertStringNotContainsString(
+                'attacker-regression.example',
+                $location,
+                'response_type=code with registered redirect_uri must not redirect to the client with an error parameter. Location: ' . $location
+            );
+        }
+    }
+
     // ----- Refresh-token deny-paths -----
 
     #[Test]
@@ -1277,7 +1311,13 @@ class OAuth2AttackScenarioTest extends TestCase
     {
         $params = array_merge([
             'client_id' => $clientId,
-            'redirect_uri' => 'https://client.example/cb',
+            // Match the redirect_uri registered by dcr() at line 1118.
+            // A mismatch here would cause the server to reject every
+            // request for URI mismatch regardless of response_type,
+            // and assertAuthorizeRejected() would accept that error
+            // — the tests would pass without actually validating the
+            // response_type logic.
+            'redirect_uri' => 'https://attacker-regression.example/cb',
             'response_type' => 'code',
             'scope' => 'openid api:oemr',
             'state' => 'attack-' . bin2hex(random_bytes(4)),
