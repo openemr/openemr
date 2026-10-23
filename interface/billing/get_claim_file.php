@@ -42,16 +42,30 @@ $fname = convert_safe_file_dir_name($_GET['key']);
 // of searching.
 // The edi directory is the default location.
 
-// Claim files live under the X12 partner SFTP directory and the EDI documents
-// directory. The historical `location=tmp` branch read arbitrary filenames
-// from the shared system temp directory, which other features (CCDA export,
-// mPDF) write into. Scope the lookup to the real claim directories only.
+// the loc, if set, may tell us where the file is
+$location = $_GET['location'] ?? '';
 $claim_file_found = false;
 $claim_file_dir = '';
+if ($location === 'tmp') {
+    // The temporary files directory is shared with other features (CCDA export,
+    // statement PDFs, mPDF scratch output, fax scratch output). Only serve
+    // filenames that match the batch-file pattern produced by
+    // BillingClaimBatch::__construct — `YYYY-MM-DD-HHMMSS-batch.{pdf,txt}` —
+    // so a billing user cannot pull unrelated tmp artifacts by basename.
+    if (is_string($fname) && preg_match('/^\d{4}-\d{2}-\d{2}-\d{6}-batch\.(pdf|txt)$/', $fname) === 1) {
+        $claim_file_dir = rtrim(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        if (file_exists($claim_file_dir . $fname)) {
+            $claim_file_found = true;
+        }
+    }
+}
 
 // See if the file exists in the x-12 partner's SFTP directory
 // If it's not there, try the edi directory
-if (isset($_GET['partner'])) {
+if (
+    false === $claim_file_found &&
+    isset($_GET['partner'])
+) {
     $x12_partner_id = $_GET['partner'];
     // First look in the database for the file so we know
     // which partner directory to check

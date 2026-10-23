@@ -453,7 +453,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_GET is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 6,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/billing/get_claim_file.php',
 ];
 $ignoreErrors[] = [
