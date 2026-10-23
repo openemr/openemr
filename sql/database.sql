@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 555
+-- v_database: 558
 --
 
 --
@@ -12589,9 +12589,39 @@ CREATE TABLE `log_comment_encrypt` (
   `encrypt` enum('Yes','No') NOT NULL DEFAULT 'No',
   `checksum` longtext,
   `checksum_api` longtext,
-  `version` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0 for mycrypt and 1 for openssl',
+  `version` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0 for mycrypt, 1 for openssl, 4 row checksum, 5 chained checksum',
+  `chain` char(128) DEFAULT NULL COMMENT 'HMAC of the previous chain, this log id, and the row checksum',
+  PRIMARY KEY (`id`),
+  KEY `log_id` (`log_id`)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `log_chain_anchor`
+--
+
+DROP TABLE IF EXISTS `log_chain_anchor`;
+CREATE TABLE `log_chain_anchor` (
+  `id` tinyint(3) NOT NULL,
+  `log_id` bigint(20) NOT NULL DEFAULT 0,
+  `chain` char(128) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
+
+
+DROP TRIGGER IF EXISTS `audit_log_block_update`;
+CREATE TRIGGER `audit_log_block_update` BEFORE UPDATE ON `log` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
+
+DROP TRIGGER IF EXISTS `audit_log_block_delete`;
+CREATE TRIGGER `audit_log_block_delete` BEFORE DELETE ON `log` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
+
+DROP TRIGGER IF EXISTS `audit_log_comment_block_update`;
+CREATE TRIGGER `audit_log_comment_block_update` BEFORE UPDATE ON `log_comment_encrypt` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
+
+DROP TRIGGER IF EXISTS `audit_log_comment_block_delete`;
+CREATE TRIGGER `audit_log_comment_block_delete` BEFORE DELETE ON `log_comment_encrypt` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
+
+DROP TRIGGER IF EXISTS `audit_log_anchor_block_delete`;
+CREATE TRIGGER `audit_log_anchor_block_delete` BEFORE DELETE ON `log_chain_anchor` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
 
 -- --------------------------------------------------------
 

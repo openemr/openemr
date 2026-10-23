@@ -417,3 +417,39 @@ SELECT DISTINCT 'questionnaire', r.`form_foreign_id`, 'encounter', 1, 0
  WHERE r.`directory` = 'questionnaire_assessments'
    AND r.`form_foreign_id` > 0;
 #EndIf
+
+-- Audit chain: each new checksum includes the previous one, and the anchor
+-- remembers the newest link so a deleted tail is visible.
+#IfMissingColumn log_comment_encrypt chain
+ALTER TABLE `log_comment_encrypt` ADD COLUMN `chain` char(128) DEFAULT NULL COMMENT 'HMAC of the previous chain, this log id, and the row checksum';
+#EndIf
+
+#IfNotIndex log_comment_encrypt log_id
+CREATE INDEX `log_id` ON `log_comment_encrypt` (`log_id`);
+#EndIf
+
+#IfNotTable log_chain_anchor
+CREATE TABLE `log_chain_anchor` (
+  `id` tinyint(3) NOT NULL,
+  `log_id` bigint(20) NOT NULL DEFAULT 0,
+  `chain` char(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- Audit rows cannot be updated or deleted.
+
+DROP TRIGGER IF EXISTS `audit_log_block_update`;
+CREATE TRIGGER `audit_log_block_update` BEFORE UPDATE ON `log` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
+
+DROP TRIGGER IF EXISTS `audit_log_block_delete`;
+CREATE TRIGGER `audit_log_block_delete` BEFORE DELETE ON `log` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
+
+DROP TRIGGER IF EXISTS `audit_log_comment_block_update`;
+CREATE TRIGGER `audit_log_comment_block_update` BEFORE UPDATE ON `log_comment_encrypt` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
+
+DROP TRIGGER IF EXISTS `audit_log_comment_block_delete`;
+CREATE TRIGGER `audit_log_comment_block_delete` BEFORE DELETE ON `log_comment_encrypt` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
+
+DROP TRIGGER IF EXISTS `audit_log_anchor_block_delete`;
+CREATE TRIGGER `audit_log_anchor_block_delete` BEFORE DELETE ON `log_chain_anchor` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';

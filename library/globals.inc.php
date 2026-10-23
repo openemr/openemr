@@ -2836,10 +2836,23 @@ $GLOBALS_METADATA = [
         'audit_events_query' => [
             xl('Audit Logging SELECT Query'),
             'bool',                           // data type
-            '0',                              // default off; enable for ONC certified deployments
-            xl('Enable logging of all SQL SELECT queries.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
-                . ' ' . xl('Required for ONC certified deployments.')
-                . ' ' . xl('Warning: this logs every SELECT, so the audit log grows with query volume and can become far larger than the clinical data it describes.')
+            '0',                              // off. Certification records the user action, not each SELECT.
+            xl('Enable logging of SQL SELECT queries.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
+                . ' ' . xl('Leave this off unless a site needs a record of reads. Certification records who did what, not each SQL statement.')
+                . ' ' . xl('When this is on, the detail setting writes one summary per user action, or a row for every SELECT.')
+                . ' ' . xl('A row for every SELECT grows with query volume and can become far larger than the clinical data.')
+        ],
+
+        'audit_events_query_mode' => [
+            xl('Audit Logging SELECT Detail'),
+            [
+                'request' => xl('One summary per user action'),
+                'statement' => xl('Every SELECT statement'),
+            ],
+            'request',                        // one summary unless an administrator asks for every statement
+            xl('Applies when SELECT logging is on.')
+                . ' ' . xl('One summary per user action records who, when, the patient, the page, and the tables read.')
+                . ' ' . xl('Every SELECT statement also keeps the query text. Use that to find a page that runs too many queries. It is not required for certification.')
         ],
 
         'audit_events_cdr' => [

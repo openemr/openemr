@@ -32,10 +32,69 @@ readonly class LogTablesSink implements SinkInterface
      */
     public function __construct(
         private Connection $conn,
+        private readonly string $chainKey,
+        private AuditEventBuffer $buffer = new AuditEventBuffer(),
     ) {
     }
 
     public function record(Event $event): void
+    {
+        $this->buffer->add($event);
+    }
+
+    /**
+     * Writes every event buffered for this request in one transaction.
+     */
+    public function flush(): void
+    {
+        $events = $this->buffer->pending();
+        if ($events === []) {
+            return;
+        }
+
+        try {
+            $this->conn->beginTransaction();
+            $this->conn->executeStatement(
+                'INSERT INTO log_chain_anchor (id, log_id, chain) VALUES (1, 0, ?) ON DUPLICATE KEY UPDATE id = id',
+                [AuditChain::genesis()],
+            );
+            $anchor = $this->conn->fetchAssociative(
+                'SELECT chain FROM log_chain_anchor WHERE id = 1 FOR UPDATE',
+            );
+            $previous = AuditChain::genesis();
+            if (is_array($anchor)) {
+                $stored = $anchor['chain'] ?? null;
+                if (is_string($stored) && $stored !== '') {
+                    $previous = $stored;
+                }
+            }
+            foreach ($events as $event) {
+                $previous = $this->write($event, $previous);
+            }
+            $this->conn->executeStatement(
+                'UPDATE log_chain_anchor SET log_id = ?, chain = ? WHERE id = 1',
+                [$this->buffer->lastLogId, $previous],
+            );
+            $this->conn->commit();
+            $this->buffer->drain();
+        } catch (\Doctrine\DBAL\Exception $failure) {
+            if ($this->conn->isTransactionActive()) {
+                $this->conn->rollBack();
+            }
+            throw new \RuntimeException('The audit log could not be written', 0, $failure);
+        }
+    }
+
+    public function __destruct()
+    {
+        try {
+            $this->flush();
+        } catch (\RuntimeException) {
+            // The request is already ending.
+        }
+    }
+
+    private function write(Event $event, string $previous): string
     {
         $api = $event->api;
 
@@ -59,6 +118,7 @@ readonly class LogTablesSink implements SinkInterface
         ];
         $this->conn->insert('log', $logData);
         $lastLogId = $this->conn->lastInsertId();
+        $this->buffer->lastLogId = (string) $lastLogId;
 
         $checksum = hash('sha3-512', implode('', array_values($logData)));
 
@@ -86,13 +146,16 @@ readonly class LogTablesSink implements SinkInterface
             $checksumGenerateApi = hash('sha3-512', implode('', array_values($apiLogData)));
         }
 
+        $chain = AuditChain::link($previous, $this->buffer->lastLogId, $checksum, $this->chainKey);
+
         // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
         $logCommentData = [
             'log_id' => $lastLogId,
             'encrypt' => 'No', // DB is a Yes/No enum instead of bool :( (see #12118)
             'checksum' => $checksum,
             'checksum_api' => $checksumGenerateApi,
-            'version' => '4',
+            'version' => '5',
+            'chain' => $chain,
         ];
         $this->conn->insert('log_comment_encrypt', $logCommentData);
 
@@ -100,5 +163,7 @@ readonly class LogTablesSink implements SinkInterface
         if ($api !== null) {
             $this->conn->insert('api_log', $apiLogData);
         }
+
+        return $chain;
     }
 }
