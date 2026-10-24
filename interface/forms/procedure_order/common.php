@@ -172,6 +172,9 @@ $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.
 if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
+    if (!AclMain::aclCheckForm('procedure_order', '', 'write')) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for procedure_order write (patients/lab): common.php", xl("Procedure Order"));
+    }
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     if ($formid) {
         EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'procedure_order', null, $encounter);
