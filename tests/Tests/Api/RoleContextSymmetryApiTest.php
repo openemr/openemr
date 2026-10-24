@@ -309,12 +309,29 @@ class RoleContextSymmetryApiTest extends TestCase
     #[Test]
     public function testPatientRoleTokenCannotWriteFhirCareTeam(): void
     {
+        // Patient-role write-denial has two independent layers of
+        // defense:
+        //   Layer 1 (scope registry) — ServerScopeListEntity does not
+        //     register ANY patient/*.cud variant (see getV2ApiScopes()
+        //     "No patient/ variant" comment). DCR refuses to grant
+        //     patient-write scopes with invalid_scope.
+        //   Layer 2 (AuthorizationListener lines 193-195) —
+        //     isPatientWriteRequest() rejects any FHIR write under
+        //     user_role=patient regardless of scope. Backstop in case
+        //     a future DCR change permits patient-write scopes.
+        //
+        // In practice, Layer 1 fires first — a patient-role token
+        // simply cannot carry a CareTeam write scope. This test
+        // exercises Layer 1 by minting with a non-write patient scope
+        // and asserting the POST is rejected (either at the token
+        // level because the scope is insufficient, or at Layer 2 if
+        // somehow a write scope leaked through). Rabbit's suggestion
+        // to grant patient/CareTeam.cruds would fail at DCR with
+        // invalid_scope so we cannot reach Layer 2 via normal mint.
         $token = $this->mintPatientRoleToken(
             'CellSevenCareTeamWrite',
             'openid api:fhir patient/Patient.read'
         );
-        // POST with a trivial body; the write-block gate fires regardless
-        // of the body shape because the dispatcher rejects before parsing.
         $resp = $this->rawPostJson(
             '/apis/default/fhir/CareTeam',
             ['resourceType' => 'CareTeam'],
@@ -367,6 +384,12 @@ class RoleContextSymmetryApiTest extends TestCase
     private function mintUserRoleTokenPasswordGrant(string $tag, string $scope): string
     {
         [$cid, $csec] = $this->dcrConfidentialPasswordGrantClient($tag, ['scope' => $scope]);
+        // Match ApiTestClient's convention: honor OE_USER / OE_PASS
+        // overrides from the environment so a non-default seed admin
+        // doesn't fail the password-grant before any role-context
+        // assertion runs. admin/pass is the stock drid default.
+        $username = (string) (getenv('OE_USER') ?: 'admin');
+        $password = (string) (getenv('OE_PASS') ?: 'pass');
         $resp = $this->buildClient()->post($this->baseUrl . '/oauth2/default/token', [
             'form_params' => [
                 'grant_type' => 'password',
@@ -374,8 +397,8 @@ class RoleContextSymmetryApiTest extends TestCase
                 'client_secret' => $csec,
                 'scope' => $scope,
                 'user_role' => 'users',
-                'username' => 'admin',
-                'password' => 'pass',
+                'username' => $username,
+                'password' => $password,
             ],
         ]);
         $raw = (string) $resp->getBody();
@@ -507,11 +530,21 @@ class RoleContextSymmetryApiTest extends TestCase
             $response['status'],
             $context . ' — role-context gate must reject (got 200). Body: ' . substr($response['body'], 0, 500)
         );
+        // Narrow the accepted deny-shape to {401, 403}. Routes mounted
+        // on the dispatcher pass through AuthorizationListener which
+        // throws AccessDeniedException and the exception handler maps
+        // that to HTTP 401. The server may also return 403 for
+        // "authenticated but insufficient permissions" on some paths
+        // (matching OAuth2AttackScenarioTest::assertDenied precedent).
+        // Rejecting 400 and 404 catches regressions where a reject
+        // bypasses the role-context gate — a 400 would mean a
+        // validator short-circuited before the gate, a 404 would mean
+        // the dispatcher didn't match the route at all.
         $this->assertContains(
             $response['status'],
-            [400, 401, 403, 404],
-            $context . ' — expected 4xx deny shape. Status: ' . $response['status'] . ', Body: '
-            . substr($response['body'], 0, 500)
+            [401, 403],
+            $context . ' — expected 401 or 403 from the role-context gate (not 400 validator short-circuit, not 404 route-not-matched). Status: '
+            . $response['status'] . ', Body: ' . substr($response['body'], 0, 500)
         );
     }
 
