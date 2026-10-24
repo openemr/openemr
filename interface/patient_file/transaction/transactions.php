@@ -22,6 +22,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\ReferralService;
+use OpenEMR\Services\ReferralStatus;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 ?>
@@ -96,13 +98,19 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <th scope="col">&nbsp;</th>
                                     <th scope="col"><?php echo xlt('Type'); ?></th>
                                     <th scope="col"><?php echo xlt('Date'); ?></th>
+                                    <th scope="col"><?php echo xlt('Status'); ?></th>
                                     <th scope="col"><?php echo xlt('User'); ?></th>
                                     <th scope="col"><?php echo xlt('Details'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
+                                // Where a referral stands (#14710); other transactions have no status.
+                                $referralService = new ReferralService(createMissingUuids: false);
+                                $today = new DateTimeImmutable('today');
+                                $overdueDays = ReferralStatus::overdueDays();
                                 foreach ($result as $item) {
+                                    $referralStatus = ReferralStatus::ofTransaction($item, $referralService, $today, $overdueDays);
                                     $item['body'] ??= '';
 
                                     // Collect date
@@ -146,6 +154,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         </td>
                                         <td><?php echo text(getLayoutTitle('Transactions', $item['title'])); ?></td>
                                         <td><?php echo text($date); ?></td>
+                                        <td>
+                                            <?php if ($referralStatus !== null) { ?>
+                                                <?php echo text($referralStatus->label()); ?>
+                                                <?php if ($referralStatus->overdue) { ?>
+                                                    <span class="text-danger"><?php echo xlt('Overdue'); ?></span>
+                                                <?php } ?>
+                                            <?php } ?>
+                                        </td>
                                         <td><?php echo text($item['user']); ?></td>
                                         <td><?php echo text($item['body']); ?></td>
                                     </tr>

@@ -20,9 +20,11 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\ReferralStatus;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Referrals", xl("Referrals"));
@@ -36,6 +38,9 @@ if (!empty($_POST)) {
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 $form_facility = $_POST['form_facility'] ?? '';
+// All referrals, the open ones, or the overdue ones (#14710).
+$formShow = CurrentRequest::get()->request->getString('form_show');
+$form_show = in_array($formShow, ['open', 'overdue'], true) ? $formShow : '';
 ?>
 <html>
 <head>
@@ -135,6 +140,16 @@ $form_facility = $_POST['form_facility'] ?? '';
                <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'
          class='datepicker form-control'>
             </td>
+            <td class='col-form-label'>
+                <?php echo xlt('Show'); ?>:
+            </td>
+            <td>
+                <select name='form_show' id='form_show' class='form-control'>
+                    <option value=''><?php echo xlt('All'); ?></option>
+                    <option value='open'<?php echo $form_show === 'open' ? ' selected' : ''; ?>><?php echo xlt('Open'); ?></option>
+                    <option value='overdue'<?php echo $form_show === 'overdue' ? ' selected' : ''; ?>><?php echo xlt('Overdue'); ?></option>
+                </select>
+            </td>
         </tr>
     </table>
 
@@ -174,6 +189,7 @@ if (!empty($_POST['form_refresh'])) {
 <th> <?php echo xlt('Refer To'); ?> </th>
 <th> <?php echo xlt('Refer Date'); ?> </th>
 <th> <?php echo xlt('Reply Date'); ?> </th>
+<th> <?php echo xlt('Status'); ?> </th>
 <th> <?php echo xlt('Patient'); ?> </th>
 <th> <?php echo xlt('ID'); ?> </th>
 <th> <?php echo xlt('Reason'); ?> </th>
@@ -185,6 +201,9 @@ if (!empty($_POST['form_refresh'])) {
         "d1.field_value AS refer_date, " .
         "d3.field_value AS reply_date, " .
         "d4.field_value AS body, " .
+        // The status of the referral's latest Task, which is the referral's status (#14710).
+        "(SELECT task.status FROM task WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid " .
+        "ORDER BY task.id DESC LIMIT 1) AS task_status, " .
         "ut.organization, uf.facility_id, p.pubpid, " .
         "CONCAT(uf.fname,' ', uf.lname) AS referer_name, " .
         "CONCAT(ut.fname,' ', ut.lname) AS referer_to, " .
@@ -202,8 +221,14 @@ if (!empty($_POST['form_refresh'])) {
         "d1.field_value >= ? AND d1.field_value <= ? " .
         "ORDER BY ut.organization, d1.field_value, t.id";
         $res = sqlStatement($query, [$form_from_date, $form_to_date]);
+        $today = new DateTimeImmutable('today');
+        $overdueDays = ReferralStatus::overdueDays();
 
         while ($row = sqlFetchArray($res)) {
+            $status = ReferralStatus::ofReferral($row, $today, $overdueDays);
+            if (($form_show === 'open' && !$status->isOpen()) || ($form_show === 'overdue' && !$status->overdue)) {
+                continue;
+            }
             // If a facility is specified, ignore rows that do not match.
             if ($form_facility !== '') {
                 if ($form_facility) {
@@ -235,6 +260,12 @@ if (!empty($_POST['form_refresh'])) {
     </td>
     <td>
             <?php echo text(oeFormatShortDate($row['reply_date'])) ?>
+    </td>
+    <td>
+            <?php echo text($status->label()); ?>
+            <?php if ($status->overdue) { ?>
+                <span class="text-danger"><?php echo xlt('Overdue'); ?></span>
+            <?php } ?>
     </td>
     <td>
             <?php echo text($row['patient_name']) ?>

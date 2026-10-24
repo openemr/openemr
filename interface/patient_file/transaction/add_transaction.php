@@ -26,6 +26,9 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\ReferralService;
+use OpenEMR\Services\ReferralStatus;
+use OpenEMR\Services\ReferralTaskService;
 
 
 /** @var string $date_init */
@@ -120,6 +123,12 @@ if ($mode) {
 
     if (!$transid) {
         $transid = $newid;
+    }
+
+    // The referral's FHIR Task, when the fhir_referral_tasks global is on (#14710).
+    if ($form_id === 'LBTref' && is_numeric($transid)) {
+        $authUserId = $session->get('authUserID');
+        (new ReferralTaskService())->createForReferral((int)$transid, is_numeric($authUserId) ? (int)$authUserId : null);
     }
 
   // Set the AMC sent records flag
@@ -444,6 +453,20 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </a>
                     </div>
                 </div>
+                <?php
+                // Where a saved referral stands (#14710).
+                $referral = $form_id === 'LBTref' && is_numeric($transid) && $transid > 0 ? (new ReferralService(createMissingUuids: false))->getReferral((int)$transid) : null;
+                if ($referral !== null) {
+                    $referralStatus = ReferralStatus::ofReferral($referral, new DateTimeImmutable('today'), ReferralStatus::overdueDays());
+                    ?>
+                <div class="col-sm-12 mt-3" id="referral_status">
+                    <strong><?php echo xlt('Status'); ?>:</strong>
+                    <?php echo text($referralStatus->label()); ?>
+                    <?php if ($referralStatus->overdue) { ?>
+                        <span class="text-danger"><?php echo xlt('Overdue'); ?></span>
+                    <?php } ?>
+                </div>
+                <?php } ?>
                 <div class="col-sm-12 mt-3">
                     <fieldset>
                         <legend><?php echo xlt('Select Transaction Type'); ?></legend>

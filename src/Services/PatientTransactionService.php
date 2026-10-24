@@ -134,7 +134,7 @@ class PatientTransactionService extends BaseService
     public function insert($pid, $data)
     {
         try {
-            return QueryUtils::inTransaction(function () use ($pid, $data) {
+            $saved = QueryUtils::inTransaction(function () use ($pid, $data) {
                 $transactionId = $this->insertTransaction($pid, $data);
                 if ($transactionId == false) {
                     throw new PatientTransactionInsertFailedException('Failed to insert patient transaction');
@@ -150,6 +150,20 @@ class PatientTransactionService extends BaseService
         } catch (PatientTransactionInsertFailedException) {
             return false;
         }
+        $this->createReferralTask($saved['id']);
+        return $saved;
+    }
+
+    /**
+     * The referral's FHIR Task, when the fhir_referral_tasks global is on (#14710).
+     */
+    private function createReferralTask(mixed $transactionId): void
+    {
+        if (!is_numeric($transactionId)) {
+            return;
+        }
+        $userId = SessionWrapperFactory::getInstance()->getActiveSession()->get('authUserID');
+        (new ReferralTaskService())->createForReferral((int)$transactionId, is_numeric($userId) ? (int)$userId : null);
     }
 
     public function insertTransaction($pid, $data)
@@ -243,6 +257,9 @@ class PatientTransactionService extends BaseService
         $validThrough = $data["validThrough"];
 
         QueryUtils::inTransaction(function () use ($tid, $referById, $referToId, $body, $referralDate, $referralDiagnosis, $riskLevel, $includeVitals, $authorization, $visits, $validFrom, $validThrough): void {
+            // As the Transactions screen does on every save, so that the change shows as the
+            // referral's last update (the FHIR ServiceRequest's meta.lastUpdated and _lastUpdated).
+            QueryUtils::sqlStatementThrowException('UPDATE transactions SET date = NOW() WHERE id = ?', [$tid]);
             $this->updateTransactionForm($tid, 'refer_from', $referById);
             $this->updateTransactionForm($tid, 'refer_to', $referToId);
             $this->updateTransactionForm($tid, 'body', $body);
@@ -255,6 +272,7 @@ class PatientTransactionService extends BaseService
             $this->updateTransactionForm($tid, 'refer_validFrom', $validFrom);
             $this->updateTransactionForm($tid, 'refer_validThrough', $validThrough);
         });
+        $this->createReferralTask($tid);
 
         return $this->getOneFromDb($tid);
     }
