@@ -524,6 +524,27 @@ class CdaTemplateParseTest extends TestCase
         $this->assertSame(1, $this->getEntryId('vital_sign', 1));
     }
 
+    public function testFetchVitalSignDataReadsBodyWeightByEitherCode(): void
+    {
+        foreach (['3141-9', '29463-7'] as $index => $code) {
+            $this->parser->fetchVitalSignData([
+                'organizer' => [
+                    'id' => ['extension' => 'vs-ext', 'root' => 'vs-root'],
+                    'component' => [
+                        0 => [
+                            'observation' => [
+                                'effectiveTime' => ['value' => '20240121'],
+                                'code' => ['code' => $code],
+                                'value' => ['value' => '72.5'],
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+            $this->assertSame('72.5', $this->getFieldRecord('vital_sign', $index + 1)['weight'] ?? null, $code);
+        }
+    }
+
     public function testFetchVitalSignDataSkipsWhenMissingEffectiveTime(): void
     {
         $data = [
