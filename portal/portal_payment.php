@@ -85,8 +85,14 @@ $recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
 // to the open chart. A portal patient stays on the session patient.
 if (!$isPortal && $recid) {
     $paymentRecord = $appsql->getPortalAuditRec($recid);
-    if (!is_array($paymentRecord) || ($paymentRecord['activity'] ?? null) !== 'payment' || !is_numeric($paymentRecord['patient_id'] ?? null)) {
-        throw new \RuntimeException('Invalid portal payment record');
+    if (!is_array($paymentRecord)) {
+        throw new \RuntimeException('Portal activity record not found');
+    }
+    if (($paymentRecord['activity'] ?? null) !== 'payment') {
+        throw new \RuntimeException('Portal activity record is not a payment');
+    }
+    if (!is_numeric($paymentRecord['patient_id'] ?? null)) {
+        throw new \RuntimeException('Portal payment record has no patient');
     }
     $pid = (int) $paymentRecord['patient_id'];
 }
@@ -691,7 +697,14 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
     <body class="skin-blue" onunload='imclosing()' onLoad="cursor_pointer();"
           style="text-align: center; margin: auto;">
 
-    <form id="invoiceForm" method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/portal_payment.php<?php echo $recid ? '?recid=' . attr_url((string) $recid) : ''; ?>'>
+    <?php
+    // A staff posting carries the payment record, so the save finds the same patient.
+    $invoiceAction = $globalsBag->getString('webroot') . '/portal/portal_payment.php';
+    if ($recid) {
+        $invoiceAction .= '?recid=' . urlencode((string) $recid);
+    }
+    ?>
+    <form id="invoiceForm" method='post' action='<?php echo attr($invoiceAction); ?>'>
         <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
         <input type='hidden' name='form_pid' value='<?php echo attr($pidField) ?>'/>
         <input type='hidden' name='form_save' value='<?php echo xla('Invoice'); ?>'/>
