@@ -21,6 +21,8 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class LaboratoryTestService extends AbstractQdmService implements QdmServiceInterface
 {
+    private const NEGATIVE_RESULT = 'Negative';
+
     public function getSqlStatement(): string
     {
         $sql = "SELECT
@@ -52,22 +54,29 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
     public function makeQdmModel(QdmRecord $recordObj): LaboratoryTestPerformed
     {
         $record = $recordObj->getData();
-        $result = 'Negative';
-        if (
-            !empty($record['result'])
-            && $record['result'] != 'Negative'
-        ) {
+        $resultValue = $record['result'] ?? null;
+        if (is_string($resultValue)) {
+            $resultValue = trim($resultValue);
+        }
+
+        $result = self::NEGATIVE_RESULT;
+        if (is_numeric($resultValue)) {
             $result = new Quantity([
-                'value' => (int)$record['result'],
+                'value' => (float) $resultValue,
                 'unit' => $record['units']
             ]);
+        } elseif (
+            is_string($resultValue)
+            && $resultValue !== ''
+            && $resultValue !== self::NEGATIVE_RESULT
+        ) {
+            $result = $resultValue;
         }
         // A result generally should have a code however,
         // for rare occasions with values such as Negative, schematron expects a code type
         // or will throw a warning. This holds for CDA too.
         if (
-            is_string($record['result'] ?? null)
-            && $record['result'] == 'Negative'
+            $resultValue === self::NEGATIVE_RESULT
         ) {
             $result = $this->makeQdmCode('SNOMED-CT:260385009');
         }
