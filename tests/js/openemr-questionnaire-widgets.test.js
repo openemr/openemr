@@ -388,9 +388,11 @@ describe('quantity widget', () => {
 });
 
 describe('readOnly propagation', () => {
-    test('readOnly text input cannot be edited', () => {
+    test('readOnly text input is disabled (issue #14736: disabled rather than readonly)', () => {
         const { container } = mountSingle({ linkId: 's', type: 'string', text: 'S', readOnly: true });
-        expect(itemNode(container, 's').querySelector('input[type="text"]').readOnly).toBe(true);
+        const input = itemNode(container, 's').querySelector('input[type="text"]');
+        expect(input.disabled).toBe(true);
+        expect(input.readOnly).toBe(false);
     });
 
     test('readOnly choice radios are disabled', () => {
@@ -404,9 +406,11 @@ describe('readOnly propagation', () => {
 
 describe('unsupported item types', () => {
     test('renders a visible warning naming the type instead of crashing', () => {
-        const { container } = mountSingle({ linkId: 'file', type: 'attachment', text: 'Upload' });
-        const warning = itemNode(container, 'file').querySelector('.alert.alert-warning');
+        // 'attachment' and 'reference' are now supported (issue #14736); use a
+        // genuinely unknown type to exercise the fallback branch.
+        const { container } = mountSingle({ linkId: 'x', type: 'not-a-real-type', text: 'Mystery' });
+        const warning = itemNode(container, 'x').querySelector('.alert.alert-warning');
         expect(warning).not.toBeNull();
-        expect(warning.textContent).toContain('attachment');
+        expect(warning.textContent).toContain('not-a-real-type');
     });
 });

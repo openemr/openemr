@@ -28,6 +28,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\Services\Questionnaire\QuestionnaireCanonical;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -443,7 +444,11 @@ class QuestionnaireResponseService extends BaseService
 
         $fhirResponseOb->setId(new FHIRId($qr_id));
         $serverConfig = new ServerConfig();
-        $fhirResponseOb->setQuestionnaire(new FHIRCanonical($serverConfig->getFhirUrl() . '/Questionnaire/' . $q_id));
+        $fhirResponseOb->setQuestionnaire(new FHIRCanonical(QuestionnaireCanonical::forResponse(
+            $this->getValue($fhirQuestionnaireOb->url),
+            $this->getValue($fhirQuestionnaireOb->version),
+            $serverConfig->getFhirUrl() . '/Questionnaire/' . $q_id
+        )));
         // the FHIR reference uses the encounter uuid; the encounter column keeps the encounter id
         $encounterReference = $encounter;
         if (is_numeric($encounter)) {
