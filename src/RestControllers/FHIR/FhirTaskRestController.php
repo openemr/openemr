@@ -194,7 +194,7 @@ class FhirTaskRestController
             new OA\Parameter(
                 name: 'code',
                 in: 'query',
-                description: 'The code of the Task resource, from http://hl7.org/fhir/CodeSystem/task-code.',
+                description: 'The code of the Task resource, for example fulfill (http://hl7.org/fhir/CodeSystem/task-code), complete-questionnaire (http://hl7.org/fhir/uv/sdc/CodeSystem/temp), or make-contact, review-material and general-information (http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes). Only the code is compared: a system given as system|code is not checked, and each supported code belongs to one system.',
                 required: false,
                 schema: new OA\Schema(type: 'string')
             ),
@@ -277,7 +277,7 @@ class FhirTaskRestController
 
     #[OA\Post(
         path: '/fhir/Task',
-        description: 'Creates a Task. The server sets id, meta and lastModified, and authoredOn when it is left out. Task.for must name the patient; focus may name a ServiceRequest or Questionnaire; owner and requester an Organization, Practitioner, PractitionerRole or Patient; partOf one task for the same patient.',
+        description: "Creates a Task. The server sets id, meta and lastModified, and authoredOn when it is left out. Task.for must name the patient; code is from http://hl7.org/fhir/CodeSystem/task-code, or is one SDOH Clinical Care's TaskForPatient uses (complete-questionnaire, make-contact, review-material, general-information); focus may name a ServiceRequest or Questionnaire; owner an Organization, Practitioner, PractitionerRole, the task's Patient or a RelatedPerson of theirs, and requester an Organization, Practitioner, PractitionerRole or Patient; partOf one task for the same patient. Each input is a canonical, url, string, markdown, CodeableConcept, or a reference to a Questionnaire, DocumentReference, Organization, Practitioner or PractitionerRole; each output a string, markdown, CodeableConcept, or a reference to a QuestionnaireResponse, Observation, Procedure or DocumentReference. References into the patient's record must be the task's patient's.",
         tags: ['fhir'],
         requestBody: new OA\RequestBody(
             required: true,
@@ -314,7 +314,7 @@ class FhirTaskRestController
 
     #[OA\Put(
         path: '/fhir/Task/{uuid}',
-        description: "Updates a Task. Task.for can't change. A task that is completed, cancelled, failed or rejected can only become entered-in-error, and an entered-in-error task can't change status. Send the version from the ETag as If-Match to have the update refused (412) if the task changed since you read it.",
+        description: "Updates a Task. Task.for can't change, and the inputs and outputs in the body replace the task's. A task that is completed, cancelled, failed or rejected can only become entered-in-error, and an entered-in-error task can't change status. Send the version from the ETag as If-Match to have the update refused (412) if the task changed since you read it.",
         tags: ['fhir'],
         parameters: [
             new OA\Parameter(name: 'uuid', in: 'path', description: 'The uuid for the Task resource.', required: true, schema: new OA\Schema(type: 'string')),
@@ -328,11 +328,20 @@ class FhirTaskRestController
                     example: [
                         'resourceType' => 'Task',
                         'id' => '9f1c2a5e-3b7d-4c8e-a1f0-2d6b8e4c7a19',
-                        'status' => 'accepted',
+                        'status' => 'completed',
                         'intent' => 'order',
+                        'code' => ['coding' => [['system' => 'http://hl7.org/fhir/uv/sdc/CodeSystem/temp', 'code' => 'complete-questionnaire']]],
                         'for' => ['reference' => 'Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf'],
-                        'focus' => ['reference' => 'ServiceRequest/95e9d3fb-fe7b-448a-aa60-d40b11b486a5'],
-                        'owner' => ['reference' => 'Organization/95f0a1c2-7d3e-4b5f-8a9c-0e1d2f3a4b5c'],
+                        'focus' => ['reference' => 'Questionnaire/96a1b2c3-d4e5-4f60-8a7b-9c0d1e2f3a4b'],
+                        'owner' => ['reference' => 'Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf'],
+                        'input' => [[
+                            'type' => ['coding' => [['system' => 'http://hl7.org/fhir/uv/sdc/CodeSystem/temp', 'code' => 'questionnaire']]],
+                            'valueCanonical' => 'https://localhost:9300/apis/default/fhir/Questionnaire/96a1b2c3-d4e5-4f60-8a7b-9c0d1e2f3a4b',
+                        ]],
+                        'output' => [[
+                            'type' => ['coding' => [['system' => 'http://hl7.org/fhir/uv/sdc/CodeSystem/temp', 'code' => 'questionnaire-response']]],
+                            'valueReference' => ['reference' => 'QuestionnaireResponse/96b2c3d4-e5f6-4a71-9b8c-0d1e2f3a4b5c'],
+                        ]],
                     ]
                 )
             )

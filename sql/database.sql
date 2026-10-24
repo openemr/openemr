@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 555
+-- v_database: 559
 --
 
 --
@@ -14415,7 +14415,8 @@ CREATE TABLE `task` (
   `business_status` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.businessStatus, as text',
   `intent` varchar(31) NOT NULL DEFAULT 'order' COMMENT 'FHIR Task.intent code',
   `priority` varchar(31) DEFAULT NULL COMMENT 'FHIR Task.priority code',
-  `code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.code, from http://hl7.org/fhir/CodeSystem/task-code',
+  `code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.code: the code',
+  `code_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.code: its system, such as http://hl7.org/fhir/CodeSystem/task-code',
   `description` text,
   `patient_id` bigint(20) DEFAULT NULL COMMENT 'FHIR Task.for: patient_data.pid',
   `focus_type` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.focus: resource type',
@@ -14437,6 +14438,50 @@ CREATE TABLE `task` (
   KEY `focus_uuid` (`focus_uuid`),
   KEY `owner_uuid` (`owner_uuid`),
   KEY `part_of_uuid` (`part_of_uuid`)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `task_input`
+--
+
+DROP TABLE IF EXISTS `task_input`;
+CREATE TABLE `task_input` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `task_id` bigint(20) NOT NULL COMMENT 'task.id',
+  `seq` int(11) NOT NULL DEFAULT 0 COMMENT 'position in Task.input',
+  `type_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.input.type: coding system',
+  `type_code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.input.type: coding code',
+  `type_text` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.input.type: text',
+  `value_element` varchar(31) NOT NULL COMMENT 'which value[x] it is: valueReference, valueCanonical, valueUrl, valueString, valueMarkdown or valueCodeableConcept',
+  `value_type` varchar(63) DEFAULT NULL COMMENT 'valueReference: resource type',
+  `value_uuid` binary(16) DEFAULT NULL COMMENT 'valueReference: resource id',
+  `value_system` varchar(255) DEFAULT NULL COMMENT 'valueCodeableConcept: coding system',
+  `value_code` varchar(63) DEFAULT NULL COMMENT 'valueCodeableConcept: coding code',
+  `value_text` text COMMENT 'the canonical, url, string or markdown; valueCodeableConcept: its text',
+  PRIMARY KEY (`id`),
+  KEY `task_id` (`task_id`, `seq`)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `task_output`
+--
+
+DROP TABLE IF EXISTS `task_output`;
+CREATE TABLE `task_output` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `task_id` bigint(20) NOT NULL COMMENT 'task.id',
+  `seq` int(11) NOT NULL DEFAULT 0 COMMENT 'position in Task.output',
+  `type_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.output.type: coding system',
+  `type_code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.output.type: coding code',
+  `type_text` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.output.type: text',
+  `value_element` varchar(31) NOT NULL COMMENT 'which value[x] it is: valueReference, valueCanonical, valueUrl, valueString, valueMarkdown or valueCodeableConcept',
+  `value_type` varchar(63) DEFAULT NULL COMMENT 'valueReference: resource type',
+  `value_uuid` binary(16) DEFAULT NULL COMMENT 'valueReference: resource id',
+  `value_system` varchar(255) DEFAULT NULL COMMENT 'valueCodeableConcept: coding system',
+  `value_code` varchar(63) DEFAULT NULL COMMENT 'valueCodeableConcept: coding code',
+  `value_text` text COMMENT 'the canonical, url, string or markdown; valueCodeableConcept: its text',
+  PRIMARY KEY (`id`),
+  KEY `task_id` (`task_id`, `seq`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `form_questionnaire_assessments`;
