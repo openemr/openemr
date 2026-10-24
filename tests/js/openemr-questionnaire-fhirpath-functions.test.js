@@ -140,6 +140,45 @@ describe('functions', () => {
     });
 });
 
+describe('quantities', () => {
+    const rate = (value) => ({ resourceType: 'QuestionnaireResponse', item: [{ linkId: 'rr', answer: [{ valueQuantity: { value, unit: '{Breaths}/min', system: 'http://unitsofmeasure.org', code: '{Breaths}/min' } }] }] });
+    const evaluateOn = (resource, expression) => new runtimeApi.FhirPathEvaluator().evaluate(new runtimeApi.FhirPathParser().parse(expression), { resource, rootResource: resource, context: resource }, resource);
+    const rr = "%resource.item.where(linkId = 'rr').answer.value";
+
+    test.each([
+        [70, '>= 60', [true]],
+        [40, '>= 60', [false]],
+        [60, '= 60', [true]],
+        [61, '!= 60', [true]],
+    ])('a %s breaths/min answer %s breaths/min', (value, comparison, expected) => {
+        const [operator, number] = comparison.split(' ');
+        expect(evaluateOn(rate(value), rr + ' ' + operator + ' ' + number + " '{Breaths}/min'")).toEqual(expected);
+    });
+
+    test.each([
+        [{ value: 1 }, " > 60 '{Breaths}/min'", []],
+        [{ value: 70 }, ' > 60', [true]],
+        [{ value: 1 }, ' = 1', [true]],
+        [{ value: 70, unit: '{Breaths}/min' }, " > 'fast'", []],
+    ])('an answer of %j%s (a quantity with no unit is in unit 1)', (quantity, comparison, expected) => {
+        const resource = { resourceType: 'QuestionnaireResponse', item: [{ linkId: 'rr', answer: [{ valueQuantity: quantity }] }] };
+        expect(evaluateOn(resource, rr + comparison)).toEqual(expected);
+    });
+
+    test.each([
+        ["5 'mg' > 4 'kg'", []],
+        ["5 'mg' = 5 'kg'", []],
+        ["2 '1' > 1", [true]],
+        ["4 days = 4 'd'", [true]],
+        ["2 weeks > 10 'd'", []],
+        ["(3 'mg' + 2 'mg').value", [5]],
+        ["(3 'mg' * 2).value", [6]],
+        ["(3 'mg' + 2 'kg')", []],
+    ])('%s', (expression, expected) => {
+        expect(evaluate(expression)).toEqual(expected);
+    });
+});
+
 describe('dates', () => {
     test('today() and now() give FHIR date and dateTime strings', () => {
         expect(evaluate('today()')[0]).toMatch(/^\d{4}-\d{2}-\d{2}$/);

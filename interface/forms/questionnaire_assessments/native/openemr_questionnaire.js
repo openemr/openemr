@@ -841,6 +841,58 @@
             + (second !== undefined ? ':' + padDateTimePart(date.getUTCSeconds()) + fraction : '') + zone;
     }
 
+    // FHIRPath quantities ({ value, unit, code }, as answers and literals carry them). A calendar
+    // duration name counts as its UCUM code (4 days = 4 'd'); a plain number, or a quantity answer
+    // with no unit, is a quantity in unit '1'.
+    const UCUM_FOR_CALENDAR = Object.freeze({ year: 'a', month: 'mo', week: 'wk', day: 'd', hour: 'h', minute: 'min', second: 's' });
+
+    function isQuantity(value) {
+        return value !== null && typeof value === 'object' && typeof value.value === 'number';
+    }
+
+    function quantityUnit(quantity) {
+        const unit = String(quantity.code ?? quantity.unit ?? '1');
+        return UCUM_FOR_CALENDAR[CALENDAR_UNITS[unit.toLowerCase()]] ?? unit;
+    }
+
+    // [left value, right value] when both are numbers or quantities in one unit; null when their
+    // units differ (FHIRPath gives empty); undefined when either is something else.
+    function comparableQuantities(left, right) {
+        const asQuantity = (value) => (typeof value === 'number' ? { value, unit: '1' } : (isQuantity(value) ? value : null));
+        const a = asQuantity(left);
+        const b = asQuantity(right);
+        if (a === null || b === null) {
+            return undefined;
+        }
+        return quantityUnit(a) === quantityUnit(b) ? [a.value, b.value] : null;
+    }
+
+    function quantityArithmetic(operator, left, right) {
+        const result = (value, unitOf) => [{
+            value,
+            ...((unitOf.unit ?? unitOf.code) !== undefined ? { unit: unitOf.unit ?? unitOf.code } : {}),
+            ...(unitOf.code !== undefined ? { code: unitOf.code } : {}),
+            ...(unitOf.system !== undefined ? { system: unitOf.system } : {}),
+        }];
+        if (operator === '+' || operator === '-') {
+            const pair = comparableQuantities(left, right);
+            if (!pair) {
+                return [];
+            }
+            return result(operator === '+' ? pair[0] + pair[1] : pair[0] - pair[1], isQuantity(left) ? left : right);
+        }
+        if (isQuantity(left) && typeof right === 'number') {
+            if (operator === '/' && right === 0) {
+                return [];
+            }
+            return result(operator === '*' ? left.value * right : left.value / right, left);
+        }
+        if (operator === '*' && typeof left === 'number' && isQuantity(right)) {
+            return result(left * right.value, right);
+        }
+        return [];
+    }
+
     // FHIRPath's type test (is, as, ofType) over the plain JSON the runtime
     // evaluates. Dates are JSON strings, so a string that reads as a date,
     // dateTime or time counts as that type rather than as a string.
@@ -2354,11 +2406,24 @@
                     return typeof value === 'string' && typeof other === 'string' ? normalise(value) === normalise(other) : equalPrimitive(value, other);
                 });
             };
+            // One quantity against another (or a number, which is a quantity in unit '1'):
+            // compared by value when their units match, empty when they don't.
+            const quantityPair = () => {
+                if (left.length !== 1 || right.length !== 1 || (!isQuantity(left[0]) && !isQuantity(right[0]))) {
+                    return undefined;
+                }
+                return comparableQuantities(left[0], right[0]);
+            };
             switch (operator) {
                 case '=':
-                    return [collectionsEqual(left, right)];
-                case '!=':
-                    return [!collectionsEqual(left, right)];
+                case '!=': {
+                    const pair = quantityPair();
+                    if (pair === null) {
+                        return [];
+                    }
+                    const equal = pair !== undefined ? pair[0] === pair[1] : collectionsEqual(left, right);
+                    return [operator === '=' ? equal : !equal];
+                }
                 case '~':
                     return [equivalent(asCollection(left), asCollection(right))];
                 case '!~':
@@ -2399,10 +2464,18 @@
                 case '<':
                 case '>=':
                 case '<=': {
-                    const leftValue = firstValue(left);
-                    const rightValue = firstValue(right);
+                    let leftValue = firstValue(left);
+                    let rightValue = firstValue(right);
                     if (leftValue === undefined || rightValue === undefined) {
                         return [];
+                    }
+                    if (isQuantity(leftValue) || isQuantity(rightValue)) {
+                        // Empty when the units differ, or when the other side is neither a number nor a quantity.
+                        const pair = comparableQuantities(leftValue, rightValue);
+                        if (!pair) {
+                            return [];
+                        }
+                        [leftValue, rightValue] = pair;
                     }
                     if (operator === '>') return [leftValue > rightValue];
                     if (operator === '<') return [leftValue < rightValue];
@@ -2424,6 +2497,10 @@
                     // String concatenation: + on two strings.
                     if (operator === '+' && typeof leftFirst === 'string' && typeof rightFirst === 'string') {
                         return [leftFirst + rightFirst];
+                    }
+                    // Quantities: + and - in the same unit; * and / by a number.
+                    if (isQuantity(leftFirst) || isQuantity(rightFirst)) {
+                        return quantityArithmetic(operator, leftFirst, rightFirst);
                     }
                     const leftValue = Number(leftFirst);
                     const rightValue = Number(rightFirst);
@@ -2574,7 +2651,7 @@
                     const value = firstValue(this.evaluator.evaluate(ast, environment, null));
                     if (value !== undefined) {
                         runtime.responseStore.setAnswer(compiledItem.linkId, {
-                            valueKey: runtime.answerValueKeyForItem(compiledItem.item),
+                            valueKey: runtime.answerValueKeyForValue(compiledItem.item, value),
                             value,
                         });
                     }
@@ -2695,12 +2772,39 @@
             return issues;
         }
 
+        // Whether a stored answer to a calculated item is one someone gave over the calculation.
+        // On the first pass over a loaded response, SDC's test: an item a person could edit whose
+        // stored answer differs from what the calculation gives now. Afterwards, what setAnswers
+        // recorded.
+        isCalculationOverridden(runtime, compiledItem, storageKey, value, firstPassOnLoad) {
+            if (runtime.calculationOverrides.has(storageKey)) {
+                return true;
+            }
+            if (!firstPassOnLoad || !runtime.isCalculationEditable(compiledItem) || !runtime.responseStore.hasAnswers(storageKey)) {
+                return false;
+            }
+            const stored = firstValue(runtime.responseStore.getAnswers(storageKey))?.value;
+            const same = isQuantity(stored) && isQuantity(value)
+                ? stored.value === value.value && quantityUnit(stored) === quantityUnit(value)
+                : JSON.stringify(stored) === JSON.stringify(value);
+            if (same) {
+                return false;
+            }
+            runtime.calculationOverrides.add(storageKey);
+            return true;
+        }
+
         recalculate(runtime) {
+            const firstPassOnLoad = runtime.questionnaireResponse !== null && this.overridesLoaded !== true;
+            this.overridesLoaded = true;
             for (const compiledItem of this.compiled.calculatedItems) {
                 if (this.isInsideRepeat(compiledItem)) {
                     // Repeat descendants are evaluated per instance in
                     // recalculateInstances so each instance writes to its own
                     // storage key; skip the canonical pass here.
+                    continue;
+                }
+                if (runtime.calculationOverrides.has(compiledItem.linkId)) {
                     continue;
                 }
                 const item = compiledItem.item;
@@ -2717,12 +2821,15 @@
                 try {
                     const result = this.evaluator.evaluate(calculatedAst, environment, null);
                     const value = firstValue(result);
+                    if (this.isCalculationOverridden(runtime, compiledItem, compiledItem.linkId, value, firstPassOnLoad)) {
+                        continue;
+                    }
                     if (value === undefined) {
                         runtime.responseStore.clearAnswer(compiledItem.linkId);
                         continue;
                     }
                     runtime.responseStore.setAnswer(compiledItem.linkId, {
-                        valueKey: runtime.answerValueKeyForItem(item),
+                        valueKey: runtime.answerValueKeyForValue(item, value),
                         value,
                     });
                 } catch (error) {
@@ -2734,29 +2841,32 @@
                     });
                 }
             }
-            this.recalculateInstances(runtime);
+            this.recalculateInstances(runtime, firstPassOnLoad);
         }
 
         // Per-instance calculatedExpression for descendants of repeating groups.
         // Each instance writes to its own instance-qualified storage key so the
         // value renders and serializes for that instance (canonical items are
         // handled above and never enter this walk).
-        recalculateInstances(runtime) {
+        recalculateInstances(runtime, firstPassOnLoad = false) {
             this.walkRepeatInstances(runtime, (compiledItem, storageKey, nodePath) => {
                 const calculatedExpression = compiledItem.calculatedExpression;
                 const ast = calculatedExpression && this.compiledExpressions.get(calculatedExpression);
-                if (!ast) {
+                if (!ast || runtime.calculationOverrides.has(storageKey)) {
                     return;
                 }
                 try {
                     const environment = this.buildEnvironmentForInstance(runtime, compiledItem, nodePath);
                     const value = firstValue(this.evaluator.evaluate(ast, environment, null));
+                    if (this.isCalculationOverridden(runtime, compiledItem, storageKey, value, firstPassOnLoad)) {
+                        return;
+                    }
                     if (value === undefined) {
                         runtime.responseStore.clearAnswer(storageKey);
                         return;
                     }
                     runtime.responseStore.setAnswer(storageKey, {
-                        valueKey: runtime.answerValueKeyForItem(compiledItem.item),
+                        valueKey: runtime.answerValueKeyForValue(compiledItem.item, value),
                         value,
                     });
                 } catch (error) {
@@ -2784,7 +2894,7 @@
                     const value = firstValue(this.evaluator.evaluate(ast, environment, null));
                     if (value !== undefined) {
                         runtime.responseStore.setAnswer(storageKey, {
-                            valueKey: runtime.answerValueKeyForItem(compiledItem.item),
+                            valueKey: runtime.answerValueKeyForValue(compiledItem.item, value),
                             value,
                         });
                     }
@@ -5410,10 +5520,17 @@
             // by default -> a select; sdc-questionnaire-unitOpen
             // optionsOrString / optionsOrType -> free text with suggestions.
             const unitValueSet = containedResourceById(this.runtime.questionnaire, getTypedExtensionValue(item, EXTENSIONS.UNIT_VALUE_SET));
-            const unitOptions = [
+            let unitOptions = [
                 ...findExtensions(item, EXTENSIONS.UNIT_OPTION).map((extension) => extension?.valueCoding),
                 ...(unitValueSet?.resourceType === 'ValueSet' ? expansionToAnswerOptions(unitValueSet).map((option) => option.valueCoding) : []),
             ].filter((coding) => coding && (typeof coding.code === 'string' || typeof coding.display === 'string'));
+            // With no unit options, a lone questionnaire-unit is the question's one unit (as LForms
+            // treated it, and as forms such as WHO SMART's use it on quantity questions), so the
+            // answer carries it and comparisons in that unit work.
+            const fixedUnit = findExtension(item, EXTENSIONS.QUESTIONNAIRE_UNIT)?.valueCoding;
+            if (unitOptions.length === 0 && fixedUnit && (typeof fixedUnit.code === 'string' || typeof fixedUnit.display === 'string')) {
+                unitOptions = [fixedUnit];
+            }
             const unitLabel = (coding) => coding.display ?? coding.code;
             const unitOpen = ['optionsOrString', 'optionsOrType'].includes(getStringExtension(item, EXTENSIONS.UNIT_OPEN));
             const currentUnit = quantity.unit ?? quantity.code ?? '';
@@ -5430,6 +5547,9 @@
                     const option = document.createElement('option');
                     option.value = String(index);
                     option.textContent = unitLabel(coding);
+                    if (typeof coding.code === 'string') {
+                        option.dataset.code = coding.code;
+                    }
                     option.selected = currentUnit !== '' && (coding.code === quantity.code || unitLabel(coding) === currentUnit);
                     unitInput.appendChild(option);
                 });
@@ -5704,16 +5824,79 @@
             // Keyed by storage key so both canonical items (key === linkId) and
             // repeat-instance items (group\0index\0child) refresh from their own
             // stored value.
-            const calculatedLinkIds = new Set(this.runtime.compiled.calculatedItems.map((compiledItem) => compiledItem.linkId));
-            for (const [storageKey, input] of this.inputs) {
-                if (!(input instanceof HTMLInputElement)) {
+            const calculatedItems = new Map(this.runtime.compiled.calculatedItems.map((compiledItem) => [compiledItem.linkId, compiledItem.item]));
+            for (const [storageKey, entry] of this.inputs) {
+                const item = calculatedItems.get(storageKey.split(INSTANCE_SEPARATOR).pop());
+                if (!item || !entry) {
                     continue;
                 }
-                const linkId = storageKey.split(INSTANCE_SEPARATOR).pop();
-                if (!calculatedLinkIds.has(linkId)) {
-                    continue;
+                const answers = this.runtime.responseStore.getAnswers(storageKey);
+                if (entry instanceof HTMLInputElement) {
+                    entry.value = firstValue(answers)?.value ?? '';
+                } else {
+                    this.showCalculatedAnswers(item, entry, answers);
                 }
-                input.value = firstValue(this.runtime.responseStore.getAnswers(storageKey))?.value ?? '';
+            }
+        }
+
+        // A calculated answer in a control made of several elements: a quantity's number and
+        // unit, a boolean's radios, a choice's radios, check boxes, drop-down, autocomplete or
+        // open text.
+        showCalculatedAnswers(item, entry, answers) {
+            const value = firstValue(answers)?.value;
+            if (item.type === 'quantity') {
+                const box = entry.querySelector('input[type="number"]');
+                if (box) {
+                    box.value = isQuantity(value) ? value.value : '';
+                }
+                // With no value, the unit stays as the person or the form left it (a lone unit is preselected).
+                const unit = isQuantity(value) ? entry.querySelector('select.oe-questionnaire-unit-select, input[type="text"]') : null;
+                const unitText = isQuantity(value) ? (value.unit ?? value.code ?? '') : '';
+                if (unit instanceof HTMLSelectElement) {
+                    // The option for the answer's unit, or none: another option's label would misstate it.
+                    const match = [...unit.options].find((option) => option.value !== ''
+                        && ((isQuantity(value) && value.code !== undefined && option.dataset.code === value.code) || option.textContent === unitText));
+                    unit.value = match ? match.value : '';
+                } else if (unit) {
+                    unit.value = unitText;
+                }
+                return;
+            }
+            if (item.type === 'boolean') {
+                const [yes, no] = entry.querySelectorAll('input[type="radio"]');
+                if (yes && no) {
+                    yes.checked = value === true;
+                    no.checked = value === false;
+                }
+                return;
+            }
+            if (item.type !== 'choice' && item.type !== 'open-choice') {
+                return;
+            }
+            const options = this.runtime.answerOptionsFor(item);
+            const optionAnswers = options.map((option) => getAnswerOptionValue(option));
+            const chosen = (optionAnswer) => optionAnswer !== null
+                && answers.some((answer) => answer.valueKey === optionAnswer.valueKey && equalPrimitive(answer.value, optionAnswer.value));
+            for (const input of entry.querySelectorAll('input.custom-control-input')) {
+                input.checked = chosen(optionAnswers[Number(input.value)] ?? null);
+            }
+            const select = entry.querySelector('select.oe-questionnaire-choice-select');
+            if (select) {
+                const index = optionAnswers.findIndex(chosen);
+                select.value = index >= 0 ? String(index) : '';
+            }
+            // An open choice's own text: a string answer that is not one of the options.
+            const custom = answers.find((answer) => answer.valueKey === 'valueString'
+                && !optionAnswers.some((optionAnswer) => optionAnswer?.valueKey === 'valueString' && equalPrimitive(optionAnswer.value, answer.value)));
+            const autocomplete = entry.querySelector('input.oe-questionnaire-autocomplete');
+            if (autocomplete) {
+                const index = optionAnswers.findIndex(chosen);
+                autocomplete.value = index >= 0 ? answerOptionLabel(options[index], optionAnswers[index]) : (item.type === 'open-choice' ? custom?.value ?? '' : '');
+                return;
+            }
+            const openText = entry.querySelector('input[type="text"]');
+            if (openText && item.type === 'open-choice') {
+                openText.value = custom?.value ?? '';
             }
         }
 
@@ -5806,6 +5989,10 @@
             this.renderer = new QuestionnaireRenderer(this);
             this.container = null;
             this.changeListeners = new Set();
+            // Storage keys of calculated items someone answered over. SDC 4.0.0 (Using
+            // Expressions, calculatedExpression): "If a user has edited a calculated value, it
+            // SHOULD no longer be changed when other answers in the questionnaire response change."
+            this.calculationOverrides = new Set();
             // Signatures by requirement key ('' for the form, else the item's linkId).
             this.signatures = new Map();
             const loadSignature = (key, holder) => {
@@ -5916,7 +6103,52 @@
             }[item.type] ?? 'valueString';
         }
 
+        // The answer key for a value an expression gave (calculated or initial). A choice's value
+        // is a Coding, or whatever type its options are (R4 answerOption value[x]); reference and
+        // attachment answers keep their own keys.
+        answerValueKeyForValue(item, value) {
+            if (item.type === 'reference') {
+                return 'valueReference';
+            }
+            if (item.type === 'attachment') {
+                return 'valueAttachment';
+            }
+            if (item.type === 'choice' || item.type === 'open-choice') {
+                if (value !== null && typeof value === 'object') {
+                    return 'reference' in value ? 'valueReference' : 'valueCoding';
+                }
+                if (typeof value === 'number') {
+                    return Number.isInteger(value) ? 'valueInteger' : 'valueDecimal';
+                }
+                if (typeof value === 'string' && FHIR_TIME_PATTERN.test(value)) {
+                    return 'valueTime';
+                }
+                if (typeof value === 'string' && FHIR_DATE_PATTERN.test(value)) {
+                    return 'valueDate';
+                }
+                return 'valueString';
+            }
+            return this.answerValueKeyForItem(item);
+        }
+
+        // Whether a person filling the form could answer over this calculated item: it is shown
+        // and not read-only (as readOnlyExpression says, else as item.readOnly).
+        isCalculationEditable(compiledItem) {
+            const readOnly = this.dynamicState?.get(compiledItem.linkId)?.readOnly ?? compiledItem.item.readOnly === true;
+            return !compiledItem.hidden && readOnly !== true;
+        }
+
         setAnswers(linkId, answers) {
+            // An answer given to a calculated item a person can edit stops its calculation;
+            // clearing it resumes it.
+            const compiledItem = this.compiled.itemsByLinkId.get(String(linkId).split(INSTANCE_SEPARATOR).pop());
+            if (compiledItem?.calculatedExpression && this.isCalculationEditable(compiledItem)) {
+                if (answers.length > 0) {
+                    this.calculationOverrides.add(linkId);
+                } else {
+                    this.calculationOverrides.delete(linkId);
+                }
+            }
             this.responseStore.setAnswers(linkId, answers);
             this.refreshState();
             this.renderer.refresh();
@@ -6057,7 +6289,8 @@
     }
 
     global.OpenEMRQuestionnaire = {
-        version: '0.2.0',
+        // Raised when the runtime gains what a host or a form may test for (0.3.0: the SDC and R4 additions of #14744).
+        version: '0.3.0',
         EXTENSIONS,
         DEFAULT_STRINGS,
         QuestionnaireCompiler,

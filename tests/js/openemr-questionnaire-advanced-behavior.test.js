@@ -137,6 +137,18 @@ describe('static behaviour extensions', () => {
         expect(units).toEqual(['kg', 'lb']);
     });
 
+    test('a lone questionnaire-unit is a quantity question\'s one unit, so answers carry it', () => {
+        const { container, runtime } = setup([{
+            linkId: 'rr', type: 'quantity', text: 'Breathing rate',
+            extension: [{ url: CORE + 'questionnaire-unit', valueCoding: { system: 'http://unitsofmeasure.org', code: '{Breaths}/min', display: 'breaths/min' } }],
+        }]);
+        const value = item(container, 'rr').querySelector('input[type="number"]');
+        expect(item(container, 'rr').querySelector('select').value).toBe('0');
+        value.value = '72';
+        value.dispatchEvent(new Event('change', { bubbles: true }));
+        expect(runtime.responseStore.getAnswers('rr')).toEqual([{ valueKey: 'valueQuantity', value: { value: 72, unit: 'breaths/min', system: 'http://unitsofmeasure.org', code: '{Breaths}/min' } }]);
+    });
+
     test('referenceResource hints and checks the referenced type', () => {
         const { container, runtime } = setup([
             { linkId: 'gp', type: 'reference', text: 'Your doctor', extension: [{ url: CORE + 'questionnaire-referenceResource', valueCode: 'Practitioner' }] },
