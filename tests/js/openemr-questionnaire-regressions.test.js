@@ -196,6 +196,35 @@ describe('answerValueSet (contained, pre-expanded) and ordinalValue', () => {
     });
 });
 
+describe('answerValueSet: a contained ValueSet with only a compose', () => {
+    const SNOMED = 'http://snomed.info/sct';
+    const withValueSet = (compose) => baseQuestionnaire(
+        [{ linkId: 'picks', type: 'choice', text: 'Pick', answerValueSet: '#vs' }],
+        { contained: [{ id: 'vs', resourceType: 'ValueSet', status: 'active', compose }] }
+    );
+    const labelsOf = (container) => [...container.querySelectorAll('[data-link-id="picks"] .oe-questionnaire-choice-label')]
+        .map((label) => label.textContent);
+
+    test('a compose that lists its concepts gives them as options, less the excluded ones', () => {
+        const { container, runtime } = mount(withValueSet({
+            include: [{ system: SNOMED, concept: [{ code: '373066001', display: 'Yes' }, { code: '373067005', display: 'No' }, { code: '261665006', display: 'Unknown' }] }],
+            exclude: [{ system: SNOMED, concept: [{ code: '261665006' }] }],
+        }));
+        expect(labelsOf(container)).toEqual(['Yes', 'No']);
+        const first = container.querySelectorAll('[data-link-id="picks"] input[type="radio"]')[0];
+        first.checked = true;
+        first.dispatchEvent(new Event('change', { bubbles: true }));
+        const answer = runtime.getQuestionnaireResponse().item.find((entry) => entry.linkId === 'picks');
+        expect(answer.answer[0].valueCoding).toEqual({ system: SNOMED, code: '373066001', display: 'Yes' });
+        expect(runtime.collectWarnings().filter((warning) => warning.code === 'unresolved-answer-value-set')).toEqual([]);
+    });
+
+    test('a compose with a filter still needs a terminology service, and says so', () => {
+        const { runtime } = mount(withValueSet({ include: [{ system: SNOMED, filter: [{ property: 'concept', op: 'is-a', value: '404684003' }] }] }));
+        expect(runtime.collectWarnings().map((warning) => warning.code)).toContain('unresolved-answer-value-set');
+    });
+});
+
 describe('FHIRPath engine: tokenizer and new functions', () => {
     const parser = new runtimeApi.FhirPathParser();
     const evaluator = new runtimeApi.FhirPathEvaluator();

@@ -419,3 +419,116 @@ describe('CodeRabbit rev2 fixes', () => {
         expect(groups[1].item.find((i) => i.linkId === 'seeded').answer[0].valueString).toBe('from-expression');
     });
 });
+
+describe('repeating boolean, quantity and attachment questions', () => {
+    const MAX_OCCURS = 'http://hl7.org/fhir/StructureDefinition/questionnaire-maxOccurs';
+    const mountItem = (item, questionnaireResponse) => {
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+        const runtime = runtimeApi.mount({
+            container,
+            questionnaire: { resourceType: 'Questionnaire', status: 'active', item: [item] },
+            ...(questionnaireResponse ? { questionnaireResponse } : {}),
+        });
+        return { container, runtime };
+    };
+    const rows = (container) => [...container.querySelectorAll('.oe-questionnaire-repeat-row')];
+    const answersOf = (runtime, linkId) => runtime.getQuestionnaireResponse().item?.find((entry) => entry.linkId === linkId)?.answer ?? [];
+    const type = (input, value) => {
+        input.value = value;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    const weight = {
+        linkId: 'w', type: 'quantity', text: 'Weights', repeats: true,
+        extension: [{ url: 'http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption', valueCoding: { system: 'http://unitsofmeasure.org', code: 'kg', display: 'kg' } }],
+    };
+
+    test('a repeating quantity takes an answer per row, and a row can be removed', () => {
+        const { container, runtime } = mountItem(weight);
+        type(rows(container)[0].querySelector('input[type="number"]'), '70');
+        type(rows(container)[1].querySelector('input[type="number"]'), '80');
+        expect(answersOf(runtime, 'w').map((answer) => answer.valueQuantity.value)).toEqual([70, 80]);
+        expect(rows(container)).toHaveLength(3);
+        rows(container)[0].querySelector('.oe-questionnaire-repeat-remove').click();
+        expect(answersOf(runtime, 'w')).toEqual([{ valueQuantity: { value: 80, unit: 'kg', system: 'http://unitsofmeasure.org', code: 'kg' } }]);
+    });
+
+    test('a saved response with two quantities loads as two rows, and maxOccurs stops a third', () => {
+        const { container } = mountItem({ ...weight, extension: [...weight.extension, { url: MAX_OCCURS, valueInteger: 2 }] }, {
+            resourceType: 'QuestionnaireResponse', status: 'in-progress',
+            item: [{ linkId: 'w', answer: [{ valueQuantity: { value: 70, unit: 'kg', code: 'kg' } }, { valueQuantity: { value: 72, unit: 'kg', code: 'kg' } }] }],
+        });
+        expect(rows(container).map((row) => row.querySelector('input[type="number"]').value)).toEqual(['70', '72']);
+    });
+
+    test('a repeating boolean takes an answer per row', () => {
+        const { container, runtime } = mountItem({ linkId: 'b', type: 'boolean', text: 'Each day: any pain?', repeats: true });
+        const pick = (row, index) => {
+            const radio = row.querySelectorAll('input[type="radio"]')[index];
+            radio.checked = true;
+            radio.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        pick(rows(container)[0], 0);
+        pick(rows(container)[1], 1);
+        expect(answersOf(runtime, 'b')).toEqual([{ valueBoolean: true }, { valueBoolean: false }]);
+    });
+
+    test('a repeating attachment takes a file per row', async () => {
+        const { container, runtime } = mountItem({ linkId: 'f', type: 'attachment', text: 'Photos', repeats: true });
+        for (const name of ['a.txt', 'b.txt']) {
+            const input = rows(container).at(-1).querySelector('input[type="file"]');
+            Object.defineProperty(input, 'files', { value: [new File(['hello'], name, { type: 'text/plain' })] });
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            await new Promise((resolve) => setTimeout(resolve, 20));
+        }
+        expect(answersOf(runtime, 'f').map((answer) => answer.valueAttachment.title)).toEqual(['a.txt', 'b.txt']);
+    });
+});
+
+describe('expressions evaluated per repetition', () => {
+    const SDC = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/';
+    const CQF = 'http://hl7.org/fhir/StructureDefinition/cqf-expression';
+    const fhirpath = (expression) => ({ language: 'text/fhirpath', expression });
+    const pickBoolean = (instanceNode, linkId, yes) => {
+        const radio = instanceNode.querySelectorAll('[data-link-id="' + linkId + '"] input[type="radio"]')[yes ? 0 : 1];
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    const twoInstances = (items) => {
+        const { container, runtime } = mount([{ linkId: 'g', type: 'group', text: 'Person', repeats: true, item: items }]);
+        const groupNode = container.querySelector('[data-link-id="g"]');
+        groupNode.querySelector(':scope > .card-body > .oe-questionnaire-repeat-add').click();
+        return { container, runtime, instances: () => directInstances(groupNode) };
+    };
+
+    test('answerExpression gives each repetition its own options', () => {
+        const { instances } = twoInstances([
+            { linkId: 'adult', type: 'boolean', text: 'Adult?' },
+            {
+                linkId: 'drink', type: 'choice', text: 'Drink',
+                extension: [{ url: SDC + 'sdc-questionnaire-answerExpression', valueExpression: fhirpath("iif(%context.item.where(linkId = 'adult').answer.value = true, 'Coffee' | 'Tea', 'Milk' | 'Juice')") }],
+            },
+        ]);
+        pickBoolean(instances()[0], 'adult', true);
+        pickBoolean(instances()[1], 'adult', false);
+        const labels = (instanceNode) => [...instanceNode.querySelectorAll('[data-link-id="drink"] .oe-questionnaire-choice-label')].map((label) => label.textContent);
+        expect(labels(instances()[0])).toEqual(['Coffee', 'Tea']);
+        expect(labels(instances()[1])).toEqual(['Milk', 'Juice']);
+    });
+
+    test('a required expression is evaluated for each repetition', () => {
+        const { runtime, instances } = twoInstances([
+            { linkId: 'smoker', type: 'boolean', text: 'Smokes?' },
+            {
+                linkId: 'packs', type: 'integer', text: 'Packs a day',
+                _required: { extension: [{ url: CQF, valueExpression: fhirpath("%context.item.where(linkId = 'smoker').answer.value = true") }] },
+            },
+        ]);
+        pickBoolean(instances()[0], 'smoker', true);
+        pickBoolean(instances()[1], 'smoker', false);
+        const required = runtime.validate().issues.filter((issue) => issue.code === 'required' && issue.linkId === 'packs');
+        expect(required).toHaveLength(1);
+        expect(instances()[0].querySelector('[data-link-id="packs"] .text-danger')).not.toBeNull();
+        expect(instances()[1].querySelector('[data-link-id="packs"] .text-danger')).toBeNull();
+    });
+});

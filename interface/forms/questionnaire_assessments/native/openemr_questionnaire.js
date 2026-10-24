@@ -227,6 +227,13 @@
         return Boolean(collection[0]);
     }
 
+    // A collection as an operand of and, or, xor and implies: true, false, or null for empty
+    // (FHIRPath's three-valued logic, where empty means unknown).
+    function logicValue(value) {
+        const collection = asCollection(value);
+        return collection.length === 0 ? null : Boolean(collection[0]);
+    }
+
     function equalPrimitive(left, right) {
         if (left && typeof left === 'object' && right && typeof right === 'object') {
             if ('code' in left || 'code' in right) {
@@ -242,10 +249,23 @@
         return left === right;
     }
 
+    // FHIRPath = on two collections: true, false, or null (empty) when either is empty or an
+    // item's comparison is unknown. Items are compared in order, and collections of different
+    // sizes are unequal.
     function collectionsEqual(left, right) {
         const leftCollection = asCollection(left);
         const rightCollection = asCollection(right);
-        return leftCollection.some((leftValue) => rightCollection.some((rightValue) => equalPrimitive(leftValue, rightValue)));
+        if (leftCollection.length === 0 || rightCollection.length === 0) {
+            return null;
+        }
+        if (leftCollection.length !== rightCollection.length) {
+            return false;
+        }
+        const results = leftCollection.map((value, index) => itemsEqual(value, rightCollection[index]));
+        if (results.includes(false)) {
+            return false;
+        }
+        return results.includes(null) ? null : true;
     }
 
     function safeId(value) {
@@ -472,14 +492,54 @@
         return options;
     }
 
+    // A ValueSet's compose read without a terminology service: only when every include lists
+    // its concepts (no filter, no whole code system, no other value set). Excluded concepts are
+    // left out. Anything else gives no options.
+    function composeToAnswerOptions(valueSet) {
+        const includes = valueSet?.compose?.include ?? [];
+        if (includes.length === 0 || includes.some((include) => !Array.isArray(include?.concept) || include.filter || include.valueSet)) {
+            return [];
+        }
+        const excluded = new Set((valueSet.compose.exclude ?? []).flatMap((exclude) => (exclude?.concept ?? [])
+            .map((concept) => (exclude.system ?? '') + '|' + concept?.code)));
+        const options = [];
+        for (const include of includes) {
+            for (const concept of include.concept) {
+                if (concept?.code === undefined || excluded.has((include.system ?? '') + '|' + concept.code)) {
+                    continue;
+                }
+                const coding = {};
+                if (typeof include.system === 'string') {
+                    coding.system = include.system;
+                }
+                if (typeof include.version === 'string') {
+                    coding.version = include.version;
+                }
+                coding.code = concept.code;
+                if (typeof concept.display === 'string') {
+                    coding.display = concept.display;
+                }
+                if (Array.isArray(concept.extension)) {
+                    coding.extension = deepClone(concept.extension);
+                }
+                options.push({ valueCoding: coding });
+            }
+        }
+        return options;
+    }
+
+    function valueSetToAnswerOptions(valueSet) {
+        return valueSet?.expansion ? expansionToAnswerOptions(valueSet) : composeToAnswerOptions(valueSet);
+    }
+
     function resolveAnswerOptions(item, questionnaire) {
         if (Array.isArray(item.answerOption) && item.answerOption.length > 0) {
             return item.answerOption;
         }
         if (typeof item.answerValueSet === 'string' && item.answerValueSet !== '') {
             const valueSet = containedResourceById(questionnaire, item.answerValueSet);
-            if (valueSet && valueSet.resourceType === 'ValueSet' && valueSet.expansion) {
-                return expansionToAnswerOptions(valueSet);
+            if (valueSet && valueSet.resourceType === 'ValueSet') {
+                return valueSetToAnswerOptions(valueSet);
             }
         }
         return Array.isArray(item.answerOption) ? item.answerOption : [];
@@ -703,6 +763,21 @@
         return result;
     }
 
+    // LHC-Forms (OpenEMR 8.2 and earlier) saved an answer to a choice with string options
+    // (answerOption.valueString) as a Coding holding only the text, valueCoding { display: 'Yes' }.
+    // Read it as the string option it stands for, so it shows as chosen and enableWhen on
+    // answerString matches it.
+    function fromLhcFormsAnswer(item, value) {
+        const coding = value?.valueKey === 'valueCoding' ? value.value : null;
+        if (coding === null || typeof coding !== 'object' || typeof coding.display !== 'string'
+            || coding.code !== undefined || coding.system !== undefined
+            || (item?.type !== 'choice' && item?.type !== 'open-choice')) {
+            return value;
+        }
+        const isOption = (item.answerOption ?? []).some((option) => option?.valueString === coding.display);
+        return isOption ? { valueKey: 'valueString', value: coding.display } : value;
+    }
+
     function answerDisplay(answer) {
         const value = answer?.value;
         if (value === undefined || value === null) {
@@ -801,22 +876,36 @@
             + padDateTimePart(now.getMinutes()) + ':' + padDateTimePart(now.getSeconds()));
     }
 
+    const SECONDS_IN = Object.freeze({ week: 604800, day: 86400, hour: 3600, minute: 60, second: 1 });
+
     // A FHIR date or dateTime moved by a calendar duration, kept at its own
     // precision. A month or year past the end of a shorter month lands on its
     // last day (2026-01-31 + 1 month = 2026-02-28). A unit finer than the
-    // value's precision gives null, as does anything that isn't a date.
+    // value's precision is converted to that precision and truncated, by
+    // FHIRPath's factors (1 year = 12 months or 365 days, 1 month = 30 days),
+    // so @2026-01 + 45 days is @2026-02 and @2026 + 1 day is @2026. Anything
+    // that isn't a date gives null.
     function shiftFhirDate(value, quantity, sign) {
         const match = typeof value === 'string' ? FHIR_DATE_PATTERN.exec(value) : null;
-        const unit = CALENDAR_UNITS[String(quantity?.unit ?? '').toLowerCase()] ?? UCUM_CALENDAR_UNITS[quantity?.unit] ?? null;
-        const amount = sign * Math.trunc(Number(quantity?.value));
+        let unit = CALENDAR_UNITS[String(quantity?.unit ?? '').toLowerCase()] ?? UCUM_CALENDAR_UNITS[quantity?.unit] ?? null;
+        let amount = sign * Math.trunc(Number(quantity?.value));
         if (!match || unit === null || !Number.isFinite(amount)) {
             return null;
         }
         const [, year, month, day, hour, minute, second, fraction = '', zone = ''] = match;
-        const precision = hour !== undefined ? 'time' : (day !== undefined ? 'day' : (month !== undefined ? 'month' : 'year'));
-        const finest = { year: ['year'], month: ['year', 'month'], day: ['year', 'month', 'week', 'day'] }[precision];
-        if (finest !== undefined && !finest.includes(unit)) {
-            return null;
+        const precision = second !== undefined ? 'second' : (hour !== undefined ? 'minute' : (day !== undefined ? 'day' : (month !== undefined ? 'month' : 'year')));
+        if (precision === 'year' && unit !== 'year') {
+            amount = Math.trunc(unit === 'month' ? amount / 12 : amount * SECONDS_IN[unit] / (365 * 86400));
+            unit = 'year';
+        } else if (precision === 'month' && unit !== 'year' && unit !== 'month') {
+            amount = Math.trunc(amount * SECONDS_IN[unit] / (30 * 86400));
+            unit = 'month';
+        } else if (precision === 'day' && SECONDS_IN[unit] < 86400) {
+            amount = Math.trunc(amount * SECONDS_IN[unit] / 86400);
+            unit = 'day';
+        } else if (precision === 'minute' && unit === 'second') {
+            amount = Math.trunc(amount / 60);
+            unit = 'minute';
         }
         let date;
         if (unit === 'year' || unit === 'month') {
@@ -828,8 +917,7 @@
                 Number(hour ?? 0), Number(minute ?? 0), Number(second ?? 0)));
         } else {
             date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour ?? 0), Number(minute ?? 0), Number(second ?? 0)));
-            const milliseconds = { week: 604800000, day: 86400000, hour: 3600000, minute: 60000, second: 1000 }[unit];
-            date = new Date(date.getTime() + amount * milliseconds);
+            date = new Date(date.getTime() + amount * SECONDS_IN[unit] * 1000);
         }
         const yearText = String(date.getUTCFullYear()).padStart(4, '0');
         const monthText = padDateTimePart(date.getUTCMonth() + 1);
@@ -841,22 +929,95 @@
             + (second !== undefined ? ':' + padDateTimePart(date.getUTCSeconds()) + fraction : '') + zone;
     }
 
-    // FHIRPath quantities ({ value, unit, code }, as answers and literals carry them). A calendar
-    // duration name counts as its UCUM code (4 days = 4 'd'); a plain number, or a quantity answer
-    // with no unit, is a quantity in unit '1'.
+    // A date, dateTime or time as FHIRPath compares it: its fields from the year (for a time, the
+    // hour) down to its own precision, seconds and milliseconds as one decimal field, and its
+    // offset. Null for anything else.
+    function temporalValue(value) {
+        if (typeof value !== 'string') {
+            return null;
+        }
+        const time = /^(\d{2}):(\d{2})(?::(\d{2}(?:\.\d+)?))?$/.exec(value);
+        if (time) {
+            return { time: true, fields: time.slice(1).filter((field) => field !== undefined).map(Number), zone: null };
+        }
+        const match = FHIR_DATE_PATTERN.exec(value);
+        if (!match) {
+            return null;
+        }
+        const [, year, month, day, hour, minute, second, fraction = '', zone] = match;
+        const fields = [year, month, day, hour, minute, second === undefined ? undefined : second + fraction];
+        const end = fields.indexOf(undefined);
+        return { time: false, fields: (end === -1 ? fields : fields.slice(0, end)).map(Number), zone: zone ?? null };
+    }
+
+    // A dateTime's fields moved to UTC; with no offset it is read as local time.
+    function utcFields(temporal) {
+        const [year, month, day, hour, minute, ...seconds] = temporal.fields;
+        let offset;
+        if (temporal.zone === null) {
+            offset = -new Date(year, month - 1, day, hour, minute).getTimezoneOffset();
+        } else {
+            offset = temporal.zone === 'Z' ? 0 : (temporal.zone[0] === '-' ? -1 : 1) * (Number(temporal.zone.slice(1, 3)) * 60 + Number(temporal.zone.slice(4, 6)));
+        }
+        const utc = new Date(Date.UTC(year, month - 1, day, hour, minute) - offset * 60000);
+        return [utc.getUTCFullYear(), utc.getUTCMonth() + 1, utc.getUTCDate(), utc.getUTCHours(), utc.getUTCMinutes(), ...seconds];
+    }
+
+    // FHIRPath's ordering of two dates, dateTimes or times: -1, 0 or 1, field by field from the
+    // largest. Null when they agree as far as one value's precision goes and the other goes
+    // further ("the comparison stops and the result is empty"): @2026 against @2026-01, or a date
+    // against a dateTime on that day. Two times of day compare in UTC when either has an offset.
+    // Undefined when the two aren't both dates and dateTimes, or both times.
+    function compareTemporal(left, right) {
+        const a = temporalValue(left);
+        const b = temporalValue(right);
+        if (a === null || b === null || a.time !== b.time) {
+            return undefined;
+        }
+        const inUtc = !a.time && a.fields.length > 3 && b.fields.length > 3 && (a.zone !== null || b.zone !== null);
+        const fieldsA = inUtc ? utcFields(a) : a.fields;
+        const fieldsB = inUtc ? utcFields(b) : b.fields;
+        for (let index = 0; index < Math.min(fieldsA.length, fieldsB.length); index++) {
+            if (fieldsA[index] !== fieldsB[index]) {
+                return fieldsA[index] < fieldsB[index] ? -1 : 1;
+            }
+        }
+        return fieldsA.length === fieldsB.length ? 0 : null;
+    }
+
+    // FHIRPath quantities ({ value, unit, code }, as answers and literals carry them). A plain
+    // number, or a quantity answer with no unit, is a quantity in unit '1'. A quoted calendar word
+    // counts as its UCUM code (4 'weeks' = 4 'wk'), a leniency for forms such as WHO SMART's, which
+    // compare answers in 'wk' with 104 'weeks'. A calendar keyword (4 days) is a calendar duration:
+    // above seconds it is unequal to a UCUM duration, and the two don't compare (FHIRPath:
+    // "1 year = 1 'a' // false", "1 second = 1 's' // true").
     const UCUM_FOR_CALENDAR = Object.freeze({ year: 'a', month: 'mo', week: 'wk', day: 'd', hour: 'h', minute: 'min', second: 's' });
+
+    // The calendar durations FHIRPath literals write, kept apart from the objects so the mark
+    // never reaches a saved answer.
+    const CALENDAR_DURATIONS = new WeakSet();
+
+    function calendarDuration(value, unit) {
+        const duration = { value, unit };
+        CALENDAR_DURATIONS.add(duration);
+        return duration;
+    }
 
     function isQuantity(value) {
         return value !== null && typeof value === 'object' && typeof value.value === 'number';
     }
 
     function quantityUnit(quantity) {
+        if (CALENDAR_DURATIONS.has(quantity)) {
+            return quantity.unit === 'second' ? 's' : 'calendar ' + quantity.unit;
+        }
         const unit = String(quantity.code ?? quantity.unit ?? '1');
         return UCUM_FOR_CALENDAR[CALENDAR_UNITS[unit.toLowerCase()]] ?? unit;
     }
 
-    // [left value, right value] when both are numbers or quantities in one unit; null when their
-    // units differ (FHIRPath gives empty); undefined when either is something else.
+    // [left value, right value] when both are numbers or quantities in one unit; false for a
+    // calendar duration against a UCUM one above seconds (unequal, and not ordered); null when
+    // their units otherwise differ (FHIRPath gives empty); undefined when either is something else.
     function comparableQuantities(left, right) {
         const asQuantity = (value) => (typeof value === 'number' ? { value, unit: '1' } : (isQuantity(value) ? value : null));
         const a = asQuantity(left);
@@ -864,11 +1025,35 @@
         if (a === null || b === null) {
             return undefined;
         }
-        return quantityUnit(a) === quantityUnit(b) ? [a.value, b.value] : null;
+        const unitA = quantityUnit(a);
+        const unitB = quantityUnit(b);
+        if (unitA === unitB) {
+            return [a.value, b.value];
+        }
+        const calendarAgainstUcum = (calendar, other) => calendar.startsWith('calendar ') && UCUM_CALENDAR_UNITS[other] !== undefined;
+        return calendarAgainstUcum(unitA, unitB) || calendarAgainstUcum(unitB, unitA) ? false : null;
+    }
+
+    // FHIRPath = on two items: true, false, or null (empty) when the comparison is unknown. A
+    // quantity against a number or quantity compares by value when the units match and is unknown
+    // when they don't; dates and times compare as compareTemporal does; anything else compares as
+    // equalPrimitive does.
+    function itemsEqual(left, right) {
+        if (isQuantity(left) || isQuantity(right)) {
+            const pair = comparableQuantities(left, right);
+            if (pair !== undefined) {
+                return pair === null || pair === false ? pair : pair[0] === pair[1];
+            }
+        }
+        const order = compareTemporal(left, right);
+        if (order !== undefined) {
+            return order === null ? null : order === 0;
+        }
+        return equalPrimitive(left, right);
     }
 
     function quantityArithmetic(operator, left, right) {
-        const result = (value, unitOf) => [{
+        const result = (value, unitOf) => [CALENDAR_DURATIONS.has(unitOf) ? calendarDuration(value, unitOf.unit) : {
             value,
             ...((unitOf.unit ?? unitOf.code) !== undefined ? { unit: unitOf.unit ?? unitOf.code } : {}),
             ...(unitOf.code !== undefined ? { code: unitOf.code } : {}),
@@ -1057,7 +1242,7 @@
                                 code: 'unresolved-answer-value-set',
                                 linkId,
                                 message: 'answerValueSet "' + item.answerValueSet
-                                    + '" could not be resolved; only contained, pre-expanded ValueSets (referenced by #id) are supported.',
+                                    + '" could not be resolved; only contained ValueSets (referenced by #id) with an expansion, or a compose that lists its concepts, are supported.',
                             });
                         }
                     }
@@ -1191,6 +1376,39 @@
                 });
             }
 
+            // R4: "Applications processing a resource are required to check for modifier
+            // extensions". One this runtime doesn't understand may change the meaning of the element
+            // it sits on, so the form isn't shown either. Contained resources are left to their use.
+            const modifiers = new Set();
+            const collectModifiers = (node) => {
+                if (Array.isArray(node)) {
+                    node.forEach(collectModifiers);
+                    return;
+                }
+                if (node === null || typeof node !== 'object') {
+                    return;
+                }
+                for (const extension of node.modifierExtension ?? []) {
+                    if (typeof extension?.url === 'string') {
+                        modifiers.add(extension.url);
+                    }
+                }
+                for (const [key, value] of Object.entries(node)) {
+                    if (key !== 'contained' && key !== 'modifierExtension' && value !== null && typeof value === 'object') {
+                        collectModifiers(value);
+                    }
+                }
+            };
+            collectModifiers(questionnaire);
+            compiled.unsupportedModifiers = [...modifiers].filter((url) => !supported.has(url.split('|')[0]));
+            for (const url of compiled.unsupportedModifiers) {
+                compiled.warnings.push({
+                    code: 'modifier-extension-unsupported',
+                    severity: 'error',
+                    message: 'This form has a modifier extension, ' + url + ', which this renderer does not understand, so it is not shown.',
+                });
+            }
+
             // A subQuestionnaire still here wasn't supplied by the host, so its part of the form is missing.
             for (const compiledItem of compiled.items) {
                 const canonical = findExtension(compiledItem.item, EXTENSIONS.SUB_QUESTIONNAIRE)?.valueCanonical;
@@ -1313,7 +1531,8 @@
                     if (match) {
                         const values = (match.answer ?? [])
                             .map(getAnswerValue)
-                            .filter((answer) => answer !== null);
+                            .filter((answer) => answer !== null)
+                            .map((answer) => fromLhcFormsAnswer(questionnaireItem, answer));
                         if (values.length > 0) {
                             this.answers.set(keyPrefix + linkId, values);
                         }
@@ -1472,8 +1691,15 @@
                         return entry;
                     });
                 }
+                // R4 qrs-1: "Nested item can't be beneath both item and answer". A question's
+                // children go under its answer (the first, for a repeating question, since
+                // children aren't kept per answer); under item only while it has no answer.
                 if (childItems.length > 0) {
-                    responseItem.item = childItems;
+                    if (responseItem.answer) {
+                        responseItem.answer[0].item = childItems;
+                    } else {
+                        responseItem.item = childItems;
+                    }
                 }
                 return { responseItem, hasContent: answers.length > 0 || childItems.length > 0 };
             };
@@ -1570,7 +1796,8 @@
                     while (index < source.length && /\d/.test(source[index])) {
                         index++;
                     }
-                    if (source[index] === '.') {
+                    // A '.' not followed by a digit starts a method call (2.power(10)).
+                    if (source[index] === '.' && /\d/.test(source[index + 1] ?? '')) {
                         index++;
                         while (index < source.length && /\d/.test(source[index])) {
                             index++;
@@ -1610,8 +1837,10 @@
                     if (!match || match[0] === '@') {
                         throw new Error('Invalid FHIRPath date literal at position ' + index + '.');
                     }
+                    // Kept as FHIR writes the value: a time without its 'T' (10:30:00, as a
+                    // valueTime answer holds it), a date without a trailing 'T'.
                     const literal = match[0].slice(1);
-                    push('date', literal.endsWith('T') ? literal.slice(0, -1) : literal, index);
+                    push('date', literal.startsWith('T') ? literal.slice(1) : (literal.endsWith('T') ? literal.slice(0, -1) : literal), index);
                     index += match[0].length;
                     continue;
                 }
@@ -1854,7 +2083,7 @@
                 const unitToken = this.current();
                 if (unitToken.type === 'identifier' && CALENDAR_UNITS[unitToken.value.toLowerCase()] !== undefined) {
                     this.index++;
-                    return { type: 'literal', value: { value: numberToken.value, unit: CALENDAR_UNITS[unitToken.value.toLowerCase()] } };
+                    return { type: 'literal', value: calendarDuration(numberToken.value, CALENDAR_UNITS[unitToken.value.toLowerCase()]) };
                 }
                 if (unitToken.type === 'string') {
                     this.index++;
@@ -2135,8 +2364,11 @@
                 const output = [];
                 for (const value of values) {
                     if (value !== null && typeof value === 'object') {
-                        for (const child of Object.values(value)) {
-                            output.push(...(Array.isArray(child) ? child : [child]));
+                        // resourceType names the resource; it isn't one of its elements.
+                        for (const [key, child] of Object.entries(value)) {
+                            if (key !== 'resourceType') {
+                                output.push(...(Array.isArray(child) ? child : [child]));
+                            }
                         }
                     }
                 }
@@ -2217,8 +2449,23 @@
                 case 'min':
                 case 'max': {
                     const numbers = collection.filter((value) => typeof value === 'number');
-                    if (numbers.length === 0) return [];
-                    return [name === 'min' ? Math.min(...numbers) : Math.max(...numbers)];
+                    if (numbers.length > 0) {
+                        return [name === 'min' ? Math.min(...numbers) : Math.max(...numbers)];
+                    }
+                    // Strings as text, dates and times by precision; empty when two can't be ordered.
+                    const strings = collection.filter((value) => typeof value === 'string');
+                    let best = strings[0];
+                    for (const value of strings.slice(1)) {
+                        const temporal = compareTemporal(value, best);
+                        const order = temporal !== undefined ? temporal : (value < best ? -1 : (value > best ? 1 : 0));
+                        if (order === null) {
+                            return [];
+                        }
+                        if (name === 'min' ? order < 0 : order > 0) {
+                            best = value;
+                        }
+                    }
+                    return best === undefined ? [] : [best];
                 }
                 case 'avg': {
                     const numbers = collection.filter((value) => typeof value === 'number');
@@ -2250,7 +2497,8 @@
                 case 'contains':
                     return onString((value) => value.includes(String(argValue(0))));
                 case 'replace':
-                    return onString((value) => value.split(String(argValue(0))).join(String(argValue(1))));
+                    // An empty pattern surrounds each character ('abc'.replace('', 'x') is 'xaxbxcx').
+                    return onString((value) => value.replaceAll(String(argValue(0)), () => String(argValue(1))));
                 case 'matches':
                     return onString((value) => new RegExp(String(argValue(0)), 'u').test(value));
                 case 'replacematches':
@@ -2346,10 +2594,14 @@
             const name = ast.name.toLowerCase();
             switch (name) {
                 case 'iif': {
-                    if (ast.args.length !== 3) {
-                        throw new Error('FHIRPath iif() requires three arguments.');
+                    // otherwise-result is optional; without it a false or empty criterion gives empty.
+                    if (ast.args.length !== 2 && ast.args.length !== 3) {
+                        throw new Error('FHIRPath iif() takes two or three arguments.');
                     }
                     const condition = collectionBoolean(this.evaluate(ast.args[0], environment, context));
+                    if (!condition && ast.args.length === 2) {
+                        return [];
+                    }
                     return this.evaluate(condition ? ast.args[1] : ast.args[2], environment, context);
                 }
                 case 'today':
@@ -2367,33 +2619,45 @@
 
         evaluateBinary(ast, environment, context) {
             const operator = ast.operator;
+            // Three-valued logic: an empty operand is unknown, so the result is empty unless the
+            // other operand decides it (false and {} is false, true or {} is true).
             if (operator === 'or') {
-                const left = collectionBoolean(this.evaluate(ast.left, environment, context));
-                if (left) {
+                const left = logicValue(this.evaluate(ast.left, environment, context));
+                if (left === true) {
                     return [true];
                 }
-                return [collectionBoolean(this.evaluate(ast.right, environment, context))];
+                const right = logicValue(this.evaluate(ast.right, environment, context));
+                if (right === true) {
+                    return [true];
+                }
+                return left === false && right === false ? [false] : [];
             }
             if (operator === 'and') {
-                const left = collectionBoolean(this.evaluate(ast.left, environment, context));
-                if (!left) {
+                const left = logicValue(this.evaluate(ast.left, environment, context));
+                if (left === false) {
                     return [false];
                 }
-                return [collectionBoolean(this.evaluate(ast.right, environment, context))];
+                const right = logicValue(this.evaluate(ast.right, environment, context));
+                if (right === false) {
+                    return [false];
+                }
+                return left === true && right === true ? [true] : [];
             }
             if (operator === 'xor') {
-                return [collectionBoolean(this.evaluate(ast.left, environment, context)) !== collectionBoolean(this.evaluate(ast.right, environment, context))];
+                const left = logicValue(this.evaluate(ast.left, environment, context));
+                const right = logicValue(this.evaluate(ast.right, environment, context));
+                return left === null || right === null ? [] : [left !== right];
             }
             if (operator === 'implies') {
-                const left = this.evaluate(ast.left, environment, context);
-                if (left.length > 0 && !collectionBoolean(left)) {
+                const left = logicValue(this.evaluate(ast.left, environment, context));
+                if (left === false) {
                     return [true];
                 }
-                const right = this.evaluate(ast.right, environment, context);
-                if (collectionBoolean(right)) {
+                const right = logicValue(this.evaluate(ast.right, environment, context));
+                if (right === true) {
                     return [true];
                 }
-                return left.length === 0 ? [] : [false];
+                return left === true && right === false ? [false] : [];
             }
 
             const left = this.evaluate(ast.left, environment, context);
@@ -2406,22 +2670,13 @@
                     return typeof value === 'string' && typeof other === 'string' ? normalise(value) === normalise(other) : equalPrimitive(value, other);
                 });
             };
-            // One quantity against another (or a number, which is a quantity in unit '1'):
-            // compared by value when their units match, empty when they don't.
-            const quantityPair = () => {
-                if (left.length !== 1 || right.length !== 1 || (!isQuantity(left[0]) && !isQuantity(right[0]))) {
-                    return undefined;
-                }
-                return comparableQuantities(left[0], right[0]);
-            };
             switch (operator) {
                 case '=':
                 case '!=': {
-                    const pair = quantityPair();
-                    if (pair === null) {
+                    const equal = collectionsEqual(left, right);
+                    if (equal === null) {
                         return [];
                     }
-                    const equal = pair !== undefined ? pair[0] === pair[1] : collectionsEqual(left, right);
                     return [operator === '=' ? equal : !equal];
                 }
                 case '~':
@@ -2476,6 +2731,14 @@
                             return [];
                         }
                         [leftValue, rightValue] = pair;
+                    }
+                    // Dates and times by precision and offset: empty when the order is unknown.
+                    const order = compareTemporal(leftValue, rightValue);
+                    if (order === null) {
+                        return [];
+                    }
+                    if (order !== undefined) {
+                        [leftValue, rightValue] = [order, 0];
                     }
                     if (operator === '>') return [leftValue > rightValue];
                     if (operator === '<') return [leftValue < rightValue];
@@ -2603,6 +2866,9 @@
                 resource,
                 rootResource: resource,
                 context: resource,
+                // SDC's %qitem: the Questionnaire item the expression is on (for a variable, the
+                // item that defines it).
+                qitem: compiledItem.item,
             };
             // Evaluate variables in scope (ancestor-defined first, then self), so
             // a variable defined on a group is available to descendant
@@ -2618,6 +2884,7 @@
                 const definingContext = findResponseItemByLinkId(resource, definingLinkId) ?? resource;
                 try {
                     environment.context = definingContext;
+                    environment.qitem = this.compiled.itemsByLinkId.get(definingLinkId)?.item;
                     environment[expression.name] = this.evaluator.evaluate(ast, environment, definingContext);
                 } catch (error) {
                     this.warnings.push({
@@ -2630,6 +2897,7 @@
             }
             // Restore %context to the resource for the consuming expression.
             environment.context = resource;
+            environment.qitem = compiledItem.item;
             return environment;
         }
 
@@ -2688,13 +2956,13 @@
             }
         }
 
-        evaluateFor(runtime, compiledItem, expression) {
+        evaluateFor(runtime, compiledItem, expression, environment = null) {
             const ast = expression && this.compiledExpressions.get(expression);
             if (!ast) {
                 return null;
             }
             try {
-                return this.evaluator.evaluate(ast, this.buildEnvironment(runtime, compiledItem), null);
+                return this.evaluator.evaluate(ast, environment ?? this.buildEnvironment(runtime, compiledItem), null);
             } catch (error) {
                 this.warnings.push({
                     code: 'fhirpath-evaluate-error',
@@ -2708,33 +2976,45 @@
 
         // Required, read-only and text by expression, answers by
         // answerExpression, and which options answerOptionsToggleExpression
-        // turns off, for each item that has them. Evaluated against the
-        // whole response, as for an item outside any repeat.
+        // turns off, for each item that has them: by linkId against the whole
+        // response, and, inside repeating groups, by storage key for each
+        // repetition, with %context its own instance (as enableWhen and
+        // calculations are).
         evaluateDynamic(runtime) {
             const state = new Map();
-            for (const compiledItem of this.compiled.expressionItems) {
+            const evaluateItem = (compiledItem, environment) => {
                 const { requiredExpression, readOnlyExpression, textExpression, answerExpression, optionToggles } = compiledItem;
-                if (!requiredExpression && !readOnlyExpression && !textExpression && !answerExpression && optionToggles.length === 0) {
-                    continue;
-                }
                 const boolean = (expression) => {
-                    const result = expression ? this.evaluateFor(runtime, compiledItem, expression) : null;
+                    const result = expression ? this.evaluateFor(runtime, compiledItem, expression, environment) : null;
                     return result === null || result.length === 0 ? null : collectionBoolean(result);
                 };
-                const text = textExpression ? this.evaluateFor(runtime, compiledItem, textExpression) : null;
-                const answers = answerExpression ? this.evaluateFor(runtime, compiledItem, answerExpression) : null;
+                const text = textExpression ? this.evaluateFor(runtime, compiledItem, textExpression, environment) : null;
+                const answers = answerExpression ? this.evaluateFor(runtime, compiledItem, answerExpression, environment) : null;
                 const offOptions = [];
                 for (const toggle of optionToggles) {
                     if (boolean(toggle.expression) !== true) {
                         offOptions.push(...toggle.options);
                     }
                 }
-                state.set(compiledItem.linkId, {
+                return {
                     required: boolean(requiredExpression),
                     readOnly: boolean(readOnlyExpression),
                     text: text !== null && text.length > 0 ? String(text[0]) : null,
                     answerOptions: answers === null ? null : valuesToAnswerOptions(answers, compiledItem.item),
                     offOptions,
+                };
+            };
+            const dynamicItems = this.compiled.expressionItems.filter(({ requiredExpression, readOnlyExpression, textExpression, answerExpression, optionToggles }) =>
+                requiredExpression || readOnlyExpression || textExpression || answerExpression || optionToggles.length > 0);
+            for (const compiledItem of dynamicItems) {
+                state.set(compiledItem.linkId, evaluateItem(compiledItem, null));
+            }
+            const dynamicLinkIds = new Set(dynamicItems.map((compiledItem) => compiledItem.linkId));
+            if (dynamicLinkIds.size > 0) {
+                this.walkRepeatInstances(runtime, (compiledItem, storageKey, nodePath) => {
+                    if (dynamicLinkIds.has(compiledItem.linkId)) {
+                        state.set(storageKey, evaluateItem(compiledItem, this.buildEnvironmentForInstance(runtime, compiledItem, nodePath)));
+                    }
                 });
             }
             return state;
@@ -2963,6 +3243,7 @@
                 resource,
                 rootResource: resource,
                 context: resource,
+                qitem: compiledItem.item,
             };
             // Descend the response in lockstep with nodePath, recording each
             // enclosing group's instance node. For a repeating group pick the
@@ -2991,6 +3272,7 @@
                 const definingContext = groupNodes.get(definingLinkId) ?? findResponseItemByLinkId(resource, definingLinkId) ?? resource;
                 try {
                     environment.context = definingContext;
+                    environment.qitem = this.compiled.itemsByLinkId.get(definingLinkId)?.item;
                     environment[expression.name] = this.evaluator.evaluate(ast, environment, definingContext);
                 } catch (error) {
                     this.warnings.push({
@@ -3004,6 +3286,7 @@
             // %context for the consuming expression is the item's innermost
             // enclosing repeat-instance node (the whole resource if unresolved).
             environment.context = instanceNode ?? resource;
+            environment.qitem = compiledItem.item;
             return environment;
         }
     }
@@ -3151,6 +3434,16 @@
             }
 
             const actualValues = answers.map((answer) => answer.value);
+            // A quantity compares by its value in the same unit; in different units it is
+            // neither equal nor ordered (no unit conversion).
+            if (conditionKey === 'answerQuantity') {
+                const holds = { '=': (a, b) => a === b, '>': (a, b) => a > b, '<': (a, b) => a < b, '>=': (a, b) => a >= b, '<=': (a, b) => a <= b }[operator === '!=' ? '=' : operator];
+                if (!holds) {
+                    return false;
+                }
+                const anyHolds = actualValues.map((actual) => comparableQuantities(actual, expected)).filter(Array.isArray).some(([a, b]) => holds(a, b));
+                return operator === '!=' ? !anyHolds : anyHolds;
+            }
             if (operator === '=') {
                 return actualValues.some((actual) => equalPrimitive(actual, expected));
             }
@@ -3252,7 +3545,7 @@
 
             const minOccurs = getIntegerExtension(item, EXTENSIONS.MIN_OCCURS);
             const maxOccurs = getIntegerExtension(item, EXTENSIONS.MAX_OCCURS);
-            const requiredCount = minOccurs !== null ? minOccurs : (this.runtime.isRequired(compiledItem.linkId, item) ? 1 : 0);
+            const requiredCount = minOccurs !== null ? minOccurs : (this.runtime.isRequired(storageKey, item) ? 1 : 0);
             if (requiredCount > 0 && answers.length < requiredCount) {
                 add('error', minOccurs !== null ? 'min-occurs' : 'required',
                     requiredCount === 1 ? this.runtime.t('requiresValue', label) : this.runtime.t('requiresAtLeast', label, requiredCount));
@@ -4315,8 +4608,8 @@
             this.warningsNode.className = 'oe-questionnaire-warnings d-none';
             this.warningsNode.setAttribute('role', 'alert');
             container.appendChild(this.warningsNode);
-            if ((this.runtime.compiled.unsupportedCritical ?? []).length > 0) {
-                // The form says it can't be shown without these; show why, not the form.
+            if ((this.runtime.compiled.unsupportedCritical ?? []).length > 0 || (this.runtime.compiled.unsupportedModifiers ?? []).length > 0) {
+                // The form can't be shown safely without these; show why, not the form.
                 this.renderWarnings(this.runtime.collectWarnings());
                 return;
             }
@@ -4525,9 +4818,9 @@
         // rebuilt when it changes) and options turned off by
         // answerOptionsToggleExpression.
         applyDynamicState() {
-            for (const [linkId, state] of this.runtime.dynamicState ?? []) {
-                const node = this.nodes.get(linkId);
-                const compiledItem = this.runtime.compiled.itemsByLinkId.get(linkId);
+            for (const [key, state] of this.runtime.dynamicState ?? []) {
+                const node = this.nodes.get(key);
+                const compiledItem = this.runtime.compiled.itemsByLinkId.get(key.split(INSTANCE_SEPARATOR).pop());
                 if (!node || !compiledItem || !node.classList.contains('oe-questionnaire-question')) {
                     continue;
                 }
@@ -4536,13 +4829,13 @@
                 let control = node.querySelector(':scope > .oe-questionnaire-control');
                 if (state.answerOptions !== null && control) {
                     const signature = JSON.stringify(state.answerOptions);
-                    if (this.dynamicRendered.has(linkId) && this.dynamicRendered.get(linkId) !== signature) {
-                        const fresh = this.renderInput(item, linkId);
+                    if (this.dynamicRendered.has(key) && this.dynamicRendered.get(key) !== signature) {
+                        const fresh = this.renderInput(item, key);
                         control.replaceWith(fresh);
                         control = fresh;
-                        this.connectLabel(item, label, fresh, safeId(linkId), this.runtime.isRequired(linkId, item));
+                        this.connectLabel(item, label, fresh, safeId(key), this.runtime.isRequired(key, item));
                     }
-                    this.dynamicRendered.set(linkId, signature);
+                    this.dynamicRendered.set(key, signature);
                 }
                 if (label && state.text !== null && label.firstChild?.nodeType === Node.TEXT_NODE) {
                     label.firstChild.textContent = [item.prefix, state.text].filter(Boolean).join(item.prefix ? ' — ' : '');
@@ -4558,7 +4851,7 @@
                     } else if (!state.required && mark) {
                         mark.remove();
                     }
-                    const target = control?.querySelector('#' + safeId(linkId)) ?? (control?.getAttribute('role') === 'radiogroup' ? control : null);
+                    const target = control?.querySelector('#' + safeId(key)) ?? (control?.getAttribute('role') === 'radiogroup' ? control : null);
                     if (target) {
                         if (state.required) {
                             target.setAttribute('aria-required', 'true');
@@ -4574,7 +4867,7 @@
                 }
                 if (control && compiledItem.optionToggles.length > 0) {
                     // Re-applied on every change, so an option comes back when its expression turns true.
-                    const options = this.runtime.answerOptionsFor(item);
+                    const options = this.runtime.answerOptionsFor(item, key);
                     const off = (index) => {
                         const value = getAnswerOptionValue(options[index]);
                         return value !== null && state.offOptions.some((candidate) => equalPrimitive(candidate, value.value));
@@ -4836,7 +5129,7 @@
                 heading.id = safeId(storageKey) + '-label';
                 heading.className = 'oe-questionnaire-label';
                 heading.textContent = [child.prefix, child.text].filter(Boolean).join(child.prefix && child.text ? ' — ' : '') || child.linkId;
-                if (this.runtime.isRequired(child.linkId, child)) {
+                if (this.runtime.isRequired(storageKey, child)) {
                     const required = document.createElement('span');
                     required.className = 'text-danger ml-1';
                     required.textContent = '*';
@@ -4844,7 +5137,7 @@
                     heading.appendChild(required);
                 }
                 row.appendChild(heading);
-                const options = this.runtime.answerOptionsFor(child);
+                const options = this.runtime.answerOptionsFor(child, storageKey);
                 const repeats = child.repeats === true;
                 columns.forEach((column, columnIndex) => {
                     const cell = row.insertCell();
@@ -5096,7 +5389,7 @@
             const inputId = safeId(storageKey);
 
             if (OPTION_CAPABLE_TYPES.includes(item.type)
-                && this.runtime.answerOptionsFor(item).some((option) => getAnswerOptionValue(option) !== null)) {
+                && this.runtime.answerOptionsFor(item, storageKey).some((option) => getAnswerOptionValue(option) !== null)) {
                 const openText = (item.type === 'string' || item.type === 'text') && allowsFreeTextAnswer(item);
                 return this.renderChoice(item, container, control, answers, inputId, openText, storageKey);
             }
@@ -5107,6 +5400,9 @@
             const repeatableScalar = ['string', 'text', 'url', 'integer', 'decimal', 'date', 'dateTime', 'time', 'reference'];
             if (item.repeats === true && repeatableScalar.includes(item.type)) {
                 return this.renderRepeatingScalar(item, container, storageKey);
+            }
+            if (item.repeats === true && ['boolean', 'quantity', 'attachment'].includes(item.type)) {
+                return this.renderRepeatingRows(item, container, storageKey, inputId);
             }
 
             switch (item.type) {
@@ -5144,7 +5440,7 @@
         }
 
         renderChoice(item, container, control, answers, inputId, allowOpenChoice, storageKey = item.linkId) {
-            const options = this.runtime.answerOptionsFor(item);
+            const options = this.runtime.answerOptionsFor(item, storageKey);
             const selected = answers;
             const repeats = item.repeats === true;
             const useCheckboxes = repeats || control === 'check-box';
@@ -5325,7 +5621,9 @@
             return container;
         }
 
-        renderBoolean(item, container, answers, inputId, storageKey = item.linkId) {
+        // onAnswer receives the one answer the control makes (null to clear); by default it
+        // becomes the item's answer. A repeating item's rows pass their own.
+        renderBoolean(item, container, answers, inputId, storageKey = item.linkId, onAnswer = (answer) => this.runtime.setAnswers(storageKey, answer ? [answer] : [])) {
             const selected = firstValue(answers)?.value;
             [
                 { value: true, label: this.runtime.t('yes') },
@@ -5343,7 +5641,7 @@
                 input.disabled = item.readOnly === true;
                 input.addEventListener('change', () => {
                     if (input.checked) {
-                        this.runtime.setAnswers(storageKey, [{ valueKey: 'valueBoolean', value: option.value }]);
+                        onAnswer({ valueKey: 'valueBoolean', value: option.value });
                     }
                 });
                 const label = document.createElement('label');
@@ -5500,7 +5798,7 @@
             return container;
         }
 
-        renderQuantity(item, container, answers, inputId, storageKey = item.linkId) {
+        renderQuantity(item, container, answers, inputId, storageKey = item.linkId, onAnswer = (answer) => this.runtime.setAnswers(storageKey, answer ? [answer] : [])) {
             const quantity = firstValue(answers)?.value ?? {};
             const row = document.createElement('div');
             row.className = 'form-row';
@@ -5522,11 +5820,12 @@
             const unitValueSet = containedResourceById(this.runtime.questionnaire, getTypedExtensionValue(item, EXTENSIONS.UNIT_VALUE_SET));
             let unitOptions = [
                 ...findExtensions(item, EXTENSIONS.UNIT_OPTION).map((extension) => extension?.valueCoding),
-                ...(unitValueSet?.resourceType === 'ValueSet' ? expansionToAnswerOptions(unitValueSet).map((option) => option.valueCoding) : []),
+                ...(unitValueSet?.resourceType === 'ValueSet' ? valueSetToAnswerOptions(unitValueSet).map((option) => option.valueCoding) : []),
             ].filter((coding) => coding && (typeof coding.code === 'string' || typeof coding.display === 'string'));
-            // With no unit options, a lone questionnaire-unit is the question's one unit (as LForms
-            // treated it, and as forms such as WHO SMART's use it on quantity questions), so the
-            // answer carries it and comparisons in that unit work.
+            // With no unit options, a lone questionnaire-unit is the question's one unit, so the
+            // answer carries it and comparisons in that unit work. R4 defines questionnaire-unit
+            // for integer and decimal questions only, and LHC-Forms refuses it on a quantity
+            // question; reading it here is a leniency for forms such as WHO SMART's that put it there.
             const fixedUnit = findExtension(item, EXTENSIONS.QUESTIONNAIRE_UNIT)?.valueCoding;
             if (unitOptions.length === 0 && fixedUnit && (typeof fixedUnit.code === 'string' || typeof fixedUnit.display === 'string')) {
                 unitOptions = [fixedUnit];
@@ -5581,7 +5880,7 @@
             row.append(valueColumn, unitColumn);
             const save = () => {
                 if (valueInput.value === '') {
-                    this.runtime.setAnswers(storageKey, []);
+                    onAnswer(null);
                     return;
                 }
                 const next = { value: Number.parseFloat(valueInput.value) };
@@ -5612,7 +5911,7 @@
                         next.code = unit;
                     }
                 }
-                this.runtime.setAnswers(storageKey, [{ valueKey: 'valueQuantity', value: next }]);
+                onAnswer({ valueKey: 'valueQuantity', value: next });
             };
             valueInput.addEventListener('change', save);
             unitInput.addEventListener('change', save);
@@ -5643,7 +5942,7 @@
             return container;
         }
 
-        renderAttachment(item, container, answers, inputId, storageKey = item.linkId) {
+        renderAttachment(item, container, answers, inputId, storageKey = item.linkId, onAnswer = (answer) => this.runtime.setAnswers(storageKey, answer ? [answer] : [])) {
             const existing = firstValue(answers)?.value;
             const input = document.createElement('input');
             input.type = 'file';
@@ -5662,7 +5961,7 @@
             input.addEventListener('change', () => {
                 const file = input.files && input.files[0];
                 if (!file) {
-                    this.runtime.setAnswers(storageKey, []);
+                    onAnswer(null);
                     return;
                 }
                 const reader = new FileReader();
@@ -5676,7 +5975,7 @@
                     if (Number.isFinite(file.size)) {
                         attachment.size = file.size;
                     }
-                    this.runtime.setAnswers(storageKey, [{ valueKey: 'valueAttachment', value: attachment }]);
+                    onAnswer({ valueKey: 'valueAttachment', value: attachment });
                 };
                 reader.readAsDataURL(file);
             });
@@ -5804,6 +6103,58 @@
 
             rerender();
             this.inputs.set(storageKey, container);
+            return container;
+        }
+
+        // A repeating boolean, quantity or attachment: one row per answer, each with the type's
+        // own control, plus an empty row to add one (up to maxOccurs).
+        renderRepeatingRows(item, container, storageKey, inputId) {
+            const maxOccurs = getIntegerExtension(item, EXTENSIONS.MAX_OCCURS);
+            const renderOne = { boolean: this.renderBoolean, quantity: this.renderQuantity, attachment: this.renderAttachment }[item.type];
+            const rerender = () => {
+                container.replaceChildren();
+                const answers = this.runtime.responseStore.getAnswers(storageKey);
+                const update = (index, answer) => {
+                    const current = this.runtime.responseStore.getAnswers(storageKey);
+                    if (index < current.length) {
+                        if (answer) {
+                            current[index] = answer;
+                        } else {
+                            current.splice(index, 1);
+                        }
+                    } else if (answer) {
+                        current.push(answer);
+                    }
+                    this.runtime.setAnswers(storageKey, current);
+                    rerender();
+                };
+                const rows = answers.map((answer, index) => [answer, index]);
+                if (item.readOnly !== true && (maxOccurs === null || answers.length < maxOccurs)) {
+                    rows.push([null, answers.length]);
+                }
+                for (const [answer, index] of rows) {
+                    const row = document.createElement('div');
+                    row.className = 'form-row oe-questionnaire-repeat-row mb-1';
+                    const column = document.createElement('div');
+                    column.className = 'col';
+                    renderOne.call(this, item, column, answer ? [answer] : [], inputId + '-' + index, storageKey, (next) => update(index, next));
+                    row.appendChild(column);
+                    if (answer && item.readOnly !== true) {
+                        const removeColumn = document.createElement('div');
+                        removeColumn.className = 'col-auto';
+                        const removeButton = document.createElement('button');
+                        removeButton.type = 'button';
+                        removeButton.className = 'btn btn-sm btn-link text-danger oe-questionnaire-repeat-remove py-0';
+                        removeButton.textContent = this.runtime.t('remove');
+                        removeButton.addEventListener('click', () => update(index, null));
+                        removeColumn.appendChild(removeButton);
+                        row.appendChild(removeColumn);
+                    }
+                    container.appendChild(row);
+                }
+                this.inputs.set(storageKey, container);
+            };
+            rerender();
             return container;
         }
 
@@ -6180,15 +6531,17 @@
             this.behaviorEngine.evaluateAll();
         }
 
-        // Required as the item's requiredExpression says, else as item.required.
-        isRequired(linkId, item) {
-            const dynamic = this.dynamicState?.get(linkId)?.required;
+        // Required as the item's requiredExpression says (for this repetition, given its storage
+        // key), else as item.required.
+        isRequired(key, item) {
+            const dynamic = (this.dynamicState?.get(key) ?? this.dynamicState?.get(item?.linkId))?.required;
             return dynamic === null || dynamic === undefined ? item?.required === true : dynamic;
         }
 
-        // The item's answer options: answerExpression's when it has one, else its own.
-        answerOptionsFor(item) {
-            const dynamic = this.dynamicState?.get(item.linkId)?.answerOptions;
+        // The item's answer options: answerExpression's (for this repetition, given its storage
+        // key) when it has one, else its own.
+        answerOptionsFor(item, key = item.linkId) {
+            const dynamic = (this.dynamicState?.get(key) ?? this.dynamicState?.get(item.linkId))?.answerOptions;
             return Array.isArray(dynamic) ? dynamic : resolveAnswerOptions(item, this.questionnaire);
         }
 
@@ -6289,8 +6642,9 @@
     }
 
     global.OpenEMRQuestionnaire = {
-        // Raised when the runtime gains what a host or a form may test for (0.3.0: the SDC and R4 additions of #14744).
-        version: '0.3.0',
+        // Raised when the runtime gains what a host or a form may test for (0.3.0: the SDC and R4 additions of #14744;
+        // 0.4.0: its post-freeze list, among them FHIRPath 2.0.0's empty and precision rules, %qitem and qrs-1 nesting).
+        version: '0.4.0',
         EXTENSIONS,
         DEFAULT_STRINGS,
         QuestionnaireCompiler,
