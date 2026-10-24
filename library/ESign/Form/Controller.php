@@ -205,9 +205,26 @@ class Form_Controller extends Abstract_Controller
             if ($rowPid !== $sessionPid || $rowTherapyGroup !== 0) {
                 return false;
             }
-        } elseif ($rowPid !== 0 || $rowTherapyGroup !== $sessionTherapyGroup) {
+        } else {
             // Group therapy session: form must have no patient and match the group.
-            return false;
+            if ($rowPid !== 0 || $rowTherapyGroup !== $sessionTherapyGroup) {
+                return false;
+            }
+            // Group signing additionally requires write on groups/glog, matching
+            // the gate forms.php applies before exposing the group e-sign button.
+            if (!AclMain::aclCheckCore('groups', 'glog', '', 'write')) {
+                return false;
+            }
+        }
+
+        // Encounter calendar category write ACL — applies to both patient and
+        // group forms, mirrors $authPostCalendarCategoryWrite in forms.php.
+        $pcCatAcoRaw = AclMain::fetchPostCalendarCategoryACO(fetchCategoryIdByEncounter($encounterId));
+        if (is_string($pcCatAcoRaw) && $pcCatAcoRaw !== '') {
+            $pcCatAco = explode('|', $pcCatAcoRaw);
+            if (count($pcCatAco) >= 2 && !AclMain::aclCheckCore($pcCatAco[0], $pcCatAco[1], '', 'write')) {
+                return false;
+            }
         }
 
         // Mirror interface/patient_file/encounter/forms.php: LBF forms derive
