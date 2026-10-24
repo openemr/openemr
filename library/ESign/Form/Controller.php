@@ -194,14 +194,36 @@ class Form_Controller extends Abstract_Controller
             return false;
         }
 
-        $registry = getRegistryEntryByDirectory($formDir, 'aco_spec');
-        $acoSpecRaw = is_array($registry) && isset($registry['aco_spec']) && is_string($registry['aco_spec'])
-            ? $registry['aco_spec']
-            : '';
-        if ($acoSpecRaw !== '') {
-            $acoSpec = explode('|', $acoSpecRaw);
-            if (count($acoSpec) >= 2 && !AclMain::aclCheckCore($acoSpec[0], $acoSpec[1], '', 'write')) {
-                return false;
+        // Mirror interface/patient_file/encounter/forms.php: LBF forms derive
+        // their ACL from layout_group_properties (user-configurable in the
+        // Layouts admin); non-LBF forms derive theirs from the forms registry.
+        if (str_starts_with($formDir, 'LBF')) {
+            $layoutGroup = QueryUtils::querySingleRow(
+                "SELECT grp_aco_spec FROM layout_group_properties WHERE " .
+                "grp_form_id = ? AND grp_group_id = '' AND grp_activity = 1",
+                [$formDir]
+            );
+            $layoutAcoSpecRaw = is_array($layoutGroup)
+                && isset($layoutGroup['grp_aco_spec'])
+                && is_string($layoutGroup['grp_aco_spec'])
+                ? $layoutGroup['grp_aco_spec']
+                : '';
+            if ($layoutAcoSpecRaw !== '') {
+                $layoutAcoSpec = explode('|', $layoutAcoSpecRaw);
+                if (count($layoutAcoSpec) >= 2 && !AclMain::aclCheckCore($layoutAcoSpec[0], $layoutAcoSpec[1], '', 'write')) {
+                    return false;
+                }
+            }
+        } else {
+            $registry = getRegistryEntryByDirectory($formDir, 'aco_spec');
+            $acoSpecRaw = is_array($registry) && isset($registry['aco_spec']) && is_string($registry['aco_spec'])
+                ? $registry['aco_spec']
+                : '';
+            if ($acoSpecRaw !== '') {
+                $acoSpec = explode('|', $acoSpecRaw);
+                if (count($acoSpec) >= 2 && !AclMain::aclCheckCore($acoSpec[0], $acoSpec[1], '', 'write')) {
+                    return false;
+                }
             }
         }
 

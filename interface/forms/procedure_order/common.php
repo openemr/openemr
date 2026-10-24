@@ -174,7 +174,7 @@ $reqStr = "";
 if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     if ($formid) {
-        EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'procedure_order');
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'procedure_order', null, $encounter);
     }
     $ppid = (int)($_POST['form_lab_id'] ?? null);
     if (get_lab_name($ppid) === 'labcorp') {
