@@ -174,14 +174,20 @@ class Form_Controller extends Abstract_Controller
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $pidRaw = $session->get('pid');
         $encRaw = $session->get('encounter');
+        $therapyGroupRaw = $session->get('therapy_group');
         $sessionPid = is_numeric($pidRaw) ? (int) $pidRaw : 0;
         $sessionEncounter = is_numeric($encRaw) ? (int) $encRaw : 0;
-        if ($sessionPid <= 0 || $sessionEncounter <= 0 || $sessionEncounter !== $encounterId) {
+        $sessionTherapyGroup = is_numeric($therapyGroupRaw) ? (int) $therapyGroupRaw : 0;
+        if (
+            $sessionEncounter <= 0
+            || $sessionEncounter !== $encounterId
+            || ($sessionPid <= 0 && $sessionTherapyGroup <= 0)
+        ) {
             return false;
         }
 
         $row = QueryUtils::querySingleRow(
-            'SELECT pid, encounter, formdir FROM forms WHERE id = ? LIMIT 1',
+            'SELECT pid, encounter, formdir, therapy_group_id FROM forms WHERE id = ? LIMIT 1',
             [$formId]
         );
         if (!is_array($row)) {
@@ -190,7 +196,17 @@ class Form_Controller extends Abstract_Controller
         $rowPid = is_numeric($row['pid'] ?? null) ? (int) $row['pid'] : 0;
         $rowEnc = is_numeric($row['encounter'] ?? null) ? (int) $row['encounter'] : 0;
         $rowDir = is_string($row['formdir'] ?? null) ? $row['formdir'] : '';
-        if ($rowPid !== $sessionPid || $rowEnc !== $sessionEncounter || $rowDir !== $formDir) {
+        $rowTherapyGroup = is_numeric($row['therapy_group_id'] ?? null) ? (int) $row['therapy_group_id'] : 0;
+        if ($rowEnc !== $sessionEncounter || $rowDir !== $formDir) {
+            return false;
+        }
+        if ($sessionPid > 0) {
+            // Patient session: form must match the patient and not be a group row.
+            if ($rowPid !== $sessionPid || $rowTherapyGroup !== 0) {
+                return false;
+            }
+        } elseif ($rowPid !== 0 || $rowTherapyGroup !== $sessionTherapyGroup) {
+            // Group therapy session: form must have no patient and match the group.
             return false;
         }
 
