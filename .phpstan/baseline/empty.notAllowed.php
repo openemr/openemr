@@ -3503,7 +3503,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
 ];
 $ignoreErrors[] = [
