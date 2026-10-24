@@ -340,6 +340,50 @@ class RoleContextSymmetryApiTest extends TestCase
         $this->assertRoleContextDeny($resp, 'Patient-role token must not write /fhir/CareTeam');
     }
 
+    #[Test]
+    public function testDcrRefusesToGrantPatientWriteScope(): void
+    {
+        // Explicit regression gate on Layer 1 of the patient-role
+        // write-denial defense: ServerScopeListEntity's V2 scope map
+        // does not register ANY patient/*.cud variant (see the
+        // "No patient/ variant" comment in getV2ApiScopes()). A DCR
+        // request asking for a patient-write scope must therefore be
+        // rejected with error=invalid_scope at registration time —
+        // the token never gets minted so the Layer 2 dispatcher
+        // check in testPatientRoleTokenCannotWriteFhirCareTeam
+        // cannot even be reached in production. This test locks
+        // Layer 1 directly so a future ServerScopeListEntity change
+        // that silently registered a patient-write scope would
+        // surface as a visible failure here.
+        $resp = $this->buildClient()->post(
+            $this->baseUrl . '/oauth2/default/registration',
+            [
+                'headers' => ['Content-Type' => 'application/json'],
+                'json' => [
+                    'application_type' => 'private',
+                    'redirect_uris' => ['https://role-context-symmetry.example/cb'],
+                    'client_name' => 'RoleContextSymmetryApiTest-DcrLayer1-' . bin2hex(random_bytes(3)),
+                    'token_endpoint_auth_method' => 'client_secret_post',
+                    'contacts' => ['role-context-symmetry@test.example'],
+                    'scope' => 'openid api:fhir patient/CareTeam.cud',
+                ],
+            ]
+        );
+        $this->assertSame(
+            400,
+            $resp->getStatusCode(),
+            'DCR must reject a patient-write scope request with 400 invalid_scope. Status: '
+            . $resp->getStatusCode() . ', Body: ' . (string) $resp->getBody()
+        );
+        $body = json_decode((string) $resp->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame(
+            'invalid_scope',
+            $body['error'] ?? null,
+            'DCR rejection of a patient-write scope must carry error=invalid_scope. Body: ' . (string) $resp->getBody()
+        );
+    }
+
     // ===== Shared helpers =====
 
     /**
