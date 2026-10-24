@@ -1279,33 +1279,26 @@ class CdaTemplateParse
 
     public function fetchSocialHistoryData($social_history_data)
     {
-        if (!empty($social_history_data['observation']['value']['code'])) {
-            $social_history_array = [
-                '2.16.840.1.113883.10.20.22.4.78' => 'smoking'
-            ];
-            $i = 0;
-            $code = $social_history_data['observation']['templateId']['root'] ?? '';
-            if (!empty($this->templateData['field_name_value_array']['social_history'])) {
-                foreach ($this->templateData['field_name_value_array']['social_history'] as $key => $value) {
-                    if (!array_key_exists($social_history_array[$code], $value)) {
-                        $i = $key;
-                    } else {
-                        $i = count($this->templateData['field_name_value_array']['social_history']) + 1;
-                    }
-                }
-            }
-
-            if (!empty($this->templateData['field_name_value_array']['social_history'])) {
-                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['extension'] = $social_history_data['observation']['id']['extension'];
-                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['root'] = $social_history_data['observation']['id']['root'];
-                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['status'] = $social_history_data['observation']['value']['code'];
-                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['begdate'] = $social_history_data['observation']['effectiveTime']['low']['value'];
-                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['enddate'] = $social_history_data['observation']['effectiveTime']['high']['value'];
-                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['value'] = $social_history_data['observation']['value']['displayName'];
-            }
-
-            $this->templateData['entry_identification_array']['social_history'][$i] = $i;
+        $entry = CdaSocialHistoryEntry::read($social_history_data);
+        if ($entry === null) {
+            return;
         }
+        $field = $entry['field'];
+        $rows = $this->templateData['field_name_value_array']['social_history'] ?? [];
+        $rows = is_array($rows) ? $rows : [];
+        // Join the last entry still missing this field, or start a new one.
+        $i = 0;
+        foreach ($rows as $key => $row) {
+            $i = is_array($row) && array_key_exists($field, $row) ? count($rows) + 1 : $key;
+        }
+        $row = $rows[$i] ?? [];
+        $row = is_array($row) ? $row : [];
+        $row[$field] = $entry['record'];
+        $rows[$i] = $row;
+
+        // Each social history entry is identified by its own index, as every section's are.
+        $this->templateData['field_name_value_array']['social_history'] = $rows;
+        $this->templateData['entry_identification_array']['social_history'] = array_combine(array_keys($rows), array_keys($rows));
     }
 
     public function encounter($component)

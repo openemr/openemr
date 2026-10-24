@@ -770,7 +770,8 @@ class CarecoordinationTable
                     '82581004' => 'Quit',
                     '228274009' => 'Never'
                 ];
-                $alcohol = explode("|", $newdata['social_history']['alcohol'] ?? '');
+                // note|status|date; a document may carry only one of the two.
+                $alcohol = array_pad(explode("|", $newdata['social_history']['alcohol'] ?? ''), 3, '');
                 $alcohol_date = !empty($alcohol[2]) ? $this->formatDate($alcohol[2], 1) : $alcohol[2];
 
                 $alcohol_date_value = fixDate($alcohol_date);
@@ -782,7 +783,7 @@ class CarecoordinationTable
 
                 $alcohol_value = $alcohol[0] . "|" . $alcohol[1] . "|" . $alcohol_date_value;
 
-                $tobacco = explode("|", $newdata['social_history']['smoking'] ?? '');
+                $tobacco = array_pad(explode("|", $newdata['social_history']['smoking'] ?? ''), 3, '');
                 $smoking_date = !empty($tobacco[2]) ? $this->formatDate($tobacco[2], 1) : $tobacco[2];
 
                 $smoking_date_value = fixDate($smoking_date);
