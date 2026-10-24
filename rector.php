@@ -14,6 +14,7 @@ use Rector\CodingStyle\Rector\ArrowFunction\ArrowFunctionDelegatingCallToFirstCl
 use Rector\CodingStyle\Rector\FuncCall\CallUserFuncArrayToVariadicRector;
 use Rector\Config\RectorConfig;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
+use Rector\TypeDeclaration\Rector\ArrowFunction\AddArrowFunctionReturnTypeRector;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
@@ -27,7 +28,6 @@ return RectorConfig::configure()
         __DIR__ . '/acl_upgrade.php',
         __DIR__ . '/admin.php',
         __DIR__ . '/apis',
-        __DIR__ . '/ccdaservice',
         __DIR__ . '/ccr',
         __DIR__ . '/cli',
         __DIR__ . '/config',
@@ -68,6 +68,19 @@ return RectorConfig::configure()
         ArrowFunctionDelegatingCallToFirstClassCallableRector::class => [
             __DIR__ . '/config',
         ],
+        // Rector infers `: int` return types on the two arrow functions in
+        // ObservationController::saveObservation that walk untyped `mixed`
+        // sub-observation arrays: `fn($sub) => $sub['id'] ?? 0`. Adding the
+        // return type would then force the body to also be int-typed, but
+        // the postData / form arrays lack shape typing — so satisfying the
+        // new signature would require a `(int)` cast, which
+        // phpstan-strict-rules `cast.int` forbids ("Cannot cast mixed to
+        // int"). Skip only these sites until ObservationService returns
+        // array-shape-typed sub-observations. Other arrow functions in the
+        // tree should still get inferred return types where safe.
+        AddArrowFunctionReturnTypeRector::class => [
+            __DIR__ . '/src/Controllers/Interface/Forms/Observation/ObservationController.php',
+        ],
     ])
     ->withCache(
         // ensure file system caching is used instead of in-memory
@@ -106,4 +119,5 @@ return RectorConfig::configure()
     ->withPhpSets()
     ->withDeadCodeLevel(5)
     ->withCodeQualityLevel(5)
-    ->withTypeCoverageLevel(7);
+    // vendor/rector/rector/src/Config/Level/TypeDeclarationLevel.php shows the coverage levels
+    ->withTypeCoverageLevel(19);

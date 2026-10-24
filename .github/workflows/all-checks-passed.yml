@@ -15,24 +15,14 @@ jobs:
     name: All Checks Passed
     runs-on: ubuntu-24.04
     steps:
-    - uses: lewagon/wait-on-check-action@v1.9.0
+    - uses: lewagon/wait-on-check-action@v1.9.1
       with:
         ref: ${{ github.event.pull_request.head.sha || github.sha }}
         running-workflow-name: All Checks Passed
-        # The PHP 8.6 job in isolated-tests.yml already carries continue-on-error
-        # because 8.6 is unreleased and its nightly builds regress from time to
-        # time. That keeps the workflow green, but the individual check run still
-        # concludes "failure", and this action gates on check-run conclusions --
-        # so the pre-release job has to be ignored here too, or every PR in the
-        # repo stays blocked.
-        #
-        # Entries are split on commas, stripped, and compared for exact equality
-        # against the whole check-run name. "PHP 8.6 - Isolated Tests" is the name
-        # isolated-tests.yml renders from its job-level `name:`. If the matrix
-        # moves to a newer pre-release without this entry being updated, the new
-        # job blocks PRs again -- noisy and obvious, not a silent hole in the gate.
-        #
-        # Drop this entry, and the matching continue-on-error, once 8.6 ships.
-        ignore-checks: 'codecov/project,codecov/patch,PHP 8.6 - Isolated Tests'
+        # No pre-release PHP entry here: isolated-tests.yml keeps the unreleased
+        # PHP version off PRs entirely, so there is no flaky check run to ignore.
+        # A PR that opts in via the Test-PHP trailer gets a real check run whose
+        # failure blocks the merge, which is the point of asking for it.
+        ignore-checks: 'codecov/project,codecov/patch'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         wait-interval: 30

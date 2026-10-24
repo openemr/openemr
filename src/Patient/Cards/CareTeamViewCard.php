@@ -51,9 +51,7 @@ class CareTeamViewCard extends CardModel
 
     public function getListService(): ListService
     {
-        if (!isset($this->listService)) {
-            $this->listService = new ListService();
-        }
+        $this->listService ??= new ListService();
         return $this->listService;
     }
     public function setListService(ListService $service): void
@@ -63,9 +61,7 @@ class CareTeamViewCard extends CardModel
 
     public function getCareTeamService(): CareTeamService
     {
-        if (!isset($this->careTeamService)) {
-            $this->careTeamService = new CareTeamService();
-        }
+        $this->careTeamService ??= new CareTeamService();
         return $this->careTeamService;
     }
 
@@ -101,8 +97,13 @@ class CareTeamViewCard extends CardModel
                 'id' => self::CARD_ID_EXPAND,
                 'btnLabel' => "Edit",
                 'btnClass' => 'btn-edit-care-team',
-                'btnLink' => "javascript:void(0);",
-                'linkMethod' => 'html',
+                // card_base emits this as an inline `onclick`; a `javascript:`
+                // href would be stripped by |safe_href. The click itself is
+                // handled by the `.btn-edit-care-team` listener in the card
+                // template, which does not call preventDefault() — so this
+                // must, or the `#` href jumps the page to the top.
+                'btnLink' => 'event.preventDefault();',
+                'linkMethod' => 'javascript',
                 'initiallyCollapsed' => $initiallyCollapsed,
                 'auth' => $authCheck
             ]
@@ -157,7 +158,7 @@ class CareTeamViewCard extends CardModel
      * Static method to get form management data for the care team edit page
      * Enhanced for USCDI v5 compliance
      */
-    public function getFormManagementData($pid)
+    public function getFormManagementData($pid): array
     {
 
         // Get existing care teams (support multiple teams)
@@ -360,7 +361,7 @@ class CareTeamViewCard extends CardModel
         ];
     }
 
-    private static function getTranslations()
+    private static function getTranslations(): array
     {
         return [
             'manage_care_team' => xl("Manage Care Team"),

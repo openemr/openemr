@@ -402,7 +402,7 @@ teardown() {
 # Manifest entries may be object-shaped with an `exclude-branches:` list.
 # Sync must skip those entries when the target branch is in the list,
 # leaving the file untouched on that branch. Motivating case: release-
-# mechanism PHP surface on rel-800 / rel-704 which predate the mechanism
+# mechanism PHP surface on rel-800 which predates the mechanism
 # and would fail phpstan + isolated tests + composer-require-checker.
 
 @test "exclude-branches: entry excluded from target branch is not synced" {
@@ -471,7 +471,6 @@ teardown() {
   exclude-branches:
   - rel-810
   - rel-800
-  - rel-704
 '
     git checkout -q rel-810
     OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810

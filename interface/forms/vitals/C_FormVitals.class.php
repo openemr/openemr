@@ -12,9 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\BmiCategory;
@@ -391,7 +388,7 @@ class C_FormVitals
         return $twig->render("vitals.html.twig", $data);
     }
 
-    private function get_interpretation_list_options()
+    private function get_interpretation_list_options(): array
     {
         $listService = new ListService();
         $options = $listService->getOptionsByListName(FormVitals::LIST_OPTION_VITALS_INTERPRETATION);
@@ -408,7 +405,7 @@ class C_FormVitals
         return $orderedList;
     }
 
-    private function get_interpretation_list_as_hash()
+    private function get_interpretation_list_as_hash(): array
     {
         $hashList = [];
         foreach ($this->interpretationsList as $option) {

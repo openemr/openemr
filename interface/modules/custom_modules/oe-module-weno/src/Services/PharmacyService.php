@@ -22,6 +22,9 @@ class PharmacyService
 
     public function createWenoPharmaciesForPatient($pid, $data)
     {
+        if (empty($data['primary_pharmacy'])) {
+            return;
+        }
         $sql = "INSERT INTO weno_assigned_pharmacy SET ";
         $sql .= "pid = ?,";
         $sql .= "primary_ncpdp = ?,";
@@ -102,11 +105,8 @@ class PharmacyService
     public function checkWenoDb(): bool
     {
         $has_data = sqlQuery("SELECT 1 FROM weno_pharmacy LIMIT 1");
-        if (!empty($has_data)) {
-            return true;
-        } else {
-            return false;
-        }
+
+        return is_array($has_data) && $has_data !== [];
     }
 
     public function getWenoPharmacy($pid)

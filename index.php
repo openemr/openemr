@@ -21,7 +21,7 @@
         array_filter($sites_dirs, fn($d): bool => is_file("{$d}/sqlconf.php"))
     );
 
-    switch(count($valid_site_ids)) {
+    switch (count($valid_site_ids)) {
         case 0:
             throw new RuntimeException('No valid sites found');
         // Often there's only one valid request id, so we can ignore input.

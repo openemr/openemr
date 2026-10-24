@@ -51,6 +51,21 @@
 #   build_locally=<true|false>
 #   to_version=<X.Y.Z>
 #   from_version=<X.Y.Z>
+#   expected_version=<X.Y.Z>   version the running artifact will
+#                              self-report post-install/post-upgrade.
+#                              Equals to_version on the shipped-tarball
+#                              path (label = actual). On the build_locally
+#                              path the to_version label is cosmetic
+#                              (99.99.99 default; PackageAssembler does
+#                              not bake --release-version into
+#                              version.php), so the label cannot equal
+#                              the value sql_upgrade.php writes to the
+#                              DB. expected_version reads the checkout's
+#                              version.php in that case so the
+#                              acceptance version-display / version-api
+#                              groups (ACCEPTANCE_EXPECTED_VERSION) can
+#                              compare against something that actually
+#                              matches. See openemr/openemr#13753.
 #
 # Exit codes
 #   0   Decision emitted successfully.
@@ -67,6 +82,19 @@
 # assigned" check can't see the workflow-side origin.
 
 set -euo pipefail
+
+# Sql-side enumeration of from-version candidates is shared with the
+# docker side (acceptance-docker.yml upgrade cell) via a lib so the
+# two consumers can't drift. See the lib header for the full
+# rationale + the "docker is sql-only, package adds manifest
+# intersect" invariant.
+# shellcheck source=/dev/null
+source "$(dirname -- "${BASH_SOURCE[0]}")/lib/derive-from-version.sh"
+
+# Last to_version resolved by emit_to_version. emit_expected_version
+# reads this on the non-build_locally path so the "expected" value
+# tracks the same label the acceptance job's TO_VERSION env sees.
+LAST_RESOLVED_TO_VERSION=""
 
 # emit_to_version <build_locally> [<preferred_version>] —
 # resolves the to_version from dispatch input first, then the
@@ -92,8 +120,88 @@ emit_to_version() {
         echo "::error::resolved to_version '${candidate}' does not match required X.Y.Z"
         exit 1
     fi
+    LAST_RESOLVED_TO_VERSION="${candidate}"
     echo "to_version=${candidate}" >> "${GITHUB_OUTPUT}"
     echo "==> resolved to_version=${candidate}"
+}
+
+# read_tree_version — extracts the shipped self-reported version from
+# the checkout's `version.php` (repo root). Emits X.Y.Z on stdout;
+# exits 1 with an ::error:: line if the file is missing or any of the
+# three components can't be parsed.
+#
+# PackageAssembler ships version.php as-is from the checked-out ref
+# (documented in tools/release/bin/package-assemble.php), so on the
+# build_locally acceptance path this is what the DB `version` table
+# will hold post-install / post-upgrade. Used only by
+# emit_expected_version — see its docstring for the full rationale.
+#
+# Uses awk (not PHP): the detect-mode job runs on ubuntu-24.04 without
+# an apt install of php, and the parse is trivial.
+read_tree_version() {
+    local file="version.php"
+    if [[ ! -r "${file}" ]]; then
+        # `|| true` on the pwd capture to satisfy SC2312 — pwd can't
+        # fail meaningfully here, but the linter can't prove that.
+        local cwd
+        cwd=$(pwd || true)
+        echo "::error::read_tree_version: cannot read ${file} from ${cwd}" >&2
+        return 1
+    fi
+    local major minor patch
+    # Each line looks like: $v_major = '8';
+    # Match: $v_(major|minor|patch)  =  '<digits>' ;
+    major=$(awk -F"'" '/^\$v_major *=/ { print $2; exit }' "${file}")
+    minor=$(awk -F"'" '/^\$v_minor *=/ { print $2; exit }' "${file}")
+    patch=$(awk -F"'" '/^\$v_patch *=/ { print $2; exit }' "${file}")
+    if [[ -z "${major}" || -z "${minor}" || -z "${patch}" ]]; then
+        echo "::error::read_tree_version: failed to parse \$v_major/\$v_minor/\$v_patch from ${file} (got major='${major}' minor='${minor}' patch='${patch}')" >&2
+        return 1
+    fi
+    printf '%s.%s.%s' "${major}" "${minor}" "${patch}"
+}
+
+# emit_expected_version <build_locally> —
+# resolves the version the running artifact will actually self-report
+# post-install/post-upgrade. On the non-build_locally path this equals
+# the just-emitted to_version (label = actual, since a shipped tarball
+# has --release-version baked in). On build_locally=true the label is
+# cosmetic (see the emit_to_version 99.99.99 default) — the shipped
+# self-reported version is whatever version.php in the checkout says,
+# which is what sql_upgrade.php writes into the DB `version` table.
+# Two mutually-exclusive assumptions used to collide here:
+#   - PackageAssembler docs `--release-version` as "naming label only,
+#     not baked in" (staging dir + tarball filename)
+#   - #13635 added assertions asserting the label equals the DB value
+# Which meant build_locally acceptance runs could never pass the
+# post-install/post-upgrade version-display / version-api groups.
+# See openemr/openemr#13753 for the failure trace + rationale.
+#
+# Must be called AFTER emit_to_version so LAST_RESOLVED_TO_VERSION
+# is populated for the else branch. Shape-validates the result for
+# the same defense-in-depth reason as emit_to_version.
+emit_expected_version() {
+    local build_locally="$1"
+    local candidate
+    if [[ "${build_locally}" == "true" ]]; then
+        # Same SC2310 pattern used at emit_from_version's
+        # derive_from_version call — read_tree_version's failure modes
+        # are explicit `return 1` after emitting an ::error:: line, so
+        # the disabled `set -e` inside the function doesn't mask
+        # anything the `if !` guard doesn't already catch.
+        # shellcheck disable=SC2310
+        if ! candidate=$(read_tree_version); then
+            exit 1
+        fi
+    else
+        candidate="${LAST_RESOLVED_TO_VERSION}"
+    fi
+    if [[ ! "${candidate}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "::error::resolved expected_version '${candidate}' does not match required X.Y.Z" >&2
+        exit 1
+    fi
+    echo "expected_version=${candidate}" >> "${GITHUB_OUTPUT}"
+    echo "==> resolved expected_version=${candidate}"
 }
 
 # SHIPPED_VERSIONS_MANIFEST_URL — canonical location of the openemr
@@ -176,42 +284,25 @@ fetch_shipped_versions() {
 # config maintenance. See openemr/openemr#13573 for the full
 # symptom trace.
 derive_from_version() {
+    # Sql-side enumeration is now in a shared lib so the docker side
+    # (acceptance-docker.yml upgrade cell) can read the same signal
+    # without duplicating the sql-parse logic. The lib's return=1
+    # paths cover sql/-missing + no-well-formed-filenames; it emits
+    # its own actionable ::error:: on stderr (lib function name as
+    # prefix). We additionally emit a `derive_from_version:`-prefixed
+    # line that mirrors the historical shape this function used to
+    # emit inline, so existing BATS assertions + any log-grep
+    # tooling keyed on `derive_from_version:` keep working. The
+    # layered output also gives operators both the raw signal
+    # (lib's error) and the function-level context (ours) when
+    # diagnosing a failure.
     local candidates
-    # Guard the `find` on directory existence first — under `set -e`
-    # a bare `find sql` when sql/ doesn't exist returns 1 and would
-    # tear down the whole script before our empty-result check
-    # below could emit a useful error message. Same shape as the
-    # `[[ ! -f ]]` guards elsewhere in this script.
-    if [[ ! -d sql ]]; then
-        echo "::error::derive_from_version: no sql/*-to-*_upgrade.sql files found in checkout" >&2
-        exit 1
-    fi
-    # Enumerate `sql/*-to-*_upgrade.sql` (filenames like
-    # `sql/8_1_0-to-8_1_1_upgrade.sql`) via `find` rather than `ls`
-    # (shellcheck SC2012; also more robust to non-alphanumeric
-    # names should the convention ever drift). Strip the `sql/`
-    # prefix and the `-to-<version>_upgrade.sql` suffix to get the
-    # from-version in underscore-shape (`8_1_1`), swap underscores
-    # to dots.
-    # Post-strip grep filters out any candidate that isn't in strict
-    # X.Y.Z shape — defense against a hypothetical drift in the
-    # sql/*-to-*_upgrade.sql filename convention (e.g., a stray
-    # `sql/8_1-to-8_2_0_upgrade.sql` two-segment left-side would
-    # otherwise slip through to the manifest intersect and silently
-    # exclude itself with a confusing "no candidate matched" error).
-    # Explicit shape enforcement here surfaces the drift cleanly at
-    # the enumeration step.
-    #
-    # `|| true` on the pipeline because grep exits 1 when nothing
-    # matches (all candidates malformed). The empty-check below
-    # handles that case with a specific error message.
-    candidates=$(find sql -maxdepth 1 -name '*-to-*_upgrade.sql' -type f 2>/dev/null \
-        | sed -E 's|^sql/||; s|-to-[0-9_]+_upgrade\.sql$||' \
-        | tr '_' '.' \
-        | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
-        | sort -uV || true)
-    if [[ -z "${candidates}" ]]; then
-        echo "::error::derive_from_version: no well-formed sql/*-to-*_upgrade.sql files found in checkout (expected X_Y_Z-to-A_B_C shape)" >&2
+    if ! candidates=$(derive_from_version_sql_candidates "."); then
+        if [[ ! -d sql ]]; then
+            echo "::error::derive_from_version: no sql/*-to-*_upgrade.sql files found in checkout" >&2
+        else
+            echo "::error::derive_from_version: no well-formed sql/*-to-*_upgrade.sql files found in checkout (expected X_Y_Z-to-A_B_C shape)" >&2
+        fi
         exit 1
     fi
     # Fetch the shipped-versions manifest and intersect. See
@@ -240,6 +331,35 @@ derive_from_version() {
         shipped_line=$(tr '\n' ' ' <<< "${shipped}" || true)
         echo "::error::derive_from_version: no sql-derived from-version candidate matches the shipped-versions manifest. Candidates from sql/: ${candidates_line}. Shipped per manifest: ${shipped_line}. See ${SHIPPED_VERSIONS_MANIFEST_URL}." >&2
         exit 1
+    fi
+    # Exclude to_version from candidates (see LAST_RESOLVED_TO_VERSION
+    # -- set by emit_to_version, which the caller runs before this).
+    # `from` == `to` is semantically nonsensical for an upgrade test
+    # (nothing to actually upgrade); the current code would return
+    # `from = to` in the case where `to` is an already-shipped
+    # version AND appears in the checkout's sql/ candidates. Real
+    # ships don't hit this because the target version isn't in the
+    # shipped manifest yet when acceptance runs. But recovery-mode
+    # acceptance-only against an already-shipped version (openemr/
+    # openemr#13991 nightly smoketest is the primary example; a
+    # manual re-run of the recovery workflow after a version has
+    # fully shipped is a rarer secondary case) hits this and
+    # degenerates. Filter here so those callers get a real upgrade
+    # transition (from = next-highest shipped, e.g. 8.3.0 when
+    # to=8.4.0). If the filter empties matched -- there's literally
+    # only one candidate and it equals `to` -- fail loudly with an
+    # actionable error; that's a real "no valid upgrade path" state
+    # the caller must know about.
+    if [[ -n "${LAST_RESOLVED_TO_VERSION}" ]]; then
+        local filtered
+        filtered=$(grep -v -x -F "${LAST_RESOLVED_TO_VERSION}" <<< "${matched}" || true)
+        if [[ -z "${filtered}" ]]; then
+            local matched_line
+            matched_line=$(tr '\n' ' ' <<< "${matched}" || true)
+            echo "::error::derive_from_version: after excluding to_version (${LAST_RESOLVED_TO_VERSION}) from candidates, no from-version remains. Shipped candidates matching sql/ upgrade files were: ${matched_line}. This indicates the checkout's sql/ has no historic upgrade path other than one that would end at to_version." >&2
+            exit 1
+        fi
+        matched="${filtered}"
     fi
     # Candidates are already X.Y.Z-shaped (see grep filter above);
     # no post-max shape check needed.
@@ -318,6 +438,23 @@ if [[ -n "${CALLER_TARBALL_ARTIFACT}" || -n "${CALLER_ZIP_ARTIFACT}" ]]; then
     echo "==> workflow_call gate mode (tarball=${CALLER_TARBALL_ARTIFACT}, zip=${CALLER_ZIP_ARTIFACT}): forcing build_locally=true"
     echo "build_locally=true" >> "${GITHUB_OUTPUT}"
     emit_to_version "true"
+    # emit_expected_version("false") — NOT "true" — even though the overall
+    # flow is build_locally=true. The two "build_locally" concepts differ:
+    #   - overall build_locally=true means "skip the git-diff dance; caller
+    #     already has the tarball" (see the block header above)
+    #   - emit_expected_version's build_locally parameter means "read
+    #     version.php from the checkout (auto-fire path where to_version
+    #     is cosmetic 99.99.99)" vs "use to_version (dispatch path with a
+    #     real version)"
+    # For the workflow_call gate, DISPATCH_TO_VERSION is a REAL X.Y.Z
+    # (guarded above) and the caller-supplied tarball was built with
+    # --release-version=to_version, so the artifact self-reports to_version
+    # verbatim — expected_version must equal to_version, not whatever
+    # happens to sit in the checkout's version.php (which is often master's
+    # `-dev` value when build-release runs against a tag). Passing "true"
+    # here was the openemr/openemr#13761 regression that made the 8.4.0
+    # ship's acceptance-gate fail with expected=8.5.0 vs actual=8.4.0.
+    emit_expected_version "false"
     emit_from_version
     exit 0
 fi
@@ -376,6 +513,7 @@ if [[ "${HEAD_REF}" == release-prep/* ]]; then
         echo "==> parsed release version from PR title: ${preferred}"
     fi
     emit_to_version "true" "${preferred}"
+    emit_expected_version "true"
     emit_from_version
     exit 0
 fi
@@ -385,6 +523,7 @@ if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
     echo "build_locally=${DISPATCH_BUILD_LOCALLY}" >> "${GITHUB_OUTPUT}"
     echo "==> dispatch mode: build_locally=${DISPATCH_BUILD_LOCALLY}"
     emit_to_version "${DISPATCH_BUILD_LOCALLY}"
+    emit_expected_version "${DISPATCH_BUILD_LOCALLY}"
     emit_from_version
     exit 0
 fi
@@ -396,6 +535,7 @@ case "${EVENT_NAME}" in
         echo "==> ${EVENT_NAME} event: defaulting build_locally=false"
         echo "build_locally=false" >> "${GITHUB_OUTPUT}"
         emit_to_version "false"
+        emit_expected_version "false"
         emit_from_version
         exit 0
         ;;
@@ -405,6 +545,7 @@ if [[ -z "${BASE}" || "${BASE}" == "0000000000000000000000000000000000000000" ]]
     echo "==> branch-creation event (no base ref): defaulting build_locally=false"
     echo "build_locally=false" >> "${GITHUB_OUTPUT}"
     emit_to_version "false"
+    emit_expected_version "false"
     emit_from_version
     exit 0
 fi
@@ -435,6 +576,7 @@ if ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
         fi
         echo "build_locally=false" >> "${GITHUB_OUTPUT}"
         emit_to_version "false"
+        emit_expected_version "false"
         emit_from_version
         exit 0
     fi
@@ -460,10 +602,12 @@ if grep -qE '^(tools/release/|build\.xml$|\.gitattributes$)' <<< "${changed_file
     echo "==> tarball-build surface changed between ${BASE} and ${HEAD}: build_locally=true"
     echo "build_locally=true" >> "${GITHUB_OUTPUT}"
     emit_to_version "true"
+    emit_expected_version "true"
     emit_from_version
 else
     echo "==> tarball-build surface unchanged between ${BASE} and ${HEAD}: build_locally=false"
     echo "build_locally=false" >> "${GITHUB_OUTPUT}"
     emit_to_version "false"
+    emit_expected_version "false"
     emit_from_version
 fi

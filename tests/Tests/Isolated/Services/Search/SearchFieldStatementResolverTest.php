@@ -207,6 +207,43 @@ class SearchFieldStatementResolverTest extends TestCase
         $this->assertCount(1, $fragment->getBoundValues());
     }
 
+    /**
+     * Search values for 10:30 local time on a server in Europe/Berlin.  A winter and a
+     * summer date are both covered, so one of them is always on the other side of a
+     * daylight saving change from the day the test runs.
+     *
+     * @return array<string, array{string, list<string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function dateTimezoneProvider(): array
+    {
+        return [
+            'winter, utc'         => ['2021-01-15T09:30:00Z', ['2021-01-15 10:30:00.000000', '2021-01-15 10:30:00.999000']],
+            'summer, utc'         => ['2021-07-15T08:30:00Z', ['2021-07-15 10:30:00.000000', '2021-07-15 10:30:00.999000']],
+            'winter, utc offset'  => ['2021-01-15T04:30:00-05:00', ['2021-01-15 10:30:00.000000', '2021-01-15 10:30:00.999000']],
+            'winter, no timezone' => ['2021-01-15T10:30:00', ['2021-01-15 10:30:00.000000', '2021-01-15 10:30:00.999000']],
+            'summer, no timezone' => ['2021-07-15T10:30:00', ['2021-07-15 10:30:00.000000', '2021-07-15 10:30:00.999000']],
+        ];
+    }
+
+    /**
+     * @param list<string> $expectedBinds
+     */
+    #[Test]
+    #[DataProvider('dateTimezoneProvider')]
+    public function testDateFieldBoundsUseOffsetOfSearchedDate(string $value, array $expectedBinds): void
+    {
+        $serverTimezone = date_default_timezone_get();
+        date_default_timezone_set('Europe/Berlin');
+        try {
+            $fragment = SearchFieldStatementResolver::resolveDateField(new DateSearchField('date', [$value]));
+        } finally {
+            date_default_timezone_set($serverTimezone);
+        }
+        $this->assertSame($expectedBinds, $fragment->getBoundValues());
+    }
+
     #[Test]
     public function testTokenFieldMissingModifierFragments(): void
     {
@@ -215,7 +252,7 @@ class SearchFieldStatementResolverTest extends TestCase
         $notMissing->setModifier(SearchModifier::MISSING);
         $fragment = SearchFieldStatementResolver::resolveTokenField($notMissing);
         $this->assertEquals(
-            "(provider IS NOT NULL AND CAST(provider AS CHAR) != '') ",
+            "(provider IS NOT NULL AND (CAST(provider AS CHAR) != '' OR TRIM(CAST(provider AS BINARY)) != '')) ",
             $fragment->getFragment()
         );
         $this->assertEmpty($fragment->getBoundValues());

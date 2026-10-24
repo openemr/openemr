@@ -17,16 +17,17 @@ require_once("../../../interface/globals.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
+use Symfony\Component\HttpFoundation\Response;
 
 $format = $_GET['format'] ?? "html";
 $format = in_array($format, ['json', 'html']) ? $format : "html";
 
+$twig = null;
 try {
-    $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+    $twig = ServiceContainer::getTwig();
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf"], session: $session)) {
         CsrfUtils::csrfNotVerified(toScreen: false, beforeExit: static function () use ($twig, $format): void {
@@ -36,29 +37,33 @@ try {
 
 
     if (!AclMain::aclCheckCore('patients', 'notes')) {
-        http_response_code(403);
-        echo $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]);
-        exit;
+        (new RequestTerminator())->respond(new Response(
+            $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]),
+            Response::HTTP_FORBIDDEN,
+        ));
     }
 
     if (empty($_GET['doc'])) {
-        http_response_code(400);
-        echo $twig->render('error/400.' . $format . '.twig', ['errorMessage' => xl("Missing document id")]);
-        exit;
+        (new RequestTerminator())->respond(new Response(
+            $twig->render('error/400.' . $format . '.twig', ['errorMessage' => xl("Missing document id")]),
+            Response::HTTP_BAD_REQUEST,
+        ));
     }
 
     $docId = intval($_GET['doc']);
     $document = new Document($docId);
     if ($document->get_size() <= 0) {
         // doc not found
-        http_response_code(404);
-        echo $twig->render('error/404.' . $format . '.twig', ['errorMessage' => xl("Missing document id")]);
-        exit;
+        (new RequestTerminator())->respond(new Response(
+            $twig->render('error/404.' . $format . '.twig', ['errorMessage' => xl("Missing document id")]),
+            Response::HTTP_NOT_FOUND,
+        ));
     }
     if (!$document->can_access($docId)) {
-        http_response_code(403);
-        echo $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]);
-        exit;
+        (new RequestTerminator())->respond(new Response(
+            $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]),
+            Response::HTTP_FORBIDDEN,
+        ));
     }
 
     // now we can validate our documents
@@ -71,11 +76,11 @@ try {
     }
 } catch (\Throwable $exception) {
     ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception]);
-    if (isset($twig)) {
-        http_response_code(500);
-        $twig->render('error/general_http_error', ['statusCode' => 500]);
-        exit;
-    } else {
-        echo xlt("Server error occurred. Check logs for details");
-    }
+    $display = $twig?->render('error/general_http_error', ['statusCode' => 500])
+        ?? xlt("Server error occurred. Check logs for details");
+
+    (new RequestTerminator())->respond(new Response(
+        $display,
+        Response::HTTP_INTERNAL_SERVER_ERROR,
+    ));
 }

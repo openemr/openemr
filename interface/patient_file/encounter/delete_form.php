@@ -16,7 +16,6 @@ require_once("../../globals.php");
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
-require_once(__DIR__ . "/../../../library/forms.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

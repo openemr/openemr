@@ -29,6 +29,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
+use OpenEMR\Common\Http\SsrfSafeUrlValidator;
 use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
@@ -119,6 +120,24 @@ class CustomClientCredentialsGrantTest extends TestCase
         $grant->setAccessTokenRepository($this->getMockAccessTokenRepository($accessToken));
         $grant->setScopeRepository($this->getMockScopeRepository());
         $jwtAuthservice = new JWTClientAuthenticationService(self::AUDIENCE, $clientRepository, $this->getMockJwtRepository(), $httpClient);
+        // The read-path outbound-URL validator rejects the mock localhost jwks_uri used in this test.
+        // Inject a no-op validator so the unit test can exercise the JWT flow without needing
+        // a publicly-resolvable URL; the write-path validator (exercised elsewhere) is what
+        // enforces the outbound-URL check against real client registrations.
+        $permissiveValidator = $this->createMock(SsrfSafeUrlValidator::class);
+        $permissiveValidator->method('validate')->willReturn(null);
+        // JWTClientAuthenticationService reads pin data (host/port/ips) from
+        // validateAndPin to decide whether to swap in a pinned Guzzle client
+        // for the JWKS fetch. Empty `ips` keeps the injected mock http client
+        // path — the test asserts the JWT flow, not the pinning transport.
+        $permissiveValidator->method('validateAndPin')->willReturn([
+            'reason' => null,
+            'host' => 'localhost',
+            'port' => 9000,
+            'scheme' => 'https',
+            'ips' => [],
+        ]);
+        $jwtAuthservice->setJwksUriValidator($permissiveValidator);
         $grant->setJWTAuthenticationService($jwtAuthservice);
 
         $response = $this->createMock(ResponseTypeInterface::class);
@@ -232,12 +251,15 @@ class CustomClientCredentialsGrantTest extends TestCase
         return $request;
     }
 
-    private function getClientEntityForTest()
+    private function getClientEntityForTest(): ClientEntity
     {
         $clientEntity = new ClientEntity();
         $clientEntity->setIdentifier(self::TEST_CLIENT_ID);
         $clientEntity->setIsConfidential(true);
         $clientEntity->setIsEnabled(true);
+        // a backend-services client is registered for client_credentials; clients without it
+        // are rejected with unauthorized_client (ClientGrantTypeGuardTrait)
+        $clientEntity->setGrantTypes(['client_credentials']);
         return $clientEntity;
     }
 
@@ -276,7 +298,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         return $jsonData;
     }
 
-    private function createJWTForKeys($iss, $aud)
+    private function createJWTForKeys($iss, $aud): string
     {
 
         $configuration = Configuration::forAsymmetricSigner(

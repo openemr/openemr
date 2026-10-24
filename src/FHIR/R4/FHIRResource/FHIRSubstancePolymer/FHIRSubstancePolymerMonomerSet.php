@@ -191,9 +191,7 @@ class FHIRSubstancePolymerMonomerSet extends FHIRBackboneElement implements \Jso
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstancePolymerMonomerSet xmlns="http://hl7.org/fhir"></SubstancePolymerMonomerSet>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstancePolymerMonomerSet xmlns="http://hl7.org/fhir"></SubstancePolymerMonomerSet>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->ratioType)) {
             $this->ratioType->xmlSerialize(true, $sxe->addChild('ratioType'));

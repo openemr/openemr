@@ -22,8 +22,6 @@ namespace OpenEMR\Common\Acl;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Response;
 
 class AccessDeniedHelper
@@ -102,9 +100,7 @@ class AccessDeniedHelper
      */
     public static function renderUnauthorizedTemplate(string $pageTitle): string
     {
-        return (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
-            ->getTwig()
-            ->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+        return ServiceContainer::getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
     }
 
     /**

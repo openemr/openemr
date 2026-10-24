@@ -183,13 +183,14 @@ class ExportKeyDefinitionFilterer
         return false;
     }
 
-    public function filterMultipleKeys(ExportKeyDefinition $key)
+    /**
+     * @return ExportKeyDefinition[]
+     */
+    public function filterMultipleKeys(ExportKeyDefinition $key): array
     {
         $keys = [];
         if ($key->localTable == 'lists') {
-            if (!isset($this->issueTypes)) {
-                $this->issueTypes = QueryUtils::fetchTableColumn("select type from issue_types", 'type');
-            }
+            $this->issueTypes ??= QueryUtils::fetchTableColumn("select type from issue_types", 'type');
 
             if (!empty($this->issueTypes)) {
                 foreach ($this->issueTypes as $type) {

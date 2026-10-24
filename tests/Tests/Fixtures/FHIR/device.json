@@ -1,0 +1,26 @@
+[
+    {
+        "resourceType": "Device",
+        "type": {
+            "coding": [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": "49062001",
+                    "display": "test-fixture-device-implantable"
+                }
+            ],
+            "text": "test-fixture-device-implantable"
+        },
+        "udiCarrier": [
+            {
+                "deviceIdentifier": "00643169007222",
+                "carrierHRF": "(01)00643169007222(17)260101(10)test-fixture-lot01"
+            }
+        ],
+        "manufacturer": "test-fixture Manufacturer Inc",
+        "lotNumber": "test-fixture-lot01",
+        "serialNumber": "test-fixture-serial-001",
+        "manufactureDate": "2024-01-15",
+        "expirationDate": "2030-01-15"
+    }
+]

@@ -249,9 +249,7 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CoverageCostToBeneficiary xmlns="http://hl7.org/fhir"></CoverageCostToBeneficiary>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CoverageCostToBeneficiary xmlns="http://hl7.org/fhir"></CoverageCostToBeneficiary>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

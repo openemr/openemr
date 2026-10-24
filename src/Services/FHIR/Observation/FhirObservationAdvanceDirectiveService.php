@@ -154,9 +154,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
      */
     public function getAdvanceDirectiveService(): PatientAdvanceDirectiveService
     {
-        if (!isset($this->advanceDirectiveService)) {
-            $this->advanceDirectiveService = new PatientAdvanceDirectiveService();
-        }
+        $this->advanceDirectiveService ??= new PatientAdvanceDirectiveService();
         return $this->advanceDirectiveService;
     }
 

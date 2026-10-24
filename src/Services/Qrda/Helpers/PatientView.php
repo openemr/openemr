@@ -102,7 +102,7 @@ trait PatientView
         }
     }
 
-    public function familyName(Mustache_Context $context)
+    public function familyName(Mustache_Context $context): string
     {
         $family = $context->find('patientName');
         if (is_object($family)) {
@@ -119,7 +119,7 @@ trait PatientView
         );
         if (empty($gender_elements)) {
             return false;
-        } else if (empty($gender_elements[0]->dataElementCodes)) {
+        } elseif (empty($gender_elements[0]->dataElementCodes)) {
             return false;
         } else {
             return $gender_elements[0]->dataElementCodes[0]['code'];
@@ -160,7 +160,7 @@ trait PatientView
         );
         if (empty($elements)) {
             return false;
-        } else if (empty($elements[0]->dataElementCodes)) {
+        } elseif (empty($elements[0]->dataElementCodes)) {
             return false;
         } else {
             return $elements[0]->dataElementCodes[0]['code'];
@@ -175,7 +175,7 @@ trait PatientView
         );
         if (empty($elements)) {
             return false;
-        } else if (empty($elements[0]->dataElementCodes)) {
+        } elseif (empty($elements[0]->dataElementCodes)) {
             return false;
         } else {
             return $elements[0]->dataElementCodes[0]['code'];
@@ -190,7 +190,7 @@ trait PatientView
         );
         if (empty($elements)) {
             return false;
-        } else if (empty($elements[0]->dataElementCodes)) {
+        } elseif (empty($elements[0]->dataElementCodes)) {
             return false;
         } else {
             return $elements[0]->dataElementCodes[0]['code'];

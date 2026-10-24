@@ -24,15 +24,25 @@ require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$pid = (int)($_GET['pid'] ?? 0);
-if (!$pid) {
-    die(xlt("Missing patient id.")); }
+$pid = CurrentRequest::get()->query->getInt('pid');
+if ($pid <= 0) {
+    die(xlt("Missing patient id."));
+}
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::deny('Unauthorized access to SDOH list');
+}
+
+// Deep-linked page: align session pid with the URL patient so the wrapping
+// chart header and menu render for the same patient (local $pid drives the
+// list query below). Early die above already rejects $pid <= 0.
+if ($pid !== PatientSessionUtil::getPid()) {
+    setpid($pid);
 }
 
 // Pull rows newest first

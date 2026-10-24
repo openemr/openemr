@@ -259,8 +259,21 @@
             });
 
             {% if portal_two_payments %}
-            $("#payment").load("./portal_payment.php", {}, function () {
-            });
+            $("#payment").load(
+                "./portal_payment.php",
+                {
+                    csrf_token_form: {{ csrfPostUtils | js_escape }}
+                },
+                function (response, status, xhr) {
+                    if (status === "error") {
+                        console.error(
+                            "Unable to load payment page:",
+                            xhr.status,
+                            xhr.statusText
+                        );
+                    }
+                }
+            );
             {% endif %}
 
             {% if isEasyPro %}
@@ -789,7 +802,7 @@
                 {% if ccdaOk %}
                     {% include "portal/partial/_nav_icon.html.twig"
                         with {
-                        url: web_root ~ "/ccdaservice/ccda_gateway.php?action=view&csrf_token_form=" ~ csrfUtils|attr_url
+                        url: web_root ~ "/portal/ccda_gateway.php?action=view&csrf_token_form=" ~ csrfUtils|attr_url
                         , icon: "notes-medical"
                         , navText: "View Summary of Care"|xl
                         , id: "view-summary-go"
@@ -797,7 +810,7 @@
                     } %}
                     {% include "portal/partial/_nav_icon.html.twig"
                         with {
-                        url: web_root ~ "/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form=" ~ csrfUtils|attr_url
+                        url: web_root ~ "/portal/ccda_gateway.php?action=dl&csrf_token_form=" ~ csrfUtils|attr_url
                         , icon: "download"
                         , navText: "Download Summary of Care"|xl
                         , id: "download-summary-go"

@@ -351,9 +351,7 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceuticalRouteOfAdministration xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalRouteOfAdministration>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductPharmaceuticalRouteOfAdministration xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalRouteOfAdministration>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));

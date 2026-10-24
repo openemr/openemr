@@ -34,12 +34,15 @@ class CdrAlertManager
     /**
      * Constructor
      */
-    function CdrActivationManager($id = "", $prefix = "")
+    public function CdrActivationManager($id = "", $prefix = "")
     {
     }
 
 
-    function populate()
+    /**
+     * @return CdrResults[]
+     */
+    public function populate(): array
     {
         $cdra = [];
 
@@ -53,7 +56,7 @@ class CdrAlertManager
         return $cdra;
     }
 
-    function update($rule_ids, $active_alert_flags, $passive_alert_flags, $patient_reminder_flags, $access_controls)
+    public function update($rule_ids, $active_alert_flags, $passive_alert_flags, $patient_reminder_flags, $access_controls)
     {
 
         for ($index = 0; $index < count($rule_ids); $index++) {

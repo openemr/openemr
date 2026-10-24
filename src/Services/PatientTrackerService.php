@@ -36,7 +36,7 @@ class PatientTrackerService extends BaseService
      * @param bool $allow_sec
      * @return string
      */
-    public static function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false)
+    public static function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false): string
     {
 
         $tracker_time_calc = strtotime((string) $tracker_to_time) - strtotime((string) $tracker_from_time);
@@ -180,9 +180,7 @@ class PatientTrackerService extends BaseService
         }
 
         $datetime = date("Y-m-d H:i:s");
-        if (is_null($room)) {
-            $room = '';
-        }
+        $room ??= '';
 
         #Check to see if there is an entry in the patient_tracker table.
         $tracker = sqlQuery("SELECT id, apptdate, appttime, eid, pid, original_user, encounter, lastseq," .
@@ -304,9 +302,8 @@ class PatientTrackerService extends BaseService
      * This is used to collect the tracker elements for the Patient Flow Board Report
      * returns the elements in an array
      * @param $trackerid
-     * @return mixed
      */
-    public static function collect_Tracker_Elements($trackerid)
+    public static function collect_Tracker_Elements($trackerid): array
     {
         $res = sqlStatement("SELECT * FROM patient_tracker_element WHERE pt_tracker_id = ? ORDER BY LENGTH(seq), seq ", [$trackerid]);
         $returnval = [];
@@ -365,7 +362,7 @@ class PatientTrackerService extends BaseService
         }
     }
 
-    public static function getApptStatus($appointments)
+    public static function getApptStatus($appointments): array
     {
         $astat = [];
         $astat['count_all'] = count($appointments);

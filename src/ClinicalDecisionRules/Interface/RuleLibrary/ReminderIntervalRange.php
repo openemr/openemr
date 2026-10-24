@@ -21,7 +21,7 @@ class ReminderIntervalRange
     const Warning = "pre";
     const PastDue = "post";
 
-    function __construct(public string $code, public string $lbl)
+    public function __construct(public string $code, public string $lbl)
     {
     }
 
@@ -42,7 +42,7 @@ class ReminderIntervalRange
         return array_values($map);
     }
 
-    private static function map()
+    private static function map(): array
     {
         $map = [
             'pre' => new ReminderIntervalType('pre', xl('Warning')),

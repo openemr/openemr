@@ -392,9 +392,7 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceNucleicAcidSubunit xmlns="http://hl7.org/fhir"></SubstanceNucleicAcidSubunit>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceNucleicAcidSubunit xmlns="http://hl7.org/fhir"></SubstanceNucleicAcidSubunit>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->subunit)) {
             $this->subunit->xmlSerialize(true, $sxe->addChild('subunit'));

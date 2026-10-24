@@ -243,9 +243,7 @@ class FHIRResource implements \JsonSerializable, \Stringable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Resource xmlns="http://hl7.org/fhir"></Resource>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Resource xmlns="http://hl7.org/fhir"></Resource>');
         if (isset($this->id)) {
             $this->id->xmlSerialize(true, $sxe->addChild('id'));
         }

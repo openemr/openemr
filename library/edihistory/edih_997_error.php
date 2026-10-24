@@ -36,9 +36,8 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
  * Extract information on rejected files or transactions
  *
  * @param mixed $obj997
- * @return array
  */
-function edih_997_errdata($obj997)
+function edih_997_errdata($obj997): array
 {
     //
     $segments = $obj997->edih_segments();
@@ -198,9 +197,8 @@ function edih_997_errdata($obj997)
  * @uses edih_rsp_st_match()
  *
  * @param mixed $err_array
- * @return array
  */
-function edih_997_err_report($err_array)
+function edih_997_err_report($err_array): string
 {
     //
     if (!is_array($err_array) || !count($err_array)) {
@@ -317,7 +315,7 @@ function edih_997_err_report($err_array)
  * @param string $filepath
  * @return string
  */
-function edih_997_error($filepath)
+function edih_997_error($filepath): string
 {
     //
     $html_str = '';

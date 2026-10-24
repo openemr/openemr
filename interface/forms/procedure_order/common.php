@@ -43,8 +43,6 @@ $pid = PatientSessionUtil::getPid();
 $encounter = EncounterSessionUtil::getEncounter();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
 
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once(__DIR__ . "/../../orders/qoe.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
@@ -74,7 +72,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 global $gbl_lab, $gbl_lab_title, $gbl_client_acct;
 $eReqForm = '';
-function saveEreq($pid, $form_id, $mpdfData)
+function saveEreq($pid, $form_id, $mpdfData): string
 {
     $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", ["LabCorp"]);
     if (!$category['id']) {
@@ -531,7 +529,7 @@ if (!empty($row['lab_id'])) {
         // we want to setup our reason code widgets
         window.addEventListener('DOMContentLoaded', function () {
             if (oeUI.reasonCodeWidget) {
-                oeUI.reasonCodeWidget.init(<?php echo js_url(OEGlobalsBag::getInstance()->getWebRoot()); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
+                oeUI.reasonCodeWidget.init(<?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
             } else {
                 console.error("Missing required dependency reasonCodeWidget");
                 return;

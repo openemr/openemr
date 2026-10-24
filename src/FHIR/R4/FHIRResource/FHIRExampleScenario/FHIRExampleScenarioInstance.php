@@ -328,9 +328,7 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExampleScenarioInstance xmlns="http://hl7.org/fhir"></ExampleScenarioInstance>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ExampleScenarioInstance xmlns="http://hl7.org/fhir"></ExampleScenarioInstance>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->resourceId)) {
             $this->resourceId->xmlSerialize(true, $sxe->addChild('resourceId'));

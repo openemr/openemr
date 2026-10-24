@@ -44,7 +44,7 @@ trait MappedServiceTrait
         $this->services = $validServices;
     }
 
-    public function searchAllServices($fhirSearchParams, $puuidBind)
+    public function searchAllServices($fhirSearchParams, $puuidBind): ProcessingResult
     {
         $processingResult = new ProcessingResult();
 
@@ -63,7 +63,7 @@ trait MappedServiceTrait
         return $processingResult;
     }
 
-    public function searchServices(array $services, $fhirSearchParams, $puuidBind)
+    public function searchServices(array $services, $fhirSearchParams, $puuidBind): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         foreach ($services as $service) {
@@ -78,7 +78,7 @@ trait MappedServiceTrait
         return $processingResult;
     }
 
-    public function searchAllServicesWithSupportedFields($fhirSearchParams, $puuidBind)
+    public function searchAllServicesWithSupportedFields($fhirSearchParams, $puuidBind): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         foreach ($this->getMappedServices() as $service) {

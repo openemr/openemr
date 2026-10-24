@@ -169,7 +169,7 @@ class FacilityService extends BaseService
         return $record;
     }
 
-    public function getFacilityForUserFormatted($userId)
+    public function getFacilityForUserFormatted($userId): array
     {
         $facility = $this->getFacilityForUser($userId);
 

@@ -418,6 +418,7 @@ The resources that OpenEMR supports is documented via Swagger. You can see this 
 - Goal ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Goal))
 - CareTeam ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_CareTeam))
 - DiagnosticReport for Clinical Notes ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_DiagnosticReport))
+- Task, read, search, create and update ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Task))
 
 ### Diagnostic Resources
 - Observation ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Observation))

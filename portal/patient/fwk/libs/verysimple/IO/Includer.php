@@ -3,11 +3,6 @@
 /** @package    verysimple::IO */
 
 /**
- * import supporting libraries
- */
-require_once("IncludeException.php");
-
-/**
  * Provides helper functions for including classes and files dynamically
  * so that Exceptions are thrown instead of PHP errors and warnings
  *

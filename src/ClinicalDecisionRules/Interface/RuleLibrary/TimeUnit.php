@@ -21,7 +21,7 @@ class TimeUnit
     const Month = "month";
     const Year = "year";
 
-    function __construct(public string $code, public string $lbl)
+    public function __construct(public string $code, public string $lbl)
     {
     }
 
@@ -42,7 +42,7 @@ class TimeUnit
         return array_values($map);
     }
 
-    private static function map()
+    private static function map(): array
     {
         $map = [
             'minute' => new TimeUnit('minute', xl('Minutes')),

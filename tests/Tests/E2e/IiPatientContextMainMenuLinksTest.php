@@ -32,8 +32,6 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
     use LoginTrait;
     use PatientOpenTrait;
 
-    private $crawler;
-
     #[DataProvider('menuLinkProvider')]
     #[Depends('testLoginAuthorized')]
     #[Depends('testPatientOpen')]
@@ -50,9 +48,7 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
             $loading = "Loading";
         }
 
-        if (is_null($clearAlert)) {
-            $clearAlert = false;
-        }
+        $clearAlert ??= false;
 
         $this->base();
         try {

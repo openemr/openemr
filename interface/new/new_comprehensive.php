@@ -16,9 +16,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
-require_once("$srcdir/patientvalidation.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -447,6 +445,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             }
                         }
 
+                        // This page never loads an existing patient, so a field with
+                        // no value takes the layout's configured default.
+                        $default_value = is_array($frow) ? ($frow['default_value'] ?? '') : '';
+                        if ($currvalue === null && $default_value !== '') {
+                            $currvalue = $default_value;
+                        }
+
                         // Handle a data category (group) change.
                         if (strcmp((string) $this_group, (string) $last_group) != 0) {
                             if (!$SHORT_FORM) {
@@ -466,7 +471,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 <div class="card">
                                     <div class="card-header p-0 bg-secondary" id="header_{$group_seq_attr}">
                                         <h2 class="mb-0">
-                                            <button class="btn btn-link btn-block text-light text-left" type="button" data-toggle="collapse" data-target="#div_{$group_seq_attr}" aria-expanded="true" aria-controls="{$group_seq_attr}">$group_name_xl</button>
+                                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#div_{$group_seq_attr}" aria-expanded="true" aria-controls="{$group_seq_attr}">$group_name_xl</button>
                                         </h2>
                                     </div>
                                     <div id="div_{$group_seq_attr}" class="bg-light collapse {$checked}" aria-labelledby="header_{$group_seq_attr}" >
@@ -575,7 +580,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         <div class="card">
                             <div class="card-header p-0 bg-secondary" id="header_ins">
                                 <h2 class="mb-0">
-                                    <button class="btn btn-link btn-block text-light text-left" type="button" data-toggle="collapse" data-target="#div_ins" aria-expanded="true" aria-controls="ins">$insuranceTitle</button>
+                                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#div_ins" aria-expanded="true" aria-controls="ins">$insuranceTitle</button>
                                 </h2>
                             </div>
                             <div id="div_ins" class="bg-light collapse" aria-labelledby="header_ins" >

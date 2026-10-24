@@ -419,10 +419,7 @@ class ClientAdminControllerTest extends TestCase
         unset($GLOBALS['webroot']);
     }
 
-    /**
-     * @return ClientAdminController
-     */
-    private function getAdminController()
+    private function getAdminController(): ClientAdminController
     {
         return new class ($this->globalsBag, $this->session, $this->mockClientRepo, $this->actionURL) extends ClientAdminController {
             public function checkSecurity(string $action): void

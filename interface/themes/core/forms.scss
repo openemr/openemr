@@ -55,4 +55,23 @@
     min-height: 21px;
     width: 100%;
   }
+
+  /* Billing Manager claim selection */
+  form[name="update_form"] input[type="checkbox"] {
+    accent-color: map-get($theme-colors, "primary");
+    cursor: pointer;
+  }
+
+  .oe-claim-row {
+    cursor: pointer;
+  }
+
+  /* Each row carries its stripe as an inline background-color, so the
+     selected state needs !important to win. The inset bar is a
+     non-colour cue for colour-deficient vision and grayscale print. */
+
+  .oe-claim-row.oe-selected {
+    background-color: rgba(map-get($theme-colors, "success"), 0.18) !important;
+    box-shadow: inset 3px 0 0 map-get($theme-colors, "success");
+  }
 }

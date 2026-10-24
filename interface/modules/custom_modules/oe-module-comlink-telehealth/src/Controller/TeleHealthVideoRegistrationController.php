@@ -59,9 +59,7 @@ class TeleHealthVideoRegistrationController
 
     public function getUserRepository()
     {
-        if (!isset($this->userRepository)) {
-            $this->userRepository = new TeleHealthUserRepository();
-        }
+        $this->userRepository ??= new TeleHealthUserRepository();
         return $this->userRepository;
     }
 
@@ -186,7 +184,7 @@ class TeleHealthVideoRegistrationController
                         ['uuid' => $userWithUuid['uuid'] ?? null]
                     );
                     // we do nothing here if the provider is not enabled and there's no auth we just ignore this
-                } else if ($apiUser->getIsActive()) {
+                } elseif ($apiUser->getIsActive()) {
                     $this->logger->debug(
                         self::class . "->onUserUpdatedEvent telehealth is disabled but registration is active. suspending user",
                         ['uuid' => $userWithUuid['uuid'] ?? null]

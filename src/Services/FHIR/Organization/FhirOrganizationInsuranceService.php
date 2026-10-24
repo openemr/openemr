@@ -17,6 +17,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\INonPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\InsuranceCompanyService;
@@ -30,7 +31,7 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirOrganizationInsuranceService extends FhirServiceBase
+class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
 
@@ -50,11 +51,11 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
-            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "postal_code", "city", "state", "country","line1", "line2"]),
+            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["line1", "line2", "zip", "city", "state", "country"]),
             'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
             'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ["zip"]),
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
@@ -174,7 +175,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
      * @param  FHIROrganization|array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource($fhirResource = [])
+    public function parseFhirResource($fhirResource = []): array
     {
         if (!$fhirResource instanceof FHIROrganization) {
             // get_debug_type handles both objects and arrays; avoids `::class` on non-object.

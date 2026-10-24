@@ -208,9 +208,7 @@ class FHIRMedicinalProductContraindicationOtherTherapy extends FHIRBackboneEleme
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductContraindicationOtherTherapy xmlns="http://hl7.org/fhir"></MedicinalProductContraindicationOtherTherapy>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductContraindicationOtherTherapy xmlns="http://hl7.org/fhir"></MedicinalProductContraindicationOtherTherapy>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->therapyRelationshipType)) {
             $this->therapyRelationshipType->xmlSerialize(true, $sxe->addChild('therapyRelationshipType'));

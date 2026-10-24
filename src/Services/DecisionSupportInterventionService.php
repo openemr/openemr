@@ -47,10 +47,7 @@ class DecisionSupportInterventionService extends BaseService
 
     public function getClientRepository(): ClientRepository
     {
-        // lazy load the client repository
-        if ($this->clientRepository === null) {
-            $this->clientRepository = new ClientRepository();
-        }
+        $this->clientRepository ??= new ClientRepository();
         return $this->clientRepository;
     }
 
@@ -74,7 +71,7 @@ class DecisionSupportInterventionService extends BaseService
             if (!$isSummary) {
                 $attributes = $this->getPredictiveDSIAttributes($clientEntity->getIdentifier());
             }
-        } else if ($clientEntity->hasEvidenceDSI()) {
+        } elseif ($clientEntity->hasEvidenceDSI()) {
             $service = new EvidenceBasedDSIServiceEntity($clientEntity);
             if (!$isSummary) {
                 $attributes = $this->getEvidenceDSIAttributes($clientEntity->getIdentifier());
@@ -193,9 +190,8 @@ class DecisionSupportInterventionService extends BaseService
      * then it will return the default attributes for the list.
      * @param $listId
      * @param $dsiServiceId
-     * @return array
      */
-    private function getAttributes($listId, ?string $dsiServiceId)
+    private function getAttributes($listId, ?string $dsiServiceId): array
     {
         if (empty($dsiServiceId)) {
             $query =  "SELECT "
@@ -239,7 +235,7 @@ class DecisionSupportInterventionService extends BaseService
         return null;
     }
 
-    public function getDsiTypeForStringName(string $dsiTypeName)
+    public function getDsiTypeForStringName(string $dsiTypeName): int
     {
         if (!array_key_exists($dsiTypeName, self::DSI_TYPES_BY_STRING_NAME)) {
             throw new \InvalidArgumentException("Invalid DSI type name");
@@ -247,7 +243,7 @@ class DecisionSupportInterventionService extends BaseService
         return self::DSI_TYPES_BY_STRING_NAME[$dsiTypeName];
     }
 
-    public function getDsiTypeStringName(int $dsiType)
+    public function getDsiTypeStringName(int $dsiType): string
     {
         if (!array_key_exists($dsiType, self::DSI_TYPES)) {
             throw new \InvalidArgumentException("Invalid DSI type");

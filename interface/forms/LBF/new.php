@@ -35,10 +35,7 @@ if ($patientPortalSession) {
 }
 
 require_once "../../globals.php";
-require_once "$srcdir/api.inc.php";
-require_once "$srcdir/forms.inc.php";
 require_once "$srcdir/options.inc.php";
-require_once "$srcdir/patient.inc.php";
 require_once OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
 require_once "$srcdir/FeeSheetHtml.class.php";
 
@@ -1109,6 +1106,19 @@ if (
                                 }
                             }
                         } // End "P" option logic.
+                    }
+
+                    // A new form has no stored data, so fall back to the field's
+                    // configured default value. Restrict this to fields stored with
+                    // the form: patient, history and visit fields belong to records
+                    // that already exist, and saving writes them straight back, so a
+                    // default there would overwrite a stored blank. An existing form
+                    // is left alone as well, so a value the user deliberately cleared
+                    // stays cleared.
+                    $is_form_field = !in_array($source, ['D', 'H', 'E', 'V'], true);
+                    $default_value = is_array($frow) ? ($frow['default_value'] ?? '') : '';
+                    if (!$formid && $is_form_field && $default_value !== '' && ($currvalue === '' || $currvalue === null)) {
+                        $currvalue = $default_value;
                     }
 
                     $this_levels = $this_group;

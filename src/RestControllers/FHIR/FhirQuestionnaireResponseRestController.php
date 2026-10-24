@@ -7,7 +7,11 @@
  * @link    https://www.open-emr.org
  *
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2022 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -111,11 +115,11 @@ class FhirQuestionnaireResponseRestController
             // only allow access to data of binded patient
             $result = $this->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         } else {
-            /**
-             * If you need to check the API against any kind of ACL the RestConfig object will do an authorization check
-             * and handle the API result back to the HTTP client
-             */
-            // RestConfig::authorization_check("patients", "med");
+            // Non-patient ACL enforcement (`patients/med`) lives at the FHIR
+            // route callback for GET /fhir/QuestionnaireResponse so it runs
+            // uniformly regardless of whether a caller invokes the controller
+            // directly. Do not add a second check here — the route is the
+            // single source of truth.
             $result = $this->getAll($request->getQueryParams());
         }
         return RestControllerHelper::returnSingleObjectResponse($result);
@@ -212,4 +216,77 @@ class FhirQuestionnaireResponseRestController
 
     // TODO: @adunsulag create is defined in the private assessment module but depends on the symfony object deserializer...
     // before we can bring this into core we need to check w/ admin team on adding dependency
+
+    /**
+     * Creates a new FHIR QuestionnaireResponse resource.
+     * Routed via FhirGenericRestController::post(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    // @codeCoverageIgnoreStart
+    #[OA\Post(
+        path: '/fhir/QuestionnaireResponse',
+        description: 'Creates a new QuestionnaireResponse resource.',
+        tags: ['fhir'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '201', description: 'QuestionnaireResponse resource created'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function post(array $fhirJson): void
+    {
+        // Implementation lives in FhirGenericRestController::post()
+    }
+
+    /**
+     * Updates an existing FHIR QuestionnaireResponse resource.
+     * Routed via FhirGenericRestController::put(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    #[OA\Put(
+        path: '/fhir/QuestionnaireResponse/{uuid}',
+        description: 'Modifies a QuestionnaireResponse resource.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the QuestionnaireResponse resource.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', description: 'QuestionnaireResponse resource updated'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function put(string $fhirId, array $fhirJson): void
+    {
+        // Implementation lives in FhirGenericRestController::put()
+    }
+    // @codeCoverageIgnoreEnd
 }

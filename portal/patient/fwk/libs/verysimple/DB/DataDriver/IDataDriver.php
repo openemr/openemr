@@ -23,7 +23,7 @@ interface IDataDriver
      *
      * @return string
      */
-    function GetServerType();
+    public function GetServerType();
 
     /**
      * Return true if the given connection is live
@@ -31,7 +31,7 @@ interface IDataDriver
      * @param $connection
      * @return bool
      */
-    function Ping($connection);
+    public function Ping($connection);
 
     /**
      * Open the database with the given parameters.
@@ -48,14 +48,14 @@ interface IDataDriver
      *          SQL that will be executed when the connection is first opened (example 'SET SQL_BIG_SELECTS=1')
      * @return connection
      */
-    function Open($connectionstring, $database, $username, $password, $charset = '', $bootstrap = '');
+    public function Open($connectionstring, $database, $username, $password, $charset = '', $bootstrap = '');
 
     /**
      * Close the given connection reference
      *
      * @param mixed $connection
      */
-    function Close($connection);
+    public function Close($connection);
 
     /**
      * Execute a SQL query that is expected to return a resultset
@@ -64,7 +64,7 @@ interface IDataDriver
      * @param string $sql sql query
      * @return resultset
      */
-    function Query($connection, $sql);
+    public function Query($connection, $sql);
 
     /**
      * Executes a SQL query that does not return a resultset, such as an insert or update
@@ -73,7 +73,7 @@ interface IDataDriver
      * @param string $sql sql statement
      * @return int number of affected records
      */
-    function Execute($connection, $sql);
+    public function Execute($connection, $sql);
 
     /**
      * Moves the database cursor forward and returns the current row as an associative array
@@ -83,7 +83,7 @@ interface IDataDriver
      * @param mixed $rs
      * @return array (or null)
      */
-    function Fetch($connection, $rs);
+    public function Fetch($connection, $rs);
 
     /**
      * Returns the last auto-insert id that was inserted for the
@@ -91,7 +91,7 @@ interface IDataDriver
      *
      * @param mixed $connection
      */
-    function GetLastInsertId($connection);
+    public function GetLastInsertId($connection);
 
     /**
      * Returns the last error message that the server encountered
@@ -99,7 +99,7 @@ interface IDataDriver
      *
      * @param mixed $connection
      */
-    function GetLastError($connection);
+    public function GetLastError($connection);
 
     /**
      * Releases the resources for the given resultset.
@@ -107,7 +107,7 @@ interface IDataDriver
      * @param mixed $connection
      * @param mixed $rs
      */
-    function Release($connection, $rs);
+    public function Release($connection, $rs);
 
     /**
      * Remove or escape any characters that will cause a SQL statement
@@ -116,7 +116,7 @@ interface IDataDriver
      * @param string $val value to escape
      * @return string value after escaping
      */
-    function Escape($val);
+    public function Escape($val);
 
     /**
      * Return a stringified version of $val ready to insert with appropriate quoting and escaping
@@ -125,7 +125,7 @@ interface IDataDriver
      * @param mixed $val value to insert/update/query
      * @return string value ready to use in a SQL statement quoted and escaped if necessary
      */
-    function GetQuotedSql($val);
+    public function GetQuotedSql($val);
 
     /**
      * Returns an array of tablenames for the given database
@@ -135,7 +135,7 @@ interface IDataDriver
      * @param $ommitEmptyTables (default
      *          false) set to true and tables with no data will be omitted
      */
-    function GetTableNames($connection, $dbname, $ommitEmptyTables = false);
+    public function GetTableNames($connection, $dbname, $ommitEmptyTables = false);
 
     /**
      * Optimize, clean, defrag or whatever action is relevant for the database server
@@ -143,26 +143,26 @@ interface IDataDriver
      * @param mixed $connection connection reference
      * @param string $table name of table to optimize
      */
-    function Optimize($connection, $table);
+    public function Optimize($connection, $table);
 
     /**
      * Start a database transaction and disable auto-commit if necessary
      *
      * @param mixed $connection connection reference
      */
-    function StartTransaction($connection);
+    public function StartTransaction($connection);
 
     /**
      * Commit the current database transaction and re-enable auto-commit
      *
      * @param mixed $connection connection reference
      */
-    function CommitTransaction($connection);
+    public function CommitTransaction($connection);
 
     /**
      * Rollback the current database transaction and re-enable auto-commit
      *
      * @param mixed $connection connection reference
      */
-    function RollbackTransaction($connection);
+    public function RollbackTransaction($connection);
 }

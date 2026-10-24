@@ -23,29 +23,10 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Core\OEGlobalsBag;
 
-function add_escape_custom($s)
+function add_escape_custom($s): string
 {
     //prepare for safe mysql insertion
     $s = mysqli_real_escape_string(OEGlobalsBag::getInstance()->get('dbh'), ($s ?? ''));
-    return $s;
-}
-
-/**
- * Escape a sql limit variable to prepare for a sql query.
- *
- * This will escape integers within the LIMIT ?, ? part of a sql query.
- * Note that there is a maximum value to these numbers, which is why
- * should only use for the LIMIT ? , ? part of the sql query and why
- * this is centralized to a function (in case need to upgrade this
- * function to support larger numbers in the future).
- *
- * @param   string $s  Limit variable to be escaped.
- * @return  string     Escaped limit variable.
- */
-function escape_limit($s)
-{
-    //prepare for safe mysql insertion
-    $s = (int)$s;
     return $s;
 }
 
@@ -99,7 +80,7 @@ function process_cols_escape($s)
  * @param bool $throwException Whether to throw a SQL exception instead of dying
  * @return  string                 Escaped table name variable.
  */
-function escape_sql_column_name($s, $tables, $long = false, $throwException = false)
+function escape_sql_column_name($s, $tables, $long = false, $throwException = false): string
 {
     // If $s is asterisk return asterisk to select all columns
     if ($s === "*") {
@@ -169,7 +150,7 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
  * @param   string $s  sql table name variable to be escaped/sanitized.
  * @return  string     Escaped table name variable.
  */
-function escape_table_name($s)
+function escape_table_name($s): string
 {
     return QueryUtils::escapeTableName($s);
 }
@@ -223,7 +204,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
                     // No match and $die_if_no_match is set, so die() and send error messages to screen and log
                     error_log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
                     die("<br /><span style='color:red;font-weight:bold;'>" . xlt("There was an OpenEMR SQL Escaping ERROR of the following string") . " " . text($s) . "</span><br />");
-                } else if ($throw_exception_if_no_match) {
+                } elseif ($throw_exception_if_no_match) {
                     throw new SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s));
                 } else {
                     // Return first token since no match
@@ -239,7 +220,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
                 // Contains illegal character and $die_if_no_match is set, so die() and send error messages to screen and log
                 error_log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
                 die("<br /><span style='color:red;font-weight:bold;'>" . xlt("There was an OpenEMR SQL Escaping ERROR of the following string") . " " . text($s) . "</span><br />");
-            } else if ($throw_exception_if_no_match) {
+            } elseif ($throw_exception_if_no_match) {
                 throw new SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s));
             } else {
                 // Contains all legal characters, so return the legal string
@@ -261,7 +242,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
  * @param bool $istrim whether to use trim() on the data.
  * @return string variable requested, or empty string
  */
-function formData($name, $type = 'P', $isTrim = false)
+function formData($name, $type = 'P', $isTrim = false): string
 {
     if ($type == 'P') {
         $s = $_POST[$name] ?? '';
@@ -285,7 +266,7 @@ function formData($name, $type = 'P', $isTrim = false)
  * @param bool $istrim whether to use trim() on the data.
  * @return string
  */
-function formDataCore($s, $isTrim = false)
+function formDataCore($s, $isTrim = false): string
 {
     //trim if selected
     if ($isTrim) {

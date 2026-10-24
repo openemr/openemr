@@ -42,8 +42,11 @@ class BillingReport
                 if (str_contains((string) $criteria_value, "billing.billed|=|1")) {
                     $billstring .= ' AND ' . "billing.billed = '1'";
                 } elseif (str_contains((string) $criteria_value, "billing.billed|=|0")) {
-                    //3 is an error condition
-                    $billstring .= ' AND ' . "(billing.billed = '0' OR billing.billed IS NULL OR (billing.billed = '1' AND billing.bill_process = '3'))";
+                    // 3 is an error condition. A NULL billed flag counts only on an
+                    // existing charge row: billing is LEFT JOINed, so encounters with
+                    // no charges also have billing.billed NULL ("Encounters without
+                    // billing" lists those).
+                    $billstring .= ' AND ' . "(billing.billed = '0' OR (billing.id IS NOT NULL AND billing.billed IS NULL) OR (billing.billed = '1' AND billing.bill_process = '3'))";
                 } elseif (str_contains((string) $criteria_value, "billing.billed|=|7")) {
                     $billstring .= ' AND ' . "billing.bill_process = '7'";
                 } elseif (str_contains((string) $criteria_value, "billing.id|=|null")) {
@@ -125,7 +128,7 @@ class BillingReport
     public static function getBillsBetween(
         $code_type,
         $cols = "id,date,pid,code_type,code,user,authorized,x12_partner_id"
-    ) {
+    ): array {
         self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
         // Selecting by the date in the billing table is wrong, because that is
@@ -198,7 +201,7 @@ class BillingReport
     public static function getBillsListBetween(
         $code_type,
         $cols = "billing.id, form_encounter.date, billing.pid, billing.code_type, billing.code, billing.user"
-    ) {
+    ): array {
         self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
         // See above comment in self::getBillsBetween().
@@ -239,7 +242,7 @@ class BillingReport
         return;
     }
 
-    public static function returnOFXSql()
+    public static function returnOFXSql(): string
     {
         self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
@@ -259,8 +262,11 @@ class BillingReport
         return $sql;
     }
 
-    //Parses the database value and prepares for display.
-    public static function buildArrayForReport($Query)
+    /**
+     * Parses the database value and prepares for display.
+     * @return string[]
+     */
+    public static function buildArrayForReport($Query): array
     {
         $array_data = [];
         $res = sqlStatement($Query);

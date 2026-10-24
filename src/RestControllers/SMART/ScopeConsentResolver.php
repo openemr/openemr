@@ -1,0 +1,276 @@
+<?php
+
+/**
+ * Turns the user's choices on the SMART consent form into the list of scopes to grant.
+ *
+ * The previous design rebuilt scope strings in browser JavaScript from a merged per-resource
+ * card (one "version" per card, actions OR'ed together) and then required each rebuilt string
+ * to be contained by a single requested scope. Any request that split a resource's
+ * permissions across scopes -- `.rs` + `.cud` (exactly what the server advertises), `.read` +
+ * `.cu`, `.rs` + `.write` -- rebuilt to a union that no single requested scope contained, and
+ * the grant was silently dropped.
+ *
+ * This resolver never invents a scope. It walks the scopes the client requested and, for
+ * each one, intersects it with what the user left checked:
+ *
+ *  - fully approved   -> the requested string verbatim (v1 stays v1, v2 stays v2)
+ *  - partly approved  -> the v2 CRUDS subset, keeping the requested constraint
+ *  - not approved     -> dropped
+ *
+ * so the granted set is always a subset of the request and always passes the grant check.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\RestControllers\SMART;
+
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
+
+final class ScopeConsentResolver
+{
+    private const ACTION_ORDER = ['c', 'r', 'u', 'd', 's'];
+
+    /**
+     * @param list<string> $requestedScopes Scopes the client asked for (post client-registration filter)
+     * @param array<array-key, mixed> $structuredScopes ScopePermissionParser::parseScopes() output for the same request
+     * @param array<array-key, mixed> $postedPlainScopes The `scope[...]` form values (openid, launch, operations, ...)
+     * @param array<array-key, mixed> $postedGrants The `grant[<cardKey>][actions|categories][]` form values
+     * @return list<string>
+     */
+    public function resolve(array $requestedScopes, array $structuredScopes, array $postedPlainScopes, array $postedGrants): array
+    {
+        $plainApproved = self::stringValues($postedPlainScopes);
+        $cardCategories = self::cardCategories($structuredScopes);
+
+        $granted = [];
+        foreach ($requestedScopes as $requested) {
+            if (!self::hasSupportedConstraint($requested)) {
+                continue; // not offered on the consent screen, so never granted from it
+            }
+            try {
+                $entity = ScopeEntity::createFromString($requested);
+            } catch (\InvalidArgumentException) {
+                continue;
+            }
+
+            $cardKey = ($entity->getContext() ?? '') . '-' . ($entity->getResource() ?? '');
+            $isCardScope = $entity->isResourcePermissionScope()
+                && array_key_exists($cardKey, $cardCategories);
+
+            // A requested scope posted back verbatim in scope[...] is approved as-is. Non-card
+            // scopes always arrive this way; for card scopes it keeps direct POST callers and
+            // customized consent templates working. It can never widen the grant because the
+            // value must equal a scope the client requested.
+            if (in_array($requested, $plainApproved, true)) {
+                $granted[] = $requested;
+                continue;
+            }
+            if (!$isCardScope) {
+                continue;
+            }
+
+            $grant = $postedGrants[$cardKey] ?? null;
+            if (!is_array($grant)) {
+                continue; // card absent from the post: nothing on it was approved
+            }
+            $approvedActions = array_values(array_intersect(
+                self::requestedActions($entity),
+                self::stringValues(is_array($grant['actions'] ?? null) ? $grant['actions'] : [])
+            ));
+            if ($approvedActions === []) {
+                continue;
+            }
+            // only categories the form actually offered for this card are honored
+            $offeredCategories = $cardCategories[$cardKey];
+            $approvedCategories = array_values(array_intersect(
+                $offeredCategories,
+                self::stringValues(is_array($grant['categories'] ?? null) ? $grant['categories'] : [])
+            ));
+
+            foreach ($this->emit($requested, $entity, $approvedActions, $offeredCategories, $approvedCategories) as $scope) {
+                $granted[] = $scope;
+            }
+        }
+
+        return array_values(array_unique($granted));
+    }
+
+    /**
+     * Keep only the scopes the client is registered for, by the same rule finalizeScopes() applies
+     * when the token is issued, so the consent screen never offers a scope that would be dropped
+     * afterwards. Resource scopes are matched by permission union (grantsScope); non-resource
+     * scopes (openid, launch/patient, api:*, offline_access, operations) must be registered as
+     * written. Fails closed: with no registration nothing survives, and a string that does not
+     * parse as a scope is dropped.
+     *
+     * @param list<string> $scopes
+     * @param list<string> $registeredScopes
+     * @return list<string>
+     */
+    public function filterToClientRegistration(array $scopes, array $registeredScopes): array
+    {
+        $validators = (new ScopeValidatorFactory())->buildScopeValidatorArray($registeredScopes);
+        $filtered = [];
+        foreach ($scopes as $scope) {
+            try {
+                $entity = ScopeEntity::createFromString($scope);
+            } catch (\InvalidArgumentException) {
+                continue;
+            }
+            $key = $entity->getScopeLookupKey();
+            if (isset($validators[$key]) && $validators[$key]->grantsScope($entity)) {
+                $filtered[] = $scope;
+            }
+        }
+        return $filtered;
+    }
+
+    /**
+     * @param list<string> $approvedActions
+     * @param list<string> $offeredCategories
+     * @param list<string> $approvedCategories
+     * @return list<string>
+     */
+    private function emit(string $requested, ScopeEntity $entity, array $approvedActions, array $offeredCategories, array $approvedCategories): array
+    {
+        $fullyApproved = count($approvedActions) === count(self::requestedActions($entity));
+        $base = ($entity->getContext() ?? '') . '/' . ($entity->getResource() ?? '') . '.' . self::orderedActions($approvedActions);
+        $query = self::queryOf($requested);
+
+        if ($query !== null) {
+            // A constrained request. Only a single category constraint is supported, and the
+            // category checkbox for it must be offered and left checked. Anything else fails
+            // closed: a constraint the user cannot see or toggle is never granted.
+            $category = self::categoryConstraint($query);
+            if ($category === null || !in_array($category, $offeredCategories, true) || !in_array($category, $approvedCategories, true)) {
+                return [];
+            }
+            return [$fullyApproved ? $requested : $base . '?' . $query];
+        }
+
+        // Unconstrained request. All offered categories left checked (or none offered) keeps it
+        // unrestricted; unchecking any narrows it to the categories that remain.
+        if ($offeredCategories === [] || count($approvedCategories) === count($offeredCategories)) {
+            return [$fullyApproved ? $requested : $base];
+        }
+        return array_map(static fn(string $category): string => $base . '?category=' . $category, $approvedCategories);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function requestedActions(ScopeEntity $entity): array
+    {
+        $permissions = $entity->getPermissions();
+        $actions = [];
+        if ($permissions->create) {
+            $actions[] = 'c';
+        }
+        if ($permissions->read) {
+            $actions[] = 'r';
+        }
+        if ($permissions->update) {
+            $actions[] = 'u';
+        }
+        if ($permissions->delete) {
+            $actions[] = 'd';
+        }
+        if ($permissions->search) {
+            $actions[] = 's';
+        }
+        return $actions;
+    }
+
+    /**
+     * @param list<string> $actions
+     */
+    private static function orderedActions(array $actions): string
+    {
+        return implode('', array_values(array_filter(self::ACTION_ORDER, static fn(string $a): bool => in_array($a, $actions, true))));
+    }
+
+    private static function queryOf(string $scope): ?string
+    {
+        $pos = strpos($scope, '?');
+        if ($pos === false) {
+            return null;
+        }
+        // a trailing '?' is an (empty, malformed) query, not "no query": categoryConstraint('')
+        // rejects it, so patient/Observation.rs? is never offered or granted
+        return substr($scope, $pos + 1);
+    }
+
+    /**
+     * The category value of a scope query, when the query is exactly one non-empty `category`
+     * parameter; null for anything else (extra keys such as `&status=final`, repeated or
+     * array-form `category[]=`, empty values). Parsed the same way the runtime parses scope
+     * constraints (parse_str), so the consent decision and the enforced constraint agree.
+     * ScopePermissionParser uses this for the checkbox values.
+     */
+    public static function categoryConstraint(string $query): ?string
+    {
+        // A category value cannot contain a raw '&'. Rejecting it up front also rejects repeated
+        // keys (category=a&category=b), where parse_str would silently keep only the last one.
+        if (str_contains($query, '&')) {
+            return null;
+        }
+        $params = [];
+        parse_str($query, $params);
+        if (array_keys($params) !== ['category']) {
+            return null;
+        }
+        $category = $params['category'];
+        return is_string($category) && $category !== '' ? $category : null;
+    }
+
+    /**
+     * True when the scope has no query constraint, or exactly one supported category constraint.
+     * Scopes with any other constraint are not offered for consent and never granted from it.
+     */
+    public static function hasSupportedConstraint(string $scope): bool
+    {
+        $query = self::queryOf($scope);
+        return $query === null || self::categoryConstraint($query) !== null;
+    }
+
+    /**
+     * @param array<array-key, mixed> $structuredScopes
+     * @return array<string, list<string>> card key => category values offered on that card
+     */
+    private static function cardCategories(array $structuredScopes): array
+    {
+        $cards = [];
+        foreach ($structuredScopes as $key => $card) {
+            if (!is_string($key) || !is_array($card)) {
+                continue;
+            }
+            $categories = [];
+            $restrictions = $card['restrictions'] ?? [];
+            if (is_array($restrictions)) {
+                foreach ($restrictions as $restriction) {
+                    if (is_array($restriction) && is_string($restriction['value'] ?? null)) {
+                        $categories[] = $restriction['value'];
+                    }
+                }
+            }
+            $cards[$key] = $categories;
+        }
+        return $cards;
+    }
+
+    /**
+     * @param array<array-key, mixed> $values
+     * @return list<string>
+     */
+    private static function stringValues(array $values): array
+    {
+        return array_values(array_filter($values, is_string(...)));
+    }
+}

@@ -81,7 +81,7 @@ class Savant3_Plugin_image extends Savant3_Plugin
      * @return string An <img ... /> tag.
      *
      */
-    public function image($file, $alt = null, $height = null, $width = null, $attr = null)
+    public function image($file, $alt = null, $height = null, $width = null, $attr = null): string
     {
         // is the document root set?
         if (is_null($this->documentRoot) && isset($_SERVER ['DOCUMENT_ROOT'])) {
@@ -160,10 +160,7 @@ class Savant3_Plugin_image extends Savant3_Plugin
             $html = '<img';
             $html .= ' src="' . htmlspecialchars($file) . '"';
 
-            // add the alt attribute
-            if (is_null($alt)) {
-                $alt = basename($file);
-            }
+            $alt ??= basename($file);
 
             $html .= ' alt="' . htmlspecialchars($alt) . '"';
 

@@ -22,7 +22,7 @@ class RuleType
     const AMC = "amc";
     const PatientReminder = "patientreminder";
 
-    function __construct(public $code, public $lbl)
+    public function __construct(public $code, public $lbl)
     {
     }
 
@@ -43,7 +43,7 @@ class RuleType
         return array_keys($map);
     }
 
-    private static function map()
+    private static function map(): array
     {
         $map = [
             self::ActiveAlert => new RuleType(self::ActiveAlert, xl('Active Alert')),

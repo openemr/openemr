@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.8.8@sha256:d9f7eb2637296652f24b484afd5d246f759f49f5babcadc6a9e344c9acb75fbf
+    image: mariadb:12.3.3@sha256:99c125f103f5d081ebbc9ffe064e63daf7f688ac33a5f7f29af2d7260a96debf
     command: ['mariadbd', '--character-set-server=utf8mb4', '--ssl-ca=/etc/ssl/ca.pem', '--ssl_cert=/etc/ssl/server-cert.pem', '--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - "${WT_MYSQL_PORT:-8320}:3306"
@@ -26,7 +26,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:5a9f1ce09a313206f675cb397fea58f5f4780ed4c1256deb395b2e4395061122
+    image: openemr/openemr:flex@sha256:b24b6eb7de71289d65e29aad20b10a47df01dad0f28bf9cfd40da1d2c15bb863
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -40,8 +40,6 @@ services:
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - phpstanvolume:/var/www/localhost/htdocs/openemr/tmp-phpstan:rw
     - webpackcachevolume:/var/www/localhost/htdocs/openemr/.webpack-cache:rw
-    - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
-    - ccdanodemodules2:/var/www/localhost/htdocs/openemr/ccdaservice/packages/oe-cqm-service/node_modules:rw
     - logvolume:/var/log
     - couchdbvolume:/couchdb/data
     environment:
@@ -76,6 +74,8 @@ services:
       GITHUB_COMPOSER_TOKEN_ENCODED: Z2hwX0NpbnJ4aXlNd0NzcGZXWG1UWFUwcXhGa040elFKSDJoZGJXVw==
       GITHUB_COMPOSER_TOKEN_ENCODED_ALTERNATE: '103 104 112 95 57 54 108 115 88 116 87 72 51 75 81 105 69 88 88 119 97 79 80 78 109 69 66 115 85 97 106 78 112 71 49 81 90 102 74 121'
       OPENEMR_DOCKER_ENV_TAG: easy-dev-docker
+      # for v_js_includes in version.php
+      OPENEMR__ENVIRONMENT: "dev"
       OPENEMR_SETTING_site_addr_oath: 'https://localhost:${WT_HTTPS_PORT:-9300}'
       OPENEMR_SETTING_oauth_password_grant: 3
       OPENEMR_SETTING_rest_system_scopes_api: 1
@@ -104,7 +104,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:6db6e0bc9959eb00395f5d927cc786cb63530a265663950ecb9faf5955419c37
+    image: phpmyadmin:5.2.3@sha256:62a50b1419fe55b9b4c3cd6f5aed03a18f8f5b4a236f24735d76400bea75a5ff
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
@@ -121,7 +121,5 @@ volumes:
   vendordir: {}
   phpstanvolume: {}
   webpackcachevolume: {}
-  ccdanodemodules: {}
-  ccdanodemodules2: {}
   logvolume: {}
   couchdbvolume: {}

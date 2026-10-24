@@ -369,9 +369,7 @@ class FHIRDocumentReferenceContext extends FHIRBackboneElement implements \JsonS
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DocumentReferenceContext xmlns="http://hl7.org/fhir"></DocumentReferenceContext>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DocumentReferenceContext xmlns="http://hl7.org/fhir"></DocumentReferenceContext>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->encounter)) {
             foreach ($this->encounter as $encounter) {

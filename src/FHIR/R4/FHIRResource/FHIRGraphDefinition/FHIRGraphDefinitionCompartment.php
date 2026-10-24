@@ -278,9 +278,7 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<GraphDefinitionCompartment xmlns="http://hl7.org/fhir"></GraphDefinitionCompartment>');
-        }
+        $sxe ??= new \SimpleXMLElement('<GraphDefinitionCompartment xmlns="http://hl7.org/fhir"></GraphDefinitionCompartment>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->use)) {
             $this->use->xmlSerialize(true, $sxe->addChild('use'));

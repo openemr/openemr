@@ -34,7 +34,7 @@
  * @param string $ak_code the code
  * @return string
  */
-function edih_997_code_text($ak_seg_field, $ak_code)
+function edih_997_code_text($ak_seg_field, $ak_code): string
 {
     // the Availity 997 file has codes with certain errors
     // which correspond to the messages in these arrays
@@ -127,7 +127,7 @@ function edih_997_code_text($ak_seg_field, $ak_code)
  * @param string $code the code
  * @return string
  */
-function edih_997_ta1_code($code)
+function edih_997_ta1_code($code): string
 {
     // codes in TA1 segment elements 4 and 5, since codes are distinct form, all values in one array
 

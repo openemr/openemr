@@ -227,7 +227,7 @@ class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
     /**
      * @return string
      */
-    public function getCallLogs()
+    public function getCallLogs(): string
     {
         return xlt('Not Implemented');
     }
@@ -235,7 +235,7 @@ class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
     /**
      * @return null
      */
-    protected function index()
+    protected function index(): null
     {
         global $pid;
         if (!$this->getSession('pid', '')) {
@@ -251,7 +251,7 @@ class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
     /**
      * @return string|bool
      */
-    function fetchReminderCount(): string|bool
+    public function fetchReminderCount(): string|bool
     {
         return 0;
     }

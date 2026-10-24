@@ -20,7 +20,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 abstract class AbstractMedicationService extends AbstractQdmService implements QdmServiceInterface
 {
-    abstract function getModelClass();
+    abstract public function getModelClass();
 
     public function getSqlStatement()
     {
@@ -72,7 +72,8 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
                     'date' => $end_date
                 ]),
                 'lowClosed' => (bool) $start_date,
-                'highClosed' => (bool) $this->validDateOrNull($end_date)
+                // No end date means ongoing: in CQL a closed null end is unbounded, an open one unknown (#14526)
+                'highClosed' => true
             ]),
             'route' => null // In sample files, route was null, probably doesn't matter for eCQM
         ]);

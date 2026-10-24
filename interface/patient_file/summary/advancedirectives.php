@@ -30,9 +30,7 @@ use OpenEMR\Services\UserService;
     <?php Header::setupHeader(['datetime-picker','opener']); ?>
 
     <?php
-    if (!isset($pid)) {
-        $pid = $session->get('pid');
-    }
+    $pid ??= $session->get('pid');
     if ($_POST['form_yesno']) {
         CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 

@@ -287,9 +287,7 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductIngredientReferenceStrength xmlns="http://hl7.org/fhir"></MedicinalProductIngredientReferenceStrength>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductIngredientReferenceStrength xmlns="http://hl7.org/fhir"></MedicinalProductIngredientReferenceStrength>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->substance)) {
             $this->substance->xmlSerialize(true, $sxe->addChild('substance'));

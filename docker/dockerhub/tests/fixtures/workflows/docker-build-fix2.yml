@@ -1,7 +1,7 @@
 name: Fixture Flex Build (alpine fix2) -- the default flex
 
 # Synthetic flex caller fixture for the golden-file test. Mirrors the
-# structure of docker-build-323.yml: is_default_flex: true, so the
+# structure of docker-build-324.yml: is_default_flex: true, so the
 # default PHP version (8.3) gets BOTH `flex-fix2` AND the bare `flex`
 # tags alongside its `flex-fix2-php-8.3` companion.
 

@@ -69,7 +69,7 @@ class ForbidDirectSessionWriteRule implements Rule
         'interface/usergroup/mfa_totp.php',
         'interface/globals.php',
         'setup.php',
-        'ccdaservice/',
+        'portal/ccda_gateway.php',
         // Files with $sessionAllowWrite = true
         'interface/reports/appointments_report.php',
         // CLI command uses standalone mock session (not factory session)
@@ -80,8 +80,6 @@ class ForbidDirectSessionWriteRule implements Rule
         'src/Services/Cda/',
         // Test files — session setup in tests uses writable mock sessions
         'tests/',
-        // Test/dev utilities
-        'src/Cqm/test.php',
         // Modules with $sessionAllowWrite = true
         'oe-module-faxsms/',
     ];

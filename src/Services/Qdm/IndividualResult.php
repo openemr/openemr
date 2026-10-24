@@ -28,17 +28,46 @@ class IndividualResult extends AbstractType
 
     public $population_set_key;
 
+    /**
+     * Population counts as the calculation engine reports them. Aggregation
+     * reads each one as a property, e.g. $result->IPP.
+     */
+    public ?int $STRAT = null;
+    public ?int $IPP = null;
+    public ?int $DENOM = null;
+    public ?int $NUMER = null;
+    public ?int $NUMEX = null;
+    public ?int $DENEX = null;
+    public ?int $DENEXCEP = null;
+    public ?int $MSRPOPL = null;
+    public ?int $MSRPOPLEX = null;
+
+    /**
+     * @var list<int|float|null>
+     */
+    public array $observation_values = [];
+
+    /**
+     * The keys of an engine result this class keeps. A result also carries
+     * statement and clause results, relevance maps and ids, which AbstractType
+     * would reject as unknown properties.
+     */
+    private const RESULT_KEYS = [
+        'STRAT', 'IPP', 'DENOM', 'NUMER', 'NUMEX', 'DENEX', 'DENEXCEP', 'MSRPOPL', 'MSRPOPLEX',
+        'observation_values', 'episode_results', 'population_set_key', 'patient_id',
+    ];
+
     protected $_result;
 
     /**
      * IndividualResult constructor.
      *
-     * @param $_result
+     * @param array<mixed> $_result one population set's result from the calculation engine
      * @param \OpenEMR\Services\Qdm\Measure $measure
      */
-    public function __construct($_result, public $measure)
+    public function __construct(array $_result, public $measure)
     {
-        parent::__construct($_result);
+        parent::__construct(array_intersect_key($_result, array_flip(self::RESULT_KEYS)));
         $this->patient_id = PatientService::makeQdmIdentifier('System', PatientService::convertIdFromBSONObjectIdFormat($_result['patient_id'] ?? null));
         $this->_result = $_result;
     }

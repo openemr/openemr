@@ -12,8 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
 
@@ -61,6 +60,5 @@ $templateVars = [
     'has_telecoms' => !empty($telecoms)
 ];
 // Render Twig template
-$twigContainer = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-$twig = $twigContainer->getTwig();
+$twig = ServiceContainer::getTwig();
 echo $twig->render('patient/demographics/telecom_display.html.twig', $templateVars);

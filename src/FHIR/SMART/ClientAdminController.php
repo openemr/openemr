@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
+use OpenEMR\Common\Auth\OpenIDConnect\ClientGrantTypePolicy;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
@@ -25,8 +26,9 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -66,6 +68,8 @@ class ClientAdminController
 
     private AccessTokenRepository $accessTokenRepository;
 
+    private EventAuditLogger $eventAuditLogger;
+
     private string $webroot;
 
     /**
@@ -77,13 +81,18 @@ class ClientAdminController
     {
         $this->kernel = $this->globalsBag->getKernel();
         $this->actionUrlBuilder = new ActionUrlBuilder($this->session, $this->actionURL, self::CSRF_TOKEN_NAME);
-        $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
+        $this->twig = ServiceContainer::getTwig();
         $this->webroot = $this->globalsBag->getKernel()->getWebRoot();
     }
 
     public function setTwig(Environment $twig): void
     {
         $this->twig = $twig;
+    }
+
+    public function setEventAuditLogger(EventAuditLogger $eventAuditLogger): void
+    {
+        $this->eventAuditLogger = $eventAuditLogger;
     }
 
     public function setExternalCDRController(RouteController $controller): void
@@ -93,16 +102,14 @@ class ClientAdminController
 
     public function getExternalCDRController(): RouteController
     {
-        if (!isset($this->externalCDRController)) {
-            $this->externalCDRController = new RouteController(
-                $this->session,
-                $this->clientRepo,
-                $this->logger ?? ServiceContainer::getLogger(),
-                $this->getTwig(),
-                $this->actionUrlBuilder,
-                new DecisionSupportInterventionService()
-            );
-        }
+        $this->externalCDRController ??= new RouteController(
+            $this->session,
+            $this->clientRepo,
+            $this->logger ?? ServiceContainer::getLogger(),
+            $this->getTwig(),
+            $this->actionUrlBuilder,
+            new DecisionSupportInterventionService()
+        );
         return $this->externalCDRController;
     }
 
@@ -140,7 +147,7 @@ class ClientAdminController
 
         if ($action === '' || $action === 'list/') {
             return $this->listAction();
-        } else if ($this->getExternalCDRController()->supportsRequest($request)) {
+        } elseif ($this->getExternalCDRController()->supportsRequest($request)) {
             /** @var Response */
             return $this->getExternalCDRController()->dispatch($request);
         }
@@ -169,6 +176,8 @@ class ClientAdminController
                 ,self::REVOKE_TRUSTED_USER => $this->revokeTrustedUserAction($mainActionChild, $request)
                 ,self::REVOKE_ACCESS_TOKEN => $this->revokeAccessToken($mainActionChild, $request)
                 ,self::REVOKE_REFRESH_TOKEN => $this->revokeRefreshToken($mainActionChild, $request)
+                ,'allow-password-grant' => $this->passwordGrantAction($mainActionChild, true)
+                ,'deny-password-grant' => $this->passwordGrantAction($mainActionChild, false)
                 ,'enable-authorization-flow-skip' => $this->enableAuthorizationFlowSkipAction($mainActionChild)
                 ,'disable-authorization-flow-skip' => $this->disableAuthorizationFlowSkipAction($mainActionChild)
                 , default => $this->notFoundAction()
@@ -312,9 +321,7 @@ class ClientAdminController
 
     private function getAccessTokenRepository(): AccessTokenRepository
     {
-        if (!isset($this->accessTokenRepository)) {
-            $this->accessTokenRepository = new AccessTokenRepository(new ServerConfig(), $this->session);
-        }
+        $this->accessTokenRepository ??= new AccessTokenRepository(new ServerConfig(), $this->session);
         return $this->accessTokenRepository;
     }
 
@@ -409,9 +416,29 @@ class ClientAdminController
      */
     private function handleEnabledAction(ClientEntity $client, bool $isEnabled, string $successMessage): Response
     {
+        $wasEnabled = $client->isEnabled();
         $client->setIsEnabled($isEnabled);
         try {
             $this->clientRepo->saveIsEnabled($client, $isEnabled);
+            $writeScopes = $client->getFhirWriteScopes();
+            if ($writeScopes !== []) {
+                $this->eventAuditLogger ??= EventAuditLogger::getInstance();
+                $this->eventAuditLogger->newEvent(
+                    'oauth2',
+                    $this->session->get('authUser', ''),
+                    $this->session->get('authProvider', ''),
+                    1,
+                    json_encode([
+                        'action' => $isEnabled ? 'enable_fhir_write_client' : 'disable_fhir_write_client',
+                        'client_id' => $client->getIdentifier(),
+                        'client_name' => $client->getName(),
+                        'admin_user_id' => $this->session->get('authUserID', 0),
+                        'previously_enabled' => $wasEnabled,
+                        'enabled' => $isEnabled,
+                        'fhir_write_scopes' => $writeScopes,
+                    ], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)
+                );
+            }
             $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $successMessage]]);
             return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
         } catch (\Throwable $ex) {
@@ -432,6 +459,9 @@ class ClientAdminController
         $enableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'enable']);
         $disableSkipAuthorizationFlowLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'disable-authorization-flow-skip']);
         $enableSkipAuthorizationFlowLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'enable-authorization-flow-skip']);
+        $allowPasswordGrantLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'allow-password-grant']);
+        $denyPasswordGrantLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'deny-password-grant']);
+        $grantTypes = (new ClientGrantTypePolicy())->effectiveGrantTypes($client->getGrantTypes());
         $isEnabled = $client->isEnabled();
         $allowSkipAuthSetting = $this->globalsBag->getString('oauth_ehr_launch_authorization_flow_skip') === '1';
         $skipAuthorizationFlow = $client->shouldSkipEHRLaunchAuthorizationFlow();
@@ -461,6 +491,11 @@ class ClientAdminController
                 'type' => 'text'
                 ,'label' => xl("Date Registered")
                 ,'value' => $client->getRegistrationDate()
+            ],
+            'grantTypes' => [
+                'type' => 'text'
+                ,'label' => xl("Allowed Grant Types")
+                ,'value' => implode(', ', $grantTypes)
             ],
             'confidential' => [
                 'type' => 'checkbox'
@@ -568,6 +603,9 @@ class ClientAdminController
             ,'enableSkipAuthorizationFlowLink' => $enableSkipAuthorizationFlowLink
             ,'disableClientLink' => $disableClientLink
             ,'enableClientLink' => $enableClientLink
+            ,'passwordGrantAllowed' => in_array(ClientGrantTypePolicy::PASSWORD, $grantTypes, true)
+            ,'allowPasswordGrantLink' => $allowPasswordGrantLink
+            ,'denyPasswordGrantLink' => $denyPasswordGrantLink
             ,'requestMessage' => $requestMessage
             ,'isEnabled' => $isEnabled
             ,'formValues' => $formValues
@@ -896,6 +934,31 @@ class ClientAdminController
         /** @var array<string, mixed> $tokenParts */
         $tokenParts['token_type'] = $tokenType;
         return $tokenParts;
+    }
+
+    /**
+     * The password grant cannot be derived at registration, so an administrator allows or
+     * denies it per client. Other grant types are fixed by the client's registration.
+     */
+    private function passwordGrantAction(string $clientId, bool $allow): Response
+    {
+        $client = $this->clientRepo->getClientEntity($clientId);
+        if ($client === false) {
+            return $this->notFoundAction();
+        }
+        $policy = new ClientGrantTypePolicy();
+        $grantTypes = array_values(array_diff($policy->effectiveGrantTypes($client->getGrantTypes()), [ClientGrantTypePolicy::PASSWORD]));
+        if ($allow) {
+            $grantTypes[] = ClientGrantTypePolicy::PASSWORD;
+        }
+        try {
+            $this->clientRepo->saveGrantTypes($client, $grantTypes);
+            $message = ($allow ? xl('Allowed password grant for') : xl('Denied password grant for')) . " " . $client->getName();
+            $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
+            return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
+        } catch (SqlQueryException $ex) {
+            return $this->returnFailedToSaveClientResponse($ex, $client);
+        }
     }
 
     private function enableAuthorizationFlowSkipAction(string $clientId): Response

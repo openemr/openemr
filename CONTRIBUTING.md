@@ -413,7 +413,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           openemr-cmd register-oauth2-client-demo https://eleven.openemr.io/a/openemr
           ```
 5. <a name="other_php_versions"></a>Testing other PHP versions.
-    - The standard `flex` docker used in the easy development environments is PHP 8.5. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 8.3 then change it to `image: openemr/openemr:flex-3.23-php-8.3`. To use PHP 8.4 then change it to `image: openemr/openemr:flex-3.23-php-8.4`.
+    - The standard `flex` docker used in the easy development environments is PHP 8.5. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 8.3 then change it to `image: openemr/openemr:flex-3.24-php-8.3`. To use PHP 8.4 then change it to `image: openemr/openemr:flex-3.24-php-8.4`.
 6. <a name="dev_tools_tests"></a>Php syntax checking, psr12 checking, and automated testing.
     - To check PHP error logs:
       ```sh
@@ -789,6 +789,36 @@ Review the diff before committing. See `tests/Tests/Isolated/Common/Twig/fixture
 ### Full host installation
 
 If you'd rather not use Docker at all, you can install OpenEMR directly on your local environment. This requires installing additional dependencies for your operating system. For more info see [OpenEMR Development Versions](https://open-emr.org/wiki/index.php/OpenEMR_Installation_Guides#OpenEMR_Development_Versions) on the wiki.
+
+## AI Agent Development Environment
+
+If you contribute with the help of AI coding agents (Claude Code, Codex, and
+similar), you may want a sandboxed environment that lets agents work against
+OpenEMR — each in its own git worktree with its own Docker stack — without
+exposing your host filesystem or host Docker daemon to the agent.
+
+The repository's [`AGENTS.md`](AGENTS.md) documents the universal rules every
+agent environment must satisfy: required tools, the git directory layout, and
+the golden rules for worktree and stack lifecycle. Any environment that meets
+those rules will work.
+
+Reference configurations:
+
+| Configuration | Isolation | Host requirements | Guide |
+|---|---|---|---|
+| LXC appliance | Jailed LXC container, NAT networking, own Docker daemon | Linux host with LXC | [Setup guide](Documentation/contributors/claude-appliance-setup.md) |
+
+Other approaches — devcontainers, full VMs, and remote development hosts — work
+too. These guides are starting points, not requirements.
+
+Whichever you choose, two things are worth doing regardless:
+
+- **Scope the agent's credentials.** Give it a token limited to your own fork
+  rather than one that inherits your access to upstream repositories or to
+  organization accounts.
+- **Keep the permission prompts on unless the environment is a real boundary.**
+  Skipping approval prompts is reasonable inside an isolated sandbox. It is not
+  reasonable on a host with access to production systems or patient data.
 
 ## Financial contributions
 

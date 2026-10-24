@@ -20,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\INonPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\CompositeSearchField;
@@ -33,7 +34,7 @@ use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirOrganizationFacilityService extends FhirServiceBase
+class FhirOrganizationFacilityService extends FhirServiceBase implements INonPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
 
@@ -90,16 +91,16 @@ class FhirOrganizationFacilityService extends FhirServiceBase
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
             'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ['phone']),
             'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone']),
-            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "postal_code", "city", "state", "country_code","line1"]),
+            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "postal_code", "city", "state", "country_code"]),
             'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
-            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code', "zip"]),
+            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code']),
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
             'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name']),
             '_lastUpdated' => $this->getLastModifiedSearchField()
@@ -242,7 +243,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
      * @param  array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!$fhirResource instanceof FHIROrganization) {
             // we use get class to get the sub class type.

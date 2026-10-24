@@ -13,6 +13,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Forms\Types\SmokingStatusType;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -40,7 +41,7 @@ class SocialHistoryService extends BaseService
     // To prevent sql injection on this function, if a variable is used for $given parameter, then
     // it needs to be escaped via whitelisting prior to using this function; see lines 2020-2121 of
     // library/clinical_rules.php script for example of this.
-    function getHistoryData($pid, $given = "*", $dateStart = '', $dateEnd = '')
+    public function getHistoryData($pid, $given = "*", $dateStart = '', $dateEnd = '')
     {
         $where = '';
         if ($given == 'tobacco') {
@@ -74,7 +75,7 @@ class SocialHistoryService extends BaseService
         return [];
     }
 
-    public function search($search, $isAndCondition = true, $limit = null)
+    public function search($search, $isAndCondition = true, $limit = null): ProcessingResult
     {
         // history_data contains a table record for every single insert into the database
         $sql = "
@@ -186,6 +187,27 @@ class SocialHistoryService extends BaseService
         unset($record['pid']);
         unset($record['uuid']);
 
+        // Reject any layout-sourced key that does not resolve to a real column of
+        // history_data. Mirrors the house whitelist pattern used elsewhere for
+        // layout_options.field_id-driven writes. `*` is rejected explicitly
+        // because escape_sql_column_name() short-circuits on it without checking
+        // the schema.
+        foreach (array_keys($record) as $key) {
+            if (!is_string($key) || $key === '' || $key === '*') {
+                unset($record[$key]);
+                continue;
+            }
+            try {
+                escape_sql_column_name($key, [self::TABLE_NAME], false, true);
+            } catch (SqlQueryException) {
+                \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+                    'SocialHistoryService::insertRecord: skipped unknown history_data column',
+                    ['column' => $key]
+                );
+                unset($record[$key]);
+            }
+        }
+
         if (!empty($record)) {
             $arraySqlBind = array_merge($arraySqlBind, array_values($record));
             $sql .= ", " . implode(", ", array_map(fn($key): string => "`$key` = ?", array_keys($record)));
@@ -199,7 +221,7 @@ class SocialHistoryService extends BaseService
         return $record;
     }
 
-    function getUuidFields(): array
+    public function getUuidFields(): array
     {
         // note the uuid here is the uuid_mapping table's uuid since each column in the table has its own distinct uuid
         // in the system.

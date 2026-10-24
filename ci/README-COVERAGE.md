@@ -95,10 +95,13 @@ In `.github/workflows/test.yml`, the coverage process happens in these steps:
    - After tests complete, calls `collect_inferno_coverage()` to:
      - Run `convert_coverage` inside the container to convert raw HTTP coverage files
      - Generate `coverage.inferno-http.clover.xml`
-2. **Upload PHPUnit coverage to Codecov** - Uploads the PHPUnit-only clover XML report with `inferno,phpunit` flags
-3. **Upload HTTP coverage to Codecov** - Uploads the HTTP request clover XML report with `inferno,http` flags
-4. **Upload combined coverage to Codecov** - Uploads the merged clover XML report with `inferno,combined` flags
-5. **Upload coverage artifacts to GitHub** - Saves all coverage reports as GitHub artifacts
+2. **Upload Inferno test results to Codecov** - Uploads the JUnit results with the `inferno-certification-php<version>` flag
+3. **Upload PHPUnit coverage to Codecov** - Uploads the PHPUnit-only clover XML report with the `inferno-phpunit-php<version>` flag
+4. **Upload HTTP coverage to Codecov** - Uploads the HTTP request clover XML report with the `inferno-http-php<version>` flag
+5. **Upload JUnit test results and coverage artifacts to GitHub** - Saves the JUnit results and both coverage reports as GitHub artifacts
+
+Codecov accepts one flag per upload, and each upload needs its own flag so
+carryforward doesn't mix them up.
 
 ## Workflow Diagram
 

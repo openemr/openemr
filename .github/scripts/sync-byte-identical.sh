@@ -128,7 +128,7 @@ fi
 # Filter master's manifest for the target rel branch. Entries whose
 # exclude-branches list contains target_branch are dropped -- those
 # files stay per-branch-drifting (e.g. release-mechanism surface on
-# rel-800/rel-704 which predate the mechanism).
+# rel-800 which predates the mechanism).
 declare -a FILES_ALL=()
 filter_by_branch "${target_branch}" MASTER_FILES_ALL_RAW MASTER_FILES_ALL_EXCLUDES FILES_ALL
 

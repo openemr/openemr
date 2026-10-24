@@ -14,7 +14,7 @@ These three subdirectories each contain a `Dockerfile` that gets published to
 | Path | Image kind | Branch scope | Publishes |
 |---|---|---|---|
 | [`release/`](release/) | Production | Per-branch: master + every `rel-*` | Versioned tags like `8.0.0.3`, `7.0.4`; floating aliases `latest` / `next` / `dev` (which alias maps to which branch is set in [`.github/release-targets.yml`](../.github/release-targets.yml)) |
-| [`flex/`](flex/) | Flex (development) | Master only | `flex`, `flex-3.22`, `flex-3.23`, `flex-edge`, and `flex-<alpine>-php-<php>` variants |
+| [`flex/`](flex/) | Flex (development) | Master only | `flex`, `flex-3.22`, `flex-3.23`, `flex-3.24`, `flex-edge`, and `flex-<alpine>-php-<php>` variants |
 | [`binary/`](binary/) | Binary release | Master only | Specific binary builds for offline / appliance use |
 
 The release Dockerfile is per-branch because each rel branch pins its own
@@ -55,7 +55,7 @@ orchestrator completes, `docker-push-dockerhub-readme.yml` fires via
 `workflow_run` and republishes the Docker Hub overview rendered from
 `docker/dockerhub/overview.md`.
 
-The three flex publish workflows (`docker-build-{322,323,edge}.yml`) run on
+The four flex publish workflows (`docker-build-{322,323,324,edge}.yml`) run on
 their own daily 02:00 UTC cron, independent of the orchestrator.
 
 ## Validation guards
@@ -65,7 +65,7 @@ their own daily 02:00 UTC cron, independent of the orchestrator.
 | `validate-byte-identical.yml` | Files listed in [`.github/byte-identical.yml`](../.github/byte-identical.yml) must stay byte-identical across master + every rel branch. Fires on every PR to master or `rel-*` + daily 07:00 UTC cron. |
 | `sync-byte-identical.yml` | Auto-propagates byte-identical file changes from master to every rel branch (opens or updates a long-lived sync PR per branch). Fires on master push + daily 09:00 UTC backstop. Pairs with the canary above. |
 | `docker-validate-release-targets.yml` | Schema validation on `release-targets.yml`, git-ref resolution checks, and `docker_tags` ↔ `version.php` alignment on master. |
-| `docker-test-{bats,container-functionality,core,release}.yml` + `docker-test-flex-{322,323,edge}.yml` | Build the image locally and exercise it (BATS, container functionality, OpenEMR install). Catches build-time and runtime regressions before publish. |
+| `docker-test-{bats,container-functionality,core,release}.yml` + `docker-test-flex-{322,323,324,edge}.yml` | Build the image locally and exercise it (BATS, container functionality, OpenEMR install). Catches build-time and runtime regressions before publish. |
 | `docker-lint-hadolint.yml` + `docker-compose-lint.yml` | Lint Dockerfiles and compose files. |
 
 ## History

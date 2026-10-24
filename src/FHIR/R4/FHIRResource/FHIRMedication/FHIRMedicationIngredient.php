@@ -240,9 +240,7 @@ class FHIRMedicationIngredient extends FHIRBackboneElement implements \JsonSeria
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationIngredient xmlns="http://hl7.org/fhir"></MedicationIngredient>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicationIngredient xmlns="http://hl7.org/fhir"></MedicationIngredient>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->itemCodeableConcept)) {
             $this->itemCodeableConcept->xmlSerialize(true, $sxe->addChild('itemCodeableConcept'));

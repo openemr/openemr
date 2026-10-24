@@ -17,7 +17,10 @@ use OpenEMR\Services\Storage\CacheDirectory;
 
 class Config_Mpdf
 {
-    public static function getConfigMpdf()
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getConfigMpdf(): array
     {
         return [
             'tempDir' => (new CacheDirectory())->for('openemr-mpdf'),
@@ -36,6 +39,7 @@ class Config_Mpdf
             'use_kwt' => true,
             'autoScriptToLang' => true,
             'keep_table_proportions' => true,
+            'CSSselectMedia' => 'screen',
         ];
     }
 }

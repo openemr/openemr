@@ -214,9 +214,7 @@ class FHIRImplementationGuideDependsOn extends FHIRBackboneElement implements \J
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImplementationGuideDependsOn xmlns="http://hl7.org/fhir"></ImplementationGuideDependsOn>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ImplementationGuideDependsOn xmlns="http://hl7.org/fhir"></ImplementationGuideDependsOn>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->uri)) {
             $this->uri->xmlSerialize(true, $sxe->addChild('uri'));

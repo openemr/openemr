@@ -10,15 +10,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-/**
- * import supporting libraries
- */
-require_once("AppBasePortalController.php");
-require_once("Model/Patient.php");
 /**
  * PatientController is the controller class for the Patient object.
  * The
@@ -79,6 +75,8 @@ class PatientController extends AppBasePortalController
         if (!empty($globalsBag->get('bootstrap_register'))) {
             $pid = 0;
             $register = true;
+        } else {
+            PortalPatientAccessGuard::assertCanRead($pid);
         }
         $this->Assign('recid', $rid);
         $this->Assign('cpid', $pid);
@@ -155,6 +153,8 @@ class PatientController extends AppBasePortalController
             // force register to pid of 0
             if (!empty($globalsBag->get('bootstrap_register'))) {
                 $pid = 0;
+            } else {
+                PortalPatientAccessGuard::assertCanRead($pid);
             }
 
             $criteria->Pid_Equals = $pid;
@@ -168,7 +168,7 @@ class PatientController extends AppBasePortalController
 
             $page = RequestUtil::Get('page');
             // return all results
-            $patientdata = $this->Phreezer->Query('Patient', $criteria);
+            $patientdata = $this->Phreezer->Query('PatientReporter', $criteria);
             $output->rows = $patientdata->ToObjectArray(true, $this->SimpleObjectParams());
             $output->totalResults = count($output->rows);
             $output->totalPages = 1;
@@ -191,10 +191,7 @@ class PatientController extends AppBasePortalController
             if (!($patient instanceof Patient)) {
                 throw new Exception('Not found');
             }
-            PortalSessionPidGuard::assertOwnedBySession(
-                $patient->Pid,
-                SessionWrapperFactory::getInstance()->getActiveSession()->get('pid'),
-            );
+            PortalPatientAccessGuard::assertCanRead($patient->Pid);
             $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
@@ -338,10 +335,7 @@ class PatientController extends AppBasePortalController
             if (!($patient instanceof Patient)) {
                 throw new Exception('Not found');
             }
-            PortalSessionPidGuard::assertOwnedBySession(
-                $patient->Pid,
-                SessionWrapperFactory::getInstance()->getActiveSession()->get('pid'),
-            );
+            PortalPatientAccessGuard::assertCanWrite($patient->Pid);
 
             // this is a primary key. uncomment if updating is allowed
             $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);

@@ -61,7 +61,7 @@ class UserService
         }
     }
 
-    public function getUuidFields()
+    public function getUuidFields(): array
     {
         return ['uuid'];
     }
@@ -237,7 +237,7 @@ class UserService
         return ($records ?? null);
     }
 
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT  id,
                         uuid,
@@ -304,7 +304,7 @@ class UserService
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return array of users that matched the results.
      */
-    public function getAll(array $search = [], $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true): array
     {
         $sqlBindArray = [];
 

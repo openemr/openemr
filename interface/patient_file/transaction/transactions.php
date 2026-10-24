@@ -103,9 +103,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <tbody>
                                 <?php
                                 foreach ($result as $item) {
-                                    if (!isset($item['body'])) {
-                                        $item['body'] = '';
-                                    }
+                                    $item['body'] ??= '';
 
                                     // Collect date
                                     if (!empty($item['refer_date'])) {

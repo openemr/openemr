@@ -68,7 +68,7 @@ class ClickatellSMSClient extends AppDispatch implements SmsChannelInterface
     /**
      * @return string|bool
      */
-    function fetchReminderCount(): string|bool
+    public function fetchReminderCount(): string|bool
     {
         return 0;
     }
@@ -85,7 +85,7 @@ class ClickatellSMSClient extends AppDispatch implements SmsChannelInterface
     /**
      * @return string
      */
-    public function getCallLogs()
+    public function getCallLogs(): string
     {
         return xlt('Not Supported');
     }
@@ -94,7 +94,7 @@ class ClickatellSMSClient extends AppDispatch implements SmsChannelInterface
      * @param $acl
      * @return int
      */
-    function authenticate($acl = ['patients', 'appt']): int
+    public function authenticate($acl = ['patients', 'appt']): int
     {
         [$s, $v] = $acl;
         return $this->verifyAcl($s, $v);

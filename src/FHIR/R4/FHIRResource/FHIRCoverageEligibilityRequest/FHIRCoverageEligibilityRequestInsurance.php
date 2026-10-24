@@ -214,9 +214,7 @@ class FHIRCoverageEligibilityRequestInsurance extends FHIRBackboneElement implem
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CoverageEligibilityRequestInsurance xmlns="http://hl7.org/fhir"></CoverageEligibilityRequestInsurance>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CoverageEligibilityRequestInsurance xmlns="http://hl7.org/fhir"></CoverageEligibilityRequestInsurance>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->focal)) {
             $this->focal->xmlSerialize(true, $sxe->addChild('focal'));

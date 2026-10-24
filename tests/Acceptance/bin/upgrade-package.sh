@@ -276,7 +276,7 @@ if [[ "${skip_sql_upgrade}" == "true" ]]; then
     echo "==> Upgrade prep complete (skip-sql-upgrade mode): ${TO_VERSION} filesystem via TARBALL_DIR, ${FROM_VERSION} sites/ + DB preserved, migrations NOT run"
     echo "    Artifact URL:  http://localhost:8680  (serving ${TO_VERSION} source, pre-migration ${FROM_VERSION} DB)"
     echo ""
-    echo "    Run tests:     ACCEPTANCE_ARTIFACT_URL=http://localhost:8680 composer acceptance -- --group=wizard-upgrade"
+    echo "    Run tests:     ACCEPTANCE_ARTIFACT_URL=http://localhost:8680 composer acceptance -- --group=wizard-completed-post-upgrade --group=post-upgrade"
     echo "    Teardown:      tests/Acceptance/bin/down-package.sh"
     exit 0
 fi
@@ -304,6 +304,80 @@ for attempt in $(seq 1 60); do
     fi
     sleep 5
 done
+
+# Post-upgrade DB version assertion (openemr/openemr#13634).
+# sql_upgrade.php bumps the `version` row as its final step, so a
+# successful upgrade leaves DB matching the to-side tarball's
+# version.php. Catches the exact bug class fixed in #13586/#13587
+# (fsupgrade sed pattern targeted a refactored-away line → silent
+# no-op → version row never advanced, upgrade replayed from 2.9.0
+# on every run). Skipped in --skip-sql-upgrade mode: that path exits
+# before this point (line ~281) because the Panther wizard test runs
+# the upgrade later.
+#
+# Assertion source: ACCEPTANCE_EXPECTED_VERSION env if set, else
+# TO_VERSION. The env variant is set by the acceptance workflow to
+# the same value it feeds the PHPUnit version-display / version-api
+# groups — on the build_locally path this reads the checkout's
+# version.php (the actual shipped self-reported version), NOT the
+# cosmetic `--release-version` label passed to PackageAssembler
+# (99.99.99 default). TO_VERSION as fallback keeps this script usable
+# standalone (dev-time upgrade without the workflow's env-plumbing)
+# and on the shipped-tarball path where label == actual anyway. See
+# openemr/openemr#13753 for the full failure trace when the two
+# diverged.
+# `mariadb` (not `mysql`) — the mariadb 11.8 image ships only the
+# `mariadb` client binary; `mysql` is not on $PATH.
+EXPECTED="${ACCEPTANCE_EXPECTED_VERSION:-${TO_VERSION}}"
+echo "==> Asserting DB version matches ${EXPECTED}"
+DB_VERSION="$(docker compose exec -T mysql \
+    mariadb -uroot -proot openemr -sN \
+    -e "SELECT CONCAT(v_major,'.',v_minor,'.',v_patch) FROM version" \
+    2>/dev/null || echo "query-failed")"
+if [[ "${DB_VERSION}" != "${EXPECTED}" ]]; then
+    echo "::error::post-upgrade DB version '${DB_VERSION}' does not match expected '${EXPECTED}' (see openemr/openemr#13634)" >&2
+    exit 1
+fi
+echo "    DB version=${DB_VERSION}"
+
+# Post-upgrade ACL assertion (openemr/openemr#14706). Installs from 8.2.0
+# on hold two Clinicians 'write' ACLs, and the ACL admin screens edit only
+# the first, so acl_upgrade.php merges them. Exactly one must remain, and
+# it must keep patients/med and patients/appt, which came from different
+# halves of the pair. A published target that predates the merge keeps
+# both, so the check runs only when the target package ships the merger.
+assert_single_clinicians_write_acl() {
+    local sql row acl_count med appt
+    echo '==> Asserting Clinicians hold one write ACL with both merged halves'
+    if ! docker compose exec -T openemr \
+        test -f /var/www/localhost/htdocs/openemr/src/Common/Acl/DuplicateAclMerger.php; then
+        echo '    Skipped: target package predates the Clinicians ACL merge'
+        return 0
+    fi
+    sql="$(cat <<'SQL'
+SELECT
+    COUNT(DISTINCT a.id) AS acl_count,
+    COALESCE(SUM(c.section_value = 'patients' AND c.value = 'med'), 0) AS med,
+    COALESCE(SUM(c.section_value = 'patients' AND c.value = 'appt'), 0) AS appt
+FROM gacl_acl AS a
+INNER JOIN gacl_aro_groups_map AS m ON a.id = m.acl_id
+INNER JOIN gacl_aro_groups AS g ON m.group_id = g.id
+LEFT JOIN gacl_aco_map AS c ON a.id = c.acl_id
+WHERE g.name = 'Clinicians' AND a.return_value = 'write'
+SQL
+)"
+    row="$(docker compose exec -T mysql \
+        mariadb -uroot -proot openemr -sN -e "${sql}" \
+        2>/dev/null || echo 'query-failed')"
+    read -r acl_count med appt <<< "${row}"
+    if [[ "${acl_count}" != 1 || "${med}" != 1 || "${appt}" != 1 ]]; then
+        printf '::error::expected one Clinicians write ACL holding patients/med and patients/appt; got ACLs=%s med=%s appt=%s (see openemr/openemr#14706)\n' \
+            "${acl_count}" "${med:-}" "${appt:-}" >&2
+        exit 1
+    fi
+    echo "    Clinicians write ACLs=${acl_count}"
+}
+assert_single_clinicians_write_acl
 
 echo ""
 echo "==> Upgrade complete: ${FROM_VERSION} → ${TO_VERSION}"

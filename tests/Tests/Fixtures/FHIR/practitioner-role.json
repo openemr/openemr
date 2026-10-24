@@ -1,0 +1,34 @@
+[
+    {
+        "resourceType": "PractitionerRole",
+        "active": true,
+        "practitioner": {
+            "reference": "Practitioner/00000000-0000-0000-0000-000000000000"
+        },
+        "organization": {
+            "reference": "Organization/00000000-0000-0000-0000-000000000000"
+        },
+        "code": [
+            {
+                "coding": [
+                    {
+                        "system": "http://nucc.org/provider-taxonomy",
+                        "code": "103T00000X",
+                        "display": "Psychologist"
+                    }
+                ]
+            }
+        ],
+        "specialty": [
+            {
+                "coding": [
+                    {
+                        "system": "http://nucc.org/provider-taxonomy",
+                        "code": "101Y00000X",
+                        "display": "Counselor"
+                    }
+                ]
+            }
+        ]
+    }
+]

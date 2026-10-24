@@ -465,9 +465,7 @@ class FHIRCompositionSection extends FHIRBackboneElement implements \JsonSeriali
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CompositionSection xmlns="http://hl7.org/fhir"></CompositionSection>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CompositionSection xmlns="http://hl7.org/fhir"></CompositionSection>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->title)) {
             $this->title->xmlSerialize(true, $sxe->addChild('title'));

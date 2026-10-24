@@ -131,4 +131,3 @@ function formReappear($tableName, $id): bool
 
     return false;
 }
-?>

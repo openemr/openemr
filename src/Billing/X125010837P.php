@@ -46,11 +46,12 @@ class X125010837P
         $SEFLAG = false,
         $HLcount = 0,
         &$edicount = 0,
-        &$patSegmentCount = 0
+        &$patSegmentCount = 0,
+        ?string $payerId = null
     ) {
         $today = time();
         $out = '';
-        $claim = new Claim($pid, $encounter, $x12_partner);
+        $claim = new Claim($pid, $encounter, $x12_partner, $payerId);
 
         $log .= $claim->patientFirstName() . ' ' .
         $claim->patientMiddleName() . ' ' .
@@ -318,55 +319,44 @@ class X125010837P
 
             // Situational PER*1C segment omitted.
 
-            // Pay-To Address defaults to billing provider and is no longer required in 5010 but may be useful
-            if ($claim->pay_to_provider != '') {
+            // Loop 2010AB Pay-To Address: the billing facility's mailing address, sent
+            // only when it differs from the billing provider address in 2010AA.
+            // 5010 uses only NM101-NM102 here: the pay-to loop is an address, not a provider.
+            if ($claim->hasPayToAddress()) {
                 ++$edicount;
-                $billingFacilityName = substr((string) $claim->billingFacilityName(), 0, 60);
-                $out .= "NM1" .       // Loop 2010AB Pay-To Provider
+                $out .= "NM1" .       // Loop 2010AB Pay-To Address
                 "*" . "87" .
                 "*" . "2" .
-                "*" . $billingFacilityName .
-                "*" .
-                "*" .
-                "*" .
-                "*";
-                if ($claim->billingFacilityNPI()) {
-                    $out .= "*XX*" . $claim->billingFacilityNPI();
-                } else {
-                    $log .= "*** Pay to provider has no NPI.\n";
-                }
-                $out .= "~\n";
+                "~\n";
 
                 ++$edicount;
                 $out .= "N3" .
-                "*";
-                if ($claim->billingFacilityStreet()) {
-                    $out .= $claim->billingFacilityStreet();
-                } else {
-                    $log .= "*** Pay to provider has no street.\n";
+                "*" . $claim->payToFacilityStreet();
+                if ($claim->payToFacilityStreet2() !== '') {
+                    $out .= "*" . $claim->payToFacilityStreet2();
                 }
                 $out .= "~\n";
 
                 ++$edicount;
                 $out .= "N4" .
                 "*";
-                if ($claim->billingFacilityCity()) {
-                    $out .= $claim->billingFacilityCity();
+                if ($claim->payToFacilityCity()) {
+                    $out .= $claim->payToFacilityCity();
                 } else {
-                    $log .= "*** Pay to provider has no city.\n";
+                    $log .= "*** Pay to address has no city.\n";
                 }
                 $out .= "*";
-                if ($claim->billingFacilityState()) {
-                    $out .= $claim->billingFacilityState();
+                if ($claim->payToFacilityState()) {
+                    $out .= $claim->payToFacilityState();
                 } else {
-                    $log .= "*** Pay to provider has no state.\n";
+                    $log .= "*** Pay to address has no state.\n";
                 }
                 $out .= "*";
-                // X12 requires a 9 digit zip but we output it anyways
-                if (strlen((string) $claim->billingFacilityZip()) != 9) {
-                    $log .= "*** Pay to provider zip is not 9 digits.\n";
+                // Unlike 2010AA and 2310C, the TR3 doesn't require ZIP+4 here: 5 or 9 digits.
+                if (!in_array(strlen($claim->payToFacilityZip()), [5, 9], true)) {
+                    $log .= "*** Pay to address zip is not 5 or 9 digits.\n";
                 }
-                $out .= $claim->billingFacilityZip();
+                $out .= $claim->payToFacilityZip();
                 $out .= "~\n";
             }
 
@@ -680,15 +670,13 @@ class X125010837P
             "*" . "Y" .
             "*" . ($claim->billingFacilityAssignment() ? 'A' : 'C') .
             "*" . ($claim->billingFacilityAssignment() ? 'Y' : 'N') .
-            "*" . "Y" . "*" . "P"; // added patient signature source code CLM10
-        if ($claim->isRelatedEmployment()) {
-            $out .= "*" . "EM";
-        } elseif ($claim->isRelatedAuto()) {
-            $out .= "*" . "AA";
-        } elseif ($claim->isRelatedOther()) {
-            $out .= "*" . "OA";
-        }
-        $out .= "~\n";
+            "*" . "Y" .
+            self::claimSignatureAndRelatedCauses(
+                $claim->isRelatedEmployment(),
+                $claim->isRelatedAuto(),
+                $claim->isRelatedOther()
+            ) .
+            "~\n";
 
         // above is for historical use of encounter onset date, now in misc_billing_options
         // Segment DTP*431 (Onset of Current Symptoms or Illness)
@@ -741,7 +729,7 @@ class X125010837P
                 "~\n";
         }
 
-        if (strcmp((string) $claim->facilityPOS(), '21') == 0 && $claim->onsetDateValid()) {
+        if (strcmp($claim->facilityPOS(), '21') == 0 && $claim->onsetDateValid()) {
             ++$edicount;
             $out .= "DTP" .     // Date of Hospitalization
                 "*" . "435" .
@@ -751,7 +739,7 @@ class X125010837P
         }
 
         // above is for historical use of encounter onset date, now in misc_billing_options
-        if (strcmp((string) $claim->facilityPOS(), '21') == 0 && $claim->hospitalizedFromDateValid()) {
+        if (strcmp($claim->facilityPOS(), '21') == 0 && $claim->hospitalizedFromDateValid()) {
             ++$edicount;
             $out .= "DTP" .     // Date of Admission
                 "*" . "435" .
@@ -761,7 +749,7 @@ class X125010837P
         }
 
         // Segment DTP*096 (Discharge Date)
-        if (strcmp((string) $claim->facilityPOS(), '21') == 0 && $claim->hospitalizedToDateValid()) {
+        if (strcmp($claim->facilityPOS(), '21') == 0 && $claim->hospitalizedToDateValid()) {
             ++$edicount;
             $out .= "DTP" .     // Date of Discharge
                 "*" . "96" .
@@ -817,7 +805,6 @@ class X125010837P
         // Segment REF*F8 Payer Claim Control Number for claim re-submission.icn_resubmission_number
         if (strlen(trim($claim->billing_options['icn_resubmission_number'] ?? '')) > 3) {
             ++$edicount;
-            error_log("Method 1: " . errorLogEscape($claim->billing_options['icn_resubmission_number']), 0);
             $out .= "REF" .
                 "*" . "F8" .
                 "*" . $claim->icnResubmissionNumber() .
@@ -1291,18 +1278,38 @@ class X125010837P
             $out .= $claim->x12Zip($claim->payerZip($ins));
             $out .= "~\n";
 
-            // Segment REF*F8 (Other Payer Claim Control Number).
-            if ($claim->medicaidOriginalReference()) {
+            // Segment DTP*573 (Claim Check or Remittance Date). Used only when this
+            // payer's adjudication is not reported by service line in loop 2430,
+            // which carries its own DTP*573.
+            $otherPayerAdjudicationDate = $claim->hasLineAdjudication($ins)
+                ? ''
+                : $claim->otherPayerAdjudicationDate($ins);
+            if ($otherPayerAdjudicationDate) {
                 ++$edicount;
-                $out .= "REF" . "*" . "F8" . "*" . $claim->medicaidOriginalReference();
-                $out .= "~\n";
+                $out .= "DTP" .
+                    "*" . "573" .
+                    "*" . "D8" .
+                    "*" . $otherPayerAdjudicationDate .
+                    "~\n";
             }
 
-            // Segment DTP*573 (Claim Check or Remittance Date) omitted.
             // Segment REF (Other Payer Secondary Identifier) omitted.
             // Segment REF*G1 (Other Payer Prior Authorization Number) omitted.
             // Segment REF*9F (Other Payer Referral Number) omitted.
             // Segment REF*T4 (Other Payer Claim Adjustment Indicator) omitted.
+
+            // Segment REF*F8 (Other Payer Claim Control Number).  Per the
+            // implementation guide this is the last REF of loop 2330B, so it
+            // must follow DTP*573 and the REFs above.
+            $otherPayerClaimControlNumber = $claim->otherPayerClaimControlNumber($ins);
+            if ($otherPayerClaimControlNumber) {
+                ++$edicount;
+                $out .= "REF" .
+                    "*" . "F8" .
+                    "*" . $otherPayerClaimControlNumber .
+                    "~\n";
+            }
+
             // Segment NM1 (Other Payer Referring Provider) omitted.
             // Segment REF (Other Payer Referring Provider Secondary Identification) omitted.
             // Segment NM1 (Other Payer Rendering Provider) omitted.
@@ -1613,8 +1620,7 @@ class X125010837P
             $SEFLAG == true
             || !OEGlobalsBag::getInstance()->getBoolean('gen_x12_based_on_ins_co')
         ) {
-            ++$edicount; //todo: This might have to go into the SE flag spot //***MS Modify
-
+            ++$edicount;
             $out .= "SE" .        // SE Trailer
             "*" . $edicount .
             "*" . "0021" .
@@ -1637,4 +1643,27 @@ class X125010837P
         $log .= "\n";
         return $out;
     }
+
+    /**
+     * CLM10 (patient signature source code) and CLM11 (related causes), each
+     * with its separator, for the end of the CLM segment. CLM10 is "P"
+     * (signature generated by the provider) for workers' comp claims only;
+     * on other claims it would state that the patient wasn't present. Empty
+     * trailing elements are left out, so a claim with no related cause ends
+     * at CLM09.
+     */
+    public static function claimSignatureAndRelatedCauses(bool $employment, bool $auto, bool $other): string
+    {
+        $relatedCause = match (true) {
+            $employment => 'EM',
+            $auto => 'AA',
+            $other => 'OA',
+            default => '',
+        };
+        if ($relatedCause === '') {
+            return '';
+        }
+        return '*' . ($employment ? 'P' : '') . '*' . $relatedCause;
+    }
+
 }

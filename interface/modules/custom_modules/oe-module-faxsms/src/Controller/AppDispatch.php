@@ -241,7 +241,7 @@ abstract class AppDispatch
      *
      * @return string|int|bool
      */
-    abstract function authenticate(): string|int|bool;
+    abstract public function authenticate(): string|int|bool;
 
     /**
      * Channel send operations are no longer part of the base contract. A client
@@ -351,7 +351,7 @@ abstract class AppDispatch
      * @param string $type
      * @return EtherFaxActions|TwilioSMSClient|RCFaxClient|ClickatellSMSClient|EmailClient|SignalWireClient|void|null
      */
-    static function getApiService(string $type)
+    public static function getApiService(string $type)
     {
         if ($type === '') {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -368,7 +368,7 @@ abstract class AppDispatch
      * @param string $type
      * @return void
      */
-    static function setApiService(string $type): void
+    public static function setApiService(string $type): void
     {
         if ($type === '') {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -382,13 +382,13 @@ abstract class AppDispatch
      * @param $type
      * @return void
      */
-    static function setModuleType($type): void
+    public static function setModuleType($type): void
     {
         SessionUtil::setSession('oefax_current_module_type', $type);
         self::$_apiModule = $type;
     }
 
-    static function getServiceInstance($type)
+    public static function getServiceInstance($type)
     {
         $moduleType = is_scalar($type) ? (string)$type : '';
         return ServiceFactory::create($moduleType, self::getServiceType());
@@ -397,7 +397,7 @@ abstract class AppDispatch
     /**
      * @return int|mixed
      */
-    static function getServiceType(): mixed
+    public static function getServiceType(): mixed
     {
         if (empty(self::$_apiModule ?? null)) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -428,7 +428,7 @@ abstract class AppDispatch
     /**
      * @return mixed
      */
-    static function getModuleType(): mixed
+    public static function getModuleType(): mixed
     {
         if (empty(self::$_apiModule)) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -632,7 +632,7 @@ abstract class AppDispatch
     /**
      * @return string|null
      */
-    static function getModuleVendor(): ?string
+    public static function getModuleVendor(): ?string
     {
         $service = ServiceType::fromValue(self::getServiceType());
         return $service->getVendorKey() ?: null;

@@ -47,12 +47,20 @@ for dirdata in /var/www/localhost/htdocs/openemr/sites/*/; do
 
     # Upgrade database
     echo "Start: Upgrade database for ${sitename} from ${priorOpenemrVersion}"
-    {
+    if ! {
         echo "<?php \$_GET['site'] = '${sitename}'; ?>"
-        cat /var/www/localhost/htdocs/openemr/sql_upgrade.php || true
-    } > /var/www/localhost/htdocs/openemr/TEMPsql_upgrade.php
+        cat /var/www/localhost/htdocs/openemr/sql_upgrade.php
+    } > /var/www/localhost/htdocs/openemr/TEMPsql_upgrade.php; then
+        echo "ERROR: could not stage sql_upgrade.php for ${sitename} (file missing?)" >&2
+        rm -f /var/www/localhost/htdocs/openemr/TEMPsql_upgrade.php
+        exit 1
+    fi
     # Drop privileges to apache: RootCliGuard (openemr#12267) refuses root for OpenEMR CLI scripts.
-    su-exec apache php -f /var/www/localhost/htdocs/openemr/TEMPsql_upgrade.php -- --from="${priorOpenemrVersion}"
+    if ! su-exec apache php -f /var/www/localhost/htdocs/openemr/TEMPsql_upgrade.php -- --from="${priorOpenemrVersion}"; then
+        echo "ERROR: Database upgrade failed for ${sitename} from ${priorOpenemrVersion}" >&2
+        rm -f /var/www/localhost/htdocs/openemr/TEMPsql_upgrade.php
+        exit 1
+    fi
     rm -f /var/www/localhost/htdocs/openemr/TEMPsql_upgrade.php
     echo "Completed: Upgrade database for ${sitename} from ${priorOpenemrVersion}"
 done

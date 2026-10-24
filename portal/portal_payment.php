@@ -23,7 +23,6 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
@@ -59,6 +58,9 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
 if (!isset($pid)) {
     throw new \RuntimeException('$pid must be set by globals.php before requiring this script');
 }
+// String form of $pid for the hidden form fields below.
+$pidField = (is_int($pid) || is_string($pid)) ? (string) $pid : '';
+$portalAssetRoot = $globalsBag->getString('webroot') . '/portal';
 
 if (!$isPortal) {
     if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
@@ -68,13 +70,11 @@ if (!$isPortal) {
 
 $srcdir = $globalsBag->getString('srcdir');
 require_once(__DIR__ . "/lib/appsql.class.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/forms.inc.php");
 require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
-$twig = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
+$twig = ServiceContainer::getTwig();
 
 $cryptoGen = ServiceContainer::getCrypto();
 
@@ -364,7 +364,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
     ?>
 
     <title><?php echo xlt('Receipt for Payment'); ?></title>
-    <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery/dist/jquery.min.js"></script>
+    <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery/dist/jquery.min.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <script>
 
         function goHome() {
@@ -469,9 +469,9 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             font-weight: normal
         }
     </style>
-    <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
+    <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <script src="<?php echo $globalsBag->getString('webroot') ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="portal_payment.js?v=<?=$v_js_includes?>"></script>
+    <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <script>
         var chargeMsg = <?php $amsg = xl('Payment was successfully authorized and your card is charged.') . "\n" .
                 xl("You will be notified when your payment is applied for this invoice.") . "\n" .
@@ -548,8 +548,20 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             }
         }
 
-        $('#paySubmit').click(function (e) {
+        $('#paySubmit').click(async function (e) {
             e.preventDefault();e.stopPropagation();
+            if (typeof $.fn.validateCreditCard !== 'function') {
+                try {
+                    await $.getScript(<?php echo js_escape(
+                        $globalsBag->getString('assets_static_relative') .
+                        '/jquery-creditcardvalidator/jquery.creditCardValidator.js?v=' .
+                        rawurlencode($globalsBag->getString('v_js_includes'))
+                                      ); ?>);
+                } catch (error) {
+                    alert(<?php echo xlj('Unable to load credit card validation. Please reload and try again.'); ?>);
+                    return;
+                }
+            }
             $("#mode").val("portal-save");
             let inv_values = JSON.stringify(getFormObj('invoiceForm'));
             let extra_values = JSON.stringify(getFormObj('paymentForm'));
@@ -612,14 +624,22 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             $("#mode").val("review-save");
             let inv_values = JSON.stringify(getFormObj('invoiceForm'));
             let extra_values = JSON.stringify(getFormObj('paymentForm'));
-            let extra = "&inv_values=" + inv_values + "&extra_values=" + extra_values;
+            const params = new URLSearchParams();
+            $("#invoiceForm").serializeArray().forEach(function (field) {
+                if (field.name !== 'csrf_token_form') {
+                    params.append(field.name, field.value);
+                }
+            });
+            params.set('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>);
+            params.set('inv_values', inv_values);
+            params.set('extra_values', extra_values);
 
             let flag = 0
             let liburl = '<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php';
             $.ajax({
                 type: "POST",
                 url: liburl,
-                data: $("#invoiceForm").serialize() + extra,
+                data: params.toString(),
                 beforeSend: function (xhr) {
                     if (validate() != true) {
                         flag = 1;
@@ -659,7 +679,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
 
     <form id="invoiceForm" method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/portal_payment.php'>
         <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
-        <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>'/>
+        <input type='hidden' name='form_pid' value='<?php echo attr($pidField) ?>'/>
         <input type='hidden' name='form_save' value='<?php echo xla('Invoice'); ?>'/>
         <table>
             <tr height="10">
@@ -1060,7 +1080,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         }
         ?>
         </div>
-        <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo attr($pid); ?>"/>
+        <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo attr($pidField); ?>"/>
         <input type='hidden' name='mode' id='mode' value=''/>
     </form>
 
@@ -1082,6 +1102,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                     <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere' && $globalsBag->get('payment_gateway') !== 'Rainforest') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
                         <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
+                        <input type='hidden' name='form_pid' value='<?php echo attr($pidField) ?>'/>
                         <fieldset>
                             <div class="form-group">
                                 <label label-default="label-default"
@@ -1132,7 +1153,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                                             <input name="cardCode" id="cardCode" type="text" class="form-control" autocomplete="off" maxlength="4" onfocus="validateCC()" title="<?php echo xla('Three or four digits at back of your card'); ?>" value="" />
                                         </div>
                                         <div class="col-md-3">
-                                            <img src='./images/img_cvc.png' style='height: 40px; width: auto' />
+                                            <img src='<?php echo attr($portalAssetRoot); ?>/images/img_cvc.png' style='height: 40px; width: auto' />
                                         </div>
                                         <div class="col-md-6">
                                             <h4 style="display: inline-block;"><?php echo xlt('Payment Amount'); ?>:&nbsp;
@@ -1141,7 +1162,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                                     </div>
                                 </div>
                             </div>
-                            <input type='hidden' name='pid' id='pid' value='<?php echo attr($pid) ?>'/>
+                            <input type='hidden' name='pid' id='pid' value='<?php echo attr($pidField) ?>'/>
                             <input type='hidden' name='mode' id='mode' value=''/>
                             <input type='hidden' name='cc_type' id='cc_type' value=''/>
                             <input type='hidden' name='payment' id='paymentAmount' value=''/>
@@ -1153,6 +1174,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                     <?php } else { // stripe/sphere/rainforest ?>
                         <form method="post" name="payment-form" id="payment-form">
                             <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
+                            <input type='hidden' name='form_pid' value='<?php echo attr($pidField) ?>'/>
                             <fieldset>
                                 <div class="form-group">
                                     <label label-default="label-default"><?php echo xlt('Name on Card'); ?></label>
@@ -1214,6 +1236,9 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
 
         // In House CC Validation
         function validateCC() {
+            if (typeof $.fn.validateCreditCard !== 'function') {
+                return false;
+            }
             var result = $('#cardNumber').validateCreditCard();
             var r = (result.card_type == null ? '' : result.card_type.name.toUpperCase())
             var v = (result.valid == true ? ' Valid Card Number' : ' Invalid Card Number')
@@ -1244,11 +1269,11 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         <script>
             var apiLoginID = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'))); ?>;
         </script>
-        <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
+        <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.authorizenet.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <?php }  // end authorize.net ?>
 
     <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
-        <script src="portal_payment.stripe.js?v=<?=$v_js_includes?>"></script>
+        <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.stripe.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <?php } ?>
 
     <?php

@@ -10,15 +10,18 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2012-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
@@ -391,32 +394,36 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 <body>
 <?php
 
-function rp()
+function rp(): array
 {
     $sql = "SELECT option_id, title FROM list_options WHERE list_id = 'recent_patient_columns' AND activity = '1' ORDER BY seq ASC";
     $res = sqlStatement($sql);
     $headers = [];
     while ($row = sqlFetchArray($res)) {
+        // Validate the stored option_id resolves to a real `patient_data`
+        // column before it reaches the SELECT concat below. `addlistitem.php`
+        // already validates at the write seam; this is the matching
+        // read-side guard so legacy rows that predate the write guard
+        // (or are inserted directly in the database) still get rejected.
+        // `escape_sql_column_name()` short-circuits `*` without checking
+        // the schema, so reject it explicitly here (the SELECT below
+        // already carries an explicit `pid` list and never wants `*`).
+        $optionId = is_string($row['option_id'] ?? null) ? $row['option_id'] : '';
+        if ($optionId === '*') {
+            continue;
+        }
+        try {
+            escape_sql_column_name($optionId, ['patient_data'], false, true);
+        } catch (SqlQueryException) {
+            continue;
+        }
         $headers[] = $row;
     }
     $patientService = new PatientService();
     $rp = $patientService->getRecentPatientList();
-    // Get a list of the columns in patient_data that are either date or datetime:
-    $sql_dtCols = "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = DATABASE() AND TABLE_NAME = 'patient_data' AND (data_type = 'datetime' OR data_type = 'date')";
-    $res_dtCols = sqlStatement($sql_dtCols);
-    $pd_dtCols = [];
-    while ($row = sqlFetchArray($res_dtCols)) {
-        $pd_dtCols[] = $row;
-    }
-    $date_cols = [];
-    $datetime_cols = [];
-    foreach ($pd_dtCols as $v) {
-        if ($v['data_type'] == "datetime") {
-            $datetime_cols[] = $v['column_name'];
-        } else if ($v['data_type'] == "date") {
-            $date_cols[] = $v['column_name'];
-        }
-    }
+    $dateColumns = $patientService->getDateColumns();
+    $date_cols = $dateColumns['date'];
+    $datetime_cols = $dateColumns['datetime'];
     // Build SQL statement to pull desired columns from patient_data table...
     $pd_sql = "SELECT pid";
     foreach ($headers as $v) {
@@ -472,8 +479,7 @@ $templateVars = [
     'rp' => $rp['rp'],
 ];
 
-$twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-$t = $twig->getTwig();
+$t = ServiceContainer::getTwig();
 echo $t->render('patient_finder/finder.html.twig', $templateVars);
 
 ?>

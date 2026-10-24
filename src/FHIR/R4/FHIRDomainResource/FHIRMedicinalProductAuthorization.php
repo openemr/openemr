@@ -668,9 +668,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductAuthorization xmlns="http://hl7.org/fhir"></MedicinalProductAuthorization>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductAuthorization xmlns="http://hl7.org/fhir"></MedicinalProductAuthorization>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
             foreach ($this->identifier as $identifier) {

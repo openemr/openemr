@@ -94,7 +94,7 @@ class PatientMenuRole extends MenuRole
      * @return string Html select element to list the PatientMenuRole options.
      * @var string $selected Current PatientMenuRole for current users.
      */
-    public function displayMenuRoleSelector($selected = "")
+    public function displayMenuRoleSelector($selected = ""): string
     {
         $output = "<select name='patient_menu_role' id='patient_menu_role' class='form-control'>";
         $output .= "<option value='standard' " . (($selected == "standard") ? "selected" : "") . ">" . xlt("Standard") . "</option>";

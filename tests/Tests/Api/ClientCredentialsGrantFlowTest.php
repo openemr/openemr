@@ -41,11 +41,11 @@ class ClientCredentialsGrantFlowTest extends TestCase
         ], json_encode([
                 "application_type" => "private",
                "redirect_uris" =>
-                 ["http=>//localhost:4567/inferno/oauth2/static/redirect"],
+                 ["http://localhost:4567/inferno/oauth2/static/redirect"],
                "post_logout_redirect_uris" =>
-                 ["http=>//localhost:4567/inferno/oauth2/static/logout"],
+                 ["http://localhost:4567/inferno/oauth2/static/logout"],
                "client_name" => "OpenEMR System Credentials Test Client - disable in production",
-                "initiate_login_uri" => "https=>/localhost=>4567/inferno/oauth2/static/launch",
+                "initiate_login_uri" => "https://localhost:4567/inferno/oauth2/static/launch",
                "token_endpoint_auth_method" => "client_secret_post",
                "contacts" => ["test@open-emr.org"],
                "scope" => 'system/*.$export system/Patient.$export system/*.$bulkdata-status system/Group.$export system/Medication.read system/AllergyIntolerance.read system/CarePlan.read system/CareTeam.read system/Condition.read system/Device.read system/DiagnosticReport.read system/DocumentReference.read system/Binary.read system/Encounter.read system/Goal.read system/Immunization.read system/Location.read system/MedicationRequest.read system/Observation.read system/Organization.read system/Practitioner.read system/Procedure.read system/Provenance.read system/Group.read',

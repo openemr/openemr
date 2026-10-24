@@ -262,9 +262,8 @@ class QuestionnaireResponseService extends BaseService
     /**
      * @param $search
      * @param $isAndCondition
-     * @return ProcessingResult
      */
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         $sqlSelectIds = "SELECT DISTINCT qr.questionnaire_response_uuid ";
         $sqlSelectData = " SELECT qr.*
@@ -342,7 +341,11 @@ class QuestionnaireResponseService extends BaseService
      * @param ?string  $form_response
      * @param bool  $add_report
      * @param array $scores
-     * @return array|false|int|mixed
+     * @return array{
+     *   id: mixed,
+     *   response_id: mixed,
+     *   new: bool,
+     * }
      * @throws Exception
      */
     public function saveQuestionnaireResponse(
@@ -356,7 +359,7 @@ class QuestionnaireResponseService extends BaseService
         $form_response = null,
         $add_report = false,
         $scores = []
-    ) {
+    ): array {
         $q_content = null;
         $q_title = null;
         $q_record_id = null;
@@ -441,17 +444,20 @@ class QuestionnaireResponseService extends BaseService
         $fhirResponseOb->setId(new FHIRId($qr_id));
         $serverConfig = new ServerConfig();
         $fhirResponseOb->setQuestionnaire(new FHIRCanonical($serverConfig->getFhirUrl() . '/Questionnaire/' . $q_id));
+        // the FHIR reference uses the encounter uuid; the encounter column keeps the encounter id
+        $encounterReference = $encounter;
         if (is_numeric($encounter)) {
             $encounter_uuid = $this::getUuidById($encounter, 'form_encounter', 'encounter');
             if (empty($encounter_uuid)) {
                 $encounter = 0;
+                $encounterReference = 0;
             } else {
-                $encounter = UuidRegistry::uuidToString($encounter_uuid) ?: $encounter;
+                $encounterReference = UuidRegistry::uuidToString($encounter_uuid) ?: $encounter;
             }
         }
-        if (!empty($encounter)) {
+        if (!empty($encounterReference)) {
             $encRef = new FHIRReference();
-            $encRef->setReference(new FHIRString('fhir/Encounter/' . $encounter));
+            $encRef->setReference(new FHIRString('fhir/Encounter/' . $encounterReference));
             $fhirResponseOb->setEncounter($encRef);
         }
         $r_status = $fhirResponseOb->getStatus();
@@ -608,7 +614,7 @@ class QuestionnaireResponseService extends BaseService
      * @param array $flattenedArray
      * @return array
      */
-    function groupByItemsRecursively(array $flattenedArray): array
+    public function groupByItemsRecursively(array $flattenedArray): array
     {
         $grouped = [];
 
@@ -622,14 +628,10 @@ class QuestionnaireResponseService extends BaseService
                 // If the segment is numeric, treat it as an array index
                 if (is_numeric($segment)) {
                     $segment = (int)$segment;
-                    if (!isset($current[$segment])) {
-                        $current[$segment] = [];
-                    }
+                    $current[$segment] ??= [];
                     $current = &$current[$segment];
                 } else {
-                    if (!isset($current[$segment])) {
-                        $current[$segment] = [];
-                    }
+                    $current[$segment] ??= [];
                     $current = &$current[$segment];
                 }
             }
@@ -645,7 +647,7 @@ class QuestionnaireResponseService extends BaseService
      * @param $response
      * @return string
      */
-    function buildQuestionnaireResponseHtml($response): string
+    public function buildQuestionnaireResponseHtml($response): string
     {
         $html = '<div style="display: flex; flex-direction: column; flex-basis: 100%; line-height: 1.2 !important">';
         $html .= '<form class="form">';
@@ -669,7 +671,7 @@ class QuestionnaireResponseService extends BaseService
      * @param $flag
      * @return string
      */
-    function renderItem($item, $indentLevel = 0, $flag = 0): string
+    public function renderItem($item, $indentLevel = 0, $flag = 0): string
     {
         $html = '';
         // Render item text if it exists
@@ -710,7 +712,7 @@ class QuestionnaireResponseService extends BaseService
      * @param $answer
      * @return string
      */
-    function extractAnswerValue($answer)
+    public function extractAnswerValue($answer)
     {
         if (isset($answer['valueCoding'])) {
             return $answer['valueCoding']['display'];

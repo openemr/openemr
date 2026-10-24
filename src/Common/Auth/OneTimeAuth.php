@@ -31,6 +31,18 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OneTimeAuth
 {
+    /**
+     * Built-in fallback cap on the number of consumption attempts allowed for a
+     * token that requires a PIN, regardless of the other policy flags. Because a
+     * token's access_count is incremented on every POST consumption attempt
+     * (including a wrong PIN), this bounds PIN guessing even when a caller does
+     * not also set enforce_onetime_use. Administrators can override the effective
+     * cap with the 'portal_onetime_max_pin_attempts' global; this constant is used
+     * when that setting is unset or non-positive so the throttle can never be
+     * disabled outright.
+     */
+    public const MAX_PIN_ATTEMPTS = 5;
+
     private readonly LoggerInterface $systemLogger;
     private readonly SessionInterface $session;
     private readonly OEGlobalsBag $globalsBag;
@@ -134,6 +146,7 @@ class OneTimeAuth
      * @param $onetime_token
      * @return array
      * @throws OneTimeAuthExpiredException
+     * @throws OneTimeAuthException
      */
     public function decodePortalOneTime($onetime_token, $logUpdate = true): array
     {
@@ -168,6 +181,19 @@ class OneTimeAuth
             throw new OneTimeAuthExpiredException($rtn['error'], $auth['pid']);
         }
         $redirect = $t_info['redirect_url'] ?? null;
+
+        // Enforce the per-token consumption policy carried in onetime_actions.
+        // This runs before the access_count increment below and for both the GET
+        // (form render, logUpdate=false) and POST (processOnetime, logUpdate=true)
+        // paths, so a token that has already reached its configured limit is
+        // rejected rather than replayed or brute-forced.
+        $actions = is_array($t_info['onetime_actions'] ?? null) ? $t_info['onetime_actions'] : [];
+        $accessCountRaw = $t_info['access_count'] ?? 0;
+        $accessCount = is_numeric($accessCountRaw) ? (int) $accessCountRaw : 0;
+        if (self::usageLimitReached($actions, $accessCount, $this->pinAttemptLimit())) {
+            $this->systemLogger->error("Onetime token refused: usage limit reached", ['token' => $tokenFingerprint]);
+            throw new OneTimeAuthException("Onetime token usage limit reached");
+        }
 
         $rtn['pid'] = $auth['pid'];
         $rtn['pin'] = $t_info['onetime_pin'];
@@ -281,6 +307,71 @@ class OneTimeAuth
     }
 
     /**
+     * Decide whether a token has already reached its configured consumption
+     * policy and must be refused. The token's access_count is incremented on
+     * every POST consumption attempt (including a failed PIN), so enforcing these
+     * flags against it throttles both token replay and PIN brute force without
+     * any schema change.
+     *
+     * @param array<array-key, mixed> $actions Decoded onetime_actions for the token.
+     * @param int   $accessCount     Current onetime_auth.access_count for the token.
+     * @param int   $maxPinAttempts  Effective cap for PIN-protected tokens (see
+     *                               MAX_PIN_ATTEMPTS / the portal_onetime_max_pin_attempts global).
+     * @return bool True when the token must be rejected.
+     */
+    public static function usageLimitReached(array $actions, int $accessCount, int $maxPinAttempts = self::MAX_PIN_ATTEMPTS): bool
+    {
+        // One-time tokens are spent by the first consumption attempt.
+        if (!empty($actions['enforce_onetime_use']) && $accessCount > 0) {
+            return true;
+        }
+
+        // Explicit cap set by the caller (0 = unlimited).
+        $maxAccessRaw = $actions['max_access_count'] ?? 0;
+        $maxAccess = is_numeric($maxAccessRaw) ? (int) $maxAccessRaw : 0;
+        if ($maxAccess > 0 && $accessCount >= $maxAccess) {
+            return true;
+        }
+
+        // Hard safety cap on PIN-protected tokens, independent of the flags above,
+        // so PIN guessing is always bounded.
+        if (!empty($actions['enforce_auth_pin']) && $accessCount >= $maxPinAttempts) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Effective per-token PIN-attempt cap: the 'portal_onetime_max_pin_attempts'
+     * global when configured to a positive value, otherwise the built-in
+     * MAX_PIN_ATTEMPTS default. The throttle cannot be disabled with 0/blank.
+     */
+    private function pinAttemptLimit(): int
+    {
+        $configured = $this->globalsBag->getInt('portal_onetime_max_pin_attempts');
+
+        return $configured > 0 ? $configured : self::MAX_PIN_ATTEMPTS;
+    }
+
+    /**
+     * Strict, constant-time PIN comparison. Rejects non-string input and any
+     * numeric-equivalent form of the expected PIN (leading-zero, scientific
+     * notation, decimal, zero-padded), which a loose (!=) compare would accept.
+     *
+     * @param mixed $expected  The stored PIN.
+     * @param mixed $submitted The client-supplied value.
+     */
+    public static function pinMatches(mixed $expected, mixed $submitted): bool
+    {
+        if (!is_string($submitted) || !is_scalar($expected)) {
+            return false;
+        }
+
+        return hash_equals((string)$expected, $submitted);
+    }
+
+    /**
      * @param $token
      * @return array
      */
@@ -290,7 +381,11 @@ class OneTimeAuth
             $auth = $this->decodePortalOneTime($token);
             if ($auth["actions"]["enforce_auth_pin"]) {
                 $this->systemLogger->debug("Pin auth required");
-                if ($auth['pin'] != $_POST['login_pin'] ?? null) {
+                // Strict, constant-time comparison. A loose (!=) compare treats two
+                // numeric strings as numbers, so "012345" would match "12345",
+                // "12345e0", "12345.0" etc.; hash_equals plus the is_string guard in
+                // pinMatches() blocks those type-juggling equivalents.
+                if (!self::pinMatches($auth['pin'], $_POST['login_pin'] ?? null)) {
                     $this->systemLogger->error("Failed Pin auth");
                     throw new OneTimeAuthException(xlt("Pin Authentication Failed! Contact administrator."));
                 }

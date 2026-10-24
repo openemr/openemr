@@ -182,9 +182,7 @@ class FHIRSubstancePolymerDegreeOfPolymerisation extends FHIRBackboneElement imp
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstancePolymerDegreeOfPolymerisation xmlns="http://hl7.org/fhir"></SubstancePolymerDegreeOfPolymerisation>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstancePolymerDegreeOfPolymerisation xmlns="http://hl7.org/fhir"></SubstancePolymerDegreeOfPolymerisation>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->degree)) {
             $this->degree->xmlSerialize(true, $sxe->addChild('degree'));

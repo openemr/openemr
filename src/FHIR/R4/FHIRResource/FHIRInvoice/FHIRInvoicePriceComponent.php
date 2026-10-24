@@ -246,9 +246,7 @@ class FHIRInvoicePriceComponent extends FHIRBackboneElement implements \JsonSeri
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<InvoicePriceComponent xmlns="http://hl7.org/fhir"></InvoicePriceComponent>');
-        }
+        $sxe ??= new \SimpleXMLElement('<InvoicePriceComponent xmlns="http://hl7.org/fhir"></InvoicePriceComponent>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

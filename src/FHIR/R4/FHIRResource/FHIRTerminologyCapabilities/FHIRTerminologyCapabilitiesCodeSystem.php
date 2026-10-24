@@ -223,9 +223,7 @@ class FHIRTerminologyCapabilitiesCodeSystem extends FHIRBackboneElement implemen
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesCodeSystem xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesCodeSystem>');
-        }
+        $sxe ??= new \SimpleXMLElement('<TerminologyCapabilitiesCodeSystem xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesCodeSystem>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->uri)) {
             $this->uri->xmlSerialize(true, $sxe->addChild('uri'));

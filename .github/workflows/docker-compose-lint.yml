@@ -25,6 +25,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v7
 
+    - name: Validate development upload limits
+      run: docker/tests/dev-upload-limits.sh
+
     - name: Login to Docker Hub
       # The dclint steps below pull zavoloklom/dclint from Docker Hub.
       # Authenticated pulls have a much higher rate limit than anonymous ones,

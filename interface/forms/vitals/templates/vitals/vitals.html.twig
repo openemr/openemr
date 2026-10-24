@@ -27,7 +27,7 @@
         ,'invalidRange': window.xl("Value is outside acceptable range")
     };
     if (window.vitalsForm) {
-        window.vitalsForm.init({{ FORM_ACTION|js_url }}, vitalsTranslations);
+        window.vitalsForm.init({{ FORM_ACTION|js_escape }}, vitalsTranslations);
     } else {
         console.error("Failed to find vitalsForm object to initialize javascript vitals form");
     }

@@ -70,10 +70,7 @@ foreach ($allowedParams as $param) {
     }
 }
 
-// Set defaults
-if (!isset($queryParams['version'])) {
-    $queryParams['version'] = '2.1';
-}
+$queryParams['version'] ??= '2.1';
 if (!isset($queryParams['limit'])) {
     $queryParams['limit'] = '20'; // Default to 20 results
 }

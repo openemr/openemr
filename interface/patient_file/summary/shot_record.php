@@ -15,7 +15,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
 require_once($srcdir . "/options.inc.php");
-require_once($srcdir . "/immunization_helper.php");
 
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
@@ -45,7 +44,10 @@ if ($_GET['output'] == "html") {
 }
 
 
-function convertToDataArray($data_array)
+/**
+ * @return array<int, non-empty-array<string, mixed>>
+ */
+function convertToDataArray($data_array): array
 {
     $current = 0;
     $data = [];

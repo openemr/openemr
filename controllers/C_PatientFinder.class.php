@@ -4,7 +4,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 class C_PatientFinder extends Controller
 {
-    function __construct(public $template_mod = "general")
+    public function __construct()
     {
         parent::__construct();
         $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
@@ -16,7 +16,7 @@ class C_PatientFinder extends Controller
         $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
     }
 
-    function default_action($form_id = '', $form_name = '', $pid = ''): string
+    public function default_action($form_id = '', $form_name = '', $pid = ''): string
     {
         return $this->find_action($form_id, $form_name, $pid);
     }
@@ -25,7 +25,7 @@ class C_PatientFinder extends Controller
     * Function that will display a patient finder widget, allowing
     *   the user to input search parameters to find a patient id.
     */
-    function find_action($form_id, $form_name, $pid = null): string
+    public function find_action($form_id, $form_name, $pid = null): string
     {
         $isPid = false;
 
@@ -44,7 +44,7 @@ class C_PatientFinder extends Controller
     * Function that will take a search string, parse it out and return all patients from the db matching.
     * @param string $search_string - String from html form giving us our search parameters
     */
-    function find_action_process()
+    public function find_action_process()
     {
 
         if ($_POST['process'] != "true") {
@@ -84,12 +84,12 @@ class C_PatientFinder extends Controller
     }
 
     /**
-    *   Function that returns an array containing the
-    *   Results of a LastName search
-    *   @-param string $sql base sql query
-    *   @-param string $search_string parsed for last name
-    */
-    function search_by_lName($sql, $search_string)
+     *   Function that returns an array containing the
+     *   Results of a LastName search
+     *   @-param string $sql base sql query
+     *   @-param string $search_string parsed for last name
+     */
+    public function search_by_lName($sql, $search_string): array
     {
         $lName = add_escape_custom($search_string);
         $sql .= " WHERE lname LIKE '$lName%' ORDER BY lname, fname";
@@ -104,12 +104,12 @@ class C_PatientFinder extends Controller
     }
 
     /**
-    *   Function that returns an array containing the
-    *   Results of a FirstName search
-    *   @param string $sql base sql query
-    *   @param string $search_string parsed for first name
-    */
-    function search_by_fName($sql, $search_string)
+     *   Function that returns an array containing the
+     *   Results of a FirstName search
+     *   @param string $sql base sql query
+     *   @param string $search_string parsed for first name
+     */
+    public function search_by_fName($sql, $search_string): array
     {
         $name_array = explode(",", $search_string);
         $fName = add_escape_custom(trim($name_array[1]));
@@ -125,12 +125,12 @@ class C_PatientFinder extends Controller
     }
 
     /**
-    *   Function that returns an array containing the
-    *   Results of a Full Name search
-    *   @param string $sql base sql query
-    *   @param string $search_string parsed for first, last and middle name
-    */
-    function search_by_FullName($sql, $search_string)
+     *   Function that returns an array containing the
+     *   Results of a Full Name search
+     *   @param string $sql base sql query
+     *   @param string $search_string parsed for first, last and middle name
+     */
+    public function search_by_FullName($sql, $search_string): array
     {
         $name_array = explode(",", $search_string);
         $lName = add_escape_custom($name_array[0]);

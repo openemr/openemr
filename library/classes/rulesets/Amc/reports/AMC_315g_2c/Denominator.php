@@ -27,7 +27,7 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
         $this->lastTestActionData = new AmcItemizedActionData();
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_315g_2c Denominator";
     }
@@ -97,13 +97,13 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
     /*
      * This function lets us have language translation as well as interpreting any specific rule item data that is needed.
      */
-    private function parseDetailsToString($details)
+    private function parseDetailsToString($details): string
     {
         $newDetails = '';
         $type = $details['type'] ?? '';
         if ($type == self::ACTION_DETAILS_KEY_SEEN) {
             $newDetails = xl("Encounters during period") . ':' . $details['enc'];
-        } else if ($type == self::ACTION_DETAILS_KEY_NOT_SEEN) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_NOT_SEEN) {
             $newDetails = xl("Not seen");
         }
         return $newDetails;

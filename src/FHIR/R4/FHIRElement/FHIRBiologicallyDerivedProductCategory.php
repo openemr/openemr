@@ -144,9 +144,7 @@ class FHIRBiologicallyDerivedProductCategory extends FHIRElement implements \Jso
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<BiologicallyDerivedProductCategory xmlns="http://hl7.org/fhir"></BiologicallyDerivedProductCategory>');
-        }
+        $sxe ??= new \SimpleXMLElement('<BiologicallyDerivedProductCategory xmlns="http://hl7.org/fhir"></BiologicallyDerivedProductCategory>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

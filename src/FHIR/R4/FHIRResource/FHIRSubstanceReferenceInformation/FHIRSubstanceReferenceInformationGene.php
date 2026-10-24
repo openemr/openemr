@@ -223,9 +223,7 @@ class FHIRSubstanceReferenceInformationGene extends FHIRBackboneElement implemen
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceReferenceInformationGene xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationGene>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceReferenceInformationGene xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationGene>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->geneSequenceOrigin)) {
             $this->geneSequenceOrigin->xmlSerialize(true, $sxe->addChild('geneSequenceOrigin'));

@@ -71,15 +71,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirProvenanceService.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Cqm\\\\Qdm\\\\Patient\\:\\:\\$id \\(OpenEMR\\\\Cqm\\\\Qdm\\\\Identifier\\) in empty\\(\\) is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\Qrda\\\\Cat3\\:\\:\\$patient \\(OpenEMR\\\\Cqm\\\\Qdm\\\\Patient\\) in empty\\(\\) is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

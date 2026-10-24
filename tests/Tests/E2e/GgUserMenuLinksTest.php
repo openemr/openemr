@@ -29,8 +29,6 @@ class GgUserMenuLinksTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
 
-    private $crawler;
-
     #[DataProvider('menuLinkProvider')]
     #[Depends('testLoginAuthorized')]
     #[Test]

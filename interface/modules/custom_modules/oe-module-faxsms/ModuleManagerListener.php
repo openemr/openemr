@@ -1,8 +1,11 @@
 <?php
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\AbstractModuleActionListener;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
+use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
+use OpenEMR\Modules\FaxSMS\ModuleLifecycleState;
 
 /**
  * Class to be called from Laminas Module Manager for reporting management actions.
@@ -24,6 +27,12 @@ use OpenEMR\Modules\FaxSMS\BootstrapService;
 
 class ModuleManagerListener extends AbstractModuleActionListener
 {
+    /**
+     * module_faxsms_credentials vendor key that records which reminder tasks
+     * were active when the module was disabled.
+     */
+    private const PERSISTED_TASKS_VENDOR = '_persisted_tasks';
+
     public $service;
     private $authUser;
 
@@ -79,6 +88,14 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     private function install($modId, $currentActionStatus): mixed
     {
+        // Register the SMS and email reminder tasks so they are listed in
+        // background services from the start. They are created inactive; an
+        // admin turns them on from the module's notification services page.
+        // Registration keeps an existing task's on/off state on reinstall.
+        $taskManager = new NotificationTaskManager();
+        $taskManager->manageService('sms');
+        $taskManager->manageService('email');
+
         return $currentActionStatus;
     }
 
@@ -97,8 +114,55 @@ class ModuleManagerListener extends AbstractModuleActionListener
             $globals = $this->service->getVendorGlobals();
         }
         $this->service->saveModuleListenerGlobals($globals);
+        $this->restoreReminderTasks();
 
         return $currentActionStatus;
+    }
+
+    /**
+     * Stop the reminder tasks while the module is disabled (their code cannot
+     * load), remembering which ones were running so enable() can restart them.
+     * A snapshot already on file is kept: a repeated disable would otherwise
+     * record the tasks as off, since the first disable stopped them.
+     */
+    private function suspendReminderTasks(): void
+    {
+        $active = ModuleLifecycleState::taskNames(QueryUtils::fetchRecords(
+            "SELECT `name` FROM `background_services` WHERE `active` = 1 AND `name` IN (?, ?)",
+            ModuleLifecycleState::REMINDER_TASKS
+        ));
+        QueryUtils::sqlStatementThrowException(
+            "INSERT IGNORE INTO `module_faxsms_credentials` (`auth_user`, `vendor`, `credentials`) VALUES (0, ?, ?)",
+            [self::PERSISTED_TASKS_VENDOR, json_encode($active)]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `background_services` SET `active` = 0 WHERE `name` IN (?, ?)",
+            ModuleLifecycleState::REMINDER_TASKS
+        );
+    }
+
+    /**
+     * Restart the reminder tasks that were running when the module was
+     * disabled. Tasks that were already off stay off. The snapshot is then
+     * removed so the next disable records a fresh one.
+     */
+    private function restoreReminderTasks(): void
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = 0 AND `vendor` = ?",
+            [self::PERSISTED_TASKS_VENDOR]
+        );
+        $stored = is_array($row) ? ($row['credentials'] ?? null) : null;
+        foreach (ModuleLifecycleState::tasksToRestore($stored) as $name) {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `background_services` SET `active` = 1 WHERE `name` = ?",
+                [$name]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM `module_faxsms_credentials` WHERE `auth_user` = 0 AND `vendor` = ?",
+            [self::PERSISTED_TASKS_VENDOR]
+        );
     }
 
     /**
@@ -123,6 +187,15 @@ class ModuleManagerListener extends AbstractModuleActionListener
         }
         // save new disabled settings.
         $this->service->saveModuleListenerGlobals($globals);
+        // The loop above only changes the in-memory globals; $globals still
+        // holds the enabled values, so the flags stayed on in the database and
+        // main.php kept polling the disabled module. Store them as off. The
+        // values persisted above are what enable() restores.
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `globals` SET `gl_value` = '0' WHERE `gl_name` IN ('oefax_enable_sms', 'oefax_enable_fax')",
+            []
+        );
+        $this->suspendReminderTasks();
         return $currentActionStatus;
     }
 

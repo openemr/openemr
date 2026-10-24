@@ -21,6 +21,7 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -42,6 +43,29 @@ $list_id = $_GET['listid'];
 $title = trim((string) $_GET['newitem']);
 $option_id = trim((string) $_GET['newitem_abbr']);
 $option_value = 0;
+
+// The `recent_patient_columns` list stores `option_id` values that
+// `interface/main/finder/dynamic_finder.php` later concatenates into a
+// SELECT column list from `patient_data`. Validate the identifier at the
+// write seam so stored rows always resolve to a real `patient_data`
+// column. `escape_sql_column_name()` short-circuits `*` without checking
+// the schema, so reject that explicitly before the schema check.
+if ($list_id === 'recent_patient_columns') {
+    $validOptionId = true;
+    if ($option_id === '*') {
+        $validOptionId = false;
+    } else {
+        try {
+            escape_sql_column_name($option_id, ['patient_data'], false, true);
+        } catch (SqlQueryException) {
+            $validOptionId = false;
+        }
+    }
+    if (!$validOptionId) {
+        echo json_encode(["error" => xl('Invalid column name')]);
+        exit;
+    }
+}
 
 // make sure we're not adding a duplicate title or id
 $exists_title = sqlQuery("SELECT * FROM list_options WHERE " .

@@ -39,7 +39,7 @@ class Savant3_Plugin_htmlAttribs extends Savant3_Plugin
      * @return string The XHTML for the attributes.
      *
      */
-    public function htmlAttribs($attribs)
+    public function htmlAttribs($attribs): string
     {
         $xhtml = '';
         foreach ((array) $attribs as $key => $val) {

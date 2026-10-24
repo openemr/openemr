@@ -255,9 +255,7 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CoverageEligibilityResponseInsurance xmlns="http://hl7.org/fhir"></CoverageEligibilityResponseInsurance>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CoverageEligibilityResponseInsurance xmlns="http://hl7.org/fhir"></CoverageEligibilityResponseInsurance>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->coverage)) {
             $this->coverage->xmlSerialize(true, $sxe->addChild('coverage'));

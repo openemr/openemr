@@ -144,9 +144,7 @@ class FHIRObservationDataType extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ObservationDataType xmlns="http://hl7.org/fhir"></ObservationDataType>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ObservationDataType xmlns="http://hl7.org/fhir"></ObservationDataType>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

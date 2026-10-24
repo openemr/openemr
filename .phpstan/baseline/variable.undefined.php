@@ -122,11 +122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/dupscore.cli.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$d might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
@@ -180,21 +175,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/chart_tracker.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$counter might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$query might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$sql_bind_array might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$cqmCodes might not be defined\\.$#',
@@ -302,11 +282,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/import_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/import_xml.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$patients might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/qrda_category1.inc.php',
@@ -345,11 +320,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$Table might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/code_systems/standard_tables_manage.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
@@ -438,7 +408,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/easipro/pro.php',
 ];
 $ignoreErrors[] = [
@@ -463,7 +433,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 5,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [
@@ -493,7 +463,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 4,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
 ];
 $ignoreErrors[] = [
@@ -768,7 +738,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/newGroupEncounter/common.php',
 ];
 $ignoreErrors[] = [
@@ -813,7 +783,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/treatment_plan/new.php',
 ];
 $ignoreErrors[] = [
@@ -834,11 +804,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$temp_css_theme_name might not be defined\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$v_js_includes might not be defined\\.$#',
-    'count' => 6,
     'path' => __DIR__ . '/../../interface/globals.php',
 ];
 $ignoreErrors[] = [
@@ -888,7 +853,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 5,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
 ];
 $ignoreErrors[] = [
@@ -898,7 +863,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/new/new_comprehensive_save.php',
 ];
 $ignoreErrors[] = [
@@ -917,14 +882,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/new/new_patient_save.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/new/new_patient_save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/new/new_search_popup.php',
+    'message' => '#^Variable \\$newid might not be defined\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/patient_file/transaction/add_transaction.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$MedEx might not be defined\\.$#',
@@ -988,7 +948,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
 ];
 $ignoreErrors[] = [
@@ -1008,7 +968,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker_status.php',
 ];
 $ignoreErrors[] = [
@@ -1193,7 +1153,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$facility might not be defined\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
@@ -1207,23 +1167,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$no_fu might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$no_interval might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$pid_list might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$provider might not be defined\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
@@ -1257,11 +1207,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/adminacl_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$default$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/code_attributes_ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$fileroot might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/ajax/code_attributes_ajax.php',
@@ -1269,22 +1214,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/dated_reminders_counter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$pid might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/ajax/easipro_util.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/facility_ajax_code.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$name_alt might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/ajax/graphs.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$titleGraphLine1 might not be defined\\.$#',
@@ -1330,11 +1260,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$rtn might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/ajax/upload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$provider$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Undefined variable\\: \\$pid$#',
@@ -1402,18 +1327,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$patientNumber might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/clinical_rules.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$percentage might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$temp_track_pass might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
@@ -1427,17 +1347,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/custom_template/add_custombutton.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$ISSUE_TYPES might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/custom_template/custom_template.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$pid might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/custom_template/custom_template.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/custom_template/custom_template.php',
 ];
@@ -1478,7 +1388,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/ippf_issues.inc.php',
 ];
 $ignoreErrors[] = [
@@ -1532,11 +1442,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$metadata might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$insarr might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
@@ -1560,11 +1465,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$AdjustString might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/payment.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$all might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/registry.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$tempCollectReminders might not be defined\\.$#',
@@ -1662,11 +1562,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/validation/validation_script.js.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/account/account.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$portalRegistrationAuthorization might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/account/register.php',
@@ -1710,11 +1605,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$starttime might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$providerid might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$pid might not be defined\\.$#',
@@ -1927,11 +1817,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$ISSUE_TYPES might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$OE_SITE_DIR might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
@@ -1948,27 +1833,17 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$v_js_includes might not be defined\\.$#',
-    'count' => 5,
+    'count' => 3,
     'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$webserver_root might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ISSUE_TYPES might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/portal_patient_report.php',
+    'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$rootdir might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/portal_patient_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 3,
     'path' => __DIR__ . '/../../portal/report/portal_patient_report.php',
 ];
 $ignoreErrors[] = [
@@ -2010,11 +1885,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$dun_message might not be defined\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$patientIdCc might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../sphere/initial_response.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$GLOBALS_METADATA might not be defined\\.$#',
@@ -2102,18 +1972,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingReport.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$query_part_day1 might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Billing/BillingReport.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$msp might not be defined\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$tmp might not be defined\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
@@ -2125,11 +1985,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$returnval might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EDI270.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$st_pos$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$bht_pos might not be defined\\.$#',
@@ -2152,11 +2007,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$env_ar might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$gs_ct might not be defined\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
@@ -2173,16 +2023,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$gsn might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$seg_ar might not be defined\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$segidx might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
@@ -2215,11 +2055,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$arr_group_titles might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$response might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/MfaUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$fhirScopes might not be defined\\.$#',
@@ -2280,11 +2115,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$table might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$catEntry might not be defined\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$action might not be defined\\.$#',

@@ -296,9 +296,7 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstancePolymerRepeatUnit xmlns="http://hl7.org/fhir"></SubstancePolymerRepeatUnit>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstancePolymerRepeatUnit xmlns="http://hl7.org/fhir"></SubstancePolymerRepeatUnit>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->orientationOfPolymerisation)) {
             $this->orientationOfPolymerisation->xmlSerialize(true, $sxe->addChild('orientationOfPolymerisation'));

@@ -182,9 +182,7 @@ class FHIRDeviceDefinitionSpecialization extends FHIRBackboneElement implements 
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceDefinitionSpecialization xmlns="http://hl7.org/fhir"></DeviceDefinitionSpecialization>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DeviceDefinitionSpecialization xmlns="http://hl7.org/fhir"></DeviceDefinitionSpecialization>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->systemType)) {
             $this->systemType->xmlSerialize(true, $sxe->addChild('systemType'));

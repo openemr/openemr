@@ -214,9 +214,7 @@ class FHIRClaimRelated extends FHIRBackboneElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ClaimRelated xmlns="http://hl7.org/fhir"></ClaimRelated>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ClaimRelated xmlns="http://hl7.org/fhir"></ClaimRelated>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->claim)) {
             $this->claim->xmlSerialize(true, $sxe->addChild('claim'));

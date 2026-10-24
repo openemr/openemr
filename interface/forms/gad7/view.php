@@ -18,6 +18,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $form_folder = "gad7";
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -36,7 +37,7 @@ var gad7_score = 0;
 
 </script>
 <SCRIPT
-  src="<?php echo $rootdir;?>/forms/gad7/gad7_javasrc.js">
+  src="<?php echo $rootdir;?>/forms/gad7/gad7_javasrc.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">
  </script>
 
 <SCRIPT>

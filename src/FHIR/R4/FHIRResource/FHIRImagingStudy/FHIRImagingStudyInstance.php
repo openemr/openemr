@@ -246,9 +246,7 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImagingStudyInstance xmlns="http://hl7.org/fhir"></ImagingStudyInstance>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ImagingStudyInstance xmlns="http://hl7.org/fhir"></ImagingStudyInstance>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->uid)) {
             $this->uid->xmlSerialize(true, $sxe->addChild('uid'));

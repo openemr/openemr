@@ -19,19 +19,17 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\VersionService;
 
-$facilityService = new FacilityService();
-
-function getErxPath()
+function getErxPath(): string
 {
     return OEGlobalsBag::getInstance()->getString('erx_newcrop_path');
 }
 
-function getErxSoapPath()
+function getErxSoapPath(): string
 {
     return OEGlobalsBag::getInstance()->getString('erx_newcrop_path_soap');
 }
 
-function getErxCredentials()
+function getErxCredentials(): array
 {
     $cred = [];
     $cred[] = OEGlobalsBag::getInstance()->getString('erx_account_partner_name');
@@ -69,7 +67,7 @@ function stripPhoneSlashes($str)
     return $str;
 }
 
-function trimData($str, $length)
+function trimData($str, $length): string
 {
     $str = substr((string) $str, 0, ($length - 1));
     return $str;
@@ -194,8 +192,8 @@ function destination($doc, $r, ?string $page = null, $pid = null): void
 
 function account($doc, $r): void
 {
-    global $msg, $facilityService;
-    $erxSiteID = $facilityService->getPrimaryBusinessEntity();
+    global $msg;
+    $erxSiteID = (new FacilityService())->getPrimaryBusinessEntity();
     if (!$erxSiteID['federal_ein']) {
         echo xlt("Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the Ensora system.");
         die;
@@ -594,7 +592,7 @@ function MidlevelPrescriber($doc, $r): void
     $r->appendChild($b);
 }
 
-function Patient($doc, $r, $pid)
+function Patient($doc, $r, $pid): array
 {
     global $msg,$warning_msg,$dem_check;
     $patient_data = sqlQuery("select *, DATE_FORMAT(DOB,'%Y%m%d') AS date_of_birth from patient_data where pid=?", [$pid]);
@@ -793,7 +791,7 @@ function OutsidePrescription($doc, $r, $pid, $prescid): void
     }
 }
 
-function PatientMedication($doc, $r, $pid, $med_limit)
+function PatientMedication($doc, $r, $pid, $med_limit): array
 {
     global $msg;
     $active = '';
@@ -802,7 +800,7 @@ function PatientMedication($doc, $r, $pid, $med_limit)
     }
 
     $res_med = sqlStatement("select * from lists where type='medication' and pid=? and title<>''
-	and erx_uploaded='0' $active order by enddate limit 0," . escape_limit($med_limit), [$pid]);
+	and erx_uploaded='0' $active order by enddate limit 0, ?", [$pid, (is_numeric($med_limit) ? (int) $med_limit : 0)]);
     $uploaded_med_arr = [];
     while ($row_med = sqlFetchArray($res_med)) {
         $uploaded_med_arr[] = $row_med['id'];
@@ -854,7 +852,7 @@ function PatientMedication($doc, $r, $pid, $med_limit)
     return $uploaded_med_arr;
 }
 
-function PatientFreeformAllergy($doc, $r, $pid)
+function PatientFreeformAllergy($doc, $r, $pid): array
 {
     $res = sqlStatement("SELECT id,l.title as title1,lo.title as title2,comments FROM lists AS l
     LEFT JOIN list_options AS lo ON l.outcome = lo.option_id AND lo.list_id = 'outcome' AND lo.activity = 1
@@ -948,7 +946,7 @@ function PrescriptionRenewalResponse($doc, $r, $pid): void
     $r->appendChild($b);
 }
 
-function checkError($xml)
+function checkError($xml): string
 {
     $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
     $ch = curl_init($xml);

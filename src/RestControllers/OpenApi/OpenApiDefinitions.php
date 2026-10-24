@@ -14,7 +14,7 @@ namespace OpenEMR\RestControllers\OpenApi;
 
 use OpenApi\Attributes as OA;
 
-#[OA\Info(title: 'OpenEMR API', version: '8.4.0')]
+#[OA\Info(title: 'OpenEMR API', version: '8.5.0')]
 #[OA\Server(url: '/apis/default/')]
 
 #[OA\SecurityScheme(
@@ -280,6 +280,38 @@ use OpenApi\Attributes as OA;
                 'error_description' => 'The resource owner or authorization server denied the request.',
                 'hint' => 'Missing "Authorization" header',
                 'message' => 'The resource owner or authorization server denied the request.',
+            ]
+        )
+    )
+)]
+#[OA\Response(
+    response: 'forbidden',
+    description: 'Forbidden',
+    content: new OA\MediaType(
+        mediaType: 'application/fhir+json',
+        schema: new OA\Schema(
+            properties: [
+                new OA\Property(
+                    property: 'resourceType',
+                    description: 'Always OperationOutcome for a refused FHIR request.',
+                    type: 'string'
+                ),
+                new OA\Property(
+                    property: 'issue',
+                    description: 'The issues that caused the request to be refused.',
+                    type: 'array',
+                    items: new OA\Items(type: 'object')
+                ),
+            ],
+            example: [
+                'resourceType' => 'OperationOutcome',
+                'issue' => [
+                    [
+                        'severity' => 'error',
+                        'code' => 'forbidden',
+                        'diagnostics' => 'FHIR write endpoints do not accept patient-context tokens',
+                    ],
+                ],
             ]
         )
     )

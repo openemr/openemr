@@ -246,9 +246,7 @@ class FHIRAdverseEventCausality extends FHIRBackboneElement implements \JsonSeri
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AdverseEventCausality xmlns="http://hl7.org/fhir"></AdverseEventCausality>');
-        }
+        $sxe ??= new \SimpleXMLElement('<AdverseEventCausality xmlns="http://hl7.org/fhir"></AdverseEventCausality>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->assessment)) {
             $this->assessment->xmlSerialize(true, $sxe->addChild('assessment'));

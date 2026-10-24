@@ -14,18 +14,21 @@ class MeasureService
      * Get measure sources with dynamic path building
      * The 'openemr/oe-cqm-parsers' path is built at runtime using the global cqm_performance_period
      */
-    public static function fetchMeasureSourceOptions()
+    public static function fetchMeasureSourceOptions(): array
     {
         $reporting_year = OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023';
         $reporting_year .= '_reporting_period';
 
         return [
-            'openemr/oe-cqm-parsers' => "/ccdaservice/node_modules/oe-cqm-parsers/$reporting_year/json_measures",
+            'openemr/oe-cqm-parsers' => "/vendor/openemr/oe-cqm-parsers/$reporting_year/json_measures",
             'contrib' => '/contrib/ecqm/EP-EC-eCQM-2020-05'
         ];
     }
 
-    public static function fetchMeasureOptions()
+    /**
+     * @return array<string, string> measure name => measure directory
+     */
+    public static function fetchMeasureOptions(): array
     {
         $measureSources = self::fetchMeasureSourceOptions();
         $measureSourcePath = $measureSources['openemr/oe-cqm-parsers'];
@@ -39,7 +42,7 @@ class MeasureService
         return $options;
     }
 
-    public static function fetchMeasuresPath()
+    public static function fetchMeasuresPath(): string
     {
         $measureSources = self::fetchMeasureSourceOptions();
         $measureSourcePath = $measureSources['openemr/oe-cqm-parsers'];
@@ -53,7 +56,7 @@ class MeasureService
      * @param  $measurePath
      * @return string[]
      */
-    public static function fetchMeasureFiles($measurePath)
+    public static function fetchMeasureFiles($measurePath): array
     {
         return [
             'measure' => $measurePath . '/' . basename((string) $measurePath) . '.json',
@@ -61,7 +64,7 @@ class MeasureService
         ];
     }
 
-    public static function fetchAllMeasuresArray($measures = [])
+    public static function fetchAllMeasuresArray($measures = []): array
     {
         $measureObjects = [];
         foreach ($measures as $measure) {
@@ -85,7 +88,7 @@ class MeasureService
      *
      * @return string
      */
-    public static function getCurrentReportingYear()
+    public static function getCurrentReportingYear(): string
     {
         return OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023';
     }
@@ -96,11 +99,9 @@ class MeasureService
      * @param string $year
      * @return bool
      */
-    public static function validateReportingYear($year = null)
+    public static function validateReportingYear($year = null): bool
     {
-        if ($year === null) {
-            $year = self::getCurrentReportingYear();
-        }
+        $year ??= self::getCurrentReportingYear();
 
         $tempGlobal = OEGlobalsBag::getInstance()->getString('cqm_performance_period');
         OEGlobalsBag::getInstance()->set('cqm_performance_period', $year);

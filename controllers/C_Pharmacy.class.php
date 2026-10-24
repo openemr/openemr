@@ -19,7 +19,7 @@ class C_Pharmacy extends Controller
     private $pageno;
     private $Pharmacy;
 
-    function __construct(public $template_mod = "general")
+    public function __construct()
     {
         parent::__construct();
         $this->pharmacies = [];
@@ -31,12 +31,12 @@ class C_Pharmacy extends Controller
         $this->pageno = $this->Pharmacy->getPageno();
     }
 
-    function default_action(): string
+    public function default_action(): string
     {
         return $this->list_action();
     }
 
-    function edit_action($id = "", $patient_id = "")
+    public function edit_action($id = "", $patient_id = "")
     {
         if (!(($this->pharmacies[0] ?? null) instanceof Pharmacy)) {
             $this->pharmacies[0] = new Pharmacy($id);
@@ -51,14 +51,14 @@ class C_Pharmacy extends Controller
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "pharmacies/" . $this->template_mod . "_edit.html");
     }
 
-    function list_action(): string
+    public function list_action(): string
     {
         $this->assign("pharmacies", $this->Pharmacy->pharmacies_factory());
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "pharmacies/" . $this->template_mod . "_list.html");
     }
 
 
-    function edit_action_process()
+    public function edit_action_process()
     {
         if ($_POST['process'] != "true") {
             return;

@@ -30,6 +30,7 @@
 //  define constants used to make the code more readable
 //=================================================================
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 define('_IS_SUNDAY', 0);
 define('_IS_MONDAY', 1);
@@ -158,7 +159,7 @@ function &pcVarPrepHTMLDisplay($s)
     $postcalendarRemoveScriptTags = pnVarPrepHTMLDisplay(postcalendar_removeScriptTags($s));
     return $postcalendarRemoveScriptTags;
 }
-function pcGetTopicName($topicid)
+function pcGetTopicName($topicid): string
 {
     // not using topics in OpenEMR, so just return nothing
     return '';
@@ -181,7 +182,7 @@ function postcalendar_removeScriptTags($in)
     return preg_replace("/<script.*?>(.*?)<\/script>/", "", ($in ?? ''));
 }
 
-function postcalendar_getDate($format = 'Ymd')
+function postcalendar_getDate($format = 'Ymd'): string
 {
     [$Date, $jumpday, $jumpmonth, $jumpyear, $jumpdate] =
         pnVarCleanFromInput('Date', 'jumpday', 'jumpmonth', 'jumpyear', 'jumpdate');
@@ -197,17 +198,11 @@ function postcalendar_getDate($format = 'Ymd')
             $lastcaldate = $session->get('lastcaldate');
             $time = !empty($lastcaldate) ? strtotime((string) $lastcaldate) : time();
 
-            if (!isset($jumpday)) {
-                $jumpday   = date('d', $time);
-            }
+            $jumpday ??= date('d', $time);
 
-            if (!isset($jumpmonth)) {
-                $jumpmonth = date('m', $time);
-            }
+            $jumpmonth ??= date('m', $time);
 
-            if (!isset($jumpyear)) {
-                $jumpyear  = date('Y', $time);
-            }
+            $jumpyear ??= date('Y', $time);
         }
 
         // create the correct date string
@@ -221,7 +216,7 @@ function postcalendar_getDate($format = 'Ymd')
     return date($format, mktime(0, 0, 0, $m, $d, $y));
 }
 
-function &postcalendar_today($format = 'Ymd')
+function &postcalendar_today($format = 'Ymd'): string
 {
     $time = time();
     $date = date($format, $time);
@@ -235,7 +230,7 @@ function &postcalendar_today($format = 'Ymd')
  * sets up any necessary javascript for the page
  * @return string javascript to insert into the page
  */
-function postcalendar_userapi_pageSetup()
+function postcalendar_userapi_pageSetup(): string
 {
     $output = '';
     // load the DHTML JavaScript code and insert it into the page
@@ -324,6 +319,7 @@ function postcalendar_userapi_loadPopups()
     unset($modinfo);
     $capicon = '';
     $close = _PC_OL_CLOSE;
+    $assetVersion = attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes'));
 
     $output = <<<EOF
 
@@ -362,7 +358,7 @@ ol_hauto = 1;
 ol_vauto = 1;
 </script>
 <div id="overDiv" style="position:absolute; top:0px; left:0px; visibility:hidden; z-index:1000;"></div>
-<script src="modules/$pcDir/pnincludes/overlib_mini.js">
+<script src="modules/$pcDir/pnincludes/overlib_mini.js?v=$assetVersion">
 <!-- overLIB (c) Erik Bosrup -->
 </script>
 
@@ -396,19 +392,15 @@ function postcalendar_userapi_getmonthname($args)
 /**
  *  Returns an array of form data for FormSelectMultiple
  */
-function postcalendar_userapi_buildMonthSelect($args)
+function postcalendar_userapi_buildMonthSelect($args): array
 {
     extract($args);
     unset($args);
-    if (!isset($pc_month)) {
-        $pc_month = Date_Calc::getMonth();
-    }
+    $pc_month ??= Date_Calc::getMonth();
 
     // create the return object to be inserted into the form
     $output = [];
-    if (!isset($selected)) {
-        $selected = '';
-    }
+    $selected ??= '';
 
     for ($c = 0,$i = 1; $i <= 12; $i++,$c++) {
         if ($selected) {
@@ -430,19 +422,15 @@ function postcalendar_userapi_buildMonthSelect($args)
 /**
  *  Returns an array of form data for FormSelectMultiple
  */
-function postcalendar_userapi_buildDaySelect($args)
+function postcalendar_userapi_buildDaySelect($args): array
 {
     extract($args);
     unset($args);
-    if (!isset($pc_day)) {
-        $pc_day = Date_Calc::getDay();
-    }
+    $pc_day ??= Date_Calc::getDay();
 
     // create the return object to be inserted into the form
     $output = [];
-    if (!isset($selected)) {
-        $selected = '';
-    }
+    $selected ??= '';
 
     for ($c = 0,$i = 1; $i <= 31; $i++,$c++) {
         if ($selected) {
@@ -464,13 +452,11 @@ function postcalendar_userapi_buildDaySelect($args)
 /**
  *  Returns an array of form data for FormSelectMultiple
  */
-function postcalendar_userapi_buildYearSelect($args)
+function postcalendar_userapi_buildYearSelect($args): array
 {
     extract($args);
     unset($args);
-    if (!isset($pc_year)) {
-        $pc_year = date('Y');
-    }
+    $pc_year ??= date('Y');
 
     // create the return object to be inserted into the form
     $output = [];
@@ -478,9 +464,7 @@ function postcalendar_userapi_buildYearSelect($args)
     // maybe this will eventually become a user defined value
     $pc_start_year = date('Y') - 1;
     $pc_end_year = date('Y') + 30;
-    if (!isset($selected)) {
-        $selected = '';
-    }
+    $selected ??= '';
 
     for ($c = 0,$i = $pc_start_year; $i <= $pc_end_year; $i++,$c++) {
         if ($selected) {
@@ -499,7 +483,7 @@ function postcalendar_userapi_buildYearSelect($args)
     return $output;
 }
 
-function &postcalendar_userapi_getCategories()
+function &postcalendar_userapi_getCategories(): array
 {
     $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
@@ -576,7 +560,10 @@ function &postcalendar_userapi_getTopics()
     return $data;
 }
 
-function findFirstAvailable($period)
+/**
+ * @return non-empty-list[]
+ */
+function findFirstAvailable($period): array
 {
     //print_r($period);
 
@@ -597,7 +584,7 @@ function findFirstAvailable($period)
     return $available_times;
 }
 
-function findFirstInDay($day, $date)
+function findFirstInDay($day, $date): array
 {
     $stack = [];
     $lastcat = 3;
@@ -698,7 +685,7 @@ function findFirstInDay($day, $date)
     return $times;
 }
 
-function dtSec($date, $time)
+function dtSec($date, $time): string
 {
     return date("U", strtotime($date . " " . $time));
 }
@@ -709,7 +696,7 @@ function dtSecDur($date, $time, $dur)
     return $time_sec + $dur;
 }
 
-function postcalendar_footer()
+function postcalendar_footer(): string
 {
     // lets get the module's information
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
@@ -771,7 +758,7 @@ function sort_byTimeD($a, $b)
  *    @param mixed $s string text to clean
  *    @return string cleaned up text
  */
-function pc_clean($s)
+function pc_clean($s): string
 {
     $display_type = substr((string) $s, 0, 6);
     if ($display_type == ':text:') {

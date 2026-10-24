@@ -29,7 +29,7 @@ class RuleCriteriaType
     const custom = "custom";
     const custom_bucket = "custom_bucket";
 
-    function __construct(public $code, public $lbl, public $method)
+    public function __construct(public $code, public $lbl, public $method)
     {
     }
 
@@ -50,7 +50,7 @@ class RuleCriteriaType
         return array_keys($map);
     }
 
-    private static function map()
+    private static function map(): array
     {
         $map = [
             self::ageMin => new RuleCriteriaType(self::ageMin, xl('Age min'), 'age_min'),

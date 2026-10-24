@@ -144,9 +144,7 @@ class FHIRStructureMapTargetListMode extends FHIRElement implements \JsonSeriali
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<StructureMapTargetListMode xmlns="http://hl7.org/fhir"></StructureMapTargetListMode>');
-        }
+        $sxe ??= new \SimpleXMLElement('<StructureMapTargetListMode xmlns="http://hl7.org/fhir"></StructureMapTargetListMode>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

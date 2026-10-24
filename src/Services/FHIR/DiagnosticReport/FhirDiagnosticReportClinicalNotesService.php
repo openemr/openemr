@@ -25,6 +25,7 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -41,7 +42,7 @@ use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implements IResourceUSCIGProfileService, IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
@@ -69,7 +70,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -86,7 +87,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
     }
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         $loincCategory = "LOINC:" . $category;
         $listService = new ListService();
@@ -100,7 +101,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
         return $this->service->isValidClinicalNoteCode($code);
     }
 
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDiagnosticReport
     {
         $report = new FHIRDiagnosticReport();
         $this->populateMeta($report, $dataRecord);

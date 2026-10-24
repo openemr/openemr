@@ -12,8 +12,6 @@
 
 use OpenEMR\BC\Utilities;
 
-require_once(__DIR__ . '/../../../library/api.inc.php');
-
 function sdoh_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;

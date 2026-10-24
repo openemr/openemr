@@ -65,7 +65,6 @@ declare -a EXCLUDES=(
     "--exclude=vendor"
     "--exclude=node_modules"
     "--exclude=tests"
-    "--exclude=ccdaservice/node_modules"
     "--exclude=Documentation"
     "--exclude=*.mustache"
 )

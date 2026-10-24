@@ -19,7 +19,6 @@
  */
 
 require_once("../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -52,7 +51,7 @@ function getLoggedInUserFacility()
 }
 
 // Ensoftek: Jul-2015: Map codes to confirm to HL7.
-function mapCodeType($incode)
+function mapCodeType($incode): string
 {
     $outcode = null;
     $code = explode(":", (string) $incode);

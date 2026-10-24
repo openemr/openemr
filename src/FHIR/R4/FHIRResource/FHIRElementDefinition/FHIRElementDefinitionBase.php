@@ -215,9 +215,7 @@ class FHIRElementDefinitionBase extends FHIRBackboneElement implements \JsonSeri
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ElementDefinitionBase xmlns="http://hl7.org/fhir"></ElementDefinitionBase>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ElementDefinitionBase xmlns="http://hl7.org/fhir"></ElementDefinitionBase>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->path)) {
             $this->path->xmlSerialize(true, $sxe->addChild('path'));

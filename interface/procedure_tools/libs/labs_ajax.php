@@ -13,13 +13,22 @@
 require_once(__DIR__ . "/../../../interface/globals.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\Storage\CacheDirectory;
+use Symfony\Component\HttpFoundation\Response;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Labs Ajax", xl("Labs"));
+}
 
 function orderDate($order)
 {
@@ -64,17 +73,33 @@ if ($action === 'code_detail') {
 }
 
 if ($action === 'print_labels') {
+    $query = CurrentRequest::get()->query;
     $client = $_GET['acctid'];
-    $pid = $_GET['pid'];
+    $pid = $query->getInt('pid');
+    if ($pid <= 0) {
+        (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, 'Missing PID.');
+    }
     $order = $_GET['order'];
     $specimen = [];
-    $specimens = explode(";", (string) $_GET['specimen']);
+    // createLabels() in interface/forms/procedure_order/common.php appends a
+    // trailing `;` after each specimen, so strip it before splitting to avoid
+    // an empty tail element inflating the bound-check count.
+    $specimens = explode(";", rtrim((string) $_GET['specimen'], ";"));
     $patient = strtoupper((string) $_GET['patient']);
     $order_date = orderDate($order);
     $dob = $_GET['dob'];
-    $count = 1;
-    if ($_GET['count']) {
-        $count = (int)$_GET['count'];
+    $count = $query->getInt('count') ?: 1;
+
+    $maxCount = 50;
+    $maxSpecimens = 50;
+    $maxTotalLabels = 500;
+    $specimenCount = count($specimens);
+    if (
+        $count > $maxCount
+        || $specimenCount > $maxSpecimens
+        || ($count * $specimenCount) > $maxTotalLabels
+    ) {
+        (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, 'Label print bounds exceeded.');
     }
 
     $pdf = new mPDF([
