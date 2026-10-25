@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\Qdm;
 
+use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
@@ -39,11 +40,35 @@ class LaboratoryTestServiceTest extends TestCase
         self::assertSame('Positive', $model->result);
     }
 
-    public function testWhitespaceOnlyResultUsesTheEmptyResultFallback(): void
+    public function testEmptyResultIsNull(): void
     {
-        $model = $this->service()->makeQdmModel(new QdmRecord($this->record('    '), 1, 1));
+        foreach (['', '    '] as $emptyResult) {
+            $model = $this->service()->makeQdmModel(new QdmRecord($this->record($emptyResult), 1, 1));
 
-        self::assertSame('Negative', $model->result);
+            self::assertNull($model->result);
+        }
+    }
+
+    public function testNegativeResultIsRecognizedRegardlessOfCase(): void
+    {
+        $code = new Code(['code' => '260385009', 'system' => '2.16.840.1.113883.6.96']);
+        $service = $this->getMockBuilder(LaboratoryTestService::class)
+            ->setConstructorArgs([
+                $this->createMock(QdmRequestInterface::class),
+                new CodeTypesService()
+            ])
+            ->onlyMethods(['makeQdmCode'])
+            ->getMock();
+        $service->expects(self::exactly(3))
+            ->method('makeQdmCode')
+            ->with('SNOMED-CT:260385009')
+            ->willReturn($code);
+
+        foreach (['Negative', 'negative', 'NEGATIVE'] as $negativeResult) {
+            $model = $service->makeQdmModel(new QdmRecord($this->record($negativeResult), 1, 1));
+
+            self::assertSame($code, $model->result);
+        }
     }
 
     private function service(): LaboratoryTestService
@@ -57,7 +82,7 @@ class LaboratoryTestServiceTest extends TestCase
     /**
      * @return array<string, string|null>
      */
-    private function record(string $result): array
+    private function record(?string $result): array
     {
         return [
             'result' => $result,

@@ -59,7 +59,7 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
             $resultValue = trim($resultValue);
         }
 
-        $result = self::NEGATIVE_RESULT;
+        $result = null;
         if (is_numeric($resultValue)) {
             $result = new Quantity([
                 'value' => (float) $resultValue,
@@ -68,16 +68,14 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
         } elseif (
             is_string($resultValue)
             && $resultValue !== ''
-            && $resultValue !== self::NEGATIVE_RESULT
+            && strcasecmp($resultValue, self::NEGATIVE_RESULT) !== 0
         ) {
             $result = $resultValue;
         }
         // A result generally should have a code however,
         // for rare occasions with values such as Negative, schematron expects a code type
         // or will throw a warning. This holds for CDA too.
-        if (
-            $resultValue === self::NEGATIVE_RESULT
-        ) {
+        if (is_string($resultValue) && strcasecmp($resultValue, self::NEGATIVE_RESULT) === 0) {
             $result = $this->makeQdmCode('SNOMED-CT:260385009');
         }
 
