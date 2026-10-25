@@ -373,23 +373,35 @@ class TokenGrantRateLimitSymmetryApiTest extends TestCase
 
         $oauthTokenUrl = $this->baseUrl . '/oauth2/default/token';
 
-        // Burst BURST_SIZE wrong-assertion attempts. We forge each with
-        // the WRONG issuer (sub = random uuid, so the JWT verifies
-        // against the client's declared JWKS but the sub does not match
-        // the known client — reliably rejected without touching any
-        // counter).
+        // Burst BURST_SIZE wrong-assertion attempts. Each assertion uses
+        // the REGISTERED client as iss/sub (so the JWT verifies against
+        // the client's declared JWKS and the attempt is attributed to
+        // this real client), but with a bad `aud` so the attempt is
+        // rejected. A per-client counter — if one existed — would see
+        // the same client repeatedly across the burst.
         $responseStatuses = [];
+        /** @var list<string> $responseErrors */
         $responseErrors = [];
         for ($attempt = 1; $attempt <= self::BURST_SIZE; $attempt++) {
             $resp = $this->postClientCredentials(
                 $http,
                 $oauthTokenUrl,
                 $clientId,
-                $this->buildMismatchedAssertion($oauthTokenUrl)
+                $this->buildBadAudienceAssertion($clientId)
             );
             $responseStatuses[] = $resp['status'];
             $decoded = json_decode($resp['body'], true);
-            $responseErrors[] = is_array($decoded) ? ($decoded['error'] ?? null) : null;
+            $err = is_array($decoded) ? ($decoded['error'] ?? null) : null;
+            // Every burst response must carry a string error code —
+            // a missing code means the server failed for an unrelated
+            // reason and the no-lockout invariant is no longer being
+            // probed.
+            $this->assertIsString(
+                $err,
+                'client_credentials burst attempt ' . $attempt
+                    . ' must carry a string error code. Body: ' . $resp['body']
+            );
+            $responseErrors[] = $err;
         }
 
         // Every attempt in the burst must be a 4xx — if any transitions
@@ -402,14 +414,14 @@ class TokenGrantRateLimitSymmetryApiTest extends TestCase
                 "client_credentials bad-assertion attempt " . ($i + 1) . " must be a 4xx; got $status"
             );
         }
-        // Every attempt must produce the same error code — a shift to
-        // (e.g.) "account_locked" or "access_denied" on a later attempt
-        // would indicate a lockout has been introduced.
-        $uniqueErrors = array_unique(array_filter($responseErrors, is_string(...)));
-        $this->assertLessThanOrEqual(
+        // Every attempt must carry the SAME error code. A later-attempt
+        // code shift (e.g. "access_denied" instead of "invalid_request")
+        // would indicate a lockout response type has been introduced.
+        $uniqueErrors = array_unique($responseErrors);
+        $this->assertCount(
             1,
-            count($uniqueErrors),
-            'All client_credentials burst responses should carry the SAME error code '
+            $uniqueErrors,
+            'All client_credentials burst responses must carry the SAME error code '
                 . '(no new lockout response introduced). Observed: '
                 . implode(',', $uniqueErrors)
         );
@@ -462,13 +474,20 @@ class TokenGrantRateLimitSymmetryApiTest extends TestCase
 
         // Burst BURST_SIZE wrong-refresh-token attempts.
         $responseStatuses = [];
+        /** @var list<string> $responseErrors */
         $responseErrors = [];
         for ($attempt = 1; $attempt <= self::BURST_SIZE; $attempt++) {
             $wrongRefreshToken = 'not-a-real-refresh-' . bin2hex(random_bytes(16));
             $resp = $this->postRefreshToken($http, $clientId, $clientSecret, $wrongRefreshToken);
             $responseStatuses[] = $resp['status'];
             $decoded = json_decode($resp['body'], true);
-            $responseErrors[] = is_array($decoded) ? ($decoded['error'] ?? null) : null;
+            $err = is_array($decoded) ? ($decoded['error'] ?? null) : null;
+            $this->assertIsString(
+                $err,
+                'refresh_token burst attempt ' . $attempt
+                    . ' must carry a string error code. Body: ' . $resp['body']
+            );
+            $responseErrors[] = $err;
         }
 
         foreach ($responseStatuses as $i => $status) {
@@ -478,11 +497,11 @@ class TokenGrantRateLimitSymmetryApiTest extends TestCase
                 "refresh_token bad-token attempt " . ($i + 1) . " must be a 4xx; got $status"
             );
         }
-        $uniqueErrors = array_unique(array_filter($responseErrors, is_string(...)));
-        $this->assertLessThanOrEqual(
+        $uniqueErrors = array_unique($responseErrors);
+        $this->assertCount(
             1,
-            count($uniqueErrors),
-            'All refresh_token burst responses should carry the SAME error code. Observed: '
+            $uniqueErrors,
+            'All refresh_token burst responses must carry the SAME error code. Observed: '
                 . implode(',', $uniqueErrors)
         );
 
@@ -717,22 +736,23 @@ class TokenGrantRateLimitSymmetryApiTest extends TestCase
     }
 
     /**
-     * Build a jwt-bearer assertion whose iss/sub point at a nonexistent
-     * client. Reliably rejected by CustomClientCredentialsGrant without
-     * touching any counter — simulates a bad-faith attempt.
+     * Build a jwt-bearer assertion whose iss/sub point at the REGISTERED
+     * client (so the client's declared JWKS verifies the signature) but
+     * whose `aud` is a wrong URL — the assertion fails audience validation
+     * on this real client. A per-client counter, if one existed, would see
+     * the same client repeatedly.
      */
-    private function buildMismatchedAssertion(string $oauthTokenUrl): string
+    private function buildBadAudienceAssertion(string $clientId): string
     {
         $keyLocation = __DIR__ . '/../data/Unit/Common/Auth/Grant/';
         $privateKey = InMemory::file($keyLocation . 'openemr-rsa384-private.key');
         $publicKey = InMemory::file($keyLocation . 'openemr-rsa384-public.pem');
         $configuration = Configuration::forAsymmetricSigner(new Sha384(), $privateKey, $publicKey);
         $now = new DateTimeImmutable();
-        $unknownClientId = 'nonexistent-' . Uuid::uuid4()->toString();
         $token = $configuration->builder()
-            ->issuedBy($unknownClientId)
-            ->relatedTo($unknownClientId)
-            ->permittedFor($oauthTokenUrl)
+            ->issuedBy($clientId)
+            ->relatedTo($clientId)
+            ->permittedFor('https://invalid-audience.example/token')
             ->identifiedBy(Uuid::uuid4()->toString())
             ->issuedAt($now)
             ->canOnlyBeUsedAfter($now)
