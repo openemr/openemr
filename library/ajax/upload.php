@@ -113,7 +113,8 @@ if ($isPortal ?? false) {
         $note['title'] = 'New Document';
         $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", [$category_id])['id'] ?? 3;
         foreach ($files["file"] as $file) {
-            $name = (string)($file['name'] ?? '');
+            $rawName = $file['name'] ?? '';
+            $name = is_string($rawName) ? $rawName : '';
             $type = $file['type'] ?? '';
             $tmp_name = $file['tmp_name'] ?? '';
             $size = $file['size'] ?? 0;
@@ -136,8 +137,9 @@ if ($isPortal ?? false) {
                 true
             );
             // addNewDocument() returns false when the document could not be saved: only a returned document id counts as saved.
-            if (is_array($data) && !empty($data['doc_id'])) {
-                $rtn[] = ['ok' => true, 'name' => $name, 'doc_id' => (int)$data['doc_id']];
+            $docId = is_array($data) ? filter_var($data['doc_id'] ?? null, FILTER_VALIDATE_INT) : false;
+            if (is_int($docId) && $docId > 0) {
+                $rtn[] = ['ok' => true, 'name' => $name, 'doc_id' => $docId];
             } else {
                 $rtn[] = ['ok' => false, 'name' => $name, 'error' => 'not_saved'];
             }
@@ -145,7 +147,7 @@ if ($isPortal ?? false) {
         // give user a break and send just one message for multi documents, and only for documents that were saved
         $names = '';
         foreach ($rtn as $data) {
-            if (!empty($data['ok'])) {
+            if ($data['ok'] === true) {
                 $names .= '"' . preg_replace('/[<>"&\']/', '', $data['name']) . '", ';
             }
         }
