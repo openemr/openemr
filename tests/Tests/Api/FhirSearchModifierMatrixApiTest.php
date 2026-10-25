@@ -139,22 +139,28 @@ class FhirSearchModifierMatrixApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->safeRun(function (): void {
-            foreach ($this->createdPatientPids as $pid) {
+        // Per-fixture safeRun so a single failing delete does not skip
+        // the remaining fixtures. Keep the two loops separate because
+        // `installPatientFixture` tracks the uuid in createdPatientUuids
+        // BEFORE the patient_data INSERT — an INSERT that throws leaves
+        // the uuid in uuid_registry but no row in patient_data, and we
+        // still need to clean the orphan.
+        foreach ($this->createdPatientPids as $pid) {
+            $this->safeRun(function () use ($pid): void {
                 QueryUtils::sqlStatementThrowException(
                     'DELETE FROM patient_data WHERE pid = ?',
                     [$pid],
                 );
-            }
-        });
-        $this->safeRun(function (): void {
-            foreach ($this->createdPatientUuids as $uuid) {
+            });
+        }
+        foreach ($this->createdPatientUuids as $uuid) {
+            $this->safeRun(function () use ($uuid): void {
                 QueryUtils::sqlStatementThrowException(
                     "DELETE FROM uuid_registry WHERE table_name = 'patient_data' AND uuid = ?",
                     [UuidRegistry::uuidToBytes($uuid)],
                 );
-            }
-        });
+            });
+        }
         $this->safeRun(function (): void {
             if ($this->clientId !== null) {
                 DcrClient::remove($this->clientId);
