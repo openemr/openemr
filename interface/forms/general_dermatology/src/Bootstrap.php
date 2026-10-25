@@ -4,13 +4,14 @@ namespace GeneralDermatology;
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
-
 use GlobalConfig;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Menu\MenuEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
 class Bootstrap
 {
     private \Twig\Environment $twig;
@@ -27,12 +28,14 @@ class Bootstrap
 
     public function __construct(?Kernel $kernel = null)
     {
-        if (empty($kernel)) {
-            $kernel = new Kernel();
+        // OpenEMR 8.5 Kernel requires projectDir; always reuse the runtime kernel
+        // from globals.php rather than constructing an empty Kernel().
+        if ($kernel === null) {
+            $kernel = OEGlobalsBag::getInstance()->getKernel();
         }
 
-        $twig          = new TwigContainer($this->getTemplatePath(), $kernel);
-        $this->twig    = $twig->getTwig();
+        $twig = new TwigContainer($this->getTemplatePath(), $kernel);
+        $this->twig = $twig->getTwig();
     }
 
     public function twigEnv(): \Twig\Environment
