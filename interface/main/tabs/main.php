@@ -33,7 +33,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
-use OpenEMR\Menu\MainMenuRole;
+use OpenEMR\Menu\MainMenuData;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
@@ -107,6 +107,7 @@ $twig = ServiceContainer::getTwig();
         <?php if (OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 0) { ?>
         window.addEventListener('beforeunload', (event) => {
             if (!timed_out) {
+                restoreSession();
                 event.returnValue = <?php echo xlj('Recommend not leaving or refreshing or you may lose data.'); ?>;
             }
         });
@@ -520,9 +521,10 @@ $twig = ServiceContainer::getTwig();
                 setTimeout(function () {
                     restoreSession();
                     // Call the REST "run all due" endpoint via LocalApi (APICSRFTOKEN header).
-                    // The REST stack does not touch SessionTracker, so no skip_timeout_reset
-                    // equivalent is needed to avoid resetting the session expiration timer.
-                    fetch(webroot_url + "/apis/" + site_id_js + "/api/background_service/$run", {
+                    // A LocalApi request loads globals.php with auth, so auth.inc.php would
+                    // reset the session expiration timer; send skip_timeout_reset so this
+                    // background poll does not keep an idle session alive.
+                    fetch(webroot_url + "/apis/" + site_id_js + "/api/background_service/$run?skip_timeout_reset=1", {
                         method: 'POST',
                         credentials: 'same-origin',
                         headers: {
@@ -628,24 +630,6 @@ $twig = ServiceContainer::getTwig();
     <script src="js/shortcuts.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
 
     <?php
-    // Below code block is to prepare certain elements for deciding what links to show on the menu
-    // prepare Ensora eRx globals that are used in creating the menu
-    if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
-        $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$session->get('authUser')]);
-        OEGlobalsBag::getInstance()->set('newcrop_user_role', $newcrop_user_role_sql['newcrop_user_role']);
-        if (OEGlobalsBag::getInstance()->get('newcrop_user_role') === 'erxadmin') {
-            OEGlobalsBag::getInstance()->set('newcrop_user_role_erxadmin', 1);
-        }
-    }
-
-    // prepare track anything to be used in creating the menu
-    $track_anything_sql = sqlQuery("SELECT `state` FROM `registry` WHERE `directory` = 'track_anything'");
-    OEGlobalsBag::getInstance()->set('track_anything_state', $track_anything_sql['state'] ?? 0);
-    // prepare Issues popup link global that is used in creating the menu
-    OEGlobalsBag::getInstance()->set('allow_issue_menu_link', (AclMain::aclCheckCore('encounters', 'notes', '', 'write')
-    || AclMain::aclCheckCore('encounters', 'notes_a', '', 'write'))
-    && AclMain::aclCheckCore('patients', 'med', '', 'write'));
-
     // we use twig templates here so modules can customize some of these files
     // at some point we will twigify all of main.php so we can extend it.
     echo $twig->render("interface/main/tabs/tabs_template.html.twig", []);
@@ -658,9 +642,8 @@ $twig = ServiceContainer::getTwig();
     echo $twig->render("interface/main/tabs/user_data_template.html.twig", [
         'openemr_name' => OEGlobalsBag::getInstance()->getString('openemr_name')
     ]);
-    // Collect the menu then build it
-    $menuMain = new MainMenuRole(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
-    $menu_restrictions = $menuMain->getMenu();
+    // Collect the menu then build it (menu_json.php returns the same for top.refreshMainMenu())
+    $menu_restrictions = MainMenuData::forUser(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher(), $session);
     echo $twig->render("interface/main/tabs/menu_json.html.twig", ['menu_restrictions' => $menu_restrictions]);
     ?>
     <?php $userQuery = sqlQuery("select * from users where username = ?", [$session->get('authUser')]); ?>

@@ -112,7 +112,7 @@ class smtp_class
         }
     }
 
-    public Function PutLine($line)
+    public Function PutLine($line): int
     {
         if ($this->debug)
             $this->OutputDebug("C $line");
@@ -123,7 +123,7 @@ class smtp_class
         return(1);
     }
 
-    public Function PutData(&$data)
+    public Function PutData(&$data): int
     {
         if (strlen((string) $data)) {
             if ($this->debug)
@@ -136,7 +136,7 @@ class smtp_class
         return(1);
     }
 
-    public Function VerifyResultLines($code,&$responses)
+    public Function VerifyResultLines($code,&$responses): int
     {
         $responses=[];
         Unset($this->result_code);
@@ -168,7 +168,7 @@ class smtp_class
         return(-1);
     }
 
-    public Function FlushRecipients()
+    public Function FlushRecipients(): int
     {
         if ($this->pending_sender) {
             if ($this->VerifyResultLines("250",$responses)<=0)
@@ -182,7 +182,7 @@ class smtp_class
         return(1);
     }
 
-    public Function ConnectToHost($domain, $port, $resolve_message)
+    public Function ConnectToHost($domain, $port, $resolve_message): string
     {
         if ($this->ssl) {
             $version=explode(".",function_exists("phpversion") ? phpversion() : "3.0.7");
@@ -219,7 +219,7 @@ class smtp_class
         };
     }
 
-    public Function SASLAuthenticate($mechanisms, $credentials, &$authenticated, &$mechanism)
+    public Function SASLAuthenticate($mechanisms, $credentials, &$authenticated, &$mechanism): int
     {
         $authenticated=0;
         if (!function_exists("class_exists")
@@ -307,7 +307,7 @@ class smtp_class
 
     /* Public methods */
 
-    public Function Connect($domain="")
+    public Function Connect($domain=""): int
     {
         if (strcmp((string) $this->state,"Disconnected")) {
             $this->error="connection is already established";
@@ -380,11 +380,11 @@ class smtp_class
             $this->error="could not determine the SMTP to connect";
             return(0);
         }
-        for ($host=0, $error="not connected";strlen((string) $error) && $host<count($hosts);$host++) {
+        for ($host=0, $error="not connected";strlen($error) && $host<count($hosts);$host++) {
             $domain=$hosts[$host];
             $error=$this->ConnectToHost($domain, $this->host_port, "Resolving SMTP server domain \"$domain\"...");
         }
-        if (strlen((string) $error)) {
+        if (strlen($error)) {
             $this->error=$error;
             return(0);
         }
@@ -505,7 +505,7 @@ class smtp_class
         return($success);
     }
 
-    public Function MailFrom($sender)
+    public Function MailFrom($sender): int
     {
         if ($this->direct_delivery) {
             switch ($this->state) {
@@ -593,7 +593,7 @@ class smtp_class
         return(1);
     }
 
-    public Function StartData()
+    public Function StartData(): int
     {
         if (strcmp((string) $this->state,"RecipientSet")) {
             $this->error="connection is not in the start sending data state";
@@ -620,7 +620,7 @@ class smtp_class
         else $output=preg_replace("#(^|\n)\\.#m","\\1..",(string) preg_replace("#\r([^\n]|\$)#m","\r\n\\1",(string) preg_replace("#(^|[^\r])\n#m","\\1\r\n",(string) preg_replace("#\n\n|\r\r#m","\r\n\r\n",(string) $data))));
     }
 
-    public Function SendData($data)
+    public Function SendData($data): int
     {
         if (strcmp((string) $this->state,"SendingData")) {
             $this->error="connection is not in the sending data state";
@@ -630,7 +630,7 @@ class smtp_class
         return($this->PutData($data));
     }
 
-    public Function EndSendingData()
+    public Function EndSendingData(): int
     {
         if (strcmp((string) $this->state,"SendingData")) {
             $this->error="connection is not in the sending data state";
@@ -644,7 +644,7 @@ class smtp_class
         return(1);
     }
 
-    public Function ResetConnection()
+    public Function ResetConnection(): int
     {
         switch ($this->state) {
             case "Connected":
@@ -664,7 +664,7 @@ class smtp_class
         return(1);
     }
 
-    public Function Disconnect($quit=1)
+    public Function Disconnect($quit=1): int
     {
         if (!strcmp((string) $this->state,"Disconnected")) {
             $this->error="it was not previously established a SMTP connection";

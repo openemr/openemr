@@ -15,11 +15,36 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\RestControllers\SMART;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\RestControllers\SMART\ScopePermissionParser;
 use PHPUnit\Framework\TestCase;
 
 class ScopePermissionParserIsolatedTest extends TestCase
 {
+    private bool $translationWasSet = false;
+    private bool $translationWas = false;
+
+    protected function setUp(): void
+    {
+        // parseScopes() translates resource descriptions, and xl() reaches for the translation
+        // tables unless this is set. Declared here rather than inherited from whichever class
+        // happened to run first.
+        $globals = OEGlobalsBag::getInstance();
+        $this->translationWasSet = $globals->has('disable_translation');
+        $this->translationWas = $globals->getBoolean('disable_translation');
+        $globals->set('disable_translation', true);
+    }
+
+    protected function tearDown(): void
+    {
+        $globals = OEGlobalsBag::getInstance();
+        if ($this->translationWasSet) {
+            $globals->set('disable_translation', $this->translationWas);
+        } else {
+            $globals->remove('disable_translation');
+        }
+    }
+
     private function parser(): ScopePermissionParser
     {
         return new ScopePermissionParser($this->createMock(ScopeRepository::class));
@@ -135,5 +160,15 @@ class ScopePermissionParserIsolatedTest extends TestCase
 
         $this->assertCount(1, $structured);
         $this->assertSame('v2', $this->field($this->entry($structured, 'user-Observation'), 'version'));
+    }
+
+    /**
+     * Operation scopes are not CRUDS permissions. Folding them into a card turned
+     * patient/DocumentReference.$docref into a plain `.r` on submit and the operation was lost.
+     */
+    public function testOperationScopesDoNotBecomeCards(): void
+    {
+        $structured = $this->parser()->parseScopes(['patient/DocumentReference.$docref', 'system/*.$export']);
+        $this->assertSame([], $structured);
     }
 }

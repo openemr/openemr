@@ -44,7 +44,7 @@ class DocumentsTable
      * @param int $categoryParentId
      * @return array<int, array{category_id: mixed, category_name: mixed}>
      */
-    public function getCategories($categoryParentId)
+    public function getCategories($categoryParentId): array
     {
         $sql = "SELECT * FROM `categories` WHERE `parent` = ? ORDER BY `order`";
         $result = QueryUtils::fetchRecords($sql, [$categoryParentId]);

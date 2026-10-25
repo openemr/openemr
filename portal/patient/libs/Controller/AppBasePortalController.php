@@ -48,7 +48,7 @@ class AppBasePortalController extends PortalController
     /**
      * Returns the name of the JSONP callback function (if allowed)
      */
-    protected function JSONPCallback()
+    protected function JSONPCallback(): string
     {
         // TODO: uncomment to allow JSONP
         // return RequestUtil::Get('callback','');
@@ -60,7 +60,7 @@ class AppBasePortalController extends PortalController
      * Return the default SimpleObject params used when rendering objects as JSON
      * @return array
      */
-    protected function SimpleObjectParams()
+    protected function SimpleObjectParams(): array
     {
         return ['camelCase' => true];
     }

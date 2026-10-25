@@ -139,7 +139,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
         return $valid;
     }
 
-    private function getScopeString($scopes)
+    private function getScopeString($scopes): string
     {
         $scopeList = [];
         foreach ($scopes as $scope) {

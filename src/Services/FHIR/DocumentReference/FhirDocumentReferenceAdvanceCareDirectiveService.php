@@ -67,7 +67,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase i
     }
 
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return DocumentReferenceCategoryEnum::tryFrom($category) == DocumentReferenceCategoryEnum::ADVANCE_CARE_DIRECTIVE;
     }
@@ -79,7 +79,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase i
         return false;
     }
 
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),

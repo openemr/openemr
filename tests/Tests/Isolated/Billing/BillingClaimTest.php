@@ -67,6 +67,30 @@ class BillingClaimTest extends TestCase
         $this->assertEquals(BillingClaim::UNKNOWN, $claim->getPayorType());
     }
 
+    public function testSelectedPayerIdIsTheChosenInsuranceCompany(): void
+    {
+        $claim = new BillingClaimStub('100-200', ['partner' => 'PARTNER2', 'payer' => 'S555'], 'validate');
+
+        $this->assertSame('555', $claim->getSelectedPayerId());
+    }
+
+    public function testUnassignedPayerIsNoSelection(): void
+    {
+        // The payer drop-down's "Unassigned" option posts -1, which getPayorId()
+        // turns into "1"; it must not select insurance company 1.
+        $claim = new BillingClaimStub('100-200', ['partner' => 'PARTNER2', 'payer' => '-1'], 'validate');
+
+        $this->assertSame('1', $claim->getPayorId());
+        $this->assertNull($claim->getSelectedPayerId());
+    }
+
+    public function testEmptyPayerIsNoSelection(): void
+    {
+        $claim = new BillingClaimStub('100-200', ['partner' => 'PARTNER2', 'payer' => ''], 'validate');
+
+        $this->assertNull($claim->getSelectedPayerId());
+    }
+
     public function testIsLastDefaultsFalse(): void
     {
         $claim = new BillingClaimStub(

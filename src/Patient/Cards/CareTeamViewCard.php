@@ -158,7 +158,7 @@ class CareTeamViewCard extends CardModel
      * Static method to get form management data for the care team edit page
      * Enhanced for USCDI v5 compliance
      */
-    public function getFormManagementData($pid)
+    public function getFormManagementData($pid): array
     {
 
         // Get existing care teams (support multiple teams)
@@ -361,7 +361,7 @@ class CareTeamViewCard extends CardModel
         ];
     }
 
-    private static function getTranslations()
+    private static function getTranslations(): array
     {
         return [
             'manage_care_team' => xl("Manage Care Team"),

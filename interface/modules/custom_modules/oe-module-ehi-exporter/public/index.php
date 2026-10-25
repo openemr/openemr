@@ -86,7 +86,7 @@ if (isset($_POST['submit'])) {
         $bootstrap->getLogger()->error($errorMessage, ['exception' => $exception]);
     }
 } else {
-    $exportSizeSettings = $exporter->getExportSizeSettings($defaultZipSize);
+    $exportSizeSettings = $exporter->getExportSizeSettings();
 
     echo $twig->render(
         Bootstrap::MODULE_NAME . DIRECTORY_SEPARATOR . 'ehi-exporter.html.twig',

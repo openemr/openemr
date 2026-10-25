@@ -15,12 +15,12 @@ use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
 class ProcedureRecommendedService extends AbstractCarePlanService implements QdmServiceInterface
 {
-    public function getCarePlanType()
+    public function getCarePlanType(): string
     {
         return AbstractCarePlanService::CARE_PLAN_TYPE_PROCEDURE_REC;
     }
 
-    public function getModelClass()
+    public function getModelClass(): string
     {
         return ProcedureRecommended::class;
     }

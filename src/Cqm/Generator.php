@@ -267,7 +267,7 @@ class Generator
         file_put_contents(__DIR__ . '/hqmfOid_to_datatype_map.json', json_encode($hqmfOid_to_datatype_map));
     }
 
-    public function underscore($input)
+    public function underscore($input): string
     {
         return strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', (string) $input));
     }

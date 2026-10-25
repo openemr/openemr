@@ -28,7 +28,7 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 class Easipro
 {
     // Package authentication
-    private static function packageAuth()
+    private static function packageAuth(): string
     {
         return base64_encode(OEGlobalsBag::getInstance()->getString('easipro_name') . ":" . (ServiceContainer::getCrypto())->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('easipro_pass')));
     }

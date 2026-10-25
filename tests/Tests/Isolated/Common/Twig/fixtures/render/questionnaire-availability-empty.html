@@ -1,0 +1,200 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Questionnaire Availability</title>
+    <!-- setupHeader stub -->
+</head>
+<body class="body_top">
+<div class="container-fluid">
+    <h2 class="mt-3">Questionnaire Availability</h2>
+    <p class="text-muted mb-3">
+        Tick where each questionnaire is offered. Open Limits to offer one only at a facility, for a provider, for a kind of visit or for one SMART app, or to change who may see it.
+    </p>
+
+
+            <div class="alert alert-info">
+            No active questionnaires are in the repository yet. Import one from the patient dashboard first.
+        </div>
+
+
+    <div class="card mt-4 mb-5" id="category-rules">
+        <div class="card-header"><strong>Category rules</strong></div>
+        <div class="card-body">
+            <p class="text-muted">
+                Offer every questionnaire in a category, including ones imported later, without ticking each one.
+            </p>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Offered on</th>
+                        <th>Where</th>
+                        <th>Who may see it</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                                            <tr><td colspan="6" class="text-muted">No category rules</td></tr>
+                                        </tbody>
+                </table>
+            </div>
+
+            <h5 class="mt-3">Add a category rule</h5>
+            <form method="post" action="manage_questionnaire_availability.php#category-rules" onsubmit="return top.restoreSession()" data-rule-form>
+                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                <input type="hidden" name="action" value="save_rule" />
+                <input type="hidden" name="target" value="category" />
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="category-category">Category</label>
+                        <select class="form-control" id="category-category" name="category" required>
+                            <option value="">Choose a category</option>
+                                                            <option value="assessment" >Assessment</option>
+                                                            <option value="sdoh" >SDOH</option>
+                                                    </select>
+                    </div>
+                </div>
+                    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="category-surface">Offered on</label>
+            <select class="form-control" id="category-surface" name="surface" data-surface-select>
+                                    <option value="dashboard"
+                            data-scopes="[&quot;facility&quot;]"
+                            data-hint="Patient dashboard can be limited by Facility."
+                            >Patient dashboard</option>
+                                    <option value="encounter"
+                            data-scopes="[&quot;facility&quot;,&quot;provider&quot;,&quot;visit_category_id&quot;]"
+                            data-hint="Encounter forms can be limited by Facility, Provider, Visit category."
+                            >Encounter forms</option>
+                                    <option value="portal"
+                            data-scopes="[]"
+                            data-hint="Patient portal cannot be limited yet."
+                            >Patient portal</option>
+                                    <option value="smart"
+                            data-scopes="[&quot;facility&quot;,&quot;client_id&quot;]"
+                            data-hint="SMART launch can be limited by Facility, SMART app."
+                            >SMART launch</option>
+                            </select>
+        </div>
+        <div class="form-group col-md-8">
+            <label for="category-acl">Who may see it</label>
+            <select class="form-control" id="category-acl" name="acl">
+                <option value="">Default for that surface</option>
+                                                    <optgroup label="Patients">
+                                                    <option value="patients|med" >Medical/History</option>
+                                                    <option value="patients|docs" >Documents</option>
+                                            </optgroup>
+                                    <optgroup label="Encounters">
+                                                    <option value="encounters|notes" >Notes</option>
+                                            </optgroup>
+                            </select>
+        </div>
+    </div>
+    <p class="small text-muted mb-2" data-scope-hint></p>
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label for="category-facility">Only at facility</label>
+            <select class="form-control" id="category-facility" name="facility" data-scope="facility">
+                <option value="">Any</option>
+                                    <option value="3" >Main Clinic</option>
+                                    <option value="4" >North Office</option>
+                            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="category-provider">Only for provider</label>
+            <select class="form-control" id="category-provider" name="provider" data-scope="provider">
+                <option value="">Any</option>
+                                    <option value="1" >Admin, Super</option>
+                                    <option value="8" >Smith, Jane</option>
+                            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="category-visit">Only for visit category</label>
+            <select class="form-control" id="category-visit" name="visit_category_id" data-scope="visit_category_id">
+                <option value="">Any</option>
+                                    <option value="5" >Established Patient</option>
+                                    <option value="9" >Well Child</option>
+                                    <option value="7" >New Patient</option>
+                            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="category-app">Only for SMART app</label>
+            <select class="form-control" id="category-app" name="client_id" data-scope="client_id">
+                <option value="">Any</option>
+                                                    <option value="app-a" >Growth Chart</option>
+                                    <option value="app-b" >PRO Collector</option>
+                            </select>
+        </div>
+    </div>
+
+                                    <button type="submit" class="btn btn-primary">Add category rule</button>
+                            </form>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    'use strict';
+
+    // In each rule form, limit fields the chosen surface never fills in are disabled, so they
+    // are not posted. The service refuses such a rule too; this keeps the form from offering it.
+    document.querySelectorAll('form[data-rule-form]').forEach(function (form) {
+        const surface = form.querySelector('[data-surface-select]');
+        const hint = form.querySelector('[data-scope-hint]');
+        const scopedFields = form.querySelectorAll('[data-scope]');
+        if (!surface) {
+            return;
+        }
+        const applySurface = function () {
+            const option = surface.options[surface.selectedIndex];
+            let allowed = [];
+            try {
+                allowed = JSON.parse(option?.dataset.scopes || '[]');
+            } catch (e) {
+                allowed = [];
+            }
+            scopedFields.forEach(function (field) {
+                field.disabled = !allowed.includes(field.dataset.scope);
+            });
+            if (hint) {
+                hint.textContent = option?.dataset.hint || '';
+            }
+        };
+        surface.addEventListener('change', applySurface);
+        applySurface();
+    });
+
+    document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!window.confirm(form.dataset.confirm)) {
+                event.preventDefault();
+            }
+        });
+    });
+
+    const dirty = document.getElementById('grid-dirty');
+    document.querySelectorAll('.js-grid-box').forEach(function (box) {
+        box.addEventListener('change', function () {
+            if (dirty) {
+                dirty.hidden = false;
+            }
+        });
+    });
+
+    const gridFilter = document.getElementById('grid-filter');
+    if (gridFilter) {
+        const gridRows = document.querySelectorAll('#availability-grid tbody tr');
+        gridFilter.addEventListener('input', function () {
+            const needle = gridFilter.value.trim().toLowerCase();
+            gridRows.forEach(function (row) {
+                row.hidden = needle !== '' && !(row.dataset.filter || '').includes(needle);
+            });
+        });
+    }
+})();
+</script>
+</body>
+</html>

@@ -19,8 +19,10 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\BaseDrawing;
 use OpenEMR\Forms\EyeMag\CopyForward;
 use OpenEMR\Forms\EyeMag\CopyMode;
+use OpenEMR\Forms\EyeMag\FamilyHistory;
 use OpenEMR\Forms\EyeMag\PmsfhPanel;
 use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Services\FacilityService;
@@ -1665,9 +1667,9 @@ function send_json_values($PMSFH = ""): void
  *  to function at their base level.
  *
  * @param string $pid is the patient identifier
- * @return mixed array, access items as $PMSFH[0]
+ * @return array{array<string, mixed>} access items as $PMSFH[0]
  */
-function build_PMSFH($pid)
+function build_PMSFH($pid): array
 {
     global $form_id;
 
@@ -1908,68 +1910,30 @@ function build_PMSFH($pid)
     Epilepsy:       Mental Illness:
     Suicide:
     */
-    $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = 'HIS' AND group_id = '3' AND uor > 0 " .
-    "ORDER BY seq");
-    while ($group_fields = sqlFetchArray($group_fields_query)) {
-        $titlecols  = $group_fields['titlecols'];
-        $datacols   = $group_fields['datacols'];
-        $data_type  = $group_fields['data_type'];
-        $field_id   = $group_fields['field_id'];
-        $list_id    = $group_fields['list_id'];
-        $currvalue  = '';
-        if ((preg_match("/^\|?0\|?\|?/", ($result1[$field_id] ?? ''))) || ($result1[$field_id] == '')) {
-            continue;
-        } else {
-            $currvalue = $result1[$field_id];
-        }
-
-        $PMSFH['FH'][$field_id]['resnote'] = nl2br(htmlspecialchars((string) $currvalue, ENT_NOQUOTES));
-        if ($PMSFH['FH'][$field_id]['resnote'] > '') {
-            $PMSFH['FH'][$field_id]['display'] = substr($PMSFH['FH'][$field_id]['resnote'], 0, 100);
-        } elseif ($PMSFH['FH'][$field_id]['restype']) {
-            $PMSFH['FH'][$field_id]['display'] = str_replace($field_id, '', $PMSFH['FH'][$field_id]['restype']);
-        } else {
-            $PMSFH['FH'][$field_id]['display'] = xlt("denies");
-        }
-
-        //coffee,tobacco,alcohol,sleep_patterns,exercise_patterns,seatbelt_use,counseling,hazardous_activities,recreational_drugs
-        if ($field_id == "relatives_cancer") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Cancer");
-        }
-
-        if ($field_id == "relatives_diabetes") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Diabetes");
-        }
-
-        if ($field_id == "relatives_high_blood_pressure") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("HTN{{hypertension}}");
-        }
-
-        if ($field_id == "relatives_heart_problems") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Cor Disease");
-        }
-
-        if ($field_id == "relatives_epilepsy") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Epilepsy");
-        }
-
-        if ($field_id == "relatives_mental_illness") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Psych");
-        }
-
-        if ($field_id == "relatives_suicide") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Suicide");
-        }
-
-        if ($field_id == "relatives_stroke") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("Stroke");
-        }
-
-        if ($field_id == "relatives_tuberculosis") {
-            $PMSFH['FH'][$field_id]['short_title'] = xlt("TB");
-        }
+    // The medical columns come from a fixed list, not the History layout:
+    // a practice may hide or move those fields there, and the eye exam would
+    // then save them without ever showing them again.
+    $medicalShortTitles = [
+        'relatives_cancer' => xlt("Cancer"),
+        'relatives_tuberculosis' => xlt("TB"),
+        'relatives_diabetes' => xlt("Diabetes"),
+        'relatives_high_blood_pressure' => xlt("HTN{{hypertension}}"),
+        'relatives_heart_problems' => xlt("Cor Disease"),
+        'relatives_stroke' => xlt("Stroke"),
+        'relatives_epilepsy' => xlt("Epilepsy"),
+        'relatives_mental_illness' => xlt("Psych"),
+        'relatives_suicide' => xlt("Suicide"),
+    ];
+    $familyMedical = [];
+    foreach (FamilyHistory::recordedMedical(is_array($result1) ? $result1 : []) as $field_id => $currvalue) {
+        $familyMedical[$field_id] = [
+            'resnote' => nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES)),
+            // Raw, like the eye rows below: the renderers escape it.
+            'display' => FamilyHistory::display($currvalue),
+            'short_title' => $medicalShortTitles[$field_id],
+        ];
     }
+    $PMSFH['FH'] = $familyMedical;
 
     // Now make some of our own using the usertext11-30 fields
     // These can be customized for specialties but remember this is just an array,
@@ -2013,11 +1977,13 @@ function build_PMSFH($pid)
     $query = "SELECT $given from " . $ROS_table . " where id = ?";
 
     $ROS = sqlStatement($query, [$form_id]);
+    $ros_display = [];
     while ($row = sqlFetchArray($ROS)) {
         foreach (explode(',', $given) as $item) {
-            $PMSFH['ROS'][$item]['display'] = $row[$item];
+            $ros_display[$item]['display'] = $row[$item];
         }
     }
+    $PMSFH['ROS'] = $ros_display;
 
     // translator will need to translate each item in $given
     $PMSFH['ROS']['ROSGENERAL']['short_title'] = xlt("GEN{{General}}");
@@ -2150,7 +2116,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
             "POH"        => xlt("POH"),
             "POS"        => xlt("POS"),
             "PMH"        => xlt("Past Medical History"),
-            default      => is_string($key) ? text($key) : '',
+            default      => text($key),
         };
         $header .= '    <table class="PMSFH_header">
                 <tr>
@@ -3104,7 +3070,7 @@ function display_QP($zone, $provider_id)
         return $QP_panel;
 }
 
-function canvas_select($zone, $encounter, $pid)
+function canvas_select($zone, $encounter, $pid): string
 {
     /* This will provide a way to scroll back through prior VISIT images, to copy forward to today's visit,
      * just like we do in the text fields.
@@ -3264,7 +3230,8 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
 
                 $sql = "SELECT * from documents where name like ? ORDER by id DESC";
                 $doc = sqlQuery($sql, ["%" . $base_name . "%"]);
-                $base_filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
+                // The site's own base drawing if it has one, else the form's.
+                $base_filetoshow = BaseDrawing::fromGlobals(OEGlobalsBag::getInstance())->url($side, $zone);
                 if ((($doc['id'] ?? null) > '0')) {
                     $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']);
                 } else {
@@ -3425,7 +3392,7 @@ function build_CODING_items($pid, $encounter)
  *  @param string $pid patient_id
  *  @return array
  */
-function document_engine($pid)
+function document_engine($pid): array
 {
     $categories = [];
     $my_name = [];
@@ -3505,7 +3472,7 @@ function document_engine($pid)
  *                They allow us to regroup the categories how we like them.
  *  @return array
  */
-function display($pid, $encounter, $category_value)
+function display($pid, $encounter, $category_value): array
 {
     global $form_folder;
     global $id;
@@ -4194,7 +4161,6 @@ function start_your_engines($FIELDS)
                                 $hit_PDR[$side] = '1';
                             } elseif (
                                 (stripos((string) $FIELDS[$location2], $PPDR) !== false) ||
-                                (stripos((string) $FIELDS[$location2], $PPDR) !== false) ||
                                 (stripos((string) $FIELDS[$location], $IRMA)  !== false) ||
                                 (stripos((string) $FIELDS[$location2], $IRMA) !== false) ||
                                 (stripos((string) $FIELDS[$location3], $IRMA) !== false)
@@ -4208,8 +4174,6 @@ function start_your_engines($FIELDS)
                             ) {
                                     $trace = "tr";
                                 if (
-                                    (stripos((string) $FIELDS[$location], $trace . " " . $BDR) !== false) ||
-                                    (stripos((string) $FIELDS[$location2], "+1 " . $BDR) !== false) ||
                                     (stripos((string) $FIELDS[$location], $trace . " " . $BDR) !== false) ||
                                     (stripos((string) $FIELDS[$location2], "+1 " . $BDR) !== false)
                                 ) {
@@ -4418,7 +4382,7 @@ function coding_carburetor($term, $field)
  *
  *  This function is not called directly but via the wrapper function start_your_engines().
  */
-function coding_engine($term, $code_found, $location, $side = '')
+function coding_engine($term, $code_found, $location, $side = ''): array
 {
     if (strpos((string) $code_found['code'], ":")) {
         [$code_type, $code] = explode(':', (string) $code_found['code']);
@@ -4454,7 +4418,7 @@ function coding_engine($term, $code_found, $location, $side = '')
  *  This is a function to sort an array of dates/times etc
  *  Anything strtotime() can recognize at least.
  */
-function cmp($a, $b)
+function cmp($a, $b): int
 {
     if ($a == $b) {
         return 0;
@@ -6399,7 +6363,7 @@ function in_array_r($needle, $haystack, $strict = false): bool
              * @param $provider_id = who is the patient's provider is only needed if there is no value anywhere else.
              * @return array (ODIOPTARGET AND OSIOPTARGET to be saved in this encounter
              */
-function getIOPTARGETS($pid, $id, $provider_id)
+function getIOPTARGETS($pid, $id, $provider_id): array
 {
     $ODIOPTARGET = '';
     $OSIOPTARGET = '';

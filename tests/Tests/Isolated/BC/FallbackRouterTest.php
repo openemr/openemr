@@ -82,7 +82,7 @@ class FallbackRouterTest extends TestCase
             'composer.lock' => ['/composer.lock'],
             'package.json' => ['/package.json'],
             'package-lock.json' => ['/package-lock.json'],
-            'nested package.json' => ['/ccdaservice/package.json'],
+            'nested package.json' => ['/interface/modules/custom_modules/oe-module-comlink-telehealth/public/assets/js/package.json'],
 
             // sites documents (sites/*/documents/.htaccess: Deny From All)
             'sites documents htaccess' => ['/sites/default/documents/.htaccess'],

@@ -48,10 +48,9 @@ class CdaValidateDocuments
     /**
      * @param $document
      * @param $type
-     * @return array|bool|null
      * @throws Exception
      */
-    public function validateDocument($document, $type)
+    public function validateDocument($document, $type): array
     {
         $documentXml = is_string($document) ? $document : '';
         $schemaType = is_string($type) ? $type : SchemaRegistry::TYPE_CCDA;
@@ -71,9 +70,8 @@ class CdaValidateDocuments
 
     /**
      * @param $xml
-     * @return array|mixed
      */
-    public function ettValidateCcda($xml)
+    public function ettValidateCcda($xml): array
     {
         try {
             $result = $this->ettValidateDocumentRequest($xml);
@@ -271,7 +269,7 @@ class CdaValidateDocuments
      * @param $amid
      * @return string
      */
-    public function createSchematronHtml($amid)
+    public function createSchematronHtml($amid): string
     {
         $errors = $this->fetchValidationLog($amid);
 

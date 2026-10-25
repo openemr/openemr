@@ -90,7 +90,7 @@ class Phreezer extends Observable
 *
 * @return string
 */
-    public static function PharPath()
+    public static function PharPath(): string
     {
         return class_exists("Phar") ? Phar::running() : '';
     }
@@ -344,7 +344,7 @@ class Phreezer extends Observable
 * @param mixed $b
 * @return int
 */
-    public static function Compare($a, $b)
+    public static function Compare($a, $b): int
     {
         return strcmp((string) $a->ToString(), (string) $b->ToString());
     }
@@ -413,9 +413,8 @@ class Phreezer extends Observable
 * @param Criteria $criteria
 *          a Criteria object to limit results
 * @param int $cache_timeout cache timeout (in seconds). Default is Phreezer->ValueCacheTimeout. Set to 0 for no cache
-* @return DataSet
 */
-    public function Query($objectclass, $criteria = null, $cache_timeout = null)
+    public function Query($objectclass, $criteria = null, $cache_timeout = null): DataSet
     {
         $cache_timeout ??= $this->ValueCacheTimeout;
 

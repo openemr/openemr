@@ -15,6 +15,9 @@ namespace Carecoordination\Controller;
 use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 /**
  * @method \Laminas\Http\Request getRequest()
@@ -61,10 +64,20 @@ class SetupController extends AbstractActionController
 
     public function savedataAction()
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny('SetupController::savedata: admin/manage_modules not granted');
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $existing_id = $this->getSetupTable()->getMaxIdCcda();
         $request    = $this->getRequest();
         $action     = $request->getPost('save');
         $tosave     = $request->getPost('tosave');
+
+        // Each identifier reaches SQL identifier/column grammar downstream, so
+        // reject anything outside the alphanumeric/underscore shape here before
+        // the mapper rows ever land in the database.
+        $identifierPattern = '/\A[A-Za-z0-9_]+\z/';
 
         $components = explode('|***|', (string) $tosave);
         foreach ($components as $value) {
@@ -113,9 +126,28 @@ class SetupController extends AbstractActionController
                         $form_type  = 3;
                     }
 
-                    $insert_id = $this->getSetupTable()->insertMaster([trim($component_name), trim($section_name), trim((string) $form_dir), trim((string) $form_type), trim($form_table), '1']);
+                    $form_dir = trim((string) $form_dir);
+                    $form_table = trim($form_table);
+                    if ($form_dir !== '' && preg_match($identifierPattern, $form_dir) !== 1) {
+                        continue;
+                    }
+                    if ($form_table !== '' && preg_match($identifierPattern, $form_table) !== 1) {
+                        continue;
+                    }
+                    if ($sub_id !== '') {
+                        $sub_id_trimmed = trim($sub_id);
+                        $sub_id_parts = array_filter(
+                            array_map(trim(...), explode(',', $sub_id_trimmed)),
+                            static fn(string $p): bool => $p === '' || preg_match('/\A[A-Za-z0-9_]+\z/', $p) === 1,
+                        );
+                        if (count($sub_id_parts) !== count(explode(',', $sub_id_trimmed))) {
+                            continue;
+                        }
+                    }
+
+                    $insert_id = $this->getSetupTable()->insertMaster([trim($component_name), trim($section_name), $form_dir, trim((string) $form_type), $form_table, '1']);
                     if ($sub_id) {
-                        $this->getSetupTable()->insertChild([$insert_id,trim($sub_id)]);
+                        $this->getSetupTable()->insertChild([$insert_id, trim($sub_id)]);
                     }
                 }
             }
@@ -143,7 +175,7 @@ class SetupController extends AbstractActionController
     *
     * @return string
     */
-    public function getTitle()
+    public function getTitle(): string
     {
         $title = "Mapper";
         return $title;

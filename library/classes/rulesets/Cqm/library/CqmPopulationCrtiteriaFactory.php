@@ -9,9 +9,9 @@
 //
 interface CqmPopulationCrtiteriaFactory extends RsFilterIF
 {
-    public function createInitialPatientPopulation();
-    public function createDenominator();
+    public function createInitialPatientPopulation(): CqmFilterIF;
+    public function createDenominator(): CqmFilterIF;
     public function createNumerators();
-    public function createExclusion();
-    public function createDenominatorException();
+    public function createExclusion(): CqmFilterIF;
+    public function createDenominatorException(): CqmFilterIF;
 }

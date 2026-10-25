@@ -352,7 +352,7 @@ class DataAdapter implements IObservable
      * @param string|\Throwable $error
      * @return bool
      */
-    public function IsCommunicationError($error)
+    public function IsCommunicationError($error): bool
     {
         $msg = $error instanceof \Throwable ? $error->getMessage() : $error;
         return str_contains(strtolower((string) $msg), 'lost connection');
@@ -374,7 +374,7 @@ class DataAdapter implements IObservable
      *
      * @return array results for each table
      */
-    public function OptimizeTables()
+    public function OptimizeTables(): array
     {
         if ($this->ConnectionSetting->IsReadOnlySlave) {
             throw new Exception('Optimizing tables is allowed on a read-only slave');

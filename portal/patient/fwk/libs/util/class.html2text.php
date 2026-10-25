@@ -15,7 +15,7 @@ class html2text
      *
      * @deprecated use html2text.php convert_html_to_text function instead
      */
-    public function get_text()
+    public function get_text(): string
     {
         return convert_html_to_text($this->html);
     }

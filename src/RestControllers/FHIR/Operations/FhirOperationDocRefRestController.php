@@ -143,9 +143,8 @@ class FhirOperationDocRefRestController
     /**
      * Given an error outcome text create a Fhir Outcome issue for the error and return it.
      * @param $text
-     * @return FHIROperationOutcome
      */
-    private function createOperationOutcomeError($text, $type)
+    private function createOperationOutcomeError($text, $type): FHIROperationOutcome
     {
         $issue = new FHIROperationOutcomeIssue();
         $issueType = new FHIRIssueType();

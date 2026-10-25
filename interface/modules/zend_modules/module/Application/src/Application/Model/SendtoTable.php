@@ -49,7 +49,7 @@ class SendtoTable
     * @param    $type
     * @return   $components     Array of CCDA components
     **/
-    public function getCCDAComponents($type)
+    public function getCCDAComponents($type): array
     {
         $components = [];
         // removed dependency on the ccda_table_mapping table sjp 07/25/25

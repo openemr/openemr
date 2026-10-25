@@ -101,7 +101,7 @@ class ImmunizationSqlInjectionFixTest extends TestCase
         $this->assertStringContainsString('?', $query_pids, 'Query should use ? placeholders');
         $this->assertStringNotContainsString("'123'", $query_pids, 'Query should NOT contain concatenated values');
         $this->assertNotEmpty($pid_bind_values, 'Bind values should be created');
-        $this->assertCount(4, $pid_bind_values, 'Should have 4 bind values for one patient ID');
+        $this->assertSame(['123', '%123%', '%123%', '%123%'], $pid_bind_values, 'Should bind the patient ID once exactly and three times as a LIKE pattern');
     }
 
     /**

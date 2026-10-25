@@ -103,26 +103,8 @@ class Measure extends AbstractType
     {
         parent::__construct($measure);
         //$this->id = ($measure['_id'] ?? [])['oid'] ?? '';
-
-        $this->calculation_method = 'EPISODE_OF_CARE';
-        // CMS22v10 is EPISODE_OF_CARE, which seems to be default in measure file, but these measures
-        // require PATIENT
-
-        // refactored to be more generic across all measures years
-        // need to look into this more
-        if (
-            str_starts_with((string) $measure['cms_id'], 'CMS69') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS122') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS124') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS125') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS127') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS130') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS138') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS147') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS165')
-        ) {
-            $this->calculation_method = 'PATIENT';
-        }
+        // calculation_method is the bundle's own. Every measure in the 2023-2025 bundles is
+        // PATIENT based; forcing EPISODE_OF_CARE here used to change their results.
 
         //$this->_measure = $measure;
         $this->population_sets = [];
@@ -264,7 +246,10 @@ class Measure extends AbstractType
          */
     }
 
-    public function population_keys()
+    /**
+     * @return list<('DENEX' | 'DENEXCEP' | 'DENOM' | 'IPP' | 'MSRPOPL' | 'MSRPOPLEX' | 'NUMER' | 'NUMEX')>
+     */
+    public function population_keys(): array
     {
         // we could probably cache this call if we needed to optimize...
         $popKeys = [];
@@ -292,7 +277,7 @@ class Measure extends AbstractType
         return $serialized;
     }
 
-    public function getJsonArrayDefinition()
+    public function getJsonArrayDefinition(): bool
     {
         // get our populated measure if we have one or return the json.
         return $this->_measure || $this->jsonSerialize();

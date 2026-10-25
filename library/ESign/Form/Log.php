@@ -58,7 +58,7 @@ class Form_Log implements LogIF
         return $this->_viewer->getHtml($this);
     }
 
-    public function getViewScript()
+    public function getViewScript(): string
     {
         return OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/views/default/esign_signature_log.php';
     }

@@ -28,7 +28,7 @@ class CreateRouteFromPrimaryViewModel
     {
     }
 
-    public static function loadByPost($postData)
+    public static function loadByPost($postData): CreateRouteFromPrimaryViewModel
     {
         $model = new CreateRouteFromPrimaryViewModel();
         $model->customerAccountNumber = $postData["form_customerAcctNumber"] ?? "";

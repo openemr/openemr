@@ -102,7 +102,7 @@ class eRxStore
         );
     }
 
-    public function getPatientVitalsByPatientId($patientId)
+    public function getPatientVitalsByPatientId($patientId): array
     {
         $result = sqlQuery(
             "SELECT FORM_VITALS.date, FORM_VITALS.id

@@ -46,7 +46,7 @@ class TeleconferenceRoomControllerTest extends TestCase
         );
     }
 
-    private function getDefaultAppointment()
+    private function getDefaultAppointment(): array
     {
         return [
             'pc_eid' => 1,

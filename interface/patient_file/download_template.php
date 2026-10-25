@@ -46,7 +46,7 @@ $groupCount   = 0;      // 0 if no items in the group yet
 $itemSeparator = '; ';  // separator between group items
 
 // Check if the current location has the specified {string}.
-function keySearch(&$s, $key)
+function keySearch(&$s, $key): bool
 {
     global $keyLocation, $keyLength;
     $keyLength = strlen((string) $key);
@@ -59,7 +59,7 @@ function keySearch(&$s, $key)
 
 // Replace the {string} at the current location with the specified data.
 // Also update the location to resume scanning accordingly.
-function keyReplace(&$s, $data)
+function keyReplace(&$s, $data): string
 {
     global $keyLocation, $keyLength, $nextLocation;
     $nextLocation = $keyLocation + strlen((string) $data);
@@ -96,7 +96,7 @@ function dataFixup($data, $title = '')
 }
 
 // Return a string naming all issues for the specified patient and issue type.
-function getIssues($type)
+function getIssues($type): string
 {
     $tmp = '';
     $lres = sqlStatement("SELECT title, comments FROM lists WHERE " .

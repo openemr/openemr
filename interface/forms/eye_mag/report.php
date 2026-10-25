@@ -525,6 +525,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 } else {
                     //get patient photo
                     $tempDocC = new C_Document();
+                    // The report embeds the file itself (disable_exit), which C_Document only
+                    // allows once the caller has asked for the retrieve key.
+                    $tempDocC->onReturnRetrieveKey();
                     try {
                         $fileTemp = $tempDocC->retrieve_action($pid, -1, false, true, true, true, 'patient_picture');
                         if (!empty($fileTemp)) {
@@ -1894,7 +1897,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($ODREDDESAT); ?></td>
                                                 <td style="text-align:center;font-weight:bold;"><span
-                                                            title="<?php xla('Variation in red color discrimination between the eyes (eg. OD=100, OS=75)'); ?>"><?php echo xlt('Red Desaturation'); ?></span>
+                                                            title="<?php echo xla('Variation in red color discrimination between the eyes (eg. OD=100, OS=75)'); ?>"><?php echo xlt('Red Desaturation'); ?></span>
                                                 </td>
                                                 <td style="text-align:left;
                                         flex-wrap: wrap;
@@ -2557,6 +2560,7 @@ function display_draw_image($zone, $encounter, $pid): void
         //               if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
         if ($PDF_OUTPUT) {
             $tempDocC = new C_Document();
+            $tempDocC->onReturnRetrieveKey();
             $fileTemp = $tempDocC->retrieve_action($pid, $doc['id'], false, true, true);
             // tmp file in ../documents/temp since need to be available via webroot
             $from_file_tmp_web_name = tempnam(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp', "oer");
@@ -2581,7 +2585,7 @@ function display_draw_image($zone, $encounter, $pid): void
     return;
 }
 
-function report_ACT($term)
+function report_ACT($term): string
 {
     $term = nl2br(htmlspecialchars((string) $term, ENT_NOQUOTES));
     return $term . "&nbsp;";

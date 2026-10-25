@@ -148,7 +148,7 @@ $form_encounter_layout = [
     ],
 ];
 
-function feSearchSort($search = '', $column = 0, $reverse = false)
+function feSearchSort($search = '', $column = 0, $reverse = false): array
 {
     global $form_encounter_layout;
     $arr = [];
@@ -175,7 +175,7 @@ function feSearchSort($search = '', $column = 0, $reverse = false)
     return $arr;
 }
 
-function genFieldIdString($row)
+function genFieldIdString($row): string
 {
     return 'CID|' . json_encode($row);
 }

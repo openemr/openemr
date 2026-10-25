@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 
 class FhirConditionProblemsHealthConcernServiceTest extends TestCase
 {
-    private function getDefaultOpenEMRRecord()
+    private function getDefaultOpenEMRRecord(): array
     {
         return [
             'id' => '12345'

@@ -32,9 +32,11 @@ namespace OpenEMR\Tests\Api;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Promise\Utils as PromiseUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\DomCrawler\Crawler;
 
 class AuthorizationGrantPublicClientPkceTest extends TestCase
@@ -197,6 +199,147 @@ class AuthorizationGrantPublicClientPkceTest extends TestCase
         );
     }
 
+    #[Test]
+    public function testTwoConcurrentExchangesOfSameCodeCannotBothSucceed(): void
+    {
+        // The dispatcher's auth-code single-use fix relies on the
+        // oauth_auth_code_revocations primary-key constraint as the
+        // atomic serializer: first INSERT wins, second hits duplicate-
+        // key and reports revoked. Prove that under TRUE concurrency
+        // (two parallel HTTP exchanges), exactly one of the two
+        // responses succeeds; the other is rejected.
+        //
+        // This is the HTTP-concurrency analogue of
+        // AuthorizationGrantFlowTest::testSecondExchangeOfSameCodeIsRejected,
+        // which only exercises the sequential same-process shape.
+        $verifier = self::generatePkceVerifier();
+        $challenge = self::deriveS256Challenge($verifier);
+        $http = $this->buildClient();
+        $code = $this->runFlowThroughConsent($http, $challenge);
+
+        $form = [
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+            'redirect_uri' => self::REDIRECT_URI,
+            'client_id' => (string) $this->clientId,
+            'code_verifier' => $verifier,
+        ];
+
+        // Fire two exchanges before awaiting either so their claims
+        // on the auth code's identifier can race in the DB. The
+        // primary-key constraint on oauth_auth_code_revocations
+        // guarantees at most one INSERT succeeds.
+        $promiseA = $http->postAsync($this->baseUrl . '/oauth2/default/token', ['form_params' => $form]);
+        $promiseB = $http->postAsync($this->baseUrl . '/oauth2/default/token', ['form_params' => $form]);
+        $responses = PromiseUtils::unwrap(['a' => $promiseA, 'b' => $promiseB]);
+        $this->assertInstanceOf(ResponseInterface::class, $responses['a']);
+        $this->assertInstanceOf(ResponseInterface::class, $responses['b']);
+
+        $statuses = [$responses['a']->getStatusCode(), $responses['b']->getStatusCode()];
+        sort($statuses);
+        $bodies = [
+            (string) $responses['a']->getBody(),
+            (string) $responses['b']->getBody(),
+        ];
+        $this->assertSame(
+            200,
+            $statuses[0],
+            'Exactly one concurrent exchange must succeed. Statuses: ' . json_encode($statuses) . ' bodies: ' . json_encode($bodies)
+        );
+        $this->assertGreaterThanOrEqual(
+            400,
+            $statuses[1],
+            'The other concurrent exchange must be rejected with 4xx. Statuses: ' . json_encode($statuses) . ' bodies: ' . json_encode($bodies)
+        );
+        $this->assertLessThan(
+            500,
+            $statuses[1],
+            'Second-exchange rejection must be a client-error 4xx, not 5xx.'
+        );
+    }
+
+    #[Test]
+    public function testPublicClientRejectedAtAuthorizeWithoutPkce(): void
+    {
+        // OpenEMR forces PKCE for public clients at /authorize time
+        // (see AuthorizationController registerClient() comment:
+        // "only include secret if a confidential app else force PKCE
+        // for native and web apps"). This is stronger than
+        // league/oauth2-server's default (which would let the client
+        // skip PKCE unless requireCodeChallengeForPublicClients() is
+        // called). Locks the invariant so a future refactor that
+        // relaxed this would surface here.
+        $http = $this->buildClient();
+        $reg = $http->post($this->baseUrl . '/oauth2/default/registration', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'application_type' => 'web',
+                'redirect_uris' => [self::REDIRECT_URI],
+                'client_name' => 'AuthorizationGrantPublicClientPkceTest-NoPkceAuthorize-' . bin2hex(random_bytes(3)),
+                'token_endpoint_auth_method' => 'client_secret_post',
+                'contacts' => ['e2e@test.example'],
+                'scope' => 'openid fhirUser',
+            ],
+        ]);
+        $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed for public client');
+        $data = json_decode((string) $reg->getBody(), true);
+        $this->assertIsArray($data);
+        $this->assertIsString($data['client_id']);
+        $this->clientId = $data['client_id'];
+
+        $authResp = $http->get($this->baseUrl . '/oauth2/default/authorize?' . http_build_query([
+            'client_id' => $this->clientId,
+            'redirect_uri' => self::REDIRECT_URI,
+            'response_type' => 'code',
+            'scope' => 'openid fhirUser',
+            'state' => self::STATE,
+            // No code_challenge / code_challenge_method
+        ]));
+        $this->assertGreaterThanOrEqual(
+            400,
+            $authResp->getStatusCode(),
+            'Public client without code_challenge at /authorize must be rejected. Body: '
+                . (string) $authResp->getBody()
+        );
+        $this->assertLessThan(500, $authResp->getStatusCode(), 'Rejection must be a 4xx client-error, not 5xx');
+    }
+
+    #[Test]
+    public function testPublicClientRejectsPkceMethodDowngradeAttempt(): void
+    {
+        // PKCE method downgrade attempt: /authorize registered the
+        // code_challenge as S256-hashed; the attacker submits a
+        // code_verifier that would only validate under the `plain`
+        // method (verifier == challenge). If the token endpoint ever
+        // accepted a plain match against an S256-registered challenge
+        // it would collapse PKCE to a bearer-token-of-the-code shape.
+        // Verifier == S256 challenge value makes this a specific
+        // deterministic test.
+        $verifier = self::generatePkceVerifier();
+        $challenge = self::deriveS256Challenge($verifier);
+        $http = $this->buildClient();
+        $code = $this->runFlowThroughConsent($http, $challenge);
+
+        // Submit the CHALLENGE value as the verifier — plain-mode match
+        // would pass, S256-mode must reject.
+        $tokenResp = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'authorization_code',
+                'code' => $code,
+                'redirect_uri' => self::REDIRECT_URI,
+                'client_id' => (string) $this->clientId,
+                'code_verifier' => $challenge,
+            ],
+        ]);
+        $this->assertContains(
+            $tokenResp->getStatusCode(),
+            [400, 401],
+            'Submitting the S256-registered challenge value as the verifier '
+                . '(would succeed under plain method) must be rejected when '
+                . 'S256 was registered. Body: ' . (string) $tokenResp->getBody()
+        );
+    }
+
     private function runFlowThroughConsent(Client $http, string $codeChallenge): string
     {
         // DCR a public client (application_type=web). OpenEMR returns
@@ -223,16 +366,23 @@ class AuthorizationGrantPublicClientPkceTest extends TestCase
         $this->assertIsString($clientData['client_id']);
         $this->clientId = $clientData['client_id'];
 
-        $authUrl = '/oauth2/default/authorize?' . http_build_query([
+        $authParams = [
             'client_id' => $this->clientId,
             'redirect_uri' => self::REDIRECT_URI,
             'response_type' => 'code',
             'scope' => 'openid fhirUser',
             'state' => self::STATE,
             'nonce' => self::NONCE,
-            'code_challenge' => $codeChallenge,
-            'code_challenge_method' => 'S256',
-        ]);
+        ];
+        // Empty $codeChallenge means "no PKCE at authorize" — the
+        // testPublicClientRejectsVerifierWhenNoChallengeWasRegistered
+        // test uses this to exercise the "code_verifier without
+        // code_challenge" deny-path at /token.
+        if ($codeChallenge !== '') {
+            $authParams['code_challenge'] = $codeChallenge;
+            $authParams['code_challenge_method'] = 'S256';
+        }
+        $authUrl = '/oauth2/default/authorize?' . http_build_query($authParams);
         $loginPage = $http->get($this->baseUrl . $authUrl);
         $this->assertSame(200, $loginPage->getStatusCode());
         [$loginCsrf, $loginAction] = $this->parseLoginForm(
