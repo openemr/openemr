@@ -1096,7 +1096,9 @@
         const searchInput = document.getElementById('code_search');
         const autocompleteList = document.createElement('ul');
         autocompleteList.id = 'autocomplete-list';
+        const chargeCodeSearchUrl = {{ ((webroot|default('')) ~ '/interface/forms/general_dermatology/public/api/fetchCodeData.php')|json_encode|raw }};
 
+        if (searchInput) {
         // Ensure the container is relatively positioned
         const inputContainer = searchInput.parentNode;
         inputContainer.style.position = 'relative';
@@ -1111,38 +1113,63 @@
 
         // Function to fetch and update autocomplete suggestions
         async function fetchAutocompleteResults(query) {
-            if (!query.trim()) {
+            if (!query.trim() || query.trim().length < 2) {
                 autocompleteList.innerHTML = '';
                 autocompleteList.style.display = 'none';
                 return;
             }
 
             try {
+                if (typeof top.restoreSession === 'function') {
+                    top.restoreSession();
+                }
                 const csrfInput = document.querySelector('input[name="csrf_token_form"]');
                 const csrfToken = csrfInput ? csrfInput.value : '';
-                const response = await fetch('../../forms/general_dermatology/public/api/fetchCodeData.php', {
+                const response = await fetch(chargeCodeSearchUrl, {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-Token': csrfToken
                     },
-                    body: JSON.stringify({ query, csrf_token_form: csrfToken })
+                    body: JSON.stringify({ query: query.trim(), csrf_token_form: csrfToken })
                 });
 
-                const searchData = await response.json();
+                const searchData = await response.json().catch(function () { return null; });
+                if (!response.ok) {
+                    const msg = (searchData && (searchData.message || searchData.error)) || ('HTTP ' + response.status);
+                    console.error('Charge code search failed:', msg);
+                    updateAutocompleteList([], msg);
+                    return;
+                }
+                if (!Array.isArray(searchData)) {
+                    updateAutocompleteList([], (searchData && searchData.error) || 'Unexpected response');
+                    return;
+                }
                 updateAutocompleteList(searchData);
                 positionAutocompleteList(); // Ensure proper placement
             } catch (error) {
                 console.error('Error fetching autocomplete data:', error);
+                updateAutocompleteList([], 'Network error searching codes');
             }
         }
         // Ensure autocomplete list is hidden initially
         autocompleteList.style.display = 'none';
         // Function to update the dropdown list
-        function updateAutocompleteList(data) {
+        function updateAutocompleteList(data, emptyMessage) {
             autocompleteList.innerHTML = ''; // Clear previous results
 
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
+                if (emptyMessage) {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('autocomplete-item');
+                    listItem.textContent = emptyMessage;
+                    listItem.style.cursor = 'default';
+                    autocompleteList.appendChild(listItem);
+                    autocompleteList.style.display = 'block';
+                    positionAutocompleteList();
+                    return;
+                }
                 autocompleteList.style.display = 'none';
                 return;
             }
@@ -1166,23 +1193,40 @@
             });
 
             autocompleteList.style.display = 'block'; // Show dropdown
+            positionAutocompleteList();
         }
 
-        // Listen for input changes
+        // Listen for input changes (debounce slightly)
+        let chargeSearchTimer = null;
         searchInput.addEventListener('input', (e) => {
             const searchQuery = e.target.value;
-            fetchAutocompleteResults(searchQuery);
+            clearTimeout(chargeSearchTimer);
+            chargeSearchTimer = setTimeout(function () {
+                fetchAutocompleteResults(searchQuery);
+            }, 200);
         });
+        }
 
         // Hide autocomplete when clicking outside
         autocompleteList.addEventListener('click', (e) => {
             const clickedItem = e.target.closest('.autocomplete-item');
             if (clickedItem) {
-                const code = clickedItem.querySelector('span:first-child').textContent.trim();
-                const description = clickedItem.querySelector('span:last-child').textContent.trim();
+                const codeEl = clickedItem.querySelector('span:first-child');
+                const descEl = clickedItem.querySelector('span:last-child');
+                if (!codeEl || !descEl || codeEl === descEl) {
+                    return; // status/error row, not a code hit
+                }
+                const code = codeEl.textContent.trim();
+                const description = descEl.textContent.trim();
+                if (!code) {
+                    return;
+                }
 
                 // Insert the new row into the charge table
                 handleAutocompleteSelect(code, description);
+                if (searchInput) {
+                    searchInput.value = '';
+                }
 
                 // Clear and hide the autocomplete list
                 autocompleteList.innerHTML = '';
