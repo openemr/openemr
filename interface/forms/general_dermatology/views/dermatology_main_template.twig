@@ -108,7 +108,7 @@
             } else {
                 var webroot = {{ (webroot|default(''))|json_encode|raw }} || '';
                 window.location.href = webroot + '/interface/patient_file/encounter/load_form.php'
-                    + '?formname=general_dermatology&id=' + encodeURIComponent(selectedValue);
+                    + '?formname=general_dermatology&template_id=' + encodeURIComponent(selectedValue);
             }
         });
     });

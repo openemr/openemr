@@ -35,6 +35,8 @@ $access = NoteAccessService::fromContext($context);
 
 $encounter = $context->encounter();
 $formid = (int) ($_GET['id'] ?? 0);
+// Apply a shared SOAP template into the current encounter (not a patient form id).
+$applyTemplateId = (int) ($_GET['template_id'] ?? $_GET['templateId'] ?? 0);
 $templateMode = !empty($_GET['template_mode']) || !empty($_GET['templateMode']);
 $existingFormId = [];
 $loadedTemplateId = 0;
@@ -54,37 +56,44 @@ $encounterFormId = !empty($existingFormId['form_id']) ? (int) $existingFormId['f
 $general_dermatology_form_data = [];
 $editingTemplateId = 0;
 
-if ($formid > 0) {
-    try {
-        if ($templateMode) {
-            $loadedRow = $access->requireTemplate($formid);
-            $general_dermatology_form_data = TemplateFormService::prepareTemplateEditFormData($loadedRow, $formid);
-            $editingTemplateId = $formid;
-            $loadedTemplateId = $formid;
+try {
+    if ($templateMode && $formid > 0) {
+        $loadedRow = $access->requireTemplate($formid);
+        $general_dermatology_form_data = TemplateFormService::prepareTemplateEditFormData($loadedRow, $formid);
+        $editingTemplateId = $formid;
+        $loadedTemplateId = $formid;
+    } elseif (!$templateMode && $applyTemplateId > 0) {
+        // Apply template content into this encounter without treating template id as a forms.form_id.
+        $loadedRow = $access->requireTemplate($applyTemplateId);
+        $prepared = TemplateFormService::prepareLoadedFormData($loadedRow, $applyTemplateId, $encounterFormId);
+        $general_dermatology_form_data = $prepared['formData'];
+        $loadedTemplateId = $prepared['loadedTemplateId'];
+        $encounterFormId = $prepared['encounterFormId'];
+        $formid = $encounterFormId;
+    } elseif ($formid > 0) {
+        $loadedRow = $access->findById($formid) ?? [];
+        if ($loadedRow === []) {
+            $formid = 0;
+        } elseif (TemplateFormService::isTemplateRow($loadedRow)) {
+            // Legacy URLs that still pass template rows as id=.
+            $prepared = TemplateFormService::prepareLoadedFormData($loadedRow, $formid, $encounterFormId);
+            $general_dermatology_form_data = $prepared['formData'];
+            $loadedTemplateId = $prepared['loadedTemplateId'];
+            $encounterFormId = $prepared['encounterFormId'];
+            $formid = $encounterFormId;
         } else {
-            $loadedRow = $access->findById($formid) ?? [];
-            if ($loadedRow === []) {
-                $formid = 0;
-            } elseif (TemplateFormService::isTemplateRow($loadedRow)) {
-                // Loading a template into a patient encounter form (apply template).
-                $prepared = TemplateFormService::prepareLoadedFormData($loadedRow, $formid, $encounterFormId);
-                $general_dermatology_form_data = $prepared['formData'];
-                $loadedTemplateId = $prepared['loadedTemplateId'];
-                $encounterFormId = $prepared['encounterFormId'];
-            } else {
-                // Patient note: enforce ownership.
-                $loadedRow = $access->requirePatientNote($formid);
-                $prepared = TemplateFormService::prepareLoadedFormData($loadedRow, $formid, $encounterFormId);
-                $general_dermatology_form_data = $prepared['formData'];
-                $loadedTemplateId = $prepared['loadedTemplateId'];
-                $encounterFormId = $prepared['encounterFormId'];
-            }
+            // Patient note: enforce ownership.
+            $loadedRow = $access->requirePatientNote($formid);
+            $prepared = TemplateFormService::prepareLoadedFormData($loadedRow, $formid, $encounterFormId);
+            $general_dermatology_form_data = $prepared['formData'];
+            $loadedTemplateId = $prepared['loadedTemplateId'];
+            $encounterFormId = $prepared['encounterFormId'];
         }
-    } catch (GeneralDermatologyException $e) {
-        http_response_code(403);
-        echo text($e->getMessage());
-        exit;
     }
+} catch (GeneralDermatologyException $e) {
+    http_response_code(403);
+    echo text($e->getMessage());
+    exit;
 }
 
 $twig = new Bootstrap();

@@ -165,9 +165,12 @@ class TemplateFormService
     {
         $root = rtrim($webroot, '/');
         $path = '/interface/patient_file/encounter/load_form.php';
+        // Use template_id, NOT id. Core load_form.php treats id as a patient form
+        // row and denies access when the session pid does not own that forms row.
+        // Templates are shared snapshots and must not go through that check.
         $query = http_build_query([
             'formname' => 'general_dermatology',
-            'id' => (string) $templateId,
+            'template_id' => (string) $templateId,
         ]);
 
         return $root . $path . '?' . $query;
