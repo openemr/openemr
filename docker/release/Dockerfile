@@ -163,7 +163,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 #   - Branch: --build-arg OPENEMR_VERSION=master
 #   - Tag:    --build-arg OPENEMR_VERSION=v8_4_1
 #   - Fork:   --build-arg OPENEMR_GIT=https://github.com/<you>/openemr.git --build-arg OPENEMR_VERSION=<branch>
-ARG OPENEMR_VERSION=master
+ARG OPENEMR_VERSION=rel-850
 FROM base AS openemr-source
 ARG OPENEMR_GIT=https://github.com/openemr/openemr.git
 RUN git clone "${OPENEMR_GIT}" --branch "${OPENEMR_VERSION}" --depth 1 openemr \
@@ -316,6 +316,7 @@ COPY upgrade/docker-version \
      upgrade/fsupgrade-13.sh \
      upgrade/fsupgrade-14.sh \
      upgrade/fsupgrade-15.sh \
+     upgrade/fsupgrade-16.sh \
      /root/
 
 # Set upgrade scripts as executable (read and execute for owner only)
@@ -334,7 +335,8 @@ RUN chmod 500 \
     /root/fsupgrade-12.sh \
     /root/fsupgrade-13.sh \
     /root/fsupgrade-14.sh \
-    /root/fsupgrade-15.sh
+    /root/fsupgrade-15.sh \
+    /root/fsupgrade-16.sh
 
 # ============================================================================
 # APACHE RUNTIME DIRECTORY
