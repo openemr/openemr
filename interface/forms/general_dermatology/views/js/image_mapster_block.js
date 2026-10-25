@@ -310,13 +310,54 @@ $(document).ready(function () {
         dermWriteLocationToFindingCard($card, resolved, index);
     });
 
-    function createNewFormWhenClickTheBodyLocation(name, locationObj) {
+    /**
+     * Real impression/finding cards only (Charges/time blocks also use custom-icd-form).
+     */
+    function dermFindingCards() {
+        return $("#plan-forms .custom-icd-form").filter(function () {
+            return $(this).find(".finding-location").length > 0;
+        }).not("#custom-icd-form-sample");
+    }
 
-        var countvalue = $("#treatment_count").val();
-        if(countvalue > 0){
-            formCount = parseInt(countvalue)+1;
-            $("#treatment_count").val(formCount);
+    function dermFindingIndexFromCard($card) {
+        var $loc = $card.find(".finding-location").first();
+        var index = $loc.attr("data-finding-index");
+        if (typeof index === "undefined" || index === null || index === "") {
+            var nameAttr = $loc.attr("name") || "";
+            var m = nameAttr.match(/treatment\[(\d+)\]/);
+            index = m ? m[1] : null;
         }
+        return index;
+    }
+
+    function dermNextFindingIndex() {
+        var max = -1;
+        dermFindingCards().each(function () {
+            var idx = parseInt(dermFindingIndexFromCard($(this)), 10);
+            if (!isNaN(idx) && idx > max) {
+                max = idx;
+            }
+        });
+        var countVal = parseInt($("#treatment_count").val(), 10);
+        if (!isNaN(countVal) && countVal - 1 > max) {
+            // treatment_count is a size; last used index is often size-1
+            max = Math.max(max, countVal - 1);
+        }
+        return max + 1;
+    }
+
+    function dermScrollToCard($card) {
+        if (!$card || !$card.length || !$card[0].scrollIntoView) {
+            return;
+        }
+        try {
+            $card[0].scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } catch (err) {
+            $card[0].scrollIntoView(false);
+        }
+    }
+
+    function createNewFormWhenClickTheBodyLocation(name, locationObj) {
         name = dermNormalizeMapKey(name);
         if (!locationObj && name) {
             locationObj = dermResolveLocationFromMapKey(name, '');
@@ -326,23 +367,37 @@ $(document).ready(function () {
         }
         // Prefer structured label for the visible field.
         var displayName = (locationObj && locationObj.label) ? locationObj.label : name;
+        var resolvedLocation = locationObj || {
+            id: displayName ? dermSlugFromLabel(displayName) : '',
+            label: displayName || '',
+            laterality: '',
+            view: '',
+            markers: []
+        };
 
-        // Prefer the last real finding card (not the hidden sample) with an empty location.
-        var $lastCard = $("#plan-forms .custom-icd-form").not("#custom-icd-form-sample").last();
-        if (!$lastCard.length) {
-            $lastCard = $(".custom-icd-form").not("#custom-icd-form-sample").last();
-        }
-        var lastLocVal = $lastCard.find(".finding-location").first().val();
-        if ($lastCard.length && (lastLocVal === undefined || lastLocVal === null || String(lastLocVal).trim() === "")) {
-            var lastIndex = $lastCard.find(".finding-location").attr("data-finding-index");
-            if (typeof lastIndex === 'undefined' || lastIndex === null || lastIndex === '') {
-                var lastName = $lastCard.find(".finding-location").attr("name") || '';
-                var lastMatch = lastName.match(/treatment\[(\d+)\]/);
-                lastIndex = lastMatch ? lastMatch[1] : formCount;
+        // Fill the last empty finding card if one exists; never target Charges/etc.
+        var $emptyCard = dermFindingCards().filter(function () {
+            return String($(this).find(".finding-location").first().val() || "").trim() === "";
+        }).last();
+
+        if ($emptyCard.length) {
+            var emptyIndex = dermFindingIndexFromCard($emptyCard);
+            if (emptyIndex === null || emptyIndex === "") {
+                emptyIndex = dermNextFindingIndex();
             }
-            dermWriteLocationToFindingCard($lastCard, locationObj || { id: '', label: displayName, laterality: '', view: '', markers: [] }, lastIndex);
-        } else {
-            var clonedForm = $("#custom-icd-form-sample").clone();
+            dermWriteLocationToFindingCard($emptyCard, resolvedLocation, emptyIndex);
+            dermScrollToCard($emptyCard);
+            return;
+        }
+
+        // No empty finding card: clone the hidden sample into #plan-forms.
+        var nextIndex = dermNextFindingIndex();
+        formCount = nextIndex;
+        $("#treatment_count").val(String(dermFindingCards().length + 1));
+        $("#total_treatment_count").val($("#treatment_count").val());
+
+        {
+            var clonedForm = $("#custom-icd-form-sample").clone(false, false);
 
             // create id
             var icdForm = "custom-icd-form-" + formCount;
@@ -352,7 +407,7 @@ $(document).ready(function () {
             var minute = "minute-" + formCount;
             var icd = "finding-icd-" + formCount;
             var dxSId = "dx-s-" + formCount;
-            var dxAlt = "dx-s-" + formCount;
+            var dxAlt = "dx-alt-" + formCount;
             var idcAlt = "icd-alt-"+formCount;
             var dxSName = "dx-s-" + formCount + "[]";
             var dxDescId = "dx-desc-" + formCount;
@@ -366,13 +421,13 @@ $(document).ready(function () {
 
             // unselecting the options in mutltiselect
             clonedForm.find("option:selected").prop("selected", false);
+            clonedForm.removeAttr("style");
+            if (formCount % 2 === 1) {
+                clonedForm.css("background-color", "#f1f1f1");
+            }
 
             // set id
             clonedForm.attr("id", icdForm);
-            if (formCount % 2 == 1) {
-                clonedForm
-                .prevObject.css("background-color", "#f1f1f1");
-            }
             clonedForm
             .find("#new-plan")
             .attr("id", (displayName || ('plan' + formCount)).replace(/\s+/g, ''))
@@ -381,6 +436,7 @@ $(document).ready(function () {
             .find("#delete_button")
             .attr("data-name", `treatment[${formCount}][severity_drop]`)
             .attr("class", 'btn btn-danger remove_plan mb-3')
+            .removeClass('d-none')
             .attr("data-value", formCount);
             clonedForm
             .find("#finding-location")
@@ -392,7 +448,7 @@ $(document).ready(function () {
             .find("#finding-location-json, .finding-location-json")
             .attr("id", locationJsonId)
             .attr("name", 'treatment['+formCount+'][location_json]')
-            .val(locationObj ? JSON.stringify(locationObj) : '');
+            .val(JSON.stringify(resolvedLocation));
             clonedForm
             .find("#finding-description")
             .attr("id", description)
@@ -456,17 +512,21 @@ $(document).ready(function () {
             .find("#procedure-plan-num")
             .text(`Procedure Plan #${formCount}`);
             clonedForm.appendTo("#plan-forms");
-            
+            $("#treatment_count").val(String(dermFindingCards().length));
+            $("#total_treatment_count").val($("#treatment_count").val());
+
             clonedForm.find(".select2").css({ width: "100%" });
             clonedForm.find(".select2").css({ width: "100%" });
 
-            formCount++;
-            setTimeout(() => {
-            $(".dx-s").select2();
-            $(".dx-desc").select2();
+            formCount = nextIndex + 1;
+            setTimeout(function () {
+                $(".dx-s").select2();
+                $(".dx-desc").select2();
+                dermScrollToCard(clonedForm);
             }, 200);
             $(".dx-s").select2();
             $(".dx-desc").select2();
+            dermScrollToCard(clonedForm);
 
             $("#" + dxSId).on("change", function () {
                 var selectedValue = $(this).val();
@@ -524,7 +584,7 @@ $(document).ready(function () {
                     },
                 });
             });
-            bindTextArea();
+            // bindTextArea() was referenced historically but never defined in this form.
         }
     }
 
