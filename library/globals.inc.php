@@ -3755,6 +3755,20 @@ $GLOBALS_METADATA = [
             '',
             xl('CCDA conformance and validation API service URL. For testing (using ONLY test data) you can default to http://ccda.healthit.gov which should not be used to transmit PHI. Production sites can deploy their own by following instructions here https://github.com/onc-healthit/reference-ccda-validator.')
         ],
+
+        'gemma_api_key' => [
+            xl('Google Gemma API Key'),
+            'encrypted',
+            '',
+            xl('API key for Google Gemma 4 natural language patient search service.')
+        ],
+
+        'gemma_model_name' => [
+            xl('Gemma Model Name'),
+            'text',
+            'gemma-4-4b-it',
+            xl('Gemma model name to use on Google AI Studio API (e.g. gemma-4-4b-it).')
+        ],
     ],
 
     'Rx' => [

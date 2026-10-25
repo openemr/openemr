@@ -460,10 +460,11 @@ function genPatientHeaderFooter($pid, $DOS = null): string
 
 function _set_patient_inc_count($limit, $count, $where, $whereBindArray = []): void
 {
-  // When the limit is exceeded, find out what the unlimited count would be.
-    OEGlobalsBag::getInstance()->set('PATIENT_INC_COUNT', $count);
-  // if ($limit != "all" && $GLOBALS['PATIENT_INC_COUNT'] >= $limit) {
-    if ($limit != "all") {
+    // When results do not fill the requested page limit and we are on the first page,
+    // total matching records is simply $count, avoiding an expensive COUNT(*) scan on large tables.
+    $offset = (int) ($_REQUEST['fstart'] ?? 0);
+    OEGlobalsBag::getInstance()->set('PATIENT_INC_COUNT', $offset + $count);
+    if ($limit != "all" && $count >= (int) $limit) {
         $tmp = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE $where", $whereBindArray);
         OEGlobalsBag::getInstance()->set('PATIENT_INC_COUNT', $tmp['count']);
     }
@@ -997,6 +998,105 @@ function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, p
     if (is_countable($returnval)) {
         _set_patient_inc_count($limit, count($returnval), $where, $countBindArray);
     }
+    return $returnval;
+}
+
+/**
+ * Search patients using structured fields extracted by AI (Google Gemma 4).
+ * Builds a precise, indexed query based on the extracted fields.
+ *
+ * @param array<string, string> $aiFields Extracted patient identifiers
+ * @param string $given Fields to select
+ * @param string $orderby Sort column and direction
+ * @param int|string $limit Pagination limit or "all"
+ * @param int|string $start Pagination offset
+ * @return array<int, array<string, mixed>>
+ */
+function getPatientsByAiSearch(
+    array $aiFields,
+    $given = "fname, lname, pid",
+    $orderby = "lname ASC, fname ASC",
+    $limit = "all",
+    $start = 0
+): array {
+    $whereParts = [];
+    $sqlBindArray = [];
+
+    if (!empty($aiFields['lname'])) {
+        $whereParts[] = "lname LIKE ?";
+        $sqlBindArray[] = $aiFields['lname'] . '%';
+    }
+    if (!empty($aiFields['fname'])) {
+        $whereParts[] = "fname LIKE ?";
+        $sqlBindArray[] = $aiFields['fname'] . '%';
+    }
+    if (!empty($aiFields['mname'])) {
+        $whereParts[] = "mname LIKE ?";
+        $sqlBindArray[] = $aiFields['mname'] . '%';
+    }
+    if (!empty($aiFields['DOB'])) {
+        $whereParts[] = "DOB = ?";
+        $sqlBindArray[] = $aiFields['DOB'];
+    }
+    if (!empty($aiFields['pid'])) {
+        $whereParts[] = "pid = ?";
+        $sqlBindArray[] = $aiFields['pid'];
+    }
+    if (!empty($aiFields['pubpid'])) {
+        $whereParts[] = "pubpid = ?";
+        $sqlBindArray[] = $aiFields['pubpid'];
+    }
+    if (!empty($aiFields['ss'])) {
+        $whereParts[] = "ss = ?";
+        $sqlBindArray[] = $aiFields['ss'];
+    }
+    if (!empty($aiFields['phone_home'])) {
+        $cleanPhone = preg_replace("/[[:punct:]]/", "", (string) $aiFields['phone_home']);
+        $whereParts[] = "(REPLACE(REPLACE(phone_home, '-', ''), ' ', '') LIKE ? OR REPLACE(REPLACE(phone_cell, '-', ''), ' ', '') LIKE ?)";
+        $sqlBindArray[] = '%' . $cleanPhone . '%';
+        $sqlBindArray[] = '%' . $cleanPhone . '%';
+    } elseif (!empty($aiFields['phone_cell'])) {
+        $cleanPhone = preg_replace("/[[:punct:]]/", "", (string) $aiFields['phone_cell']);
+        $whereParts[] = "(REPLACE(REPLACE(phone_home, '-', ''), ' ', '') LIKE ? OR REPLACE(REPLACE(phone_cell, '-', ''), ' ', '') LIKE ?)";
+        $sqlBindArray[] = '%' . $cleanPhone . '%';
+        $sqlBindArray[] = '%' . $cleanPhone . '%';
+    }
+
+    if (empty($whereParts)) {
+        return [];
+    }
+
+    $where = implode(' AND ', $whereParts);
+
+    $session = \OpenEMR\Common\Session\SessionUtils::createSession();
+    if (!empty(OEGlobalsBag::getInstance()->getString('pt_restrict_field'))) {
+        if ($session->get("authUser") != 'admin' || OEGlobalsBag::getInstance()->getBoolean('pt_restrict_admin')) {
+            $restrictCol = escape_sql_column_name(OEGlobalsBag::getInstance()->getString('pt_restrict_field'), ['patient_data']);
+            $where .= " AND ( patient_data." . $restrictCol .
+                " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
+                $restrictCol . " = '' ) ";
+            array_push($sqlBindArray, $session->get("authUser"));
+        }
+    }
+
+    $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    $countBindArray = $sqlBindArray;
+    if ($limit != "all") {
+        $sql .= " LIMIT ? OFFSET ?";
+        array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($start) ? (int) $start : 0));
+    }
+
+    $rez = sqlStatement($sql, $sqlBindArray);
+
+    $returnval = [];
+    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+        $returnval[$iter] = $row;
+    }
+
+    if (is_countable($returnval)) {
+        _set_patient_inc_count($limit, count($returnval), $where, $countBindArray);
+    }
+
     return $returnval;
 }
 

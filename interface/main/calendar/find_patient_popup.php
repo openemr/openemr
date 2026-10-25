@@ -40,6 +40,14 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
         $result = getPatientDOB(DateToYYYYMMDD($searchparm), "*");
     } elseif ($searchby == "SSN") {
         $result = getPatientSSN("$searchparm", "*");
+    } elseif ($searchby == "AI") {
+        $aiService = new \OpenEMR\Services\Search\AiPatientSearchService();
+        $aiFields = $aiService->parseSearchQuery($searchparm);
+        if ($aiFields !== null && !empty($aiFields)) {
+            $result = getPatientsByAiSearch($aiFields, "*");
+        } else {
+            $result = getPatientLnames("$searchparm", "*");
+        }
     }
 }
 ?>
@@ -131,6 +139,9 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
                     <label for="searchby" class="col-form-label col-form-label-sm col"><?php echo xlt('Search by:'); ?></label>
                     <select name='searchby' id='searchby' class="form-control form-control-sm col">
                         <option value="Last"><?php echo xlt('Name'); ?></option>
+                        <option value="AI"<?php if (!empty($searchby) && ($searchby == 'AI')) {
+                            echo ' selected';
+                                          } ?>><?php echo xlt('AI Smart Search'); ?></option>
                         <!-- (CHEMED) Search by phone number -->
                         <option value="Phone"<?php if (!empty($searchby) && ($searchby == 'Phone')) {
                             echo ' selected';

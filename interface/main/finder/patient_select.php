@@ -281,24 +281,35 @@ if ($popup) {
     echo "<input type='hidden' name='patient' value='" . attr($patient) . "' />\n";
     echo "<input type='hidden' name='findBy'  value='" . attr($findBy) . "' />\n";
 
-    $result = match ($findBy) {
-        "Last" => getPatientLnames($patient, $given, $orderby, $sqllimit, $fstart),
-        "ID" => getPatientId($patient, $given, "id ASC, " . $orderby, $sqllimit, $fstart),
-        "DOB" => getPatientDOB(DateToYYYYMMDD($patient), $given, "DOB ASC, " . $orderby, $sqllimit, $fstart),
-        "SSN" => getPatientSSN($patient, $given, "ss ASC, " . $orderby, $sqllimit, $fstart),
-        "Phone" => getPatientPhone($patient, $given, $orderby, $sqllimit, $fstart),
-        "Any" => getByPatientDemographics($patient, $given, $orderby, $sqllimit, $fstart),
-        "Filter" => getByPatientDemographicsFilter(
-            $searchFields,
-            $patient,
-            $given,
-            $orderby,
-            $sqllimit,
-            $fstart,
-            $search_service_code
-        ),
-        default => [],
-    };
+    if ($findBy === "AI") {
+        $aiService = new \OpenEMR\Services\Search\AiPatientSearchService();
+        $aiFields = $aiService->parseSearchQuery($patient ?? '');
+        if ($aiFields !== null && !empty($aiFields)) {
+            $result = getPatientsByAiSearch($aiFields, $given, $orderby, $sqllimit, $fstart);
+        } else {
+            // Graceful fallback: if AI returned no fields or service was unavailable, fall back to Last name search
+            $result = getPatientLnames($patient, $given, $orderby, $sqllimit, $fstart);
+        }
+    } else {
+        $result = match ($findBy) {
+            "Last" => getPatientLnames($patient, $given, $orderby, $sqllimit, $fstart),
+            "ID" => getPatientId($patient, $given, "id ASC, " . $orderby, $sqllimit, $fstart),
+            "DOB" => getPatientDOB(DateToYYYYMMDD($patient), $given, "DOB ASC, " . $orderby, $sqllimit, $fstart),
+            "SSN" => getPatientSSN($patient, $given, "ss ASC, " . $orderby, $sqllimit, $fstart),
+            "Phone" => getPatientPhone($patient, $given, $orderby, $sqllimit, $fstart),
+            "Any" => getByPatientDemographics($patient, $given, $orderby, $sqllimit, $fstart),
+            "Filter" => getByPatientDemographicsFilter(
+                $searchFields,
+                $patient,
+                $given,
+                $orderby,
+                $sqllimit,
+                $fstart,
+                $search_service_code
+            ),
+            default => [],
+        };
+    }
 }
 ?>
 
@@ -407,6 +418,30 @@ if ($popup) {
 <table>
 <tr>
 <?php
+// Performance optimization (Issue #14245): Pre-fetch encounter data for all patients in a single batch query
+// to eliminate 4 N+1 queries per displayed patient (up to 400 queries per page).
+$encounterDataByPid = [];
+if (!empty($result) && empty(OEGlobalsBag::getInstance()->get('patient_search_results_style'))) {
+    $pids = [];
+    foreach ($result as $row) {
+        if (!empty($row['pid'])) {
+            $pids[] = (int) $row['pid'];
+        }
+    }
+    if (!empty($pids)) {
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $encQuery = "SELECT pid, COUNT(date) AS encounter_count, MAX(date) AS last_date, " .
+            "(TO_DAYS(CURRENT_DATE()) - TO_DAYS(MAX(date))) AS day_diff, " .
+            "(MAX(date) + INTERVAL " . (int) $add_days . " DAY) AS next_appt, " .
+            "DAYNAME(MAX(date) + INTERVAL " . (int) $add_days . " DAY) AS next_appt_day " .
+            "FROM form_encounter WHERE pid IN ($placeholders) GROUP BY pid";
+        $encStmt = sqlStatement($encQuery, $pids);
+        while ($encRow = sqlFetchArray($encStmt)) {
+            $encounterDataByPid[$encRow['pid']] = $encRow;
+        }
+    }
+}
+
 if ($result) {
     foreach ($result as $iter) {
         echo "<tr class='oneresult' id='" . attr($iter['pid']) . "'>";
@@ -449,67 +484,13 @@ if ($result) {
         if (empty(OEGlobalsBag::getInstance()->get('patient_search_results_style'))) {
             echo "<td class='srPID'>" . text($iter['pid']) . "</td>";
 
-          //setup for display of encounter date info
-            $encounter_count = 0;
-            $day_diff = '';
-            $last_date_seen = '';
-            $next_appt_date = '';
-            $pid = '';
-
-          // calculate date differences based on date of last encounter with billing entries
-            $query = "select max(form_encounter.date) as mydate," .
-                  " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," .
-                  " (max(form_encounter.date) + interval " .
-                  (int) $add_days .
-                  " day) as next_appt, dayname(max(form_encounter.date) + interval " .
-                  (int) $add_days .
-                  " day) as next_appt_day from form_encounter " .
-                  "join billing on billing.encounter = form_encounter.encounter and " .
-                  "billing.pid = form_encounter.pid and billing.activity = 1 and " .
-                  "billing.code_type not like 'COPAY' where " .
-                  "form_encounter.pid = ?";
-            $statement = sqlStatement($query, [$iter["pid"]]);
-            if ($results = sqlFetchArray($statement)) {
-                $last_date_seen = $results['mydate'];
-                $day_diff = $results['day_diff'];
-                $next_appt_date = xl($results['next_appt_day']) . ', ' . oeFormatShortDate($results['next_appt']);
-            }
-
-          // calculate date differences based on date of last encounter regardless of billing
-            $query = "select max(form_encounter.date) as mydate," .
-                  " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," .
-                  " (max(form_encounter.date) + interval " .
-                  (int) $add_days .
-                  " day) as next_appt, dayname(max(form_encounter.date) + interval " .
-                  (int) $add_days .
-                  " day) as next_appt_day from form_encounter " .
-                  " where form_encounter.pid = ?";
-            $statement = sqlStatement($query, [$iter["pid"]]);
-            if ($results = sqlFetchArray($statement)) {
-                $last_date_seen = $results['mydate'];
-                $day_diff = $results['day_diff'];
-                $next_appt_date = xl($results['next_appt_day']) . ', ' . oeFormatShortDate($results['next_appt']);
-            }
-
-          //calculate count of encounters by distinct billing dates with cpt4
-          //entries
-            $query = "select count(distinct date) as encounter_count " .
-                   " from billing " .
-                   " where code_type not like 'COPAY' and activity = 1 " .
-                   " and pid = ?";
-            $statement = sqlStatement($query, [$iter["pid"]]);
-            if ($results = sqlFetchArray($statement)) {
-                $encounter_count_billed = $results['encounter_count'];
-            }
-
-          // calculate count of encounters, regardless of billing
-            $query = "select count(date) as encounter_count " .
-                      " from form_encounter where " .
-                      " pid = ?";
-            $statement = sqlStatement($query, [$iter["pid"]]);
-            if ($results = sqlFetchArray($statement)) {
-                $encounter_count = $results['encounter_count'];
-            }
+            $enc = $encounterDataByPid[$iter['pid']] ?? null;
+            $encounter_count = $enc ? (int) $enc['encounter_count'] : 0;
+            $day_diff = ($enc && $enc['last_date'] !== null) ? $enc['day_diff'] : '';
+            $last_date_seen = ($enc && $enc['last_date'] !== null) ? $enc['last_date'] : '';
+            $next_appt_date = ($enc && !empty($enc['next_appt_day']) && !empty($enc['next_appt']))
+                ? xl($enc['next_appt_day']) . ', ' . oeFormatShortDate($enc['next_appt'])
+                : '';
 
             echo "<td class='srNumEnc'>" . text($encounter_count) . "</td>\n";
             echo "<td class='srNumDay'>" . text($day_diff) . "</td>\n";
