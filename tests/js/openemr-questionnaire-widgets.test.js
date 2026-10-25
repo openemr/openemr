@@ -297,12 +297,18 @@ describe('temporal widgets', () => {
         expect(answerOf(runtime, 'dob')[0].valueDate).toBe('2026-07-23');
     });
 
-    test('time renders a time input and stores valueTime as entered', () => {
+    test('time renders a time input and stores valueTime as FHIR time, hh:mm:ss', () => {
         const { container, runtime } = mountSingle({ linkId: 'at', type: 'time', text: 'At' });
         const input = itemNode(container, 'at').querySelector('input[type="time"]');
         input.value = '13:45';
         change(input);
-        expect(answerOf(runtime, 'at')[0].valueTime).toBe('13:45');
+        expect(answerOf(runtime, 'at')[0].valueTime).toBe('13:45:00');
+    });
+
+    test('a saved time with zero seconds shows as hh:mm, and one with seconds as written', () => {
+        const saved = (value) => ({ resourceType: 'QuestionnaireResponse', status: 'in-progress', item: [{ linkId: 'at', answer: [{ valueTime: value }] }] });
+        expect(itemNode(mountSingle({ linkId: 'at', type: 'time', text: 'At' }, saved('13:45:00')).container, 'at').querySelector('input').value).toBe('13:45');
+        expect(itemNode(mountSingle({ linkId: 'at', type: 'time', text: 'At' }, saved('13:45:30')).container, 'at').querySelector('input').value).toBe('13:45:30');
     });
 });
 

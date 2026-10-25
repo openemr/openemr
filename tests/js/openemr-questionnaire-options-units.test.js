@@ -109,9 +109,9 @@ describe('answerOption on non-choice item types', () => {
         expect(select).not.toBeNull();
         expect(container.querySelector('input[type="text"]')).toBeNull();
         expect([...select.options].map((entry) => entry.textContent)).toEqual([
-            '', '1. Never married', '2. Married', '3. Widowed', '4. Separated', '5. Divorced',
+            '', '1 Never married', '2 Married', '3 Widowed', '4 Separated', '5 Divorced',
         ]);
-        choose(select, '2. Married');
+        choose(select, '2 Married');
         expect(answersOf(runtime, '/45982-6/45984-2/45410-8')).toEqual([{ valueString: 'Married' }]);
     });
 
@@ -122,7 +122,7 @@ describe('answerOption on non-choice item types', () => {
             item: [{ linkId: '/45982-6/45984-2/45410-8', answer: [{ valueString: 'Widowed' }] }],
         });
         const select = container.querySelector('select');
-        expect(select.options[select.selectedIndex].textContent).toBe('3. Widowed');
+        expect(select.options[select.selectedIndex].textContent).toBe('3 Widowed');
     });
 
     test('without an itemControl, a short string option list renders radios', () => {
@@ -179,12 +179,12 @@ describe('answerOption on non-choice item types', () => {
 });
 
 describe('questionnaire-optionPrefix and answerConstraint', () => {
-    test('a prefix ending in punctuation is not given another period', () => {
+    test('a prefix is shown as written, with no period added', () => {
         const { container } = mount([{
             linkId: 'p', type: 'string', text: 'P', extension: [control('drop-down')],
-            answerOption: [option('Yes', 'a)'), option('No', 'b.')],
+            answerOption: [option('Yes', 'a)'), option('No', 'b.'), option('Maybe', 'Prefix ='), option('Never', '[Prefix]')],
         }]);
-        expect([...container.querySelector('select').options].map((entry) => entry.textContent)).toEqual(['', 'a) Yes', 'b. No']);
+        expect([...container.querySelector('select').options].map((entry) => entry.textContent)).toEqual(['', 'a) Yes', 'b. No', 'Prefix = Maybe', '[Prefix] Never']);
     });
 
     test('choice items show prefixes on radios too', () => {
@@ -192,7 +192,7 @@ describe('questionnaire-optionPrefix and answerConstraint', () => {
             linkId: 'c', type: 'choice', text: 'C',
             answerOption: [{ valueCoding: { code: 'y', display: 'Yes' }, extension: [{ url: PREFIX, valueString: 'A' }] }],
         }]);
-        expect(container.querySelector('.oe-questionnaire-choice-label').textContent).toBe('A. Yes');
+        expect(container.querySelector('.oe-questionnaire-choice-label').textContent).toBe('A Yes');
     });
 
     test('optionsOrString adds a free-text box that holds only a non-option answer', () => {
@@ -200,7 +200,7 @@ describe('questionnaire-optionPrefix and answerConstraint', () => {
         const { container, runtime } = mount([item]);
         const other = container.querySelector('input[type="text"]');
         expect(other).not.toBeNull();
-        choose(container.querySelector('select'), '2. Married');
+        choose(container.querySelector('select'), '2 Married');
         // the selected option is not echoed into the free-text box on re-render
         const { container: reloaded } = mount([item], runtime.getQuestionnaireResponse());
         expect(reloaded.querySelector('input[type="text"]').value).toBe('');

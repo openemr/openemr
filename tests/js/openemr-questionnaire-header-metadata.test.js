@@ -251,6 +251,36 @@ describe('GitHub Flavored Markdown coverage', () => {
     });
 });
 
+describe('group headers', () => {
+    // bban160's TestQuestionnaire3 on openemr/openemr#14744: "text": "" is a group with no heading.
+    test('a group whose text is explicitly empty has no header, only its body', () => {
+        const { container } = mount({
+            item: [{ linkId: 'temporalQuestions', type: 'group', text: '', item: [{ linkId: 'dateQuestion', type: 'date', text: 'Date' }] }],
+        });
+        const group = container.querySelector('[data-link-id="temporalQuestions"]');
+        expect(group.querySelector(':scope > .card-header')).toBeNull();
+        expect(group.querySelector(':scope > .card-body [data-link-id="dateQuestion"]')).not.toBeNull();
+        expect(group.textContent).not.toContain('temporalQuestions');
+    });
+
+    test('a group with no text at all still shows its linkId as the header', () => {
+        const { container } = mount({ item: [{ linkId: 'g', type: 'group', item: [{ linkId: 'q', type: 'string', text: 'Q' }] }] });
+        expect(container.querySelector('[data-link-id="g"] > .card-header h5').textContent).toBe('g');
+    });
+
+    test('an untitled group keeps its header when it carries help, with no title text', () => {
+        const { container } = mount({
+            item: [{ linkId: 'g', type: 'group', text: '', item: [
+                { linkId: 'g-help', type: 'display', text: 'Group help', extension: [HELP] },
+                { linkId: 'q', type: 'string', text: 'Q' },
+            ] }],
+        });
+        const heading = container.querySelector('[data-link-id="g"] > .card-header h5');
+        expect(heading.querySelector('.oe-questionnaire-help-button')).not.toBeNull();
+        expect(heading.textContent).not.toContain('g');
+    });
+});
+
 describe('help, legal and flyover display controls (questionnaire-item-control)', () => {
     test('group help button sits inside the group heading after its text', () => {
         const { container } = mount({

@@ -719,21 +719,56 @@ class QuestionnaireResponseService extends BaseService
      */
     public function extractAnswerValue($answer)
     {
-        if (isset($answer['valueCoding'])) {
-            return $answer['valueCoding']['display'];
-        } elseif (isset($answer['valueDecimal'])) {
-            return $answer['valueDecimal'];
-        } elseif (isset($answer['valueString'])) {
-            return $answer['valueString'];
-        } elseif (isset($answer['valueBoolean'])) {
-            return $answer['valueBoolean'] ? 'Yes' : 'No';
-        } elseif (isset($answer['valueInteger'])) {
-            return $answer['valueInteger'];
-        } elseif (isset($answer['valueDate'])) {
-            return $answer['valueDate'];
-        } else {
-            return 'N/A';
+        return is_array($answer) ? self::answerText($answer) : 'N/A';
+    }
+
+    /**
+     * The text the encounter view shows for one answer, for each FHIR R4 answer type. A date, dateTime
+     * or time is shown as saved; a Coding by its display, else its code.
+     *
+     * @param array<mixed> $answer
+     */
+    public static function answerText(array $answer): string
+    {
+        $text = self::firstText($answer, 'valueString', 'valueDate', 'valueDateTime', 'valueTime', 'valueUri');
+        if ($text !== null) {
+            return $text;
         }
+        if (isset($answer['valueBoolean'])) {
+            return $answer['valueBoolean'] ? 'Yes' : 'No';
+        }
+        foreach (['valueInteger', 'valueDecimal'] as $key) {
+            $number = $answer[$key] ?? null;
+            if (is_int($number) || is_float($number)) {
+                return (string)$number;
+            }
+        }
+        $quantity = $answer['valueQuantity'] ?? null;
+        if (is_array($quantity) && (is_int($quantity['value'] ?? null) || is_float($quantity['value'] ?? null))) {
+            return trim($quantity['value'] . ' ' . (self::firstText($quantity, 'unit', 'code') ?? ''));
+        }
+        foreach (['valueCoding' => ['display', 'code'], 'valueReference' => ['display', 'reference'], 'valueAttachment' => ['title', 'url']] as $key => $fields) {
+            $value = $answer[$key] ?? null;
+            if (is_array($value)) {
+                return self::firstText($value, ...$fields) ?? ($key === 'valueAttachment' ? 'Attachment' : 'N/A');
+            }
+        }
+        return 'N/A';
+    }
+
+    /**
+     * The first of the keys whose value is a non-empty string.
+     *
+     * @param array<mixed> $values
+     */
+    private static function firstText(array $values, string ...$keys): ?string
+    {
+        foreach ($keys as $key) {
+            if (isset($values[$key]) && is_string($values[$key]) && $values[$key] !== '') {
+                return $values[$key];
+            }
+        }
+        return null;
     }
 
 

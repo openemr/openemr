@@ -411,15 +411,12 @@
         return constraint === 'optionsOrString' || constraint === 'optionsOrType';
     }
 
-    // Option label with its questionnaire-optionPrefix, shown as LForms does:
-    // "1. Never married" (no extra period when the prefix ends in punctuation).
+    // Option label with its questionnaire-optionPrefix, as the prefix is written: "a) Never married",
+    // "Prefix = Option 1". Nothing is added to the prefix (a period after it was LForms's habit).
     function answerOptionLabel(option, optionAnswer) {
         const text = answerDisplay(optionAnswer);
         const prefix = getStringExtension(option, EXTENSIONS.OPTION_PREFIX).trim();
-        if (prefix === '') {
-            return text;
-        }
-        return /[.):]$/.test(prefix) ? prefix + ' ' + text : prefix + '. ' + text;
+        return prefix === '' ? text : prefix + ' ' + text;
     }
 
     function getQuestionnaireUnit(item) {
@@ -638,7 +635,7 @@
                 return Number.isInteger(value) ? { valueInteger: value } : { valueString: String(value) };
             }
             if (typeof value === 'string' && (item.type === 'date' || item.type === 'time')) {
-                return item.type === 'date' ? { valueDate: value } : { valueTime: value };
+                return item.type === 'date' ? { valueDate: value } : { valueTime: toFhirTime(value) };
             }
             return { valueString: String(value) };
         });
@@ -855,6 +852,20 @@
         const fractionalSeconds = fraction ? '.' + fraction : '';
 
         return `${year}-${month}-${day}T${hour}:${minute}:${second}${fractionalSeconds}${offsetSign}${offsetHours}:${offsetRemainder}`;
+    }
+
+    // FHIR R4 time is hh:mm:ss: "Seconds must be provided due to schema type constraints but may be
+    // zero-filled". An HTML time input gives hh:mm, so a time answer gains ':00'.
+    function toFhirTime(value) {
+        return typeof value === 'string' && /^\d{2}:\d{2}$/.test(value) ? value + ':00' : value;
+    }
+
+    // A time answer as a time input shows it: hh:mm when its seconds are zero.
+    function formatTimeInputValue(value) {
+        if (typeof value !== 'string') {
+            return '';
+        }
+        return /^\d{2}:\d{2}:00(?:\.0+)?$/.test(value) ? value.slice(0, 5) : value;
     }
 
     // FHIRPath calendar durations (singular and plural) and the UCUM units
@@ -1681,7 +1692,7 @@
                 }
                 if (answers.length > 0) {
                     responseItem.answer = answers.map((answer) => {
-                        const entry = { [answer.valueKey]: deepClone(answer.value) };
+                        const entry = { [answer.valueKey]: answer.valueKey === 'valueTime' ? toFhirTime(answer.value) : deepClone(answer.value) };
                         // Primitive-value extensions (e.g. ordinalValue on a
                         // valueString) serialize as the FHIR _value[x] sibling;
                         // object values carry their extension inside the object.
@@ -5029,7 +5040,18 @@
 
         // Group card header. Help / legal buttons sit inside the heading,
         // directly after its text, rather than on a line of their own.
+        // A group whose text is explicitly empty ("text": "") has no header, only its body; one with no
+        // text at all still shows its linkId. A header that carries help, a legal notice, support
+        // links, media or the collapse toggle stays, with no title text.
         buildGroupHeader(item) {
+            const controls = this.buildDisplayControls(item);
+            const links = this.supportLinks(item);
+            const untitled = item.text === '' && !item.prefix;
+            const collapsible = ['default-open', 'default-closed'].includes(getTypedExtensionValue(item, EXTENSIONS.COLLAPSIBLE));
+            if (untitled && controls.buttons.length === 0 && links.length === 0 && !collapsible
+                && !getTypedExtensionValue(item, EXTENSIONS.ITEM_MEDIA)) {
+                return null;
+            }
             const header = document.createElement('div');
             header.className = 'card-header';
             const title = document.createElement('h5');
@@ -5037,11 +5059,10 @@
             const titleMarkdown = item.prefix ? markdownFor(item, 'prefix') : markdownFor(item, 'text');
             if (titleMarkdown !== null) {
                 title.append(...parseMarkdownInline(titleMarkdown, document));
-            } else {
+            } else if (!untitled) {
                 title.appendChild(document.createTextNode(item.prefix || item.text || item.linkId));
             }
-            const controls = this.buildDisplayControls(item);
-            title.append(...controls.buttons, ...this.supportLinks(item));
+            title.append(...controls.buttons, ...links);
             this.applyFlyover(title, controls.flyover);
             header.appendChild(title);
             if (item.prefix && item.text) {
@@ -5060,7 +5081,9 @@
         renderGroup(item, wrapper, keyPrefix = '') {
             wrapper.classList.add('card', 'mb-3', 'oe-questionnaire-group');
             const header = this.buildGroupHeader(item);
-            wrapper.appendChild(header);
+            if (header) {
+                wrapper.appendChild(header);
+            }
 
             const body = document.createElement('div');
             body.className = 'card-body';
@@ -5268,7 +5291,9 @@
             wrapper.classList.add('card', 'mb-3', 'oe-questionnaire-group', 'oe-questionnaire-repeating-group');
 
             const header = this.buildGroupHeader(item);
-            wrapper.appendChild(header);
+            if (header) {
+                wrapper.appendChild(header);
+            }
 
             const body = document.createElement('div');
             body.className = 'card-body';
@@ -5743,6 +5768,8 @@
             let value = firstValue(answers)?.value ?? '';
             if (item.type === 'dateTime') {
                 value = formatDateTimeLocalValue(value);
+            } else if (item.type === 'time') {
+                value = formatTimeInputValue(value);
             }
             input.value = value;
             input.disabled = item.readOnly === true;
@@ -5750,6 +5777,8 @@
                 let answerValue = input.value;
                 if (item.type === 'dateTime') {
                     answerValue = toFhirDateTime(answerValue);
+                } else if (item.type === 'time') {
+                    answerValue = toFhirTime(answerValue);
                 }
                 this.runtime.setAnswers(
                     storageKey,
@@ -6025,6 +6054,9 @@
             if (item.type === 'dateTime') {
                 return { valueKey: 'valueDateTime', value: toFhirDateTime(raw) };
             }
+            if (item.type === 'time') {
+                return { valueKey: 'valueTime', value: toFhirTime(raw) };
+            }
             if (item.type === 'reference') {
                 return { valueKey: 'valueReference', value: { reference: raw } };
             }
@@ -6037,6 +6069,9 @@
             }
             if (item.type === 'dateTime') {
                 return formatDateTimeLocalValue(answer.value);
+            }
+            if (item.type === 'time') {
+                return formatTimeInputValue(answer.value);
             }
             if (item.type === 'reference') {
                 return answer.value?.reference ?? '';
