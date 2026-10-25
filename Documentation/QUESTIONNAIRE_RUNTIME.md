@@ -1,8 +1,5 @@
 # Native Questionnaire Runtime: what it supports
 
-**Author:** Seth <anun333@posteo.net>
-**Copyright:** Copyright (c) 2026 Seth <anun333@posteo.net>
-
 OpenEMR renders FHIR R4 Questionnaires with its own runtime, `interface/forms/questionnaire_assessments/native/openemr_questionnaire.js` (version 0.4.0). This page lists what it does with each part of a Questionnaire, for people writing Questionnaires and for triaging issues. "Partly" says what's missing. The runtime follows FHIR R4 and SDC 4.0.0; where it is more lenient than the spec, the notes say so.
 
 The list was read from the runtime's own code, including the lists it keeps of the item controls it handles and the extensions it reports as unsupported, and checked against its Jest tests (`tests/js/openemr-questionnaire-*.test.js`).
