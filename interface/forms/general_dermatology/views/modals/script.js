@@ -3,176 +3,197 @@ function dermCsrfToken() {
     var el = document.querySelector('input[name="csrf_token_form"]');
     return el ? el.value : '';
 }
+
+/**
+ * Resolve the main-form procedure-details container for a finding index.
+ * Dynamic cards use #render-restofplans-N; legacy first card may use unsuffixed
+ * #render-restofplans. Never write into the hidden sample template.
+ */
+function dermProcedureDetailsTarget(planCount) {
+    var count = String(planCount == null ? "" : planCount);
+    var $sample = $("#custom-icd-form-sample");
+
+    function notSample($nodes) {
+        return $nodes.filter(function () {
+            return $sample.length === 0 || !$.contains($sample[0], this);
+        });
+    }
+
+    var $bySuffix = notSample($("#render-restofplans-" + count));
+    if ($bySuffix.length) {
+        return $bySuffix.first();
+    }
+
+    // Server-rendered index 0 historically used the unsuffixed id.
+    if (count === "0" || count === "") {
+        var $unsuffixed = notSample($("#plan-forms #render-restofplans"));
+        if ($unsuffixed.length) {
+            return $unsuffixed.first();
+        }
+    }
+
+    // Fallback: container on the card whose Procedure Details button opened the modal.
+    var $btn = $(".plan-modal").filter(function () {
+        return String($(this).attr("count")) === count;
+    }).first();
+    if ($btn.length) {
+        var $inCard = notSample($btn.closest(".custom-icd-form").find("[id^='render-restofplans']"));
+        if ($inCard.length) {
+            return $inCard.first();
+        }
+    }
+
+    return $();
+}
+
 function getValuesFromModal(id) {
-
     var plan_count = $("#plan_count").val();
+    var $restOfPlan = dermProcedureDetailsTarget(plan_count);
 
-    restOfPlan =
-        plan_count == 0
-            ? "#render-restofplans"
-            : "#render-restofplans-" +  plan_count;
+    if (!$restOfPlan.length) {
+        console.error("getValuesFromModal: no procedure details target for plan_count=", plan_count);
+        return;
+    }
 
-    $(restOfPlan).empty();
-    var hiddenInputTitle= "";
-    var inputTitle= "";
+    // Keep legacy callers that still reference restOfPlan as a selector string working.
+    restOfPlan = $restOfPlan;
+
+    $restOfPlan.empty();
+    var hiddenInputTitle = "";
+    var inputTitle = "";
     var addTitle = false;
 
-    $(restOfPlan).append("<h4>Procedure Details:</h4>")
-    $("#" + id + " input, #areas_"+id).each(function (index) {
+    $restOfPlan.append("<h4>Procedure Details:</h4>");
+    $("#" + id + " input, #areas_" + id).each(function () {
         var input = $(this);
+        var inputId = input.attr("id") || "";
+        if (!inputId) {
+            return;
+        }
 
-        var property = input.attr("id");
-        property = property.replace(id + "-", "");
-        property = property.replace(/-/g, " ");
-        
+        var property = inputId.replace(id + "-", "").replace(/-/g, " ");
         var propertyValue = input.val();
 
-        
         var prePendingComma = '<p style="display: inline-block; margin: 5px 0 5px 0;">';
-        if(!addTitle){
+        if (!addTitle) {
             prePendingComma = prePendingComma + " , ";
         }
-        
+
         if (property.includes("title")) {
             addTitle = true;
-            var inputName = 'treatment[' + plan_count + '][' + input.attr("id") + ']';
+            var inputName = "treatment[" + plan_count + "][" + inputId + "]";
             property = property.replace("title", "");
 
-            var propertyData = window.dataInfo[property]; 
-                    var modifiedProperty = propertyData ? propertyData : modifyPropertyName(property);
-            
-            hiddenInputTitle = $('<input>')
-                    .attr({
-                        type: 'hidden',
-                        name: inputName,
-                        value: modifiedProperty
-                    });
-                
-            inputTitle = `<h5 style="margin: 0;width:100%;">${modifiedProperty}</h5>`;
-            
+            var propertyData = window.dataInfo ? window.dataInfo[property] : null;
+            var modifiedProperty = propertyData ? propertyData : modifyPropertyName(property);
+
+            hiddenInputTitle = $("<input>").attr({
+                type: "hidden",
+                name: inputName,
+                value: modifiedProperty,
+            });
+
+            inputTitle = '<h5 style="margin: 0;width:100%;">' + modifiedProperty + "</h5>";
         } else if (property == "hidden") {
-            $(restOfPlan).append(`<p style="width:100%;margin:2px;"></p>`);
+            $restOfPlan.append('<p style="width:100%;margin:2px;"></p>');
         } else {
             if (propertyValue == "on") {
-                var inputName = 'treatment[' + plan_count + '][' + input.attr("id") + ']';
+                var checkedName = "treatment[" + plan_count + "][" + inputId + "]";
                 var checked = input.prop("checked") ? "" : ": []";
 
                 if (input.prop("checked")) {
-                    var tempValue = input.attr("id").replace(id, "");
-                    var propertyData = window.dataInfo[tempValue]; 
-                    var modifiedProperty = propertyData ? propertyData : modifyPropertyName(property);
+                    var tempValue = inputId.replace(id, "");
+                    var checkedData = window.dataInfo ? window.dataInfo[tempValue] : null;
+                    var checkedLabel = checkedData ? checkedData : modifyPropertyName(property);
 
-                    var hiddenInput = $('<input>')
-                    .attr({
-                        type: 'hidden',
-                        name: inputName,
-                        value: 1
+                    var checkedHidden = $("<input>").attr({
+                        type: "hidden",
+                        name: checkedName,
+                        value: 1,
                     });
 
-                    if(addTitle){
-                        $(restOfPlan).append(hiddenInputTitle);
-                        $(restOfPlan).append(inputTitle);
+                    if (addTitle) {
+                        $restOfPlan.append(hiddenInputTitle);
+                        $restOfPlan.append(inputTitle);
                         addTitle = false;
                     }
 
-                $(restOfPlan).append(hiddenInput);
-
-                    $(restOfPlan).append(
-                        prePendingComma + modifiedProperty + checked +  "</p>"
-                    );
+                    $restOfPlan.append(checkedHidden);
+                    $restOfPlan.append(prePendingComma + checkedLabel + checked + "</p>");
                 }
-
-
             } else {
+                var isAreasField =
+                    inputId == "areas_cantharidin" ||
+                    inputId == "areas_cryotherapy" ||
+                    inputId == "areas_incision" ||
+                    inputId == "areas_electro" ||
+                    inputId == "areas_debridement" ||
+                    inputId == "areas_dermabrasion" ||
+                    inputId == "areas_extraction" ||
+                    inputId == "areas_hyfrecation" ||
+                    inputId == "areas_intralesional" ||
+                    inputId == "areas_laser" ||
+                    inputId == "areas_nonlaser" ||
+                    inputId == "areas_peel" ||
+                    inputId == "areas_silver" ||
+                    inputId == "areas_snip" ||
+                    inputId == "areas_sclerotherapy" ||
+                    inputId == "areas_biopsy" ||
+                    inputId == "areas_photodynamic" ||
+                    inputId == "areas_platelet" ||
+                    inputId == "areas_microneedling";
 
-                if(
-                    input.attr("id") == 'areas_cantharidin' ||
-                    input.attr("id") == 'areas_cryotherapy' ||
-                    input.attr("id") == 'areas_incision' ||
-                    input.attr("id") == 'areas_electro' ||
-                    input.attr("id") == 'areas_debridement' ||
-                    input.attr("id") == 'areas_dermabrasion' ||
-                    input.attr("id") == 'areas_extraction' ||
-                    input.attr("id") == 'areas_hyfrecation' ||
-                    input.attr("id") == 'areas_intralesional' ||
-                    input.attr("id") == 'areas_laser' ||
-                    input.attr("id") == 'areas_nonlaser' ||
-                    input.attr("id") == 'areas_peel' ||
-                    input.attr("id") == 'areas_silver' ||
-                    input.attr("id") == 'areas_snip' ||
-                    input.attr("id") == 'areas_sclerotherapy' ||
-                    input.attr("id") == 'areas_biopsy' || 
-                    input.attr("id") == 'areas_photodynamic' || 
-                    input.attr("id") == 'areas_platelet' || 
-                    input.attr("id") == 'areas_microneedling'
-                ){
-
-                    if (propertyValue !== '') {
-                        var inputName = 'treatment[' + plan_count + '][' + input.attr("id") + ']';
-                        propertyValue = propertyValue.replace(/,/g, ", ");
-                        var hiddenInput = $('<input>')
-                        .attr({
-                            type: 'hidden',
-                            name: inputName,
-                            value: propertyValue
+                if (isAreasField) {
+                    if (propertyValue !== "") {
+                        var areasName = "treatment[" + plan_count + "][" + inputId + "]";
+                        propertyValue = String(propertyValue).replace(/,/g, ", ");
+                        var areasHidden = $("<input>").attr({
+                            type: "hidden",
+                            name: areasName,
+                            value: propertyValue,
                         });
 
-                        if(addTitle){
-                            $(restOfPlan).append(hiddenInputTitle);
-                            $(restOfPlan).append(inputTitle);
+                        if (addTitle) {
+                            $restOfPlan.append(hiddenInputTitle);
+                            $restOfPlan.append(inputTitle);
                             addTitle = false;
                         }
-                        
-                        $(restOfPlan).append(hiddenInput);
 
-                        $(restOfPlan).append(
-                            prePendingComma +
-                            propertyValue +
-                            `</p>`  
-                        );
+                        $restOfPlan.append(areasHidden);
+                        $restOfPlan.append(prePendingComma + propertyValue + "</p>");
                     }
-
-                }else{
-                    if (propertyValue !== '') {
-
-                        if(addTitle){
-                            $(restOfPlan).append(hiddenInputTitle);
-                            $(restOfPlan).append(inputTitle);
+                } else {
+                    if (propertyValue !== "") {
+                        if (addTitle) {
+                            $restOfPlan.append(hiddenInputTitle);
+                            $restOfPlan.append(inputTitle);
                             addTitle = false;
                         }
-                        // Remove the prefix and replace underscores with spaces
-                        var tempValue = input.attr("id").replace(id, "");
-                        var propertyData = window.dataInfo[tempValue]; 
-                        var modifiedProperty = (propertyData ? propertyData : modifyPropertyName(property)) + `: `;
-                        
-                        if(tempValue.includes("free")){
-                            modifiedProperty = "";
+                        var freeTemp = inputId.replace(id, "");
+                        var freeData = window.dataInfo ? window.dataInfo[freeTemp] : null;
+                        var freeLabel = (freeData ? freeData : modifyPropertyName(property)) + ": ";
+
+                        if (freeTemp.includes("free")) {
+                            freeLabel = "";
                         }
 
-                        if(tempValue.includes("inner")){
+                        if (freeTemp.includes("inner")) {
                             prePendingComma = '<p style="display: inline-block; margin: 5px 0 5px 5px;"> ';
                         }
 
-                        $(restOfPlan).append(
-                            prePendingComma +
-                            modifiedProperty +
-                            propertyValue +
-                            "</p>"
+                        $restOfPlan.append(
+                            prePendingComma + freeLabel + propertyValue + "</p>"
                         );
                     }
-
                 }
-                
-                inputName = 'treatment[' + plan_count + '][' + input.attr("id") + ']';
-                hiddenInput = $('<input>')
-                .attr({
-                    type: 'hidden',
-                    name: inputName,
-                    value: propertyValue
-                });
-                
-                $(restOfPlan).append(hiddenInput);
 
+                var valueName = "treatment[" + plan_count + "][" + inputId + "]";
+                var valueHidden = $("<input>").attr({
+                    type: "hidden",
+                    name: valueName,
+                    value: propertyValue,
+                });
+                $restOfPlan.append(valueHidden);
             }
         }
     });
