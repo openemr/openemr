@@ -185,31 +185,64 @@ function modifyPropertyName(property) {
 }
 
 function getLocationAndCount() {
-    console.log("procedurePlanId", procedurePlanId);
+    var planId = (typeof procedurePlanId !== "undefined" && procedurePlanId)
+        ? String(procedurePlanId)
+        : "";
+    if (!planId) {
+        return;
+    }
 
-    selectedItems = [];
-    $("#areas_" + procedurePlanId).empty();
-    $("#areas-count-" + procedurePlanId).empty();
-    var areas = $("#p-treated").text();
-    var areaCount = $("#p-lession").text();
-    $("#areas_" + procedurePlanId).val(areas);
-    $("#areas-count-" + procedurePlanId).val(areaCount);
+    var areas = "";
+    if (typeof procedureSelectedAreas !== "undefined" && Array.isArray(procedureSelectedAreas) && procedureSelectedAreas.length) {
+        areas = procedureSelectedAreas.join(", ");
+    } else {
+        areas = String($("#p-treated").text() || "").trim();
+    }
+    var areaCount = areas
+        ? String((typeof procedureSelectedAreas !== "undefined" && Array.isArray(procedureSelectedAreas))
+            ? procedureSelectedAreas.length
+            : areas.split(",").filter(function (p) { return p.trim() !== ""; }).length)
+        : "";
+
+    $("#p-treated").text(areas);
+    $("#p-lession").text(areaCount);
+    $("#areas_" + planId).val(areas);
+    $("#areas-count-" + planId).val(areaCount);
 }
 
 function removePrevClickedValue() {
+    if (typeof procedureSelectedAreas !== "undefined" && Array.isArray(procedureSelectedAreas)) {
+        procedureSelectedAreas.pop();
+        var updated = procedureSelectedAreas.join(", ");
+        var count = procedureSelectedAreas.length;
+        $("#p-treated").text(updated);
+        $("#p-lession").text(count ? String(count) : "");
+        if (typeof procedurePlanId !== "undefined" && procedurePlanId) {
+            $("#areas_" + procedurePlanId).val(updated);
+            $("#areas-count-" + procedurePlanId).val(count ? String(count) : "");
+        }
+        try {
+            $(".procedure-bodymap").mapster("set", false);
+            if (procedureSelectedAreas.length) {
+                $(".procedure-bodymap").mapster("set", true, procedureSelectedAreas.join(","));
+            }
+        } catch (err) {
+            // ignore mapster errors if modal closed
+        }
+        return;
+    }
+
     var areasArray = $("#p-treated").text().split(',');
-    var areaCount = parseInt($("#p-lession").text());
+    var areaCount = parseInt($("#p-lession").text(), 10);
 
     if (areasArray.length > 0 && areaCount > 0) {
-        var removedArea = areasArray.pop();
-        var updatedAreasString = areasArray.join(',');
+        areasArray.pop();
+        var updatedAreasString = areasArray.map(function (a) { return a.trim(); }).filter(Boolean).join(', ');
 
         $("#p-treated").text(updatedAreasString);
-        $("#p-lession").text(--areaCount);
-        selectedItems.pop();
-        $("#areas_" + procedurePlanId).val(updatedAreasString);
-        if(areaCount == 0){
-            $("#p-lession").text('')
+        $("#p-lession").text(--areaCount > 0 ? String(areaCount) : '');
+        if (typeof procedurePlanId !== "undefined" && procedurePlanId) {
+            $("#areas_" + procedurePlanId).val(updatedAreasString);
         }
     }
 }

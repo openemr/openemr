@@ -17,7 +17,9 @@
           </div>
           <div class="swiper-pagination"></div>
           <div class="swiper-scrollbar"></div>
-        </div> {% include "map_code.html" %} <span id="organs-tip"></span>
+        </div>
+        {# map_code.html is already included on the main form (procedure-body-map / procedure-face-map). #}
+        <span id="organs-tip"></span>
         <div class="row col-12">
           <div class="col-5 label">{{ "Areas Treated :" | e}} </div>
           <div class="col-7 areas-treated label" id="p-treated"></div>

@@ -3,7 +3,12 @@ function dermCsrfToken() {
     var el = document.querySelector('input[name="csrf_token_form"]');
     return el ? el.value : '';
 }
+// Findings map selection keys (main SOAP map).
 var selectedItems = [];
+// Procedure BodyMap modal area labels written into Area(s) Treated.
+var procedureSelectedAreas = [];
+// Active procedure modal id (microneedling, cryotherapy, ...).
+var procedurePlanId = '';
 var formCount = 1;
 // cratedForm = [];
 
@@ -227,55 +232,121 @@ $(document).ready(function () {
         },
     });
 
-    procedureBodyMap.mapster({
-        fill: true,
-        fillOpacity: 0.5,
-        fillColor: "d42e16",
-        strokeColor: "3320FF",
-        strokeOpacity: 1,
-        strokeWidth: 1,
-        isSelectable: false,
-        singleSelect: false,
-        mapKey: "name",
-        listKey: "key",
-        render_highlight: {
-            fillColor: "000000",
-        },
-        fadeInterval: 50,
-        onClick: function (e) {
-            var newToolTip = defaultDipTooltip;
-            var treated = document.getElementById("p-treated");
-            var numOfTreated = document.getElementById("p-lession");
-            item = e.key.replace(/_/g, " ");
-            // if ($.inArray(item, selectedItems) >= 0) {
-            //     selectedItems.splice($.inArray(item, selectedItems), 1);
-            // } else {
-            selectedItems.push(item);
-            // }
-            treated.innerHTML = selectedItems;
-            numOfTreated.innerHTML = selectedItems.length;
-        },
+    function dermSyncProcedureAreasUi() {
+        var treated = document.getElementById("p-treated");
+        var numOfTreated = document.getElementById("p-lession");
+        var label = procedureSelectedAreas.join(", ");
+        if (treated) {
+            treated.textContent = label;
+        }
+        if (numOfTreated) {
+            numOfTreated.textContent = procedureSelectedAreas.length
+                ? String(procedureSelectedAreas.length)
+                : "";
+        }
+        // Live-update the procedure modal textarea while the body map is open.
+        if (procedurePlanId) {
+            $("#areas_" + procedurePlanId).val(label);
+            $("#areas-count-" + procedurePlanId).val(
+                procedureSelectedAreas.length ? String(procedureSelectedAreas.length) : ""
+            );
+        }
+    }
+
+    function dermBindProcedureBodyMaps() {
+        var $maps = $(".procedure-bodymap");
+        if (!$maps.length || typeof $maps.mapster !== "function") {
+            return;
+        }
+        $maps.each(function () {
+            var $img = $(this);
+            try {
+                // Re-bind after modal open: maps were often zero-size at first document.ready.
+                if ($img.data("mapster")) {
+                    $img.mapster("unbind");
+                }
+            } catch (errUnbind) {
+                // ignore
+            }
+            $img.mapster({
+                fill: true,
+                fillOpacity: 0.5,
+                fillColor: "d42e16",
+                strokeColor: "3320FF",
+                strokeOpacity: 1,
+                strokeWidth: 1,
+                isSelectable: true,
+                singleSelect: false,
+                mapKey: "name",
+                listKey: "key",
+                render_highlight: {
+                    fillColor: "000000",
+                },
+                fadeInterval: 50,
+                onClick: function (e) {
+                    var item = dermNormalizeMapKey(e.key);
+                    if (!item) {
+                        return;
+                    }
+                    var idx = $.inArray(item, procedureSelectedAreas);
+                    // Prefer mapster's post-click selected flag when available.
+                    if (typeof e.selected === "boolean") {
+                        if (e.selected && idx < 0) {
+                            procedureSelectedAreas.push(item);
+                        } else if (!e.selected && idx >= 0) {
+                            procedureSelectedAreas.splice(idx, 1);
+                        }
+                    } else if (idx >= 0) {
+                        procedureSelectedAreas.splice(idx, 1);
+                    } else {
+                        procedureSelectedAreas.push(item);
+                    }
+                    dermSyncProcedureAreasUi();
+                },
+            });
+        });
+
+        // Restore prior highlights for the open procedure.
+        if (procedureSelectedAreas.length) {
+            try {
+                $maps.mapster("set", true, procedureSelectedAreas.join(","));
+            } catch (errSet) {
+                // ignore
+            }
+        }
+    }
+
+    // Initial bind (may be ineffective while #bodymap is display:none).
+    dermBindProcedureBodyMaps();
+
+    // When BodyMap modal opens, force a correct bind/resize and load existing areas.
+    $(document).on("shown.bs.modal", "#bodymap", function () {
+        setTimeout(function () {
+            dermBindProcedureBodyMaps();
+            try {
+                $(".procedure-bodymap").mapster("resize");
+            } catch (errResize) {
+                // ignore
+            }
+        }, 50);
     });
 
-
     $(document).on('click', '.model_value', function(){
+        var menu = String($(this).attr('model-value') || '').toLowerCase().trim();
+        procedurePlanId = menu;
         $("#p-treated").text('');
         $("#p-lession").text('');
-        var menu = $(this).attr('model-value');
-        var text = $("#areas_" + menu).val();
+        procedureSelectedAreas = [];
+
+        var text = String($("#areas_" + menu).val() || "");
         if (text.trim() !== "") {
-            var areasArray = text.split(',');
-
-            var trimmedAreasArray = areasArray.map(function(area) {
-                return area.trim();
+            procedureSelectedAreas = text.split(",").map(function(area) {
+                return dermNormalizeMapKey(area);
+            }).filter(function (area) {
+                return area !== "";
             });
-
-            selectedItems = trimmedAreasArray;
-
-            $("#p-treated").text(text);
-            var numOfTreated = document.getElementById("p-lession");
-            numOfTreated.innerHTML = selectedItems.length;
         }
+        dermSyncProcedureAreasUi();
     });
 
     $(document).on('click', '#addNewPlan', function() {
