@@ -1,0 +1,221 @@
+<div class="modal" id="unna">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Unna Boot Application" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+
+        <input type="text" id="unna-Skin-prep-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Skin prep" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-alcohol" #} id="unna-alcohol" />
+                <label class="custom-control-label" for="unna-alcohol"> {{ "Alcohol" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-hibiclens" #} id="unna-hibiclens" />
+                <label class="custom-control-label" for="unna-hibiclens"> {{ "Hibiclens" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-iodine" #} id="unna-iodine" />
+                <label class="custom-control-label" for="unna-iodine"> {{ "Iodine" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-lasercyn" #} id="unna-lasercyn" />
+                <label class="custom-control-label" for="unna-lasercyn"> {{ "Lasercyn" | e }} </label>
+            </div>
+
+            <input class="form-control mt-2" type="text" id="unna-freeS" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="unna-Location-applied-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Location applied" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-both-legs" #} id="unna-both-legs" />
+                <label class="custom-control-label" for="unna-both-legs"> {{ "Both Legs" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-left-leg" #} id="unna-left-leg" />
+                <label class="custom-control-label" for="unna-left-leg"> {{ "Left Leg" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-right-leg" #} id="unna-right-leg" />
+                <label class="custom-control-label" for="unna-right-leg"> {{ "Right Leg" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-both-arms" #} id="unna-both-arms" />
+                <label class="custom-control-label" for="unna-both-arms"> {{ "Both Arms" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-left-arm" #} id="unna-left-arm" />
+                <label class="custom-control-label" for="unna-left-arm"> {{ "Left Arm" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-right-arm" #} id="unna-right-arm" />
+                <label class="custom-control-label" for="unna-right-arm"> {{ "Right Arm" | e }} </label>
+            </div>
+            
+            <input class="form-control mt-2" type="text" id="unna-location-applied-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        
+        <input type="text" id="unna-Indication-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Indication" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="unna-lymphedema" #} id="unna-lymphedema" />
+                    <label class="custom-control-label" for="unna-lymphedema"> {{ "Lymphedema" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="unna-chronic-ulcer" #} id="unna-chronic-ulcer" />
+                    <label class="custom-control-label" for="unna-chronic-ulcer"> {{ "Chronic Ulcer" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="unna-venous-insufficiency" #} id="unna-venous-insufficiency" />
+                    <label class="custom-control-label" for="unna-venous-insufficiency"> {{ "Venous Insufficiency" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="unna-venous-ulcer" #} id="unna-venous-ulcer" />
+                    <label class="custom-control-label" for="unna-venous-ulcer"> {{ "Venous Ulcer" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="unna-stasis-ulcer" #} id="unna-stasis-ulcer" />
+                    <label class="custom-control-label" for="unna-stasis-ulcer"> {{ "Stasis Ulcer" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="unna-post-op-immobilization" #} id="unna-post-op-immobilization" />
+                    <label class="custom-control-label" for="unna-post-op-immobilization"> {{ "Post-op Immobilization" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="unna-thrombophlebitis" #} id="unna-thrombophlebitis" />
+                    <label class="custom-control-label" for="unna-thrombophlebitis"> {{ "Thrombophlebitis" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="unna-graft-dressing" #} id="unna-graft-dressing" />
+                    <label class="custom-control-label" for="unna-graft-dressing"> {{ "Graft Dressing" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="unna-extensive-actinic-keratoses" #} id="unna-extensive-actinic-keratoses" />
+                    <label class="custom-control-label" for="unna-extensive-actinic-keratoses"> {{ "Extensive Actinic Keratoses" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="unna-numerous-sccis" #} id="unna-numerous-sccis" />
+                    <label class="custom-control-label" for="unna-numerous-sccis"> {{ "Numerous SCCiS" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="unna-Indication-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+
+        <input type="text" id="unna-Medication-occluded-title" hidden />
+        <div class="row col-12">
+        <div class="col-4 label">{{ "Medication occluded" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-5-fluorouracil-cream" #} id="unna-5-fluorouracil-cream" />
+                <label class="custom-control-label" for="unna-5-fluorouracil-cream"> {{ "5-Fluorouracil Cream" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-aquaphor" #} id="unna-aquaphor" />
+                <label class="custom-control-label" for="unna-aquaphor"> {{ "Aquaphor" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-petrolatum" #} id="unna-petrolatum" />
+                <label class="custom-control-label" for="unna-petrolatum"> {{ "Petrolatum" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-bactroban" #} id="unna-bactroban" />
+                <label class="custom-control-label" for="unna-bactroban"> {{ "Bactroban" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-triamcinolone-0-1-ointment" #} id="unna-triamcinolone-0-1-ointment" />
+                <label class="custom-control-label" for="unna-triamcinolone-0-1-ointment"> {{ "Triamcinolone 0.1% Ointment" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-gentamicin" #} id="unna-gentamicin" />
+                <label class="custom-control-label" for="unna-gentamicin"> {{ "Gentamicin" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-mupirocin" #} id="unna-mupirocin" />
+                <label class="custom-control-label" for="unna-mupirocin"> {{ "Mupirocin" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-polysporin" #} id="unna-polysporin" />
+                <label class="custom-control-label" for="unna-polysporin"> {{ "Polysporin" | e }} </label>
+            </div>
+
+            <input class="form-control mt-2" type="text" id="unna-Medication-occluded-free-text" />
+            </div>
+        </div>
+        </div>
+
+        <input type="text" id="unna-Prior-Unna-boot-removed-title" hidden />
+        <div class="row col-12">
+        <div class="col-4 label">{{ "Prior Unna boot removed?" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-yes" #} id="unna-yes" />
+                <label class="custom-control-label" for="unna-yes"> {{ "Yes" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-no" #} id="unna-no" />
+                <label class="custom-control-label" for="unna-no"> {{ "No" | e }} </label>
+            </div>
+
+            <input class="form-control mt-2" type="text" id="unna-Prior-Unna-boot-removed-free-text" />
+            </div>
+        </div>
+        </div>
+
+         <input type="text" id="unna-Wrap-of-Unna-boot-title" hidden />
+        <div class="row col-12">
+        <div class="col-4 label">{{ "Wrap of Unna boot" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-coban" #} id="unna-coban" />
+                <label class="custom-control-label" for="unna-coban"> {{ "Coban" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-tubular-compression-stockings" #} id="unna-tubular-compression-stockings" />
+                <label class="custom-control-label" for="unna-tubular-compression-stockings"> {{ "Tubular Compression Stockings" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="unna-compression-stockings" #} id="unna-compression-stockings" />
+                <label class="custom-control-label" for="unna-compression-stockings"> {{ "Compression Stockings" | e }} </label>
+            </div>
+
+            <input class="form-control mt-2" type="text" id="unna-Wrap-of-Unna-boot-free-text" />
+            </div>
+        </div>
+        </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('unna')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

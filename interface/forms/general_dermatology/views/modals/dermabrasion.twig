@@ -1,0 +1,280 @@
+<div class="modal" id="dermabrasion">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Dermabrasion" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input type="text" id="dermabrasion-Skin-prep-title" hidden />
+          <div class="row col-12">
+            <div class="col-4 label">{{ "Skin prep" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-alcohol" #} id="dermabrasion-alcohol" />
+                  <label class="custom-control-label" for="dermabrasion-alcohol"> {{ "Alcohol" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-hibiclens" #} id="dermabrasion-hibiclens" />
+                  <label class="custom-control-label" for="dermabrasion-hibiclens"> {{ "Hibiclens" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-iodine" #} id="dermabrasion-iodine" />
+                  <label class="custom-control-label" for="dermabrasion-iodine"> {{ "Iodine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-lasercyn" #} id="dermabrasion-lasercyn" />
+                  <label class="custom-control-label" for="dermabrasion-lasercyn"> {{ "Lasercyn" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="dermabrasion-skin-prep-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="dermabrasion-Anesthetic-title" hidden />
+          <div class="row col-12 mt-2">
+            <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-1p-lidocaine" #} id="dermabrasion-1p-lidocaine" />
+                  <label class="custom-control-label" for="dermabrasion-1p-lidocaine"> {{ "1% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-1p-lidocaine-with-epinephrine" #} id="dermabrasion-1p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="dermabrasion-1p-lidocaine-with-epinephrine"> {{ "1% lidocaine with epinephrine 1:100,000" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-2p-lidocaine" #} id="dermabrasion-2p-lidocaine" />
+                  <label class="custom-control-label" for="dermabrasion-2p-lidocaine"> {{ "2% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-2p-lidocaine-wtih-epinephrine" #} id="dermabrasion-2p-lidocaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="dermabrasion-2p-lidocaine-wtih-epinephrine"> {{ "2% lidocaine with epinephrine 1:100,000" | e }} </label>
+                </div>
+
+
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-05p-lidocaine-with-epinephrine" #} id="dermabrasion-05p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="dermabrasion-05p-lidocaine-with-epinephrine"> {{ "0.5% lidocaine with epinephrine 1:200,000" | e }}</label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-05p-bupivicaine" #} id="dermabrasion-05p-bupivicaine" />
+                  <label class="custom-control-label" for="dermabrasion-05p-bupivicaine"> {{ "0.5% bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-05p-bupivicaine-wtih-epinephrine" #} id="dermabrasion-05p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="dermabrasion-05p-bupivicaine-wtih-epinephrine"> {{ "0.5% bupivicaine with epinephrine 1:200,000" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-025p-bupivicaine" #} id="dermabrasion-025p-bupivicaine" />
+                  <label class="custom-control-label" for="dermabrasion-025p-bupivicaine"> {{ "0.25% bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-025p-bupivicaine-wtih-epinephrine" #} id="dermabrasion-025p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="dermabrasion-025p-bupivicaine-wtih-epinephrine"> {{ "0.25% bupivicaine with epinephrine 1:400,000" | e }}  </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-025p-marcaine-wtih-epinephrine" #} id="dermabrasion-025p-marcaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="dermabrasion-025p-marcaine-wtih-epinephrine"> {{ "0.25% marcaine with 1:200,000 epinephrine" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-09p-bacteriostatic-sodium-chloride" #} id="dermabrasion-09p-bacteriostatic-sodium-chloride" />
+                  <label class="custom-control-label" for="dermabrasion-09p-bacteriostatic-sodium-chloride"> {{ "bacteriostatic 0.9% sodium chloride" | e }}</label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-sterile-water" #} id="dermabrasion-sterile-water" />
+                  <label class="custom-control-label" for="dermabrasion-sterile-water"> {{ "Sterile water" | e }}   </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-1p-ropivacaine" #} id="dermabrasion-1p-ropivacaine" />
+                  <label class="custom-control-label" for="dermabrasion-1p-ropivacaine"> {{ "Ropivacaine 1%" | e }}  </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-05p-ropivacaine" #} id="dermabrasion-05p-ropivacaine" />
+                  <label class="custom-control-label" for="dermabrasion-05p-ropivacaine"> {{ "Ropivacaine 0.5%" | e }}   </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-84p-sodium-bicarbonate" #} id="dermabrasion-84p-sodium-bicarbonate" />
+                  <label class="custom-control-label" for="dermabrasion-84p-sodium-bicarbonate"> {{ "WITH 8.4% sodium bicarbonate in 1:10 ratio (sod bicarbonate: anesthetic)" | e }}   </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="dermabrasion-anesthetic-free-text" />
+              </div>
+            </div>
+          </div>
+
+        <input type="text" id="hidden" hidden />
+          <input type="text" id="dermabrasion-Anesthetic-Volume-title" hidden />
+          <div class="row col-12 mb-3 mt-3">
+            <div class="col-4 label">{{ "Anesthetic Volume" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-anesthetic-volume-1cc" #} id="dermabrasion-anesthetic-volume-1cc" />
+                  <label class="custom-control-label" for="dermabrasion-anesthetic-volume-1cc"> {{ "<1cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-anesthetic-volume-1-2cc" #} id="dermabrasion-anesthetic-volume-1-2cc" />
+                  <label class="custom-control-label" for="dermabrasion-anesthetic-volume-1-2cc"> {{ "1-2cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-anesthetic-volume-2-3cc" #} id="dermabrasion-anesthetic-volume-2-3cc" />
+                  <label class="custom-control-label" for="dermabrasion-anesthetic-volume-2-3cc"> {{ "2-3cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-anesthetic-volume-3-4cc" #} id="dermabrasion-anesthetic-volume-3-4cc" />
+                  <label class="custom-control-label" for="dermabrasion-anesthetic-volume-3-4cc"> {{ "3-4cc" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-anesthetic-volume-4-5cc" #} id="dermabrasion-anesthetic-volume-4-5cc" />
+                  <label class="custom-control-label" for="dermabrasion-anesthetic-volume-4-5cc"> {{ "4-5cc" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="dermabrasion-anesthetic-volume-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="dermabrasion-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mt-2">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class="form-control col-9 mr-1"  {# name="areas_dermabrasion" #} id="areas_dermabrasion" cols="90" rows="4" style="float:left;"></textarea>
+              <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="dermabrasion" data-target="#bodymap">
+                {{ "BodyMap" | e }}
+              </button>
+            </div>
+          </div>
+          <div class="row col-12 mt-2">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-dermabrasion" /></div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="dermabrasion-Name-of-device-title" hidden />
+          <div class="row col-12  mt-3">
+            <div class="col-4 label">{{ "Name of device" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-rotating-motor-device" #} id="dermabrasion-rotating-motor-device" />
+                  <label class="custom-control-label" for="dermabrasion-rotating-motor-device"> {{ "rotating motor device" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="dermabrasion-Name-of-device-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="dermabrasion-Fraises-title" hidden />
+          <div class="row col-12  mt-3">
+            <div class="col-4 label">{{ "Fraises" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-pear" #} id="dermabrasion-pear" />
+                  <label class="custom-control-label" for="dermabrasion-pear"> {{ "pear" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-cylindrical" #} id="dermabrasion-cylindrical" />
+                  <label class="custom-control-label" for="dermabrasion-cylindrical"> {{ "cylindrical" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-disc" #} id="dermabrasion-disc" />
+                  <label class="custom-control-label" for="dermabrasion-disc"> {{ "disc" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="dermabrasion-Fraises-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="dermabrasion-Aftercare-(Applied-In-Office)-title" hidden />
+          <div class="row col-12  mt-3">
+            <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-mupirocin" #} id="dermabrasion-mupirocin" />
+                  <label class="custom-control-label" for="dermabrasion-mupirocin"> {{ "mupirocin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-polysporin" #} id="dermabrasion-polysporin" />
+                  <label class="custom-control-label" for="dermabrasion-polysporin"> {{ "polysporin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-bacitracin" #} id="dermabrasion-bacitracin" />
+                  <label class="custom-control-label" for="dermabrasion-bacitracin"> {{ "bacitracin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-petrolatum" #} id="dermabrasion-petrolatum" />
+                  <label class="custom-control-label" for="dermabrasion-petrolatum"> {{ "petrolatum" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="cryotherapy-spf" #} id="dermabrasion-spf" />
+                  <label class="custom-control-label" for="dermabrasion-spf"> {{ "SPF" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="cryotherapy-triamcinolone-0-1-ointment" #} id="dermabrasion-triamcinolone-0-1p-ointment" />
+                  <label class="custom-control-label" for="dermabrasion-triamcinolone-0-1p-ointment"> {{ "Triamcinolone 0.1% Ointment" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="cryotherapy-hydrocortisone-2-5-ointment" #} id="dermabrasion-hydrocortisone-2-5p-ointment" />
+                  <label class="custom-control-label" for="dermabrasion-hydrocortisone-2-5p-ointment"> {{ "Hydrocortisone 2.5% Ointment" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="dermabrasion-aftercare_free_text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="dermabrasion-Bandage-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Bandage" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-pressure-dressing-with-telfa-gauze-and-hypafix" #} id="dermabrasion-pressure-dressing-with-telfa-gauze-and-hypafix" />
+                  <label class="custom-control-label" for="dermabrasion-pressure-dressing-with-telfa-gauze-and-hypafix"> {{ "pressure dressing with telfa, gauze and hypafix" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-pressure-dressing-with-telfa-gauze-and-papertape" #} id="dermabrasion-pressure-dressing-with-telfa-gauze-and-papertape" />
+                  <label class="custom-control-label" for="dermabrasion-pressure-dressing-with-telfa-gauze-and-papertape"> {{ "pressure dressing with telfa, gauze and paper tape" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-regular-bandage" #} id="dermabrasion-regular-bandage" />
+                  <label class="custom-control-label" for="dermabrasion-regular-bandage"> {{ "regular bandage" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-telfa" #} id="dermabrasion-telfa" />
+                  <label class="custom-control-label" for="dermabrasion-telfa"> {{ "telfa" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-paper-tape" #} id="dermabrasion-paper-tape" />
+                  <label class="custom-control-label" for="dermabrasion-paper-tape"> {{ "paper tape" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-hypafix" #} id="dermabrasion-hypafix" />
+                  <label class="custom-control-label" for="dermabrasion-hypafix"> {{ "hypafix" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="dermabrasion-hydrocolloid" #} id="dermabrasion-hydrocolloid" />
+                  <label class="custom-control-label" for="dermabrasion-hydrocolloid"> {{ "hydrocolloid" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="dermabrasion-bandage-free-text" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('dermabrasion')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

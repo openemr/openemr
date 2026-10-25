@@ -1,0 +1,260 @@
+<div class="modal" id="debridement">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Debridement" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input type="text" id="debridement-Skin-prep-title" hidden />
+          <div class="row col-12">
+            <div class="col-4 label">{{ "Skin prep" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-alcohol" id="debridement-alcohol" />
+                  <label class="custom-control-label" for="debridement-alcohol"> {{ "Alcohol" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-hibiclens" id="debridement-hibiclens" />
+                  <label class="custom-control-label" for="debridement-hibiclens"> {{ "Hibiclens" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-iodine" id="debridement-iodine" />
+                  <label class="custom-control-label" for="debridement-iodine"> {{ "Iodine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-lasercyn" id="debridement-lasercyn" />
+                  <label class="custom-control-label" for="debridement-lasercyn"> {{ "Lasercyn" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="debridement-skin-prep-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="debridement-Anesthetic-title" hidden />
+          <div class="row col-12 mt-2">
+            <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" name="debridement-1p-lidocaine" id="debridement-1p-lidocaine" />
+                  <label class="custom-control-label" for="debridement-1p-lidocaine"> {{ "1% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" name="debridement-1p-lidocaine-with-epinephrine" id="debridement-1p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="debridement-1p-lidocaine-with-epinephrine"> {{ "1% lidocaine with epinephrine 1:100,000" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" name="debridement-2p-lidocaine" id="debridement-2p-lidocaine" />
+                  <label class="custom-control-label" for="debridement-2p-lidocaine"> {{ "2% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" name="debridement-2p-lidocaine-wtih-epinephrine" id="debridement-2p-lidocaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="debridement-2p-lidocaine-wtih-epinephrine"> {{ "2% lidocaine with epinephrine 1:100,000" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" name="debridement-05p-lidocaine-with-epinephrine" id="debridement-05p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="debridement-05p-lidocaine-with-epinephrine"> {{ "0.5% lidocaine with epinephrine 1:200,000" | e }}</label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" name="debridement-05p-bupivicaine" id="debridement-05p-bupivicaine" />
+                  <label class="custom-control-label" for="debridement-05p-bupivicaine"> {{ "0.5% bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" name="debridement-05p-bupivicaine-wtih-epinephrine" id="debridement-05p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="debridement-05p-bupivicaine-wtih-epinephrine"> {{ "0.5% bupivicaine with epinephrine 1:200,000" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" name="debridement-025p-bupivicaine" id="debridement-025p-bupivicaine" />
+                  <label class="custom-control-label" for="debridement-025p-bupivicaine"> {{ "0.25% bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" name="debridement-025p-bupivicaine-wtih-epinephrine" id="debridement-025p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="debridement-025p-bupivicaine-wtih-epinephrine"> {{ "0.25% bupivicaine with epinephrine 1:400,000" | e }}  </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" name="debridement-025p-marcaine-wtih-epinephrine" id="debridement-025p-marcaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="debridement-025p-marcaine-wtih-epinephrine">{{ " 0.25% marcaine with 1:200,000 epinephrine" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" name="debridement-09p-bacteriostatic-sodium-chloride" id="debridement-09p-bacteriostatic-sodium-chloride" />
+                  <label class="custom-control-label" for="debridement-09p-bacteriostatic-sodium-chloride"> {{ "bacteriostatic 0.9% sodium chloride" | e }}</label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" name="debridement-sterile-water" id="debridement-sterile-water" />
+                  <label class="custom-control-label" for="debridement-sterile-water"> {{ "Sterile water" | e }}   </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" name="debridement-1p-ropivacaine" id="debridement-1p-ropivacaine" />
+                  <label class="custom-control-label" for="debridement-1p-ropivacaine"> {{ "Ropivacaine 1%" | e }}  </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" name="debridement-05p-ropivacaine" id="debridement-05p-ropivacaine" />
+                  <label class="custom-control-label" for="debridement-05p-ropivacaine"> {{ "Ropivacaine 0.5%" | e }}   </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" name="debridement-84p-sodium-bicarbonate" id="debridement-84p-sodium-bicarbonate" />
+                  <label class="custom-control-label" for="debridement-84p-sodium-bicarbonate"> {{ "WITH 8.4% sodium bicarbonate in 1:10 ratio (sod bicarbonate: anesthetic)" | e }}   </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="debridement-anesthetic-free-text" />
+              </div>
+            </div>
+          </div>
+
+        <input type="text" id="hidden" hidden />
+          <input type="text" id="debridement-Anesthetic-Volume-title" hidden />
+          <div class="row col-12 mb-3 mt-3">
+            <div class="col-4 label">{{ "Anesthetic Volume" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" name="debridement-anesthetic-volume-1cc" id="debridement-anesthetic-volume-1cc" />
+                  <label class="custom-control-label" for="debridement-anesthetic-volume-1cc"> {{ "<1cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" name="debridement-anesthetic-volume-1-2cc" id="debridement-anesthetic-volume-1-2cc" />
+                  <label class="custom-control-label" for="debridement-anesthetic-volume-1-2cc"> {{ "1-2cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" name="debridement-anesthetic-volume-2-3cc" id="debridement-anesthetic-volume-2-3cc" />
+                  <label class="custom-control-label" for="debridement-anesthetic-volume-2-3cc"> {{ "2-3cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" name="debridement-anesthetic-volume-3-4cc" id="debridement-anesthetic-volume-3-4cc" />
+                  <label class="custom-control-label" for="debridement-anesthetic-volume-3-4cc"> {{ "3-4cc" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" name="debridement-anesthetic-volume-4-5cc" id="debridement-anesthetic-volume-4-5cc" />
+                  <label class="custom-control-label" for="debridement-anesthetic-volume-4-5cc"> {{ "4-5cc" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="debridement-anesthetic-volume-free-text" />
+              </div>
+            </div>
+          </div>
+
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="debridement-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mt-2">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class="form-control col-9 mr-1" name="areas_debridement" id="areas_debridement" cols="90" rows="4" style="float:left;"></textarea>
+              <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="debridement" data-target="#bodymap">
+                {{ "BodyMap" | e }}
+              </button>
+            </div>
+          </div>
+          <div class="row col-12 mt-2">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-debridement" /></div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="debridement-Method-title" hidden />
+          <div class="row col-12  mt-3">
+            <div class="col-4 label">{{ "Method" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-mechanical" id="debridement-mechanical" />
+                  <label class="custom-control-label" for="debridement-mechanical"> {{ "mechanical" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-surgical" id="debridement-surgical" />
+                  <label class="custom-control-label" for="debridement-surgical"> {{ "surgical" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-autolytic" id="debridement-autolytic" />
+                  <label class="custom-control-label" for="debridement-autolytic"> {{ "autolytic" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-enzymatic" id="debridement-enzymatic" />
+                  <label class="custom-control-label" for="debridement-enzymatic"> {{ "enzymatic" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="debridement-method-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="debridement-Aftercare-(Applied-In-Office)-title" hidden />
+          <div class="row col-12  mt-3">
+            <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-mupirocin" id="debridement-mupirocin" />
+                  <label class="custom-control-label" for="debridement-mupirocin"> {{ "mupirocin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-polysporin" id="debridement-polysporin" />
+                  <label class="custom-control-label" for="debridement-polysporin"> {{ "polysporin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-bacitracin" id="debridement-bacitracin" />
+                  <label class="custom-control-label" for="debridement-bacitracin"> {{ "bacitracin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-petrolatum" id="debridement-petrolatum" />
+                  <label class="custom-control-label" for="debridement-petrolatum"> {{ "petrolatum" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="debridement-aftercare_free_text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="debridement-Bandage-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Bandage" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-pressure-dressing-with-telfa-gauze-and-hypafix" id="debridement-pressure-dressing-with-telfa-gauze-and-hypafix" />
+                  <label class="custom-control-label" for="debridement-pressure-dressing-with-telfa-gauze-and-hypafix"> {{ "pressure dressing with telfa, gauze and hypafix" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" name="debridement-pressure-dressing-with-telfa-gauze-and-papertape" id="debridement-pressure-dressing-with-telfa-gauze-and-papertape" />
+                  <label class="custom-control-label" for="debridement-pressure-dressing-with-telfa-gauze-and-papertape"> {{ "pressure dressing with telfa, gauze and paper tape" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" name="debridement-regular-bandage" id="debridement-regular-bandage" />
+                  <label class="custom-control-label" for="debridement-regular-bandage"> {{ "regular bandage" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" name="debridement-telfa" id="debridement-telfa" />
+                  <label class="custom-control-label" for="debridement-telfa"> {{ "telfa" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" name="debridement-paper-tape" id="debridement-paper-tape" />
+                  <label class="custom-control-label" for="debridement-paper-tape"> {{ "paper tape" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" name="debridement-hypafix" id="debridement-hypafix" />
+                  <label class="custom-control-label" for="debridement-hypafix"> {{ "hypafix" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" name="debridement-hydrocolloid" id="debridement-hydrocolloid" />
+                  <label class="custom-control-label" for="debridement-hydrocolloid"> {{ "hydrocolloid" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="debridement-bandage-free-text" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('debridement')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

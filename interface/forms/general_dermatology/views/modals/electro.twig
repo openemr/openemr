@@ -1,0 +1,333 @@
+<div class="modal" id="electro">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Electrodessication and Currettage (ED&C)" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input type="text" id="electro-Skin-prep-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Skin prep" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-3">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-alcohol" #} id="electro-alcohol" />
+                  <label class="custom-control-label" for="electro-alcohol"> {{ "Alcohol" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-3">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-hibiclens" #} id="electro-hibiclens" />
+                  <label class="custom-control-label" for="electro-hibiclens"> {{ "Hibiclens" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-3">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-iodine" #} id="electro-iodine" />
+                  <label class="custom-control-label" for="electro-iodine"> {{ "Iodine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-3">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-lasercyn" #} id="electro-lasercyn" />
+                  <label class="custom-control-label" for="electro-lasercyn"> {{ "Lasercyn" | e }}</label>
+                </div>
+                <input class="form-control mt-2" type="text" id="electro-freeS" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="electro-Anesthetic-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-1p-lidocaine" #} id="electro-1p-lidocaine" />
+                  <label class="custom-control-label" for="electro-1p-lidocaine"> {{ "1% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-1p-lidocaine-with-epinephrine" #} id="electro-1p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="electro-1p-lidocaine-with-epinephrine"> {{ "1% lidocaine with epinephrine 1:100,000" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-2p-lidocaine" #} id="electro-2p-lidocaine" />
+                  <label class="custom-control-label" for="electro-2p-lidocaine"> {{ "2% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-2p-lidocaine-wtih-epinephrine" #} id="electro-2p-lidocaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="electro-2p-lidocaine-wtih-epinephrine"> {{ "2% lidocaine with epinephrine 1:100,000" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-05p-lidocaine-with-epinephrine" #} id="electro-05p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="electro-05p-lidocaine-with-epinephrine"> {{ "0.5% lidocaine with epinephrine 1:200,000" | e }}</label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-05p-bupivicaine" #} id="electro-05p-bupivicaine" />
+                  <label class="custom-control-label" for="electro-05p-bupivicaine"> {{ "0.5% bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-05p-bupivicaine-wtih-epinephrine" #} id="electro-05p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="electro-05p-bupivicaine-wtih-epinephrine"> {{ "0.5% bupivicaine with epinephrine 1:200,000" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-025p-bupivicaine" #} id="electro-025p-bupivicaine" />
+                  <label class="custom-control-label" for="electro-025p-bupivicaine"> {{ "0.25% bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-025p-bupivicaine-wtih-epinephrine" #} id="electro-025p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="electro-025p-bupivicaine-wtih-epinephrine"> {{ "0.25% bupivicaine with epinephrine 1:400,000" | e }}  </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-025p-marcaine-wtih-epinephrine" #} id="electro-025p-marcaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="electro-025p-marcaine-wtih-epinephrine"> {{ "0.25% marcaine with 1:200,000 epinephrine" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-09p-bacteriostatic-sodium-chloride" #} id="electro-09p-bacteriostatic-sodium-chloride" />
+                  <label class="custom-control-label" for="electro-09p-bacteriostatic-sodium-chloride"> {{ "bacteriostatic 0.9% sodium chloride" | e }}</label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-sterile-water" #} id="electro-sterile-water" />
+                  <label class="custom-control-label" for="electro-sterile-water"> {{ "Sterile water" | e }}   </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-1p-ropivacaine" #} id="electro-1p-ropivacaine" />
+                  <label class="custom-control-label" for="electro-1p-ropivacaine"> {{ "Ropivacaine 1%" | e }}  </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-05p-ropivacaine" #} id="electro-05p-ropivacaine" />
+                  <label class="custom-control-label" for="electro-05p-ropivacaine"> {{ "Ropivacaine 0.5%" | e }}   </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-84p-sodium-bicarbonate" #} id="electro-84p-sodium-bicarbonate" />
+                  <label class="custom-control-label" for="electro-84p-sodium-bicarbonate"> {{ "WITH 8.4% sodium bicarbonate in 1:10 ratio (sod bicarbonate: anesthetic)" | e }}   </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="electro-anesthetic-free-text" />
+              </div>
+            </div>
+          </div>
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="electro-Anesthetic-Volume-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Anesthetic Volume" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-anesthetic-volume-1cc" #} id="electro-anesthetic-volume-1cc" />
+                  <label class="custom-control-label" for="electro-anesthetic-volume-1cc"> {{ "<1cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-anesthetic-volume-1-2cc" #} id="electro-anesthetic-volume-1-2cc" />
+                  <label class="custom-control-label" for="electro-anesthetic-volume-1-2cc"> {{ "1-2cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-anesthetic-volume-2-3cc" #} id="electro-anesthetic-volume-2-3cc" />
+                  <label class="custom-control-label" for="electro-anesthetic-volume-2-3cc"> {{ "2-3cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-anesthetic-volume-3-4cc" #} id="electro-anesthetic-volume-3-4cc" />
+                  <label class="custom-control-label" for="electro-anesthetic-volume-3-4cc"> {{ "3-4cc" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-anesthetic-volume-4-5cc" #} id="electro-anesthetic-volume-4-5cc" />
+                  <label class="custom-control-label" for="electro-anesthetic-volume-4-5cc"> {{ "4-5cc" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="electro-anesthetic-volume-free-text" />
+              </div>
+            </div>
+          </div>
+
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="electro-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class="form-control col-9 mr-1" {# name="areas_electro" #} id="areas_electro" style="float:left;" cols="90" rows="4"></textarea>
+               <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="electro" data-target="#bodymap">
+                {{ "BodyMap" | e }}
+              </button>
+            </div>
+            <div class="col-2">
+
+            </div>
+          </div>
+          <div style="display:none;" class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8"><input class="form-control mt-3" type="text" id="areas-count-electro" /></div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="electro-Curette-size-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Curette size" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-2mm" #} id="electro-2mm" />
+                  <label class="custom-control-label" for="electro-2mm"> {{ "2mm" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-3mm" #} id="electro-3mm" />
+                  <label class="custom-control-label" for="electro-3mm"> {{ "3mm" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-4mm" #} id="electro-4mm" />
+                  <label class="custom-control-label" for="electro-4mm"> {{ "4mm" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-5mm" #} id="electro-5mm" />
+                  <label class="custom-control-label" for="electro-5mm"> {{ "5mm" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-6mm" #} id="electro-6mm" />
+                  <label class="custom-control-label" for="electro-6mm"> {{ "6mm" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-7mm" #} id="electro-7mm" />
+                  <label class="custom-control-label" for="electro-7mm"> {{ "7mm" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-8mm" #} id="electro-8mm" />
+                  <label class="custom-control-label" for="electro-8mm"> {{ "8mm" | e }} </label>
+                </div>
+                <input class="form-control mt-3" type="text" id="electro-curette-size-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="electro-ED&C-Number-of-passes-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "ED&C Number of passes" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-1" #} id="electro-1" />
+                  <label class="custom-control-label" for="electro-1"> {{ "1" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-2" #} id="electro-2" />
+                  <label class="custom-control-label" for="electro-2"> {{ "2" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-3" #} id="electro-3" />
+                  <label class="custom-control-label" for="electro-3"> {{ "3" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-4" #} id="electro-4" />
+                  <label class="custom-control-label" for="electro-4"> {{ "4" | e }} </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="electro-Pre-op-size-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Pre-op size" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="electro-pre-op-size-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="electro-Margins-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Margins" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="electro-margins-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="electro-Post-op-size-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Post-op size" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="electro-post-op-size-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          
+          <input type="text" id="electro-Aftercare-(Applied-In-Office)-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-mupirocin" #} id="electro-mupirocin" />
+                  <label class="custom-control-label" for="electro-mupirocin"> {{ "mupirocin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-polysporin" #} id="electro-polysporin" />
+                  <label class="custom-control-label" for="electro-polysporin"> {{ "polysporin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-bacitracin" #} id="electro-bacitracin" />
+                  <label class="custom-control-label" for="electro-bacitracin"> {{ "bacitracin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-petrolatum" #} id="electro-petrolatum" />
+                  <label class="custom-control-label" for="electro-petrolatum"> {{ "petrolatum" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="electro-aftercare_free_text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="electro-Bandage-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Bandage" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-pressure-dressing-with-telfa-gauze-and-hypafix" #} id="electro-pressure-dressing-with-telfa-gauze-and-hypafix" />
+                  <label class="custom-control-label" for="electro-pressure-dressing-with-telfa-gauze-and-hypafix"> {{ "pressure dressing with telfa, gauze and hypafix" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-pressure-dressing-with-telfa-gauze-and-papertape" #} id="electro-pressure-dressing-with-telfa-gauze-and-papertape" />
+                  <label class="custom-control-label" for="electro-pressure-dressing-with-telfa-gauze-and-papertape"> {{ "pressure dressing with telfa, gauze and paper tape" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4 col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-regular-bandage" #} id="electro-regular-bandage" />
+                  <label class="custom-control-label" for="electro-regular-bandage"> {{ "regular bandage" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4 col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-telfa" #} id="electro-telfa" />
+                  <label class="custom-control-label" for="electro-telfa"> {{ "telfa" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4 col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-paper-tape" #} id="electro-paper-tape" />
+                  <label class="custom-control-label" for="electro-paper-tape"> {{ "paper tape" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4 col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-hypafix" #} id="electro-hypafix" />
+                  <label class="custom-control-label" for="electro-hypafix"> {{ "hypafix" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4 col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="electro-hydrocolloid" #} id="electro-hydrocolloid" />
+                  <label class="custom-control-label" for="electro-hydrocolloid"> {{ "hydrocolloid" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="electro-bandage-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('electro')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,301 @@
+<div class="modal" id="incision">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Incision and Drainage" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input type="text" id="incision-Skin-prep-title" hidden />
+          <div class="row col-12">
+            <div class="col-4 label">{{ "Skin prep" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-alcohol" #} id="incision-alcohol" />
+                  <label class="custom-control-label" for="incision-alcohol"> {{ "Alcohol" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-hibiclens" #} id="incision-hibiclens" />
+                  <label class="custom-control-label" for="incision-hibiclens"> {{ "Hibiclens" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-iodine" #} id="incision-iodine" />
+                  <label class="custom-control-label" for="incision-iodine"> {{ "Iodine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-lasercyn" #} id="incision-lasercyn" />
+                  <label class="custom-control-label" for="incision-lasercyn"> {{ "Lasercyn" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="incision-skin-prep-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="incision-Anesthetic-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-1p-lidocaine" #} id="incision-1p-lidocaine" />
+                  <label class="custom-control-label" for="incision-1p-lidocaine"> {{ "1% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-1p-lidocaine-with-epinephrine" #} id="incision-1p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="incision-1p-lidocaine-with-epinephrine"> {{ "1% lidocaine with epinephrine 1:100,000" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-2p-lidocaine" #} id="incision-2p-lidocaine" />
+                  <label class="custom-control-label" for="incision-2p-lidocaine"> {{ "2% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-2p-lidocaine-wtih-epinephrine" #} id="incision-2p-lidocaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="incision-2p-lidocaine-wtih-epinephrine"> {{ "2% lidocaine with epinephrine 1:100,000" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-05p-lidocaine-with-epinephrine" #} id="incision-05p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="incision-05p-lidocaine-with-epinephrine"> {{ "0.5% lidocaine with epinephrine 1:200,000" | e }}</label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-05p-bupivicaine" #} id="incision-05p-bupivicaine" />
+                  <label class="custom-control-label" for="incision-05p-bupivicaine"> {{ "0.5% bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-05p-bupivicaine-wtih-epinephrine" #} id="incision-05p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="incision-05p-bupivicaine-wtih-epinephrine"> {{ "0.5% bupivicaine with epinephrine 1:200,000" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-025p-bupivicaine" #} id="incision-025p-bupivicaine" />
+                  <label class="custom-control-label" for="incision-025p-bupivicaine"> {{ "0.25% bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-025p-bupivicaine-wtih-epinephrine" #} id="incision-025p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="incision-025p-bupivicaine-wtih-epinephrine"> {{ "0.25% bupivicaine with epinephrine 1:400,000" | e }}  </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-025p-marcaine-wtih-epinephrine" #} id="incision-025p-marcaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="incision-025p-marcaine-wtih-epinephrine"> {{ "0.25% marcaine with 1:200,000 epinephrine" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-09p-bacteriostatic-sodium-chloride" #} id="incision-09p-bacteriostatic-sodium-chloride" />
+                  <label class="custom-control-label" for="incision-09p-bacteriostatic-sodium-chloride"> {{ "bacteriostatic 0.9% sodium chloride" | e }}</label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-sterile-water" #} id="incision-sterile-water" />
+                  <label class="custom-control-label" for="incision-sterile-water"> {{ "Sterile water" | e }}   </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-1p-ropivacaine" #} id="incision-1p-ropivacaine" />
+                  <label class="custom-control-label" for="incision-1p-ropivacaine"> {{ "Ropivacaine 1%" | e }}  </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-05p-ropivacaine" #} id="incision-05p-ropivacaine" />
+                  <label class="custom-control-label" for="incision-05p-ropivacaine"> {{ "Ropivacaine HCl 0.5%" | e }}   </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-84p-sodium-bicarbonate" #} id="incision-84p-sodium-bicarbonate" />
+                  <label class="custom-control-label" for="incision-84p-sodium-bicarbonate"> {{ "WITH 8.4% sodium bicarbonate in 1:10 ratio (sod bicarbonate: anesthetic)" | e }}   </label>
+                </div>
+
+
+                <input class="form-control mt-2" type="text" id="incision-anesthetic-free-text" />
+              </div>
+            </div>
+          </div>
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="incision-Anesthetic-Volume-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Anesthetic Volume" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-anesthetic-volume-1cc" #} id="incision-anesthetic-volume-1cc" />
+                  <label class="custom-control-label" for="incision-anesthetic-volume-1cc"> {{ "<1cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-anesthetic-volume-1-2cc" #} id="incision-anesthetic-volume-1-2cc" />
+                  <label class="custom-control-label" for="incision-anesthetic-volume-1-2cc"> {{ "1-2cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-anesthetic-volume-2-3cc" #} id="incision-anesthetic-volume-2-3cc" />
+                  <label class="custom-control-label" for="incision-anesthetic-volume-2-3cc"> {{ "2-3cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-anesthetic-volume-3-4cc" #} id="incision-anesthetic-volume-3-4cc" />
+                  <label class="custom-control-label" for="incision-anesthetic-volume-3-4cc"> {{ "3-4cc" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-anesthetic-volume-4-5cc" #} id="incision-anesthetic-volume-4-5cc" />
+                  <label class="custom-control-label" for="incision-anesthetic-volume-4-5cc"> {{ "4-5cc" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="incision-anesthetic-volume-free-text" />
+              </div>
+            </div>
+          </div>
+
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="incision-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class="col-9 form-control mr-1" {# name="areas_incision" #} id="areas_incision"  style="float:left;" cols="90" rows="4"></textarea>
+              <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="incision" data-target="#bodymap">
+                {{ "BodyMap" | e }}
+              </button>
+            </div>
+          </div>
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-incision" /></div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="incision-Packing-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Packing" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-p-none" #} id="incision-p-none" />
+                  <label class="custom-control-label" for="incision-p-none"> {{ "none" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-plain-packing-strip-gauze" #} id="incision-plain-packing-strip-gauze" />
+                  <label class="custom-control-label" for="incision-plain-packing-strip-gauze"> {{ "plain packing strip gauze" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-iodine-packing-strip-guaze" #} id="incision-iodine-packing-strip-guaze" />
+                  <label class="custom-control-label" for="incision-iodine-packing-strip-guaze"> {{ "iodine packing strip guaze" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="incision-packing-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="incision-Packing-instructions-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Packing instructions" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-remove-packing-in-24-hrs" #} id="incision-remove-packing-in-24-hrs" />
+                  <label class="custom-control-label" for="incision-remove-packing-in-24-hrs"> {{ "remove packing in 24 hrs" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-removal-packing-in-48-hours" #} id="incision-removal-packing-in-48-hours" />
+                  <label class="custom-control-label" for="incision-removal-packing-in-48-hours"> {{ "remove packing in 48 hours" | e }} </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="incision-Culture-title" hidden />
+          <div class="row col-12 mt-4">
+            <div class="col-4 label">{{ "Culture" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-culture-none" #} id="incision-culture-none" />
+                  <label class="custom-control-label" for="incision-culture-none"> {{ "none" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-bacterial-culture" #} id="incision-bacterial-culture" />
+                  <label class="custom-control-label" for="incision-bacterial-culture"> {{ "bacterial culture" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="incision-culture-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="incision-Aftercare-(Applied-In-Office)-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-aftercare-none" #} id="incision-aftercare-none" />
+                  <label class="custom-control-label" for="incision-aftercare-none"> {{ "none" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-mupirocin" #} id="incision-mupirocin" />
+                  <label class="custom-control-label" for="incision-mupirocin"> {{ "mupirocin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-polysporin" #} id="incision-polysporin" />
+                  <label class="custom-control-label" for="incision-polysporin"> {{ "polysporin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-bacitracin" #} id="incision-bacitracin" />
+                  <label class="custom-control-label" for="incision-bacitracin"> {{ "bacitracin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-petrolatum" #} id="incision-petrolatum" />
+                  <label class="custom-control-label" for="incision-petrolatum"> {{ "petrolatum" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="incision-aftercare_free_text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="incision-Bandage-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Bandage" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-dressing-none" #} id="incision-dressing-none" />
+                  <label class="custom-control-label" for="incision-dressing-none"> {{ "none" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-pressure-dressing-with-telfa-gauze-and-hypafix" #} id="incision-pressure-dressing-with-telfa-gauze-and-hypafix" />
+                  <label class="custom-control-label" for="incision-pressure-dressing-with-telfa-gauze-and-hypafix"> {{ "pressure dressing with telfa, gauze and hypafix" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-pressure-dressing-with-telfa-gauze-and-papertape" #} id="incision-pressure-dressing-with-telfa-gauze-and-papertape" />
+                  <label class="custom-control-label" for="incision-pressure-dressing-with-telfa-gauze-and-papertape"> {{ "pressure dressing with telfa, gauze and paper tape" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-regular-bandage" #} id="incision-regular-bandage" />
+                  <label class="custom-control-label" for="incision-regular-bandage"> {{ "regular bandage" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-telfa" #} id="incision-telfa" />
+                  <label class="custom-control-label" for="incision-telfa"> {{ "telfa" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-paper-tape" #} id="incision-paper-tape" />
+                  <label class="custom-control-label" for="incision-paper-tape"> {{ "paper tape" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-hypafix" #} id="incision-hypafix" />
+                  <label class="custom-control-label" for="incision-hypafix"> {{ "hypafix" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="incision-hydrocolloid" #} id="incision-hydrocolloid" />
+                  <label class="custom-control-label" for="incision-hydrocolloid"> {{ "hydrocolloid" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="incision-bandage-free-text" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('incision')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+        />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+        {{
+            setupHeader(["select2"])
+        }}
+        <!-- Include the plugin's CSS and JS: -->
+
+        <title>{{ "Dermatology" | e }}</title>
+
+        {% block stylesheet %}
+        <!-- css stuff should go here -->
+        {% endblock %}
+    </head>
+    <body>
+        {% block content %} {% endblock %}
+        <script>
+            {% block javascript %}
+            <!-- javascript stuff should go here -->
+            {% endblock %}
+        </script>
+    </body>
+    {% block javascipt_bottom %}
+    <!-- javascript stuff should go here -->
+    {% endblock %}
+</html>

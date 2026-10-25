@@ -1,0 +1,36 @@
+<div class="modal" id="bodymap">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Body Map" | e}}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="swiper">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <img src="../../forms/general_dermatology/public/images/body-map.jpg" class="procedure-bodymap" usemap="#procedure-body-map" alt="procedure-body-map" width="auto" />
+            </div>
+            <div class="swiper-slide">
+              <img src="../../forms/general_dermatology/public/images/face-map.png" class="procedure-bodymap" usemap="#procedure-face-map" alt="procedure-face-map" width="auto" />
+            </div>
+          </div>
+          <div class="swiper-pagination"></div>
+          <div class="swiper-scrollbar"></div>
+        </div> {% include "map_code.html" %} <span id="organs-tip"></span>
+        <div class="row col-12">
+          <div class="col-5 label">{{ "Areas Treated :" | e}} </div>
+          <div class="col-7 areas-treated label" id="p-treated"></div>
+        </div>
+        <div class="row col-12 mt-3">
+          <div class="col-5 label">{{ "Number of lesions treated :" | e}} </div>
+          <div class="col-7 label" id="p-lession"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="removePrevClickedValue()"> {{ "Remove last clicked value" | e}} </button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="getLocationAndCount()"> {{ "Close" | e}} </button>
+      </div>
+    </div>
+  </div>
+</div>

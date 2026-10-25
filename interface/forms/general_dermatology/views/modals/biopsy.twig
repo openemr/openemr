@@ -1,0 +1,489 @@
+<div class="modal" id="biopsy">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ "Biopsy" | e }}</h4>
+                <button type="button" class="close" data-dismiss="modal"> &times; </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <input type="text" id="biopsy-bio-location-title" hidden />
+                    <div class="row col-12 mt-3">
+                        <div class="col-4 label">{{ "Biopsy location" | e }}</div>
+                        <div class="col-8 areas_treated">
+                            <textarea class="col-9 form-control mr-1"  name="biopsy-areas"  id="areas-biopsy"  style="float:left;" cols="90" rows="4"></textarea>
+                            <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="biopsy" data-target="#bodymap">
+                                {{ "BodyMap" | e }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display:none;" class="row col-12 mt-3">
+                        <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+                        <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-biopsy" /></div>
+                    </div>
+                    <input type="text" id="hidden" hidden />
+
+                    <input type="text" id="biopsy-Rule-out-title" hidden />
+                    <div class="row col-12 mt-3">
+                        <div class="col-4 label">{{ "Rule out" | e }}</div>
+                        <div class="col-8">
+                            <div class="row">
+                                <input class="form-control" type="text"  name="biopsy-rule-out"  id="biopsy-Rule-out-free-text" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" id="hidden" hidden />
+
+
+                    <input type="text" id="biopsy-bio-method-title" hidden />
+                    <div class="row col-12 mt-3">
+                        <div class="col-4 label">{{ "Biopsy Method" | e }}</div>
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-shave"  id="biopsy-shave" checked="1" />
+                                    <label class="custom-control-label" for="biopsy-shave"> {{ "Shave" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-punch"  id="biopsy-punch" />
+                                    <label class="custom-control-label" for="biopsy-punch"> {{ "Punch" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-incisional"  id="biopsy-incisional" />
+                                    <label class="custom-control-label" for="biopsy-incisional"> {{ "Incisional" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-excisional"  id="biopsy-excisional" />
+                                    <label class="custom-control-label" for="biopsy-excisional"> {{ "Excisional" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-nail-bed"  id="biopsy-nail-bed" />
+                                    <label class="custom-control-label" for="biopsy-nail-bed"> {{ "Nail Bed" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-nail-matrix"  id="biopsy-nail-matrix" />
+                                    <label class="custom-control-label" for="biopsy-nail-matrix"> {{ "Nail Matrix" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-nail"  id="biopsy-nail" />
+                                    <label class="custom-control-label" for="biopsy-nail"> {{ "Nail" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-ear"  id="biopsy-ear" />
+                                    <label class="custom-control-label" for="biopsy-ear"> {{ "Ear" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-penis"  id="biopsy-penis" />
+                                    <label class="custom-control-label" for="biopsy-penis"> {{ "Penis" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-vulva"  id="biopsy-vulva" />
+                                    <label class="custom-control-label" for="biopsy-vulva"> {{ "Vulva" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-anus"  id="biopsy-anus" />
+                                    <label class="custom-control-label" for="biopsy-anus"> {{ "Anus" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-eyelid"  id="biopsy-eyelid" />
+                                    <label class="custom-control-label" for="biopsy-eyelid"> {{ "Eyelid" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-lip"  id="biopsy-lip" />
+                                    <label class="custom-control-label" for="biopsy-lip"> {{ "Lip" | e }} </label>
+                                </div>
+
+                                <input class="form-control mt-2" type="text" id="biopsy-bio-method-free-text" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" id="hidden" hidden />
+
+                    <input type="text" id="biopsy-bio-type-title" hidden />
+                    <div class="row col-12 mt-3">
+                        <div class="col-4 label">{{ "Biopsy type" | e }}</div>
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-h-and-e"  id="biopsy-h-and-e" checked="1" />
+                                    <label class="custom-control-label" for="biopsy-h-and-e"> {{ "H and E" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-dif"  id="biopsy-dif" />
+                                    <label class="custom-control-label" for="biopsy-dif"> {{ "DIF" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-frozen-section"  id="biopsy-frozen-section" />
+                                    <label class="custom-control-label" for="biopsy-frozen-section"> {{ "Frozen Section" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-pas"  id="biopsy-pas" />
+                                    <label class="custom-control-label" for="biopsy-pas"> {{ "PAS" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-flow-cytometry"  id="biopsy-flow-cytometry" />
+                                    <label class="custom-control-label" for="biopsy-flow-cytometry"> {{ "Flow Cytometry" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-t-cell-receptor-gene-rearrangement"  id="biopsy-t-cell-receptor-gene-rearrangement" />
+                                    <label class="custom-control-label" for="biopsy-t-cell-receptor-gene-rearrangement"> {{ "T-cell Receptor Gene Rearrangement" | e }} </label>
+                                </div>
+
+                                <input class="form-control mt-2" type="text" id="biopsy-bio-type-free-text" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" id="hidden" hidden />
+
+                    <input type="text" id="biopsy-Differential-diagnosis-title" hidden />
+                    <div class="row col-12 mt-3">
+                        <div class="col-4 label">{{ "Differential diagnosis" | e }}</div>
+                        <div class="col-8">
+                            <div class="row">
+                                <input class="form-control" type="text"  name=""  id="biopsy-Differential-diagnosis-free-text" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" id="hidden" hidden />
+
+                    <input type="text" id="biopsy-Skin-prep-title" hidden />
+                    <div class="row col-12 mt-3">
+                        <div class="col-4 label">{{ "Skin Prep" | e }}</div>
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-alcohol"  id="biopsy-alcohol" checked="1" />
+                                    <label class="custom-control-label" for="biopsy-alcohol"> {{ "Alcohol" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox  mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-hibiclens"  id="biopsy-hibiclens" />
+                                    <label class="custom-control-label" for="biopsy-hibiclens"> {{ "Hibiclens" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox  mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-iodine"  id="biopsy-iodine" />
+                                    <label class="custom-control-label" for="biopsy-iodine"> {{ "Iodine" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox  mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-lasercyn"  id="biopsy-lasercyn" />
+                                    <label class="custom-control-label" for="biopsy-lasercyn"> {{ "Lasercyn" | e }} </label>
+                                </div>
+                                <input class="form-control mt-2" type="text" id="biopsy-skin-prep-free-text" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" id="hidden" hidden />
+
+                    <input type="text" id="biopsy-Anesthetic-title" hidden />
+                    <div class="row col-12 mt-3">
+                        <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-none"  id="biopsy-none" />
+                                    <label class="custom-control-label" for="biopsy-none"> {{ "none" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-topical-5p-lidocaine"  id="biopsy-topical-5p-lidocaine" />
+                                    <label class="custom-control-label" for="biopsy-topical-5p-lidocaine"> {{ "topical 5% lidocaine" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-topical-23p-lidocaine-7p-tetracaine"  id="biopsy-topical-23p-lidocaine-7p-tetracaine" />
+                                    <label class="custom-control-label" for="biopsy-topical-23p-lidocaine-7p-tetracaine"> {{ "topical 23% lidocaine, 7% tetracaine" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine"  id="biopsy-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine" />
+                                    <label class="custom-control-label" for="biopsy-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine"> {{ "topical 23% lidocaine, 7% tetracaine, 1% phenylephrine" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine"  id="biopsy-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine" />
+                                    <label class="custom-control-label" for="biopsy-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine"> {{ "topical 20% benzocaine, 10% lidocaine, 4% tetracaine" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox col-12">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-topical-30p-lidocaine"  id="biopsy-topical-30p-lidocaine" />
+                                    <label class="custom-control-label" for="biopsy-topical-30p-lidocaine"> {{ "topical 30% lidocaine" | e }} </label>
+                                </div>
+
+                                <div class="custom-control custom-checkbox mr-2">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-topical-30-lidocaine-7-tetracaine"  id="biopsy-topical-30-lidocaine-7-tetracaine" />
+                                    <label class="custom-control-label" for="biopsy-topical-30-lidocaine-7-tetracaine"> {{ "Topical 30% Lidocaine, 7% Tetracaine" | e }}  </label>
+                                </div>
+
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-ice"  id="biopsy-ice" />
+                                    <label class="custom-control-label" for="biopsy-ice"> {{ "ice" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-fan"  id="biopsy-fan" />
+                                    <label class="custom-control-label" for="biopsy-fan"> {{ "fan" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-vibration"  id="biopsy-vibration" />
+                                    <label class="custom-control-label" for="biopsy-vibration"> {{ "vibration" | e }} </label>
+                                </div>
+
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-1p-lidocaine"  id="biopsy-1p-lidocaine" />
+                                    <label class="custom-control-label" for="biopsy-1p-lidocaine"> {{ "1% lidocaine" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-1p-lidocaine-with-epinephrine"  id="biopsy-1p-lidocaine-with-epinephrine" checked="1" />
+                                    <label class="custom-control-label" for="biopsy-1p-lidocaine-with-epinephrine"> {{ "1% lidocaine with epinephrine 1:100,000" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-2p-lidocaine"  id="biopsy-2p-lidocaine" />
+                                    <label class="custom-control-label" for="biopsy-2p-lidocaine"> {{ "2% lidocaine" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-2p-lidocaine-wtih-epinephrine"  id="biopsy-2p-lidocaine-wtih-epinephrine" />
+                                    <label class="custom-control-label" for="biopsy-2p-lidocaine-wtih-epinephrine"> {{ "2% lidocaine with epinephrine 1:100,000" | e }} </label>
+                                </div>
+
+                                <div class="custom-control custom-checkbox col-12">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-05p-lidocaine-with-epinephrine"  id="biopsy-05p-lidocaine-with-epinephrine" />
+                                    <label class="custom-control-label" for="biopsy-05p-lidocaine-with-epinephrine"> {{ "0.5% lidocaine with epinephrine 1:200,000" | e }}</label>
+                                </div>
+
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-05p-bupivicaine"  id="biopsy-05p-bupivicaine" />
+                                    <label class="custom-control-label" for="biopsy-05p-bupivicaine"> {{ "0.5% bupivicaine" | e }}  </label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-05p-bupivicaine-wtih-epinephrine"  id="biopsy-05p-bupivicaine-wtih-epinephrine" />
+                                    <label class="custom-control-label" for="biopsy-05p-bupivicaine-wtih-epinephrine"> {{ "0.5% bupivicaine with epinephrine 1:200,000" | e }}  </label>
+                                </div>
+
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-025p-bupivicaine"  id="biopsy-025p-bupivicaine" />
+                                    <label class="custom-control-label" for="biopsy-025p-bupivicaine"> {{ "0.25% bupivicaine" | e }}  </label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-025p-bupivicaine-wtih-epinephrine"  id="biopsy-025p-bupivicaine-wtih-epinephrine" />
+                                    <label class="custom-control-label" for="biopsy-025p-bupivicaine-wtih-epinephrine"> {{ "0.25% bupivicaine with epinephrine 1:400,000" | e }}  </label>
+                                </div>
+
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-025p-marcaine-wtih-epinephrine"  id="biopsy-025p-marcaine-wtih-epinephrine" />
+                                    <label class="custom-control-label" for="biopsy-025p-marcaine-wtih-epinephrine">{{ " 0.25% marcaine with 1:200,000 epinephrine" | e }}  </label>
+                                </div>
+
+                                <div class="custom-control custom-checkbox col-12">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-09p-bacteriostatic-sodium-chloride"  id="biopsy-09p-bacteriostatic-sodium-chloride" />
+                                    <label class="custom-control-label" for="biopsy-09p-bacteriostatic-sodium-chloride"> {{ "bacteriostatic 0.9% sodium chloride" | e }}</label>
+                                </div>
+
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-sterile-water"  id="biopsy-sterile-water" />
+                                    <label class="custom-control-label" for="biopsy-sterile-water"> {{ "Sterile water" | e }}   </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-1p-ropivacaine"  id="biopsy-1p-ropivacaine" />
+                                    <label class="custom-control-label" for="biopsy-1p-ropivacaine"> {{ "Ropivacaine 1%" | e }}  </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-05p-ropivacaine"  id="biopsy-05p-ropivacaine" />
+                                    <label class="custom-control-label" for="biopsy-05p-ropivacaine"> {{ "Ropivacaine 0.5%" | e }}   </label>
+                                </div>
+
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-84p-sodium-bicarbonate"  id="biopsy-84p-sodium-bicarbonate" />
+                                    <label class="custom-control-label" for="biopsy-84p-sodium-bicarbonate"> {{ "WITH 8.4% sodium bicarbonate in 1:10 ratio (sod bicarbonate: anesthetic)" | e }}   </label>
+                                </div>
+
+                                <input class="form-control mt-2" type="text" id="biopsy-anesthetic-free-text" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" id="hidden" hidden />
+
+                    <input type="text" id="biopsy-Anesthetic-Volume-title" hidden />
+                    <div class="row col-12 mt-3">
+                        <div class="col-4 label">{{ "Anesthetic Volume" | e }}</div>
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-anesthetic-volume-1cc"  id="biopsy-anesthetic-volume-1cc" checked="1" />
+                                    <label class="custom-control-label" for="biopsy-anesthetic-volume-1cc"> {{ "<1cc" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-anesthetic-volume-1-2cc"  id="biopsy-anesthetic-volume-1-2cc" />
+                                    <label class="custom-control-label" for="biopsy-anesthetic-volume-1-2cc"> {{ "1-2cc" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-anesthetic-volume-2-3cc"  id="biopsy-anesthetic-volume-2-3cc" />
+                                    <label class="custom-control-label" for="biopsy-anesthetic-volume-2-3cc"> {{ "2-3cc" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-anesthetic-volume-3-4cc"  id="biopsy-anesthetic-volume-3-4cc" />
+                                    <label class="custom-control-label" for="biopsy-anesthetic-volume-3-4cc"> {{ "3-4cc" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-anesthetic-volume-4-5cc"  id="biopsy-anesthetic-volume-4-5cc" />
+                                    <label class="custom-control-label" for="biopsy-anesthetic-volume-4-5cc"> {{ "4-5cc" | e }} </label>
+                                </div>
+
+                                <input class="form-control mt-2" type="text" id="biopsy-anesthetic-volume-free-text" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" id="hidden" hidden />
+
+                    <input type="text" id="biopsy-Hemostasis-title" hidden />
+                    <div class="row col-12 mt-3">
+                        <div class="col-4 label">{{ "Hemostasis" | e }}</div>
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-aluminum-chloride"  id="biopsy-aluminum-chloride" checked="1"/>
+                                    <label class="custom-control-label" for="biopsy-aluminum-chloride"> {{ "Aluminum Chloride" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-electrodessication"  id="biopsy-electrodessication" />
+                                    <label class="custom-control-label" for="biopsy-electrodessication"> {{ "Electrodessication" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-electrofulguration"  id="biopsy-electrofulguration" />
+                                    <label class="custom-control-label" for="biopsy-electrofulguration"> {{ "Electrofulguration" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-electrocoagulation"  id="biopsy-electrocoagulation" />
+                                    <label class="custom-control-label" for="biopsy-electrocoagulation"> {{ "Electrocoagulation" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-electrocautery"  id="biopsy-electrocautery" />
+                                    <label class="custom-control-label" for="biopsy-electrocautery"> {{ "Electrocautery" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-hemostasis-none"  id="biopsy-hemostasis-none" />
+                                    <label class="custom-control-label" for="biopsy-hemostasis-none"> {{ "None" | e }} </label>
+                                </div>
+
+                                <input class="form-control" type="text"  name=""  id="biopsy-hemostasis-free-text" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" id="hidden" hidden />
+
+                    <input type="text" id="biopsy-Sutures-title" hidden />
+                    <div class="row col-12 mt-3">
+                        <div class="col-4 label">{{ "Sutures" | e }}</div>
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-no-sutures-were-needed"  id="biopsy-no-sutures-were-needed" checked="1" />
+                                    <label class="custom-control-label" for="biopsy-no-sutures-were-needed"> {{ "No Sutures Were Needed" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-3-0-nylon"  id="biopsy-3-0-nylon" />
+                                    <label class="custom-control-label" for="biopsy-3-0-nylon"> {{ "3-0 Nylon" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-4-0-nylon"  id="biopsy-4-0-nylon" />
+                                    <label class="custom-control-label" for="biopsy-4-0-nylon"> {{ "4-0 Nylon" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-5-0-nylon"  id="biopsy-5-0-nylon" />
+                                    <label class="custom-control-label" for="biopsy-5-0-nylon"> {{ "5-0 Nylon" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-6-0-nylon"  id="biopsy-6-0-nylon" />
+                                    <label class="custom-control-label" for="biopsy-6-0-nylon"> {{ "6-0 Nylon" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-3-0-prolene"  id="biopsy-3-0-prolene" />
+                                    <label class="custom-control-label" for="biopsy-3-0-prolene"> {{ "3-0 Prolene" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-4-0-prolene"  id="biopsy-4-0-prolene" />
+                                    <label class="custom-control-label" for="biopsy-4-0-prolene"> {{ "4-0 Prolene" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-5-0-prolene"  id="biopsy-5-0-prolene" />
+                                    <label class="custom-control-label" for="biopsy-5-0-prolene"> {{ "5-0 Prolene" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-6-0-prolene"  id="biopsy-6-0-prolene" />
+                                    <label class="custom-control-label" for="biopsy-6-0-prolene"> {{ "6-0 Prolene" | e }} </label>
+                                </div>
+
+                                <input class="form-control mt-2" type="text" id="biopsy-Sutures-free-text" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" id="hidden" hidden />
+
+                    <input type="text" id="biopsy-Aftercare-(Applied-In-Office)-title" hidden />
+                    <div class="row col-12 mt-3">
+                        <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-mupirocin"  id="biopsy-mupirocin" />
+                                    <label class="custom-control-label" for="biopsy-mupirocin"> {{ "mupirocin" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-polysporin"  id="biopsy-polysporin" />
+                                    <label class="custom-control-label" for="biopsy-polysporin"> {{ "polysporin" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-bacitracin"  id="biopsy-bacitracin" />
+                                    <label class="custom-control-label" for="biopsy-bacitracin"> {{ "bacitracin" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-petrolatum"  id="biopsy-petrolatum" checked="1" />
+                                    <label class="custom-control-label" for="biopsy-petrolatum"> {{ "petrolatum" | e }} </label>
+                                </div>
+                                <input class="form-control mt-2" type="text" id="biopsy-aftercare_free_text" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" id="hidden" hidden />
+
+                    <input type="text" id="biopsy-Bandage-title" hidden />
+                    <div class="row col-12 mt-3">
+                        <div class="col-4 label">{{ "Bandage" | e }}</div>
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-pressure-dressing-with-telfa-gauze-and-hypafix"  id="biopsy-pressure-dressing-with-telfa-gauze-and-hypafix" />
+                                    <label class="custom-control-label" for="biopsy-pressure-dressing-with-telfa-gauze-and-hypafix"> {{ "pressure dressing with telfa, gauze and hypafix" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-pressure-dressing-with-telfa-gauze-and-papertape"  id="biopsy-pressure-dressing-with-telfa-gauze-and-papertape" />
+                                    <label class="custom-control-label" for="biopsy-pressure-dressing-with-telfa-gauze-and-papertape"> {{ "pressure dressing with telfa, gauze and paper tape" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4 col-12">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-regular-bandage"  id="biopsy-regular-bandage" checked="1"/>
+                                    <label class="custom-control-label" for="biopsy-regular-bandage"> {{ "regular bandage" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4 col-12">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-telfa"  id="biopsy-telfa" />
+                                    <label class="custom-control-label" for="biopsy-telfa"> {{ "telfa" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4 col-12">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-paper-tape"  id="biopsy-paper-tape" />
+                                    <label class="custom-control-label" for="biopsy-paper-tape"> {{ "paper tape" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4 col-12">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-hypafix"  id="biopsy-hypafix" />
+                                    <label class="custom-control-label" for="biopsy-hypafix"> {{ "hypafix" | e }} </label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-4 col-12">
+                                    <input class="custom-control-input" type="checkbox"  name="biopsy-hydrocolloid"  id="biopsy-hydrocolloid" />
+                                    <label class="custom-control-label" for="biopsy-hydrocolloid"> {{ "hydrocolloid" | e }} </label>
+                                </div>
+                                <input class="form-control mt-2" type="text" id="biopsy-bandage-free-text" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" id="hidden" hidden />
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="getValuesFromModal('biopsy')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+            </div>
+        </div>
+    </div>
+</div>

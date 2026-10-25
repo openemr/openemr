@@ -1,0 +1,258 @@
+<div class="modal" id="extraction">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Extraction" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input type="text" id="extraction-Skin-prep-title" hidden />
+          <div class="row col-12">
+            <div class="col-4 label">{{ "Skin prep" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-alcohol" #} id="extraction-alcohol" />
+                  <label class="custom-control-label" for="extraction-alcohol"> {{ "Alcohol" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-hibiclens" #} id="extraction-hibiclens" />
+                  <label class="custom-control-label" for="extraction-hibiclens"> {{ "Hibiclens" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-iodine" #} id="extraction-iodine" />
+                  <label class="custom-control-label" for="extraction-iodine"> {{ "Iodine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-lasercyn" #} id="extraction-lasercyn" />
+                  <label class="custom-control-label" for="extraction-lasercyn"> {{ "Lasercyn" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="extraction-skin-prep-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="extraction-Anesthetic-title" hidden />
+          <div class="row col-12 mt-2">
+            <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-none" #} id="extraction-none" />
+                  <label class="custom-control-label" for="extraction-none"> {{ "none" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-topical-5p-lidocaine" #} id="extraction-topical-5p-lidocaine" />
+                  <label class="custom-control-label" for="extraction-topical-5p-lidocaine"> {{ "topical 5% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-topical-23p-lidocaine-7p-tetracaine" #} id="extraction-topical-23p-lidocaine-7p-tetracaine" />
+                  <label class="custom-control-label" for="extraction-topical-23p-lidocaine-7p-tetracaine"> {{ "topical 23% lidocaine, 7% tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine" #} id="extraction-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine" />
+                  <label class="custom-control-label" for="extraction-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine"> {{ "topical 23% lidocaine, 7% tetracaine, 1% phenylephrine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine" #} id="extraction-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine" />
+                  <label class="custom-control-label" for="extraction-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine"> {{ "topical 20% benzocaine, 10% lidocaine, 4% tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-topical-30p-lidocaine" #} id="extraction-topical-30p-lidocaine" />
+                  <label class="custom-control-label" for="extraction-topical-30p-lidocaine"> {{ "topical 30% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-topical-30-lidocaine-7-tetracaine" #} id="extraction-topical-30-lidocaine-7-tetracaine" />
+                  <label class="custom-control-label" for="extraction-topical-30-lidocaine-7-tetracaine"> {{ "Topical 30% Lidocaine, 7% Tetracaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-ice" #} id="extraction-ice" />
+                  <label class="custom-control-label" for="extraction-ice"> {{ "ice" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-fan" #} id="extraction-fan" />
+                  <label class="custom-control-label" for="extraction-fan"> {{ "fan" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-vibration" #} id="extraction-vibration" />
+                  <label class="custom-control-label" for="extraction-vibration"> {{ "vibration" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-1p-lidocaine" #} id="extraction-1p-lidocaine" />
+                  <label class="custom-control-label" for="extraction-1p-lidocaine"> {{ "1% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-1p-lidocaine-with-epinephrine" #} id="extraction-1p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="extraction-1p-lidocaine-with-epinephrine"> {{ "1% lidocaine with epinephrine 1:100,000" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-2p-lidocaine" #} id="extraction-2p-lidocaine" />
+                  <label class="custom-control-label" for="extraction-2p-lidocaine"> {{ "2% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-2p-lidocaine-wtih-epinephrine" #} id="extraction-2p-lidocaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="extraction-2p-lidocaine-wtih-epinephrine"> {{ "2% lidocaine with epinephrine 1:100,000" | e }} </label>
+                </div>
+                
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-05p-lidocaine-with-epinephrine" #} id="extraction-05p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="extraction-05p-lidocaine-with-epinephrine"> {{ "0.5% lidocaine with epinephrine 1:200,000" | e }}</label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-05p-bupivicaine" #} id="extraction-05p-bupivicaine" />
+                  <label class="custom-control-label" for="extraction-05p-bupivicaine"> {{ "0.5% bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-05p-bupivicaine-wtih-epinephrine" #} id="extraction-05p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="extraction-05p-bupivicaine-wtih-epinephrine"> {{ "0.5% bupivicaine with epinephrine 1:200,000" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-025p-bupivicaine" #} id="extraction-025p-bupivicaine" />
+                  <label class="custom-control-label" for="extraction-025p-bupivicaine"> {{ "0.25% bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-025p-bupivicaine-wtih-epinephrine" #} id="extraction-025p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="extraction-025p-bupivicaine-wtih-epinephrine"> {{ "0.25% bupivicaine with epinephrine 1:400,000" | e }}  </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-025p-marcaine-wtih-epinephrine" #} id="extraction-025p-marcaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="extraction-025p-marcaine-wtih-epinephrine">{{ " 0.25% marcaine with 1:200,000 epinephrine" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-09p-bacteriostatic-sodium-chloride" #} id="extraction-09p-bacteriostatic-sodium-chloride" />
+                  <label class="custom-control-label" for="extraction-09p-bacteriostatic-sodium-chloride"> {{ "bacteriostatic 0.9% sodium chloride" | e }}</label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-sterile-water" #} id="extraction-sterile-water" />
+                  <label class="custom-control-label" for="extraction-sterile-water"> {{ "Sterile water" | e }}   </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-1p-ropivacaine" #} id="extraction-1p-ropivacaine" />
+                  <label class="custom-control-label" for="extraction-1p-ropivacaine"> {{ "Ropivacaine 1%" | e }}  </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-05p-ropivacaine" #} id="extraction-05p-ropivacaine" />
+                  <label class="custom-control-label" for="extraction-05p-ropivacaine"> {{ "Ropivacaine 0.5%" | e }}   </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-84p-sodium-bicarbonate" #} id="extraction-84p-sodium-bicarbonate" />
+                  <label class="custom-control-label" for="extraction-84p-sodium-bicarbonate"> {{ "WITH 8.4% sodium bicarbonate in 1:10 ratio (sod bicarbonate: anesthetic)" | e }}   </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="extraction-anesthetic-free-text" />
+              </div>
+            </div>
+          </div>
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="extraction-Anesthetic-Volume-title" hidden />
+          <div class="row col-12 mb-3 mt-3">
+            <div class="col-4 label">{{ "Anesthetic Volume" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-anesthetic-volume-1cc" #} id="extraction-anesthetic-volume-1cc" />
+                  <label class="custom-control-label" for="extraction-anesthetic-volume-1cc"> {{ "<1cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-anesthetic-volume-1-2cc" #} id="extraction-anesthetic-volume-1-2cc" />
+                  <label class="custom-control-label" for="extraction-anesthetic-volume-1-2cc"> {{ "1-2cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-anesthetic-volume-2-3cc" #} id="extraction-anesthetic-volume-2-3cc" />
+                  <label class="custom-control-label" for="extraction-anesthetic-volume-2-3cc"> {{ "2-3cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-anesthetic-volume-3-4cc" #} id="extraction-anesthetic-volume-3-4cc" />
+                  <label class="custom-control-label" for="extraction-anesthetic-volume-3-4cc"> {{ "3-4cc" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-anesthetic-volume-4-5cc" #} id="extraction-anesthetic-volume-4-5cc" />
+                  <label class="custom-control-label" for="extraction-anesthetic-volume-4-5cc"> {{ "4-5cc" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="extraction-anesthetic-volume-free-text" />
+              </div>
+            </div>
+          </div>
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="extraction-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class="form-control  col-9 mr-1" {# name="areas_extraction" #} id="areas_extraction" style="float:left;" cols="90" rows="4"></textarea>
+              <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="extraction" data-target="#bodymap">
+                {{ "BodyMap" | e }}
+              </button>
+            </div>
+          </div>
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-extraction" /></div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="extraction-Extraction-method-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Extraction method" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-comedone-extractor" #} id="extraction-comedone-extractor" />
+                  <label class="custom-control-label" for="extraction-comedone-extractor"> {{ "comedone extractor" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-q-tips" #} id="extraction-q-tips" />
+                  <label class="custom-control-label" for="extraction-q-tips"> {{ "Q-tips" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-power-extraction" #} id="extraction-power-extraction" />
+                  <label class="custom-control-label" for="extraction-power-extraction"> {{ "Power extraction" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="extraction-extraction-method-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="extraction-Aftercare-(Applied-In-Office)-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-spf" #} id="extraction-spf" />
+                  <label class="custom-control-label" for="extraction-spf"> {{ "SPF" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-petrolatum" #} id="extraction-petrolatum" />
+                  <label class="custom-control-label" for="extraction-petrolatum"> {{ "petrolatum" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-triamcinolone-0-1p-ointment" #} id="extraction-triamcinolone-0-1p-ointment" />
+                  <label class="custom-control-label" for="extraction-triamcinolone-0-1p-ointment"> {{ "triamcinolone 0.1% ointment" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="extraction-hydrocortisone-2-5p-ointment" #} id="extraction-hydrocortisone-2-5p-ointment" />
+                  <label class="custom-control-label" for="extraction-hydrocortisone-2-5p-ointment"> {{ "hydrocortisone 2.5% ointment" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="extraction-aftercare_free_text" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('extraction')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

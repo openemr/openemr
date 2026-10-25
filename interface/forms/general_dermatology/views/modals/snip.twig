@@ -1,0 +1,292 @@
+<div class="modal" id="snip">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Snip Removal" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+
+          <input type="text" id="snip-Skin-prep-title" hidden />
+          <div class="row col-12">
+            <div class="col-4 label">{{ "Skin Prep" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-alcohol" #} id="snip-alcohol" />
+                  <label class="custom-control-label" for="snip-alcohol"> {{ "Alcohol" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-hibiclens" #} id="snip-hibiclens" />
+                  <label class="custom-control-label" for="snip-hibiclens"> {{ "Hibiclens" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-iodine" #} id="snip-iodine" />
+                  <label class="custom-control-label" for="snip-iodine"> {{ "Iodine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-lasercyn" #} id="snip-lasercyn" />
+                  <label class="custom-control-label" for="snip-lasercyn"> {{ "Lasercyn" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="snip-skin-prep-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="snip-Anesthetic-title" hidden />
+          <div class="row col-12 mt-2">
+            <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-none" #} id="snip-none" />
+                  <label class="custom-control-label" for="snip-none"> {{ "none" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-topical-5p-lidocaine" #} id="snip-topical-5p-lidocaine" />
+                  <label class="custom-control-label" for="snip-topical-5p-lidocaine"> {{ "topical 5% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-topical-23p-lidocaine-7p-tetracaine" #} id="snip-topical-23p-lidocaine-7p-tetracaine" />
+                  <label class="custom-control-label" for="snip-topical-23p-lidocaine-7p-tetracaine"> {{ "topical 23% lidocaine, 7% tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine" #} id="snip-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine" />
+                  <label class="custom-control-label" for="snip-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine"> {{ "topical 23% lidocaine, 7% tetracaine, 1% phenylephrine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine" #} id="snip-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine" />
+                  <label class="custom-control-label" for="snip-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine"> {{ "topical 20% benzocaine, 10% lidocaine, 4% tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-topical-30p-lidocaine" #} id="snip-topical-30p-lidocaine" />
+                  <label class="custom-control-label" for="snip-topical-30p-lidocaine"> {{ "topical 30% lidocaine" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-topical-30-lidocaine-7-tetracaine" #} id="snip-topical-30-lidocaine-7-tetracaine" />
+                  <label class="custom-control-label" for="snip-topical-30-lidocaine-7-tetracaine"> {{ "Topical 30% Lidocaine, 7% Tetracaine" | e }}  </label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-ice" #} id="snip-ice" />
+                  <label class="custom-control-label" for="snip-ice"> {{ "ice" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-fan" #} id="snip-fan" />
+                  <label class="custom-control-label" for="snip-fan"> {{ "fan" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-vibration" #} id="snip-vibration" />
+                  <label class="custom-control-label" for="snip-vibration"> {{ "vibration" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-1p-lidocaine" #} id="snip-1p-lidocaine" />
+                  <label class="custom-control-label" for="snip-1p-lidocaine"> {{ "1% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-1p-lidocaine-with-epinephrine" #} id="snip-1p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="snip-1p-lidocaine-with-epinephrine"> {{ "1% lidocaine with epinephrine 1:100,000" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-2p-lidocaine" #} id="snip-2p-lidocaine" />
+                  <label class="custom-control-label" for="snip-2p-lidocaine"> {{ "2% lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-2p-lidocaine-wtih-epinephrine" #} id="snip-2p-lidocaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="snip-2p-lidocaine-wtih-epinephrine"> {{ "2% lidocaine with epinephrine 1:100,000" | e }} </label>
+                </div>
+                
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-05p-lidocaine-with-epinephrine" #} id="snip-05p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="snip-05p-lidocaine-with-epinephrine"> {{ "0.5% lidocaine with epinephrine 1:200,000" | e }}</label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-05p-bupivicaine" #} id="snip-05p-bupivicaine" />
+                  <label class="custom-control-label" for="snip-05p-bupivicaine"> {{ "0.5% bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-05p-bupivicaine-wtih-epinephrine" #} id="snip-05p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="snip-05p-bupivicaine-wtih-epinephrine"> {{ "0.5% bupivicaine with epinephrine 1:200,000" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-025p-bupivicaine" #} id="snip-025p-bupivicaine" />
+                  <label class="custom-control-label" for="snip-025p-bupivicaine"> {{ "0.25% bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-025p-bupivicaine-wtih-epinephrine" #} id="snip-025p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="snip-025p-bupivicaine-wtih-epinephrine"> {{ "0.25% bupivicaine with epinephrine 1:400,000" | e }}  </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-025p-marcaine-wtih-epinephrine" #} id="snip-025p-marcaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="snip-025p-marcaine-wtih-epinephrine">{{ " 0.25% marcaine with 1:200,000 epinephrine" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-09p-bacteriostatic-sodium-chloride" #} id="snip-09p-bacteriostatic-sodium-chloride" />
+                  <label class="custom-control-label" for="snip-09p-bacteriostatic-sodium-chloride"> {{ "bacteriostatic 0.9% sodium chloride" | e }}</label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-sterile-water" #} id="snip-sterile-water" />
+                  <label class="custom-control-label" for="snip-sterile-water"> {{ "Sterile water" | e }}   </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-1p-ropivacaine" #} id="snip-1p-ropivacaine" />
+                  <label class="custom-control-label" for="snip-1p-ropivacaine"> {{ "Ropivacaine 1%" | e }}  </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-05p-ropivacaine" #} id="snip-05p-ropivacaine" />
+                  <label class="custom-control-label" for="snip-05p-ropivacaine"> {{ "Ropivacaine 0.5%" | e }}   </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-84p-sodium-bicarbonate" #} id="snip-84p-sodium-bicarbonate" />
+                  <label class="custom-control-label" for="snip-84p-sodium-bicarbonate"> {{ "WITH 8.4% sodium bicarbonate in 1:10 ratio (sod bicarbonate: anesthetic)" | e }}   </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="snip-anesthetic-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="snip-Anesthetic-Volume-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Anesthetic Volume" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-anesthetic-volume-1cc" #} id="snip-anesthetic-volume-1cc" />
+                  <label class="custom-control-label" for="snip-anesthetic-volume-1cc"> {{ "<1cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-anesthetic-volume-1-2cc" #} id="snip-anesthetic-volume-1-2cc" />
+                  <label class="custom-control-label" for="snip-anesthetic-volume-1-2cc"> {{ "1-2cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-anesthetic-volume-2-3cc" #} id="snip-anesthetic-volume-2-3cc" />
+                  <label class="custom-control-label" for="snip-anesthetic-volume-2-3cc"> {{ "2-3cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-anesthetic-volume-3-4cc" #} id="snip-anesthetic-volume-3-4cc" />
+                  <label class="custom-control-label" for="snip-anesthetic-volume-3-4cc"> {{ "3-4cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-anesthetic-volume-4-5cc" #} id="snip-anesthetic-volume-4-5cc" />
+                  <label class="custom-control-label" for="snip-anesthetic-volume-4-5cc"> {{ "4-5cc" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="snip-anesthetic-volume-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="snip-method-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Method" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-pickups-and-tissue-scissors" #} id="snip-pickups-and-tissue-scissors" />
+                  <label class="custom-control-label" for="snip-pickups-and-tissue-scissors"> {{ "Pickups and Tissue Scissors" | e }} </label>
+                </div>
+                
+                <input class="form-control" type="text" {# name="" #} id="snip-method-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="snip-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class="col-9 form-control mr-1" {# name="areas_snip" #} id="areas_snip"  style="float:left;" cols="90" rows="4"></textarea>
+              <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="snip" data-target="#bodymap">
+                {{ "BodyMap" | e }}
+              </button>
+            </div>
+          </div>
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-snip" /></div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="snip-Treatment-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Treatment #" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="snip-Treatment-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="snip-type-of-lesion-treated-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Type(s) of lesion(s) treated" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-skin-tags" #} id="snip-skin-tags" />
+                  <label class="custom-control-label" for="snip-skin-tags"> {{ "Skin Tags" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-dermatosis-papulosa-nigra" #} id="snip-dermatosis-papulosa-nigra" />
+                  <label class="custom-control-label" for="snip-dermatosis-papulosa-nigra"> {{ "Dermatosis Papulosa Nigra" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-cherry-angiomas" #} id="snip-cherry-angiomas" />
+                  <label class="custom-control-label" for="snip-cherry-angiomas"> {{ "Cherry Angiomas" | e }} </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="snip-type-of-lesion-treated-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="snip-Aftercare-(Applied-In-Office)-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-spf" #} id="snip-spf" />
+                  <label class="custom-control-label" for="snip-spf"> {{ "SPF" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-petrolatum" #} id="snip-petrolatum" />
+                  <label class="custom-control-label" for="snip-petrolatum"> {{ "Petrolatum" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-triamcinolone-0-1p-ointment" #} id="snip-triamcinolone-0-1p-ointment" />
+                  <label class="custom-control-label" for="snip-triamcinolone-0-1p-ointment"> {{ "Triamcinolone 0.1% Ointment" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="snip-hydrocortisone-2-5p-ointment" #} id="snip-hydrocortisone-2-5p-ointment" />
+                  <label class="custom-control-label" for="snip-hydrocortisone-2-5p-ointment"> {{ "Hydrocortisone 2.5% Ointment" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="snip-aftercare_free_text" />
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('snip')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

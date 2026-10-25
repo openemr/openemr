@@ -1,0 +1,301 @@
+<div class="modal" id="microneedling">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Microneedling" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+
+        <input type="text" id="microneedling-Skin-prep-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Skin prep" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox mr-3">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-alcohol" #} id="microneedling-alcohol" />
+                <label class="custom-control-label" for="microneedling-alcohol"> {{ "Alcohol" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-3">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-hibiclens" #} id="microneedling-hibiclens" />
+                <label class="custom-control-label" for="microneedling-hibiclens"> {{ "Hibiclens" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-3">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-iodine" #} id="microneedling-iodine" />
+                <label class="custom-control-label" for="microneedling-iodine"> {{ "Iodine" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-3">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-lasercyn" #} id="microneedling-lasercyn" />
+                <label class="custom-control-label" for="microneedling-lasercyn"> {{ "Lasercyn" | e }}</label>
+            </div>
+            <input class="form-control mt-2" type="text" id="microneedling-freeS" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Anesthetic-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-none" #} id="microneedling-none" />
+                <label class="custom-control-label" for="microneedling-none"> {{ "None" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-2">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-topical-5-lidocaine" #} id="microneedling-topical-5-lidocaine" />
+                <label class="custom-control-label" for="microneedling-topical-5-lidocaine"> {{ "Topical 5% Lidocaine" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-topical-23-lidocaine-7-tetracaine" #} id="microneedling-topical-23-lidocaine-7-tetracaine" />
+                <label class="custom-control-label" for="microneedling-topical-23-lidocaine-7-tetracaine"> {{ "Topical 23% Lidocaine, 7% Tetracaine" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-2">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-topical-23-lidocaine-7-tetracaine-1-phenylephrine" #} id="microneedling-topical-23-lidocaine-7-tetracaine-1-phenylephrine" />
+                <label class="custom-control-label" for="microneedling-topical-23-lidocaine-7-tetracaine-1-phenylephrine"> {{ "Topical 23% Lidocaine, 7% Tetracaine, 1% Phenylephrine" | e }} </label>
+            </div>
+
+            <div class="custom-control custom-checkbox col-12">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-topical-20-benzocaine-10-lidocaine-4-tetracaine" #} id="microneedling-topical-20-benzocaine-10-lidocaine-4-tetracaine" />
+                <label class="custom-control-label" for="microneedling-topical-20-benzocaine-10-lidocaine-4-tetracaine"> {{ "Topical 20% Benzocaine, 10% Lidocaine, 4% Tetracaine" | e }}</label>
+            </div>
+
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-topical-30-lidocaine" #} id="microneedling-topical-30-lidocaine" />
+                <label class="custom-control-label" for="microneedling-topical-30-lidocaine"> {{ "Topical 30% Lidocaine" | e }}  </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-2">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-topical-30-lidocaine-7-tetracaine" #} id="microneedling-topical-30-lidocaine-7-tetracaine" />
+                <label class="custom-control-label" for="microneedling-topical-30-lidocaine-7-tetracaine"> {{ "Topical 30% Lidocaine, 7% Tetracaine" | e }}  </label>
+            </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-ice" #} id="microneedling-ice" />
+                <label class="custom-control-label" for="microneedling-ice"> {{ "Ice" | e }}   </label>
+            </div>
+                <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-fan" #} id="microneedling-fan" />
+                <label class="custom-control-label" for="microneedling-fan"> {{ "Fan" | e }}  </label>
+            </div>
+                <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-vibration" #} id="microneedling-vibration" />
+                <label class="custom-control-label" for="microneedling-vibration"> {{ "Vibration" | e }}   </label>
+            </div>
+            <input class="form-control mt-2" type="text" id="microneedling-anesthetic-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Area(s)-Treated-title" hidden />
+        <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+                <textarea class="col-9 form-control mr-1" {# name="areas_microneedling" #} id="areas_microneedling"  style="float:left;" cols="90" rows="4"></textarea>
+                <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="microneedling" data-target="#bodymap">
+                {{ "BodyMap" | e }}
+                </button>
+            </div>
+        </div>
+        <div class="row col-12 mt-3" style="display:none;">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-microneedling" /></div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Infusions-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Infusions" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="microneedling-prp" #} id="microneedling-prp" />
+                    <label class="custom-control-label" for="microneedling-prp"> {{ "PRP" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="microneedling-Infusions-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+
+        <input type="text" id="microneedling-Location-1-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Location # 1" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="microneedling-Location-1-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Depth-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Depth (mm)" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="microneedling-Depth-1-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Location-2-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Location # 2" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="microneedling-Location-2-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Depth-2-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Depth (mm)" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="microneedling-Depth-2-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Location-3-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Location # 3" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="microneedling-Location-3-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Depth-3-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Depth (mm)" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="microneedling-Depth-3-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Location-4-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Location # 4" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="microneedling-Location-4-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Depth-4-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Depth (mm)" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="microneedling-Depth-4-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Location-5-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Location # 5" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="microneedling-Location-5-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Depth-5-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Depth (mm)" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="microneedling-Depth-5-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Location-6-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Location # 6" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="microneedling-Location-6-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Depth-6-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Depth (mm)" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="microneedling-Depth-6-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Additional-info-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Additional info" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="microneedling-additional-info-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="microneedling-Aftercare-(Applied-In-Office)-title" hidden />
+        <div class="row col-12">
+        <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox col-12">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-spf" #} id="microneedling-spf" />
+                <label class="custom-control-label" for="microneedling-spf"> {{ "SPF" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox col-12">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-petrolatum" #} id="microneedling-petrolatum" />
+                <label class="custom-control-label" for="microneedling-petrolatum"> {{ "petrolatum" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-triamcinolone-0-1-ointment" #} id="microneedling-triamcinolone-0-1p-ointment" />
+                <label class="custom-control-label" for="microneedling-triamcinolone-0-1p-ointment"> {{ "Triamcinolone 0.1% Ointment" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="microneedling-hydrocortisone-2-5-ointment" #} id="microneedling-hydrocortisone-2-5p-ointment" />
+                <label class="custom-control-label" for="microneedling-hydrocortisone-2-5p-ointment"> {{ "Hydrocortisone 2.5% Ointment" | e }} </label>
+            </div>
+            <input class="form-control mt-2" type="text" id="microneedling_aftercare_free_text" />
+            </div>
+        </div>
+        </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('microneedling')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

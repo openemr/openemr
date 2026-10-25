@@ -1,0 +1,231 @@
+<div class="modal" id="peel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Peel" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+
+          <input type="text" id="peel-Peel-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Peel" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="peel-Peel-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="peel-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class="col-9 form-control mr-1" {# name="areas_peel" #} id="areas_peel"  style="float:left;" cols="90" rows="4"></textarea>
+              <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="peel" data-target="#bodymap">
+                {{ "BodyMap" | e }}
+              </button>
+            </div>
+          </div>
+          <div style="display:none;" class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-peel" /></div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="peel-Treatment-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Treatment #" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="peel-Treatment-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="peel-Anesthetic-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-none" #} id="peel-none" />
+                  <label class="custom-control-label" for="peel-none"> {{ "None" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-topical-5-lidocaine" #} id="peel-topical-5-lidocaine" />
+                  <label class="custom-control-label" for="peel-topical-5-lidocaine"> {{ "Topical 5% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-topical-23-lidocaine-7-tetracaine" #} id="peel-topical-23-lidocaine-7-tetracaine" />
+                  <label class="custom-control-label" for="peel-topical-23-lidocaine-7-tetracaine"> {{ "Topical 23% Lidocaine 7% Tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-topical-23-lidocaine-7-tetracaine-1-phenylephrine" #} id="peel-topical-23-lidocaine-7-tetracaine-1-phenylephrine" />
+                  <label class="custom-control-label" for="peel-topical-23-lidocaine-7-tetracaine-1-phenylephrine"> {{ "Topical 23% Lidocaine 7% Tetracaine 1% Phenylephrine" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-topical-20-benzocaine-10-lidocaine-4-tetracaine" #} id="peel-topical-20-benzocaine-10-lidocaine-4-tetracaine" />
+                  <label class="custom-control-label" for="peel-topical-20-benzocaine-10-lidocaine-4-tetracaine"> {{ "Topical 20% Benzocaine 10% Lidocaine 4% Tetracaine" | e }}</label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-topical-30-lidocaine" #} id="peel-topical-30-lidocaine" />
+                  <label class="custom-control-label" for="peel-topical-30-lidocaine"> {{ "Topical 30% Lidocaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-topical-30-lidocaine-7-tetracaine" #} id="peel-topical-30-lidocaine-7-tetracaine" />
+                  <label class="custom-control-label" for="peel-topical-30-lidocaine-7-tetracaine"> {{ "Topical 30% Lidocaine 7% Tetracaine" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-ice" #} id="peel-ice" />
+                  <label class="custom-control-label" for="peel-ice"> {{ "Ice" | e }}   </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-fan" #} id="peel-fan" />
+                  <label class="custom-control-label" for="peel-fan"> {{ "Fan" | e }}  </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-vibration" #} id="peel-vibration" />
+                  <label class="custom-control-label" for="peel-vibration"> {{ "Vibration" | e }}   </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="peel-anesthetic-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          
+          <input type="text" id="peel-pre-op-meds-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Pre-op Meds" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-none-meds" #} id="peel-none-meds" />
+                  <label class="custom-control-label" for="peel-none-meds"> {{ "None" | e }} </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="peel-pre-op-meds-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="peel-Prep-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Prep" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+              <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-acetone" #} id="peel-acetone" />
+                  <label class="custom-control-label" for="peel-acetone"> {{ "Acetone" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-petrolatum-for-protection-of-mucous-membranes" #} id="peel-petrolatum-for-protection-of-mucous-membranes" />
+                  <label class="custom-control-label" for="peel-petrolatum-for-protection-of-mucous-membranes"> {{ "Petrolatum For Protection of Mucous Membranes" | e }} </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="peel-Prep-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="peel-Passes-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "# Passes" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="peel-Passes-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="peel-Treatment-time-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Treatment time" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="peel-Treatment-time-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="peel-End-point-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "End-point" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-none-ep" #} id="peel-none-ep" />
+                  <label class="custom-control-label" for="peel-none-ep"> {{ "None" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-frosting" #} id="peel-frosting" />
+                  <label class="custom-control-label" for="peel-frosting"> {{ "Frosting" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-erythema" #} id="peel-erythema" />
+                  <label class="custom-control-label" for="peel-erythema"> {{ "Erythema" | e }} </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="peel-end-point-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="peel-Aftercare-(Applied-In-Office)-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-spf" #} id="peel-spf" />
+                  <label class="custom-control-label" for="peel-spf"> {{ "SPF" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-petrolatum" #} id="peel-petrolatum" />
+                  <label class="custom-control-label" for="peel-petrolatum"> {{ "Petrolatum" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-triamcinolone-0-1p-ointment" #} id="peel-triamcinolone-0-1p-ointment" />
+                  <label class="custom-control-label" for="peel-triamcinolone-0-1p-ointment"> {{ "Triamcinolone 0.1% Ointment" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="peel-hydrocortisone-2-5p-ointment" #} id="peel-hydrocortisone-2-5p-ointment" />
+                  <label class="custom-control-label" for="peel-hydrocortisone-2-5p-ointment"> {{ "Hydrocortisone 2.5% Ointment" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="peel-aftercare_free_text" />
+              </div>
+            </div>
+          </div>
+
+          
+          <input type="text" id="peel-Notes-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Notes" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="peel-Notes-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('peel')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

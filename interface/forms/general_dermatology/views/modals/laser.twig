@@ -1,0 +1,401 @@
+<div class="modal" id="laser">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Laser" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+
+          <input type="text" id="laser-Laser-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Laser" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="laser-Laser-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="laser-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class="col-9 form-control mr-1" {# name="areas_laser" #} id="areas_laser"  style="float:left;" cols="90" rows="4"></textarea>
+              <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="laser" data-target="#bodymap">
+                {{ "BodyMap" | e }}
+              </button>
+            </div>
+          </div>
+          <div style="display:none;" class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-laser" /></div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="laser-Treatment-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Treatment #" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="laser-Treatment-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="laser-Anesthetic-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-none" #} id="laser-none" />
+                  <label class="custom-control-label" for="laser-none"> {{ "None" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-topical-5p-lidocaine" #} id="laser-topical-5p-lidocaine" />
+                  <label class="custom-control-label" for="laser-topical-5p-lidocaine"> {{ "Topical 5% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-topical-23p-lidocaine-7p-tetracaine" #} id="laser-topical-23p-lidocaine-7p-tetracaine" />
+                  <label class="custom-control-label" for="laser-topical-23p-lidocaine-7p-tetracaine"> {{ "Topical 23% Lidocaine, 7% Tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine" #} id="laser-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine" />
+                  <label class="custom-control-label" for="laser-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine"> {{ "Topical 23% Lidocaine, 7% Tetracaine, 1% Phenylephrine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine" #} id="laser-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine" />
+                  <label class="custom-control-label" for="laser-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine"> {{ "Topical 20% Benzocaine, 10% Lidocaine, 4% Tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-topical-30p-lidocaine" #} id="laser-topical-30p-lidocaine" />
+                  <label class="custom-control-label" for="laser-topical-30p-lidocaine"> {{ "Topical 30% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-topical-30-lidocaine-7-tetracaine" #} id="laser-topical-30-lidocaine-7-tetracaine" />
+                  <label class="custom-control-label" for="laser-topical-30-lidocaine-7-tetracaine"> {{ "Topical 30% Lidocaine, 7% Tetracaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-ice" #} id="laser-ice" />
+                  <label class="custom-control-label" for="laser-ice"> {{ "Ice" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-fan" #} id="laser-fan" />
+                  <label class="custom-control-label" for="laser-fan"> {{ "Fan" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-vibration" #} id="laser-vibration" />
+                  <label class="custom-control-label" for="laser-vibration"> {{ "Vibration" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-1p-lidocaine" #} id="laser-1p-lidocaine" />
+                  <label class="custom-control-label" for="laser-1p-lidocaine"> {{ "1% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-1p-lidocaine-with-epinephrine" #} id="laser-1p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="laser-1p-lidocaine-with-epinephrine"> {{ "1% Lidocaine with Epinephrine 1:100,000" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-2p-lidocaine" #} id="laser-2p-lidocaine" />
+                  <label class="custom-control-label" for="laser-2p-lidocaine"> {{ "2% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-2p-lidocaine-wtih-epinephrine" #} id="laser-2p-lidocaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="laser-2p-lidocaine-wtih-epinephrine"> {{ "2% Lidocaine with Epinephrine 1:100,000" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-05p-lidocaine-with-epinephrine" #} id="laser-05p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="laser-05p-lidocaine-with-epinephrine"> {{ "0.5% Lidocaine with Epinephrine 1:200,000" | e }}</label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-05p-bupivicaine" #} id="laser-05p-bupivicaine" />
+                  <label class="custom-control-label" for="laser-05p-bupivicaine"> {{ "0.5% Bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-05p-bupivicaine-wtih-epinephrine" #} id="laser-05p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="laser-05p-bupivicaine-wtih-epinephrine"> {{ "0.5% Bupivicaine with Epinephrine 1:200,000" | e }}  </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-025p-bupivicaine" #} id="laser-025p-bupivicaine" />
+                  <label class="custom-control-label" for="laser-025p-bupivicaine"> {{ "0.25% Bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-025p-bupivicaine-wtih-epinephrine" #} id="laser-025p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="laser-025p-bupivicaine-wtih-epinephrine"> {{ "0.25% Bupivicaine with Epinephrine 1:400,000" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-025p-marcaine-wtih-epinephrine" #} id="laser-025p-marcaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="laser-025p-marcaine-wtih-epinephrine"> {{ "0.25% Marcaine with 1:200,000 Epinephrine" | e }}  </label>
+                </div>
+                 <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-09p-bacteriostatic-sodium-chloride" #} id="laser-09p-bacteriostatic-sodium-chloride" />
+                  <label class="custom-control-label" for="laser-09p-bacteriostatic-sodium-chloride"> {{ "Bacteriostatic 0.9% Sodium Chloride" | e }}</label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-sterile-water" #} id="laser-sterile-water" />
+                  <label class="custom-control-label" for="laser-sterile-water"> {{ "Sterile water" | e }}   </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-1p-ropivacaine" #} id="laser-1p-ropivacaine" />
+                  <label class="custom-control-label" for="laser-1p-ropivacaine"> {{ "Ropivacaine 1%" | e }}  </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-05p-ropivacaine" #} id="laser-05p-ropivacaine" />
+                  <label class="custom-control-label" for="laser-05p-ropivacaine"> {{ "Ropivacaine 0.5%" | e }}   </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-84p-sodium-bicarbonate" #} id="laser-84p-sodium-bicarbonate" />
+                  <label class="custom-control-label" for="laser-84p-sodium-bicarbonate"> {{ "WITH 8.4% Sodium Bicarbonate in 1:10 Ratio (Sod Bicarbonate: Anesthetic)" | e }}   </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="laser-anesthetic-free-text" />
+              </div>
+            </div>
+          </div>
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="laser-Anesthetic-Volume-title" hidden />
+          <div class="row col-12 mb-3 mt-3">
+            <div class="col-4 label">{{ "Anesthetic Volume" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-anesthetic-volume-1cc" #} id="laser-anesthetic-volume-1cc" />
+                  <label class="custom-control-label" for="laser-anesthetic-volume-1cc"> {{ "<1cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-anesthetic-volume-1-2cc" #} id="laser-anesthetic-volume-1-2cc" />
+                  <label class="custom-control-label" for="laser-anesthetic-volume-1-2cc"> {{ "1-2cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-anesthetic-volume-2-3cc" #} id="laser-anesthetic-volume-2-3cc" />
+                  <label class="custom-control-label" for="laser-anesthetic-volume-2-3cc"> {{ "2-3cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-anesthetic-volume-3-4cc" #} id="laser-anesthetic-volume-3-4cc" />
+                  <label class="custom-control-label" for="laser-anesthetic-volume-3-4cc"> {{ "3-4cc" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-anesthetic-volume-4-5cc" #} id="laser-anesthetic-volume-4-5cc" />
+                  <label class="custom-control-label" for="laser-anesthetic-volume-4-5cc"> {{ "4-5cc" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="laser-anesthetic-volume-free-text" />
+              </div>
+            </div>
+          </div>
+          
+          <input type="text" id="laser-pre-op-meds-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Pre-op Meds" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-none-meds" #} id="laser-none-meds" />
+                  <label class="custom-control-label" for="laser-none-meds"> {{ "None" | e }} </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="laser-pre-op-meds-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="laser-patient-protective-eyewear-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Patient Protective Eyewear" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-metal-shields" #} id="laser-metal-shields" />
+                  <label class="custom-control-label" for="laser-metal-shields"> {{ "Metal Shields" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-disposable-stickers" #} id="laser-disposable-stickers" />
+                  <label class="custom-control-label" for="laser-disposable-stickers"> {{ "Disposable Laser Stickers" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-gauze" #} id="laser-gauze" />
+                  <label class="custom-control-label" for="laser-gauze"> {{ "Gauze" | e }} </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="laser-patient-protective-eyewear-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="laser-Spot-Size-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Spot Size" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="laser-Spot-Size-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="laser-Pulse-Duration-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Pulse Duration" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="laser-Pulse-Duration-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="laser-Fluence-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Fluence" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="laser-Fluence-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="laser-Pulses-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "# Pulses" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="laser-Pulses-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="laser-Passes-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "# Passes" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="laser-Passes-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="laser-Cooling-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Cooling" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-none-cool" #} id="laser-none-cool" />
+                  <label class="custom-control-label" for="laser-none-cool"> {{ "None" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-cryogen-spray" #} id="laser-cryogen-spray" />
+                  <label class="custom-control-label" for="laser-cryogen-spray"> {{ "Cryogen Spray" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-dcd" #} id="laser-dcd" />
+                  <label class="custom-control-label" for="laser-dcd"> {{ "DCD" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-contact" #} id="laser-contact" />
+                  <label class="custom-control-label" for="laser-contact"> {{ "Contact" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-chilled-air" #} id="laser-chilled-air" />
+                  <label class="custom-control-label" for="laser-chilled-air"> {{ "Chilled Air" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-fan-cool" #} id="laser-fan-cool" />
+                  <label class="custom-control-label" for="laser-fan-cool"> {{ "Fan" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-gel-based" #} id="laser-gel-based" />
+                  <label class="custom-control-label" for="laser-gel-based"> {{ "Gel-Based" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-ice-cool" #} id="laser-ice-cool" />
+                  <label class="custom-control-label" for="laser-ice-cool"> {{ "Ice" | e }} </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="laser-cooling-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="laser-End-point-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "End-point" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-purpura" #} id="laser-purpura" />
+                  <label class="custom-control-label" for="laser-purpura"> {{ "Purpura" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-whitening" #} id="laser-whitening" />
+                  <label class="custom-control-label" for="laser-whitening"> {{ "Whitening" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-erythema" #} id="laser-erythema" />
+                  <label class="custom-control-label" for="laser-erythema"> {{ "Erythema" | e }} </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="laser-end-point-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="laser-Aftercare-(Applied-In-Office)-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-spf" #} id="laser-spf" />
+                  <label class="custom-control-label" for="laser-spf"> {{ "SPF" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-petrolatum" #} id="laser-petrolatum" />
+                  <label class="custom-control-label" for="laser-petrolatum"> {{ "Petrolatum" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-triamcinolone-0-1p-ointment" #} id="laser-triamcinolone-0-1p-ointment" />
+                  <label class="custom-control-label" for="laser-triamcinolone-0-1p-ointment"> {{ "Triamcinolone 0.1% Ointment" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="laser-hydrocortisone-2-5p-ointment" #} id="laser-hydrocortisone-2-5p-ointment" />
+                  <label class="custom-control-label" for="laser-hydrocortisone-2-5p-ointment"> {{ "Hydrocortisone 2.5% Ointment" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="laser-aftercare_free_text" />
+              </div>
+            </div>
+          </div>
+
+          
+          <input type="text" id="laser-Notes-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Notes" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="laser-Notes-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('laser')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

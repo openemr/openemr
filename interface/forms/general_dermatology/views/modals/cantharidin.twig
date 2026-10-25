@@ -1,0 +1,78 @@
+<div class="modal" id="cantharidin">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Cantharidin" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <!-- <input
+                        type="text"
+                        id="cantharidin-TreatmentArea-title"
+                        hidden
+                    /> -->
+          
+
+          <input type="text" id="cantharidin-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class="form-control col-9 mr-1" {# name="areas_cantharidin" #} id="areas_cantharidin" style="float:left;"
+                cols="90" rows="4"></textarea>
+              <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="cantharidin"
+                data-target="#bodymap">
+                {{ "BodyMap" | e }}
+              </button>
+            </div>
+            <div class="col-2">
+
+            </div>
+          </div>
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control mt-3" type="text" id="areas-count-cantharidin" /></div>
+          </div>
+          <input type="text" id="cantharidin-Dressing-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Dressing" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="cantharidin-none" #} id="cantharidin_none" />
+                  <label class="custom-control-label" for="cantharidin_none"> {{ "none" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input " type="checkbox" {# name="cantharidin-paper" #} id="cantharidin_paper" />
+                  <label class="custom-control-label" for="cantharidin_paper"> {{ "paper tape" | e }} </label>
+                </div>
+                <input class="form-control mt-2 mb-2" type="text" id="cantharidin-dressing-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="cantharidin-Soap-title" hidden />
+          <div class="row col-12 mt-2">
+            <div class="col-4 label"> {{ "Patient was instructed to wash areas treated with mild soap and water in:" | e }} </div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="cantharidin-4h" #} id="cantharidin_4h" />
+                  <label class="custom-control-label" for="cantharidin_4h"> 4 hours </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="cantharidin-6h" #} id="cantharidin_6h" />
+                  <label class="custom-control-label" for="cantharidin_6h"> 6 hours </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="cantharidin_time_free_text" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('cantharidin')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

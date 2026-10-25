@@ -1,0 +1,167 @@
+<div class="modal" id="silver">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Silver Nitrate" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+
+        <input type="text" id="silver-Skin-prep-title" hidden />
+          <div class="row col-12">
+            <div class="col-4 label">{{ "Skin Prep" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-alcohol" #} id="silver-alcohol" />
+                  <label class="custom-control-label" for="silver-alcohol"> {{ "Alcohol" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-hibiclens" #} id="silver-hibiclens" />
+                  <label class="custom-control-label" for="silver-hibiclens"> {{ "Hibiclens" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-iodine" #} id="silver-iodine" />
+                  <label class="custom-control-label" for="silver-iodine"> {{ "Iodine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-lasercyn" #} id="silver-lasercyn" />
+                  <label class="custom-control-label" for="silver-lasercyn"> {{ "Lasercyn" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="silver-skin-prep-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="silver-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class="col-9 form-control mr-1" {# name="areas_silver" #} id="areas_silver"  style="float:left;" cols="90" rows="4"></textarea>
+              <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="silver" data-target="#bodymap">
+                {{ "BodyMap" | e }}
+              </button>
+            </div>
+          </div>
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-silver" /></div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="silver-post-op-effects-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Post-op effects" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-no-change" #} id="silver-no-change" />
+                  <label class="custom-control-label" for="silver-no-change"> {{ "No Change" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-erythema" #} id="silver-erythema" />
+                  <label class="custom-control-label" for="silver-erythema"> {{ "Erythema" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-bleeding" #} id="silver-bleeding" />
+                  <label class="custom-control-label" for="silver-bleeding"> {{ "Bleeding" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-epidermal-damage" #} id="silver-epidermal-damage" />
+                  <label class="custom-control-label" for="silver-epidermal-damage"> {{ "Epidermal Damage" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-swelling" #} id="silver-swelling" />
+                  <label class="custom-control-label" for="silver-swelling"> {{ "Swelling" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-erythema" #} id="silver-blisters" />
+                  <label class="custom-control-label" for="silver-blisters"> {{ "Blisters" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-pain" #} id="silver-pain" />
+                  <label class="custom-control-label" for="silver-pain"> {{ "Pain" | e }} </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="silver-post-op-effects-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+           <input type="text" id="silver-Aftercare-(Applied-In-Office)-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-mupirocin" #} id="silver-mupirocin" />
+                  <label class="custom-control-label" for="silver-mupirocin"> {{ "mupirocin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-polysporin" #} id="silver-polysporin" />
+                  <label class="custom-control-label" for="silver-polysporin"> {{ "polysporin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-bacitracin" #} id="silver-bacitracin" />
+                  <label class="custom-control-label" for="silver-bacitracin"> {{ "bacitracin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-petrolatum" #} id="silver-petrolatum" />
+                  <label class="custom-control-label" for="silver-petrolatum"> {{ "petrolatum" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="silver-aftercare_free_text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="silver-Bandage-title" hidden />
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Bandage" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-pressure-dressing-with-telfa-gauze-and-hypafix" #} id="silver-pressure-dressing-with-telfa-gauze-and-hypafix" />
+                  <label class="custom-control-label" for="silver-pressure-dressing-with-telfa-gauze-and-hypafix"> {{ "pressure dressing with telfa, gauze and hypafix" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-pressure-dressing-with-telfa-gauze-and-papertape" #} id="silver-pressure-dressing-with-telfa-gauze-and-papertape" />
+                  <label class="custom-control-label" for="silver-pressure-dressing-with-telfa-gauze-and-papertape"> {{ "pressure dressing with telfa, gauze and paper tape" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4 col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-regular-bandage" #} id="silver-regular-bandage" />
+                  <label class="custom-control-label" for="silver-regular-bandage"> {{ "regular bandage" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4 col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-telfa" #} id="silver-telfa" />
+                  <label class="custom-control-label" for="silver-telfa"> {{ "telfa" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4 col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-paper-tape" #} id="silver-paper-tape" />
+                  <label class="custom-control-label" for="silver-paper-tape"> {{ "paper tape" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4 col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-hypafix" #} id="silver-hypafix" />
+                  <label class="custom-control-label" for="silver-hypafix"> {{ "hypafix" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4 col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="silver-hydrocolloid" #} id="silver-hydrocolloid" />
+                  <label class="custom-control-label" for="silver-hydrocolloid"> {{ "hydrocolloid" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="silver-bandage-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('silver')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,239 @@
+{% extends 'dermatology_body_template.twig' %}
+{% block stylesheet %}
+<style>
+    .template-manager .table td { vertical-align: middle; }
+    .template-actions form { display: inline-block; margin: 0 0.15rem 0.15rem 0; }
+    .template-preview-box {
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        background: #f8f9fa;
+    }
+    .status-badge-active { background-color: #28a745; }
+    .status-badge-inactive { background-color: #6c757d; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid mt-3 template-manager">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-1">{{ "SOAP Template Manager" | e }}</h2>
+            <p class="text-muted mb-0">{{ "Create and manage reusable dermatology SOAP note starters." | e }}</p>
+        </div>
+        <div>
+            <a class="btn btn-primary" href="{{ createUrl|e }}">{{ "Create Template" | e }}</a>
+        </div>
+    </div>
+
+    {% if flash.messages is defined and flash.messages|length > 0 %}
+        <div class="alert alert-{{ flash.type|default('info')|e }}" role="alert">
+            <ul class="mb-0 pl-3">
+                {% for message in flash.messages %}
+                    <li>{{ message|e }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <form method="get" class="card card-body mb-3">
+        <div class="form-row">
+            <div class="form-group col-md-5 mb-2">
+                <label for="q">{{ "Search" | e }}</label>
+                <input type="text" class="form-control" id="q" name="q" value="{{ search|e }}" placeholder="{{ "Template name" | e }}" />
+            </div>
+            <div class="form-group col-md-3 mb-2">
+                <label for="status">{{ "Status" | e }}</label>
+                <select class="form-control" id="status" name="status">
+                    <option value="all" {% if status == 'all' %}selected{% endif %}>{{ "All" | e }}</option>
+                    <option value="active" {% if status == 'active' %}selected{% endif %}>{{ "Active" | e }}</option>
+                    <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>{{ "Inactive" | e }}</option>
+                </select>
+            </div>
+            <div class="form-group col-md-2 mb-2">
+                <label for="sort">{{ "Sort" | e }}</label>
+                <select class="form-control" id="sort" name="sort">
+                    <option value="name" {% if sort == 'name' %}selected{% endif %}>{{ "Name" | e }}</option>
+                    <option value="updated" {% if sort == 'updated' %}selected{% endif %}>{{ "Updated" | e }}</option>
+                    <option value="owner" {% if sort == 'owner' %}selected{% endif %}>{{ "Owner" | e }}</option>
+                    <option value="status" {% if sort == 'status' %}selected{% endif %}>{{ "Status" | e }}</option>
+                </select>
+            </div>
+            <div class="form-group col-md-2 mb-2">
+                <label for="dir">{{ "Direction" | e }}</label>
+                <select class="form-control" id="dir" name="dir">
+                    <option value="asc" {% if dir == 'asc' %}selected{% endif %}>{{ "Asc" | e }}</option>
+                    <option value="desc" {% if dir == 'desc' %}selected{% endif %}>{{ "Desc" | e }}</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">{{ "Search" | e }}</button>
+    </form>
+
+    {% if preview %}
+        <div class="template-preview-box mb-3">
+            <h5 class="mb-2">{{ "Preview" | e }}: {{ preview.name|e }}</h5>
+            <p class="mb-1"><strong>{{ "Subjective" | e }}:</strong> {{ preview.summary.subjective|default('—')|e }}</p>
+            <p class="mb-1"><strong>{{ "Treatment plans" | e }}:</strong> {{ preview.summary.plans|e }}</p>
+            <p class="mb-1"><strong>{{ "Follow up" | e }}:</strong> {{ preview.summary.follow_up|default('—')|e }}</p>
+            <p class="mb-0"><strong>{{ "Note" | e }}:</strong> {{ preview.summary.note|default('—')|e }}</p>
+        </div>
+    {% endif %}
+
+    {% if list.rows is empty %}
+        <div class="alert alert-info">
+            <p class="mb-2">{{ "No templates found. Templates are reusable SOAP starters your clinic can load into encounters." | e }}</p>
+            <a class="btn btn-primary" href="{{ createUrl|e }}">{{ "Create Template" | e }}</a>
+        </div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>{{ "Name" | e }}</th>
+                        <th>{{ "Owner" | e }}</th>
+                        <th>{{ "Updated" | e }}</th>
+                        <th>{{ "Status" | e }}</th>
+                        <th style="min-width: 320px;">{{ "Actions" | e }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in list.rows %}
+                        {% set editUrl = webroot ~ '/interface/forms/general_dermatology/new.php?template_mode=1&id=' ~ row.id %}
+                        <tr>
+                            <td>
+                                <strong>{{ row.name|e }}</strong>
+                                {% if row.template_description %}
+                                    <div class="small text-muted">{{ row.template_description|e }}</div>
+                                {% endif %}
+                            </td>
+                            <td>{{ row.owner|default('—')|e }}</td>
+                            <td>{{ row.updated_at|default('—')|e }}</td>
+                            <td>
+                                {% if row.status == 'active' %}
+                                    <span class="badge badge-success status-badge-active">{{ "Active" | e }}</span>
+                                {% else %}
+                                    <span class="badge badge-secondary status-badge-inactive">{{ "Inactive" | e }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="template-actions">
+                                <a class="btn btn-sm btn-primary" href="{{ editUrl|e }}">{{ "Edit" | e }}</a>
+
+                                <form method="post" action="{{ managerUrl|e }}">
+                                    <input type="hidden" name="csrf_token_form" value="{{ csrf|e }}" />
+                                    <input type="hidden" name="action" value="preview" />
+                                    <input type="hidden" name="template_id" value="{{ row.id|e }}" />
+                                    <input type="hidden" name="q" value="{{ search|e }}" />
+                                    <input type="hidden" name="status" value="{{ status|e }}" />
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">{{ "Preview" | e }}</button>
+                                </form>
+
+                                <form method="post" action="{{ managerUrl|e }}" onsubmit="return submitRename(this);">
+                                    <input type="hidden" name="csrf_token_form" value="{{ csrf|e }}" />
+                                    <input type="hidden" name="action" value="rename" />
+                                    <input type="hidden" name="template_id" value="{{ row.id|e }}" />
+                                    <input type="hidden" name="new_name" value="" />
+                                    <input type="hidden" name="q" value="{{ search|e }}" />
+                                    <input type="hidden" name="status" value="{{ status|e }}" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">{{ "Rename" | e }}</button>
+                                </form>
+
+                                <form method="post" action="{{ managerUrl|e }}" onsubmit="return submitDuplicate(this);">
+                                    <input type="hidden" name="csrf_token_form" value="{{ csrf|e }}" />
+                                    <input type="hidden" name="action" value="duplicate" />
+                                    <input type="hidden" name="template_id" value="{{ row.id|e }}" />
+                                    <input type="hidden" name="new_name" value="" />
+                                    <input type="hidden" name="q" value="{{ search|e }}" />
+                                    <input type="hidden" name="status" value="{{ status|e }}" />
+                                    <button type="submit" class="btn btn-sm btn-outline-info">{{ "Duplicate" | e }}</button>
+                                </form>
+
+                                {% if row.status == 'active' %}
+                                    <form method="post" action="{{ managerUrl|e }}">
+                                        <input type="hidden" name="csrf_token_form" value="{{ csrf|e }}" />
+                                        <input type="hidden" name="action" value="deactivate" />
+                                        <input type="hidden" name="template_id" value="{{ row.id|e }}" />
+                                        <input type="hidden" name="q" value="{{ search|e }}" />
+                                        <input type="hidden" name="status" value="{{ status|e }}" />
+                                        <button type="submit" class="btn btn-sm btn-warning">{{ "Deactivate" | e }}</button>
+                                    </form>
+                                {% else %}
+                                    <form method="post" action="{{ managerUrl|e }}">
+                                        <input type="hidden" name="csrf_token_form" value="{{ csrf|e }}" />
+                                        <input type="hidden" name="action" value="activate" />
+                                        <input type="hidden" name="template_id" value="{{ row.id|e }}" />
+                                        <input type="hidden" name="q" value="{{ search|e }}" />
+                                        <input type="hidden" name="status" value="{{ status|e }}" />
+                                        <button type="submit" class="btn btn-sm btn-success">{{ "Activate" | e }}</button>
+                                    </form>
+                                    <form method="post" action="{{ managerUrl|e }}" onsubmit="return confirm('{{ "Delete this inactive template permanently?" | e }}');">
+                                        <input type="hidden" name="csrf_token_form" value="{{ csrf|e }}" />
+                                        <input type="hidden" name="action" value="delete" />
+                                        <input type="hidden" name="template_id" value="{{ row.id|e }}" />
+                                        <input type="hidden" name="q" value="{{ search|e }}" />
+                                        <input type="hidden" name="status" value="{{ status|e }}" />
+                                        <button type="submit" class="btn btn-sm btn-danger">{{ "Delete" | e }}</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="text-muted">
+                {{ "Showing" | e }} {{ list.rows|length }} {{ "of" | e }} {{ list.total }} {{ "templates" | e }}
+            </div>
+            <div>
+                {% if list.page > 1 %}
+                    <a class="btn btn-sm btn-outline-secondary"
+                       href="?q={{ search|url_encode }}&status={{ status|url_encode }}&sort={{ sort|url_encode }}&dir={{ dir|url_encode }}&page={{ list.page - 1 }}">
+                        {{ "Previous" | e }}
+                    </a>
+                {% endif %}
+                <span class="mx-2">{{ "Page" | e }} {{ list.page }} / {{ list.totalPages }}</span>
+                {% if list.page < list.totalPages %}
+                    <a class="btn btn-sm btn-outline-secondary"
+                       href="?q={{ search|url_encode }}&status={{ status|url_encode }}&sort={{ sort|url_encode }}&dir={{ dir|url_encode }}&page={{ list.page + 1 }}">
+                        {{ "Next" | e }}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+<script>
+function submitRename(form) {
+    var current = form.closest('tr').querySelector('strong');
+    var currentName = current ? current.textContent.trim() : '';
+    var next = window.prompt('Enter a new template name:', currentName);
+    if (next === null) {
+        return false;
+    }
+    next = next.trim();
+    if (next.length < 3) {
+        window.alert('Template name must be at least 3 characters.');
+        return false;
+    }
+    form.querySelector('input[name="new_name"]').value = next;
+    return true;
+}
+
+function submitDuplicate(form) {
+    var current = form.closest('tr').querySelector('strong');
+    var currentName = current ? current.textContent.trim() : '';
+    var next = window.prompt('Name for the duplicated template:', currentName + ' Copy');
+    if (next === null) {
+        return false;
+    }
+    next = next.trim();
+    if (next.length < 3) {
+        window.alert('Template name must be at least 3 characters.');
+        return false;
+    }
+    form.querySelector('input[name="new_name"]').value = next;
+    return true;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,349 @@
+<div class="modal" id="neuromodulator">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Neuromodulator" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input type="text" id="neuromodulator-Injectable-title" hidden />
+          <div class="row col-12">
+            <div class="col-4 label">{{ "Injectable" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-botox" #} id="neuromodulator-botox" />
+                    <label class="custom-control-label" for="neuromodulator-botox"> {{ "Botox" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-dysport" #} id="neuromodulator-dysport" />
+                    <label class="custom-control-label" for="neuromodulator-dysport"> {{ "Dysport" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-xeomin" #} id="neuromodulator-xeomin" />
+                    <label class="custom-control-label" for="neuromodulator-xeomin"> {{ "Xeomin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-jeuveau" #} id="neuromodulator-jeuveau" />
+                    <label class="custom-control-label" for="neuromodulator-jeuveau"> {{ "Jeuveau" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-daxxify" #} id="neuromodulator-daxxify" />
+                    <label class="custom-control-label" for="neuromodulator-daxxify"> {{ "Daxxify" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="neuromodulator-injectable-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="neuromodulator-Treatment-Area-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Treatment Area" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-glabella" #} id="neuromodulator-glabella" />
+                    <label class="custom-control-label" for="neuromodulator-glabella"> {{ "Glabella" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-glabella-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-frontalis" #} id="neuromodulator-frontalis" />
+                    <label class="custom-control-label" for="neuromodulator-frontalis"> {{ "Frontalis" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-frontalis-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-crows-feet-orbicularis-oculi" #} id="neuromodulator-crows-feet-orbicularis-oculi" />
+                    <label class="custom-control-label" for="neuromodulator-crows-feet-orbicularis-oculi"> {{ "Crow's Feet (Orbicularis Oculi)" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-crows-feet-orbicularis-oculi-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-bunny-lines-nasalis" #} id="neuromodulator-bunny-lines-nasalis" />
+                    <label class="custom-control-label" for="neuromodulator-bunny-lines-nasalis"> {{ "Bunny Lines (Nasalis)" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-bunny-lines-nasalis-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-jelly-roll-pretarsal-orbicularis" #} id="neuromodulator-jelly-roll-pretarsal-orbicularis" />
+                    <label class="custom-control-label" for="neuromodulator-jelly-roll-pretarsal-orbicularis"> {{ "Jelly Roll (Pretarsal Orbicularis)" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-jelly-roll-pretarsal-orbicularis-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-chin-mentalis" #} id="neuromodulator-chin-mentalis" />
+                    <label class="custom-control-label" for="neuromodulator-chin-mentalis"> {{ "Chin (Mentalis)" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-chin-mentalis-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-masseters" #} id="neuromodulator-masseters" />
+                    <label class="custom-control-label" for="neuromodulator-masseters"> {{ "Masseters" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-masseters-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-lip-flip-orbicularis-oris" #} id="neuromodulator-lip-flip-orbicularis-oris" />
+                    <label class="custom-control-label" for="neuromodulator-lip-flip-orbicularis-oris"> {{ "Lip Flip (Orbicularis Oris)" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-lip-flip-orbicularis-oris-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-smokers-lines-orbicularis-oris" #} id="neuromodulator-smokers-lines-orbicularis-oris" />
+                    <label class="custom-control-label" for="neuromodulator-smokers-lines-orbicularis-oris"> {{ "Smoker's Lines (Orbicularis Oris)" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-smokers-lines-orbicularis-oris-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-gummy-smile-llsan" #} id="neuromodulator-gummy-smile-llsan" />
+                    <label class="custom-control-label" for="neuromodulator-gummy-smile-llsan"> {{ "Gummy Smile (LLSAN)" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-gummy-smile-llsan-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-depressor-anguli-oris" #} id="neuromodulator-depressor-anguli-oris" />
+                    <label class="custom-control-label" for="neuromodulator-depressor-anguli-oris"> {{ "Depressor Anguli Oris" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-depressor-anguli-oris-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-depressor-septi-nasi" #} id="neuromodulator-depressor-septi-nasi" />
+                    <label class="custom-control-label" for="neuromodulator-depressor-septi-nasi"> {{ "Depressor Septi Nasi" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-depressor-septi-nasi-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-nefirtiti-lift-platysma" #} id="neuromodulator-nefirtiti-lift-platysma" />
+                    <label class="custom-control-label" for="neuromodulator-nefirtiti-lift-platysma"> {{ "Nefirtiti Lift (Platysma)" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-nefirtiti-lift-platysma-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-neck-bands-platysma" #} id="neuromodulator-neck-bands-platysma" />
+                    <label class="custom-control-label" for="neuromodulator-neck-bands-platysma"> {{ "Neck Bands (Platysma)" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-neck-bands-platysma-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-hyperhidrosis-axillae" #} id="neuromodulator-hyperhidrosis-axillae" />
+                    <label class="custom-control-label" for="neuromodulator-hyperhidrosis-axillae"> {{ "Hyperhidrosis (Axillae)" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-hyperhidrosis-axillae-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-hyperhidrosis-palms" #} id="neuromodulator-hyperhidrosis-palms" />
+                    <label class="custom-control-label" for="neuromodulator-hyperhidrosis-palms"> {{ "Hyperhidrosis (Palms)" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-hyperhidrosis-palms-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-hyperhidrosis-soles" #} id="neuromodulator-hyperhidrosis-soles" />
+                    <label class="custom-control-label" for="neuromodulator-hyperhidrosis-soles"> {{ "Hyperhidrosis (Soles)" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-hyperhidrosis-soles-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-hyperhidrosis-scalp" #} id="neuromodulator-hyperhidrosis-scalp" />
+                    <label class="custom-control-label" for="neuromodulator-hyperhidrosis-scalp"> {{ "Hyperhidrosis (Scalp)" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-hyperhidrosis-scalp-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-temporalis" #} id="neuromodulator-temporalis" />
+                    <label class="custom-control-label" for="neuromodulator-temporalis"> {{ "Temporalis" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-temporalis-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-occipitalis" #} id="neuromodulator-occipitalis" />
+                    <label class="custom-control-label" for="neuromodulator-occipitalis"> {{ "Occipitalis" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-occipitalis-free-text" placeholder="Amount"/>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-cervical-paraspinal" #} id="neuromodulator-cervical-paraspinal" />
+                    <label class="custom-control-label" for="neuromodulator-cervical-paraspinal"> {{ "Cervical Paraspinal" | e }} </label>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-cervical-paraspinal-free-text" placeholder="Amount"/>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-treatment-1-free-text" placeholder="Treatment Title" />
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-treatment-1-free-text" placeholder="Amount"/>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-treatment-2-free-text" placeholder="Treatment Title"/>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-treatment-2-free-text" placeholder="Amount"/>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-treatment-3-free-text" placeholder="Treatment Title"/>
+                    <input class="custom-control-label inner-text-custom" type="text" id="neuromodulator-inner-treatment-3-free-text" placeholder="Amount"/>
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="neuromodulator-Anesthetic-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-none" #} id="neuromodulator-none" />
+                    <label class="custom-control-label" for="neuromodulator-none"> {{ "None" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-topical-5-lidocaine" #} id="neuromodulator-topical-5-lidocaine" />
+                    <label class="custom-control-label" for="neuromodulator-topical-5-lidocaine"> {{ "Topical 5% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-topical-23-lidocaine-7-tetracaine" #} id="neuromodulator-topical-23-lidocaine-7-tetracaine" />
+                    <label class="custom-control-label" for="neuromodulator-topical-23-lidocaine-7-tetracaine"> {{ "Topical 23% Lidocaine, 7% Tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-topical-23-lidocaine-7-tetracaine-1-phenylephrine" #} id="neuromodulator-topical-23-lidocaine-7-tetracaine-1-phenylephrine" />
+                    <label class="custom-control-label" for="neuromodulator-topical-23-lidocaine-7-tetracaine-1-phenylephrine"> {{ "Topical 23% Lidocaine, 7% Tetracaine, 1% Phenylephrine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-topical-20-benzocaine-10-lidocaine-4-tetracaine" #} id="neuromodulator-topical-20-benzocaine-10-lidocaine-4-tetracaine" />
+                    <label class="custom-control-label" for="neuromodulator-topical-20-benzocaine-10-lidocaine-4-tetracaine"> {{ "Topical 20% Benzocaine, 10% Lidocaine, 4% Tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-topical-30-lidocaine" #} id="neuromodulator-topical-30-lidocaine" />
+                    <label class="custom-control-label" for="neuromodulator-topical-30-lidocaine"> {{ "Topical 30% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-topical-30-lidocaine-7-tetracaine" #} id="neuromodulator-topical-30-lidocaine-7-tetracaine" />
+                    <label class="custom-control-label" for="neuromodulator-topical-30-lidocaine-7-tetracaine"> {{ "Topical 30% Lidocaine, 7% Tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-ice" #} id="neuromodulator-ice" />
+                    <label class="custom-control-label" for="neuromodulator-ice"> {{ "Ice" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-fan" #} id="neuromodulator-fan" />
+                    <label class="custom-control-label" for="neuromodulator-fan"> {{ "Fan" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="neuromodulator-vibration" #} id="neuromodulator-vibration" />
+                    <label class="custom-control-label" for="neuromodulator-vibration"> {{ "Vibration" | e }} </label>
+                </div>
+
+
+                <input class="form-control mt-2" type="text" id="neuromodulator-anesthetic-free-text" />
+              </div>
+            </div>
+          </div>
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="neuromodulator-Dilution-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Dilution" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="neuromodulator-1cc" #} id="neuromodulator-1cc" />
+                  <label class="custom-control-label" for="neuromodulator-1cc"> {{ "1 CC" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="neuromodulator-2cc" #} id="neuromodulator-2cc" />
+                  <label class="custom-control-label" for="neuromodulator-2cc"> {{ "2 CC" | e }}</label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="neuromodulator-2-5cc" #} id="neuromodulator-2-5cc" />
+                  <label class="custom-control-label" for="neuromodulator-2-5cc"> {{ "2.5 CC" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="neuromodulator-dilution-free-text" />
+              </div>
+            </div>
+          </div>
+
+
+
+           <input type="text" id="hidden" hidden />
+          <input type="text" id="neuromodulator-diluent-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Diluent" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="neuromodulator-09p-bacteriostatic-sodium-chloride" #} id="neuromodulator-09p-bacteriostatic-sodium-chloride" />
+                  <label class="custom-control-label" for="neuromodulator-09p-bacteriostatic-sodium-chloride"> {{ "Bacteriostatic 0.9% Sodium Chloride" | e }}</label>
+                </div>
+
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="neuromodulator-09p-sodium-chloride" #} id="neuromodulator-09p-sodium-chloride" />
+                  <label class="custom-control-label" for="neuromodulator-09p-sodium-chloride"> {{ "0.9% Sodium Chloride" | e }}</label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="neuromodulator-sterile-water" #} id="neuromodulator-sterile-water" />
+                  <label class="custom-control-label" for="neuromodulator-sterile-water"> {{ "Sterile Water" | e }}   </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="neuromodulator-1p-lidocaine" #} id="neuromodulator-1p-lidocaine" />
+                  <label class="custom-control-label" for="neuromodulator-1p-lidocaine"> {{ "1% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="neuromodulator-1p-lidocaine-with-epinephrine" #} id="neuromodulator-1p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="neuromodulator-1p-lidocaine-with-epinephrine"> {{ "1% Lidocaine With Epinephrine 1:100,000" | e }} </label>
+                </div>
+                 <input class="form-control mt-2" type="text" id="neuromodulator-diluent-free-text" />
+              </div>
+            </div>
+          </div>
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="neuromodulator-units-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">Total Number of Units</div>
+            <div class="col-8">
+                <div class="row">
+                    <input class="form-control mt-2" type="text" id="neuromodulator-units-free-text" />
+                </div>
+            </div>
+          </div>
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="neuromodulator-lot-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">Lot #</div>
+            <div class="col-8">
+                <div class="row">
+                    <input class="form-control mt-2" type="text" id="neuromodulator-lot-free-text" />
+                </div>
+            </div>
+          </div>
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="neuromodulator-Expiration-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Expiration" | e }}</div>
+            <div class="col-8">
+                <div class="row">
+                    <input class="form-control mt-2" type="text" id="neuromodulator-expiration-free-text" />
+                </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="neuromodulator-Aftercare-(Applied-In-Office)-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="neuromodulator-spf" #} id="neuromodulator-spf" />
+                  <label class="custom-control-label" for="neuromodulator-spf"> {{ "SPF" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="neuromodulator-petrolatum" #} id="neuromodulator-petrolatum" />
+                  <label class="custom-control-label" for="neuromodulator-petrolatum"> {{ "Petrolatum" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="neuromodulator-triamcinolone-0-1p-ointment" #} id="neuromodulator-triamcinolone-0-1p-ointment" />
+                  <label class="custom-control-label" for="neuromodulator-triamcinolone-0-1p-ointment"> {{ "Triamcinolone 0.1% Ointment" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="neuromodulator-hydrocortisone-2-5p-ointment" #} id="neuromodulator-hydrocortisone-2-5p-ointment" />
+                  <label class="custom-control-label" for="neuromodulator-hydrocortisone-2-5p-ointment"> {{ "Hydrocortisone 2.5% Ointment" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="neuromodulator-aftercare_free_text" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('neuromodulator')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

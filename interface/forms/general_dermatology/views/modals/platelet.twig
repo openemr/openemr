@@ -1,0 +1,279 @@
+<div class="modal" id="platelet">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Platelet Rich Plasma (PRP)" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+
+
+        <input type="text" id="platelet-Indication-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Indication" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="platelet-hair-loss" #} id="platelet-hair-loss" />
+                    <label class="custom-control-label" for="platelet-hair-loss"> {{ "Hair Loss" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="platelet-skin-rejuvenation" #} id="platelet-skin-rejuvenation" />
+                    <label class="custom-control-label" for="platelet-skin-rejuvenation"> {{ "Skin Rejuvenation" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="platelet-rhytides" #} id="platelet-rhytides" />
+                    <label class="custom-control-label" for="platelet-rhytides"> {{ "Rhytides" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="platelet-Indication-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="platelet-Area(s)-Treated-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+        <div class="col-8 areas_treated">
+            <textarea class="col-9 form-control mr-1" {# name="areas_platelet" #} id="areas_platelet"  style="float:left;" cols="90" rows="4"></textarea>
+            <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="platelet" data-target="#bodymap">
+            {{ "BodyMap" | e }}
+            </button>
+        </div>
+        </div>
+        <div class="row col-12 mt-3" style="display:none;">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-platelet" /></div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="platelet-Anesthetic-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-none" #} id="platelet-none" />
+                <label class="custom-control-label" for="platelet-none"> {{ "none" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-topical-5p-lidocaine" #} id="platelet-topical-5p-lidocaine" />
+                <label class="custom-control-label" for="platelet-topical-5p-lidocaine"> {{ "topical 5% lidocaine" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-topical-23p-lidocaine-7p-tetracaine" #} id="platelet-topical-23p-lidocaine-7p-tetracaine" />
+                <label class="custom-control-label" for="platelet-topical-23p-lidocaine-7p-tetracaine"> {{ "topical 23% lidocaine, 7% tetracaine" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine" #} id="platelet-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine" />
+                <label class="custom-control-label" for="platelet-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine"> {{ "topical 23% lidocaine, 7% tetracaine, 1% phenylephrine" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine" #} id="platelet-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine" />
+                <label class="custom-control-label" for="platelet-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine"> {{ "topical 20% benzocaine, 10% lidocaine, 4% tetracaine" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox col-12">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-topical-30p-lidocaine" #} id="platelet-topical-30p-lidocaine" />
+                <label class="custom-control-label" for="platelet-topical-30p-lidocaine"> {{ "topical 30% lidocaine" | e }} </label>
+            </div>
+
+            <div class="custom-control custom-checkbox mr-2">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-topical-30-lidocaine-7-tetracaine" #} id="platelet-topical-30-lidocaine-7-tetracaine" />
+                <label class="custom-control-label" for="platelet-topical-30-lidocaine-7-tetracaine"> {{ "Topical 30% Lidocaine, 7% Tetracaine" | e }}  </label>
+            </div>
+
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-ice" #} id="platelet-ice" />
+                <label class="custom-control-label" for="platelet-ice"> {{ "ice" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-fan" #} id="platelet-fan" />
+                <label class="custom-control-label" for="platelet-fan"> {{ "fan" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-vibration" #} id="platelet-vibration" />
+                <label class="custom-control-label" for="platelet-vibration"> {{ "vibration" | e }} </label>
+            </div>
+
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-1p-lidocaine" #} id="platelet-1p-lidocaine" />
+                <label class="custom-control-label" for="platelet-1p-lidocaine"> {{ "1% lidocaine" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-1p-lidocaine-with-epinephrine" #} id="platelet-1p-lidocaine-with-epinephrine" />
+                <label class="custom-control-label" for="platelet-1p-lidocaine-with-epinephrine"> {{ "1% lidocaine with epinephrine 1:100,000" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-2p-lidocaine" #} id="platelet-2p-lidocaine" />
+                <label class="custom-control-label" for="platelet-2p-lidocaine"> {{ "2% lidocaine" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-2p-lidocaine-wtih-epinephrine" #} id="platelet-2p-lidocaine-wtih-epinephrine" />
+                <label class="custom-control-label" for="platelet-2p-lidocaine-wtih-epinephrine"> {{ "2% lidocaine with epinephrine 1:100,000" | e }} </label>
+            </div>
+            
+            <div class="custom-control custom-checkbox col-12">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-05p-lidocaine-with-epinephrine" #} id="platelet-05p-lidocaine-with-epinephrine" />
+                <label class="custom-control-label" for="platelet-05p-lidocaine-with-epinephrine"> {{ "0.5% lidocaine with epinephrine 1:200,000" | e }}</label>
+            </div>
+
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-05p-bupivicaine" #} id="platelet-05p-bupivicaine" />
+                <label class="custom-control-label" for="platelet-05p-bupivicaine"> {{ "0.5% bupivicaine" | e }}  </label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-05p-bupivicaine-wtih-epinephrine" #} id="platelet-05p-bupivicaine-wtih-epinephrine" />
+                <label class="custom-control-label" for="platelet-05p-bupivicaine-wtih-epinephrine"> {{ "0.5% bupivicaine with epinephrine 1:200,000" | e }}  </label>
+            </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-025p-bupivicaine" #} id="platelet-025p-bupivicaine" />
+                <label class="custom-control-label" for="platelet-025p-bupivicaine"> {{ "0.25% bupivicaine" | e }}  </label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-025p-bupivicaine-wtih-epinephrine" #} id="platelet-025p-bupivicaine-wtih-epinephrine" />
+                <label class="custom-control-label" for="platelet-025p-bupivicaine-wtih-epinephrine"> {{ "0.25% bupivicaine with epinephrine 1:400,000" | e }}  </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-025p-marcaine-wtih-epinephrine" #} id="platelet-025p-marcaine-wtih-epinephrine" />
+                <label class="custom-control-label" for="platelet-025p-marcaine-wtih-epinephrine">{{ " 0.25% marcaine with 1:200,000 epinephrine" | e }}  </label>
+            </div>
+
+                <div class="custom-control custom-checkbox col-12">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-09p-bacteriostatic-sodium-chloride" #} id="platelet-09p-bacteriostatic-sodium-chloride" />
+                <label class="custom-control-label" for="platelet-09p-bacteriostatic-sodium-chloride"> {{ "bacteriostatic 0.9% sodium chloride" | e }}</label>
+            </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-sterile-water" #} id="platelet-sterile-water" />
+                <label class="custom-control-label" for="platelet-sterile-water"> {{ "Sterile water" | e }}   </label>
+            </div>
+                <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-1p-ropivacaine" #} id="platelet-1p-ropivacaine" />
+                <label class="custom-control-label" for="platelet-1p-ropivacaine"> {{ "Ropivacaine 1%" | e }}  </label>
+            </div>
+                <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-05p-ropivacaine" #} id="platelet-05p-ropivacaine" />
+                <label class="custom-control-label" for="platelet-05p-ropivacaine"> {{ "Ropivacaine 0.5%" | e }}   </label>
+            </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-84p-sodium-bicarbonate" #} id="platelet-84p-sodium-bicarbonate" />
+                <label class="custom-control-label" for="platelet-84p-sodium-bicarbonate"> {{ "WITH 8.4% sodium bicarbonate in 1:10 ratio (sod bicarbonate: anesthetic)" | e }}   </label>
+            </div>
+            
+            <input class="form-control mt-2" type="text" id="platelet-anesthetic-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="platelet-Anesthetic-Volume-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Anesthetic Volume" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-anesthetic-volume-1cc" #} id="platelet-anesthetic-volume-1cc" />
+                <label class="custom-control-label" for="platelet-anesthetic-volume-1cc"> {{ "<1cc" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-anesthetic-volume-1-2cc" #} id="platelet-anesthetic-volume-1-2cc" />
+                <label class="custom-control-label" for="platelet-anesthetic-volume-1-2cc"> {{ "1-2cc" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-anesthetic-volume-2-3cc" #} id="platelet-anesthetic-volume-2-3cc" />
+                <label class="custom-control-label" for="platelet-anesthetic-volume-2-3cc"> {{ "2-3cc" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-anesthetic-volume-3-4cc" #} id="platelet-anesthetic-volume-3-4cc" />
+                <label class="custom-control-label" for="platelet-anesthetic-volume-3-4cc"> {{ "3-4cc" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-anesthetic-volume-4-5cc" #} id="platelet-anesthetic-volume-4-5cc" />
+                <label class="custom-control-label" for="platelet-anesthetic-volume-4-5cc"> {{ "4-5cc" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-anesthetic-volume-5-6cc" #} id="platelet-anesthetic-volume-5-6cc" />
+                <label class="custom-control-label" for="platelet-anesthetic-volume-5-6cc"> {{ "5-6cc" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-anesthetic-volume-6-7cc" #} id="platelet-anesthetic-volume-6-7cc" />
+                <label class="custom-control-label" for="platelet-anesthetic-volume-6-7cc"> {{ "6-7cc" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-anesthetic-volume-7-8cc" #} id="platelet-anesthetic-volume-7-8cc" />
+                <label class="custom-control-label" for="platelet-anesthetic-volume-7-8cc"> {{ "7-8cc" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-anesthetic-volume-8-9cc" #} id="platelet-anesthetic-volume-8-9cc" />
+                <label class="custom-control-label" for="platelet-anesthetic-volume-8-9cc"> {{ "8-9cc" | e }} </label>
+            </div>
+
+            <input class="form-control mt-2" type="text" id="platelet-anesthetic-volume-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="platelet-Number-of-Vials-Injected-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Number of Vials Injected" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-1" #} id="platelet-1" />
+                <label class="custom-control-label" for="platelet-1"> {{ "1" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-2" #} id="platelet-2" />
+                <label class="custom-control-label" for="platelet-2"> {{ "2" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-3" #} id="platelet-3" />
+                <label class="custom-control-label" for="platelet-2"> {{ "3" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="platelet-4" #} id="platelet-4" />
+                <label class="custom-control-label" for="platelet-2"> {{ "4" | e }} </label>
+            </div>
+            
+            <input class="form-control mt-2" type="text" id="platelet-Number-of-Vials-Injected-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="platelet-Lot-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Lot #" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="platelet-Lot-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="platelet-Expiration-Date-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Expiration Date" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="platelet-Expiration-Date-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('platelet')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

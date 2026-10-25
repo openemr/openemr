@@ -1,0 +1,75 @@
+<div class="modal" id="cryotherapy">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Cryotherapy" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input type="text" id="cryotherapy-Cryotherapy-Form-title" hidden />
+          <div class="row col-12">
+            <div class="col-4 label">{{ "Cryotherapy Form" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="cryotherapy-high-pressure-canister" #} id="cryotherapy_high_pressure_canister" />
+                  <label class="custom-control-label" for="cryotherapy_high_pressure_canister"> {{ "High-Pressure Canister" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="cryotherapy-cotton-swab" #} id="cryotherapy_cotton_swab" />
+                  <label class="custom-control-label" for="cryotherapy_cotton_swab"> {{ "Cotton Swab" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="cryotherapy_cryotherapy_free_text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="cryotherapy-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mt-2 mb-3">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class="form-control col-9 mr-1" {# name="areas_cryotherapy" #} id="areas_cryotherapy" cols="90" rows="4" style="float:left;"></textarea>
+              <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="cryotherapy" data-target="#bodymap">
+                {{ "Body Map" | e }}
+              </button>
+            </div>
+          </div>
+          <div class="row col-12 mb-3">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-cryotherapy" /></div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="cryotherapy-Aftercare-(Applied-In-Office)-title" hidden />
+          <div class="row col-12">
+            <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="cryotherapy-spf" #} id="cryotherapy_spf" />
+                  <label class="custom-control-label" for="cryotherapy_spf"> {{ "SPF" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="cryotherapy-petrolatum" #} id="cryotherapy_petrolatum" />
+                  <label class="custom-control-label" for="cryotherapy_petrolatum"> {{ "petrolatum" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="cryotherapy-triamcinolone-0-1-ointment" #} id="cryotherapy_triamcinolone-0-1p-ointment" />
+                  <label class="custom-control-label" for="cryotherapy_triamcinolone-0-1p-ointment"> {{ "Triamcinolone 0.1% Ointment" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="cryotherapy-hydrocortisone-2-5-ointment" #} id="cryotherapy_hydrocortisone-2-5p-ointment" />
+                  <label class="custom-control-label" for="cryotherapy_hydrocortisone-2-5p-ointment"> {{ "Hydrocortisone 2.5% Ointment" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="cryotherapy_aftercare_free_text" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('cryotherapy')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

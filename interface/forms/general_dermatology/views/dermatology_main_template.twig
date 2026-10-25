@@ -1,0 +1,1278 @@
+{% extends 'dermatology_body_template.twig' %}
+{% block stylesheet %}
+    <!-- css stuff should go here -->
+    {% include 'css/css_block.twig' %}
+    {% include 'css/swiper_block.twig' %}
+     {% include 'css/dx_custom.twig' %}
+    <style>
+        #autocomplete-list {
+            display: none; /* Ensures it's hidden on load */
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 5px;
+            margin: 0;
+            z-index: 1000;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        #autocomplete-list .autocomplete-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        #autocomplete-list .autocomplete-item:hover {
+            background-color: #f1f1f1;
+        }
+
+    </style>
+{%
+    endblock %}
+{% block javascript %}
+<!-- javascript stuff should go here -->
+{% include 'js/js_block.js' %}
+{% include 'js/jquery.imagemapster.min.js' %}
+{% include 'js/image_mapster_block.js' %}
+{% include 'js/swiper.min.js' %}
+{% include 'js/swiper_block.js' %}
+{% include 'modals/script.js' %}
+
+{% endblock %}
+{% block content %}
+<div class="container-fluid mt-2 ml-auto">
+<script>
+    // Create an object for your data
+    var dataInfo = {{displayValues|json_encode|raw}};
+
+    // Build justified ICD codes from currently loaded treatment plans.
+    // This array is used to populate the justify multi-select when adding charges.
+    // It is seeded from server-side data; new plans added dynamically should
+    // call addJustifiedCode(code) when a dx_s selection changes.
+    {% set justifiedCodes = [] %}
+    {% for treatment in treatments %}
+        {% if treatment.dx_s is not empty %}
+            {% set justifiedCodes = justifiedCodes|merge([treatment.dx_s]) %}
+        {% endif %}
+    {% endfor %}
+    var justified = {{ justifiedCodes|json_encode|raw }};
+
+    // Phase 4: location catalog + saved finding locations for map round-trip.
+    window.GeneralDermatologyMap = {
+        byId: {{ (mapBootstrap.byId|default({}))|json_encode|raw }},
+        byLabel: {{ (mapBootstrap.byLabel|default({}))|json_encode|raw }},
+        savedFindings: {{ (mapSavedFindings|default([]))|json_encode|raw }}
+    };
+
+    function addJustifiedCode(code) {
+        if (code && justified.indexOf(code) === -1) {
+            justified.push(code);
+        }
+    }
+
+
+    $(document).ready(function(){
+        var templateSelect = document.getElementById('form_templates');
+        if (!templateSelect) {
+            return;
+        }
+
+        templateSelect.addEventListener('change', function() {
+            if (typeof top.restoreSession === 'function') {
+                top.restoreSession();
+            }
+
+            var selectedValue = this.value;
+            if (!selectedValue) {
+                return;
+            }
+
+            // Prefer server-built URL base so relative paths cannot break by entry point.
+            var templateLoadUrlBase = {{ (templateLoadUrlBase|default(''))|json_encode|raw }} || '';
+            if (templateLoadUrlBase.indexOf('__TEMPLATE_ID__') !== -1) {
+                window.location.href = templateLoadUrlBase.replace('__TEMPLATE_ID__', encodeURIComponent(selectedValue));
+            } else {
+                var webroot = {{ (webroot|default(''))|json_encode|raw }} || '';
+                window.location.href = webroot + '/interface/patient_file/encounter/load_form.php'
+                    + '?formname=general_dermatology&id=' + encodeURIComponent(selectedValue);
+            }
+        });
+    });
+
+</script>
+    {% set isTemplateMode = templateMode is defined and templateMode %}
+    <div class="d-flex justify-content-between align-items-start flex-wrap mb-2">
+        <div>
+            <h2 class="mb-1">{% if isTemplateMode %}{{ "SOAP TEMPLATE EDITOR" | e }}{% else %}{{ "SOAP NOTE" | e }}{% endif %}</h2>
+            {% if isTemplateMode %}
+                <p class="text-muted mb-0">{{ "Editing a reusable template. Patient chart data is not updated from this screen." | e }}</p>
+            {% endif %}
+        </div>
+        {% if templateManagerUrl is defined and templateManagerUrl %}
+            <div class="mt-1">
+                <a class="btn btn-outline-primary btn-sm" href="{{ templateManagerUrl|e }}" onclick="if (typeof top.restoreSession === 'function') { top.restoreSession(); }">{{ "Manage Templates" | e }}</a>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if templateFlash is defined and templateFlash.message %}
+        <div class="alert alert-{{ templateFlash.type|default('info')|e }}" role="alert">
+            {{ templateFlash.message|e }}
+        </div>
+    {% endif %}
+
+    {% if not isTemplateMode %}
+    <div class="form-group">
+        <label for="form_templates">{{"Load Existing Template" | e}}</label>
+        <select class="form-control" id="form_templates" name="form_templates">
+            <option class="dropdown-item" value="">
+                {{"Select" | e }}
+            </option>
+            {% for template in templateFormsData %}
+                <option class="dropdown-item" value="{{ template.id }}"{% if loadedTemplateId is defined and loadedTemplateId == template.id %} selected{% endif %}>
+                    {{ template.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <small class="form-text text-muted">{{ "Only active templates are listed. Use Manage Templates to create, rename, or deactivate templates." | e }}</small>
+    </div>
+    {% endif %}
+    <!-- - Build in here -->
+    <!-- - build the subjective starting here -->
+    {# Save target must be the encounter patient form id, never a template row id (except template mode). #}
+    <form method="post" action="{{ formSaveAction }}" onsubmit="return top.restoreSession()">
+
+     <fieldset class="mt-3" id="soapForm">
+        <input type="hidden" name="csrf_token_form" value="{{ csrf }}"/>
+         <input type="hidden" name="encounter" value="{{ encounter | e }}" />
+         <input type="hidden" name="mode" value="{{ mode | e }}" />
+         {% if isTemplateMode %}
+         <input type="hidden" name="template_mode" value="1" />
+         {% endif %}
+         {% if saveFormId %}
+         <input type="hidden" name="id" value="{{ saveFormId | e }}"/>
+         {% endif %}
+
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-l-12 col-xl-12 col-subjective">
+                <div class="form-group row">
+                    <div class="custom-control custom-checkbox col-3">
+                        <input type="hidden" name="patient_type_new" value="0">
+                        <input class="custom-control-input" type="checkbox" name="patient_type_new" id="patient_type_new" value="1" {{ general_dermatology is not empty and general_dermatology.patient_type_new == 1 ? 'checked' : '' }}/>
+                        <label class="custom-control-label" for="patient_type_new">{{"New Patient" | e}}</label>
+                    </div>
+                    <div class="custom-control custom-checkbox col-3">
+                        <input type="hidden" name="patient_type_established" value="0">
+                        <input class="custom-control-input" type="checkbox" name="patient_type_established" id="patient_type_established" value="1" {{ general_dermatology is not empty and general_dermatology.patient_type_established == 1 ? 'checked' : '' }}/>
+                        <label class="custom-control-label" for="patient_type_established">{{"Established Patient" | e}}</label>
+                    </div>
+                </div>
+                <div class="form-custom-header mt-1">
+                    <h3>{{ "Subjective" | e }}</h3>
+                </div>
+                <div class="mt-1 px-1">
+                    <h5>{{ "HPI" | e }}</h5>
+                </div>
+
+
+
+                <div class="form-group">
+                    <div>
+                        <label>{{"The Patient presents for:" | e }}</label><textarea class="form-control" name="subjective_text" id="subjective_text" cols="100" rows="3" value="{{ general_dermatology is empty ?  '' : general_dermatology.subjective_text }}">{{ general_dermatology is empty ?  '' : general_dermatology.subjective_text }}</textarea>
+                    </div>
+                    <hr class="my-4">
+                    <div class="row">
+                        <div class="col col-subjective">
+                            <div class="custom-control custom-checkbox">
+                                <input type="hidden" name="skinlesion" value="0">
+                                <input class="custom-control-input" type="checkbox" name="skinlesion" id="skinlesion1" value="1" {{ general_dermatology is not empty and general_dermatology.skinlesion == 1 ? 'checked' : '' }}/>
+                                <label class="custom-control-label" for="skinlesion1">{{
+                                    "Skin lesion(s)" | e
+                                    }}</label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="hidden" name="cosmetic2" value="0">
+                                <input class="custom-control-input" type="checkbox" name="cosmetic2" id="cosmetic2" value="1" {{ general_dermatology is not empty and general_dermatology.cosmetic2 == 1 ? 'checked' : '' }}/>
+                                <label class="custom-control-label" for="cosmetic2">{{
+                                    "Cosmetic" | e
+                                    }}</label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="hidden" name="hairloss2" value="0">
+                                <input class="custom-control-input" type="checkbox" name="hairloss2" id="hairloss2" value="1" {{ general_dermatology is not empty and general_dermatology.hairloss2 == 1 ? 'checked' : '' }}/>
+                                <label class="custom-control-label" for="hairloss2">{{
+                                    "Hair Loss" | e
+                                    }}</label>
+                            </div>
+
+                        </div>
+                        <div class="col col-subjective">
+                            <div class="custom-control custom-checkbox">
+                                <input type="hidden" name="skincheck2" value="0">
+                                <input class="custom-control-input" type="checkbox" name="skincheck2" id="skincheck2" value="1" {{ general_dermatology is not empty and general_dermatology.skincheck2 == 1 ? 'checked' : '' }}/>
+                                <label class="custom-control-label" for="skincheck2">{{
+                                    "Skin check" | e
+                                    }}</label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="hidden" name="surgical2" value="0">
+                                <input class="custom-control-input" type="checkbox" name="surgical2" id="surgical2" value="1" {{ general_dermatology is not empty and general_dermatology.surgical2 == 1 ? 'checked' : '' }}/>
+                                <label class="custom-control-label" for="surgical2">{{
+                                    "Surgical" | e
+                                    }}</label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="hidden" name="naildisorder2" value="0">
+                                <input class="custom-control-input" type="checkbox" name="naildisorder2" id="naildisorder2" value="1" {{ general_dermatology is not empty and general_dermatology.naildisorder2 == 1 ? 'checked' : '' }}/>
+                                <label class="custom-control-label" for="naildisorder2">{{ "Nail Disorder" | e }}</label>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="custom-control custom-checkbox">
+                                <input type="hidden" name="rash2" value="0">
+                                <input class="custom-control-input" type="checkbox" name="rash2" id="rash2" value="1" {{ general_dermatology is not empty and general_dermatology.rash2 == 1 ? 'checked' : '' }}/>
+                                <label class="custom-control-label" for="rash2">{{
+                                    "Rash" | e
+                                    }}</label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="hidden" name="acne2" value="0">
+                                <input class="custom-control-input" type="checkbox" name="acne2" id="acne2" value="1" {{ general_dermatology is not empty and general_dermatology.acne2 == 1 ? 'checked' : '' }}/>
+                                <label class="custom-control-label" for="acne2">{{
+                                    "Acne" | e
+                                    }}</label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="hidden" name="other2" value="0">
+                                <input class="custom-control-input" type="checkbox" name="other2" id="other2" value="1" {{ general_dermatology is not empty and general_dermatology.other2 == 1 ? 'checked' : '' }}/>
+                                <label class="custom-control-label" for="other2">{{
+                                    "Other" | e
+                                    }}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="my-4">
+
+
+                    <div class="mt-3">
+                        <h5>{{ "Onset" | e }}</h5>
+                        <div class="row btn-group col-12">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="onset_year">Years</label>
+                                    <select class="form-control" id="onset_year" name="onset_year">
+                                        <option class="dropdown-item" value="" {{ general_dermatology is not empty and general_dermatology.onset_year == '' ? 'selected' : '' }}>
+                                            {{"Select Year" | e }}
+                                        </option>
+                                        {% for year in years %}
+                                            <option class="dropdown-item" value="{{ year }}" {{ general_dermatology is not empty and general_dermatology.onset_year == year ? 'selected' : '' }}>
+                                                {{ year }}
+                                            </option>
+                                        {% endfor %}
+                                        <option class="dropdown-item" value=">10" {{ general_dermatology is not empty and general_dermatology.onset_year == '>10' ? 'selected' : '' }}>
+                                            >10
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="onset_month">Months</label>
+                                    <select class="form-control" id="onset_month" name="onset_month">
+                                        <option class="dropdown-item" value="" {{ general_dermatology is not empty and general_dermatology.onset_month == '' ? 'selected' : '' }}>
+                                            {{ "Select Month" | e }}
+                                        </option>
+                                        {% for month in months %}
+                                            <option class="dropdown-item" value="{{ month }}" {{ general_dermatology is not empty and general_dermatology.onset_month == month ? 'selected' : '' }}>
+                                                {{ month }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="onset_week">Weeks</label>
+                                    <select class="form-control" id="onset_week" name="onset_week">
+                                        <option class="dropdown-item" value="" {{ general_dermatology is not empty and general_dermatology.onset_week == '' ? 'selected' : '' }}>
+                                            {{ "Select Week" | e }}
+                                        </option>
+                                        {% for week in weeks %}
+                                            <option class="dropdown-item" value="{{ week }}" {{ general_dermatology is not empty and general_dermatology.onset_week == week ? 'selected' : '' }}>
+                                                {{ week }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="onset-day">Days</label>
+                                    <select class="form-control" id="onset_day" name="onset_day">
+                                        <option class="dropdown-item" value="" {{ general_dermatology is not empty and general_dermatology.onset_day == '' ? 'selected' : '' }}>
+                                            {{ "Select Days" | e }}
+                                        </option>
+                                        {% for day in days %}
+                                            <option class="dropdown-item" value="{{ day }}" {{ general_dermatology is not empty and general_dermatology.onset_day == day ? 'selected' : '' }}>
+                                                {{ day }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    <div class="mt-3">
+                        <h5>{{ "Location" | e }}</h5>
+
+                        <div class="row mb-3 mt-4">
+                            <div class="col-2"><label class="label">{{ "Initially" | e }}</label></div>
+                            <div class="col-8">
+                                <input type="text" class="form-control" id="location_initially" name="location_initially" placeholder="" value="{{ general_dermatology is empty ?  '' : general_dermatology.location_initially }}"/>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-2"><label class="label">{{ "Later" | e }}</label></div>
+                            <div class="col-8">
+                                <input type="text" class="form-control" id="location_later" name="location_later" placeholder="" value="{{ general_dermatology is empty ?  '' : general_dermatology.location_later }}"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-2"><label class="label">{{ "Custom" | e }}</label></div>
+                            <div class="col-8">
+                                <input type="text" class="form-control" id="location_custom" name="location_custom" placeholder="" value="{{ general_dermatology is empty ?  '' : general_dermatology.location_custom }}"/>
+                            </div>
+                        </div>
+                    </div>
+                     <hr class="my-4">
+
+                    <div class="mt-3">
+                        <h5>{{ "Prior Treatments" | e }}</h5>
+
+                        <div class="row">
+                            <div class="col-1"><label class="label">{{ "1:" | e }}</label></div>
+                            <div class="col-5">
+                                <input type="text" class="form-control" id="prior_tx1" name="prior_tx1" placeholder="" value="{{ general_dermatology is empty ?  '' : general_dermatology.prior_tx1 }}"/>
+                            </div>
+
+                            <div class="row">
+                                <div class="col"><label class="label">{{ "Helped?" | e }}</label></div>
+                                <div class="col custom-control custom-radio">
+                                    <input class="custom-control-input" type="radio" name="prior_1" id="prior-yes1" value="yes" {{ general_dermatology is not empty and general_dermatology.prior_1 == 'yes' ? 'checked' : '' }}/>
+                                    <label class="custom-control-label label" for="prior-yes1">{{ "Yes" | e }}</label>
+                                </div>
+                                <div class="col custom-control custom-radio">
+                                    <input class="custom-control-input" type="radio" name="prior_1" id="prior-no1" value="no" {{ general_dermatology is not empty and general_dermatology.prior_1 == 'no' ? 'checked' : '' }}/>
+                                    <label class="custom-control-label label" for="prior-no1">{{ "No" | e }}</label>
+                                </div>
+                                <div class="col custom-control custom-radio">
+                                    <input class="custom-control-input" type="radio" name="prior_1" id="prior-unsure1" value="unsure" {{ general_dermatology is not empty and general_dermatology.prior_1 == 'unsure' ? 'checked' : '' }}/>
+                                    <label class="custom-control-label label" for="prior-unsure1">{{ "Unsure" | e }}</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-1"><label class="label">{{ "2:" | e }}</label></div>
+                            <div class="col-5">
+                                <input type="text" class="form-control" id="prior-tx2" name="prior_tx2" placeholder="" value="{{ general_dermatology is empty ?  '' : general_dermatology.prior_tx2 }}"/>
+                            </div>
+                            <div class="row">
+                                <div class="col"><label class="label">{{ "Helped?" | e }}</label></div>
+                                <div class="col custom-control custom-radio">
+                                    <input class="custom-control-input" type="radio" name="prior_2" id="prior-yes2" value="yes" {{ general_dermatology is not empty and general_dermatology.prior_2 == 'yes' ? 'checked' : '' }}/>
+                                    <label class="custom-control-label label" for="prior-yes2">{{ "Yes" | e }}</label>
+                                </div>
+                                <div class="col custom-control custom-radio">
+                                    <input class="custom-control-input" type="radio" name="prior_2" id="prior-no2" value="no" {{ general_dermatology is not empty and general_dermatology.prior_2 == 'no' ? 'checked' : '' }}/>
+                                    <label class="custom-control-label label" for="prior-no2">{{ "No" | e }}</label>
+                                </div>
+                                <div class="col custom-control custom-radio">
+                                    <input class="custom-control-input" type="radio" name="prior_2" id="prior-unsure2" value="unsure" {{ general_dermatology is not empty and general_dermatology.prior_2 == 'unsure' ? 'checked' : '' }}/>
+                                    <label class="custom-control-label label" for="prior-unsure2">{{ "Unsure" | e }}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row">
+                        <div class="col">
+                            <h5>{{ "Symptoms" | e }}</h5>
+                            {% for sxs in sxslist %}
+                                <div class="custom-control custom-checkbox mt-1">
+                                    <input type="hidden" name="{{ sxs|replace({' ':'', '\n':'', '\r':'', '\t':''}) }}" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="{{ sxs|replace({' ':'', '\n':'', '\r':'', '\t':''}) }}" id="{{ sxs|replace({' ':'', '\n':'', '\r':'', '\t':''}) }}" value="1" {{ general_dermatology is not empty and attribute(general_dermatology, sxs|replace({' ':'', '\n':'', '\r':'', '\t':''})) == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label label sxsLable" for="{{ sxs|replace({' ':'', '\n':'', '\r':'', '\t':''}) }}">{{ sxs | e }}</label>
+                                </div>
+                            {% endfor %}
+
+                        </div>
+                        <div class="col">
+                            <h5>{{ "Symptom Severity" | e }}</h5>
+                            <div class="row">
+                        <div class="col-4">
+                                    <input type="text" class="form-control" id="severity_text" name="severity_text" placeholder="" value="{{ general_dermatology is empty ? '' : general_dermatology.severity_text|default('') }}"/>
+                                </div>
+                                <div class="col-8">
+                                    <div class="row">
+                                        <div class="col">/10</div>
+                                        <div class="col custom-control custom-checkbox">
+                                            <input type="hidden" name="sx_pain" value="0">
+                                            <input class="custom-control-input" type="checkbox" name="sx_pain" id="sx_pain" value="1" {{ general_dermatology is not empty and general_dermatology.sx_pain == 1 ? 'checked' : '' }}/>
+                                            <label class="custom-control-label label" for="sx_pain">{{ "Pain" | e }}</label>
+                                        </div>
+                                        <div class="col custom-control custom-checkbox">
+                                            <input type="hidden" name="sx_itch" value="0">
+                                            <input class="custom-control-input" type="checkbox" name="sx_itch" id="sx_itch" value="1" {{ general_dermatology is not empty and general_dermatology.sx_itch == 1 ? 'checked' : '' }}/>
+                                            <label class="custom-control-label label" for="sx_itch">{{ "Itch" | e }}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="custom-control custom-checkbox mt-3">
+                                    <input type="hidden" name="affecting_adls" value="0">
+                                    <input type="checkbox" id="affecting_adls" name="affecting_adls" class="custom-control-input" value="1" {{ general_dermatology is not empty and general_dermatology.affecting_adls == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label label" for="affecting_adls">{{ "Affecting ADLs" | e }}</label>
+                                </div>
+                                <div class="custom-control custom-checkbox  mt-1">
+                                    <input type="hidden" name="affecting_sleep" value="0">
+                                    <input type="checkbox" id="affecting_sleep" name="affecting_sleep" class="custom-control-input" value="1" {{ general_dermatology is not empty and general_dermatology.affecting_sleep == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label label" for="affecting_sleep">{{ "Affecting sleep" | e }}</label>
+                                </div>
+                                <div class="custom-control custom-checkbox mt-1">
+                                    <input type="hidden" name="unrelenting" value="0">
+                                    <input type="checkbox" id="unrelenting" name="unrelenting" class="custom-control-input" value="1" {{ general_dermatology is not empty and general_dermatology.unrelenting == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label label" for="unrelenting">{{ "Unrelenting" | e }}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="hidden" name="asymptomatic" value="0">
+                            <input type="checkbox" id="asymptomatic" name="asymptomatic" class="custom-control-input" value="1" {{ general_dermatology is not empty and general_dermatology.asymptomatic == 1 ? 'checked' : '' }}/>
+                            <label class="custom-control-label" for="asymptomatic">{{ "asymptomatic" | e }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="form-custom-header">
+                    <h3>{{ "Exam" | e }}</h3>
+                </div>
+                <div>
+                    <button type="button" id="addNewExam" onclick="reviewOfSystems()" class="btn btn-primary">{{ "Review of Systems Check" | e }}</button>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-4">
+                            <div>
+                                <h5>{{ "Appearance" | e }}</h5>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="hidden" name="well_developed" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="well_developed" id="well_developed" checked value="1" {{ general_dermatology is not empty and general_dermatology.well_developed == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label" for="well_developed">{{ "Well developed" | e }}</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="hidden" name="well_nourished" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="well_nourished" id="well_nourished" checked value="1" {{ general_dermatology is not empty and general_dermatology.well_nourished == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label" for="well_nourished">{{ "Well nourished" | e }}</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="hidden" name="obese" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="obese" id="obese" value="1" {{ general_dermatology is not empty and general_dermatology.obese == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label" for="obese">{{ "Obese" | e }}</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="hidden" name="anorexic" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="anorexic" id="anorexic" value="1" {{ general_dermatology is not empty and general_dermatology.anorexic == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label" for="anorexic">{{ "Anorexic" | e }}</label>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <h5>{{ "Orientation" | e }}</h5>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="hidden" name="time" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="time" id="time" checked value="1" {{ general_dermatology is not empty and general_dermatology.time == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label" for="time">{{ "Time" | e }}</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="hidden" name="place" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="place" id="place" checked value="1" {{ general_dermatology is not empty and general_dermatology.place == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label" for="place">{{ "Place" | e }}</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="hidden" name="person" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="person" id="person" checked value="1" {{ general_dermatology is not empty and general_dermatology.person == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label" for="person">{{ "Person" | e }}</label>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <h5>{{ "Mood and Effect" | e }}</h5>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="hidden" name="alert" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="alert" id="alert" checked value="1" {{ general_dermatology is not empty and general_dermatology.alert == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label" for="alert">{{ "Alert" | e }}</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="hidden" name="uncomfortable" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="uncomfortable" id="uncomfortable" value="1" {{ general_dermatology is not empty and general_dermatology.uncomfortable == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label" for="uncomfortable">{{ "Uncomfortable" | e }}</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="hidden" name="anxious" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="anxious" id="anxious" value="1" {{ general_dermatology is not empty and general_dermatology.anxious == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label" for="anxious">{{ "Anxious" | e }}</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="hidden" name="flat" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="flat" id="flat" value="1" {{ general_dermatology is not empty and general_dermatology.flat == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label" for="flat">{{ "Flat" | e }}</label>
+                                </div>
+                            </div>
+                            <div class="mt-5">
+                                <h5>{{ "Vital Signs" | e }}</h5>
+                                <div class="form-group">
+                                    <label for="vital-bp">{{ "BP" | e }}</label>
+                                    <input class="form-control" type="text" name="vital_bp" id="vital_bp" value="{{ general_dermatology is empty ?  '' : general_dermatology.vital_bp }}"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="vital-hr">{{ "HR" | e }}</label>
+                                    <input class="form-control" type="text" name="vital_hr" id="vital_hr" value="{{ general_dermatology is empty ?  '' : general_dermatology.vital_hr }}"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="vital-rr">{{ "RR" | e }}</label>
+                                    <input class="form-control" type="text" name="vital_rr" id="vital_rr" value="{{ general_dermatology is empty ?  '' : general_dermatology.vital_rr }}"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <h5>{{ "Sites Examined" | e }}</h5>
+                            <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox" name="{{ "Select All" }}" id="{{ "checkAll_Sites_Examined" }}" />
+                                    <label class="custom-control-label" for="{{ "checkAll_Sites_Examined" }}">{{ "Select All" }}</label>
+                            </div>
+                            {% for site in sites %}
+                                <div class="custom-control custom-checkbox">
+                                    <input type="hidden" name="{{ site|replace({' ':'', '\n':'', '\r':'', '\t':''})|lower }}" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="{{ site|replace({' ':'', '\n':'', '\r':'', '\t':''})|lower }}" id="{{ site|replace({' ':'', '\n':'', '\r':'', '\t':''})|lower }}" value="1" {{ general_dermatology is not empty and attribute(general_dermatology, site|replace({' ':'', '\n':'', '\r':'', '\t':''})|lower) == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label" for="{{ site|replace({' ':'', '\n':'', '\r':'', '\t':''})|lower }}">{{ site|replace({'-': ' '})|title }}</label>
+                                </div>
+                            {% endfor %}
+
+
+                            <div class="mt-3">
+                                <textarea class="form-control" name="sites_examined_text" id="sites_examined_text" cols="30" rows="3" value="{{ general_dermatology is empty ?  '' : general_dermatology.sites_examined_text }}">{{ general_dermatology is empty ?  '' : general_dermatology.sites_examined_text }}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <h5>{{ "Lymph nodes palpated" | e }}</h5>
+                            <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox" name="{{ "Select All" }}" id="{{ "checkAll_Lymph_Nodes" }}" />
+                                    <label class="custom-control-label" for="{{ "checkAll_Lymph_Nodes" }}">{{ "Select All" }}</label>
+                            </div>
+                            {% for lnpalpated in lnpalpateds %}
+                                <div class="custom-control custom-checkbox">
+                                    <input type="hidden" name="{{ lnpalpated | e }}" value="0">
+                                    <input class="custom-control-input" type="checkbox" name="{{ lnpalpated | e }}" id="{{ lnpalpated | e }}" value="1" {{ general_dermatology is not empty and attribute(general_dermatology, lnpalpated) == 1 ? 'checked' : '' }}/>
+                                    <label class="custom-control-label" for="{{ lnpalpated | e }}">{{ lnpalpated | e }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-l-12 col-xl-12">
+                <div class="form-custom-header mt-1">
+                    <h3>{{ "Findings/ Impression/ Plan" | e }}</h3>
+                </div>
+                <div id="plan-forms">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="swiper">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide">
+                                        <img src="../../forms/general_dermatology/public/images/body-map.jpg" class="body-map" usemap="#body-map" alt="body-map" width="500px"/>
+                                    </div>
+                                    <div class="swiper-slide">
+                                        <img src="../../forms/general_dermatology/public/images/face-map.png" class="body-map" usemap="#face-map" alt="face-map" width="500px"/>
+                                    </div>
+                                </div>
+                                <div class="swiper-pagination"></div>
+                                <div class="swiper-scrollbar"></div>
+                            </div>
+
+                            {% include "map_code.html" %}
+                            <!--preview-->
+                            <span id="organs-tip"></span>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div style="clear: both; height: 8px"></div>
+                                    <div id="selections" style="clear: both"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="treatment_count" value="{{ elementCount }}" />
+                    <input type="hidden" id="plan_count" value="0" />
+                    <input type="hidden" id="total_treatment_count" value="{{ elementCount }}" />
+                    {% if treatments is not empty %}
+
+                        {% for index, treatment in treatments %}
+
+                            {# {% for item in treatment %} #}
+                            <div class="custom-icd-form" id="custom-icd-form-{{index}}" {% if index % 2 == 1 %} style="background-color: #f1f1f1;" {% endif %}>
+
+                <button type="button" id="delete-button-{{ index }}" class="btn btn-danger remove_plan mb-3" data-name="treatment[{{ index }}][severity_drop]" selected-value="{{ treatment.severity_drop }}" data-value="{{ index }}">Delete</button>
+                                <div class="row">
+                                    <div class="col-2">
+                                        <label for="finding-location">{{ "Location" | e }}</label>
+                                    </div>
+                                    <div class="col-8">
+                        <input type="text" class="form-control finding-location" name="treatment[{{ index }}][finding_location]" value="{{treatment.finding_location}}" data-finding-index="{{ index }}"/>
+                        <input type="hidden" class="finding-location-json" name="treatment[{{ index }}][location_json]" value="{{ (treatment.location|default({}))|json_encode|e('html_attr') }}"/>
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                <div class="col-2" id="icd-text-num-{{ index }}">
+                                       <label> {{ "ICD Dx" | e }} #{{ index + 1 }}</label>
+                                    </div>
+                                    <div class="col-8">
+                                        <select desc-id="dx-desc-{{index}}" id="dx-s-{{index}}" name="treatment[{{ index }}][dx_s]" class="form-select w-100 dx-s custom-select">
+                                            <option value="">Select Diagnosis</option>
+                                            {% for key, value in codes %}
+                                                <option class="dropdown-item" value="{{ key }}" {% if key == treatment.dx_s %}selected{% endif %}>
+                                                    {{ value }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+
+                                    </div>
+                                </div>
+
+                                <div class="row mt-4">
+                                    <div class="col-2">
+                                        <label>{{ "ICD Dx" | e }} <br/> {{ "Alternative" | e }}</label>
+                                    </div>
+                                    <div class="col-8">
+                                <textarea class="form-control" name="treatment[{{ index }}][icd_alt]" id="icd-alt-{{ index }}" cols="90" rows="2" value="{{treatment.icd_alt}}">{{treatment.icd_alt}}</textarea>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-4">
+                                    <div class="col-2"><label>{{ "Description" | e }}</label></div>
+                                    <div class="col-8" id="description-click-{{ index }}">
+                                        <select id="dx-desc-{{index}}" name="treatment[{{ index }}][dx_desc]" class="form-select w-100 dx-desc custom-select" title="Click Here to Select Description" multiple>
+                                            <option selected>{{treatment.dx_desc}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                    <div class="col-2">
+                                        <label>{{ "Description" | e }} <br/> {{ "Alternative" | e }}</label>
+                                    </div>
+                                    <div class="col-8">
+                                <textarea class="form-control" name="treatment[{{ index }}][dx_alt]" id="dx-alt-{{ index }}" cols="90" rows="2" value="{{treatment.dx_alt}}">{{treatment.dx_alt}}</textarea>
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                    <div class="col-2"><label>{{ "Severity" | e }}</label></div>
+                                    <div class="col-8">
+                                        <div class="form-group">
+                                        <select class="form-control severity-pick" name="treatment[{{ index }}][severity_drop]">
+                                                {% for key, value in severities %}
+                                                    <option class="dropdown-item" value="{{ key }}" {% if key == treatment.severity_drop %}selected{% endif %}>
+                                                        {{ value }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr class="my-4">
+                                <div class="mt-2">
+                                    <h5 id="plan-text-num-{{ index }}">{{ "Plan" | e }} #{{ index + 1 }}</h5>
+                                    <textarea class="form-control" name="treatment[{{ index }}][plan]" id="plan-{{ index }}" cols="90" rows="3" value="{{treatment.plan}}">{{treatment.plan}}</textarea>
+                                </div>
+                                <div class="mt-4">
+                                    <h5 id="procedure-plan-num-{{ index }}">{{ "Procedure Plan" | e }} #{{ index + 1 }}</h5>
+                                    <div class="form-group">
+                                        <select class="form-control procedure_plan_select" name="treatment[{{ index }}][procedure_plans]"  id="procedure-plans" count="{{index}}">
+                                            <option value="">Procedure Plans</option>
+                                            {% for key, value in plans %}
+                                                <option value="{{ key }}" {% if key == treatment.procedure_plans %}selected{% endif %}>
+                                                    {{ value }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+
+                                    </div>
+                                    <textarea class="form-control mt-2" name="treatment[{{ index }}][plan_desc]" id="{% if index == 0 %}plan-desc{% else %}plan-desc-{{ index }}{% endif %}" cols="90" rows="3" value="{{treatment.plan_desc}}">{{treatment.plan_desc}}</textarea>
+                                    <div id="{% if index == 0 %}render-restofplans{% else %}render-restofplans-{{ index }}{% endif %}" name="{% if index == 0 %}render-restofplans{% else %}render-restofplans-{{ index }}{% endif %}" class="row" style="margin:15px auto;">
+                                        <div class="col-12">
+                                            <h4>{{ "Procedure Details:" | e }}</h4>
+                                            {% set titleAdded = false %}
+                                            {% for ind, treat in treatment %}
+                                            {% set prependTag = "<p style=\"display: inline-block; margin: 2px 0 2px 0;\">" %}
+                                            {% if titleAdded == false %}
+                                                {% set prependTag = "<p style=\"display: inline-block; margin: 2px 0 2px 0;\"> , " %}
+                                            {% endif %}
+                                            {% if 'neuromodulator-inner' in ind %}
+                                                {% set prependTag = "<p style=\"display: inline-block; margin: 2px 0 2px 0;\">" %}
+                                            {% endif %}
+
+                                                {% if ind not in ['plan_desc', 'procedure_plans', 'plan', 'severity_drop', 'dx_alt', 'minutes', 'dx_desc', 'dx_s', 'finding_location','icd_alt','location','location_json'] %}
+                                                    {% if treat is not empty %}
+
+                                                    {% if 'title' in ind%}
+                                                        {% set formatted_title = ind|replace({
+                                                                    'cantharidin-': '',
+                                                                    'cryotherapy-': '',
+                                                                    'incision-': '',
+                                                                    'intralesional-': '',
+                                                                    'nonlaser-': '',
+                                                                    'laser-': '',
+                                                                    'peel-': '',
+                                                                    'silver-': '',
+                                                                    'snip-': '',
+                                                                    'electro-': '',
+                                                                    'debridement-': '',
+                                                                    'dermabrasion-': '',
+                                                                    'extraction-': '',
+                                                                    'hyfrecation-': '',
+                                                                    'filler-': '',
+                                                                    'sclerotherapy-': '',
+                                                                    'biopsy-': '',
+                                                                    'photodynamic-': '',
+                                                                    'platelet-': '',
+                                                                    'microneedling-': '',
+                                                                    'unna-': '',
+                                                                    'neuromodulator-': '',
+                                                                    'title': '',
+                                                                    '-':' ',
+                                                                    '_':' '
+                                                                }) %}
+
+                                                        {% set titleAdded = true %}
+
+                                                        <h5 style="margin: 5px 0 0 0;">{{ displayValues[formatted_title] ? displayValues[formatted_title] : formatted_title|capitalize }}</h5>
+                                                        {% else %}
+                                                    {% endif %}
+                                                        {% if ind in ['areas_cryotherapy', 'areas_cantharidin', 'areas_incision','areas_intralesional', 'areas_electro', 'areas_debridement', 'areas_dermabrasion', 'areas_extraction', 'areas_hyfrecation','areas_laser','areas_nonlaser','areas_peel','areas_silver','areas_snip','areas_sclerotherapy','areas_photodynamic','areas_platelet','areas_microneedling'] %}
+                                                            <p style="display: inline-block; margin: 2px 0 2px 0;">Treated areas : {{ treat|replace({',': ', '}) }}</p>
+
+                                                        {% elseif ind in ['areas_biopsy'] %}
+                                                            <p style="display: inline-block; margin: 2px 0 2px 0;">{{ treat|replace({',': ', '}) }}</p>
+
+                                                        {% elseif 'title' not in ind%}
+                                                        {% set titleAdded = false %}
+                                                            {% set formatted_ind = ind|replace({
+                                                                'cantharidin_': '-',
+                                                                'cryotherapy_': '-',
+                                                                'incision-': '-',
+                                                                'intralesional-': '-',
+                                                                'nonlaser-': '-',
+                                                                'laser-': '-',
+                                                                'peel-': '-',
+                                                                'silver-': '-',
+                                                                'snip-': '-',
+                                                                'electro-': '-',
+                                                                'debridement-': '-',
+                                                                'dermabrasion-': '-',
+                                                                'extraction-': '-',
+                                                                'hyfrecation-': '-',
+                                                                'filler-': '-',
+                                                                'sclerotherapy-': '-',
+                                                                'biopsy-': '-',
+                                                                'photodynamic-': '-',
+                                                                'platelet-': '-',
+                                                                'microneedling-': '-',
+                                                                'unna-': '-',
+                                                                'neuromodulator-': '-',
+                                                            })|capitalize %}
+                                                            {{prependTag}}{{ 'free' not in formatted_ind ? (displayValues[formatted_ind] ? displayValues[formatted_ind] : formatted_ind|replace({'-': ' ', '_': ' '})|capitalize) : '' }}  {{ treat == '1' ? '' : ('free' not in formatted_ind ? ' : ')~ treat }} </p>
+
+                                                        {% endif %}
+                                                        <input type="hidden" name="treatment[{{ index }}][{{ ind }}]" id="treated-{{index}}" value="{{ treat }}">
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+
+                                    </div>
+                                    <button type="button" id="{% if index == 0 %}plan-modal{% else %}plan-modal-{{ index }}{% endif %}" class="btn btn-primary plan-modal" data-toggle="modal" data-target="#{{ treatment.procedure_plans|lower }}" data-plan="{{ treatment.procedure_plans|lower }}" count="{{index}}">{{ "Procedure Details" | e }}</button>
+
+                                </div>
+                            </div>
+                            {# {% endfor %} #}
+                        {% endfor %}
+
+                    {% endif %}
+
+                </div>
+    <div style="display:none;">
+    <div class="custom-icd-form" id="custom-icd-form-sample" {% if i % 2 == 1 %} style="background-color: #f1f1f1;" {% endif %}>
+                            <button type="button" class="btn btn-danger remove_plan mb-3 d-none" id="delete_button" data-name="" data-value="{{0}}">Delete</button>
+                            <input id="new-plan" type="hidden">
+                            <input id="plan_id" type="hidden" value="0">
+                            <div class="row">
+                                <div class="col-2">
+                                    <label for="finding-location">{{ "Location" | e }}</label>
+                                </div>
+                                <div class="col-8">
+                                    <input type="text" class="form-control finding-location" name="" id="finding-location"/>
+                                    <input type="hidden" class="finding-location-json" name="" id="finding-location-json" value=""/>
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-2" id="icd-text-num">
+                                    <label>{{ "ICD Dx" | e }} #1</label>
+                                </div>
+                                <div class="col-8">
+                                    <select id="dx-s" name="" class="form-select w-100 dx-s custom-select">
+                                        <option selected>{{ "Select Diagnosis" | e }}</option>
+                                        {% for key, value in codes %}
+                                            <option class="dropdown-item" value="{{ key }}">
+                                                {{ value }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-2">
+                                    <label>{{ "ICD Dx" | e }} <br/> {{ "Alternative" | e }}</label>
+                                </div>
+                                <div class="col-8">
+                                    <textarea class="form-control" name="" id="icd-alt" cols="90" rows="2"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-2"><label>{{ "Description" | e }}</label></div>
+                                <div class="col-8" id="description-click">
+                                    <select id="dx-desc" name="" class="form-select w-100 dx-desc custom-select" title="Click Here to Select Description" multiple>
+                                        <option disabled selected>{{ "Select a diagnosis description" | e }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-2">
+                                    <label>{{ "Description" | e }} <br/> {{ "Alternative" | e }}</label>
+                                </div>
+                                <div class="col-8">
+                                    <textarea class="form-control" name="" id="dx-alt" cols="90" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-2"><label>{{ "Severity" | e }}</label></div>
+                                <div class="col-8">
+                                    <div class="form-group">
+                                        <select class="form-control severity-pick" name="" id="severity-drop">
+                                            {% for key, value in severities %}
+                                                <option class="dropdown-item" value="{{ key }}">
+                                                    {{ value }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <div class="mt-2">
+                                <h5 id="plan-text-num">{{ "Plan" | e }} #1</h5>
+                                <textarea class="form-control" name="" id="plan" cols="90" rows="3"></textarea>
+                            </div>
+                            <div class="mt-4">
+                                <h5 id="procedure-plan-num">{{ "Procedure Plan" | e }} #1</h5>
+                                <div class="form-group">
+                                    <select class="form-control" name="" id="procedure-plans">
+                                        <option class="dropdown-item" value="">{{ "Procedure Plans" | e }}</option>
+                                        {% for key, value in plans %}
+                                            <option class="dropdown-item" value="{{ key }}">
+                                                {{ value }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <textarea class="form-control mt-2" name="" id="plan-desc" cols="90" rows="3"></textarea>
+                                <div id="render-restofplans" name="render-restofplans" class="row" style="margin:15px auto;"></div>
+                                <button type="button" id="plan-modal" class="btn btn-primary plan-modal mt-4" data-toggle="modal" data-target="" count="0">{{ "Procedure Details" | e }}</button>
+                            </div>
+                        </div>
+    </div>
+                <hr class="my-4">
+                <div class="col-8">
+                <button type="button" id="addNewPlan" class="btn btn-primary">{{ "Add New Impression" | e }}</button>
+                </div>
+                <hr class="my-4">
+
+
+                <div class="form-group row custom-icd-form mb-0">
+                    <div class="row">
+                        <h5>{{ "Charges" | e }}:</h5>
+                    </div>
+                    <div class="row w-100">
+                        <input type="text" id="code_search" class="form-control" placeholder="Search for codes">
+                        <table id="charges_table" class="table">
+                            <tr>
+                                <th>{{ "Code" | e }}</th>
+                                <th>{{ "Description" | e }}</th>
+                                <th>{{ "Modifier" | e }}</th>
+                                <th>{{ "Note" | e }}</th>
+                                <th>{{ "Justify" | e }}</th>
+                                <th></th>
+                            </tr>
+
+                        </table>
+                    </div>
+                </div>
+                <div class="form-group row custom-icd-form mb-0">
+                    <div class="row">
+                        <h5>{{ "Time spent (minutes)" | e }}:</h5>
+                    </div>
+                    <div class="row w-100">
+                        {# <input type="text" class="form-control" readonly id="total_spent"  name="total_spent" value="{{ general_dermatology is empty ?  0 : general_dermatology.total_spent }}" /> #}
+                        <input type="hidden" class="form-control" id="total_spent" name="total_spent"/>
+                        <input type="hidden" class="form-control" id="billing_code" name="billing_code"/>
+                        <div class="row w-100 pb-2">
+                            <span class="col-2 pr-0">{{ "Time Spent" | e }}</span>
+                            <div class="custom-control custom-checkbox col-2 p-0">
+                                <input type="text" class="form-control" id="total_time_spent" name="total_time_spent" placeholder="" value="{{ general_dermatology is empty ?  '' : general_dermatology.total_time_spent }}"/>
+                            </div>
+                        </div>
+                        <div class="row w-100 pb-2 pl-3">
+                            <div class="row w-100 pb-2 pl-3">
+                                {% for key, value in reviewNotes %}
+                                    <div class="custom-control custom-checkbox col-12 pr-0">
+                                        <input type="hidden" name="{{ key }}" value="0">
+                                        <input class="custom-control-input" type="checkbox" name="{{ key }}" id="{{ key }}" value="1" {{ general_dermatology is not empty and attribute(general_dermatology, key) == 1 ? 'checked' : '' }}/>
+                                        <label class="custom-control-label" for="{{ key }}">{{ value }}</label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row custom-icd-form mt-0">
+                    <div class="col-3">
+                        <label for="finding-location">{{ "Selected severity counts" | e }}:</label>
+                        <input type="hidden" class="form-control" id="total_severity" name="total_severity"/>
+
+                        <span class="form-control d-none" id="fetch_severity"/>{{ general_dermatology is empty ?  '' : general_dermatology.total_severity }}</span>
+                    </div>
+                    <div class="col-8">
+                        <ul id="nameList">{{ general_dermatology is empty ?  '' : general_dermatology.total_severity }}</ul>
+                    </div>
+                </div>
+
+                <div class="form-group row custom-icd-form mt-0">
+                    <div class="col-2">
+                        <label>{{ "Follow up details : " | e }}</label>
+                    </div>
+                    <div class="col-8">
+                        <textarea class="form-control" name="general_derm_patient_follow_up" id="general_derm_patient_follow_up" cols="90" rows="2" value="{{general_dermatology.general_derm_patient_follow_up}}">{{general_dermatology is empty ?  '' : general_dermatology.general_derm_patient_follow_up is empty ? '' : general_dermatology.general_derm_patient_follow_up}}</textarea>
+                    </div>
+                </div>
+
+                 <hr class="my-4">
+            </div>
+        </div>
+         <hr class="my-4">
+         <div class="row mb-4" style="text-align:center;">
+            <div class="col-2">
+                <label>{{ "Note : " | e }}</label>
+            </div>
+            <div class="col-8">
+                <textarea class="form-control" name="general_derm_note" id="general_derm_note" cols="90" rows="2" value="{{general_dermatology.general_derm_note}}">{{general_dermatology is empty ?  'All questions answered. Risks, benefits, alternatives reviewed. Patient (and/or guardian) expressed understanding and agreed to treatment plan.' : general_dermatology.general_derm_note is empty ? 'All questions answered. Risks, benefits, alternatives reviewed. Patient (and/or guardian) expressed understanding and agreed to treatment plan.' : general_dermatology.general_derm_note}}</textarea>
+            </div>
+         </div>
+        <div class="form-group" style="text-align:center;">
+            <div class="btn-group" role="group">
+                {% if isTemplateMode %}
+                    <button type="submit" class="btn btn-primary btn-save">
+                        {% if editingTemplateId is defined and editingTemplateId %}
+                            {{ "Save Template" | e }}
+                        {% else %}
+                            {{ "Create Template" | e }}
+                        {% endif %}
+                    </button>
+                    {% if editingTemplateId is defined and editingTemplateId %}
+                        <button type="submit"
+                                class="btn btn-outline-primary"
+                                formaction="../../forms/general_dermatology/save.php?mode=saveTemplate">
+                            {{ "Save as New Template" | e }}
+                        </button>
+                    {% endif %}
+                    {% if templateManagerUrl is defined and templateManagerUrl %}
+                        <a class="btn btn-secondary" href="{{ templateManagerUrl|e }}" onclick="if (typeof top.restoreSession === 'function') { top.restoreSession(); }">{{ "Back to Manager" | e }}</a>
+                    {% endif %}
+                {% else %}
+                    <button type="submit" class="btn btn-primary btn-save">{{ "Save" | e }}</button>
+                    <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);">{{ "Cancel" | e }}</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group" style="text-align:center;">
+            <div class="card card-body d-inline-block text-left" style="max-width: 720px; width: 100%;">
+                <h5 class="mb-2">{% if isTemplateMode %}{{ "Template details" | e }}{% else %}{{ "Save as Template" | e }}{% endif %}</h5>
+                {% if not isTemplateMode %}
+                    <p class="small text-muted mb-2">{{ "Remove patient-specific details before saving a reusable template. Billing charges are not stored in templates." | e }}</p>
+                {% endif %}
+                <div class="form-row">
+                    <div class="form-group col-md-6 mb-2">
+                        <label for="general_dermatology_form_template_name">{{ "Template Name" | e }}</label>
+                        <input type="text"
+                               class="form-control"
+                               id="general_dermatology_form_template_name"
+                               name="general_dermatology_form_template_name"
+                               placeholder="{{ "e.g. FBSE-male" | e }}"
+                               maxlength="255"
+                               value="{{ general_dermatology is not empty and general_dermatology.general_dermatology_form_template_name is defined ? general_dermatology.general_dermatology_form_template_name : '' }}"
+                               {% if isTemplateMode %}required{% endif %} />
+                    </div>
+                    <div class="form-group col-md-6 mb-2">
+                        <label for="template_description">{{ "Description (optional)" | e }}</label>
+                        <input type="text"
+                               class="form-control"
+                               id="template_description"
+                               name="template_description"
+                               maxlength="500"
+                               placeholder="{{ "Short note about when to use this template" | e }}"
+                               value="{{ general_dermatology is not empty and general_dermatology.template_description is defined ? general_dermatology.template_description : '' }}" />
+                    </div>
+                </div>
+                {% if not isTemplateMode %}
+                    <button type="submit"
+                            class="btn btn-primary btn-save"
+                            formaction="../../forms/general_dermatology/save.php?mode=saveTemplate"
+                            onclick="return validateSaveAsTemplate();">
+                        {{ "Save as Template" | e }}
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </fieldset>
+    </form>
+    <script>
+        function validateSaveAsTemplate() {
+            var nameInput = document.getElementById('general_dermatology_form_template_name');
+            var name = nameInput ? nameInput.value.trim() : '';
+            if (name.length < 3) {
+                window.alert('Template name is required (at least 3 characters).');
+                if (nameInput) {
+                    nameInput.focus();
+                }
+                return false;
+            }
+            return true;
+        }
+    </script>
+    <script>
+        const searchInput = document.getElementById('code_search');
+        const autocompleteList = document.createElement('ul');
+        autocompleteList.id = 'autocomplete-list';
+
+        // Ensure the container is relatively positioned
+        const inputContainer = searchInput.parentNode;
+        inputContainer.style.position = 'relative';
+        inputContainer.appendChild(autocompleteList);
+
+        // Function to position the autocomplete list properly
+        function positionAutocompleteList() {
+            const inputRect = searchInput.getBoundingClientRect();
+            autocompleteList.style.top = `${inputRect.height + 5}px`; // Places it right below input
+            autocompleteList.style.width = `${inputRect.width}px`; // Matches width of input
+        }
+
+        // Function to fetch and update autocomplete suggestions
+        async function fetchAutocompleteResults(query) {
+            if (!query.trim()) {
+                autocompleteList.innerHTML = '';
+                autocompleteList.style.display = 'none';
+                return;
+            }
+
+            try {
+                const csrfInput = document.querySelector('input[name="csrf_token_form"]');
+                const csrfToken = csrfInput ? csrfInput.value : '';
+                const response = await fetch('../../forms/general_dermatology/public/api/fetchCodeData.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ query, csrf_token_form: csrfToken })
+                });
+
+                const searchData = await response.json();
+                updateAutocompleteList(searchData);
+                positionAutocompleteList(); // Ensure proper placement
+            } catch (error) {
+                console.error('Error fetching autocomplete data:', error);
+            }
+        }
+        // Ensure autocomplete list is hidden initially
+        autocompleteList.style.display = 'none';
+        // Function to update the dropdown list
+        function updateAutocompleteList(data) {
+            autocompleteList.innerHTML = ''; // Clear previous results
+
+            if (data.length === 0) {
+                autocompleteList.style.display = 'none';
+                return;
+            }
+
+            data.forEach((item) => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('autocomplete-item');
+
+                const codeDiv = document.createElement('span');
+                codeDiv.textContent = item.code;
+                codeDiv.style.fontWeight = 'bold';
+                codeDiv.style.minWidth = '80px';
+
+                const textDiv = document.createElement('span');
+                textDiv.textContent = item.code_text;
+                textDiv.style.flexGrow = '1';
+
+                listItem.appendChild(codeDiv);
+                listItem.appendChild(textDiv);
+                autocompleteList.appendChild(listItem);
+            });
+
+            autocompleteList.style.display = 'block'; // Show dropdown
+        }
+
+        // Listen for input changes
+        searchInput.addEventListener('input', (e) => {
+            const searchQuery = e.target.value;
+            fetchAutocompleteResults(searchQuery);
+        });
+
+        // Hide autocomplete when clicking outside
+        autocompleteList.addEventListener('click', (e) => {
+            const clickedItem = e.target.closest('.autocomplete-item');
+            if (clickedItem) {
+                const code = clickedItem.querySelector('span:first-child').textContent.trim();
+                const description = clickedItem.querySelector('span:last-child').textContent.trim();
+
+                // Insert the new row into the charge table
+                handleAutocompleteSelect(code, description);
+
+                // Clear and hide the autocomplete list
+                autocompleteList.innerHTML = '';
+                autocompleteList.style.display = 'none';
+            }
+        });
+
+        const chargeTable = document.getElementById('charges_table'); // Get the table element
+        let rowIndex = 0; // Keeps track of how many rows are added
+
+        // Function to handle the selection of an autocomplete item
+        function handleAutocompleteSelect(code, description) {
+            rowIndex++; // Increment row index for unique naming
+
+            // Create a new row
+            const newRow = document.createElement('tr');
+
+            // Create the options for the select field
+            let justifyOptions = '';
+            for (let i = 0; i < justified.length; i++) {
+                justifyOptions += `<option value="${justified[i]}">${justified[i]}</option>`;
+            }
+
+            // Define the row HTML with unique names for each entry
+            newRow.innerHTML = `
+        <td style="width: 185px">
+            <input type="text" class="form-control" name="claim[${rowIndex}][code]" value="${code}" readonly>
+        </td>
+        <td>
+            <input type="text" class="form-control" name="claim[${rowIndex}][description]" value="${description}" readonly>
+        </td>
+        <td style="width: 165px">
+            <input type="text" class="form-control" name="claim[${rowIndex}][modifier]">
+        </td>
+        <td>
+            <input type="text" class="form-control" name="claim[${rowIndex}][note]">
+        </td>
+        <td style="width: 400px">
+            <select class="form-control selectpicker" name="claim[${rowIndex}][justify][]" multiple>
+                <option value="0"></option>
+                ${justifyOptions}
+            </select>
+        </td>
+        <td style="width: 50px; text-align: center;">
+            <button type="button" class="btn btn-danger btn-sm delete-row">X</button>
+        </td>
+    `;
+
+            // Append the new row to the charge table
+            chargeTable.appendChild(newRow);
+
+            // Initialize Select2 on the new select element
+            $(newRow).find('.selectpicker').select2({
+                placeholder: "Select DX Codes",
+                allowClear: true,
+                width: '100%' // Or 'resolve'
+            });
+
+            // Add event listener to delete button
+            newRow.querySelector('.delete-row').addEventListener('click', function () {
+                newRow.remove(); // Removes the row when delete button is clicked
+            });
+        }
+    </script>
+
+    {# {% include 'procedure-modal.twig' %} #}
+    {% include './modals/cantharidin.twig' %}
+    {% include './modals/cryotherapy.twig' %}
+    {% include './modals/debridement.twig' %}
+    {% include './modals/dermabrasion.twig' %}
+    {% include './modals/electro.twig' %}
+    {% include './modals/extraction.twig' %}
+    {% include './modals/filler.twig' %}
+    {% include './modals/hyfrecation.twig' %}
+    {% include './modals/incision.twig' %}
+    {% include './modals/intralesional.twig' %}
+    {% include './modals/laser.twig' %}
+    {% include './modals/nonlaser.twig' %}
+    {% include './modals/peel.twig' %}
+    {% include './modals/silver.twig' %}
+    {% include './modals/snip.twig' %}
+    {% include './modals/sclerotherapy.twig' %}
+    {% include './modals/biopsy.twig' %}
+    {% include './modals/photodynamic.twig' %}
+    {% include './modals/platelet.twig' %}
+    {% include './modals/microneedling.twig' %}
+    {% include './modals/unna.twig' %}
+    {% include './modals/neuromodulator.twig' %}
+    {% include './modals/bodymap.twig' %}
+    <script>
+    {% include './js/reviewOfSystems.js' %}
+    </script>
+    {% endblock %}

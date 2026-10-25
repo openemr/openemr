@@ -1,0 +1,298 @@
+<div class="modal" id="hyfrecation">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Hyfrecation" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input type="text" id="hyfrecation-Skin-prep-title" hidden />
+          <div class="row col-12">
+            <div class="col-4 label">{{ "Skin prep" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-alcohol" #} id="hyfrecation-alcohol" />
+                  <label class="custom-control-label" for="hyfrecation-alcohol"> {{ "Alcohol" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-hibiclens" #} id="hyfrecation-hibiclens" />
+                  <label class="custom-control-label" for="hyfrecation-hibiclens"> {{ "Hibiclens" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-iodine" #} id="hyfrecation-iodine" />
+                  <label class="custom-control-label" for="hyfrecation-iodine"> {{ "Iodine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-lasercyn" #} id="hyfrecation-lasercyn" />
+                  <label class="custom-control-label" for="hyfrecation-lasercyn"> {{ "Lasercyn" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="hyfrecation-skin-prep-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="hyfrecation-Anesthetic-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-none" #} id="hyfrecation-none" />
+                  <label class="custom-control-label" for="hyfrecation-none"> {{ "None" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-topical-5p-lidocaine" #} id="hyfrecation-topical-5p-lidocaine" />
+                  <label class="custom-control-label" for="hyfrecation-topical-5p-lidocaine"> {{ "Topical 5% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-topical-23p-lidocaine-7p-tetracaine" #} id="hyfrecation-topical-23p-lidocaine-7p-tetracaine" />
+                  <label class="custom-control-label" for="hyfrecation-topical-23p-lidocaine-7p-tetracaine"> {{ "Topical 23% Lidocaine, 7% Tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine" #} id="hyfrecation-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine" />
+                  <label class="custom-control-label" for="hyfrecation-topical-23p-lidocaine-7p-tetracaine-1p-phenylephrine"> {{ "Topical 23% Lidocaine, 7% Tetracaine, 1% Phenylephrine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine" #} id="hyfrecation-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine" />
+                  <label class="custom-control-label" for="hyfrecation-topical-20p-benzocaine-10p-lidocaine-4p-tetracaine"> {{ "Topical 20% Benzocaine, 10% Lidocaine, 4% Tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-topical-30p-lidocaine" #} id="hyfrecation-topical-30p-lidocaine" />
+                  <label class="custom-control-label" for="hyfrecation-topical-30p-lidocaine"> {{ "Topical 30% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-topical-30-lidocaine-7-tetracaine" #} id="hyfrecation-topical-30-lidocaine-7-tetracaine" />
+                  <label class="custom-control-label" for="hyfrecation-topical-30-lidocaine-7-tetracaine"> {{ "Topical 30% Lidocaine, 7% Tetracaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-ice" #} id="hyfrecation-ice" />
+                  <label class="custom-control-label" for="hyfrecation-ice"> {{ "Ice" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-fan" #} id="hyfrecation-fan" />
+                  <label class="custom-control-label" for="hyfrecation-fan"> {{ "Fan" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-vibration" #} id="hyfrecation-vibration" />
+                  <label class="custom-control-label" for="hyfrecation-vibration"> {{ "Vibration" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-1p-lidocaine" #} id="hyfrecation-1p-lidocaine" />
+                  <label class="custom-control-label" for="hyfrecation-1p-lidocaine"> {{ "1% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-1p-lidocaine-with-epinephrine" #} id="hyfrecation-1p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="hyfrecation-1p-lidocaine-with-epinephrine"> {{ "1% Lidocaine with Epinephrine 1:100,000" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-2p-lidocaine" #} id="hyfrecation-2p-lidocaine" />
+                  <label class="custom-control-label" for="hyfrecation-2p-lidocaine"> {{ "2% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-2p-lidocaine-wtih-epinephrine" #} id="hyfrecation-2p-lidocaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="hyfrecation-2p-lidocaine-wtih-epinephrine"> {{ "2% Lidocaine with Epinephrine 1:100,000" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-05p-lidocaine-with-epinephrine" #} id="hyfrecation-05p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="hyfrecation-05p-lidocaine-with-epinephrine"> {{ "0.5% Lidocaine with Epinephrine 1:200,000" | e }}</label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-05p-bupivicaine" #} id="hyfrecation-05p-bupivicaine" />
+                  <label class="custom-control-label" for="hyfrecation-05p-bupivicaine"> {{ "0.5% Bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-05p-bupivicaine-wtih-epinephrine" #} id="hyfrecation-05p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="hyfrecation-05p-bupivicaine-wtih-epinephrine"> {{ "0.5% Bupivicaine with Epinephrine 1:200,000" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-025p-bupivicaine" #} id="hyfrecation-025p-bupivicaine" />
+                  <label class="custom-control-label" for="hyfrecation-025p-bupivicaine"> {{ "0.25% Bupivicaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-025p-bupivicaine-wtih-epinephrine" #} id="hyfrecation-025p-bupivicaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="hyfrecation-025p-bupivicaine-wtih-epinephrine"> {{ "0.25% Bupivicaine with Epinephrine 1:400,000" | e }}  </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-025p-marcaine-wtih-epinephrine" #} id="hyfrecation-025p-marcaine-wtih-epinephrine" />
+                  <label class="custom-control-label" for="hyfrecation-025p-marcaine-wtih-epinephrine"> {{ "0.25% Marcaine with 1:200,000 Epinephrine" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-09p-bacteriostatic-sodium-chloride" #} id="hyfrecation-09p-bacteriostatic-sodium-chloride" />
+                  <label class="custom-control-label" for="hyfrecation-09p-bacteriostatic-sodium-chloride"> {{ "Bacteriostatic 0.9% Sodium Chloride" | e }}</label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-sterile-water" #} id="hyfrecation-sterile-water" />
+                  <label class="custom-control-label" for="hyfrecation-sterile-water"> {{ "Sterile water" | e }}   </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-1p-ropivacaine" #} id="hyfrecation-1p-ropivacaine" />
+                  <label class="custom-control-label" for="hyfrecation-1p-ropivacaine"> {{ "Ropivacaine 1%" | e }}  </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-05p-ropivacaine" #} id="hyfrecation-05p-ropivacaine" />
+                  <label class="custom-control-label" for="hyfrecation-05p-ropivacaine"> {{ "Ropivacaine 0.5%" | e }}   </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-84p-sodium-bicarbonate" #} id="hyfrecation-84p-sodium-bicarbonate" />
+                  <label class="custom-control-label" for="hyfrecation-84p-sodium-bicarbonate"> {{ "WITH 8.4% Sodium Bicarbonate in 1:10 Ratio (Sod Bicarbonate: Anesthetic)" | e }}   </label>
+                </div>
+
+
+                <input class="form-control mt-2" type="text" id="hyfrecation-anesthetic-free-text" />
+              </div>
+            </div>
+          </div>
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="hyfrecation-Anesthetic-Volume-title" hidden />
+          <div class="row col-12 mb-3 mt-3">
+            <div class="col-4 label">{{ "Anesthetic Volume" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-anesthetic-volume-1cc" #} id="hyfrecation-anesthetic-volume-1cc" />
+                  <label class="custom-control-label" for="hyfrecation-anesthetic-volume-1cc"> {{ "<1cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-anesthetic-volume-1-2cc" #} id="hyfrecation-anesthetic-volume-1-2cc" />
+                  <label class="custom-control-label" for="hyfrecation-anesthetic-volume-1-2cc"> {{ "1-2cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-anesthetic-volume-2-3cc" #} id="hyfrecation-anesthetic-volume-2-3cc" />
+                  <label class="custom-control-label" for="hyfrecation-anesthetic-volume-2-3cc"> {{ "2-3cc" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-anesthetic-volume-3-4cc" #} id="hyfrecation-anesthetic-volume-3-4cc" />
+                  <label class="custom-control-label" for="hyfrecation-anesthetic-volume-3-4cc"> {{ "3-4cc" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-anesthetic-volume-4-5cc" #} id="hyfrecation-anesthetic-volume-4-5cc" />
+                  <label class="custom-control-label" for="hyfrecation-anesthetic-volume-4-5cc"> {{ "4-5cc" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="hyfrecation-anesthetic-volume-free-text" />
+              </div>
+            </div>
+          </div>
+
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="hyfrecation-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class=" form-control col-9 mr-1" {# name="areas_hyfrecation" #} id="areas_hyfrecation" style="float:left;" cols="90" rows="4"></textarea>
+               <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="hyfrecation" data-target="#bodymap">
+                {{ "BodyMap" | e }}
+              </button>
+            </div>
+          </div>
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-hyfrecation" /></div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="hyfrecation-Setting-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Setting" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-low-setting" #} id="hyfrecation-low-setting" />
+                  <label class="custom-control-label" for="hyfrecation-low-setting"> {{ "low-setting" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-high-setting" #} id="hyfrecation-high-setting" />
+                  <label class="custom-control-label" for="hyfrecation-high-setting"> {{ "high-setting" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="hyfrecation-setting-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="hyfrecation-Type(s)-of-lesion(s)-treated-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Type(s) of lesion(s) treated" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-dermatosis-papulosa-nigra" #} id="hyfrecation-dermatosis-papulosa-nigra" />
+                  <label class="custom-control-label" for="hyfrecation-dermatosis-papulosa-nigra"> {{ "dermatosis papulosa nigra" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-skin-tags" #} id="hyfrecation-skin-tags" />
+                  <label class="custom-control-label" for="hyfrecation-skin-tags"> {{ "skin tags" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-cherry-angiomas" #} id="hyfrecation-cherry-angiomas" />
+                  <label class="custom-control-label" for="hyfrecation-cherry-angiomas"> {{ "cherry angiomas" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-seborrheic-keratoses" #} id="hyfrecation-seborrheic-keratoses" />
+                  <label class="custom-control-label" for="hyfrecation-seborrheic-keratoses"> {{ "seborrheic keratoses" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-syringomas" #} id="hyfrecation-syringomas" />
+                  <label class="custom-control-label" for="hyfrecation-syringomas"> {{ "syringomas" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-sebaceous-hyperplasia" #} id="hyfrecation-sebaceous-hyperplasia" />
+                  <label class="custom-control-label" for="hyfrecation-sebaceous-hyperplasia"> {{ "sebaceous hyperplasia" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-milia" #} id="hyfrecation-milia" />
+                  <label class="custom-control-label" for="hyfrecation-milia"> {{ "milia" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-hidrocystoma" #} id="hyfrecation-hidrocystoma" />
+                  <label class="custom-control-label" for="hyfrecation-hidrocystoma"> {{ "hidrocystoma" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="hyfrecation-lession-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="hyfrecation-Aftercare-(Applied-In-Office)-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-spf" #} id="hyfrecation-spf" />
+                  <label class="custom-control-label" for="hyfrecation-spf"> {{ "SPF" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-petrolatum" #} id="hyfrecation-petrolatum" />
+                  <label class="custom-control-label" for="hyfrecation-petrolatum"> {{ "petrolatum" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-triamcinolone-0-1p-ointment" #} id="hyfrecation-triamcinolone-0-1p-ointment" />
+                  <label class="custom-control-label" for="hyfrecation-triamcinolone-0-1p-ointment"> {{ "triamcinolone 0.1% ointment" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="hyfrecation-hydrocortisone-2-5p-ointment" #} id="hyfrecation-hydrocortisone-2-5p-ointment" />
+                  <label class="custom-control-label" for="hyfrecation-hydrocortisone-2-5p-ointment"> {{ "hydrocortisone 2.5% ointment" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="hyfrecation-aftercare_free_text" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('hyfrecation')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

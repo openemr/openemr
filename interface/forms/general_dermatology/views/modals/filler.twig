@@ -1,0 +1,454 @@
+<div class="modal" id="filler">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Filler" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input type="text" id="filler-Injectable-title" hidden />
+          <div class="row col-12">
+            <div class="col-4 label">{{ "Injectable" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-restylane" #} id="filler-restylane" />
+                  <label class="custom-control-label" for="filler-restylane"> {{ "Restylane" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-restylane-silk" #} id="filler-restylane-silk" />
+                    <label class="custom-control-label" for="filler-restylane-silk"> {{ "Restylane Silk" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-restylane-eyelight" #} id="filler-restylane-eyelight" />
+                    <label class="custom-control-label" for="filler-restylane-eyelight"> {{ "Restylane Eyelight" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-restylane-refyne" #} id="filler-restylane-refyne" />
+                    <label class="custom-control-label" for="filler-restylane-refyne"> {{ "Restylane Refyne" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-restylane-defyne" #} id="filler-restylane-defyne" />
+                    <label class="custom-control-label" for="filler-restylane-defyne"> {{ "Restylane Defyne" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-restylane-contour" #} id="filler-restylane-contour" />
+                    <label class="custom-control-label" for="filler-restylane-contour"> {{ "Restylane Contour" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-restylane-lyft" #} id="filler-restylane-lyft" />
+                    <label class="custom-control-label" for="filler-restylane-lyft"> {{ "Restylane Lyft" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-restylane-kysse" #} id="filler-restylane-kysse" />
+                    <label class="custom-control-label" for="filler-restylane-kysse"> {{ "Restylane Kysse" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-juvederm-ultra-xc" #} id="filler-juvederm-ultra-xc" />
+                    <label class="custom-control-label" for="filler-juvederm-ultra-xc"> {{ "Juvederm Ultra XC" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-juvederm-ultra-plus-xc" #} id="filler-juvederm-ultra-plus-xc" />
+                    <label class="custom-control-label" for="filler-juvederm-ultra-plus-xc"> {{ "Juvederm Ultra Plus XC" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-juvederm-voluma-xc" #} id="filler-juvederm-voluma-xc" />
+                    <label class="custom-control-label" for="filler-juvederm-voluma-xc"> {{ "Juvederm Voluma XC" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-juvederm-volbella-xc" #} id="filler-juvederm-volbella-xc" />
+                    <label class="custom-control-label" for="filler-juvederm-volbella-xc"> {{ "Juvederm Volbella XC" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-juvederm-vollure-xc" #} id="filler-juvederm-vollure-xc" />
+                    <label class="custom-control-label" for="filler-juvederm-vollure-xc"> {{ "Juvederm Vollure XC" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-juvederm-volux-xc" #} id="filler-juvederm-volux-xc" />
+                    <label class="custom-control-label" for="filler-juvederm-volux-xc"> {{ "Juvederm Volux XC" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-sculptra" #} id="filler-sculptra" />
+                    <label class="custom-control-label" for="filler-sculptra"> {{ "Sculptra" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="filler-injectable-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="filler-Treatment-Area-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Treatment Area" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-cheek" #} id="filler-cheek" />
+                  <label class="custom-control-label" for="filler-cheek"> {{ "cheek" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-lips" #} id="filler-lips" />
+                  <label class="custom-control-label" for="filler-lips"> {{ "lips" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-jawline" #} id="filler-jawline" />
+                  <label class="custom-control-label" for="filler-jawline"> {{ "jawline" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-nasolabial-folds" #} id="filler-nasolabial-folds" />
+                  <label class="custom-control-label" for="filler-nasolabial-folds"> {{ "nasolabial folds" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-temples" #} id="filler-temples" />
+                  <label class="custom-control-label" for="filler-temples"> {{ "temples" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-chin" #} id="filler-chin" />
+                  <label class="custom-control-label" for="filler-chin"> {{ "chin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-tear-troughs" #} id="filler-tear-troughs" />
+                  <label class="custom-control-label" for="filler-tear-troughs"> {{ "tear troughs" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-nose" #} id="filler-nose" />
+                  <label class="custom-control-label" for="filler-nose"> {{ "nose" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-marionette-lines" #} id="filler-marionette-lines" />
+                  <label class="custom-control-label" for="filler-marionette-lines"> {{ "Marionette Lines" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-earlobes" #} id="filler-earlobes" />
+                  <label class="custom-control-label" for="filler-earlobes"> {{ "earlobes" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-hands" #} id="filler-hands" />
+                  <label class="custom-control-label" for="filler-hands"> {{ "hands" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-chest" #} id="filler-chest" />
+                  <label class="custom-control-label" for="filler-chest"> {{ "chest" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-brows" #} id="filler-brows" />
+                  <label class="custom-control-label" for="filler-brows"> {{ "brows" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-buttocks" #} id="filler-buttocks" />
+                  <label class="custom-control-label" for="filler-buttocks"> {{ "buttocks" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-thighs" #} id="filler-thighs" />
+                  <label class="custom-control-label" for="filler-thighs"> {{ "thighs" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-scars" #} id="filler-scars" />
+                  <label class="custom-control-label" for="filler-scars"> {{ "scars" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="filler-treatment-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="filler-Anesthetic-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-none" #} id="filler-none" />
+                    <label class="custom-control-label" for="filler-none"> {{ "None" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-topical-5-lidocaine" #} id="filler-topical-5-lidocaine" />
+                    <label class="custom-control-label" for="filler-topical-5-lidocaine"> {{ "Topical 5% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-topical-23-lidocaine-7-tetracaine" #} id="filler-topical-23-lidocaine-7-tetracaine" />
+                    <label class="custom-control-label" for="filler-topical-23-lidocaine-7-tetracaine"> {{ "Topical 23% Lidocaine, 7% Tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-topical-23-lidocaine-7-tetracaine-1-phenylephrine" #} id="filler-topical-23-lidocaine-7-tetracaine-1-phenylephrine" />
+                    <label class="custom-control-label" for="filler-topical-23-lidocaine-7-tetracaine-1-phenylephrine"> {{ "Topical 23% Lidocaine, 7% Tetracaine, 1% Phenylephrine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-topical-20-benzocaine-10-lidocaine-4-tetracaine" #} id="filler-topical-20-benzocaine-10-lidocaine-4-tetracaine" />
+                    <label class="custom-control-label" for="filler-topical-20-benzocaine-10-lidocaine-4-tetracaine"> {{ "Topical 20% Benzocaine, 10% Lidocaine, 4% Tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-topical-30-lidocaine" #} id="filler-topical-30-lidocaine" />
+                    <label class="custom-control-label" for="filler-topical-30-lidocaine"> {{ "Topical 30% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-topical-30-lidocaine-7-tetracaine" #} id="filler-topical-30-lidocaine-7-tetracaine" />
+                    <label class="custom-control-label" for="filler-topical-30-lidocaine-7-tetracaine"> {{ "Topical 30% Lidocaine, 7% Tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-1-percent-lidocaine" #} id="filler-1-percent-lidocaine" />
+                    <label class="custom-control-label" for="filler-1-percent-lidocaine"> {{ "1% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-1-percent-lidocaine-with-epinephrine-1-100-000" #} id="filler-1-percent-lidocaine-with-epinephrine-1-100-000" />
+                    <label class="custom-control-label" for="filler-1-percent-lidocaine-with-epinephrine-1-100-000"> {{ "1% Lidocaine With Epinephrine 1:100,000" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-2-percent-lidocaine" #} id="filler-2-percent-lidocaine" />
+                    <label class="custom-control-label" for="filler-2-percent-lidocaine"> {{ "2% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-2-percent-lidocaine-with-epinephrine-1-100-000" #} id="filler-2-percent-lidocaine-with-epinephrine-1-100-000" />
+                    <label class="custom-control-label" for="filler-2-percent-lidocaine-with-epinephrine-1-100-000"> {{ "2% Lidocaine With Epinephrine 1:100,000" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-ice" #} id="filler-ice" />
+                    <label class="custom-control-label" for="filler-ice"> {{ "Ice" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-fan" #} id="filler-fan" />
+                    <label class="custom-control-label" for="filler-fan"> {{ "Fan" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-vibration" #} id="filler-vibration" />
+                    <label class="custom-control-label" for="filler-vibration"> {{ "Vibration" | e }} </label>
+                </div>
+
+
+                <input class="form-control mt-2" type="text" id="filler-anesthetic-free-text" />
+              </div>
+            </div>
+          </div>
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="filler-dilution-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Dilution (Filler: Diluent)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-dilution-1-1" #} id="filler-dilution-1-1" />
+                  <label class="custom-control-label" for="filler-dilution-1-1"> {{ "1:1" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-dilution-1-2" #} id="filler-dilution-1-2" />
+                  <label class="custom-control-label" for="filler-dilution-1-2"> {{ "1:2" | e }}</label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-dilution-1-3" #} id="filler-dilution-1-3" />
+                  <label class="custom-control-label" for="filler-dilution-1-3"> {{ "1:3" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-dilution-1-4" #} id="filler-dilution-1-4" />
+                  <label class="custom-control-label" for="filler-dilution-1-4"> {{ "1:4" | e }} </label>
+                </div>
+                 <input class="form-control mt-2" type="text" id="filler-dilution-free-text" />
+              </div>
+            </div>
+          </div>
+
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="filler-Sculptra-Dilution-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Sculptra Dilution" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-8-cc-sterile-water-1-cc-2-percent-lidocaine" #} id="filler-8-cc-sterile-water-1-cc-2-percent-lidocaine" />
+                    <label class="custom-control-label" for="filler-8-cc-sterile-water-1-cc-2-percent-lidocaine"> {{ "8 cc Sterile Water, 1 cc 2% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-8-cc-sterile-water-1-cc-1-percent-lidocaine" #} id="filler-8-cc-sterile-water-1-cc-1-percent-lidocaine" />
+                    <label class="custom-control-label" for="filler-8-cc-sterile-water-1-cc-1-percent-lidocaine"> {{ "8 cc Sterile Water, 1 cc 1% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-7-cc-sterile-water-2-cc-2-percent-lidocaine" #} id="filler-7-cc-sterile-water-2-cc-2-percent-lidocaine" />
+                    <label class="custom-control-label" for="filler-7-cc-sterile-water-2-cc-2-percent-lidocaine"> {{ "7 cc Sterile Water, 2 cc 2% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-7-cc-sterile-water-2-cc-2-percent-lidocaine-duplicate" #} id="filler-7-cc-sterile-water-2-cc-2-percent-lidocaine-duplicate" />
+                    <label class="custom-control-label" for="filler-7-cc-sterile-water-2-cc-2-percent-lidocaine-duplicate"> {{ "7 cc Sterile Water, 2 cc 1% Lidocaine (Duplicate)" | e }} </label>
+                </div>      
+                          
+                <input class="form-control mt-2" type="text" id="filler-Sculptra-Dilution-free-text" />
+              </div>
+            </div>
+          </div>
+
+
+
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="filler-diluent-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Diluent" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-09p-bacteriostatic-sodium-chloride" #} id="filler-09p-bacteriostatic-sodium-chloride" />
+                  <label class="custom-control-label" for="filler-09p-bacteriostatic-sodium-chloride"> {{ "Bacteriostatic 0.9% Sodium Chloride" | e }}</label>
+                </div>
+
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-09p-sodium-chloride" #} id="filler-09p-sodium-chloride" />
+                  <label class="custom-control-label" for="filler-09p-sodium-chloride"> {{ "0.9% Sodium Chloride" | e }}</label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-sterile-water" #} id="filler-sterile-water" />
+                  <label class="custom-control-label" for="filler-sterile-water"> {{ "Sterile Water" | e }}   </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-1p-lidocaine" #} id="filler-1p-lidocaine" />
+                  <label class="custom-control-label" for="filler-1p-lidocaine"> {{ "1% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-1p-lidocaine-with-epinephrine" #} id="filler-1p-lidocaine-with-epinephrine" />
+                  <label class="custom-control-label" for="filler-1p-lidocaine-with-epinephrine"> {{ "1% Lidocaine With Epinephrine 1:100,000" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-2p-lidocaine" #} id="filler-2p-lidocaine" />
+                    <label class="custom-control-label" for="filler-2p-lidocaine"> {{ "2% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="filler-2p-lidocaine-with-epinephrine-1-100-000" #} id="filler-2p-lidocaine-with-epinephrine-1-100-000" />
+                    <label class="custom-control-label" for="filler-2p-lidocaine-with-epinephrine-1-100-000"> {{ "2% Lidocaine With Epinephrine 1:100,000" | e }} </label>
+                </div>
+                 <input class="form-control mt-2" type="text" id="filler-diluent-free-text" />
+              </div>
+            </div>
+          </div>
+
+
+
+
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="filler-CC-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "CC" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-05cc" #} id="filler-05cc" />
+                  <label class="custom-control-label" for="filler-05cc"> {{ "0.5 CC" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-1cc" #} id="filler-1cc" />
+                  <label class="custom-control-label" for="filler-1cc"> {{ "1 CC" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-2cc" #} id="filler-2cc" />
+                  <label class="custom-control-label" for="filler-2cc"> {{ "2 CC" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-3cc" #} id="filler-3cc" />
+                  <label class="custom-control-label" for="filler-3cc"> {{ "3 CC" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-4cc" #} id="filler-4cc" />
+                  <label class="custom-control-label" for="filler-4cc"> {{ "4 CC" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-5cc" #} id="filler-5cc" />
+                  <label class="custom-control-label" for="filler-5cc"> {{ "5 CC" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-9cc" #} id="filler-9cc" />
+                  <label class="custom-control-label" for="filler-9cc"> {{ "9 CC" | e }} </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="filler-cc-free-text" />
+              </div>
+            </div>
+          </div>
+
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="filler-Cannula-size-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Cannula size" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-cannula-18" #} id="filler-cannula-18" />
+                  <label class="custom-control-label" for="filler-cannula-18"> {{ "18" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-cannula-20" #} id="filler-cannula-20" />
+                  <label class="custom-control-label" for="filler-cannula-20"> {{ "20" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-cannula-22" #} id="filler-cannula-22" />
+                  <label class="custom-control-label" for="filler-cannula-22"> {{ "22" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-cannula-25" #} id="filler-cannula-25" />
+                  <label class="custom-control-label" for="filler-cannula-25"> {{ "25" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-cannula-27" #} id="filler-cannula-27" />
+                  <label class="custom-control-label" for="filler-cannula-27"> {{ "27" | e }} </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="filler-lot-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">Lot #</div>
+            <div class="col-8">
+                <div class="row">
+                    <input class="form-control mt-2" type="text" id="filler-lot-free-text" />
+                </div>
+            </div>
+          </div>
+
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="filler-Expiration-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Expiration" | e }}</div>
+            <div class="col-8">
+                <div class="row">
+                    <input class="form-control mt-2" type="text" id="filler-expiration-free-text" />
+                </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          <input type="text" id="filler-Aftercare-(Applied-In-Office)-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Aftercare (Applied In-Office)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-spf" #} id="filler-spf" />
+                  <label class="custom-control-label" for="filler-spf"> {{ "SPF" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-petrolatum" #} id="filler-petrolatum" />
+                  <label class="custom-control-label" for="filler-petrolatum"> {{ "Petrolatum" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-triamcinolone-0-1p-ointment" #} id="filler-triamcinolone-0-1p-ointment" />
+                  <label class="custom-control-label" for="filler-triamcinolone-0-1p-ointment"> {{ "Triamcinolone 0.1% Ointment" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="filler-hydrocortisone-2-5p-ointment" #} id="filler-hydrocortisone-2-5p-ointment" />
+                  <label class="custom-control-label" for="filler-hydrocortisone-2-5p-ointment"> {{ "Hydrocortisone 2.5% Ointment" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="filler-aftercare_free_text" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('filler')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

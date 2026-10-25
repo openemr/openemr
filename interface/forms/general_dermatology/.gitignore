@@ -1,0 +1,5 @@
+/vendor/
+/tmp/
+/.phpunit.cache/
+composer.phar
+*.log

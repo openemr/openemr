@@ -1,0 +1,178 @@
+<div class="modal" id="photodynamic">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Photodynamic Therapy (PDT)" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+
+        <input type="text" id="photodynamic-Area(s)-Treated-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+        <div class="col-8 areas_treated">
+            <textarea class="col-9 form-control mr-1" {# name="areas_photodynamic" #} id="areas_photodynamic"  style="float:left;" cols="90" rows="4"></textarea>
+            <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="photodynamic" data-target="#bodymap">
+            {{ "BodyMap" | e }}
+            </button>
+        </div>
+        </div>
+        <div class="row col-12 mt-3" style="display:none;">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-photodynamic" /></div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="photodynamic-Eye-Protectoin-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Eye Protectoin" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="photodynamic-goggles-with-gauze" #} id="photodynamic-goggles-with-gauze" />
+                    <label class="custom-control-label" for="photodynamic-goggles-with-gauze"> {{ "Goggles with Gauze" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="photodynamic-metal-shields" #} id="photodynamic-metal-shields" />
+                    <label class="custom-control-label" for="photodynamic-metal-shields"> {{ "Metal Shields" | e }} </label>
+                </div>
+
+                <input class="form-control mt-2" type="text" id="photodynamic-eye-protectoin-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+
+        <input type="text" id="photodynamic-Incubation-Time-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Incubation Time" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="photodynamic-none" #} id="photodynamic-none" />
+                <label class="custom-control-label" for="photodynamic-none"> {{ "None" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="photodynamic-30-min" #} id="photodynamic-30-min" />
+                <label class="custom-control-label" for="photodynamic-30-min"> {{ "30 Min" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="photodynamic-60-min" #} id="photodynamic-60-min" />
+                <label class="custom-control-label" for="photodynamic-60-min"> {{ "60 Min" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="photodynamic-90-min" #} id="photodynamic-90-min" />
+                <label class="custom-control-label" for="photodynamic-90-min"> {{ "90 Min" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="photodynamic-120-min" #} id="photodynamic-120-min" />
+                <label class="custom-control-label" for="photodynamic-120-min"> {{ "120 Min" | e }} </label>
+            </div>
+
+            <input class="form-control mt-2" type="text" id="photodynamic-Incubation-Time-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+
+        <input type="text" id="photodynamic-Illumination-Time-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Illumination Time" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="photodynamic-16-min-40-sec" #} id="photodynamic-16-min-40-sec" />
+                <label class="custom-control-label" for="photodynamic-16-min-40-sec"> {{ "16 Min 40 Sec" | e }} </label>
+            </div>
+            
+
+            <input class="form-control mt-2" type="text" id="photodynamic-Illumination-Time-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="photodynamic-PDT-agent-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "PDT agent" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="photodynamic-levulan" #} id="photodynamic-levulan" />
+                <label class="custom-control-label" for="photodynamic-levulan"> {{ "Levulan" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="photodynamic-ameluz" #} id="photodynamic-ameluz" />
+                <label class="custom-control-label" for="photodynamic-ameluz"> {{ "Ameluz" | e }} </label>
+            </div>
+
+            <input class="form-control mt-2" type="text" id="photodynamic-PDT-agent-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="photodynamic-Number-Used-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Number Used" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="photodynamic-1" #} id="photodynamic-1" />
+                <label class="custom-control-label" for="photodynamic-1"> {{ "1" | e }} </label>
+            </div>
+            <div class="custom-control custom-checkbox mr-4">
+                <input class="custom-control-input" type="checkbox" {# name="photodynamic-2" #} id="photodynamic-2" />
+                <label class="custom-control-label" for="photodynamic-2"> {{ "2" | e }} </label>
+            </div>
+            
+            <input class="form-control mt-2" type="text" id="photodynamic-Number-Used-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="photodynamic-Lot-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Lot #" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="photodynamic-Lot-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="photodynamic-Expiration-Date-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Expiration Date" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="photodynamic-Expiration-Date-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        <input type="text" id="photodynamic-Comments-title" hidden />
+        <div class="row col-12 mt-3">
+        <div class="col-4 label">{{ "Comments" | e }}</div>
+        <div class="col-8">
+            <div class="row">
+                <input class="form-control mt-2" type="text" id="photodynamic-Comments-free-text" />
+            </div>
+        </div>
+        </div>
+        <input type="text" id="hidden" hidden />
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('photodynamic')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

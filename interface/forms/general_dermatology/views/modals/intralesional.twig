@@ -1,0 +1,186 @@
+<div class="modal" id="intralesional">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Intralesional Injection" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input type="text" id="intralesional-Injectable-title" hidden />
+          <div class="row col-12">
+            <div class="col-4 label">{{ "Injectable" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-kenalog" #} id="intralesional-kenalog" />
+                  <label class="custom-control-label" for="intralesional-kenalog"> {{ "Kenalog" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-candida-albicans" #} id="intralesional-candida-albicans" />
+                  <label class="custom-control-label" for="intralesional-candida-albicans"> {{ "Candida Albicans" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-bleomycin" #} id="intralesional-bleomycin" />
+                  <label class="custom-control-label" for="intralesional-bleomycin"> {{ "Bleomycin" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-5-Fluorouracil" #} id="intralesional-5-fluorouracil" />
+                  <label class="custom-control-label" for="intralesional-5-fluorouracil"> {{ "5-Fluorouracil" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-kenalog-fluorouracil" #} id="intralesional-kenalog-fluorouracil" />
+                  <label class="custom-control-label" for="intralesional-kenalog-fluorouracil"> {{ "Kenalog + 5-Fluorouracil" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="intralesional-Injectable-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="intralesional-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class="col-9 form-control mr-1" {# name="areas_intralesional" #} id="areas_intralesional"  style="float:left;" cols="90" rows="4"></textarea>
+              <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="intralesional" data-target="#bodymap">
+                {{ "BodyMap" | e }}
+              </button>
+            </div>
+          </div>
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-intralesional" /></div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="intralesional-Anesthetic-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Anesthetic" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-none" #} id="intralesional-none" />
+                  <label class="custom-control-label" for="intralesional-none"> {{ "None" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-topical-5-lidocaine" #} id="intralesional-topical-5-lidocaine" />
+                  <label class="custom-control-label" for="intralesional-topical-5-lidocaine"> {{ "Topical 5% Lidocaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-topical-23-lidocaine-7-tetracaine" #} id="intralesional-topical-23-lidocaine-7-tetracaine" />
+                  <label class="custom-control-label" for="intralesional-topical-23-lidocaine-7-tetracaine"> {{ "Topical 23% Lidocaine, 7% Tetracaine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-topical-23-lidocaine-7-tetracaine-1-phenylephrine" #} id="intralesional-topical-23-lidocaine-7-tetracaine-1-phenylephrine" />
+                  <label class="custom-control-label" for="intralesional-topical-23-lidocaine-7-tetracaine-1-phenylephrine"> {{ "Topical 23% Lidocaine, 7% Tetracaine, 1% Phenylephrine" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-topical-20-benzocaine-10-lidocaine-4-tetracaine" #} id="intralesional-topical-20-benzocaine-10-lidocaine-4-tetracaine" />
+                  <label class="custom-control-label" for="intralesional-topical-20-benzocaine-10-lidocaine-4-tetracaine"> {{ "Topical 20% Benzocaine, 10% Lidocaine, 4% Tetracaine" | e }}</label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-topical-30-lidocaine" #} id="intralesional-topical-30-lidocaine" />
+                  <label class="custom-control-label" for="intralesional-topical-30-lidocaine"> {{ "Topical 30% Lidocaine" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-topical-30-lidocaine-7-tetracaine" #} id="intralesional-topical-30-lidocaine-7-tetracaine" />
+                  <label class="custom-control-label" for="intralesional-topical-30-lidocaine-7-tetracaine"> {{ "Topical 30% Lidocaine, 7% Tetracaine" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-ice" #} id="intralesional-ice" />
+                  <label class="custom-control-label" for="intralesional-ice"> {{ "Ice" | e }}   </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-fan" #} id="intralesional-fan" />
+                  <label class="custom-control-label" for="intralesional-fan"> {{ "Fan" | e }}  </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-vibration" #} id="intralesional-vibration" />
+                  <label class="custom-control-label" for="intralesional-vibration"> {{ "Vibration" | e }}   </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="intralesional-anesthetic-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+          
+          <input type="text" id="intralesional-Concentration-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Concentration" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-2mg" #} id="intralesional-2mg" />
+                  <label class="custom-control-label" for="intralesional-2mg"> {{ "2.5 mg/mL" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-3mg" #} id="intralesional-3mg" />
+                  <label class="custom-control-label" for="intralesional-3mg"> {{ "3.3 mg/mL" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-5mg" #} id="intralesional-5mg" />
+                  <label class="custom-control-label" for="intralesional-5mg"> {{ "5 mg/mL" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-10mg" #} id="intralesional-10mg" />
+                  <label class="custom-control-label" for="intralesional-10mg"> {{ "10 mg/mL" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-20mg" #} id="intralesional-20mg" />
+                  <label class="custom-control-label" for="intralesional-20mg"> {{ "20 mg/mL" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="intralesional-40mg" #} id="intralesional-40mg" />
+                  <label class="custom-control-label" for="intralesional-40mg"> {{ "40 mg/mL" | e }} </label>
+                </div>
+
+                <input class="form-control" type="text" {# name="" #} id="intralesional-concentration-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="intralesional-injection-total-volume-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Injection Total Volume" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="intralesional-injection-total-volume-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="intralesional-lot-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Lot #" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="intralesional-lot-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="intralesional-expiration-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Expiration" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="intralesional-expiration-free-text" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('intralesional')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>

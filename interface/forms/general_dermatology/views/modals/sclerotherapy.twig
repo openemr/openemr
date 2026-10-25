@@ -1,0 +1,203 @@
+<div class="modal" id="sclerotherapy">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ "Sclerotherapy" | e }}</h4>
+        <button type="button" class="close" data-dismiss="modal"> &times; </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+
+          <input type="text" id="sclerotherapy-Area(s)-Treated-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Area(s) Treated" | e }}</div>
+            <div class="col-8 areas_treated">
+              <textarea class="col-9 form-control mr-1" {# name="areas_sclerotherapy" #} id="areas_sclerotherapy"  style="float:left;" cols="90" rows="4"></textarea>
+              <button type="button" id="" class="btn btn-primary model_value" data-toggle="modal" model-value="sclerotherapy" data-target="#bodymap">
+                {{ "BodyMap" | e }}
+              </button>
+            </div>
+          </div>
+          <div style="display:none;" class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Number of lesions treated" | e }}</div>
+            <div class="col-8 areas_treated"><input class="form-control" type="text" id="areas-count-sclerotherapy" /></div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="sclerotherapy-Skin-prep-title" hidden />
+          <div class="row col-12">
+            <div class="col-4 label">{{ "Skin Prep" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-alcohol" #} id="sclerotherapy-alcohol" />
+                  <label class="custom-control-label" for="sclerotherapy-alcohol"> {{ "Alcohol" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-hibiclens" #} id="sclerotherapy-hibiclens" />
+                  <label class="custom-control-label" for="sclerotherapy-hibiclens"> {{ "Hibiclens" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-iodine" #} id="sclerotherapy-iodine" />
+                  <label class="custom-control-label" for="sclerotherapy-iodine"> {{ "Iodine" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox  mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-lasercyn" #} id="sclerotherapy-lasercyn" />
+                  <label class="custom-control-label" for="sclerotherapy-lasercyn"> {{ "Lasercyn" | e }} </label>
+                </div>
+                <input class="form-control mt-2" type="text" id="sclerotherapy-skin-prep-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="sclerotherapy-Solution-Used-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Solution Used" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-0-25-polidocanol" #} id="sclerotherapy-0-25-polidocanol" />
+                  <label class="custom-control-label" for="sclerotherapy-0-25-polidocanol"> {{ "0.25% Polidocanol" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-0-5-polidocanol" #} id="sclerotherapy-0-5-polidocanol" />
+                  <label class="custom-control-label" for="sclerotherapy-0-5-polidocanol"> {{ "0.5% Polidocanol" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-1-polidocanol" #} id="sclerotherapy-1-polidocanol" />
+                  <label class="custom-control-label" for="sclerotherapy-1-polidocanol"> {{ "1% Polidocanol" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-2-polidocanol" #} id="sclerotherapy-2-polidocanol" />
+                  <label class="custom-control-label" for="sclerotherapy-2-polidocanol"> {{ "2% Polidocanol" | e }} </label>
+                </div>
+
+                <div class="custom-control custom-checkbox col-12">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-3-polidocanol" #} id="sclerotherapy-3-polidocanol" />
+                  <label class="custom-control-label" for="sclerotherapy-3-polidocanol"> {{ "3% Polidocanol" | e }}</label>
+                </div>
+
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-4-polidocanol" #} id="sclerotherapy-4-polidocanol" />
+                  <label class="custom-control-label" for="sclerotherapy-4-polidocanol"> {{ "4% Polidocanol" | e }}  </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-2">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-0-2-sts" #} id="sclerotherapy-0-2-sts" />
+                  <label class="custom-control-label" for="sclerotherapy-0-2-sts"> {{ "0.2% Sodium Tetradecyl Sulfate" | e }}  </label>
+                </div>
+
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-0-5-sts" #} id="sclerotherapy-0-5-sts" />
+                  <label class="custom-control-label" for="sclerotherapy-0-5-sts"> {{ "0.5% Sodium Tetradecyl Sulfate" | e }}   </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-1-sts" #} id="sclerotherapy-1-sts" />
+                  <label class="custom-control-label" for="sclerotherapy-1-sts"> {{ "1% Sodium Tetradecyl Sulfate" | e }}  </label>
+                </div>
+                 <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-3-sts" #} id="sclerotherapy-3-sts" />
+                  <label class="custom-control-label" for="sclerotherapy-3-sts"> {{ "3% Sodium Tetradecyl Sulfate" | e }}   </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                  <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-hypertonic-saline" #} id="sclerotherapy-hypertonic-saline" />
+                  <label class="custom-control-label" for="sclerotherapy-hypertonic-saline"> {{ "Hypertonic Saline" | e }}   </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="sclerotherapy-Solution-Used-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+
+          <input type="text" id="sclerotherapy-Foam-Ratio-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Foam Ratio (liquid:air)" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                  <div class="custom-control custom-checkbox mr-4">
+                      <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-1-2" #} id="sclerotherapy-1-2" />
+                      <label class="custom-control-label" for="sclerotherapy-1-2"> {{ "1:2" | e }} </label>
+                  </div>
+                  <div class="custom-control custom-checkbox mr-4">
+                      <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-1-3" #} id="sclerotherapy-1-3" />
+                      <label class="custom-control-label" for="sclerotherapy-1-3"> {{ "1:3" | e }} </label>
+                  </div>
+                  <div class="custom-control custom-checkbox mr-4">
+                      <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-1-4" #} id="sclerotherapy-1-4" />
+                      <label class="custom-control-label" for="sclerotherapy-1-4"> {{ "1:4" | e }} </label>
+                  </div>
+                  <div class="custom-control custom-checkbox mr-4">
+                      <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-1-5" #} id="sclerotherapy-1-5" />
+                      <label class="custom-control-label" for="sclerotherapy-1-5"> {{ "1:5" | e }} </label>
+                  </div>
+
+                  <input class="form-control mt-2" type="text" id="sclerotherapy-Foam-Ratio-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="sclerotherapy-cc-used-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "CC's Used" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="sclerotherapy-cc-used-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="sclerotherapy-Lot-number-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Lot number" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="sclerotherapy-Lot-number-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="sclerotherapy-Expiration-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Expiration" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <input class="form-control" type="text" {# name="" #} id="sclerotherapy-Expiration-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+          <input type="text" id="sclerotherapy-Bandage-title" hidden />
+          <div class="row col-12 mt-3">
+            <div class="col-4 label">{{ "Bandage" | e }}</div>
+            <div class="col-8">
+              <div class="row">
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-paper-tape-and-cotton-balls" #} id="sclerotherapy-paper-tape-and-cotton-balls" />
+                    <label class="custom-control-label" for="sclerotherapy-paper-tape-and-cotton-balls"> {{ "Paper Tape and Cotton Balls" | e }} </label>
+                </div>
+                <div class="custom-control custom-checkbox mr-4">
+                    <input class="custom-control-input" type="checkbox" {# name="sclerotherapy-compression-stockings" #} id="sclerotherapy-compression-stockings" />
+                    <label class="custom-control-label" for="sclerotherapy-compression-stockings"> {{ "Compression Stockings" | e }} </label>
+                </div>
+                
+                <input class="form-control mt-2" type="text" id="sclerotherapy-Bandage-free-text" />
+              </div>
+            </div>
+          </div>
+          <input type="text" id="hidden" hidden />
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="getValuesFromModal('sclerotherapy')" class="btn btn-secondary" data-dismiss="modal"> {{ "Close" | e }} </button>
+      </div>
+    </div>
+  </div>
+</div>
