@@ -37,7 +37,10 @@ class TaskService extends BaseService
     /** Task.input and Task.output rows: the same columns in two tables. */
     private const PARAMETER_TABLES = ['inputs' => 'task_input', 'outputs' => 'task_output'];
 
-    private const PARAMETER_COLUMNS = ['type_system', 'type_code', 'type_text', 'value_element', 'value_type', 'value_uuid', 'value_system', 'value_code', 'value_text'];
+    private const PARAMETER_COLUMNS = [
+        'type_system', 'type_code', 'type_display', 'type_text', 'value_element', 'value_type', 'value_uuid', 'value_system', 'value_code', 'value_display',
+        'value_text',
+    ];
 
     /** Each task with its patient's uuid, so a search can name the patient by uuid. */
     private const SELECT = "SELECT task.id, task.uuid, task.status, task.status_reason, task.business_status,

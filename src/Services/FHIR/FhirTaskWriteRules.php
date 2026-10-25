@@ -20,7 +20,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
- * @phpstan-type TaskParameterRow array{type_system: ?string, type_code: ?string, type_text: ?string, value_element: string, value_type: ?string, value_uuid: ?string, value_system: ?string, value_code: ?string, value_text: ?string}
+ * @phpstan-type TaskParameterRow array{type_system: ?string, type_code: ?string, type_display: ?string, type_text: ?string, value_element: string, value_type: ?string, value_uuid: ?string, value_system: ?string, value_code: ?string, value_display: ?string, value_text: ?string}
  */
 final class FhirTaskWriteRules
 {
@@ -82,11 +82,17 @@ final class FhirTaskWriteRules
     /** The longest string, markdown, url or canonical kept, in characters: well inside the TEXT column's 65,535 bytes. */
     public const MAX_TEXT = 10000;
 
-    /** The longest coding system and type text kept, in characters: the varchar(255) columns of task_input and task_output. */
+    /** The longest coding system, display and type text kept, in characters: the varchar(255) columns of task_input and task_output. */
     public const MAX_SYSTEM = 255;
 
     /** The longest code kept, in characters: the varchar(63) columns. */
     public const MAX_CODE = 63;
+
+    /** The elements a write reads. FHIR JSON has no nulls, so a null in one of them is a fault, not an element left out. */
+    private const ELEMENTS = [
+        'status', 'intent', 'priority', 'code', 'description', 'statusReason', 'businessStatus', 'for', 'focus', 'owner',
+        'requester', 'partOf', 'authoredOn', 'input', 'output',
+    ];
 
     /**
      * A Task body as task row fields, its inputs and outputs, the patient it is for (by uuid),
@@ -127,7 +133,9 @@ final class FhirTaskWriteRules
         $fields['code_system'] = null;
         if (isset($json['code'])) {
             $coding = self::knownCoding($json['code']);
-            if ($coding === null) {
+            if (count(FhirPayloadReader::codings($json['code'])) > 1) {
+                $errors['code'] = 'Task.code takes one coding: the task keeps one system and code';
+            } elseif ($coding === null) {
                 $errors['code'] = 'Task.code must be a coding from ' . implode(
                     ' or ',
                     array_map(static fn(string $system, array $codes): string => $system . ' (' . implode(', ', $codes) . ')', array_keys(self::CODES), self::CODES)
@@ -195,6 +203,13 @@ final class FhirTaskWriteRules
         $inputs = self::parameters($json, 'input', self::INPUT_VALUES, self::INPUT_TYPES, $errors);
         $outputs = self::parameters($json, 'output', self::OUTPUT_VALUES, self::OUTPUT_TYPES, $errors);
 
+        // Said last, so it replaces whatever the element's own check made of the null.
+        foreach (self::ELEMENTS as $element) {
+            if (array_key_exists($element, $json) && $json[$element] === null) {
+                $errors[$element] = "Task.$element is null: leave it out instead, as FHIR JSON has no nulls";
+            }
+        }
+
         return ['fields' => $fields, 'inputs' => $inputs, 'outputs' => $outputs, 'puuid' => $puuid, 'errors' => $errors];
     }
 
@@ -251,12 +266,18 @@ final class FhirTaskWriteRules
         $text = FhirPayloadReader::getString($type, 'text');
         $system = FhirPayloadReader::firstCodingValue($type, 'system');
         $code = FhirPayloadReader::firstCodingCode($type);
+        $display = FhirPayloadReader::firstCodingValue($type, 'display');
         if ($text === null && ($system === '' || $code === '')) {
             return 'needs a type: a coding with a system and a code, or text';
         }
+        // A row holds one coding: a second would be lost, so it's refused.
+        if (count(FhirPayloadReader::codings($type)) > 1) {
+            return 'type takes one coding: a row keeps one system and code';
+        }
         // Longer than its column, a value would be cut short or fail the insert: refuse it here instead.
-        if (($text !== null && mb_strlen($text) > self::MAX_SYSTEM) || ($system !== '' && $code !== '' && !self::fits($system, $code))) {
-            return 'type is too long: its text and coding system take at most ' . self::MAX_SYSTEM . ' characters, its code ' . self::MAX_CODE;
+        if (($text !== null && mb_strlen($text) > self::MAX_SYSTEM) || mb_strlen($display) > self::MAX_SYSTEM
+            || ($system !== '' && $code !== '' && !self::fits($system, $code))) {
+            return 'type is too long: its text, coding system and display take at most ' . self::MAX_SYSTEM . ' characters, its code ' . self::MAX_CODE;
         }
         $given = array_values(array_filter(array_keys($entry), static fn(int|string $key): bool => is_string($key) && str_starts_with($key, 'value')));
         if (count($given) !== 1) {
@@ -269,12 +290,14 @@ final class FhirTaskWriteRules
         $row = [
             'type_system' => $system !== '' && $code !== '' ? $system : null,
             'type_code' => $system !== '' && $code !== '' ? $code : null,
+            'type_display' => $system !== '' && $code !== '' && $display !== '' ? $display : null,
             'type_text' => $text,
             'value_element' => $element,
             'value_type' => null,
             'value_uuid' => null,
             'value_system' => null,
             'value_code' => null,
+            'value_display' => null,
             'value_text' => null,
         ];
         $value = $entry[$element];
@@ -283,24 +306,35 @@ final class FhirTaskWriteRules
             if ($reference === null) {
                 return 'must reference one of ' . implode(', ', $types) . ' on this server ({type}/{uuid})';
             }
+            $referenceDisplay = FhirPayloadReader::getString($value, 'display');
+            if ($referenceDisplay !== null && mb_strlen($referenceDisplay) > self::MAX_SYSTEM) {
+                return 'valueReference.display is longer than ' . self::MAX_SYSTEM . ' characters';
+            }
             $row['value_type'] = $reference['type'];
             $row['value_uuid'] = $reference['uuid'];
+            $row['value_display'] = $referenceDisplay;
             return $row;
         }
         if ($element === 'valueCodeableConcept') {
             $valueText = FhirPayloadReader::getString($value, 'text');
             $valueSystem = FhirPayloadReader::firstCodingValue($value, 'system');
             $valueCode = FhirPayloadReader::firstCodingCode($value);
+            $valueDisplay = FhirPayloadReader::firstCodingValue($value, 'display');
             if ($valueText === null && ($valueSystem === '' || $valueCode === '')) {
                 return 'needs a coding with a system and a code, or text';
             }
-            if (($valueSystem !== '' && $valueCode !== '' && !self::fits($valueSystem, $valueCode)) || ($valueText !== null && mb_strlen($valueText) > self::MAX_TEXT)) {
-                return 'valueCodeableConcept is too long: its coding system takes at most ' . self::MAX_SYSTEM . ' characters, its code '
+            if (count(FhirPayloadReader::codings($value)) > 1) {
+                return 'valueCodeableConcept takes one coding: a row keeps one system and code';
+            }
+            if (($valueSystem !== '' && $valueCode !== '' && !self::fits($valueSystem, $valueCode)) || mb_strlen($valueDisplay) > self::MAX_SYSTEM
+                || ($valueText !== null && mb_strlen($valueText) > self::MAX_TEXT)) {
+                return 'valueCodeableConcept is too long: its coding system and display take at most ' . self::MAX_SYSTEM . ' characters, its code '
                     . self::MAX_CODE . ', its text ' . self::MAX_TEXT;
             }
             if ($valueSystem !== '' && $valueCode !== '') {
                 $row['value_system'] = $valueSystem;
                 $row['value_code'] = $valueCode;
+                $row['value_display'] = $valueDisplay !== '' ? $valueDisplay : null;
             }
             $row['value_text'] = $valueText;
             return $row;
@@ -328,20 +362,16 @@ final class FhirTaskWriteRules
     }
 
     /**
-     * The first coding in Task.code that CODES holds, as its system and code, or null.
+     * Task.code's coding, as its system and code, when CODES holds it; otherwise null.
      *
      * @return ?array{0: string, 1: string}
      */
     private static function knownCoding(mixed $concept): ?array
     {
-        foreach (FhirPayloadReader::codings($concept) as $coding) {
-            $system = FhirPayloadReader::getString($coding, 'system');
-            $code = FhirPayloadReader::getString($coding, 'code');
-            if ($system !== null && $code !== null && in_array($code, self::CODES[$system] ?? [], true)) {
-                return [$system, $code];
-            }
-        }
-        return null;
+        $coding = FhirPayloadReader::firstCoding($concept);
+        $system = FhirPayloadReader::getString($coding, 'system');
+        $code = FhirPayloadReader::getString($coding, 'code');
+        return $system !== null && $code !== null && in_array($code, self::CODES[$system] ?? [], true) ? [$system, $code] : null;
     }
 
     /**

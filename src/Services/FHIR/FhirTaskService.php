@@ -245,11 +245,12 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
      */
     private static function parameter(FHIRTaskInput|FHIRTaskOutput $parameter, array $row): FHIRTaskInput|FHIRTaskOutput
     {
-        $parameter->setType(self::concept(self::text($row, 'type_system'), self::text($row, 'type_code'), self::text($row, 'type_text')));
+        $parameter->setType(self::concept(self::text($row, 'type_system'), self::text($row, 'type_code'), self::text($row, 'type_display'), self::text($row, 'type_text')));
         $text = self::text($row, 'value_text');
+        $display = self::text($row, 'value_display');
         match (self::text($row, 'value_element')) {
-            'valueReference' => $parameter->setValueReference(UtilsService::createRelativeReference(self::text($row, 'value_type') ?? '', self::text($row, 'value_uuid') ?? '')),
-            'valueCodeableConcept' => $parameter->setValueCodeableConcept(self::concept(self::text($row, 'value_system'), self::text($row, 'value_code'), $text)),
+            'valueReference' => $parameter->setValueReference(UtilsService::createRelativeReference(self::text($row, 'value_type') ?? '', self::text($row, 'value_uuid') ?? '', $display)),
+            'valueCodeableConcept' => $parameter->setValueCodeableConcept(self::concept(self::text($row, 'value_system'), self::text($row, 'value_code'), $display, $text)),
             'valueCanonical' => $parameter->setValueCanonical(new FHIRCanonical($text ?? '')),
             'valueUrl' => $parameter->setValueUrl(new FHIRUrl($text ?? '')),
             'valueMarkdown' => $parameter->setValueMarkdown(new FHIRMarkdown($text ?? '')),
@@ -258,12 +259,12 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         return $parameter;
     }
 
-    /** A CodeableConcept of one coding, its text, or both. */
-    private static function concept(?string $system, ?string $code, ?string $text): FHIRCodeableConcept
+    /** A CodeableConcept of one coding (with its display, when it had one), its text, or both. */
+    private static function concept(?string $system, ?string $code, ?string $display, ?string $text): FHIRCodeableConcept
     {
         $concept = new FHIRCodeableConcept();
         if ($system !== null && $code !== null) {
-            $concept->addCoding(UtilsService::createCoding($code, null, $system));
+            $concept->addCoding(UtilsService::createCoding($code, $display, $system));
         }
         if ($text !== null) {
             $concept->setText(new FHIRString($text));
@@ -465,8 +466,10 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     private function recordProblems(array $fields, array $inputs, array $outputs, string $puuid): array
     {
         $problems = [];
-        if (($fields['owner_type'] ?? null) === 'RelatedPerson' && !$this->inRecord('RelatedPerson', $fields['owner_uuid'] ?? null, $puuid)) {
-            $problems['owner'] = "Task.owner names no RelatedPerson of this task's patient: " . ($fields['owner_uuid'] ?? '');
+        $ownerUuid = $fields['owner_uuid'] ?? null;
+        $isRelatedPersonOwner = ($fields['owner_type'] ?? null) === 'RelatedPerson';
+        if ($isRelatedPersonOwner && !$this->inRecord('RelatedPerson', $ownerUuid, $puuid)) {
+            $problems['owner'] = "Task.owner names no RelatedPerson of this task's patient: " . ($ownerUuid ?? '');
         }
         foreach (['input' => $inputs, 'output' => $outputs] as $element => $rows) {
             foreach ($rows as $i => $row) {

@@ -219,15 +219,16 @@ class TaskInputOutputFhirApiTest extends TestCase
     public function testThePatientsQuestionnaireTaskAsSdohClinicalCareWritesIt(): void
     {
         // TaskForPatient: the questionnaire as a canonical input, with its PDF, its address and
-        // its category; owned by the patient's mother, who fills it in for them.
+        // its category; owned by the patient's mother, who fills it in for them. Codings and
+        // references carry displays, as the IG's examples do.
         $inputs = [
-            ['type' => ['coding' => [['system' => self::SDC_TEMP, 'code' => 'questionnaire']]], 'valueCanonical' => $this->questionnaireUrl],
-            ['type' => ['coding' => [['system' => self::SDOHCC_TEMP, 'code' => 'questionnaire-pdf']]], 'valueReference' => ['reference' => 'DocumentReference/' . $this->pdfUuid, 'type' => 'DocumentReference']],
+            ['type' => ['coding' => [['system' => self::SDC_TEMP, 'code' => 'questionnaire', 'display' => 'Questionnaire']]], 'valueCanonical' => $this->questionnaireUrl],
+            ['type' => ['coding' => [['system' => self::SDOHCC_TEMP, 'code' => 'questionnaire-pdf']]], 'valueReference' => ['reference' => 'DocumentReference/' . $this->pdfUuid, 'type' => 'DocumentReference', 'display' => 'PHQ-9 to fill in on paper']],
             ['type' => ['coding' => [['system' => self::SDOHCC_TEMP, 'code' => 'questionnaire-url']]], 'valueUrl' => 'https://example.org/forms/phq-9'],
-            ['type' => ['coding' => [['system' => self::SDOHCC_TEMP, 'code' => 'questionnaire-category']]], 'valueCodeableConcept' => ['coding' => [['system' => 'http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes', 'code' => 'risk-questionnaire']]]],
+            ['type' => ['coding' => [['system' => self::SDOHCC_TEMP, 'code' => 'questionnaire-category']]], 'valueCodeableConcept' => ['coding' => [['system' => 'http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes', 'code' => 'risk-questionnaire', 'display' => 'Risk Questionnaire']]]],
         ];
         $outputs = [
-            self::outputTo('QuestionnaireResponse', $this->responseUuid, ['coding' => [['system' => self::SDC_TEMP, 'code' => 'questionnaire-response']]]),
+            ['type' => ['coding' => [['system' => self::SDC_TEMP, 'code' => 'questionnaire-response']]], 'valueReference' => ['reference' => 'QuestionnaireResponse/' . $this->responseUuid, 'type' => 'QuestionnaireResponse', 'display' => 'PHQ-9 answers']],
             self::outputTo('DocumentReference', $this->pdfUuid, ['coding' => [['system' => self::SDOHCC_TEMP, 'code' => 'questionnaire-pdf-completed']]]),
         ];
         $body = $this->questionnaireTask(['owner' => ['reference' => 'RelatedPerson/' . $this->parentUuid], 'input' => $inputs, 'output' => $outputs]);
@@ -243,7 +244,7 @@ class TaskInputOutputFhirApiTest extends TestCase
     public function testAMakeContactTaskKeepsTheContactsAndTheOneChosen(): void
     {
         $food = 'Organization/' . UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
-        $inputs = [['type' => ['coding' => [['system' => self::SDOHCC_TEMP, 'code' => 'contact-entity']]], 'valueReference' => ['reference' => $food, 'type' => 'Organization']]];
+        $inputs = [['type' => ['coding' => [['system' => self::SDOHCC_TEMP, 'code' => 'contact-entity']]], 'valueReference' => ['reference' => $food, 'type' => 'Organization', 'display' => 'Community food pantry']]];
         $outputs = [
             ['type' => ['coding' => [['system' => self::SDOHCC_TEMP, 'code' => 'chosen-contact']]], 'valueMarkdown' => 'Called the **food pantry** on Tuesday'],
             ['type' => ['text' => 'What was done'], 'valueCodeableConcept' => ['coding' => [['system' => 'http://example.org/fhir/CodeSystem/activities', 'code' => 'food-delivered']], 'text' => 'Food delivered']],

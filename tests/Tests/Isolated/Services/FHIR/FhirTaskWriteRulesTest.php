@@ -128,6 +128,27 @@ class FhirTaskWriteRulesTest extends TestCase
             'an output code system longer than its column' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['coding' => [['system' => 'https://example.org/' . str_repeat('s', FhirTaskWriteRules::MAX_SYSTEM), 'code' => 'food-delivered']]]]]], 'output[0]'],
             'an output code longer than its column' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['coding' => [['system' => 'https://example.org', 'code' => str_repeat('c', FhirTaskWriteRules::MAX_CODE + 1)]]]]]], 'output[0]'],
             'an output concept text longer than the limit' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['text' => str_repeat('a', FhirTaskWriteRules::MAX_TEXT + 1)]]]], 'output[0]'],
+            'a code given as null' => [['code' => null], 'code'],
+            'an owner given as null' => [['owner' => null], 'owner'],
+            'inputs given as null' => [['input' => null], 'input'],
+            'two codings in Task.code' => [['code' => ['coding' => [
+                ['system' => FhirTaskService::TASK_CODE_SYSTEM, 'code' => 'fulfill'],
+                ['system' => 'http://example.org/local', 'code' => 'meals'],
+            ]]], 'code'],
+            'an input type with two codings' => [['input' => [['type' => ['coding' => [
+                ['system' => 'https://example.org', 'code' => 'form'],
+                ['system' => 'https://example.org/other', 'code' => 'form'],
+            ]], 'valueString' => 'x']]], 'input[0]'],
+            'an output code with two codings' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['coding' => [
+                ['system' => 'http://example.org/activities', 'code' => 'food-delivered'],
+                ['system' => 'http://example.org/other', 'code' => 'delivered'],
+            ]]]]], 'output[0]'],
+            'an output reference display longer than its column' => [['output' => [['type' => ['text' => 'Response'], 'valueReference' => [
+                'reference' => 'QuestionnaireResponse/' . self::RESPONSE, 'display' => str_repeat('d', FhirTaskWriteRules::MAX_SYSTEM + 1),
+            ]]]], 'output[0]'],
+            'an input type display longer than its column' => [['input' => [['type' => ['coding' => [
+                ['system' => 'https://example.org', 'code' => 'form', 'display' => str_repeat('d', FhirTaskWriteRules::MAX_SYSTEM + 1)],
+            ]], 'valueString' => 'x']]], 'input[0]'],
         ];
     }
 
@@ -157,6 +178,21 @@ class FhirTaskWriteRulesTest extends TestCase
         $this->assertSame([$element], array_keys($errors));
     }
 
+    public function testANullIsRefusedNotReadAsLeftOut(): void
+    {
+        $elements = [
+            'status', 'intent', 'priority', 'code', 'description', 'statusReason', 'businessStatus', 'for', 'focus', 'owner',
+            'requester', 'partOf', 'authoredOn', 'input', 'output',
+        ];
+        foreach ($elements as $element) {
+            $errors = FhirTaskWriteRules::read(self::task([$element => null]))['errors'];
+            $this->assertSame([$element], array_keys($errors), $element);
+            $this->assertStringContainsString("Task.$element is null", $errors[$element]);
+        }
+        // An element the table doesn't hold is left out, null or not, as before.
+        $this->assertSame([], FhirTaskWriteRules::read(self::task(['note' => null]))['errors']);
+    }
+
     public function testEveryAllowedReferenceTypeIsAccepted(): void
     {
         foreach (['focus' => FhirTaskWriteRules::FOCUS_TYPES, 'owner' => FhirTaskWriteRules::OWNER_TYPES, 'requester' => FhirTaskWriteRules::REQUESTER_TYPES] as $element => $types) {
@@ -174,28 +210,27 @@ class FhirTaskWriteRulesTest extends TestCase
     {
         $read = FhirTaskWriteRules::read(self::task([
             'status' => 'completed',
-            'code' => ['coding' => [
-                ['system' => 'http://example.org/local', 'code' => 'survey'],
-                ['system' => FhirTaskService::SDC_TEMP_SYSTEM, 'code' => 'complete-questionnaire'],
-            ]],
+            'code' => ['coding' => [['system' => FhirTaskService::SDC_TEMP_SYSTEM, 'code' => 'complete-questionnaire']]],
             'focus' => ['reference' => 'Questionnaire/' . self::REQUEST],
             // The patient's own task, with the uuid in capitals: the same patient.
             'owner' => ['reference' => 'Patient/' . strtoupper(self::PATIENT)],
             'output' => [[
-                'type' => ['coding' => [['system' => FhirTaskService::SDC_TEMP_SYSTEM, 'code' => 'questionnaire-response']], 'text' => 'Completed form'],
-                'valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE],
+                'type' => ['coding' => [['system' => FhirTaskService::SDC_TEMP_SYSTEM, 'code' => 'questionnaire-response', 'display' => 'Questionnaire Response']], 'text' => 'Completed form'],
+                'valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE, 'display' => 'PHQ-9, 17 October 2026'],
             ]],
         ]));
         $this->assertSame([], $read['errors']);
-        $this->assertSame([FhirTaskService::SDC_TEMP_SYSTEM, 'complete-questionnaire'], [$read['fields']['code_system'], $read['fields']['code']], 'the first coding it knows');
+        $this->assertSame([FhirTaskService::SDC_TEMP_SYSTEM, 'complete-questionnaire'], [$read['fields']['code_system'], $read['fields']['code']]);
         $this->assertSame([0 => self::row([
             'type_system' => FhirTaskService::SDC_TEMP_SYSTEM,
             'type_code' => 'questionnaire-response',
+            'type_display' => 'Questionnaire Response',
             'type_text' => 'Completed form',
             'value_element' => 'valueReference',
             'value_type' => 'QuestionnaireResponse',
             'value_uuid' => self::RESPONSE,
-        ])], $read['outputs']);
+            'value_display' => 'PHQ-9, 17 October 2026',
+        ])], $read['outputs'], 'the type coding and the reference keep their displays');
     }
 
     public function testThePatientTasksInputsAndOutputsAsSdohClinicalCareWritesThem(): void
@@ -208,8 +243,8 @@ class FhirTaskWriteRulesTest extends TestCase
                 ['type' => ['coding' => [['system' => FhirTaskService::SDC_TEMP_SYSTEM, 'code' => 'questionnaire']]], 'valueCanonical' => 'https://example.org/fhir/Questionnaire/phq-9|1.2'],
                 ['type' => ['coding' => [['system' => $sdohcc, 'code' => 'questionnaire-pdf']]], 'valueReference' => ['reference' => 'DocumentReference/' . self::RESPONSE]],
                 ['type' => ['coding' => [['system' => $sdohcc, 'code' => 'questionnaire-url']]], 'valueUrl' => 'https://example.org/forms/phq-9'],
-                ['type' => ['coding' => [['system' => $sdohcc, 'code' => 'questionnaire-category']]], 'valueCodeableConcept' => ['coding' => [['system' => $sdohcc, 'code' => 'risk-questionnaire']]]],
-                ['type' => ['coding' => [['system' => $sdohcc, 'code' => 'contact-entity']]], 'valueReference' => ['reference' => 'Organization/' . self::ORG]],
+                ['type' => ['coding' => [['system' => $sdohcc, 'code' => 'questionnaire-category']]], 'valueCodeableConcept' => ['coding' => [['system' => $sdohcc, 'code' => 'risk-questionnaire', 'display' => 'Risk Questionnaire']]]],
+                ['type' => ['coding' => [['system' => $sdohcc, 'code' => 'contact-entity']]], 'valueReference' => ['reference' => 'Organization/' . self::ORG, 'display' => 'Community food pantry']],
             ],
             'output' => [
                 ['type' => ['coding' => [['system' => $sdohcc, 'code' => 'chosen-contact']]], 'valueMarkdown' => 'The **food pantry**, on Tuesday'],
@@ -226,8 +261,9 @@ class FhirTaskWriteRulesTest extends TestCase
         );
         $this->assertSame('https://example.org/fhir/Questionnaire/phq-9|1.2', $read['inputs'][0]['value_text'], 'a canonical with its version');
         $this->assertSame(['DocumentReference', self::RESPONSE], [$read['inputs'][1]['value_type'], $read['inputs'][1]['value_uuid']]);
-        $this->assertSame([$sdohcc, 'risk-questionnaire', null], [$read['inputs'][3]['value_system'], $read['inputs'][3]['value_code'], $read['inputs'][3]['value_text']]);
-        $this->assertSame(['Organization', self::ORG], [$read['inputs'][4]['value_type'], $read['inputs'][4]['value_uuid']]);
+        $this->assertSame([$sdohcc, 'risk-questionnaire', 'Risk Questionnaire', null], [$read['inputs'][3]['value_system'], $read['inputs'][3]['value_code'], $read['inputs'][3]['value_display'], $read['inputs'][3]['value_text']]);
+        $this->assertSame(['Organization', self::ORG, 'Community food pantry'], [$read['inputs'][4]['value_type'], $read['inputs'][4]['value_uuid'], $read['inputs'][4]['value_display']]);
+        $this->assertNull($read['inputs'][1]['value_display'], 'a reference without a display has none');
         $this->assertSame(['valueMarkdown', 'The **food pantry**, on Tuesday'], [$read['outputs'][0]['value_element'], $read['outputs'][0]['value_text']]);
         $this->assertSame(['valueString', 'Yes'], [$read['outputs'][1]['value_element'], $read['outputs'][1]['value_text']]);
         $this->assertSame(['http://example.org/activities', 'food-delivered', 'Food delivered'], [$read['outputs'][2]['value_system'], $read['outputs'][2]['value_code'], $read['outputs'][2]['value_text']]);
@@ -287,7 +323,8 @@ class FhirTaskWriteRulesTest extends TestCase
      */
     private static function row(array $columns): array
     {
-        return array_merge(array_fill_keys(['type_system', 'type_code', 'type_text', 'value_element', 'value_type', 'value_uuid', 'value_system', 'value_code', 'value_text'], null), $columns);
+        $all = ['type_system', 'type_code', 'type_display', 'type_text', 'value_element', 'value_type', 'value_uuid', 'value_system', 'value_code', 'value_display', 'value_text'];
+        return array_merge(array_fill_keys($all, null), $columns);
     }
 
     /**
