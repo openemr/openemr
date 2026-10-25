@@ -203,6 +203,26 @@
         CORE_BASE + 'rendering-style',
     ]);
 
+    // FHIR canonical form is url|version#fragment: the version goes before any
+    // fragment the url carries (QuestionnaireCanonical::forResponse() matches).
+    function canonicalWithVersion(url, version) {
+        if (version === '') {
+            return url;
+        }
+        const hash = url.indexOf('#');
+        return hash === -1 ? url + '|' + version : url.slice(0, hash) + '|' + version + url.slice(hash);
+    }
+
+    function hasOwn(object, key) {
+        return object !== null && typeof object === 'object' && Object.prototype.hasOwnProperty.call(object, key);
+    }
+
+    // Defines an own property even for names such as __proto__, so a
+    // questionnaire variable can never change an environment's prototype.
+    function defineVariable(environment, name, value) {
+        Object.defineProperty(environment, name, { value, writable: true, enumerable: true, configurable: true });
+    }
+
     function deepClone(value) {
         return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
     }
@@ -1494,11 +1514,15 @@
             this.answers = new Map();
             // repeating-group linkId -> instance count (at least 1 when present)
             this.repeatCounts = new Map();
+            // Bumped on every change to answers or instance counts, so a built
+            // response can be reused until the data behind it changes.
+            this.revision = 0;
             this.load(questionnaireResponse);
             this.applyInitialAnswers();
         }
 
         load(questionnaireResponse) {
+            this.revision++;
             this.answers.clear();
             this.repeatCounts.clear();
 
@@ -1563,10 +1587,12 @@
         }
 
         setRepeatCount(storageKey, count) {
+            this.revision++;
             this.repeatCounts.set(storageKey, Math.max(count, 1));
         }
 
         addRepeatInstance(storageKey) {
+            this.revision++;
             const next = this.getRepeatCount(storageKey) + 1;
             this.repeatCounts.set(storageKey, next);
             // Seed the new instance's item.initial / answerOption.initialSelected
@@ -1609,6 +1635,7 @@
                 }
             }
             this.repeatCounts.set(storageKey, count - 1);
+            this.revision++;
             return count - 1;
         }
 
@@ -1657,9 +1684,18 @@
         setAnswers(linkId, answers) {
             const normalized = (answers ?? []).filter((answer) => answer && typeof answer.valueKey === 'string');
             if (normalized.length === 0) {
-                this.answers.delete(linkId);
+                if (this.answers.delete(linkId)) {
+                    this.revision++;
+                }
                 return;
             }
+            // Recalculation rewrites unchanged values on every pass; leave the
+            // revision alone then so cached responses stay valid.
+            const current = this.answers.get(linkId);
+            if (current !== undefined && JSON.stringify(current) === JSON.stringify(normalized)) {
+                return;
+            }
+            this.revision++;
             this.answers.set(linkId, deepClone(normalized));
         }
 
@@ -1668,6 +1704,9 @@
         }
 
         clearAnswer(linkId) {
+            if (this.answers.has(linkId)) {
+                this.revision++;
+            }
             this.answers.delete(linkId);
         }
 
@@ -2156,7 +2195,9 @@
                 case 'empty':
                     return [];
                 case 'variable':
-                    return asCollection(environment[ast.name]);
+                    // Own properties only: %constructor or %toString must not
+                    // reach Object.prototype and be saved as an answer.
+                    return asCollection(hasOwn(environment, ast.name) ? environment[ast.name] : undefined);
                 case 'special':
                     if (ast.name === 'this') {
                         return asCollection(context);
@@ -2204,7 +2245,7 @@
                 if (value === null || value === undefined || typeof value !== 'object') {
                     continue;
                 }
-                let projected = value[property];
+                let projected = hasOwn(value, property) ? value[property] : undefined;
                 if (projected === undefined) {
                     // FHIR choice elements (value[x], effective[x], ...) are
                     // addressed without their type suffix in FHIRPath:
@@ -2225,7 +2266,7 @@
         scopedEnvironment(environment, index) {
             const scoped = {};
             for (const key of Object.keys(environment)) {
-                scoped[key] = environment[key];
+                defineVariable(scoped, key, environment[key]);
             }
             scoped['$index'] = index;
             return scoped;
@@ -2297,6 +2338,12 @@
                             }
                         }
                         frontier = next;
+                    }
+                    // A frontier still growing after 1000 levels is a cycle
+                    // (repeatAll) or runaway data: report it rather than return
+                    // a silently truncated collection.
+                    if (frontier.length > 0) {
+                        throw new Error('FHIRPath ' + ast.name + '() stopped after 1000 levels without finishing.');
                     }
                     return output;
                 }
@@ -2865,12 +2912,26 @@
             return (this.compiled.repeatAncestors.get(compiledItem.linkId) ?? []).length > 0;
         }
 
+        // The response expressions evaluate against (%resource), built once per
+        // change to answers, instance counts or enablement rather than once per
+        // expression; the evaluator never mutates it.
+        currentResource(runtime) {
+            const key = runtime.responseStore.revision + ':' + runtime.behaviorEngine.revision;
+            if (this.resourceCache?.key !== key) {
+                this.resourceCache = {
+                    key,
+                    resource: runtime.responseStore.buildQuestionnaireResponse((linkId) => runtime.isEnabled(linkId)),
+                };
+            }
+            return this.resourceCache.resource;
+        }
+
         resetEvaluationWarnings() {
             this.warnings = [];
         }
 
         buildEnvironment(runtime, compiledItem) {
-            const resource = runtime.responseStore.buildQuestionnaireResponse((linkId) => runtime.isEnabled(linkId));
+            const resource = this.currentResource(runtime);
             const environment = {
                 ...this.launchContext(runtime),
                 questionnaire: this.compiled.questionnaire,
@@ -2896,7 +2957,7 @@
                 try {
                     environment.context = definingContext;
                     environment.qitem = this.compiled.itemsByLinkId.get(definingLinkId)?.item;
-                    environment[expression.name] = this.evaluator.evaluate(ast, environment, definingContext);
+                    defineVariable(environment, expression.name, this.evaluator.evaluate(ast, environment, definingContext));
                 } catch (error) {
                     this.warnings.push({
                         code: 'fhirpath-evaluate-error',
@@ -2947,14 +3008,19 @@
 
         // Returns true/false for an enableWhenExpression, or null when it cannot
         // be evaluated (the behavior engine then falls back to enableWhen).
-        evaluateEnableWhenExpression(runtime, compiledItem) {
+        // nodePath (from the instance walk) scopes %context and group-defined
+        // variables to one repeat instance; without it the expression sees the
+        // whole response, as a canonical (non-repeating) item does.
+        evaluateEnableWhenExpression(runtime, compiledItem, nodePath = null) {
             const expression = compiledItem.enableWhenExpression;
             const ast = expression && this.compiledExpressions.get(expression);
             if (!ast) {
                 return null;
             }
             try {
-                const environment = this.buildEnvironment(runtime, compiledItem);
+                const environment = nodePath !== null && nodePath.length > 0
+                    ? this.buildEnvironmentForInstance(runtime, compiledItem, nodePath)
+                    : this.buildEnvironment(runtime, compiledItem);
                 return collectionBoolean(this.evaluator.evaluate(ast, environment, null));
             } catch (error) {
                 this.warnings.push({
@@ -3247,7 +3313,7 @@
         // response nodes located by nodePath. Falls back to the canonical first
         // match for ancestors defined outside any repeat.
         buildEnvironmentForInstance(runtime, compiledItem, nodePath) {
-            const resource = runtime.responseStore.buildQuestionnaireResponse((linkId) => runtime.isEnabled(linkId));
+            const resource = this.currentResource(runtime);
             const environment = {
                 ...this.launchContext(runtime),
                 questionnaire: this.compiled.questionnaire,
@@ -3284,7 +3350,7 @@
                 try {
                     environment.context = definingContext;
                     environment.qitem = this.compiled.itemsByLinkId.get(definingLinkId)?.item;
-                    environment[expression.name] = this.evaluator.evaluate(ast, environment, definingContext);
+                    defineVariable(environment, expression.name, this.evaluator.evaluate(ast, environment, definingContext));
                 } catch (error) {
                     this.warnings.push({
                         code: 'fhirpath-evaluate-error',
@@ -3309,6 +3375,9 @@
             // storage key -> bool, for items rendered inside repeating-group
             // instances (per-instance enableWhen). Canonical items use `enabled`.
             this.instanceEnabled = new Map();
+            // Bumped whenever any enablement changes (it filters the response
+            // expressions see), alongside the store's revision.
+            this.revision = 0;
         }
 
         evaluateAll() {
@@ -3321,6 +3390,7 @@
                     const next = this.evaluateItem(compiledItem);
                     if (this.enabled.get(compiledItem.linkId) !== next) {
                         this.enabled.set(compiledItem.linkId, next);
+                        this.revision++;
                         changed = true;
                     }
                 }
@@ -3335,13 +3405,20 @@
         // handled by recursion. Items outside any repeat never enter this map,
         // so non-repeating questionnaires are unaffected.
         evaluateInstances() {
+            // Expressions evaluated during the walk see the last complete
+            // enablement until a value actually changes (then it is rebuilt).
+            const previous = new Map(this.instanceEnabled);
             this.instanceEnabled.clear();
             // chain carries every enclosing repeating-group instance, outermost
             // first: [{ groupLinkId, prefix }, ...]. prefix is that instance's
             // storage-key prefix. parentKey is the storage key of the item's
             // parent (canonical linkId outside any repeat), so an item is gated
-            // by its actual parent's per-instance state, at any depth.
-            const walk = (items, prefix, chain, parentKey) => {
+            // by its actual parent's per-instance state, at any depth. nodePath
+            // lists every enclosing group ({ linkId, index }, index null for a
+            // non-repeating group) so an enableWhenExpression is evaluated
+            // against this instance's response nodes (%context), as the
+            // calculated/initial expressions are.
+            const walk = (items, prefix, chain, parentKey, nodePath) => {
                 for (const item of items ?? []) {
                     if (typeof item?.linkId !== 'string') {
                         continue;
@@ -3350,23 +3427,32 @@
                     // Every item inside a repeat instance — including a nested
                     // repeating group itself — gets its own enablement.
                     if (prefix !== '') {
-                        this.instanceEnabled.set(storageKey, this.evaluateInstanceItem(item, chain, parentKey));
+                        const enabled = this.evaluateInstanceItem(item, chain, parentKey, nodePath);
+                        if (previous.get(storageKey) !== enabled) {
+                            this.revision++;
+                        }
+                        this.instanceEnabled.set(storageKey, enabled);
                     }
                     if (isRepeatingGroup(item)) {
                         const count = this.runtime.responseStore.getRepeatCount(storageKey);
                         for (let instanceIndex = 0; instanceIndex < count; instanceIndex++) {
                             const instancePrefix = instanceKeyPrefix(storageKey, instanceIndex);
-                            walk(item.item, instancePrefix, [...chain, { groupLinkId: item.linkId, prefix: instancePrefix }], storageKey);
+                            walk(item.item, instancePrefix, [...chain, { groupLinkId: item.linkId, prefix: instancePrefix }], storageKey,
+                                [...nodePath, { linkId: item.linkId, index: instanceIndex }]);
                         }
                         continue;
                     }
-                    walk(item.item, prefix, chain, storageKey);
+                    walk(item.item, prefix, chain, storageKey,
+                        item.type === 'group' ? [...nodePath, { linkId: item.linkId, index: null }] : nodePath);
                 }
             };
-            walk(this.runtime.questionnaire.item, '', [], null);
+            walk(this.runtime.questionnaire.item, '', [], null, []);
+            if ([...previous.keys()].some((key) => !this.instanceEnabled.has(key))) {
+                this.revision++;
+            }
         }
 
-        evaluateInstanceItem(item, chain, parentKey) {
+        evaluateInstanceItem(item, chain, parentKey, nodePath = []) {
             // The parent (already evaluated: the walk is top-down) gates its
             // children, so a disabled group anywhere above disables the item.
             if (parentKey !== null && !this.isEnabled(parentKey)) {
@@ -3377,7 +3463,7 @@
             // canonical item in evaluateItem (combined with any enableWhen).
             const compiledItem = this.runtime.compiled.itemsByLinkId.get(item.linkId);
             if (compiledItem?.enableWhenExpression) {
-                const expressionResult = this.runtime.expressionEngine.evaluateEnableWhenExpression(this.runtime, compiledItem);
+                const expressionResult = this.runtime.expressionEngine.evaluateEnableWhenExpression(this.runtime, compiledItem, nodePath);
                 if (expressionResult === false) {
                     return false;
                 }
@@ -4591,6 +4677,19 @@
             header.querySelector('.oe-questionnaire-group-title')?.prepend(toggle);
         }
 
+        // Drop node/input entries for every instance of a repeating group
+        // (keys group\u0000index\u0000...), nested instances included.
+        forgetInstanceNodes(storageKey) {
+            const prefix = storageKey + INSTANCE_SEPARATOR;
+            for (const map of [this.nodes, this.inputs]) {
+                for (const key of [...map.keys()]) {
+                    if (key.startsWith(prefix)) {
+                        map.delete(key);
+                    }
+                }
+            }
+        }
+
         applyFlyover(element, text) {
             if (text !== '') {
                 element.title = text;
@@ -5308,6 +5407,9 @@
 
             const rerender = () => {
                 body.replaceChildren();
+                // Forget the instances' old nodes and inputs (they are rebuilt
+                // below); after a removal they would point at detached elements.
+                this.forgetInstanceNodes(storageKey);
                 const count = this.runtime.responseStore.getRepeatCount(storageKey);
                 if (getItemControl(item) === 'gtable') {
                     body.appendChild(this.renderGridTable(item, keyPrefix, count, minOccurs, rerender));
@@ -6561,7 +6663,18 @@
                 this.expressionEngine.evaluateInitialExpressions(this);
                 this.expressionEngine.seedInitialExpressionInstances(this);
             }
-            this.expressionEngine.recalculate(this);
+            // Calculate until nothing changes: a form-level calculation can
+            // read per-instance ones (evaluated after it), and a calculated
+            // value can change what is enabled. Unchanged rewrites leave the
+            // revisions alone, so a settled form takes one pass.
+            for (let pass = 0; pass < 10; pass++) {
+                const before = this.responseStore.revision + ':' + this.behaviorEngine.revision;
+                this.expressionEngine.recalculate(this);
+                this.behaviorEngine.evaluateAll();
+                if (this.responseStore.revision + ':' + this.behaviorEngine.revision === before) {
+                    break;
+                }
+            }
             this.dynamicState = this.expressionEngine.evaluateDynamic(this);
             this.behaviorEngine.evaluateAll();
         }
@@ -6616,7 +6729,7 @@
             const questionnaire = this.questionnaire;
             if (typeof questionnaire.url === 'string' && questionnaire.url.trim() !== '') {
                 const version = typeof questionnaire.version === 'string' ? questionnaire.version.trim() : '';
-                response.questionnaire = version !== '' ? questionnaire.url.trim() + '|' + version : questionnaire.url.trim();
+                response.questionnaire = canonicalWithVersion(questionnaire.url.trim(), version);
             }
             const meta = response.meta !== null && typeof response.meta === 'object' && !Array.isArray(response.meta) ? response.meta : {};
             if (!Array.isArray(meta.profile) || meta.profile.length === 0) {

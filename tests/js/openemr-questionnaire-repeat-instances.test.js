@@ -478,8 +478,15 @@ describe('repeating boolean, quantity and attachment questions', () => {
         for (const name of ['a.txt', 'b.txt']) {
             const input = rows(container).at(-1).querySelector('input[type="file"]');
             Object.defineProperty(input, 'files', { value: [new File(['hello'], name, { type: 'text/plain' })] });
-            input.dispatchEvent(new Event('change', { bubbles: true }));
-            await new Promise((resolve) => setTimeout(resolve, 20));
+            // The file is read asynchronously; wait for the runtime's change
+            // notification instead of a fixed delay.
+            await new Promise((resolve) => {
+                const stop = runtime.onChange(() => {
+                    stop();
+                    resolve();
+                });
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
         }
         expect(answersOf(runtime, 'f').map((answer) => answer.valueAttachment.title)).toEqual(['a.txt', 'b.txt']);
     });

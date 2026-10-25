@@ -15,8 +15,9 @@ namespace OpenEMR\Services\Questionnaire;
 final class QuestionnaireCanonical
 {
     /**
-     * The Questionnaire's own canonical url, with its version when it has one (url|version, as
-     * the runtime sets it), else this server's copy of it.
+     * The Questionnaire's own canonical url, with its version when it has one (url|version, or
+     * url|version#fragment when the url carries a fragment, as the runtime sets it), else this
+     * server's copy of it.
      *
      * @param mixed  $url      Questionnaire.url
      * @param mixed  $version  Questionnaire.version
@@ -28,9 +29,14 @@ final class QuestionnaireCanonical
             return $fallback;
         }
         $canonical = trim($url);
-        if (is_string($version) && trim($version) !== '') {
-            $canonical .= '|' . trim($version);
+        if (!is_string($version) || trim($version) === '') {
+            return $canonical;
         }
-        return $canonical;
+        // Canonical form is url|version#fragment: the version precedes any fragment.
+        $hash = strpos($canonical, '#');
+        if ($hash === false) {
+            return $canonical . '|' . trim($version);
+        }
+        return substr($canonical, 0, $hash) . '|' . trim($version) . substr($canonical, $hash);
     }
 }

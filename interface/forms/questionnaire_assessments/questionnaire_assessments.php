@@ -240,13 +240,16 @@ if ($mode !== 'new') {
         [$titlePid, $titleEncounter]
     );
     $encounterDate = $scalarString($titleVisit['date'] ?? null);
-    $assessmentTitle = $formName;
-    if ($patientName !== '') {
-        $assessmentTitle .= ' ' . xl('for') . ' ' . $patientName;
-    }
-    if ($encounterDate !== '') {
-        $assessmentTitle .= ' ' . xl('on') . ' ' . $scalarString(oeFormatShortDate(substr($encounterDate, 0, 10)));
-    }
+    $visitDate = $encounterDate !== '' ? $scalarString(oeFormatShortDate(substr($encounterDate, 0, 10))) : '';
+    // Whole sentences so translators can reorder the parts; named tokens (not sprintf) so a
+    // translation that drops or renames one shows the token instead of failing the page.
+    $titleTemplate = match (true) {
+        $patientName !== '' && $visitDate !== '' => xl('{form} for {patient} on {date}'),
+        $patientName !== '' => xl('{form} for {patient}'),
+        $visitDate !== '' => xl('{form} on {date}'),
+        default => '{form}',
+    };
+    $assessmentTitle = strtr($titleTemplate, ['{form}' => $formName, '{patient}' => $patientName, '{date}' => $visitDate]);
 }
 
 $topNote = true;

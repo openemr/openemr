@@ -23,6 +23,8 @@ final class QuestionnaireCanonicalIsolatedTest extends TestCase
 
     /**
      * @return array<string, array{mixed, mixed, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function cases(): array
     {
@@ -34,6 +36,8 @@ final class QuestionnaireCanonicalIsolatedTest extends TestCase
             'no url' => [null, '2', self::FALLBACK],
             'blank url' => ['', '2', self::FALLBACK],
             'a url that is not a string' => [['x'], null, self::FALLBACK],
+            'version goes before a fragment' => ['http://example.org/q/x#part', '1.0', 'http://example.org/q/x|1.0#part'],
+            'fragment kept without a version' => ['http://example.org/q/x#part', null, 'http://example.org/q/x#part'],
         ];
     }
 

@@ -27,7 +27,11 @@ class QuestionnaireResponseAnswerTextTest extends TestCase
         }
     }
 
-    /** @return array<string, array{array<string, mixed>, string}> */
+    /**
+     * @return array<string, array{array<string, mixed>, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
     public static function answers(): array
     {
         return [

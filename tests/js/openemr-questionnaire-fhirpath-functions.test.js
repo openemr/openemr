@@ -58,6 +58,11 @@ function evaluate(expression) {
 
 const answer = (linkId, key) => "%resource.item.where(linkId = '" + linkId + "').answer." + key;
 
+// Tests below mount into document.body; start each from an empty page.
+beforeEach(() => {
+    document.body.innerHTML = '';
+});
+
 describe('operators', () => {
     test.each([
         ['1 + 2 * 3', [7]],
