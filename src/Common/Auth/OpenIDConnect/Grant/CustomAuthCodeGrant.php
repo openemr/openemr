@@ -27,6 +27,7 @@ use Psr\Http\Message\ServerRequestInterface;
 class CustomAuthCodeGrant extends AuthCodeGrant
 {
     use SystemLoggerAwareTrait;
+    use ClientGrantTypeGuardTrait;
 
     private array $openEMRCodeChallengeVerifiers;
 
@@ -118,8 +119,15 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             }
         }
         $this->validateCodeChallengeMethod($request);
+        $authorizationRequest = parent::validateAuthorizationRequest($request);
+        // the client asking for a code must be registered for the authorization_code grant
+        $client = $authorizationRequest->getClient();
+        if (!($client instanceof ClientEntity)) {
+            throw OAuthServerException::invalidClient($request);
+        }
+        $this->assertClientMayUseGrant($client, $this->getIdentifier(), $logger, $authorizationRequest->getRedirectUri());
         $logger->debug("CustomAuthCodeGrant::validateAuthorizationRequest: validateAuthorizationRequest exit");
-        return parent::validateAuthorizationRequest($request);
+        return $authorizationRequest;
     }
 
     protected function validateRedirectUri(
@@ -205,8 +213,9 @@ class CustomAuthCodeGrant extends AuthCodeGrant
                     $this->validateRedirectUri($redirectUri, $client, $request);
                 }
 
+                // fall through to the enabled and grant-type checks below: returning here skipped
+                // them, so a disabled client could still exchange a code with private_key_jwt
                 $logger->debug('CustomAuthCodeGrant::validateClient: JWT authentication successful', ['client_id' => $clientId]);
-                return $client;
 
             } catch (OAuthServerException $e) {
                 $logger->error(
@@ -235,6 +244,7 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             $this->getSystemLogger()->error("CustomAuthCodeGrant::validateClient: Client {client} returned was not enabled", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
+        $this->assertClientMayUseGrant($client, $this->getIdentifier(), $logger);
         $this->getSystemLogger()->debug("CustomAuthCodeGrant::validateClient exit");
         return $client;
     }

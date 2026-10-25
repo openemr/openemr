@@ -24,6 +24,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -149,7 +150,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * - patient + status
      * - patient + authored
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         $return = [
             'patient' => $this->getPatientContextSearchField(),
@@ -248,7 +249,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * @param array $dataRecord The source data
      * @return array Array of validation warnings/errors
      */
-    private function validateUSCoreRequirements($dataRecord)
+    private function validateUSCoreRequirements($dataRecord): array
     {
         $errors = [];
         $warnings = [];
@@ -587,7 +588,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * @param int    $activity    OpenEMR activity flag (0=deleted, 1=active)
      * @return string FHIR status code
      */
-    private function mapOrderStatus($orderStatus, $activity = 1)
+    private function mapOrderStatus($orderStatus, $activity = 1): string
     {
         // If activity = 0, it's deleted
         if ($activity == 0) {
@@ -617,7 +618,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * @param string $orderPriority OpenEMR order_priority value
      * @return string FHIR priority code (routine | urgent | asap | stat)
      */
-    private function mapOrderPriority($orderPriority)
+    private function mapOrderPriority($orderPriority): string
     {
         $priorityMap = [
             'routine' => 'routine',
@@ -756,8 +757,9 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * Build reason codes from diagnosis string
      * Format in OpenEMR: "ICD10:E11.9;ICD10:I10" or similar
      * Can be from order_diagnosis (procedure_order) or diagnoses (procedure_order_code)
+     * @return FHIRCodeableConcept[]
      */
-    private function buildReasonCodes($diagnosisString)
+    private function buildReasonCodes($diagnosisString): array
     {
         $reasonCodes = [];
         $codesService = new CodeTypesService();
@@ -808,7 +810,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRServiceRequest)) {
             throw new \InvalidArgumentException(
@@ -1014,14 +1016,18 @@ class FhirServiceRequestService extends FhirServiceBase implements
         // Optional encounter resolution
         $euuid = $openEmrRecord['euuid'] ?? null;
         if (is_string($euuid) && $euuid !== '') {
-            $encounterId = QueryUtils::fetchSingleValue(
-                'SELECT encounter FROM form_encounter WHERE uuid = ?',
-                'encounter',
-                [UuidRegistry::uuidToBytes($euuid)]
-            );
-            if (is_numeric($encounterId)) {
-                $header['encounter_id'] = (int) $encounterId;
+            // The encounter is optional, but one the client names has to exist: dropping an
+            // unresolvable reference would save the order unlinked and answer success.
+            // A soft-deleted encounter resolves to null, like an unknown one.
+            $encounter = EncounterService::getActiveEncounterByUuid($euuid);
+            if ($encounter === null) {
+                $result = new ProcessingResult();
+                $result->setValidationMessages([
+                    'encounter' => 'Encounter reference could not be resolved: ' . $euuid,
+                ]);
+                return $result;
             }
+            $header['encounter_id'] = $encounter['encounter'];
         }
 
         // Optional requester resolution. procedure_order.provider_id is the ordering provider of

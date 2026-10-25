@@ -1300,7 +1300,7 @@
                         "requirement": 0,
                         "acl_req": [
                             "patients",
-                            "demo"
+                            "pat_rep"
                         ]
                     },
                     {
@@ -1596,7 +1596,11 @@
                         "target": "rep",
                         "url": "/interface/reports/services_by_category.php",
                         "children": [],
-                        "requirement": 0
+                        "requirement": 0,
+                        "acl_req": [
+                            "acct",
+                            "rep_a"
+                        ]
                     },
                     {
                         "label": "Syndromic Surveillance",
@@ -1845,7 +1849,7 @@
                         "requirement": 0,
                         "acl_req": [
                             "patients",
-                            "demo"
+                            "pat_rep"
                         ]
                     }
                 ],
@@ -1985,6 +1989,18 @@
                             "admin",
                             "super"
                         ]
+                    },
+                    {
+                        "label": "Portal Lockout Tracker",
+                        "menu_id": "rep0",
+                        "target": "rep",
+                        "url": "/interface/reports/portal_lockout_tracker.php",
+                        "children": [],
+                        "requirement": 0,
+                        "acl_req": [
+                            "admin",
+                            "super"
+                        ]
                     }
                 ],
                 "requirement": 0,
@@ -2031,7 +2047,11 @@
                 "target": "msc",
                 "url": "/interface/reports/patient_edu_web_lookup.php",
                 "children": [],
-                "requirement": 0
+                "requirement": 0,
+                "acl_req": [
+                    "patients",
+                    "med"
+                ]
             },
             {
                 "label": "Authorizations",

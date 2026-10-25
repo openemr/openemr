@@ -93,7 +93,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
      *
      * @return array
      */
-    protected function get_date_fields()
+    protected function get_date_fields(): array
     {
         return ['birth_date', 'death_date', 'inactive_date', 'created_date', 'updated_date'];
     }

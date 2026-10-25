@@ -1,0 +1,77 @@
+{
+    "patients": [
+        {
+            "note": "Ten-year-old with an office visit for acute pharyngitis in March 2026, an antibiotic ordered that day and a group A strep test the same day: initial population, denominator and numerator.",
+            "birthDatetime": "2015-06-01T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-03-10T09:00:00.000+00:00",
+                        "2026-03-10T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Acute Pharyngitis",
+                    "prevalencePeriod": [
+                        "2026-03-10T09:10:00.000+00:00",
+                        "2026-03-20T09:10:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "MedicationOrder",
+                    "valueSet": "Antibiotic Medications for Pharyngitis",
+                    "authorDatetime": "2026-03-10T09:25:00.000+00:00",
+                    "relevantPeriod": [
+                        "2026-03-10T09:25:00.000+00:00",
+                        "2026-03-20T09:25:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "LaboratoryTestPerformed",
+                    "valueSet": "Group A Streptococcus Test",
+                    "relevantDatetime": "2026-03-10T09:15:00.000+00:00",
+                    "resultDatetime": "2026-03-10T09:20:00.000+00:00",
+                    "result": {
+                        "code": "Yes (qualifier value)"
+                    }
+                }
+            ]
+        },
+        {
+            "note": "Twelve-year-old with the same pharyngitis visit and antibiotic in September 2026 but no strep test: initial population and denominator, not numerator.",
+            "birthDatetime": "2014-02-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-09-10T09:00:00.000+00:00",
+                        "2026-09-10T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Acute Pharyngitis",
+                    "prevalencePeriod": [
+                        "2026-09-10T09:10:00.000+00:00",
+                        "2026-09-20T09:10:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "MedicationOrder",
+                    "valueSet": "Antibiotic Medications for Pharyngitis",
+                    "authorDatetime": "2026-09-10T09:25:00.000+00:00",
+                    "relevantPeriod": [
+                        "2026-09-10T09:25:00.000+00:00",
+                        "2026-09-20T09:25:00.000+00:00"
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -139,12 +139,12 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function isSnomedCodeType($codeType)
+    private function isSnomedCodeType($codeType): bool
     {
         return in_array($codeType, [self::CODE_TYPE_SNOMED, self::CODE_TYPE_SNOMED_CT, self::CODE_TYPE_SNOMED_PR]);
     }
 
-    private function is_code_type_active($codeType)
+    private function is_code_type_active($codeType): bool
     {
         // make sure our table is installed
         $table_records = QueryUtils::fetchRecords("select * from code_types WHERE `ct_active`=1 AND ct_key = ? ", [$codeType]);

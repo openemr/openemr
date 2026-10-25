@@ -36,7 +36,7 @@ class CdaValidateDocumentObject
         return false;
     }
 
-    public function getValidationErrorsForDocument(Document $document)
+    public function getValidationErrorsForDocument(Document $document): array
     {
         $cdaValidateDocuments = new CdaValidateDocuments();
         // TODO: @adunsulag do we need to cache this get_data here?  also need to figure out the doc type
@@ -44,7 +44,7 @@ class CdaValidateDocumentObject
         return $errors;
     }
 
-    private function isZipDocument(Document $document)
+    private function isZipDocument(Document $document): bool
     {
         return in_array($document->get_mimetype(), ['application/zip', 'application/octet-stream']);
     }

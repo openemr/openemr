@@ -12,7 +12,6 @@
 namespace OpenEMR\Tests\Unit\Common\Auth\OpenIDConnect\Repositories;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
-use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
@@ -69,7 +68,6 @@ class ScopeRepositoryTest extends TestCase
         $this->assertArrayHasKey("user/Patient", $validatorArray, "user/Patient should be in scope validator array");
         $this->assertCount(4, $validatorArray["user/Patient"], "user/Patient should have 4 ScopeEntity objects in scope validator array");
         $operations = $validatorArray["user/Patient"];
-        $this->assertInstanceOf(ResourceScopeEntityList::class, $operations, "user/Patient should be a ResourceScopeEntityList object in scope validator array");
         $this->assertEquals('user/Patient.read', $operations[0]->getIdentifier(), "user/Patient.read should be in scope validator array");
         $this->assertEquals('user/Patient.$export', $operations[1]->getIdentifier(), "user/Patient.\$export should be in scope validator array");
         $this->assertEquals('user/Patient.$summary', $operations[2]->getIdentifier(), "user/Patient.\$summary should be in scope validator array");

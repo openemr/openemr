@@ -711,16 +711,26 @@ logging in cleanly.
 > **Recovery note when opting into strict mode**: if you set
 > `clear_ip_counter_on_auth_success` to 0 AND
 > `ip_time_reset_password_max_failed_logins` to 0 (no auto-reset), the
-> per-IP counter has no automatic clearing path. For
-> `ip_tracking.ip_login_fail_counter` an administrator can clear it via
-> the IP Tracker report. The new `ip_tracking.mfa_login_fail_counter`
-> is not yet exposed in that report — until the admin-unblock UI
-> follow-up ships, MFA IP-counter recovery requires direct SQL:
-> ```sql
-> UPDATE ip_tracking SET mfa_login_fail_counter = 0, mfa_last_login_fail = NULL WHERE ip_string = '...';
-> ```
-> Plan for one of the two globals to provide an automatic recovery path
-> for legitimate users behind shared NAT.
+> per-IP counter has no automatic clearing path. Admin recovery for each
+> lockout axis:
+>
+> - `ip_tracking.ip_login_fail_counter` — IP Tracker report
+>   (`Reports → Administrative → IP Tracker`), "Applicable Failed Logins"
+>   column → Reset Counter button.
+> - `ip_tracking.mfa_login_fail_counter` — IP Tracker report,
+>   "Applicable MFA Failed Logins" column → Reset Counter button.
+> - `users_secure.login_fail_counter` — Users admin
+>   (`Administration → Users`), "Failed Login Counter" column →
+>   Reset Counter button.
+> - `users_secure.mfa_fail_counter` — Users admin, "MFA Fail Counter"
+>   column → Reset Counter button.
+> - `patient_access_onsite.portal_fail_counter` — Portal Lockout Tracker
+>   report (`Reports → Administrative → Portal Lockout Tracker`),
+>   "Failed Login Counter" column → Reset Counter button.
+>
+> Plan for one of the two globals (auto-clear-on-success or the reset
+> window) to provide an automatic recovery path for legitimate users
+> behind shared NAT — the admin surfaces above are the manual fallback.
 
 > **CLI Testing Tip**: The examples above use single-quoted `--data-urlencode 'password=...'` arguments, which prevent bash from interpreting special characters like `!`, `$`, and `\`. If you modify these examples (e.g., switching to double quotes or using `-d` instead of `--data-urlencode`), you may encounter authentication failures due to shell interpretation.
 >

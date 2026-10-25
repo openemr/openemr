@@ -338,7 +338,7 @@ if (isset($this_message['pid'])) {
                                     <?php echo xlt('Link To Patient') ?>:
                                     <i id="link-tooltip" class="fa fa-info-circle text-primary ml-1" aria-hidden="true" data-original-title="" title=""></i>
                                 </label>
-                                <input type='text' id='patientName' name='patientName' class='form-control' value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()' title='<?php xla('Click to select patient'); ?>' readonly />
+                                <input type='text' id='patientName' name='patientName' class='form-control' value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' readonly />
                                 <input type="hidden" name="PatientID" id="PatientID" value="<?php echo attr($patientID) ?>" />
                                 <button type="button" class="btn btn-sm btn-outline-secondary mt-2" <?php echo ($patientID > 0 ? '' : 'style="display:none"') ?> id="removePatient">
                                     <i class="fa fa-unlink mr-1"></i><?php echo xlt('Unlink Patient') ?>

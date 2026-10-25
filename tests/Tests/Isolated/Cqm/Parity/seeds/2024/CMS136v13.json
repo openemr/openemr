@@ -1,0 +1,76 @@
+{
+    "patients": [
+        {
+            "note": "Eight-year-old first prescribed methylphenidate in September 2023 for ten months, after an August visit, with follow-up visits in September, November and February: both initial populations and numerators.",
+            "birthDatetime": "2015-01-15T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2023-08-20T15:00:00.000+00:00",
+                        "2023-08-20T15:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "MedicationOrder",
+                    "valueSet": "Methylphenidate",
+                    "authorDatetime": "2023-09-01T15:00:00.000+00:00",
+                    "relevantPeriod": [
+                        "2023-09-01T15:00:00.000+00:00",
+                        "2024-06-30T15:00:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2023-09-20T15:00:00.000+00:00",
+                        "2023-09-20T15:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2023-11-15T15:00:00.000+00:00",
+                        "2023-11-15T15:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2024-02-10T15:00:00.000+00:00",
+                        "2024-02-10T15:30:00.000+00:00"
+                    ]
+                }
+            ]
+        },
+        {
+            "note": "Nine-year-old prescribed methylphenidate for two months in October 2023, no follow-up visit: the first initial population only, not its numerator.",
+            "birthDatetime": "2014-05-10T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2023-09-05T15:00:00.000+00:00",
+                        "2023-09-05T15:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "MedicationOrder",
+                    "valueSet": "Methylphenidate",
+                    "authorDatetime": "2023-10-01T15:00:00.000+00:00",
+                    "relevantPeriod": [
+                        "2023-10-01T15:00:00.000+00:00",
+                        "2023-11-30T15:00:00.000+00:00"
+                    ]
+                }
+            ]
+        }
+    ]
+}

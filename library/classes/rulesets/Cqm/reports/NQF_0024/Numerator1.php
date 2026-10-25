@@ -9,7 +9,7 @@
 //
 class NQF_0024_Numerator1 implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Numerator 1";
     }

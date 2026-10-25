@@ -15,7 +15,7 @@ use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 class QdmRequestAll implements QdmRequestInterface
 {
-    public function getFilter()
+    public function getFilter(): BoundFilter
     {
         return new BoundFilter();
     }

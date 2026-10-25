@@ -60,7 +60,7 @@ class GaclAdminApi extends GaclApi {
      *
      * @param mixed $rs ADODB recordset.
      */
-    public function get_paging_data($rs) {
+    public function get_paging_data($rs): array {
                 return [
                                 'prevpage' => $rs->absolutepage() - 1,
                                 'currentpage' => $rs->absolutepage(),

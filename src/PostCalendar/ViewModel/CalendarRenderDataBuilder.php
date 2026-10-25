@@ -38,6 +38,25 @@ final readonly class CalendarRenderDataBuilder
     }
 
     /**
+     * Category type carried on the calendar event id.
+     *
+     * The edit dialog uses 0 for a patient visit and 1 for a provider
+     * appointment. Database values arrive as ints. An empty value opens
+     * the patient tab.
+     */
+    public static function categoryTypeToken(mixed $value): string
+    {
+        if (is_int($value)) {
+            return (string) $value;
+        }
+        if (is_string($value) && preg_match('/^[0-9]+$/', $value) === 1) {
+            return $value;
+        }
+
+        return '';
+    }
+
+    /**
      * Build the render-data array for `month_print/outlook_ajax_template.html.twig`.
      *
      * Inputs are the same shape pnuserapi.php already assembles for
@@ -744,7 +763,7 @@ final readonly class CalendarRenderDataBuilder
                 $facilityRow
             );
 
-            $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
+            $pccattype = self::categoryTypeToken($event['pccattype'] ?? null);
 
             $decorated[] = [
                 'eid'                 => $eidRaw,
@@ -1207,7 +1226,7 @@ final readonly class CalendarRenderDataBuilder
                 $facilityRow
             );
 
-            $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
+            $pccattype = self::categoryTypeToken($event['pccattype'] ?? null);
 
             $entry = [
                 'eid'                => $eidRaw,
@@ -1355,7 +1374,7 @@ final readonly class CalendarRenderDataBuilder
                 $facilityRow
             );
 
-            $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
+            $pccattype = self::categoryTypeToken($event['pccattype'] ?? null);
 
             $entry = [
                 'eid'                => $eidRaw,

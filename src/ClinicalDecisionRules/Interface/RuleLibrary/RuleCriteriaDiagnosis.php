@@ -39,7 +39,7 @@ class RuleCriteriaDiagnosis extends RuleCriteria
         return $this->title;
     }
 
-    public function getView()
+    public function getView(): string
     {
         return "diagnosis.php";
     }

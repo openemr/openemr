@@ -22,7 +22,7 @@ class BillingCodeType implements IOptionFormType
     public function buildPrintView($frow, $currvalue, $value_allowed = true)
     {
     }
-    public function getAccumActionConditions($frow, $condition_str, $action)
+    public function getAccumActionConditions($frow, $condition_str, $action): string
     {
         // For billing codes handle requirement to display its description.
         $tmp = explode('=', (string) $action, 2);

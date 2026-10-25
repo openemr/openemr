@@ -259,9 +259,9 @@ class parseCSV
      * @param mixed $data 2D array with data
      * @param mixed $fields field names
      * @param mixed $delimiter delimiter used to separate data
-     * @return CSV data using delimiter of choice, or default
+     * @return string CSV data using delimiter of choice, or default
      */
-    public function output($filename = null, $data = [], $fields = [], $delimiter = null)
+    public function output($filename = null, $data = [], $fields = [], $delimiter = null): string
     {
         if (empty($filename)) {
             $filename = $this->output_filename;
@@ -579,9 +579,8 @@ class parseCSV
      * @param mixed $is_php if a php die() call should be put on the first
      *          line of the file, this is later ignored when read.
      * @param mixed $delimiter field delimiter to use
-     * @return CSV data (text string)
      */
-    public function unparse($data = [], $fields = [], $append = false, $is_php = false, $delimiter = null)
+    public function unparse($data = [], $fields = [], $append = false, $is_php = false, $delimiter = null): string
     {
         if (! is_array($data) || empty($data)) {
             $data = &$this->data;
@@ -672,7 +671,7 @@ class parseCSV
      * @param mixed $conditions specified conditions that the row must match
      * @return true of false
      */
-    public function _validate_row_conditions($row = [], $conditions = null)
+    public function _validate_row_conditions($row = [], $conditions = null): bool
     {
         if (! empty($row)) {
             if (! empty($conditions)) {
@@ -708,9 +707,9 @@ class parseCSV
      *
      * @param mixed $row array with values from a row
      * @param mixed $condition specified condition that the row must match
-     * @return true of false
+     * @return '1'|'0'
      */
-    public function _validate_row_condition($row, $condition)
+    public function _validate_row_condition($row, $condition): string
     {
         $operators =  [
                 '=',
@@ -817,7 +816,7 @@ class parseCSV
      * @param mixed $file local filename
      * @return true or false
      */
-    public function _check_data($file = null)
+    public function _check_data($file = null): bool
     {
         if (empty($this->file_data)) {
             $file ??= $this->file;

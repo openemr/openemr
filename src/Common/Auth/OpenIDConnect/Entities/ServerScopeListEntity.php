@@ -98,15 +98,15 @@ class ServerScopeListEntity
                 'PractitionerRole',
                 'Procedure',
                 'Provenance',
-                // These four are writable (see $fhirWriteResources) but had no v1 read scope, so
-                // a client could hold user/<Resource>.write or user/<Resource>.rs but never both:
-                // the scope-authorize form groups its checkboxes by resource and reconstructs one
-                // version per resource, so mixing a v1 write with a v2 read silently drops the
-                // write from the approved set.
+                // These five are writable (see $fhirWriteResources) and get a v1 read scope so a
+                // v1-only client can hold read and write together. Mixing v1 and v2 for the same
+                // resource is also valid: grants are checked as a permission union
+                // (ResourceScopeEntityList::grantsScope) and consent keeps each scope's spelling.
                 'Questionnaire',
                 'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
+                'Task',
                 'ValueSet',
                 'OperationDefinition',
             ];
@@ -121,14 +121,13 @@ class ServerScopeListEntity
                 'Encounter',
                 'Goal',
                 // Group and Location have write routes but appear in no v2 resource list, so v1
-                // is the only place a write scope for them can be granted. Both are already in
-                // the v1 read list above, which keeps read and write on the same version -- see
-                // the note there about the authorize form reconstructing one version per resource.
+                // is the only place a write scope for them can be granted.
                 'Group',
                 'Immunization',
                 'Location',
                 'Medication',
                 'MedicationRequest',
+                'Observation',
                 'Organization',
                 'Patient',
                 'Person',
@@ -138,6 +137,7 @@ class ServerScopeListEntity
                 'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
+                'Task',
             ];
             $fhirScopes = [];
             $systemEnabled = $this->systemScopesEnabled;
@@ -197,7 +197,8 @@ class ServerScopeListEntity
                 'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
-                'Specimen'
+                'Specimen',
+                'Task',
             ];
             // The subset of the above that has a FHIR write route. Kept as its own explicit
             // list rather than derived from the routes: several resources here are readable but
@@ -216,6 +217,7 @@ class ServerScopeListEntity
                 'Immunization',
                 'MedicationDispense',
                 'MedicationRequest',
+                'Observation',
                 'Organization',
                 'Patient',
                 'Practitioner',
@@ -226,6 +228,7 @@ class ServerScopeListEntity
                 'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
+                'Task',
             ];
             $scopes = [];
             $systemEnabled = $this->systemScopesEnabled;
@@ -258,7 +261,7 @@ class ServerScopeListEntity
                 ]
                 , 'Observation' => [
                     'category=http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh'
-                    , 'category=http://terminology.hl7.org//CodeSystem-observation-category|social-history'
+                    , 'category=http://terminology.hl7.org/CodeSystem/observation-category|social-history'
                     , 'category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory'
                     , 'category=http://terminology.hl7.org/CodeSystem/observation-category|survey'
                     , 'category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs'
@@ -345,6 +348,11 @@ class ServerScopeListEntity
             $userResources = [
                 'allergy' => ['c','r','u','d','s']
                 ,'appointment' => ['c','r','u','d','s']
+                // `background_service` is admin-tier: list (s) and single (r) only.
+                // POST execution is modeled as the `$run` operation scope below,
+                // not as a CRUDS 'c', so a client cannot be granted blanket write
+                // over the resource — only the one operation the route exposes.
+                ,'background_service' => ['r','s']
                 ,'dental_issue' => ['c','r','u','d','s']
                 ,'document' => ['c','r','s']
                 ,'drug' => ['r','s']
@@ -377,6 +385,7 @@ class ServerScopeListEntity
                 $scopes[] = "user/$resource.$actionString";
             }
             $scopes[] = 'user/insurance.$swap-insurance';
+            $scopes[] = 'user/background_service.$run';
             $patientResources = [
                 'patient' => ['s']
                 ,'encounter' => ['r','s']
@@ -425,7 +434,7 @@ class ServerScopeListEntity
         return array_keys(array_combine($allScopes, $allScopes));
     }
 
-    public function lookupDescriptionForFullScopeString($scope)
+    public function lookupDescriptionForFullScopeString($scope): string
     {
         $requiredSmart = [
             "openid" => xl("Permission to retrieve information about the current logged-in user"),
@@ -476,6 +485,7 @@ class ServerScopeListEntity
             // standard api resources
             'allergy' => xl("allergies/adverse reactions"),
             'appointment' => xl("appointments"),
+            'background_service' => xl("background service entries (list, inspect, and execute scheduled jobs)"),
             'dental_issue' => xl("dental issues"),
             'document' => xl("clinical and non-clinical documents"),
             'drug' => xl("drug information related to planned and prescribed medication history"),

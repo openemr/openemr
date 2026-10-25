@@ -27,6 +27,8 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CustomPasswordGrant extends PasswordGrant
 {
+    use ClientGrantTypeGuardTrait;
+
     private readonly LoggerInterface $logger;
 
     public function __construct(
@@ -130,6 +132,7 @@ class CustomPasswordGrant extends PasswordGrant
             $this->logger->error("Client {client} returned was not enabled", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
+        $this->assertClientMayUseGrant($client, $this->getIdentifier(), $this->logger);
         return $client;
     }
 }

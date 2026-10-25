@@ -41,7 +41,7 @@ class ConditionService extends BaseService
         $this->conditionValidator = new ConditionValidator();
     }
 
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT lists.*,
         lists.pid AS patient_id,
@@ -322,10 +322,8 @@ class ConditionService extends BaseService
      *
      * @param $puuid - The patient uuid identifier in string format used for update.
      * @param $uuid - The condition uuid identifier in string format used for update.
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
      */
-    public function delete($puuid, $uuid)
+    public function delete($puuid, $uuid): ProcessingResult
     {
         $processingResult = new ProcessingResult();
 

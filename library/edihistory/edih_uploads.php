@@ -17,9 +17,8 @@
  *
  * @param array $_files -- the $_FILES array
  * @param bool $top -- do not change, for internal use in function recursion
- * @return array
  */
-function edih_upload_reindex(array $_files, $top = true)
+function edih_upload_reindex(array $_files, $top = true): array
 {
     // blatantly copied from BigShark666 at gmail dot com 22-Nov-2011 06:51
     // from php documentation for $_FILES predefined variable
@@ -53,7 +52,7 @@ function edih_upload_reindex(array $_files, $top = true)
  * @param int $code
  * @return string
  */
-function edih_upload_err_message($code)
+function edih_upload_err_message($code): string
 {
     //
     $message = match ($code) {
@@ -175,7 +174,7 @@ function edih_upload_match_file($param_ar, $fidx)
  * @param string &$html_str -- passed by reference for appending
  * @return array $f_ar -- paths to unpacked files accepted by this function
  */
-function edih_ziptoarray($zipfilename, $param_ar, $single = false)
+function edih_ziptoarray($zipfilename, $param_ar, $single = false): array
 {
     // note that this function moves files and set permissions, so platform issues may occur
     //
@@ -193,6 +192,13 @@ function edih_ziptoarray($zipfilename, $param_ar, $single = false)
 
     if ($zip_obj->status != 0) {
         $err = "Error code: " . text($zip_obj->status) . " " . text($zip_obj->getStatusString()) . "<br />" . PHP_EOL;
+        csv_edihist_log('edih_ziptoarray: ' . $zipfilename . ' ' . $err);
+        $f_zr['reject'][] = ['name' => $zipfilename, 'comment' => $err];
+        return $f_zr;
+    }
+
+    if (!\OpenEMR\Common\Zip\ZipExtractionGuard::isSafe($zip_obj)) {
+        $err = 'Archive exceeds extraction limits';
         csv_edihist_log('edih_ziptoarray: ' . $zipfilename . ' ' . $err);
         $f_zr['reject'][] = ['name' => $zipfilename, 'comment' => $err];
         return $f_zr;
@@ -439,7 +445,7 @@ function edih_upload_files()
                 foreach ($f_upl as $tp => $fz) {
                     if ($tp == 'reject') {
                         if (isset($f_ar['reject']) && is_array($fz)) {
-                            array_merge($f_ar['reject'], $fz);
+                            $f_ar['reject'] = array_merge($f_ar['reject'], $fz);
                         } else {
                             $f_ar['reject'] = (is_array($fz)) ? $fz : [];
                         }
@@ -499,7 +505,7 @@ function edih_upload_files()
  * @param bool $err_only -- whether to only report errors (ignored)
  * @return string    html formatted messages
  */
-function edih_sort_upload($files_array, $html_out = true, $err_only = true)
+function edih_sort_upload($files_array, $html_out = true, $err_only = true): string
 {
     //
     $prc_htm = '';

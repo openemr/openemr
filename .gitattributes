@@ -41,6 +41,7 @@ phpunit*.xml                   export-ignore
 rector*.php                    export-ignore
 run-semgrep.sh                 export-ignore
 semgrep.yaml                   export-ignore
+AGENTS.md                      export-ignore
 CLAUDE.md                      export-ignore
 DOCKER_README.md               export-ignore
 README-Isolated-Testing.md     export-ignore

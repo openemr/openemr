@@ -171,7 +171,7 @@ $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail
                                         <?php
                                         // TODO: good future improvement is to allow selecting the address from the address book
                                         ?>
-                                        <input class="btn btn-secondary d-none" type="button" value="<?php xla('Open Address Book'); ?>" />
+                                        <input class="btn btn-secondary d-none" type="button" value="<?php echo xla('Open Address Book'); ?>" />
                                     </div>
                                 </div>
                             </div>

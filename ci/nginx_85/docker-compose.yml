@@ -9,4 +9,4 @@ services:
   mysql:
     image: mariadb:12.3.3@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
   openemr:
-    image: openemr/dev-php-fpm:8.5@sha256:2b75e174cc04f89c665af1175904780d13552ea48044fa9778d606ccf9a913a8
+    image: openemr/dev-php-fpm:8.5@sha256:388825aba3c3740fc63470d38d55dede9e0ca1d4d677fc0930c84312e97229ec

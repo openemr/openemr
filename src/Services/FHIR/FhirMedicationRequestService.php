@@ -26,10 +26,12 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage\FHIRDosageDoseAndRate;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationRequest\FHIRMedicationRequestDispenseRequest;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\Enum\FHIRMedicationIntentEnum;
 use OpenEMR\Services\FHIR\Enum\FHIRMedicationStatusEnum;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
@@ -239,7 +241,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRMedicationRequest)) {
             throw new \InvalidArgumentException(
@@ -522,15 +524,18 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         $euuid = $record['euuid'] ?? null;
         if (is_string($euuid) && $euuid !== '') {
-            $euuidBytes = UuidRegistry::uuidToBytes($euuid);
-            $encounterId = QueryUtils::fetchSingleValue(
-                "SELECT encounter FROM form_encounter WHERE uuid = ?",
-                'encounter',
-                [$euuidBytes]
-            );
-            if (is_numeric($encounterId)) {
-                $record['encounter'] = (int) $encounterId;
+            // The encounter is optional, but one the client names has to exist: dropping an
+            // unresolvable reference would save the prescription unlinked and answer success.
+            // A soft-deleted encounter resolves to null, like an unknown one.
+            $encounter = EncounterService::getActiveEncounterByUuid($euuid);
+            if ($encounter === null) {
+                $result = new ProcessingResult();
+                $result->setValidationMessages([
+                    'encounter' => 'Encounter reference could not be resolved: ' . $euuid,
+                ]);
+                return $result;
             }
+            $record['encounter'] = $encounter['encounter'];
             unset($record['euuid']);
         }
 
@@ -618,11 +623,13 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             // TODO: @adunsulag if we have a SIG text should we just return it even if we might have some structured data?
         }
         // Dose and Rate
-        if (!empty($dataRecord['interval_codes'])) {
+        $intervalCode = $dataRecord['interval_codes'] ?? null;
+        if (is_string($intervalCode) && $intervalCode !== '') {
             $intervalConcept = UtilsService::createCodeableConcept([
-                $dataRecord['interval_codes'] => [
-                    'code' => $dataRecord['interval_codes'],
-                    'description' => $dataRecord['interval_notes'],
+                $intervalCode => [
+                    'code' => $intervalCode,
+                    // the list's notes are free text, so they go in text, not the coding's display
+                    'description' => FhirCodeSystemConstants::HL7_TIMING_ABBREVIATION_DISPLAYS[$intervalCode] ?? '',
                     'system' => FhirCodeSystemConstants::HL7_TIMING_ABBREVIATION
                 ]
             ]);
@@ -773,7 +780,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             $medRequestResource->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
         } else {
             $fhirReference = new FHIRReference();
-            $fhirReference->addExtension(UtilsService::createDataMissingExtension());
+            $fhirReference->addExtension(UtilsService::createDataAbsentReasonExtension());
             $medRequestResource->setSubject($fhirReference);
         }
     }
@@ -819,28 +826,37 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function populateCategory(FHIRMedicationRequest $medRequestResource, array $dataRecord)
     {
-        if (isset($dataRecord['category'])) {
+        // The coding's display must be the code system's; OpenEMR's own (translated) title goes in text.
+        $categoryCode = $dataRecord['category'] ?? null;
+        if (is_string($categoryCode) && $categoryCode !== '') {
             $categoryTitle = is_string($dataRecord['category_title'] ?? null) ? $dataRecord['category_title'] : '';
-            $medRequestResource->addCategory(UtilsService::createCodeableConcept(
+            $category = UtilsService::createCodeableConcept(
                 [
-                    $dataRecord['category'] =>
-                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
-                        ['code' => $dataRecord['category'], 'description' => xl($categoryTitle)
-                            ,'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY]
+                    $categoryCode => [
+                        'code' => $categoryCode,
+                        'description' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY_DISPLAYS[$categoryCode] ?? '',
+                        'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY
+                    ]
                 ]
-            ));
+            );
+            if ($categoryTitle !== '') {
+                // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                $category->setText(new FHIRString(xl($categoryTitle)));
+            }
         } else {
             // if no category has been sent then the default is home usage
-            $medRequestResource->addCategory(UtilsService::createCodeableConcept(
+            $category = UtilsService::createCodeableConcept(
                 [
                     self::MEDICATION_REQUEST_CATEGORY_COMMUNITY => [
                         'code' => self::MEDICATION_REQUEST_CATEGORY_COMMUNITY,
-                        'description' => xlt(self::MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE),
+                        'description' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY_DISPLAYS[self::MEDICATION_REQUEST_CATEGORY_COMMUNITY],
                         'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY
                     ]
                 ],
-            ));
+            );
+            $category->setText(new FHIRString(xl(self::MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE)));
         }
+        $medRequestResource->addCategory($category);
     }
 
     public function populateIntent(FHIRMedicationRequest $medRequestResource, array $dataRecord)

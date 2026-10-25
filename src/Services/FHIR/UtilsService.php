@@ -44,7 +44,7 @@ class UtilsService
     const UNKNOWNABLE_CODE_NULL_FLAVOR = "UNK";
     const UNKNOWNABLE_CODE_DATA_ABSENT = "unknown";
 
-    public static function createRelativeReference($type, $uuid, $displayName = null)
+    public static function createRelativeReference($type, $uuid, $displayName = null): FHIRReference
     {
         $reference = new FHIRReference();
         $reference->setType($type);
@@ -69,7 +69,7 @@ class UtilsService
         return $canonical;
     }
 
-    public static function parseCanonicalUrl(?string $url)
+    public static function parseCanonicalUrl(?string $url): array
     {
         $parsed_url = [
             'localResource' => false
@@ -165,20 +165,35 @@ class UtilsService
         return $diagnosisCode;
     }
 
-    public static function createDataMissingExtension()
+    /**
+     * An element that holds only a data-absent-reason extension, to pass as the value of a
+     * missing element, e.g. $resource->setSubject(UtilsService::createDataMissingExtension()).
+     * The returned object serializes as {"extension": [<data-absent-reason>]} and has no url
+     * itself, so don't add it to another element's extensions; use
+     * createDataAbsentReasonExtension() for that.
+     * @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
+     */
+    public static function createDataMissingExtension(): FHIRExtension
     {
-        // @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
-        // for some reason in order to get this to work we have to wrap our inner exception
-        // into an outer exception.  This might be just a PHPism with the way JSON encodes things
-        $extension = new FHIRExtension();
-        $extension->setUrl(FhirCodeSystemConstants::DATA_ABSENT_REASON_EXTENSION);
-        $extension->setValueCode(new FHIRCode("unknown"));
         $outerExtension = new FHIRExtension();
-        $outerExtension->addExtension($extension);
+        $outerExtension->addExtension(self::createDataAbsentReasonExtension());
         return $outerExtension;
     }
 
-    public static function getExtensionsByUrl($url, $object)
+    /**
+     * The data-absent-reason extension with the code "unknown", for adding to an element's
+     * extensions, e.g. $reference->addExtension(UtilsService::createDataAbsentReasonExtension()).
+     * @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
+     */
+    public static function createDataAbsentReasonExtension(): FHIRExtension
+    {
+        $extension = new FHIRExtension();
+        $extension->setUrl(FhirCodeSystemConstants::DATA_ABSENT_REASON_EXTENSION);
+        $extension->setValueCode(new FHIRCode("unknown"));
+        return $extension;
+    }
+
+    public static function getExtensionsByUrl($url, $object): array
     {
         if (method_exists($object, 'getExtension')) {
             $extensions = $object->getExtension();
@@ -354,7 +369,7 @@ class UtilsService
      * @param FHIRPeriod $period The object representing the period interval.
      * @return array Containing two keys of 'start' and 'end' representing the period.
      */
-    public static function getPeriodTimestamps(?FHIRPeriod $period)
+    public static function getPeriodTimestamps(?FHIRPeriod $period): array
     {
         $end = null;
         $start = null;
@@ -431,7 +446,7 @@ class UtilsService
         $severity_value,
         $code_value,
         $details_value = ''
-    ) {
+    ): FHIROperationOutcome {
         $resource = new FHIROperationOutcome();
         $issue = new FHIROperationOutcomeIssue();
         $severity = new FHIRIssueSeverity();

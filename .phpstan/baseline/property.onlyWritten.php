@@ -317,11 +317,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Api/CapabilityFhirTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Static property OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G9_Certification\\\\CCDADocRefGenerationTest\\:\\:\\$baseUrl is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Static property OpenEMR\\\\Tests\\\\E2e\\\\NotificationCronEmailTest\\:\\:\\$functionsLoaded is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/NotificationCronEmailTest.php',

@@ -4,8 +4,9 @@
  * QuestionnaireItemNormalizer repairs and validates the array-typed fields of
  * FHIR Questionnaire items in their decoded-array form. Some source systems
  * (notably certain LForms conversions) emit fields such as enableWhen
- * double-encoded as JSON strings; the strict generated FHIR model classes
- * reject those at construction time.
+ * double-encoded as JSON strings, or as an empty string where the item has no
+ * value for them at all; the strict generated FHIR model classes reject both at
+ * construction time.
  *
  * Two consumers with different postures share this logic:
  *  - the read path (FhirQuestionnaireFormService) tolerates legacy data:
@@ -33,9 +34,10 @@ class QuestionnaireItemNormalizer
 
     /**
      * Normalize the array-typed fields of a single item (non-recursive).
-     * Double-encoded JSON strings are decoded back to arrays; fields that
-     * cannot be repaired are reported, not modified — the caller decides
-     * whether to drop them (read path) or reject the record (import path).
+     * Double-encoded JSON strings are decoded back to arrays and empty strings
+     * are removed, both reported as repaired; fields that cannot be repaired
+     * are reported and left untouched — the caller decides whether to drop
+     * them (read path) or reject the record (import path).
      *
      * @param array<mixed> $item
      * @return array{0: array<mixed>, 1: list<string>, 2: list<string>} [item, repaired field names, unrepairable field names]
@@ -49,6 +51,21 @@ class QuestionnaireItemNormalizer
                 continue;
             }
             if (is_string($item[$field])) {
+                // An empty string carries no content, so drop the field rather than
+                // reject it. Every field in ITEM_ARRAY_FIELDS is 0..* in FHIR, which
+                // makes absent valid: removing it loses nothing, while refusing it
+                // loses the whole questionnaire. Certain LForms conversions emit
+                // `"enableWhen": ""` on an item that simply has no condition.
+                //
+                // Only genuinely empty strings. A string that failed to decode but
+                // held something -- '[object Object]' from a JavaScript coercion, say
+                // -- did carry data that is now unrecoverable, and silently dropping
+                // that would hide a real loss, so it stays unrepairable.
+                if (trim($item[$field]) === '') {
+                    unset($item[$field]);
+                    $repaired[] = $field;
+                    continue;
+                }
                 $decoded = json_decode($item[$field], true);
                 if (is_array($decoded)) {
                     $item[$field] = $decoded;

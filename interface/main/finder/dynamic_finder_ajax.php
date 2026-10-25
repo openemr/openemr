@@ -19,11 +19,20 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
+
+// Align the permission check with the Patient Finder page (`patients/demo`
+// per `standard.json`). The AJAX endpoint reads the same `patient_data`
+// table as the page and should carry the same role gate.
+if (!AclMain::aclCheckCore('patients', 'demo')) {
+    AccessDeniedHelper::deny('dynamic_finder_ajax.php: patients/demo required');
+}
 
 // Not checking csrf since it breaks when opening up a patient in a new frame.
 //  Also note that csrf checking is not needed in this script because of following 2 reasons.

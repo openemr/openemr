@@ -14,9 +14,12 @@ namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -53,20 +56,27 @@ class AppointmentRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getOne($eid)
+    public function getOne($eid): Response
     {
         $serviceResult = $this->appointmentService->getAppointment($eid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
     /**
-     * Fetches a single appointment for a patient.
-     * @param $auuid - The appointment uuid.
-     * @param $patientUuid - The patient uuid.
+     * Fetches a single appointment scoped by patient pid.
+     *
+     * Shares the service-layer getAppointment($eid) lookup with
+     * getOne(). The patient-compartment check is performed against the
+     * raw service result (not the serialized Response body), so a
+     * payload-wrapping change in RestControllerHelper would not turn
+     * valid requests into 404s. Mirrors the pattern in delete().
+     *
+     * @param string $pid - The patient id (int in string form from the path).
+     * @param $eid - The appointment event id.
      */
     #[OA\Get(
         path: '/api/patient/{pid}/appointment/{eid}',
-        description: 'Retrieves a appointment for a patient',
+        description: 'Retrieves an appointment scoped by patient',
         tags: ['standard'],
         parameters: [
             new OA\Parameter(
@@ -88,9 +98,31 @@ class AppointmentRestController
             new OA\Response(response: '200', ref: '#/components/responses/standard'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
         ],
         security: [['openemr_auth' => []]]
     )]
+    public function getOneScopedByPatient(string $pid, string $eid): Response
+    {
+        $service = $this->appointmentService;
+        assert($service instanceof AppointmentService);
+        $existing = $service->getAppointment($eid);
+        $existingPidRaw = (isset($existing[0]) && is_array($existing[0]))
+            ? ($existing[0]['pid'] ?? null)
+            : null;
+        if (!is_numeric($existingPidRaw) || !is_numeric($pid) || (int) $existingPidRaw !== (int) $pid) {
+            return RestControllerHelper::responseHandler(['message' => 'record not found'], null, 404);
+        }
+        return RestControllerHelper::responseHandler($existing, null, 200);
+    }
+
+    /**
+     * Fetches a single appointment for a patient portal client, keyed
+     * by appointment uuid and the session patient uuid.
+     *
+     * @param $auuid - The appointment uuid.
+     * @param $patientUuid - The patient uuid.
+     */
     #[OA\Get(
         path: '/portal/patient/appointment/{auuid}',
         description: 'Returns a selected appointment by its uuid.',
@@ -113,7 +145,30 @@ class AppointmentRestController
     )]
     public function getOneForPatient($auuid, $patientUuid)
     {
-        $serviceResult = $this->appointmentService->search(['puuid' => $patientUuid, 'pc_uuid' => $auuid]);
+        // TokenSearchValue(..., ..., true) calls UuidRegistry::uuidToBytes
+        // on the value, which throws InvalidArgumentException for a
+        // malformed UUID string. Short-circuit here so a bad path
+        // param resolves to the existing 404-via-empty-array shape
+        // rather than bubbling up to the dispatcher as a 500.
+        if (!UuidRegistry::isValidStringUUID($auuid)) {
+            return RestControllerHelper::responseHandler([], null, 200);
+        }
+        // Wrap uuid parameters as TokenSearchField + TokenSearchValue
+        // with the isUuid flag so the search layer converts them from
+        // the 36-char string form to BINARY(16) before comparison
+        // against pce.uuid and patient_data.uuid. Passing raw strings
+        // (the pre-fix shape) would wrap as StringSearchField with
+        // exact-match semantics and never match a binary column.
+        $serviceResult = $this->appointmentService->search([
+            'puuid' => new TokenSearchField(
+                'puuid',
+                [new TokenSearchValue($patientUuid, null, true)]
+            ),
+            'pc_uuid' => new TokenSearchField(
+                'pc_uuid',
+                [new TokenSearchValue($auuid, null, true)]
+            ),
+        ]);
         $data = ProcessingResult::extractDataArray($serviceResult);
         return RestControllerHelper::responseHandler($data[0] ?? [], null, 200);
     }
@@ -135,7 +190,7 @@ class AppointmentRestController
     public function getAll()
     {
         $serviceResult = $this->appointmentService->getAppointmentsForPatient(null);
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        return self::listResponse($serviceResult);
     }
 
     #[OA\Get(
@@ -153,9 +208,14 @@ class AppointmentRestController
     {
         $patientService = new PatientService();
         $result = ProcessingResult::extractDataArray($patientService->getOne($puuid));
-        $serviceResult = !empty($result) ? $this->appointmentService->getAppointmentsForPatient($result[0]['pid']) : [];
-
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        if (empty($result)) {
+            // Patient uuid does not resolve — 404 is the correct
+            // response for the parent resource. The empty appointments
+            // branch below only applies when the patient exists.
+            return RestControllerHelper::responseHandler(false, null, 200);
+        }
+        $serviceResult = $this->appointmentService->getAppointmentsForPatient($result[0]['pid']);
+        return self::listResponse($serviceResult);
     }
 
     /**
@@ -185,6 +245,28 @@ class AppointmentRestController
     public function getAllForPatient($pid)
     {
         $serviceResult = $this->appointmentService->getAppointmentsForPatient($pid);
+        return self::listResponse($serviceResult);
+    }
+
+    /**
+     * Build the HTTP response for the three list endpoints
+     * (getAll, getAllForPatientByUuid, getAllForPatient). An empty
+     * list is a valid "zero results found" response, not "not found" —
+     * but RestControllerHelper::responseHandler treats a falsy
+     * $serviceResult as 404. Short-circuit around that for list
+     * endpoints only; single-resource lookups continue to use the
+     * 404-on-falsy semantic unchanged.
+     *
+     * Accepts mixed because the private $appointmentService property
+     * is untyped (legacy); AppointmentService's returns are typed to
+     * array, but PHPStan can't follow through the untyped property
+     * access. The internal === [] check still narrows correctly.
+     */
+    private static function listResponse(mixed $serviceResult): Response
+    {
+        if ($serviceResult === []) {
+            return new Response('[]', 200, ['Content-Type' => 'application/json']);
+        }
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
@@ -299,7 +381,7 @@ class AppointmentRestController
             $service = $this->appointmentService;
             assert($service instanceof AppointmentService);
             $existing = $service->getAppointment($eid);
-            $existingPidRaw = (is_array($existing) && isset($existing[0]) && is_array($existing[0]))
+            $existingPidRaw = (isset($existing[0]) && is_array($existing[0]))
                 ? ($existing[0]['pid'] ?? null)
                 : null;
             if (!is_numeric($existingPidRaw) || !is_numeric($pid) || (int) $existingPidRaw !== (int) $pid) {

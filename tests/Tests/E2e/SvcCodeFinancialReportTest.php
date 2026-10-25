@@ -30,8 +30,6 @@ class SvcCodeFinancialReportTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
 
-    private $crawler;
-
     /**
      * Encounter number for test fixtures, chosen to avoid collisions.
      */

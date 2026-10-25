@@ -69,7 +69,7 @@ try {
         if ($processor->normalizeNonNegativeInt($existingResponse['patient_id'] ?? null) !== $pid) {
             throw new RuntimeException(xlt('The QuestionnaireResponse does not belong to the selected patient.'));
         }
-        if ($processor->normalizeNonNegativeInt($existingResponse['encounter'] ?? null) !== 0) {
+        if (!$processor->isPatientLevelEncounter($existingResponse['encounter'] ?? null)) {
             throw new RuntimeException(xlt('Encounter questionnaires cannot be updated from the patient assessment workspace.'));
         }
         if ($processor->normalizeNonNegativeInt($existingResponse['questionnaire_foreign_id'] ?? null) !== $questionnaireRecordId) {
@@ -124,15 +124,11 @@ try {
         add_report: true,
     );
 
-    if (!is_array($saved)) {
-        throw new RuntimeException(xlt('QuestionnaireResponse save failed.'));
-    }
-
     echo json_encode([
         'success' => true,
         'id' => $saved['id'] ?? null,
         'response_id' => $saved['response_id'] ?? '',
-        'new' => $saved['new'] ?? false,
+        'new' => $saved['new'],
     ], JSON_THROW_ON_ERROR);
 } catch (RuntimeException $e) {
     http_response_code(400);

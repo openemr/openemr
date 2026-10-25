@@ -90,7 +90,7 @@ class ClickatellSMSClient extends AppDispatch implements SmsChannelInterface
     /**
      * @return string
      */
-    public function getCallLogs()
+    public function getCallLogs(): string
     {
         return xlt('Not Supported');
     }

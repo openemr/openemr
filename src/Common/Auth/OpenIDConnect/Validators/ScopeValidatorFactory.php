@@ -17,8 +17,8 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 class ScopeValidatorFactory
 {
     /**
-     * @param String[]|ScopeEntity[] $currentServerScopes
-     * @return ResourceScopeEntityList[]
+     * @param array<array-key, string|ScopeEntity> $currentServerScopes
+     * @return array<string, ResourceScopeEntityList> keyed by ScopeEntity::getScopeLookupKey()
      */
     public function buildScopeValidatorArray(array $currentServerScopes): array
     {

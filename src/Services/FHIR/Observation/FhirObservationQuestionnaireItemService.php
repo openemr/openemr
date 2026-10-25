@@ -22,7 +22,7 @@ class FhirObservationQuestionnaireItemService extends FhirServiceBase implements
 {
     use FhirObservationTrait;
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return in_array($category, self::US_CORE_CODESYSTEM_CATEGORY);
     }

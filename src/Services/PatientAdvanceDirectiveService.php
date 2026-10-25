@@ -442,7 +442,7 @@ class PatientAdvanceDirectiveService extends BaseService
      * @param array $data Advance directive data
      * @return array Validation results
      */
-    public function validateAdvanceDirectiveData($data)
+    public function validateAdvanceDirectiveData($data): array
     {
         $errors = [];
         $warnings = [];

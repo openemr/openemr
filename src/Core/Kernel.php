@@ -198,7 +198,7 @@ class Kernel
      *
      * @return bool
      */
-    public function isDev()
+    public function isDev(): bool
     {
         return ($_ENV['OPENEMR__ENVIRONMENT'] ?? '') === 'dev';
     }

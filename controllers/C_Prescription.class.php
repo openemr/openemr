@@ -133,7 +133,7 @@ class C_Prescription extends Controller
         return $this->twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
-    public function edit_action($id = "", $patient_id = "")
+    public function edit_action($id = "", $patient_id = ""): string
     {
         if (!(($this->prescriptions[0] ?? null) instanceof Prescription)) {
             $this->prescriptions[0] = new Prescription($id);
@@ -774,7 +774,7 @@ class C_Prescription extends Controller
         echo("</html>\n");
     }
 
-    public function get_prescription_body_text($p)
+    public function get_prescription_body_text($p): string
     {
         $body = '<b>' . xlt('Rx') . ': ' . text($p->get_drug()) . ' ' . text($p->get_size()) . ' ' . text($p->get_unit_display());
         if ($p->get_form()) {
@@ -849,7 +849,7 @@ class C_Prescription extends Controller
         $d = $this->get_prescription_body_text($p);
         $patterns =  ['/\n/','/     /'];
         $replace =  ['<br />','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'];
-        $d = preg_replace($patterns, $replace, (string) $d);
+        $d = preg_replace($patterns, $replace, $d);
         echo ("<div class='scriptdiv'>\n" . $d . "</div>\n");
     }
 
@@ -1005,7 +1005,7 @@ class C_Prescription extends Controller
             }
 
             // we don't want any html in the plain text rendering
-            echo strip_tags((string) $this->get_prescription_body_text($p));
+            echo strip_tags($this->get_prescription_body_text($p));
         }
 
         $this->multiprintplain_footer();
@@ -1259,7 +1259,7 @@ class C_Prescription extends Controller
         return [$pdf, $p->patient];
     }
 
-    private function generateHtmlObjectForPrescriptionIds($id)
+    private function generateHtmlObjectForPrescriptionIds($id): array
     {
         ob_start();
         $this->multiprintcss_action($id);
@@ -1271,7 +1271,7 @@ class C_Prescription extends Controller
         return [$html, $prescription->patient];
     }
 
-    private function getDiagnosisCodesList(Prescription $prescription)
+    private function getDiagnosisCodesList(Prescription $prescription): array
     {
         $codeTypesService = $this->getCodeTypesService();
         $listsService = new PatientIssuesService();

@@ -30,7 +30,7 @@ class PrescriptionTemplatesController extends AbstractActionController
     /**
      * Create html page for 'default' template (match also for pdf)
      */
-    protected function getDefaultTemplate($id)
+    protected function getDefaultTemplate($id): ViewModel
     {
         $ids = preg_split('/::/', substr((string) $id, 1, strlen((string) $id) - 2), -1, PREG_SPLIT_NO_EMPTY);
         $prescriptions = [];

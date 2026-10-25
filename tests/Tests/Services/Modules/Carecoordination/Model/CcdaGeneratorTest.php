@@ -19,10 +19,10 @@ use DOMXPath;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Integration test for CcdaGenerator::socket_get().
+ * Integration test for CcdaGenerator::normalize().
  *
- * This test exercises the Node.js CCDA service path through CcdaGenerator
- * to ensure the full pipeline produces expected output.
+ * This test exercises the PHP CCDA converter (InternalToCdaConverter) through
+ * CcdaGenerator to ensure the full pipeline produces expected output.
  */
 class CcdaGeneratorTest extends TestCase
 {
@@ -52,7 +52,7 @@ class CcdaGeneratorTest extends TestCase
         parent::tearDown();
     }
 
-    public function testSocketGetProducesValidCda(): void
+    public function testNormalizeProducesValidCda(): void
     {
         $inputData = file_get_contents(self::FIXTURE_DIR . 'ccda-example-input1.xml');
         self::assertNotFalse($inputData, 'Failed to read input fixture');
@@ -70,9 +70,9 @@ class CcdaGeneratorTest extends TestCase
         $dispatchTable = $this->createMock(EncounterccdadispatchTable::class);
         $generator = new CcdaGenerator($dispatchTable);
 
-        $actualOutput = $generator->socket_get($inputData);
+        $actualOutput = $generator->normalize($inputData);
 
-        self::assertNotEmpty($actualOutput, 'socket_get returned empty response');
+        self::assertNotEmpty($actualOutput, 'normalize returned empty response');
 
         $this->assertCdaEquals($expectedOutput, $actualOutput);
     }
@@ -98,8 +98,8 @@ class CcdaGeneratorTest extends TestCase
 
         $dispatchTable = $this->createMock(EncounterccdadispatchTable::class);
         $generator = new CcdaGenerator($dispatchTable);
-        $xml = $generator->socket_get(trim($inputData));
-        self::assertNotEmpty($xml, 'socket_get returned empty response');
+        $xml = $generator->normalize(trim($inputData));
+        self::assertNotEmpty($xml, 'normalizereturned empty response');
 
         $dom = $this->loadDom($xml);
         $xpath = new DOMXPath($dom);

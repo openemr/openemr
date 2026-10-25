@@ -55,7 +55,7 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
@@ -170,7 +170,7 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRMedication)) {
             throw new \InvalidArgumentException(
