@@ -21,15 +21,16 @@ use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\NativeQuestionnaireResponseProcessor;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
 $pid = PatientSessionUtil::getPid();
 if ($pid < 1) {
-    AccessDeniedHelper::denyWithTemplate('No patient selected.', xlt('FHIR Assessment'));
+    AccessDeniedHelper::denyWithTemplate('No patient selected.', xlt('Questionnaire Assessment'));
 }
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    AccessDeniedHelper::denyWithTemplate('ACL check failed for patient assessments.', xlt('FHIR Assessment'));
+    AccessDeniedHelper::denyWithTemplate('ACL check failed for patient assessments.', xlt('Questionnaire Assessment'));
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -65,7 +66,9 @@ if ($responseId !== '') {
     if ($nonNegativeInt($responseRecord['patient_id'] ?? null) !== $pid) {
         throw new RuntimeException(xlt('Questionnaire response does not belong to the selected patient.'));
     }
-    if ($nonNegativeInt($responseRecord['encounter'] ?? null) !== 0) {
+    // NULL (saved through the FHIR API, e.g. by a SMART app) and 0 (saved here) are both
+    // patient-level; Available Assessments lists both.
+    if (!(new NativeQuestionnaireResponseProcessor())->isPatientLevelEncounter($responseRecord['encounter'] ?? null)) {
         throw new RuntimeException(xlt('Encounter questionnaires cannot be edited from the patient assessment workspace.'));
     }
 
@@ -116,7 +119,7 @@ if ($questionnaireResponseJson !== '') {
     }
 }
 $titleValue = $questionnaire['title'] ?? $questionnaire['name'] ?? null;
-$title = is_string($titleValue) && $titleValue !== '' ? $titleValue : xlt('FHIR Assessment');
+$title = is_string($titleValue) && $titleValue !== '' ? $titleValue : xlt('Questionnaire Assessment');
 $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
 $saveUrl = $webRoot . '/interface/forms/questionnaire_assessments/native_save.php';
 $csrfToken = CsrfUtils::collectCsrfToken(session: $session);

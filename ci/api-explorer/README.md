@@ -1,20 +1,22 @@
 # ci/api-explorer
 
 End-to-end smoke that exercises OpenEMR's OAuth2 + FHIR surface from a real
-third-party client (`sjpadgett/oe-module-api-explorer`). Runs on every PR; its
+third-party client (`openemr/oe-module-api-explorer`). Runs on every PR; its
 job is to catch regressions in the OAuth2 code path that in-tree unit and
 isolated tests cannot see — real RFC 7591 DCR, real token endpoint for the
 `client_credentials`, `authorization_code` (confidential and public-with-PKCE),
 and `password` grants, real FHIR Patient read from a bearer-authenticated
-client, and a real FHIR write round-trip (`CareTeam` POST + PUT + GET) with
-the password-grant bearer. Refresh-token and SMART launch are not covered
-here; refresh-token has no dedicated flow in this smoke, and SMART launch is
-covered by the sibling `oe-smart-questionnaire` smoke.
+client, a real FHIR write round-trip (`CareTeam` POST + PUT + GET) with the
+password-grant bearer, and a real portal-API read (`GET /portal/patient`)
+with a patient-role bearer against a seeded portal patient fixture.
+Refresh-token and SMART launch are not covered here; refresh-token has no
+dedicated flow in this smoke, and SMART launch is covered by the sibling
+`oe-smart-questionnaire` smoke.
 
 ## What the smoke does
 
 1. Boots `docker/development-easy` with `docker compose up --wait`.
-2. Clones `sjpadgett/oe-module-api-explorer` at the current `main` HEAD into
+2. Clones `openemr/oe-module-api-explorer` at the current `main` HEAD into
    `devtools/oe-module-api-explorer/` (the explorer loads
    `../../interface/globals.php` and must sit two levels below the OpenEMR
    root; it is **not** an `interface/modules/custom_modules/` module).
@@ -23,8 +25,9 @@ covered by the sibling `oe-smart-questionnaire` smoke.
 4. Seeds demo data via `openemr-cmd drid` so the FHIR Patient endpoint has
    something to return.
 5. Seeds the globals the explorer requires: `site_addr_oath`, `rest_api`,
-   `rest_fhir_api`, `rest_system_scopes_api`, `oauth_password_grant`. (Must
-   run **after** `drid` — drid rewrites `site_addr_oath`.)
+   `rest_fhir_api`, `rest_system_scopes_api`, `rest_portal_api`,
+   `oauth_password_grant`. (Must run **after** `drid` — drid rewrites
+   `site_addr_oath`.)
 6. Runs **`driver.php`** (Guzzle, no browser): initializes the explorer's
    session, triggers `client_register.php` to register all four clients
    (confidential auth-code, public PKCE, JWT client-credentials, SMART EHR
@@ -67,14 +70,36 @@ covered by the sibling `oe-smart-questionnaire` smoke.
    filtering or write-path bearer-validation regression that only shows
    up on writes was previously only catchable by the in-tree api-tier
    tests, not from a real external client.
+10. Runs **`driver-portal.php`** (Guzzle, no browser, but with OE
+    bootstrap for fixture setup): installs a portal-enabled patient
+    fixture via `PortalPatientFixtureManager::installPortalPatient`
+    (demo-data patients from `drid` do NOT have portal credentials),
+    DCRs a confidential client with `openid api:port
+    patient/patient.read patient/encounter.read offline_access`, flips
+    `grant_types=password` + `is_enabled=1` the same way the other
+    password-grant lanes do, posts the fixture credentials with
+    `user_role=patient`, and reads `/apis/default/portal/patient` with
+    the resulting bearer. Asserts a 200 + non-empty JSON array whose
+    body identifies the fixture by email. Closes the §8.2 Portal API
+    external-realism gap: the other four lanes all target
+    `/apis/default/fhir/*` (user-role tokens, FHIR surface); nothing
+    in CI exercises `/apis/default/portal/*` (patient-role tokens,
+    portal surface) from a real third-party client. Note: this driver
+    diverges from the three siblings by requiring OE bootstrap
+    (`$ignoreAuth=true; require interface/globals.php`) because
+    `PortalPatientFixtureManager` uses `AuthHash::passwordHash` +
+    `QueryUtils` that are awkward to replicate as raw SQL. The driver
+    cleans up its fixture rows + its own `oauth_clients` row in a
+    finally block.
 
-Total runtime ~3 min on top of the stack boot. The smoke exercises paths
+Total runtime ~4 min on top of the stack boot. The smoke exercises paths
 unit tests cannot reach (RFC 7591 DCR, JWT assertion generation + validation,
 system-scope FHIR reads, authorize + consent UI, PKCE verifier at the token
 endpoint, password-grant token issuance against user_role=users, FHIR
-write-path POST / PUT / GET with persistence verification) from a client
-the server has no awareness of until registration time, which is as close
-to "real external app" as you can get in CI.
+write-path POST / PUT / GET with persistence verification, portal-API read
+with a patient-role bearer) from a client the server has no awareness of
+until registration time, which is as close to "real external app" as you
+can get in CI.
 
 ## What the smoke does **not** do
 
@@ -116,16 +141,17 @@ those as the `api-explorer-driver-browser-postmortem` artifact.
 
 | File | Purpose |
 |------|---------|
-| `run.sh` | Entry point: clone the explorer, seed demo data + globals, invoke all four drivers. |
+| `run.sh` | Entry point: clone the explorer, seed demo data + globals, invoke all five drivers. |
 | `driver.php` | Guzzle round-trip: DCR + JWT client-credentials FHIR Patient read. |
 | `driver-browser.php` | Panther/Selenium round-trip: confidential auth-code + public PKCE flows. |
 | `driver-password.php` | Guzzle round-trip: DCR + DB-flip + password-grant token + FHIR Patient read. |
 | `driver-fhir-writes.php` | Guzzle round-trip: DCR + DB-flip + password-grant token + FHIR CareTeam POST + PUT + GET persistence read-back. |
+| `driver-portal.php` | Guzzle round-trip + OE bootstrap: portal patient fixture + DCR + DB-flip + password-grant (user_role=patient) + `/apis/default/portal/patient` read. |
 | `seed-globals.sql` | REPLACE INTO globals rows the smoke requires. Keys backed by `src/Services/Globals/GlobalConnectorsEnum.php`. |
 
 ## Credits
 
-[`sjpadgett/oe-module-api-explorer`](https://github.com/sjpadgett/oe-module-api-explorer)
+[`openemr/oe-module-api-explorer`](https://github.com/openemr/oe-module-api-explorer)
 is maintained by Jerry Padgett. OpenEMR CI depending on it is deliberately a
 cross-repo arrangement — see "Upstream tracking" above for how the smoke
 handles divergence.

@@ -28,7 +28,7 @@ stage="$(mktemp -d)"
 trap 'rm -rf "${stage}"' EXIT
 
 echo "==> Cloning oe-module-api-explorer (main HEAD)"
-git clone --quiet --depth 1 --branch main https://github.com/sjpadgett/oe-module-api-explorer.git "${stage}/explorer"
+git clone --quiet --depth 1 --branch main https://github.com/openemr/oe-module-api-explorer.git "${stage}/explorer"
 rm -rf "${stage}/explorer/.git"
 
 mkdir -p devtools
@@ -94,7 +94,10 @@ openemr-cmd e 'mariadb -h mysql -u openemr -popenemr openemr < /var/www/localhos
 #    password-grant driver (admin-credentialed token exchange -- no browser,
 #    no explorer client, DCR + DB flip + token + FHIR read), then the FHIR
 #    write-path driver (same DCR + DB-flip + password-grant lane, but
-#    exercising POST / PUT / GET round-trip against /fhir/CareTeam). Exits
+#    exercising POST / PUT / GET round-trip against /fhir/CareTeam), then
+#    the portal-api driver (portal patient fixture + password grant +
+#    /apis/default/portal/patient read -- closes the external-realism gap
+#    for the patient-role / portal-api surface distinct from FHIR). Exits
 #    nonzero on any failure; the workflow uploads docker logs + driver-
 #    browser screenshots on failure for post-mortem.
 # --------------------------------------------------------------------------
@@ -109,3 +112,9 @@ openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-pass
 
 echo "==> Running driver-fhir-writes (FHIR CareTeam POST + PUT + GET)"
 openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-fhir-writes.php'
+
+echo "==> Running driver-portal (portal patient password grant + /portal/patient read)"
+# driver-portal.php bootstraps interface/globals.php so it can call
+# PortalPatientFixtureManager; globals.php's RootCliGuard refuses to run
+# under uid=0. Drop to apache (same uid phpunit tests run under).
+openemr-cmd e 'su -s /bin/sh apache -c "php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-portal.php"'

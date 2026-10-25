@@ -125,7 +125,11 @@ class InsuranceEmployerSearchApiTest extends TestCase
         $body = json_decode((string) $response->getBody(), true);
 
         $this->assertCount(1, $body["data"]);
-        $this->assertStringContainsString("Gamma", $body["data"][0]["name"]);
+        $this->assertSame(
+            $this->namePrefix . " Gamma",
+            $body["data"][0]["name"],
+            "cms_id exact-match search must return the specific Gamma row (not any name containing \"Gamma\")"
+        );
     }
 
     #[Test]

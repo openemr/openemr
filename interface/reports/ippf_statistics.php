@@ -28,10 +28,9 @@ if (!empty($_POST)) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
-// Might want something different here.
-//
-if (!AclMain::aclCheckCore('acct', 'rep')) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Report", xl("Report"));
+// Every provider's data is shown, so require what the menu entry does: acct/rep_a.
+if (!AclMain::aclCheckCore('acct', 'rep_a')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Report", xl("Report"));
 }
 
 $facilityService = new FacilityService();
@@ -145,7 +144,7 @@ $arr_titles = []; // will contain column headers
 $lres = sqlStatement("SELECT field_id, title, data_type, list_id, description " .
   "FROM layout_options WHERE " .
   "form_id = 'DEM' AND uor > 0 AND field_id NOT LIKE 'em%' " .
-  "ORDER BY group_name, seq, title");
+  "ORDER BY group_id, seq, title");
 while ($lrow = sqlFetchArray($lres)) {
     $fid = $lrow['field_id'];
     if (in_array($fid, ['fname', 'mname', 'lname'])) {

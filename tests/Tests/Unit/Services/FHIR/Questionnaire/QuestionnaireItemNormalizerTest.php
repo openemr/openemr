@@ -52,6 +52,8 @@ class QuestionnaireItemNormalizerTest extends TestCase
 
     /**
      * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function doubleEncodedFieldProvider(): array
     {
@@ -79,6 +81,8 @@ class QuestionnaireItemNormalizerTest extends TestCase
 
     /**
      * @return array<string, array{mixed}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function unrepairableFieldValueProvider(): array
     {
@@ -88,6 +92,137 @@ class QuestionnaireItemNormalizerTest extends TestCase
             'integer' => [7],
             'boolean' => [true],
         ];
+    }
+
+    /**
+     * An empty string means the item has no value for the field, so the field is
+     * removed and counted as repaired rather than rejected. Every field in
+     * ITEM_ARRAY_FIELDS is 0..* in FHIR, so absent is valid; refusing it would cost the
+     * whole questionnaire for a value that carries nothing.
+     *
+     * @param non-empty-string $field
+     */
+    #[DataProvider('doubleEncodedFieldProvider')]
+    public function testEmptyStringFieldIsDroppedNotRejected(string $field): void
+    {
+        [$normalized, $repaired, $unrepairable] = QuestionnaireItemNormalizer::normalizeItem(
+            ['linkId' => '1', 'type' => 'boolean', $field => '']
+        );
+
+        $this->assertArrayNotHasKey($field, $normalized, "an empty {$field} must be removed");
+        $this->assertSame([$field], $repaired);
+        $this->assertSame([], $unrepairable);
+        $this->assertSame('1', $normalized['linkId'], 'the rest of the item is untouched');
+    }
+
+    /**
+     * @param non-empty-string $whitespace
+     */
+    #[DataProvider('blankStringProvider')]
+    public function testWhitespaceOnlyFieldIsAlsoDropped(string $whitespace): void
+    {
+        [$normalized, $repaired, $unrepairable] = QuestionnaireItemNormalizer::normalizeItem(
+            ['linkId' => '1', 'enableWhen' => $whitespace]
+        );
+
+        $this->assertArrayNotHasKey('enableWhen', $normalized);
+        $this->assertSame(['enableWhen'], $repaired);
+        $this->assertSame([], $unrepairable);
+    }
+
+    /**
+     * @return array<string, array{non-empty-string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function blankStringProvider(): array
+    {
+        return [
+            'single space' => [' '],
+            'tab' => ["\t"],
+            'newline' => ["\n"],
+            'mixed whitespace' => [" \t\n "],
+        ];
+    }
+
+    /**
+     * The distinction the drop relies on: a string that failed to decode but held
+     * something lost real data, and must keep being refused. Dropping it would hide the
+     * loss instead of reporting it.
+     */
+    public function testAStringThatHeldDataIsStillUnrepairable(): void
+    {
+        [$normalized, $repaired, $unrepairable] = QuestionnaireItemNormalizer::normalizeItem(
+            ['linkId' => '1', 'enableWhen' => '[object Object]']
+        );
+
+        $this->assertSame('[object Object]', $normalized['enableWhen']);
+        $this->assertSame([], $repaired);
+        $this->assertSame(['enableWhen'], $unrepairable);
+    }
+
+    /**
+     * The real shape from the field: a questionnaire whose items mix well-formed
+     * enableWhen arrays with an empty string on one item, at both top level and nested.
+     * Strict mode must import it rather than refuse the document.
+     */
+    public function testStrictModeImportsAQuestionnaireWithAnEmptyEnableWhen(): void
+    {
+        $good = [['question' => '/BS/MDS03', 'operator' => '=', 'answerBoolean' => true]];
+        $questionnaire = [
+            'resourceType' => 'Questionnaire',
+            'item' => [
+                ['linkId' => '/BI', 'type' => 'group', 'enableWhen' => ''],
+                [
+                    'linkId' => '/SO',
+                    'type' => 'group',
+                    'enableWhen' => $good,
+                    'item' => [
+                        ['linkId' => '/SO/MDS15Follow', 'type' => 'choice', 'enableWhen' => ''],
+                        ['linkId' => '/SO/MDS16', 'type' => 'choice', 'enableWhen' => $good],
+                    ],
+                ],
+            ],
+        ];
+
+        [$normalized, $repaired, $unrepairable] = QuestionnaireItemNormalizer::normalizeQuestionnaire(
+            $questionnaire,
+            true
+        );
+
+        $this->assertSame([], $unrepairable);
+        $this->assertSame(
+            ['item[/BI].enableWhen', 'item[/SO].item[/SO/MDS15Follow].enableWhen'],
+            $repaired,
+            'both empty conditions are reported by path, at top level and nested'
+        );
+
+        // Narrowed a step at a time: normalizeQuestionnaire() returns array<mixed>, so
+        // each offset is mixed until asserted. Same shape as the nested-repair test above.
+        $items = $normalized['item'] ?? null;
+        $this->assertIsArray($items);
+
+        $topLevel = $items[0] ?? null;
+        $this->assertIsArray($topLevel);
+        $this->assertArrayNotHasKey('enableWhen', $topLevel, 'top-level empty condition removed');
+        $this->assertSame('/BI', $topLevel['linkId'] ?? null, 'the item itself survives');
+
+        $group = $items[1] ?? null;
+        $this->assertIsArray($group);
+        $this->assertSame($good, $group['enableWhen'] ?? null, 'a real condition survives');
+
+        $children = $group['item'] ?? null;
+        $this->assertIsArray($children);
+
+        $emptyChild = $children[0] ?? null;
+        $this->assertIsArray($emptyChild);
+        $this->assertArrayNotHasKey('enableWhen', $emptyChild, 'nested empty condition removed');
+        $this->assertSame('/SO/MDS15Follow', $emptyChild['linkId'] ?? null);
+        $this->assertSame('choice', $emptyChild['type'] ?? null);
+
+        $goodChild = $children[1] ?? null;
+        $this->assertIsArray($goodChild);
+        $this->assertSame($good, $goodChild['enableWhen'] ?? null);
     }
 
     public function testNormalizeQuestionnaireRepairsNestedItems(): void

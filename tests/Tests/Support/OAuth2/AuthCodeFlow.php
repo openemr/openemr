@@ -71,7 +71,7 @@ class AuthCodeFlow
      *
      * @param ?list<string> $consentGrantsOverride see mintUserRoleToken docblock
      *
-     * @return array{access_token: string, scopes_granted: list<string>, response_body: array<mixed>, client_id: string, code_verifier: string, code_challenge: string}
+     * @return array{access_token: string, scopes_granted: list<string>, response_body: array<mixed>, client_id: string, code_verifier: string, code_challenge: string, nonce: string}
      */
     public static function mintUserRolePublicClient(
         string $baseUrl,
@@ -126,7 +126,7 @@ class AuthCodeFlow
      *
      * @param ?list<string> $consentGrantsOverride
      *
-     * @return array{access_token: string, scopes_granted: list<string>, response_body: array<mixed>, client_id: string, client_secret: string}
+     * @return array{access_token: string, scopes_granted: list<string>, response_body: array<mixed>, client_id: string, client_secret: string, nonce: string}
      */
     public static function mintUserRoleToken(
         string $baseUrl,
@@ -185,7 +185,7 @@ class AuthCodeFlow
      * @param array<string, mixed> $fixture
      * @param ?list<string> $consentGrantsOverride
      *
-     * @return array{access_token: string, scopes_granted: list<string>, response_body: array<mixed>, client_id: string, client_secret: string}
+     * @return array{access_token: string, scopes_granted: list<string>, response_body: array<mixed>, client_id: string, client_secret: string, nonce: string}
      */
     public static function mintPatientRoleToken(
         string $baseUrl,
@@ -336,7 +336,7 @@ class AuthCodeFlow
      *     in the token POST). Required: either $clientSecret is a
      *     string OR $pkceCodeVerifier is non-null.
      *
-     * @return array{access_token: string, scopes_granted: list<string>, response_body: array<mixed>}
+     * @return array{access_token: string, scopes_granted: list<string>, response_body: array<mixed>, nonce: string}
      */
     private static function runFlow(
         string $baseUrl,
@@ -438,6 +438,7 @@ class AuthCodeFlow
             'access_token' => $token,
             'scopes_granted' => $granted,
             'response_body' => $body,
+            'nonce' => $prep['nonce'],
         ];
     }
 
