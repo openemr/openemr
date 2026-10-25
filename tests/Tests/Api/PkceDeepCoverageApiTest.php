@@ -180,7 +180,8 @@ class PkceDeepCoverageApiTest extends TestCase
         $this->assertRejectedAtAuthorize(
             $resp,
             'code_challenge_method=plain must be rejected at /authorize per '
-                . 'SMART + OpenEMR override — only S256 is accepted.'
+                . 'SMART + OpenEMR override — only S256 is accepted.',
+            'invalid_request',
         );
     }
 
@@ -215,7 +216,8 @@ class PkceDeepCoverageApiTest extends TestCase
             $resp,
             'code_challenge submitted without explicit code_challenge_method '
                 . 'defaults to plain (per league) and must be rejected per '
-                . 'OpenEMR S256-only override.'
+                . 'OpenEMR S256-only override.',
+            'invalid_request',
         );
     }
 
@@ -246,7 +248,8 @@ class PkceDeepCoverageApiTest extends TestCase
         $this->assertRejectedAtAuthorize(
             $resp,
             'Malformed code_challenge (shorter than 43 chars) must be rejected '
-                . 'per RFC 7636 §4.2 syntax rule enforced by league.'
+                . 'per RFC 7636 §4.2 syntax rule enforced by league.',
+            'invalid_request',
         );
     }
 
@@ -301,6 +304,18 @@ class PkceDeepCoverageApiTest extends TestCase
             $tokenResp->getStatusCode(),
             'Rejection must be a 4xx client-error, not a 5xx server fault. '
                 . 'Body: ' . (string) $tokenResp->getBody()
+        );
+        // Lock the OAuth error code — League surfaces client-binding
+        // failures as invalid_request. Description text intentionally
+        // not asserted (vendor-specific wording).
+        $body = json_decode((string) $tokenResp->getBody(), true);
+        $actualError = is_array($body) ? ($body['error'] ?? null) : null;
+        $this->assertSame(
+            'invalid_request',
+            $actualError,
+            'Cross-client code reuse must surface as invalid_request. '
+                . 'Got: ' . var_export($actualError, true)
+                . ', Body: ' . (string) $tokenResp->getBody()
         );
     }
 
@@ -369,10 +384,15 @@ class PkceDeepCoverageApiTest extends TestCase
      * two ways: a 400/401/403 response, or (less often) a 302 redirect
      * back to redirect_uri with error=invalid_request / error=invalid_grant
      * in the query string per RFC 6749 §4.1.2.1. Accept either shape.
+     *
+     * $expectedError, if provided, locks the OAuth error code (e.g.
+     * "invalid_request"). Human-readable description text is not asserted
+     * — League phrasing may change on a vendor bump.
      */
     private function assertRejectedAtAuthorize(
         \Psr\Http\Message\ResponseInterface $resp,
-        string $message
+        string $message,
+        ?string $expectedError = null,
     ): void {
         $status = $resp->getStatusCode();
         if ($status === 302) {
@@ -389,6 +409,19 @@ class PkceDeepCoverageApiTest extends TestCase
                     'Rejection redirect must carry error= parameter. Location: '
                         . $location . ' — ' . $message
                 );
+                if ($expectedError !== null) {
+                    $actualQueryError = $query['error'];
+                    $this->assertIsString(
+                        $actualQueryError,
+                        'Rejection redirect error= must be a scalar string. ' . $message
+                    );
+                    $this->assertSame(
+                        $expectedError,
+                        $actualQueryError,
+                        'Rejection redirect error code must be ' . $expectedError
+                            . '. Got: ' . $actualQueryError . ' — ' . $message
+                    );
+                }
                 return;
             }
             self::fail('Rejection redirect had no query string: ' . $location . ' — ' . $message);
@@ -404,6 +437,16 @@ class PkceDeepCoverageApiTest extends TestCase
             'Rejection must be a 4xx client-error, not a 5xx. ' . $message
                 . ' Status: ' . $status . ', Body: ' . substr((string) $resp->getBody(), 0, 400)
         );
+        if ($expectedError !== null) {
+            $body = json_decode((string) $resp->getBody(), true);
+            $actualError = is_array($body) ? ($body['error'] ?? null) : null;
+            $this->assertSame(
+                $expectedError,
+                $actualError,
+                'Rejection body error code must be ' . $expectedError
+                    . '. Got: ' . var_export($actualError, true) . ' — ' . $message
+            );
+        }
     }
 
     /**
