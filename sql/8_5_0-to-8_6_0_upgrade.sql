@@ -115,3 +115,8 @@
 
 -- Fix swapped SNOMED CT codes for the administrative_sex list (see #13767).
 -- 248153007 is Male (finding), 248152002 is Female (finding); the seed had them reversed.
+
+-- FHIR ServiceRequest referrals (D8 of #13266): a uuid for each transaction, so the Transactions screen's referrals have a FHIR id.
+#IfMissingColumn transactions uuid
+ALTER TABLE `transactions` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`, ADD UNIQUE KEY `uuid` (`uuid`);
+#EndIf
