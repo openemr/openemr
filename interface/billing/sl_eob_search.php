@@ -34,6 +34,7 @@ use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Billing\Statement\PatientCreditEncounters;
 use OpenEMR\Billing\Statement\StatementLines;
+use OpenEMR\Billing\Statement\StatementRecipient;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -395,7 +396,8 @@ if (
 
     $res = sqlStatement("SELECT " .
         "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note as enc_billing_note, " .
-        "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code, p.billing_note as pat_billing_note, f.provider_id " .
+        "p.fname, p.mname, p.lname, p.street, p.street_line_2, p.city, p.state, p.postal_code, p.billing_note as pat_billing_note, " .
+        "p.guardiansname, p.guardianaddress, p.guardiancity, p.guardianstate, p.guardianpostalcode, f.provider_id " .
         "FROM form_encounter AS f, patient_data AS p " .
         "WHERE $where " .
         "p.pid = f.pid " .
@@ -498,16 +500,9 @@ if (
             $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
             $stmt['encounter'] = $row['encounter'];
             $stmt['provider_id'] = $row['provider_id'];
-            #If you use the field in demographics layout called
-            #guardiansname this will allow you to send statements to the parent
-            #of a child or a guardian etc
-            $stmt['to'] = empty($row['guardiansname']) ? [$row['fname'] . ' ' . $row['lname']] : [$row['guardiansname']];
-
-            if ($row['street']) {
-                $stmt['to'][] = $row['street'];
-            }
-
-            $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
+            // To the guardian (guarantor) in the patient's demographics when there is one,
+            // at their address when it is filled in; otherwise to the patient.
+            $stmt['to'] = StatementRecipient::lines(is_array($row) ? $row : []);
             $stmt['lines'] = [];
             $stmt['amount'] = '0.00';
             $stmt['ins_paid'] = 0;

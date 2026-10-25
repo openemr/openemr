@@ -171,7 +171,7 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
            onclick="top.restoreSession(); setPrescribeLocation();">
             <span><i class="fa fa-pencil-alt mr-1"></i><?php echo xlt("Prescribe"); ?></span>
         </a>
-        <a role="button" class="text-primary" onclick="top.restoreSession(); sync_weno();">
+        <a role="button" id="sync-button" class="text-primary" onclick="top.restoreSession(); sync_weno();">
             <span><i id="sync-icon" class="fa-solid fa-refresh mr-1"></i><?php echo xlt("Sync"); ?></span>
         </a>
         <a role="button" class="text-primary" onclick="refreshDemographics();">
