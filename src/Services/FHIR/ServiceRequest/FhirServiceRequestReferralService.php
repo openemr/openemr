@@ -39,6 +39,7 @@ use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ReferralService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -106,18 +107,32 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
     {
         $category = $openEMRSearchParameters['category'] ?? null;
         $code = $openEMRSearchParameters['code'] ?? null;
-        if ($category instanceof TokenSearchField && !self::anyTokenMatches($category, [[FhirCodeSystemConstants::SNOMED_CT, self::CATEGORY_REFERRAL]])) {
+        // Both are TOKEN parameters, so the search parser hands them over as TokenSearchFields. Anything
+        // else is refused (a 400, by name) rather than read as no filter, which would return every referral.
+        if ($category !== null && !$category instanceof TokenSearchField) {
+            throw new SearchFieldException('category', 'category must be a token search');
+        }
+        if ($code !== null && !$code instanceof TokenSearchField) {
+            throw new SearchFieldException('code', 'code must be a token search');
+        }
+        if ($category !== null && !self::anyTokenMatches($category, [[FhirCodeSystemConstants::SNOMED_CT, self::CATEGORY_REFERRAL]])) {
             return new ProcessingResult();
         }
         $fields = [];
         foreach ($openEMRSearchParameters as $name => $field) {
-            if (is_string($name) && $name !== 'category' && $name !== 'code' && $field instanceof ISearchField) {
-                $fields[$name] = $field;
+            // The referral query has no category or code column: category is answered above, and code
+            // after mapping, below. Every other field goes to ReferralService as it is.
+            if ($name === 'category' || $name === 'code') {
+                continue;
             }
+            if (!is_string($name) || !$field instanceof ISearchField) {
+                throw new SearchFieldException((string)$name, 'not a search field');
+            }
+            $fields[$name] = $field;
         }
 
         $result = $this->getReferralService()->search($fields);
-        if (!$result->isValid() || !$code instanceof TokenSearchField) {
+        if (!$result->isValid() || $code === null) {
             return $result;
         }
         $filtered = new ProcessingResult();

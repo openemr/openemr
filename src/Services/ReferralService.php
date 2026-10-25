@@ -107,12 +107,14 @@ class ReferralService extends BaseService
     public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $processingResult = new ProcessingResult();
+        // Fields joined by OR stay together, after grouping.
+        $isAnd = $isAndCondition !== false;
+        $grouped = [];
+        $sourceFilter = '';
+        $sourceValues = [];
+        // Only turning the fields into SQL can refuse a search: a field or modifier the statement
+        // builders don't take. The query and the mapping below don't throw SearchFieldException.
         try {
-            // Fields joined by OR stay together, after grouping.
-            $isAnd = $isAndCondition !== false;
-            $grouped = [];
-            $sourceFilter = '';
-            $sourceValues = [];
             foreach ($search as $key => $field) {
                 $sourceField = $isAnd ? self::atSource($field) : null;
                 if ($sourceField === null) {
@@ -124,21 +126,22 @@ class ReferralService extends BaseService
                 $sourceValues = array_merge($sourceValues, $statement->getBoundValues());
             }
             $where = FhirSearchWhereClauseBuilder::build($grouped, $isAnd);
-            $records = QueryUtils::fetchRecords(
-                'SELECT referrals.* FROM (' . self::select($sourceFilter) . ') AS referrals ' . $where->getFragment() . ' ORDER BY referrals.id',
-                array_merge($sourceValues, $where->getBoundValues())
-            );
-            foreach ($records as $row) {
-                $record = [];
-                foreach ($row as $column => $value) {
-                    if (is_string($column)) {
-                        $record[$column] = $value;
-                    }
-                }
-                $processingResult->addData($this->createResultRecordFromDatabaseResult($record));
-            }
         } catch (SearchFieldException $exception) {
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
+            return $processingResult;
+        }
+        $records = QueryUtils::fetchRecords(
+            'SELECT referrals.* FROM (' . self::select($sourceFilter) . ') AS referrals ' . $where->getFragment() . ' ORDER BY referrals.id',
+            array_merge($sourceValues, $where->getBoundValues())
+        );
+        foreach ($records as $row) {
+            $record = [];
+            foreach ($row as $column => $value) {
+                if (is_string($column)) {
+                    $record[$column] = $value;
+                }
+            }
+            $processingResult->addData($this->createResultRecordFromDatabaseResult($record));
         }
         return $processingResult;
     }
