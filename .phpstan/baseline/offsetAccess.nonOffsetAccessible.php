@@ -43703,7 +43703,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'display\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
 ];
 $ignoreErrors[] = [
@@ -43748,36 +43748,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'text\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'valueBoolean\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'valueCoding\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'valueDate\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'valueDecimal\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'valueInteger\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'valueString\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
 ];

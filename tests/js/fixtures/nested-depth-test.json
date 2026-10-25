@@ -1,0 +1,148 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "nested-depth-test",
+  "url": "https://github.com/anun333/oe-module-clinic-forms/questionnaire/nested-depth-test",
+  "version": "1",
+  "name": "NestedDepthTest",
+  "title": "Nested depth test: six levels of groups",
+  "status": "active",
+  "description": "A test form for a questionnaire renderer: groups nested six deep, a question of a different type at each level, repeating groups inside a repeating group, conditions that reach up one, two and five levels, a required question at level 6, and a total over every instance. Written for testing; dedicated to the public domain (CC0 1.0).",
+  "copyright": "CC0 1.0: dedicated to the public domain.",
+  "item": [
+    {
+      "linkId": "L1",
+      "type": "group",
+      "text": "Level 1",
+      "item": [
+        {
+          "linkId": "q1",
+          "type": "boolean",
+          "text": "Level 1: show the deeper levels?"
+        },
+        {
+          "linkId": "total",
+          "type": "integer",
+          "text": "Level 1: total of every level 4 count, across all instances",
+          "readOnly": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "%resource.repeat(item).where(linkId = 'q4').answer.value.sum()"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "L2",
+          "type": "group",
+          "text": "Level 2",
+          "enableWhen": [
+            {
+              "question": "q1",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ],
+          "item": [
+            {
+              "linkId": "q2",
+              "type": "string",
+              "text": "Level 2: a note"
+            },
+            {
+              "linkId": "L3",
+              "type": "group",
+              "text": "Level 3 (repeats)",
+              "repeats": true,
+              "item": [
+                {
+                  "linkId": "q3",
+                  "type": "choice",
+                  "text": "Level 3: go deeper in this instance?",
+                  "answerOption": [
+                    {
+                      "valueCoding": {
+                        "system": "http://loinc.org",
+                        "code": "LA33-6",
+                        "display": "Yes"
+                      }
+                    },
+                    {
+                      "valueCoding": {
+                        "system": "http://loinc.org",
+                        "code": "LA32-8",
+                        "display": "No"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "linkId": "L4",
+                  "type": "group",
+                  "text": "Level 4",
+                  "item": [
+                    {
+                      "linkId": "q4",
+                      "type": "integer",
+                      "text": "Level 4: a count"
+                    },
+                    {
+                      "linkId": "L5",
+                      "type": "group",
+                      "text": "Level 5 (repeats, inside level 3's repeats)",
+                      "repeats": true,
+                      "enableWhen": [
+                        {
+                          "question": "q3",
+                          "operator": "=",
+                          "answerCoding": {
+                            "system": "http://loinc.org",
+                            "code": "LA33-6"
+                          }
+                        }
+                      ],
+                      "item": [
+                        {
+                          "linkId": "q5",
+                          "type": "date",
+                          "text": "Level 5: a date"
+                        },
+                        {
+                          "linkId": "L6",
+                          "type": "group",
+                          "text": "Level 6",
+                          "item": [
+                            {
+                              "linkId": "q6",
+                              "type": "decimal",
+                              "text": "Level 6: a measurement (required)",
+                              "required": true
+                            },
+                            {
+                              "linkId": "q6b",
+                              "type": "string",
+                              "text": "Level 6: a note, shown while level 1's answer is Yes",
+                              "enableWhen": [
+                                {
+                                  "question": "q1",
+                                  "operator": "=",
+                                  "answerBoolean": true
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
