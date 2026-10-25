@@ -58,12 +58,23 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
         if (is_string($resultValue)) {
             $resultValue = trim($resultValue);
         }
+        $resultUnit = is_string($record['units'] ?? null) ? trim($record['units']) : '';
+        if (strcasecmp($resultUnit, 'percent') === 0) {
+            $resultUnit = '%';
+        }
+        if (is_string($resultValue) && str_ends_with($resultValue, '%')) {
+            $numericValue = trim(substr($resultValue, 0, -1));
+            if (is_numeric($numericValue) && ($resultUnit === '' || $resultUnit === '%')) {
+                $resultValue = $numericValue;
+                $resultUnit = '%';
+            }
+        }
 
         $result = null;
         if (is_numeric($resultValue)) {
             $result = new Quantity([
                 'value' => (float) $resultValue,
-                'unit' => $record['units']
+                'unit' => $resultUnit
             ]);
         } elseif (
             is_string($resultValue)

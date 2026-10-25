@@ -33,6 +33,24 @@ class LaboratoryTestServiceTest extends TestCase
         self::assertSame(9.4, $model->result->value);
     }
 
+    public function testPercentFormattedResultBecomesAQuantity(): void
+    {
+        $model = $this->service()->makeQdmModel(new QdmRecord($this->record('9.4%'), 1, 1));
+
+        self::assertInstanceOf(Quantity::class, $model->result);
+        self::assertSame(9.4, $model->result->value);
+        self::assertSame('%', $model->result->unit);
+    }
+
+    public function testPercentUnitAliasIsNormalizedToUcum(): void
+    {
+        $model = $this->service()->makeQdmModel(new QdmRecord($this->record('9.4', 'percent'), 1, 1));
+
+        self::assertInstanceOf(Quantity::class, $model->result);
+        self::assertSame(9.4, $model->result->value);
+        self::assertSame('%', $model->result->unit);
+    }
+
     public function testNonNumericResultIsNotCoercedToZero(): void
     {
         $model = $this->service()->makeQdmModel(new QdmRecord($this->record('Positive'), 1, 1));
@@ -82,11 +100,11 @@ class LaboratoryTestServiceTest extends TestCase
     /**
      * @return array<string, string|null>
      */
-    private function record(?string $result): array
+    private function record(?string $result, string $units = '%'): array
     {
         return [
             'result' => $result,
-            'units' => '%',
+            'units' => $units,
             'date' => '2026-06-01',
             'date_end' => null,
             'procedure_code' => '',
