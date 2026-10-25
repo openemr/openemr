@@ -18,6 +18,7 @@
 
 namespace OpenEMR\Common\Session;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -72,19 +73,20 @@ class SessionTracker
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $sessionUuid = $session->get('session_database_uuid');
-        if (empty($sessionUuid)) {
+        if (!is_string($sessionUuid) || $sessionUuid === '') {
             return null;
         }
 
-        $sessionTracker = sqlQueryNoLog(
+        $sessionTracker = QueryUtils::querySingleRow(
             "SELECT GREATEST(0, ? - TIMESTAMPDIFF(SECOND, `last_updated`, NOW())) AS `seconds_remaining` " .
             "FROM `session_tracker` WHERE `uuid` = ?",
             [
                 OEGlobalsBag::getInstance()->getInt('timeout'),
                 $sessionUuid,
-            ]
+            ],
+            log: false
         );
-        if (!isset($sessionTracker['seconds_remaining']) || !is_numeric($sessionTracker['seconds_remaining'])) {
+        if (!is_array($sessionTracker) || !isset($sessionTracker['seconds_remaining']) || !is_numeric($sessionTracker['seconds_remaining'])) {
             return null;
         }
 
