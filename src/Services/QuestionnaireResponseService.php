@@ -714,10 +714,9 @@ class QuestionnaireResponseService extends BaseService
     }
 
     /**
-     * @param $answer
-     * @return string
+     * Display text for one QuestionnaireResponse answer; 'N/A' when it is not an answer array.
      */
-    public function extractAnswerValue($answer)
+    public function extractAnswerValue(mixed $answer): string
     {
         return is_array($answer) ? self::answerText($answer) : 'N/A';
     }
