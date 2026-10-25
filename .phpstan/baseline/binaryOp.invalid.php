@@ -7582,11 +7582,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/template_context_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'"\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/upload.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "/" between mixed and 2 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/appointments.inc.php',

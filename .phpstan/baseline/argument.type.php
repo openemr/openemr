@@ -19198,11 +19198,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$name of function addNewDocument expects string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/ajax/upload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function text expects string, string\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/upload.php',
 ];
