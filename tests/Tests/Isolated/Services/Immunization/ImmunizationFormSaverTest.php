@@ -156,11 +156,22 @@ final class ImmunizationFormSaverTest extends TestCase
         $this->assertSame([], $this->inserts);
     }
 
+    public function testAMalformedIdIsRefusedAndNothingIsWritten(): void
+    {
+        foreach (['abc', '25abc', '-5', '1e3', ['25']] as $id) {
+            $this->assertNull($this->saver()->save(['id' => $id] + self::form(''), self::PID, self::USER), var_export($id, true));
+        }
+
+        $this->assertSame([], $this->ownershipAsked);
+        $this->assertSame([], $this->updates);
+        $this->assertSame([], $this->inserts);
+    }
+
     public function testMissingOrMalformedFieldsAreSavedEmpty(): void
     {
-        $this->saver()->save(['id' => ['25'], 'note' => ['x'], 'cvx_code' => 115], self::PID, self::USER);
+        $this->saver()->save(['id' => '', 'note' => ['x'], 'cvx_code' => 115], self::PID, self::USER);
 
-        $this->assertSame([], $this->ownershipAsked, 'an id that is not a single value is a new immunization');
+        $this->assertSame([], $this->ownershipAsked, 'a blank id is a new immunization');
         [, $binds] = $this->inserts[0];
         $this->assertNull($binds[0], 'no uuid');
         $this->assertSame(['', ''], array_slice($binds, 1, 2), 'administered_date, missing');

@@ -78,7 +78,7 @@ final readonly class ImmunizationFormSaver
      * @param array<mixed> $form   the submitted form ($_GET on the Immunizations page)
      * @param ?int         $userId the signed-in user, recorded as the row's creator and last updater
      * @return ?int the immunization's id; null, with nothing written, when the form's id is not one
-     *              of this patient's immunizations
+     *              of this patient's immunizations, or not an id at all
      */
     public function save(array $form, int $pid, ?int $userId): ?int
     {
@@ -87,7 +87,15 @@ final readonly class ImmunizationFormSaver
         // REPLACE INTO deletes and re-inserts it, which drops the columns this
         // statement does not name (added_erroneously, external_id) and resets
         // the ones it always sets (created_by, create_date).
-        $immunizationId = (int) self::text($form, 'id');
+        //
+        // An id that is neither (letters, a sign, a list) is refused with
+        // nothing written, rather than read as 0 and saved as a new one.
+        $id = $form['id'] ?? '';
+        $idText = is_scalar($id) ? trim((string) $id) : null;
+        if ($idText === null || ($idText !== '' && !ctype_digit($idText))) {
+            return null;
+        }
+        $immunizationId = (int) $idText;
 
         $formBindArray = [
             self::text($form, 'administered_date'), self::text($form, 'administered_date'),
