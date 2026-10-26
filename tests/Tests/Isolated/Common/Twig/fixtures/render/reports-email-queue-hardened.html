@@ -1,0 +1,214 @@
+<div class="container-fluid mt-3">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3">
+                <i class="fas fa-envelope"></i> Email Queue Report
+            </h2>
+        </div>
+    </div>
+
+        <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-inbox fa-2x text-primary mb-2"></i>
+                    <h3 class="mb-0">1</h3>
+                    <p class="text-muted mb-0">Total Emails</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <h3 class="mb-0">1</h3>
+                    <p class="text-muted mb-0">Sent</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                    <h3 class="mb-0">0</h3>
+                    <p class="text-muted mb-0">Pending</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
+                    <h3 class="mb-0">0</h3>
+                    <p class="text-muted mb-0">Failed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-filter"></i> Filters</h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="" id="filter-form">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <label for="search">Search</label>
+                        <input type="text" class="form-control" id="search" name="search"
+                               value="\&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;"
+                               placeholder="Email, Subject, or Sender">
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label for="status">Status</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">All</option>
+                            <option value="sent" selected>Sent</option>
+                            <option value="pending" >Pending</option>
+                            <option value="failed" >Failed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label for="template_name">Template</label>
+                        <select class="form-control" id="template_name" name="template_name">
+                            <option value="">All Templates</option>
+                                                            <option value="welcome&quot; onclick=&quot;alert(1)" selected>
+                                    welcome" onclick="alert(1)
+                                </option>
+                                                    </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label for="date_from">From Date</label>
+                        <input type="date" class="form-control" id="date_from" name="date_from"
+                               value="2026-07-01\&quot; onfocus=\&quot;alert(1)">
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label for="date_to">To Date</label>
+                        <input type="date" class="form-control" id="date_to" name="date_to"
+                               value="2026-07-31\&quot; onfocus=\&quot;alert(1)">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Apply Filters
+                        </button>
+                        <a href="/openemr\&quot;;alert(1);///interface/reports/email_queue_report.php" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i> Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+        <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-list"></i> Email Queue (0 records)</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0" id="email-queue-table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Status</th>
+                            <th>Recipient</th>
+                            <th>Subject</th>
+                            <th>Template</th>
+                            <th>Queued Date</th>
+                            <th>Sent Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                                                <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No emails found</p>
+                            </td>
+                        </tr>
+                                            </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+        </div>
+
+<div class="modal fade" id="emailDetailModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Email Details</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="emailDetailContent">
+                <div class="text-center py-5">
+                    <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewEmailDetails(emailId) {
+    const modal = $('#emailDetailModal');
+    const content = $('#emailDetailContent');
+
+    modal.modal('show');
+    content.html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-3x text-primary"></i></div>');
+
+    const webroot = "\/openemr\\\";alert(1);\/\/";
+    const escapeHtml = (value) => $('<div/>').text(value === null || value === undefined ? '' : String(value)).html();
+
+    fetch(webroot + '/interface/reports/email_queue_detail.php?id=' + encodeURIComponent(String(emailId)))
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const email = data.email;
+                let statusBadge = '';
+                if (String(email.error) === '1') {
+                    statusBadge = '<span class="badge badge-danger"><i class="fas fa-times-circle"></i> Failed</span>';
+                } else if (String(email.sent) === '1') {
+                    statusBadge = '<span class="badge badge-success"><i class="fas fa-check-circle"></i> Sent</span>';
+                } else {
+                    statusBadge = '<span class="badge badge-warning"><i class="fas fa-clock"></i> Pending</span>';
+                }
+
+                let html = '<table class="table table-bordered">';
+                html += '<tr><th width="30%">ID</th><td>#' + escapeHtml(email.id) + '</td></tr>';
+                html += '<tr><th>Status</th><td>' + statusBadge + '</td></tr>';
+                html += '<tr><th>Sender</th><td>' + escapeHtml(email.sender) + '</td></tr>';
+                html += '<tr><th>Recipient</th><td>' + escapeHtml(email.recipient) + '</td></tr>';
+                html += '<tr><th>Subject</th><td>' + escapeHtml(email.subject) + '</td></tr>';
+                html += '<tr><th>Template</th><td>' + escapeHtml(email.template_name || 'None') + '</td></tr>';
+                html += '<tr><th>Queued Date</th><td>' + escapeHtml(email.datetime_queued) + '</td></tr>';
+
+                if (email.datetime_sent) {
+                    html += '<tr><th>Sent Date</th><td class="text-success">' + escapeHtml(email.datetime_sent) + '</td></tr>';
+                }
+
+                if (String(email.error) === '1' && email.error_message) {
+                    html += '<tr><th>Error Message</th><td class="text-danger">' + escapeHtml(email.error_message) + '</td></tr>';
+                    html += '<tr><th>Error Date</th><td>' + escapeHtml(email.datetime_error) + '</td></tr>';
+                }
+
+                html += '</table>';
+                content.html(html);
+            } else {
+                content.html('<div class="alert alert-danger">Failed to load email details</div>');
+            }
+        })
+        .catch(error => {
+            content.html('<div class="alert alert-danger">An error occurred</div>');
+            console.error('Error:', error);
+        });
+}
+</script>
