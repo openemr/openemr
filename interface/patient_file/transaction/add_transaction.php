@@ -23,6 +23,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
@@ -35,7 +36,7 @@ use OpenEMR\Services\TransactionDisplay;
 $date_init = OEGlobalsBag::getInstance()->get('date_init', '');
 
 // This can come from the URL if it's an Add.
-$title   = empty($_REQUEST['title']) ? 'LBTref' : $_REQUEST['title'];
+$title   = CurrentRequest::get()->request->getString('title') ?: CurrentRequest::get()->query->getString('title') ?: 'LBTref';
 $form_id = $title;
 
 // Plugin support.
@@ -450,13 +451,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </a>
                     </div>
                 </div>
-                <?php echo (new ReferralDisplay())->forTransactionPage($form_id, $transid); // nosemgrep: echoed-request -- the ids are only compared and cast, and the template escapes what it prints. Where a saved referral stands (#14710). ?>
+                <?php echo (new ReferralDisplay())->forTransactionPage($form_id, is_numeric($transid) ? intval($transid) : 0); // Where a saved referral stands (#14710). ?>
                 <div class="col-sm-12 mt-3">
                     <fieldset>
                         <legend><?php echo xlt('Select Transaction Type'); ?></legend>
                         <div class="forms col-sm-7">
                             <label class="control-label" for="title"><?php echo xlt('Transaction Type'); ?>:</label>
-                            <?php echo (new TransactionDisplay())->typeSelect(TransactionDisplay::types(), $form_id); // nosemgrep: echoed-request -- $form_id is only compared, and the template escapes what it prints ?>
+                            <?php echo (new TransactionDisplay())->typeSelect(TransactionDisplay::types(), $form_id); ?>
                         </div>
                         <div class="forms col-sm-5">
                             <?php

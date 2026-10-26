@@ -35,8 +35,8 @@ if (!empty($_POST)) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
-$form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
-$form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
+$form_from_date = CurrentRequest::get()->request->has('form_from_date') ? DateToYYYYMMDD(CurrentRequest::get()->request->getString('form_from_date')) : date('Y-01-01');
+$form_to_date   = CurrentRequest::get()->request->has('form_to_date') ? DateToYYYYMMDD(CurrentRequest::get()->request->getString('form_to_date')) : date('Y-m-d');
 $form_facility = $_POST['form_facility'] ?? '';
 // All referrals, the open ones, or the overdue ones (#14710).
 $form_show = ReferralDisplay::show(CurrentRequest::get()->request->getString('form_show'));
@@ -232,7 +232,7 @@ if (!empty($_POST['form_refresh'])) {
     <td>
             <?php echo text(oeFormatShortDate($row['reply_date'])) ?>
     </td>
-            <?php echo $referralDisplay->reportCell($row); // nosemgrep: echoed-request -- the template escapes what it prints ?>
+            <?php echo $referralDisplay->reportCell($row); ?>
     <td>
             <?php echo text($row['patient_name']) ?>
     </td>
