@@ -11,6 +11,11 @@
 # any failed "All Checks Passed" run for the same commit once every other
 # check run on that commit is green. It only ever acts on that exact state,
 # so a legitimately red commit stays red.
+#
+# The legacy-directory gates heal the same way: an admin's approval re-runs
+# Legacy Directories on pull_request_review, which adds a passing check run
+# next to the failed one. Like the aggregate, this counts only the latest
+# check run of each name.
 name: Rerun Stale All Checks Passed
 
 on:
@@ -24,6 +29,7 @@ on:
     - Acceptance test (docker)
     - Acceptance test (package)
     - Integration tests
+    - Legacy Directories
   workflow_dispatch:
     inputs:
       sha:
@@ -63,19 +69,22 @@ jobs:
       run: |
         set -euo pipefail
 
-        # Every check run on the commit that is not ignored must have a
+        # The latest check run of each name that is not ignored must have a
         # conclusion the aggregate's wait-on-check-action accepts (its
-        # allowed-conclusions default: success, skipped). Anything still
+        # allowed-conclusions default: success, skipped). The aggregate also
+        # keeps only the most recently started run per name, so an older
+        # failed run that a newer one superseded does not block. Anything still
         # running or concluded otherwise means the aggregate is not stale,
         # just correctly red or early. Warn instead of failing when the read
         # fails: this job's check run lands on the same commit and is not in
         # the aggregate's ignore list, so a red healer would itself fail the
         # next aggregate evaluation.
         if ! blockers=$(gh api "repos/${REPO}/commits/${SHA}/check-runs?per_page=100" --paginate \
-            --jq '.check_runs[] | {name, status, conclusion}' \
+            --jq '.check_runs[] | {name, status, conclusion, started_at}' \
           | jq -rs --arg ignored "$IGNORED_CHECKS" '
               ($ignored | split(",")) as $skip
               | map(select(.name as $n | $skip | index($n) | not))
+              | group_by(.name) | map(max_by(.started_at))
               | map(select(.status != "completed"
                            or (.conclusion | IN("success", "skipped") | not)))
               | .[] | "\(.name): \(.status)/\(.conclusion)"'); then
