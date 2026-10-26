@@ -390,7 +390,7 @@ class SearchFieldStatementResolver
     private static function adjustTimezoneToLocalTime(\DateTimeInterface $dateTime)
     {
         if ($dateTime instanceof \DateTimeImmutable || $dateTime instanceof \DateTime) {
-            $dateTime->setTimezone(new \DateTimeZone(date('P')));
+            $dateTime->setTimezone(new \DateTimeZone(date_default_timezone_get()));
         }
 
         // either we return the original date, or we return the locally formatted timezone date.

@@ -26,6 +26,11 @@ setup() {
     assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'retrying in 15s'
 }
 
+@test "Dockerfile: include Composer-installed modules in production image" {
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" \
+        'COPY --from=openemr-composer /openemr/interface/modules/custom_modules /tmp/openemr/interface/modules/custom_modules'
+}
+
 @test "openemr.conf: LoadModule rewrite" {
     assert_file_contains "${SCRIPT_DIR}/openemr.conf" 'LoadModule'
     assert_file_contains "${SCRIPT_DIR}/openemr.conf" 'rewrite'

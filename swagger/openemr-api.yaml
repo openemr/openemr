@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: 'OpenEMR API'
-  version: 8.5.0
+  version: 8.6.0
 servers:
   -
     url: /apis/default/
@@ -262,7 +262,7 @@ paths:
       security:
         -
           openemr_auth: {  }
-  '/api/background_service/{name}/run':
+  '/api/background_service/{name}/$run':
     post:
       tags:
         - standard
@@ -1614,7 +1614,7 @@ paths:
     get:
       tags:
         - standard
-      description: 'Retrieves a appointment for a patient'
+      description: 'Retrieves an appointment scoped by patient'
       parameters:
         -
           name: pid
@@ -1637,6 +1637,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        404:
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: {  }

@@ -85,6 +85,34 @@ namespace OpenEMR\Tests\Isolated\Services {
             $this->assertSame($expected, $this->processor->normalizeNonNegativeInt($input));
         }
 
+        // --- isPatientLevelEncounter -----------------------------------------------------
+
+        /**
+         * NULL is how a FHIR API save without an encounter (a SMART app launched from
+         * Available Assessments) stores a patient-level response; the native runtime stores 0.
+         *
+         * @return array<string, array{mixed, bool}>
+         *
+         * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+         */
+        public static function patientLevelEncounterProvider(): array
+        {
+            return [
+                'null from a FHIR API save' => [null, true],
+                'int zero from the native runtime' => [0, true],
+                'zero string from the database' => ['0', true],
+                'an encounter id' => [12, false],
+                'an encounter id string' => ['12', false],
+                'malformed' => ['abc', false],
+            ];
+        }
+
+        #[DataProvider('patientLevelEncounterProvider')]
+        public function testIsPatientLevelEncounter(mixed $encounter, bool $expected): void
+        {
+            $this->assertSame($expected, $this->processor->isPatientLevelEncounter($encounter));
+        }
+
         // --- decodeAndValidateResponse ----------------------------------------------------
 
         public function testDecodeValidResponseReturnsArray(): void

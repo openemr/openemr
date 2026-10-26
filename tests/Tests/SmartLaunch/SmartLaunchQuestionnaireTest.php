@@ -328,7 +328,7 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
     /**
      * EHR-launch variant: instead of the browser hitting launch.php
      * cold with an iss, the user is already signed into OpenEMR with
-     * a patient open, clicks a "Launch SMART App" button from
+     * a patient open, clicks a "Launch App" button from
      * `interface/patient_file/assessment/fhir_assessments.php`, and
      * OpenEMR mints a `launch=<opaque>` token encoding the patient
      * context. The SMART app's launch.php sees `launch=` set and
