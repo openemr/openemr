@@ -324,22 +324,15 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
      * the task names one.
      *
      * @param mixed $dataRecord
-     * @param bool $encode
+     * @param bool $encode unused: FhirServiceBase declares it, and nothing passes it
      */
-    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|null
+    public function createProvenanceResource($dataRecord, $encode = false): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRTask)) {
             throw new \BadMethodCallException('Data record should be correct instance class');
         }
         $provenance = (new FhirProvenanceService())->createProvenanceForDomainResource($dataRecord, $dataRecord->getRequester());
-        if (!($provenance instanceof FHIRProvenance)) {
-            return null;
-        }
-        if ($encode) {
-            $json = json_encode($provenance);
-            return is_string($json) ? $json : null;
-        }
-        return $provenance;
+        return $provenance instanceof FHIRProvenance ? $provenance : null;
     }
 
     /**
