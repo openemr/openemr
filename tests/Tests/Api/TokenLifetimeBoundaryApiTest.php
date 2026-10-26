@@ -172,13 +172,15 @@ class TokenLifetimeBoundaryApiTest extends TestCase
         $tokens = $this->passwordGrant($http, $clientId, $clientSecret, 'openid api:oemr user/patient.read');
         $this->assertIsString($tokens['access_token']);
 
-        // Clamp the DB expiry to five seconds from now. The authenticateUserToken
+        // Clamp the DB expiry to 30 seconds from now. The authenticateUserToken
         // check compares DB `expiry` with NOW() using `<=`, so a positive delta
-        // of a few seconds should accept the request. The test window is tight
-        // enough that the request will complete well inside the 5-second budget.
+        // accepts the request. 30 seconds comfortably exceeds the 15-second
+        // Guzzle client timeout — if request scheduling or server queuing
+        // delayed authorization by more than the margin, the token would
+        // expire mid-flight and this test would flake.
         QueryUtils::sqlStatementThrowException(
             "UPDATE `api_token` SET `expiry` = ? WHERE `client_id` = ?",
-            [date('Y-m-d H:i:s', time() + 5), $clientId]
+            [date('Y-m-d H:i:s', time() + 30), $clientId]
         );
 
         $resp = $http->get($this->baseUrl . '/apis/default/api/patient', [
