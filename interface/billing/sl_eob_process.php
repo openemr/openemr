@@ -442,9 +442,25 @@ function eob_process_era_callback(array &$out): void
                     }
 
                     $code_value = substr($code_value, 0, -1);
-                    // We store the reason code to display it with description in the billing manager screen.
-                    // process_file is used as for the denial case file name will not be there, and extra field(to store reason) can be avoided.
-                    BillingUtilities::updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
+                    // A re-posted ERA must not add the same denial again.
+                    if (
+                        $eraRun->denialRecorded(
+                            is_numeric($pid) ? (int) $pid : 0,
+                            is_numeric($encounter) ? (int) $encounter : 0,
+                            (int) substr($inslabel, 3),
+                            $code_value
+                        )
+                    ) {
+                        echo getMessageLine(
+                            $bgcolor,
+                            'errdetail',
+                            "Denial already recorded for this claim; not recorded again"
+                        );
+                    } else {
+                        // We store the reason code to display it with description in the billing manager screen.
+                        // process_file is used as for the denial case file name will not be there, and extra field(to store reason) can be avoided.
+                        BillingUtilities::updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
+                    }
                 }
             }
 
