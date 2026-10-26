@@ -184,7 +184,10 @@ class ActiveMedicationListService extends BaseService
     }
 
     /**
-     * Stopped, activity = 0, or an end date before today. Skips names already on the active list.
+     * Stopped, a missing or zero activity flag, or an end date before today.
+     * Skips names already on the active list. A NULL lists.activity is not
+     * active, and it is not excluded by a bare inequality, so it is counted
+     * here.
      *
      * @param list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}>|null $active
      * @return list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}>
@@ -201,7 +204,7 @@ class ActiveMedicationListService extends BaseService
             . "LEFT JOIN lists_medication m ON m.list_id = l.id "
             . "WHERE l.pid = ? AND l.type = 'medication' "
             . $erx
-            . "AND (l.activity != 1 "
+            . "AND (COALESCE(l.activity, 0) != 1 "
             . "OR (l.enddate IS NOT NULL AND l.enddate != '0000-00-00' "
             . "AND l.enddate != '0000-00-00 00:00:00' AND l.enddate < CURDATE())) "
             . "ORDER BY l.begdate, l.id",
