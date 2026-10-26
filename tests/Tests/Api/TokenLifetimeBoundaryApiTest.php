@@ -20,9 +20,11 @@
  * These tests lock that dual-path intent:
  *
  *   - Database `expiry` slightly in the future → request accepted.
- *   - Database `expiry` equal to NOW() → request rejected (the `<=` boundary).
- *   - JWT within its 60s leeway past `exp` but DB `expiry` past → request rejected
- *     (DB wins over JWT leeway).
+ *   - Database `expiry` 1 second in the past → request rejected (pass/fail
+ *     transition on the DB check; a strict-equality probe would need a
+ *     controlled clock in production code).
+ *   - DB `expiry` past, JWT claim still valid → request rejected
+ *     (DB enforced even when JWT would accept).
  *
  * Companion to `BearerTokenRejectionPropertiesTest` (wide-margin expiry) and the
  * JWT-leeway coverage in `BearerTokenAuthorizationStrategyTest` (isolated tier).
@@ -131,25 +133,28 @@ class TokenLifetimeBoundaryApiTest extends TestCase
     }
 
     /**
-     * `api_token.expiry` equal to NOW() → request rejected.
-     * Pins the fail-side of the `<=` comparison. The exact-boundary case is
-     * what distinguishes `<=` from `<` — a regression flipping the operator to
-     * `<` would silently extend observed TTL by up to one second.
+     * `api_token.expiry` one second in the past → request rejected.
+     *
+     * Locks the pass/fail transition of the DB check against a non-equal past
+     * expiry. A strict-equality probe (expiry = NOW() at the moment the DB
+     * check fires) would need either a controlled clock injected into
+     * production or race-prone timing; both are out of scope for a test-only
+     * PR. This test still catches the common regressions: deleting the check,
+     * inverting the comparison, or widening the window — any of which would
+     * flip this 401 to 200.
      */
     #[Test]
-    public function testTokenRejectedWhenDatabaseExpiryEqualsNow(): void
+    public function testTokenRejectedWhenDatabaseExpiryIsOneSecondInThePast(): void
     {
         $http = $this->buildClient();
-        [$clientId, $clientSecret] = $this->registerPasswordGrantClient($http, 'ExactExpiry');
+        [$clientId, $clientSecret] = $this->registerPasswordGrantClient($http, 'PastExpiry');
         $tokens = $this->passwordGrant($http, $clientId, $clientSecret, 'openid api:oemr user/patient.read');
         $this->assertIsString($tokens['access_token']);
 
-        // Set `expiry` to a timestamp guaranteed to be <= NOW() by the time
-        // the request reaches authenticateUserToken. One second in the past
-        // is enough to be reliable across clock-resolution rounding (DB
-        // DATETIME is 1-second precision) and still exercises the sub-leeway
-        // boundary — JWT validation accepts this token (its exp claim is +1h
-        // from mint, so still an hour away), but the DB check must reject.
+        // One second in the past is enough to be reliable across the DB's
+        // 1-second DATETIME precision. The JWT still has an hour of life on
+        // its exp claim — JWT validation accepts the token unconditionally;
+        // the DB check must do the rejecting.
         QueryUtils::sqlStatementThrowException(
             "UPDATE `api_token` SET `expiry` = ? WHERE `client_id` = ?",
             [date('Y-m-d H:i:s', time() - 1), $clientId]
@@ -167,21 +172,28 @@ class TokenLifetimeBoundaryApiTest extends TestCase
     }
 
     /**
-     * JWT within its 60s leeway past `exp`, DB `expiry` past → request rejected.
+     * DB `expiry` past, JWT `exp` claim still valid → request rejected.
      *
-     * The JWT in this test still has an hour of life on its `exp` claim (the mint
-     * sets it to NOW + 1h), so the JWT layer accepts the request unconditionally.
-     * The DB `expiry` is pushed into the past — 30 seconds, well inside what the
-     * JWT layer would tolerate as leeway if it were the only check. The DB check
-     * must still reject.
+     * The JWT in this test still has an hour of life on its `exp` claim (the
+     * password-grant mint sets `exp = iat + 1h`), so the JWT layer accepts
+     * the request unconditionally — including unconditionally with any amount
+     * of leeway. The DB `expiry` is pushed 30 seconds into the past; the DB
+     * check must still reject.
+     *
+     * The leeway-only acceptance subscenario (JWT `exp` *within* the 60s window
+     * past expiry, so JWT accepts because-of-leeway rather than because-fully-
+     * valid) is covered at the isolated tier by
+     * `testTokenExpiredWithinLeewayIsAccepted`. Reproducing it here would
+     * require minting a JWT with the server's runtime private key under a
+     * crafted `exp` — currently out of scope for the api tier.
      *
      * A regression that dropped `authenticateUserToken` entirely (deleted per
      * the TODO comment at BearerTokenAuthorizationStrategy.php line 222) would
-     * flip this test to pass — the response would be 200. Locking the 401 keeps
-     * the dual-path intent intact.
+     * flip this test to 200. Locking the 401 keeps the dual-path intent
+     * intact: whatever the JWT layer accepts, the DB check still has final say.
      */
     #[Test]
-    public function testDatabaseExpiryWinsOverJwtLeeway(): void
+    public function testDatabaseExpiryEnforcedEvenWhenJwtClaimIsStillValid(): void
     {
         $http = $this->buildClient();
         [$clientId, $clientSecret] = $this->registerPasswordGrantClient($http, 'DbWinsOverLeeway');

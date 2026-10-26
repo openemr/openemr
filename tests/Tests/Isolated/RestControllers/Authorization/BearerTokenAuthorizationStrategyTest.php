@@ -276,19 +276,24 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
 
     /**
      * `exp` boundary within the 60-second leeway: a token whose `exp` has already passed
-     * by 30 seconds still validates. League's BearerTokenValidator applies the
+     * by 55 seconds still validates. League's BearerTokenValidator applies the
      * JWT_CLOCK_SKEW_LEEWAY (`PT60S`) symmetrically — both `iat` in the future and
      * `exp` in the past are tolerated inside the window.
+     *
+     * -55 seconds (5 seconds inside the window) is chosen so a leeway narrowing
+     * below 55s surfaces here. A smaller margin (e.g. -30s) would still pass if
+     * someone silently halved the leeway, and the test would stop guarding the
+     * value the PR claims.
      */
     public function testTokenExpiredWithinLeewayIsAccepted(): void
     {
         $this->assertTrue(
             $this->authorizeTokenWithClaimTimes(
-                iat: new \DateTimeImmutable('-30 seconds'),
-                nbf: new \DateTimeImmutable('-30 seconds'),
-                exp: new \DateTimeImmutable('-30 seconds'),
+                iat: new \DateTimeImmutable('-55 seconds'),
+                nbf: new \DateTimeImmutable('-55 seconds'),
+                exp: new \DateTimeImmutable('-55 seconds'),
             ),
-            'A token whose exp is 30 seconds in the past must survive — within the 60s leeway'
+            'A token whose exp is 55 seconds in the past must survive — within the 60s leeway'
         );
     }
 
@@ -311,16 +316,19 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
      * so a crafted "not-yet-valid" token is a path not reachable from the normal mint
      * flow; it still has to be validated correctly if a federated issuer or future
      * mint-time offset ever introduces one.
+     *
+     * +55 seconds (5 seconds inside the window) is chosen for the same reason as
+     * the `exp` acceptance test — a leeway narrowing below 55s surfaces here.
      */
     public function testTokenNotYetValidWithinLeewayIsAccepted(): void
     {
         $this->assertTrue(
             $this->authorizeTokenWithClaimTimes(
                 iat: new \DateTimeImmutable('now'),
-                nbf: new \DateTimeImmutable('+30 seconds'),
+                nbf: new \DateTimeImmutable('+55 seconds'),
                 exp: new \DateTimeImmutable('+1 hour'),
             ),
-            'A token with nbf 30 seconds in the future must survive — within the 60s leeway'
+            'A token with nbf 55 seconds in the future must survive — within the 60s leeway'
         );
     }
 
