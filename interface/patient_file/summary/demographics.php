@@ -42,6 +42,7 @@ require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormRegistry;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -346,13 +347,11 @@ function image_widget($doc_id, $doc_catg): void
 }
 
 // Determine if the Vitals form is in use for this site.
-$tmp = sqlQuery("SELECT count(*) AS count FROM registry WHERE directory = 'vitals' AND state = 1");
-$vitals_is_registered = $tmp['count'];
+$vitals_is_registered = (new FormRegistry())->isEnabled('vitals');
 
 // Determine if the Track Anything form is in use for this site. Read here
 // because the card and the fragment that fills it are emitted far apart.
-$tmp = sqlQuery("SELECT count(*) AS count FROM registry WHERE directory = 'track_anything' AND state = 1");
-$track_is_registered = $tmp['count'];
+$track_is_registered = (new FormRegistry())->isEnabled('track_anything');
 
 // Get patient/employer/insurance information.
 //
