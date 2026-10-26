@@ -13,9 +13,11 @@
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2025 Mountain Valley Health <mvhinspire@mountainvalleyhealthinc.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @license   There are segments of code in this file that have been generated via Claude.ai and are licensed as Public Domain.  They have been marked with a header and footer.
  */
@@ -632,18 +634,17 @@ class C_EncounterVisitForm
 
 
         $MBO = new MiscBillingOptions();
-        $refProviderId = QueryUtils::fetchSingleValue(
-            "SELECT ref_providerID FROM patient_data WHERE pid = ?",
-            'ref_ProviderID',
-            [$pid]
-        );
-        $referringProviders = array_map(function ($provider) use ($viewmode, $encounter, $refProviderId) {
-            if (!$viewmode || empty($encounter['referring_provider_id'])) {
-                $encounter["referring_provider_id"] = $refProviderId ?? 0;
-            }
-            if ($viewmode && !empty($encounter["referring_provider_id"])) {
-                $provider['selected'] = $provider['id'] == $encounter['referring_provider_id'];
-            }
+        // Preselect the encounter's saved referring provider, else the
+        // patient's referring provider from Demographics > Choices.
+        $referringProviderId = MiscBillingOptions::providerId($encounter['referring_provider_id'] ?? null)
+            ?? MiscBillingOptions::providerId(QueryUtils::fetchSingleValue(
+                'SELECT ref_providerID FROM patient_data WHERE pid = ?',
+                'ref_providerID',
+                [$pid]
+            ));
+        $referringProviders = array_map(function (array $provider) use ($referringProviderId): array {
+            $provider['selected'] = $referringProviderId !== null
+                && MiscBillingOptions::providerId($provider['id'] ?? null) === $referringProviderId;
             return $provider;
         }, $MBO->getReferringProviders());
 
