@@ -388,6 +388,9 @@ function eob_process_era_callback(array &$out): void
             default => 'Ins1'
         };
 
+        // The claim's date of service as the ERA gives it; the payer lookups below use it.
+        $service_date = parseDate($out['dos'] ?? $out['claim_date']);
+
         // CLP07, the payer's claim control number. It is stored on every row this
         // claim posts, so a claim the payer paid nothing on still records it, and a
         // reversal uses it to find the payment it takes back.
@@ -470,7 +473,10 @@ function eob_process_era_callback(array &$out): void
                 $reversal = new EraReversal(CurrentRequest::get()->query->getString('InsId'));
                 $reversalPid = is_numeric($pid) ? (int) $pid : 0;
                 $reversalEncounter = is_numeric($encounter) ? (int) $encounter : 0;
-                $reversalDos = is_string($ferow['date'] ?? null) ? substr($ferow['date'], 0, 10) : '';
+                // The ERA's date of service, as the rest of the posting uses; the encounter's if it has none.
+                $reversalDos = $service_date !== ''
+                    ? $service_date
+                    : (is_string($ferow['date'] ?? null) ? substr($ferow['date'], 0, 10) : '');
                 $reversalLevel = $reversal->reversedLevel(
                     $reversalPid,
                     $reversalEncounter,
@@ -504,7 +510,6 @@ function eob_process_era_callback(array &$out): void
         }
 
         // Simplify some claim attributes for cleaner code.
-        $service_date = parseDate($out['dos'] ?? $out['claim_date']);
         $check_date = $paydate ?: parseDate($out['check_date']);
         $production_date = $paydate ?: parseDate($out['production_date']);
         $insurance_id = SLEOB::arGetPayerID($pid, $service_date, substr($inslabel, 3));
