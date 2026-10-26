@@ -38,12 +38,14 @@ final class EraAdjustmentMemo
      */
     public static function forAdjustment(string $inslabel, bool $primary, string $reasonCode, float $amount): string
     {
+        // A missing code leaves no gap before the colon ("Ins1 ptresp: 160.00").
+        $code = $reasonCode === '' ? '' : " $reasonCode";
         $prefix = match (true) {
-            !$primary => "$inslabel note $reasonCode: ",
+            !$primary => "$inslabel note$code: ",
             $reasonCode === '1' => "$inslabel dedbl: ",
             $reasonCode === '2' => "$inslabel coins: ",
             $reasonCode === '3' => "$inslabel copay: ",
-            default => "$inslabel ptresp $reasonCode: ",
+            default => "$inslabel ptresp$code: ",
         };
         return $prefix . sprintf('%.2f', $amount);
     }

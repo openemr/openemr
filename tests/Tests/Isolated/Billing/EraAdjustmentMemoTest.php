@@ -36,7 +36,9 @@ final class EraAdjustmentMemoTest extends TestCase
             'copay' => [true, '3', 25.0, 'Ins1 copay: 25.00'],
             'benefit maximum keeps its code' => [true, '119', 160.0, 'Ins1 ptresp 119: 160.00'],
             'non-covered keeps its code' => [true, '96', 44.0, 'Ins1 ptresp 96: 44.00'],
+            'no code' => [true, '', 160.0, 'Ins1 ptresp: 160.00'],
             'secondary note' => [false, '119', 160.0, 'Ins1 note 119: 160.00'],
+            'secondary note without a code' => [false, '', 160.0, 'Ins1 note: 160.00'],
         ];
     }
 
@@ -45,6 +47,28 @@ final class EraAdjustmentMemoTest extends TestCase
     public function memoNamesOrCodesTheReason(bool $primary, string $code, float $amount, string $memo): void
     {
         $this->assertSame($memo, EraAdjustmentMemo::forAdjustment('Ins1', $primary, $code, $amount));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function patientResponsibilityCodeProvider(): array
+    {
+        return [
+            'with a code' => ['119'],
+            'without a code' => [''],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('patientResponsibilityCodeProvider')]
+    public function claimReadsEveryPtrespMemoThisBuilds(string $code): void
+    {
+        $memo = EraAdjustmentMemo::forAdjustment('Ins1', true, $code, 160.0);
+        $this->assertSame(1, preg_match(EraAdjustmentMemo::PATIENT_RESPONSIBILITY_PATTERN, $memo, $m), $memo);
+        $this->assertSame('160.00', $m[1]);
     }
 
     #[Test]
