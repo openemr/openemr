@@ -238,8 +238,9 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
      * otherwise the organization is.
      *
      * @param mixed $dataRecord
+     * @param bool $encode unused: FhirServiceBase declares it, and nothing passes it
      */
-    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|null
+    public function createProvenanceResource($dataRecord, $encode = false): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRServiceRequest)) {
             throw new \BadMethodCallException('Data record should be correct instance class');
@@ -247,14 +248,7 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
         $requester = $dataRecord->getRequester();
         $author = self::isReference($requester) ? $requester : null;
         $provenance = (new FhirProvenanceService())->createProvenanceForDomainResource($dataRecord, $author);
-        if (!($provenance instanceof FHIRProvenance)) {
-            return null;
-        }
-        if ($encode) {
-            $json = json_encode($provenance);
-            return is_string($json) ? $json : null;
-        }
-        return $provenance;
+        return $provenance instanceof FHIRProvenance ? $provenance : null;
     }
 
     private static function referralConcept(): FHIRCodeableConcept
