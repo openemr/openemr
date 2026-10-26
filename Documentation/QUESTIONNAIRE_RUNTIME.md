@@ -8,7 +8,7 @@ The list was read from the runtime's own code, including the lists it keeps of t
 
 | Element | Supported | Notes |
 |---|---|---|
-| `url`, `version` | Yes | Saved as the response's `questionnaire`, `url|version` |
+| `url`, `version` | Yes | Saved as the response's `questionnaire`, `url\|version` |
 | `title`, `name` | Yes | Form heading (`name` when there's no title); also labels the form's signature |
 | `description` | Yes | Shown under the heading (markdown), unless the host sets `showDescription: false` |
 | `copyright` | Yes | A copyright button on the heading, unless the host sets `showCopyright: false` |
