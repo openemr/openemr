@@ -55,6 +55,7 @@ class TokenLifetimeBoundaryApiTest extends TestCase
     private bool $originalPasswordGrantSettingWasSet = false;
     private ?string $originalPasswordGrantGlobalRow = null;
     private bool $passwordGrantGlobalRowWasInserted = false;
+    private bool $passwordGrantMutated = false;
 
     protected function setUp(): void
     {
@@ -78,6 +79,11 @@ class TokenLifetimeBoundaryApiTest extends TestCase
         // table; without the row-level write below, passwordGrant() could
         // receive a non-200 before any boundary assertion runs.
         $this->persistPasswordGrantGlobal();
+        // Mark that this setUp successfully captured + mutated state. If a
+        // guard above skipped, no capture happened and tearDown must not
+        // restore from the default/zero-value fields — otherwise it would
+        // clobber a setting the test did not change.
+        $this->passwordGrantMutated = true;
     }
 
     protected function tearDown(): void
@@ -98,6 +104,9 @@ class TokenLifetimeBoundaryApiTest extends TestCase
                 );
             }
         } finally {
+            if (!$this->passwordGrantMutated) {
+                return;
+            }
             try {
                 $this->restorePasswordGrantGlobal();
             } finally {
