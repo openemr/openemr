@@ -75,6 +75,23 @@ class ReferralStatusTest extends TestCase
         $this->assertTrue($status->overdue);
     }
 
+    public function testATransactionHasAStatusOnlyWhenItIsAReferral(): void
+    {
+        $asked = [];
+        $find = static function (int $transactionId) use (&$asked): ?array {
+            $asked[] = $transactionId;
+            return $transactionId === 7 ? ['task_status' => 'requested', 'reply_date' => null, 'refer_date' => '2026-10-10'] : null;
+        };
+        $today = new \DateTimeImmutable(self::TODAY);
+
+        $this->assertSame('Requested', ReferralStatus::ofTransaction(['id' => '7', 'title' => 'LBTref'], $find, $today, 14)?->label());
+        $this->assertNull(ReferralStatus::ofTransaction(['id' => '9', 'title' => 'LBTref'], $find, $today, 14), 'a referral not found');
+        $this->assertNull(ReferralStatus::ofTransaction(['id' => '8', 'title' => 'LBTptreq'], $find, $today, 14));
+        $this->assertNull(ReferralStatus::ofTransaction(['title' => 'LBTref'], $find, $today, 14));
+        $this->assertNull(ReferralStatus::ofTransaction(null, $find, $today, 14));
+        $this->assertSame([7, 9], $asked, 'only referrals are looked up');
+    }
+
     public function testTheOverdueDaysGlobalIsReadLeniently(): void
     {
         $bag = OEGlobalsBag::getInstance();

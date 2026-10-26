@@ -26,6 +26,13 @@ final readonly class ReferralStatus
     public const COMPLETED = 'completed';
     public const CLOSED = 'closed';
 
+    /**
+     * The Transactions form a referral is saved with: ReferralService::FORM_ID, repeated so that
+     * this class and the pages' pieces load without ReferralService, whose parent BaseService
+     * reads code_types from the database as its file loads.
+     */
+    public const FORM_ID = 'LBTref';
+
     /** Task statuses after which nothing more is expected of the recipient. */
     private const CLOSING_TASK_STATUSES = ['cancelled', 'entered-in-error'];
 
@@ -76,13 +83,15 @@ final readonly class ReferralStatus
     /**
      * For a transaction as getTransByPid() lists it: a referral's status, or null for any
      * other transaction type.
+     *
+     * @param \Closure(int): ?array<mixed> $findReferral a referral by its transaction id, as ReferralService::getReferral() finds it
      */
-    public static function ofTransaction(mixed $transaction, ReferralService $referrals, \DateTimeImmutable $today, int $overdueDays): ?self
+    public static function ofTransaction(mixed $transaction, \Closure $findReferral, \DateTimeImmutable $today, int $overdueDays): ?self
     {
-        if (!is_array($transaction) || ($transaction['title'] ?? null) !== ReferralService::FORM_ID || !is_numeric($transaction['id'] ?? null)) {
+        if (!is_array($transaction) || ($transaction['title'] ?? null) !== self::FORM_ID || !is_numeric($transaction['id'] ?? null)) {
             return null;
         }
-        $referral = $referrals->getReferral((int)$transaction['id']);
+        $referral = $findReferral((int)$transaction['id']);
         return $referral === null ? null : self::ofReferral($referral, $today, $overdueDays);
     }
 

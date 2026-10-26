@@ -24,7 +24,7 @@ use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\ReferralStatus;
+use OpenEMR\Services\ReferralDisplay;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Referrals", xl("Referrals"));
@@ -39,8 +39,8 @@ $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['for
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 $form_facility = $_POST['form_facility'] ?? '';
 // All referrals, the open ones, or the overdue ones (#14710).
-$formShow = CurrentRequest::get()->request->getString('form_show');
-$form_show = in_array($formShow, ['open', 'overdue'], true) ? $formShow : '';
+$form_show = ReferralDisplay::show(CurrentRequest::get()->request->getString('form_show'));
+$referralDisplay = new ReferralDisplay();
 ?>
 <html>
 <head>
@@ -140,16 +140,7 @@ $form_show = in_array($formShow, ['open', 'overdue'], true) ? $formShow : '';
                <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'
          class='datepicker form-control'>
             </td>
-            <td class='col-form-label'>
-                <?php echo xlt('Show'); ?>:
-            </td>
-            <td>
-                <select name='form_show' id='form_show' class='form-control'>
-                    <option value=''><?php echo xlt('All'); ?></option>
-                    <option value='open'<?php echo $form_show === 'open' ? ' selected' : ''; ?>><?php echo xlt('Open'); ?></option>
-                    <option value='overdue'<?php echo $form_show === 'overdue' ? ' selected' : ''; ?>><?php echo xlt('Overdue'); ?></option>
-                </select>
-            </td>
+            <?php echo $referralDisplay->showFilter($form_show); ?>
         </tr>
     </table>
 
@@ -221,37 +212,17 @@ if (!empty($_POST['form_refresh'])) {
         "d1.field_value >= ? AND d1.field_value <= ? " .
         "ORDER BY ut.organization, d1.field_value, t.id";
         $res = sqlStatement($query, [$form_from_date, $form_to_date]);
-        $today = new DateTimeImmutable('today');
-        $overdueDays = ReferralStatus::overdueDays();
 
         while ($row = sqlFetchArray($res)) {
-            $status = ReferralStatus::ofReferral($row, $today, $overdueDays);
-            if (($form_show === 'open' && !$status->isOpen()) || ($form_show === 'overdue' && !$status->overdue)) {
+            // Rows outside the Show choice or the facility (#14710).
+            if (!$referralDisplay->keeps($row, $form_show, $form_facility)) {
                 continue;
-            }
-            // If a facility is specified, ignore rows that do not match.
-            if ($form_facility !== '') {
-                if ($form_facility) {
-                    if ($row['facility_id'] != $form_facility) {
-                        continue;
-                    }
-                } else {
-                    if (!empty($row['facility_id'])) {
-                        continue;
-                    }
-                }
             }
 
             ?>
    <tr>
     <td>
-            <?php
-            if ($row['organization'] != null || $row['organization'] != '') {
-                echo text($row['organization']);
-            } else {
-                echo text($row['referer_to']);
-            }
-            ?>
+            <?php echo text(ReferralDisplay::referTo($row)); ?>
     </td>
     <td>
      <a href='#' onclick="return show_referral(<?php echo js_escape($row['id']); ?>)">
@@ -261,12 +232,7 @@ if (!empty($_POST['form_refresh'])) {
     <td>
             <?php echo text(oeFormatShortDate($row['reply_date'])) ?>
     </td>
-    <td>
-            <?php echo text($status->label()); ?>
-            <?php if ($status->overdue) { ?>
-                <span class="text-danger"><?php echo xlt('Overdue'); ?></span>
-            <?php } ?>
-    </td>
+            <?php echo $referralDisplay->reportCell($row); ?>
     <td>
             <?php echo text($row['patient_name']) ?>
     </td>

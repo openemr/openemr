@@ -213,11 +213,11 @@ class ReferralTaskFhirApiTest extends TestCase
                 $rows[(int)$row['id']] = $row;
             }
         }
-        $status = ReferralStatus::ofTransaction($rows[$referral] ?? null, new ReferralService(), $today, 14);
+        $status = ReferralStatus::ofTransaction($rows[$referral] ?? null, (new ReferralService())->getReferral(...), $today, 14);
         $this->assertNotNull($status);
         $this->assertSame('Rejected', $status->label());
         $this->assertTrue($status->overdue);
-        $this->assertNull(ReferralStatus::ofTransaction($rows[$other] ?? null, new ReferralService(), $today, 14));
+        $this->assertNull(ReferralStatus::ofTransaction($rows[$other] ?? null, (new ReferralService())->getReferral(...), $today, 14));
     }
 
     public function testSavingAReferralFillsInOnlyItsOwnMissingUuids(): void

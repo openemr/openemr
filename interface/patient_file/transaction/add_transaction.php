@@ -26,9 +26,9 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\Services\ReferralService;
-use OpenEMR\Services\ReferralStatus;
+use OpenEMR\Services\ReferralDisplay;
 use OpenEMR\Services\ReferralTaskService;
+use OpenEMR\Services\TransactionDisplay;
 
 
 /** @var string $date_init */
@@ -126,10 +126,7 @@ if ($mode) {
     }
 
     // The referral's FHIR Task, when the fhir_referral_tasks global is on (#14710).
-    if ($form_id === 'LBTref' && is_numeric($transid)) {
-        $authUserId = $session->get('authUserID');
-        (new ReferralTaskService())->createForReferral((int)$transid, is_numeric($authUserId) ? (int)$authUserId : null);
-    }
+    (new ReferralTaskService())->createForSavedTransaction($form_id, $transid, $session->get('authUserID'));
 
   // Set the AMC sent records flag
     if (!(empty($_POST['send_sum_flag']))) {
@@ -453,40 +450,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </a>
                     </div>
                 </div>
-                <?php
-                // Where a saved referral stands (#14710).
-                $referral = $form_id === 'LBTref' && is_numeric($transid) && $transid > 0 ? (new ReferralService(createMissingUuids: false))->getReferral((int)$transid) : null;
-                if ($referral !== null) {
-                    $referralStatus = ReferralStatus::ofReferral($referral, new DateTimeImmutable('today'), ReferralStatus::overdueDays());
-                    ?>
-                <div class="col-sm-12 mt-3" id="referral_status">
-                    <strong><?php echo xlt('Status'); ?>:</strong>
-                    <?php echo text($referralStatus->label()); ?>
-                    <?php if ($referralStatus->overdue) { ?>
-                        <span class="text-danger"><?php echo xlt('Overdue'); ?></span>
-                    <?php } ?>
-                </div>
-                <?php } ?>
+                <?php echo (new ReferralDisplay())->forTransactionPage($form_id, $transid); // Where a saved referral stands (#14710). ?>
                 <div class="col-sm-12 mt-3">
                     <fieldset>
                         <legend><?php echo xlt('Select Transaction Type'); ?></legend>
                         <div class="forms col-sm-7">
                             <label class="control-label" for="title"><?php echo xlt('Transaction Type'); ?>:</label>
-                            <?php
-                            $ttres = sqlStatement("SELECT grp_form_id, grp_title " .
-                              "FROM layout_group_properties WHERE " .
-                              "grp_form_id LIKE 'LBT%' AND grp_group_id = '' ORDER BY grp_seq, grp_title");
-                            echo "<select name='title' id='title' class='form-control' onchange='titleChanged()'>\n";
-                            while ($ttrow = sqlFetchArray($ttres)) {
-                                $thisid = $ttrow['grp_form_id'];
-                                echo "<option value='" . attr($thisid) . "'";
-                                if ($thisid == $form_id) {
-                                    echo ' selected';
-                                }
-                                echo ">" . text($ttrow['grp_title']) . "</option>\n";
-                            }
-                            echo "</select>\n";
-                            ?>
+                            <?php echo (new TransactionDisplay())->typeSelect(TransactionDisplay::types(), $form_id); ?>
                         </div>
                         <div class="forms col-sm-5">
                             <?php

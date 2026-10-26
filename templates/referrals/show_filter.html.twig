@@ -1,0 +1,11 @@
+{# The Referrals report's filter: all referrals, the open ones, or the overdue ones (#14710). #}
+<td class='col-form-label'>
+    {{ 'Show'|xlt }}:
+</td>
+<td>
+    <select name='form_show' id='form_show' class='form-control'>
+        <option value=''>{{ 'All'|xlt }}</option>
+        <option value='open'{{ show == 'open' ? ' selected' }}>{{ 'Open'|xlt }}</option>
+        <option value='overdue'{{ show == 'overdue' ? ' selected' }}>{{ 'Overdue'|xlt }}</option>
+    </select>
+</td>

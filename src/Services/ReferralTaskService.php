@@ -91,6 +91,20 @@ class ReferralTaskService
     }
 
     /**
+     * createForReferral() for whatever the Transactions screen just saved: nothing unless it
+     * is a referral, with its id and the signed-in user's as the screen has them.
+     *
+     * @return ?string the new Task's uuid
+     */
+    public function createForSavedTransaction(mixed $formId, mixed $transactionId, mixed $userId): ?string
+    {
+        if ($formId !== ReferralStatus::FORM_ID || !is_numeric($transactionId)) {
+            return null;
+        }
+        return $this->createForReferral((int)$transactionId, is_numeric($userId) ? (int)$userId : null);
+    }
+
+    /**
      * Gives the referral, its patient and the two people it names a uuid when they have none
      * (the Transactions screen and the address book save rows without one), row by row, so a
      * save doesn't fill in every row of those tables.
