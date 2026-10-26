@@ -232,7 +232,7 @@ if (!empty($_POST['form_refresh'])) {
     <td>
             <?php echo text(oeFormatShortDate($row['reply_date'])) ?>
     </td>
-            <?php echo $referralDisplay->reportCell($row); ?>
+            <?php echo $referralDisplay->reportCell($row); // nosemgrep: echoed-request -- the template escapes what it prints ?>
     <td>
             <?php echo text($row['patient_name']) ?>
     </td>

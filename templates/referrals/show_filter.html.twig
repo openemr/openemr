@@ -5,7 +5,7 @@
 <td>
     <select name='form_show' id='form_show' class='form-control'>
         <option value=''>{{ 'All'|xlt }}</option>
-        <option value='open'{{ show == 'open' ? ' selected' }}>{{ 'Open'|xlt }}</option>
-        <option value='overdue'{{ show == 'overdue' ? ' selected' }}>{{ 'Overdue'|xlt }}</option>
+        <option value='open'{% if show == 'open' %} selected{% endif %}>{{ 'Open'|xlt }}</option>
+        <option value='overdue'{% if show == 'overdue' %} selected{% endif %}>{{ 'Overdue'|xlt }}</option>
     </select>
 </td>

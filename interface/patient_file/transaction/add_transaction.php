@@ -450,13 +450,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </a>
                     </div>
                 </div>
-                <?php echo (new ReferralDisplay())->forTransactionPage($form_id, $transid); // Where a saved referral stands (#14710). ?>
+                <?php echo (new ReferralDisplay())->forTransactionPage($form_id, $transid); // nosemgrep: echoed-request -- the ids are only compared and cast, and the template escapes what it prints. Where a saved referral stands (#14710). ?>
                 <div class="col-sm-12 mt-3">
                     <fieldset>
                         <legend><?php echo xlt('Select Transaction Type'); ?></legend>
                         <div class="forms col-sm-7">
                             <label class="control-label" for="title"><?php echo xlt('Transaction Type'); ?>:</label>
-                            <?php echo (new TransactionDisplay())->typeSelect(TransactionDisplay::types(), $form_id); ?>
+                            <?php echo (new TransactionDisplay())->typeSelect(TransactionDisplay::types(), $form_id); // nosemgrep: echoed-request -- $form_id is only compared, and the template escapes what it prints ?>
                         </div>
                         <div class="forms col-sm-5">
                             <?php
