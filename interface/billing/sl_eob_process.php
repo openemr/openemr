@@ -534,6 +534,8 @@ function eob_process_era_callback(array &$out): void
             : $ferow['fname'] . ' ' . $ferow['lname'];
 
         $error = $inverror;
+        // Service lines the payer pended (CAS reason 133) on this claim.
+        $pendedLines = 0;
 
         // create array of cpts and mods for complex matching
         $codes_arr_keys = array_keys($codes);
@@ -699,6 +701,15 @@ function eob_process_era_callback(array &$out): void
             foreach ($svc['adj'] as $adj) {
                 $description = ($adj['reason_code'] ?? '') . ': ' .
                     BillingUtilities::CLAIM_ADJUSTMENT_REASON_CODES[$adj['reason_code'] ?? ''];
+                if (($adj['reason_code'] ?? '') === '133') {
+                    // 133: the disposition of this line is pending further review. It is not
+                    // the payer's answer, whatever group it comes with: post nothing for it and
+                    // leave the level open. The payer sends a reversal and correction once the
+                    // line is decided.
+                    ++$pendedLines;
+                    echo getMessageLine($bgcolor, 'infdetail', "$description (pended by the payer; not posted)");
+                    continue;
+                }
                 $isContractualWriteoff = $adj['group_code'] === 'CO'
                     && in_array($adj['reason_code'], ['45', '59'], true);
                 if ($adj['group_code'] === 'PR' || !$primary) {
@@ -796,6 +807,16 @@ function eob_process_era_callback(array &$out): void
             if (!$got_response) {
                 $insurance_done = false;
             }
+        }
+
+        // A pended line means the payer isn't done with the claim yet.
+        if ($pendedLines > 0) {
+            $insurance_done = false;
+            echo getMessageLine(
+                $bgcolor,
+                'errdetail',
+                "$inslabel left open: the payer pended $pendedLines line(s) (adjustment reason 133); wait for its final remittance"
+            );
         }
 
         // Cleanup: If all is well, mark Ins<x> done and check for secondary billing.
