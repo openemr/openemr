@@ -1,0 +1,95 @@
+# Enforces the legacy-directory policy (openemr/openemr#14764): interface/,
+# portal/ and library/ (including interface/modules/) are frozen, so a pull
+# request may not add PHP files there or add Smarty templates anywhere.
+#
+# A repository admin overrides the check by approving the pull request at
+# its current head commit (.github/actions/admin-approval). The
+# pull_request_review trigger re-runs the check when a review lands, so the
+# approval takes effect without a new push. That run adds a second check run
+# with the same name to the head commit: All Checks Passed counts only the
+# latest run per name, and rerun-stale-all-checks.yml reruns an aggregate
+# that already failed once this workflow goes green.
+#
+# Backports to rel-* branches skip the check: the change already passed it
+# on master. The job is skipped rather than absent, so All Checks Passed
+# still sees a passing check run.
+name: Legacy Directories
+
+on:
+  pull_request:
+    branches:
+    - master
+    - rel-*
+  pull_request_review:
+    types: [submitted, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+# The latest event on a pull request decides, so a review cancels a run
+# still evaluating the previous state.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  new-files:
+    name: No new legacy files
+    if: github.event.pull_request.base.ref == 'master'
+    runs-on: ubuntu-24.04
+    steps:
+    # Both events check out the pull request's test merge commit, whose
+    # first parent is the base branch, so HEAD^1..HEAD is exactly the
+    # change the pull request would make. This works the same for forks.
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 2
+        persist-credentials: false
+
+    - name: Find files added to legacy locations
+      id: scan
+      continue-on-error: true
+      shell: bash
+      env:
+        REPORT: ${{ runner.temp }}/legacy-new-files.txt
+      run: .github/scripts/legacy-new-files.sh HEAD^1 HEAD | tee "${REPORT}"
+
+    - name: Check for an admin approval
+      id: approval
+      if: steps.scan.outcome == 'failure'
+      uses: ./.github/actions/admin-approval
+      with:
+        pr-number: ${{ github.event.pull_request.number }}
+        head-sha: ${{ github.event.pull_request.head.sha }}
+
+    # Repeat the report here: this is the step that fails, and its log is
+    # what `gh run view --log-failed` shows.
+    - name: Enforce the legacy-directory policy
+      if: steps.scan.outcome == 'failure'
+      shell: bash
+      env:
+        REPORT: ${{ runner.temp }}/legacy-new-files.txt
+        APPROVED: ${{ steps.approval.outputs.approved }}
+        APPROVER: ${{ steps.approval.outputs.approver }}
+      run: |
+        if [[ ${APPROVED} = true ]]; then
+          printf '::notice::%s approved this pull request as a repository admin, which overrides the legacy-directory check.\n' "${APPROVER}"
+          {
+            printf '## Legacy directories: overridden\n\n'
+            printf '%s approved this pull request as a repository admin.\n\n' "${APPROVER}"
+            printf '```\n'
+            cat "${REPORT}"
+            printf '```\n'
+          } >> "${GITHUB_STEP_SUMMARY}"
+          exit 0
+        fi
+        cat "${REPORT}"
+        printf '\nA repository admin can override this check by approving the pull request.\n'
+        {
+          printf '## Legacy directories: new files are not allowed\n\n'
+          printf '```\n'
+          cat "${REPORT}"
+          printf '```\n'
+        } >> "${GITHUB_STEP_SUMMARY}"
+        exit 1
