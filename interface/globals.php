@@ -24,6 +24,8 @@ use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\ErrorHandler;
+use OpenEMR\Core\ErrorHandlingMode;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
@@ -85,16 +87,15 @@ $logger = ServiceContainer::getLogger();
 
 // Set up exception handling: ensure that any uncaught exceptions have some
 // guaranteed way of reaching the logs, regardless of other settings.
-$handler = new \OpenEMR\Core\ErrorHandler(
+$handler = new ErrorHandler(
     logger: $logger,
     rf: ServiceContainer::getResponseFactory(),
     sf: ServiceContainer::getStreamFactory(),
+    errorMode: ErrorHandlingMode::Log,
     shouldDisplayErrors: ($_ENV['OPENEMR__ENVIRONMENT'] ?? null) === 'dev',
 );
 $handler->installExceptionHandler();
-// Note: installErrorHandler() is intentionally NOT called, too much would
-// break today. As we gain confidence in error handling, we can call it with
-// a high-severity level and incrementally move it to cover more.
+$handler->installErrorHandler();
 
 
 // Throw error if the php openssl module is not installed.
