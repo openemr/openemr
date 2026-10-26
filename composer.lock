@@ -425,16 +425,16 @@
         },
         {
             "name": "claimrevolution/oe-module-claimrev-connect",
-            "version": "v2.2.0",
+            "version": "v2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/claimrevolution/oe-module-claimrev-connect.git",
-                "reference": "b57c4d33dc41fdb44899744fb961cf7832ef2fce"
+                "reference": "718549952fb6b970cbfcfdc7f30723dc19991b1f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/claimrevolution/oe-module-claimrev-connect/zipball/b57c4d33dc41fdb44899744fb961cf7832ef2fce",
-                "reference": "b57c4d33dc41fdb44899744fb961cf7832ef2fce",
+                "url": "https://api.github.com/repos/claimrevolution/oe-module-claimrev-connect/zipball/718549952fb6b970cbfcfdc7f30723dc19991b1f",
+                "reference": "718549952fb6b970cbfcfdc7f30723dc19991b1f",
                 "shasum": ""
             },
             "require": {
@@ -474,9 +474,9 @@
             ],
             "support": {
                 "issues": "https://github.com/claimrevolution/oe-module-claimrev-connect/issues",
-                "source": "https://github.com/claimrevolution/oe-module-claimrev-connect/tree/v2.2.0"
+                "source": "https://github.com/claimrevolution/oe-module-claimrev-connect/tree/v2.2.1"
             },
-            "time": "2026-10-12T14:34:32+00:00"
+            "time": "2026-10-20T21:32:59+00:00"
         },
         {
             "name": "clue/stream-filter",
@@ -2490,16 +2490,16 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.16.0",
+            "version": "7.16.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "ffb62ec787050ae4fa9449cdd6b80335db69bda2"
+                "reference": "81755d989b3007ca7f88a069857553cd08e7dc2e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/ffb62ec787050ae4fa9449cdd6b80335db69bda2",
-                "reference": "ffb62ec787050ae4fa9449cdd6b80335db69bda2",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/81755d989b3007ca7f88a069857553cd08e7dc2e",
+                "reference": "81755d989b3007ca7f88a069857553cd08e7dc2e",
                 "shasum": ""
             },
             "require": {
@@ -2598,7 +2598,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.16.0"
+                "source": "https://github.com/guzzle/guzzle/tree/7.16.1"
             },
             "funding": [
                 {
@@ -2614,7 +2614,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-18T13:38:36+00:00"
+            "time": "2026-10-25T21:35:21+00:00"
         },
         {
             "name": "guzzlehttp/promises",
