@@ -29,45 +29,56 @@ use OpenEMR\Common\Database\QueryUtils;
 final readonly class EraReversal
 {
     /**
-     * @param string $payerId the insurance company the ERA is posted for (InsId)
+     * @param string $payerId the insurance company the ERA is posted for (InsId);
+     *                        '' when the ERA was opened from EOB Posting - Search,
+     *                        which doesn't ask for one
      */
     public function __construct(private string $payerId)
     {
     }
 
     /**
-     * The insurance level (1-3) at which the ERA's payer covers the claim on its
-     * date of service, or 0. A reversal's claim status (22) doesn't say which
-     * level it reverses, so the payer decides.
+     * The insurance level (1-3) the reversal is for, or 0 when it can't be told.
+     * A reversal's claim status (22) doesn't say which level it reverses.
+     * - With a payer chosen: the level at which that payer covers the claim on
+     *   its date of service.
+     * - Without one: the level of the payment being reversed, found by the
+     *   payer's claim number (CLP07) that ERA posting stores on its rows; or,
+     *   if the patient had one insurance on the date of service, that one.
      */
-    public function payerLevel(int $pid, string $dateOfService): int
+    public function reversedLevel(int $pid, int $encounter, string $dateOfService, string $payerClaimNumber): int
     {
-        foreach ([1 => 'primary', 2 => 'secondary', 3 => 'tertiary'] as $level => $type) {
-            $provider = QueryUtils::fetchSingleValue(
-                'SELECT provider FROM insurance_data WHERE pid = ? AND type = ? '
-                . 'AND (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY date DESC LIMIT 1',
-                'provider',
-                [$pid, $type, $dateOfService, $dateOfService]
+        $providers = $this->providers($pid, $dateOfService);
+        if ($this->payerId !== '') {
+            $level = array_search($this->payerId, $providers, true);
+            return is_int($level) ? $level : 0;
+        }
+        if ($payerClaimNumber !== '') {
+            $levels = QueryUtils::fetchTableColumn(
+                'SELECT DISTINCT payer_type FROM ar_activity WHERE pid = ? AND encounter = ? '
+                . 'AND payer_claim_number = ? AND payer_type > 0 AND deleted IS NULL',
+                'payer_type',
+                [$pid, $encounter, $payerClaimNumber]
             );
-            if (is_scalar($provider) && (string) $provider === $this->payerId) {
-                return $level;
+            if (count($levels) === 1 && is_numeric($levels[0])) {
+                return (int) $levels[0];
             }
         }
-        return 0;
+        return count($providers) === 1 && isset($providers[1]) ? 1 : 0;
     }
 
     /**
      * Re-open $level for the encounter if it is closed and this check posted
      * nothing for the claim at that level (no corrected payment).
      *
-     * @param int    $level       from payerLevel()
+     * @param int    $level       from reversedLevel()
      * @param string $checkNumber the reversal's check (TRN02)
      * @param string $checkDate   its date, yyyymmdd (BPR16), or ''
      */
     public function reopenLevel(int $pid, int $encounter, int $level, string $checkNumber, string $checkDate): EraReversalOutcome
     {
         if ($level === 0) {
-            return EraReversalOutcome::PayerNotOnClaim;
+            return $this->payerId === '' ? EraReversalOutcome::LevelUnknown : EraReversalOutcome::PayerNotOnClaim;
         }
         $closed = QueryUtils::fetchSingleValue(
             'SELECT last_level_closed FROM form_encounter WHERE pid = ? AND encounter = ?',
@@ -88,8 +99,35 @@ final readonly class EraReversal
     }
 
     /**
+     * The insurance companies covering the patient on the date of service, by
+     * level, as SLEOB::arGetPayerID() finds them (the newest policy of each type
+     * in effect). Levels stop at the first one with no insurance.
+     *
+     * @return array<int, string>
+     */
+    private function providers(int $pid, string $dateOfService): array
+    {
+        $providers = [];
+        foreach ([1 => 'primary', 2 => 'secondary', 3 => 'tertiary'] as $level => $type) {
+            $provider = QueryUtils::fetchSingleValue(
+                'SELECT provider FROM insurance_data WHERE pid = ? AND type = ? '
+                . 'AND (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY date DESC LIMIT 1',
+                'provider',
+                [$pid, $type, $dateOfService, $dateOfService]
+            );
+            if (!is_scalar($provider) || in_array((string) $provider, ['', '0'], true)) {
+                break;
+            }
+            $providers[$level] = (string) $provider;
+        }
+        return $providers;
+    }
+
+    /**
      * Whether this check posted anything (payments, adjustments or notes) for
-     * the claim at this level: the corrected half of a correction.
+     * the claim at this level: the corrected half of a correction. Without a
+     * payer chosen the check's sessions have none either, so the payer isn't
+     * compared.
      */
     private function postedFromCheck(int $pid, int $encounter, int $level, string $checkNumber, string $checkDate): bool
     {
@@ -97,9 +135,9 @@ final readonly class EraReversal
         $count = QueryUtils::fetchSingleValue(
             "SELECT COUNT(*) AS n FROM ar_activity AS a JOIN ar_session AS s ON s.session_id = a.session_id "
             . "WHERE a.pid = ? AND a.encounter = ? AND a.payer_type = ? AND a.deleted IS NULL "
-            . "AND s.reference IN (?, ?) AND s.payer_id = ? AND (? = '' OR s.check_date = ?)",
+            . "AND s.reference IN (?, ?) AND (? = '' OR s.payer_id = ?) AND (? = '' OR s.check_date = ?)",
             'n',
-            [$pid, $encounter, $level, $bare, $era, $this->payerId, $checkDate, $checkDate]
+            [$pid, $encounter, $level, $bare, $era, $this->payerId, $this->payerId, $checkDate, $checkDate]
         );
         return is_numeric($count) && (int) $count > 0;
     }

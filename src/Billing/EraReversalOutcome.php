@@ -24,4 +24,6 @@ enum EraReversalOutcome
     case AlreadyOpen;
     /** The ERA's payer is not one of the claim's insurances on the date of service. */
     case PayerNotOnClaim;
+    /** No payer chosen, and neither the reversed payment nor the coverage tells the level. */
+    case LevelUnknown;
 }

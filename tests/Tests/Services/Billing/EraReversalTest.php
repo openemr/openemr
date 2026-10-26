@@ -52,12 +52,54 @@ class EraReversalTest extends TestCase
         $this->cleanUp();
     }
 
-    public function testTheLevelIsTheErasPayersLevel(): void
+    public function testWithAPayerChosenTheLevelIsThatPayersLevel(): void
     {
-        $this->assertSame(1, (new EraReversal(self::PRIMARY))->payerLevel(self::PID, self::DOS));
-        $this->assertSame(2, (new EraReversal(self::SECONDARY))->payerLevel(self::PID, self::DOS));
-        $this->assertSame(0, (new EraReversal('99990339'))->payerLevel(self::PID, self::DOS));
-        $this->assertSame(0, (new EraReversal(self::PRIMARY))->payerLevel(self::PID, '2025-12-31'), 'Not in effect before the policy starts');
+        $this->assertSame(1, $this->level(self::PRIMARY));
+        $this->assertSame(2, $this->level(self::SECONDARY));
+        $this->assertSame(0, $this->level('99990339'), 'A payer not on the claim');
+        $this->assertSame(
+            0,
+            (new EraReversal(self::PRIMARY))->reversedLevel(self::PID, self::ENC, '2025-12-31', ''),
+            'Not in effect before the policy starts'
+        );
+    }
+
+    public function testWithoutAPayerTheReversedPaymentGivesTheLevel(): void
+    {
+        // EOB Posting - Search opens the ERA without choosing a payer (no InsId).
+        $this->postFromCheck('0', 2, '30.00', 'ORIGCHK', 'ICNSEC1');
+        $this->setClosedLevel(2);
+
+        $level = (new EraReversal(''))->reversedLevel(self::PID, self::ENC, self::DOS, 'ICNSEC1');
+        $this->assertSame(2, $level);
+        $this->assertSame(EraReversalOutcome::Reopened, (new EraReversal(''))->reopenLevel(self::PID, self::ENC, $level, self::CHECK, self::CHECK_DATE));
+        $this->assertSame(1, $this->closedLevel());
+    }
+
+    public function testWithoutAPayerOneInsuranceGivesLevelOne(): void
+    {
+        QueryUtils::sqlStatementThrowException("DELETE FROM insurance_data WHERE pid = ? AND type = 'secondary'", [self::PID]);
+
+        $this->assertSame(1, (new EraReversal(''))->reversedLevel(self::PID, self::ENC, self::DOS, 'NOMATCH'));
+    }
+
+    public function testWithoutAPayerOrAClueTheLevelIsUnknown(): void
+    {
+        $reversal = new EraReversal('');
+        $level = $reversal->reversedLevel(self::PID, self::ENC, self::DOS, 'NOMATCH');
+
+        $this->assertSame(0, $level);
+        $this->assertSame(EraReversalOutcome::LevelUnknown, $reversal->reopenLevel(self::PID, self::ENC, $level, self::CHECK, self::CHECK_DATE));
+        $this->assertSame(1, $this->closedLevel());
+    }
+
+    public function testWithoutAPayerACorrectionFromTheSameCheckStillCounts(): void
+    {
+        // Sessions created without a payer chosen have payer_id 0.
+        $this->postFromCheck('0', 1, '80.00');
+
+        $this->assertSame(EraReversalOutcome::CorrectionPosted, (new EraReversal(''))->reopenLevel(self::PID, self::ENC, 1, self::CHECK, self::CHECK_DATE));
+        $this->assertSame(1, $this->closedLevel());
     }
 
     public function testAReversalAloneReopensTheLevel(): void
@@ -117,8 +159,13 @@ class EraReversalTest extends TestCase
 
     public function testAPayerNotOnTheClaimChangesNothing(): void
     {
-        $this->assertSame(EraReversalOutcome::PayerNotOnClaim, $this->reverse('99990339', 0));
+        $this->assertSame(EraReversalOutcome::PayerNotOnClaim, $this->reverse('99990339', $this->level('99990339')));
         $this->assertSame(1, $this->closedLevel());
+    }
+
+    private function level(string $payer): int
+    {
+        return (new EraReversal($payer))->reversedLevel(self::PID, self::ENC, self::DOS, '');
     }
 
     private function reverse(string $payer, int $level): EraReversalOutcome
@@ -130,7 +177,7 @@ class EraReversalTest extends TestCase
      * What ERA posting writes for a claim paid from a check: a session for the
      * check and the claim's lines under it.
      */
-    private function postFromCheck(string $payer, int $level, string $paid, string $check = self::CHECK): void
+    private function postFromCheck(string $payer, int $level, string $paid, string $check = self::CHECK, ?string $payerClaimNumber = null): void
     {
         $session = QueryUtils::sqlInsert(
             'INSERT INTO ar_session (payer_id, user_id, reference, check_date, deposit_date, pay_total, modified_time,'
@@ -140,9 +187,9 @@ class EraReversalTest extends TestCase
         );
         QueryUtils::sqlInsert(
             'INSERT INTO ar_activity (pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, post_user,'
-            . " session_id, memo, pay_amount, adj_amount, modified_time, follow_up, account_code)"
-            . " VALUES (?, ?, 1, 'CPT4', '99213', '', ?, NOW(), 1, ?, 'Ins1 dedbl: 20.00', ?, 0, NOW(), '', 'IPP')",
-            [self::PID, self::ENC, $level, $session, $paid]
+            . " session_id, memo, pay_amount, adj_amount, modified_time, follow_up, account_code, payer_claim_number)"
+            . " VALUES (?, ?, 1, 'CPT4', '99213', '', ?, NOW(), 1, ?, 'Ins1 dedbl: 20.00', ?, 0, NOW(), '', 'IPP', ?)",
+            [self::PID, self::ENC, $level, $session, $paid, $payerClaimNumber]
         );
     }
 
