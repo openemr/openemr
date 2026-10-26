@@ -18,7 +18,6 @@ require_once($srcdir . "/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -26,6 +25,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\Services\Immunization\ImmunizationFormSaver;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Immunizations", xl("Immunizations"));
@@ -60,97 +60,11 @@ if (isset($_GET['mode'])) {
      */
 
     if ($_GET['mode'] == "add") {
-        // The form posts an empty id for a new immunization, and the row's id
-        // when one is being edited. An edit updates that row in place: a
-        // REPLACE INTO deletes and re-inserts it, which drops the columns this
-        // statement does not name (added_erroneously, external_id) and resets
-        // the ones it always sets (created_by, create_date).
-        $immunizationId = (int) trim((string) ($_GET['id'] ?? ''));
-
-        // Columns written from the form in both cases. The if(?,?,NULL) wrappers
-        // are kept exactly as they were, so stored values do not change: MySQL
-        // reads the condition as a number, so it stores NULL unless the value
-        // starts with a nonzero digit.
-        $formColumns = "administered_date = if(?,?,NULL),
-            immunization_id = ?,
-            cvx_code = ?,
-            manufacturer = ?,
-            lot_number = ?,
-            administered_by_id = if(?,?,NULL),
-            administered_by = if(?,?,NULL),
-            education_date = if(?,?,NULL),
-            vis_date = if(?,?,NULL),
-            note = ?,
-            amount_administered = ?,
-            amount_administered_unit = ?,
-            expiration_date = if(?,?,NULL),
-            route = ?,
-            administration_site = ?,
-            completion_status = ?,
-            information_source = ?,
-            refusal_reason = ?,
-            reason_code = ?,
-            reason_description = ?,
-            ordering_provider = ?,
-            encounter_id = ?";
-        $formBindArray = [
-            trim((string) $_GET['administered_date']), trim((string) $_GET['administered_date']),
-            trim($_GET['form_immunization_id'] ?? ''),
-            trim((string) $_GET['cvx_code']),
-            trim((string) $_GET['manufacturer']),
-            trim($_GET['lot_number'] ?? ''),
-            trim((string) $_GET['administered_by_id']), trim((string) $_GET['administered_by_id']),
-            trim((string) $_GET['administered_by']), trim((string) $_GET['administered_by']),
-            trim((string) $_GET['education_date']), trim((string) $_GET['education_date']),
-            trim((string) $_GET['vis_date']), trim((string) $_GET['vis_date']),
-            trim((string) $_GET['note']),
-            trim((string) $_GET['immuniz_amt_adminstrd']),
-            trim((string) $_GET['form_drug_units']),
-            trim((string) $_GET['immuniz_exp_date']), trim((string) $_GET['immuniz_exp_date']),
-            trim((string) $_GET['immuniz_route']),
-            trim((string) $_GET['immuniz_admin_ste']),
-            trim((string) $_GET['immuniz_completion_status']),
-            trim((string) $_GET['immunization_informationsource']),
-            trim((string) $_GET['immunization_refusal_reason']),
-            trim((string) $_GET['reason_code']),
-            trim($_GET['reason_description'] ?? ''),
-            trim((string) $_GET['ordered_by_id']),
-            trim((string) $_GET['encounter_id'])
-        ];
-
-        if ($immunizationId > 0) {
-            // Refuse an id that is not this patient's, the same way the edit
-            // screen does, so the observation results below are never written
-            // against an immunization that does not exist. Affected rows will
-            // not do here: MySQL reports none when a save changes nothing.
-            $owned = QueryUtils::fetchSingleValue(
-                "SELECT id FROM immunizations WHERE id = ? AND patient_id = ?",
-                'id',
-                [$immunizationId, $pid]
-            );
-            if ($owned === null) {
-                AccessDeniedHelper::denyWithTemplate("Immunization not found for current patient", xl("Immunizations"));
-            }
-            // The uuid is left alone: it identifies this immunization outside
-            // OpenEMR, so an edit must not change or clear it.
-            $sql = "UPDATE immunizations SET " . $formColumns . ", updated_by = ? WHERE id = ? AND patient_id = ?";
-            $sqlBindArray = [...$formBindArray, $session->get('authUserID'), $immunizationId, $pid];
-            QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
-            $newid = $immunizationId;
-        } else {
-            $sql = "INSERT INTO immunizations SET uuid = ?, " . $formColumns . ",
-                patient_id = ?,
-                created_by = ?,
-                updated_by = ?,
-                create_date = now()";
-            $sqlBindArray = [
-                UuidRegistry::isValidStringUUID($_GET['uuid']) ? UuidRegistry::uuidToBytes($_GET['uuid']) : null,
-                ...$formBindArray,
-                $pid,
-                $session->get('authUserID'),
-                $session->get('authUserID')
-            ];
-            $newid = sqlInsert($sql, $sqlBindArray);
+        // An edit updates the immunization's row in place and a new one is
+        // inserted; an id that is not this patient's writes nothing.
+        $newid = (new ImmunizationFormSaver())->save($_GET, $pid, $session->get('authUserID'));
+        if ($newid === null) {
+            AccessDeniedHelper::denyWithTemplate("Immunization not found for current patient", xl("Immunizations"));
         }
         $administered_date = date('Y-m-d H:i');
         $education_date = date('Y-m-d');
