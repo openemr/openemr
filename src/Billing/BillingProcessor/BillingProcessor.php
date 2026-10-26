@@ -42,6 +42,7 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -126,6 +127,9 @@ class BillingProcessor
         return $claims;
     }
 
+    /**
+     * @param array<BillingClaim> $claims from prepareClaims()
+     */
     protected function processClaims(ProcessingTaskInterface $processingTask, array $claims)
     {
         // Call setup on our processing task. If the task is a file-generator,
@@ -135,11 +139,20 @@ class BillingProcessor
             'post' => $this->post
         ]);
 
-        // Go through each claim and process it while organizing them into batches
-        foreach ($claims as $claim) {
-            // Call the execute method on the task we created below based on user input
-            // If the task is generating a file, one of the Generator* file's execute methods is called
-            $processingTask->execute($claim);
+        // Go through each claim and process it while organizing them into batches.
+        // Each claim's statements are audited against its own patient, not the
+        // chart open in the session.
+        $auditLogger = EventAuditLogger::getInstance();
+        try {
+            foreach ($claims as $claim) {
+                $pid = $claim->getPid();
+                $auditLogger->setRequestPatientId(ctype_digit($pid) && (int) $pid > 0 ? (int) $pid : null);
+                // Call the execute method on the task we created below based on user input
+                // If the task is generating a file, one of the Generator* file's execute methods is called
+                $processingTask->execute($claim);
+            }
+        } finally {
+            $auditLogger->setRequestPatientId(null);
         }
 
         // Call the task's complete method so it can produce it's output
