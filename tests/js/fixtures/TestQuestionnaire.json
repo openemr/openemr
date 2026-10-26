@@ -1,84 +1,86 @@
 {
-  "resourceType": "Questionnaire",
-  "title": "Test Questionnaire for OpenEMR FHIR Questionnaire Runtime",
-  "description": "Test Questionnaire for OpenEMR FHIR Questionnaire Runtime",
-  "status": "active",
-  "meta": {
-    "profile": [
-      "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire"
-    ]
-  },
-  "contained": [
-    {
-      "id": "sampleValueSet",
-      "resourceType": "ValueSet",
-      "status": "active",
-      "expansion": {
-        "contains": [
-          {
-            "display": "One",
-            "extension": [
-              {
-                "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
-                "valueDecimal": 1
-              }
-            ]
-          },
-          { "display": "Two",
-            "extension": [
-              {
-                "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
-                "valueDecimal": 2
-              }
-            ]
-          },
-          { "display": "Three",
-            "extension": [
-              {
-                "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
-                "valueDecimal": 3
-              }
-            ]
-          }
+    "resourceType": "Questionnaire",
+    "title": "Test Questionnaire for OpenEMR FHIR Questionnaire Runtime",
+    "description": "Test Questionnaire for OpenEMR FHIR Questionnaire Runtime",
+    "status": "active",
+    "meta": {
+        "profile": [
+            "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire"
         ]
-      }
-    }
-  ],
-  "item": [
-    {
-      "linkId": "groupWithRepeat",
-      "text": "Group (repeats=true)",
-      "type": "group",
-      "repeats": true,
-      "item": [
+    },
+    "contained": [
         {
-          "linkId": "zipCodeQuestion",
-          "text": "Zip code? (entryFormat, regex)",
-          "type": "text",
-          "extension": [
-            {
-              "url": "http://hl7.org/fhir/StructureDefinition/entryFormat",
-              "valueString": "Example: 12345"
-            },
-            {
-              "url": "http://hl7.org/fhir/StructureDefinition/regex",
-              "valueString": "^[0-9]{5}$"
+            "id": "sampleValueSet",
+            "resourceType": "ValueSet",
+            "status": "active",
+            "expansion": {
+                "contains": [
+                    {
+                        "display": "One",
+                        "extension": [
+                            {
+                                "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                "valueDecimal": 1
+                            }
+                        ]
+                    },
+                    {
+                        "display": "Two",
+                        "extension": [
+                            {
+                                "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                "valueDecimal": 2
+                            }
+                        ]
+                    },
+                    {
+                        "display": "Three",
+                        "extension": [
+                            {
+                                "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                "valueDecimal": 3
+                            }
+                        ]
+                    }
+                ]
             }
-          ]
+        }
+    ],
+    "item": [
+        {
+            "linkId": "groupWithRepeat",
+            "text": "Group (repeats=true)",
+            "type": "group",
+            "repeats": true,
+            "item": [
+                {
+                    "linkId": "zipCodeQuestion",
+                    "text": "Zip code? (entryFormat, regex)",
+                    "type": "text",
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/entryFormat",
+                            "valueString": "Example: 12345"
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/regex",
+                            "valueString": "^[0-9]{5}$"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "integerQuestion",
+                    "text": "Favorite integer? (answerValueSet, ordinalValue)",
+                    "type": "choice",
+                    "answerValueSet": "#sampleValueSet"
+                }
+            ]
         },
         {
-          "linkId": "integerQuestion",
-          "text": "Favorite integer? (answerValueSet, ordinalValue)",
-          "type": "choice",
-          "answerValueSet": "#sampleValueSet"
+            "linkId": "displayWithPrefix",
+            "text": "<- Prefix should be there",
+            "prefix": "Prefix",
+            "type": "display"
         }
-      ]
-    },
-    {
-      "linkId": "displayWithPrefix",
-      "text": "<- Prefix should be there",
-      "prefix": "Prefix",
-      "type": "display"
-    }
-  ]
+    ]
 }
