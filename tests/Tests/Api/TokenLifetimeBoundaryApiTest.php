@@ -53,6 +53,8 @@ class TokenLifetimeBoundaryApiTest extends TestCase
     private array $registeredClientIds = [];
     private mixed $originalPasswordGrantSetting = null;
     private bool $originalPasswordGrantSettingWasSet = false;
+    private ?string $originalPasswordGrantGlobalRow = null;
+    private bool $passwordGrantGlobalRowWasInserted = false;
 
     protected function setUp(): void
     {
@@ -71,29 +73,78 @@ class TokenLifetimeBoundaryApiTest extends TestCase
         $this->originalPasswordGrantSettingWasSet = $globals->has('oauth_password_grant');
         $this->originalPasswordGrantSetting = $globals->get('oauth_password_grant');
         $globals->set('oauth_password_grant', 3);
+        // OEGlobalsBag::set only mutates this PHPUnit process. The HTTP client
+        // hits apache which reads oauth_password_grant from the `globals` DB
+        // table; without the row-level write below, passwordGrant() could
+        // receive a non-200 before any boundary assertion runs.
+        $this->persistPasswordGrantGlobal();
     }
 
     protected function tearDown(): void
     {
-        $globals = OEGlobalsBag::getInstance();
-        if ($this->originalPasswordGrantSettingWasSet) {
-            $globals->set('oauth_password_grant', $this->originalPasswordGrantSetting);
-        } else {
-            $globals->remove('oauth_password_grant');
-            unset($GLOBALS['oauth_password_grant']);
+        try {
+            foreach ($this->registeredClientIds as $clientId) {
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM `oauth_trusted_user` WHERE `client_id` = ?',
+                    [$clientId]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM `api_token` WHERE `client_id` = ?',
+                    [$clientId]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
+                    [$clientId]
+                );
+            }
+        } finally {
+            try {
+                $this->restorePasswordGrantGlobal();
+            } finally {
+                $globals = OEGlobalsBag::getInstance();
+                if ($this->originalPasswordGrantSettingWasSet) {
+                    $globals->set('oauth_password_grant', $this->originalPasswordGrantSetting);
+                } else {
+                    $globals->remove('oauth_password_grant');
+                    unset($GLOBALS['oauth_password_grant']);
+                }
+            }
         }
-        foreach ($this->registeredClientIds as $clientId) {
+    }
+
+    private function persistPasswordGrantGlobal(): void
+    {
+        $current = QueryUtils::querySingleRow(
+            'SELECT gl_value FROM `globals` WHERE gl_name = ?',
+            ['oauth_password_grant']
+        );
+        if (is_array($current)) {
+            $glValue = $current['gl_value'] ?? null;
+            $this->originalPasswordGrantGlobalRow = is_string($glValue) ? $glValue : null;
             QueryUtils::sqlStatementThrowException(
-                'DELETE FROM `oauth_trusted_user` WHERE `client_id` = ?',
-                [$clientId]
+                'UPDATE `globals` SET gl_value = ? WHERE gl_name = ?',
+                ['3', 'oauth_password_grant']
             );
+        } else {
             QueryUtils::sqlStatementThrowException(
-                'DELETE FROM `api_token` WHERE `client_id` = ?',
-                [$clientId]
+                'INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES (?, 0, ?)',
+                ['oauth_password_grant', '3']
             );
+            $this->passwordGrantGlobalRowWasInserted = true;
+        }
+    }
+
+    private function restorePasswordGrantGlobal(): void
+    {
+        if ($this->passwordGrantGlobalRowWasInserted) {
             QueryUtils::sqlStatementThrowException(
-                'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
-                [$clientId]
+                'DELETE FROM `globals` WHERE gl_name = ?',
+                ['oauth_password_grant']
+            );
+        } elseif ($this->originalPasswordGrantGlobalRow !== null) {
+            QueryUtils::sqlStatementThrowException(
+                'UPDATE `globals` SET gl_value = ? WHERE gl_name = ?',
+                [$this->originalPasswordGrantGlobalRow, 'oauth_password_grant']
             );
         }
     }
