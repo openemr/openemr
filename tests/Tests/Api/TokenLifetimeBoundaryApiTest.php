@@ -74,16 +74,16 @@ class TokenLifetimeBoundaryApiTest extends TestCase
         $this->originalPasswordGrantSettingWasSet = $globals->has('oauth_password_grant');
         $this->originalPasswordGrantSetting = $globals->get('oauth_password_grant');
         $globals->set('oauth_password_grant', 3);
+        // Mark the in-process mutation BEFORE the DB persist. If the DB write
+        // throws after this point, tearDown must still restore the OEGlobalsBag
+        // value `$globals->set` just changed; a late flag-set would leave the
+        // mutated value visible to later tests in the same process.
+        $this->passwordGrantMutated = true;
         // OEGlobalsBag::set only mutates this PHPUnit process. The HTTP client
         // hits apache which reads oauth_password_grant from the `globals` DB
         // table; without the row-level write below, passwordGrant() could
         // receive a non-200 before any boundary assertion runs.
         $this->persistPasswordGrantGlobal();
-        // Mark that this setUp successfully captured + mutated state. If a
-        // guard above skipped, no capture happened and tearDown must not
-        // restore from the default/zero-value fields — otherwise it would
-        // clobber a setting the test did not change.
-        $this->passwordGrantMutated = true;
     }
 
     protected function tearDown(): void
