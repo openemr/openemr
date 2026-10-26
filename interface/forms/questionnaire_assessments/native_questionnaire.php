@@ -194,7 +194,7 @@ $responseForJs = json_encode(
         data.append('csrf_token_form', csrfToken);
         data.append('questionnaire_id', String(questionnaireRecordId));
         data.append('response_id', responseId);
-        data.append('questionnaire_response', JSON.stringify(runtime.getQuestionnaireResponse()));
+        data.append('questionnaire_response', JSON.stringify(runtime.getQuestionnaireResponse({ complete: true })));
 
         try {
             top.restoreSession();
