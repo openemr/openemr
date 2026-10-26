@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Isolated tests for FormRegistry: whether a form counts as enabled, from its registry rows.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    anun333 <anun333@posteo.net>
