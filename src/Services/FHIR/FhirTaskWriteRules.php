@@ -371,7 +371,11 @@ final class FhirTaskWriteRules
         $coding = FhirPayloadReader::firstCoding($concept);
         $system = FhirPayloadReader::getString($coding, 'system');
         $code = FhirPayloadReader::getString($coding, 'code');
-        return $system !== null && $code !== null && in_array($code, self::CODES[$system] ?? [], true) ? [$system, $code] : null;
+        if ($system === null || $code === null) {
+            return null;
+        }
+        $allowedCodes = self::CODES[$system] ?? [];
+        return in_array($code, $allowedCodes, true) ? [$system, $code] : null;
     }
 
     /**
