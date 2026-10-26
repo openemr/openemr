@@ -15,11 +15,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\Billing;
 
+use OpenEMR\Billing\BillingProcessor\BillingLogger;
 use OpenEMR\Billing\BillingProcessor\BillingProcessor;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 
 class BillingProcessorAuditPatientTest extends TestCase
 {
@@ -28,8 +31,13 @@ class BillingProcessorAuditPatientTest extends TestCase
     private const CLAIM_PID = 99990042;
     private const CLAIM_ENCOUNTER = 99990142;
 
+    private const SESSION_KEYS = ['authUser', 'authUserID', 'pid'];
+
     /** @var array<string, mixed> */
     private array $savedGlobals = [];
+
+    /** @var array<string, mixed> */
+    private array $savedSession = [];
 
     protected function setUp(): void
     {
@@ -38,7 +46,13 @@ class BillingProcessorAuditPatientTest extends TestCase
             $this->savedGlobals[$name] = $globals->get($name);
             $globals->set($name, '1');
         }
+        self::resetAuditLogger();
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        foreach (self::SESSION_KEYS as $key) {
+            if ($session->has($key)) {
+                $this->savedSession[$key] = $session->get($key);
+            }
+        }
         $session->set('authUser', 'admin');
         $session->set('authUserID', QueryUtils::fetchSingleValue('SELECT id FROM users WHERE username = ?', 'id', ['admin']));
         $session->set('pid', self::OPEN_CHART_PID);
@@ -51,7 +65,15 @@ class BillingProcessorAuditPatientTest extends TestCase
         foreach ($this->savedGlobals as $name => $value) {
             OEGlobalsBag::getInstance()->set($name, $value);
         }
-        SessionWrapperFactory::getInstance()->getActiveSession()->remove('pid');
+        self::resetAuditLogger();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        foreach (self::SESSION_KEYS as $key) {
+            if (array_key_exists($key, $this->savedSession)) {
+                $session->set($key, $this->savedSession[$key]);
+            } else {
+                $session->remove($key);
+            }
+        }
     }
 
     public function testEachClaimIsAuditedAgainstItsOwnPatient(): void
@@ -81,6 +103,35 @@ class BillingProcessorAuditPatientTest extends TestCase
             [$after]
         );
         $this->assertSame((string) self::OPEN_CHART_PID, is_scalar($patient) ? (string) $patient : null);
+    }
+
+    public function testClaimWithoutAValidPatientIdIsSkipped(): void
+    {
+        $before = $this->lastLogId();
+
+        $logger = (new BillingProcessor([
+            'bn_mark' => '1',
+            'claims' => ['x' . self::CLAIM_PID . '-' . self::CLAIM_ENCOUNTER => ['bill' => '1', 'partner' => '-1', 'payer' => 'p0']],
+        ]))->execute();
+
+        $this->assertSame(
+            [],
+            QueryUtils::fetchTableColumn("SELECT patient_id FROM log WHERE id > ? AND event LIKE 'patient-record-%'", 'patient_id', [$before]),
+            'Nothing is logged against the open chart for it'
+        );
+        $this->assertInstanceOf(BillingLogger::class, $logger);
+        $messages = $logger->bill_info();
+        $this->assertIsArray($messages);
+        $this->assertContains('Skipped a claim with an invalid patient ID: x' . self::CLAIM_PID, $messages);
+    }
+
+    /**
+     * The logger reads the audit settings when it is created, so drop the
+     * cached one whenever the test changes them.
+     */
+    private static function resetAuditLogger(): void
+    {
+        (new ReflectionProperty(EventAuditLogger::class, 'instances'))->setValue(null, []);
     }
 
     private function lastLogId(): int

@@ -25677,11 +25677,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingProcessor.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$logger of method OpenEMR\\\\Billing\\\\BillingProcessor\\\\Tasks\\\\GeneratorExternal\\:\\:setLogger\\(\\) expects OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingLogger, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingProcessor.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$processingTask of method OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingProcessor\\:\\:processClaims\\(\\) expects OpenEMR\\\\Billing\\\\BillingProcessor\\\\ProcessingTaskInterface, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingProcessor.php',

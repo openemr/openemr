@@ -52,9 +52,8 @@ class BillingProcessor
     /**
      * Our logger instance that we use and also pass down
      * to the processing tasks
-     * @var mixed
      */
-    protected $logger;
+    protected BillingLogger $logger;
 
     /**
      * The following constants are the options for processing tasks, which are the actions
@@ -114,6 +113,13 @@ class BillingProcessor
                 // Since the format is cryptic, we use the BillingClaim constructor to parse that into meaningful
                 // attributes
                 $billingClaim = new BillingClaim($claimId, $partner_and_payor, $processing_task_action);
+                // A claim without a valid patient ID can't be audited against its
+                // patient, and isn't one the billing page lists, so don't process it.
+                $pid = $billingClaim->getPid();
+                if (!ctype_digit($pid) || (int) $pid < 1) {
+                    $this->logger->printToScreen(xl('Skipped a claim with an invalid patient ID') . ': ' . $pid);
+                    continue;
+                }
                 if (($billingClaim->getPartner() == -1) && $bn_x12) {
                     // If the x-12 partner is unassigned, don't process it.
                     $this->logger->printToScreen(xl("No X-12 partner assigned for claim " . $billingClaim->getId()));
