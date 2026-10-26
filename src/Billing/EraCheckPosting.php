@@ -26,6 +26,9 @@ final class EraCheckPosting
     /** @var array<string, true> claims posted from each check in this run */
     private array $postedClaims = [];
 
+    /** @var array<string, array<string, string>> claim and level => service lines pended in this run */
+    private array $pendedLines = [];
+
     /**
      * @param string $payerId the insurance company the ERA is posted for
      */
@@ -77,6 +80,39 @@ final class EraCheckPosting
     public function reuseSession(string $checkNumber, int $sessionId): void
     {
         $this->reusedSessions[$checkNumber] = $sessionId;
+    }
+
+    /**
+     * Record that the payer pended this service line (adjustment reason 133) for
+     * the claim at this insurance level. It stays pending for the rest of the run
+     * until a later claim payment (CLP) in the ERA gives the line a disposition.
+     */
+    public function pendLine(int $pid, int $encounter, int $level, string $code): void
+    {
+        $this->pendedLines[self::claimLevel($pid, $encounter, $level)][$code] = $code;
+    }
+
+    /**
+     * A later claim payment in this run gave the line its disposition.
+     */
+    public function settleLine(int $pid, int $encounter, int $level, string $code): void
+    {
+        unset($this->pendedLines[self::claimLevel($pid, $encounter, $level)][$code]);
+    }
+
+    /**
+     * The claim's service lines still pended at this level in this run, each once.
+     *
+     * @return list<string>
+     */
+    public function pendedLines(int $pid, int $encounter, int $level): array
+    {
+        return array_values($this->pendedLines[self::claimLevel($pid, $encounter, $level)] ?? []);
+    }
+
+    private static function claimLevel(int $pid, int $encounter, int $level): string
+    {
+        return $pid . '-' . $encounter . '-' . $level;
     }
 
     /**

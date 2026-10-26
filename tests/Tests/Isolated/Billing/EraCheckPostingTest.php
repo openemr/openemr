@@ -40,6 +40,32 @@ final class EraCheckPostingTest extends TestCase
     }
 
     #[Test]
+    public function aPendedLineStaysPendingUntilALaterClaimPaymentSettlesIt(): void
+    {
+        $run = new EraCheckPosting('9902');
+        $this->assertSame([], $run->pendedLines(5, 501, 1));
+
+        $run->pendLine(5, 501, 1, '92015');
+        $run->pendLine(5, 501, 1, '92015'); // a second 133 on the same line
+        $run->settleLine(5, 501, 1, '92014'); // another line answered
+        $this->assertSame(['92015'], $run->pendedLines(5, 501, 1), 'Each line counts once; other lines do not settle it');
+
+        $run->settleLine(5, 501, 1, '92015');
+        $this->assertSame([], $run->pendedLines(5, 501, 1));
+    }
+
+    #[Test]
+    public function pendsAreKeptPerClaimAndLevel(): void
+    {
+        $run = new EraCheckPosting('9902');
+        $run->pendLine(5, 501, 2, '92015');
+
+        $this->assertSame([], $run->pendedLines(5, 501, 1), 'Another level');
+        $this->assertSame([], $run->pendedLines(5, 502, 2), 'Another encounter');
+        $this->assertSame(['92015'], $run->pendedLines(5, 501, 2));
+    }
+
+    #[Test]
     public function oneInstancePerRequest(): void
     {
         $request = new Request(['InsId' => '9902']);
