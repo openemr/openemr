@@ -18,6 +18,33 @@ use Particle\Validator\Validator;
  */
 class ImmunizationValidator extends BaseValidator
 {
+    public static function isAdministeredDateValid(string $date): bool
+    {
+        return self::parseAdministeredDate($date) !== null;
+    }
+
+    public static function isAdministeredDateInFuture(string $date): bool
+    {
+        $administeredDate = self::parseAdministeredDate($date);
+        return $administeredDate !== null && $administeredDate > new \DateTimeImmutable();
+    }
+
+    private static function parseAdministeredDate(string $date): ?\DateTimeImmutable
+    {
+        foreach (['!Y-m-d H:i:s', '!Y-m-d H:i', '!Y-m-d'] as $format) {
+            $administeredDate = \DateTimeImmutable::createFromFormat($format, $date);
+            $parseErrors = \DateTimeImmutable::getLastErrors();
+            if (
+                $administeredDate !== false
+                && ($parseErrors === false || ($parseErrors['warning_count'] === 0 && $parseErrors['error_count'] === 0))
+            ) {
+                return $administeredDate;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Configures validations for the Immunization DB Insert and Update use-case.
      * The update use-case is comprised of the same fields as the insert use-case.
@@ -43,7 +70,9 @@ class ImmunizationValidator extends BaseValidator
                 // shape check rejects free text and length 255 abuses but defers value
                 // membership to ListService::getCvxList() at read/import time.
                 $context->required('cvx_code')->regex('/^[0-9]{1,4}$/');
-                $context->required('administered_date')->datetime('Y-m-d');
+                $context->required('administered_date')->datetime('Y-m-d')->callback(
+                    fn($date): bool => !is_string($date) || !self::isAdministeredDateInFuture($date)
+                );
                 $context->optional('completion_status')->lengthBetween(1, 255);
                 $context->optional('manufacturer')->lengthBetween(1, 255);
                 // lot_number is a vendor-printed alphanumeric (sometimes with hyphens or
