@@ -1159,7 +1159,7 @@ $noStatementSince = fixDate($noStatementSinceInput, '');
                             <tr>
                                 <th class="id dehead" data-sort="number"><?php echo xlt('Billing Note'); ?></th>
                                 <th class="dehead" data-sort="text">&nbsp;<?php echo xlt('Patient'); ?></th>
-                                <th class="dehead" data-sort="number">&nbsp;<?php echo xlt('Invoice'); ?></th>
+                                <th class="dehead" data-sort="text">&nbsp;<?php echo xlt('Invoice'); ?></th>
                                 <th class="dehead" data-sort="date">&nbsp;<?php echo xlt('Svc Date'); ?></th>
                                 <th class="dehead" data-sort="date">&nbsp;<?php echo xlt('Last Stmt'); ?></th>
                                 <th class="dehead text-right" data-sort="number"><?php echo xlt('Charge'); ?>&nbsp;</th>
@@ -1245,7 +1245,7 @@ $noStatementSince = fixDate($noStatementSinceInput, '');
                                     <td class="detail">&nbsp;
                                         <a href="#" class="btn btn-secondary btn-sm" onclick="toEncSummary(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
-                                    <td class="detail" data-sort-value="<?php echo attr($sortValue($row['encounter'])); ?>">&nbsp;
+                                    <td class="detail" data-sort-value="<?php echo attr($sortValue($row['pid']) . ':' . $sortValue($row['encounter'])); ?>" data-encounter="<?php echo attr($sortValue($row['encounter'])); ?>">&nbsp;
                                         <a href="#" class="btn btn-secondary btn-sm" onclick="editInvoice(event,<?php echo attr_js($row['id']); ?>)"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
                                     </td>
                                     <td class="detail" data-sort-value="<?php echo attr($svcdate); ?>">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>

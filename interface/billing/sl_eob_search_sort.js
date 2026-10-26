@@ -3,7 +3,8 @@
  * (sl_eob_search.php). A header with data-sort ("text", "number" or "date")
  * becomes a button; clicking it sorts the rows by that column, ascending
  * first, then descending. A cell's data-sort-value, when present, is what
- * sorts (dates as YYYY-MM-DD, amounts unformatted); otherwise its text.
+ * sorts (dates as YYYY-MM-DD, amounts unformatted, the invoice as pid:encounter);
+ * otherwise its text. Text compares runs of digits as numbers.
  * Rows are moved, not rebuilt, so their checkboxes keep their state.
  *
  * @package   OpenEMR

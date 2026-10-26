@@ -7,8 +7,10 @@
  * statement went out last week. "No Statement Since" leaves out invoices
  * sent a statement on or after the date given (invoices never sent one
  * stay), and the column headers sort the list without losing which rows
- * are ticked. Three invoices: one never sent, one sent 2026-09-01, one sent
- * 2026-10-20 (two statements).
+ * are ticked. Four invoices: one never sent, one sent 2026-09-01, one sent
+ * on the cutoff date used (2026-10-01) and one sent 2026-10-20 (two
+ * statements). Later patients get lower encounter numbers, so sorting the
+ * Invoice column by patient then encounter differs from encounter alone.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -38,9 +40,11 @@ class StatementListSortTest extends PantherTestCase
     private const LAST_NAME = 'Stmtlist';
     private const LAST_STMT_COLUMN = 4;
     private const PRV_COLUMN = 9;
+    private const INVOICE_COLUMN = 2;
 
     private int $neverSent = 0;
     private int $sentInSeptember = 0;
+    private int $sentOnCutoff = 0;
     private int $sentInOctober = 0;
 
     #[Test]
@@ -54,7 +58,7 @@ class StatementListSortTest extends PantherTestCase
 
             $this->searchDuePt('');
             $this->assertEqualsCanonicalizing(
-                [$this->neverSent, $this->sentInSeptember, $this->sentInOctober],
+                [$this->neverSent, $this->sentInSeptember, $this->sentOnCutoff, $this->sentInOctober],
                 $this->listedEncounters(),
                 'Without the filter every invoice due from the patient is listed'
             );
@@ -63,7 +67,7 @@ class StatementListSortTest extends PantherTestCase
             $this->assertEqualsCanonicalizing(
                 [$this->neverSent, $this->sentInSeptember],
                 $this->listedEncounters(),
-                'Invoices sent a statement on or after the date are left out; never sent ones stay'
+                'Invoices sent a statement on or after the date (the cutoff day included) are left out; never sent ones stay'
             );
             $this->assertSame(
                 '2026-10-01',
@@ -92,14 +96,14 @@ class StatementListSortTest extends PantherTestCase
             $this->searchDuePt('');
 
             $this->client->executeScript(
-                'document.querySelector("#invoice-list td[data-sort-value=\'" + arguments[0] + "\']")'
+                'document.querySelector("#invoice-list td[data-encounter=\'" + arguments[0] + "\']")'
                 . '.closest("tr").querySelector("input[type=checkbox]").checked = false;',
                 [$this->sentInSeptember]
             );
 
             $this->clickHeader(self::LAST_STMT_COLUMN);
             $this->assertSame(
-                [$this->neverSent, $this->sentInSeptember, $this->sentInOctober],
+                [$this->neverSent, $this->sentInSeptember, $this->sentOnCutoff, $this->sentInOctober],
                 $this->listedEncounters(),
                 'Last Stmt ascending: never sent first, then oldest statement'
             );
@@ -107,7 +111,7 @@ class StatementListSortTest extends PantherTestCase
 
             $this->clickHeader(self::LAST_STMT_COLUMN);
             $this->assertSame(
-                [$this->sentInOctober, $this->sentInSeptember, $this->neverSent],
+                [$this->sentInOctober, $this->sentOnCutoff, $this->sentInSeptember, $this->neverSent],
                 $this->listedEncounters(),
                 'A second click sorts descending'
             );
@@ -115,9 +119,9 @@ class StatementListSortTest extends PantherTestCase
 
             $this->clickHeader(self::PRV_COLUMN);
             $this->assertSame(
-                [$this->neverSent, $this->sentInSeptember, $this->sentInOctober],
+                [$this->neverSent, $this->sentOnCutoff, $this->sentInSeptember, $this->sentInOctober],
                 $this->listedEncounters(),
-                'Prv sorts by the number of statements sent'
+                'Prv sorts by the number of statements sent; ties keep the order they had (stable sort)'
             );
             $this->assertNull($this->ariaSort(self::LAST_STMT_COLUMN), 'Only the sorted column is marked');
 
@@ -125,7 +129,15 @@ class StatementListSortTest extends PantherTestCase
                 'return Array.from(document.querySelectorAll("#invoice-list tbody tr"))'
                 . '.map(r => r.querySelector("input[type=checkbox]").checked);'
             );
-            $this->assertSame([true, false, true], $ticks, 'Sorting keeps which rows are ticked');
+            $this->assertSame([true, true, false, true], $ticks, 'Sorting keeps which rows are ticked');
+
+            // Patients were added in this order, with encounter numbers in the reverse order.
+            $this->clickHeader(self::INVOICE_COLUMN);
+            $this->assertSame(
+                [$this->neverSent, $this->sentInSeptember, $this->sentOnCutoff, $this->sentInOctober],
+                $this->listedEncounters(),
+                'Invoice sorts by patient, then encounter, as it is shown'
+            );
         } finally {
             try {
                 if (isset($this->client)) {
@@ -157,7 +169,7 @@ class StatementListSortTest extends PantherTestCase
     private function listedEncounters(): array
     {
         $values = $this->client->executeScript(
-            'return Array.from(document.querySelectorAll("#invoice-list tbody tr")).map(r => r.cells[2].dataset.sortValue);'
+            'return Array.from(document.querySelectorAll("#invoice-list tbody tr")).map(r => r.cells[2].dataset.encounter);'
         );
         $this->assertIsArray($values);
         return array_values(array_map($this->toInt(...), $values));
@@ -188,15 +200,22 @@ class StatementListSortTest extends PantherTestCase
         $invoices = [
             ['Never', 0, null],
             ['September', 1, '2026-09-01'],
+            ['Cutoff', 1, '2026-10-01'],
             ['October', 2, '2026-10-20'],
         ];
+        // Encounter numbers in the reverse of the patients' order.
+        $encounterIds = [];
+        foreach ($invoices as $ignored) {
+            $encounterIds[] = $this->toInt(QueryUtils::generateId());
+        }
+        $encounterIds = array_reverse($encounterIds);
         $encounters = [];
-        foreach ($invoices as [$first, $statements, $lastStatement]) {
+        foreach ($invoices as $i => [$first, $statements, $lastStatement]) {
             QueryUtils::sqlInsert(
                 'INSERT INTO patient_data (pid, pubpid, fname, lname, DOB, sex, date) VALUES (?, ?, ?, ?, ?, ?, NOW())',
                 [$pid, self::FIXTURE_MARKER, $first, self::LAST_NAME, '1970-01-01', 'Female']
             );
-            $encounter = $this->toInt(QueryUtils::generateId());
+            $encounter = $encounterIds[$i];
             QueryUtils::sqlInsert(
                 'INSERT INTO form_encounter (date, reason, pid, encounter, provider_id, stmt_count, last_stmt_date)'
                 . ' VALUES (NOW(), ?, ?, ?, 1, ?, ?)',
@@ -210,7 +229,7 @@ class StatementListSortTest extends PantherTestCase
             $encounters[] = $encounter;
             ++$pid;
         }
-        [$this->neverSent, $this->sentInSeptember, $this->sentInOctober] = $encounters;
+        [$this->neverSent, $this->sentInSeptember, $this->sentOnCutoff, $this->sentInOctober] = $encounters;
     }
 
     private function cleanUpFixtureData(): void
