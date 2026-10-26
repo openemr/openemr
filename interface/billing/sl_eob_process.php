@@ -23,6 +23,8 @@ require_once("../globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\EraCheckPosting;
+use OpenEMR\Billing\EraReversal;
+use OpenEMR\Billing\EraReversalOutcome;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
@@ -455,6 +457,27 @@ function eob_process_era_callback(array &$out): void
             );
         } elseif ($csc === '22') {
             $inverror = true;
+            // The reversal isn't posted, but the payment it takes back closed its
+            // insurance level: re-open it so the balance isn't treated as the patient's.
+            if (!$debug && $pid && $encounter) {
+                $reversal = new EraReversal(CurrentRequest::get()->query->getString('InsId'));
+                $reversalPid = is_numeric($pid) ? (int) $pid : 0;
+                $reversalDos = is_string($ferow['date'] ?? null) ? substr($ferow['date'], 0, 10) : '';
+                $reversalLevel = $reversal->payerLevel($reversalPid, $reversalDos);
+                $outcome = $reversal->reopenLevel(
+                    $reversalPid,
+                    is_numeric($encounter) ? (int) $encounter : 0,
+                    $reversalLevel,
+                    $checkNumber,
+                    $checkDate
+                );
+                echo getMessageLine($bgcolor, 'errdetail', match ($outcome) {
+                    EraReversalOutcome::Reopened => "Ins$reversalLevel re-opened, so the balance stays with insurance",
+                    EraReversalOutcome::CorrectionPosted => "Ins$reversalLevel stays closed: this check also posted a corrected payment",
+                    EraReversalOutcome::AlreadyOpen => "Ins$reversalLevel was not closed; left as is",
+                    EraReversalOutcome::PayerNotOnClaim => "This payer is not on the claim for the date of service; insurance levels left as they are",
+                });
+            }
             echo getMessageLine(
                 $bgcolor,
                 'errdetail',
