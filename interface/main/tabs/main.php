@@ -11,6 +11,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
@@ -27,6 +28,8 @@ use ESign\Api;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\MainScreenToken;
+use OpenEMR\Common\Session\MainScreenTokenDecision;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -76,19 +79,32 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 // Ensure token_main matches so this script can not be run by itself
 //  If tokens do not match, then destroy the session and go back to log in screen
 $token_main_php = $session->get('token_main_php');
-if (
-    $token_main_php === null ||
-    (!array_key_exists('token_main', $_GET) || $_GET['token_main'] === '') ||
-    $_GET['token_main'] !== $token_main_php
-) {
+$presentedToken = $_GET['token_main'] ?? '';
+if (!is_string($presentedToken)) {
+    $presentedToken = '';
+}
+$expectedToken = is_string($token_main_php) ? $token_main_php : null;
+$acceptedAt = $session->get('token_main_php_at');
+if (is_string($acceptedAt) && ctype_digit($acceptedAt)) {
+    $acceptedAt = (int) $acceptedAt;
+}
+if (!is_int($acceptedAt)) {
+    $acceptedAt = null;
+}
+$decision = MainScreenToken::decide(
+    $expectedToken,
+    $presentedToken,
+    $acceptedAt,
+    time(),
+    OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 1
+);
+if ($decision === MainScreenTokenDecision::Reject) {
 // Below functions are from auth.inc, which is included in globals.php
     authCloseSession();
     authLoginScreen(false);
 }
-// this will not allow copy/paste of the link to this main.php page or a refresh of this main.php page
-//  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
-if (OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 1) {
-    SessionUtil::unsetSession('token_main_php');
+if ($decision === MainScreenTokenDecision::AcceptAndStamp) {
+    SessionUtil::setSession('token_main_php_at', time());
 }
 
 $esignApi = new Api();
