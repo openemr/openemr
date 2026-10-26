@@ -39,6 +39,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
@@ -666,6 +667,10 @@ if (
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $language_direction = $session->get('language_direction'); // fetch before the <html> output begins
+
+// No Statement Since: the search leaves out invoices sent a statement on or after this date.
+$noStatementSinceInput = CurrentRequest::get()->request->getString('form_no_stmt_since');
+$noStatementSince = fixDate($noStatementSinceInput, '');
 ?>
 <html>
 <head>
@@ -775,6 +780,14 @@ $language_direction = $session->get('language_direction'); // fetch before the <
             .oe-small {
                 display: inline-block;
             }
+        }
+
+        #invoice-list th[aria-sort="ascending"] button::after {
+            content: " \25B2";
+        }
+
+        #invoice-list th[aria-sort="descending"] button::after {
+            content: " \25BC";
         }
 
         @media print {
@@ -910,6 +923,10 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                 <label class="control-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>:</label>
                                 <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_to_date'] ?? ''); ?>' title='<?php echo xla("Ending DOS mm/dd/yyyy if you wish to enter a range"); ?>' />
                             </div>
+                            <div class="form-group col-lg">
+                                <label class="control-label" for="form_no_stmt_since"><?php echo xlt('No Statement Since'); ?>:</label>
+                                <input type='text' name='form_no_stmt_since' id='form_no_stmt_since' class='form-control datepicker' value='<?php echo attr($noStatementSinceInput); ?>' title='<?php echo xla("List only invoices with no statement sent on or after this date, including those never sent one"); ?>' />
+                            </div>
                             <div class="form-group col-lg" style="padding-right:0px">
                                 <label class="control-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
                                 <select name='form_category' id='form_category' class='form-control'>
@@ -969,6 +986,7 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                             $form_to_date = fixDate($_REQUEST['form_to_date'], "");
 
                             $where = "";
+                            $searchBinds = [];
 
                             // Handle X12 835 file upload.
                             //
@@ -1086,6 +1104,13 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                         $where .= "f.date = '" . add_escape_custom($form_date) . "'";
                                     }
                                 }
+                                if ($noStatementSince !== '') {
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
+                                    $where .= "(f.last_stmt_date IS NULL OR f.last_stmt_date < ?)";
+                                    $searchBinds[] = $noStatementSince;
+                                }
                                 if (!$where) {
                                     if ($_REQUEST['form_category'] == 'All') {
                                         $alertmsg .= xlt("At least one search parameter is required if you select All.");
@@ -1121,7 +1146,7 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                             $num_invoices = 0;
 
                             // removed if condition on alert message so biller can see what's in the era
-                            $t_res = sqlStatement($query);
+                            $t_res = sqlStatement($query, $searchBinds);
                             $num_invoices = sqlNumRows($t_res);
 
                             if ($eracount && $num_invoices != $eracount) {
@@ -1129,29 +1154,31 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                     "matching encounters in OpenEMR. ";
                             }
                             ?>
-                        <table class="table table-striped table-sm">
+                        <table id="invoice-list" class="table table-striped table-sm">
                             <thead>
                             <tr>
-                                <th class="id dehead"><?php echo xlt('Billing Note'); ?></th>
-                                <th class="dehead">&nbsp;<?php echo xlt('Patient'); ?></th>
-                                <th class="dehead">&nbsp;<?php echo xlt('Invoice'); ?></th>
-                                <th class="dehead">&nbsp;<?php echo xlt('Svc Date'); ?></th>
-                                <th class="dehead">&nbsp;<?php echo xlt('Last Stmt'); ?></th>
-                                <th class="dehead text-right"><?php echo xlt('Charge'); ?>&nbsp;</th>
-                                <th class="dehead text-right"><?php echo xlt('Adjust'); ?>&nbsp;</th>
-                                <th class="dehead text-right"><?php echo xlt('Paid'); ?>&nbsp;</th>
-                                <th class="dehead text-right"><?php echo xlt('Balance'); ?>&nbsp;</th>
-                                <th class="dehead text-center"><?php echo xlt('Prv'); ?></th>
+                                <th class="id dehead" data-sort="number"><?php echo xlt('Billing Note'); ?></th>
+                                <th class="dehead" data-sort="text">&nbsp;<?php echo xlt('Patient'); ?></th>
+                                <th class="dehead" data-sort="number">&nbsp;<?php echo xlt('Invoice'); ?></th>
+                                <th class="dehead" data-sort="date">&nbsp;<?php echo xlt('Svc Date'); ?></th>
+                                <th class="dehead" data-sort="date">&nbsp;<?php echo xlt('Last Stmt'); ?></th>
+                                <th class="dehead text-right" data-sort="number"><?php echo xlt('Charge'); ?>&nbsp;</th>
+                                <th class="dehead text-right" data-sort="number"><?php echo xlt('Adjust'); ?>&nbsp;</th>
+                                <th class="dehead text-right" data-sort="number"><?php echo xlt('Paid'); ?>&nbsp;</th>
+                                <th class="dehead text-right" data-sort="number"><?php echo xlt('Balance'); ?>&nbsp;</th>
+                                <th class="dehead text-center" data-sort="number" title="<?php echo xla('Statements sent, or minus the insurance levels still open'); ?>"><?php echo xlt('Prv'); ?></th>
                                 <?php
                                 if (!$eracount) { ?>
                                     <th class="dehead text-left"><?php echo xlt('Sel'); ?></th>
-                                    <th class="dehead text-center"><?php echo xlt('Email'); ?></th>
+                                    <th class="dehead text-center" data-sort="text"><?php echo xlt('Email'); ?></th>
                                     <?php
                                 } ?>
                             </tr>
                             </thead>
                             <?php
                             $orow = -1;
+                            // Sort values for the column headers (sl_eob_search_sort.js): raw, not display-formatted.
+                            $sortValue = static fn(mixed $value): string => is_scalar($value) ? (string) $value : '';
 
                             while ($row = sqlFetchArray($t_res)) {
                                 $balance = sprintf("%.2f", $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments']);
@@ -1208,6 +1235,7 @@ $language_direction = $session->get('language_direction'); // fetch before the <
 
                                 $svcdate = substr((string) $row['date'], 0, 10);
                                 $last_stmt_date = empty($row['last_stmt_date']) ? '' : $row['last_stmt_date'];
+                                $paid = $row['payments'] - $row['copays'];
 
                                 ?>
                                 <tr>
@@ -1217,22 +1245,22 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                     <td class="detail">&nbsp;
                                         <a href="#" class="btn btn-secondary btn-sm" onclick="toEncSummary(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
-                                    <td class="detail">&nbsp;
+                                    <td class="detail" data-sort-value="<?php echo attr($sortValue($row['encounter'])); ?>">&nbsp;
                                         <a href="#" class="btn btn-secondary btn-sm" onclick="editInvoice(event,<?php echo attr_js($row['id']); ?>)"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
                                     </td>
-                                    <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
-                                    <td class="detail">
+                                    <td class="detail" data-sort-value="<?php echo attr($svcdate); ?>">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
+                                    <td class="detail" data-sort-value="<?php echo attr($sortValue($last_stmt_date)); ?>">
                                         &nbsp;<?php echo text(oeFormatShortDate($last_stmt_date)); ?></td>
-                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($row['charges'])); ?>&nbsp;
+                                    <td class="detail text-right" data-sort-value="<?php echo attr($sortValue($row['charges'])); ?>"><?php echo text(FormatMoney::getBucks($row['charges'])); ?>&nbsp;
                                     </td>
-                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($row['adjustments'])); ?>
+                                    <td class="detail text-right" data-sort-value="<?php echo attr($sortValue($row['adjustments'])); ?>"><?php echo text(FormatMoney::getBucks($row['adjustments'])); ?>
                                         &nbsp;
                                     </td>
-                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($row['payments'] - $row['copays'])); ?>
+                                    <td class="detail text-right" data-sort-value="<?php echo attr($sortValue($paid)); ?>"><?php echo text(FormatMoney::getBucks($paid)); ?>
                                         &nbsp;
                                     </td>
-                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($balance)); ?>&nbsp;</td>
-                                    <td class="detail text-center"><?php echo $duncount ? text((string) $duncount) : "&nbsp;" ?></td>
+                                    <td class="detail text-right" data-sort-value="<?php echo attr($balance); ?>"><?php echo text(FormatMoney::getBucks($balance)); ?>&nbsp;</td>
+                                    <td class="detail text-center" data-sort-value="<?php echo attr((string) $duncount); ?>"><?php echo $duncount ? text((string) $duncount) : "&nbsp;" ?></td>
                                     <?php if (!$eracount) { ?>
                                         <td class="detail text-left">
                                             <input type='checkbox'
@@ -1427,7 +1455,7 @@ if (!empty($_REQUEST['form_search']) && ($_REQUEST['form_search'] == "Upload")) 
     <?php
 }
 ?>
-
+<script src="<?php echo attr(OEGlobalsBag::getInstance()->getString('webroot')); ?>/interface/billing/sl_eob_search_sort.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
 </body>
 </html>
