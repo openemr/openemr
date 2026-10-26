@@ -296,7 +296,7 @@ class X125010837P
             }
             $out .= "*";
             // X12 requires a 9 digit zip in loop 2010AA but we output it anyways
-            if (strlen((string) $claim->billingFacilityZip()) != 9) {
+            if (self::nineDigitZipApplies($claim->billingFacilityCountry(), (string) $claim->billingFacilityZip())) {
                 $log .= self::BILLING_ZIP_LOG . "\n";
             }
             $out .= $claim->billingFacilityZip();
@@ -1034,7 +1034,7 @@ class X125010837P
                 $log .= "*** Missing service facility state.\n";
             }
             $out .= "*";
-            if (strlen((string) $claim->facilityZip()) != 9) {
+            if (self::nineDigitZipApplies($claim->facilityCountry(), (string) $claim->facilityZip())) {
                 $log .= self::SERVICE_ZIP_LOG . "\n";
             }
             $out .= $claim->facilityZip();
@@ -1676,6 +1676,26 @@ class X125010837P
     /**
      * Billing-provider ZIP, loop 2010AA. The 837P guide requires 9 digits for a US address.
      */
+
+    /**
+     * A short ZIP is logged only for a United States facility.
+     *
+     * A blank country keeps the previous warning. A named country
+     * outside the United States does not.
+     */
+    private static function nineDigitZipApplies(string $country, string $zip): bool
+    {
+        if (strlen($zip) === 9) {
+            return false;
+        }
+        $letters = strtoupper(preg_replace('/[^A-Za-z]/', '', $country) ?? '');
+        if ($letters === '') {
+            return true;
+        }
+
+        return in_array($letters, ['US', 'USA', 'UNITEDSTATES', 'UNITEDSTATESOFAMERICA'], true);
+    }
+
     private const BILLING_ZIP_LOG = '*** Billing facility zip is not 9 digits. '
         . '837P loop 2010AA requires a 9-digit ZIP for US addresses; payers may reject the claim.';
 
