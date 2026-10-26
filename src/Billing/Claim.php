@@ -6,8 +6,10 @@
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @author Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2009-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2026 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -874,6 +876,24 @@ class Claim
     }
 
     /**
+     * Postal code stored for the billing facility, before digit reduction.
+     */
+    public function billingFacilityPostalCode(): string
+    {
+        $facility = $this->billing_facility;
+        if (!is_array($facility)) {
+            return '';
+        }
+        $postal = $facility['postal_code'] ?? null;
+        if (!is_string($postal)) {
+            return '';
+        }
+
+        return trim($postal);
+    }
+
+
+    /**
      * Country stored for the billing facility. Empty when the row has none.
      */
     public function billingFacilityCountry(): string
@@ -1032,6 +1052,23 @@ class Claim
     public function facilityZip()
     {
         return $this->x12Zip($this->facility['postal_code']);
+    }
+
+    /**
+     * Postal code stored for the service facility, before digit reduction.
+     */
+    public function facilityPostalCode(): string
+    {
+        $facility = $this->facility;
+        if (!is_array($facility)) {
+            return '';
+        }
+        $postal = $facility['postal_code'] ?? null;
+        if (!is_string($postal)) {
+            return '';
+        }
+
+        return trim($postal);
     }
 
     /**
