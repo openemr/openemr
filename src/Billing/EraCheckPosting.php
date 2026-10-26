@@ -26,7 +26,7 @@ final class EraCheckPosting
     /** @var array<string, true> claims posted from each check in this run */
     private array $postedClaims = [];
 
-    /** @var array<string, array<string, string>> claim and level => service lines pended in this run */
+    /** @var array<string, array<string, int>> claim and level => code => service lines still pended in this run */
     private array $pendedLines = [];
 
     /**
@@ -83,31 +83,36 @@ final class EraCheckPosting
     }
 
     /**
-     * Record that the payer pended this service line (adjustment reason 133) for
-     * the claim at this insurance level. It stays pending for the rest of the run
-     * until a later claim payment (CLP) in the ERA gives the line a disposition.
-     */
-    public function pendLine(int $pid, int $encounter, int $level, string $code): void
-    {
-        $this->pendedLines[self::claimLevel($pid, $encounter, $level)][$code] = $code;
-    }
-
-    /**
-     * A later claim payment in this run gave the line its disposition.
-     */
-    public function settleLine(int $pid, int $encounter, int $level, string $code): void
-    {
-        unset($this->pendedLines[self::claimLevel($pid, $encounter, $level)][$code]);
-    }
-
-    /**
-     * The claim's service lines still pended at this level in this run, each once.
+     * Record one claim payment's (CLP's) service lines for the claim at this
+     * insurance level: the codes of the lines it pended (adjustment reason 133)
+     * and of the lines it answered, one entry per line. Each answered line
+     * settles one line of the same code pended by an earlier CLP in this run;
+     * a line answered in the same CLP doesn't settle a line pended there. The
+     * 835 carries no line control number here (claims go out without REF*6R),
+     * so lines with the same code are counted rather than told apart.
      *
-     * @return list<string>
+     * @param list<string> $pendedCodes
+     * @param list<string> $answeredCodes
      */
-    public function pendedLines(int $pid, int $encounter, int $level): array
+    public function recordClaimPayment(int $pid, int $encounter, int $level, array $pendedCodes, array $answeredCodes): void
     {
-        return array_values($this->pendedLines[self::claimLevel($pid, $encounter, $level)] ?? []);
+        $key = self::claimLevel($pid, $encounter, $level);
+        foreach ($answeredCodes as $code) {
+            if (($this->pendedLines[$key][$code] ?? 0) > 0) {
+                --$this->pendedLines[$key][$code];
+            }
+        }
+        foreach ($pendedCodes as $code) {
+            $this->pendedLines[$key][$code] = ($this->pendedLines[$key][$code] ?? 0) + 1;
+        }
+    }
+
+    /**
+     * How many of the claim's service lines are still pended at this level in this run.
+     */
+    public function pendedLineCount(int $pid, int $encounter, int $level): int
+    {
+        return array_sum($this->pendedLines[self::claimLevel($pid, $encounter, $level)] ?? []);
     }
 
     private static function claimLevel(int $pid, int $encounter, int $level): string

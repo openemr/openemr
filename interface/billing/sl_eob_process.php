@@ -539,6 +539,8 @@ function eob_process_era_callback(array &$out): void
         $claimPid = is_numeric($pid) ? (int) $pid : 0;
         $claimEncounter = is_numeric($encounter) ? (int) $encounter : 0;
         $claimLevel = (int) substr($inslabel, 3);
+        $pendedCodes = [];
+        $answeredCodes = [];
 
         // create array of cpts and mods for complex matching
         $codes_arr_keys = array_keys($codes);
@@ -710,10 +712,7 @@ function eob_process_era_callback(array &$out): void
                     // the payer's answer, whatever group it comes with: post nothing for it and
                     // leave the level open. The payer sends a reversal and correction once the
                     // line is decided.
-                    if (!$svcPended) {
-                        $svcPended = true;
-                        $eraRun->pendLine($claimPid, $claimEncounter, $claimLevel, is_string($codekey) ? $codekey : '');
-                    }
+                    $svcPended = true;
                     echo getMessageLine($bgcolor, 'infdetail', "$description (pended by the payer; not posted)");
                     continue;
                 }
@@ -788,11 +787,14 @@ function eob_process_era_callback(array &$out): void
                     balance: ($error ? '' : $invoice_total)
                 );
             }
-            // A line this payer answered here settles a pend from an earlier CLP in the run.
-            if (!$svcPended) {
-                $eraRun->settleLine($claimPid, $claimEncounter, $claimLevel, is_string($codekey) ? $codekey : '');
+            if ($svcPended) {
+                $pendedCodes[] = is_string($codekey) ? $codekey : '';
+            } else {
+                $answeredCodes[] = is_string($codekey) ? $codekey : '';
             }
         } // End of service item
+        // Lines answered here settle lines pended by an earlier CLP in this run.
+        $eraRun->recordClaimPayment($claimPid, $claimEncounter, $claimLevel, $pendedCodes, $answeredCodes);
 
         // Report any existing service items not mentioned in the ERA, and
         // determine if any of them are still missing an insurance response
@@ -821,7 +823,7 @@ function eob_process_era_callback(array &$out): void
         }
 
         // A pended line means the payer isn't done with the claim yet.
-        $pendedCount = count($eraRun->pendedLines($claimPid, $claimEncounter, $claimLevel));
+        $pendedCount = $eraRun->pendedLineCount($claimPid, $claimEncounter, $claimLevel);
         if ($pendedCount > 0) {
             $insurance_done = false;
             echo getMessageLine(
