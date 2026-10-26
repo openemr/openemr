@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Isolated tests for ShotRecordPdf: real PDFs built with and without immunizations.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    anun333 <anun333@posteo.net>
