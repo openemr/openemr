@@ -62,7 +62,7 @@ if (isset($_GET['mode'])) {
     if ($_GET['mode'] == "add") {
         // An edit updates the immunization's row in place and a new one is
         // inserted; an id that is not this patient's writes nothing.
-        $newid = (new ImmunizationFormSaver())->save($_GET, $pid, $session->get('authUserID'));
+        $newid = (new ImmunizationFormSaver())->save($_GET, $pid, filter_var($session->get('authUserID'), FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE));
         if ($newid === null) {
             AccessDeniedHelper::denyWithTemplate("Immunization not found for current patient", xl("Immunizations"));
         }

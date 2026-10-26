@@ -76,11 +76,11 @@ final readonly class ImmunizationFormSaver
 
     /**
      * @param array<mixed> $form   the submitted form ($_GET on the Immunizations page)
-     * @param mixed        $userId the signed-in user, recorded as the row's creator and last updater
+     * @param ?int         $userId the signed-in user, recorded as the row's creator and last updater
      * @return ?int the immunization's id; null, with nothing written, when the form's id is not one
      *              of this patient's immunizations
      */
-    public function save(array $form, int $pid, mixed $userId): ?int
+    public function save(array $form, int $pid, ?int $userId): ?int
     {
         // The form posts an empty id for a new immunization, and the row's id
         // when one is being edited. An edit updates that row in place: a
