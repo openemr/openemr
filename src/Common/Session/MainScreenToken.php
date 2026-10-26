@@ -34,6 +34,17 @@ final class MainScreenToken
      */
     public const RETRY_SECONDS = 15;
 
+    /**
+     * Decide whether this presentation of the main-screen token may continue.
+     *
+     * A missing or different token is rejected. When refresh protection is
+     * off, a match is accepted and the caller does not record a time. When
+     * protection is on, the first match asks the caller to record $now, and a
+     * later match is accepted only until RETRY_SECONDS after that recorded
+     * time. A retry does not move the window. The caller deletes the recorded
+     * time when it issues a replacement token, so the new token is not judged
+     * against the previous one.
+     */
     public static function decide(
         ?string $expected,
         string $presented,

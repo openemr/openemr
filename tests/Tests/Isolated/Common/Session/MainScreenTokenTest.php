@@ -45,6 +45,9 @@ class MainScreenTokenTest extends TestCase
         ];
     }
 
+    /**
+     * Each case accepts or rejects exactly the decision named for that token and window.
+     */
     #[DataProvider('decisionProvider')]
     public function testDecision(
         ?string $expected,
@@ -58,5 +61,19 @@ class MainScreenTokenTest extends TestCase
             $decision,
             MainScreenToken::decide($expected, $presented, $acceptedAt, $now, $preventRefresh),
         );
+    }
+
+    /**
+     * Issuing a replacement token deletes the previous acceptance time.
+     */
+    public function testIssuerClearsThePreviousStamp(): void
+    {
+        $source = file_get_contents(dirname(__DIR__, 5) . '/interface/main/main_screen.php');
+        $this->assertIsString($source);
+        $setAt = strpos($source, "set('token_main_php'");
+        $clearAt = strpos($source, "unsetSession('token_main_php_at')");
+        $this->assertNotFalse($setAt);
+        $this->assertNotFalse($clearAt);
+        $this->assertGreaterThan($setAt, $clearAt);
     }
 }
