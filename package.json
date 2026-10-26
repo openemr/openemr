@@ -55,7 +55,7 @@
     "napa": "3.0.0",
     "postcss": "8.5.30",
     "postcss-loader": "7.3.4",
-    "sass": "1.105.2",
+    "sass": "1.106.1",
     "sass-loader": "13.3.3",
     "stylelint": "17.16.0",
     "stylelint-config-sass-guidelines": "13.0.0",
