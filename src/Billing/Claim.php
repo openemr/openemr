@@ -455,8 +455,8 @@ class Claim
                     } elseif (preg_match("/dedbl: (\S+)/i", (string) $rsn, $tmp) && !$chg) {
                         $deductible = $tmp[1]; // from 835 and manual post as of 6/2007
                         continue;
-                    } elseif (preg_match("/ptresp: (\S+)/i", (string) $rsn, $tmp) && !$chg) {
-                        continue; // from 835 as of 6/2007
+                    } elseif (preg_match(EraAdjustmentMemo::PATIENT_RESPONSIBILITY_PATTERN, (string) $rsn, $tmp) && !$chg) {
+                        continue; // from 835 as of 6/2007; with the reason code since 2026
                     } elseif (preg_match("/adjust code (\S+)/i", (string) $rsn, $tmp)) {
                         $rcode = $tmp[1]; // from 835
                     } elseif (preg_match("/$inslabel/i", (string) $rsn, $tmp)) {

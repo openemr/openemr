@@ -22,6 +22,7 @@ ob_start();
 require_once("../globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\EraAdjustmentMemo;
 use OpenEMR\Billing\EraCheckPosting;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
@@ -674,22 +675,15 @@ function eob_process_era_callback(array &$out): void
                 if ($adj['group_code'] === 'PR' || !$primary) {
                     // Group code PR is Patient Responsibility.  Enter these as zero
                     // adjustments to retain the note without crediting the claim.
-                    if ($primary) {
-                        // Reasons should be 25 chars or less.
-                        $reason = match ($adj['reason_code']) {
-                            '1' => "$inslabel dedbl: ",
-                            '2' => "$inslabel coins: ",
-                            '3' => "$inslabel copay: ",
-                            default => "$inslabel ptresp: "
-                        };
-                    } else {
-                        // Non-primary insurance adjustments are garbage, either repeating
-                        // the primary or are not adjustments at all.  Report them as notes
-                        // but do not post any amounts.
-                        $reason = "$inslabel note " . $adj['reason_code'] . ': ';
-                    }
-
-                    $reason .= sprintf("%.2f", $adj['amount']);
+                    // Non-primary insurance adjustments are garbage, either repeating
+                    // the primary or are not adjustments at all.  Report them as notes
+                    // but do not post any amounts.
+                    $reason = EraAdjustmentMemo::forAdjustment(
+                        $inslabel,
+                        $primary,
+                        is_scalar($adj['reason_code'] ?? null) ? (string) $adj['reason_code'] : '',
+                        is_numeric($adj['amount'] ?? null) ? (float) $adj['amount'] : 0.0
+                    );
                     // Post a zero-dollar adjustment just to save it as a comment.
                     if (!$error && !$debug) {
                         SLEOB::arPostAdjustment(
