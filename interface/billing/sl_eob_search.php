@@ -668,9 +668,41 @@ if (
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $language_direction = $session->get('language_direction'); // fetch before the <html> output begins
 
-// No Statement Since: the search leaves out invoices sent a statement on or after this date.
-$noStatementSinceInput = CurrentRequest::get()->request->getString('form_no_stmt_since');
-$noStatementSince = fixDate($noStatementSinceInput, '');
+// Last Statement Before: the search lists only invoices last sent a statement before
+// this date, or never sent one.
+$searchRequest = CurrentRequest::get()->request;
+$lastStatementBeforeInput = $searchRequest->getString('form_last_stmt_before');
+$lastStatementBefore = fixDate($lastStatementBeforeInput, '');
+
+// What an invoice search was limited to, shown with its results: the search
+// fields are hidden once results are shown.
+$searchFilters = [];
+$shortDate = static function (string $date): string {
+    $formatted = oeFormatShortDate($date);
+    return is_string($formatted) ? $formatted : $date;
+};
+if ($searchRequest->getString('form_search') === 'Search') {
+    $category = $searchRequest->getString('form_category');
+    if ($category !== '') {
+        $searchFilters[] = $category;
+    }
+    foreach (['form_name' => xl('Name'), 'form_pid' => xl('Chart ID'), 'form_encounter' => xl('Encounter')] as $field => $label) {
+        $value = trim($searchRequest->getString($field));
+        if ($value !== '') {
+            $searchFilters[] = $label . ': ' . $value;
+        }
+    }
+    $serviceFrom = fixDate($searchRequest->getString('form_date'), '');
+    $serviceTo = fixDate($searchRequest->getString('form_to_date'), '');
+    if ($serviceFrom !== '') {
+        $searchFilters[] = $serviceTo !== ''
+            ? xl('Service dates') . ': ' . $shortDate($serviceFrom) . ' - ' . $shortDate($serviceTo)
+            : xl('Service date') . ': ' . $shortDate($serviceFrom);
+    }
+    if ($lastStatementBefore !== '') {
+        $searchFilters[] = xl('Last statement before') . ' ' . $shortDate($lastStatementBefore);
+    }
+}
 ?>
 <html>
 <head>
@@ -924,8 +956,8 @@ $noStatementSince = fixDate($noStatementSinceInput, '');
                                 <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_to_date'] ?? ''); ?>' title='<?php echo xla("Ending DOS mm/dd/yyyy if you wish to enter a range"); ?>' />
                             </div>
                             <div class="form-group col-lg">
-                                <label class="control-label" for="form_no_stmt_since"><?php echo xlt('No Statement Since'); ?>:</label>
-                                <input type='text' name='form_no_stmt_since' id='form_no_stmt_since' class='form-control datepicker' value='<?php echo attr($noStatementSinceInput); ?>' title='<?php echo xla("List only invoices with no statement sent on or after this date, including those never sent one"); ?>' />
+                                <label class="control-label" for="form_last_stmt_before"><?php echo xlt('Last Statement Before'); ?>:</label>
+                                <input type='text' name='form_last_stmt_before' id='form_last_stmt_before' class='form-control datepicker' value='<?php echo attr($lastStatementBeforeInput); ?>' title='<?php echo xla("List only invoices last sent a statement before this date, or never sent one"); ?>' />
                             </div>
                             <div class="form-group col-lg" style="padding-right:0px">
                                 <label class="control-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
@@ -966,6 +998,9 @@ $noStatementSince = fixDate($noStatementSinceInput, '');
                 </div>
                 <fieldset id="search-results" class="oe-show-hide px-2">
                     <legend><span><?php echo xlt('Search Results'); ?></span>
+                        <?php if ($searchFilters !== []) { ?>
+                            <small id="search-filters" class="text-muted ml-2"><?php echo text(implode(' · ', $searchFilters)); ?></small>
+                        <?php } ?>
                         <div class="oe-pull-away oe-legend-radio">
                             <label class="checkbox-inline">
                                 <input type="checkbox" id="posting_adj_disable" name="posting_adj_disable" onchange='persistCriteria(this, event)' title="<?php echo xlt("Disable automatically calculating balance adjustments for invoice posting") ?>" value="<?php echo attr($posting_adj_disable); ?>" <?php echo ' ' . attr($posting_adj_disable); ?> /><?php echo xlt('Disable Auto Adjustments'); ?>
@@ -1104,12 +1139,12 @@ $noStatementSince = fixDate($noStatementSinceInput, '');
                                         $where .= "f.date = '" . add_escape_custom($form_date) . "'";
                                     }
                                 }
-                                if ($noStatementSince !== '') {
+                                if ($lastStatementBefore !== '') {
                                     if ($where) {
                                         $where .= " AND ";
                                     }
                                     $where .= "(f.last_stmt_date IS NULL OR f.last_stmt_date < ?)";
-                                    $searchBinds[] = $noStatementSince;
+                                    $searchBinds[] = $lastStatementBefore;
                                 }
                                 if (!$where) {
                                     if ($_REQUEST['form_category'] == 'All') {
