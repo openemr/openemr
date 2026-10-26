@@ -592,7 +592,7 @@ class EventAuditLogger implements AuditLoggerInterface
             return $this->requestPatientId;
         }
         $sessionPid = $this->session->get('pid');
-        if (is_int($sessionPid)) {
+        if (is_int($sessionPid) && $sessionPid > 0) {
             return $sessionPid;
         }
         if (is_string($sessionPid) && ctype_digit($sessionPid)) {

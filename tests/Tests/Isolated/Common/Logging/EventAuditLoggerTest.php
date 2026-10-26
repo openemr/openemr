@@ -401,6 +401,7 @@ class EventAuditLoggerTest extends TestCase
             'unset' => [null],
             'empty string' => [''],
             'non-numeric string' => ['abc'],
+            'negative int' => [-1],
         ];
     }
 
