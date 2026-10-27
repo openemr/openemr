@@ -3383,6 +3383,79 @@ Each capture isolated in its own `catch (WebDriverException | \JsonException)` s
 - **An `ERROR` line without a non-zero exit is CI-silent until something downstream fails on it.** `acl_upgrade.php` prints its error and completes. Comparable to G35's `ACCEPTANCE_EXPECTED_VERSION` mismatch (which also only surfaced when something downstream asserted on an expected invariant). The acceptance surface's growing collection of shell-level post-upgrade DB assertions (version-display per #13635, Clinicians-ACL per #14707) is the general-purpose catch for this class. Design implication: **when adding a new upgrade block that modifies a specific DB-state shape, add the matching post-upgrade acceptance assertion in the same PR** — the two-line `test -f` guard lets the assertion stay bounded to targets that ship the fix.
 - **Acceptance surfaced a bug the dev stack couldn't.** Dev-checkout tests spin up a fresh DB that doesn't share lineage with any shipped install's ACL state. Only the acceptance tarball matrix boots a shipped-release install and then runs the current branch's `sql_upgrade.php` against it — the only context where a 2026-07-cycle install can meet 2026-10-cycle code. Pattern echoes `artifact-acceptance-testing-plan.md`'s test-coverage philosophy ("validating that the shipped artifact behaves the same" — acceptance-side).
 
+### G53 — Branch-cut master-side upgrade-sql stub silently defeats Phase 7c version-row assertion on master docker-build-release's upgrade cell  *(OPEN — discovered 2026-10-27, deferred to post-8.5.0)*
+
+**STATUS: OPEN as of 2026-10-27.** Surfaced on the first docker-release-orchestrator cron fire after the rel-850 branch-cut (2026-10-26 06:33 UTC, run `40280527001`). Master docker-build-release's `acceptance-gate` upgrade cell failed on both arches with:
+
+```
+/apis/default/api/version returned version '8.5.0' does not match expected '8.6.0'.
+```
+
+Phase 7c's shell-level post-upgrade DB-version assertion caught the exact "silent sql_upgrade no-op" class it was designed for (ref #13586/#13587).
+
+**Root cause:** `BranchCutSqlUpgradeMutator`'s master-side seed of `sql/<prior>-to-<new>_upgrade.sql` emits only the standard section-header comment block (`#IfMissingColumn`, `#IfTableEngine`, etc.) and zero DML statements. For 8.5.0 → 8.6.0 immediately after the 2026-10-25 branch-cut-master merge, `sql/8_5_0-to-8_6_0_upgrade.sql` is 5 KB of comments with nothing to execute. The upgrade cell:
+
+1. Pulls Docker Hub `openemr/openemr:8.5.0` (= rel-850 tip, version.php = 8.5.0-dev)
+2. Fresh install → seeds DB `version` row = 8.5.0
+3. Swaps to the just-built master image (`release-candidate-<run>-1`, version.php = 8.6.0-dev)
+4. Runs `sql_upgrade.php --from=8.5.0`
+5. Applies the empty stub, no DML fires, version row stays at 8.5.0
+6. Phase 7c assertion compares DB `version` row (8.5.0) against `ACCEPTANCE_EXPECTED_VERSION` (8.6.0) and fails
+
+Comparable to G52's "ERROR line without non-zero exit" shape — the upgrade framework completes cleanly, the stall is only visible to the downstream assertion.
+
+**Scope of exposure (today):**
+
+- **Master docker-build-release's acceptance-gate** (orchestrator-dispatched, every cron fire + every master push touching `.github/release-targets.yml`): **AFFECTED.** Failing every fire until the cycle accumulates its first version-row-bumping migration or this gap closes.
+- **Standalone `acceptance-docker.yml` on master, scheduled/push without `build_locally=true`**: **not affected by coincidence.** Default `to_tag=next` currently aliases rel-850's `openemr/openemr:8.5.0` tag digest (same `openemr_version_ref: rel-850`), so FROM and TO are the same image — vacuous no-op upgrade, version row doesn't need to move. The "schedule green" signal is weak-by-coincidence while rel-850 holds `next` on a floating pre-release tag; recovers once rel-850 ships for real and `next` promotes.
+- **Standalone `acceptance-package.yml` on master, build_locally runs**: **AFFECTED in principle.** Tarball side's manifest-intersected derivation falls back from unshipped 8.5.0 to shipped 8.4.1 for FROM; `expected_version` reads master's version.php = 8.6.0 for TO. Chain is 8.4.1 → 8_4_1-to-8_5_0 (real content, bumps DB) → 8_5_0-to-8_6_0 (empty stub) → DB stays at 8.5.0, mismatches 8.6.0 expected. Hasn't surfaced a clean red yet (the 2026-10-26 13:16 push run tripped on an unrelated `mpdf/mpdf` HTTP 429 before the upgrade cell ran).
+- **rel-850 acceptance (release-prep dispatch + ship-time)**: **not affected.** rel-850's own `sql/8_4_1-to-8_5_0_upgrade.sql` is 57 KB of real content; the DB bumps correctly through that cycle. **This gap does not block rel-850 ship.**
+
+**Fix options (deferred — not fixing on this PR):**
+
+1. **Branch-cut-master mutator appends a terminal version-row-bump to the seed.** `BranchCutSqlUpgradeMutator::renderMasterSeedContent()` emits a trailing `UPDATE version SET v_major=<M>, v_minor=<m>, v_patch=0, v_tag='-dev', v_realpatch=0` statement so the empty-cycle upgrade still moves the DB forward. Preserves the stall-detection signal (an accidentally-reverted bump by a later PR still trips the assertion); only paves the specific "fresh branch-cut cycle has zero committed migrations" case. Preferred — matches house pattern of "fix at the source, keep the downstream guard honest."
+2. **Phase 7c assertion tolerates empty-cycle no-op.** If the applied upgrade-sql file has zero DML statements, assert that the DB `version` row equals the FROM version (not the expected TO). Weaker — hides any future "DML present but didn't bump version" regression during the first-commit window of a new cycle.
+
+Option 1 is the more robust shape; option 2 is a smaller change but a lossier signal. Both are deferrable past 8.5.0 ship.
+
+**Timing / impact on 8.5.0 ship:** none. rel-850's upgrade file has real content; its ship path is unaffected. Master's docker-build acceptance-gate stays red every fire until the first version-row-bumping migration lands on master, or this gap closes — a visibility nuisance, not a blocker.
+
+**Cross-check:** verified via `gh api repos/openemr/openemr/contents/sql/8_5_0-to-8_6_0_upgrade.sql?ref=master` — content is comment-only; grep for `UPDATE|INSERT|CREATE|ALTER|DROP|DELETE` returns zero non-comment matches. Prior cycle's `8_4_1-to-8_5_0_upgrade.sql` is 57,949 bytes vs this cycle's stub at 5,042 bytes — the size delta alone is a reliable "empty cycle" signal if a future automated check wants one.
+
+**Systemic lesson:** the Phase 7c assertion was designed to catch "sql_upgrade silently didn't bump" — and it worked. The newly-visible edge is that an *empty* upgrade-sql file is a valid intermediate state during the first few hours/days of a new release cycle. The branch-cut mutator shape (seeds the file as pure skeleton) and the acceptance assertion (requires post-upgrade bump) are both individually correct; they contradict only during the "fresh cycle, no migrations yet" window. Option 1 above closes the window at the source; the lesson is similar to G44's mutator-template-missing-field class: when adding a new acceptance assertion, audit the branch-cut mutator shape for cases where the asserted invariant doesn't hold.
+
+### G54 — `recovery-path-smoketest.yml`'s `smoketest-docker` locate step races against GitHub `run_name` resolution, failing even when the dispatched canary run succeeds  *(OPEN — discovered 2026-10-27, deferred to post-8.5.0)*
+
+**STATUS: OPEN as of 2026-10-27.** Two consecutive nights (2026-10-26, 2026-10-27) of `smoketest-docker` job failure in `recovery-path-smoketest.yml` — matches G36's noise-handling policy "two-plus consecutive reds from the same failure class trigger investigation" exactly. In both cases the dispatched canary `docker-build-release.yml` run completed green and the Docker Hub guardrail (canary tag absent post-run) held; only the smoketest's own locate plumbing failed.
+
+**Root cause:** the `Locate the dispatched docker-build-release run` step filters `gh run list --workflow docker-build-release.yml --event workflow_dispatch` by `displayTitle contains CANARY_TAG`, with a 12 × 10s = 2-minute poll window. GitHub populates a workflow run's `displayTitle` from the `run-name` expression lazily — on fresh dispatches during busy periods, the title lags behind the run's existence by longer than 2 minutes. The dispatched run exists (visible by databaseId in the baseline-diff), but `displayTitle` is still empty or defaulted to the workflow name, so the `contains(CANARY_TAG)` filter misses it. Locate exits 1, workflow fails.
+
+Observed on two nights:
+- 2026-10-26 02:14 UTC — [run 40258082737](https://github.com/openemr/openemr/actions/runs/40258082737), dispatched canary `smoketest-canary-40258082737-20261026021412`
+- 2026-10-27 02:14 UTC — [run 40437067324](https://github.com/openemr/openemr/actions/runs/40437067324), dispatched canary `smoketest-canary-40437067324-20261027021231` (dispatched run `40437092684` completed green ~10 min after the smoketest gave up)
+
+In both cases Docker Hub-side cleanup confirmed `HTTP 404` for the canary tag — no tag was ever published, guardrail intact.
+
+**Scope of exposure:**
+
+- **Recovery workflow itself (`acceptance-only.yml` + `docker-acceptance-only.yml`)**: NOT affected. The actual recovery path a maintainer would invoke on a real ship-day failure doesn't go through the smoketest's locate step; the smoketest is the proactive warm-up (G36), not the real recovery path.
+- **False G36 "two reds same class" trigger**: AFFECTED. The exact signal G36 was designed to make legible is firing on a race in the smoketest's own plumbing, not on a real recovery-workflow regression. Future operators seeing this pattern will spend investigation cycles on a non-release-blocking plumbing bug until closed.
+- **Tarball-side smoketest (`smoketest` job)**: NOT affected today — passed both nights. Tarball locate uses a slightly different shape, but the same race could in principle apply if GitHub's run_name lag gets worse. Worth cross-checking for the same pattern during the fix.
+
+**Fix options (deferred — not fixing on this PR):**
+
+1. **Switch locate from `displayTitle contains CANARY_TAG` to "databaseId not in baseline".** The pre-dispatch `BASELINE_DOCKER_BUILD_IDS` snapshot already captures every pre-existing `workflow_dispatch` run against `docker-build-release.yml`; any ID appearing in `gh run list` that's not in the baseline is definitely a new run, regardless of whether its `displayTitle` has populated yet. The dispatch step is single-threaded within the smoketest, so "new since baseline" is unambiguous. Preferred — matches the pattern the sibling tarball `smoketest` job already uses on its locate step and eliminates the title-resolution dependency entirely.
+2. **Widen the locate window to 4-5 minutes.** Shortest-path mitigation but doesn't close the race, just makes it less likely to hit. The 2-minute cap was already a tolerance against GitHub API lag; GitHub's lag can grow further during busy periods, so this just defers the next collision.
+3. **Fall through to databaseId-match if `displayTitle` is empty.** Keeps the title-contains fast path but adds a late-arrival safety net. More code than option 1 for a weaker guarantee.
+
+Option 1 is the clean shape. Option 2 might ride along as belt-and-suspenders.
+
+**Timing / impact on 8.5.0 ship:** none. Doesn't gate the ship pipeline. Operator noise only — a daily `::error::` in the Actions tab until closed.
+
+**Cross-check:** confirmed by inspecting both failed runs' job logs — both reached `==> [attempt 1] gh workflow run docker-build-release.yml` → printed the dispatched run URL (so dispatch succeeded) → immediately followed by `Locate the dispatched build-release run` → 12 polls × 10s → `Could not locate a NEW docker-build-release run within 2 minutes (baseline=[...])` → variant A dispatch failed similarly → variant B dispatch failed similarly → final guardrail check: `cleanup OK: openemr/openemr:smoketest-canary-... already gone (HTTP 404)`. The sibling tarball `smoketest` job's locate (`.github/workflows/recovery-path-smoketest.yml:379-414`) uses the baseline-diff pattern option 1 proposes, so the fix is largely a shape-port from one job to the other.
+
+**Systemic lesson:** when a filter condition depends on asynchronously-populated state (GitHub `displayTitle`, `run_name` eval, etc.), prefer a filter that depends on synchronously-populated state (databaseId, created_at) with a diff-against-pre-dispatch baseline. The baseline capture is already the right shape; the smoketest-docker locate was patterned on the earlier (now-worse) design and should be ported forward.
+
 ## Followup opportunities (not yet gap-numbered)
 
 Items surfaced during planning discussions or from operator experience that don't yet warrant a full gap entry — typically because they're extrapolations from existing patterns rather than confirmed bugs, or because they're operator-side observations that haven't been formalized. Move to a real G-entry when concrete scope + investigation are lined up. Kept here so option-listing across future planning sessions doesn't depend on session context.
