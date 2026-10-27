@@ -85,17 +85,30 @@ class X125010837PZipLogTest extends TestCase
     }
 
     /**
+     * A facility outside the United States keeps a short postal code without the ZIP warning.
+     */
+    public function testAForeignFacilityZipIsSentWithoutTheWarning(): void
+    {
+        [$claimText, $log] = $this->generateClaim('10101', '20202', 'Canada');
+
+        $this->assertStringNotContainsString('837P loop 2010AA requires a 9-digit ZIP', $log);
+        $this->assertStringNotContainsString('837P loop 2310C requires a 9-digit ZIP', $log);
+        $this->assertStringContainsString('*10101~', $claimText);
+        $this->assertStringContainsString('*20202~', $claimText);
+    }
+
+    /**
      * @return array{string, string}
      */
-    private function generateClaim(string $billingZip, string $serviceZip): array
+    private function generateClaim(string $billingZip, string $serviceZip, string $country = 'US'): array
     {
         $suffix = bin2hex(random_bytes(4));
         $this->providerId = $this->insertId(
             'INSERT INTO users (username, fname, lname, npi, active) VALUES (?, ?, ?, ?, 1)',
             ['zip-log-user-' . $suffix, 'Zip', 'Logger', '1234567893']
         );
-        $this->billingFacilityId = $this->insertFacility('zip-log-billing-' . $suffix, $billingZip);
-        $this->serviceFacilityId = $this->insertFacility('zip-log-service-' . $suffix, $serviceZip);
+        $this->billingFacilityId = $this->insertFacility('zip-log-billing-' . $suffix, $billingZip, $country);
+        $this->serviceFacilityId = $this->insertFacility('zip-log-service-' . $suffix, $serviceZip, $country);
         $this->insertPatientEncounterAndPartner();
         $this->billingId = $this->insertId(
             'INSERT INTO billing (pid, encounter, code, code_type, code_text, units, fee,'
@@ -200,12 +213,12 @@ class X125010837PZipLogTest extends TestCase
     /**
      * Insert one facility and return its id.
      */
-    private function insertFacility(string $name, string $postalCode): int
+    private function insertFacility(string $name, string $postalCode, string $country = 'US'): int
     {
         return $this->insertId(
             'INSERT INTO facility (name, street, city, state, postal_code, country_code, federal_ein, facility_npi,'
             . ' tax_id_type, color, oid, pos_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [$name, '1 Main', 'Testville', 'TX', $postalCode, 'US', '12-3456789', '1234567893', 'EI', '#000000', '', 11]
+            [$name, '1 Main', 'Testville', 'TX', $postalCode, $country, '12-3456789', '1234567893', 'EI', '#000000', '', 11]
         );
     }
 
