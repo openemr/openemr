@@ -51,9 +51,8 @@ class EventAuditLogger implements AuditLoggerInterface
         // connection. See notes in LogTablesSink and BreakglassChecker.
         $auditConn = DatabaseConnectionFactory::createDbal($opts, false);
 
-        $chainKey = Audit\AuditChainKey::fromSiteDirectory($bag->getString('OE_SITE_DIR'))->value();
         $sinks = [];
-        $sinks[] = new Audit\LogTablesSink(conn: $auditConn, chainKey: $chainKey);
+        $sinks[] = new Audit\LogTablesSink(conn: $auditConn, siteDir: $site);
 
         $enableAtna = $bag->getBoolean('enable_atna_audit');
         if ($enableAtna) {
@@ -682,9 +681,11 @@ class EventAuditLogger implements AuditLoggerInterface
         $this->flushPendingQuerySummary();
         try {
             $this->sink->flush();
-        } catch (\RuntimeException) {
+        } catch (\RuntimeException $failure) {
             // The audit tables are not ready. The page still finishes.
-            error_log('OpenEMR audit log was not written');
+            ServiceContainer::getLogger()->error('OpenEMR audit log was not written', [
+                'exception' => $failure,
+            ]);
         }
     }
 
