@@ -21,7 +21,9 @@
 #   PARITY_FROM_TAG  release tag to upgrade from
 #                    (default: derived from the sql/*-to-*_upgrade.sql names;
 #                    between a release branch's cut and its tag, that tag
-#                    doesn't exist yet, so the release branch is used)
+#                    doesn't exist yet, so the release branch is used: the
+#                    one master's .github/release-targets.yml names for the
+#                    version)
 #
 # Exit codes:
 #   0  identical
@@ -46,25 +48,90 @@ source .github/scripts/lib/derive-from-version.sh
 from=$(derive_from_version_sql_candidates . | tail -n 1)
 upgrade=$(find sql -maxdepth 1 -name "${from//./_}-to-*_upgrade.sql" | sort | tail -n 1)
 tag=${PARITY_FROM_TAG:-v${from//./_}}
-branch=rel-${from//./}
 if [[ -z "${upgrade}" ]]; then
     echo "::error::upgrade-parity: no sql/${from//./_}-to-*_upgrade.sql" >&2
     exit 2
 fi
+
+# The release branch master's release-targets.yml names for a version: the row
+# whose docker_tags list the version or whose openemr_version_ref is its tag.
+# One branch serves a release line (8.4.0 and 8.4.1 are both rel-840), so the
+# name can't be built from the version's digits. Inline "# ..." comments and
+# quotes are ignored, as in lib/release-targets-queries.sh.
+release_branch_for() {
+    awk -v version="$2" -v tag="$3" -v squote="'" '
+        function value(line) {
+            line = substr(line, index(line, ":") + 1)
+            sub(/[[:space:]]+#.*$/, "", line)
+            gsub(/["[:space:]]/, "", line)
+            gsub(squote, "", line)
+            return line
+        }
+        /^-[[:space:]]*branch:/ { branch = value($0); next }
+        branch != "" && /^[[:space:]]+docker_tags:/ {
+            n = split(value($0), tags, ",")
+            for (i = 1; i <= n; i++) if (tags[i] == version) { print branch; exit }
+        }
+        branch != "" && /^[[:space:]]+openemr_version_ref:/ && value($0) == tag { print branch; exit }
+    ' "$1"
+}
+
+# A shallow fetch, stopping the run with git's own reason if it fails. On
+# success its stderr is dropped: a depth-1 fetch can warn about the parent
+# commits it deliberately leaves out.
+fetch_or_stop() {
+    local message=$1
+    shift
+    if ! git fetch --quiet --no-tags --depth=1 origin "$@" 2> "${work}/fetch.err"; then
+        reason=$(tail -n 1 "${work}/fetch.err" || true)
+        echo "::error::upgrade-parity: ${message}: ${reason}" >&2
+        exit 2
+    fi
+}
+
 # Once a release ships, its tag is the base. Between the release branch's cut
 # and its tag, master's newest upgrade file already starts at the new version
 # while the tag doesn't exist yet, so the release branch stands in for it.
-if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null \
-    || git fetch --quiet --no-tags --depth=1 origin "refs/tags/${tag}:refs/tags/${tag}" 2>/dev/null; then
+# Only a tag origin doesn't have falls back to the branch: a failed request is
+# an error, since a branch can carry changes newer than the shipped tag.
+if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+    tag_on_origin=yes
+elif ! remote_tag=$(git ls-remote --tags --refs origin "refs/tags/${tag}" 2> "${work}/ls-remote.err"); then
+    reason=$(tail -n 1 "${work}/ls-remote.err" || true)
+    echo "::error::upgrade-parity: couldn't ask origin for the ${tag} tag: ${reason}" >&2
+    exit 2
+elif [[ -n "${remote_tag}" ]]; then
+    tag_on_origin=yes
+    fetch_or_stop "origin has the ${tag} tag, but fetching it failed" "refs/tags/${tag}:refs/tags/${tag}"
+else
+    tag_on_origin=no
+fi
+
+if [[ ${tag_on_origin} == yes ]]; then
     base=${tag}
     base_name=${tag}
 elif [[ -z "${PARITY_FROM_TAG:-}" ]]; then
-    git fetch --quiet --no-tags --depth=1 origin "refs/heads/${branch}:refs/remotes/origin/${branch}"
+    # release-targets.yml is read from master, which is its source of truth:
+    # this workflow also runs on pull requests into rel-* branches, whose copy
+    # is the snapshot taken at their cut (see the file's own header).
+    fetch_or_stop "no ${tag} tag yet, and fetching master for its release-targets.yml failed" \
+        "refs/heads/master:refs/remotes/origin/master"
+    git show "origin/master:.github/release-targets.yml" > "${work}/release-targets.yml"
+    branch=$(release_branch_for "${work}/release-targets.yml" "${from}" "${tag}")
+    if [[ -n "${branch}" ]]; then
+        source_note="the release-targets.yml row for ${from}"
+    else
+        IFS=. read -r major minor _ <<< "${from}"
+        branch=rel-${major}${minor}0
+        source_note="no release-targets.yml row names ${from}, so the line's usual name"
+    fi
+    fetch_or_stop "no ${tag} tag yet, and the release branch ${branch} (${source_note}) couldn't be fetched" \
+        "refs/heads/${branch}:refs/remotes/origin/${branch}"
     base=origin/${branch}
-    base_name="${branch} (no ${tag} tag yet)"
-    echo "::notice::upgrade-parity: no ${tag} tag yet, so comparing against the release branch ${branch}"
+    base_name="${branch} (no ${tag} tag yet; ${source_note})"
+    echo "::notice::upgrade-parity: no ${tag} tag yet, so comparing against the release branch ${branch} (${source_note})"
 else
-    echo "::error::upgrade-parity: no tag ${tag} (PARITY_FROM_TAG)" >&2
+    echo "::error::upgrade-parity: no tag ${tag} on origin (PARITY_FROM_TAG)" >&2
     exit 2
 fi
 echo "fresh: this checkout's sql/database.sql"
