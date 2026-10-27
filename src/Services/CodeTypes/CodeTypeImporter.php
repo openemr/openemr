@@ -33,7 +33,7 @@ use OpenEMR\Services\Traits\ServiceFSTrait;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
-readonly class CodeTypeImporter
+class CodeTypeImporter
 {
     use ServiceFSTrait;
 

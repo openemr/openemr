@@ -22,7 +22,7 @@ trait ServiceFSTrait
 {
     protected array $cwd = [];
 
-    public function pushd(string $path): string
+    private function pushd(string $path): string
     {
         $full_path = realpath($path);
         if (is_dir($full_path)) {
@@ -34,7 +34,7 @@ trait ServiceFSTrait
         }
     }
 
-    public function popd()
+    private function popd()
     {
         if (!empty($this->cwd)) {
             $previous_cwd = array_pop($this->cwd);
