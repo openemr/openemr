@@ -285,8 +285,10 @@ Certification Program** — and cannot be changed casually: **C-CDA**, **FHIR / 
 registration/approval**. A change that passes CI can still **break certification**, because
 conformance is judged against external standards and test procedures, not our own tests.
 
-Before touching any of these, read **[compliance.md](compliance.md)** — it maps each ONC
-criterion (b1, g1/g2, g6–g10, h1, …) to its architecture components and states the
+Before touching any of these, read **[compliance.md](compliance.md)** — it maps OpenEMR's
+**certified §170.315 criteria** (CHPL listing 11757: (a)(1)/(a)(2)/(a)(5)/(a)(12)/(a)(14),
+(b)(1)/(b)(10)/(b)(11), (c)(1)–(c)(3), (d)(1)–(d)(9)/(d)(12)/(d)(13), (e)(3),
+(g)(2)–(g)(7)/(g)(9)/(g)(10), (h)(1)) to their architecture components and states the
 re-validation a change requires. Non-US jurisdictions have their own regimes, kept in modules,
 not in core.
 
