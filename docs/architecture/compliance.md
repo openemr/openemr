@@ -38,23 +38,46 @@ criterion before you touch them, and re-validate against the standard (not just 
 
 ---
 
-## US ONC criteria → architecture components
+## US ONC certified criteria → architecture components
 
-Criterion letters/numbers are ONC §170.315 identifiers. "Governed" means a change can affect
-conformance and requires re-validation against the standard.
+**Certified product (authoritative source).** OpenEMR 8.1.0 is certified under the ONC Health
+IT Certification Program — **CHPL listing 11757**, certification number
+**15.05.05.3115.OPEN.02.01.1.260130** (certified 2026-01-30). The table below lists *that
+product's* certified §170.315 criteria mapped to their code. **CHPL is authoritative and
+updated as certification changes — confirm the current set at <https://chpl.healthit.gov>
+(listing 11757) before relying on this.** Two capabilities use **relied-upon software**: the
+**EMR Direct Interoperability Engine 2017** (for **(b)(1)** and **(h)(1)**) and **AccessGUDID
+v2** (for **(a)(14)**).
 
-| Criterion | What it requires | Architecture components |
+**Certified CQMs:** CMS22, CMS69, CMS122, CMS124, CMS125, CMS127, CMS130, CMS138, CMS147,
+CMS165.
+
+"Governed" means a change can affect conformance and requires re-validation against the
+standard, not just CI.
+
+| Certified criterion | What it covers | Architecture component |
 |---|---|---|
-| **b1** — Transitions of Care | Create, send, receive, and view a conformant **C-CDA** for care transitions | `src/Services/Cda/` (parse/import/validate), `ccdaservice/` (generation), the `Carecoordination` zend module, Direct transport (**h1**) |
-| **g6** — C-CDA creation performance | Generated C-CDA validates against the standard | `ccdaservice/` generation, Schematron validation `src/Services/Cda/Schematron/` |
-| **g7 / g9** — Application access (patient selection / all data request) | Programmatic access to a patient's data | the REST/FHIR API (`_rest_routes.inc.php`, `src/RestControllers/`, `src/FHIR/`) |
-| **g8** — Application access (data category request) | *(Retired in the Cures Update — folded into the standardized API.)* Verify current status. | — |
-| **g10** — Standardized API for patient and population services | **FHIR R4 + US Core**, **SMART App Launch**, and **Bulk Data** export | `src/FHIR/` (US Core resources), `src/FHIR/SMART/` + `src/RestControllers/SMART/` (SMART launch), `src/FHIR/Export/` (`$export` bulk), OAuth2 (`src/RestControllers/AuthorizationController.php`) |
-| **g1 / g2** — Automated numerator recording / measure calculation | **CQM** calculation and reporting via **QRDA I** (patient) and **QRDA III** (aggregate) | `src/Cqm/` (CQL/QDM engine, value-set OIDs in `oids_qdm_*.json`), `src/Cqm/QrdaControllers/QrdaReportController.php` (also the **c1–c4** CQM criteria) |
-| **h1** (with **b1**) — Direct Project transport | **Direct** secure, trusted email exchange (trust bundles / HISP) for sending/receiving clinical documents | EMR Direct's **phiMail** integration: `interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php`, `library/direct_message_check.inc.php`, trust certs under `public/certs/phimail/` |
-| **g10** — API registration & app approval | Dynamic client registration **plus manual admin approval/enable** of API apps, and token/trust revocation | `src/FHIR/SMART/ClientAdminController.php` (admin approve/enable/revoke), `interface/smart/register-app.php` + `admin-client.php`, `src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php` |
-| **d1–d13** — Privacy & security | Authentication, authorization, audit, encryption, access control | ACL ([subsystems.md](subsystems.md#permissions-and-authorization)), OAuth2 ([subsystems.md](subsystems.md#oauth2-scopes-and-api-authorization)), encryption ([subsystems.md](subsystems.md#security-encryption-keys-and-api-authorization)), audit logging |
-| **e1 / e3** — View/Download/Transmit; secure messaging | Patient access to their data and messaging | the patient portal ([portal.md](portal.md)) |
+| **(a)(1) / (a)(2)** — CPOE: medications / labs | Computerized provider order entry | order entry / e-prescribing; `interface/forms/procedure_order/` |
+| **(a)(5)** — Demographics | USCDI demographic data | `patient_data`, `src/Services/PatientService.php` |
+| **(a)(12)** — Family health history | Structured family history | the family-history form |
+| **(a)(14)** — Implantable device list | Record device UDIs, parse via GUDID | `src/Services/DeviceService.php` + **AccessGUDID v2** (relied-upon) |
+| **(b)(1)** — Transitions of care | Create / send / receive / view a conformant **C-CDA** | `src/Services/Cda/`, `ccdaservice/`, the `Carecoordination` module; Direct (**(h)(1)**) + **EMR Direct** (relied-upon) |
+| **(b)(10)** — EHI export | Export all electronic health information | the `oe-module-ehi-exporter` module; schema map `Documentation/EHI_Export/` (+ `openemr.meta.xml`, [layers.md](layers.md#database-schema-design-and-governance)) |
+| **(b)(11)** — Decision support interventions (DSI) | Evidence-based + predictive DSIs (HTI-1; replaced the former CDS (a)(9)) | `library/clinical_rules.php`, `src/ClinicalDecisionRules/` |
+| **(c)(1)–(c)(3)** — CQM record / import / report | Capture, import/calculate, and report CQMs as **QRDA I / III** | `src/Cqm/`, `src/Cqm/QrdaControllers/QrdaReportController.php` |
+| **(g)(2)** — Automated measure calculation | CQM calculation engine — note **(g)(1)** numerator recording is **not** in this cert | `src/Cqm/` (CQL/QDM engine, OIDs in `oids_qdm_*.json`, `PhpCqmCalculation.php`) |
+| **(g)(6)** — C-CDA creation performance | Generated C-CDA validates against the standard | `ccdaservice/` + Schematron `src/Services/Cda/Schematron/` |
+| **(g)(7)** — App access: patient selection | API returns a patient context to an app | the REST/FHIR API (`src/RestControllers/`, `src/FHIR/`) |
+| **(g)(9)** — App access: all data request | API returns all USCDI data for a patient | the REST/FHIR API, `src/FHIR/` |
+| **(g)(10)** — Standardized API (FHIR) | **FHIR R4 + US Core**, **SMART App Launch**, **Bulk Data**, client registration + **manual app approval** | `src/FHIR/`, `src/FHIR/SMART/` + `src/RestControllers/SMART/` (incl. `ClientAdminController` approve/enable/revoke; `interface/smart/register-app.php`), `src/FHIR/Export/` (`$export`), OAuth2 (`src/RestControllers/AuthorizationController.php`) |
+| **(h)(1)** — Direct Project transport | Direct secure, trusted exchange of clinical documents | EMR Direct **phiMail**: `interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php`, `library/direct_message_check.inc.php`, trust certs `public/certs/phimail/` + **EMR Direct** (relied-upon) |
+| **(d)(1)–(d)(9), (d)(12), (d)(13)** — Privacy & security | Auth, access control, audit, encryption, trusted connections | ACL ([subsystems.md](subsystems.md#permissions-and-authorization)), OAuth2 ([subsystems.md](subsystems.md#oauth2-scopes-and-api-authorization)), encryption ([subsystems.md](subsystems.md#security-encryption-keys-and-api-authorization)), audit logging |
+| **(e)(3)** — Secure messaging | Patient–provider secure messaging | the patient portal ([portal.md](portal.md)). *(Note: **(e)(1)** View/Download/Transmit is **not** part of this certification.)* |
+| **(g)(3) / (g)(4) / (g)(5)** — SED / QMS / accessibility | Safety-enhanced design, quality management, accessibility-centered design | process & documentation criteria, not a single code surface |
+
+> **Not certified ≠ not present.** OpenEMR ships features beyond this list (e.g.
+> View/Download/Transmit, additional CQMs); they are simply not part of *this* certification.
+> Conversely, do not assume an uncertified area is unregulated in a given deployment.
 
 ### C-CDA, FHIR, QRDA, and Direct are the four regulated output surfaces
 
@@ -68,7 +91,7 @@ test procedures judge their exact output:
   ([tech-stack.md](tech-stack.md#runtime-services)).
 - **FHIR** (g10) — US Core resource shapes, SMART launch, and Bulk Data in `src/FHIR/`. The
   resource structure, search parameters, and `CapabilityStatement` are conformance-bound.
-- **QRDA** (g1/g2, c1–c4) — `src/Cqm/` produces QRDA I/III from CQL/QDM measures; the
+- **QRDA** ((g)(2), (c)(1)–(c)(3)) — `src/Cqm/` produces QRDA I/III from CQL/QDM measures; the
   value-set OIDs and measure logic are regulated.
 - **Direct** (h1, b1) — phiMail trust configuration and certificate handling; the *trust*
   (who you will exchange with) is the compliance-sensitive part, not just the transport.
