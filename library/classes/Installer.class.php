@@ -1566,6 +1566,9 @@ $config = ' . $configMarker . '; /////////////
             return false;
         }
 
+        $this->logger->debug('Installing audit log triggers');
+        $this->installAuditTriggers();
+
         // Write the sql configuration file with $config = 0 (install
         // not yet committed). install_gacl() instantiates GaclApi,
         // whose constructor reads sqlconf.php to open its own DB
@@ -1686,6 +1689,19 @@ $config = ' . $configMarker . '; /////////////
      * @param bool $showError Whether to log/display errors
      * @return mysqli_result|bool Query result or false on error
      */
+    /**
+     * Create the audit triggers when the account is allowed to.
+     *
+     * A failure here does not stop installation. The upgrade applicator
+     * tries again, and the application refuses the statements itself.
+     */
+    protected function installAuditTriggers(): void
+    {
+        foreach (\OpenEMR\Common\Logging\Audit\AuditLogGrantPlan::triggerStatements() as $sql) {
+            $this->execute_sql($sql, false);
+        }
+    }
+
     protected function execute_sql(string $sql, bool $showError = true): mysqli_result|bool
     {
         $this->error_message = '';
