@@ -82,7 +82,9 @@
                         </td>
                         <td>
                             {% if rule.op == 'band' %}
-                                {{ rule.min_value|text }}–{{ rule.max_value|text }}
+                                {% set band_min = rule.min_value is null or rule.min_value is same as('') ? '-∞' : rule.min_value %}
+                                {% set band_max = rule.max_value is null or rule.max_value is same as('') ? '∞' : rule.max_value %}
+                                {{ rule.min_inclusive ? '[' : '(' }}{{ band_min|text }}, {{ band_max|text }}{{ rule.max_inclusive ? ']' : ')' }}
                                 {% if rule.source_field_id_2 %}
                                     {{ "and"|xlt }}
                                     {% if fields[rule.source_field_id_2] is defined %}
