@@ -25,9 +25,24 @@ Rules:
   no computing derived data. If a template needs a value, the controller computes it and
   passes it in. (See `CarePlanController::newAction()` — every value the template needs
   is assembled first, then handed to `$this->twig->render(...)`.)
-- **Escaping is the template's job, by default.** Twig autoescaping replaces the manual
-  `text()`/`attr()` scattering of legacy pages. Reach for `|raw` only with a documented
-  reason.
+- **Escaping is explicit and context-aware — use OpenEMR's Twig escaping filters, not Twig's
+  built-in autoescaping.** OpenEMR intentionally runs Twig with **`autoescape => false`**
+  (`src/Common/Twig/TwigContainer.php`) and supplies its own context-sensitive escaping
+  filters, registered in `src/Common/Twig/TwigExtension.php`. Escape every dynamic value for
+  the *exact* context it lands in, using these filters rather than Twig's generic escaper or a
+  hand-rolled `htmlspecialchars`:
+  - `|text` — text / HTML body content
+  - `|attr` — HTML attribute values
+  - `|attr_url` — a URL used as an attribute value; `|safe_href` — an `href`/`src` URL
+  - `|js_escape` / `|attr_js` / `|js_url` — values emitted into JavaScript (bare, in an
+    attribute, or as a URL)
+  - `|xlt` / `|xla` / `|xlj` — **translate *and* escape** for text / attribute / JS context
+    (see [i18n](subsystems.md#internationalization-i18n))
+
+  This is a deliberate OpenEMR-maintainer decision — one explicit, auditable escaping call per
+  output, matched to its context, rather than relying on Twig's single-mode HTML autoescaper —
+  and **may be revisited in future.** Until then: do not re-enable autoescaping ad hoc, do not
+  reach for raw `htmlspecialchars`, and never emit an unescaped dynamic value.
 - **Rendering goes through `TwigContainer`** (`src/Common/Twig/TwigContainer.php`), which
   builds the `Twig\Environment`, registers OpenEMR extensions/filters, and dispatches
   `TwigEnvironmentEvent` so modules can extend it. Do not instantiate `Twig\Environment`
@@ -37,9 +52,9 @@ Rules:
   (`openemr-cmd update-twig-fixtures`) and review the diff. See
   `tests/Tests/Isolated/Common/Twig/`.
 
-Why Twig over Smarty: a single actively-maintained engine, real autoescaping, testable
-compilation, sandboxing for module-supplied templates, and first-class PHPStan/IDE support
-for the code that feeds it. Every Smarty template retired is one fewer engine to secure
+Why Twig over Smarty: a single actively-maintained engine, consistent context-aware escaping
+filters (above), testable compilation, sandboxing for module-supplied templates, and
+first-class PHPStan/IDE support for the code that feeds it. Every Smarty template retired is one fewer engine to secure
 and teach.
 
 ---
