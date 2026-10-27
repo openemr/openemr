@@ -66,13 +66,13 @@ standard, not just CI.
 | **(b)(11)** — Decision support interventions (DSI) | Evidence-based + predictive DSIs (HTI-1; replaced the former CDS (a)(9)) | `library/clinical_rules.php`, `src/ClinicalDecisionRules/` |
 | **(c)(1)–(c)(3)** — CQM record / import / report | Capture, import/calculate, and report CQMs as **QRDA I / III** | `src/Cqm/`, `src/Cqm/QrdaControllers/QrdaReportController.php` |
 | **(g)(2)** — Automated measure calculation | CQM calculation engine — note **(g)(1)** numerator recording is **not** in this cert | `src/Cqm/` (CQL/QDM engine, OIDs in `oids_qdm_*.json`, `PhpCqmCalculation.php`) |
-| **(g)(6)** — C-CDA creation performance | Generated C-CDA validates against the standard | `ccdaservice/` + Schematron `src/Services/Cda/Schematron/` |
+| **(g)(6)** — C-CDA creation performance | More than Schematron validity: generated C-CDA must also match the **reference files**, conform to the **document templates**, and meet performance outcomes — Schematron success alone is **not** sufficient (see the ONC test procedure) | PHP C-CDA code `src/Services/Cda/` + Schematron validation (`oe-cda-schematron` package) |
 | **(g)(7)** — App access: patient selection | API returns a patient context to an app | the REST/FHIR API (`src/RestControllers/`, `src/FHIR/`) |
 | **(g)(9)** — App access: all data request | API returns all USCDI data for a patient | the REST/FHIR API, `src/FHIR/` |
 | **(g)(10)** — Standardized API (FHIR) | **FHIR R4 + US Core**, **SMART App Launch**, **Bulk Data**, client registration + **manual app approval** | `src/FHIR/`, `src/FHIR/SMART/` + `src/RestControllers/SMART/` (incl. `ClientAdminController` approve/enable/revoke; `interface/smart/register-app.php`), `src/FHIR/Export/` (`$export`), OAuth2 (`src/RestControllers/AuthorizationController.php`) |
 | **(h)(1)** — Direct Project transport | Direct secure, trusted exchange of clinical documents | EMR Direct **phiMail**: `interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php`, `library/direct_message_check.inc.php`, trust certs `public/certs/phimail/` + **EMR Direct** (relied-upon) |
 | **(d)(1)–(d)(9), (d)(12), (d)(13)** — Privacy & security | Auth, access control, audit, encryption, trusted connections | ACL ([subsystems.md](subsystems.md#permissions-and-authorization)), OAuth2 ([subsystems.md](subsystems.md#oauth2-scopes-and-api-authorization)), encryption ([subsystems.md](subsystems.md#security-encryption-keys-and-api-authorization)), audit logging |
-| **(e)(3)** — Secure messaging | Patient–provider secure messaging | the patient portal ([portal.md](portal.md)). *(Note: **(e)(1)** View/Download/Transmit is **not** part of this certification.)* |
+| **(e)(3)** — Patient health information capture | Patient-entered / -uploaded health data (questionnaires, PRO, document upload) captured and shared with the provider | the patient portal ([portal.md](portal.md)). *(Note: **(e)(1)** View/Download/Transmit and **(e)(2)** secure messaging are **not** part of this certification.)* |
 | **(g)(3) / (g)(4) / (g)(5)** — SED / QMS / accessibility | Safety-enhanced design, quality management, accessibility-centered design | process & documentation criteria, not a single code surface |
 
 > **Not certified ≠ not present.** OpenEMR ships features beyond this list (e.g.
@@ -84,10 +84,10 @@ standard, not just CI.
 Four output pipelines carry the heaviest compliance weight, because external validators and
 test procedures judge their exact output:
 
-- **C-CDA** (b1, g6) — generation in `ccdaservice/`, validation via Schematron in
-  `src/Services/Cda/Schematron/`. Changing a template, section, or code binding can fail
-  validation. Note `ccdaservice/` is also the **Node runtime slated to move to PHP** — any
-  such move must preserve C-CDA conformance exactly
+- **C-CDA** (b1, g6) — PHP C-CDA code in `src/Services/Cda/`, Schematron validation via the
+  external `oe-cda-schematron` package. Changing a template, section, or code binding can fail
+  validation **or** reference-file matching. The Node C-CDA/CQM packages are slated to be
+  replaced by PHP — any such move must preserve C-CDA conformance exactly
   ([tech-stack.md](tech-stack.md#runtime-services)).
 - **FHIR** (g10) — US Core resource shapes, SMART launch, and Bulk Data in `src/FHIR/`. The
   resource structure, search parameters, and `CapabilityStatement` are conformance-bound.

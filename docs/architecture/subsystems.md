@@ -23,8 +23,9 @@ OpenEMR's access control is an **ACL system built on phpGACL**, surfaced through
 - **Principal** — the user and group membership the check runs against.
 
 The runtime API is static: `AclMain::aclCheckCore($section, $value, $user, $return_value)`
-returns the user's right, with helpers `aclCheckForm()`, `aclCheckIssue()`,
-`aclCheckAcoSpec()`. `AclExtended` and the `Gacl*` classes back administration. Access-denied
+returns a boolean right — an **empty `$user` means the active session user** (not an anonymous
+check), and a missing ACL result yields **`false`** (denied). Helpers `aclCheckForm()`,
+`aclCheckIssue()`, and `aclCheckAcoSpec()` wrap it. `AclExtended` and the `Gacl*` classes back administration. Access-denied
 handling has a modern path (`AccessDeniedException`, `AccessDeniedHelper`,
 `AccessDeniedResponseFormat`).
 
@@ -79,10 +80,13 @@ service surface emerging in **`src/Services/DocumentService.php`**.
 
 Current mechanics:
 
-- **Two storage backends, chosen per document:** `STORAGE_METHOD_FILESYSTEM` (on disk under
+- **Storage backends, chosen per document:** `STORAGE_METHOD_FILESYSTEM` (on disk under
   `sites/<site>/documents/…`) and `STORAGE_METHOD_COUCHDB` (offsite in CouchDB via
-  `library/classes/CouchDB.class.php`, tracked by `couch_docid`/`couch_revid`). The storage
-  method is a column on the document row.
+  `library/classes/CouchDB.class.php`, tracked by `couch_docid`/`couch_revid`); the storage
+  method is a column on the document row. In addition, `Document::createDocument()` dispatches a
+  **`PatientDocumentStoreOffsite`** event (`src/Events/PatientDocuments/`) so a listener can
+  handle **remote/off-site storage** — a third, event-driven path beyond the two built-in
+  methods.
 - **Optional encryption at rest** (`ENCRYPTED_ON`/`OFF`) via `CryptoGen` (see
   [Security](#security-encryption-keys-and-api-authorization) below).
 - **Categorization** through a document category tree; **thumbnails** via
@@ -162,13 +166,19 @@ top of the class):
   generation and migration of key material.
 - **Passphrase mode** (`PasswordBasedCrypto`) for encrypt/decrypt without the private key
   sets.
-- **API surface:** `encryptStandard($value, KeySource)`, `decryptStandard(...)`,
-  `cryptCheckStandard()`. Keys are cached per request inside the object for performance.
+- **API surface for new code:** the context-specific methods make the key choice for you —
+  **`encryptForDatabase()` / `decryptFromDatabase()`** and **`encryptForFilesystem()` /
+  `decryptFromFilesystem()`** (from the `ContextualEncryptionTrait`), plus `PasswordBasedCrypto`
+  for passphrase mode. Use `cryptCheckStandard()` to detect whether a value is encrypted. The
+  lower-level `encryptStandard($value, KeySource)` / `decryptStandard(...)` take an explicit
+  `KeySource` and underlie the above — prefer the context methods in new code. Keys are cached
+  per request inside the object for performance.
 
 Rules and direction:
 
 - **Use `CryptoInterface`/`CryptoGen` for at-rest encryption** — never hand-roll
-  openssl/sodium. Inject `CryptoInterface`, do not `new CryptoGen()` in new code.
+  openssl/sodium — and prefer the context-specific `*ForDatabase` / `*ForFilesystem` methods.
+  Inject `CryptoInterface`; do not `new CryptoGen()` in new code.
 - **Protect the drive key material operationally.** The `methods/` drive keys are part of the
   trust root: if that directory is wiped or regenerated (for example an ephemeral documents
   volume in a container deployment), previously-encrypted data and HMAC-derived secrets

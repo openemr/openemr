@@ -64,15 +64,16 @@ avoid engine-specific syntax that diverges between them. There is no plan to dro
 
 | Technology | Where | Role | Status |
 |---|---|---|---|
-| Node.js C-CDA service | `ccdaservice/` (Node app; `oe-cda-schematron`, `oe-cqm-service`) | Generates/validates C-CDA at runtime (the `ccda_alt_service`) | **Deprecate** → reimplement in PHP |
+| C-CDA / CQM Node packages | external npm packages `oe-cda-schematron`, `oe-cqm-service`, installed under `ccdaservice/` (installed packages, **not** in-repo source — nothing in `ccdaservice/` is git-tracked) | C-CDA Schematron validation and CQM tooling invoked at runtime | **Deprecate** → replace the Node dependency with PHP |
 
-**Node.js for C-CDA → PHP.** The `ccdaservice/` Node process is a separate runtime
-dependency — its own install, its own long-running process, its own attack surface — sitting
-outside the PHP application and the DI/service model. The plan is to **reimplement C-CDA
-generation and validation in PHP** as `src/Services` (a PHP Schematron/validation seam
-already exists at `src/Services/Cda/`) and retire the Node runtime service, removing an
-entire language runtime from production and bringing C-CDA into the same service/test
-architecture as everything else. This does **not** remove Node from the *build* (above).
+**Node.js for C-CDA/CQM → PHP.** C-CDA and CQM processing depends on the external npm
+packages `oe-cda-schematron` and `oe-cqm-service`, installed under `ccdaservice/` (that
+directory holds installed packages, not in-repo source). It is a Node runtime dependency
+sitting outside the PHP application and the DI/service model. PHP C-CDA code already lives
+under `src/Services/Cda/` (and CQM under `src/Cqm/`); the plan is to **replace the Node
+dependency with PHP** so this processing joins the same service/test architecture as
+everything else. This is *not* an in-repo Node service a contributor migrates, and it does
+**not** remove Node from the *build* (webpack/SASS, above).
 
 ---
 
@@ -84,7 +85,7 @@ architecture as everything else. This does **not** remove Node from the *build* 
 | jQuery | 3.7.1 | DOM / AJAX | **Deprecate** — prefer vanilla JS for new code where feasible |
 | Knockout.js | 3.5.3 | MVVM behind the tabbed shell | **Deprecate** — coupled to shell modernization |
 | AngularJS | 1.x (listed in `AGENTS.md`; **not** a current npm dep) | Legacy pockets only | **Deprecate** — remove remaining usages |
-| React | `15.1.0` (pinned github zip, ~2016) | Isolated legacy usage | **Deprecate** — dangerously old; remove or modernize |
+| React | `15.1.0` (pinned GitHub zip, ~2016) | Isolated legacy usage | **Deprecate** — dangerously old; remove or modernize |
 | select2 | 4.1.0 | jQuery-bound select widget | **Evaluate** (jQuery-coupled) |
 | DataTables | 1.13.11 | Table widget | **Evaluate** |
 | Moment.js | 2.31.0 | Date handling | **Deprecate** — upstream is maintenance-only; move to native `Intl` / a modern date lib |
@@ -106,8 +107,8 @@ standalone task.
 - **New Laminas-MVC** core controllers → `src/Controllers` + Symfony `Request`.
 - **jQuery / Knockout / AngularJS / React** → vanilla JS.
 - **Moment.js** → native `Intl`.
-- **Node.js as a runtime** (the C-CDA service) → PHP `src/Services`. Node stays only for the
-  build.
+- **Node.js as a runtime** (the C-CDA/CQM `oe-cda-schematron` / `oe-cqm-service` packages) →
+  PHP. Node stays only for the build.
 
 See [portal.md § Portal technology stack](portal.md#12-portal-technology-stack-and-deprecation)
 for the portal-specific additions.
