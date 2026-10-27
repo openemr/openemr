@@ -111,4 +111,33 @@ final class EncounterOptionsTest extends TestCase
         self::assertFalse(EncounterOptions::contains($options, '9999'));
         self::assertFalse(EncounterOptions::contains($options, ''));
     }
+
+    public function testAnEncounterTheOptionsDoNotOfferIsKept(): void
+    {
+        $options = EncounterOptions::fromEncounterList(self::encounterList([
+            ['2661', '2002-12-17', 'Office Visit'],
+        ]));
+        self::assertSame('9999', EncounterOptions::missingSelection($options, '9999'));
+        self::assertSame('9999', EncounterOptions::missingSelection($options, 9999));
+        self::assertSame('9999', EncounterOptions::missingSelection($options, ' 9999 '));
+        self::assertNull(EncounterOptions::missingSelection($options, '2661'));
+    }
+
+    /**
+     * An immunization saved with no encounter stores 0 (an empty post into the
+     * BIGINT column under the empty sql_mode). Editing it must show the
+     * placeholder, not an "Encounter 0" option.
+     */
+    public function testNoEncounterIsNotKeptAsAnOption(): void
+    {
+        $options = EncounterOptions::fromEncounterList(self::encounterList([
+            ['2661', '2002-12-17', 'Office Visit'],
+        ]));
+        self::assertNull(EncounterOptions::missingSelection($options, '0'));
+        self::assertNull(EncounterOptions::missingSelection($options, 0));
+        self::assertNull(EncounterOptions::missingSelection($options, ''));
+        self::assertNull(EncounterOptions::missingSelection($options, null));
+        self::assertNull(EncounterOptions::missingSelection($options, ['2661']));
+        self::assertNull(EncounterOptions::missingSelection([], '0'));
+    }
 }

@@ -90,9 +90,9 @@ class EncounterListOptionType implements IOptionFormType
 
         // Keep a link to an encounter that is not among them (one belonging to
         // another patient, or since removed) rather than letting the save drop it.
-        $selectedValue = is_scalar($currvalue) ? trim((string) $currvalue) : '';
-        if ($selectedValue !== '' && !EncounterOptions::contains($options, $selectedValue)) {
-            $options[] = ['value' => $selectedValue, 'label' => xl('Encounter') . ' ' . $selectedValue, 'date' => ''];
+        $missing = EncounterOptions::missingSelection($options, $currvalue);
+        if ($missing !== null) {
+            $options[] = ['value' => $missing, 'label' => xl('Encounter') . ' ' . $missing, 'date' => ''];
         }
 
         $optionsList = [];

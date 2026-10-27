@@ -70,6 +70,24 @@ final class EncounterOptions
         return false;
     }
 
+    /**
+     * The selected encounter to keep as an extra option because the options
+     * don't offer it, or null when there is nothing to keep. No encounter is
+     * stored as 0 (an empty post into the BIGINT column under the empty
+     * sql_mode), so 0 is no selection, not an encounter to offer.
+     *
+     * @param list<EncounterOption> $options
+     * @return non-empty-string|null
+     */
+    public static function missingSelection(array $options, mixed $currvalue): ?string
+    {
+        $value = is_scalar($currvalue) ? trim((string) $currvalue) : '';
+        if ($value === '' || ltrim($value, '0') === '' || self::contains($options, $value)) {
+            return null;
+        }
+        return $value;
+    }
+
     private static function asString(mixed $value): string
     {
         if (is_string($value)) {
