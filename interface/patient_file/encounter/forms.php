@@ -32,8 +32,6 @@ require_once($srcdir . '/ESign/Api.php');
 require_once($srcdir . "/../controllers/C_Document.class.php");
 
 use ESign\Api;
-use ESign\ESign;
-use ESign\SignatureIF;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -46,6 +44,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 use OpenEMR\Events\Encounter\EncounterMenuEvent;
+use OpenEMR\Forms\LockedEncounterBillingForms;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\Questionnaire\AvailabilityContext;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
@@ -579,12 +578,9 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
     $DivId = 1;
 
     // To see if the encounter is locked. If it is, no new forms can be created,
-    // except the billing forms below: coding and claim details often follow the
-    // provider's signature, and neither is clinical documentation. The main
-    // menu's Fees > Fee Sheet makes the same exception (menuActionClick in
-    // tabs_view_model.js).
+    // except its billing forms (LockedEncounterBillingForms).
     $encounterLocked = false;
-    $lockedEncounterBillingForms = ['fee_sheet', 'misc_billing_options'];
+    $billingForms = new LockedEncounterBillingForms(OEGlobalsBag::getInstance()->getBoolean('lock_esign_individual'));
     if (
         $esignApi->lockEncounters() &&
         OEGlobalsBag::getInstance()->has('encounter') &&
@@ -596,46 +592,15 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
         }
     }
 
-    // A form signed and locked on its own stays locked, whatever the encounter.
-    $formLockedOnItsOwn = static function (ESign $formEsign): bool {
-        if (!OEGlobalsBag::getInstance()->getBoolean('lock_esign_individual')) {
-            return false;
-        }
-        $signatures = $formEsign->getSignatures();
-        foreach (is_array($signatures) ? $signatures : [] as $signature) {
-            if ($signature instanceof SignatureIF && $signature->isLock() === true) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    // The menu's Misc Billing Options opens the session encounter's existing form
-    // (one per encounter) without its id; misc_billing_options/new.php reads the
-    // encounter from the session. So it's left out when reviewing another
-    // encounter (review mode doesn't change the session encounter), which would
-    // open the session encounter's form, and when that form is locked on its
-    // own, which would open a locked form for editing.
-    $sessionEncounter = EncounterSessionUtil::getEncounter();
-    $hideMiscBilling = $reviewMode && (!is_numeric($encounter) || (int) $encounter !== $sessionEncounter);
-    if (!$hideMiscBilling && $sessionEncounter > 0) {
-        $miscBillingForms = QueryUtils::fetchTableColumn(
-            "SELECT id FROM forms WHERE encounter = ? AND formdir = 'misc_billing_options' AND deleted = 0",
-            'id',
-            [$sessionEncounter]
-        );
-        foreach ($miscBillingForms as $miscBillingForm) {
-            if ($formLockedOnItsOwn($esignApi->createFormESign($miscBillingForm, 'misc_billing_options', $sessionEncounter))) {
-                $hideMiscBilling = true;
-                break;
-            }
-        }
-    }
-
+    $hideMiscBilling = $billingForms->hidesMiscBillingFromMenu(
+        is_numeric($encounter) ? (int) $encounter : null,
+        EncounterSessionUtil::getEncounter(),
+        $reviewMode
+    );
 
     // Convert the flat list of menu items into a multi-dimensional array based on the category
     // decide what will be displayed (name or nickname)
-    $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) use ($encounterLocked, $lockedEncounterBillingForms, $hideMiscBilling, $questionnaireAvailability, $questionnaireContext) {
+    $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) use ($encounterLocked, $billingForms, $hideMiscBilling, $questionnaireAvailability, $questionnaireContext) {
         $menuArray = $menuEvent->getMenuData();
         $reg = $questionnaireAvailability->filterEncounterFormRows(
             getFormsByCategory(),
@@ -652,10 +617,11 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
         }
         foreach ($reg as $item) {
             // filterEncounterFormRows() returns array rows, so no is_array() guard here.
-            if ($encounterLocked && !in_array($item['directory'] ?? null, $lockedEncounterBillingForms, true)) {
+            $directory = is_string($item['directory'] ?? null) ? $item['directory'] : '';
+            if ($encounterLocked && !$billingForms->isBillingForm($directory)) {
                 continue;
             }
-            if ($hideMiscBilling && ($item['directory'] ?? null) === 'misc_billing_options') {
+            if ($hideMiscBilling && $directory === 'misc_billing_options') {
                 continue;
             }
             $tmp = explode('|', (string) $item['aco_spec']);
@@ -1055,8 +1021,9 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
                 // locked only by the encounter's signature stays editable; one
                 // signed and locked on its own does not.
                 $formLocked = $esign->isLocked();
-                if ($formLocked && $encounterLocked && in_array($formdir, $lockedEncounterBillingForms, true)) {
-                    $formLocked = $formLockedOnItsOwn($esign);
+                $formsId = is_array($iter) ? ($iter['id'] ?? null) : null;
+                if ($formLocked && $encounterLocked && is_string($formdir) && $billingForms->isBillingForm($formdir) && is_numeric($formsId)) {
+                    $formLocked = $billingForms->isLockedOnItsOwn((int) $formsId);
                 }
                 if ($formLocked) {
                     echo "<a href='#' class='btn btn-text btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><i class='fa fa-lock fa-fw'></i>&nbsp;" . xlt('Locked') . "</a>";
