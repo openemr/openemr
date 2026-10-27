@@ -6,16 +6,22 @@
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @author Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2011-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019-2022 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Billing;
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 class BillingUtilities
 {
@@ -1519,6 +1525,14 @@ class BillingUtilities
     // Currently on the billing page the user can select any of the patient's
     // payers.  That logic will tailor the payer choices to the encounter date.
     //
+    /**
+     * Insert a claim version, or update an open row.
+     *
+     * An insert returns the version it stored. An update returns 1, or 0
+     * when no open row matches. A billed update also returns 0 when that
+     * version is not marked billed afterward. $claimVersion updates that
+     * row. With none, the newest open row for the encounter is updated.
+     */
     public static function updateClaim(
         $newversion,
         $patient_id,
@@ -1531,7 +1545,8 @@ class BillingUtilities
         $target = '',
         $partner_id = -1,
         $crossover = 0,
-        $submitted_claim = ''
+        $submitted_claim = '',
+        ?int $claimVersion = null
     ): int {
 
         $sqlBindArray = [];
@@ -1544,7 +1559,12 @@ class BillingUtilities
                 $sqlBindArray[] = $payer_id;
             }
 
-            $sql .= "ORDER BY version DESC LIMIT 1";
+            [$versionSql, $versionBind] = self::existingClaimVersionSql($claimVersion);
+            $sql .= $versionSql;
+            foreach ($versionBind as $boundVersion) {
+                $sqlBindArray[] = $boundVersion;
+            }
+
             $row = sqlQuery($sql, $sqlBindArray);
             if (!$row) {
                 return 0;
@@ -1654,6 +1674,7 @@ class BillingUtilities
         $sqlBindClaimset[] = $submitted_claim;
         // If a new claim version is requested, insert its row.
         //
+        $storedVersion = 0;
         if ($newversion) {
             /****
              * $payer_id = ($payer_id < 0) ? $row['payer_id'] : $payer_id;
@@ -1674,14 +1695,25 @@ class BillingUtilities
              * "target = '$target', " .
              * "x12_partner_id = '$partner_id'";
              ****/
-            QueryUtils::inTransaction(function () use ($patient_id, $encounter_id, $crossover, $claimset, $sqlBindClaimset, $status): void {
+            $storedVersion = QueryUtils::inTransaction(function () use (
+                $patient_id,
+                $encounter_id,
+                $crossover,
+                $claimset,
+                $sqlBindClaimset,
+                $status
+            ): int {
                 $version = sqlQuery(
                     'SELECT IFNULL(MAX(version), 0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?',
                     [$patient_id, $encounter_id]
                 );
+                if (!is_array($version) || !array_key_exists('increment', $version)) {
+                    return 0;
+                }
 
                 $sqlBindArray = [];
                 array_push($sqlBindArray, $patient_id, $encounter_id);
+                $increment = $version['increment'];
                 if ($crossover <> 1) {
                     // heredoc (not nowdoc) because $claimset is a dynamic SQL fragment
                     $sql = <<<SQL
@@ -1692,7 +1724,7 @@ class BillingUtilities
                         version = ?
                     SQL;
                     $sqlBindArray = array_merge($sqlBindArray, $sqlBindClaimset);
-                    array_push($sqlBindArray, $version['increment']);
+                    array_push($sqlBindArray, $increment);
                 } else {//Claim automatic forward case.startTra
                     $sql = <<<'SQL'
                     INSERT INTO claims SET
@@ -1701,10 +1733,12 @@ class BillingUtilities
                         bill_time = NOW(), status = ? ,
                         version = ?
                     SQL;
-                    array_push($sqlBindArray, $status, $version['increment']);
+                    array_push($sqlBindArray, $status, $increment);
                 }
 
                 sqlStatement($sql, $sqlBindArray);
+
+                return self::insertedClaimVersion($increment);
             });
         } elseif ($claimset) { // Otherwise update the existing claim row.
             $sqlBindArray = $sqlBindClaimset;
@@ -1714,6 +1748,16 @@ class BillingUtilities
                 "patient_id = ? AND encounter_id = ? AND " .
                 "version = ?";
             sqlStatement($sql, $sqlBindArray);
+            // Affected_Rows() is the audit insert, not this update.
+            if ($status === BillingClaim::STATUS_MARK_AS_BILLED || $status === '2') {
+                $stored = QueryUtils::querySingleRow(
+                    "SELECT status FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = ?",
+                    [$patient_id, $encounter_id, $row['version']]
+                );
+                if (!self::billedUpdateStored($stored)) {
+                    return 0;
+                }
+            }
         }
 
         // Whenever a claim is marked billed, update A/R accordingly.
@@ -1725,7 +1769,539 @@ class BillingUtilities
             }
         }
 
+        if ($newversion) {
+            return $storedVersion;
+        }
+
         return 1;
+    }
+
+    /**
+     * Whether the re-read claims row is marked billed.
+     *
+     * The billed update returns failure when this is false, so a claim
+     * is not sent without that row.
+     */
+    public static function billedUpdateStored(mixed $row): bool
+    {
+        if (!is_array($row) || !array_key_exists('status', $row)) {
+            return false;
+        }
+
+        $status = $row['status'];
+
+        return $status === BillingClaim::STATUS_MARK_AS_BILLED || $status === '2';
+    }
+
+    /**
+     * Payer level stored on the encounter when a claim is marked billed.
+     *
+     * A missing or non-positive type leaves the encounter level alone.
+     * updateClaim() skips those same types.
+     */
+    public static function billedEncounterLevel(mixed $payerType): ?int
+    {
+        if (is_int($payerType)) {
+            return $payerType > 0 ? $payerType : null;
+        }
+
+        if (!is_string($payerType) || !ctype_digit($payerType)) {
+            return null;
+        }
+
+        $level = (int) $payerType;
+
+        return $level > 0 ? $level : null;
+    }
+
+    /**
+     * Version on an unbilled claims row, when the row has one.
+     */
+    public static function unbilledClaimVersion(mixed $row): ?int
+    {
+        if (!is_array($row) || !array_key_exists('version', $row)) {
+            return null;
+        }
+
+        $version = self::insertedClaimVersion($row['version']);
+
+        return $version > 0 ? $version : null;
+    }
+
+    /**
+     * Newest unbilled version for this patient, encounter, and payer.
+     *
+     * A failed billed update leaves that row. The next accepted run bills
+     * it instead of inserting another version.
+     */
+    public static function newestUnbilledClaimVersion(mixed $patientId, mixed $encounterId, mixed $payerId): ?int
+    {
+        $assignment = self::newestUnbilledClaimAssignment($patientId, $encounterId, $payerId);
+
+        return $assignment['version'] ?? null;
+    }
+
+    /**
+     * File name on the newest unbilled row for this patient, encounter, and payer.
+     *
+     * Empty when that row has no file name, or when there is no unbilled row.
+     */
+    public static function newestUnbilledClaimFile(mixed $patientId, mixed $encounterId, mixed $payerId): string
+    {
+        $assignment = self::newestUnbilledClaimAssignment($patientId, $encounterId, $payerId);
+
+        return $assignment['process_file'] ?? '';
+    }
+
+    /**
+     * Version and file name from the same unbilled row.
+     *
+     * Reading them together keeps a later version from being paired with
+     * an older file name.
+     *
+     * @return array{version: int, process_file: string}|null
+     */
+    public static function newestUnbilledClaimAssignment(mixed $patientId, mixed $encounterId, mixed $payerId): ?array
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT version, process_file FROM claims WHERE patient_id = ? AND encounter_id = ? "
+            . "AND payer_id = ? AND status = ? ORDER BY version DESC LIMIT 1",
+            [$patientId, $encounterId, $payerId, BillingClaim::STATUS_LEAVE_UNBILLED]
+        );
+        $version = self::unbilledClaimVersion($row);
+        if ($version === null) {
+            return null;
+        }
+
+        $file = '';
+        if (is_array($row) && array_key_exists('process_file', $row) && is_string($row['process_file'])) {
+            $file = $row['process_file'];
+        }
+
+        return [
+            'version' => $version,
+            'process_file' => $file,
+        ];
+    }
+
+    /**
+     * Point the billing row at the payer selected for this run.
+     *
+     * The 837 renderer reads that row. The claims version is stored later,
+     * and only when the claim is accepted.
+     */
+    public static function selectBillingPayer(mixed $patientId, mixed $encounterId, mixed $payerId): void
+    {
+        if (!is_int($payerId) && !(is_string($payerId) && ctype_digit($payerId))) {
+            return;
+        }
+        if ((int) $payerId < 0) {
+            return;
+        }
+
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE billing SET payer_id = ? WHERE encounter = ? AND pid = ? AND activity = 1",
+            [$payerId, $encounterId, $patientId]
+        );
+    }
+
+    /**
+     * Store this file name only while the unbilled row has no other name.
+     *
+     * A different name means another run already owns the row.
+     */
+    public static function assignUnbilledClaimFile(
+        mixed $patientId,
+        mixed $encounterId,
+        int $version,
+        string $filename
+    ): bool {
+        if ($filename === '' || $version <= 0) {
+            return false;
+        }
+
+        try {
+            $assigned = QueryUtils::inTransaction(function () use ($patientId, $encounterId, $version, $filename): bool {
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE claims SET process_file = ?, process_time = NOW() "
+                    . "WHERE patient_id = ? AND encounter_id = ? AND version = ? AND status = ? "
+                    . "AND (process_file = '' OR process_file IS NULL OR process_file = ?)",
+                    [
+                        $filename,
+                        $patientId,
+                        $encounterId,
+                        $version,
+                        BillingClaim::STATUS_LEAVE_UNBILLED,
+                        $filename,
+                    ]
+                );
+                $row = QueryUtils::querySingleRow(
+                    "SELECT process_file, status FROM claims"
+                    . " WHERE patient_id = ? AND encounter_id = ? AND version = ?",
+                    [$patientId, $encounterId, $version]
+                );
+                if (!is_array($row) || ($row['process_file'] ?? null) !== $filename) {
+                    return false;
+                }
+                $status = $row['status'] ?? null;
+                if ($status !== BillingClaim::STATUS_LEAVE_UNBILLED && $status !== '1') {
+                    return false;
+                }
+
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE billing SET process_file = ?, process_date = NOW()"
+                    . " WHERE encounter = ? AND pid = ? AND activity = 1",
+                    [$filename, $encounterId, $patientId]
+                );
+                $billingRows = QueryUtils::fetchRecords(
+                    "SELECT process_file FROM billing WHERE pid = ? AND encounter = ? AND activity = 1",
+                    [$patientId, $encounterId]
+                );
+                if (!self::billingFileNamed($billingRows, $filename)) {
+                    throw new \RuntimeException('Billing rows were not named with the claim file');
+                }
+
+                return true;
+            });
+        } catch (\RuntimeException $exception) {
+            ServiceContainer::getLogger()->error('Held claim file was not assigned', [
+                'exception' => $exception,
+            ]);
+
+            return false;
+        }
+
+        return $assigned === true;
+    }
+
+    /**
+     * Mark the unbilled row billed only when it still names this file.
+     *
+     * The claim row and the encounter's active billing rows commit together.
+     * A miss on the billing rows rolls the claim status back, so the next
+     * run can still find the unbilled version. The encounter's billed level
+     * is written from the claim's payer type in that same transaction.
+     */
+    public static function billUnbilledClaimFile(
+        mixed $patientId,
+        mixed $encounterId,
+        int $version,
+        string $filename
+    ): bool {
+        if ($filename === '' || $version <= 0) {
+            return false;
+        }
+
+        try {
+            $settled = QueryUtils::inTransaction(function () use ($patientId, $encounterId, $version, $filename): bool {
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE claims SET status = ?, bill_process = ?, process_file = ?, process_time = NOW() "
+                    . "WHERE patient_id = ? AND encounter_id = ? AND version = ? AND status = ? AND process_file = ?",
+                    [
+                        BillingClaim::STATUS_MARK_AS_BILLED,
+                        BillingClaim::BILL_PROCESS_BILLED,
+                        $filename,
+                        $patientId,
+                        $encounterId,
+                        $version,
+                        BillingClaim::STATUS_LEAVE_UNBILLED,
+                        $filename,
+                    ]
+                );
+                $row = QueryUtils::querySingleRow(
+                    "SELECT process_file, status, payer_type FROM claims"
+                    . " WHERE patient_id = ? AND encounter_id = ? AND version = ?",
+                    [$patientId, $encounterId, $version]
+                );
+                if (!is_array($row) || ($row['process_file'] ?? null) !== $filename || !self::billedUpdateStored($row)) {
+                    return false;
+                }
+
+                $level = self::billedEncounterLevel($row['payer_type'] ?? null);
+                if ($level !== null) {
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE form_encounter SET last_level_billed = ?"
+                        . " WHERE pid = ? AND encounter = ?",
+                        [$level, $patientId, $encounterId]
+                    );
+                }
+
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE billing SET billed = 1, bill_date = NOW(), bill_process = ?, process_file = ?, process_date = NOW() "
+                    . "WHERE encounter = ? AND pid = ? AND activity = 1",
+                    [BillingClaim::BILL_PROCESS_BILLED, $filename, $encounterId, $patientId]
+                );
+                $billingRows = QueryUtils::fetchRecords(
+                    "SELECT billed, process_file FROM billing WHERE pid = ? AND encounter = ? AND activity = 1",
+                    [$patientId, $encounterId]
+                );
+                if (!self::billingSettlementLanded($billingRows, $filename)) {
+                    throw new \RuntimeException('Billing rows were not marked billed with the claim file');
+                }
+
+                return true;
+            });
+        } catch (\RuntimeException $exception) {
+            ServiceContainer::getLogger()->error('Held claim settlement did not finish', [
+                'exception' => $exception,
+            ]);
+
+            return false;
+        }
+
+        return $settled === true;
+    }
+
+    /**
+     * The active billing rows name this file.
+     *
+     * No active rows is agreement. One row with another name is not.
+     *
+     * @param mixed $rows
+     */
+    public static function billingFileNamed(mixed $rows, string $filename): bool
+    {
+        if (!is_array($rows) || $filename === '') {
+            return false;
+        }
+
+        foreach ($rows as $row) {
+            if (!is_array($row) || ($row['process_file'] ?? null) !== $filename) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * The active billing rows are billed and name this file.
+     *
+     * No active rows is agreement. One open row is not.
+     *
+     * @param mixed $rows
+     */
+    public static function billingSettlementLanded(mixed $rows, string $filename): bool
+    {
+        if (!is_array($rows) || $filename === '') {
+            return false;
+        }
+
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                return false;
+            }
+            $billed = $row['billed'] ?? null;
+            if ($billed !== 1 && $billed !== '1') {
+                return false;
+            }
+            if (($row['process_file'] ?? null) !== $filename) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Whether this unbilled version still names the file.
+     */
+    public static function unbilledRowNamesFile(
+        mixed $patientId,
+        mixed $encounterId,
+        int $version,
+        string $filename
+    ): bool {
+        if ($filename === '' || $version <= 0) {
+            return false;
+        }
+
+        $row = QueryUtils::querySingleRow(
+            "SELECT process_file, status FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = ?",
+            [$patientId, $encounterId, $version]
+        );
+        if (!is_array($row) || ($row['process_file'] ?? null) !== $filename) {
+            return false;
+        }
+        $status = $row['status'] ?? null;
+
+        return $status === BillingClaim::STATUS_LEAVE_UNBILLED || $status === '1';
+    }
+
+    /**
+     * Lock name for one claim on this database.
+     *
+     * The database name is part of the fence, so two sites on one server do
+     * not block each other. A name longer than 64 characters is a hash of
+     * the same parts.
+     */
+    public static function generationFenceName(string $patient, string $encounter, string $payer, string $site): ?string
+    {
+        if (preg_match('/^[1-9][0-9]*$/', $patient) !== 1 || preg_match('/^[1-9][0-9]*$/', $encounter) !== 1) {
+            return null;
+        }
+        if (preg_match('/^[0-9]+$/', $payer) !== 1 || $site === '') {
+            return null;
+        }
+
+        $readable = 'openemr_x12_' . $site . '_' . $patient . '_' . $encounter . '_' . $payer;
+        if (strlen($readable) <= 64 && preg_match('/^[A-Za-z0-9_]+$/', $readable) === 1) {
+            return $readable;
+        }
+
+        $hashed = 'openemr_x12_' . substr(hash('sha256', $site . "\0" . $patient . "\0" . $encounter . "\0" . $payer), 0, 52);
+        if (strlen($hashed) > 64) {
+            return null;
+        }
+
+        return $hashed;
+    }
+
+    /**
+     * Database name that keeps a generation fence on this site.
+     */
+    public static function generationFenceSite(): string
+    {
+        $bag = OEGlobalsBag::getInstance();
+        if ($bag->has('dbase')) {
+            $database = $bag->get('dbase');
+            if (is_string($database) && $database !== '') {
+                return $database;
+            }
+        }
+        if ($bag->has('OE_SITE_DIR')) {
+            $directory = $bag->get('OE_SITE_DIR');
+            if (is_string($directory) && $directory !== '') {
+                $base = basename($directory);
+                if ($base !== '' && $base !== '.' && $base !== '..') {
+                    return $base;
+                }
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Take the named generation fence. False means another run holds it.
+     *
+     * GET_LOCK waits zero seconds. The lock releases when this connection closes.
+     */
+    public static function acquireGenerationFence(string $name): bool
+    {
+        if ($name === '' || strlen($name) > 64) {
+            return false;
+        }
+
+        $row = QueryUtils::querySingleRow(
+            'SELECT GET_LOCK(?, 0) AS got',
+            [$name],
+            false
+        );
+        if (!is_array($row)) {
+            return false;
+        }
+        $got = $row['got'] ?? null;
+
+        return $got === 1 || $got === '1';
+    }
+
+    /**
+     * Release a generation fence. A closed connection releases it as well.
+     */
+    public static function releaseGenerationFence(string $name): void
+    {
+        if ($name === '' || strlen($name) > 64) {
+            return;
+        }
+
+        try {
+            QueryUtils::fetchRecordsNoLog(
+                'SELECT RELEASE_LOCK(?) AS released',
+                [$name]
+            );
+        } catch (SqlQueryException) {
+            // The lock releases when the database session closes.
+        }
+    }
+
+    /**
+     * Remove this file name from an unbilled claim and its open billing rows.
+     *
+     * A billed claim, or another file, is left alone. Both clears commit together.
+     */
+    public static function clearUnbilledClaimFile(
+        mixed $patientId,
+        mixed $encounterId,
+        int $version,
+        string $filename
+    ): void {
+        if ($filename === '') {
+            return;
+        }
+
+        QueryUtils::inTransaction(function () use ($patientId, $encounterId, $version, $filename): void {
+            $row = QueryUtils::querySingleRow(
+                "SELECT process_file, status FROM claims"
+                . " WHERE patient_id = ? AND encounter_id = ? AND version = ?",
+                [$patientId, $encounterId, $version]
+            );
+            if (!is_array($row) || ($row['process_file'] ?? null) !== $filename) {
+                return;
+            }
+            $status = $row['status'] ?? null;
+            if ($status !== BillingClaim::STATUS_LEAVE_UNBILLED && $status !== '1') {
+                return;
+            }
+
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE claims SET process_file = '' WHERE patient_id = ? AND encounter_id = ? "
+                . "AND version = ? AND status = ? AND process_file = ?",
+                [$patientId, $encounterId, $version, BillingClaim::STATUS_LEAVE_UNBILLED, $filename]
+            );
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE billing SET process_file = '' WHERE pid = ? AND encounter = ? AND activity = 1 "
+                . "AND process_file = ? AND (billed = 0 OR billed IS NULL)",
+                [$patientId, $encounterId, $filename]
+            );
+        });
+    }
+
+    /**
+     * SQL for the open claim row an update should change.
+     *
+     * The version this run inserted selects that row. Otherwise the newest
+     * open row for the encounter is selected.
+     *
+     * @return array{0: string, 1: list<int>}
+     */
+    public static function existingClaimVersionSql(?int $claimVersion): array
+    {
+        if ($claimVersion !== null && $claimVersion > 0) {
+            return ['AND version = ? ', [$claimVersion]];
+        }
+
+        return ['ORDER BY version DESC LIMIT 1', []];
+    }
+
+    /**
+     * Version number from the insert query's MAX(version)+1 value.
+     *
+     * The driver may return an int or a digit string. Any other value is 0.
+     */
+    public static function insertedClaimVersion(mixed $increment): int
+    {
+        if (is_int($increment) && $increment > 0) {
+            return $increment;
+        }
+
+        if (!is_string($increment) || preg_match('/^[1-9][0-9]*$/', $increment) !== 1) {
+            return 0;
+        }
+
+        $parsed = filter_var($increment, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+        return is_int($parsed) ? $parsed : 0;
     }
 
     // Determine if the encounter is billed.  It is considered billed if it
