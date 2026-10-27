@@ -36,7 +36,7 @@ For humans this is a slight cost — no single-scroll read — so to read the wh
 in order: this hub → [layers](layers.md) → [subsystems](subsystems.md) →
 [interface-and-forms](interface-and-forms.md) → [api](api.md) → [migration](migration.md) →
 [front-controller](front-controller.md) → [tech-stack](tech-stack.md) → [portal](portal.md) →
-[compliance](compliance.md).
+[compliance](compliance.md) → [enforcement](enforcement.md).
 Keep each document honest against the code it describes; a split that drifts is worse than a
 monolith.
 
@@ -139,6 +139,7 @@ migration.
 | Choosing or retiring a library/runtime; version questions | [tech-stack.md](tech-stack.md) |
 | Anything in the patient portal | [portal.md](portal.md) |
 | Compliance-governed output (C-CDA, FHIR, QRDA, Direct), code systems/OIDs, API app approval | [compliance.md](compliance.md) |
+| Which rules are CI-enforced vs human-review; adding a check | [enforcement.md](enforcement.md) |
 
 ---
 
@@ -245,6 +246,10 @@ Parts of this architecture are checked in CI:
 
 Run the full suite with `openemr-cmd code-quality` (container) or `composer code-quality`
 (host). See `AGENTS.md` → Code Quality / Testing for the complete command set.
+
+For a rule-by-rule map of **what is enforced today vs. a candidate for a new check vs.
+human-review-only** — and the roadmap for turning more of these docs into CI rules — see
+[enforcement.md](enforcement.md).
 
 ---
 
