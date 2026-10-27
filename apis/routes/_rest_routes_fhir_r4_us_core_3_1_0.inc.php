@@ -29,12 +29,14 @@ use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FHIR\FhirAppointmentRestController;
+use OpenEMR\RestControllers\FHIR\FhirBundleRestController;
 use OpenEMR\RestControllers\FHIR\FhirCarePlanRestController;
 use OpenEMR\RestControllers\FHIR\FhirCareTeamRestController;
 use OpenEMR\RestControllers\FHIR\FhirCoverageRestController;
 use OpenEMR\RestControllers\FHIR\FhirDeviceRestController;
 use OpenEMR\RestControllers\FHIR\FhirDiagnosticReportRestController;
 use OpenEMR\RestControllers\FHIR\FhirDocumentReferenceRestController;
+use OpenEMR\RestControllers\FHIR\FhirDocumentRestController;
 use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
 use OpenEMR\RestControllers\FHIR\FhirGenericRestController;
 use OpenEMR\RestControllers\FHIR\FhirGoalRestController;
@@ -472,7 +474,7 @@ return [
         return $return;
     },
     'GET /fhir/Binary/:id' => function ($documentId, HttpRestRequest $request) {
-        $docController = new \OpenEMR\RestControllers\FHIR\FhirDocumentRestController($request);
+        $docController = new FhirDocumentRestController($request);
 
         if ($request->isPatientRequest()) {
             $response = $docController->downloadDocument($documentId, $request->getPatientUUIDString());
@@ -1512,6 +1514,11 @@ return [
         );
 
         return $return;
+    },
+    'POST /fhir/' => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "users");
+        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        return (new FhirBundleRestController())->post($data);
     },
 
     // these two operations are adopted based on the documentation used in the IBM FHIR Server
