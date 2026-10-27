@@ -198,7 +198,11 @@ final class ArrivalEncounterTest extends TestCase
         $this->assertSame($this->userFacilityId, self::intOf($row['billing_facility']), "no billing facility given: the user's");
         $this->assertSame($this->providerId, self::intOf($row['provider_id']));
         $this->assertSame($this->categoryId, self::intOf($row['pc_catid']));
-        $this->assertSame($pos === null ? null : self::stringOf($pos), $row['pos_code'], "the facility's POS code, NULL when it has none");
+        $this->assertSame(
+            $pos === null ? null : self::stringOf($pos),
+            $row['pos_code'] === null ? null : self::stringOf($row['pos_code']),
+            "the facility's POS code, NULL when it has none"
+        );
         $this->assertSame('AMB', $row['class_code']);
 
         $form = QueryUtils::querySingleRow(
