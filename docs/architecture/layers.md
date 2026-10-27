@@ -8,8 +8,9 @@ security, the interface shell) are in [subsystems.md](subsystems.md) and
 [interface-and-forms.md](interface-and-forms.md).
 
 **The rule for everything here:** dependencies point *downward and inward*. Templates never
-touch the database. Controllers never write SQL. Services never read `$_GET`. Each layer
-talks only to the one beneath it, through typed values.
+touch the database or services — they render the view model they are handed. Controllers
+orchestrate presentation and services but never write SQL. Services never read `$_GET`. Lower
+layers never depend on higher ones, and everything passes typed values.
 
 ---
 
@@ -53,8 +54,8 @@ Rules:
   `tests/Tests/Isolated/Common/Twig/`.
 
 Why Twig over Smarty: a single actively-maintained engine, consistent context-aware escaping
-filters (above), testable compilation, sandboxing for module-supplied templates, and
-first-class PHPStan/IDE support for the code that feeds it. Every Smarty template retired is one fewer engine to secure
+filters (above), testable compilation, and first-class PHPStan/IDE support for the code that
+feeds it. Every Smarty template retired is one fewer engine to secure
 and teach.
 
 ---
@@ -101,8 +102,10 @@ Non-negotiables:
   full mapping and the `$_REQUEST` caveat.
 - **Return a `Response`;** let the caller `->send()` it. This is what lets the same
   controller back a route later without rewriting it.
-- **One action per meaningful operation** (`newAction`, `saveAction`), authorization
-  checked at the top, CSRF enforced on writes.
+- **One action per meaningful operation** (`newAction`, `saveAction`). The controller checks
+  **request/route access** at the top and enforces CSRF on writes; **resource- and
+  business-level authorization belongs in the service**, so it holds for every entry point
+  (web, API, CLI), not just this controller.
 - Controllers live under `src/Controllers/` (web UI) or `src/RestControllers/` (API),
   namespaced to mirror the path.
 
@@ -152,11 +155,15 @@ Centralized, heading to Doctrine. **No SQL above this layer.** Controllers and t
 never contain a query; services do, and eventually only a repository/Doctrine layer does.
 
 - **Today:** use `QueryUtils` (`src/Common/Database/QueryUtils.php`) for queries — it is
-  the typed, escaped surface over the legacy ADODB API. New code uses `QueryUtils`, not
-  raw `sqlStatement()`/`sqlQuery()` sprinkled inline.
+  the typed surface over the legacy database layer, using **bound parameters** (not string
+  interpolation) for values and escape helpers for identifiers. Under the hood it executes
+  through the ADODB connection created in `sql.inc.php` (`QueryUtils::getADODB()`). New code
+  uses `QueryUtils`, not raw `sqlStatement()`/`sqlQuery()` sprinkled inline.
 - **Direction:** consolidate persistence behind **Doctrine DBAL 4.x**, then the ORM, so
   the SQL surface becomes a small set of repositories rather than ad-hoc queries spread
-  through services. Doctrine DBAL is already the real driver beneath the ADODB-shaped API.
+  through services. Doctrine DBAL 4.x is already a dependency and the **intended** driver
+  layer; it is **not yet** the backend beneath most queries (which still go through ADODB via
+  `sql.inc.php`).
 - **Schema changes** go through the `sql_upgrade.php` system (see below). **Do not** use
   Doctrine Migrations yet — it is experimental and not adopted (`AGENTS.md` → Database and
   Global Settings).

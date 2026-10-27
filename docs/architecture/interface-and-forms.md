@@ -49,11 +49,12 @@ Menus are **role-based JSON documents** resolved by `src/Menu/MainMenuRole.php`:
 Each tab is a `tabStatus(title, url, name, loading_label, closable, visible, locked)`
 observable (`tabs_view_model.js`). Two behaviors worth knowing:
 
-- **Locked tabs.** `tabLockToggle()` pins a tab (`locked(true)`); a locked tab is not reused
-  or closed by subsequent navigation (the `closeTab`/replace paths guard on `locked()`), so
-  opening another page spawns a *new* tab instead of replacing the pinned one. E-signed
-  ("locked") **encounters** are a related but distinct concept — `isEncounterLocked()` stops a
-  locked encounter from accepting new forms.
+- **Locked tabs.** `tabLockToggle()` pins a tab (`locked(true)`). The reuse/replace paths
+  guard on `locked()`, so a pinned tab is **not reused or replaced by navigation** — opening
+  another page spawns a *new* tab instead. (A pinned tab can still be closed explicitly via
+  `tabClose()`, and `openExistingTab()` updates an existing tab that matches the same name.)
+  E-signed ("locked") **encounters** are a related but distinct concept — `isEncounterLocked()`
+  stops a locked encounter from accepting new forms.
 - **Side-by-side.** The shell can show two frames at once; inter-frame coordination goes
   through `interface/main/tabs/js/frame_proxies.js` rather than direct cross-frame calls.
 
@@ -68,29 +69,36 @@ would stall the whole UI. OpenEMR's distinctive mechanism, driven from
 - A page is **read-only by default**: the session is opened, read, and **immediately
   `session_write_close()`d** (PHP's `read_and_close`), releasing the lock so sibling frame
   requests proceed in parallel.
-- A page that genuinely must *write* session state sets **`$sessionAllowWrite = true`**
-  *before* including `globals.php`; otherwise session writes in that request are not
-  persisted. This is the one legacy global whose presence is load-bearing — respect it.
+- **`$sessionAllowWrite = true`** set *before* including `globals.php` selects a **read-write
+  session for the whole request** (instead of the read-only default). It is needed for direct
+  `$_SESSION` writes and for code that must hold a writable session across the request — but it
+  is **not** required for ordinary writes through the session abstraction (next section), which
+  reopen read-and-close storage and save on their own. Setting it holds the session lock for
+  the whole request (reducing frame concurrency), so use it only when a request genuinely needs
+  a writable session throughout.
 - The mechanism works under both the native file handler and the predis/Redis-sentinel
   session handler.
 
 **Access session state only through the session classes — never raw `$_SESSION`.** This
 holds for *all* session access, reads and writes alike:
 
-- Obtain the session from **`SessionWrapperFactory`** — `getActiveSession()`, or
-  `getCoreSession()` / `getPortalSession()` for a specific realm — or have it injected as a
-  Symfony **`SessionInterface`** (as `CarePlanController` does). Use the **session bag**'s
-  accessors: `get()`, `set()`, `has()`, `remove()`.
+- Obtain the session from **`SessionWrapperFactory`** — `getActiveSession()` for the active
+  session, or `getCoreSession()` / `getPortalSession()` (which return the *existing* active
+  session unless called with `reset: true`, so confirm you are in the intended realm before
+  touching realm-specific state) — or have it injected as a Symfony **`SessionInterface`** (as
+  `CarePlanController` does). Use the **session bag**'s accessors: `get()`, `set()`, `has()`,
+  `remove()`.
 - Writes go through the abstraction too. `WriteThroughSession` (which extends Symfony's
   `Session`, backed by an attribute bag) persists writes automatically.
 - **Raw `$_SESSION` reads and writes are forbidden** (hub anti-patterns). Touching the
   superglobal bypasses realm separation (core vs portal vs setup), the write-through
   persistence, and the read-only/lock handling above — all of which the classes exist to
   manage.
-- **Keep two concerns separate:** *how* you access session data (always the abstraction)
-  versus *whether* a write persists (gated by `$sessionAllowWrite` + `read_and_close`). You
-  need both — the session bag to touch the data, and `$sessionAllowWrite = true` set before
-  `globals.php` for that write to stick.
+- **Keep two concerns separate:** *how* you access session data — always the abstraction, which
+  reopens read-and-close storage and saves each mutation on its own — versus *whether the whole
+  request runs with a writable session*, which is what `$sessionAllowWrite` controls. Ordinary
+  abstraction-backed writes persist **without** `$sessionAllowWrite`; reserve it for requests
+  that truly need a writable session for their whole lifecycle.
 
 See also [layers.md → Cross-cutting concerns](layers.md#cross-cutting-concerns).
 

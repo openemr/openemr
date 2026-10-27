@@ -76,8 +76,11 @@ gates whether a patient may log in at all.
 obtained via `SessionWrapperFactory::getInstance()->getPortalSession()` (staff use
 `getCoreSession()`). A logged-in portal patient is marked by the pair
 `session['pid']` + `session['patient_portal_onsite_two'] = 1`, with `authUser = 'portal-user'`
-and `sessionUser = '-patient-'`. Crucially, **`authUserID` is intentionally not set** for
-portal sessions — that absence is what distinguishes a patient session from a staff session.
+and `sessionUser = '-patient-'`. **The authoritative discriminator is the positive marker
+`session['patient_portal_onsite_two']`** — that is what `PortalPatientAccessGuard` branches on
+before verifying ownership with `PortalSessionPidGuard`. (`authUserID` also happens to be unset
+for portal sessions, but that is an implementation detail; new portal paths must key off the
+positive marker, not treat a missing `authUserID` as proof of a patient session.)
 Session plumbing is in `src/Common/Session/` (`SessionUtil`, `SessionWrapperFactory`,
 `WriteThroughSession`, `PatientSessionUtil`), and the `read_and_close` no-lock mechanism from
 [interface-and-forms.md](interface-and-forms.md#cookie--session-management--the-read_and_close-mechanism)
@@ -90,7 +93,8 @@ extracted from the old `get_patient_info.php` precisely so it could be unit-test
 (`tests/Tests/Unit/Portal/PatientPortalLoginControllerTest.php`):
 
 - **`PatientPortalLoginController::login()`** orchestrates the whole flow: anti-CSRF `itsme`
-  flag, username/password, optional second factor (`enforce_signin_email` "passaddon"),
+  flag, username/password, an optional **email-confirmation** check (`enforce_signin_email` —
+  the legacy "passaddon" email match; the controller labels it explicitly as *not* MFA),
   language choice, the three password-update modes (`NORMAL=0`, `REQUIRED=1`,
   `ONE_TIME_RESET=2`), one-time PIN token login, rehash-on-login, and final session
   establishment + redirect (to `home.php` or a safelisted module file via
@@ -129,9 +133,11 @@ own patient — this is the portal's most security-critical modern code:
   staff caller it falls back to ACLs `patientportal/portal` + `patients/demo`.
 - **`PortalSessionPidGuard`** — binds every request to one patient: `requireBootstrapPid()`,
   `assertMatchesSession()`, `assertOwnedBySession()`, and `assertRequestKeysMatchSession()`,
-  which scans `$_POST`/`$_GET`/`$_REQUEST` for any key matching `/^p(id|atientid)(_|$)/i` to
-  defend against Phreez ORM criteria-bypass tricks (e.g. `Pid_Equals`). It reads the
-  authoritative patient from `OEGlobalsBag` `bootstrap_pid`.
+  which checks **each array its caller passes** for any key matching `/^p(id|atientid)(_|$)/i`
+  to defend against Phreez ORM criteria-bypass tricks (e.g. `Pid_Equals`). It does **not** read
+  the superglobals itself, so callers must pass `$_POST`, `$_GET`, and `$_REQUEST` as separate
+  arguments — a call that omits one leaves PID-shaped keys in that source unchecked. It reads
+  the authoritative patient from `OEGlobalsBag` `bootstrap_pid`.
 
 The second guard exists specifically because the legacy Phreez layer (§5) exposes ORM query
 criteria to the client; the guard is the compensating control. **Any new portal data path

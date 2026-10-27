@@ -19,9 +19,11 @@ expressed as one — **prefer driving that endpoint over writing a parallel impl
   into the UI.
 - See `API_README.md` and `FHIR_README.md`. New endpoints follow the existing
   route-declaration + RestController + Service pattern.
-- **Authorization is by OAuth2 scope** (SMART-on-FHIR, granular `.cruds`), layered over the
-  ACL model, with its own OAuth2 key material. The architecture of that — scopes, keys, and
-  client auth — is in
+- **Protected API requests are authorized by OAuth2 scope** (SMART-on-FHIR, granular
+  `.cruds`), layered over the ACL model, with their own OAuth2 key material. A few **public
+  discovery endpoints are unauthenticated by design** — e.g. `GET /fhir/metadata`
+  (the FHIR `CapabilityStatement`) and the SMART `.well-known/smart-configuration`. The
+  architecture of scopes, keys, and client auth is in
   [subsystems.md → OAuth2 scopes and API authorization](subsystems.md#oauth2-scopes-and-api-authorization);
   the operational detail is in [`API_README.md`](../../API_README.md) and
   `Documentation/api/AUTHENTICATION.md` / `AUTHORIZATION.md`.

@@ -101,14 +101,15 @@ behavior into core.
 ```
 
 **The vertical rule that makes the layering work:** dependencies point *downward and
-inward*. Templates never touch the database. Controllers never write SQL. Services never
-read `$_GET`. Each layer talks only to the one beneath it, through typed values. Detail:
-[layers.md](layers.md).
+inward*. Templates never touch the database or services. Controllers orchestrate presentation
+and services but never write SQL. Services never read `$_GET`. Lower layers never depend on
+higher ones, and everything passes typed values. Detail: [layers.md](layers.md).
 
-**The horizontal rule that keeps modules decoupled:** dependencies point *one way, core →
-module, and only through events*. Core dispatches an event carrying its inputs; a module
-subscribes and contributes; with no module installed the event goes unanswered and core
-behaves exactly as before. Core source must never name a module class.
+**The horizontal rule that keeps modules decoupled:** core never *names* a module class — it
+has no compile-time dependency on any module and reaches modules only by **dispatching events
+at runtime**. Modules depend on core's event *contracts* and subscribe to them. Core
+dispatches an event carrying its inputs; a module contributes; with no module installed the
+event goes unanswered and core behaves exactly as before.
 
 > **Two footnotes on the diagram.** (1) In-tree modules also run on a legacy **Laminas
 > (Zend) MVC** controller stack — the established mechanism for *module* controllers, not a
@@ -217,8 +218,10 @@ Add no new instances of these; remove them opportunistically when you touch a fi
 - Hand-rolled openssl/sodium instead of `CryptoInterface`/`CryptoGen`.
 - **Any raw `$_SESSION` read or write.** Session state is accessed only through the OpenEMR
   session classes (`SessionWrapperFactory`) and the Symfony `SessionInterface` session bag
-  they return — never the superglobal. (The `$sessionAllowWrite` legacy global still gates
-  whether writes *persist*; see [interface-and-forms.md](interface-and-forms.md#cookie--session-management--the-read_and_close-mechanism).)
+  they return — never the superglobal. (The `$sessionAllowWrite` legacy global selects the
+  session's initial read-only vs read-write *mode*; it does **not** gate whether individual
+  abstraction-backed writes persist — `WriteThroughSession`/`SessionUtil` reopen and save
+  those. See [interface-and-forms.md](interface-and-forms.md#cookie--session-management--the-read_and_close-mechanism).)
 - New hand-coded forms as a procedural quartet instead of the MVC shape.
 
 ### Deprecated technologies — do not add new usage

@@ -16,7 +16,9 @@ pattern to copy:
 
 A legacy `interface/.../new.php` becomes a shim that bootstraps the environment, builds
 the controller with its dependencies, and delegates. Everything it used to do inline now
-lives in typed classes. From `interface/forms/care_plan/new.php`:
+lives in typed classes. From `interface/forms/care_plan/new.php` (abbreviated — the real file
+also carries the `use` imports and the `options.inc.php` / `custom/code_types.inc.php` includes
+the controller needs):
 
 ```php
 require_once(__DIR__ . "/../../globals.php");   // legacy bootstrap stays, for now
@@ -116,7 +118,10 @@ function legacy_do_thing(int $pid, string $type): array
 - **Always pair the runtime notice with a `@deprecated` docblock** that names the
   replacement *and* the earliest removal version, so the migration path and the clock are
   discoverable from the source and from IDE tooling.
-- The facade must not add behavior — it exists only to redirect callers to the service and
+- The facade is **transitional legacy glue**, so constructing the service directly
+  (`new FooService()`) inside it is the pragmatic shim — *not* a pattern for new code, which
+  injects dependencies (`AGENTS.md` → Dependency Injection). The facade must not add behavior —
+  it exists only to redirect callers to the service and
   to announce its own obsolescence. All new work (new callers, bug fixes to the logic) goes
   through the service directly.
 
