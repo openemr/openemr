@@ -38,6 +38,8 @@ class AuditTableWriteGuardTest extends TestCase
             'insert log' => ['INSERT INTO log (event) VALUES (1)', false],
             'delete other' => ['DELETE FROM login_mfa_registrations WHERE user_id = 1', false],
             'update patient' => ['UPDATE patient_data SET fname = 1 WHERE pid = 1', false],
+            'literal mentions log' => ["UPDATE list_options SET notes = 'see log' WHERE list_id = 'x'", false],
+            'comment then delete' => ['/* note */ DELETE FROM log WHERE id = 1', true],
         ];
     }
 
@@ -74,5 +76,20 @@ class AuditTableWriteGuardTest extends TestCase
         self::assertStringContainsString("IDENTIFIED BY 'abc123'", $sql);
         self::assertStringContainsString('GRANT SELECT, INSERT, UPDATE ON `openemr`.`log_chain_anchor`', $sql);
         self::assertStringContainsString('GRANT SELECT, INSERT ON `openemr`.`log`', $sql);
+        self::assertStringContainsString('GRANT INSERT ON `openemr`.`api_log`', $sql);
+        self::assertStringContainsString('GRANT SELECT ON `openemr`.`gacl_aro`', $sql);
+        self::assertStringContainsString('GRANT SELECT ON `openemr`.`gacl_groups_aro_map`', $sql);
+        self::assertStringContainsString('GRANT SELECT ON `openemr`.`gacl_aro_groups`', $sql);
+    }
+
+    /**
+     * A dotted, colon, or percent host is still an account name.
+     */
+    public function testAddressHostsStayValid(): void
+    {
+        $plan = new AuditLogGrantPlan('openemr', 'openemr', '127.0.0.1', 'oe_audit_abcdef123456', '::1');
+
+        self::assertSame('127.0.0.1', $plan->applicationHost);
+        self::assertSame('::1', $plan->auditHost);
     }
 }

@@ -28,10 +28,16 @@ final readonly class AuditLogGrantPlan
         public string $auditUser,
         public string $auditHost,
     ) {
-        foreach ([$database, $applicationUser, $applicationHost, $auditUser, $auditHost] as $name) {
-            if (preg_match('/^[A-Za-z0-9_%]+$/', $name) !== 1) {
-                throw new \InvalidArgumentException('Audit grant names must be simple identifiers.');
-            }
+        self::assertPart($database, '/^[A-Za-z0-9_$-]+$/', 'The audit database name is not a simple identifier.');
+        foreach ([$applicationUser, $applicationHost, $auditUser, $auditHost] as $name) {
+            self::assertPart($name, '/^[A-Za-z0-9_.:%-]+$/', 'The audit account name is not a simple identifier.');
+        }
+    }
+
+    private static function assertPart(string $name, string $pattern, string $message): void
+    {
+        if (preg_match($pattern, $name) !== 1) {
+            throw new \InvalidArgumentException($message);
         }
     }
 
@@ -55,7 +61,7 @@ final readonly class AuditLogGrantPlan
     /**
      * @return list<string>
      */
-    public function triggerStatements(): array
+    public static function triggerStatements(): array
     {
         $blocks = [
             ['audit_log_block_update', 'log', 'UPDATE'],
@@ -92,6 +98,10 @@ final readonly class AuditLogGrantPlan
             'GRANT SELECT, INSERT ON ' . $database . '.`log` TO ' . $audit,
             'GRANT SELECT, INSERT ON ' . $database . '.`log_comment_encrypt` TO ' . $audit,
             'GRANT SELECT, INSERT, UPDATE ON ' . $database . '.`log_chain_anchor` TO ' . $audit,
+            'GRANT INSERT ON ' . $database . '.`api_log` TO ' . $audit,
+            'GRANT SELECT ON ' . $database . '.`gacl_aro` TO ' . $audit,
+            'GRANT SELECT ON ' . $database . '.`gacl_groups_aro_map` TO ' . $audit,
+            'GRANT SELECT ON ' . $database . '.`gacl_aro_groups` TO ' . $audit,
         ];
     }
 

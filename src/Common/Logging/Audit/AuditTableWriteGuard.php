@@ -25,17 +25,46 @@ final class AuditTableWriteGuard
 
     public static function rejects(string $sql): bool
     {
-        $statement = ltrim($sql);
+        $statement = self::withoutLeadingComments($sql);
         if (preg_match('/^(?:update|delete|replace|truncate|drop)\b/i', $statement) !== 1) {
             return false;
         }
 
         foreach (self::TABLES as $table) {
-            if (preg_match('/\b' . preg_quote($table, '/') . '\b/i', $statement) === 1) {
+            $pattern = '/\b(?:from|update|into|table|join|truncate)\s+(?:`?[A-Za-z0-9_]+`?\.)?`?'
+                . preg_quote($table, '/') . '`?(?![\w$])/i';
+            if (preg_match($pattern, $statement) === 1) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Drop a comment that sits in front of the statement.
+     */
+    private static function withoutLeadingComments(string $sql): string
+    {
+        $statement = ltrim($sql);
+        while ($statement !== '') {
+            if (str_starts_with($statement, '/*')) {
+                $end = strpos($statement, '*/');
+                if ($end === false) {
+                    return '';
+                }
+                $statement = ltrim(substr($statement, $end + 2));
+                continue;
+            }
+            if (str_starts_with($statement, '--') || str_starts_with($statement, '#')) {
+                $end = strpos($statement, "\n");
+                $statement = $end === false ? '' : ltrim(substr($statement, $end + 1));
+                continue;
+            }
+
+            return $statement;
+        }
+
+        return $statement;
     }
 }

@@ -491,17 +491,6 @@ CREATE TABLE `log_chain_anchor` (
 
 -- Audit rows cannot be updated or deleted.
 
-DROP TRIGGER IF EXISTS `audit_log_block_update`;
-CREATE TRIGGER `audit_log_block_update` BEFORE UPDATE ON `log` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
-
-DROP TRIGGER IF EXISTS `audit_log_block_delete`;
-CREATE TRIGGER `audit_log_block_delete` BEFORE DELETE ON `log` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
-
-DROP TRIGGER IF EXISTS `audit_log_comment_block_update`;
-CREATE TRIGGER `audit_log_comment_block_update` BEFORE UPDATE ON `log_comment_encrypt` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
-
-DROP TRIGGER IF EXISTS `audit_log_comment_block_delete`;
-CREATE TRIGGER `audit_log_comment_block_delete` BEFORE DELETE ON `log_comment_encrypt` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
-
-DROP TRIGGER IF EXISTS `audit_log_anchor_block_delete`;
-CREATE TRIGGER `audit_log_anchor_block_delete` BEFORE DELETE ON `log_chain_anchor` FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.';
+-- The installer and the upgrade applicator create the audit triggers.
+-- A server that cannot create them still finishes. The application
+-- also refuses updates and deletes of these tables.

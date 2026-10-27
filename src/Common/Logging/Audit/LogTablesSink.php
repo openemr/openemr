@@ -32,8 +32,9 @@ readonly class LogTablesSink implements SinkInterface
      */
     public function __construct(
         private Connection $conn,
-        private readonly string $chainKey,
+        private readonly string $chainKey = '',
         private AuditEventBuffer $buffer = new AuditEventBuffer(),
+        private readonly ?string $siteDir = null,
     ) {
     }
 
@@ -51,6 +52,7 @@ readonly class LogTablesSink implements SinkInterface
         if ($events === []) {
             return;
         }
+        $chainKey = $this->resolvedChainKey();
 
         try {
             $this->conn->beginTransaction();
@@ -69,7 +71,7 @@ readonly class LogTablesSink implements SinkInterface
                 }
             }
             foreach ($events as $event) {
-                $previous = $this->write($event, $previous);
+                $previous = $this->write($event, $previous, $chainKey);
             }
             $this->conn->executeStatement(
                 'UPDATE log_chain_anchor SET log_id = ?, chain = ? WHERE id = 1',
@@ -78,8 +80,12 @@ readonly class LogTablesSink implements SinkInterface
             $this->conn->commit();
             $this->buffer->drain();
         } catch (\Doctrine\DBAL\Exception $failure) {
-            if ($this->conn->isTransactionActive()) {
-                $this->conn->rollBack();
+            try {
+                if ($this->conn->isTransactionActive()) {
+                    $this->conn->rollBack();
+                }
+            } catch (\Doctrine\DBAL\Exception) {
+                // The original failure is the one the caller sees.
             }
             throw new \RuntimeException('The audit log could not be written', 0, $failure);
         }
@@ -94,7 +100,22 @@ readonly class LogTablesSink implements SinkInterface
         }
     }
 
-    private function write(Event $event, string $previous): string
+    /**
+     * The chain key for this flush. An empty constructor key is read from the site.
+     */
+    private function resolvedChainKey(): string
+    {
+        if ($this->chainKey !== '') {
+            return $this->chainKey;
+        }
+        if ($this->siteDir === null || $this->siteDir === '') {
+            throw new \RuntimeException('The audit chain key file is not usable.');
+        }
+
+        return AuditChainKey::fromSiteDirectory($this->siteDir)->value();
+    }
+
+    private function write(Event $event, string $previous, string $chainKey): string
     {
         $api = $event->api;
 
@@ -146,7 +167,7 @@ readonly class LogTablesSink implements SinkInterface
             $checksumGenerateApi = hash('sha3-512', implode('', array_values($apiLogData)));
         }
 
-        $chain = AuditChain::link($previous, $this->buffer->lastLogId, $checksum, $this->chainKey);
+        $chain = AuditChain::link($previous, $this->buffer->lastLogId, $checksum, $chainKey);
 
         // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
         $logCommentData = [
