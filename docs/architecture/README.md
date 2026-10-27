@@ -186,6 +186,10 @@ Add no new instances of these; remove them opportunistically when you touch a fi
 (`AGENTS.md` → "Legacy Code Is Not the Standard"):
 
 - SQL inline in a page or template; business logic inside Twig/Smarty/HTML.
+- Emitting an unescaped dynamic value in Twig, relying on Twig's built-in autoescaper (it is
+  intentionally **off**), or hand-rolling `htmlspecialchars`, instead of OpenEMR's
+  context-aware escaping filters (`|text` / `|attr` / `|attr_url` / `|safe_href` /
+  `|js_escape` / `|xlt` …). ([layers.md](layers.md#presentation-layer-twig))
 - Direct superglobal access (`$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$GLOBALS`) in
   logic; `filter_input()` anywhere.
 - `new` on a service inside business logic; static service locators; global state as a

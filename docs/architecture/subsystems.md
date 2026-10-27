@@ -127,8 +127,11 @@ Rules:
   column, request input, concatenation) cannot be translated and signals the value should
   have been narrowed to a known string at the call site. Build sentences from whole
   translatable units, not concatenated fragments.
-- **In Twig,** autoescaping already handles HTML escaping — translate the text and let the
-  template escape, rather than double-escaping with `xlt()` inside an already-escaped context.
+- **In Twig,** there is no autoescaping (OpenEMR runs Twig with `autoescape => false`), so use
+  the translate-and-escape filters — `|xlt` (HTML text), `|xla` (attribute), `|xlj` (JS) — to
+  both translate *and* escape for the output context in one step. See
+  [layers.md → Presentation layer](layers.md#presentation-layer-twig) for the full escaping
+  filter set.
 - Modern helpers: `src/Services/Utils/TranslationService.php`,
   `src/Common/Translation/TranslationCache.php`; warm the cache early (`xlWarmCache()`) in
   long request flows.
