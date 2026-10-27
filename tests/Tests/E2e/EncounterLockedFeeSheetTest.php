@@ -1,14 +1,16 @@
 <?php
 
 /**
- * E2e test: an e-signed, locked encounter keeps its fee sheet.
+ * E2e test: an e-signed, locked encounter keeps its billing forms.
  *
  * With "Lock e-signed encounters and their forms" on, signing the whole
  * encounter hides the encounter form menu, and the main menu refuses its
  * encounter items ("This encounter is locked"), so no new forms can be added.
- * The fee sheet went with both, although coding often follows the provider's
- * signature. The encounter's form menu now offers the fee sheet and nothing
- * else, and the main menu's Fees > Fee Sheet opens it.
+ * The fee sheet and Misc Billing Options went with both, although coding and
+ * claim details often follow the provider's signature. The encounter's form
+ * menu now offers those two and nothing else, the main menu's Fees > Fee Sheet
+ * opens the fee sheet, and an existing Misc Billing Options form stays
+ * editable unless it was signed and locked on its own.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -41,7 +43,7 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
      * removes only what this test created.
      */
     private const FIXTURE_MARKER = 'e2e-test-esign-lock-fee-sheet';
-    private const LOCK_GLOBALS = ['esign_all', 'lock_esign_all'];
+    private const LOCK_GLOBALS = ['esign_all', 'lock_esign_all', 'esign_individual', 'lock_esign_individual'];
 
     /** @var array<string, string|null> */
     private array $savedGlobals = [];
@@ -51,7 +53,7 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
 
     #[Test]
     #[Depends('testLoginAuthorized')]
-    public function testLockedEncounterMenuOffersOnlyTheFeeSheet(): void
+    public function testLockedEncounterMenuOffersOnlyTheBillingForms(): void
     {
         try {
             $this->insertFixtureData();
@@ -59,14 +61,15 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
             $this->login(LoginTestData::username, LoginTestData::password);
             $this->client->request('GET', '/interface/patient_file/summary/demographics.php?set_pid=' . $this->pid);
 
-            $this->assertSame(
-                ['fee_sheet'],
+            $this->assertEqualsCanonicalizing(
+                ['fee_sheet', 'misc_billing_options'],
                 $this->encounterMenuForms($this->lockedEncounter),
-                'A locked encounter should offer the fee sheet and no other form'
+                'A locked encounter should offer the fee sheet and Misc Billing Options and no other form'
             );
 
             $unlocked = $this->encounterMenuForms($this->unlockedEncounter);
             $this->assertContains('fee_sheet', $unlocked);
+            $this->assertContains('misc_billing_options', $unlocked);
             $this->assertGreaterThan(1, count($unlocked), 'An unlocked encounter should still offer every form');
         } finally {
             try {
@@ -123,6 +126,74 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
                 $this->cleanUpFixtureData();
             }
         }
+    }
+
+    #[Test]
+    #[Depends('testLoginAuthorized')]
+    public function testLockedEncounterKeepsMiscBillingOptionsEditable(): void
+    {
+        try {
+            $this->insertFixtureData();
+            $miscBilling = $this->insertEncounterForm($this->lockedEncounter, 'misc_billing_options', 'Misc Billing Options');
+            $signedMiscBilling = $this->insertEncounterForm($this->lockedEncounter, 'misc_billing_options', 'Misc Billing Options');
+            $soap = $this->insertEncounterForm($this->lockedEncounter, 'soap', 'SOAP');
+            // A form-level signature with its lock, as signing the form itself writes it.
+            QueryUtils::sqlInsert(
+                'INSERT INTO esign_signatures (tid, `table`, uid, datetime, is_lock, hash, signature_hash) VALUES (?, ?, 1, NOW(), 1, ?, ?)',
+                [$signedMiscBilling, 'forms', 'e2e', 'e2e']
+            );
+
+            $this->base();
+            $this->login(LoginTestData::username, LoginTestData::password);
+            $this->client->request('GET', '/interface/patient_file/summary/demographics.php?set_pid=' . $this->pid);
+            $this->client->request('GET', '/interface/patient_file/encounter/encounter_top.php?set_encounter=' . $this->lockedEncounter);
+            $this->client->request('GET', '/interface/patient_file/encounter/forms.php');
+            $this->client->waitFor('#partable');
+
+            $this->assertSame('edit', $this->formButtonState('misc_billing_options', $miscBilling), 'Misc Billing Options locked only by the encounter should stay editable');
+            $this->assertSame('locked', $this->formButtonState('misc_billing_options', $signedMiscBilling), 'Misc Billing Options signed and locked on its own should stay locked');
+            $this->assertSame('locked', $this->formButtonState('soap', $soap), 'A clinical form on a locked encounter should stay locked');
+        } finally {
+            try {
+                if (isset($this->client)) {
+                    $this->client->quit();
+                }
+            } finally {
+                $this->cleanUpFixtureData();
+            }
+        }
+    }
+
+    /**
+     * Whether a form in the encounter's forms list shows its Edit button or
+     * the Locked label.
+     */
+    private function formButtonState(string $formdir, int $formsId): string
+    {
+        $state = $this->client->executeScript(
+            'var b = document.getElementById("form-edit-button-" + arguments[0] + "-" + arguments[1]);'
+            . ' return b ? (b.classList.contains("form-edit-button-locked") ? "locked" : "edit") : "none";',
+            [$formdir, $formsId]
+        );
+        $this->assertIsString($state);
+        return $state;
+    }
+
+    /**
+     * Adds a form to an encounter: its own table row and the forms row.
+     *
+     * @return int the forms row id
+     */
+    private function insertEncounterForm(int $encounter, string $formdir, string $formName): int
+    {
+        $formId = QueryUtils::sqlInsert(
+            'INSERT INTO form_' . $formdir . ' (date, pid, user, groupname, authorized, activity) VALUES (NOW(), ?, ?, ?, 1, 1)',
+            [$this->pid, 'admin', 'Default']
+        );
+        return QueryUtils::sqlInsert(
+            'INSERT INTO forms (date, encounter, form_name, form_id, pid, user, groupname, authorized, deleted, formdir) VALUES (NOW(), ?, ?, ?, ?, ?, ?, 1, 0, ?)',
+            [$encounter, $formName, $formId, $this->pid, 'admin', 'Default', $formdir]
+        );
     }
 
     /**
@@ -202,6 +273,14 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
             'DELETE FROM esign_signatures WHERE `table` = ? AND tid IN (SELECT encounter FROM form_encounter WHERE reason = ?)',
             ['form_encounter', self::FIXTURE_MARKER]
         );
+        $fixturePid = 'SELECT pid FROM patient_data WHERE pubpid = ?';
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM esign_signatures WHERE `table` = ? AND tid IN (SELECT id FROM forms WHERE pid IN (' . $fixturePid . '))',
+            ['forms', self::FIXTURE_MARKER]
+        );
+        foreach (['form_misc_billing_options', 'form_soap', 'forms'] as $table) {
+            QueryUtils::sqlStatementThrowException('DELETE FROM ' . $table . ' WHERE pid IN (' . $fixturePid . ')', [self::FIXTURE_MARKER]);
+        }
         QueryUtils::sqlStatementThrowException('DELETE FROM form_encounter WHERE reason = ?', [self::FIXTURE_MARKER]);
         QueryUtils::sqlStatementThrowException('DELETE FROM patient_data WHERE pubpid = ?', [self::FIXTURE_MARKER]);
     }

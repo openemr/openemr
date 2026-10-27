@@ -32,6 +32,7 @@ require_once($srcdir . '/ESign/Api.php');
 require_once($srcdir . "/../controllers/C_Document.class.php");
 
 use ESign\Api;
+use ESign\SignatureIF;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -575,8 +576,13 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
     $old_category = '';
     $DivId = 1;
 
-    // To see if the encounter is locked. If it is, no new forms can be created
+    // To see if the encounter is locked. If it is, no new forms can be created,
+    // except the billing forms below: coding and claim details often follow the
+    // provider's signature, and neither is clinical documentation. The main
+    // menu's Fees > Fee Sheet makes the same exception (menuActionClick in
+    // tabs_view_model.js).
     $encounterLocked = false;
+    $lockedEncounterBillingForms = ['fee_sheet', 'misc_billing_options'];
     if (
         $esignApi->lockEncounters() &&
         OEGlobalsBag::getInstance()->has('encounter') &&
@@ -591,11 +597,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
 
     // Convert the flat list of menu items into a multi-dimensional array based on the category
     // decide what will be displayed (name or nickname)
-    // A locked (e-signed) encounter takes no new forms, but its fee sheet stays
-    // available: coding often follows the provider's signature and the fee
-    // sheet isn't clinical documentation. The main menu's Fees > Fee Sheet
-    // makes the same exception (menuActionClick in tabs_view_model.js).
-    $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) use ($encounterLocked, $questionnaireAvailability, $questionnaireContext) {
+    $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) use ($encounterLocked, $lockedEncounterBillingForms, $questionnaireAvailability, $questionnaireContext) {
         $menuArray = $menuEvent->getMenuData();
         $reg = $questionnaireAvailability->filterEncounterFormRows(
             getFormsByCategory(),
@@ -612,7 +614,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
         }
         foreach ($reg as $item) {
             // filterEncounterFormRows() returns array rows, so no is_array() guard here.
-            if ($encounterLocked && ($item['directory'] ?? null) !== 'fee_sheet') {
+            if ($encounterLocked && !in_array($item['directory'] ?? null, $lockedEncounterBillingForms, true)) {
                 continue;
             }
             $tmp = explode('|', (string) $item['aco_spec']);
@@ -1008,8 +1010,21 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
             <div class='form_header_controls btn-group' role='group'>
     HTML;
 
-                // If the form is locked, it is no longer editable
-                if ($esign->isLocked()) {
+                // If the form is locked, it is no longer editable. A billing form
+                // locked only by the encounter's signature stays editable; one
+                // signed and locked on its own does not.
+                $formLocked = $esign->isLocked();
+                if ($formLocked && $encounterLocked && in_array($formdir, $lockedEncounterBillingForms, true)) {
+                    $formLocked = false;
+                    $signatures = OEGlobalsBag::getInstance()->getBoolean('lock_esign_individual') ? $esign->getSignatures() : [];
+                    foreach (is_array($signatures) ? $signatures : [] as $signature) {
+                        if ($signature instanceof SignatureIF && $signature->isLock() === true) {
+                            $formLocked = true;
+                            break;
+                        }
+                    }
+                }
+                if ($formLocked) {
                     echo "<a href='#' class='btn btn-text btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><i class='fa fa-lock fa-fw'></i>&nbsp;" . xlt('Locked') . "</a>";
                 } else {
                     if (
