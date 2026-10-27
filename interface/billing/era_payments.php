@@ -20,17 +20,18 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Billing\EraFilenameValidator;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Zip\ZipExtractionGuard;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/statement.inc.php');
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 
@@ -73,48 +74,29 @@ function era_payments_callback(array &$out): void
     }
 }
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
 //===============================================================================
-// Validate pending_eraname matches expected pattern (YYYYMMDD_controlnum_payerid)
-// to prevent path traversal. Only alphanumeric and underscores are allowed.
-$validEraName = $pending_eraname !== '' && preg_match('/^[0-9]{8}_[0-9]+_[0-9]+$/', $pending_eraname) === 1;
+$safePendingName = $pending_eraname !== '' ? EraFilenameValidator::sanitize($pending_eraname) : null;
 
 // Handle confirmed overwrite from pending upload
-if ($confirm_overwrite === 'yes' && $validEraName) {
+if ($confirm_overwrite === 'yes' && $safePendingName !== null) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-    $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
-    // basename() strips path components; realpath() resolves symlinks and verifies existence
-    $safeName = basename($pending_eraname);
-    $expectedTempFile = "$eraDir/.pending_$safeName.edi";
-    $realTempFile = realpath($expectedTempFile);
-    $realEraDir = realpath($eraDir);
-    // Verify file exists and is within the ERA directory
-    if ($realTempFile !== false && $realEraDir !== false
-        && str_starts_with($realTempFile, $realEraDir . DIRECTORY_SEPARATOR)
-    ) {
-        $eraname = $safeName;
-        $erafullname = "$eraDir/$safeName.edi";
-        rename($realTempFile, $erafullname);
+    $expectedTempFile = EraFilenameValidator::resolveWithinDirectory($eraDir, $safePendingName, '.edi', '.pending_');
+    $erafullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $safePendingName, '.edi');
+    if ($expectedTempFile !== null && $erafullname !== null && is_file($expectedTempFile)) {
+        $eraname = $safePendingName;
+        rename($expectedTempFile, $erafullname);
         $alertmsg .= xl("File overwritten successfully.") . ' ';
     }
-} elseif ($confirm_overwrite === 'no' && $validEraName) {
+} elseif ($confirm_overwrite === 'no' && $safePendingName !== null) {
     // User cancelled - clean up temp file
-    $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
-    // basename() strips path components; realpath() resolves symlinks and verifies existence
-    $safeName = basename($pending_eraname);
-    $expectedTempFile = "$eraDir/.pending_$safeName.edi";
-    $realTempFile = realpath($expectedTempFile);
-    $realEraDir = realpath($eraDir);
-    // Verify file exists and is within the ERA directory
-    if ($realTempFile !== false && $realEraDir !== false
-        && str_starts_with($realTempFile, $realEraDir . DIRECTORY_SEPARATOR)
-    ) {
-        unlink($realTempFile);
+    $expectedTempFile = EraFilenameValidator::resolveWithinDirectory($eraDir, $safePendingName, '.edi', '.pending_');
+    if ($expectedTempFile !== null && is_file($expectedTempFile)) {
+        unlink($expectedTempFile);
     }
     $alertmsg .= xl("Upload cancelled.") . ' ';
-}
-//===============================================================================
-  // Handle X12 835 file upload.
-elseif (!empty($_FILES['form_erafile']['size'])) {
+} elseif (!empty($_FILES['form_erafile']['size'])) {
+    // Handle X12 835 file upload.
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $tmp_name = $_FILES['form_erafile']['tmp_name'] ?? null;
@@ -126,14 +108,20 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
         if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
             $zip = new ZipArchive();
             if ($zip->open($tmp_name) === true) {
-                $contents = $zip->getFromIndex(0);
-                $zip->close();
-                if ($contents === false) {
-                    $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
+                if (!ZipExtractionGuard::isSafe($zip)) {
+                    $zip->close();
+                    $alertmsg .= xl("ZIP archive exceeds extraction limits") . " ";
                     $shouldParseEra = false;
-                } elseif (file_put_contents($tmp_name, $contents) === false) {
-                    $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
-                    $shouldParseEra = false;
+                } else {
+                    $contents = $zip->getFromIndex(0);
+                    $zip->close();
+                    if ($contents === false) {
+                        $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
+                        $shouldParseEra = false;
+                    } elseif (file_put_contents($tmp_name, $contents) === false) {
+                        $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
+                        $shouldParseEra = false;
+                    }
                 }
             } else {
                 $alertmsg .= xl("Unable to open ZIP archive") . " ";
@@ -148,21 +136,25 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
         }
 
         // Ensure the ERA directory exists
-        $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
         if (!is_dir($eraDir) && !mkdir($eraDir, 0755, true) && !is_dir($eraDir)) {
             $alertmsg .= xl("Cannot create ERA directory") . " ";
         }
 
-        $erafullname = "$eraDir/$eraname.edi";
-        if (is_file($erafullname)) {
+        $erafullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $eraname, '.edi');
+        $pendingfullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $eraname, '.edi', '.pending_');
+        $htmlfullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $eraname, '.html');
+        if ($erafullname === null || $pendingfullname === null || $htmlfullname === null) {
+            $alertmsg .= xl("Invalid ERA file name.") . " ";
+            $eraname = '';
+        } elseif (is_file($erafullname)) {
             // File exists - ask user for confirmation before overwriting
             // Move temp file to a persistent temp location so it survives the request
-            $pending_era_temp = "$eraDir/.pending_$eraname.edi";
+            $pending_era_temp = $pendingfullname;
             rename($tmp_name, $pending_era_temp);
             $pending_eraname = $eraname;
             $showOverwriteConfirm = true;
 
-            if (is_file("$eraDir/$eraname.html")) {
+            if (is_file($htmlfullname)) {
                 $Processed = 1;
             }
         } else {
@@ -214,8 +206,9 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
         // Only open the processing popup if:
         // 1. A new file was uploaded and doesn't need confirmation, OR
         // 2. User confirmed the overwrite
-        $shouldOpenPopup = (!empty($_FILES['form_erafile']['size']) && !$showOverwriteConfirm)
-            || ($confirm_overwrite === 'yes' && $pending_eraname);
+        $shouldOpenPopup = $eraname !== ''
+            && ((!empty($_FILES['form_erafile']['size']) && !$showOverwriteConfirm)
+                || ($confirm_overwrite === 'yes' && $pending_eraname));
         if ($shouldOpenPopup) {
             ?>
             var f = document.forms[0];
@@ -432,7 +425,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
         </div>
     </div><!-- End of Container Div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
-    <script src = '<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/js/oeUI/oeFileUploads.js'></script>
+    <script src = '<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/js/oeUI/oeFileUploads.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>'></script>
 
     <!-- Overwrite Confirmation Modal -->
     <div class="modal fade" id="overwriteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="overwriteConfirmModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">

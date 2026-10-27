@@ -16,7 +16,6 @@
  */
 
 require_once("../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -48,7 +47,7 @@ function format_cvx_code($cvx_code)
     return $cvx_code;
 }
 
-function format_ethnicity($ethnicity)
+function format_ethnicity($ethnicity): string
 {
 
     return match ($ethnicity) {

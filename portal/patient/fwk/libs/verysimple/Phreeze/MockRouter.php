@@ -3,11 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once('IRouter.php');
-
-/**
  * Mock router for unit testing purposes
  *
  * @package verysimple::Phreeze
@@ -56,7 +51,7 @@ class MockRouter implements IRouter
     /**
      * @inheritdocs
      */
-    public function GetRoute($uri = "")
+    public function GetRoute($uri = ""): array
     {
         return [];
     }

@@ -38,7 +38,7 @@ class ProcedureProviderService extends BaseService
         return ['uuid'];
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         $sqlBindArray = [];
         $sql = "SELECT  prov.ppid

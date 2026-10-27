@@ -29,17 +29,22 @@
 
 
 use Mpdf\Mpdf;
-use OpenEMR\Billing\InvoiceSummary;
+use OpenEMR\Billing\EraFilenameValidator;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Billing\Statement\PatientCreditEncounters;
+use OpenEMR\Billing\Statement\StatementLines;
+use OpenEMR\Billing\Statement\StatementRecipient;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Common\Zip\ZipExtractionGuard;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
@@ -49,15 +54,12 @@ use Symfony\Component\Process\Process;
 require_once("../globals.php");
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcDir . '/patient.inc.php');
 require_once($srcDir . '/appointments.inc.php');
 require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/statement.inc.php');
 // statement.inc.php sets $STMT_TEMP_FILE
 if (!isset($STMT_TEMP_FILE)) {
     throw new \RuntimeException('$STMT_TEMP_FILE must be set by statement.inc.php');
 }
-require_once($srcDir . '/api.inc.php');
-require_once($srcDir . '/forms.inc.php');
 require_once($srcDir . '/../controllers/C_Document.class.php');
 require_once($srcDir . '/documents.php');
 require_once($srcDir . '/options.inc.php');
@@ -309,7 +311,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
             if (stristr($OneLine, "\014") == true && !feof($file)) {
                 $pdf->ezNewPage();
                 $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
-                str_replace("\014", "", $OneLine);
+                $OneLine = str_replace("\014", "", $OneLine);
             }
 
             if (
@@ -378,9 +380,14 @@ if (
 
     $sqlBindArray = [];
     $where = "";
+    /** @var list<int> $checkedEncounterIds form_encounter.id of every checked invoice */
+    $checkedEncounterIds = [];
     foreach ($_REQUEST['form_cb'] as $key => $value) {
         $where .= " OR f.id = ?";
         array_push($sqlBindArray, $key);
+        if (is_numeric($key)) {
+            $checkedEncounterIds[] = (int) $key;
+        }
     }
 
     if (!empty($where)) {
@@ -390,7 +397,8 @@ if (
 
     $res = sqlStatement("SELECT " .
         "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note as enc_billing_note, " .
-        "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code, p.billing_note as pat_billing_note, f.provider_id " .
+        "p.fname, p.mname, p.lname, p.street, p.street_line_2, p.city, p.state, p.postal_code, p.billing_note as pat_billing_note, " .
+        "p.guardiansname, p.guardianaddress, p.guardiancity, p.guardianstate, p.guardianpostalcode, f.provider_id " .
         "FROM form_encounter AS f, patient_data AS p " .
         "WHERE $where " .
         "p.pid = f.pid " .
@@ -424,6 +432,19 @@ if (
         }
         $rcnt++;
     }
+    // Invoices whose statement count and date are bumped once their patient's
+    // statement is actually produced; a Due Pt run that nets to nothing leaves
+    // them untouched.
+    $pendingStatementUpdates = [];
+    $recordStatementRun = function (array $encounterIds) use ($today): void {
+        foreach ($encounterIds as $encounterId) {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE form_encounter SET last_stmt_date = ?, stmt_count = stmt_count + 1 WHERE id = ?",
+                [$today, $encounterId]
+            );
+        }
+    };
+
     // This loops once for each invoice/encounter.
     //
     for ($rcnt = 0; $row = $rows[$rcnt] ?? null; $rcnt++) {
@@ -480,16 +501,9 @@ if (
             $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
             $stmt['encounter'] = $row['encounter'];
             $stmt['provider_id'] = $row['provider_id'];
-            #If you use the field in demographics layout called
-            #guardiansname this will allow you to send statements to the parent
-            #of a child or a guardian etc
-            $stmt['to'] = empty($row['guardiansname']) ? [$row['fname'] . ' ' . $row['lname']] : [$row['guardiansname']];
-
-            if ($row['street']) {
-                $stmt['to'][] = $row['street'];
-            }
-
-            $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
+            // To the guardian (guarantor) in the patient's demographics when there is one,
+            // at their address when it is filled in; otherwise to the patient.
+            $stmt['to'] = StatementRecipient::lines(is_array($row) ? $row : []);
             $stmt['lines'] = [];
             $stmt['amount'] = '0.00';
             $stmt['ins_paid'] = 0;
@@ -504,37 +518,27 @@ if (
 
         // Recompute age at each invoice.
         $stmt['age'] = round((strtotime($today) - strtotime((string) $stmt['duedate'])) / (24 * 60 * 60));
-        // grab last bill date from billing
-        $bdrow = QueryUtils::querySingleRow("select bill_date from billing where pid = ? AND encounter = ? limit 1", [$row['pid'], $row['encounter']]);
 
-        $invlines = InvoiceSummary::arGetInvoiceSummary($row['pid'], $row['encounter'], true);
-        foreach ($invlines as $key => $value) {
-            $line = [];
-            $line['dos'] = $svcdate;
-            if (OEGlobalsBag::getInstance()->getBoolean('use_custom_statement')) {
-                $line['desc'] = ($key == 'CO-PAY') ? "Patient Payment" : $value['code_text'];
-            } else {
-                $line['desc'] = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
-            }
+        $rowPid = is_numeric($row['pid']) ? (int) $row['pid'] : 0;
+        $rowEncounter = is_numeric($row['encounter']) ? (int) $row['encounter'] : 0;
+        StatementLines::append($stmt, $rowPid, $rowEncounter, $svcdate, (is_numeric($duncount) ? (int) $duncount : 0) + 1);
 
-            $line['amount'] = sprintf("%.2f", $value['chg']);
-            $line['adjust'] = sprintf("%.2f", ($value['adj'] ?? null));
-            $line['paid'] = sprintf("%.2f", $value['chg'] - $value['bal']);
-            $line['notice'] = $duncount + 1;
-            $line['detail'] = $value['dtl'];
-            $line['bill_date'] = $bdrow['bill_date'];
-            $stmt['lines'][] = $line;
-            $stmt['amount'] = sprintf("%.2f", $stmt['amount'] + $value['bal']);
-            $stmt['ins_paid'] += $value['ins'] ?? null;
-        }
-
-        // Record that this statement was run.
+        // Record that this statement was run, once it is produced below.
         if (!$DEBUG && empty($_REQUEST['form_without'])) {
-            sqlStatement("UPDATE form_encounter SET " .
-                "last_stmt_date = ?, stmt_count = stmt_count + 1 " .
-                "WHERE id = ?", [$today, $row['id']]);
+            $pendingStatementUpdates[] = $row['id'];
         }
         $inv_count += 1;
+
+        if ($inv_pid[$inv_count] != ($inv_pid[$inv_count + 1] ?? null)) {
+            // This was the patient's last checked invoice. Bring in the patient's
+            // other encounters that hold a credit (overpaid, never listed as due, so
+            // never checked) as their own dated lines, so the amount due nets them
+            // instead of billing the open encounters in full and collecting the
+            // overpayment a second time. Their statement counts are left alone.
+            foreach (PatientCreditEncounters::find($rowPid, $checkedEncounterIds) as $credit) {
+                StatementLines::append($stmt, $rowPid, $credit['encounter'], substr($credit['date'], 0, 10), $credit['stmt_count'] + 1);
+            }
+        }
         if (!empty($_REQUEST['form_portalnotify'])) {
             if (!is_auth_portal($stmt['pid'])) {
                 $alertmsg = xlt('Notification FAILED: Not Portal Authorized');
@@ -548,6 +552,9 @@ if (
                     $alertmsg = xlt('Notification FAILED');
                     break;
                 }
+                // Count the invoices as statemented only once the portal has the statement.
+                $recordStatementRun($pendingStatementUpdates);
+                $pendingStatementUpdates = [];
 
                 $pvoice = [];
                 flush();
@@ -557,11 +564,16 @@ if (
             }
         } else {
             if ($inv_pid[$inv_count] != ($inv_pid[$inv_count + 1] ?? null)) {
-                if ($_REQUEST['form_category'] == 'Due Pt' && (get_patient_balance($stmt['pid']) < 0)) {
-                    // not printing statement if patient balance is less than zero even though
-                    // a single encounter may have a balance
-                    unset($stmt);
+                $amountDue = is_numeric($stmt['amount'] ?? null) ? (float) $stmt['amount'] : 0.0;
+                if ($_REQUEST['form_category'] == 'Due Pt' && $amountDue <= 0) {
+                    // Nothing is due once the patient's credits are netted against the
+                    // checked invoices, so no statement goes out and its invoices are
+                    // not counted as statemented.
+                    $stmt = [];
+                    $pendingStatementUpdates = [];
                 } else {
+                    $recordStatementRun($pendingStatementUpdates);
+                    $pendingStatementUpdates = [];
                     $tmp = make_statement($stmt);
                     if (!empty($_REQUEST['form_email']) && $tmp !== '') {
                         try {
@@ -655,6 +667,42 @@ if (
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $language_direction = $session->get('language_direction'); // fetch before the <html> output begins
+
+// Last Statement Before: the search lists only invoices last sent a statement before
+// this date, or never sent one.
+$searchRequest = CurrentRequest::get()->request;
+$lastStatementBeforeInput = $searchRequest->getString('form_last_stmt_before');
+$lastStatementBefore = fixDate($lastStatementBeforeInput, '');
+
+// What an invoice search was limited to, shown with its results: the search
+// fields are hidden once results are shown.
+$searchFilters = [];
+$shortDate = static function (string $date): string {
+    $formatted = oeFormatShortDate($date);
+    return is_string($formatted) ? $formatted : $date;
+};
+if ($searchRequest->getString('form_search') === 'Search') {
+    $category = $searchRequest->getString('form_category');
+    if ($category !== '') {
+        $searchFilters[] = $category;
+    }
+    foreach (['form_name' => xl('Name'), 'form_pid' => xl('Chart ID'), 'form_encounter' => xl('Encounter')] as $field => $label) {
+        $value = trim($searchRequest->getString($field));
+        if ($value !== '') {
+            $searchFilters[] = $label . ': ' . $value;
+        }
+    }
+    $serviceFrom = fixDate($searchRequest->getString('form_date'), '');
+    $serviceTo = fixDate($searchRequest->getString('form_to_date'), '');
+    if ($serviceFrom !== '') {
+        $searchFilters[] = $serviceTo !== ''
+            ? xl('Service dates') . ': ' . $shortDate($serviceFrom) . ' - ' . $shortDate($serviceTo)
+            : xl('Service date') . ': ' . $shortDate($serviceFrom);
+    }
+    if ($lastStatementBefore !== '') {
+        $searchFilters[] = xl('Last statement before') . ' ' . $shortDate($lastStatementBefore);
+    }
+}
 ?>
 <html>
 <head>
@@ -764,6 +812,14 @@ $language_direction = $session->get('language_direction'); // fetch before the <
             .oe-small {
                 display: inline-block;
             }
+        }
+
+        #invoice-list th[aria-sort="ascending"] button::after {
+            content: " \25B2";
+        }
+
+        #invoice-list th[aria-sort="descending"] button::after {
+            content: " \25BC";
         }
 
         @media print {
@@ -899,6 +955,10 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                 <label class="control-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>:</label>
                                 <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_to_date'] ?? ''); ?>' title='<?php echo xla("Ending DOS mm/dd/yyyy if you wish to enter a range"); ?>' />
                             </div>
+                            <div class="form-group col-lg">
+                                <label class="control-label" for="form_last_stmt_before"><?php echo xlt('Last Statement Before'); ?>:</label>
+                                <input type='text' name='form_last_stmt_before' id='form_last_stmt_before' class='form-control datepicker' value='<?php echo attr($lastStatementBeforeInput); ?>' title='<?php echo xla("List only invoices last sent a statement before this date, or never sent one"); ?>' />
+                            </div>
                             <div class="form-group col-lg" style="padding-right:0px">
                                 <label class="control-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
                                 <select name='form_category' id='form_category' class='form-control'>
@@ -938,6 +998,9 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                 </div>
                 <fieldset id="search-results" class="oe-show-hide px-2">
                     <legend><span><?php echo xlt('Search Results'); ?></span>
+                        <?php if ($searchFilters !== []) { ?>
+                            <small id="search-filters" class="text-muted ml-2"><?php echo text(implode(' · ', $searchFilters)); ?></small>
+                        <?php } ?>
                         <div class="oe-pull-away oe-legend-radio">
                             <label class="checkbox-inline">
                                 <input type="checkbox" id="posting_adj_disable" name="posting_adj_disable" onchange='persistCriteria(this, event)' title="<?php echo xlt("Disable automatically calculating balance adjustments for invoice posting") ?>" value="<?php echo attr($posting_adj_disable); ?>" <?php echo ' ' . attr($posting_adj_disable); ?> /><?php echo xlt('Disable Auto Adjustments'); ?>
@@ -958,6 +1021,7 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                             $form_to_date = fixDate($_REQUEST['form_to_date'], "");
 
                             $where = "";
+                            $searchBinds = [];
 
                             // Handle X12 835 file upload.
                             //
@@ -971,14 +1035,20 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                     if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
                                         $zip = new ZipArchive();
                                         if ($zip->open($tmp_name) === true) {
-                                            $contents = $zip->getFromIndex(0);
-                                            $zip->close();
-                                            if ($contents === false) {
-                                                $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
+                                            if (!ZipExtractionGuard::isSafe($zip)) {
+                                                $zip->close();
+                                                $alertmsg .= xl("ZIP archive exceeds extraction limits") . " ";
                                                 $shouldParseEra = false;
-                                            } elseif (file_put_contents($tmp_name, $contents) === false) {
-                                                $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
-                                                $shouldParseEra = false;
+                                            } else {
+                                                $contents = $zip->getFromIndex(0);
+                                                $zip->close();
+                                                if ($contents === false) {
+                                                    $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
+                                                    $shouldParseEra = false;
+                                                } elseif (file_put_contents($tmp_name, $contents) === false) {
+                                                    $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
+                                                    $shouldParseEra = false;
+                                                }
                                             }
                                         } else {
                                             $alertmsg .= xl("Unable to open ZIP archive") . " ";
@@ -994,19 +1064,31 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                         }
                                     }
                                     echo "-->\n";
-                                    $erafullname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.edi";
-                                    $edihname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/history/f835/$eraname.835";
-
-                                    if (is_file($erafullname)) {
-                                        $alertmsg .= "Warning: Set $eraname was already uploaded ";
-                                        if (is_file(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.html")) {
-                                            $alertmsg .= "and processed. ";
-                                        } else {
-                                            $alertmsg .= "but not yet processed. ";
+                                    $siteDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+                                    $eraDir = $siteDir . '/documents/era';
+                                    $historyDir = $siteDir . '/documents/edi/history/f835';
+                                    $erafullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $eraname, '.edi');
+                                    $edihname = is_dir($historyDir)
+                                        ? EraFilenameValidator::resolveWithinDirectory($historyDir, $eraname, '.835')
+                                        : null;
+                                    $htmlfullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $eraname, '.html');
+                                    if ($erafullname === null || $htmlfullname === null) {
+                                        $alertmsg .= xl("Invalid ERA file name.") . " ";
+                                        $eraname = '';
+                                    } else {
+                                        if (is_file($erafullname)) {
+                                            $alertmsg .= "Warning: Set $eraname was already uploaded ";
+                                            if (is_file($htmlfullname)) {
+                                                $alertmsg .= "and processed. ";
+                                            } else {
+                                                $alertmsg .= "but not yet processed. ";
+                                            }
+                                        }
+                                        rename($tmp_name, $erafullname);
+                                        if ($edihname !== null) {
+                                            copy($erafullname, $edihname);
                                         }
                                     }
-                                    rename($tmp_name, $erafullname);
-                                    copy($erafullname, $edihname);
                                 }
                             } // End 835 upload
 
@@ -1057,6 +1139,13 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                         $where .= "f.date = '" . add_escape_custom($form_date) . "'";
                                     }
                                 }
+                                if ($lastStatementBefore !== '') {
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
+                                    $where .= "(f.last_stmt_date IS NULL OR f.last_stmt_date < ?)";
+                                    $searchBinds[] = $lastStatementBefore;
+                                }
                                 if (!$where) {
                                     if ($_REQUEST['form_category'] == 'All') {
                                         $alertmsg .= xlt("At least one search parameter is required if you select All.");
@@ -1092,7 +1181,7 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                             $num_invoices = 0;
 
                             // removed if condition on alert message so biller can see what's in the era
-                            $t_res = sqlStatement($query);
+                            $t_res = sqlStatement($query, $searchBinds);
                             $num_invoices = sqlNumRows($t_res);
 
                             if ($eracount && $num_invoices != $eracount) {
@@ -1100,29 +1189,31 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                     "matching encounters in OpenEMR. ";
                             }
                             ?>
-                        <table class="table table-striped table-sm">
+                        <table id="invoice-list" class="table table-striped table-sm">
                             <thead>
                             <tr>
-                                <th class="id dehead"><?php echo xlt('Billing Note'); ?></th>
-                                <th class="dehead">&nbsp;<?php echo xlt('Patient'); ?></th>
-                                <th class="dehead">&nbsp;<?php echo xlt('Invoice'); ?></th>
-                                <th class="dehead">&nbsp;<?php echo xlt('Svc Date'); ?></th>
-                                <th class="dehead">&nbsp;<?php echo xlt('Last Stmt'); ?></th>
-                                <th class="dehead text-right"><?php echo xlt('Charge'); ?>&nbsp;</th>
-                                <th class="dehead text-right"><?php echo xlt('Adjust'); ?>&nbsp;</th>
-                                <th class="dehead text-right"><?php echo xlt('Paid'); ?>&nbsp;</th>
-                                <th class="dehead text-right"><?php echo xlt('Balance'); ?>&nbsp;</th>
-                                <th class="dehead text-center"><?php echo xlt('Prv'); ?></th>
+                                <th class="id dehead" data-sort="number"><?php echo xlt('Billing Note'); ?></th>
+                                <th class="dehead" data-sort="text">&nbsp;<?php echo xlt('Patient'); ?></th>
+                                <th class="dehead" data-sort="text">&nbsp;<?php echo xlt('Invoice'); ?></th>
+                                <th class="dehead" data-sort="date">&nbsp;<?php echo xlt('Svc Date'); ?></th>
+                                <th class="dehead" data-sort="date">&nbsp;<?php echo xlt('Last Stmt'); ?></th>
+                                <th class="dehead text-right" data-sort="number"><?php echo xlt('Charge'); ?>&nbsp;</th>
+                                <th class="dehead text-right" data-sort="number"><?php echo xlt('Adjust'); ?>&nbsp;</th>
+                                <th class="dehead text-right" data-sort="number"><?php echo xlt('Paid'); ?>&nbsp;</th>
+                                <th class="dehead text-right" data-sort="number"><?php echo xlt('Balance'); ?>&nbsp;</th>
+                                <th class="dehead text-center" data-sort="number" title="<?php echo xla('Statements sent, or minus the insurance levels still open'); ?>"><?php echo xlt('Prv'); ?></th>
                                 <?php
                                 if (!$eracount) { ?>
                                     <th class="dehead text-left"><?php echo xlt('Sel'); ?></th>
-                                    <th class="dehead text-center"><?php echo xlt('Email'); ?></th>
+                                    <th class="dehead text-center" data-sort="text"><?php echo xlt('Email'); ?></th>
                                     <?php
                                 } ?>
                             </tr>
                             </thead>
                             <?php
                             $orow = -1;
+                            // Sort values for the column headers (sl_eob_search_sort.js): raw, not display-formatted.
+                            $sortValue = static fn(mixed $value): string => is_scalar($value) ? (string) $value : '';
 
                             while ($row = sqlFetchArray($t_res)) {
                                 $balance = sprintf("%.2f", $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments']);
@@ -1142,22 +1233,19 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                 $in_collections = stristr((string) $billnote, 'IN COLLECTIONS') !== false
                                     || $row['in_collection'] == 1;
 
-                                // $duncount was originally supposed to be the number of times that
-                                // the patient was sent a statement for this invoice.
+                                // $duncount is the number of statements the patient has been sent for
+                                // this invoice, or, while insurance is still open, minus the number of
+                                // insurance levels not yet closed.
                                 //
-                                $duncount = $row['stmt_count'];
-
-                                // But if we have not yet billed the patient, then compute $duncount as a
-                                // negative count of the number of insurance plans for which we have not
-                                // yet closed out insurance.
-                                //
-                                if (!$duncount) {
-                                    $i = 1;
-                                    while ($i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $i)) {
-                                        ++$i;
-                                    }
-                                    $duncount = $row['last_level_closed'] + 1 - $i;
+                                $payerCount = 0;
+                                while ($payerCount < 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $payerCount + 1)) {
+                                    ++$payerCount;
                                 }
+                                $duncount = SLEOB::dunningCount(
+                                    is_numeric($row['stmt_count']) ? (int) $row['stmt_count'] : 0,
+                                    is_numeric($row['last_level_closed']) ? (int) $row['last_level_closed'] : 0,
+                                    $payerCount
+                                );
 
                                 $isdueany = ($balance > 0);
 
@@ -1182,6 +1270,7 @@ $language_direction = $session->get('language_direction'); // fetch before the <
 
                                 $svcdate = substr((string) $row['date'], 0, 10);
                                 $last_stmt_date = empty($row['last_stmt_date']) ? '' : $row['last_stmt_date'];
+                                $paid = $row['payments'] - $row['copays'];
 
                                 ?>
                                 <tr>
@@ -1191,22 +1280,22 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                                     <td class="detail">&nbsp;
                                         <a href="#" class="btn btn-secondary btn-sm" onclick="toEncSummary(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
-                                    <td class="detail">&nbsp;
+                                    <td class="detail" data-sort-value="<?php echo attr($sortValue($row['pid']) . ':' . $sortValue($row['encounter'])); ?>" data-encounter="<?php echo attr($sortValue($row['encounter'])); ?>">&nbsp;
                                         <a href="#" class="btn btn-secondary btn-sm" onclick="editInvoice(event,<?php echo attr_js($row['id']); ?>)"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
                                     </td>
-                                    <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
-                                    <td class="detail">
+                                    <td class="detail" data-sort-value="<?php echo attr($svcdate); ?>">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
+                                    <td class="detail" data-sort-value="<?php echo attr($sortValue($last_stmt_date)); ?>">
                                         &nbsp;<?php echo text(oeFormatShortDate($last_stmt_date)); ?></td>
-                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($row['charges'])); ?>&nbsp;
+                                    <td class="detail text-right" data-sort-value="<?php echo attr($sortValue($row['charges'])); ?>"><?php echo text(FormatMoney::getBucks($row['charges'])); ?>&nbsp;
                                     </td>
-                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($row['adjustments'])); ?>
+                                    <td class="detail text-right" data-sort-value="<?php echo attr($sortValue($row['adjustments'])); ?>"><?php echo text(FormatMoney::getBucks($row['adjustments'])); ?>
                                         &nbsp;
                                     </td>
-                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($row['payments'] - $row['copays'])); ?>
+                                    <td class="detail text-right" data-sort-value="<?php echo attr($sortValue($paid)); ?>"><?php echo text(FormatMoney::getBucks($paid)); ?>
                                         &nbsp;
                                     </td>
-                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($balance)); ?>&nbsp;</td>
-                                    <td class="detail text-center"><?php echo $duncount ? text($duncount) : "&nbsp;" ?></td>
+                                    <td class="detail text-right" data-sort-value="<?php echo attr($balance); ?>"><?php echo text(FormatMoney::getBucks($balance)); ?>&nbsp;</td>
+                                    <td class="detail text-center" data-sort-value="<?php echo attr((string) $duncount); ?>"><?php echo $duncount ? text((string) $duncount) : "&nbsp;" ?></td>
                                     <?php if (!$eracount) { ?>
                                         <td class="detail text-left">
                                             <input type='checkbox'
@@ -1246,7 +1335,7 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                     <div class="form-row text-left position-override oe-show-hide" id="statement-download">
                         <div class="btn-group" role="group">
                             <?php
-                            if ($eracount) { ?>
+                            if ($eracount && $eraname !== '') { ?>
                                 <button type="button" class="btn btn-secondary btn-save" name="Submit" onclick='processERA()' value="<?php echo xla('Process ERA File'); ?>">
                                     <?php echo xlt('Process ERA File'); ?></button>
                                 <?php
@@ -1374,7 +1463,7 @@ $language_direction = $session->get('language_direction'); // fetch before the <
     });
     <?php
     if ($alertmsg) {
-        echo "alert(" . js_escape((string) $alertmsg) . ");\n";
+        echo "alert(" . js_escape($alertmsg) . ");\n";
     }
     ?>
     $(function () {
@@ -1401,7 +1490,7 @@ if (!empty($_REQUEST['form_search']) && ($_REQUEST['form_search'] == "Upload")) 
     <?php
 }
 ?>
-
+<script src="<?php echo attr(OEGlobalsBag::getInstance()->getString('webroot')); ?>/interface/billing/sl_eob_search_sort.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
 </body>
 </html>

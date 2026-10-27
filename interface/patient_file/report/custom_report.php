@@ -18,10 +18,7 @@ require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
-require_once($srcdir . "/forms.inc.php");
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
-require_once($srcdir . "/lists.inc.php");
 require_once($srcdir . "/report.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 require_once $srcdir . '/ESign/Api.php';
@@ -35,6 +32,7 @@ use Mpdf\MpdfException;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\MedicalDevice\MedicalDevice;
@@ -50,8 +48,7 @@ if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
 
 $facilityService = new FacilityService();
 
-/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
-$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 /** @var array<string, mixed> $insurance_data_array */
 $insurance_data_array = OEGlobalsBag::getInstance()->get('insurance_data_array', []);
 
@@ -759,9 +756,12 @@ function getContent()
                                 <?php
                                 if (!empty($res[1])) {
                                     $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
-                                    if ($esign->isSigned('report') && OEGlobalsBag::getInstance()->getBoolean('esign_report_show_only_signed')) {
-                                        $reportRenderer->renderReport($res[1], 'custom_report.php', $pid, $form_encounter, $N, $form_id, $res[1]);
-                                    } elseif (!OEGlobalsBag::getInstance()->getBoolean('esign_report_show_only_signed')) {
+                                    // A form counts as signed when it is signed, or locked by its encounter's signature.
+                                    $onlySigned = OEGlobalsBag::getInstance()->getBoolean('esign_report_show_only_signed');
+                                    $formRowId = filter_var($formId, FILTER_VALIDATE_INT);
+                                    $formSigned = $onlySigned && is_int($formRowId)
+                                        && $esignApi->isFormSignedForReport($formRowId, $res[1]);
+                                    if (!$onlySigned || $formSigned) {
                                         $reportRenderer->renderReport($res[1], 'custom_report.php', $pid, $form_encounter, $N, $form_id, $res[1]);
                                     } else {
                                         echo "<h6>" . xlt("Not signed.") . "</h6>";

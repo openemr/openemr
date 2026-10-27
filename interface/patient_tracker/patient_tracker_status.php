@@ -17,10 +17,11 @@
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 require_once("$srcdir/patient_tracker.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -29,6 +30,10 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
     CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+}
+
+if (!AclMain::aclCheckCore('patients', 'appt')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Patient Tracker status", xl("Patient Tracker"));
 }
 
 # Get the information for fields

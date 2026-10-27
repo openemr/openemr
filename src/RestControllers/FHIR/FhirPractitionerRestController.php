@@ -37,10 +37,10 @@ class FhirPractitionerRestController
     private FhirResourcesService $fhirService;
     private FhirValidationService $fhirValidate;
 
-    public function __construct()
+    public function __construct(?FhirPractitionerService $practitionerService = null)
     {
         $this->fhirService = new FhirResourcesService();
-        $this->fhirPractitionerService = new FhirPractitionerService();
+        $this->fhirPractitionerService = $practitionerService ?? new FhirPractitionerService();
         $this->fhirValidate = new FhirValidationService();
     }
 
@@ -151,7 +151,7 @@ class FhirPractitionerRestController
     {
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {
-            return RestControllerHelper::handleFhirProcessingResult($fhirValidate, 400);
+            return RestControllerHelper::responseHandler($fhirValidate, null, 400);
         }
 
         $object = FhirPractitionerSerializer::deserialize($fhirJson);

@@ -30,23 +30,23 @@ $v_js_includes = $globalsBag->get('v_js_includes');
 <meta name="description" content="Patient Profile" />
 <meta name="author" content="Form | sjpadgett@gmail.com" />
 
-<script src="<?php echo $assets_static_relative; ?>/jquery/dist/jquery.min.js"></script>
-<link href="<?php echo $assets_static_relative; ?>/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" />
-<link href="<?php echo $assets_static_relative; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css" rel="stylesheet" />
+<script src="<?php echo $assets_static_relative; ?>/jquery/dist/jquery.min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+<link href="<?php echo $assets_static_relative; ?>/@fortawesome/fontawesome-free/css/all.min.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" rel="stylesheet" />
+<link href="<?php echo $assets_static_relative; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" rel="stylesheet" />
 <?php if ($this->register) {?>
-    <link href="<?php echo $assets_static_relative; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="<?php echo $assets_static_relative; ?>/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="<?php echo $assets_static_relative; ?>/bootstrap/dist/css/bootstrap.min.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" rel="stylesheet">
+    <script src="<?php echo $assets_static_relative; ?>/bootstrap/dist/js/bootstrap.bundle.min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <?php } ?>
 
-<script src="<?php echo $assets_static_relative; ?>/moment/moment.js"></script>
-<script src="<?php echo $assets_static_relative; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script src="<?php echo $assets_static_relative; ?>/underscore/underscore-min.js"></script>
-<script src="<?php echo $assets_static_relative; ?>/backbone/backbone-min.js"></script>
+<script src="<?php echo $assets_static_relative; ?>/moment/moment.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+<script src="<?php echo $assets_static_relative; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+<script src="<?php echo $assets_static_relative; ?>/underscore/underscore-min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+<script src="<?php echo $assets_static_relative; ?>/backbone/backbone-min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <script src="<?php echo $web_root; ?>/portal/patient/scripts/app.js?v=<?php echo $v_js_includes; ?>"></script>
 <script src="<?php echo $web_root; ?>/portal/patient/scripts/model.js?v=<?php echo $v_js_includes; ?>"></script>
 <script src="<?php echo $web_root; ?>/portal/patient/scripts/view.js?v=<?php echo $v_js_includes; ?>"></script>
 <base href="<?php $this->eprint($this->ROOT_URL); ?>" />
-<script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
+<script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <script>
 $LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
 </script>

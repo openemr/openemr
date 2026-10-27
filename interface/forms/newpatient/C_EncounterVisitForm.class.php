@@ -13,9 +13,11 @@
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2025 Mountain Valley Health <mvhinspire@mountainvalleyhealthinc.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @license   There are segments of code in this file that have been generated via Claude.ai and are licensed as Public Domain.  They have been marked with a header and footer.
  */
@@ -111,7 +113,7 @@ class C_EncounterVisitForm
 
 
 // Get providers list
-    public function getProvidersForTemplate(UserService $userService, $encounter)
+    public function getProvidersForTemplate(UserService $userService, $encounter): array
     {
         $users = $userService->getActiveUsers();
         $provider_id = (int)$encounter['provider_id'];
@@ -167,7 +169,7 @@ class C_EncounterVisitForm
     }
 
 // START AI GENERATED CODE
-    public function getBillingFacilityForTemplate(FacilityService $facilityService, $default_bill_fac = null)
+    public function getBillingFacilityForTemplate(FacilityService $facilityService, $default_bill_fac = null): array
     {
         // Determine default billing facility
         if (empty($default_bill_fac)) {
@@ -202,7 +204,7 @@ class C_EncounterVisitForm
 
 
 // Get visit categories
-    public function getVisitCategoriesForTemplate($viewmode, $encounter, $default_visit_category)
+    public function getVisitCategoriesForTemplate($viewmode, $encounter, $default_visit_category): array
     {
         $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype
                  FROM openemr_postcalendar_categories
@@ -241,13 +243,13 @@ class C_EncounterVisitForm
 
         return $categories;
     }
-    public function sensitivity_compare($a, $b)
+    public function sensitivity_compare($a, $b): int
     {
         return ($a[2] < $b[2]) ? -1 : 1;
     }
 
 // Get sensitivity options
-    public function getSensitivitiesForTemplate($encounter)
+    public function getSensitivitiesForTemplate($encounter): array
     {
         $viewmode = $this->viewmode;
 
@@ -282,7 +284,7 @@ class C_EncounterVisitForm
     }
 
 // Get issues for linking
-    public function getIssuesForTemplate($pid, $viewmode, $encounter_id, $selectedIssue = null)
+    public function getIssuesForTemplate($pid, $viewmode, $encounter_id, $selectedIssue = null): array
     {
 
         $issues = [];
@@ -339,7 +341,7 @@ class C_EncounterVisitForm
         return $encounter_type_option;
     }
 
-    public function getInCollectionOptionsForTemplate($encounter = null)
+    public function getInCollectionOptionsForTemplate($encounter = null): array
     {
         $options = [
             ['value' => '0', 'title' => xl('No')],
@@ -355,7 +357,7 @@ class C_EncounterVisitForm
         return $options;
     }
 
-    public function getDischargeDispositionsForTemplate($encounter = null)
+    public function getDischargeDispositionsForTemplate($encounter = null): array
     {
         $dispositions = [];
 
@@ -368,7 +370,7 @@ class C_EncounterVisitForm
 
         // Get list of discharge dispositions
         $dischargeService = new ListService();
-        $dispositionList = $dischargeService->getOptionsByListName('discharge-disposition') ?? [];
+        $dispositionList = $dischargeService->getOptionsByListName('discharge-disposition');
 
         foreach ($dispositionList as $disposition) {
             $dispositions[] = [
@@ -382,7 +384,7 @@ class C_EncounterVisitForm
         return $dispositions;
     }
 
-    public function getTherapyGroupCategoriesForTemplate()
+    public function getTherapyGroupCategoriesForTemplate(): array
     {
         $categories = [];
         $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype
@@ -398,7 +400,7 @@ class C_EncounterVisitForm
         return $categories;
     }
 
-    public function getGroupDataForTemplate($encounter = null)
+    public function getGroupDataForTemplate($encounter = null): array
     {
         $groupData = [
             'name' => '',
@@ -429,7 +431,7 @@ class C_EncounterVisitForm
         return $groupData;
     }
 
-    public function getPosOptionsForTemplate($facilityPosCode = null)
+    public function getPosOptionsForTemplate($facilityPosCode = null): array
     {
         $pc = new \POSRef();
         $options = [];
@@ -444,7 +446,7 @@ class C_EncounterVisitForm
         return $options;
     }
 
-    public function getDuplicateEncounterRecords($viewmode, $pid)
+    public function getDuplicateEncounterRecords($viewmode, $pid): array
     {
         $duplicate = ['isDuplicate' => false];
         if (!$viewmode) {
@@ -632,18 +634,17 @@ class C_EncounterVisitForm
 
 
         $MBO = new MiscBillingOptions();
-        $refProviderId = QueryUtils::fetchSingleValue(
-            "SELECT ref_providerID FROM patient_data WHERE pid = ?",
-            'ref_ProviderID',
-            [$pid]
-        );
-        $referringProviders = array_map(function ($provider) use ($viewmode, $encounter, $refProviderId) {
-            if (!$viewmode || empty($encounter['referring_provider_id'])) {
-                $encounter["referring_provider_id"] = $refProviderId ?? 0;
-            }
-            if ($viewmode && !empty($encounter["referring_provider_id"])) {
-                $provider['selected'] = $provider['id'] == $encounter['referring_provider_id'];
-            }
+        // Preselect the encounter's saved referring provider, else the
+        // patient's referring provider from Demographics > Choices.
+        $referringProviderId = MiscBillingOptions::providerId($encounter['referring_provider_id'] ?? null)
+            ?? MiscBillingOptions::providerId(QueryUtils::fetchSingleValue(
+                'SELECT ref_providerID FROM patient_data WHERE pid = ?',
+                'ref_providerID',
+                [$pid]
+            ));
+        $referringProviders = array_map(function (array $provider) use ($referringProviderId): array {
+            $provider['selected'] = $referringProviderId !== null
+                && MiscBillingOptions::providerId($provider['id'] ?? null) === $referringProviderId;
             return $provider;
         }, $MBO->getReferringProviders());
 

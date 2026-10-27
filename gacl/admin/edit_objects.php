@@ -27,7 +27,7 @@ require_once("gacl_admin.inc.php");
 //GET takes precedence.
 $object_type = !empty($_GET['object_type']) ? $_GET['object_type'] : $_POST['object_type'];
 
-switch(strtolower(trim((string) $object_type))) {
+switch (strtolower(trim((string) $object_type))) {
     case 'aco':
         $object_type = 'aco';
         $object_table = $gacl_api->_db_table_prefix . 'aco';
@@ -54,7 +54,7 @@ switch ($postAction) {
     case 'Delete':
 
         if (count($_POST['delete_object']) > 0) {
-            foreach($_POST['delete_object'] as $id) {
+            foreach ($_POST['delete_object'] as $id) {
                 $gacl_api->del_object($id, $object_type, TRUE);
             }
         }
@@ -121,7 +121,7 @@ switch ($postAction) {
         }
 
         $new_objects = [];
-        for($i=0; $i < 5; $i++) {
+        for ($i=0; $i < 5; $i++) {
                 $new_objects[] = [
                                                 'id' => $i,
                                                 'section_value' => NULL,

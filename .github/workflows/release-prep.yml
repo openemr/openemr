@@ -403,22 +403,30 @@ jobs:
         # Narrow-swallow: only tolerate the "unknown input"
         # (HTTP 422 "Unexpected inputs provided") failure, which is the
         # pre-Phase-3.5-rel-branch case where the acceptance-docker.yml
-        # copy on that branch doesn't declare build_locally yet.
+        # copy on that branch doesn't declare build_locally or
+        # require_upgrade_cell yet.
         # Anything else (auth, network, invalid ref, transient API 5xx,
         # etc.) is a real failure and should abort release-prep so the
         # operator notices rather than silently skipping the docker
         # acceptance gate for a possibly-shippable release.
+        #
+        # require_upgrade_cell=true is the release-mode guardrail: if
+        # acceptance-docker's upgrade-cell skip logic fires during this
+        # release-prep dispatch, fail loudly instead of silently
+        # skipping the auto-upgrade validation on the artifact we're
+        # about to ship.
         set +e
         gh_out="$(gh workflow run acceptance-docker.yml \
           --repo "${{ github.repository }}" \
           --ref "${target_ref}" \
-          -f build_locally=true 2>&1)"
+          -f build_locally=true \
+          -f require_upgrade_cell=true 2>&1)"
         gh_rc=$?
         set -e
         echo "$gh_out"
         if [[ $gh_rc -ne 0 ]]; then
-          if grep -qE 'HTTP 422.*Unexpected inputs.*build_locally' <<< "$gh_out"; then
-            echo "::warning::acceptance-docker.yml on ${target_ref} predates the build_locally input; continuing release-prep without docker-side pre-merge acceptance gate"
+          if grep -qE 'HTTP 422.*Unexpected inputs.*(build_locally|require_upgrade_cell)' <<< "$gh_out"; then
+            echo "::warning::acceptance-docker.yml on ${target_ref} predates the build_locally / require_upgrade_cell inputs; continuing release-prep without docker-side pre-merge acceptance gate"
           else
             echo "::error::acceptance-docker.yml dispatch failed for ${target_ref} with an unexpected error (not the legacy 'unknown input' case) — aborting release-prep so the failure is visible."
             exit "$gh_rc"

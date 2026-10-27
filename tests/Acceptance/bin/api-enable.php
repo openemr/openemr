@@ -56,6 +56,7 @@ if (!getenv('OPENEMR_ENABLE_API_BOOTSTRAP')) {
 require_once dirname(__DIR__, 3) . '/vendor/autoload.php';
 
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\Acceptance\Support\ArtifactBrowser;
 use OpenEMR\Tests\Acceptance\Support\BrowserSession;
 
@@ -148,15 +149,62 @@ try {
         }
     JS, [$baseUrl]);
 
-    // Step 5: submit form_save. The form posts to itself and reloads
-    // with success indicators + updated field values.
-    echo "==> Submitting form_save\n";
-    $client->findElement(WebDriverBy::name('form_save'))->click();
+    // Step 5: submit form_save. Two anti-patterns to avoid here:
+    //
+    //  (a) button->click() -- unreliable in this Panther+ChromeDriver
+    //      combo. Observed "0 POSTs in access logs after clicks that
+    //      returned success" in the install-wizard flow that led
+    //      InstallWizardUiTest to switch away from button->click()
+    //      (see tests/Acceptance/Install/InstallWizardUiTest.php:155-
+    //      158). Same silent-no-POST failure was observed here on
+    //      api-enable-post-install cells across daily acceptance-
+    //      docker + recovery-path-smoketest + rel-branch sync PR CIs.
+    //
+    //  (b) form->submit() (or the JS equivalent form.submit()) --
+    //      superficially fixes (a) BUT drops the submitter button's
+    //      name/value from the POST body. edit_globals.php's server-
+    //      side handler gates on `$_POST['form_save']` being truthy
+    //      (see interface/super/edit_globals.php line 221 for the
+    //      admin-mode branch + line 165 for the user-mode branch),
+    //      which requires the form_save button to have been the
+    //      submitter. Without it, the whole POST body still arrives
+    //      but the save handler branch is never entered, and the
+    //      subsequent verify sees the pre-submit state -- exact same
+    //      symptom as (a).
+    //
+    // Correct fix: JS `form.requestSubmit(button)`. Modern
+    // HTMLFormElement API (WHATWG spec, all browsers Chrome 76+ /
+    // Firefox 75+ / Safari 16+) that fires the submit event AS IF
+    // the user had clicked the specified button. Includes the
+    // submitter's name/value in the POST body (same as button-click)
+    // AND is a direct JS API call rather than a synthesized DOM
+    // click event, so it's not subject to the ChromeDriver click-
+    // dispatch quirk that plagues (a).
+    //
+    // Grab a reference to the form BEFORE submit so we can use it
+    // as a staleness anchor in step 6.
+    echo "==> Submitting form (via form.requestSubmit(form_save button))\n";
+    $form = $client->findElement(WebDriverBy::id('theform'));
+    $client->executeScript(
+        "document.getElementById('theform').requestSubmit("
+        . "document.querySelector('[name=\"form_save\"]'));",
+    );
 
     // Step 6: verify by re-reading the field values after reload.
     // edit_globals.php pre-populates from DB, so if our save took,
     // the reloaded page will show the new values.
-    echo "==> Waiting for post-save reload\n";
+    //
+    // Two-phase wait: first wait for the OLD form reference to go
+    // stale (the POST landed and the page navigated). Only then wait
+    // for the NEW form to render. Without the staleness gate, the
+    // waitFor('#theform') below would return immediately because
+    // #theform is already present in the DOM (it's the form we just
+    // submitted, pre-navigation), and the verify JS would read the
+    // pre-navigation state. Same race the pre-fix version hit
+    // intermittently even when the button-click DID fire the POST.
+    echo "==> Waiting for post-save navigation (staleness of old form)\n";
+    $client->wait(30)->until(WebDriverExpectedCondition::stalenessOf($form));
+    echo "==> Waiting for new form to render\n";
     $client->waitFor('#theform', 30);
     /** @var string $verifyJson */
     $verifyJson = $client->executeScript(<<<JS_WRAP

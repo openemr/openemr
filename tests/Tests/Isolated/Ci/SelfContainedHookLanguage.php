@@ -28,6 +28,15 @@ enum SelfContainedHookLanguage: string
 {
     case Fail = 'fail';
     case Pygrep = 'pygrep';
+    // Python 3.x is installed on every ubuntu-24.04 runner image. Hooks
+    // declaring `language: python` run inside a pre-commit-managed venv;
+    // `additional_dependencies:` in the hook config populates that venv
+    // from PyPI at first use (same mechanism external Python-based hooks
+    // like codespell and pre-commit-hooks already rely on and which the
+    // pre-commit workflow demonstrably supports today). No project
+    // toolchain (PHP, Composer, Node) is involved, so local Python hooks
+    // are safe to run in the pre-commit workflow -- they don't need SKIP.
+    case Python = 'python';
 
     /**
      * Whether a hook declaring this `language` needs a toolchain the
@@ -36,7 +45,7 @@ enum SelfContainedHookLanguage: string
     public static function requiresToolchain(string $language): bool
     {
         return match (self::tryFrom($language)) {
-            self::Fail, self::Pygrep => false,
+            self::Fail, self::Pygrep, self::Python => false,
             null => true,
         };
     }

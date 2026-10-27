@@ -22,7 +22,10 @@ use Installer\Model\InstModuleTable;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\ModulesClassLoader;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
@@ -36,10 +39,7 @@ class InstallerController extends AbstractActionController
         $this->listenerObject = new Listener();
     }
 
-    /**
-     * @return ViewModel
-     */
-    public function nolayout()
+    public function nolayout(): ViewModel
     {
         // Turn off the layout, i.e. only render the view script.
         $viewModel = new ViewModel();
@@ -153,8 +153,7 @@ class InstallerController extends AbstractActionController
     public function registerAction()
     {
         if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
-            echo xlt('Not Authorized');
-            exit;
+            AccessDeniedHelper::deny('Installer registerAction: admin/manage_modules');
         }
 
         $status = false;
@@ -192,8 +191,10 @@ class InstallerController extends AbstractActionController
     public function manageAction()
     {
         if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
-            echo json_encode(["status" => xlt('Not Authorized')]);
-            exit;
+            AccessDeniedHelper::deny(
+                'Installer manageAction: admin/manage_modules',
+                format: AccessDeniedResponseFormat::Json
+            );
         }
 
         $request = $this->getRequest();
@@ -358,7 +359,7 @@ class InstallerController extends AbstractActionController
      * @param unknown_type $data
      * @return string
      */
-    private function getContent($data)
+    private function getContent($data): string
     {
         $string = "";
         foreach ($data as $key => $value) {
@@ -377,11 +378,16 @@ class InstallerController extends AbstractActionController
         return $string;
     }
 
-    /**
-     * @return JsonModel
-     */
-    public function SaveHooksAction()
+    public function SaveHooksAction(): JsonModel
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny(
+                'Installer SaveHooksAction: admin/manage_modules',
+                format: AccessDeniedResponseFormat::Json
+            );
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $postArr = $request->getPost();
         //DELETE OLD HOOKS OF A MODULE
@@ -402,11 +408,13 @@ class InstallerController extends AbstractActionController
         return $arr;
     }
 
-    /**
-     * @return ViewModel
-     */
-    public function configureAction()
+    public function configureAction(): ViewModel
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny('Installer configureAction: admin/manage_modules');
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $modId = $request->getPost('mod_id');
 
@@ -477,11 +485,16 @@ class InstallerController extends AbstractActionController
         ]);
     }
 
-    /**
-     * @return JsonModel
-     */
-    public function saveConfigAction()
+    public function saveConfigAction(): JsonModel
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny(
+                'Installer saveConfigAction: admin/manage_modules',
+                format: AccessDeniedResponseFormat::Json
+            );
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $moduleId = $request->getPost()->module_id;
 
@@ -499,11 +512,16 @@ class InstallerController extends AbstractActionController
         return $return;
     }
 
-    /**
-     * @return JsonModel
-     */
-    public function DeleteAclAction()
+    public function DeleteAclAction(): JsonModel
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny(
+                'Installer DeleteAclAction: admin/manage_modules',
+                format: AccessDeniedResponseFormat::Json
+            );
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $this->InstallerTable->DeleteAcl($request->getPost());
         $return[0] = ['return' => 1, 'msg' => $this->listenerObject->z_xlt("Deleted Successfully")];
@@ -511,11 +529,16 @@ class InstallerController extends AbstractActionController
         return $arr;
     }
 
-    /**
-     * @return JsonModel
-     */
-    public function DeleteHooksAction()
+    public function DeleteHooksAction(): JsonModel
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny(
+                'Installer DeleteHooksAction: admin/manage_modules',
+                format: AccessDeniedResponseFormat::Json
+            );
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $this->InstallerTable->DeleteHooks($request->getPost());
         $return[0] = ['return' => 1, 'msg' => $this->listenerObject->z_xlt("Deleted Successfully")];
@@ -528,6 +551,11 @@ class InstallerController extends AbstractActionController
      */
     public function nickNameAction(): never
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny('Installer nickNameAction: admin/manage_modules');
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $nickname = $request->getPost()->nickname;
         echo $this->InstallerTable->validateNickName(trim((string) $nickname));
@@ -703,10 +731,7 @@ class InstallerController extends AbstractActionController
         }
     }
 
-    /**
-     * @return array
-     */
-    public function UpgradeModuleSQL(int $modId)
+    public function UpgradeModuleSQL(int $modId): array
     {
         $Module = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
         $modType = $Module->type;

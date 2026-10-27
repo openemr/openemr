@@ -26,6 +26,7 @@ use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirObservationObservationFormService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
@@ -90,8 +91,8 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
             $meta->addProfile($this->createProfile($profile));
         }
         $categoryCodes = array_map(fn($category) => $category->getCoding()[0]->getCode(), $observation->getCategory() ?? []);
-        // check for linked questionnaire
-        if (!empty($dataRecord['questionnaire_uuid'])) {
+        // check for linked questionnaire response
+        if (!empty($dataRecord['questionnaire_response_uuid'])) {
             // verify we have a survey category
             if (in_array('survey', $categoryCodes)) {
                 foreach ($this->getProfileForVersions(self::USCGI_SCREENING_ASSESSMENT_URI, $this->getSupportedVersions()) as $profile) {
@@ -122,19 +123,20 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
 
             foreach ($codeSearchField->getValues() as $codeSearchFieldValue) {
                 $system = $codeSearchFieldValue->getSystem() ?? null;
-                if (isset($systemLookupHash[$system])) {
-                    $codeTypes = $systemLookupHash[$system];
+                $systemKey = $system ?? '';
+                if (isset($systemLookupHash[$systemKey])) {
+                    $codeTypes = $systemLookupHash[$systemKey];
                 } else {
                     $codeTypes = $this->getCodeTypesService()->getCodeTypeListForSystem($system);
-                    $systemLookupHash[$system] = $codeTypes;
+                    $systemLookupHash[$systemKey] = $codeTypes;
                 }
                 if (!empty($codeTypes)) {
                     $compoundObCodeWithCodeType = new CompositeSearchField('ob_code_code_type', [], true);
-                    $compoundObCodeWithCodeType->addChild(new TokenSearchField('ob_code', [$codeSearchFieldValue->getCode()]));
+                    $compoundObCodeWithCodeType->addChild(new TokenSearchField('ob_code', [new TokenSearchValue($codeSearchFieldValue->getCode())]));
                     $compoundObCodeWithCodeType->addChild(new TokenSearchField('code_type', $codeTypes));
                     $compoundObCode->addChild($compoundObCodeWithCodeType);
                 } else {
-                    $compoundObCode->addChild(new TokenSearchField('ob_code', [$codeSearchFieldValue->getCode()]));
+                    $compoundObCode->addChild(new TokenSearchField('ob_code', [new TokenSearchValue($codeSearchFieldValue->getCode())]));
                 }
             }
             $openEMRSearchParameters['ob_code'] = $compoundObCode;
@@ -169,7 +171,7 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 
-    public function getSupportedVersions()
+    public function getSupportedVersions(): array
     {
         return self::PROFILE_VERSIONS_V2;
     }

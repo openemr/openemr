@@ -3,11 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("DataPage.php");
-
-/**
  * DataSet stores zero or more Loadable objects
  * The DataSet is the object that is returned by every Phreezer Query operation.
  * The DataSet contains various methods to enumerate through , or retrieve all
@@ -74,7 +69,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *          array to use for populating a single object
      * @return Preezable
      */
-    private function _getObject(&$row)
+    private function _getObject(&$row): object
     {
         $obj = new $this->_objectclass($this->_phreezer, $row);
         return $obj;
@@ -90,7 +85,6 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     public function Next()
     {
         if ($this->UnableToCache) {
-            require_once("verysimple/Util/ExceptionFormatter.php");
             $info = ExceptionFormatter::FormatTrace(debug_backtrace());
             $this->_phreezer->Observe("(DataSet.Next: unable to cache query with cursor) " . $info . "  " . $this->_sql, OBSERVE_DEBUG);
 
@@ -178,7 +172,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *
      * @return bool
      */
-    public function CountIsKnown()
+    public function CountIsKnown(): bool
     {
         return $this->_totalcount > - 1;
     }
@@ -492,7 +486,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *
      * @param $cachekey
      */
-    private function IsLocked($cachekey)
+    private function IsLocked($cachekey): bool
     {
         return $this->_phreezer->LockFilePath && file_exists($this->_phreezer->LockFilePath . md5((string) $cachekey) . ".lock");
     }

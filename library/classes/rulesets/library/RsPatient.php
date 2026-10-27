@@ -7,7 +7,6 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once(__DIR__ . "/../../../patient.inc.php");
 
 class RsPatient
 {
@@ -22,7 +21,7 @@ class RsPatient
      * @param $patient_id
      * @return (string) containing date of birth in the format "YYYY mm dd"
      */
-    private function get_DOB($patient_id)
+    private function get_DOB($patient_id): string
     {
         $dob = getPatientData($patient_id, "DOB as TS_DOB");
         $dob = $dob['TS_DOB'];

@@ -1,0 +1,19 @@
+{
+    "patients": [
+        {
+            "note": "Turns 2 in 2025 with an office visit during the year: initial population and denominator.",
+            "birthDatetime": "2023-03-15T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2025-04-10T09:00:00.000+00:00",
+                        "2025-04-10T09:45:00.000+00:00"
+                    ]
+                }
+            ]
+        }
+    ]
+}

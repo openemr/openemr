@@ -4,7 +4,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -249,7 +251,7 @@ final readonly class CalendarViewModel
             throw new \RuntimeException('mktime failed for month start');
         }
         while ((int) date('w', $startDate) !== $dowList[0]) {
-            $startDate -= 86400;
+            $startDate = $this->shiftCalendarDay($startDate, -1);
         }
 
         // Pad forwards from the last day of month until the row ends on dowList[6].
@@ -259,7 +261,7 @@ final readonly class CalendarViewModel
             throw new \RuntimeException('mktime failed for month end');
         }
         while ((int) date('w', $endDate) !== $dowList[6]) {
-            $endDate += 86400;
+            $endDate = $this->shiftCalendarDay($endDate, 1);
         }
 
         $weeks = [];
@@ -282,15 +284,10 @@ final readonly class CalendarViewModel
                 $currentWeek = [];
             }
 
-            // The legacy code added `+1000` seconds per iteration alongside
-            // 86400 ("for some unknown reason" per the original author,
-            // suspected DST guard). It is not a DST guard — it just drifts
-            // forward 16 min per day and over a 35-day grid accumulates
-            // past endDate by ~9.5 hours, silently dropping the last
-            // partial week (months ending Mon/Tue/Wed lose their last
-            // Sat/Sun row). Removed here; the snapshot diff will tell us
-            // if any rendering depended on the truncation.
-            $cursor += 86400;
+            // A calendar day, not 86400 seconds. Where the clocks change,
+            // 86400 seconds repeats the fall-back date or walks past the
+            // last week before that week is stored.
+            $cursor = $this->shiftCalendarDay($cursor, 1);
         }
 
         return [
@@ -305,6 +302,26 @@ final readonly class CalendarViewModel
             'month'      => $month,
             'weeks'      => $weeks,
         ];
+    }
+
+
+    /**
+     * Midnight on a day $days away.
+     *
+     * Stepping 86400 seconds is one civil day only in a zone that does not
+     * change its clocks. A fall-back day is 25 hours, so that step stays on
+     * the same date. A spring-forward day is 23 hours, so the walk reaches
+     * the end of the month before the last week is stored.
+     */
+    private function shiftCalendarDay(int $timestamp, int $days): int
+    {
+        $zone = new \DateTimeZone(date_default_timezone_get());
+        $midnight = (new \DateTimeImmutable('@' . $timestamp))
+            ->setTimezone($zone)
+            ->setTime(0, 0);
+        $shifted = $midnight->modify(sprintf('%+d day', $days));
+
+        return $shifted->getTimestamp();
     }
 
     /**

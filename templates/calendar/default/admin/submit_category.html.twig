@@ -2,9 +2,9 @@
    admin/submit_category.html. Has no [-php-] blocks. #}
 <!-- main navigation -->
 
-<script src="modules/{{ pcDir }}/pnincludes/AnchorPosition.js"></script>
-<script src="modules/{{ pcDir }}/pnincludes/PopupWindow.js"></script>
-<script src="modules/{{ pcDir }}/pnincludes/ColorPicker2.js"></script>
+<script src="modules/{{ pcDir }}/pnincludes/AnchorPosition.js?v={{ assetVersion|attr_url }}"></script>
+<script src="modules/{{ pcDir }}/pnincludes/PopupWindow.js?v={{ assetVersion|attr_url }}"></script>
+<script src="modules/{{ pcDir }}/pnincludes/ColorPicker2.js?v={{ assetVersion|attr_url }}"></script>
 <script>
     var cp = new ColorPicker('window');
     // Runs when a color is clicked

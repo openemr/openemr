@@ -15,6 +15,14 @@ setup() {
     assert_script_syntax "${SCRIPT_DIR}/openemr.sh"
 }
 
+@test "openemr.sh is executable" {
+    # Without the mode bit, tests that invoke openemr.sh directly get exit 126
+    # and "Permission denied" instead of running it -- which passes a loose
+    # assertion for entirely the wrong reason. openemr_functional.bats depends
+    # on this.
+    [[ -x "${SCRIPT_DIR}/openemr.sh" ]]
+}
+
 @test "openemr.sh uses bash and sources devtoolsLibrary" {
     assert_script_contains "${SCRIPT_DIR}/openemr.sh" 'devtoolsLibrary.source'
     assert_script_contains "${SCRIPT_DIR}/openemr.sh" 'set -euo pipefail'

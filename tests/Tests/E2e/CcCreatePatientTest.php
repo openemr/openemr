@@ -24,6 +24,4 @@ class CcCreatePatientTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
     use PatientAddTrait;
-
-    private $crawler;
 }

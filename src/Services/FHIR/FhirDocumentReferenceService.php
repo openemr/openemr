@@ -61,7 +61,7 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -95,12 +95,12 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
 
             if (isset($fhirSearchParameters['category'])) {
                 $category = $fhirSearchParameters['category'];
-                $categorySearchField = new TokenSearchField('category', explode(",",$category));
+                $categorySearchField = TokenSearchField::fromEscapedFHIRString('category', $category);
                 ;
 
                 $service = $this->getServiceForCategory($categorySearchField, 'clinical-notes');
                 $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
-            } else if (isset($fhirSearchParameters['type'])) {
+            } elseif (isset($fhirSearchParameters['type'])) {
                 $service = $this->getServiceForCode(new TokenSearchField('type', $fhirSearchParameters['type']), '');
                 // if we have a service let's search on that
                 if (isset($service)) {

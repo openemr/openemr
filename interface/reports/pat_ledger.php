@@ -17,7 +17,6 @@
  */
 
 require_once('../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/appointments.inc.php');
 
@@ -53,7 +52,7 @@ if (! AclMain::aclCheckCore('acct', 'rep')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Patient Ledger by Date", xl("Patient Ledger by Date"));
 }
 
-function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
+function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = ''): array
 {
     $all = [];
     if (!$pat) {
@@ -110,7 +109,7 @@ function List_Look($thisData, $thisList)
     return $dispValue;
 }
 
-function GetAllCredits($enc = '', $pat = '')
+function GetAllCredits($enc = '', $pat = ''): array
 {
     $all = [];
     if (!$enc || !$pat) {

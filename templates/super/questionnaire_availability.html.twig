@@ -1,0 +1,407 @@
+{#
+  Questionnaire availability manager. Rendered by
+  OpenEMR\Controllers\Interface\Super\QuestionnaireAvailabilityController.
+
+  Three parts, one per question an administrator asks: the grid (where is each questionnaire
+  offered), the limits panel for one questionnaire (only at / for ..., and who may see it),
+  and category rules (every questionnaire in a category). Autoescape is off in OpenEMR, so
+  every value goes through |text, |attr or a translation filter.
+#}
+{% macro rule_row(rule, selectedId, anchor, csrfToken) %}
+    <tr class="{{ rule.highlighted ? 'table-active' : '' }}">
+        {% if rule.categoryLabel is not null %}
+            <td>{{ rule.categoryLabel|text }}</td>
+        {% endif %}
+        <td>{{ rule.surfaceLabel|text }}</td>
+        <td>{{ rule.where|text }}</td>
+        <td class="text-muted">{{ rule.permission|text }}</td>
+        <td>
+            {% if rule.active %}
+                <span class="badge badge-success">{{ 'On'|xlt }}</span>
+            {% else %}
+                <span class="badge badge-info">{{ 'Off'|xlt }}</span>
+            {% endif %}
+        </td>
+        <td class="text-nowrap text-right">
+            <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?{% if rule.questionnaireId is not null %}q={{ rule.questionnaireId|attr_url }}&amp;{% endif %}edit={{ rule.id|attr_url }}{% if rule.questionnaireId is not null %}#limits{% else %}#category-rules{% endif %}" onclick="top.restoreSession()">{{ 'Edit'|xlt }}</a>
+            <form method="post" action="manage_questionnaire_availability.php{% if selectedId is not null %}?q={{ selectedId|attr_url }}{% endif %}#{{ anchor|attr_url }}" class="d-inline" onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                <input type="hidden" name="action" value="toggle_rule" />
+                <input type="hidden" name="assignment_id" value="{{ rule.id|attr }}" />
+                <input type="hidden" name="to" value="{{ rule.active ? 'off' : 'on' }}" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    {{ rule.active ? 'Switch off'|xlt : 'Switch on'|xlt }}
+                </button>
+            </form>
+            <form method="post" action="manage_questionnaire_availability.php{% if selectedId is not null %}?q={{ selectedId|attr_url }}{% endif %}#{{ anchor|attr_url }}" class="d-inline"
+                  data-confirm="{{ 'Remove this rule? Switch it off instead to keep a record of it.'|xla }}"
+                  onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                <input type="hidden" name="action" value="delete_rule" />
+                <input type="hidden" name="assignment_id" value="{{ rule.id|attr }}" />
+                <button type="submit" class="btn btn-sm btn-link text-danger">{{ 'Remove'|xlt }}</button>
+            </form>
+        </td>
+    </tr>
+{% endmacro %}
+
+{#
+  Surface, permission and limit fields, shared by both rule forms. Ids are prefixed so the two
+  forms do not collide. Limit fields carry data-scope and are disabled for a surface that
+  cannot apply them, so they are not posted; the service refuses them too.
+#}
+{% macro rule_fields(form, surfaces, permissionChoices, facilities, providers, visitCategories, smartApps) %}
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="{{ form.prefix|attr }}-surface">{{ 'Offered on'|xlt }}</label>
+            <select class="form-control" id="{{ form.prefix|attr }}-surface" name="surface" data-surface-select>
+                {% for surface in surfaces %}
+                    <option value="{{ surface.value|attr }}"
+                            data-scopes="{{ surface.scopesJson|attr }}"
+                            data-hint="{{ surface.hint|attr }}"
+                            {% if form.surface == surface.value %}selected{% endif %}>{{ surface.label|text }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group col-md-8">
+            <label for="{{ form.prefix|attr }}-acl">{{ 'Who may see it'|xlt }}</label>
+            <select class="form-control" id="{{ form.prefix|attr }}-acl" name="acl">
+                <option value="">{{ 'Default for that surface'|xlt }}</option>
+                {% if form.aclUnknownLabel is not null %}
+                    <option value="{{ form.acl|attr }}" selected>{{ form.aclUnknownLabel|text }}</option>
+                {% endif %}
+                {% for sectionLabel, levels in permissionChoices %}
+                    <optgroup label="{{ sectionLabel|attr }}">
+                        {% for pair, levelLabel in levels %}
+                            <option value="{{ pair|attr }}" {% if form.acl == pair %}selected{% endif %}>{{ levelLabel|text }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <p class="small text-muted mb-2" data-scope-hint></p>
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label for="{{ form.prefix|attr }}-facility">{{ 'Only at facility'|xlt }}</label>
+            <select class="form-control" id="{{ form.prefix|attr }}-facility" name="facility" data-scope="facility">
+                <option value="">{{ 'Any'|xlt }}</option>
+                {% for id, label in facilities %}
+                    <option value="{{ id|attr }}" {% if form.facility == id %}selected{% endif %}>{{ label|text }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="{{ form.prefix|attr }}-provider">{{ 'Only for provider'|xlt }}</label>
+            <select class="form-control" id="{{ form.prefix|attr }}-provider" name="provider" data-scope="provider">
+                <option value="">{{ 'Any'|xlt }}</option>
+                {% for id, label in providers %}
+                    <option value="{{ id|attr }}" {% if form.provider == id %}selected{% endif %}>{{ label|text }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="{{ form.prefix|attr }}-visit">{{ 'Only for visit category'|xlt }}</label>
+            <select class="form-control" id="{{ form.prefix|attr }}-visit" name="visit_category_id" data-scope="visit_category_id">
+                <option value="">{{ 'Any'|xlt }}</option>
+                {% for id, label in visitCategories %}
+                    <option value="{{ id|attr }}" {% if form.visitCategory == id %}selected{% endif %}>{{ label|text }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="{{ form.prefix|attr }}-app">{{ 'Only for SMART app'|xlt }}</label>
+            <select class="form-control" id="{{ form.prefix|attr }}-app" name="client_id" data-scope="client_id">
+                <option value="">{{ 'Any'|xlt }}</option>
+                {% if form.clientId is not null and smartApps[form.clientId] is not defined %}
+                    <option value="{{ form.clientId|attr }}" selected>{{ form.clientId|text }} {{ '(inactive or removed)'|xlt }}</option>
+                {% endif %}
+                {% for appId, appName in smartApps %}
+                    <option value="{{ appId|attr }}" {% if form.clientId is not null and form.clientId == appId %}selected{% endif %}>{{ appName|text }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    {% if form.isEdit %}
+        <input type="hidden" name="assignment_id" value="{{ form.assignmentId|attr }}" />
+        <input type="hidden" name="seq" value="{{ form.seq|attr }}" />
+    {% endif %}
+{% endmacro %}
+{% import _self as availability %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ 'Questionnaire Availability'|xlt }}</title>
+    {{ setupHeader() }}
+</head>
+<body class="body_top">
+<div class="container-fluid">
+    <h2 class="mt-3">{{ 'Questionnaire Availability'|xlt }}</h2>
+    <p class="text-muted mb-3">
+        {{ 'Tick where each questionnaire is offered. Open Limits to offer one only at a facility, for a provider, for a kind of visit or for one SMART app, or to change who may see it.'|xlt }}
+    </p>
+
+    {% for notice in notices %}
+        <div class="alert alert-success">{{ notice|text }}</div>
+    {% endfor %}
+    {% for error in errors %}
+        <div class="alert alert-danger">{{ error|text }}</div>
+    {% endfor %}
+
+    {% if gridRows is empty %}
+        <div class="alert alert-info">
+            {{ 'No active questionnaires are in the repository yet. Import one from the patient dashboard first.'|xlt }}
+        </div>
+    {% else %}
+        <form method="post" action="manage_questionnaire_availability.php{% if selectedId is not null %}?q={{ selectedId|attr_url }}{% endif %}" onsubmit="return top.restoreSession()">
+            <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+            <input type="hidden" name="action" value="save_grid" />
+            <div class="d-flex flex-wrap align-items-center mb-2">
+                <label class="sr-only" for="grid-filter">{{ 'Filter questionnaires'|xlt }}</label>
+                <input type="search" class="form-control form-control-sm mr-3 mb-1" id="grid-filter" style="max-width: 18rem;"
+                       placeholder="{{ 'Filter by name or category'|xla }}" />
+                <span class="small text-muted mb-1">
+                    <span class="badge badge-info">{{ 'limited'|xlt }}</span>
+                    {{ 'also offered where a limit applies'|xlt }}
+                    &nbsp;
+                    <span class="badge badge-info">{{ 'category'|xlt }}</span>
+                    {{ 'also offered by a category rule'|xlt }}
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-striped" id="availability-grid">
+                    <thead>
+                    <tr>
+                        <th>{{ 'Questionnaire'|xlt }}</th>
+                        {% for surface in surfaces %}
+                            <th class="text-center">
+                                {{ surface.label|text }}
+                                {% if surface.isSmart %}
+                                    <i class="fa fa-info-circle text-muted" title="{{ 'Only questionnaires offered here can be launched into a SMART app from Available Assessments.'|xla }}"></i>
+                                {% endif %}
+                            </th>
+                        {% endfor %}
+                        <th class="text-right">{{ 'Limits'|xlt }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in gridRows %}
+                        <tr class="{{ row.selected ? 'table-active' : '' }}" data-filter="{{ row.filterText|attr }}">
+                            <td>
+                                {{ row.name|text }}
+                                {% if row.categoryLabel != '' %}
+                                    <div class="small text-muted">{{ row.categoryLabel|text }}</div>
+                                {% endif %}
+                            </td>
+                            {% for cell in row.cells %}
+                                <td class="text-center">
+                                    <input type="hidden" name="rendered[]" value="{{ cell.key|attr }}" />
+                                    <input type="checkbox" class="js-grid-box" name="{{ cell.fieldName|attr }}" value="1"
+                                           title="{{ 'Offered everywhere on this surface'|xla }}"
+                                           aria-label="{{ cell.ariaLabel|attr }}"
+                                           {% if cell.checked %}checked{% endif %} />
+                                    {% if cell.limited %}
+                                        <div><span class="badge badge-info" title="{{ 'Also offered where its limits apply, even with this box unticked. Open Limits to see them.'|xla }}">{{ 'limited'|xlt }}</span></div>
+                                    {% endif %}
+                                    {% if cell.viaCategory %}
+                                        <div><span class="badge badge-info" title="{{ 'A category rule also offers it here, even with this box unticked.'|xla }}">{{ 'category'|xlt }}</span></div>
+                                    {% endif %}
+                                    {% if cell.notRegistered %}
+                                        <div><span class="badge badge-warning" title="{{ 'Not registered as an encounter form, so it cannot appear in encounters yet. Register it from the Questionnaire form in an encounter; this setting then applies.'|xla }}">{{ 'not registered'|xlt }}</span></div>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                            <td class="text-right text-nowrap">
+                                <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q={{ row.id|attr_url }}#limits" onclick="top.restoreSession()">
+                                    {{ 'Limits'|xlt }}
+                                    {% if row.extraRules > 0 %}
+                                        <span class="badge badge-info ml-1">{{ row.extraRules|text }}</span>
+                                    {% endif %}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {# Last field on purpose: the controller saves nothing unless it arrives, so a post
+               PHP cut short at max_input_vars cannot read missing boxes as unticked. #}
+            <input type="hidden" name="grid_complete" value="1" />
+            <button type="submit" class="btn btn-primary">{{ 'Save'|xlt }}</button>
+            <span class="badge badge-warning ml-2" id="grid-dirty" hidden>{{ 'Unsaved changes'|xlt }}</span>
+        </form>
+    {% endif %}
+
+    {% if selectedId is not null %}
+        <div class="card mt-4" id="limits">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>{{ 'Limits for %s'|xl|format(selectedName)|text }}</strong>
+                <a class="btn btn-sm btn-link" href="manage_questionnaire_availability.php" onclick="top.restoreSession()">{{ 'Close'|xlt }}</a>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    {{ 'Each line is one rule. A rule offered Everywhere is the tick in the grid; a limited rule offers the questionnaire only where its limits match. Rules add up: it is offered if any rule that is on matches.'|xlt }}
+                </p>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th>{{ 'Offered on'|xlt }}</th>
+                            <th>{{ 'Where'|xlt }}</th>
+                            <th>{{ 'Who may see it'|xlt }}</th>
+                            <th>{{ 'Status'|xlt }}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for rule in selectedRules %}
+                            {{ availability.rule_row(rule, selectedId, 'limits', csrfToken) }}
+                        {% else %}
+                            <tr><td colspan="5" class="text-muted">{{ 'Not offered anywhere yet. Tick a surface in the grid, or add a limit below.'|xlt }}</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <h5 class="mt-3">{{ limitForm.isEdit ? 'Edit rule'|xlt : 'Add a limit'|xlt }}</h5>
+                <form method="post" action="manage_questionnaire_availability.php?q={{ selectedId|attr_url }}#limits" onsubmit="return top.restoreSession()" data-rule-form>
+                    <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                    <input type="hidden" name="action" value="save_rule" />
+                    <input type="hidden" name="target" value="questionnaire" />
+                    <input type="hidden" name="questionnaire_id" value="{{ selectedId|attr }}" />
+                    {{ availability.rule_fields(limitForm, surfaces, permissionChoices, facilities, providers, visitCategories, smartApps) }}
+                    {% if limitForm.isEdit %}
+                        <button type="submit" class="btn btn-primary">{{ 'Save changes'|xlt }}</button>
+                        <a class="btn btn-link" href="manage_questionnaire_availability.php?q={{ selectedId|attr_url }}#limits" onclick="top.restoreSession()">{{ 'Cancel'|xlt }}</a>
+                    {% else %}
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" name="only_here" value="1" id="limit-only-here" checked />
+                            <label class="form-check-label" for="limit-only-here">
+                                {{ 'Offer it only where this limit applies (untick Everywhere on that surface)'|xlt }}
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">{{ 'Add limit'|xlt }}</button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="card mt-4 mb-5" id="category-rules">
+        <div class="card-header"><strong>{{ 'Category rules'|xlt }}</strong></div>
+        <div class="card-body">
+            <p class="text-muted">
+                {{ 'Offer every questionnaire in a category, including ones imported later, without ticking each one.'|xlt }}
+            </p>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th>{{ 'Category'|xlt }}</th>
+                        <th>{{ 'Offered on'|xlt }}</th>
+                        <th>{{ 'Where'|xlt }}</th>
+                        <th>{{ 'Who may see it'|xlt }}</th>
+                        <th>{{ 'Status'|xlt }}</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for rule in categoryRules %}
+                        {{ availability.rule_row(rule, selectedId, 'category-rules', csrfToken) }}
+                    {% else %}
+                        <tr><td colspan="6" class="text-muted">{{ 'No category rules'|xlt }}</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <h5 class="mt-3">{{ categoryForm.isEdit ? 'Edit category rule'|xlt : 'Add a category rule'|xlt }}</h5>
+            <form method="post" action="manage_questionnaire_availability.php{% if selectedId is not null %}?q={{ selectedId|attr_url }}{% endif %}#category-rules" onsubmit="return top.restoreSession()" data-rule-form>
+                <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                <input type="hidden" name="action" value="save_rule" />
+                <input type="hidden" name="target" value="category" />
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="category-category">{{ 'Category'|xlt }}</label>
+                        <select class="form-control" id="category-category" name="category" required>
+                            <option value="">{{ 'Choose a category'|xlt }}</option>
+                            {% for value, title in categories %}
+                                <option value="{{ value|attr }}" {% if categoryForm.category is not null and categoryForm.category == value %}selected{% endif %}>{{ title|text }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                {{ availability.rule_fields(categoryForm, surfaces, permissionChoices, facilities, providers, visitCategories, smartApps) }}
+                {% if categoryForm.isEdit %}
+                    <button type="submit" class="btn btn-primary">{{ 'Save changes'|xlt }}</button>
+                    <a class="btn btn-link" href="manage_questionnaire_availability.php{% if selectedId is not null %}?q={{ selectedId|attr_url }}{% endif %}#category-rules" onclick="top.restoreSession()">{{ 'Cancel'|xlt }}</a>
+                {% else %}
+                    <button type="submit" class="btn btn-primary">{{ 'Add category rule'|xlt }}</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    'use strict';
+
+    // In each rule form, limit fields the chosen surface never fills in are disabled, so they
+    // are not posted. The service refuses such a rule too; this keeps the form from offering it.
+    document.querySelectorAll('form[data-rule-form]').forEach(function (form) {
+        const surface = form.querySelector('[data-surface-select]');
+        const hint = form.querySelector('[data-scope-hint]');
+        const scopedFields = form.querySelectorAll('[data-scope]');
+        if (!surface) {
+            return;
+        }
+        const applySurface = function () {
+            const option = surface.options[surface.selectedIndex];
+            let allowed = [];
+            try {
+                allowed = JSON.parse(option?.dataset.scopes || '[]');
+            } catch (e) {
+                allowed = [];
+            }
+            scopedFields.forEach(function (field) {
+                field.disabled = !allowed.includes(field.dataset.scope);
+            });
+            if (hint) {
+                hint.textContent = option?.dataset.hint || '';
+            }
+        };
+        surface.addEventListener('change', applySurface);
+        applySurface();
+    });
+
+    document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!window.confirm(form.dataset.confirm)) {
+                event.preventDefault();
+            }
+        });
+    });
+
+    const dirty = document.getElementById('grid-dirty');
+    document.querySelectorAll('.js-grid-box').forEach(function (box) {
+        box.addEventListener('change', function () {
+            if (dirty) {
+                dirty.hidden = false;
+            }
+        });
+    });
+
+    const gridFilter = document.getElementById('grid-filter');
+    if (gridFilter) {
+        const gridRows = document.querySelectorAll('#availability-grid tbody tr');
+        gridFilter.addEventListener('input', function () {
+            const needle = gridFilter.value.trim().toLowerCase();
+            gridRows.forEach(function (row) {
+                row.hidden = needle !== '' && !(row.dataset.filter || '').includes(needle);
+            });
+        });
+    }
+})();
+</script>
+</body>
+</html>

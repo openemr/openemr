@@ -51,10 +51,8 @@
 
 $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once($srcdir . "/checkout_receipt_array.inc.php");
 require_once($srcdir . "/appointment_status.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
@@ -69,7 +67,6 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\Services\FacilityService;
 
-$facilityService = new FacilityService();
 $recorder = new Recorder();
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -455,7 +452,7 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
 
 // Compute a current checksum of this encounter's invoice-related data from the database.
 //
-function invoiceChecksum($pid, $encounter)
+function invoiceChecksum($pid, $encounter): int
 {
     $row1 = sqlQuery(
         "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
@@ -502,7 +499,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
     global $aTaxNames, $aInvTaxes, $checkout_times, $current_checksum;
     global $num_optional_columns, $rcpt_num_method_columns, $rcpt_num_ref_columns, $rcpt_num_amount_columns;
     global $TAXES_AFTER_ADJUSTMENT;
-    global $facilityService, $alertmsg;
+    global $alertmsg;
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -532,7 +529,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
     $current_checksum = invoiceChecksum($patient_id, $encounter);
 
     // Get details for the visit's facility.
-    $frow = $facilityService->getById($ferow['facility_id']);
+    $frow = (new FacilityService())->getById($ferow['facility_id']);
 
     $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code');
 
@@ -1012,8 +1009,10 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
         "ORDER BY s.check_date, a.sequence_no",
         [$patient_id, $encounter]
     );
-    $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
     while ($inrow = sqlFetchArray($inres)) {
+        // Per row: $inrow is exhausted before the loop, so computing this
+        // above it labelled every payment 'Pt', insurance payments included.
+        $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
         $payments += formatMoneyNumber($inrow['pay_amount']);
         // Compute invoice number with payment suffix.
         $tmp = array_search($inrow['post_time'], $checkout_times);
@@ -1293,7 +1292,7 @@ function write_form_line_ippf(
         $units = 1;
     }
     $price = formatMoneyNumber($amount / $units, 2); // should be even cents, but...
-    if (str_ends_with((string) $price, '00')) {
+    if (str_ends_with($price, '00')) {
         $price = formatMoneyNumber($price);
     }
 

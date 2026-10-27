@@ -32,9 +32,8 @@ class FhirOrganizationSerializer
     /**
      * Takes a fhir json representing an organization and returns the populated FHIROrganization resource
      * @param $fhirJson
-     * @return FHIROrganization
      */
-    public static function deserialize($fhirJson)
+    public static function deserialize($fhirJson): FHIROrganization
     {
         $telecom = $fhirJson['telecom'] ?? [];
         $address = $fhirJson['address'] ?? [];

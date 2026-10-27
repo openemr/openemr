@@ -42,6 +42,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \'retrieve\' and \'show_PDF\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between 0 and 1 will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/login/login.php',
@@ -115,6 +120,11 @@ $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between non\\-falsy\\-string and \'\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between true and false will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between \\*NEVER\\* and \'\' will always evaluate to false\\.$#',

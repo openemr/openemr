@@ -21,8 +21,8 @@ enum DocumentReferenceAdvancedDirectiveCodeEnum: string {
     case DO_NOT_RESUSCITATE_ORDER = '84095-9';
     case ADVANCE_DIRECTIVE = '42348-3';
 
-    public function getDescription() {
-        return match($this) {
+    public function getDescription(): string {
+        return match ($this) {
             self::MENTAL_HEALTH_DIRECTIVE => 'Mental Health Advance Directive',
             self::LIVING_WILL => 'Patient Living will',
             self::DURABLE_POWER_OF_ATTORNEY => 'Power of attorney',

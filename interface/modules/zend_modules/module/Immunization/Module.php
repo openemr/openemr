@@ -6,7 +6,7 @@ use Laminas\ModuleManager\ModuleManager;
 
 class Module
 {
-    public function getAutoloaderConfig()
+    public function getAutoloaderConfig(): array
     {
         return [
             \Laminas\Loader\ClassMapAutoloader::class => [

@@ -2,8 +2,7 @@
 
 /**
  * AuthHashPortalPasswordHasher — production PortalPasswordHasher wrapping
- * AuthHash::passwordHash. Narrows AuthHash's `mixed` return to string|false so
- * the controller has a single, testable failure mode.
+ * AuthHash::passwordHash.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -20,9 +19,8 @@ use OpenEMR\Common\Auth\AuthHash;
 
 final class AuthHashPortalPasswordHasher implements PortalPasswordHasher
 {
-    public function hash(string $plain): string|false
+    public function hash(string $plain): string
     {
-        $result = (new AuthHash())->passwordHash($plain);
-        return is_string($result) ? $result : false;
+        return (new AuthHash())->passwordHash($plain);
     }
 }

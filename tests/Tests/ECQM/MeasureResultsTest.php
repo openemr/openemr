@@ -10,9 +10,8 @@
 
 namespace OpenEMR\Tests\ECQM;
 
-use GuzzleHttp\Psr7;
-use GuzzleHttp\Psr7\LazyOpenStream;
-use OpenEMR\Cqm\CqmServiceManager;
+use OpenEMR\Services\Qdm\CqmCalculator;
+use OpenEMR\Services\Qdm\Measure;
 use OpenEMR\Services\Qdm\MeasureService;
 use OpenEMR\Services\Qdm\QdmBuilder;
 use OpenEMR\Services\Qdm\QdmRequestOne;
@@ -21,24 +20,13 @@ use PHPUnit\Framework\TestCase;
 
 class MeasureResultsTest extends TestCase
 {
-    protected $client;
-    protected $measureOptions = [];
+    /** @var array<string, string> measure name => measure directory */
+    protected array $measureOptions = [];
     protected $measure_result_map = [];
 
     public function setUp(): void
     {
         parent::setUp();
-
-        $this->client = CqmServiceManager::makeCqmClient();
-        $serviceHealth = $this->client->getHealth();
-        if ($serviceHealth['uptime'] <= 0) {
-            $this->client->start();
-            sleep(2); // give cpu a rest
-        }
-        if ($serviceHealth['uptime'] <= 0) {
-            $msg = xlt("Can not complete measure results test. Node Service is not running.");
-            throw new \Exception($msg);
-        }
 
         $this->measureOptions = MeasureService::fetchMeasureOptions();
 
@@ -68,6 +56,9 @@ class MeasureResultsTest extends TestCase
         $failures = [];
         foreach ($this->measure_result_map as $measureResult) {
             $measure = $measureResult['measure'];
+            if (!is_string($measure)) {
+                continue;
+            }
 
             if ($measureResult['skip'] == 1) {
                 echo "SKIPPING QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` MEASURE=`$measure`\n";
@@ -96,34 +87,21 @@ class MeasureResultsTest extends TestCase
 
             $pid = $patient['pid'];
 
-            $effectiveDate = $measureResult['effectiveDate'];
-            $effectiveEndDate = $measureResult['effectiveEndDate'];
+            $measurePath = $this->measureOptions[$measure] ?? null;
+            if ($measurePath === null) {
+                echo "Measure `$measure` is not in the installed measure bundle for the eCQM performance period.\n";
+                continue;
+            }
 
-            // We're going to build a request for a single PID
+            // Calculate as QRDA reporting does: the patient from the database, the Measure model
+            // and CqmCalculator. The measurement period runs a year from effectiveDate, as in
+            // reporting, so effectiveEndDate is not passed.
             $request = new QdmRequestOne($pid);
             $builder = new QdmBuilder();
             $models = $builder->build($request);
-            $json_models = json_encode($models);
-            $patientStream = Psr7\Utils::streamFor($json_models);
-            $measurePath = $this->measureOptions[$measure];
-            $measureFiles = MeasureService::fetchMeasureFiles($measurePath);
-            $measureFileStream = new LazyOpenStream($measureFiles['measure'], 'r');
-            $valueSetFileStream = new LazyOpenStream($measureFiles['valueSets'], 'r');
-            $options = [
-                'doPretty' => true,
-                'includeClauseResults' => true,
-                'requestDocument' => true,
-                'effectiveDate' => $effectiveDate,
-                'effectiveDateEnd' => $effectiveEndDate
-            ];
-            $optionsStream = Psr7\Utils::streamFor(json_encode($options));
-
-            $response = $this->client->calculate(
-                $patientStream,
-                $measureFileStream,
-                $valueSetFileStream,
-                $optionsStream
-            );
+            $measureModel = new Measure(MeasureService::fetchMeasureJson($measurePath));
+            $measureModel->measure_path = $measurePath;
+            $response = (new CqmCalculator())->calculateMeasure($models, $measureModel, $measureResult['effectiveDate']);
 
             // Check response result against our measure map
             foreach ($response as $populationSets) {

@@ -213,7 +213,7 @@ class SMARTLaunchToken
         return $this->appContext;
     }
 
-    public function serialize()
+    public function serialize(): string
     {
         $context = [];
         $encounter = $this->getEncounter();
@@ -322,7 +322,7 @@ class SMARTLaunchToken
         }
     }
 
-    public function isValidIntent($intent)
+    public function isValidIntent($intent): bool
     {
         return array_search($intent, self::VALID_INTENTS) !== false;
     }

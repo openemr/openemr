@@ -3,12 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("verysimple/HTTP/RequestUtil.php");
-require_once("verysimple/Util/ExceptionThrower.php");
-
-/**
  * Dispatcher direct a web request to the correct controller & method
  *
  * @package verysimple::Phreeze
@@ -80,7 +74,6 @@ class Dispatcher
     public static function Dispatch($phreezer, $renderEngine, $action = '', $context = null, $router = null): bool
     {
         if ($router == null) {
-            require_once('GenericRouter.php');
             $router = new GenericRouter();
         }
 

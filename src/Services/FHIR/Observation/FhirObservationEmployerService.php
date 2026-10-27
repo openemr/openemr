@@ -75,7 +75,7 @@ class FhirObservationEmployerService extends FhirServiceBase implements IPatient
     {
         return isset(self::COLUMN_MAPPINGS[$code]);
     }
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return $category === self::CATEGORY_SOCIAL_HISTORY;
     }
@@ -165,7 +165,7 @@ class FhirObservationEmployerService extends FhirServiceBase implements IPatient
             if (str_contains(FhirCodeSystemConstants::INDUSTRY_NAICS_DETAIL_ODH, $prefix)) {
                 // special case for industry codes
                 return FhirCodeSystemConstants::INDUSTRY_NAICS_DETAIL_ODH;
-            } else if (str_contains(FhirCodeSystemConstants::OCCUPATION_ODH, $prefix)) {
+            } elseif (str_contains(FhirCodeSystemConstants::OCCUPATION_ODH, $prefix)) {
                 // special case for occupation codes
                 return FhirCodeSystemConstants::OCCUPATION_ODH;
             }

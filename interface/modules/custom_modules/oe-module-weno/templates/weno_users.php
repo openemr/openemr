@@ -117,7 +117,7 @@ if (($_POST['save'] ?? false) == 'true') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo xlt("Prescriber Weno Ids"); ?></title>
     <?php Header::setupHeader(); ?>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script>
         $(function () {
             const persistChange = document.querySelectorAll('.persist-uid');

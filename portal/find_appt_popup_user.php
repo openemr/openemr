@@ -25,6 +25,7 @@
 // Rod mentioned in the previous comment that the code "does not support exception dates for repeating events".
 // This issue no longer exists - epsdky 2019
 
+use OpenEMR\Common\Calendar\ConfiguredScheduleHours;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -54,11 +55,12 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
 $ignoreAuth_onsite_portal = true;
 
 require_once("../interface/globals.php");
-require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
 require_once(__DIR__ . "/../library/appointments.inc.php");
 
 
 $input_catid = $_REQUEST['catid'];
+$providerid = '';
+$slots = [];
 
 /**
  * Record an event into the slots array for a specified day.
@@ -117,13 +119,21 @@ function portal_doOneDay($catid, $udate, $starttime, $duration, $prefcatid): voi
 }
 
 // seconds per time slot
-$slotsecs = $globalsBag->get('calendar_interval') * 60;
+$slotsecs = $globalsBag->getInt('calendar_interval') * 60;
+
+// Clinic day window from Admin -> Config -> Calendar (same as day/week grid).
+// schedule_end is exclusive for slot start/end fitting (Ending Hour 5 PM =>
+// last 30-min start is 4:30).
+[$scheduleStartHour, $scheduleEndHour] = ConfiguredScheduleHours::normalizeWindow(
+    $globalsBag->getInt('schedule_start'),
+    $globalsBag->getInt('schedule_end')
+);
 
 $catslots = 1;
 if ($input_catid) {
     $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", [$input_catid]);
-    if ($srow['pc_duration']) {
-        $catslots = ceil($srow['pc_duration'] / $slotsecs);
+    if (isset($srow['pc_duration']) && is_numeric($srow['pc_duration']) && (float) $srow['pc_duration'] > 0) {
+        $catslots = (int) ceil((float) $srow['pc_duration'] / $slotsecs);
     }
 }
 
@@ -162,8 +172,8 @@ $slotsperday = (int)(60 * 60 * 24 / $slotsecs);
 
 // If we have a provider, search.
 //
-if ($_REQUEST['providerid']) {
-    $providerid = $_REQUEST['providerid'];
+$providerid = $_REQUEST['providerid'] ?? '';
+if ($providerid) {
 
     // Create and initialize the slot array. Values are bit-mapped:
     //   bit 0 = in-office occurs here
@@ -328,7 +338,7 @@ if ($_REQUEST['providerid']) {
                     for ($i = 0; $i < $slotcount; ++$i) {
                         $available = true;
                         for ($j = $i; $j < $i + $catslots; ++$j) {
-                            if ($slots[$j] >= 4) {
+                            if (($slots[$j] ?? 0) >= 4) {
                                 $available = false;
                             }
                         }
@@ -338,6 +348,16 @@ if ($_REQUEST['providerid']) {
                         }
 
                         $utime = ($slotbase + $i) * $slotsecs;
+                        // Honor Admin -> Config -> Calendar start/end hours.
+                        if (!ConfiguredScheduleHours::containsSlot(
+                            $utime,
+                            $catslots,
+                            $slotsecs,
+                            $scheduleStartHour,
+                            $scheduleEndHour
+                        )) {
+                            continue;
+                        }
                         $thisdate = date("Y-m-d", $utime);
                         if ($thisdate != $lastdate) {
                             // if a new day, start a new row

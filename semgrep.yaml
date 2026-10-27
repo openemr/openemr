@@ -314,6 +314,134 @@ rules:
     impact: HIGH
     confidence: MEDIUM
 
+  # --- OAuth2 regression guards ---
+
+  # Reads of PATH_INFO from the server superglobal are unreliable: the
+  # value is only populated by apache or nginx rewriters, and remains
+  # null under a front-controller setup (public/index.php under `php -S`).
+  # Prefer $request->getPathInfo() which returns the equivalent value and
+  # works consistently across servers. HttpRestRequest.php is excluded as
+  # it is the one place that legitimately bridges the superglobal into
+  # the Symfony request abstraction.
+- id: openemr-oauth2-pathinfo-superglobal-read
+  patterns:
+  - pattern-either:
+    - pattern: $REQ->server->get('PATH_INFO')
+    - pattern: $REQ->server->get("PATH_INFO")
+    - pattern: $_SERVER['PATH_INFO']
+    - pattern: $_SERVER["PATH_INFO"]
+  message: >-
+    Reading PATH_INFO from the server superglobal is unreliable under a
+    front-controller setup (public/index.php under `php -S`); the value
+    is only populated by apache/nginx rewriters. Prefer
+    $request->getPathInfo() which works consistently across servers.
+  languages: [php]
+  severity: ERROR
+  paths:
+    include:
+    - '/src/RestControllers/**/*.php'
+    - '/src/Common/Http/**/*.php'
+    exclude:
+    - '/src/Common/Http/HttpRestRequest.php'
+  metadata:
+    technology:
+    - php
+    - oauth2
+    category: correctness
+    confidence: HIGH
+
+  # Reflecting the request Origin into Access-Control-Allow-Origin
+  # without an allow-list check is dangerous whenever credentials are
+  # allowed on the response: any origin that renders a cookie-authenticated
+  # session page can issue credentialed cross-origin calls on behalf of
+  # the victim. Route the Origin through CORSAllowedOriginRegistry (or
+  # equivalent) before setting the header.
+- id: openemr-oauth2-cors-reflect-origin-without-allowlist
+  patterns:
+  - pattern-either:
+    - pattern: $RESP->headers->set('Access-Control-Allow-Origin', $REQ->headers->get('Origin'))
+    - pattern: $RESP->headers->set("Access-Control-Allow-Origin", $REQ->headers->get("Origin"))
+    - pattern: $RESP->headers->set("Access-Control-Allow-Origin", $REQ->getHeader('Origin'))
+    - pattern: $RESP->headers->set("Access-Control-Allow-Origin", $REQ->getHeader('Origin')[0])
+  message: >-
+    Access-Control-Allow-Origin reflects the request Origin without an
+    allow-list check. Combined with Access-Control-Allow-Credentials:true
+    this lets any origin receive a credentialed CORS response. Route the
+    Origin through CORSAllowedOriginRegistry before setting the header.
+  languages: [php]
+  severity: ERROR
+  paths:
+    include:
+    - '/src/RestControllers/**/*.php'
+  metadata:
+    technology:
+    - php
+    - oauth2
+    - cors
+    cwe:
+    - "CWE-942: Permissive Cross-domain Policy with Untrusted Domains"
+    owasp:
+    - A05:2021 - Security Misconfiguration
+    category: security
+    subcategory:
+    - vuln
+    likelihood: HIGH
+    impact: HIGH
+    confidence: HIGH
+
+  # Non-constant-time string compare on an OAuth2 credential value lets a
+  # timing side-channel leak the stored value one byte at a time. Replace
+  # === / !== with hash_equals() for registration tokens, client secrets,
+  # and similar.
+- id: openemr-oauth2-nonconstant-time-secret-compare
+  patterns:
+  - pattern-either:
+    - patterns:
+      - pattern-either:
+        - pattern: $A !== $B
+        - pattern: $A === $B
+      - metavariable-pattern:
+          metavariable: $A
+          pattern-either:
+          - pattern: $X['registration_token']
+          - pattern: $X['client_secret']
+          - pattern: $X->getRegistrationToken()
+          - pattern: $X->getClientSecret()
+    - patterns:
+      - pattern-either:
+        - pattern: $A !== $B
+        - pattern: $A === $B
+      - metavariable-pattern:
+          metavariable: $B
+          pattern-either:
+          - pattern: $X['registration_token']
+          - pattern: $X['client_secret']
+          - pattern: $X->getRegistrationToken()
+          - pattern: $X->getClientSecret()
+  message: >-
+    Non-constant-time string compare on an OAuth2 credential value.
+    Replace === / !== with hash_equals() to prevent timing side-channels.
+  languages: [php]
+  severity: ERROR
+  paths:
+    include:
+    - '/src/Common/Auth/**/*.php'
+    - '/src/RestControllers/**/*.php'
+  metadata:
+    technology:
+    - php
+    - oauth2
+    cwe:
+    - "CWE-208: Observable Timing Discrepancy"
+    owasp:
+    - A02:2021 - Cryptographic Failures
+    category: security
+    subcategory:
+    - vuln
+    likelihood: LOW
+    impact: HIGH
+    confidence: HIGH
+
   # --- XSL template rules (generic mode) ---
 
   # Detect disable-output-escaping in XSL transforms.

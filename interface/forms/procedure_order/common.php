@@ -21,6 +21,8 @@
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormActionBarSettings;
@@ -43,14 +45,18 @@ $pid = PatientSessionUtil::getPid();
 $encounter = EncounterSessionUtil::getEncounter();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
 
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once(__DIR__ . "/../../orders/qoe.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 
 if (!$encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
+}
+
+// The form registry declares patients|lab for procedure_order but the handler
+// never consulted it. Enforce the declared ACL at entry.
+if (!AclMain::aclCheckForm('procedure_order')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for procedure_order form (patients/lab): common.php", xl("Procedure Order"));
 }
 /**
  * @var EventDispatcher
@@ -74,7 +80,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 global $gbl_lab, $gbl_lab_title, $gbl_client_acct;
 $eReqForm = '';
-function saveEreq($pid, $form_id, $mpdfData)
+function saveEreq($pid, $form_id, $mpdfData): string
 {
     $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", ["LabCorp"]);
     if (!$category['id']) {
@@ -166,9 +172,12 @@ $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.
 if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
+    if (!AclMain::aclCheckForm('procedure_order', '', 'write')) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for procedure_order write (patients/lab): common.php", xl("Procedure Order"));
+    }
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     if ($formid) {
-        EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'procedure_order');
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'procedure_order', null, $encounter);
     }
     $ppid = (int)($_POST['form_lab_id'] ?? null);
     if (get_lab_name($ppid) === 'labcorp') {
@@ -471,7 +480,16 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
 }
 
 if (!empty($formid)) {
-    $row = sqlQuery("SELECT * FROM procedure_order WHERE procedure_order_id = ?", [$formid]);
+    // Bind the read to the session patient so an attacker cannot load another
+    // patient's order by guessing the global procedure_order_id. Pairs with
+    // the save branch's EncounterFormAccess::assertFormBelongsToSessionPatient.
+    $row = sqlQuery(
+        "SELECT * FROM procedure_order WHERE procedure_order_id = ? AND patient_id = ?",
+        [$formid, $pid]
+    );
+    if (!is_array($row) || $row === []) {
+        die(xlt("Procedure order not available for this patient."));
+    }
 }
 
 $enrow = sqlQuery(
@@ -531,7 +549,7 @@ if (!empty($row['lab_id'])) {
         // we want to setup our reason code widgets
         window.addEventListener('DOMContentLoaded', function () {
             if (oeUI.reasonCodeWidget) {
-                oeUI.reasonCodeWidget.init(<?php echo js_url(OEGlobalsBag::getInstance()->getWebRoot()); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
+                oeUI.reasonCodeWidget.init(<?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
             } else {
                 console.error("Missing required dependency reasonCodeWidget");
                 return;

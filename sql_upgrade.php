@@ -73,7 +73,6 @@ $GLOBALS['connection_pooling_off'] = true; // force off database connection pool
 $skipAuditLog = true; // disable audit logging during upgrades
 
 require_once('interface/globals.php');
-require_once('library/sql_upgrade_fx.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;

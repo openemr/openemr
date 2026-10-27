@@ -30,8 +30,6 @@ class AaLoginTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
 
-    private $crawler;
-
     #[Test]
     public function testGoToOpenemrLoginPage(): void
     {

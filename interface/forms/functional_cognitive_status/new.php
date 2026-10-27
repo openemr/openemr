@@ -24,8 +24,6 @@ use OpenEMR\Core\OEGlobalsBag;
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 
@@ -108,7 +106,7 @@ $check_res = $formid ? $check_res : [];
             var checkId = document.getElementById('clickId').value;
             document.getElementById("code" + checkId).value = code;
             document.getElementById("codetext" + checkId).value = codedesc;
-            document.getElementById("displaytext" + checkId).innerHTML  = codedesc;
+            document.getElementById("displaytext" + checkId).textContent = codedesc;
         }
 
         function checkVal(id) {

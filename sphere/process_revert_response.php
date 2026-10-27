@@ -45,7 +45,7 @@ if (!AclMain::aclCheckCore('acct', 'rep_a')) {
         PaymentProcessing::saveRevertAudit($_POST['uuid_tx'], $_POST['action'], $auditData, 0);
         $msg = js_escape(xl("Aborted since unable to submit transaction") . ": " . $_POST['status'] . " " . $_POST['error'] . " " . $_POST['offenders']);
         echo "<script>opener.sphereRevertNotSuccess(" . $msg . ");dlgclose();</script>";
-    } else if (!empty($_POST['hash']) && !empty($_POST['token'])) {
+    } elseif (!empty($_POST['hash']) && !empty($_POST['token'])) {
         $sphereRevert = new SphereRevert($_GET['front']);
 
         // verify that the querystring hash from sphere is authentic and not modified

@@ -31,7 +31,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
-require_once OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php';
 require_once OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php';
 
 //ensure user has proper access
@@ -919,8 +918,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     </colgroup>
                     <?php
                     $divnos = 0;
-                    if ($ret = BillingReport::getBillsBetween("%")) {
-                        if (is_array($ret)) { ?>
+                    if ($ret = BillingReport::getBillsBetween("%")) { ?>
                     <tr>
                         <td class="text-right" colspan='<?php echo attr($colCount); ?>'>
                             <table>
@@ -939,7 +937,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             </table>
                         </td>
                     </tr>
-                    <?php } ?>
 
                         <?php
                         $loop = 0;

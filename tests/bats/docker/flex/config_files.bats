@@ -11,6 +11,10 @@ setup() {
     assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'FROM alpine'
 }
 
+@test "flex Dockerfile: composer retries GitHub zipball 504s" {
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'COMPOSER_MAX_RETRIES'
+}
+
 @test "flex configs: php8.2 php.ini" {
     assert_file_exists "${SCRIPT_DIR}/configs/php8.2/php.ini"
 }

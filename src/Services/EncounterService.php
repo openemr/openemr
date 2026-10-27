@@ -36,9 +36,6 @@ use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
 use OpenEMR\BC\ServiceContainer;
 
-require_once __DIR__ . "/../../library/forms.inc.php";
-require_once __DIR__ . "/../../library/encounter.inc.php";
-
 class EncounterService extends BaseService
 {
     use ServiceEventTrait;
@@ -57,6 +54,45 @@ class EncounterService extends BaseService
      * Default class_code from list_options.  Defaults to outpatient ambulatory care.
      */
     const DEFAULT_CLASS_CODE = 'AMB';
+
+    /**
+     * Resolves an encounter uuid to its encounter number and patient, treating a soft-deleted
+     * encounter as absent.
+     *
+     * Deleting an encounter flags its 'newpatient' forms row and leaves the form_encounter row
+     * in place, so a lookup against form_encounter alone still finds a deleted encounter and
+     * lets a write attach new data to it. Encounters with no newpatient row at all are still
+     * returned, since older data may lack one; an encounter with any newpatient row flagged
+     * deleted is treated as gone.
+     *
+     * @return array{encounter: int, pid: int}|null Null when the uuid is malformed, unknown or deleted.
+     */
+    public static function getActiveEncounterByUuid(string $uuid): ?array
+    {
+        if (!UuidRegistry::isValidStringUUID($uuid)) {
+            return null;
+        }
+        $row = QueryUtils::querySingleRow(
+            'SELECT fe.`encounter`, fe.`pid` FROM `form_encounter` fe'
+            . ' WHERE fe.`uuid` = ?'
+            // NOT EXISTS rather than a LEFT JOIN filter: forms allows more than one newpatient
+            // row per encounter, and a join would let a surviving row outvote a deleted one.
+            . " AND NOT EXISTS (SELECT 1 FROM `forms` f WHERE f.`encounter` = fe.`encounter`"
+            . " AND f.`pid` = fe.`pid` AND f.`formdir` = 'newpatient' AND f.`deleted` <> 0)"
+            . ' LIMIT 1',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        if (!is_array($row)) {
+            return null;
+        }
+        $encounter = $row['encounter'] ?? null;
+        $pid = $row['pid'] ?? null;
+        if (!is_numeric($encounter) || !is_numeric($pid)) {
+            return null;
+        }
+
+        return ['encounter' => (int) $encounter, 'pid' => (int) $pid];
+    }
 
     /**
      * Default constructor.
@@ -146,10 +182,8 @@ class EncounterService extends BaseService
      * @param bool   $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param string $puuidBindValue - Optional puuid to only allow visibility of the patient with this puuid.
      * @param array  $options        - Optional array of sql clauses like LIMIT, ORDER, etc
-     * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
-     *                               payload.
      */
-    public function search($search = [], $isAndCondition = true, $puuidBindValue = '', $options = [])
+    public function search($search = [], $isAndCondition = true, $puuidBindValue = '', $options = []): ProcessingResult
     {
         $limit = $options['limit'] ?? null;
         $sqlBindArray = [];
@@ -570,7 +604,10 @@ class EncounterService extends BaseService
         return 1;
     }
 
-    public function updateVital($pid, $eid, $vid, $data)
+    /**
+     * @param array<mixed> $data
+     */
+    public function updateVital($pid, $eid, $vid, array $data)
     {
         // Verify the vital belongs to this patient/encounter before updating
         // to prevent IDOR attacks where an attacker supplies another patient's vid.
@@ -583,6 +620,10 @@ class EncounterService extends BaseService
         $data['date'] = date("Y-m-d H:i:s");
         $data['activity'] = 1;
         $data['id'] = $vid;
+        $existingUuid = $existingVital['uuid'] ?? null;
+        if (is_string($existingUuid)) {
+            $data['uuid'] = $existingUuid;
+        }
         $data['pid'] = $pid;
         $data['eid'] = $eid;
 
@@ -590,7 +631,7 @@ class EncounterService extends BaseService
         return $updatedRecords;
     }
 
-    public function insertVital($pid, $eid, $data)
+    public function insertVital($pid, $eid, $data): array
     {
         // Strip any user-supplied id to prevent IDOR — insert must always
         // create a new record, never update an existing one.
@@ -625,7 +666,7 @@ class EncounterService extends BaseService
         return null;
     }
 
-    public function getSoapNotes($pid, $eid)
+    public function getSoapNotes($pid, $eid): array
     {
         $sql = "  SELECT fs.*";
         $sql .= "  FROM forms fo";
@@ -701,9 +742,8 @@ class EncounterService extends BaseService
     /**
      * The result of this function returns the format needed by the frontend with the window.left_nav.setPatientEncounter function
      * @param $pid
-     * @return array
      */
-    public function getPatientEncounterListWithCategories($pid)
+    public function getPatientEncounterListWithCategories($pid): array
     {
         $encounters = $this->getEncountersForPatientByPid($pid);
 

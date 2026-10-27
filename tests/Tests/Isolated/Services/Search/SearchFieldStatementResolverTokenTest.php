@@ -40,12 +40,14 @@ class SearchFieldStatementResolverTokenTest extends TestCase
 
         $this->assertStringContainsString('IS NULL', $sql);
         $this->assertStringContainsString("CAST(enddate AS CHAR) = ''", $sql);
+        $this->assertStringContainsString("TRIM(CAST(enddate AS BINARY)) = ''", $sql);
         $this->assertStringNotContainsString("enddate = ''", $sql);
     }
 
     /**
      * When missing=false (code === false), the generated SQL must use
-     * CAST(field AS CHAR) != '' instead of field != ''.
+     * CAST(field AS CHAR) != '' instead of field != '', and also accept a
+     * value whose bytes the CHAR cast cannot read.
      */
     public function testMissingFalseUsesCastForEmptyStringComparison(): void
     {
@@ -57,6 +59,7 @@ class SearchFieldStatementResolverTokenTest extends TestCase
 
         $this->assertStringContainsString('IS NOT NULL', $sql);
         $this->assertStringContainsString("CAST(enddate AS CHAR) != ''", $sql);
+        $this->assertStringContainsString("TRIM(CAST(enddate AS BINARY)) != ''", $sql);
         $this->assertStringNotContainsString("enddate != ''", $sql);
     }
 }

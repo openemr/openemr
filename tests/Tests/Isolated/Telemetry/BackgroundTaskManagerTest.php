@@ -94,7 +94,7 @@ class BackgroundTaskManagerStub extends BackgroundTaskManager
         return $this->mockFetchSingleValue;
     }
 
-    protected function fetchRecordsNoLog($sqlStatement, $binds)
+    protected function fetchRecordsNoLog($sqlStatement, $binds): array
     {
         $this->lastSql = $sqlStatement;
         $this->lastBinds = $binds;

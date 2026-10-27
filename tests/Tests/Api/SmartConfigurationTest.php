@@ -56,4 +56,55 @@ class SmartConfigurationTest extends TestCase
         $actualResponse = $this->testClient->get(self::SMART_CONFIG_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
     }
+
+    /**
+     * scopes_supported is the scope list itself, not an array wrapping it.
+     */
+    public function testScopesSupportedIsAFlatListOfScopes(): void
+    {
+        $scopes = $this->fetchConfig()['scopes_supported'] ?? null;
+
+        $this->assertIsList($scopes, 'scopes_supported should be a JSON array');
+        foreach ($scopes as $scope) {
+            $this->assertIsString($scope, 'every entry of scopes_supported should be a scope string');
+        }
+        $this->assertContains('openid', $scopes);
+    }
+
+    /**
+     * grant_types_supported lists the password grant when oauth_password_grant is on.
+     */
+    public function testGrantTypesSupportedIncludesThePasswordGrant(): void
+    {
+        // the API test environment enables oauth_password_grant: ApiTestClient gets its tokens with it
+        $this->assertSame(
+            ['client_credentials', 'authorization_code', 'password'],
+            $this->fetchConfig()['grant_types_supported'] ?? null
+        );
+    }
+
+    /**
+     * token_endpoint_auth_methods_supported lists client_secret_post, which the token endpoint accepts.
+     */
+    public function testTokenEndpointAuthMethodsSupportedIncludesClientSecretPost(): void
+    {
+        $this->assertSame(
+            ['client_secret_basic', 'client_secret_post', 'private_key_jwt'],
+            $this->fetchConfig()['token_endpoint_auth_methods_supported'] ?? null
+        );
+    }
+
+    /**
+     * Fetches the SMART configuration document and decodes it.
+     *
+     * @return array<mixed>
+     */
+    private function fetchConfig(): array
+    {
+        $response = $this->testClient->get(self::SMART_CONFIG_ENDPOINT);
+        $this->assertSame(200, $response->getStatusCode());
+        $config = json_decode($response->getBody()->getContents(), true);
+        $this->assertIsArray($config, 'the SMART configuration should be a JSON object');
+        return $config;
+    }
 }

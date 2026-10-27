@@ -19,17 +19,28 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
 
-$pid = (int)($_GET['pid'] ?? 0);
-$rec_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$is_new = isset($_GET['new']) ? (int)$_GET['new'] : 0;
+$query = CurrentRequest::get()->query;
+$pid = $query->getInt('pid');
+$rec_id = $query->getInt('id');
+$is_new = $query->getInt('new');
 
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
     AccessDeniedHelper::deny('Unauthorized access to SDOH form');
+}
+
+// Deep-linked page: align session pid with the URL patient so the wrapping
+// chart header and menu render for the same patient the queries below load.
+// Fires on bootstrap (empty session) AND on context switch (bookmark for a
+// different patient while another chart is open).
+if ($pid > 0 && $pid !== PatientSessionUtil::getPid()) {
+    setpid($pid);
 }
 
 $csrf = CsrfUtils::collectCsrfToken(session: $session);

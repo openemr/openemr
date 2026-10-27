@@ -21,6 +21,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\Services\FHIR\Questionnaire\QuestionnaireItemNormalizer;
+use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 
 class QuestionnaireService extends BaseService
 {
@@ -87,7 +89,8 @@ class QuestionnaireService extends BaseService
      * TODO: There are so many arguments here this should be refactored to use a data object.
      * @param $q
      * @param $name
-     * @param ?int $q_record_id
+     * @param int|array<string, mixed>|null $q_record_id the `questionnaire_repository` row being updated, either as
+     *                                      the bare row id or as a row array carrying `id` and `version`
      * @param $q_id
      * @param $lform
      * @param $type
@@ -131,7 +134,17 @@ class QuestionnaireService extends BaseService
             $name = $q_ob['name'] ?? null;
         }
         $name = trim((string) $name);
-        $id = empty($q_record_id) ? $this->getQuestionnaireIdAndVersion($name, $q_id) : $q_record_id;
+        if (empty($q_record_id)) {
+            $id = $this->getQuestionnaireIdAndVersion($name, $q_id);
+        } elseif (is_array($q_record_id)) {
+            // already the row shape the update branch below reads
+            $id = $q_record_id;
+        } else {
+            // a bare `questionnaire_repository`.`id`: resolve it to the same row shape so the
+            // update branch can read `id` and `version` off it. Without this the update branch
+            // indexes an int and silently writes `WHERE id = NULL`, updating nothing.
+            $id = $this->fetchQuestionnaireById($q_record_id);
+        }
         $q_uuid = null;
         $q_url = null;
         if (empty($id)) {
@@ -201,6 +214,13 @@ class QuestionnaireService extends BaseService
             $id = $id['id'];
         } else {
             $id = sqlInsert($sql_insert, $bind) ?: 0;
+            // A newly imported questionnaire is offered on the dashboard, which is what
+            // happened before assignments existed. Only new records get this: re-saving an
+            // existing questionnaire must not resurrect an assignment an admin removed.
+            if ($id > 0) {
+                (new QuestionnaireAvailabilityService())
+                    ->assignDefault($id, QuestionnaireSurface::Dashboard);
+            }
         }
 
         return $id;

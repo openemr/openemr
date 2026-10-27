@@ -276,7 +276,7 @@ if [[ "${skip_sql_upgrade}" == "true" ]]; then
     echo "==> Upgrade prep complete (skip-sql-upgrade mode): ${TO_VERSION} filesystem via TARBALL_DIR, ${FROM_VERSION} sites/ + DB preserved, migrations NOT run"
     echo "    Artifact URL:  http://localhost:8680  (serving ${TO_VERSION} source, pre-migration ${FROM_VERSION} DB)"
     echo ""
-    echo "    Run tests:     ACCEPTANCE_ARTIFACT_URL=http://localhost:8680 composer acceptance -- --group=wizard-upgrade"
+    echo "    Run tests:     ACCEPTANCE_ARTIFACT_URL=http://localhost:8680 composer acceptance -- --group=wizard-completed-post-upgrade --group=post-upgrade"
     echo "    Teardown:      tests/Acceptance/bin/down-package.sh"
     exit 0
 fi
@@ -339,6 +339,45 @@ if [[ "${DB_VERSION}" != "${EXPECTED}" ]]; then
     exit 1
 fi
 echo "    DB version=${DB_VERSION}"
+
+# Post-upgrade ACL assertion (openemr/openemr#14706). Installs from 8.2.0
+# on hold two Clinicians 'write' ACLs, and the ACL admin screens edit only
+# the first, so acl_upgrade.php merges them. Exactly one must remain, and
+# it must keep patients/med and patients/appt, which came from different
+# halves of the pair. A published target that predates the merge keeps
+# both, so the check runs only when the target package ships the merger.
+assert_single_clinicians_write_acl() {
+    local sql row acl_count med appt
+    echo '==> Asserting Clinicians hold one write ACL with both merged halves'
+    if ! docker compose exec -T openemr \
+        test -f /var/www/localhost/htdocs/openemr/src/Common/Acl/DuplicateAclMerger.php; then
+        echo '    Skipped: target package predates the Clinicians ACL merge'
+        return 0
+    fi
+    sql="$(cat <<'SQL'
+SELECT
+    COUNT(DISTINCT a.id) AS acl_count,
+    COALESCE(SUM(c.section_value = 'patients' AND c.value = 'med'), 0) AS med,
+    COALESCE(SUM(c.section_value = 'patients' AND c.value = 'appt'), 0) AS appt
+FROM gacl_acl AS a
+INNER JOIN gacl_aro_groups_map AS m ON a.id = m.acl_id
+INNER JOIN gacl_aro_groups AS g ON m.group_id = g.id
+LEFT JOIN gacl_aco_map AS c ON a.id = c.acl_id
+WHERE g.name = 'Clinicians' AND a.return_value = 'write'
+SQL
+)"
+    row="$(docker compose exec -T mysql \
+        mariadb -uroot -proot openemr -sN -e "${sql}" \
+        2>/dev/null || echo 'query-failed')"
+    read -r acl_count med appt <<< "${row}"
+    if [[ "${acl_count}" != 1 || "${med}" != 1 || "${appt}" != 1 ]]; then
+        printf '::error::expected one Clinicians write ACL holding patients/med and patients/appt; got ACLs=%s med=%s appt=%s (see openemr/openemr#14706)\n' \
+            "${acl_count}" "${med:-}" "${appt:-}" >&2
+        exit 1
+    fi
+    echo "    Clinicians write ACLs=${acl_count}"
+}
+assert_single_clinicians_write_acl
 
 echo ""
 echo "==> Upgrade complete: ${FROM_VERSION} → ${TO_VERSION}"

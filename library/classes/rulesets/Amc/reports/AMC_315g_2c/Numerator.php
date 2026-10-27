@@ -44,7 +44,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
         $this->lastTestActionData = new AmcItemizedActionData();
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_315g_2c Numerator";
     }
@@ -86,7 +86,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
      * @param $endDate The report end date
      * @return bool True if the test passes, false, if it does not
      */
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         $fhir_api = OEGlobalsBag::getInstance()->get('rest_fhir_api') ?? '0';
         $patient_api = OEGlobalsBag::getInstance()->get('rest_portal_api') ?? '0';
@@ -151,18 +151,18 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
     /*
      * This function lets us have language translation as well as interpreting any specific rule item data that is needed.
      */
-    private function parseDetailsToString($details)
+    private function parseDetailsToString($details): string
     {
         $newDetails = '';
         $type = $details['type'] ?? '';
         if ($type == self::ACTION_DETAILS_KEY_API_DISABLED) {
             $newDetails = xl("Patient API access is disabled");
-        } else if ($type == self::ACTION_DETAILS_KEY_ACCESS_GRANTED) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_ACCESS_GRANTED) {
             $newDetails = xl("Patient has automatic access to patient data since API credentials were generated on") . " "
                 . $details['date'];
-        } else if ($type == self::ACTION_DETAILS_KEY_PATIENT_OPT_OUT) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_PATIENT_OPT_OUT) {
             $newDetails = xl("Patient opted out of 3rd party api access");
-        } else if ($type == self::ACTION_DETAILS_KEY_MISSING_CREDENTIALS) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_MISSING_CREDENTIALS) {
             $newDetails = xl("API Credentials were not generated");
         }
         return $newDetails;

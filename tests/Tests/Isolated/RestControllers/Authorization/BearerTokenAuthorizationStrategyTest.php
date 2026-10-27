@@ -2,11 +2,16 @@
 
 namespace OpenEMR\Tests\Isolated\RestControllers\Authorization;
 
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
 use League\OAuth2\Server\CryptKey;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -16,9 +21,11 @@ use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class BearerTokenAuthorizationStrategyTest extends TestCase
 {
@@ -73,7 +80,8 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $accessToken = new AccessTokenEntity();
         $accessToken->setIdentifier($tokenId);
         $accessToken->setIssuer(self::ISSUER);
-        $accessToken->setPrivateKey(new CryptKey(self::KEY_PATH_PRIVATE));
+        // Git tracks only the executable bit, so the fixture cannot carry the 0600 mode the check wants.
+        $accessToken->setPrivateKey(new CryptKey(self::KEY_PATH_PRIVATE, keyPermissionsCheck: false));
         $accessToken->setClient($testClient);
         $accessToken->setExpiryDateTime(new \DateTimeImmutable('+1 hour'));
         $accessToken->setUserIdentifier($userUuid);
@@ -132,7 +140,308 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $auditLogger = $this->createMock(EventAuditLogger::class);
         $mockLogger = $this->createMock(LoggerInterface::class);
         $strategy = new BearerTokenAuthorizationStrategy(new OEGlobalsBag(), $auditLogger, $mockLogger);
+        $strategy->setClientRepository($this->clientRepositoryReturning($this->enabledClient(true)));
         return $strategy;
+    }
+
+    private function enabledClient(bool $enabled): ClientEntity
+    {
+        $client = new ClientEntity();
+        $client->setIdentifier(self::TEST_CLIENT_ID);
+        $client->setIsEnabled($enabled);
+        return $client;
+    }
+
+    private function clientRepositoryReturning(ClientEntity|false $client): ClientRepository
+    {
+        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository->method('getClientEntity')->willReturn($client);
+        return $clientRepository;
+    }
+
+    /**
+     * Mints a signed access token whose iat/nbf are offset from now, mirroring the claim set
+     * OpenEMR's AccessTokenEntity::convertToJWT() produces.
+     *
+     * @param list<string> $scopes
+     */
+    private function mintTokenIssuedAt(
+        \DateTimeImmutable $issuedAt,
+        string $tokenId,
+        string $userUuid,
+        string $clientId,
+        array $scopes
+    ): string {
+        $config = Configuration::forAsymmetricSigner(
+            new Sha256(),
+            InMemory::file(self::KEY_PATH_PRIVATE),
+            InMemory::plainText('empty', 'empty')
+        );
+
+        return $config->builder()
+            ->permittedFor($clientId)
+            ->identifiedBy($tokenId)
+            ->issuedAt($issuedAt)
+            ->canOnlyBeUsedAfter($issuedAt)
+            ->expiresAt($issuedAt->modify('+1 hour'))
+            ->relatedTo($userUuid)
+            ->withClaim('scopes', $scopes)
+            ->issuedBy(self::ISSUER)
+            ->getToken($config->signer(), $config->signingKey())
+            ->toString();
+    }
+
+    private function requestForRawToken(string $jwt, string $uri): HttpRestRequest
+    {
+        $request = new HttpRestRequest([], [], [], [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer ' . $jwt,
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_CONTENT_TYPE' => 'application/json',
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI' => $uri,
+            'SERVER_NAME' => 'example.com',
+        ]);
+        $request->setSession($this->getMockSessionForRequest($request));
+        return $request;
+    }
+
+    /**
+     * @param list<string> $scopes
+     */
+    private function authorizeTokenIssuedAt(\DateTimeImmutable $issuedAt, array $scopes = ['api:oemr'], ?ClientRepository $clientRepository = null): bool
+    {
+        $userUuid = '123e4567-e89b-12d3-a456-426614174000';
+        $tokenId = 'clock-skew-token-id';
+        $user = ['id' => 1, 'username' => 'testuser', 'role' => 'users'];
+
+        $jwt = $this->mintTokenIssuedAt($issuedAt, $tokenId, $userUuid, self::TEST_CLIENT_ID, $scopes);
+        $request = $this->requestForRawToken($jwt, '/apis/default/api/patient');
+        $strategy = $this->getBearerTokenAuthorizationStrategy($request);
+        if ($clientRepository !== null) {
+            $strategy->setClientRepository($clientRepository);
+        }
+
+        $accessTokenRepository = $this->createMock(AccessTokenRepository::class);
+        $accessTokenRepository->method('getTokenExpiration')->willReturn(date('Y-m-d H:i:s', strtotime('+1 hour')));
+        $accessTokenRepository->method('isAccessTokenRevokedInDatabase')->willReturn(false);
+        $strategy->setAccessTokenRepository($accessTokenRepository);
+        $strategy->setPublicKey(new CryptKey(self::KEY_PATH_PUBLIC, null, false));
+
+        $trustedUserService = $this->createMock(TrustedUserService::class);
+        $trustedUserService->method('isTrustedUser')->willReturn(true);
+        $strategy->setTrustedUserService($trustedUserService);
+
+        $strategy->setUuidUserAccountFactory(function () use ($user) {
+            $mock = $this->createMock(UuidUserAccount::class);
+            $mock->method('getUserAccount')->willReturn($user);
+            $mock->method('getUserRole')->willReturn('users');
+            return $mock;
+        });
+        $mockUserService = $this->createMock(UserService::class);
+        $mockUserService->method('getAuthGroupForUser')->willReturn('Default');
+        $strategy->setUserService($mockUserService);
+
+        return $strategy->authorizeRequest($request);
+    }
+
+    /**
+     * lcobucci/jwt's LooseValidAt compares iat/nbf/exp against the clock, and League's default
+     * BearerTokenValidator supplies no leeway. A token presented in the same second it was issued
+     * in is then rejected as "The token was issued in the future" whenever the host clock steps
+     * backwards between the two requests -- which surfaces as an intermittent, endpoint-agnostic
+     * 401 carrying OAuth's generic access-denied message.
+     */
+    public function testTokenIssuedSlightlyInTheFutureIsAcceptedWithinClockSkewLeeway(): void
+    {
+        $this->assertTrue(
+            $this->authorizeTokenIssuedAt(new \DateTimeImmutable('+5 seconds')),
+            'A token issued 5 seconds ahead of this clock must survive; that is ordinary host clock skew'
+        );
+    }
+
+    /**
+     * The leeway is a tolerance, not an open door: a token issued far in the future is still
+     * rejected.
+     */
+    public function testTokenIssuedFarInTheFutureIsStillRejected(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->authorizeTokenIssuedAt(new \DateTimeImmutable('+30 minutes'));
+    }
+
+    public function testTokenIssuedInThePastIsAccepted(): void
+    {
+        $this->assertTrue($this->authorizeTokenIssuedAt(new \DateTimeImmutable('-5 seconds')));
+    }
+
+    /**
+     * `exp` boundary within the 60-second leeway: a token whose `exp` has already passed
+     * by 55 seconds still validates. League's BearerTokenValidator applies the
+     * JWT_CLOCK_SKEW_LEEWAY (`PT60S`) symmetrically — both `iat` in the future and
+     * `exp` in the past are tolerated inside the window.
+     *
+     * -55 seconds (5 seconds inside the window) is chosen so a leeway narrowing
+     * below 55s surfaces here. A smaller margin (e.g. -30s) would still pass if
+     * someone silently halved the leeway, and the test would stop guarding the
+     * value the PR claims.
+     */
+    public function testTokenExpiredWithinLeewayIsAccepted(): void
+    {
+        $this->assertTrue(
+            $this->authorizeTokenWithClaimTimes(
+                iat: new \DateTimeImmutable('-55 seconds'),
+                nbf: new \DateTimeImmutable('-55 seconds'),
+                exp: new \DateTimeImmutable('-55 seconds'),
+            ),
+            'A token whose exp is 55 seconds in the past must survive — within the 60s leeway'
+        );
+    }
+
+    /**
+     * `exp` boundary outside the leeway: the leeway is a tolerance, not an open door.
+     * A token presented 61 seconds past `exp` is rejected.
+     */
+    public function testTokenExpiredBeyondLeewayIsRejected(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->authorizeTokenWithClaimTimes(
+            iat: new \DateTimeImmutable('-61 seconds'),
+            nbf: new \DateTimeImmutable('-61 seconds'),
+            exp: new \DateTimeImmutable('-61 seconds'),
+        );
+    }
+
+    /**
+     * `nbf` boundary within the 60-second leeway. OpenEMR mints with `nbf = iat = now`
+     * so a crafted "not-yet-valid" token is a path not reachable from the normal mint
+     * flow; it still has to be validated correctly if a federated issuer or future
+     * mint-time offset ever introduces one.
+     *
+     * +55 seconds (5 seconds inside the window) is chosen for the same reason as
+     * the `exp` acceptance test — a leeway narrowing below 55s surfaces here.
+     */
+    public function testTokenNotYetValidWithinLeewayIsAccepted(): void
+    {
+        $this->assertTrue(
+            $this->authorizeTokenWithClaimTimes(
+                iat: new \DateTimeImmutable('now'),
+                nbf: new \DateTimeImmutable('+55 seconds'),
+                exp: new \DateTimeImmutable('+1 hour'),
+            ),
+            'A token with nbf 55 seconds in the future must survive — within the 60s leeway'
+        );
+    }
+
+    /**
+     * `nbf` boundary outside the leeway: a token not-yet-valid by 61 seconds is rejected.
+     */
+    public function testTokenNotYetValidBeyondLeewayIsRejected(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->authorizeTokenWithClaimTimes(
+            iat: new \DateTimeImmutable('now'),
+            nbf: new \DateTimeImmutable('+61 seconds'),
+            exp: new \DateTimeImmutable('+1 hour'),
+        );
+    }
+
+    /**
+     * Mints a signed access token with explicit iat/nbf/exp. Lets each boundary
+     * test pin the claim it wants to probe without the "nbf = iat, exp = iat + 1h"
+     * coupling that `mintTokenIssuedAt()` applies.
+     *
+     * @param list<string> $scopes
+     */
+    private function mintTokenWithClaimTimes(
+        \DateTimeImmutable $iat,
+        \DateTimeImmutable $nbf,
+        \DateTimeImmutable $exp,
+        string $tokenId,
+        string $userUuid,
+        string $clientId,
+        array $scopes
+    ): string {
+        $config = Configuration::forAsymmetricSigner(
+            new Sha256(),
+            InMemory::file(self::KEY_PATH_PRIVATE),
+            InMemory::plainText('empty', 'empty')
+        );
+
+        return $config->builder()
+            ->permittedFor($clientId)
+            ->identifiedBy($tokenId)
+            ->issuedAt($iat)
+            ->canOnlyBeUsedAfter($nbf)
+            ->expiresAt($exp)
+            ->relatedTo($userUuid)
+            ->withClaim('scopes', $scopes)
+            ->issuedBy(self::ISSUER)
+            ->getToken($config->signer(), $config->signingKey())
+            ->toString();
+    }
+
+    /**
+     * Runs a full authorize cycle on a token with explicit iat/nbf/exp. Mirrors
+     * `authorizeTokenIssuedAt()` but accepts separate claim timestamps so the
+     * `exp` and `nbf` boundary tests can pin each claim independently.
+     *
+     * @param list<string> $scopes
+     */
+    private function authorizeTokenWithClaimTimes(
+        \DateTimeImmutable $iat,
+        \DateTimeImmutable $nbf,
+        \DateTimeImmutable $exp,
+        array $scopes = ['api:oemr'],
+    ): bool {
+        $userUuid = '123e4567-e89b-12d3-a456-426614174000';
+        $tokenId = 'claim-boundary-token-id';
+        $user = ['id' => 1, 'username' => 'testuser', 'role' => 'users'];
+
+        $jwt = $this->mintTokenWithClaimTimes($iat, $nbf, $exp, $tokenId, $userUuid, self::TEST_CLIENT_ID, $scopes);
+        $request = $this->requestForRawToken($jwt, '/apis/default/api/patient');
+        $strategy = $this->getBearerTokenAuthorizationStrategy($request);
+
+        // The DB-expiry check runs after JWT validation. The 1-hour value here
+        // keeps the DB layer out of the way so these isolated tests exclusively
+        // probe the JWT-leeway boundary. The dual-path intent (JWT leeway vs
+        // DB zero-leeway) is locked at the api tier by TokenLifetimeBoundaryApiTest.
+        $accessTokenRepository = $this->createMock(AccessTokenRepository::class);
+        $accessTokenRepository->method('getTokenExpiration')->willReturn(date('Y-m-d H:i:s', strtotime('+1 hour')));
+        $accessTokenRepository->method('isAccessTokenRevokedInDatabase')->willReturn(false);
+        $strategy->setAccessTokenRepository($accessTokenRepository);
+        $strategy->setPublicKey(new CryptKey(self::KEY_PATH_PUBLIC, null, false));
+
+        $trustedUserService = $this->createMock(TrustedUserService::class);
+        $trustedUserService->method('isTrustedUser')->willReturn(true);
+        $strategy->setTrustedUserService($trustedUserService);
+
+        $strategy->setUuidUserAccountFactory(function () use ($user) {
+            $mock = $this->createMock(UuidUserAccount::class);
+            $mock->method('getUserAccount')->willReturn($user);
+            $mock->method('getUserRole')->willReturn('users');
+            return $mock;
+        });
+        $mockUserService = $this->createMock(UserService::class);
+        $mockUserService->method('getAuthGroupForUser')->willReturn('Default');
+        $strategy->setUserService($mockUserService);
+
+        return $strategy->authorizeRequest($request);
+    }
+
+    /**
+     * Disabling a client does not revoke the tokens it already holds, so every request re-checks
+     * that the client is still enabled.
+     */
+    public function testTokenOfDisabledClientIsRejected(): void
+    {
+        $this->expectException(OAuthServerException::class);
+        $this->authorizeTokenIssuedAt(new \DateTimeImmutable('-5 seconds'), ['api:oemr'], $this->clientRepositoryReturning($this->enabledClient(false)));
+    }
+
+    public function testTokenOfDeletedClientIsRejected(): void
+    {
+        $this->expectException(OAuthServerException::class);
+        $this->authorizeTokenIssuedAt(new \DateTimeImmutable('-5 seconds'), ['api:oemr'], $this->clientRepositoryReturning(false));
     }
 
     public function testAuthorizeRequest(): void
@@ -223,5 +532,40 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $strategy = $this->getBearerTokenAuthorizationStrategy($request);
         $uuidUserAccountClass = $strategy->getUuidUserAccountFactory()(1);
         $this->assertInstanceOf(UuidUserAccount::class, $uuidUserAccountClass, "Expected UuidUserAccount instance");
+    }
+
+    /**
+     * League's CryptKey raises E_USER_NOTICE for any key file that is world-readable. That check
+     * guards secrets; applied to the public key it only logs a notice on every API request.
+     */
+    public function testSetPublicKeyFromPathSkipsPermissionCheck(): void
+    {
+        $strategy = $this->getBearerTokenAuthorizationStrategy($this->createStub(HttpRestRequest::class));
+        $filesystem = new Filesystem();
+        $notices = [];
+
+        $keyPath = $filesystem->tempnam(sys_get_temp_dir(), 'oapublic');
+        try {
+            $filesystem->copy(self::KEY_PATH_PUBLIC, $keyPath, true);
+            $filesystem->chmod($keyPath, 0644);
+
+            set_error_handler(
+                static function (int $errno, string $errstr) use (&$notices): bool {
+                    $notices[] = $errstr;
+                    return true;
+                },
+                E_USER_NOTICE
+            );
+            try {
+                $strategy->setPublicKey($keyPath);
+            } finally {
+                restore_error_handler();
+            }
+        } finally {
+            $filesystem->remove($keyPath);
+        }
+
+        $this->assertSame([], $notices);
+        $this->assertSame('file://' . $keyPath, $strategy->getPublicKey()->getKeyPath());
     }
 }

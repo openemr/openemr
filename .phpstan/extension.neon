@@ -77,6 +77,9 @@ services:
 - class: OpenEMR\PHPStan\Rules\ForbiddenEvalRule
   tags:
   - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenAuthorizationHeaderReadRule
+  tags:
+  - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\Sql\ReservedWordRegistry
 - class: OpenEMR\PHPStan\Rules\Sql\SqlSinkResolver
 - class: OpenEMR\PHPStan\Rules\Sql\SchemaColumnRegistry

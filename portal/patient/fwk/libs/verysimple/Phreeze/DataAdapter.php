@@ -3,13 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("IObservable.php");
-require_once("ConnectionSetting.php");
-require_once("verysimple/DB/DataDriver/IDataDriver.php");
-
-/**
  * DataAdapter abstracts and provides access to the data store
  *
  * @package verysimple::Phreeze
@@ -97,7 +90,6 @@ class DataAdapter implements IObservable
             switch ($this->ConnectionSetting->Type) {
                 case "mysqli":
                 case "MySQLi":
-                    include_once("verysimple/DB/DataDriver/MySQLi.php");
                     $this->_driver = new DataDriverMySQLi();
                     break;
                 default:
@@ -360,7 +352,7 @@ class DataAdapter implements IObservable
      * @param string|\Throwable $error
      * @return bool
      */
-    public function IsCommunicationError($error)
+    public function IsCommunicationError($error): bool
     {
         $msg = $error instanceof \Throwable ? $error->getMessage() : $error;
         return str_contains(strtolower((string) $msg), 'lost connection');
@@ -382,7 +374,7 @@ class DataAdapter implements IObservable
      *
      * @return array results for each table
      */
-    public function OptimizeTables()
+    public function OptimizeTables(): array
     {
         if ($this->ConnectionSetting->IsReadOnlySlave) {
             throw new Exception('Optimizing tables is allowed on a read-only slave');

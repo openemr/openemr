@@ -503,8 +503,10 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
         "ORDER BY a.post_time, s.check_date, a.sequence_no",
         [$patient_id, $encounter]
     );
-    $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
     while ($inrow = sqlFetchArray($inres)) {
+        // Per row: $inrow is exhausted before the loop, so computing this
+        // above it labelled every payment 'Pt', insurance payments included.
+        $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
         $meth = $inrow['memo'];
         if ($billtime && $inrow['post_time'] != $billtime) {
             if ($inrow['post_time'] > $billtime || $inrow['post_time'] <= $prevtime) {
@@ -550,7 +552,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
 
 // Get the array of checkout timestamps for the specified visit.
 //
-function craGetTimestamps($patient_id, $encounter_id)
+function craGetTimestamps($patient_id, $encounter_id): array
 {
     $ret = [];
     $res = sqlStatement(

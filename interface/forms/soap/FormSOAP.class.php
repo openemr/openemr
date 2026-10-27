@@ -74,7 +74,7 @@ class FormSOAP extends ORDataObject
         //$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
-    public function toString($html = false)
+    public function toString($html = false): string
     {
         $string = "\n" . "ID: " . $this->id . "\n";
         return $html ? nl2br($string) : $string;

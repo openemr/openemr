@@ -186,10 +186,11 @@ class TransactionRestController
     {
         $processingResult = $this->patientTransactionService->getAll($pid);
 
-        if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
-            return RestControllerHelper::handleProcessingResult($processingResult, 404);
-        }
-
+        // A collection endpoint should return 200 with an empty list for
+        // a transaction-less patient — not 404 (that shape is for the
+        // single-resource lookup where "no such row" is the correct
+        // signal). Mirrors the same fix PR #14605 applied to
+        // AppointmentRestController and PR #14681 to ListRestController.
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
     }
 }

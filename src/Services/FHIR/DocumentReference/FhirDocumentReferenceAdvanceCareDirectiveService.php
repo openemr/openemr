@@ -18,6 +18,7 @@ use OpenEMR\Services\FHIR\DocumentReference\Enum\DocumentReferenceCategoryEnum;
 use OpenEMR\Services\FHIR\DocumentReference\Trait\FhirDocumentReferenceTrait;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\PatientAdvanceDirectiveService;
@@ -31,7 +32,7 @@ use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase
+class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     use PatientSearchTrait;
     use FhirDocumentReferenceTrait;
@@ -66,7 +67,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase
     }
 
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return DocumentReferenceCategoryEnum::tryFrom($category) == DocumentReferenceCategoryEnum::ADVANCE_CARE_DIRECTIVE;
     }
@@ -78,7 +79,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase
         return false;
     }
 
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),

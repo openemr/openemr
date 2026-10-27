@@ -21,6 +21,16 @@ OpenEMR is split across multiple repositories. Make sure your contribution targe
 
 When in doubt, ask on the forum or open an issue to discuss where the work belongs.
 
+## Where New Code Goes
+
+The `interface/`, `portal/` and `library/` directories, including `interface/modules/`, are frozen. Code written next to legacy code tends to copy its patterns, so new work goes elsewhere:
+
+- **Logic** goes in classes under `src/`. To fix a bug in a legacy file, move the code you need to change into a `src/` class and call it from the legacy file.
+- **Markup** goes in Twig templates. Twig is the only template engine for new work; do not add Smarty (`.tpl`) templates.
+- **New modules** belong in their own repositories, installed with Composer (as `oe-module-claimrev-connect` is). Do not add modules under `interface/modules/`.
+
+Pull requests that grow `interface/`, `portal/` or `library/` without moving at least as much code out to `src/` may be closed without review. A repository admin can override this by approving the pull request, so a bugfix that can't reasonably extract code can still land. See [#14764](https://github.com/openemr/openemr/issues/14764) for the rationale.
+
 ## Commit Messages
 
 OpenEMR uses [Conventional Commits](https://www.conventionalcommits.org/) for all commits merged to `master` and `rel-*` branches. Your PR title must follow this format:
@@ -789,6 +799,36 @@ Review the diff before committing. See `tests/Tests/Isolated/Common/Twig/fixture
 ### Full host installation
 
 If you'd rather not use Docker at all, you can install OpenEMR directly on your local environment. This requires installing additional dependencies for your operating system. For more info see [OpenEMR Development Versions](https://open-emr.org/wiki/index.php/OpenEMR_Installation_Guides#OpenEMR_Development_Versions) on the wiki.
+
+## AI Agent Development Environment
+
+If you contribute with the help of AI coding agents (Claude Code, Codex, and
+similar), you may want a sandboxed environment that lets agents work against
+OpenEMR — each in its own git worktree with its own Docker stack — without
+exposing your host filesystem or host Docker daemon to the agent.
+
+The repository's [`AGENTS.md`](AGENTS.md) documents the universal rules every
+agent environment must satisfy: required tools, the git directory layout, and
+the golden rules for worktree and stack lifecycle. Any environment that meets
+those rules will work.
+
+Reference configurations:
+
+| Configuration | Isolation | Host requirements | Guide |
+|---|---|---|---|
+| LXC appliance | Jailed LXC container, NAT networking, own Docker daemon | Linux host with LXC | [Setup guide](Documentation/contributors/claude-appliance-setup.md) |
+
+Other approaches — devcontainers, full VMs, and remote development hosts — work
+too. These guides are starting points, not requirements.
+
+Whichever you choose, two things are worth doing regardless:
+
+- **Scope the agent's credentials.** Give it a token limited to your own fork
+  rather than one that inherits your access to upstream repositories or to
+  organization accounts.
+- **Keep the permission prompts on unless the environment is a real boundary.**
+  Skipping approval prompts is reasonable inside an isolated sandbox. It is not
+  reasonable on a host with access to production systems or patient data.
 
 ## Financial contributions
 

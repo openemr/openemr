@@ -13,7 +13,6 @@
  */
 
 require_once("../globals.php");
-require_once("../../library/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -24,8 +23,9 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
-if (! AclMain::aclCheckCore('acct', 'rep')) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Pending Followup from Results", xl("Pending Followup from Results"));
+// Lab results across patients, so require what the menu entry does: patients/lab.
+if (! AclMain::aclCheckCore('patients', 'lab')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Pending Followup from Results", xl("Pending Followup from Results"));
 }
 
 $facilityService = new FacilityService();
@@ -202,22 +202,25 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
 
-    $query = "SELECT po.patient_id, po.encounter_id, po.date_ordered, " .
-    "pd.pubpid, " .
+    // DISTINCT because a lab may define the same result code more than once, which would
+    // list one pending follow-up twice. MySQL 8 then needs every ORDER BY column selected.
+    $query = "SELECT DISTINCT po.patient_id, po.encounter_id, po.date_ordered, po.procedure_order_id, " .
+    "pd.pubpid, pd.lname, pd.fname, pd.mname, " .
     "CONCAT(pd.lname, ', ', pd.fname, ' ', pd.mname) AS patient_name, " .
-    "pto.name AS procedure_name, " .
+    "pc.procedure_name AS procedure_name, " .
     "pts.related_code, " .
     "u1.lname AS provider_lname, u1.fname AS provider_fname, u1.mname AS provider_mname, " .
     "pr.procedure_report_id, pr.date_report, pr.report_status " .
     "FROM procedure_order AS po " .
     "JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
     "JOIN patient_data AS pd ON pd.pid = po.patient_id " .
+    "JOIN procedure_order_code AS pc ON pc.procedure_order_id = po.procedure_order_id " .
     "JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id " .
+    "AND pr.procedure_order_seq = pc.procedure_order_seq " .
     "JOIN procedure_result AS ps ON ps.procedure_report_id = pr.procedure_report_id " .
     "AND ps.abnormal != '' AND ps.abnormal != 'no' " .
-    "JOIN procedure_type AS pto ON pto.procedure_type_id = po.procedure_type_id " .
-    "JOIN procedure_type AS pts ON pts.procedure_type_id = ps.procedure_type_id " .
-    "AND pts.related_code != '' " .
+    "JOIN procedure_type AS pts ON pts.lab_id = po.lab_id AND pts.procedure_code = ps.result_code " .
+    "AND pts.procedure_type LIKE 'res%' AND pts.related_code != '' " .
     "LEFT JOIN users AS u1 ON u1.id = po.provider_id " .
     "WHERE " .
     "po.date_ordered >= ? AND po.date_ordered <= ?";

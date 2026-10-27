@@ -42,7 +42,7 @@ use OpenEMR\Services\Storage\CacheDirectory;
 //=========================================================================
 pnModAPILoad(__POSTCALENDAR__, 'admin');
 
-function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
+function postcalendar_admin_modifyconfig($msg = '', $showMenu = true): string
 {
     $output = new pnHTML();
 
@@ -69,7 +69,7 @@ function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
     return $output->GetOutput($body);
 }
 
-function postcalendar_admin_categoriesConfirm()
+function postcalendar_admin_categoriesConfirm(): string
 {
     $msg = '';
     $dels = '';
@@ -256,7 +256,7 @@ EOF;
     return $output->GetOutput($body);
 }
 
-function postcalendar_admin_categoriesUpdate()
+function postcalendar_admin_categoriesUpdate(): string
 {
     $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
@@ -426,7 +426,7 @@ function postcalendar_admin_categoriesUpdate()
 /**
 * Creates a new category
 */
-function postcalendar_admin_categories($msg = '', $e = '', $args = [])
+function postcalendar_admin_categories($msg = '', $e = '', $args = []): string
 {
     extract($args);
     unset($args);
@@ -697,7 +697,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
 /**
  * Main administration menu
  */
-function postcalendar_adminmenu($menuItem)
+function postcalendar_adminmenu($menuItem): string
 {
     global $bgcolor1, $bgcolor2;
 
@@ -773,7 +773,7 @@ EOF;
     return $output;
 }
 
-function postcalendar_admin_clearCache()
+function postcalendar_admin_clearCache(): string
 {
     // Calendar Twig templates have no on-disk cache (TwigContainer does
     // not set a cache option, so Twig recompiles per request). Modern
@@ -790,7 +790,7 @@ function postcalendar_admin_clearCache()
     return postcalendar_admin_modifyconfig('<div class="text-center">' . text(_PC_CACHE_CLEARED) . '</div>');
 }
 
-function postcalendar_admin_testSystem()
+function postcalendar_admin_testSystem(): string
 {
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
     $pcDir = pnVarPrepForOS($modinfo['directory']);

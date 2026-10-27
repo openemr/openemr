@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
+use OpenEMR\Common\Auth\OpenIDConnect\ClientGrantTypePolicy;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
@@ -103,7 +104,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             if (
                 !(
                     isset($this->validationScopes[$scopeLookupKey])
-                    && $this->validationScopes[$scopeLookupKey]->containsScope($scopeIdentifier)
+                    && $this->validationScopes[$scopeLookupKey]->grantsScope($scopeIdentifier)
                 )
             ) {
                 $this->getSystemLogger()->debug("ScopeRepository->getScopeEntityByIdentifier() scope requested does not exist in system", [
@@ -151,14 +152,17 @@ class ScopeRepository implements ScopeRepositoryInterface
         // we only let scopes that the client initially registered with through instead of whatever they request in
         // their grant.
         if ($clientEntity instanceof ClientEntity) {
-            $clientScopes = $clientEntity->getScopes();
+            $registeredScopes = $clientEntity->getScopes();
+            $clientScopes = is_array($registeredScopes) ? array_values(array_filter($registeredScopes, is_string(...))) : [];
             $clientValidatorArray = $this->buildScopeValidatorArray($clientScopes);
+            $grantTypePolicy = new ClientGrantTypePolicy();
             foreach ($scopes as $scope) {
                 $scopeListNames[] = $scope->getIdentifier();
                 $lookupKey = $scope->getScopeLookupKey();
                 if (
                     isset($clientValidatorArray[$lookupKey])
-                    && $clientValidatorArray[$lookupKey]->containsScope($scope)
+                    && $clientValidatorArray[$lookupKey]->grantsScope($scope)
+                    && $grantTypePolicy->grantAllowsScope($grantType, $scope)
                 ) {
                     $finalizedScopes[] = $scope;
                     $finalizedScopeNames[] = $scope->getIdentifier();
@@ -201,7 +205,10 @@ class ScopeRepository implements ScopeRepositoryInterface
      * Method will qualify current scopes based on active FHIR resources.
      * Allowed permissions are validated from the default scopes and client role.
      *
-     * @return array
+     * Listeners of RestApiScopeEvent may contribute anything, so the result is narrowed to the
+     * scope strings here, at the boundary.
+     *
+     * @return list<string>
      */
     public function getCurrentSmartScopes(): array
     {
@@ -223,10 +230,13 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scopesSupportedList = $scopesEvent->getScopes();
         }
 
-        return $scopesSupportedList;
+        return array_values(array_filter($scopesSupportedList, is_string(...)));
     }
 
-    // made public for now!
+    /**
+     * @param array<array-key, string|ScopeEntity> $currentServerScopes
+     * @return array<string, ResourceScopeEntityList> keyed by ScopeEntity::getScopeLookupKey()
+     */
     public function buildScopeValidatorArray(array $currentServerScopes): array
     {
         $scopeValidatorFactory = new ScopeValidatorFactory();
@@ -256,8 +266,9 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
         $scope = ScopeEntity::createFromString($scope);
         if (empty($scope->getResource())) {
-            return $this->getServerScopeList()->lookupDescriptionForFullScopeString($scope);
-        } else if (!empty($scope->getOperation())) {
+            // pass the scope string, not the entity: the lookup is keyed by identifier
+            return $this->getServerScopeList()->lookupDescriptionForFullScopeString($scope->getIdentifier());
+        } elseif (!empty($scope->getOperation())) {
             return $this->lookupDescriptionForResourceOperation($scope);
         } else {
             return $this->lookupDescriptionForSmartScope($scope);
@@ -270,7 +281,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $permissionStrings = [];
         if ($permissions->v1Read) {
             $permissionStrings[] = xl("View, search and access");
-        } else if ($permissions->v1Write) {
+        } elseif ($permissions->v1Write) {
             $permissionStrings[] = xl("Create or modify");
         }
         if ($permissions->create) {
@@ -285,7 +296,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         if ($permissions->search) {
             $permissionStrings[] = xl("Search existing records");
         }
-        if ($permissions->search) {
+        if ($permissions->read) {
             $permissionStrings[] = xl("Access or retrieve an existing record");
         }
         $description = xl('Permission to do the following actions') . " " . implode(" ", $permissionStrings);
@@ -294,7 +305,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $description;
     }
 
-    private function lookupDescriptionForResourceOperation(ScopeEntity $scope)
+    private function lookupDescriptionForResourceOperation(ScopeEntity $scope): string
     {
         $resource = $scope->getResource();
         return match ($scope->getOperation()) {
@@ -316,6 +327,10 @@ class ScopeRepository implements ScopeRepositoryInterface
                 'insurance' => xl("Permission to swap the insurance position for a patient (such as primary and secondary insurance)"),
                 default => xl("Permission to swap the insurance for resource type") . " " . $resource,
             }
+            ,'$run' => match ($scope->getResource()) {
+                'background_service' => xl("Permission to trigger execution of a named background service"),
+                default => xl("Permission to invoke the \$run operation on resource type") . " " . $resource,
+            }
             ,default => throw new InvalidArgumentException("Unknown operation for scope: " . $scope->getOperation())
         };
     }
@@ -323,7 +338,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     /**
      * Checks if the given scopes array requires any manual approval by an administrator before an oauth2 client can be authorized
      * @param bool $is_confidential_client Whether the client is confidential (can keep a secret safe) or a public app
-     * @param array $scopes The scopes to be checked to see if we need manual approval
+     * @param string[] $scopes The scopes to be checked to see if we need manual approval
      * @param string $oauthManualApprovalSetting The OAuthManualApproval setting from the globals table
      * @return bool true if there exist scopes that require manual review by an administrator, false otherwise
      */
@@ -359,35 +374,20 @@ class ScopeRepository implements ScopeRepositoryInterface
     }
 
     /**
-     * @param array $scopes
+     * @param string[] $scopes
      * @return bool
      */
     private function hasUserScopes(array $scopes): bool
     {
-        return $this->scopeArrayHasString($scopes, 'user/');
+        return ScopeEntity::arrayHasContext($scopes, 'user');
     }
 
     /**
-     * @param array $scopes
+     * @param string[] $scopes
      * @return bool
      */
     private function hasSystemScopes(array $scopes): bool
     {
-        return $this->scopeArrayHasString($scopes, 'system/');
-    }
-
-    /**
-     * @param array $scopes
-     * @param $str
-     * @return bool
-     */
-    private function scopeArrayHasString(array $scopes, $str): bool
-    {
-        foreach ($scopes as $scope) {
-            if (str_contains((string) $scope, (string) $str)) {
-                return true;
-            }
-        }
-        return false;
+        return ScopeEntity::arrayHasContext($scopes, 'system');
     }
 }

@@ -20,10 +20,14 @@ require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\FeeSheetAppointmentStatusPrompt;
+use OpenEMR\Billing\HcpcsDrugDefaults;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -303,7 +307,7 @@ function echoServiceLines(): void
 
             if (!empty($code_types[$codetype]['claim']) && empty($code_types[$codetype]['diag'])) {
                 echo "  <td class='billcell text-center' $usbillstyle><input type='text' class='form-control form-control-sm' name='bill[" . attr($lino) . "][notecodes]' " .
-                "value='" . text($li['notecodes']) . "' maxlength='10' size='8' /></td>\n";
+                "value='" . attr($li['notecodes']) . "' maxlength='10' size='8' /></td>\n";
             } else {
                 echo "  <td class='billcell text-center' $usbillstyle></td>\n";
             }
@@ -619,6 +623,21 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
             // Otherwise return to the normal encounter summary frameset.
             //
             formHeader("Redirecting....");
+            // On Save, offer to set the visit's appointment status (global
+            // fee_sheet_save_appt_status); on Yes, also open the calendar on that date.
+            $isSave = CurrentRequest::get()->request->getString('bn_save') !== '';
+            $apptPrompt = $isSave && is_numeric($fs->pid) && is_string($fs->visit_date) ? (new FeeSheetAppointmentStatusPrompt(
+                OEGlobalsBag::getInstance()->getString(FeeSheetAppointmentStatusPrompt::GLOBAL_NAME)
+            ))->appointmentFor((int) $fs->pid, $fs->visit_date) : null;
+            $encounterId = is_numeric($fs->encounter) ? (string) $fs->encounter : null;
+            if ($apptPrompt !== null && $encounterId !== null) {
+                echo ServiceContainer::getTwig()->render('forms/fee_sheet/appointment_status_prompt.html.twig', [
+                    'prompt' => $apptPrompt,
+                    'encounter' => $encounterId,
+                ]);
+                formFooter();
+                exit;
+            }
             formJump();
         }
 
@@ -1640,18 +1659,25 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     $modifier = '';
                                                 }
                                                 $ndc_info = '';
-                                                // If HCPCS, find last NDC string used for this code.
+                                                $units = null;
+                                                // If HCPCS, take the NDC and units from the related inventory drug,
+                                                // else the last NDC string used for this code. A custom fee sheet
+                                                // list entry can name the drug ("HCPCS|J1010|<drug_id>") when
+                                                // several products share the code.
                                                 if ($newtype == 'HCPCS' && $ndc_applies) {
-                                                    $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
-                                                    "code_type = ? AND code = ? AND ndc_info LIKE 'N4%' " .
-                                                    "ORDER BY date DESC LIMIT 1", [$newtype, $code]);
-                                                    if (!empty($tmp)) {
-                                                        $ndc_info = $tmp['ndc_info'];
-                                                    } else {
-                                                        $tmp = sqlQuery("SELECT ndc_number FROM drugs WHERE " .
-                                                            "related_code = ? AND active = 1", [$newtype . ":" . $code]);
+                                                    $drugId = filter_var($newsel, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                                                    $drugDefaults = (is_int($drugId) ? HcpcsDrugDefaults::forDrug($drugId, $code) : null)
+                                                        ?? HcpcsDrugDefaults::forCode($code);
+                                                    if ($drugDefaults !== null) {
+                                                        $ndc_info = $drugDefaults->ndcInfo;
+                                                        $units = $drugDefaults->units;
+                                                    }
+                                                    if ($ndc_info === '') {
+                                                        $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
+                                                        "code_type = ? AND code = ? AND ndc_info LIKE 'N4%' " .
+                                                        "ORDER BY date DESC LIMIT 1", [$newtype, $code]);
                                                         if (!empty($tmp)) {
-                                                            $ndc_info = $tmp['ndc_number'];
+                                                            $ndc_info = $tmp['ndc_info'];
                                                         }
                                                     }
                                                 }
@@ -1660,6 +1686,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                      'code' => $code,
                                                      'modifier' => trim($modifier),
                                                      'ndc_info' => $ndc_info,
+                                                     'units' => $units,
                                                 ]);
                                             }
                                         }

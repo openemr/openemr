@@ -69,9 +69,7 @@ require_once(__DIR__ . '/lib/appsql.class.php');
 
 $logit = new ApplicationTable();
 
-// PortalAuditLogger adapter that delegates to ApplicationTable::portalLog. Defined as an
-// anonymous class here (rather than as a typed class in src/) so the legacy non-PSR-4
-// reference to ApplicationTable stays out of the autoloaded surface.
+// PortalAuditLogger adapter that delegates to ApplicationTable::portalLog.
 $auditLogger = new class ($logit) implements PortalAuditLogger {
     public function __construct(private readonly ApplicationTable $delegate)
     {

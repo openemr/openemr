@@ -909,7 +909,7 @@ class HistorySdohService extends BaseService
         return implode("\n", $lines);
     }
 
-    /** Map code system URI or short name → display string expected by serveccda. */
+    /** Map code system URI or short name → code type expected by the C-CDA generator. */
     private function ccSystemToCodeType(string $systemOrName): string
     {
         $s = strtolower(trim($systemOrName));
@@ -1041,7 +1041,7 @@ class HistorySdohService extends BaseService
 
     /**
      * Return ONLY SDOH-derived concerns from the most recent form_history_sdoh row.
-     * Output shape matches what your dispatcher/serveccda.js consumes.
+     * Output shape matches what EncounterccdadispatchTable consumes.
      */
     public static function concernsFromCurrentAssessment(int $pid): array
     {

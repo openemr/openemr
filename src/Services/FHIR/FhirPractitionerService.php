@@ -30,7 +30,7 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirPractitionerService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService
+class FhirPractitionerService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService, INonPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
@@ -43,6 +43,16 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      */
     private $practitionerService;
 
+    /**
+     * When true, getAll() drops any FHIR search parameter not on
+     * {@see UsersRowPatientAllowlist::allowedSearchParams()} and
+     * searchForOpenEMRRecords() reduces each returned row to the
+     * allowlisted columns. Callers set this via
+     * {@see self::setPatientCallerView()} on the route branch that
+     * handles patient-scoped requests.
+     */
+    private bool $patientCallerView = false;
+
     public function __construct()
     {
         parent::__construct();
@@ -50,10 +60,26 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
     }
 
     /**
+     * Toggle the patient-caller allowlist. Routes call this with `true`
+     * when {@see HttpRestRequest::isPatientRequest()} is set so both
+     * the incoming search params and the outgoing row shape are reduced
+     * to the columns US Core Practitioner expects.
+     */
+    public function setPatientCallerView(bool $on): void
+    {
+        $this->patientCallerView = $on;
+    }
+
+    public function isPatientCallerView(): bool
+    {
+        return $this->patientCallerView;
+    }
+
+    /**
      * Returns an array mapping FHIR Practitioner Resource search parameters to OpenEMR Practitioner search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
@@ -67,7 +93,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
             'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ["lname"]),
             'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ["fname", "mname"]),
-            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ["title", "fname", "mname", "lname"]),
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['users.title', 'users.fname', 'users.mname', 'users.lname']),
             '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
     }
@@ -192,7 +218,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      * @param array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!$fhirResource instanceof FHIRPractitioner) {
             throw new \BadMethodCallException("fhir resource must be of type " . FHIRPractitioner::class);
@@ -233,7 +259,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
                 $addressPeriod = UtilsService::getPeriodTimestamps($address->getPeriod());
                 if (empty($addressPeriod['end'])) {
                     $activeAddress = $address;
-                } else if (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
+                } elseif (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
                     // if our current period is more recent than our most recent address we want to grab that one
                     $mostRecentPeriods = $addressPeriod;
                     $activeAddress = $address;
@@ -254,7 +280,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
                 $contactValue = (string)$contactPoint->getValue();
                 if ($systemValue === 'email') {
                     $data[$systemValue] = $contactValue;
-                } else if ($systemValue == "phone") {
+                } elseif ($systemValue == "phone") {
                     $use = (string)$contactPoint->getUse();
                     $useMapping = ['mobile' => 'phonecell', 'home' => 'phone', 'work' => 'phonew1'];
                     if (isset($useMapping[$use])) {
@@ -307,12 +333,52 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
+     * When {@see self::$patientCallerView} is set each returned row is
+     * reduced to the columns on
+     * {@see UsersRowPatientAllowlist::allowedColumns()} before it reaches
+     * {@see self::parseOpenEMRRecord()}. The empty-guards in the builder
+     * then omit the corresponding FHIR fields — no changes to the builder
+     * logic needed.
+     *
      * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        return $this->practitionerService->getAll($openEMRSearchParameters, true);
+        $result = $this->practitionerService->getAll($openEMRSearchParameters, true);
+        if (!$this->patientCallerView || !$result->isValid()) {
+            return $result;
+        }
+        $filtered = new ProcessingResult();
+        $filtered->setInternalErrors($result->getInternalErrors());
+        $filtered->setValidationMessages($result->getValidationMessages());
+        foreach ($result->getData() as $row) {
+            if (!is_array($row)) {
+                $filtered->addData($row);
+                continue;
+            }
+            /** @var array<string, mixed> $row */
+            $filtered->addData(UsersRowPatientAllowlist::filterRow($row));
+        }
+        return $filtered;
+    }
+
+    /**
+     * Overrides the {@see ResourceServiceSearchTrait} hook to drop
+     * caller-supplied FHIR search parameters outside the patient
+     * allowlist. Without this the search endpoint could be used as an
+     * oracle over the columns the row filter hides (a caller could probe
+     * `email=<value>` and read presence/absence from a redacted result).
+     *
+     * @param array $fhirSearchParameters
+     * @return ISearchField[]
+     */
+    protected function createOpenEMRSearchParameters(array $fhirSearchParameters, ?string $puuidBind = null): array
+    {
+        if ($this->patientCallerView) {
+            $fhirSearchParameters = UsersRowPatientAllowlist::filterSearchParams($fhirSearchParameters);
+        }
+        return parent::createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
     }
 
     /**

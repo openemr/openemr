@@ -53,7 +53,7 @@ class RoutesExtensionListener implements EventSubscriberInterface
                 (new SearchRequestNormalizer($this->getSystemLogger()))->normalizeSearchRequest($request);
             }
             $response = $this->processFhirRequest($request, $kernel);
-        } else if ($request->isPortalRequest()) {
+        } elseif ($request->isPortalRequest()) {
             $response = $this->processPatientPortalRequest($request, $kernel);
         } else {
             $response = $this->processStandardRequest($request, $kernel);

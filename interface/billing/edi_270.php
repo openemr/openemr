@@ -29,8 +29,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcDir . '/forms.inc.php');
-require_once($srcDir . '/patient.inc.php');
 require_once($srcDir . '/options.inc.php');
 require_once($srcDir . '/appointments.inc.php');
 
@@ -199,7 +197,7 @@ if ($exclude_policy != "") {
     }
 
 // unique multidimensional array by key
-    function unique_by_key($source, $key)
+    function unique_by_key($source, $key): array
     {
         $i = 0;
         $rtn_array = [];

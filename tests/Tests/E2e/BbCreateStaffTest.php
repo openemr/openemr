@@ -27,8 +27,6 @@ class BbCreateStaffTest extends PantherTestCase
     use LoginTrait;
     use UserAddTrait;
 
-    private $crawler;
-
     protected function setUp(): void
     {
         // clean up in case still left over from prior testing

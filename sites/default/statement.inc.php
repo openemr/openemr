@@ -569,7 +569,7 @@ function create_HTML_statement($stmt)
     //  Billing Department
     //  [Your billing dept phone]
 
-function create_statement($stmt)
+function create_statement($stmt): string
 {
     if (! $stmt['pid']) {
         return ""; // get out if no data

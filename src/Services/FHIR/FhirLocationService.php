@@ -41,7 +41,7 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirLocationService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService
+class FhirLocationService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService, INonPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
@@ -100,7 +100,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
      * Returns an array mapping FHIR Location Resource search parameters to OpenEMR Location search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
@@ -353,19 +353,19 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         return $patientFacilityType;
     }
 
-    private function hasAccessToUserLocationData()
+    private function hasAccessToUserLocationData(): bool
     {
         return AclMain::aclCheckCore('admin', 'users', $this->getSession()->get("authUser")) !== false;
     }
 
-    private function shouldIncludeContactInformationForLocationType($type, $recordUuid)
+    private function shouldIncludeContactInformationForLocationType($type, $recordUuid): bool
     {
         $isPatientBoundUuid = !empty($this->patientUuid) && $this->patientUuid == $recordUuid;
         // if its not a patient requesting their own record location information we need to check permissions on this.
         if ($type == 'patient' && !$isPatientBoundUuid) {
             // only those with access to a patient's demographic information can get their data
             return AclMain::aclCheckCore("patients", "demo",$this->getSession()->get("authUser")) !== false;
-        } else if ($type == 'user') {
+        } elseif ($type == 'user') {
             // only those with access to the user information can get address information about a user.
             return $this->hasAccessToUserLocationData();
         } else {

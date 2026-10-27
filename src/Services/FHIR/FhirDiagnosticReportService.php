@@ -55,7 +55,7 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -91,7 +91,7 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
                  * @var TokenSearchField
                  */
                 $category = $fhirSearchParameters['category'];
-                $categorySearchField = new TokenSearchField('category', explode(",",$category));
+                $categorySearchField = TokenSearchField::fromEscapedFHIRString('category', $category);
                 $service = $this->getServiceForCategory(
                     $categorySearchField,
                     'LAB'

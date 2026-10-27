@@ -109,7 +109,7 @@ class TeleHealthCalendarController
 
                     if ($apptService->isCheckOutStatus($eventsByDay[$key][$i]['apptstatus'])) {
                         $eventViewClasses[] = "event_telehealth_completed";
-                    } else if ($dateTime !== false && CalendarUtils::isAppointmentDateTimeInSafeRange($dateTime)) {
+                    } elseif ($dateTime !== false && CalendarUtils::isAppointmentDateTimeInSafeRange($dateTime)) {
                         // if a provider is not enrolled we want to show that status instead of letting them launch the appt.
                         if (!$canProviderStartTelehealth) {
                             $eventViewClasses[] = "event_telehealth_unenrolled";
@@ -117,7 +117,7 @@ class TeleHealthCalendarController
                             $this->logger->debug("calendarEvent filter  Time is ", ['time' => $dateTime]);
                             $eventViewClasses[] = "event_telehealth_active";
                         }
-                    } else if ($dateTime == false) {
+                    } elseif ($dateTime == false) {
                         $this->logger->error("TeleHealthCalendarController: Failed to create DateTime object for calendar event pc_eid={pc_eid}", ['pc_eid' => $eventsByDay[$key][$i]['eid']]);
                     }
                     $eventsByDay[$key][$i]['eventViewClass'] = implode(" ", $eventViewClasses);
@@ -178,7 +178,7 @@ class TeleHealthCalendarController
             // asset
             $scripts[] = $this->getAssetPath() . "js/telehealth-calendar.js";
             $event->setScripts($scripts);
-        } else if ($this->isAppointmentPageInclude($pageName, $scriptPath)) {
+        } elseif ($this->isAppointmentPageInclude($pageName, $scriptPath)) {
             // note the cache buster is already being populated in Header.php since this script isn't a registered
             // asset
             $scripts = $event->getScripts();
@@ -228,18 +228,18 @@ class TeleHealthCalendarController
         }
     }
 
-    private function isAppointmentPageInclude($pageName, $scriptPath)
+    private function isAppointmentPageInclude($pageName, $scriptPath): bool
     {
         // make sure our script path is in calendar
         return $pageName == "add_edit_event.php" && basename(dirname((string) $scriptPath)) == 'calendar';
     }
 
-    private function isCalendarPageInclude($pageName)
+    private function isCalendarPageInclude($pageName): bool
     {
         return $pageName == 'pnuserapi.php' || $pageName == 'pnadmin.php';
     }
 
-    private function getAssetPath()
+    private function getAssetPath(): string
     {
         return $this->assetPath;
     }

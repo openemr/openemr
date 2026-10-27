@@ -24,7 +24,7 @@
 
 class AMC_304b_2_STG2_Numerator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304b_2_STG2 Numerator";
     }

@@ -14,7 +14,6 @@
  */
 
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/api.inc.php");
 require_once("$srcdir/group.inc.php");
 
 use OpenEMR\BC\Utilities;
@@ -42,7 +41,7 @@ if ($viewmode) {
 }
 
 // Sort comparison for sensitivities by their order attribute.
-function sensitivity_compare($a, $b)
+function sensitivity_compare($a, $b): int
 {
     return ($a[2] < $b[2]) ? -1 : 1;
 }

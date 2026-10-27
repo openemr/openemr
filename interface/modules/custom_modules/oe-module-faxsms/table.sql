@@ -23,19 +23,26 @@ CREATE TABLE IF NOT EXISTS `oe_faxsms_queue` (
 `mime` tinytext,
 `details_json` longtext,
 PRIMARY KEY (`id`),
-KEY `uid` (`uid`,`receive_date`)
+KEY `uid` (`uid`,`receive_date`),
+KEY `receive_date` (`receive_date`)
 ) ENGINE=InnoDB COMMENT='Fax queue';
 
-# IfNotRow categories name FAX
+#IfNotRow categories name FAX
 SET @max_rght = (SELECT MAX(rght) FROM categories);
 INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'FAX', '', 1, @max_rght, @max_rght + 1, 'patients|docs' from categories where name = 'Categories';
 UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
 UPDATE categories_seq SET id = (select MAX(id) from categories);
-#Endif
+#EndIf
 
 #IfMissingColumn module_faxsms_credentials updated
 ALTER TABLE `module_faxsms_credentials` ADD `updated` DATETIME DEFAULT CURRENT_TIMESTAMP;
-#Endif
+#EndIf
+
+-- The fax list filters on receive_date alone. Without this index it scans
+-- every row, reading each stored fax image (details_json) on the way.
+#IfNotIndex oe_faxsms_queue receive_date
+ALTER TABLE `oe_faxsms_queue` ADD INDEX `receive_date` (`receive_date`);
+#EndIf
 
 #IfIndex oe_faxsms_queue uniq_account_job_id
 ALTER TABLE `oe_faxsms_queue` DROP INDEX `uniq_account_job_id`;

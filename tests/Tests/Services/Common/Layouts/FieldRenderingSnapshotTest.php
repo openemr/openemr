@@ -539,8 +539,7 @@ final class FieldRenderingSnapshotTest extends TestCase
                     generate_form_field($frow, $currvalue);
                     break;
                 case 'display':
-                    $displayResult = generate_display_field($frow, $currvalue);
-                    $returned = is_string($displayResult) ? $displayResult : '';
+                    $returned = generate_display_field($frow, $currvalue);
                     break;
                 case 'print':
                     generate_print_field($frow, $currvalue);

@@ -248,7 +248,10 @@ class Pharmacy extends ORDataObject
         });
     }
 
-    public function utility_pharmacy_array()
+    /**
+     * @return non-falsy-string[]
+     */
+    public function utility_pharmacy_array(): array
     {
         $pharmacy_array = [];
         $sql = "SELECT p.id, p.name, a.city, a.state " .
@@ -266,7 +269,10 @@ class Pharmacy extends ORDataObject
         return ($pharmacy_array);
     }
 
-    public function pharmacies_factory()
+    /**
+     * @return Pharmacy[]
+     */
+    public function pharmacies_factory(): array
     {
         $p = new Pharmacy();
         $pharmacies = [];
@@ -293,7 +299,7 @@ class Pharmacy extends ORDataObject
         return $res['state'];
     }
 
-    public function toString($html = false)
+    public function toString($html = false): string
     {
         $phoneDisplay = ($this->phone_numbers[0] ?? null)?->formatLocal() ?? '';
         $string = "\n"
@@ -313,7 +319,7 @@ class Pharmacy extends ORDataObject
         return $count['numberof'];
     }
 
-    public function getPageno()
+    public function getPageno(): int
     {
         return $this->pageno = 1;
     }

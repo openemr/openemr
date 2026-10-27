@@ -16,10 +16,8 @@ use OpenEMR\BC\Utilities;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../globals.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
-require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 
-function US_weight($pounds, $mode = 1)
+function US_weight($pounds, $mode = 1): string
 {
 
     if ($mode == 1) {

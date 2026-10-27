@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # ============================================================================
-# OpenEMR Dockerfile for Version 8.1.1
+# OpenEMR Dockerfile for Version 8.4.1
 # ============================================================================
 # This Dockerfile builds a production-ready OpenEMR container image with:
 #   - Apache web server for serving OpenEMR
@@ -29,6 +29,9 @@ FROM alpine:${ALPINE_VERSION} AS base
 # Important: When updating PHP version, also update php.ini file to match
 ARG PHP_VERSION=8.5
 ENV PHP_VERSION=${PHP_VERSION}
+# Fails the build rather than ship a PHP missing a security fix that Alpine
+# has not packaged yet
+ARG PHP_MIN_VERSION=8.5.12
 # Create abbreviated version (e.g., "8.5" -> "85") for package naming
 ARG PHP_VERSION_ABBR=${PHP_VERSION//./}
 ENV PHP_VERSION_ABBR=${PHP_VERSION_ABBR}
@@ -45,7 +48,7 @@ RUN apk --no-cache upgrade
 # apache2-utils (utilities), bash (shell), certbot (Let's Encrypt), curl (HTTP client),
 # dcron (scheduled tasks), git (version control), imagemagick (image processing),
 # mariadb-client (database client), mariadb-connector-c (DB connector), ncurses (terminal),
-# nodejs/npm (JavaScript runtime), openssl/openssl-dev (cryptography), perl (interpreter),
+# openssl/openssl-dev (cryptography), perl (interpreter),
 # rsync (file sync), shadow (user management), su-exec (lightweight privilege-drop
 # tool used by run_php_as_apache to invoke OpenEMR CLI scripts as the apache user
 # without an intermediate shell — busybox `su` rescans options across the whole
@@ -64,8 +67,6 @@ RUN apk add --no-cache \
     mariadb-client \
     mariadb-connector-c \
     ncurses \
-    nodejs \
-    npm \
     openssl \
     openssl-dev \
     perl \
@@ -85,7 +86,7 @@ RUN apk add --no-cache \
 # Performance: php-opcache, php-pecl-apcu, php-redis, php-session
 # Other: php-fpm, php-phar, php-zip, php-zlib, php-ldap, php-sockets, php-tokenizer
 RUN apk add --no-cache \
-    php${PHP_VERSION_ABBR} \
+    "php${PHP_VERSION_ABBR}>=${PHP_MIN_VERSION}" \
     php${PHP_VERSION_ABBR}-apache2 \
     php${PHP_VERSION_ABBR}-bcmath \
     php${PHP_VERSION_ABBR}-calendar \
@@ -132,8 +133,11 @@ RUN sed -i 's/^Listen 80$/Listen 0.0.0.0:80/' /etc/apache2/httpd.conf
 # ============================================================================
 # Set Apache user UID to 1000 to ensure consistent permissions across
 # shared volumes when using multiple containers (OpenEMR, nginx, php-fpm)
-# This prevents permission conflicts in multi-container deployments
-RUN usermod -u 1000 apache
+# This prevents permission conflicts in multi-container deployments.
+# Override with --build-arg APACHE_UID=<uid> to match a dedicated host account
+# that owns bind-mounted site directories (uid 1000 is often a person's login).
+ARG APACHE_UID=1000
+RUN usermod -u "${APACHE_UID}" apache
 
 # ============================================================================
 # PHP CONFIGURATION
@@ -153,13 +157,16 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 # Use git clone instead of GitHub archive because OpenEMR's .gitattributes
 # marks tests/, phpunit*.xml, and other dev files as export-ignore, which
 # excludes them from archives but not from clones.
-# Supports branches or tags via OPENEMR_VERSION build argument.
+# Supports branches or tags via OPENEMR_VERSION build argument, and building
+# from a fork or mirror via OPENEMR_GIT (must be clonable without credentials).
 # Examples:
 #   - Branch: --build-arg OPENEMR_VERSION=master
-#   - Tag:    --build-arg OPENEMR_VERSION=v7.0.5
+#   - Tag:    --build-arg OPENEMR_VERSION=v8_4_1
+#   - Fork:   --build-arg OPENEMR_GIT=https://github.com/<you>/openemr.git --build-arg OPENEMR_VERSION=<branch>
 ARG OPENEMR_VERSION=master
 FROM base AS openemr-source
-RUN git clone https://github.com/openemr/openemr.git --branch "${OPENEMR_VERSION}" --depth 1 \
+ARG OPENEMR_GIT=https://github.com/openemr/openemr.git
+RUN git clone "${OPENEMR_GIT}" --branch "${OPENEMR_VERSION}" --depth 1 openemr \
     && rm -rf openemr/.git
 
 # Stage 2: Install PHP dependencies (Composer)
@@ -167,10 +174,29 @@ RUN git clone https://github.com/openemr/openemr.git --branch "${OPENEMR_VERSION
 FROM base AS openemr-composer
 COPY --from=openemr-source /openemr /openemr
 WORKDIR /openemr
+# GitHub zipball 504s are common when Composer pulls many dist files in
+# parallel. Retry both per-file (COMPOSER_MAX_RETRIES) and the whole
+# install; the cache mount keeps successful downloads so retries are cheap.
+ENV COMPOSER_MAX_RETRIES=8
 # Use Docker buildkit cache mount for Composer cache (requires DOCKER_BUILDKIT=1)
-RUN --mount=type=cache,target=/root/.composer/cache \
-    composer install --no-dev --optimize-autoloader \
-    && composer dump-autoload --optimize --apcu
+# POSIX test, not (( )): this RUN executes under Alpine's busybox ash, which
+# parses (( )) as nested subshells rather than arithmetic.
+RUN --mount=type=cache,target=/root/.composer/cache <<EOF
+set -e
+attempt=1
+max_attempts=5
+until composer install --no-dev --optimize-autoloader; do
+    if [ "${attempt}" -ge "${max_attempts}" ]; then
+        printf 'ERROR: composer install failed after %s attempts\n' "${attempt}" >&2
+        exit 1
+    fi
+    printf 'WARNING: composer install failed (attempt %s/%s), retrying in 15s...\n' \
+        "${attempt}" "${max_attempts}" >&2
+    attempt=$((attempt + 1))
+    sleep 15
+done
+composer dump-autoload --optimize --apcu
+EOF
 
 # Stage 3: Build frontend assets (npm)
 # Separate stage allows Docker to cache npm dependencies independently
@@ -182,9 +208,6 @@ RUN apk add --no-cache build-base nodejs npm
 RUN --mount=type=cache,target=/root/.npm \
     npm install \
     && npm run build \
-    && cd ccdaservice \
-    && npm install --allow-git=all \
-    && cd .. \
     && rm -fr node_modules \
     && apk del --no-cache build-base
 
@@ -197,9 +220,9 @@ COPY --from=openemr-source /openemr /tmp/openemr
 COPY --from=openemr-composer /openemr/vendor /tmp/openemr/vendor
 COPY --from=openemr-composer /openemr/composer.json /tmp/openemr/composer.json
 COPY --from=openemr-composer /openemr/composer.lock /tmp/openemr/composer.lock
+COPY --from=openemr-composer /openemr/interface/modules/custom_modules /tmp/openemr/interface/modules/custom_modules
 # Copy built assets
 COPY --from=openemr-assets /openemr/public /tmp/openemr/public
-COPY --from=openemr-assets /openemr/ccdaservice /tmp/openemr/ccdaservice
 
 RUN cd /tmp \
     # =========================================================================
@@ -291,6 +314,9 @@ COPY upgrade/docker-version \
      upgrade/fsupgrade-11.sh \
      upgrade/fsupgrade-12.sh \
      upgrade/fsupgrade-13.sh \
+     upgrade/fsupgrade-14.sh \
+     upgrade/fsupgrade-15.sh \
+     upgrade/fsupgrade-16.sh \
      /root/
 
 # Set upgrade scripts as executable (read and execute for owner only)
@@ -307,7 +333,10 @@ RUN chmod 500 \
     /root/fsupgrade-10.sh \
     /root/fsupgrade-11.sh \
     /root/fsupgrade-12.sh \
-    /root/fsupgrade-13.sh
+    /root/fsupgrade-13.sh \
+    /root/fsupgrade-14.sh \
+    /root/fsupgrade-15.sh \
+    /root/fsupgrade-16.sh
 
 # ============================================================================
 # APACHE RUNTIME DIRECTORY
@@ -437,12 +466,12 @@ FROM production AS final
 # went in. All three values are supplied at build time by the CI workflow
 # (docker-build-release.yml), which derives:
 #   OPENEMR_VERSION  = the openemr_version_ref from release-targets.yml
-#                      (e.g., "master", "v8_1_0", "rel-810")
+#                      (e.g., "master", "v8_4_1", "rel-840")
 #   IMAGE_VERSION    = the human-facing openemr release version, composed
 #                      from version.php's $v_major/$v_minor/$v_patch/$v_tag/
 #                      $v_realpatch at the openemr_version_ref
-#                      (e.g., "8.1.1-dev" for master, "8.1.0" for v8_1_0,
-#                      "8.1.0.1" for v8_1_0_1)
+#                      (e.g., "8.5.0-dev" for master, "8.4.1" for v8_4_1,
+#                      "8.0.0.3" for v8_0_0_3)
 #   BUILD_DATE       = ISO-8601 date the image was built
 ARG IMAGE_VERSION=
 ARG BUILD_DATE=unknown

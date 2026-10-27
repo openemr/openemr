@@ -68,6 +68,10 @@ on:
         description: Skip unpublished GHSA check
         type: boolean
         default: false
+      skip_acceptance_gate:
+        description: Skip the acceptance-package matrix gate (independent of dry_run). Set true when a downstream workflow already runs the acceptance matrix separately (e.g. recovery-path-smoketest dispatches acceptance-only variants of its own). Leave false for ship-release dry-runs — the whole point of dry-run is a full rehearsal including acceptance.
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       version_branch:
@@ -96,6 +100,10 @@ on:
         default: false
       skip_ghsa_check:
         description: Skip unpublished GHSA check
+        type: boolean
+        default: false
+      skip_acceptance_gate:
+        description: Skip the acceptance-package matrix gate (independent of dry_run). Set true when a downstream workflow already runs the acceptance matrix separately (e.g. recovery-path-smoketest dispatches acceptance-only variants of its own). Leave false for ship-release dry-runs — the whole point of dry-run is a full rehearsal including acceptance.
         type: boolean
         default: false
 
@@ -266,10 +274,15 @@ jobs:
   # wizard-upgrade) against the tarball build-package just uploaded.
   # Publish job only fires if this passes.
   #
-  # Skipped on dry_run — the acceptance gate exists to prevent broken
-  # tarballs from reaching the GitHub releases page, so it's redundant
-  # when publish is skipped. That also keeps dry-run runtime bounded
-  # to just the build step.
+  # Skipped when `skip_acceptance_gate=true` — independent of dry_run
+  # (G43 decoupling, 2026-09-19). Ship-release's `mode=dry-run` is a
+  # full-rehearsal signal so acceptance MUST run there; the recovery-
+  # path smoketest dispatches build-release with `skip_acceptance_gate
+  # =true` because it runs its own variant-A + variant-B acceptance-
+  # only matrices downstream and running acceptance here would
+  # duplicate ~30 min of work. Pre-decoupling both cases were tied
+  # to `dry_run` which meant ship-release dry-run silently skipped
+  # the acceptance matrix — defeating the "rehearsal" intent.
   #
   # Runs against the release branch's copy of acceptance-package.yml
   # (@${{ inputs.version_branch }}), NOT the caller's ref. This matches
@@ -281,7 +294,7 @@ jobs:
   acceptance-gate:
     name: Acceptance gate
     needs: [build-package]
-    if: '!inputs.dry_run'
+    if: '!inputs.skip_acceptance_gate'
     uses: ./.github/workflows/acceptance-package.yml
     with:
       # Both caller_* inputs reference the SAME artifact name because

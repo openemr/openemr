@@ -46,9 +46,8 @@ class ClinicalNotesService extends BaseService
      *
      * @param ISearchField[] $search Hashmap of string => ISearchField where the key is the field name of the search field
      * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
-     * @return ProcessingResult The results of the search.
      */
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         // because we can have two clinical note table options (one from contrib etc), we will return an empty search
         // result for now if the table does not conform to our CORE clinical_notes
@@ -220,6 +219,7 @@ class ClinicalNotesService extends BaseService
         );
     }
 
+    /** @return array<mixed>|null */
     public function getClinicalRecordNoteById($id)
     {
         $sql = "select * from `form_clinical_notes` WHERE id = ? ";
@@ -240,6 +240,10 @@ class ClinicalNotesService extends BaseService
         return $form_id;
     }
 
+    /**
+     * @param array<string, mixed> $record
+     * @return array<mixed>
+     */
     public function saveArray(array $record)
     {
         $form_id = $record['form_id'] ?? null;
@@ -254,10 +258,35 @@ class ClinicalNotesService extends BaseService
             throw new \InvalidArgumentException("Record, form_id, pid, authorized and encounter must be populated");
         }
 
+        if (!is_scalar($form_id) || !is_scalar($pid) || !is_scalar($encounter)) {
+            throw new \InvalidArgumentException("Clinical note form, patient and encounter identifiers must be scalar");
+        }
+
         unset($record['id']);
-        // we grab the existing record so we can populate the uuid if necessary
-        if (isset($id)) {
+        // Existing notes retain their original author and creation metadata. A form
+        // save by another user must not modify an otherwise unchanged note.
+        if ($id !== null && $id !== '' && $id !== 0 && $id !== '0') {
             $existingRecord = $this->getClinicalRecordNoteById($id);
+            if (
+                $existingRecord === null
+                || $existingRecord === []
+                || !is_scalar($existingRecord['form_id'])
+                || !is_scalar($existingRecord['pid'])
+                || !is_scalar($existingRecord['encounter'])
+                || (string) $existingRecord['form_id'] !== (string) $form_id
+                || (string) $existingRecord['pid'] !== (string) $pid
+                || (string) $existingRecord['encounter'] !== (string) $encounter
+            ) {
+                throw new \InvalidArgumentException("Clinical note does not belong to the patient encounter form");
+            }
+
+            foreach (['user', 'groupname', 'authorized'] as $field) {
+                $record[$field] = $existingRecord[$field];
+            }
+
+            if (!$this->hasClinicalNoteChanges($record, $existingRecord)) {
+                return $existingRecord;
+            }
         }
 
         if (empty($form_id)) {
@@ -287,6 +316,38 @@ class ClinicalNotesService extends BaseService
         }
         // if we want the id&uuid back we need to return the record here
         return $record;
+    }
+
+    /**
+     * Compare submitted values with database values without treating form
+     * serialization differences as edits. Do not trim clinical text: changes
+     * to whitespace within a note are still edits.
+     *
+     * @param array<string, mixed> $record
+     * @param array<mixed> $existingRecord
+     */
+    protected function hasClinicalNoteChanges(array $record, array $existingRecord): bool
+    {
+        foreach ($record as $field => $value) {
+            $existingValue = $existingRecord[$field] ?? null;
+            if (($value !== null && !is_scalar($value)) || ($existingValue !== null && !is_scalar($existingValue))) {
+                throw new \InvalidArgumentException("Clinical note values must be scalar or null");
+            }
+            // Related issues are derived from the narrative; older notes may
+            // store NULL or an empty string instead of the empty JSON array.
+            if ($field === 'note_related_to') {
+                $value = $value ?: '[]';
+                $existingValue = $existingValue ?: '[]';
+            }
+            // Browsers submit textarea newlines as CRLF, even for stored LF text.
+            $submittedText = str_replace(["\r\n", "\r"], "\n", (string) $value);
+            $existingText = str_replace(["\r\n", "\r"], "\n", (string) $existingValue);
+            if ($submittedText !== $existingText) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getClinicalNoteIdsForPatientForm(int $formid, $pid, $encounter)
@@ -337,7 +398,7 @@ class ClinicalNotesService extends BaseService
      * @param $code string
      * @return bool true if the code is valid, false otherwise
      */
-    public function isValidClinicalNoteCode($code)
+    public function isValidClinicalNoteCode($code): bool
     {
         // make it a LOINC code
         if (!str_contains((string) $code, ":")) {
@@ -364,7 +425,7 @@ class ClinicalNotesService extends BaseService
         return $this->getListAsSelectList($options);
     }
 
-    private function getListAsSelectList($optionsList)
+    private function getListAsSelectList($optionsList): array
     {
         if (empty($optionsList)) {
             return [];

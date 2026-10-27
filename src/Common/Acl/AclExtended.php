@@ -30,6 +30,22 @@ class AclExtended
     // Holds the static GaclApi object
     private static $gaclApiObject;
 
+    /**
+     * Per-request memo of getUserPermissions() results, keyed by username.
+     * Mutation paths must call clearUserPermissionsCache() before re-checking.
+     *
+     * @var array<string, array<mixed>>
+     */
+    private static array $userPermissionsCache = [];
+
+    // Any membership or ACL change can affect any cached user result and the
+    // superuser probe cached in AclMain, so drop both on any mutation.
+    private static function resetAclCaches(): void
+    {
+        self::$userPermissionsCache = [];
+        AclMain::clearSuperuserCache();
+    }
+
     // Collect the stored GaclApi object (create it if it doesn't yet exist)
     //  Sharing one object will prevent opening a database connection for every call to GaclApi.
     private static function collectGaclApiObject()
@@ -44,7 +60,7 @@ class AclExtended
     // Return an array keyed on squad ACO names.
     // This is only applicable for sports team use.
     //
-    public static function aclGetSquads()
+    public static function aclGetSquads(): array
     {
         $squads = self::aclGetSectionAcos('squads');
         uasort($squads, self::aclSquadCompare(...));
@@ -68,10 +84,11 @@ class AclExtended
         return self::aclGetSectionAcos('sensitivities');
     }
 
-    // Get the ACO name/value pairs for a designated section.  Each value
-    // is an array (section_value, value, order_value, name, hidden).
-    //
-    private static function aclGetSectionAcos($section)
+    /**
+     * Get the ACO name/value pairs for a designated section.  Each value
+     * is an array (section_value, value, order_value, name, hidden).
+     */
+    private static function aclGetSectionAcos($section): array
     {
         $gacl = self::collectGaclApiObject();
         $arr1 = $gacl->get_objects($section, 1, 'ACO');
@@ -86,7 +103,7 @@ class AclExtended
     }
 
     // Sort squads by their order value.  Used only by aclGetSquads().
-    private static function aclSquadCompare($a, $b)
+    private static function aclSquadCompare($a, $b): int
     {
         if ($a[2] == $b[2]) {
             // If order value is the same, sort by squad name.
@@ -116,7 +133,7 @@ class AclExtended
     //
     // Returns a sorted array of all available Group Titles.
     //
-    public static function aclGetGroupTitleList($include_superusers = true)
+    public static function aclGetGroupTitleList($include_superusers = true): array
     {
         $gacl = self::collectGaclApiObject();
         $parent_id = $gacl->get_root_group_id();
@@ -324,6 +341,7 @@ class AclExtended
                 break;
             }
         }
+        self::resetAclCaches();
         return true;
     }
 
@@ -404,6 +422,7 @@ class AclExtended
                 $note
             );
         }
+        self::resetAclCaches();
         return;
     }
 
@@ -427,6 +446,7 @@ class AclExtended
             $group_id = $gacl->get_group_id(null, $acl_title, 'ARO');
             $gacl->del_group($group_id, true, 'ARO');
         }
+        self::resetAclCaches();
         return;
     }
 
@@ -446,6 +466,7 @@ class AclExtended
             $aco_name = $aco_data[0][1];
             $gacl->append_acl($acl_id[0], null, null, null, null, [$aco_section => [$aco_name]]);
         }
+        self::resetAclCaches();
         return;
     }
 
@@ -482,6 +503,7 @@ class AclExtended
             $aco_name = $aco_data[0][1];
             $gacl->shift_acl($acl_id[0], null, null, null, null, [$aco_section => [$aco_name]]);
         }
+        self::resetAclCaches();
         return;
     }
 
@@ -491,7 +513,7 @@ class AclExtended
     //   $acl_title = title of acl (string)
     //   $return_value = return value of acl (string)
     //
-    private static function aclCountAcos($acl_title, $return_value)
+    private static function aclCountAcos($acl_title, $return_value): int
     {
         $gacl = self::collectGaclApiObject();
         $acl_id = $gacl->search_acl(false, false, false, false, $acl_title, false, false, false, $return_value);
@@ -503,10 +525,10 @@ class AclExtended
         return $aco_count;
     }
 
-    //
-    // Function to remove an element from an array
-    //
-    private static function removeElement($arr, $val)
+    /**
+     * Function to remove an element from an array
+     */
+    private static function removeElement($arr, $val): array
     {
         $arr2 = [];
         foreach ($arr as $value) {
@@ -520,7 +542,7 @@ class AclExtended
     // This generates an HTML options list for all ACOs.
     // The caller inserts this between <select> and </select> tags.
     //
-    public static function genAcoHtmlOptions($default = '')
+    public static function genAcoHtmlOptions($default = ''): string
     {
         $acoArray = self::genAcoArray();
         $s = '';
@@ -542,7 +564,7 @@ class AclExtended
 
 
     // Returns array of all ACOs
-    public static function genAcoArray()
+    public static function genAcoArray(): array
     {
         $acoArray = [];
         $gacl = self::collectGaclApiObject();
@@ -569,7 +591,7 @@ class AclExtended
     }
 
     // check if aro group have superuser rule
-    public static function isGroupIncludeSuperuser($aro_group_name)
+    public static function isGroupIncludeSuperuser($aro_group_name): bool
     {
         $gacl = self::collectGaclApiObject();
         return !empty($gacl->search_acl('admin', 'super', false, false, $aro_group_name));
@@ -579,7 +601,7 @@ class AclExtended
     // Returns acl listings(including return value) via xml message.
     //   $err = error strings (array)
     //
-    public static function aclListingsXml($err)
+    public static function aclListingsXml($err): string
     {
         $gacl = self::collectGaclApiObject();
 
@@ -624,7 +646,7 @@ class AclExtended
     //   $return_value = return value (string)
     //   $err = error strings (array)
     //
-    public static function acoListingsXml($group, $return_value, $err)
+    public static function acoListingsXml($group, $return_value, $err): string
     {
         $gacl = self::collectGaclApiObject();
 
@@ -727,7 +749,7 @@ class AclExtended
     // Returns listing of all possible return values via xml message.
     //   $err = error strings (array)
     //
-    public static function returnValuesXml($err)
+    public static function returnValuesXml($err): string
     {
         $gacl = self::collectGaclApiObject();
         $returns = [];
@@ -1024,6 +1046,7 @@ class AclExtended
                 break;
         }
 
+        self::resetAclCaches();
         return;
     }
 
@@ -1061,6 +1084,7 @@ class AclExtended
                 break;
         }
 
+        self::resetAclCaches();
         return;
     }
 
@@ -1097,11 +1121,17 @@ class AclExtended
      * @param  string  $username              Name of user
      * @return array                          The array of ACOs
      */
-    public static function getUserPermissions($username = '')
+    public static function getUserPermissions($username = ''): array
     {
         if (!$username) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             $username = $session->get('authUser');
+        }
+        // Cache only when $username is a string so we never memoize under a
+        // coerced key. Non-string usernames fall through to the original path.
+        $cacheKey = is_string($username) ? $username : null;
+        if ($cacheKey !== null && array_key_exists($cacheKey, self::$userPermissionsCache)) {
+            return self::$userPermissionsCache[$cacheKey];
         }
         $gacl = self::collectGaclApiObject();
         $perms = [];
@@ -1111,7 +1141,15 @@ class AclExtended
                 self::getGroupPermissions($group_name, $perms);
             }
         }
+        if ($cacheKey !== null) {
+            self::$userPermissionsCache[$cacheKey] = $perms;
+        }
         return $perms;
+    }
+
+    public static function clearUserPermissionsCache(): void
+    {
+        self::$userPermissionsCache = [];
     }
 
     /**

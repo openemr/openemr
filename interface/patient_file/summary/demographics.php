@@ -34,8 +34,6 @@ $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 // fetchNextXAppts() (in library/appointments.inc.php) writes $resNotNull via the
 // global keyword to signal whether the appointments query returned a non-null result.
 $resNotNull = false;
-require_once($srcdir . "/lists.inc.php");
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once("../history/history.inc.php");
 require_once($srcdir . "/clinical_rules.php");
@@ -153,7 +151,7 @@ function getHiddenDashboardCards(): array
     return $hiddenList;
 }
 
-function print_as_money($money)
+function print_as_money($money): string
 {
     preg_match("/(\d*)\.?(\d*)/", (string) $money, $moneymatches);
     $tmp = wordwrap(strrev($moneymatches[1]), 3, ",", 1);
@@ -170,7 +168,7 @@ function print_as_money($money)
 }
 
 // get an array from Photos category
-function pic_array($pid, $picture_directory)
+function pic_array($pid, $picture_directory): array
 {
     $pics = [];
     $sql_query = "select documents.id from documents join categories_to_documents " .
@@ -199,7 +197,7 @@ function get_document_by_catg($pid, $doc_catg, $limit = 1)
             AND cd.document_id = d.id
             AND c.id = cd.category_id
             AND c.name LIKE ?
-            ORDER BY d.date DESC LIMIT " . escape_limit($limit), [$pid, $doc_catg]);
+            ORDER BY d.date DESC LIMIT ?", [$pid, $doc_catg, $limit]);
         while ($result = sqlFetchArray($query)) {
             $results[] = $result['id'];
         }
@@ -286,7 +284,7 @@ function isEnforceSigninEmailPortal(): bool
     return false;
 }
 
-function deceasedDays($days_deceased)
+function deceasedDays($days_deceased): string
 {
     $deceased_days = intval($days_deceased['days_deceased'] ?? '');
     if ($deceased_days == 0) {
