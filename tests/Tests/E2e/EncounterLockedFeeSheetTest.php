@@ -156,6 +156,15 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
             $this->openFormsList($signedEncounter);
             $this->assertSame('locked', $this->formButtonState('misc_billing_options', $signedMiscBilling), 'Misc Billing Options signed and locked on its own should stay locked');
             $this->assertSame(['fee_sheet'], $this->encounterMenuForms($signedEncounter), 'The menu should not open a Misc Billing Options form locked on its own');
+
+            // Reviewing another encounter keeps the session encounter, whose
+            // Misc Billing Options form the menu would open, so it's left out.
+            $this->client->request('GET', '/interface/patient_file/encounter/encounter_top.php?set_encounter=' . $this->lockedEncounter);
+            $this->client->request('GET', '/interface/patient_file/encounter/forms.php?review_id=' . $this->unlockedEncounter);
+            $this->client->waitFor('#navbarEncounterTitle');
+            $reviewed = $this->menuForms();
+            $this->assertNotContains('misc_billing_options', $reviewed, 'Reviewing another encounter should not offer the session encounter\'s Misc Billing Options');
+            $this->assertContains('fee_sheet', $reviewed);
         } finally {
             try {
                 if (isset($this->client)) {
@@ -216,7 +225,16 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
         $this->client->request('GET', '/interface/patient_file/encounter/encounter_top.php?set_encounter=' . $encounter);
         $this->client->request('GET', '/interface/patient_file/encounter/forms.php');
         $this->client->waitFor('#navbarEncounterTitle');
+        return $this->menuForms();
+    }
 
+    /**
+     * The formname of every form link in the form menu on the current page.
+     *
+     * @return list<string>
+     */
+    private function menuForms(): array
+    {
         $forms = $this->client->executeScript(<<<'JS'
             var forms = [];
             document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(function (item) {

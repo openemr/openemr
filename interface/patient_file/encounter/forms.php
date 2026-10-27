@@ -40,6 +40,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -609,20 +610,23 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
         return false;
     };
 
-    // The menu's Misc Billing Options opens the encounter's existing form (one
-    // per encounter) without its id, so it's left out when that form is locked
-    // on its own; otherwise the menu would open a locked form for editing.
-    $miscBillingLocked = false;
-    $menuEncounter = OEGlobalsBag::getInstance()->get('encounter');
-    if (is_numeric($menuEncounter)) {
+    // The menu's Misc Billing Options opens the session encounter's existing form
+    // (one per encounter) without its id; misc_billing_options/new.php reads the
+    // encounter from the session. So it's left out when reviewing another
+    // encounter (review mode doesn't change the session encounter), which would
+    // open the session encounter's form, and when that form is locked on its
+    // own, which would open a locked form for editing.
+    $sessionEncounter = EncounterSessionUtil::getEncounter();
+    $hideMiscBilling = $reviewMode && (!is_numeric($encounter) || (int) $encounter !== $sessionEncounter);
+    if (!$hideMiscBilling && $sessionEncounter > 0) {
         $miscBillingForms = QueryUtils::fetchTableColumn(
             "SELECT id FROM forms WHERE encounter = ? AND formdir = 'misc_billing_options' AND deleted = 0",
             'id',
-            [$menuEncounter]
+            [$sessionEncounter]
         );
         foreach ($miscBillingForms as $miscBillingForm) {
-            if ($formLockedOnItsOwn($esignApi->createFormESign($miscBillingForm, 'misc_billing_options', $menuEncounter))) {
-                $miscBillingLocked = true;
+            if ($formLockedOnItsOwn($esignApi->createFormESign($miscBillingForm, 'misc_billing_options', $sessionEncounter))) {
+                $hideMiscBilling = true;
                 break;
             }
         }
@@ -631,7 +635,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
 
     // Convert the flat list of menu items into a multi-dimensional array based on the category
     // decide what will be displayed (name or nickname)
-    $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) use ($encounterLocked, $lockedEncounterBillingForms, $miscBillingLocked, $questionnaireAvailability, $questionnaireContext) {
+    $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) use ($encounterLocked, $lockedEncounterBillingForms, $hideMiscBilling, $questionnaireAvailability, $questionnaireContext) {
         $menuArray = $menuEvent->getMenuData();
         $reg = $questionnaireAvailability->filterEncounterFormRows(
             getFormsByCategory(),
@@ -651,7 +655,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
             if ($encounterLocked && !in_array($item['directory'] ?? null, $lockedEncounterBillingForms, true)) {
                 continue;
             }
-            if ($miscBillingLocked && ($item['directory'] ?? null) === 'misc_billing_options') {
+            if ($hideMiscBilling && ($item['directory'] ?? null) === 'misc_billing_options') {
                 continue;
             }
             $tmp = explode('|', (string) $item['aco_spec']);
