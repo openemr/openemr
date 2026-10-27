@@ -205,7 +205,7 @@ class X12RemoteTracker extends BaseService
         if (is_array($fields['messages'])) {
             $fields['messages'] = json_encode($fields['messages']);
         }
-        $fields['updated_at'] = date('Y-m-d h:i:s');
+        $fields['updated_at'] = date('Y-m-d H:i:s');
         $query = $this->buildUpdateColumns($this->onlyRealFields($fields));
         $sql = "UPDATE x12_remote_tracker SET ";
         $sql .= $query['set'];
