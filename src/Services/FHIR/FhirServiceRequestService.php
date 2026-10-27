@@ -301,7 +301,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
             // note this will only work if we have single code usage of codetype:value multiple code usage
             // of codetype:value1;codetype:value2 won't work here
             if (!empty($stringCodeValues)) {
-                $compositeSearch->addChild(new StringSearchField('procedure_code', $stringCodeValues, SearchModifier::SUFFIX));
+                $compositeSearch->addChild(new StringSearchField('procedure_code', $stringCodeValues, SearchModifier::SUFFIX, isLiteral: true));
                 // also add exact match for codes without codetype prefix in case someone is
                 $compositeSearch->addChild(new StringSearchField('procedure_code', $exactStringCodeValues, SearchModifier::EXACT));
             }

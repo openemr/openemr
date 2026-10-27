@@ -9147,11 +9147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\QuestionnaireResponseService\\:\\:extractAnswerValue\\(\\) should return string but returns mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\QuestionnaireResponseService\\:\\:groupByItemsRecursively\\(\\) should return array but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
