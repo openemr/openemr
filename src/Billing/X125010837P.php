@@ -299,6 +299,9 @@ class X125010837P
             if (self::nineDigitZipApplies($claim->billingFacilityCountry(), (string) $claim->billingFacilityZip())) {
                 $log .= self::BILLING_ZIP_LOG . "\n";
             }
+            if (self::foreignPostalLosesLetters($claim->billingFacilityCountry(), $claim->billingFacilityPostalCode())) {
+                $log .= self::BILLING_POSTAL_LOSS_LOG . "\n";
+            }
             $out .= $claim->billingFacilityZip();
             $out .= "~\n";
 
@@ -1037,6 +1040,9 @@ class X125010837P
             if (self::nineDigitZipApplies($claim->facilityCountry(), (string) $claim->facilityZip())) {
                 $log .= self::SERVICE_ZIP_LOG . "\n";
             }
+            if (self::foreignPostalLosesLetters($claim->facilityCountry(), $claim->facilityPostalCode())) {
+                $log .= self::SERVICE_POSTAL_LOSS_LOG . "\n";
+            }
             $out .= $claim->facilityZip();
             $out .= "~\n";
         }
@@ -1688,16 +1694,59 @@ class X125010837P
         if (strlen($zip) === 9) {
             return false;
         }
-        $letters = strtoupper(preg_replace('/[^A-Za-z]/', '', $country) ?? '');
+        $letters = self::countryLetters($country);
         if ($letters === '') {
             return true;
         }
 
+        return self::isUnitedStates($letters);
+    }
+
+    /**
+     * A named country outside the United States whose stored postal
+     * code contains a letter. Digit reduction drops that letter, and
+     * loop 2010AA or 2310C does not carry the country.
+     */
+    private static function foreignPostalLosesLetters(string $country, string $postal): bool
+    {
+        if (preg_match('/[A-Za-z]/', $postal) !== 1) {
+            return false;
+        }
+        $letters = self::countryLetters($country);
+        if ($letters === '') {
+            return false;
+        }
+
+        return !self::isUnitedStates($letters);
+    }
+
+    private static function countryLetters(string $country): string
+    {
+        return strtoupper(preg_replace('/[^A-Za-z]/', '', $country) ?? '');
+    }
+
+    /**
+     * @param non-empty-string $letters
+     */
+    private static function isUnitedStates(string $letters): bool
+    {
         return in_array($letters, ['US', 'USA', 'UNITEDSTATES', 'UNITEDSTATESOFAMERICA'], true);
     }
 
     private const BILLING_ZIP_LOG = '*** Billing facility zip is not 9 digits. '
         . '837P loop 2010AA requires a 9-digit ZIP for US addresses; payers may reject the claim.';
+
+    /**
+     * Billing-facility postal code, loop 2010AA. Letters do not survive digit reduction.
+     */
+    private const BILLING_POSTAL_LOSS_LOG = '*** Billing facility postal code lost letters when reduced to digits. '
+        . '837P loop 2010AA has no country code, so the stored postal code was not sent.';
+
+    /**
+     * Service-facility postal code, loop 2310C. Letters do not survive digit reduction.
+     */
+    private const SERVICE_POSTAL_LOSS_LOG = '*** Service facility postal code lost letters when reduced to digits. '
+        . '837P loop 2310C has no country code, so the stored postal code was not sent.';
 
     /**
      * Service-facility ZIP, loop 2310C. The 837P guide requires 9 digits for a US address.
