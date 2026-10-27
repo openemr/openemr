@@ -12,7 +12,8 @@
 #
 # Cost: it runs only when database.sql or an upgrade file changes, uses the
 # MySQL preinstalled on the runner (no image pull), and fetches only the one
-# release tag it compares against.
+# release tag it compares against (or that release's branch, between the
+# branch's cut and the tag).
 name: Upgrade Parity
 
 on:

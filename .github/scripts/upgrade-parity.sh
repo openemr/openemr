@@ -19,7 +19,9 @@
 #   PARITY_MYSQL     client command
 #                    (default: mysql --host=127.0.0.1 --user=root --password=root)
 #   PARITY_FROM_TAG  release tag to upgrade from
-#                    (default: derived from the sql/*-to-*_upgrade.sql names)
+#                    (default: derived from the sql/*-to-*_upgrade.sql names;
+#                    between a release branch's cut and its tag, that tag
+#                    doesn't exist yet, so the release branch is used)
 #
 # Exit codes:
 #   0  identical
@@ -44,21 +46,35 @@ source .github/scripts/lib/derive-from-version.sh
 from=$(derive_from_version_sql_candidates . | tail -n 1)
 upgrade=$(find sql -maxdepth 1 -name "${from//./_}-to-*_upgrade.sql" | sort | tail -n 1)
 tag=${PARITY_FROM_TAG:-v${from//./_}}
+branch=rel-${from//./}
 if [[ -z "${upgrade}" ]]; then
     echo "::error::upgrade-parity: no sql/${from//./_}-to-*_upgrade.sql" >&2
     exit 2
 fi
-if ! git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
-    git fetch --quiet --no-tags --depth=1 origin "refs/tags/${tag}:refs/tags/${tag}"
+# Once a release ships, its tag is the base. Between the release branch's cut
+# and its tag, master's newest upgrade file already starts at the new version
+# while the tag doesn't exist yet, so the release branch stands in for it.
+if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null \
+    || git fetch --quiet --no-tags --depth=1 origin "refs/tags/${tag}:refs/tags/${tag}" 2>/dev/null; then
+    base=${tag}
+    base_name=${tag}
+elif [[ -z "${PARITY_FROM_TAG:-}" ]]; then
+    git fetch --quiet --no-tags --depth=1 origin "refs/heads/${branch}:refs/remotes/origin/${branch}"
+    base=origin/${branch}
+    base_name="${branch} (no ${tag} tag yet)"
+    echo "::notice::upgrade-parity: no ${tag} tag yet, so comparing against the release branch ${branch}"
+else
+    echo "::error::upgrade-parity: no tag ${tag} (PARITY_FROM_TAG)" >&2
+    exit 2
 fi
 echo "fresh: this checkout's sql/database.sql"
-echo "upgraded: ${tag}'s sql/database.sql + ${upgrade}"
+echo "upgraded: ${base_name}'s sql/database.sql + ${upgrade}"
 
 for db in parity_fresh parity_upgraded; do
     q -e "DROP DATABASE IF EXISTS ${db}; CREATE DATABASE ${db} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
 done
 q parity_fresh < sql/database.sql
-git show "${tag}:sql/database.sql" | q parity_upgraded
+git show "${base}:sql/database.sql" | q parity_upgraded
 php .github/scripts/upgrade-parity-run.php "${upgrade}"
 
 # Timestamps from today or yesterday (UTC) were written by the load itself.
@@ -113,7 +129,7 @@ fi
 
 status=0
 for part in schema rows; do
-    if ! diff -u --label "fresh install" --label "upgraded from ${tag}" \
+    if ! diff -u --label "fresh install" --label "upgraded from ${base_name}" \
         "${work}/parity_fresh.${part}" "${work}/parity_upgraded.${part}" > "${work}/${part}.diff"; then
         status=1
     fi
@@ -124,7 +140,7 @@ if [[ ${status} -eq 0 ]]; then
     {
         echo '## ✅ Upgrade matches a fresh install'
         echo
-        echo "\`${tag}\` + \`${upgrade}\` gives the same schema and seeded rows (${columns} columns, ${seeded} rows) as this checkout's \`sql/database.sql\`."
+        echo "\`${base_name}\` + \`${upgrade}\` gives the same schema and seeded rows (${columns} columns, ${seeded} rows) as this checkout's \`sql/database.sql\`."
     } >> "${summary}"
     exit 0
 fi
@@ -132,7 +148,7 @@ fi
 {
     echo '## ⚠️ Upgrade does not match a fresh install'
     echo
-    echo "Upgrading \`${tag}\` with \`${upgrade}\` gives a different database from this checkout's \`sql/database.sql\`."
+    echo "Upgrading \`${base_name}\` with \`${upgrade}\` gives a different database from this checkout's \`sql/database.sql\`."
     # shellcheck disable=SC2016  # the backticks are Markdown, not command substitution
     echo 'Usually a change to `sql/database.sql` needs the same change in the upgrade file, or the reverse.'
     # shellcheck disable=SC2016  # the backticks are Markdown, not command substitution
