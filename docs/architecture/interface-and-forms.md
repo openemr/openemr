@@ -70,12 +70,13 @@ would stall the whole UI. OpenEMR's distinctive mechanism, driven from
   `session_write_close()`d** (PHP's `read_and_close`), releasing the lock so sibling frame
   requests proceed in parallel.
 - **`$sessionAllowWrite = true`** set *before* including `globals.php` selects a **read-write
-  session for the whole request** (instead of the read-only default). It is needed for direct
-  `$_SESSION` writes and for code that must hold a writable session across the request — but it
-  is **not** required for ordinary writes through the session abstraction (next section), which
-  reopen read-and-close storage and save on their own. Setting it holds the session lock for
-  the whole request (reducing frame concurrency), so use it only when a request genuinely needs
-  a writable session throughout.
+  session for the whole request** (instead of the read-only default). **Legacy** code that still
+  writes raw `$_SESSION`, or code that must hold a writable session across the whole request,
+  requires it. **New code uses the session abstraction (next section), never raw `$_SESSION`,**
+  and ordinary abstraction-backed writes do **not** need the flag — they reopen read-and-close
+  storage and save on their own. Setting it holds the session lock for the whole request
+  (reducing frame concurrency), so use it only when a request genuinely needs a writable
+  session throughout.
 - The mechanism works under both the native file handler and the predis/Redis-sentinel
   session handler.
 
