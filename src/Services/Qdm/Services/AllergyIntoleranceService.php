@@ -41,7 +41,8 @@ class AllergyIntoleranceService extends AbstractQdmService implements QdmService
                 'low' => $record['begdate'],
                 'high' => $record['enddate'],
                 'lowClosed' => (bool) $record['begdate'],
-                'highClosed' => (bool) $this->validDateOrNull($record['enddate'])
+                // No end date means ongoing: in CQL a closed null end is unbounded, an open one unknown (#14526)
+                'highClosed' => true
             ])
         ]);
 

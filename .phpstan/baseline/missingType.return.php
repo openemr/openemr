@@ -5172,16 +5172,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/Abstract/Model.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method ESign\\\\Api\\:\\:createEncounterESign\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ESign\\\\Api\\:\\:createFormESign\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Api.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method ESign\\\\Api\\:\\:encounterConfigToJson\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Api.php',
@@ -13957,11 +13947,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\AppointmentRestController\\:\\:getOne\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\AppointmentRestController\\:\\:post\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
@@ -17910,16 +17895,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G10_Certification\\\\SinglePatientApi\\\\CapabilityStatementTest\\:\\:teardownG10Test\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/SinglePatientApi/CapabilityStatementTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G9_Certification\\\\CCDADocRefGenerationTest\\:\\:cleanWhitespaceInTextNodes\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G9_Certification\\\\CCDADocRefGenerationTest\\:\\:updateRootIds\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\GgUserMenuLinksTest\\:\\:menuLinkProvider\\(\\) has no return type specified\\.$#',

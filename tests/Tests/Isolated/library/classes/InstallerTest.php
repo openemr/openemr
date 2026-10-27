@@ -2755,6 +2755,48 @@ class InstallerTest extends TestCase
         $this->assertTrue($result);
     }
 
+    public function testInstallGaclGivesEachGroupOneAclPerReturnValue(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+        $this->assertInstanceOf(\Installer::class, $mockInstaller);
+        $mockGacl = $this->createMock(\OpenEMR\Gacl\GaclApi::class);
+
+        $mockInstaller->method('newGaclApi')->willReturn($mockGacl);
+
+        $mockGacl->method('add_object_section')->willReturn(true);
+        $mockGacl->method('add_object')->willReturn(true);
+        $mockGacl->method('add_group_object')->willReturn(true);
+        $groupId = 0;
+        $mockGacl->method('add_group')->willReturnCallback(function () use (&$groupId) {
+            return ++$groupId;
+        });
+
+        // The ACL admin screens edit only the first ACL a group holds for a
+        // return value, so a second one would be uneditable.
+        $grants = [];
+        $clinicianWriteAcos = [];
+        $mockGacl->method('add_acl')
+            ->willReturnCallback(function (array $acos, ?array $aros, array $aroGroups, ?array $axos, ?array $axoGroups, int $allow, int $enabled, string $returnValue, string $note) use (&$grants, &$clinicianWriteAcos) {
+                $grants[] = serialize([$aroGroups, $returnValue]);
+                if ($note === 'Things that clinicians can read and modify') {
+                    $clinicianWriteAcos = $acos;
+                }
+                return true;
+            });
+
+        $this->assertTrue($mockInstaller->install_gacl());
+        $this->assertNotEmpty($grants);
+        $this->assertSame(array_values(array_unique($grants)), $grants);
+        // The single Clinicians write ACL keeps everything both old ones granted.
+        $this->assertEquals([
+            'admin' => ['drugs'],
+            'camos' => ['administer'],
+            'encounters' => ['auth', 'coding', 'notes'],
+            'patients' => ['appt', 'med'],
+            'groups' => ['gcalendar', 'glog'],
+        ], $clinicianWriteAcos);
+    }
+
     public function testInstallGaclWithDefaultUserConfig(): void
     {
         // Test with default config values

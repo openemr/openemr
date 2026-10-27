@@ -643,7 +643,6 @@ class ProcedureService extends BaseService
                 ON practitioner.id = porder.provider_id
             LEFT JOIN procedure_providers AS lab
                 ON lab.ppid = porder.lab_id
-            LEFT JOIN
             WHERE porder.activity = 1";
 
         if (!empty($search)) {

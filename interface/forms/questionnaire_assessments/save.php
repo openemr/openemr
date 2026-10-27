@@ -19,6 +19,8 @@ use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FormService;
+use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
@@ -162,6 +164,17 @@ if ($isRegistering) {
             $registrySql,
             [$formName, 1, 'questionnaire_assessments', 1, 1, 'Questionnaires', $formForeignId]
         );
+
+        // Registering the form is what makes this questionnaire an encounter form, so it
+        // is also what has to create its encounter assignment. Which questionnaires an
+        // encounter may offer is answered by content_assignments, and saving the resource
+        // only assigns the dashboard surface -- so without this the questionnaire is
+        // registered and then immediately filtered back out of the encounter form menu.
+        $registeredQuestionnaireId = is_numeric($formForeignId) ? (int)$formForeignId : 0;
+        if ($registeredQuestionnaireId > 0) {
+            (new QuestionnaireAvailabilityService())
+                ->assignDefault($registeredQuestionnaireId, QuestionnaireSurface::Encounter);
+        }
     } else {
         $msg = "<br /><br /><div><h3 style='color: red;font-weight: normal;'>"
             . xlt('Error. Form already registered! Redirecting back to form.')
