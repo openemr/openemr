@@ -135,24 +135,27 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
         try {
             $this->insertFixtureData();
             $miscBilling = $this->insertEncounterForm($this->lockedEncounter, 'misc_billing_options', 'Misc Billing Options');
-            $signedMiscBilling = $this->insertEncounterForm($this->lockedEncounter, 'misc_billing_options', 'Misc Billing Options');
             $soap = $this->insertEncounterForm($this->lockedEncounter, 'soap', 'SOAP');
-            // A form-level signature with its lock, as signing the form itself writes it.
-            QueryUtils::sqlInsert(
-                'INSERT INTO esign_signatures (tid, `table`, uid, datetime, is_lock, hash, signature_hash) VALUES (?, ?, 1, NOW(), 1, ?, ?)',
-                [$signedMiscBilling, 'forms', 'e2e', 'e2e']
-            );
+            // A second locked encounter whose Misc Billing Options form is also
+            // signed and locked on its own.
+            $signedEncounter = $this->insertEncounter(true);
+            $signedMiscBilling = $this->insertEncounterForm($signedEncounter, 'misc_billing_options', 'Misc Billing Options');
+            $this->insertLockingSignature('forms', $signedMiscBilling);
 
             $this->base();
             $this->login(LoginTestData::username, LoginTestData::password);
             $this->client->request('GET', '/interface/patient_file/summary/demographics.php?set_pid=' . $this->pid);
-            $this->client->request('GET', '/interface/patient_file/encounter/encounter_top.php?set_encounter=' . $this->lockedEncounter);
-            $this->client->request('GET', '/interface/patient_file/encounter/forms.php');
-            $this->client->waitFor('#partable');
 
+            $this->openFormsList($this->lockedEncounter);
             $this->assertSame('edit', $this->formButtonState('misc_billing_options', $miscBilling), 'Misc Billing Options locked only by the encounter should stay editable');
-            $this->assertSame('locked', $this->formButtonState('misc_billing_options', $signedMiscBilling), 'Misc Billing Options signed and locked on its own should stay locked');
             $this->assertSame('locked', $this->formButtonState('soap', $soap), 'A clinical form on a locked encounter should stay locked');
+            $this->assertContains('misc_billing_options', $this->encounterMenuForms($this->lockedEncounter));
+
+            // The menu opens the encounter's existing Misc Billing Options form,
+            // so it must not offer one that is locked on its own.
+            $this->openFormsList($signedEncounter);
+            $this->assertSame('locked', $this->formButtonState('misc_billing_options', $signedMiscBilling), 'Misc Billing Options signed and locked on its own should stay locked');
+            $this->assertSame(['fee_sheet'], $this->encounterMenuForms($signedEncounter), 'The menu should not open a Misc Billing Options form locked on its own');
         } finally {
             try {
                 if (isset($this->client)) {
@@ -162,6 +165,13 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
                 $this->cleanUpFixtureData();
             }
         }
+    }
+
+    private function openFormsList(int $encounter): void
+    {
+        $this->client->request('GET', '/interface/patient_file/encounter/encounter_top.php?set_encounter=' . $encounter);
+        $this->client->request('GET', '/interface/patient_file/encounter/forms.php');
+        $this->client->waitFor('#partable');
     }
 
     /**
@@ -242,19 +252,32 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
             'INSERT INTO patient_data (pid, pubpid, fname, lname, DOB, sex, date) VALUES (?, ?, ?, ?, ?, ?, NOW())',
             [$this->pid, self::FIXTURE_MARKER, 'Esign', 'Locktest', '1970-01-01', 'Female']
         );
-        $this->lockedEncounter = $this->toInt(QueryUtils::generateId());
-        $this->unlockedEncounter = $this->toInt(QueryUtils::generateId());
-        foreach ([$this->lockedEncounter, $this->unlockedEncounter] as $encounter) {
-            QueryUtils::sqlInsert(
-                'INSERT INTO form_encounter (date, reason, pid, encounter, provider_id) VALUES (NOW(), ?, ?, ?, 1)',
-                [self::FIXTURE_MARKER, $this->pid, $encounter]
-            );
+        $this->lockedEncounter = $this->insertEncounter(true);
+        $this->unlockedEncounter = $this->insertEncounter(false);
+    }
+
+    private function insertEncounter(bool $locked): int
+    {
+        $encounter = $this->toInt(QueryUtils::generateId());
+        QueryUtils::sqlInsert(
+            'INSERT INTO form_encounter (date, reason, pid, encounter, provider_id) VALUES (NOW(), ?, ?, ?, 1)',
+            [self::FIXTURE_MARKER, $this->pid, $encounter]
+        );
+        if ($locked) {
+            $this->insertLockingSignature('form_encounter', $encounter);
         }
-        // The encounter-level signature with its lock, as signing the whole
-        // encounter writes it.
+        return $encounter;
+    }
+
+    /**
+     * A signature with its lock, as signing the whole encounter (form_encounter)
+     * or a single form (forms) writes it.
+     */
+    private function insertLockingSignature(string $table, int $id): void
+    {
         QueryUtils::sqlInsert(
             'INSERT INTO esign_signatures (tid, `table`, uid, datetime, is_lock, hash, signature_hash) VALUES (?, ?, 1, NOW(), 1, ?, ?)',
-            [$this->lockedEncounter, 'form_encounter', 'e2e', 'e2e']
+            [$id, $table, 'e2e', 'e2e']
         );
     }
 
