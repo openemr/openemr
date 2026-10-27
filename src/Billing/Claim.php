@@ -874,6 +874,23 @@ class Claim
     }
 
     /**
+     * Country stored for the billing facility. Empty when the row has none.
+     */
+    public function billingFacilityCountry(): string
+    {
+        $facility = $this->billing_facility;
+        if (!is_array($facility)) {
+            return '';
+        }
+        $country = $facility['country_code'] ?? null;
+        if (!is_string($country)) {
+            return '';
+        }
+
+        return trim($country);
+    }
+
+    /**
      * @return string
      */
     public function billingFacilityETIN()
@@ -1015,6 +1032,23 @@ class Claim
     public function facilityZip()
     {
         return $this->x12Zip($this->facility['postal_code']);
+    }
+
+    /**
+     * Country stored for the service facility. Empty when the row has none.
+     */
+    public function facilityCountry(): string
+    {
+        $facility = $this->facility;
+        if (!is_array($facility)) {
+            return '';
+        }
+        $country = $facility['country_code'] ?? null;
+        if (!is_string($country)) {
+            return '';
+        }
+
+        return trim($country);
     }
 
     /**
