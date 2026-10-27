@@ -16097,11 +16097,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Search/DateSearchField.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\FHIRSearchFieldFactory\\:\\:extractFieldModifiers\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/FHIRSearchFieldFactory.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\:\\:getOptions\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/FhirSearchParameterDefinition.php',

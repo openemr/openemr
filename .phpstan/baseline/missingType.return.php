@@ -17502,11 +17502,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Search/DateSearchField.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\FHIRSearchFieldFactory\\:\\:setFhirUrlResolver\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/FHIRSearchFieldFactory.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\ReferenceSearchValue\\:\\:getHumanReadableId\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/ReferenceSearchValue.php',

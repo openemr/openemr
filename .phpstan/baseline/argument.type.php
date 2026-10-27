@@ -61792,11 +61792,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocumentReferenceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$string of function explode expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocumentReferenceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#3 \\$isUUID of class OpenEMR\\\\Services\\\\Search\\\\TokenSearchField constructor expects bool, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocumentReferenceService.php',
@@ -62668,11 +62663,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$string of function explode expects string, array\\<mixed\\>\\|string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$string of function explode expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
 ];
@@ -68012,43 +68002,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Search/DateSearchField.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$field of class OpenEMR\\\\Services\\\\Search\\\\StringSearchField constructor expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/FHIRSearchFieldFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$modifier of method OpenEMR\\\\Services\\\\Search\\\\BasicSearchField\\:\\:setModifier\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/FHIRSearchFieldFactory.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, array\\<OpenEMR\\\\Services\\\\Search\\\\ServiceField\\>\\|string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/FHIRSearchFieldFactory.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$values of class OpenEMR\\\\Services\\\\Search\\\\CompositeSearchField constructor expects array\\<mixed\\>, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Search/FHIRSearchFieldFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$values of class OpenEMR\\\\Services\\\\Search\\\\StringSearchField constructor expects array\\|int\\|string, mixed given\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/FHIRSearchFieldFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$isUUID of class OpenEMR\\\\Services\\\\Search\\\\TokenSearchField constructor expects bool, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/FHIRSearchFieldFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$isUuid of class OpenEMR\\\\Services\\\\Search\\\\ReferenceSearchField constructor expects bool, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/FHIRSearchFieldFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#4 \\$modifiers of method OpenEMR\\\\Services\\\\Search\\\\FHIRSearchFieldFactory\\:\\:createFieldForType\\(\\) expects array\\<string\\>\\|null, array given\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Search/FHIRSearchFieldFactory.php',
 ];
 $ignoreErrors[] = [
@@ -68088,11 +68048,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$code of method OpenEMR\\\\Services\\\\Search\\\\TokenSearchValue\\:\\:setCode\\(\\) expects float\\|int\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/TokenSearchValue.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$isUuid of class OpenEMR\\\\Services\\\\Search\\\\TokenSearchValue constructor expects bool, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/TokenSearchValue.php',
 ];
