@@ -71,7 +71,7 @@
     "backbone": "1.6.1",
     "bootstrap": "4.6.2",
     "bootswatch": "4.6.2",
-    "chart.js": "4.5.1",
+    "chart.js": "4.6.1",
     "chartjs-adapter-date-fns": "3.0.0",
     "ckeditor5": "47.6.2",
     "datatables.net": "1.13.11",
