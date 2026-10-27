@@ -74,6 +74,14 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
     }
 
     /**
+     * FhirServiceRequestService routes a category search here for the referral category.
+     */
+    public function supportsCategory(string $category): bool
+    {
+        return $category === self::CATEGORY_REFERRAL;
+    }
+
+    /**
      * The same search parameters the order side supports, so no filter is silently
      * ignored when a search reaches both.
      */
