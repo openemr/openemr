@@ -540,6 +540,15 @@ if (
                 StatementLines::append($stmt, $rowPid, $credit['encounter'], substr($credit['date'], 0, 10), $credit['stmt_count'] + 1);
             }
         }
+        // A module may have left encounters off this statement (StatementEncounterEvent): they
+        // aren't counted as statemented, and when it left them all off, nothing goes out.
+        $pendingStatementUpdates = StatementLines::withoutExcluded($stmt, $pendingStatementUpdates);
+        if (StatementLines::onlyExcluded($stmt) && $inv_pid[$inv_count] != ($inv_pid[$inv_count + 1] ?? null)) {
+            $stmt = [];
+            $pendingStatementUpdates = [];
+            $pvoice = [];
+            continue;
+        }
         if (!empty($_REQUEST['form_portalnotify'])) {
             if (!is_auth_portal($stmt['pid'])) {
                 $alertmsg = xlt('Notification FAILED: Not Portal Authorized');
