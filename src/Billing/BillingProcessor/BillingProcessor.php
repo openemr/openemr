@@ -109,14 +109,16 @@ class BillingProcessor
         foreach ($this->post['claims'] as $claimId => $partner_and_payor) {
             if (isset($partner_and_payor['bill'])) {
                 // The format coming in from POST is like this:
-                // [ encounter-pid => [ 'partner' => partnerId, 'payor' => 'p'.payorId ], ... ]
+                // [ pid-encounter => [ 'partner' => partnerId, 'payor' => 'p'.payorId ], ... ]
                 // Since the format is cryptic, we use the BillingClaim constructor to parse that into meaningful
                 // attributes
                 $billingClaim = new BillingClaim($claimId, $partner_and_payor, $processing_task_action);
                 // A claim without a valid patient ID can't be audited against its
                 // patient, and isn't one the billing page lists, so don't process it.
+                // The round trip through int rejects IDs beyond PHP_INT_MAX, which
+                // the cast would otherwise turn into a different patient ID.
                 $pid = $billingClaim->getPid();
-                if (!ctype_digit($pid) || (int) $pid < 1) {
+                if (!ctype_digit($pid) || (string) (int) $pid !== $pid || (int) $pid < 1) {
                     $this->logger->printToScreen(xl('Skipped a claim with an invalid patient ID') . ': ' . $pid);
                     continue;
                 }

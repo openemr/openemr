@@ -21,6 +21,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
@@ -105,24 +106,38 @@ class BillingProcessorAuditPatientTest extends TestCase
         $this->assertSame((string) self::OPEN_CHART_PID, is_scalar($patient) ? (string) $patient : null);
     }
 
-    public function testClaimWithoutAValidPatientIdIsSkipped(): void
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function invalidPatientIdProvider(): array
+    {
+        return [
+            'not a number' => ['x' . self::CLAIM_PID],
+            'beyond PHP_INT_MAX' => ['99999999999999999999'],
+        ];
+    }
+
+    #[DataProvider('invalidPatientIdProvider')]
+    public function testClaimWithoutAValidPatientIdIsSkipped(string $pid): void
     {
         $before = $this->lastLogId();
 
         $logger = (new BillingProcessor([
             'bn_mark' => '1',
-            'claims' => ['x' . self::CLAIM_PID . '-' . self::CLAIM_ENCOUNTER => ['bill' => '1', 'partner' => '-1', 'payer' => 'p0']],
+            'claims' => [$pid . '-' . self::CLAIM_ENCOUNTER => ['bill' => '1', 'partner' => '-1', 'payer' => 'p0']],
         ]))->execute();
 
         $this->assertSame(
             [],
             QueryUtils::fetchTableColumn("SELECT patient_id FROM log WHERE id > ? AND event LIKE 'patient-record-%'", 'patient_id', [$before]),
-            'Nothing is logged against the open chart for it'
+            'No patient-record audit rows are logged for it'
         );
         $this->assertInstanceOf(BillingLogger::class, $logger);
         $messages = $logger->bill_info();
         $this->assertIsArray($messages);
-        $this->assertContains('Skipped a claim with an invalid patient ID: x' . self::CLAIM_PID, $messages);
+        $this->assertContains('Skipped a claim with an invalid patient ID: ' . $pid, $messages);
     }
 
     /**
