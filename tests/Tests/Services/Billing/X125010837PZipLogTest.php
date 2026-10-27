@@ -66,6 +66,7 @@ class X125010837PZipLogTest extends TestCase
 
         $this->assertStringContainsString('837P loop 2010AA requires a 9-digit ZIP', $log);
         $this->assertStringContainsString('837P loop 2310C requires a 9-digit ZIP', $log);
+        $this->assertStringNotContainsString('lost letters', $log);
         $this->assertStringNotContainsString('Rejecting claim', $log);
         $this->assertStringContainsString('*10101~', $claimText);
         $this->assertStringContainsString('*20202~', $claimText);
@@ -80,6 +81,7 @@ class X125010837PZipLogTest extends TestCase
 
         $this->assertStringNotContainsString('837P loop 2010AA requires a 9-digit ZIP', $log);
         $this->assertStringNotContainsString('837P loop 2310C requires a 9-digit ZIP', $log);
+        $this->assertStringNotContainsString('lost letters', $log);
         $this->assertStringContainsString('*101010101~', $claimText);
         $this->assertStringContainsString('*202020202~', $claimText);
     }
@@ -93,8 +95,41 @@ class X125010837PZipLogTest extends TestCase
 
         $this->assertStringNotContainsString('837P loop 2010AA requires a 9-digit ZIP', $log);
         $this->assertStringNotContainsString('837P loop 2310C requires a 9-digit ZIP', $log);
+        $this->assertStringNotContainsString('lost letters', $log);
         $this->assertStringContainsString('*10101~', $claimText);
         $this->assertStringContainsString('*20202~', $claimText);
+    }
+
+    /**
+     * Digit reduction of a lettered foreign postal code is logged, and the nine-digit warning stays off.
+     */
+    public function testAForeignPostalCodeThatLosesLettersIsLogged(): void
+    {
+        [$claimText, $log] = $this->generateClaim('K1A 0B1', 'H0H 0H0', 'Canada');
+
+        $this->assertStringContainsString('Billing facility postal code lost letters', $log);
+        $this->assertStringContainsString('837P loop 2010AA has no country code', $log);
+        $this->assertStringContainsString('Service facility postal code lost letters', $log);
+        $this->assertStringContainsString('837P loop 2310C has no country code', $log);
+        $this->assertStringNotContainsString('837P loop 2010AA requires a 9-digit ZIP', $log);
+        $this->assertStringNotContainsString('837P loop 2310C requires a 9-digit ZIP', $log);
+        $this->assertStringNotContainsString('Rejecting claim', $log);
+        $this->assertStringContainsString('N4*TESTVILLE*TX*101~', $claimText);
+        $this->assertStringContainsString('N4*TESTVILLE*TX*000~', $claimText);
+    }
+
+    /**
+     * A blank country keeps the nine-digit warning when digit reduction leaves a short ZIP.
+     */
+    public function testABlankCountryKeepsTheNineDigitWarningForALetteredPostalCode(): void
+    {
+        [$claimText, $log] = $this->generateClaim('K1A 0B1', 'H0H 0H0', '');
+
+        $this->assertStringContainsString('837P loop 2010AA requires a 9-digit ZIP', $log);
+        $this->assertStringContainsString('837P loop 2310C requires a 9-digit ZIP', $log);
+        $this->assertStringNotContainsString('lost letters', $log);
+        $this->assertStringContainsString('N4*TESTVILLE*TX*101~', $claimText);
+        $this->assertStringContainsString('N4*TESTVILLE*TX*000~', $claimText);
     }
 
     /**
