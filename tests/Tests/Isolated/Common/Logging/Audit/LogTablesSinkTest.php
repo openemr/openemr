@@ -504,11 +504,23 @@ class LogTablesSinkTest extends TestCase
             }
         );
 
+        $anchorUpdates = 0;
+        $this->connection->method('executeStatement')->willReturnCallback(
+            function (string $sql) use (&$anchorUpdates): int {
+                if (str_contains($sql, 'UPDATE log_chain_anchor')) {
+                    $anchorUpdates++;
+                }
+
+                return 1;
+            }
+        );
+
         $sink = new LogTablesSink(conn: $this->connection, chainKey: self::CHAIN_KEY);
         $sink->record($this->createEvent());
         $sink->record($this->createEvent());
         $sink->flush();
 
+        self::assertSame(1, $anchorUpdates);
         self::assertCount(2, $checksums);
         self::assertIsString($checksums[0]);
         self::assertIsString($checksums[1]);

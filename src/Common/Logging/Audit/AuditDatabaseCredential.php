@@ -65,9 +65,17 @@ final readonly class AuditDatabaseCredential
         if (!is_string($encoded)) {
             throw new \RuntimeException('Unable to store the audit database account.');
         }
-        if (file_put_contents(self::path($siteDir), $encoded) === false) {
+        $previousUmask = umask(0027);
+        try {
+            $written = file_put_contents(self::path($siteDir), $encoded, LOCK_EX);
+        } finally {
+            umask($previousUmask);
+        }
+        if ($written === false) {
             throw new \RuntimeException('Unable to store the audit database account.');
         }
-        chmod(self::path($siteDir), 0640);
+        if (!chmod(self::path($siteDir), 0640)) {
+            throw new \RuntimeException('Unable to store the audit database account.');
+        }
     }
 }
