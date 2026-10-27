@@ -28,7 +28,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Command;
 
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypes\CodeTypeImporter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -56,11 +55,12 @@ class CodeImportCommand extends Command
     {
         if (empty($input->getOption('dir'))) {
             $output->writeln('directory parameter is missing (required), so exiting');
-            return 1;
+            return Command::FAILURE;
         }
 
-        $importer = OEGlobalsBag::getInstance()->get('modules_application')->getServiceManager()->build(CodeTypeImporter::class);
+        $importer = new CodeTypeImporter();
         $path = $input->getOption('dir');
+        $output->writeln('Walking into path: ' . $path);
         if (strlen($path)) {
             $importer->import(realpath($path));
             return Command::SUCCESS;
