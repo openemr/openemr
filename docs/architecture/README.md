@@ -35,7 +35,8 @@ slice that matters:
 For humans this is a slight cost — no single-scroll read — so to read the whole architecture
 in order: this hub → [layers](layers.md) → [subsystems](subsystems.md) →
 [interface-and-forms](interface-and-forms.md) → [api](api.md) → [migration](migration.md) →
-[front-controller](front-controller.md) → [tech-stack](tech-stack.md) → [portal](portal.md).
+[front-controller](front-controller.md) → [tech-stack](tech-stack.md) → [portal](portal.md) →
+[compliance](compliance.md).
 Keep each document honest against the code it describes; a split that drifts is worse than a
 monolith.
 
@@ -136,6 +137,7 @@ migration.
 | Routing / the `public/index.php` front controller | [front-controller.md](front-controller.md) |
 | Choosing or retiring a library/runtime; version questions | [tech-stack.md](tech-stack.md) |
 | Anything in the patient portal | [portal.md](portal.md) |
+| Compliance-governed output (C-CDA, FHIR, QRDA, Direct), code systems/OIDs, API app approval | [compliance.md](compliance.md) |
 
 ---
 
@@ -174,6 +176,9 @@ Place each piece before writing. (This gate is mirrored as a trigger list in `AG
   editing a core menu JSON or template. ([interface-and-forms.md](interface-and-forms.md#menus-and-how-they-are-overridden))
 - **Patient-portal behavior?** → reuse the same services/API as the clinical UI, never a
   portal-only copy. ([portal.md](portal.md))
+- **Compliance-governed output?** (C-CDA, FHIR/US-Core/SMART, QRDA/CQM, Direct messaging, a
+  code-system/OID mapping, or API app approval) → treat it as a regulated surface and
+  re-validate against the standard, not just CI. ([compliance.md](compliance.md))
 
 If a single file would answer "yes" to several of these, that is the smell the layering
 exists to remove — split it.
@@ -268,6 +273,22 @@ When in doubt, read working code rather than this document:
 | MVC form (target) | `interface/forms/care_plan/` + `src/Controllers/Interface/Forms/CarePlan/` |
 | Layout Based Forms (LBF/LBT) | `interface/forms/LBF/` + `library/options.inc.php` (`generate_form_field`); `sites/<site>/LBF/*.plugin.php` |
 | Patient portal | [portal.md](portal.md) |
+| Compliance / certification map | [compliance.md](compliance.md); `src/Cqm/`, `src/Services/Cda/`, `src/FHIR/`, phiMail (`.../Application/.../Phimail.php`), `src/Reports/RealWorldTesting.php` |
+
+---
+
+## 8. Jurisdiction & compliance
+
+Some components are governed by regulatory compliance — chiefly the **US ONC Health IT
+Certification Program** — and cannot be changed casually: **C-CDA**, **FHIR / US Core / SMART**,
+**QRDA / CQM**, **Direct** secure messaging, the standard **code systems**, and **API app
+registration/approval**. A change that passes CI can still **break certification**, because
+conformance is judged against external standards and test procedures, not our own tests.
+
+Before touching any of these, read **[compliance.md](compliance.md)** — it maps each ONC
+criterion (b1, g1/g2, g6–g10, h1, …) to its architecture components and states the
+re-validation a change requires. Non-US jurisdictions have their own regimes, kept in modules,
+not in core.
 
 ---
 

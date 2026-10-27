@@ -37,6 +37,10 @@ Read the relevant `docs/architecture/` document first when your change touches a
 - **deprecating** a function, or choosing/retiring a **library or runtime**
   (e.g. jQuery, Knockout, Angular, Node.js, Smarty)
 - the **patient portal** (see [`docs/architecture/portal.md`](docs/architecture/portal.md))
+- **compliance-governed output** — C-CDA, FHIR/US Core/SMART, QRDA/CQM, Direct secure
+  messaging, standard code systems/OIDs, or API app registration/approval (see
+  [`docs/architecture/compliance.md`](docs/architecture/compliance.md)); a change that passes
+  CI can still break ONC certification
 
 These documents own the structural "why"; this file owns the line-level mechanics below.
 

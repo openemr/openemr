@@ -183,22 +183,26 @@ Rules and direction:
 ### OAuth2 / OpenID Connect keys
 
 The REST/FHIR API's OAuth2 server (`league/oauth2-server`, driven by
-`src/RestControllers/AuthorizationController.php`) uses its **own key material, separate from
-the `CryptoGen` key sets above.** `OAuth2KeyConfig` (keyed on `OE_SITE_DIR`) manages, per
-site:
+`src/RestControllers/AuthorizationController.php`) has its own key material, managed per site by
+**`src/Common/Auth/OAuth2KeyConfig.php`** (keyed on `OE_SITE_DIR`). It is stored in **two
+places**:
 
-- a **private/public signing key pair** (`getPrivateKeyLocation()` / `getPublicKeyLocation()`)
-  used to sign and verify the JWT access/ID tokens the server issues (handed to league as a
-  `CryptKey` with the passphrase below);
-- an **encryption key** (`getEncryptionKey()`) the league server uses to encrypt its
-  authorization codes and refresh tokens;
-- a **passphrase** (`getPassPhrase()`) protecting the private key.
+- a **private/public signing key pair**, as files on disk at
+  **`sites/<site>/documents/certificates/oaprivate.key`** and
+  **`.../oapublic.key`** (`getPrivateKeyLocation()` / `getPublicKeyLocation()`), used to sign
+  and verify the JWT access/ID tokens the server issues (handed to league as a `CryptKey` with
+  the passphrase below);
+- the league server's **encryption key** (for authorization codes and refresh tokens) and the
+  signing key's **passphrase**, stored as rows in the **`keys` table** (`oauth2key` and
+  `oauth2passphrase`) and **`CryptoGen`-encrypted** — `OAuth2KeyConfig::configKeyPairs()` reads
+  them with `sqlQueryNoLog(...)` and `CryptoGen::decryptFromDatabase()`.
 
-These live under the site's documents directory — **not** the `keys` table or the `methods/`
-drive keys of `CryptoGen`. They are part of the trust root for API access: rotating or losing
-them invalidates every token already issued and breaks client sessions, so persist them across
-deployments just like the `CryptoGen` drive keys. Dynamic client registration
-(`/oauth2/<site>/registration`) also supports asymmetric client authentication
+So the two systems are *related*, not fully separate: OAuth2's own secrets are themselves
+protected by the `CryptoGen` key sets above. The whole set is part of the trust root for API
+access — rotating or losing the signing keypair, the encryption key, or the passphrase
+invalidates every token already issued and breaks client sessions, so persist both
+`sites/<site>/documents/` **and** the `keys` table across deployments. Dynamic client
+registration (`/oauth2/<site>/registration`) also supports asymmetric client authentication
 (`private_key_jwt` / JWKS), so clients may present their own key pairs.
 
 ### OAuth2 scopes and API authorization
