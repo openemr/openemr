@@ -81,7 +81,9 @@ portal sessions — that absence is what distinguishes a patient session from a 
 Session plumbing is in `src/Common/Session/` (`SessionUtil`, `SessionWrapperFactory`,
 `WriteThroughSession`, `PatientSessionUtil`), and the `read_and_close` no-lock mechanism from
 [interface-and-forms.md](interface-and-forms.md#cookie--session-management--the-read_and_close-mechanism)
-applies here too.
+applies here too. As everywhere, access the portal session only through these classes — obtain
+it via `SessionWrapperFactory::getPortalSession()` and use the Symfony `SessionInterface`
+session bag — never raw `$_SESSION`.
 
 **The modern login flow** (`src/Controllers/Portal/`) — the portal's most modernized area,
 extracted from the old `get_patient_info.php` precisely so it could be unit-tested

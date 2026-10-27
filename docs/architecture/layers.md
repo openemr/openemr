@@ -158,7 +158,7 @@ never contain a query; services do, and eventually only a repository/Doctrine la
 | Configuration  | `OEGlobalsBag` typed getters (`getString`, `getInt`, `getBoolean`) | Read `$GLOBALS` directly |
 | Logging        | Injected PSR-3 `LoggerInterface`, context arrays | `error_log`, string interpolation into messages |
 | Time           | Injected PSR-20 `ClockInterface` | `new DateTime()`, `time()` in logic |
-| Session        | Framework session abstraction (`SessionInterface`) | Direct `$_SESSION` in logic |
+| Session        | OpenEMR session classes (`SessionWrapperFactory`) → the Symfony `SessionInterface` session bag they return | Any raw `$_SESSION` read or write |
 | Errors         | Catch `\Throwable`, let it propagate unless you can recover | catch-log-continue; expose `getMessage()` to users |
 
 See `AGENTS.md` for the detailed rules behind each of these.

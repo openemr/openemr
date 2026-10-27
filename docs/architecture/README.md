@@ -206,7 +206,10 @@ Add no new instances of these; remove them opportunistically when you touch a fi
 - Bare user-facing strings, the wrong-context `xl*` variant, or a dynamic value passed to
   `xl()`.
 - Hand-rolled openssl/sodium instead of `CryptoInterface`/`CryptoGen`.
-- Writing to `$_SESSION` without setting `$sessionAllowWrite = true` before `globals.php`.
+- **Any raw `$_SESSION` read or write.** Session state is accessed only through the OpenEMR
+  session classes (`SessionWrapperFactory`) and the Symfony `SessionInterface` session bag
+  they return — never the superglobal. (The `$sessionAllowWrite` legacy global still gates
+  whether writes *persist*; see [interface-and-forms.md](interface-and-forms.md#cookie--session-management--the-read_and_close-mechanism).)
 - New hand-coded forms as a procedural quartet instead of the MVC shape.
 
 ### Deprecated technologies — do not add new usage

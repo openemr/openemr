@@ -72,9 +72,27 @@ would stall the whole UI. OpenEMR's distinctive mechanism, driven from
   *before* including `globals.php`; otherwise session writes in that request are not
   persisted. This is the one legacy global whose presence is load-bearing — respect it.
 - The mechanism works under both the native file handler and the predis/Redis-sentinel
-  session handler. New code should read session through the framework
-  `SessionInterface`/`SessionWrapperFactory` abstraction, not touch `$_SESSION` directly
-  (see [layers.md → Cross-cutting concerns](layers.md#cross-cutting-concerns)).
+  session handler.
+
+**Access session state only through the session classes — never raw `$_SESSION`.** This
+holds for *all* session access, reads and writes alike:
+
+- Obtain the session from **`SessionWrapperFactory`** — `getActiveSession()`, or
+  `getCoreSession()` / `getPortalSession()` for a specific realm — or have it injected as a
+  Symfony **`SessionInterface`** (as `CarePlanController` does). Use the **session bag**'s
+  accessors: `get()`, `set()`, `has()`, `remove()`.
+- Writes go through the abstraction too. `WriteThroughSession` (which extends Symfony's
+  `Session`, backed by an attribute bag) persists writes automatically.
+- **Raw `$_SESSION` reads and writes are forbidden** (hub anti-patterns). Touching the
+  superglobal bypasses realm separation (core vs portal vs setup), the write-through
+  persistence, and the read-only/lock handling above — all of which the classes exist to
+  manage.
+- **Keep two concerns separate:** *how* you access session data (always the abstraction)
+  versus *whether* a write persists (gated by `$sessionAllowWrite` + `read_and_close`). You
+  need both — the session bag to touch the data, and `$sessionAllowWrite = true` set before
+  `globals.php` for that write to stick.
+
+See also [layers.md → Cross-cutting concerns](layers.md#cross-cutting-concerns).
 
 ## Encounters as the clinical focus
 
