@@ -17,8 +17,9 @@ pattern to copy:
 A legacy `interface/.../new.php` becomes a shim that bootstraps the environment, builds
 the controller with its dependencies, and delegates. Everything it used to do inline now
 lives in typed classes. From `interface/forms/care_plan/new.php` (abbreviated — the real file
-also carries the `use` imports and the `options.inc.php` / `custom/code_types.inc.php` includes
-the controller needs):
+also carries the `use` imports, the `$globalsBag` setup (`$globalsBag = OEGlobalsBag::getInstance()`,
+`$srcdir = $globalsBag->getSrcDir()`) that the lines below rely on, and the `options.inc.php` /
+`custom/code_types.inc.php` includes the controller needs):
 
 ```php
 require_once(__DIR__ . "/../../globals.php");   // legacy bootstrap stays, for now
