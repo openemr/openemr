@@ -48,23 +48,24 @@ final class FhirSearchSyntaxError
     }
 
     /**
-     * @return array{parameter: string, message: string}|null the marked parameter and its message, or null
+     * @return string|null the parameter whose value didn't parse, or null
      */
-    public static function find(ProcessingResult $result): ?array
+    public static function find(ProcessingResult $result): ?string
     {
         $messages = $result->getValidationMessages();
         if (!is_array($messages)) {
             return null;
         }
         $parameter = $messages[self::VALIDATION_KEY] ?? null;
-        if (!is_string($parameter)) {
-            return null;
-        }
-        $message = $messages[$parameter] ?? '';
-        return ['parameter' => $parameter, 'message' => is_string($message) ? $message : ''];
+        return is_string($parameter) ? $parameter : null;
     }
 
-    public static function operationOutcome(string $parameter, string $message): FHIROperationOutcome
+    /**
+     * The diagnostics are fixed text naming the parameter and the form it takes. The parser's own message stays
+     * in the validation messages and the server log, out of the response. Only date parameters are marked today,
+     * so the text names the date forms.
+     */
+    public static function operationOutcome(string $parameter): FHIROperationOutcome
     {
         $issue = new FHIROperationOutcomeIssue();
         $severity = new FHIRIssueSeverity();
@@ -73,7 +74,9 @@ final class FhirSearchSyntaxError
         $code = new FHIRIssueType();
         $code->setValue('invalid');
         $issue->setCode($code);
-        $issue->setDiagnostics(new FHIRString("Search parameter '" . $parameter . "': " . $message));
+        $issue->setDiagnostics(new FHIRString(
+            "Search parameter '" . $parameter . "' must be a FHIR date or dateTime, such as 2020-01-31 or 2020-01-31T13:45:00Z."
+        ));
         $outcome = new FHIROperationOutcome();
         $outcome->addIssue($issue);
         return $outcome;

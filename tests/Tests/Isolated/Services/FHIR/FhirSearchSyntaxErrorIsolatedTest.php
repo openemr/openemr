@@ -47,19 +47,19 @@ namespace OpenEMR\Tests\Isolated\Services\FHIR {
             $result = $service->getAll(['birthdate' => 'not-a-date']);
 
             $this->assertFalse($service->searchWasReached);
-            $error = FhirSearchSyntaxError::find($result);
-            $this->assertNotNull($error);
-            $this->assertSame('birthdate', $error['parameter']);
-            $this->assertStringContainsString('ISO8601', $error['message']);
+            $this->assertSame('birthdate', FhirSearchSyntaxError::find($result));
+            // The parser's message stays in the validation messages, which the server logs and never sends.
+            $messages = $result->getValidationMessages();
+            $this->assertIsArray($messages);
+            $this->assertIsString($messages['birthdate'] ?? null);
+            $this->assertStringContainsString('ISO8601', $messages['birthdate']);
         }
 
         public function testADateWithAnUnknownComparatorIsASyntaxError(): void
         {
             $result = (new SearchSyntaxTestService())->getAll(['birthdate' => 'xx2020-01-01']);
 
-            $error = FhirSearchSyntaxError::find($result);
-            $this->assertNotNull($error);
-            $this->assertSame('birthdate', $error['parameter']);
+            $this->assertSame('birthdate', FhirSearchSyntaxError::find($result));
         }
 
         public function testAWellFormedDateSearchesAsBefore(): void
@@ -124,7 +124,7 @@ namespace OpenEMR\Tests\Isolated\Services\FHIR {
             $combined->addProcessingResult($inner);
             $combined->clearData();
 
-            $this->assertSame(['parameter' => 'date', 'message' => 'Invalid ISO8601 date'], FhirSearchSyntaxError::find($combined));
+            $this->assertSame('date', FhirSearchSyntaxError::find($combined));
         }
 
         public function testTheResponseIsA400OperationOutcomeNamingTheParameter(): void
@@ -143,8 +143,12 @@ namespace OpenEMR\Tests\Isolated\Services\FHIR {
             $this->assertIsArray($issue);
             $this->assertSame('error', $issue['severity'] ?? null);
             $this->assertSame('invalid', $issue['code'] ?? null);
-            $this->assertIsString($issue['diagnostics'] ?? null);
-            $this->assertStringStartsWith("Search parameter 'birthdate': ", $issue['diagnostics']);
+            $this->assertSame(
+                "Search parameter 'birthdate' must be a FHIR date or dateTime, such as 2020-01-31 or 2020-01-31T13:45:00Z.",
+                $issue['diagnostics'] ?? null
+            );
+            // The parser's message, which the search trait wraps as "Inner message: ...", isn't sent to the client.
+            $this->assertStringNotContainsString('Inner message', (string) $response->getContent());
 
             $psr = RestControllerHelper::getFhirSearchErrorPsrResponse($result);
             $this->assertNotNull($psr);

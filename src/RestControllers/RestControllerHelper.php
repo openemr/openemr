@@ -513,12 +513,12 @@ class RestControllerHelper
         if (!$processingResult instanceof ProcessingResult) {
             return null;
         }
-        $error = FhirSearchSyntaxError::find($processingResult);
-        if ($error === null) {
+        $parameter = FhirSearchSyntaxError::find($processingResult);
+        if ($parameter === null) {
             return null;
         }
         return self::responseHandler(
-            FhirSearchSyntaxError::operationOutcome($error['parameter'], $error['message']),
+            FhirSearchSyntaxError::operationOutcome($parameter),
             null,
             Response::HTTP_BAD_REQUEST
         );
@@ -532,12 +532,12 @@ class RestControllerHelper
         if (!$processingResult instanceof ProcessingResult) {
             return null;
         }
-        $error = FhirSearchSyntaxError::find($processingResult);
-        if ($error === null) {
+        $parameter = FhirSearchSyntaxError::find($processingResult);
+        if ($parameter === null) {
             return null;
         }
         return self::returnSingleObjectResponse(
-            FhirSearchSyntaxError::operationOutcome($error['parameter'], $error['message'])
+            FhirSearchSyntaxError::operationOutcome($parameter)
         )->withStatus(Response::HTTP_BAD_REQUEST);
     }
 

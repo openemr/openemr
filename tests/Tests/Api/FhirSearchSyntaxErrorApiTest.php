@@ -65,8 +65,12 @@ class FhirSearchSyntaxErrorApiTest extends TestCase
         $issue = $this->singleIssue($response);
         $this->assertSame('error', $issue['severity'] ?? null);
         $this->assertSame('invalid', $issue['code'] ?? null);
-        $this->assertIsString($issue['diagnostics'] ?? null);
-        $this->assertStringStartsWith("Search parameter '" . $parameter . "': ", $issue['diagnostics']);
+        $this->assertSame(
+            "Search parameter '" . $parameter . "' must be a FHIR date or dateTime, such as 2020-01-31 or 2020-01-31T13:45:00Z.",
+            $issue['diagnostics'] ?? null
+        );
+        // The parser's message, which the search trait wraps as "Inner message: ...", isn't sent to the client.
+        $this->assertStringNotContainsString('Inner message', (string) $response->getBody());
     }
 
     public function testAValidSearchThatMatchesNothingStillAnswers200WithAnEmptyBundle(): void
