@@ -50,6 +50,7 @@ class FhirSearchSyntaxErrorApiTest extends TestCase
             'Observation date (mapped resource)' => ['/apis/default/fhir/Observation', ['date' => 'not-a-date'], 'date'],
             'Encounter date' => ['/apis/default/fhir/Encounter', ['date' => 'not-a-date'], 'date'],
             'ServiceRequest authored' => ['/apis/default/fhir/ServiceRequest', ['authored' => 'not-a-date'], 'authored'],
+            'Provenance _lastUpdated (searches every US Core service)' => ['/apis/default/fhir/Provenance', ['_lastUpdated' => 'not-a-date'], '_lastUpdated'],
         ];
     }
 
@@ -83,9 +84,26 @@ class FhirSearchSyntaxErrorApiTest extends TestCase
         $this->assertSame(0, $body['total'] ?? null);
     }
 
-    public function testAWellFormedDateStillSearches(): void
+    /**
+     * @return array<string, array{string, array<string, string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function wellFormedSearchProvider(): array
     {
-        $response = $this->testClient->get('/apis/default/fhir/Observation', ['date' => 'ge2999-01-01']);
+        return [
+            'Observation date' => ['/apis/default/fhir/Observation', ['date' => 'ge2999-01-01']],
+            'Provenance _lastUpdated' => ['/apis/default/fhir/Provenance', ['_lastUpdated' => 'ge2020-01-01']],
+        ];
+    }
+
+    /**
+     * @param array<string, string> $search
+     */
+    #[DataProvider('wellFormedSearchProvider')]
+    public function testAWellFormedDateStillSearches(string $endpoint, array $search): void
+    {
+        $response = $this->testClient->get($endpoint, $search);
 
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
         $this->assertSame('Bundle', $this->json($response)['resourceType'] ?? null);
