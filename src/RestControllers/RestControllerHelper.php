@@ -30,6 +30,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatement
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementOperation;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementRest;
+use OpenEMR\Services\FHIR\FhirSearchSyntaxError;
 use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\UtilsService;
@@ -495,6 +496,49 @@ class RestControllerHelper
             ->withHeader("Content-Type", "application/json")
             ->withBody($psrFactory->createStream(json_encode($httpResponseBody)));
         return $response;
+    }
+
+    /**
+     * Answers a FHIR search whose parameter value didn't parse with 400 and an OperationOutcome (R4 search, 3.1.1.3:
+     * "Where the content of the parameter is syntactically incorrect, servers SHOULD return an error"). For any
+     * other result it returns null, and the search controller builds its Bundle as before. Every FHIR search
+     * controller's getAll() calls this before building its Bundle.
+     *
+     * @param mixed $processingResult the search service's result; several controllers hold their service in an
+     *                                untyped property, so it reaches here as mixed, and anything but a
+     *                                ProcessingResult carries no search error
+     */
+    public static function getFhirSearchErrorResponse(mixed $processingResult): ?Response
+    {
+        if (!$processingResult instanceof ProcessingResult) {
+            return null;
+        }
+        $error = FhirSearchSyntaxError::find($processingResult);
+        if ($error === null) {
+            return null;
+        }
+        return self::responseHandler(
+            FhirSearchSyntaxError::operationOutcome($error['parameter'], $error['message']),
+            null,
+            Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    /**
+     * The same answer as getFhirSearchErrorResponse(), for the search controllers that respond with a PSR response.
+     */
+    public static function getFhirSearchErrorPsrResponse(mixed $processingResult): ?ResponseInterface
+    {
+        if (!$processingResult instanceof ProcessingResult) {
+            return null;
+        }
+        $error = FhirSearchSyntaxError::find($processingResult);
+        if ($error === null) {
+            return null;
+        }
+        return self::returnSingleObjectResponse(
+            FhirSearchSyntaxError::operationOutcome($error['parameter'], $error['message'])
+        )->withStatus(Response::HTTP_BAD_REQUEST);
     }
 
     /**
