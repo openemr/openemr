@@ -166,10 +166,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between 0\\|0\\.0\\|\'\'\\|\'0\'\\|array\\{\\}\\|false\\|null and \\-1 will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
