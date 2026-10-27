@@ -108,6 +108,27 @@ final class EraCheckPosting
         return false;
     }
 
+    /**
+     * Whether the claim's latest version already records this denial: denied
+     * (status 7) by this payer at this level with the same reason codes. A denial
+     * posts nothing to ar_activity, so postedBefore() can't see it, and each
+     * re-post of the ERA would add another denied claim version. A claim rebilled
+     * since the denial has a newer version, so a later denial is recorded.
+     *
+     * @param string $reasons the denial's code_mod_group_reason list, as stored in process_file
+     */
+    public function denialRecorded(int $pid, int $encounter, int $payerType, string $reasons): bool
+    {
+        $count = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS n FROM claims AS c WHERE c.patient_id = ? AND c.encounter_id = ? "
+            . "AND c.version = (SELECT MAX(l.version) FROM claims AS l WHERE l.patient_id = c.patient_id AND l.encounter_id = c.encounter_id) "
+            . "AND c.status = 7 AND c.payer_id = ? AND c.payer_type = ? AND c.process_file = LEFT(?, 255)",
+            'n',
+            [$pid, $encounter, $this->payerId, $payerType, $reasons]
+        );
+        return is_numeric($count) && (int) $count > 0;
+    }
+
     private function claimHasPostings(int $pid, int $encounter, string $checkNumber, string $checkDate): bool
     {
         [$bare, $era] = self::references($checkNumber);
