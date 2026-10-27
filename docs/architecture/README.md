@@ -166,7 +166,7 @@ Place each piece before writing. (This gate is mirrored as a trigger list in `AG
 - **User-facing text?** → the context-correct `xl*()` variant, with a literal string.
   ([subsystems.md](subsystems.md#internationalization-i18n))
 - **At-rest encryption?** → `CryptoInterface`/`CryptoGen` — never hand-rolled crypto.
-  ([subsystems.md](subsystems.md#security-encryption-and-key-management))
+  ([subsystems.md](subsystems.md#security-encryption-keys-and-api-authorization))
 - **A new clinical/encounter form?** → MVC shape in `src/` (controller + service + Twig),
   table in `sql/database.sql`, thin entry points — not a procedural `new/view/save/report`
   quartet. LBF only for admin-configurable forms. ([interface-and-forms.md](interface-and-forms.md))
@@ -259,6 +259,7 @@ When in doubt, read working code rather than this document:
 | Document management | `src/Services/DocumentService.php`; legacy `library/classes/Document.class.php` |
 | Internationalization | `library/translation.inc.php` (`xl`/`xlt`/`xla`/`xlj`) + `src/Common/Translation/TranslationCache.php` |
 | Encryption & key management | `src/Common/Crypto/CryptoGen.php` (`CryptoInterface`, `KeySource`/`KeyVersion`) |
+| OAuth2 / OIDC keys + scopes | `src/RestControllers/AuthorizationController.php` (+ `OAuth2KeyConfig`); `src/Common/Auth/OpenIDConnect/` + `src/RestControllers/SMART/`; see `API_README.md` |
 | Tabbed UI shell | `interface/main/tabs/main.php` + `js/tabs_view_model.js` (Knockout) |
 | Menu system + override seam | `src/Menu/MainMenuRole.php` + `MenuEvent`; JSON in `interface/main/tabs/menu/menus/` |
 | Session no-lock mechanism | `interface/globals.php` (`$sessionAllowWrite`) + `src/Common/Session/` (`read_and_close`) |

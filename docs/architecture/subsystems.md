@@ -84,7 +84,7 @@ Current mechanics:
   `library/classes/CouchDB.class.php`, tracked by `couch_docid`/`couch_revid`). The storage
   method is a column on the document row.
 - **Optional encryption at rest** (`ENCRYPTED_ON`/`OFF`) via `CryptoGen` (see
-  [Security](#security-encryption-and-key-management) below).
+  [Security](#security-encryption-keys-and-api-authorization) below).
 - **Categorization** through a document category tree; **thumbnails** via
   `ThumbnailGenerator`.
 - **External exposure** through FHIR `DocumentReference`
@@ -138,7 +138,13 @@ Rules:
 
 ---
 
-## Security: encryption and key management
+## Security: encryption, keys, and API authorization
+
+This subsystem spans three related security surfaces: at-rest encryption and its keys
+(`CryptoGen`), the OAuth2 / OpenID Connect key material (separate from the encryption keys),
+and OAuth2 scopes / API authorization.
+
+### Encryption at rest and key management (CryptoGen)
 
 At-rest encryption is centralized in **`src/Common/Crypto/CryptoGen.php`**
 (`CryptoInterface`), with a deliberately layered key architecture (documented in full at the
@@ -170,6 +176,50 @@ Rules and direction:
   `sites/<site>/documents/` across deployments.
 - **Related security components:** CSRF tokens (`CsrfUtils`, enforced on writes — see
   `CarePlanController::saveAction`), authentication (`src/Common/Auth/AuthUtils.php`), and API
-  authorization via OAuth2 (`league/oauth2-server`, [api.md](api.md)). Per `AGENTS.md` →
-  Error Handling, never leak exception messages (which may carry SQL, paths, or secrets) to
-  users.
+  authorization via OAuth2 (`league/oauth2-server`, see below and [api.md](api.md)). Per
+  `AGENTS.md` → Error Handling, never leak exception messages (which may carry SQL, paths, or
+  secrets) to users.
+
+### OAuth2 / OpenID Connect keys
+
+The REST/FHIR API's OAuth2 server (`league/oauth2-server`, driven by
+`src/RestControllers/AuthorizationController.php`) uses its **own key material, separate from
+the `CryptoGen` key sets above.** `OAuth2KeyConfig` (keyed on `OE_SITE_DIR`) manages, per
+site:
+
+- a **private/public signing key pair** (`getPrivateKeyLocation()` / `getPublicKeyLocation()`)
+  used to sign and verify the JWT access/ID tokens the server issues (handed to league as a
+  `CryptKey` with the passphrase below);
+- an **encryption key** (`getEncryptionKey()`) the league server uses to encrypt its
+  authorization codes and refresh tokens;
+- a **passphrase** (`getPassPhrase()`) protecting the private key.
+
+These live under the site's documents directory — **not** the `keys` table or the `methods/`
+drive keys of `CryptoGen`. They are part of the trust root for API access: rotating or losing
+them invalidates every token already issued and breaks client sessions, so persist them across
+deployments just like the `CryptoGen` drive keys. Dynamic client registration
+(`/oauth2/<site>/registration`) also supports asymmetric client authentication
+(`private_key_jwt` / JWKS), so clients may present their own key pairs.
+
+### OAuth2 scopes and API authorization
+
+API requests are authorized by **OAuth2 scopes** layered on top of the ACL model
+([Permissions](#permissions-and-authorization)): a token's scopes bound what it may touch, and
+the user's ACLs still apply underneath. OpenEMR implements **SMART-on-FHIR** scopes via
+`src/Common/Auth/OpenIDConnect/` (`Repositories/ScopeRepository.php`, `Entities/ScopeEntity`,
+`Validators/ScopeValidatorFactory`) and `src/RestControllers/SMART/` (`ScopePermissionParser`,
+`ScopeConsentResolver`):
+
+- **Granular scopes** use the `.cruds` syntax (e.g. `patient/Observation.rs`) for
+  fine-grained, least-privilege access; V1 scopes are deprecated-but-supported.
+- **Modules extend the scope set** by subscribing to
+  `OpenEMR\Events\RestApiExtend\RestApiScopeEvent` — the core↔module event seam again, not by
+  editing core scope lists.
+- This covers **API authorization**; the reuse/consumer philosophy for the endpoints
+  themselves is in [api.md](api.md).
+
+**Authoritative API-security docs.** This section is an architectural overview; the operational
+detail lives in the API documentation. See **[`API_README.md`](../../API_README.md)** and,
+linked from it, `Documentation/api/AUTHENTICATION.md` (OAuth2 flows, tokens, client
+registration, asymmetric client auth) and `Documentation/api/AUTHORIZATION.md` (the full scope
+reference and the granular `.cruds` syntax).
