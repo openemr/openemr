@@ -27,6 +27,62 @@ use OpenEMR\Core\OEGlobalsBag;
 class X125010837P
 {
     /**
+     * Billing-provider ZIP, loop 2010AA. The 837P guide requires 9 digits for a US address.
+     */
+    private const BILLING_ZIP_LOG = '*** Billing facility zip is not 9 digits. '
+        . '837P loop 2010AA requires a 9-digit ZIP for US addresses; payers may reject the claim.';
+
+    /**
+     * Billing-facility postal code, loop 2010AA. Letters do not survive digit reduction.
+     */
+    private const BILLING_POSTAL_LOSS_LOG = '*** Billing facility postal code lost letters when reduced to digits. '
+        . 'This 837P does not send the country code (N404), so the stored postal code was not sent.';
+
+    /**
+     * Service-facility postal code, loop 2310C. Letters do not survive digit reduction.
+     */
+    private const SERVICE_POSTAL_LOSS_LOG = '*** Service facility postal code lost letters when reduced to digits. '
+        . 'This 837P does not send the country code (N404), so the stored postal code was not sent.';
+
+    /**
+     * Service-facility ZIP, loop 2310C. The 837P guide requires 9 digits for a US address.
+     */
+    private const SERVICE_ZIP_LOG = '*** Service facility zip is not 9 digits. '
+        . '837P loop 2310C requires a 9-digit ZIP for US addresses; payers may reject the claim.';
+
+    /**
+     * Country names and codes whose postal code is a USPS ZIP, with punctuation removed.
+     * The British Virgin Islands are not in this list.
+     *
+     * @var list<non-empty-string>
+     */
+    private const UNITED_STATES_POSTAL = [
+        'US',
+        'USA',
+        'UNITEDSTATES',
+        'UNITEDSTATESOFAMERICA',
+        'PR',
+        'PRI',
+        'PUERTORICO',
+        'GU',
+        'GUM',
+        'GUAM',
+        'VI',
+        'VIR',
+        'VIRGINISLANDSUS',
+        'USVI',
+        'USVIRGINISLANDS',
+        'UNITEDSTATESVIRGINISLANDS',
+        'AS',
+        'ASM',
+        'AMERICANSAMOA',
+        'MP',
+        'MNP',
+        'NORTHERNMARIANAISLANDS',
+        'CNMI',
+    ];
+
+    /**
      * Build one X12 5010 837P claim.
      *
      * The billing pay-to provider HL argument was removed until the generators support it.
@@ -1680,14 +1736,10 @@ class X125010837P
     }
 
     /**
-     * Billing-provider ZIP, loop 2010AA. The 837P guide requires 9 digits for a US address.
-     */
-
-    /**
-     * A short ZIP is logged only for a United States facility.
+     * A short ZIP is logged for a blank country, the United States, or a US territory.
      *
-     * A blank country keeps the previous warning. A named country
-     * outside the United States does not.
+     * Puerto Rico, Guam, American Samoa, the Northern Mariana Islands, and the
+     * US Virgin Islands use a USPS ZIP. A named country outside that list does not.
      */
     private static function nineDigitZipApplies(string $country, string $zip): bool
     {
@@ -1703,9 +1755,9 @@ class X125010837P
     }
 
     /**
-     * A named country outside the United States whose stored postal
-     * code contains a letter. Digit reduction drops that letter, and
-     * loop 2010AA or 2310C does not carry the country.
+     * A named country outside the United States and its territories whose stored
+     * postal code contains a letter. Digit reduction drops that letter. This
+     * generator does not send N404, so the stored code is not what goes out.
      */
     private static function foreignPostalLosesLetters(string $country, string $postal): bool
     {
@@ -1726,31 +1778,10 @@ class X125010837P
     }
 
     /**
-     * @param non-empty-string $letters
+     * @param non-empty-string $letters country with punctuation and spaces removed
      */
     private static function isUnitedStates(string $letters): bool
     {
-        return in_array($letters, ['US', 'USA', 'UNITEDSTATES', 'UNITEDSTATESOFAMERICA'], true);
+        return in_array($letters, self::UNITED_STATES_POSTAL, true);
     }
-
-    private const BILLING_ZIP_LOG = '*** Billing facility zip is not 9 digits. '
-        . '837P loop 2010AA requires a 9-digit ZIP for US addresses; payers may reject the claim.';
-
-    /**
-     * Billing-facility postal code, loop 2010AA. Letters do not survive digit reduction.
-     */
-    private const BILLING_POSTAL_LOSS_LOG = '*** Billing facility postal code lost letters when reduced to digits. '
-        . '837P loop 2010AA has no country code, so the stored postal code was not sent.';
-
-    /**
-     * Service-facility postal code, loop 2310C. Letters do not survive digit reduction.
-     */
-    private const SERVICE_POSTAL_LOSS_LOG = '*** Service facility postal code lost letters when reduced to digits. '
-        . '837P loop 2310C has no country code, so the stored postal code was not sent.';
-
-    /**
-     * Service-facility ZIP, loop 2310C. The 837P guide requires 9 digits for a US address.
-     */
-    private const SERVICE_ZIP_LOG = '*** Service facility zip is not 9 digits. '
-        . '837P loop 2310C requires a 9-digit ZIP for US addresses; payers may reject the claim.';
 }
