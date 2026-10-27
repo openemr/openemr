@@ -65,6 +65,9 @@ final readonly class AuditChainKey
             return null;
         }
 
+        if (!is_readable($path)) {
+            throw new \RuntimeException('The audit chain key file is not usable.');
+        }
         $raw = file_get_contents($path);
         if (!is_string($raw)) {
             throw new \RuntimeException('The audit chain key file is not usable.');
@@ -80,20 +83,30 @@ final readonly class AuditChainKey
 
     private static function create(string $path): ?string
     {
-        $handle = fopen($path, 'x');
-        if ($handle === false) {
-            return null;
-        }
-
         $key = bin2hex(random_bytes(32));
-        $written = fwrite($handle, $key);
-        fclose($handle);
+        $temp = $path . '.' . bin2hex(random_bytes(4)) . '.tmp';
+        $previousUmask = umask(0027);
+        try {
+            $written = file_put_contents($temp, $key, LOCK_EX);
+        } finally {
+            umask($previousUmask);
+        }
         if ($written !== 64) {
-            unlink($path);
+            if (is_file($temp)) {
+                unlink($temp);
+            }
             throw new \RuntimeException('Unable to store the audit chain key.');
         }
+        if (!chmod($temp, 0640)) {
+            unlink($temp);
+            throw new \RuntimeException('Unable to store the audit chain key.');
+        }
+        if (!link($temp, $path)) {
+            unlink($temp);
 
-        chmod($path, 0640);
+            return null;
+        }
+        unlink($temp);
 
         return $key;
     }

@@ -46,22 +46,29 @@ final class AuditLogPrivilegeApplicator
         if (!is_string($account) || $account === '') {
             return 'Audit table protections were not changed.';
         }
-        $parsed = AuditLogGrantPlan::parseAccount($account);
-        $plan = new AuditLogGrantPlan(
-            database: $options->dbname,
-            applicationUser: $parsed['user'],
-            applicationHost: $parsed['host'],
-            auditUser: 'openemr_audit',
-            auditHost: $parsed['host'],
-        );
-
         $notes = [];
-        $triggers = self::run($plan->triggerStatements());
+        $triggers = self::run(AuditLogGrantPlan::triggerStatements());
         $notes[] = $triggers === 0
             ? 'Audit rows reject updates and deletes.'
             : 'Audit row triggers could not all be installed.';
 
         if (AuditDatabaseCredential::read($siteDir) instanceof AuditDatabaseCredential) {
+            return implode(' ', $notes);
+        }
+
+        $parsed = AuditLogGrantPlan::parseAccount($account);
+        $auditUser = 'oe_audit_' . substr(hash('sha256', $options->dbname), 0, 12);
+        try {
+            $plan = new AuditLogGrantPlan(
+                database: $options->dbname,
+                applicationUser: $parsed['user'],
+                applicationHost: $parsed['host'],
+                auditUser: $auditUser,
+                auditHost: $parsed['host'],
+            );
+        } catch (\InvalidArgumentException) {
+            $notes[] = 'A separate audit database account was not created. The application account still appends audit rows.';
+
             return implode(' ', $notes);
         }
 
@@ -73,7 +80,7 @@ final class AuditLogPrivilegeApplicator
             return implode(' ', $notes);
         }
 
-        AuditDatabaseCredential::create('openemr_audit', $password)->write($siteDir);
+        AuditDatabaseCredential::create($auditUser, $password)->write($siteDir);
         $notes[] = 'A separate audit database account now appends audit rows.';
 
         return implode(' ', $notes);

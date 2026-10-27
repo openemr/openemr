@@ -67,9 +67,7 @@ return [
         // Future: make this configurable
         $sinks[] = new Audit\LogTablesSink(
             conn: $auditConn,
-            chainKey: Audit\AuditChainKey::fromSiteDirectory(
-                OEGlobalsBag::getInstance()->getString('OE_SITE_DIR'),
-            )->value(),
+            siteDir: OEGlobalsBag::getInstance()->getString('OE_SITE_DIR'),
         );
         if ($c->getBool('ATNA_ENABLED')) {
             $sinks[] = $c->get(Audit\AtnaSink::class);
