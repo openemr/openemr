@@ -433,18 +433,20 @@ class EventAuditLoggerTest extends TestCase
      * A logger with patient-record and security-administration events on that
      * appends every recorded event to $events.
      *
-     * @param list<Event> $events
-     */
-    /**
-     * A logger with patient-record and security-administration events on that
-     * appends every recorded event to $events.
+     * Statement detail is required. The branch default summarizes selects and
+     * would leave these assertions with an empty event list.
      *
      * @param list<Event> $events
      */
     private function patientRecordLogger(array &$events, mixed $sessionPid): EventAuditLogger
     {
         $this->session->method('get')->willReturnCallback(
-            fn (string $name): mixed => $name === 'pid' ? $sessionPid : null
+            fn (string $name): mixed => match ($name) {
+                'pid' => $sessionPid,
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                default => null,
+            }
         );
         $sink = $this->createMock(SinkInterface::class);
         $sink->method('record')->willReturnCallback(
@@ -462,6 +464,7 @@ class EventAuditLoggerTest extends TestCase
                 queryEvents: true,
                 httpRequestEvents: false,
                 enabledEventTypes: [EventCategory::PatientRecord, EventCategory::SecurityAdministration],
+                queryDetail: AuditQueryDetail::Statement,
             ),
             breakglassChecker: $this->breakglassChecker,
             clock: $this->clock,
