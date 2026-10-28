@@ -15,6 +15,7 @@
  *   0  The upgrade file ran.
  *   2  Bad arguments, or the connection was not on parity_upgraded. An SQL
  *      error in the upgrade file throws, which also exits non-zero.
+ * A web request gets a 403 and nothing else.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -28,7 +29,14 @@ declare(strict_types=1);
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
-$upgradeFile = (PHP_SAPI === 'cli' && isset($argv[1])) ? realpath($argv[1]) : false;
+// It boots OpenEMR with $ignoreAuth and runs SQL against a database, so it never
+// runs from a web request, whatever the server config lets through.
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit("upgrade-parity-run.php runs only from the command line\n");
+}
+
+$upgradeFile = isset($argv[1]) ? realpath($argv[1]) : false;
 if ($upgradeFile === false || !is_file($upgradeFile)) {
     fwrite(STDERR, "usage: php upgrade-parity-run.php <upgrade file>\n");
     exit(2);

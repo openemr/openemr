@@ -6,9 +6,7 @@
 # seeded rows (.github/scripts/upgrade-parity.sh). A database.sql change with
 # no matching upgrade SQL shows up whatever statement it is.
 #
-# Report-only for now: differences go to the job summary and a warning, and
-# the job passes, so it can't block a merge while it earns trust. Set ENFORCE
-# below to 'true' to make differences fail it.
+# Differences fail the job, and the job summary lists them.
 #
 # Cost: it runs only when database.sql or an upgrade file changes, uses the
 # MySQL preinstalled on the runner (no image pull), and fetches only the one
@@ -41,8 +39,6 @@ jobs:
     name: Upgrade matches fresh install
     runs-on: ubuntu-24.04
     timeout-minutes: 20
-    env:
-      ENFORCE: 'false'
     steps:
     - name: Checkout Code
       uses: actions/checkout@v7
@@ -74,11 +70,4 @@ jobs:
     - name: Compare an upgraded database with a fresh install
       env:
         HTTP_HOST: localhost
-      run: |
-        status=0
-        .github/scripts/upgrade-parity.sh || status=$?
-        if [[ ${status} -ne 0 && "${ENFORCE}" != 'true' ]]; then
-          echo "::warning::Upgrade parity exited ${status}; report-only, so not failing. See the job summary."
-          exit 0
-        fi
-        exit "${status}"
+      run: .github/scripts/upgrade-parity.sh
