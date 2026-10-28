@@ -39,25 +39,25 @@ class FacilityPostalSaveNoticeTest extends TestCase
             . 'The postal code is not 9 digits, so a claim that uses it can be rejected.';
 
         return [
-            'billing five digits' => ['12345', true, false, $billing, '', 1],
-            'service five digits' => ['12345', false, true, $service, '', 1],
-            'both roles' => ['12345', true, true, $both, '', 1],
-            'empty postal' => ['', true, false, $billing, '', 1],
-            'zip plus 4 is nine digits' => ['12345-6789', true, true, '', '', 1],
-            'nine digits' => ['123456789', false, true, '', '', 1],
-            'letters after nine digits' => ['123456789abc', true, false, '', '', 1],
-            'digits with a space' => ['12345 6789', true, true, '', '', 1],
-            'unlabeled canadian shape uses the us rule' => ['K1A 0B1', false, true, $service, '', 1],
-            'canada stays quiet' => ['K1A 0B1', false, true, '', 'Canada', 1],
-            'ca stays quiet' => ['K1A0B1', true, false, '', 'CA', 1],
-            'ireland stays quiet' => ['D02 AF30', true, true, '', 'Ireland', 353],
-            'ie stays quiet' => ['D02AF30', true, false, '', 'IE', 353],
-            'blank country outside north america stays quiet' => ['12345', true, false, '', '', 353],
-            'united states still notices' => ['12345', true, false, $billing, 'United States', 1],
-            'usa abbreviation still notices' => ['12345', false, true, $service, 'U.S.A.', 44],
-            'us code still notices' => ['12345', true, true, $both, 'US', 1],
-            'nine digits with a blank country' => ['123456789', true, false, '', '', 1],
-            'not a service or billing location' => ['12345', false, false, '', 'Canada', 1],
+            'billing five digits' => ['12345', true, false, $billing, 'United States'],
+            'service five digits' => ['12345', false, true, $service, 'US'],
+            'both roles' => ['12345', true, true, $both, 'USA'],
+            'empty postal' => ['', true, false, $billing, 'United States'],
+            'zip plus 4 is nine digits' => ['12345-6789', true, true, '', 'US'],
+            'nine digits' => ['123456789', false, true, '', 'US'],
+            'letters after nine digits' => ['123456789abc', true, false, '', 'US'],
+            'digits with a space' => ['12345 6789', true, true, '', 'US'],
+            'blank country with a canadian shape stays quiet' => ['K1A 0B1', false, true, '', ''],
+            'canada stays quiet' => ['K1A 0B1', false, true, '', 'Canada'],
+            'ca stays quiet' => ['K1A0B1', true, false, '', 'CA'],
+            'ireland stays quiet' => ['D02 AF30', true, true, '', 'Ireland'],
+            'ie stays quiet' => ['D02AF30', true, false, '', 'IE'],
+            'blank country stays quiet even with phone code 1' => ['12345', true, false, '', ''],
+            'united states still notices' => ['12345', true, false, $billing, 'United States'],
+            'usa abbreviation still notices' => ['12345', false, true, $service, 'U.S.A.'],
+            'us code still notices' => ['12345', true, true, $both, 'US'],
+            'nine digits with a blank country' => ['123456789', true, false, '', ''],
+            'not a service or billing location' => ['12345', false, false, '', 'Canada'],
         ];
     }
 
@@ -71,9 +71,8 @@ class FacilityPostalSaveNoticeTest extends TestCase
         bool $service,
         string $expected,
         string $country,
-        int $phoneCountryCode,
     ): void {
-        $notice = FacilityService::facilityPostalSaveNotice($postal, $billing, $service, $country, $phoneCountryCode);
+        $notice = FacilityService::facilityPostalSaveNotice($postal, $billing, $service, $country);
         $this->assertSame($expected, $notice);
         if ($notice === '') {
             return;
@@ -91,11 +90,15 @@ class FacilityPostalSaveNoticeTest extends TestCase
      */
     public function testSaveDialogBodyNamesTheSave(): void
     {
-        $saved = json_decode(FacilityService::facilitySaveDialogBody('Notice'), true);
+        $saved = json_decode(FacilityService::facilitySaveDialogBody(true, 'Notice'), true);
         $this->assertIsArray($saved);
 
         $this->assertSame('saved', $saved['status']);
         $this->assertSame('Notice', $saved['message']);
+        $open = json_decode(FacilityService::facilitySaveDialogBody(false, 'Still open'), true);
+        $this->assertIsArray($open);
+        $this->assertSame('not_saved', $open['status']);
+        $this->assertSame('Still open', $open['message']);
     }
 
     /**
@@ -103,7 +106,7 @@ class FacilityPostalSaveNoticeTest extends TestCase
      */
     public function testSaveDialogBodyStaysSavedWhenTheSentenceCannotBeEncoded(): void
     {
-        $saved = json_decode(FacilityService::facilitySaveDialogBody("\xB1\x31"), true);
+        $saved = json_decode(FacilityService::facilitySaveDialogBody(true, "\xB1\x31"), true);
         $this->assertIsArray($saved);
 
         $this->assertSame('saved', $saved['status']);
