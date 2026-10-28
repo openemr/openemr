@@ -37497,6 +37497,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\FacilityService\\:\\:getFacilityForEncounter\\(\\) has parameter \\$encounterId with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FacilityService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FacilityService\\:\\:getFacilityForUserFormatted\\(\\) has parameter \\$userId with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
