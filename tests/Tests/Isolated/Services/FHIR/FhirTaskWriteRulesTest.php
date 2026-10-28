@@ -105,6 +105,7 @@ class FhirTaskWriteRulesTest extends TestCase
             'owned by a device' => [['owner' => ['reference' => 'Device/' . self::ORG]], 'owner'],
             'owned by another patient' => [['owner' => ['reference' => 'Patient/' . self::ORG]], 'owner'],
             'requested by a related person' => [['requester' => ['reference' => 'RelatedPerson/' . self::ORG]], 'requester'],
+            'requested by another patient' => [['requester' => ['reference' => 'Patient/' . self::ORG]], 'requester'],
             'two parents' => [['partOf' => [['reference' => 'Task/' . self::PARENT], ['reference' => 'Task/' . self::REQUEST]]], 'partOf'],
             'a parent that is not a task' => [['partOf' => [['reference' => 'ServiceRequest/' . self::REQUEST]]], 'partOf'],
             'authoredOn not a dateTime' => [['authoredOn' => 'yesterday'], 'authoredOn'],
@@ -197,8 +198,8 @@ class FhirTaskWriteRulesTest extends TestCase
     {
         foreach (['focus' => FhirTaskWriteRules::FOCUS_TYPES, 'owner' => FhirTaskWriteRules::OWNER_TYPES, 'requester' => FhirTaskWriteRules::REQUESTER_TYPES] as $element => $types) {
             foreach ($types as $type) {
-                // A Patient owner has to be the task's own patient.
-                $uuid = $element === 'owner' && $type === 'Patient' ? self::PATIENT : self::ORG;
+                // A Patient owner or requester has to be the task's own patient.
+                $uuid = $type === 'Patient' ? self::PATIENT : self::ORG;
                 $read = FhirTaskWriteRules::read(self::task([$element => ['reference' => $type . '/' . $uuid]]));
                 $this->assertSame([], $read['errors'], "$element $type");
                 $this->assertSame($type, $read['fields'][$element . '_type']);

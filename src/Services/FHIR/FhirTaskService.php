@@ -4,11 +4,12 @@
  * The FHIR Task resource over the task table (#14521; D9 and C7 of #13266):
  * read and search, and create and update. A write keeps to FhirTaskWriteRules:
  * the patient a task is for doesn't change, focus, owner and requester point
- * at the resource types the workflows use, a Patient or RelatedPerson owner is
- * the task's own patient or theirs, a parent task and each input and output in
- * the patient's record belong to the same patient, and a task doesn't leave a
- * final status. meta.versionId counts the updates, so an
- * update can ask that nobody changed the task since it was read (If-Match).
+ * at the resource types the workflows use, a Patient owner or requester is the
+ * task's own patient and a RelatedPerson owner theirs, a parent task, a
+ * ServiceRequest focus and each input and output in the patient's record
+ * belong to the same patient, and a task doesn't leave a final status.
+ * meta.versionId counts the updates, so an update can ask that nobody changed
+ * the task since it was read (If-Match).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -70,6 +71,9 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
 
     /** How far up a parent chain the loop check walks; deeper chains aren't a workflow anyone builds. */
     private const MAX_PARENT_DEPTH = 100;
+
+    /** The types a task's references are looked up as, in its patient's record. */
+    private const RECORD_TYPES = ['ServiceRequest', 'RelatedPerson', 'QuestionnaireResponse', 'Observation', 'Procedure', 'DocumentReference'];
 
     private function getTaskService(): TaskService
     {
@@ -444,12 +448,13 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     }
 
     /**
-     * What's wrong with the references into the patient's record, by element: a RelatedPerson
-     * owner, and each input and output that names a QuestionnaireResponse, Observation, Procedure
-     * or DocumentReference. Each has to be on this server and for the task's patient. The
-     * resource's own service looks it up inside that patient's compartment, so a task can't name
-     * another patient's record. References outside the record (a Questionnaire, an Organization,
-     * a Practitioner) are checked by type only, as owner and requester are.
+     * What's wrong with the references into the patient's record, by element: a ServiceRequest
+     * focus, a RelatedPerson owner, and each input and output that names a QuestionnaireResponse,
+     * Observation, Procedure or DocumentReference. Each has to be on this server and for the
+     * task's patient. The resource's own service looks it up inside that patient's compartment,
+     * so a task can't name another patient's record. References outside the record (a
+     * Questionnaire, an Organization, a Practitioner) are checked by type only; a Patient owner
+     * or requester is checked against Task.for when the body is read.
      *
      * @param array<string, string|null> $fields
      * @param array<int, array<string, string|null>> $inputs
@@ -458,60 +463,66 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
      */
     private function recordProblems(array $fields, array $inputs, array $outputs, string $puuid): array
     {
-        $problems = [];
-        $ownerUuid = $fields['owner_uuid'] ?? null;
-        $isRelatedPersonOwner = ($fields['owner_type'] ?? null) === 'RelatedPerson';
-        if ($isRelatedPersonOwner && !$this->inRecord('RelatedPerson', $ownerUuid, $puuid)) {
-            $problems['owner'] = "Task.owner names no RelatedPerson of this task's patient: " . ($ownerUuid ?? '');
+        $references = [];
+        foreach (['focus', 'owner'] as $element) {
+            $type = $fields[$element . '_type'] ?? null;
+            if ($type !== null && in_array($type, self::RECORD_TYPES, true)) {
+                $references[$element] = [$type, $fields[$element . '_uuid'] ?? null];
+            }
         }
         foreach (['input' => $inputs, 'output' => $outputs] as $element => $rows) {
             foreach ($rows as $i => $row) {
                 $type = $row['value_type'] ?? null;
-                if ($type === null || self::recordService($type) === null) {
-                    continue;
+                if ($type !== null && in_array($type, self::RECORD_TYPES, true)) {
+                    $references[$element . "[$i]"] = [$type, $row['value_uuid'] ?? null];
                 }
-                if (!$this->inRecord($type, $row['value_uuid'] ?? null, $puuid)) {
-                    $problems[$element . "[$i]"] = "Task.$element" . "[$i] names no $type for this task's patient: " . ($row['value_uuid'] ?? '');
-                }
+            }
+        }
+        // One service per type, and one lookup per record however often the task names it.
+        $services = [];
+        $found = [];
+        $problems = [];
+        foreach ($references as $element => [$type, $uuid]) {
+            $key = $type . '/' . strtolower($uuid ?? '');
+            $found[$key] ??= $uuid !== null && self::inRecord($services[$type] ??= $this->recordService($type), $uuid, $puuid);
+            if (!$found[$key]) {
+                $problems[$element] = "Task.$element names no $type for this task's patient: " . ($uuid ?? '');
             }
         }
         return $problems;
     }
 
-    /** Whether the record with this type and uuid is the patient's. */
-    private function inRecord(string $type, ?string $uuid, string $puuid): bool
+    /** Whether the record with this uuid is the patient's, as its own service finds it. */
+    private static function inRecord(FhirServiceBase $service, string $uuid, string $puuid): bool
     {
-        $service = self::recordService($type);
-        if ($service === null || $uuid === null) {
-            return false;
-        }
-        $session = $this->getSession();
-        if ($session !== null) {
-            $service->setSession($session);
-        }
         $found = $service->getOne($uuid, $puuid);
         return $found->isValid() && $found->hasData();
     }
 
     /**
-     * The service for a resource in the patient's record, built as its read route builds it, or
-     * null for a type outside the record. QuestionnaireResponse's responses saved from forms are a
-     * mapped service.
+     * The service for one of RECORD_TYPES, built as its read route builds it. QuestionnaireResponse's
+     * responses saved from forms are a mapped service.
      */
-    private static function recordService(string $type): ?FhirServiceBase
+    private function recordService(string $type): FhirServiceBase
     {
         if ($type === 'QuestionnaireResponse') {
             $service = new FhirQuestionnaireResponseService();
             $service->addMappedService(new FhirQuestionnaireResponseFormService());
-            return $service;
+        } else {
+            $service = match ($type) {
+                'ServiceRequest' => new FhirServiceRequestService(),
+                'RelatedPerson' => new FhirRelatedPersonService(),
+                'Observation' => new FhirObservationService(),
+                'Procedure' => new FhirProcedureService(),
+                'DocumentReference' => new FhirDocumentReferenceService(),
+                default => throw new \LogicException("$type is not looked up in the patient's record"),
+            };
         }
-        return match ($type) {
-            'Observation' => new FhirObservationService(),
-            'Procedure' => new FhirProcedureService(),
-            'DocumentReference' => new FhirDocumentReferenceService(),
-            'RelatedPerson' => new FhirRelatedPersonService(),
-            default => null,
-        };
+        $session = $this->getSession();
+        if ($session !== null) {
+            $service->setSession($session);
+        }
+        return $service;
     }
 
     /**

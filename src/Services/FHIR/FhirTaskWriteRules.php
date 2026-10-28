@@ -61,7 +61,7 @@ final class FhirTaskWriteRules
     /** Who does the work: a community organization, a clinician, the patient, or someone for them (a parent). */
     public const OWNER_TYPES = ['Organization', 'Practitioner', 'PractitionerRole', 'Patient', 'RelatedPerson'];
 
-    /** Who asked for it. */
+    /** Who asked for it: a patient asks for their own task. */
     public const REQUESTER_TYPES = ['Practitioner', 'PractitionerRole', 'Organization', 'Patient'];
 
     /** What the work needs: the questionnaire or the PDF to fill in, and whom to contact. */
@@ -171,9 +171,11 @@ final class FhirTaskWriteRules
             $fields[$element . '_type'] = $reference['type'];
             $fields[$element . '_uuid'] = $reference['uuid'];
         }
-        // A patient can be given their own task, not someone else's.
-        if ($fields['owner_type'] === 'Patient' && $puuid !== null && strcasecmp((string)$fields['owner_uuid'], $puuid) !== 0) {
-            $errors['owner'] = 'A Patient owner must be the patient the task is for';
+        // A patient can be given their own task, and ask for one, but not someone else's.
+        foreach (['owner', 'requester'] as $element) {
+            if ($fields[$element . '_type'] === 'Patient' && $puuid !== null && strcasecmp((string)$fields[$element . '_uuid'], $puuid) !== 0) {
+                $errors[$element] = "A Patient $element must be the patient the task is for";
+            }
         }
 
         $fields['part_of_uuid'] = null;

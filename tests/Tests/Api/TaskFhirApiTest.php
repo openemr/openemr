@@ -47,6 +47,8 @@ class TaskFhirApiTest extends TestCase
 
     private string $serviceRequestUuid;
 
+    private string $questionnaireUuid;
+
     protected function setUp(): void
     {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
@@ -57,8 +59,10 @@ class TaskFhirApiTest extends TestCase
         $this->patient = self::patientOf($this->fixtures->createTestPatient());
         $this->otherPatient = self::patientOf($this->fixtures->createTestPatient());
 
-        // The focus only has to look like a reference; nothing joins on it.
+        // References only have to look like ones in the tasks put in the table here (a read doesn't
+        // join on them), and in a body's Questionnaire focus (checked by type alone).
         $this->serviceRequestUuid = UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
+        $this->questionnaireUuid = UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
         $this->tasks['referral'] = $this->insertTask($this->patient['pid'], [
             'status' => 'requested',
             'code' => 'fulfill',
@@ -332,7 +336,9 @@ class TaskFhirApiTest extends TestCase
             'code' => ['coding' => [['system' => 'http://hl7.org/fhir/CodeSystem/task-code', 'code' => 'fulfill']]],
             'description' => 'Referral to medically tailored meals',
             'for' => ['reference' => 'Patient/' . ($patientUuid ?? $this->patient['uuid'])],
-            'focus' => ['reference' => 'ServiceRequest/' . $this->serviceRequestUuid],
+            // A Questionnaire is outside the patient's record, so its type is all that's checked. A
+            // ServiceRequest focus has to be the patient's own order (TaskInputOutputFhirApiTest).
+            'focus' => ['reference' => 'Questionnaire/' . $this->questionnaireUuid],
         ], $changes);
     }
 
@@ -395,7 +401,7 @@ class TaskFhirApiTest extends TestCase
         $this->assertContains($etag, ['W/"1"', ''], 'when present, the version');
         $this->assertSame('requested', self::at($task, 'status'));
         $this->assertSame('Patient/' . $this->patient['uuid'], self::at($task, 'for', 'reference'));
-        $this->assertSame('ServiceRequest/' . $this->serviceRequestUuid, self::at($task, 'focus', 'reference'));
+        $this->assertSame('Questionnaire/' . $this->questionnaireUuid, self::at($task, 'focus', 'reference'));
         $this->assertNotSame('', self::text(self::at($task, 'authoredOn')), 'set by the server when the body leaves it out');
         $this->assertStringNotContainsString('2001', self::text(self::at($task, 'lastModified')), 'lastModified is the server\'s');
 

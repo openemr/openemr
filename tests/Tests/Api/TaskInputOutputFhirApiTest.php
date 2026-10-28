@@ -67,6 +67,8 @@ class TaskInputOutputFhirApiTest extends TestCase
 
     private string $procedureUuid;
 
+    private string $serviceRequestUuid;
+
     private string $parentUuid;
 
     private string $otherParentUuid;
@@ -118,6 +120,11 @@ class TaskInputOutputFhirApiTest extends TestCase
         $bundle = json_decode((string)$procedures->getBody()->getContents(), true);
         $this->procedureUuid = self::text(self::at($bundle, 'entry', 0, 'resource', 'id'));
         $this->assertNotSame('', $this->procedureUuid, 'a Procedure for the patient: ' . json_encode($bundle));
+        // The same orders are ServiceRequests: a referral task's focus.
+        $requests = $this->testClient->get('/apis/default/fhir/ServiceRequest', ['patient' => $this->patientUuid]);
+        $bundle = json_decode((string)$requests->getBody()->getContents(), true);
+        $this->serviceRequestUuid = self::text(self::at($bundle, 'entry', 0, 'resource', 'id'));
+        $this->assertNotSame('', $this->serviceRequestUuid, 'a ServiceRequest for the patient: ' . json_encode($bundle));
 
         $this->questionnaireUuid = $this->installQuestionnaire();
         $url = QueryUtils::fetchSingleValue('SELECT source_url FROM questionnaire_repository WHERE uuid = ?', 'source_url', [UuidRegistry::uuidToBytes($this->questionnaireUuid)]);
@@ -284,6 +291,29 @@ class TaskInputOutputFhirApiTest extends TestCase
         [$status, $result] = $this->create($this->questionnaireTask(['owner' => ['reference' => 'RelatedPerson/' . $this->otherParentUuid]]));
         $this->assertSame(Response::HTTP_BAD_REQUEST, $status, 'the other patient\'s mother');
         $this->assertSame(['owner'], array_keys($this->errors($result)));
+
+        // A referral task's focus is the patient's order, and a patient asks for their own task.
+        $referral = [
+            'code' => ['coding' => [['system' => 'http://hl7.org/fhir/CodeSystem/task-code', 'code' => 'fulfill']]],
+            'focus' => ['reference' => 'ServiceRequest/' . $this->serviceRequestUuid],
+            'requester' => ['reference' => 'Patient/' . $this->patientUuid],
+            'status' => 'requested',
+        ];
+        [$status, $result] = $this->create($this->questionnaireTask($referral));
+        $this->assertSame(Response::HTTP_CREATED, $status, (string)json_encode($result));
+        $this->assertSame('ServiceRequest/' . $this->serviceRequestUuid, self::at($result, 'focus', 'reference'));
+        $forOther = ['for' => ['reference' => 'Patient/' . $this->otherPatientUuid], 'owner' => ['reference' => 'Patient/' . $this->otherPatientUuid]];
+        [$status, $result] = $this->create($this->questionnaireTask($forOther + ['requester' => ['reference' => 'Patient/' . $this->otherPatientUuid]] + $referral));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status, 'the other patient\'s task with this patient\'s order');
+        $this->assertSame(['focus'], array_keys($this->errors($result)));
+        [$status, $result] = $this->create($this->questionnaireTask(['focus' => ['reference' => 'Questionnaire/' . $this->questionnaireUuid]] + $forOther + $referral));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status, 'the other patient\'s task asked for by this patient');
+        $this->assertSame(['requester'], array_keys($this->errors($result)));
+
+        // A record named twice is looked up once, and is still the patient's.
+        $twice = self::outputTo('QuestionnaireResponse', $this->responseUuid);
+        [$status, $result] = $this->create($this->questionnaireTask(['output' => [$twice, $twice]]));
+        $this->assertSame(Response::HTTP_CREATED, $status, (string)json_encode($result));
     }
 
     public function testAPutReplacesTheInputsAndOutputs(): void
