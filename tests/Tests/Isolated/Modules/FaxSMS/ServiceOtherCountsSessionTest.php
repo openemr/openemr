@@ -31,8 +31,8 @@ class ServiceOtherCountsSessionTest extends TestCase
      * The badge poll calls GetServiceOtherCounts() on every open window, so a
      * session write there replaces the module the user picked in the Fax/SMS
      * screens. An unknown vendor key makes client construction throw, which
-     * stops the poll short of the real clients (their constructors dispatch
-     * and exit) while still running everything before it.
+     * stops the poll short of the real clients (their constructors exit on
+     * the module ACL check) while still running everything before it.
      */
     #[RunInSeparateProcess]
     #[PreserveGlobalState(false)]

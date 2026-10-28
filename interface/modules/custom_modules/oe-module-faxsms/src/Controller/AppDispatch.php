@@ -363,9 +363,9 @@ abstract class AppDispatch
     }
 
     /**
-     * Like getApiService(), but does not record $type as the module the user
-     * is working in. For callers that only need a client, such as the badge
-     * counts polled from every open window.
+     * Like getApiService(), but leaves the session alone, so $type does not
+     * become the module the user is working in. For callers that only need a
+     * client, such as the badge counts polled from every open window.
      */
     public static function getApiServiceWithoutSelecting(string $type): AppDispatch
     {
