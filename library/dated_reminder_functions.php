@@ -41,11 +41,11 @@ function GetServiceOtherCounts(): array
     }
     // unless main.php is reloaded Globals is most accurate.
     if (!empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null)) {
-        $client = AppDispatch::getApiService('fax');
+        $client = AppDispatch::getApiServiceWithoutSelecting('fax');
         $counts['faxCnt'] = (int)$client->fetchReminderCount();
     }
     if (!empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null)) {
-        $client = AppDispatch::getApiService('sms');
+        $client = AppDispatch::getApiServiceWithoutSelecting('sms');
         $counts['smsCnt'] = (int)$client->fetchReminderCount();
     }
     $counts['serviceTotal'] = $counts['faxCnt'] + $counts['smsCnt'];
