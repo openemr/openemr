@@ -97,14 +97,16 @@ final class EraCheckPosting
     public function recordClaimPayment(int $pid, int $encounter, int $level, array $pendedCodes, array $answeredCodes): void
     {
         $key = self::claimLevel($pid, $encounter, $level);
+        $pended = $this->pendedLines[$key] ?? [];
         foreach ($answeredCodes as $code) {
-            if (($this->pendedLines[$key][$code] ?? 0) > 0) {
-                --$this->pendedLines[$key][$code];
+            if (($pended[$code] ?? 0) > 0) {
+                --$pended[$code];
             }
         }
         foreach ($pendedCodes as $code) {
-            $this->pendedLines[$key][$code] = ($this->pendedLines[$key][$code] ?? 0) + 1;
+            $pended[$code] = ($pended[$code] ?? 0) + 1;
         }
+        $this->pendedLines[$key] = $pended;
     }
 
     /**

@@ -787,14 +787,21 @@ function eob_process_era_callback(array &$out): void
                     balance: ($error ? '' : $invoice_total)
                 );
             }
+            $lineCode = is_string($codekey) ? $codekey : '';
             if ($svcPended) {
-                $pendedCodes[] = is_string($codekey) ? $codekey : '';
+                $pendedCodes[] = $lineCode;
             } else {
-                $answeredCodes[] = is_string($codekey) ? $codekey : '';
+                $answeredCodes[] = $lineCode;
             }
         } // End of service item
-        // Lines answered here settle lines pended by an earlier CLP in this run.
-        $eraRun->recordClaimPayment($claimPid, $claimEncounter, $claimLevel, $pendedCodes, $answeredCodes);
+        // Lines answered here settle lines pended by an earlier CLP in this run. Only a
+        // claim matched to a patient and encounter is tracked; an unmatched one is
+        // reported by the invoice error path. A CLP in error posted nothing, so its
+        // lines don't settle anything.
+        $hasClaimIdentity = $claimPid > 0 && $claimEncounter > 0;
+        if ($hasClaimIdentity) {
+            $eraRun->recordClaimPayment($claimPid, $claimEncounter, $claimLevel, $pendedCodes, $error ? [] : $answeredCodes);
+        }
 
         // Report any existing service items not mentioned in the ERA, and
         // determine if any of them are still missing an insurance response
@@ -823,7 +830,7 @@ function eob_process_era_callback(array &$out): void
         }
 
         // A pended line means the payer isn't done with the claim yet.
-        $pendedCount = $eraRun->pendedLineCount($claimPid, $claimEncounter, $claimLevel);
+        $pendedCount = $hasClaimIdentity ? $eraRun->pendedLineCount($claimPid, $claimEncounter, $claimLevel) : 0;
         if ($pendedCount > 0) {
             $insurance_done = false;
             echo getMessageLine(
