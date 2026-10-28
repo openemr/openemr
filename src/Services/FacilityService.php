@@ -71,21 +71,20 @@ class FacilityService extends BaseService
      * Postal notice for the facility screen. Empty when the dialog should stay quiet.
      *
      * Digits are kept by Claim::x12Zip(). Nine digits stay quiet.
-     * The check is the US claim rule. It runs for the United States, and for a
-     * blank country when the telephone country code is 1. Another country
-     * stays quiet. This screen does not warn for a different postal format.
+     * The check is the US claim rule. It runs only when the country is the
+     * United States. A blank country stays quiet, because telephone code 1
+     * is shared with Canada and the rest of that numbering plan.
      */
     public static function facilityPostalSaveNotice(
         string $postal,
         bool $billingLocation,
         bool $serviceLocation,
         string $country = '',
-        int $phoneCountryCode = 1,
     ): string {
         if (!$billingLocation && !$serviceLocation) {
             return '';
         }
-        if (!self::unitedStatesClaimPostal($country, $phoneCountryCode)) {
+        if (!self::unitedStatesClaimPostal($country)) {
             return '';
         }
         $digits = preg_replace('/[^0-9]/', '', $postal) ?? '';
@@ -105,14 +104,14 @@ class FacilityService extends BaseService
     /**
      * Whether the nine-digit claim notice applies to this facility.
      *
-     * A blank country follows the telephone country code. Code 1 is the
-     * North American default. A named country applies only for the United States.
+     * A named country applies only for the United States. A blank country
+     * does not, even when the telephone country code is 1.
      */
-    private static function unitedStatesClaimPostal(string $country, int $phoneCountryCode): bool
+    private static function unitedStatesClaimPostal(string $country): bool
     {
         $country = trim($country);
         if ($country === '') {
-            return $phoneCountryCode === 1;
+            return false;
         }
         $letters = strtoupper(preg_replace('/[^A-Za-z]/', '', $country) ?? '');
 
@@ -122,20 +121,22 @@ class FacilityService extends BaseService
     /**
      * JSON body for the facility save dialog.
      *
-     * The row is already stored. A sentence that cannot be encoded is dropped,
-     * and the dialog still reports saved.
+     * Status is saved or not saved. A sentence that cannot be encoded is
+     * dropped, and the status stays.
      */
-    public static function facilitySaveDialogBody(string $sentence): string
+    public static function facilitySaveDialogBody(bool $saved, string $sentence): string
     {
         $encoded = json_encode(
             [
-                'status' => 'saved',
+                'status' => $saved ? 'saved' : 'not_saved',
                 'message' => $sentence,
             ],
             JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE
         );
         if (!is_string($encoded)) {
-            return '{"status":"saved","message":""}';
+            return $saved
+                ? '{"status":"saved","message":""}'
+                : '{"status":"not_saved","message":""}';
         }
 
         return $encoded;
