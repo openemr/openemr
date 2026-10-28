@@ -23,7 +23,6 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
@@ -44,16 +43,15 @@ $alertmsg = '';
  *
  * The dialog alerts the sentence, then closes. The encoded body is not HTML.
  */
-$echoFacilitySaveDialogResult = function (string $sentence): void {
+$echoFacilitySaveDialogResult = function (bool $saved, string $sentence): void {
     header('Content-Type: application/json; charset=utf-8');
-    echo FacilityService::facilitySaveDialogBody($sentence);
+    echo FacilityService::facilitySaveDialogBody($saved, $sentence);
 };
 
-$phoneCountryCode = OEGlobalsBag::getInstance()->getInt('phone_country_code');
 /**
  * Sentence for this facility's postal code, or empty when no notice applies.
  */
-$facilityPostalSentence = fn (string $postal, bool $billing, bool $service, string $country): string => match (FacilityService::facilityPostalSaveNotice($postal, $billing, $service, $country, $phoneCountryCode)) {
+$facilityPostalSentence = fn (string $postal, bool $billing, bool $service, string $country): string => match (FacilityService::facilityPostalSaveNotice($postal, $billing, $service, $country)) {
     FacilityService::FACILITY_SAVED_BILLING_POSTAL => xl(FacilityService::FACILITY_SAVED_BILLING_POSTAL),
     FacilityService::FACILITY_SAVED_SERVICE_POSTAL => xl(FacilityService::FACILITY_SAVED_SERVICE_POSTAL),
     FacilityService::FACILITY_SAVED_BOTH_POSTAL => xl(FacilityService::FACILITY_SAVED_BOTH_POSTAL),
@@ -114,7 +112,7 @@ if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST
         ($values['service_location'] ?? '') === '1',
         $values['country_code'] ?? ''
     );
-    $echoFacilitySaveDialogResult($sentence);
+    $echoFacilitySaveDialogResult(true, $sentence);
     exit(); // sjp 12/20/17 for ajax save
 }
 
@@ -134,7 +132,7 @@ if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility
         ($values['service_location'] ?? '') === '1',
         $values['country_code'] ?? ''
     );
-    $echoFacilitySaveDialogResult($sentence);
+    $echoFacilitySaveDialogResult(true, $sentence);
     exit(); // sjp 12/20/17 for ajax save
 }
 
