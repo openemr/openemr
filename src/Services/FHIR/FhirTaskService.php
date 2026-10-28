@@ -397,7 +397,9 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
      * the task names one.
      *
      * @param mixed $dataRecord
-     * @param bool $encode unused: FhirServiceBase declares it, and nothing passes it
+     * @param bool $encode unused: FhirServiceBase declares it, and nothing passes it. #14443
+     *                     drops it there and declares ?FHIRProvenance, which this signature
+     *                     already keeps to, so it loads under the base as it is and as #14443 makes it.
      */
     public function createProvenanceResource($dataRecord, $encode = false): ?FHIRProvenance
     {
