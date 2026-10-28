@@ -135,9 +135,6 @@ class FhirTaskWriteRulesTest extends TestCase
             'an output code system longer than its column' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['coding' => [['system' => 'https://example.org/' . str_repeat('s', FhirTaskWriteRules::MAX_SYSTEM), 'code' => 'food-delivered']]]]]], 'output[0]'],
             'an output code longer than its column' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['coding' => [['system' => 'https://example.org', 'code' => str_repeat('c', FhirTaskWriteRules::MAX_CODE + 1)]]]]]], 'output[0]'],
             'an output concept text longer than the limit' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['text' => str_repeat('a', FhirTaskWriteRules::MAX_TEXT + 1)]]]], 'output[0]'],
-            'a code given as null' => [['code' => null], 'code'],
-            'an owner given as null' => [['owner' => null], 'owner'],
-            'inputs given as null' => [['input' => null], 'input'],
             'two codings in Task.code' => [['code' => ['coding' => [
                 ['system' => FhirTaskService::TASK_CODE_SYSTEM, 'code' => 'fulfill'],
                 ['system' => 'http://example.org/local', 'code' => 'meals'],
@@ -185,19 +182,18 @@ class FhirTaskWriteRulesTest extends TestCase
         $this->assertSame([$element], array_keys($errors));
     }
 
-    public function testANullIsRefusedNotReadAsLeftOut(): void
+    public function testANullIsReadAsTheElementLeftOut(): void
     {
-        $elements = [
-            'status', 'intent', 'priority', 'code', 'description', 'statusReason', 'businessStatus', 'for', 'focus', 'owner',
-            'requester', 'partOf', 'authoredOn', 'input', 'output',
-        ];
-        foreach ($elements as $element) {
-            $errors = FhirTaskWriteRules::read(self::task([$element => null]))['errors'];
-            $this->assertSame([$element], array_keys($errors), $element);
-            $this->assertStringContainsString("Task.$element is null", $errors[$element]);
+        // The API hands read() the body as FHIRTask serializes it, which leaves nulls out; read
+        // directly, a null reads the same way.
+        foreach (['priority', 'code', 'description', 'statusReason', 'businessStatus', 'focus', 'owner', 'requester', 'partOf', 'authoredOn', 'input', 'output'] as $element) {
+            $leftOut = self::task();
+            unset($leftOut[$element]);
+            $this->assertSame(FhirTaskWriteRules::read($leftOut), FhirTaskWriteRules::read(self::task([$element => null])), $element);
         }
-        // An element the table doesn't hold is left out, null or not, as before.
-        $this->assertSame([], FhirTaskWriteRules::read(self::task(['note' => null]))['errors']);
+        foreach (['status', 'intent', 'for'] as $element) {
+            $this->assertSame([$element], array_keys(FhirTaskWriteRules::read(self::task([$element => null]))['errors']), "$element is needed");
+        }
     }
 
     public function testBlankTextCountsAsNone(): void

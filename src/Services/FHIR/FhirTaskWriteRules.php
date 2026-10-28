@@ -88,12 +88,6 @@ final class FhirTaskWriteRules
     /** The longest code kept, in characters: the varchar(63) columns. */
     public const MAX_CODE = 63;
 
-    /** The elements a write reads. FHIR JSON has no nulls, so a null in one of them is a fault, not an element left out. */
-    private const ELEMENTS = [
-        'status', 'intent', 'priority', 'code', 'description', 'statusReason', 'businessStatus', 'for', 'focus', 'owner',
-        'requester', 'partOf', 'authoredOn', 'input', 'output',
-    ];
-
     /**
      * A Task body as task row fields, its inputs and outputs, the patient it is for (by uuid),
      * and what's wrong with it by element. id, meta and lastModified are the server's and aren't
@@ -204,13 +198,6 @@ final class FhirTaskWriteRules
 
         $inputs = self::parameters($json, 'input', self::INPUT_VALUES, self::INPUT_TYPES, $errors);
         $outputs = self::parameters($json, 'output', self::OUTPUT_VALUES, self::OUTPUT_TYPES, $errors);
-
-        // Said last, so it replaces whatever the element's own check made of the null.
-        foreach (self::ELEMENTS as $element) {
-            if (array_key_exists($element, $json) && $json[$element] === null) {
-                $errors[$element] = "Task.$element is null: leave it out instead, as FHIR JSON has no nulls";
-            }
-        }
 
         return ['fields' => $fields, 'inputs' => $inputs, 'outputs' => $outputs, 'puuid' => $puuid, 'errors' => $errors];
     }
