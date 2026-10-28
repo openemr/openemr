@@ -15257,11 +15257,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$data of method Cezpdf\\:\\:ezTable\\(\\) expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$datetime of class DateTime constructor expects string, mixed given\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
@@ -15292,32 +15287,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of method Cezpdf\\:\\:ezText\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$cols of method Cezpdf\\:\\:ezTable\\(\\) expects array, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$size of method Cezpdf\\:\\:ezText\\(\\) expects float, string given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$sortby of function getImmunizationList expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$title of method Cezpdf\\:\\:ezTable\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
 ];
