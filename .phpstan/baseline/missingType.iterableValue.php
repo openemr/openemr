@@ -4627,11 +4627,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingLogger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingProcessor\\:\\:processClaims\\(\\) has parameter \\$claims with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingProcessor.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\BillingProcessor\\\\GeneratorCanValidateInterface\\:\\:completeToScreen\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/GeneratorCanValidateInterface.php',
