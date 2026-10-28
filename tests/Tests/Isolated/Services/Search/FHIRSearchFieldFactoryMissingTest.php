@@ -86,6 +86,8 @@ class FHIRSearchFieldFactoryMissingTest extends TestCase
             'two values' => ['gender:missing', 'true,false'],
             'two values, several columns' => ['name:missing', 'true,false'],
             'a repeated parameter, several columns' => ['name:missing', ['true', 'false']],
+            'a system' => ['gender:missing', 'bogus|false'],
+            'an empty system' => ['gender:missing', '|false'],
         ];
     }
 

@@ -252,6 +252,9 @@ class SearchFieldStatementResolver
             /** @var TokenSearchValue $value  */
 
             if ($modifier === SearchModifier::MISSING) {
+                if ($value->getSystem() !== null) {
+                    throw new SearchFieldException($field, "the missing modifier takes true or false, without a system");
+                }
                 // On MySQL 8, CAST(col AS CHAR) of a binary uuid that is not valid UTF-8 is cut at the
                 // first invalid byte (often to '') with the sql_mode OpenEMR sets, or NULL in strict
                 // mode, so the uuid looked missing. A value whose bytes are not all spaces is never
