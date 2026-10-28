@@ -316,6 +316,21 @@ class TaskInputOutputFhirApiTest extends TestCase
         $this->assertSame(Response::HTTP_CREATED, $status, (string)json_encode($result));
     }
 
+    public function testABlankOrHalfCodedTypeIsRefusedNotKept(): void
+    {
+        // Kept, the first would read back as "type": [], and the others would lose their coding.
+        $cases = [
+            'a type of blank text' => ['input', ['type' => ['text' => ' '], 'valueString' => 'x']],
+            'a type coding with a system and no code' => ['input', ['type' => ['text' => 'Questionnaire', 'coding' => [['system' => self::SDC_TEMP]]], 'valueCanonical' => $this->questionnaireUrl]],
+            'a value coding with only a display' => ['output', ['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['text' => 'Food delivered', 'coding' => [['display' => 'Food delivered']]]]],
+        ];
+        foreach ($cases as $case => [$element, $entry]) {
+            [$status, $result] = $this->create($this->questionnaireTask([$element => [$entry]]));
+            $this->assertSame(Response::HTTP_BAD_REQUEST, $status, $case . ': ' . json_encode($result));
+            $this->assertSame([$element . '[0]'], array_keys($this->errors($result)), $case);
+        }
+    }
+
     public function testAPutReplacesTheInputsAndOutputs(): void
     {
         $canonical = ['type' => ['coding' => [['system' => self::SDC_TEMP, 'code' => 'questionnaire']]], 'valueCanonical' => $this->questionnaireUrl];
