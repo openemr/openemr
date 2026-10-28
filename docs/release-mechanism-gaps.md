@@ -3456,6 +3456,47 @@ Option 1 is the clean shape. Option 2 might ride along as belt-and-suspenders.
 
 **Systemic lesson:** when a filter condition depends on asynchronously-populated state (GitHub `displayTitle`, `run_name` eval, etc.), prefer a filter that depends on synchronously-populated state (databaseId, created_at) with a diff-against-pre-dispatch baseline. The baseline capture is already the right shape; the smoketest-docker locate was patterned on the earlier (now-worse) design and should be ported forward.
 
+### G55 — `ChangelogMutator` SystemClock-driven dates can leave rel-branch and master with different `## [X.Y.Z] - YYYY-MM-DD` dates when Conductor force-push and Finalize post-tag re-run straddle a UTC day boundary  *(OPEN — discovered 2026-10-28, deferred to post-8.5.0)*
+
+**STATUS: OPEN as of 2026-10-28.** Surfaced while verifying the 8.5.0 release-amendment PRs. Direct read of both branches' CHANGELOGs after the ship but before the amendment showed a one-day drift on the `## [8.5.0]` heading date:
+
+| Branch | CHANGELOG heading |
+|---|---|
+| `rel-850` | `## [8.5.0] - 2026-10-26` |
+| `master` | `## [8.5.0] - 2026-10-27` |
+
+Design intent per `docs/RELEASE_PROCESS.md`: "finalize's post-tag re-run against vNEW produces the master and rel-branch identical CHANGELOG block." That invariant was not met on the 8.5.0 ship.
+
+**Root cause:** `ChangelogMutator` uses `SystemClock` and rewrites the `## [X.Y.Z] - YYYY-MM-DD` heading on every run — at Conductor force-push time (via `release-prep.yml`) and at Finalize post-tag re-run time (via the `finalize` job). The two runs read SystemClock independently, so the dates they produce can differ when the runs span a UTC day boundary.
+
+Observed sequence on the 8.5.0 ship:
+
+1. 2026-10-26 UTC — last `release-prep.yml` fire on rel-850 force-pushed the Conductor PR with `ChangelogMutator`-emitted heading `## [8.5.0] - 2026-10-26`.
+2. 2026-10-27 18:00 UTC — operator marked the Conductor PR ready-for-review. No further commits landed on rel-850 between step 1 and this point, so no re-fire of `release-prep.yml` and no regeneration of the heading.
+3. 2026-10-27 18:25 UTC — `ship-release.yml` merged the Conductor PR. **Merging doesn't regenerate the CHANGELOG** (by design — hand-edits must survive the final merge). rel-850 therefore landed with `2026-10-26` baked in from the step-1 force-push.
+4. 2026-10-27 18:28 UTC — `release-prep.yml`'s `finalize` job ran post-tag, re-executed master-scope mutators against `vNEW`. SystemClock at that moment returned `2026-10-27`, so the Finalize PR's CHANGELOG heading was written as `## [8.5.0] - 2026-10-27`.
+5. 2026-10-27 18:51 UTC — Finalize PR merged → master landed with `2026-10-27`.
+
+Pre-condition for the drift: no rel-branch commits land between the last `release-prep.yml` fire and the Conductor merge, AND those two moments span a UTC day boundary. Both conditions were met on 8.5.0.
+
+**Scope of exposure:** every future ship where the rel-branch is quiet for ≥24 hours before the Conductor merge, OR where the operator marks the Conductor ready-for-review and dispatches `ship-release.yml` the following UTC day without a new rel-branch commit intervening. Patch cycles with slow-moving rel-branches late in the cycle are the most likely class to hit this; minor cycles with regular commit activity through the final hour are less likely.
+
+**Impact:** cosmetic data-fidelity drift. Downstream artifacts are unaffected — the GitHub Release's `created_at` reflects the actual tag-creation moment, the annotated tag's commit date reflects the merge-commit timestamp, and Docker Hub tag `last_updated` reflects the publish moment. Only the CHANGELOG heading on the two long-lived branches can disagree about which calendar day the release "shipped."
+
+**Fix options (deferred — not fixing on this PR):**
+
+1. **Finalize job writes the authoritative date to BOTH rel-branch and master.** On post-tag re-run, read the annotated tag object's committer date (immutable, authoritative — tag was created in step 3 above and its date is the single ground-truth moment for "shipped"), then write identical headings on both branches. Requires the finalize job to also force-push a date-correction commit to the rel-branch after the Conductor merge, so the rel-branch's CHANGELOG matches master's. Changes the "Conductor PR's CHANGELOG is the final rel-branch content" assumption, but delivers true identicality.
+2. **Conductor merge regenerates the CHANGELOG date in-place pre-merge.** `ship-release.yml`'s Conductor merge step would run `ChangelogMutator` one more time against the branch head before merging, so the merged content always carries the merge-day date. Simpler mechanically but risks overwriting operator CHANGELOG hand-edits made during the final review window — contradicts the "hand-edits must survive after no further rel-branch pushes are expected" design in `RELEASE_PROCESS.md` runbook step 6.
+3. **Accept the drift at ship time; rely on the release-amendment workflow to resync.** The 8.5.0 experience shows the amendment's "restore existing date" logic effectively re-syncs master to rel-branch's date (both converged on `2026-10-26` after the two amendment PRs merged). The amendment is already run for most ships (GHSAs typically publish post-ship), so this piggy-backs on existing cadence. Weakest invariant (requires an amendment run to be dispatched) but zero new code.
+
+Option 1 is the cleanest fix. Option 3 is what we're already doing in practice; worth documenting as the explicit fallback until option 1 lands.
+
+**Timing / impact on 8.5.0 ship:** none — observed post-ship. The two 8.5.0 amendment PRs (openemr/openemr#14880 for rel-850, openemr/openemr#14881 for master) resynced both branches to `2026-10-26` on merge. Final shipped state is identical across both branches.
+
+**Cross-check:** confirmed via `gh api repos/openemr/openemr/contents/CHANGELOG.md?ref=<branch>` on both branches before the amendment merge — rel-850 heading was `2026-10-26`, master heading was `2026-10-27`. Post-amendment, both branches read `2026-10-26` and both carry the Security Fixes block.
+
+**Systemic lesson:** `SystemClock`-driven derivations in release mutators have two legitimate consumption points (force-push time and merge time) that can disagree when crossing a UTC day boundary. For derivations where the two points MUST agree (like the "shipped date" on a CHANGELOG heading), the mutator should read from a tag-object-anchored source (committer date of the annotated tag), not from `SystemClock`. The tag object is created at a single well-defined moment and is immutable, so any later re-run of the mutator reads the same date regardless of when it runs. Related to G33's "first automated ship surfaced latent assumptions" family — the "both branches land identical CHANGELOG blocks" invariant held through 8.3.0/8.4.0/8.4.1 because those ships' Conductor-last-push and Finalize-run happened on the same UTC day; 8.5.0 was the first to straddle.
+
 ## Followup opportunities (not yet gap-numbered)
 
 Items surfaced during planning discussions or from operator experience that don't yet warrant a full gap entry — typically because they're extrapolations from existing patterns rather than confirmed bugs, or because they're operator-side observations that haven't been formalized. Move to a real G-entry when concrete scope + investigation are lined up. Kept here so option-listing across future planning sessions doesn't depend on session context.
