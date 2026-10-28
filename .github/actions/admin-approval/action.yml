@@ -1,0 +1,50 @@
+# Shared override for the legacy-directory gates (openemr/openemr#14764):
+# a gate passes when a repository admin has approved the pull request at its
+# current head commit, so a bugfix that can't follow the policy still lands.
+#
+# The logic lives in .github/scripts/admin-approval.sh (tested under
+# tests/bats/ci-scripts/admin-approval/). Callers must check out the
+# repository first and run on pull_request_review as well as pull_request,
+# so an approval re-runs the gate without a new push.
+name: Admin approval
+description: >-
+  Report whether a repository admin approved the pull request at its
+  current head commit.
+
+inputs:
+  pr-number:
+    description: Pull request number.
+    required: true
+  head-sha:
+    description: The pull request's head commit; approvals of older commits don't count.
+    required: true
+  github-token:
+    description: Token with pull-requests read access.
+    default: ${{ github.token }}
+
+outputs:
+  approved:
+    description: "'true' when an admin approved head-sha, otherwise 'false'."
+    value: ${{ steps.check.outputs.approved }}
+  approver:
+    description: Login of the approving admin; empty when there is none.
+    value: ${{ steps.check.outputs.approver }}
+
+runs:
+  using: composite
+  steps:
+  - name: Look for an admin approval of the head commit
+    id: check
+    shell: bash
+    env:
+      GH_TOKEN: ${{ inputs.github-token }}
+      REPO: ${{ github.repository }}
+      PR_NUMBER: ${{ inputs.pr-number }}
+      HEAD_SHA: ${{ inputs.head-sha }}
+      SCRIPT: ${{ github.action_path }}/../../scripts/admin-approval.sh
+    run: |
+      if approver=$("${SCRIPT}"); then
+        printf 'approved=true\napprover=%s\n' "${approver}" >> "${GITHUB_OUTPUT}"
+      else
+        printf 'approved=false\napprover=\n' >> "${GITHUB_OUTPUT}"
+      fi
