@@ -73,6 +73,8 @@ class CreatePdfObjectTest extends TestCase
 
     private string $priorSessionName = '';
 
+    private string $priorSessionId = '';
+
     private bool $priorSessionGlobalExisted = false;
 
     /** @var array<array-key, mixed> */
@@ -87,9 +89,20 @@ class CreatePdfObjectTest extends TestCase
 
         // Capture everything the ReadAndCloseNativeSessionStorage constructor
         // and $session->start() mutate so later tests see the state that was
-        // in place before this test ran.
+        // in place before this test ran: session name, session id, and the
+        // $_SESSION global.
+        //
+        // The storage also installs a user-level save handler via
+        // session_set_save_handler(). PHP has no clean API to query or
+        // reinstall a previously-set user handler (session_module_name()
+        // returns 'user' once a handler is attached but refuses to accept
+        // 'user' as an argument), and isolated tests do not interact with
+        // the native session storage layer, so the save handler is left as
+        // this test installed it rather than restored.
         $currentName = session_name();
         $this->priorSessionName = is_string($currentName) ? $currentName : '';
+        $currentId = session_id();
+        $this->priorSessionId = is_string($currentId) ? $currentId : '';
         $this->priorSessionGlobalExisted = array_key_exists('_SESSION', $GLOBALS);
         if ($this->priorSessionGlobalExisted) {
             $this->priorSessionGlobal = $_SESSION;
@@ -136,6 +149,7 @@ class CreatePdfObjectTest extends TestCase
         if ($this->priorSessionName !== '') {
             session_name($this->priorSessionName);
         }
+        session_id($this->priorSessionId);
         if ($this->priorSessionGlobalExisted) {
             $_SESSION = $this->priorSessionGlobal;
         } else {
