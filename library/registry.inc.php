@@ -4,20 +4,16 @@
 //
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\InfoTxt;
 use OpenEMR\Core\OEGlobalsBag;
 
 function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 {
     $check = sqlQuery("select state from registry where directory=?", [$directory]);
     if ($check == false) {
-        $lines = @file(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/$directory/info.txt");
-        if ($lines) {
-            $name = $lines[0];
-            $category ??= $lines[1] ?? 'Miscellaneous';
-        } else {
-            $name = $directory;
-            $category = "Miscellaneous";
-        }
+        $info = InfoTxt::read(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/$directory/info.txt");
+        $name = $info->name ?? $directory;
+        $category = $info->category ?? 'Miscellaneous';
 
         return sqlInsert("insert into registry set
 			name=?,
@@ -135,8 +131,11 @@ function getFormsByCategory($state = '1', $lbfonly = false): array
     $all = [];
     if (!$lbfonly) {
         // First get the traditional form types from the registry table.
+        // form_foreign_id identifies which questionnaire a questionnaire_assessments row
+        // stands for; every such row shares one directory, so callers that need to tell
+        // them apart have nothing else to key on.
         $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
-            "unpackaged, date, priority, aco_spec FROM registry WHERE ";
+            "unpackaged, date, priority, aco_spec, form_foreign_id FROM registry WHERE ";
         if (($attendant_type ?? 'pid') == 'pid') {
             $sql .= "patient_encounter = 1 AND ";
         } else {

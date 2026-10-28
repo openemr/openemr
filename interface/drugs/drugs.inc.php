@@ -108,7 +108,7 @@ function isUserRestricted($userid = 0): bool
 
 // Check if the user has access to the given facility.
 // Do not call this if user is not restricted!
-function isFacilityAllowed($facid, $userid = 0)
+function isFacilityAllowed($facid, $userid = 0): bool
 {
     if (!$userid) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -134,7 +134,7 @@ function isFacilityAllowed($facid, $userid = 0)
 
 // Check if the user has access to the given warehouse within the given facility.
 // Do not call this if user is not restricted!
-function isWarehouseAllowed($facid, $whid, $userid = 0)
+function isWarehouseAllowed($facid, $whid, $userid = 0): bool
 {
     if (!$userid) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();

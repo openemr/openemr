@@ -28,6 +28,22 @@ class TokenSearchField extends BasicSearchField
         parent::__construct($field, SearchFieldType::TOKEN, $field, $values);
     }
 
+    /**
+     * Builds the field from a comma separated list of system|code values as a FHIR request sends it, escapes
+     * included, so a caller reads the same values as FHIRSearchFieldFactory does.
+     * @throws SearchFieldException if the value is not a string, for example a repeated parameter
+     */
+    public static function fromEscapedFHIRString(string $field, mixed $value): self
+    {
+        if (!is_string($value)) {
+            throw new SearchFieldException($field, $field . ' must be a single string value');
+        }
+        return new self($field, array_map(
+            static fn(string $part): TokenSearchValue => TokenSearchValue::buildFromEscapedFHIRString($part),
+            FhirSearchValueEscape::split($value, ',')
+        ));
+    }
+
     public function isUuid()
     {
         return $this->isUUID;
@@ -40,7 +56,7 @@ class TokenSearchField extends BasicSearchField
         $this->setValues($values);
     }
 
-    public function hasCodeValue($code, $system = null)
+    public function hasCodeValue($code, $system = null): bool
     {
         $checkSystem = $system !== null;
         foreach ($this->getValues() as $tokenValue) {

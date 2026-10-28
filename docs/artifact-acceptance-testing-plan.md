@@ -1420,6 +1420,24 @@ Both 4d and 4e are independent of Phase 7d, Phase 3.6, and each
 other. Ordering: after 7d + 3.6 finish, pick whichever slice-1
 lands cleanest given whoever picks it up.
 
+**4h — SHIPPED 2026-10-19 (#14707, resolves issue #14706)**.
+Post-upgrade DB-state assertion in `tests/Acceptance/bin/upgrade-package.sh`:
+after `sql_upgrade.php` completes, assert Clinicians hold exactly one
+`write` ACL carrying both `patients/med` and `patients/appt` — the
+merged union of a duplicate pair that had sat on every install since
+8.2.0's openemr/openemr#8087. Guarded by a `test -f
+.../src/Common/Acl/DuplicateAclMerger.php` probe on the TO package,
+so targets predating the merger (any shipped tarball ≤ 8.4.1) skip
+cleanly without a false-negative. The assertion's in-script
+`::error::` output + comment reference the issue (#14706) rather
+than the fix PR (#14707) because the error is operator-facing. Second
+shell-level post-upgrade assertion since #13635's version-display DB
+check; follows the same "shell SQL + explicit `::error::` prefix +
+skip-when-feature-absent" shape. See `release-mechanism-gaps.md` G52
+for the underlying discovery (the 8.5.0 `acl_upgrade.php` ERROR line
+that was failing `wizard-upgrade` acceptance cells on every
+`tools/release/**` PR, e.g. openemr/openemr#14487).
+
 Original Phase 4 scope preserved below for reference:
 
 - Add ApiSmokeTest, FhirSmokeTest, E2eCriticalPathTest (last one
@@ -3030,6 +3048,23 @@ The workflow steps now compose `docker inspect` / `docker compose exec` (both ne
 **Guardrail against false-skip regressions on the derivation.** The new BATS corpus at [`tests/bats/ci-scripts/derive-from-version/`](../tests/bats/ci-scripts/derive-from-version/) is weighted toward negative-case coverage because the primary failure mode to prevent is **upgrade cell skip when it should run** — a false "no derivation possible" result would cause the acceptance gate to skip or hard-fail an otherwise-valid upgrade test. The corpus explicitly covers each release-cycle shape (rel-820/830/840 fixtures, master active-cycle, master between-cycles), the exclude-version recovery mode (to-equals-max case), and bad-input cases (missing `sql/`, empty `sql/`, non-upgrade files only, malformed `X_Y_Z-to-A_B_C` filenames). The existing `detect-acceptance-mode.sh` 36-test BATS corpus is preserved unchanged — the refactor factors the sql-parse logic into the lib while keeping the package side's manifest-intersect + exclude-after-intersect wrapper, so external behavior and all error-message shapes stay identical.
 
 **Signal single-sourcing (part 2)**: both consumers (package via `detect-acceptance-mode.sh::derive_from_version`, docker via `acceptance-docker.yml::resolve-from-tag`) now read `derive_from_version_sql_candidates` from the shared lib. The sql-side enumeration is one implementation; package layers manifest-intersect + to-exclude on top for its stronger "tarball-must-exist-on-Releases" guarantee; docker consumes the sql result directly. Same lib, two legitimate different wrappings — no duplication, consistent signal.
+
+**Item 4 followup: AppointmentPersistence flake fix + on-failure capture infrastructure** — **SHIPPED (openemr/openemr#TBD, 2026-10-09)**. `AppointmentPersistenceAcceptanceTest::testSeedsAndFlowBoardShowsAppointmentInPostInstall` was flaking ~1-2 times a day across both acceptance workflows and accounting for roughly half of all docker-side acceptance failures. The Oct 1 `add_edit_event.php` response-path fix (openemr/openemr#14325) covered one throw path (`window.opener.pattrk` on null opener), but the sibling `find_appt_popup.php` confirm branches (holiday / provider-not-available / slot-already-used, lines 486-505, unchanged since 2017-2019) still had an unguarded `opener.top.restoreSession(); opener.document.forms[0].submit(); dlgclose();` chain. The `opener` reference comes through `include_opener.js:21-24`'s `opener = top.get_opener(window.name)` fallback, which depends on `dialog.js:678`'s `top.set_opener(winname, window)` having already completed. The two run in independent script contexts (parent frame vs iframe); the iframe can parse its include_opener.js before the parent's set_opener call completes in some scheduling windows, leaving `opener` undefined. Any one of the three member accesses in the confirm branch then throws, `dlgclose()` never fires, the modalframe stays open, and the acceptance harness times out on `invisibilityOfElementLocated`.
+
+**Fix A — guard the find_appt_popup.php confirm branches.** All three branches now share a `$submitParentJs` heredoc that wraps the restore + submit chain in try/catch and resolves the parent window robustly (prefers `opener` if it has a `document`, else re-queries `top.get_opener(window.name)` at use time instead of load time to avoid the race). `dlgclose()` always fires regardless. Same shape as the openemr/openemr#14325 fix on `add_edit_event.php`'s response-path. The alert-only branches (ACL-less read-only path, no form submission) stay unchanged.
+
+**Fix B — on-failure capture in `PantherAcceptanceTestCase`.** Overrides PHPUnit 11's `onNotSuccessfulTest(Throwable $t): never` hook, which fires BEFORE `tearDown()` runs — so the Panther client is still live and able to screenshot / dump the DOM / read the browser console log at the exact moment of failure. Captures:
+
+- `screenshot.png` — via `Client::takeScreenshot`
+- `page-source.html` — via `Client::getPageSource`
+- `browser-console.json` — via `WebDriver::manage()->getLog('browser')` (JS errors from the opener-chain throw land here with file:line, the exact signal needed to pinpoint which throw fired next time this flake class re-emerges)
+- `context.txt` — URL, title, exception shape, stack trace, timestamp
+
+All four captures land under `tmp/acceptance-failure-artifacts/<class-short-name>__<test-method>/`. Each capture isolated in its own `catch (WebDriverException | \JsonException)` so a dead WebDriver session can't block the others, and the hook always re-throws the original `Throwable` per PHPUnit convention so the test's real failure propagates unmasked.
+
+Both `acceptance-docker.yml` and `acceptance-package.yml` grew an `actions/upload-artifact@v7` step with `if: ${{ !cancelled() && failure() && hashFiles('tmp/acceptance-failure-artifacts/**') != '' }}` targeting `tmp/acceptance-failure-artifacts/`. Hash check avoids a warning + spurious empty artifact when the failure happened before any Panther client was alive (compose boot timeout, chromedriver install fail) and the hook never ran. Mirrors the pattern `test.yml` uses for e2e's `selenium-videos` upload.
+
+**Why screenshot + DOM + console (not video)**: the e2e workflow's selenium/video sidecar needs a selenium grid container to attach to via `DISPLAY_CONTAINER_NAME: selenium`. `acceptance-docker.yml` runs host-level Chrome + ChromeDriver (via `.github/actions/setup-chromedriver-multiarch`), not a grid service, so the e2e pattern doesn't drop in cleanly. For this specific flake class (single-moment Selenium-wait timeout) the signal density of a screenshot + DOM + browser console log at the moment of failure is higher per byte than a 30-second video of a mostly-static modal; the console log in particular surfaces the throwing line in the opener-chain, which is the key diagnostic. Switching to grid-mode for video is a separate larger refactor worth considering if other flake classes emerge that need time-sequence signal rather than moment-state signal.
 
 **Item 5 (hygiene): "Invocation contexts" reference section in this doc** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**. New [Invocation contexts reference](#invocation-contexts-reference) section added above between "What lives where (concrete)" and "What stays unchanged". Four subsections: trigger contexts (per-workflow trigger × artifact × version × matrix), scenario → step sequence, group → tests → scenario cells, `AcceptanceContext` env contract. Also closes Friction point #6 (no mapping-doc reference table). The pre-Item-1..4 "Current-state snapshot" tables under this section were superseded and trimmed to a pointer.
 

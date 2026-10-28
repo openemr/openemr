@@ -46,9 +46,7 @@ class TwigContainer
         }
 
         $globalsBag = OEGlobalsBag::getInstance();
-        $templateRoot = $this->kernel !== null
-            ? $this->kernel->getProjectDir()
-            : $globalsBag->getProjectDir();
+        $templateRoot = $this->kernel?->getProjectDir() ?? $globalsBag->getProjectDir();
         $this->paths[] = $templateRoot . '/templates';
 
         if (!empty($path)) {

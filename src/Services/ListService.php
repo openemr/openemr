@@ -53,11 +53,24 @@ class ListService
 
         $results = [];
         while ($row = sqlFetchArray($statementResults)) {
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $row['uuid'] = self::uuidOrNull($row['uuid'] ?? null);
             array_push($results, $row);
         }
 
         return $results;
+    }
+
+    /**
+     * Rows inserted before uuids were assigned here can still have a NULL uuid,
+     * and Uuid::fromBytes() throws on that.
+     */
+    private static function uuidOrNull(mixed $uuidBytes): ?string
+    {
+        if (!is_string($uuidBytes) || $uuidBytes === '') {
+            return null;
+        }
+
+        return UuidRegistry::uuidToString($uuidBytes);
     }
 
     public function getListOptionsForLists($lists): array
@@ -179,12 +192,18 @@ class ListService
     {
         $sql = "SELECT * FROM lists WHERE pid=? AND type=? AND id=? ORDER BY date DESC";
 
-        return sqlQuery($sql, [$pid, $list_type, $list_id]);
+        $row = sqlQuery($sql, [$pid, $list_type, $list_id]);
+        if (is_array($row)) {
+            $row['uuid'] = self::uuidOrNull($row['uuid'] ?? null);
+        }
+
+        return $row;
     }
 
     public function insert($data)
     {
         $sql  = " INSERT INTO lists SET";
+        $sql .= "     uuid=?,";
         $sql .= "     date=NOW(),";
         $sql .= "     activity=1,";
         $sql .= "     pid=?,";
@@ -197,6 +216,7 @@ class ListService
         return sqlInsert(
             $sql,
             [
+                UuidRegistry::getRegistryForTable('lists')->createUuid(),
                 $data['pid'],
                 $data['type'],
                 $data["title"],

@@ -1,0 +1,91 @@
+{
+    "patients": [
+        {
+            "note": "Two office visits in 2026 with heart failure since 2024 and moderate or severe LVSD since 2025, a beta blocker ordered at the second visit: denominator and numerator.",
+            "birthDatetime": "1952-04-01T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-02-10T09:00:00.000+00:00",
+                        "2026-02-10T09:40:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-06-12T09:00:00.000+00:00",
+                        "2026-06-12T09:40:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Heart Failure",
+                    "prevalencePeriod": [
+                        "2024-05-01T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Moderate or Severe LVSD",
+                    "prevalencePeriod": [
+                        "2025-02-01T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "MedicationOrder",
+                    "valueSet": "Beta Blocker Therapy for LVSD",
+                    "authorDatetime": "2026-06-12T09:30:00.000+00:00",
+                    "relevantPeriod": [
+                        "2026-06-12T09:30:00.000+00:00",
+                        "2026-12-12T09:30:00.000+00:00"
+                    ]
+                }
+            ]
+        },
+        {
+            "note": "The same visits and history with no beta blocker: denominator, not numerator.",
+            "birthDatetime": "1958-09-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-03-10T09:00:00.000+00:00",
+                        "2026-03-10T09:40:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-09-12T09:00:00.000+00:00",
+                        "2026-09-12T09:40:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Heart Failure",
+                    "prevalencePeriod": [
+                        "2024-05-01T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Moderate or Severe LVSD",
+                    "prevalencePeriod": [
+                        "2025-02-01T08:00:00.000+00:00",
+                        null
+                    ]
+                }
+            ]
+        }
+    ]
+}

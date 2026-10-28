@@ -1,0 +1,56 @@
+{
+    "patients": [
+        {
+            "note": "ED visit in May 2026 with STEMI diagnosed during the visit: initial population and denominator (the numerator needs ED arrival times from facility locations, which seeds do not set).",
+            "birthDatetime": "1960-01-15T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Emergency Department Evaluation and Management Visit",
+                    "relevantPeriod": [
+                        "2026-05-04T13:00:00.000+00:00",
+                        "2026-05-04T15:00:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "STEMI",
+                    "prevalencePeriod": [
+                        "2026-05-04T13:20:00.000+00:00",
+                        null
+                    ]
+                }
+            ]
+        },
+        {
+            "note": "ED visit in October 2026 coded with STEMI on the encounter and an aortic dissection diagnosed during the visit: initial population and denominator exclusion.",
+            "birthDatetime": "1955-07-20T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Emergency Department Evaluation and Management Visit",
+                    "relevantPeriod": [
+                        "2026-10-02T21:00:00.000+00:00",
+                        "2026-10-02T23:30:00.000+00:00"
+                    ],
+                    "diagnoses": [
+                        {
+                            "code": "STEMI",
+                            "rank": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Aortic Dissection or Ruptured Aortic Aneurysm",
+                    "prevalencePeriod": [
+                        "2026-10-02T21:40:00.000+00:00",
+                        null
+                    ]
+                }
+            ]
+        }
+    ]
+}

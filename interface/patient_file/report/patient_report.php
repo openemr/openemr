@@ -652,7 +652,7 @@ $(function () {
     $(".viewNewCCD").click(function() {
         // there's a lot of ways to do this but for now, we'll go with this!
         top.restoreSession();
-        let url = './../../../ccdaservice/ccda_gateway.php?action=report_ccd_view&csrf_token_form=' +
+        let url = './../../../portal/ccda_gateway.php?action=report_ccd_view&csrf_token_form=' +
             encodeURIComponent("<?php echo CsrfUtils::collectCsrfToken(session: $session) ?>");
         fetch(url, {
             credentials: 'same-origin',

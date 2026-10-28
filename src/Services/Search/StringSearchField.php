@@ -17,8 +17,17 @@ class StringSearchField extends BasicSearchField
 {
     private const VALID_MODIFIERS = [SearchModifier::CONTAINS, SearchModifier::EXACT, SearchModifier::PREFIX
         , SearchModifier::SUFFIX, SearchModifier::MISSING, SearchModifier::NOT_EQUALS_EXACT];
-    public function __construct(string $field, array|string|int $values, ?string $modifier = null, ?bool $isAnd = null)
-    {
+    /**
+     * @param bool $isLiteral True when a backslash, % or _ in a value is a plain character, as FHIR string search
+     *     needs. Other callers may put a LIKE wildcard in a value on purpose, so it is false by default.
+     */
+    public function __construct(
+        string $field,
+        array|string|int $values,
+        ?string $modifier = null,
+        ?bool $isAnd = null,
+        private readonly bool $isLiteral = false
+    ) {
         if (array_search($modifier, self::VALID_MODIFIERS) === false) {
             $modifier = SearchModifier::PREFIX;
         }
@@ -28,5 +37,10 @@ class StringSearchField extends BasicSearchField
         if ($isAnd === true || $isAnd === false) {
             $this->setIsAnd($isAnd);
         }
+    }
+
+    public function isLiteral(): bool
+    {
+        return $this->isLiteral;
     }
 }

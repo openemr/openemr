@@ -29,6 +29,9 @@ FROM alpine:${ALPINE_VERSION} AS base
 # Important: When updating PHP version, also update php.ini file to match
 ARG PHP_VERSION=8.5
 ENV PHP_VERSION=${PHP_VERSION}
+# Fails the build rather than ship a PHP missing a security fix that Alpine
+# has not packaged yet
+ARG PHP_MIN_VERSION=8.5.12
 # Create abbreviated version (e.g., "8.5" -> "85") for package naming
 ARG PHP_VERSION_ABBR=${PHP_VERSION//./}
 ENV PHP_VERSION_ABBR=${PHP_VERSION_ABBR}
@@ -45,7 +48,7 @@ RUN apk --no-cache upgrade
 # apache2-utils (utilities), bash (shell), certbot (Let's Encrypt), curl (HTTP client),
 # dcron (scheduled tasks), git (version control), imagemagick (image processing),
 # mariadb-client (database client), mariadb-connector-c (DB connector), ncurses (terminal),
-# nodejs/npm (JavaScript runtime), openssl/openssl-dev (cryptography), perl (interpreter),
+# openssl/openssl-dev (cryptography), perl (interpreter),
 # rsync (file sync), shadow (user management), su-exec (lightweight privilege-drop
 # tool used by run_php_as_apache to invoke OpenEMR CLI scripts as the apache user
 # without an intermediate shell — busybox `su` rescans options across the whole
@@ -64,8 +67,6 @@ RUN apk add --no-cache \
     mariadb-client \
     mariadb-connector-c \
     ncurses \
-    nodejs \
-    npm \
     openssl \
     openssl-dev \
     perl \
@@ -85,7 +86,7 @@ RUN apk add --no-cache \
 # Performance: php-opcache, php-pecl-apcu, php-redis, php-session
 # Other: php-fpm, php-phar, php-zip, php-zlib, php-ldap, php-sockets, php-tokenizer
 RUN apk add --no-cache \
-    php${PHP_VERSION_ABBR} \
+    "php${PHP_VERSION_ABBR}>=${PHP_MIN_VERSION}" \
     php${PHP_VERSION_ABBR}-apache2 \
     php${PHP_VERSION_ABBR}-bcmath \
     php${PHP_VERSION_ABBR}-calendar \
@@ -207,9 +208,6 @@ RUN apk add --no-cache build-base nodejs npm
 RUN --mount=type=cache,target=/root/.npm \
     npm install \
     && npm run build \
-    && cd ccdaservice \
-    && npm install --allow-git=all \
-    && cd .. \
     && rm -fr node_modules \
     && apk del --no-cache build-base
 
@@ -222,9 +220,9 @@ COPY --from=openemr-source /openemr /tmp/openemr
 COPY --from=openemr-composer /openemr/vendor /tmp/openemr/vendor
 COPY --from=openemr-composer /openemr/composer.json /tmp/openemr/composer.json
 COPY --from=openemr-composer /openemr/composer.lock /tmp/openemr/composer.lock
+COPY --from=openemr-composer /openemr/interface/modules/custom_modules /tmp/openemr/interface/modules/custom_modules
 # Copy built assets
 COPY --from=openemr-assets /openemr/public /tmp/openemr/public
-COPY --from=openemr-assets /openemr/ccdaservice /tmp/openemr/ccdaservice
 
 RUN cd /tmp \
     # =========================================================================
@@ -318,6 +316,7 @@ COPY upgrade/docker-version \
      upgrade/fsupgrade-13.sh \
      upgrade/fsupgrade-14.sh \
      upgrade/fsupgrade-15.sh \
+     upgrade/fsupgrade-16.sh \
      /root/
 
 # Set upgrade scripts as executable (read and execute for owner only)
@@ -336,7 +335,8 @@ RUN chmod 500 \
     /root/fsupgrade-12.sh \
     /root/fsupgrade-13.sh \
     /root/fsupgrade-14.sh \
-    /root/fsupgrade-15.sh
+    /root/fsupgrade-15.sh \
+    /root/fsupgrade-16.sh
 
 # ============================================================================
 # APACHE RUNTIME DIRECTORY

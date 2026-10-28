@@ -46,7 +46,7 @@ class DocumentsController extends AbstractActionController
         return $this->Documents();
     }
 
-    public function isZipUpload($request = null)
+    public function isZipUpload($request = null): bool
     {
         if (!$request) {
             $request = $this->getRequest();
