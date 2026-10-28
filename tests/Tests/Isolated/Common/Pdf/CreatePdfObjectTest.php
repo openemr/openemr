@@ -71,11 +71,28 @@ class CreatePdfObjectTest extends TestCase
 
     private ?SessionStorageInterface $priorStorage = null;
 
+    private string $priorSessionName = '';
+
+    private bool $priorSessionGlobalExisted = false;
+
+    /** @var array<array-key, mixed> */
+    private array $priorSessionGlobal = [];
+
     protected function setUp(): void
     {
         $this->originalGlobals = array_intersect_key($GLOBALS, self::PDF_GLOBALS);
         foreach (self::PDF_GLOBALS as $key => $value) {
             $GLOBALS[$key] = $value;
+        }
+
+        // Capture everything the ReadAndCloseNativeSessionStorage constructor
+        // and $session->start() mutate so later tests see the state that was
+        // in place before this test ran.
+        $currentName = session_name();
+        $this->priorSessionName = is_string($currentName) ? $currentName : '';
+        $this->priorSessionGlobalExisted = array_key_exists('_SESSION', $GLOBALS);
+        if ($this->priorSessionGlobalExisted) {
+            $this->priorSessionGlobal = $_SESSION;
         }
 
         $factory = SessionWrapperFactory::getInstance();
@@ -105,16 +122,26 @@ class CreatePdfObjectTest extends TestCase
             $GLOBALS[$key] = $value;
         }
 
+        // Restore the SessionWrapperFactory singleton's slots individually.
+        // setActiveSession() leaves activeStorage untouched when the storage
+        // argument is null, so when the prior state had no storage we must
+        // null both slots via reflection to avoid leaking this test's storage.
         $factory = SessionWrapperFactory::getInstance();
-        if ($this->priorSession !== null) {
-            $factory->setActiveSession($this->priorSession, $this->priorStorage);
-        } else {
-            $reflection = new ReflectionClass(SessionWrapperFactory::class);
-            $reflection->getProperty('activeSession')->setValue($factory, null);
-            $reflection->getProperty('activeStorage')->setValue($factory, null);
-        }
+        $reflection = new ReflectionClass(SessionWrapperFactory::class);
+        $reflection->getProperty('activeSession')->setValue($factory, $this->priorSession);
+        $reflection->getProperty('activeStorage')->setValue($factory, $this->priorStorage);
         $this->priorSession = null;
         $this->priorStorage = null;
+
+        if ($this->priorSessionName !== '') {
+            session_name($this->priorSessionName);
+        }
+        if ($this->priorSessionGlobalExisted) {
+            $_SESSION = $this->priorSessionGlobal;
+        } else {
+            unset($_SESSION);
+        }
+        $this->priorSessionGlobal = [];
     }
 
     /**
@@ -204,7 +231,7 @@ class CreatePdfObjectTest extends TestCase
         $this->assertSame(['http', 'https'], $pdf->whitelistStreamWrappers);
     }
 
-    public function testStreamWrapperConfigDoesNotDependOnRequestHostHeader(): void
+    public function testPipelineConfigDerivesFromAllowedHostGlobalNotRequestHostHeader(): void
     {
         $GLOBALS['pdf_allowed_host'] = 'canonical.openemr.local';
         $originalHost = $_SERVER['HTTP_HOST'] ?? null;
@@ -212,6 +239,13 @@ class CreatePdfObjectTest extends TestCase
         try {
             $pdf = (new PatientPortalPDFDocumentCreator())->createPdfObject('<p>x</p>');
             $this->assertSame(['http', 'https'], $pdf->whitelistStreamWrappers);
+            // basepath is the second observable channel that must flow from
+            // pdf_allowed_host and not from HTTP_HOST. If the composition
+            // regressed to reading HTTP_HOST it would show up here.
+            $basepath = $pdf->basepath;
+            $this->assertIsString($basepath);
+            $this->assertStringContainsString('canonical.openemr.local', $basepath);
+            $this->assertStringNotContainsString('other.example', $basepath);
         } finally {
             if ($originalHost === null) {
                 unset($_SERVER['HTTP_HOST']);
