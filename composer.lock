@@ -7417,16 +7417,16 @@
         },
         {
             "name": "php81_bc/strftime",
-            "version": "0.7.6",
+            "version": "0.7.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alphp/strftime.git",
-                "reference": "d115595bccd137660d25e9e05fb656143594b404"
+                "reference": "d9d4388b3b2d283ba988e1bec3db8dc6d19bbf07"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alphp/strftime/zipball/d115595bccd137660d25e9e05fb656143594b404",
-                "reference": "d115595bccd137660d25e9e05fb656143594b404",
+                "url": "https://api.github.com/repos/alphp/strftime/zipball/d9d4388b3b2d283ba988e1bec3db8dc6d19bbf07",
+                "reference": "d9d4388b3b2d283ba988e1bec3db8dc6d19bbf07",
                 "shasum": ""
             },
             "require": {
@@ -7457,7 +7457,17 @@
                 "issues": "https://github.com/alphp/strftime/issues",
                 "source": "https://github.com/alphp/strftime"
             },
-            "time": "2024-11-19T14:01:36+00:00"
+            "funding": [
+                {
+                    "url": "https://github.com/alphp",
+                    "type": "github"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/alphp",
+                    "type": "thanks_dev"
+                }
+            ],
+            "time": "2026-10-24T18:13:10+00:00"
         },
         {
             "name": "phpmailer/phpmailer",
