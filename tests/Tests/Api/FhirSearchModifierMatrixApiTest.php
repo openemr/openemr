@@ -236,13 +236,19 @@ class FhirSearchModifierMatrixApiTest extends TestCase
      * the server should return resources whose referenced element is
      * absent / null. Current server behavior: implemented.
      * SearchFieldStatementResolver::resolveStringSearchField emits
-     * `(lname IS NULL OR lname = '')`. Every fixture patient has a
-     * family name, so none of them is in the Bundle.
+     * `(lname IS NULL OR lname = '')`, so a patient with an empty
+     * family name is in the Bundle and the three fixtures are not.
      */
     #[Test]
-    public function testStringMissingTrueExcludesPresentValues(): void
+    public function testStringMissingTrueMatchesOnlyAbsentValues(): void
     {
+        $noFamily = $this->installPatientFixture('', self::DOB_1);
         $bundle = $this->getBundle('/apis/default/fhir/Patient?family:missing=true');
+        self::assertContains(
+            $noFamily['uuid'],
+            $this->extractEntryIds($bundle),
+            'family:missing=true must return a patient without a family name',
+        );
         self::assertSame(
             [],
             $this->extractFixtureFamilies($bundle),
@@ -525,6 +531,25 @@ class FhirSearchModifierMatrixApiTest extends TestCase
             . 'DB returns insertion order. When Encounter opts into the '
             . 'with-config variant, flip this skip to assert sort order.',
         );
+    }
+
+    /**
+     * @param array<mixed> $bundle
+     * @return list<string>
+     */
+    private function extractEntryIds(array $bundle): array
+    {
+        $entries = $bundle['entry'] ?? [];
+        self::assertIsArray($entries);
+        $ids = [];
+        foreach ($entries as $entry) {
+            $resource = is_array($entry) ? ($entry['resource'] ?? null) : null;
+            $id = is_array($resource) ? ($resource['id'] ?? null) : null;
+            if (is_string($id)) {
+                $ids[] = $id;
+            }
+        }
+        return $ids;
     }
 
     /**
