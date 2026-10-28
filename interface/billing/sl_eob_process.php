@@ -22,7 +22,10 @@ ob_start();
 require_once("../globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\EraAdjustmentMemo;
 use OpenEMR\Billing\EraCheckPosting;
+use OpenEMR\Billing\EraReversal;
+use OpenEMR\Billing\EraReversalOutcome;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
@@ -386,6 +389,16 @@ function eob_process_era_callback(array &$out): void
             default => 'Ins1'
         };
 
+        // The claim's date of service as the ERA gives it; the payer lookups below use it.
+        $service_date = parseDate($out['dos'] ?? $out['claim_date']);
+
+        // CLP07, the payer's claim control number. It is stored on every row this
+        // claim posts, so a claim the payer paid nothing on still records it, and a
+        // reversal uses it to find the payment it takes back.
+        $payer_claim_number = is_string($out['payer_claim_id'] ?? null) && $out['payer_claim_id'] !== ''
+            ? $out['payer_claim_id']
+            : null;
+
         // Re-posting an ERA must not post a claim's payments and adjustments twice:
         // skip a claim this check was already posted to in an earlier run. Several
         // claim lines (CLPs) for one claim in this ERA still post.
@@ -471,6 +484,31 @@ function eob_process_era_callback(array &$out): void
             );
         } elseif ($csc === '22') {
             $inverror = true;
+            // The reversal isn't posted, but the payment it takes back closed its
+            // insurance level: re-open it so the balance isn't treated as the patient's.
+            if (!$debug && $pid && $encounter) {
+                $reversal = new EraReversal(CurrentRequest::get()->query->getString('InsId'));
+                $reversalPid = is_numeric($pid) ? (int) $pid : 0;
+                $reversalEncounter = is_numeric($encounter) ? (int) $encounter : 0;
+                // The ERA's date of service, as the rest of the posting uses; the encounter's if it has none.
+                $reversalDos = $service_date !== ''
+                    ? $service_date
+                    : (is_string($ferow['date'] ?? null) ? substr($ferow['date'], 0, 10) : '');
+                $reversalLevel = $reversal->reversedLevel(
+                    $reversalPid,
+                    $reversalEncounter,
+                    $reversalDos,
+                    $payer_claim_number ?? ''
+                );
+                $outcome = $reversal->reopenLevel($reversalPid, $reversalEncounter, $reversalLevel, $checkNumber, $checkDate);
+                echo getMessageLine($bgcolor, 'errdetail', match ($outcome) {
+                    EraReversalOutcome::Reopened => "Ins$reversalLevel re-opened, so the balance stays with insurance",
+                    EraReversalOutcome::CorrectionPosted => "Ins$reversalLevel stays closed: this check also posted a corrected payment",
+                    EraReversalOutcome::AlreadyOpen => "Ins$reversalLevel was not closed; left as is",
+                    EraReversalOutcome::PayerNotOnClaim => "This payer is not on the claim for the date of service; insurance levels left as they are",
+                    EraReversalOutcome::LevelUnknown => "Could not tell which insurance this reversal is for; insurance levels left as they are",
+                });
+            }
             echo getMessageLine(
                 $bgcolor,
                 'errdetail',
@@ -489,15 +527,8 @@ function eob_process_era_callback(array &$out): void
         }
 
         // Simplify some claim attributes for cleaner code.
-        $service_date = parseDate($out['dos'] ?? $out['claim_date']);
         $check_date = $paydate ?: parseDate($out['check_date']);
         $production_date = $paydate ?: parseDate($out['production_date']);
-        // CLP07, the payer's claim control number. It is stored on every row this
-        // claim posts, so a claim the payer paid nothing on still records it.
-        $payer_claim_number = is_string($out['payer_claim_id'] ?? null) && $out['payer_claim_id'] !== ''
-            ? $out['payer_claim_id']
-            : null;
-
         $insurance_id = SLEOB::arGetPayerID($pid, $service_date, substr($inslabel, 3));
         $patient_name = empty($ferow['lname'])
             ? $out['patient_fname'] . ' ' . $out['patient_lname']
@@ -674,22 +705,15 @@ function eob_process_era_callback(array &$out): void
                 if ($adj['group_code'] === 'PR' || !$primary) {
                     // Group code PR is Patient Responsibility.  Enter these as zero
                     // adjustments to retain the note without crediting the claim.
-                    if ($primary) {
-                        // Reasons should be 25 chars or less.
-                        $reason = match ($adj['reason_code']) {
-                            '1' => "$inslabel dedbl: ",
-                            '2' => "$inslabel coins: ",
-                            '3' => "$inslabel copay: ",
-                            default => "$inslabel ptresp: "
-                        };
-                    } else {
-                        // Non-primary insurance adjustments are garbage, either repeating
-                        // the primary or are not adjustments at all.  Report them as notes
-                        // but do not post any amounts.
-                        $reason = "$inslabel note " . $adj['reason_code'] . ': ';
-                    }
-
-                    $reason .= sprintf("%.2f", $adj['amount']);
+                    // Non-primary insurance adjustments are garbage, either repeating
+                    // the primary or are not adjustments at all.  Report them as notes
+                    // but do not post any amounts.
+                    $reason = EraAdjustmentMemo::forAdjustment(
+                        $inslabel,
+                        $primary,
+                        is_scalar($adj['reason_code'] ?? null) ? (string) $adj['reason_code'] : '',
+                        is_numeric($adj['amount'] ?? null) ? (float) $adj['amount'] : 0.0
+                    );
                     // Post a zero-dollar adjustment just to save it as a comment.
                     if (!$error && !$debug) {
                         SLEOB::arPostAdjustment(
