@@ -265,16 +265,20 @@ final class FhirTaskWriteRules
             return 'must be an object with a type and a value';
         }
         $type = $entry['type'] ?? null;
-        $text = FhirPayloadReader::getString($type, 'text');
-        $system = FhirPayloadReader::firstCodingValue($type, 'system');
-        $code = FhirPayloadReader::firstCodingCode($type);
-        $display = FhirPayloadReader::firstCodingValue($type, 'display');
-        if ($text === null && ($system === '' || $code === '')) {
-            return 'needs a type: a coding with a system and a code, or text';
-        }
-        // A row holds one coding: a second would be lost, so it's refused.
+        $text = self::filled(FhirPayloadReader::getString($type, 'text'));
+        $system = self::filled(FhirPayloadReader::firstCodingValue($type, 'system')) ?? '';
+        $code = self::filled(FhirPayloadReader::firstCodingCode($type)) ?? '';
+        $display = self::filled(FhirPayloadReader::firstCodingValue($type, 'display')) ?? '';
+        // A row holds one coding with its system and code: a second coding, or one without
+        // both, would be lost, so it's refused.
         if (count(FhirPayloadReader::codings($type)) > 1) {
             return 'type takes one coding: a row keeps one system and code';
+        }
+        if (FhirPayloadReader::codings($type) !== [] && ($system === '' || $code === '')) {
+            return 'type.coding needs a system and a code';
+        }
+        if ($text === null && $system === '') {
+            return 'needs a type: a coding with a system and a code, or text';
         }
         // Longer than its column, a value would be cut short or fail the insert: refuse it here instead.
         if (($text !== null && mb_strlen($text) > self::MAX_SYSTEM) || mb_strlen($display) > self::MAX_SYSTEM
@@ -308,7 +312,7 @@ final class FhirTaskWriteRules
             if ($reference === null) {
                 return 'must reference one of ' . implode(', ', $types) . ' on this server ({type}/{uuid})';
             }
-            $referenceDisplay = FhirPayloadReader::getString($value, 'display');
+            $referenceDisplay = self::filled(FhirPayloadReader::getString($value, 'display'));
             if ($referenceDisplay !== null && mb_strlen($referenceDisplay) > self::MAX_SYSTEM) {
                 return 'valueReference.display is longer than ' . self::MAX_SYSTEM . ' characters';
             }
@@ -318,15 +322,18 @@ final class FhirTaskWriteRules
             return $row;
         }
         if ($element === 'valueCodeableConcept') {
-            $valueText = FhirPayloadReader::getString($value, 'text');
-            $valueSystem = FhirPayloadReader::firstCodingValue($value, 'system');
-            $valueCode = FhirPayloadReader::firstCodingCode($value);
-            $valueDisplay = FhirPayloadReader::firstCodingValue($value, 'display');
-            if ($valueText === null && ($valueSystem === '' || $valueCode === '')) {
-                return 'needs a coding with a system and a code, or text';
-            }
+            $valueText = self::filled(FhirPayloadReader::getString($value, 'text'));
+            $valueSystem = self::filled(FhirPayloadReader::firstCodingValue($value, 'system')) ?? '';
+            $valueCode = self::filled(FhirPayloadReader::firstCodingCode($value)) ?? '';
+            $valueDisplay = self::filled(FhirPayloadReader::firstCodingValue($value, 'display')) ?? '';
             if (count(FhirPayloadReader::codings($value)) > 1) {
                 return 'valueCodeableConcept takes one coding: a row keeps one system and code';
+            }
+            if (FhirPayloadReader::codings($value) !== [] && ($valueSystem === '' || $valueCode === '')) {
+                return 'valueCodeableConcept.coding needs a system and a code';
+            }
+            if ($valueText === null && $valueSystem === '') {
+                return 'needs a coding with a system and a code, or text';
             }
             if (($valueSystem !== '' && $valueCode !== '' && !self::fits($valueSystem, $valueCode)) || mb_strlen($valueDisplay) > self::MAX_SYSTEM
                 || ($valueText !== null && mb_strlen($valueText) > self::MAX_TEXT)) {
@@ -421,15 +428,18 @@ final class FhirTaskWriteRules
     /** A CodeableConcept as the text the table keeps: its text, or its first coding's display or code. */
     private static function conceptText(mixed $concept): ?string
     {
-        $text = FhirPayloadReader::getString($concept, 'text');
-        if ($text !== null) {
-            return $text;
-        }
-        $display = FhirPayloadReader::firstCodingValue($concept, 'display');
-        if ($display !== '') {
-            return $display;
-        }
-        $code = FhirPayloadReader::firstCodingCode($concept);
-        return $code !== '' ? $code : null;
+        return self::filled(FhirPayloadReader::getString($concept, 'text'))
+            ?? self::filled(FhirPayloadReader::firstCodingValue($concept, 'display'))
+            ?? self::filled(FhirPayloadReader::firstCodingCode($concept));
+    }
+
+    /**
+     * A string with something in it, or null. A blank one reads back as nothing
+     * (FhirTaskService::text()), so it counts as nothing when written too: a type of " " alone
+     * would otherwise be kept, then read back as an empty CodeableConcept.
+     */
+    private static function filled(?string $value): ?string
+    {
+        return $value !== null && trim($value) !== '' ? $value : null;
     }
 }

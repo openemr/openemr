@@ -112,6 +112,10 @@ class FhirTaskWriteRulesTest extends TestCase
             'output not a list' => [['output' => ['type' => ['text' => 'Response'], 'valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE]]], 'output'],
             'an output with no type' => [['output' => [['valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE]]]], 'output[0]'],
             'an output type coding with no system' => [['output' => [['type' => ['coding' => [['code' => 'questionnaire-response']]], 'valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE]]]], 'output[0]'],
+            'an output type of blank text' => [['output' => [['type' => ['text' => ' '], 'valueString' => 'x']]], 'output[0]'],
+            'an input type coding with a system and no code, beside text' => [['input' => [['type' => ['text' => 'Questionnaire', 'coding' => [['system' => FhirTaskService::SDC_TEMP_SYSTEM]]], 'valueCanonical' => 'https://example.org/Questionnaire/phq-9']]], 'input[0]'],
+            'an input type coding with only a display' => [['input' => [['type' => ['text' => 'Questionnaire', 'coding' => [['display' => 'Questionnaire']]], 'valueCanonical' => 'https://example.org/Questionnaire/phq-9']]], 'input[0]'],
+            'an input type coding with a blank code' => [['input' => [['type' => ['coding' => [['system' => FhirTaskService::SDC_TEMP_SYSTEM, 'code' => ' ']]], 'valueString' => 'x']]], 'input[0]'],
             'an output that is a Condition' => [['output' => [['type' => ['text' => 'Finding'], 'valueReference' => ['reference' => 'Condition/' . self::RESPONSE]]]], 'output[0]'],
             'an output that is a yes or no' => [['output' => [['type' => ['text' => 'Done'], 'valueBoolean' => true]]], 'output[0]'],
             'an output that is a canonical' => [['output' => [['type' => ['text' => 'Form'], 'valueCanonical' => 'https://example.org/Questionnaire/phq-9']]], 'output[0]'],
@@ -119,6 +123,8 @@ class FhirTaskWriteRulesTest extends TestCase
             'an output string with nothing in it' => [['output' => [['type' => ['text' => 'Contact'], 'valueString' => '  ']]], 'output[0]'],
             'an output longer than the limit' => [['output' => [['type' => ['text' => 'Notes'], 'valueMarkdown' => str_repeat('a', FhirTaskWriteRules::MAX_TEXT + 1)]]], 'output[0]'],
             'an output code with no system' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['coding' => [['code' => 'food-delivered']]]]]], 'output[0]'],
+            'an output code with only a display, beside text' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['text' => 'Food delivered', 'coding' => [['display' => 'Food delivered']]]]]], 'output[0]'],
+            'an output concept of blank text' => [['output' => [['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['text' => "\t "]]]], 'output[0]'],
             'input not a list' => [['input' => ['type' => ['text' => 'Form'], 'valueCanonical' => 'https://example.org/Questionnaire/phq-9']], 'input'],
             'an input that is a Patient' => [['input' => [['type' => ['text' => 'Contact'], 'valueReference' => ['reference' => 'Patient/' . self::PATIENT]]]], 'input[0]'],
             'an input url that is not a url' => [['input' => [['type' => ['text' => 'Form'], 'valueUrl' => 'the clinic website']]], 'input[0]'],
@@ -192,6 +198,28 @@ class FhirTaskWriteRulesTest extends TestCase
         }
         // An element the table doesn't hold is left out, null or not, as before.
         $this->assertSame([], FhirTaskWriteRules::read(self::task(['note' => null]))['errors']);
+    }
+
+    public function testBlankTextCountsAsNone(): void
+    {
+        // What reads back as nothing is kept as nothing, so the next text along is the one kept.
+        $read = FhirTaskWriteRules::read(self::task([
+            'statusReason' => ['text' => '  ', 'coding' => [['system' => 'http://example.org', 'code' => 'declined', 'display' => 'Patient declined']]],
+            'output' => [
+                ['type' => ['text' => ' ', 'coding' => [['system' => FhirTaskService::SDC_TEMP_SYSTEM, 'code' => 'questionnaire-response', 'display' => ' ']]], 'valueReference' => ['reference' => 'QuestionnaireResponse/' . self::RESPONSE, 'display' => ' ']],
+                ['type' => ['text' => 'Done'], 'valueCodeableConcept' => ['text' => ' ', 'coding' => [['system' => 'http://example.org/activities', 'code' => 'food-delivered']]]],
+            ],
+        ]));
+        $this->assertSame([], $read['errors']);
+        $this->assertSame('Patient declined', $read['fields']['status_reason']);
+        $this->assertSame(self::row([
+            'type_system' => FhirTaskService::SDC_TEMP_SYSTEM,
+            'type_code' => 'questionnaire-response',
+            'value_element' => 'valueReference',
+            'value_type' => 'QuestionnaireResponse',
+            'value_uuid' => self::RESPONSE,
+        ]), $read['outputs'][0]);
+        $this->assertSame(['http://example.org/activities', 'food-delivered', null, null], [$read['outputs'][1]['value_system'], $read['outputs'][1]['value_code'], $read['outputs'][1]['value_display'], $read['outputs'][1]['value_text']]);
     }
 
     public function testEveryAllowedReferenceTypeIsAccepted(): void
