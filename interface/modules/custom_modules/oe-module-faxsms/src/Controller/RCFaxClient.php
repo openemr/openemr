@@ -769,7 +769,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
             while ($nrow = sqlFetchArray($res)) {
                 $adate = ($nrow['pc_eventDate'] . '::' . $nrow['pc_startTime']);
                 $pinfo = str_replace("|||", " ", $nrow['patient_info']);
-                $msg = text($nrow["message"]);
+                $msg = $nrow["message"];
                 $responseMsg .= "<tr><td>" . text($nrow["pc_eid"]) . "</td><td>" . text($nrow["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($msg) . "</td></tr>";
             }
         } catch (\Throwable $e) {
