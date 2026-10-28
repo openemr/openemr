@@ -166,6 +166,157 @@ class OAuthLoginCsrfRejectionTest extends TestCase
         );
     }
 
+    #[Test]
+    public function testOAuthLoginPostWithMissingCsrfTokenIsRejected(): void
+    {
+        // The sibling test above sends a bogus csrf_token_form value. This
+        // test exercises the "field omitted entirely" shape — ensures the
+        // guard handles missing-key as rejection rather than falling
+        // through to a null/empty comparison.
+        $http = $this->buildClient();
+        $clientId = $this->registerConfidentialClient($http);
+        $this->clientId = $clientId;
+
+        $authUrl = '/oauth2/default/authorize?' . http_build_query([
+            'client_id' => $clientId,
+            'redirect_uri' => self::REDIRECT_URI,
+            'response_type' => 'code',
+            'scope' => 'openid api:oemr',
+            'state' => 'csrf-missing-state',
+        ]);
+        $loginPage = $http->get($this->baseUrl . $authUrl);
+        $this->assertSame(200, $loginPage->getStatusCode());
+        $crawler = new Crawler((string) $loginPage->getBody());
+        $action = (string) $crawler->filterXPath('//form[@id="userLogin"]')->first()->attr('action');
+        $this->assertNotSame('', $action);
+
+        $postLogin = $http->post($this->baseUrl . $action, [
+            'form_params' => [
+                // csrf_token_form intentionally omitted
+                'username' => 'admin',
+                'password' => 'pass',
+                'email' => '',
+                'persist_login' => '0',
+                'user_role' => 'api',
+            ],
+            'allow_redirects' => false,
+        ]);
+        $this->assertSame(
+            200,
+            $postLogin->getStatusCode(),
+            'Missing csrf_token_form must re-render login (200), not proceed to consent'
+        );
+        $body = (string) $postLogin->getBody();
+        $rerenderedLoginForm = (new Crawler($body))
+            ->filterXPath('//form[@id="userLogin"]')
+            ->count() > 0;
+        $consentButton = (new Crawler($body))
+            ->filterXPath('//*[@name="proceed"]')
+            ->count();
+        $this->assertGreaterThan(
+            0,
+            (int) $rerenderedLoginForm,
+            'Response should re-render the login form after missing-CSRF rejection '
+                . '(a generic error page would spuriously satisfy the consent-button check)'
+        );
+        $this->assertSame(
+            0,
+            $consentButton,
+            'Missing CSRF token must not advance to consent page'
+        );
+    }
+
+    #[Test]
+    public function testOAuthLoginPostWithCsrfTokenFromDifferentSessionIsRejected(): void
+    {
+        // CsrfUtils builds tokens as hash_hmac over a per-session private
+        // key. Session A's token must not satisfy Session B's verifier —
+        // otherwise an attacker who captured a victim's csrf_token_form
+        // in one session could reuse it in a parallel session. Lock the
+        // session-binding invariant with a cross-session replay attempt.
+        $httpA = $this->buildClient();
+        $clientId = $this->registerConfidentialClient($httpA);
+        $this->clientId = $clientId;
+
+        // Session A: GET the login form and extract its csrf_token_form.
+        $authUrl = '/oauth2/default/authorize?' . http_build_query([
+            'client_id' => $clientId,
+            'redirect_uri' => self::REDIRECT_URI,
+            'response_type' => 'code',
+            'scope' => 'openid api:oemr',
+            'state' => 'session-A-state',
+        ]);
+        $loginPageA = $httpA->get($this->baseUrl . $authUrl);
+        $this->assertSame(200, $loginPageA->getStatusCode());
+        $crawlerA = new Crawler((string) $loginPageA->getBody());
+        $tokenA = (string) $crawlerA
+            ->filterXPath('//form[@id="userLogin"]//input[@name="csrf_token_form"]')
+            ->first()
+            ->attr('value');
+        $this->assertNotSame('', $tokenA, 'Session A should expose a csrf_token_form');
+
+        // Session B: fresh cookie jar, fresh /authorize GET, so Session B
+        // has its own private key independent of A.
+        $httpB = $this->buildClient();
+        $loginPageB = $httpB->get($this->baseUrl . $authUrl);
+        $this->assertSame(200, $loginPageB->getStatusCode());
+        $crawlerB = new Crawler((string) $loginPageB->getBody());
+        $action = (string) $crawlerB
+            ->filterXPath('//form[@id="userLogin"]')
+            ->first()
+            ->attr('action');
+        $this->assertNotSame('', $action);
+
+        // Submit Session A's token through Session B's login form.
+        $postB = $httpB->post($this->baseUrl . $action, [
+            'form_params' => [
+                'csrf_token_form' => $tokenA,
+                'username' => 'admin',
+                'password' => 'pass',
+                'email' => '',
+                'persist_login' => '0',
+                'user_role' => 'api',
+            ],
+            'allow_redirects' => false,
+        ]);
+        $this->assertSame(
+            200,
+            $postB->getStatusCode(),
+            'Cross-session CSRF replay must re-render login (200), not advance to consent'
+        );
+        $body = (string) $postB->getBody();
+        $rerenderedLoginForm = (new Crawler($body))
+            ->filterXPath('//form[@id="userLogin"]')
+            ->count() > 0;
+        $consentButton = (new Crawler($body))
+            ->filterXPath('//*[@name="proceed"]')
+            ->count();
+        $this->assertGreaterThan(
+            0,
+            (int) $rerenderedLoginForm,
+            'Response should re-render the login form after cross-session CSRF replay'
+        );
+        $this->assertSame(
+            0,
+            $consentButton,
+            "Cross-session CSRF replay must not advance to the consent page"
+        );
+        // CsrfUtils rejection renders "Sorry. Invalid CSRF!" into the
+        // login template's `invalid` slot; the failed-authentication
+        // path renders a different message. Asserting the CSRF-specific
+        // string distinguishes the rejection reason — a regression that
+        // ran verifyLogin() with Session A's token (and then failed
+        // because the credentials path rejects by chance) would present
+        // the auth-failure message instead and this assertion would
+        // catch it.
+        $this->assertStringContainsString(
+            'Invalid CSRF',
+            $body,
+            'Response should carry the CSRF-specific rejection message '
+                . '("Invalid CSRF"), not a failed-authentication message'
+        );
+    }
+
     private function registerConfidentialClient(Client $http): string
     {
         $reg = $http->post($this->baseUrl . '/oauth2/default/registration', [

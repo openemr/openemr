@@ -18,7 +18,7 @@ class System
      * @param string $command The command to check
      * @return bool True if the command has been found ; otherwise, false.
      */
-    public function command_exists($command)
+    public function command_exists($command): bool
     {
         $exec_command = escapeshellcmd($command); // @see  https://www.php.net/manual/en/function.escapeshellcmd.php
         $whereIsCommand = (PHP_OS == 'WINNT') ? 'where' : 'which';

@@ -102,7 +102,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
     protected function loadSearchParameters(): array
     {
         return [
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('id', ServiceField::TYPE_STRING)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('option_id', ServiceField::TYPE_STRING)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
     }
@@ -159,12 +159,12 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
         $this->getSearchFieldFactory()->setSearchFieldDefinition('_lastUpdated', $this->getLastModifiedSearchFieldForAppointmentCategories());
         $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
         if (
-            !isset($oeSearchParameters['_id'])
+            !isset($oeSearchParameters['option_id'])
             // _id parameter can be array (AND) or comma-delimited (OR). Since a resource can only
             // have one ID, an array will have at most one element, so just check for our type.
-            || $oeSearchParameters['_id']->hasCodeValue(self::APPOINTMENT_TYPE)
+            || $oeSearchParameters['option_id']->hasCodeValue(self::APPOINTMENT_TYPE)
         ) {
-            if (!isset($oeSearchParameters['_id'])) {
+            if (!isset($oeSearchParameters['option_id'])) {
                 // if we have any match on categories we want to return everything... hate the double db call
                 // but rather than mess with a complex query we will just do it this way
                 $processingResult = $this->appointmentService->searchCalendarCategories($oeSearchParameters);

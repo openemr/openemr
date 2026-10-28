@@ -19,7 +19,10 @@ $pid = $session->get('pid', 0);
 $userauthorized = $session->get('userauthorized', 0);
 require_once($srcdir . "/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
@@ -42,6 +45,29 @@ $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
 $mode    = empty($_POST['mode' ]) ? '' : $_POST['mode' ];
 // $inmode    = $_GET['inmode'];
 $body_onload_code = "";
+
+// Transaction read/write surface; align the permission check with the
+// `patients/trans` ACO. Writes additionally require `write` (or `addonly`
+// when inserting a new form).
+$aclReturn = $mode ? ['write', 'addonly'] : '';
+if (!AclMain::aclCheckCore('patients', 'trans', '', $aclReturn)) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/trans: Transactions", xl("Transactions"));
+}
+// Bind the request `transid` to the open chart. `$pid` is the session-scoped
+// chart id (switching the chart goes through the normal demographics path).
+$sessionPidInt = is_numeric($pid) ? (int) $pid : 0;
+if ($transid > 0) {
+    $owner = QueryUtils::querySingleRow("SELECT pid FROM transactions WHERE id = ?", [$transid]);
+    $ownerPid = is_array($owner) && isset($owner['pid']) && is_numeric($owner['pid'])
+        ? (int) $owner['pid']
+        : 0;
+    // transactions.pid is nullable; a NULL-owned row with no open chart
+    // would otherwise normalize to 0 === 0 and pass the match. Require
+    // both sides to be positive before comparing.
+    if ($sessionPidInt <= 0 || $ownerPid <= 0 || $ownerPid !== $sessionPidInt) {
+        AccessDeniedHelper::deny('add_transaction: transid does not belong to the open chart');
+    }
+}
 
 // Load array of properties for this layout and its groups.
 $grparr = [];

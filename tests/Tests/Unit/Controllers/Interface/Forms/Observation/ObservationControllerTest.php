@@ -196,7 +196,8 @@ class ObservationControllerTest extends TestCase
     {
         $request = new Request([
             'id' => 1,
-            'form_id' => 123
+            'form_id' => 123,
+            'csrf_token' => CsrfUtils::collectCsrfToken($this->session),
         ]);
 
         $this->mockFormService
@@ -236,7 +237,8 @@ class ObservationControllerTest extends TestCase
     {
         $request = new Request([
             'id' => 0,
-            'form_id' => 123
+            'form_id' => 123,
+            'csrf_token' => CsrfUtils::collectCsrfToken($this->session),
         ]);
 
         $this->mockFormService
@@ -259,7 +261,8 @@ class ObservationControllerTest extends TestCase
     {
         $request = new Request([
             'id' => 1,
-            'form_id' => 123
+            'form_id' => 123,
+            'csrf_token' => CsrfUtils::collectCsrfToken($this->session),
         ]);
 
         $this->mockFormService

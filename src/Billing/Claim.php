@@ -50,7 +50,6 @@ class Claim
     public $payers = [];       // array of arrays, for all payers
     public $copay;             // total of copays from the ar_activity table
     public $facilityService;   // via matthew.vita orm work :)
-    public $pay_to_provider;   // to be implemented in facility ui
     private $encounterService;
     public $billing_prov_id;
     public $line_item_adjs;    // adjustment array with key of [group code][reason code] needed for secondary claims
@@ -61,8 +60,11 @@ class Claim
      * @param $pid patient id
      * @param $encounter_id encounter id
      * @param $x12_partner_id
+     * @param ?string $payerId insurance company to build the claim for, in place of
+     *   the payer on the encounter's billing rows; lets Validate Only show the claim
+     *   for the payer selected in the billing manager without saving that choice
      */
-    public function __construct(public $pid, public $encounter_id, $x12_partner_id)
+    public function __construct(public $pid, public $encounter_id, $x12_partner_id, private readonly ?string $payerId = null)
     {
         $this->encounterService = new EncounterService();
         $this->encounter = $this->encounterService->getOneByPidEid($this->pid, $this->encounter_id);
@@ -70,7 +72,6 @@ class Claim
         $this->copay = $this->getCopay($this->pid, $this->encounter_id);
         $this->facilityService = new FacilityService();
         $this->facility = $this->facilityService->getById($this->encounter['facility_id']);
-        $this->pay_to_provider = ''; // will populate from facility someday :)
         $this->x12_partner = $this->getX12Partner($x12_partner_id);
         $this->provider = (new UserService())->getUser($this->encounter['provider_id']);
         $this->billing_facility = empty($this->encounter['billing_facility']) ?
@@ -116,6 +117,10 @@ class Claim
 
             if (!$row['units']) {
                 $row['units'] = 1;
+            }
+
+            if ($this->payerId !== null) {
+                $row['payer_id'] = $this->payerId;
             }
 
             // Load prior payer data at the first opportunity in order to get
@@ -450,8 +455,8 @@ class Claim
                     } elseif (preg_match("/dedbl: (\S+)/i", (string) $rsn, $tmp) && !$chg) {
                         $deductible = $tmp[1]; // from 835 and manual post as of 6/2007
                         continue;
-                    } elseif (preg_match("/ptresp: (\S+)/i", (string) $rsn, $tmp) && !$chg) {
-                        continue; // from 835 as of 6/2007
+                    } elseif (preg_match(EraAdjustmentMemo::PATIENT_RESPONSIBILITY_PATTERN, (string) $rsn, $tmp) && !$chg) {
+                        continue; // from 835 as of 6/2007; with the reason code since 2026
                     } elseif (preg_match("/adjust code (\S+)/i", (string) $rsn, $tmp)) {
                         $rcode = $tmp[1]; // from 835
                     } elseif (preg_match("/$inslabel/i", (string) $rsn, $tmp)) {
@@ -785,6 +790,87 @@ class Claim
     public function billingFacilityZip()
     {
         return $this->x12Zip($this->billing_facility['postal_code']);
+    }
+
+    /**
+     * Whether the 837P sends a pay-to address (loop 2010AB): the billing facility has a
+     * mailing address and it differs from the physical address sent for the billing
+     * provider (loop 2010AA). 2010AB is only for a payment address that differs from
+     * the billing provider's.
+     */
+    public function hasPayToAddress(): bool
+    {
+        return self::mailingAddressDiffers(is_array($this->billing_facility) ? $this->billing_facility : []);
+    }
+
+    /**
+     * The billing facility's mailing address, sent as the 837P pay-to address.
+     */
+    public function payToFacilityStreet(): string
+    {
+        return (string) $this->x12Clean($this->billingFacilityMailField('mail_street'));
+    }
+
+    public function payToFacilityStreet2(): string
+    {
+        return (string) $this->x12Clean($this->billingFacilityMailField('mail_street2'));
+    }
+
+    public function payToFacilityCity(): string
+    {
+        return (string) $this->x12Clean($this->billingFacilityMailField('mail_city'));
+    }
+
+    public function payToFacilityState(): string
+    {
+        return (string) $this->x12Clean($this->billingFacilityMailField('mail_state'));
+    }
+
+    public function payToFacilityZip(): string
+    {
+        return (string) $this->x12Zip($this->billingFacilityMailField('mail_zip'));
+    }
+
+    private function billingFacilityMailField(string $field): string
+    {
+        $value = is_array($this->billing_facility) ? ($this->billing_facility[$field] ?? null) : null;
+        return is_string($value) ? trim($value) : '';
+    }
+
+    /**
+     * Whether a facility row has a mailing address that differs from its physical address.
+     *
+     * Streets compare without case, punctuation or extra spaces (mailing street and
+     * street2 together against the physical street). ZIP codes compare as digits, and a
+     * 5-digit ZIP matches a ZIP+4 that starts with it.
+     *
+     * @param array<mixed> $facility row from the facility table
+     */
+    private static function mailingAddressDiffers(array $facility): bool
+    {
+        $field = static fn (string $key): string => is_string($facility[$key] ?? null) ? trim($facility[$key]) : '';
+        $words = static fn (string $value): string => trim((string) preg_replace(
+            '/\s+/',
+            ' ',
+            (string) preg_replace('/[^A-Z0-9 ]/', ' ', strtoupper($value))
+        ));
+        $digits = static fn (string $value): string => (string) preg_replace('/\D/', '', $value);
+
+        if ($field('mail_street') === '') {
+            return false;
+        }
+        $mailZip = $digits($field('mail_zip'));
+        $physicalZip = $digits($field('postal_code'));
+        $sameZip = $mailZip === $physicalZip
+            || (strlen($mailZip) === 5 && str_starts_with($physicalZip, $mailZip))
+            || (strlen($physicalZip) === 5 && str_starts_with($mailZip, $physicalZip));
+
+        return !(
+            $words($field('mail_street') . ' ' . $field('mail_street2')) === $words($field('street'))
+            && $words($field('mail_city')) === $words($field('city'))
+            && $words($field('mail_state')) === $words($field('state'))
+            && $sameZip
+        );
     }
 
     /**
@@ -1759,6 +1845,24 @@ class Claim
             : '';
 
         return $this->x12Clean(trim($icn));
+    }
+
+    /**
+     * Whether loop 2430 reports this prior payer's adjudication of at least one
+     * service line, which is when the 837P generator sends an SVD for it: the
+     * payer paid something on the line or has adjustments on it.
+     */
+    public function hasLineAdjudication(int $ins): bool
+    {
+        for ($prockey = 0; $prockey < $this->procCount(); ++$prockey) {
+            $code = $this->cptKey($prockey);
+            $payerpaid = $this->payerTotals($ins, $code);
+            if ($payerpaid[1] != 0 || $this->payerAdjustments($ins, $code) !== []) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../apis/routes/_rest_routes_standard.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccdaservice/ccda_gateway.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Direct access to \\$_GET is forbidden\\. Use Symfony\'s Request object instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCR.php',
@@ -848,7 +843,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 155,
+    'count' => 140,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
@@ -1428,7 +1423,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 8,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
 ];
 $ignoreErrors[] = [
@@ -1998,7 +1993,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 6,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
 ];
 $ignoreErrors[] = [
@@ -2048,7 +2043,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 7,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
 $ignoreErrors[] = [
@@ -2410,16 +2405,6 @@ $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_GET is forbidden\\. Use Symfony\'s Request object instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/front_payment_terminal.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_GET is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/history/edit_billnote.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/patient_file/history/edit_billnote.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_GET is forbidden\\. Use Symfony\'s Request object instead\\.$#',
@@ -3468,11 +3453,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/ajax/lists_touch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/log_print_action_ajax.php',
 ];
@@ -3815,6 +3795,11 @@ $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
     'count' => 59,
     'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/ccda_gateway.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object instead\\.$#',

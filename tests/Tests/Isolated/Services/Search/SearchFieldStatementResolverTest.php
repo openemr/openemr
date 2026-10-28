@@ -187,6 +187,34 @@ class SearchFieldStatementResolverTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array{bool, string, string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function likeWildcardProvider(): array
+    {
+        return [
+            'literal prefix' => [true, SearchModifier::PREFIX, "name LIKE ? ESCAPE '!'", '50!%!_a\\b!!%'],
+            'literal suffix' => [true, SearchModifier::SUFFIX, "name LIKE ? ESCAPE '!'", '%50!%!_a\\b!!'],
+            'literal contains' => [true, SearchModifier::CONTAINS, "name LIKE ? ESCAPE '!'", '%50!%!_a\\b!!%'],
+            'literal exact is not a LIKE pattern' => [true, SearchModifier::EXACT, 'BINARY name = ?', '50%_a\\b!'],
+            'wildcards stay for other callers, prefix' => [false, SearchModifier::PREFIX, 'name LIKE ?', '50%_a\\b!%'],
+            'wildcards stay for other callers, contains' => [false, SearchModifier::CONTAINS, 'name LIKE ?', '%50%_a\\b!%'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('likeWildcardProvider')]
+    public function testStringFieldLikeWildcards(bool $isLiteral, string $modifier, string $expectedSql, string $expectedBind): void
+    {
+        $fragment = SearchFieldStatementResolver::resolveStringSearchField(
+            new StringSearchField('name', ['50%_a\\b!'], $modifier, null, $isLiteral)
+        );
+        $this->assertSame($expectedSql, $fragment->getFragment());
+        $this->assertSame([$expectedBind], $fragment->getBoundValues());
+    }
+
     #[Test]
     public function testDateFieldEqualityUsesFuzzyBetweenRange(): void
     {
@@ -205,6 +233,43 @@ class SearchFieldStatementResolverTest extends TestCase
         );
         $this->assertEquals('date_end >= ?', $fragment->getFragment());
         $this->assertCount(1, $fragment->getBoundValues());
+    }
+
+    /**
+     * Search values for 10:30 local time on a server in Europe/Berlin.  A winter and a
+     * summer date are both covered, so one of them is always on the other side of a
+     * daylight saving change from the day the test runs.
+     *
+     * @return array<string, array{string, list<string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function dateTimezoneProvider(): array
+    {
+        return [
+            'winter, utc'         => ['2021-01-15T09:30:00Z', ['2021-01-15 10:30:00.000000', '2021-01-15 10:30:00.999000']],
+            'summer, utc'         => ['2021-07-15T08:30:00Z', ['2021-07-15 10:30:00.000000', '2021-07-15 10:30:00.999000']],
+            'winter, utc offset'  => ['2021-01-15T04:30:00-05:00', ['2021-01-15 10:30:00.000000', '2021-01-15 10:30:00.999000']],
+            'winter, no timezone' => ['2021-01-15T10:30:00', ['2021-01-15 10:30:00.000000', '2021-01-15 10:30:00.999000']],
+            'summer, no timezone' => ['2021-07-15T10:30:00', ['2021-07-15 10:30:00.000000', '2021-07-15 10:30:00.999000']],
+        ];
+    }
+
+    /**
+     * @param list<string> $expectedBinds
+     */
+    #[Test]
+    #[DataProvider('dateTimezoneProvider')]
+    public function testDateFieldBoundsUseOffsetOfSearchedDate(string $value, array $expectedBinds): void
+    {
+        $serverTimezone = date_default_timezone_get();
+        date_default_timezone_set('Europe/Berlin');
+        try {
+            $fragment = SearchFieldStatementResolver::resolveDateField(new DateSearchField('date', [$value]));
+        } finally {
+            date_default_timezone_set($serverTimezone);
+        }
+        $this->assertSame($expectedBinds, $fragment->getBoundValues());
     }
 
     #[Test]

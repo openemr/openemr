@@ -1,10 +1,32 @@
+// True while a sync started from this widget is running. The widget starts
+// one on its own after returning from e-Prescribe (sync_report); the Sync
+// button is disabled until it finishes so it cannot start a second one.
+let wenoSyncRunning = false;
+
+function setWenoSyncRunning(running) {
+    wenoSyncRunning = running;
+    const button = document.getElementById("sync-button");
+    if (button) {
+        button.classList.toggle("disabled", running);
+        button.style.pointerEvents = running ? "none" : "";
+        button.setAttribute("aria-disabled", running ? "true" : "false");
+    }
+    const syncIcon = document.getElementById("sync-icon");
+    if (syncIcon) {
+        syncIcon.classList.toggle("fa-spin", running);
+    }
+}
+
 function sync_weno() {
+    if (wenoSyncRunning) {
+        return;
+    }
     top.restoreSession();
     const syncIcon = document.getElementById("sync-icon");
     const syncAlert = document.getElementById("sync-alert");
     const url = '../../modules/custom_modules/oe-module-weno/templates/synch.php';
 
-    syncIcon.classList.add("fa-spin");
+    setWenoSyncRunning(true);
 
     let formData = new FormData();
     formData.append("key", "sync");
@@ -28,7 +50,11 @@ function sync_weno() {
 }
 
 function sync_report(pid = '') {
+    if (wenoSyncRunning) {
+        return;
+    }
     top.restoreSession();
+    setWenoSyncRunning(true);
     const url = '../../modules/custom_modules/oe-module-weno/templates/synch.php';
     let formData = new FormData();
     formData.append("key", "sync");
@@ -43,6 +69,7 @@ function sync_report(pid = '') {
         refreshDemographics();
     }).catch(error => {
         console.log(error.message);
+        setWenoSyncRunning(false);
     });
 }
 

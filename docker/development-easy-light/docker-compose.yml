@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:12.3.3@sha256:2bdff1534a7e569fecaf4b10b66ad0d410806e382d9db29ba305448addda97c4
+    image: mariadb:12.3.3@sha256:58919b5d041049f509624364148d8881e045679dc6bc520e5705bfdd47cba49d
     command: ['mariadbd', '--character-set-server=utf8mb4', '--ssl-ca=/etc/ssl/ca.pem', '--ssl_cert=/etc/ssl/server-cert.pem', '--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - "${WT_MYSQL_PORT:-8320}:3306"
@@ -26,7 +26,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:e353ddde81cbe9d6a399f03757dfdb3b20f89e46bb7eba262cc5b0da236c0628
+    image: openemr/openemr:flex@sha256:aa502fa2e792e2944e6a8583a87f9c50f00e1d213c78dd3c6af0914e31ea5e96
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -40,8 +40,6 @@ services:
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - phpstanvolume:/var/www/localhost/htdocs/openemr/tmp-phpstan:rw
     - webpackcachevolume:/var/www/localhost/htdocs/openemr/.webpack-cache:rw
-    - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
-    - ccdanodemodules2:/var/www/localhost/htdocs/openemr/ccdaservice/packages/oe-cqm-service/node_modules:rw
     - logvolume:/var/log
     - couchdbvolume:/couchdb/data
     environment:
@@ -106,7 +104,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:7ebeef41095cbe071a00e3c85c8b44309f110eee546c7b3a6d1fcfe259d58e59
+    image: phpmyadmin:5.2.3@sha256:4de49392e023fa330f49ecc72a79384359783856ade762272112ed347ab32706
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
@@ -123,7 +121,5 @@ volumes:
   vendordir: {}
   phpstanvolume: {}
   webpackcachevolume: {}
-  ccdanodemodules: {}
-  ccdanodemodules2: {}
   logvolume: {}
   couchdbvolume: {}

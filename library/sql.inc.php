@@ -42,6 +42,8 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
  * @var string $secure_login
  * @var string $secure_pass
  * @var string $secure_dbase
+ * @var int    $config Install flag: 0 = setup required, 1 = installed.
+ *                     Must not be reassigned in this file or anything it loads.
  */
 
 if (!defined('ADODB_FETCH_ASSOC')) {
@@ -56,9 +58,12 @@ $ADODB_LASTDB = 'mysqli_log';
 // The OPENEMR_STATIC_ANALYSIS constant can be defined in static analysis tool bootstrap files
 if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
     // Note: too early to use OEGlobalsBag reliably here.
-    $config = DatabaseConnectionOptions::forSite($GLOBALS['OE_SITE_DIR']);
+    // Do not name this $config: sqlconf.php owns that global as the int install
+    // flag, and consumers (index.php, setup.php, admin.php, Installer.class.php,
+    // the /meta/health/readyz probe) read it after bootstrap.
+    $connectionOptions = DatabaseConnectionOptions::forSite($GLOBALS['OE_SITE_DIR']);
     $persistent = DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState();
-    $database = DatabaseConnectionFactory::createAdodb($config, $persistent);
+    $database = DatabaseConnectionFactory::createAdodb($connectionOptions, $persistent);
     $GLOBALS['adodb']['db'] = $database;
     $GLOBALS['dbh'] = $database->_connectionID;
 

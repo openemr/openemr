@@ -57,6 +57,20 @@ class NativeQuestionnaireResponseProcessor
     }
 
     /**
+     * Whether a stored response belongs to the patient rather than to an encounter.
+     *
+     * The native runtime saves a dashboard response with encounter 0, but a response written
+     * through the FHIR API without an encounter reference -- which is how a SMART app saves
+     * one launched from Available Assessments -- is stored with encounter NULL. Both are
+     * patient-level, and Available Assessments already lists both with COALESCE(encounter, 0);
+     * the workspace has to open and update both too.
+     */
+    public function isPatientLevelEncounter(mixed $encounter): bool
+    {
+        return $encounter === null || $this->normalizeNonNegativeInt($encounter) === 0;
+    }
+
+    /**
      * Validate the raw QuestionnaireResponse payload string and decode it.
      *
      * Enforces: non-empty, within MAX_PAYLOAD_BYTES, valid JSON, an object with
