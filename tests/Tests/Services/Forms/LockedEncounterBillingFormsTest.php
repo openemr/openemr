@@ -100,14 +100,26 @@ class LockedEncounterBillingFormsTest extends TestCase
         );
     }
 
+    public function testADeletedMiscBillingFormLockedOnItsOwnStillHidesMiscBillingOptions(): void
+    {
+        $forms = new LockedEncounterBillingForms(true);
+        // Deleting the form keeps its form_misc_billing_options row, which
+        // new.php opens again by encounter.
+        $this->insertSignature('forms', $this->insertForm(self::ENCOUNTER, 'misc_billing_options', true), true);
+        $this->assertTrue($forms->hidesMiscBillingFromMenu(self::ENCOUNTER, self::ENCOUNTER, false));
+
+        $this->insertForm(self::OTHER_ENCOUNTER, 'misc_billing_options', true);
+        $this->assertFalse($forms->hidesMiscBillingFromMenu(self::OTHER_ENCOUNTER, self::OTHER_ENCOUNTER, false), 'A deleted form that was not locked');
+    }
+
     /**
      * @return int the forms row id
      */
-    private function insertForm(int $encounter, string $formdir): int
+    private function insertForm(int $encounter, string $formdir, bool $deleted = false): int
     {
         return QueryUtils::sqlInsert(
-            'INSERT INTO forms (date, encounter, form_name, form_id, pid, user, groupname, authorized, deleted, formdir) VALUES (NOW(), ?, ?, 0, ?, ?, ?, 1, 0, ?)',
-            [$encounter, self::MARKER, self::PID, 'admin', 'Default', $formdir]
+            'INSERT INTO forms (date, encounter, form_name, form_id, pid, user, groupname, authorized, deleted, formdir) VALUES (NOW(), ?, ?, 0, ?, ?, ?, 1, ?, ?)',
+            [$encounter, self::MARKER, self::PID, 'admin', 'Default', $deleted ? 1 : 0, $formdir]
         );
     }
 

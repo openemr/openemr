@@ -66,6 +66,8 @@ final readonly class LockedEncounterBillingForms
      * from the session. So it's left out when review mode shows another
      * encounter, which would open the session encounter's form, and when that
      * form is locked on its own, which would open a locked form for editing.
+     * A deleted form still counts: deleting it keeps its data row, which
+     * new.php opens again by encounter.
      *
      * @param ?int $displayedEncounter the encounter on screen, null if none
      * @param int $sessionEncounter the session's encounter, 0 if none
@@ -80,7 +82,7 @@ final readonly class LockedEncounterBillingForms
             return false;
         }
         $formsIds = QueryUtils::fetchTableColumn(
-            "SELECT id FROM forms WHERE encounter = ? AND formdir = 'misc_billing_options' AND deleted = 0",
+            "SELECT id FROM forms WHERE encounter = ? AND formdir = 'misc_billing_options'",
             'id',
             [$sessionEncounter]
         );
