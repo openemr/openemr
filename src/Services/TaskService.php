@@ -79,13 +79,19 @@ class TaskService extends BaseService
         }
         try {
             $where = FhirSearchWhereClauseBuilder::build($search, $isAndCondition !== false);
-            $records = QueryUtils::fetchRecords(
-                'SELECT tasks.* FROM (' . self::SELECT . ') AS tasks ' . $where->getFragment() . ' ORDER BY tasks.id '
-                    . self::pagingClause($pagination),
-                $where->getBoundValues()
-            );
-            $ids = array_map(static fn(array $row): mixed => $row['id'] ?? null, $records);
-            $parameters = array_map(static fn(string $table): array => self::parametersOf($table, $ids), self::PARAMETER_TABLES);
+            // The tasks, then their inputs, then their outputs: three statements, read in one
+            // transaction so they see one snapshot (InnoDB's repeatable read, MySQL's and MariaDB's
+            // default). Read apart, an update committing between them would pair one version of a
+            // task with another version's inputs and outputs.
+            [$records, $parameters] = QueryUtils::inTransaction(static function () use ($where, $pagination): array {
+                $records = QueryUtils::fetchRecords(
+                    'SELECT tasks.* FROM (' . self::SELECT . ') AS tasks ' . $where->getFragment() . ' ORDER BY tasks.id '
+                        . self::pagingClause($pagination),
+                    $where->getBoundValues()
+                );
+                $ids = array_map(static fn(array $row): mixed => $row['id'] ?? null, $records);
+                return [$records, array_map(static fn(string $table): array => self::parametersOf($table, $ids), self::PARAMETER_TABLES)];
+            });
             foreach ($records as $row) {
                 $record = [];
                 foreach ($row as $column => $value) {
