@@ -175,7 +175,7 @@ class SearchFieldStatementResolverTest extends TestCase
             [SearchModifier::PREFIX, 'name LIKE ?', ['bob%']],
             [SearchModifier::SUFFIX, 'name LIKE ?', ['%bob']],
             [SearchModifier::CONTAINS, 'name LIKE ?', ['%bob%']],
-            [SearchModifier::EXACT, 'BINARY name = ?', ['bob']],
+            [SearchModifier::EXACT, '(name = ? AND BINARY name = ?)', ['bob', 'bob']],
             [SearchModifier::NOT_EQUALS_EXACT, 'BINARY name != ?', ['bob']],
         ];
         foreach ($cases as [$modifier, $expectedSql, $expectedBinds]) {
@@ -188,31 +188,34 @@ class SearchFieldStatementResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{bool, string, string, string}>
+     * @return array<string, array{bool, string, string, list<string>}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function likeWildcardProvider(): array
     {
         return [
-            'literal prefix' => [true, SearchModifier::PREFIX, "name LIKE ? ESCAPE '!'", '50!%!_a\\b!!%'],
-            'literal suffix' => [true, SearchModifier::SUFFIX, "name LIKE ? ESCAPE '!'", '%50!%!_a\\b!!'],
-            'literal contains' => [true, SearchModifier::CONTAINS, "name LIKE ? ESCAPE '!'", '%50!%!_a\\b!!%'],
-            'literal exact is not a LIKE pattern' => [true, SearchModifier::EXACT, 'BINARY name = ?', '50%_a\\b!'],
-            'wildcards stay for other callers, prefix' => [false, SearchModifier::PREFIX, 'name LIKE ?', '50%_a\\b!%'],
-            'wildcards stay for other callers, contains' => [false, SearchModifier::CONTAINS, 'name LIKE ?', '%50%_a\\b!%'],
+            'literal prefix' => [true, SearchModifier::PREFIX, "name LIKE ? ESCAPE '!'", ['50!%!_a\\b!!%']],
+            'literal suffix' => [true, SearchModifier::SUFFIX, "name LIKE ? ESCAPE '!'", ['%50!%!_a\\b!!']],
+            'literal contains' => [true, SearchModifier::CONTAINS, "name LIKE ? ESCAPE '!'", ['%50!%!_a\\b!!%']],
+            'literal exact is not a LIKE pattern' => [true, SearchModifier::EXACT, '(name = ? AND BINARY name = ?)', ['50%_a\\b!', '50%_a\\b!']],
+            'wildcards stay for other callers, prefix' => [false, SearchModifier::PREFIX, 'name LIKE ?', ['50%_a\\b!%']],
+            'wildcards stay for other callers, contains' => [false, SearchModifier::CONTAINS, 'name LIKE ?', ['%50%_a\\b!%']],
         ];
     }
 
+    /**
+     * @param list<string> $expectedBinds
+     */
     #[Test]
     #[DataProvider('likeWildcardProvider')]
-    public function testStringFieldLikeWildcards(bool $isLiteral, string $modifier, string $expectedSql, string $expectedBind): void
+    public function testStringFieldLikeWildcards(bool $isLiteral, string $modifier, string $expectedSql, array $expectedBinds): void
     {
         $fragment = SearchFieldStatementResolver::resolveStringSearchField(
             new StringSearchField('name', ['50%_a\\b!'], $modifier, null, $isLiteral)
         );
         $this->assertSame($expectedSql, $fragment->getFragment());
-        $this->assertSame([$expectedBind], $fragment->getBoundValues());
+        $this->assertSame($expectedBinds, $fragment->getBoundValues());
     }
 
     #[Test]

@@ -321,17 +321,23 @@ class SearchFieldStatementResolver
 
         foreach ($values as $value) {
             $result = match ($modifier) {
-                SearchModifier::PREFIX => [self::likeClause($searchField, $field), self::likeValue($searchField, $value) . '%'],
-                SearchModifier::SUFFIX => [self::likeClause($searchField, $field), '%' . self::likeValue($searchField, $value)],
-                SearchModifier::CONTAINS => [self::likeClause($searchField, $field), '%' . self::likeValue($searchField, $value) . '%'],
-                SearchModifier::EXACT => ["BINARY " . $field . ' = ?', $value],
-                SearchModifier::NOT_EQUALS_EXACT => ["BINARY " . $field . ' != ?', $value],
+                SearchModifier::PREFIX => [self::likeClause($searchField, $field), [self::likeValue($searchField, $value) . '%']],
+                SearchModifier::SUFFIX => [self::likeClause($searchField, $field), ['%' . self::likeValue($searchField, $value)]],
+                SearchModifier::CONTAINS => [self::likeClause($searchField, $field), ['%' . self::likeValue($searchField, $value) . '%']],
+                // BINARY on the column keeps the match exact (case, trailing spaces, accents) but
+                // stops the database from using the column's index, so a search for one patient
+                // read the whole table. The plain comparison lets the index find the rows and
+                // matches everything BINARY does, so the result is the same.
+                SearchModifier::EXACT => ['(' . $field . ' = ? AND BINARY ' . $field . ' = ?)', [$value, $value]],
+                SearchModifier::NOT_EQUALS_EXACT => ["BINARY " . $field . ' != ?', [$value]],
                 default => null,
             };
             if ($result !== null) {
                 [$clause, $bound] = $result;
                 $clauses[] = $clause;
-                $searchFragment->addBoundValue($bound);
+                foreach ($bound as $boundValue) {
+                    $searchFragment->addBoundValue($boundValue);
+                }
             }
         }
         if (count($clauses) > 1) {
