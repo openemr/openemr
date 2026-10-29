@@ -12,6 +12,8 @@
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -44,6 +46,100 @@ class FacilityService extends BaseService
         parent::__construct(self::FACILITY_TABLE);
         UuidRegistry::createMissingUuidsForTables([self::FACILITY_TABLE]);
         $this->facilityValidator = new FacilityValidator();
+    }
+
+
+    /**
+     * Save-dialog text for a billing facility. The row is already stored.
+     */
+    public const FACILITY_SAVED_BILLING_POSTAL = 'This billing facility was saved. The postal code is not 9 digits, '
+        . 'so a claim billed from this facility can be rejected.';
+
+    /**
+     * Save-dialog text for a service facility. The row is already stored.
+     */
+    public const FACILITY_SAVED_SERVICE_POSTAL = 'This service facility was saved. The postal code is not 9 digits, '
+        . 'so a claim that uses this service location can be rejected.';
+
+    /**
+     * Save-dialog text when the facility is both a billing and a service location.
+     */
+    public const FACILITY_SAVED_BOTH_POSTAL = 'This facility was saved as a billing and service location. '
+        . 'The postal code is not 9 digits, so a claim that uses it can be rejected.';
+
+    /**
+     * Postal notice for the facility screen. Empty when the dialog should stay quiet.
+     *
+     * Digits are kept by Claim::x12Zip(). Nine digits stay quiet.
+     * The check is the US claim rule. It runs only when the country is the
+     * United States. A blank country stays quiet, because telephone code 1
+     * is shared with Canada and the rest of that numbering plan.
+     */
+    public static function facilityPostalSaveNotice(
+        string $postal,
+        bool $billingLocation,
+        bool $serviceLocation,
+        string $country = '',
+    ): string {
+        if (!$billingLocation && !$serviceLocation) {
+            return '';
+        }
+        if (!self::unitedStatesClaimPostal($country)) {
+            return '';
+        }
+        $digits = preg_replace('/[^0-9]/', '', $postal) ?? '';
+        if (strlen($digits) === 9) {
+            return '';
+        }
+        if ($billingLocation && $serviceLocation) {
+            return self::FACILITY_SAVED_BOTH_POSTAL;
+        }
+        if ($billingLocation) {
+            return self::FACILITY_SAVED_BILLING_POSTAL;
+        }
+
+        return self::FACILITY_SAVED_SERVICE_POSTAL;
+    }
+
+    /**
+     * Whether the nine-digit claim notice applies to this facility.
+     *
+     * A named country applies only for the United States. A blank country
+     * does not, even when the telephone country code is 1.
+     */
+    private static function unitedStatesClaimPostal(string $country): bool
+    {
+        $country = trim($country);
+        if ($country === '') {
+            return false;
+        }
+        $letters = strtoupper(preg_replace('/[^A-Za-z]/', '', $country) ?? '');
+
+        return in_array($letters, ['US', 'USA', 'UNITEDSTATES', 'UNITEDSTATESOFAMERICA'], true);
+    }
+
+    /**
+     * JSON body for the facility save dialog.
+     *
+     * Status is saved or not saved. A sentence that cannot be encoded is
+     * dropped, and the status stays.
+     */
+    public static function facilitySaveDialogBody(bool $saved, string $sentence): string
+    {
+        $encoded = json_encode(
+            [
+                'status' => $saved ? 'saved' : 'not_saved',
+                'message' => $sentence,
+            ],
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE
+        );
+        if (!is_string($encoded)) {
+            return $saved
+                ? '{"status":"saved","message":""}'
+                : '{"status":"not_saved","message":""}';
+        }
+
+        return $encoded;
     }
 
     public function getUuidFields(): array

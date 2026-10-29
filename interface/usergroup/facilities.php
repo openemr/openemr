@@ -8,9 +8,11 @@
  * @author    Ranganath Pathak <pathak01@hotmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2017 Ranganath Pathak <pathak01@hotmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -35,6 +37,26 @@ if (!empty($_POST)) {
 $facilityService = new FacilityService();
 
 $alertmsg = '';
+
+/**
+ * Send the facility save dialog its sentence.
+ *
+ * The dialog alerts the sentence, then closes. The encoded body is not HTML.
+ */
+$echoFacilitySaveDialogResult = function (bool $saved, string $sentence): void {
+    header('Content-Type: application/json; charset=utf-8');
+    echo FacilityService::facilitySaveDialogBody($saved, $sentence);
+};
+
+/**
+ * Sentence for this facility's postal code, or empty when no notice applies.
+ */
+$facilityPostalSentence = fn (string $postal, bool $billing, bool $service, string $country): string => match (FacilityService::facilityPostalSaveNotice($postal, $billing, $service, $country)) {
+    FacilityService::FACILITY_SAVED_BILLING_POSTAL => xl(FacilityService::FACILITY_SAVED_BILLING_POSTAL),
+    FacilityService::FACILITY_SAVED_SERVICE_POSTAL => xl(FacilityService::FACILITY_SAVED_SERVICE_POSTAL),
+    FacilityService::FACILITY_SAVED_BOTH_POSTAL => xl(FacilityService::FACILITY_SAVED_BOTH_POSTAL),
+    default => '',
+};
 
 $columns = [
     "name" => "facility",
@@ -82,7 +104,15 @@ foreach ($columns as $c => $v) {
 
 /*      Inserting New facility                  */
 if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {
-    $insert_id = $facilityService->insertFacility($values);
+    $facilityService->insertFacility($values);
+    // The save dialog decodes this body and passes the sentence to alert().
+    $sentence = $facilityPostalSentence(
+        $values['postal_code'] ?? '',
+        ($values['billing_location'] ?? '') === '1',
+        ($values['service_location'] ?? '') === '1',
+        $values['country_code'] ?? ''
+    );
+    $echoFacilitySaveDialogResult(true, $sentence);
     exit(); // sjp 12/20/17 for ajax save
 }
 
@@ -96,6 +126,13 @@ if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility
     // This is necessary because some provider based code uses facility name for lookups instead of facility id.
     //
     $facilityService->updateUsersFacility($values['name'], $values['id']);
+    $sentence = $facilityPostalSentence(
+        $values['postal_code'] ?? '',
+        ($values['billing_location'] ?? '') === '1',
+        ($values['service_location'] ?? '') === '1',
+        $values['country_code'] ?? ''
+    );
+    $echoFacilitySaveDialogResult(true, $sentence);
     exit(); // sjp 12/20/17 for ajax save
 }
 
