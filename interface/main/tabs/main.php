@@ -212,8 +212,8 @@ $twig = ServiceContainer::getTwig();
                 credentials: 'same-origin',
                 body: request
             }).then((response) => {
-                if (response.status === 400) {
-                    // globals.php answers 400 when the session holds no site ID,
+                if (response.status === 401) {
+                    // globals.php answers 401 when the session holds no site ID,
                     // meaning the session itself is gone (logged out elsewhere, or
                     // expired and garbage collected). Nothing this window sends can
                     // succeed any more, so go to the login screen as the timeout
