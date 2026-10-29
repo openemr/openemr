@@ -1202,7 +1202,10 @@ class CdaTemplateParse
                     $this->templateData['field_name_value_array']['vital_sign'][$i]['bpd'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][1]['observation']['value']['value'] ?? null;
                 } else {
                     if ($code !== null && array_key_exists($code, $vitals_array)) {
-                        $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $this->vitalValue($vitals_array[$code], $vital_sign_data['organizer']['component'][$j]['observation']['value'] ?? null);
+                        $vital = $this->vitalValue($vitals_array[$code], $vital_sign_data['organizer']['component'][$j]['observation']['value'] ?? null);
+                        if ($vital !== null || !self::hasVital($this->templateData, $i, $vitals_array[$code])) {
+                            $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital;
+                        }
                     }
                 }
             }
@@ -1253,7 +1256,10 @@ class CdaTemplateParse
             $is_negated = !empty($entry['observation']['negationInd'] ?? false);
             $code = $entry['observation']['code']['code'] ?? null;
             if ($code !== null && array_key_exists($code, $vitals_array)) {
-                $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $this->vitalValue($vitals_array[$code], $entry['observation']['value'] ?? null);
+                $vital = $this->vitalValue($vitals_array[$code], $entry['observation']['value'] ?? null);
+                if ($vital !== null || !self::hasVital($this->templateData, $i, $vitals_array[$code])) {
+                    $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital;
+                }
                 $this->templateData['field_name_value_array']['vital_sign'][$i]['vital_column'] = $vitals_array[$code] ?? '';
             } else {
                 // log missed exam
@@ -1285,6 +1291,27 @@ class CdaTemplateParse
      *
      * @param mixed $value the observation's value element (value and unit attributes)
      */
+    /**
+     * Whether a vital sign record already holds a reading for a column. A reading left out (null)
+     * doesn't replace one: an organizer, or QRDA exams on one date, can carry a measure twice.
+     */
+    private static function hasVital(mixed $templateData, int $i, string $column): bool
+    {
+        if (!is_array($templateData)) {
+            return false;
+        }
+        $fields = $templateData['field_name_value_array'] ?? null;
+        if (!is_array($fields)) {
+            return false;
+        }
+        $records = $fields['vital_sign'] ?? null;
+        if (!is_array($records)) {
+            return false;
+        }
+        $record = $records[$i] ?? null;
+        return is_array($record) && ($record[$column] ?? null) !== null;
+    }
+
     private function vitalValue(string $column, mixed $value): mixed
     {
         $number = is_array($value) ? ($value['value'] ?? null) : null;

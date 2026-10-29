@@ -106,6 +106,54 @@ class CdaVitalSignUnitsTest extends TestCase
         $this->assertSame(66.929134, $vital['height']);
     }
 
+    /**
+     * An organizer can carry the same measure twice.
+     */
+    public function testALeftOutVitalDoesNotReplaceOneAlreadyRead(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizer([
+            ['3141-9', '70', 'kg'],
+            ['3141-9', '160', '[oz_av]'],
+        ]));
+
+        $this->assertSame(154.323584, $this->vitalSign(1)['weight']);
+    }
+
+    public function testAVitalReadAfterOneLeftOutIsKept(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizer([
+            ['3141-9', '160', '[oz_av]'],
+            ['3141-9', '70', 'kg'],
+        ]));
+
+        $this->assertSame(154.323584, $this->vitalSign(1)['weight']);
+    }
+
+    /**
+     * QRDA exams on one date fill one Vitals record.
+     */
+    public function testALeftOutQrdaExamDoesNotReplaceOneAlreadyRead(): void
+    {
+        $this->reflection->getProperty('currentOid')->setValue($this->parser, '2.16.840.1.113883.10.20.24.3.59');
+        foreach ([['3141-9', '70', 'kg'], ['29463-7', '160', '[oz_av]']] as $n => [$code, $value, $unit]) {
+            $this->parser->fetchPhysicalExamPerformedData($this->fromXml(<<<XML
+                <entry xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                  <observation classCode="OBS" moodCode="EVN">
+                    <templateId root="2.16.840.1.113883.10.20.24.3.59" extension="2019-12-01"/>
+                    <id root="1.3.6.1.4.1.115" extension="exam-$n"/>
+                    <code code="$code" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Body weight"/>
+                    <text>Body weight</text>
+                    <statusCode code="completed"/>
+                    <effectiveTime value="20260301093000"/>
+                    <value xsi:type="PQ" value="$value" unit="$unit"/>
+                  </observation>
+                </entry>
+                XML));
+        }
+
+        $this->assertSame(154.323584, $this->vitalSign(1)['weight']);
+    }
+
     public function testAQrdaPhysicalExamInKilogramsIsStoredInPounds(): void
     {
         $this->reflection->getProperty('currentOid')->setValue($this->parser, '2.16.840.1.113883.10.20.24.3.59');
