@@ -600,9 +600,9 @@ trait FhirObservationTrait
      */
     protected function shouldUseUCUM($unit): bool
     {
-        // Common non-UCUM units that shouldn't trigger UCUM system
-        $nonUCUMUnits = ['{score}', '{count}', '{ratio}', '{index}'];
-        return !in_array($unit, $nonUCUMUnits);
+        // Only a unit UCUM accepts is sent with its system: lab units such as MG/DL or Thous/CU.MM
+        // are not UCUM, while {score} and the other annotations are.
+        return UtilsService::isUcumCode($unit);
     }
 
     public function getProvenanceService(): FhirProvenanceService

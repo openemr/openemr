@@ -187,10 +187,14 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $this->assertNotEmpty($observation->getValueQuantity());
         $this->assertEquals($record['ob_value'], $observation->getValueQuantity()->getValue());
 
-        // Test UCUM constraint (us-core-3) - should use UCUM units when system is specified
-        if ($record['ob_unit'] !== '{score}') {
-            $this->assertEquals('http://unitsofmeasure.org', $observation->getValueQuantity()->getSystem()->getValue());
-        }
+        // Test UCUM constraint (us-core-3): the UCUM system only for a unit UCUM accepts ('lb' isn't; '[lb_av]' is)
+        $quantity = json_decode((string)json_encode($observation->getValueQuantity()), true);
+        $this->assertIsArray($quantity);
+        $this->assertSame(
+            UtilsService::isUcumCode($record['ob_unit']) ? 'http://unitsofmeasure.org' : null,
+            $quantity['system'] ?? null,
+            "a unit that isn't UCUM is sent without the UCUM system"
+        );
 
         $this->assertNotEmpty($observation->getValueQuantity(), "Quantity should be populated");
         $this->assertEquals($record['ob_value'], $observation->getValueQuantity()->getValue(), "Quantity value should be populated");

@@ -16,6 +16,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\ORDataObject\ContactAddress;
+use OpenEMR\Cqm\Cql\Ucum\Ucum;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
@@ -120,18 +121,29 @@ class UtilsService
     public static function createQuantity($value, $unit, $code): FHIRQuantity
     {
         $quantity = new FHIRQuantity();
-        // if there is no code provided we should not populate it nor the unit value
-        // that way it becomes a SimpleQuantity variant of Quantity
+        // With no unit, a SimpleQuantity. The unit's text whenever there is one, and UCUM's system and
+        // code only for a code UCUM accepts: receivers trust the system, and units such as MG/DL or
+        // tablet are not UCUM.
         if (!empty($unit)) {
             $quantity->setUnit($unit);
-            // only set the code if we have a unit as the unit is the textual display of the coded unit
-            if (!empty($code)) {
-                $quantity->setCode($code);
+            if (self::isUcumCode($code)) {
+                $quantity->setCode(new FHIRCode($code));
+                $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
             }
-            $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
         }
         $quantity->setValue($value);
         return $quantity;
+    }
+
+    /**
+     * Whether a unit is a UCUM code, as core's UCUM engine reads it. Codes are case-sensitive:
+     * mg/dL is UCUM, MG/DL is not.
+     *
+     * @phpstan-assert-if-true non-empty-string $code
+     */
+    public static function isUcumCode(mixed $code): bool
+    {
+        return is_string($code) && $code !== '' && Ucum::instance()->isValid($code);
     }
 
     public static function createCoding($code, $display, $system): FHIRCoding
