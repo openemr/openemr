@@ -17628,7 +17628,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 9,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/super/edit_layout_props.php',
 ];
 $ignoreErrors[] = [
