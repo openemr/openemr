@@ -1,0 +1,15 @@
+# Usage: docker compose run --rm builder ruby build_bundle.rb --year 2026
+# See README.md.
+services:
+  builder:
+    build: .
+    env_file:
+    - path: .env
+      required: false
+    environment:
+    - VSAC_API_KEY
+    - BUNDLE_DIR=/bundles
+    volumes:
+      # The year directories (cms_measures in, json_measures out); by default
+      # this repository, which is where the bundles are kept.
+    - ${BUNDLE_HOST_DIR:-.}:/bundles
