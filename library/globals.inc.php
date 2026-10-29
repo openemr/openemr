@@ -2907,6 +2907,16 @@ $GLOBALS_METADATA = [
             xl('API Log Option (Full includes requests and responses).')
         ],
 
+        'api_write_audit_option' => [
+            xl('API Write Audit Option'),
+            [
+                '1' => xl('Minimal Logging'),
+                '2' => xl('Full Logging'),
+            ],
+            '1',                               // default
+            xl('Full logging stores before and after FHIR resource snapshots, which may contain PHI.')
+        ],
+
         'billing_log_option' => [
             xl('Billing Log Option'),
             [

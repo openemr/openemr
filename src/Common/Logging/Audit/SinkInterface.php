@@ -6,5 +6,5 @@ namespace OpenEMR\Common\Logging\Audit;
 
 interface SinkInterface
 {
-    public function record(Event $event): void;
+    public function record(Event $event): ?int;
 }

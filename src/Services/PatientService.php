@@ -45,6 +45,14 @@ class PatientService extends BaseService
     public const TABLE_NAME = 'patient_data';
     private const PATIENT_HISTORY_TABLE = "patient_history";
 
+    public function lockPatientForUpdate(string $patientUuid): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'SELECT uuid FROM patient_data WHERE uuid = ? FOR UPDATE',
+            [UuidRegistry::uuidToBytes($patientUuid)]
+        );
+    }
+
     /**
      * Columns allowed for sorting in patient search API.
      * This whitelist prevents SQL injection via the _sort parameter.

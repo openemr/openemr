@@ -32,6 +32,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Storage\Location;
 use OpenEMR\Services\Storage\Manager;
 use OpenEMR\Services\Storage\ManagerInterface;
+use OpenEMR\Services\FHIR\ApiWriteAuditService;
 use Twig\Environment as TwigEnvironment;
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Http\Psr17Factory;
@@ -189,6 +190,14 @@ class ServiceContainer
                 }
                 return new Logging\SystemLogger();
             },
+        );
+    }
+
+    public static function getApiWriteAuditService(): ApiWriteAuditService
+    {
+        return self::resolveOrCreate(
+            ApiWriteAuditService::class,
+            static fn(): ApiWriteAuditService => new ApiWriteAuditService(),
         );
     }
 
