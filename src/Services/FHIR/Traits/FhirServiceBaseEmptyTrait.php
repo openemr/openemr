@@ -1,8 +1,9 @@
 <?php
 
 /**
- * FhirServiceBaseEmptyTrait is used to provide default empty service methods for when a FHIR service class is implementing
- * only a single or subset of service methods.  At some point we may want to consider refactoring the FHIRServiceBase
+ * FhirServiceBaseEmptyTrait provides default service methods for when a FHIR service class is implementing
+ * only a single or subset of service methods. Search reports an internal error, provenance is unavailable, and the write
+ * methods throw.  At some point we may want to consider refactoring the FHIRServiceBase
  * class to make these methods not required.
  * @package openemr
  * @link      https://www.open-emr.org
@@ -13,6 +14,7 @@
 
 namespace OpenEMR\Services\FHIR\Traits;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -34,23 +36,23 @@ trait FhirServiceBaseEmptyTrait
         return $processingResult;
     }
 
-    public function parseFhirResource($fhirResource = [])
+    public function parseFhirResource($fhirResource = []): array
     {
-        return;
+        throw $this->writeNotSupported();
     }
 
-    public function insertOpenEMRRecord($openEmrRecord)
+    public function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
-        return;
+        throw $this->writeNotSupported();
     }
 
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
-        return;
+        throw $this->writeNotSupported();
     }
-    public function createProvenanceResource($dataRecord = [], $encode = false)
+    public function createProvenanceResource($dataRecord = []): ?FHIRProvenance
     {
-        return;
+        return null;
     }
 
     /**
@@ -61,5 +63,10 @@ trait FhirServiceBaseEmptyTrait
     public function parseOpenEMRRecord($dataRecord = [], $encode = false): mixed
     {
         return null;
+    }
+
+    private function writeNotSupported(): \BadMethodCallException
+    {
+        return new \BadMethodCallException(static::class . ' does not support writes');
     }
 }

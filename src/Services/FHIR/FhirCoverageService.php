@@ -913,22 +913,13 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
 
     /**
      * @param array $dataRecord
-     * @param bool $encode
-     * @return FHIRProvenance|string|false The FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function createProvenanceResource($dataRecord = [], $encode = false): FHIRProvenance|string|false
+    public function createProvenanceResource($dataRecord = []): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRCoverage)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
-        if ($fhirProvenance === null) {
-            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
-            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
-            // available" and continues (see issue #13054).
-            return false;
-        }
-        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+        return $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
     }
 
     /**

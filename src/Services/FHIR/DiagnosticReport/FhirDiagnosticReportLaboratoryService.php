@@ -241,22 +241,13 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements I
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param FHIRDiagnosticReport $dataRecord The source OpenEMR data record
-     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return FHIRProvenance|string|false the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|false
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRDiagnosticReport)) {
             throw new BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
-        if ($fhirProvenance === null) {
-            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
-            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
-            // available" and continues (see issue #13054).
-            return false;
-        }
-        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+        return $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
     }
 
     /**

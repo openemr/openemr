@@ -471,10 +471,8 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
      * Creates the Provenance resource for the equivalent FHIR Resource
      *
      * @param mixed $dataRecord The source data record (FHIRSpecimen or array)
-     * @param bool $encode Indicates if the returned resource is encoded into a string
-     * @return FHIRProvenance|null
      */
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRSpecimen)) {
             throw new \BadMethodCallException("Data record should be FHIRSpecimen instance");
@@ -482,10 +480,6 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
 
         $fhirProvenanceService = new FhirProvenanceService();
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
-
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        }
 
         return $fhirProvenance;
     }

@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR\DocumentReference;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
@@ -219,10 +220,8 @@ class FhirClinicalNotesService extends FhirServiceBase implements IPatientCompar
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRDocumentReference)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -234,10 +233,6 @@ class FhirClinicalNotesService extends FhirServiceBase implements IPatientCompar
             $author = reset($authors); // grab the first one, as we only populate one anyways.
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $author);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
-        }
+        return $fhirProvenance;
     }
 }
