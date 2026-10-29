@@ -31,7 +31,7 @@ use OpenEMR\Services\PatientService;
 
 final class PatientFinderRecentService
 {
-    /** @var callable(string, array<int, string|int>): array<int, array<string, mixed>> */
+    /** @var callable(string, array<int, string|int>): list<array<mixed>> */
     private $fetchRecords;
 
     /** @var callable(): array<int, array<string, mixed>> */
@@ -40,34 +40,32 @@ final class PatientFinderRecentService
     /** @var callable(): array{date: array<int, string>, datetime: array<int, string>} */
     private $dateColumns;
 
-    /** @var callable(string, array<int, string|int>): (array<string, mixed>|false|null) */
-    private $sqlQuery;
+    /** @var callable(string, array<int, string|int>): (array<mixed>|false) */
+    private $singleRow;
 
     /** @var callable(string, array<int, string>): string */
     private $columnEscaper;
 
-    private int $dateDisplayFormat;
+    private readonly int $dateDisplayFormat;
 
-    private int $timeDisplayFormat;
+    private readonly int $timeDisplayFormat;
 
     public function __construct(
         ?callable $fetchRecords = null,
         ?callable $recentPatientList = null,
         ?callable $dateColumns = null,
-        ?callable $sqlQuery = null,
+        ?callable $singleRow = null,
         ?callable $columnEscaper = null,
         ?int $dateDisplayFormat = null,
         ?int $timeDisplayFormat = null
     ) {
-        $this->fetchRecords = $fetchRecords
-            ?? static fn(string $sql, array $binds): array => QueryUtils::fetchRecords($sql, $binds);
+        $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
         $patientServiceFactory = static fn(): PatientService => new PatientService();
         $this->recentPatientList = $recentPatientList
             ?? static fn(): array => $patientServiceFactory()->getRecentPatientList();
         $this->dateColumns = $dateColumns
             ?? static fn(): array => $patientServiceFactory()->getDateColumns();
-        $this->sqlQuery = $sqlQuery
-            ?? static fn(string $sql, array $binds) => sqlQuery($sql, $binds);
+        $this->singleRow = $singleRow ?? QueryUtils::querySingleRow(...);
         // Validate against patient_data and throw (rather than die) on a bad name.
         $this->columnEscaper = $columnEscaper
             ?? static fn(string $col, array $tables): string => escape_sql_column_name($col, $tables, false, true);
@@ -77,18 +75,18 @@ final class PatientFinderRecentService
     }
 
     /**
-     * @return array{headers: array<int, array<string, mixed>>, rp: array<int, array<string, mixed>|false|null>}
+     * @return array{headers: array<int, array<mixed>>, rp: array<int, array<mixed>|false>}
      */
     public function build(): array
     {
         $headers = $this->resolveHeaders();
         $dateColumns = ($this->dateColumns)();
-        $dateCols = $dateColumns['date'] ?? [];
-        $datetimeCols = $dateColumns['datetime'] ?? [];
+        $dateCols = $dateColumns['date'];
+        $datetimeCols = $dateColumns['datetime'];
 
         $select = 'SELECT pid';
         foreach ($headers as $header) {
-            $colName = (string) $header['option_id'];
+            $colName = PatientFinderValue::string($header['option_id'] ?? null);
             $escaped = ($this->columnEscaper)($colName, ['patient_data']);
             $select .= ', ';
             if (in_array($colName, $dateCols, true) || in_array($colName, $datetimeCols, true)) {
@@ -102,7 +100,7 @@ final class PatientFinderRecentService
 
         $rows = [];
         foreach (($this->recentPatientList)() as $patient) {
-            $rows[] = ($this->sqlQuery)($select, [$patient['pid']]);
+            $rows[] = ($this->singleRow)($select, [PatientFinderValue::int($patient['pid'] ?? null)]);
         }
 
         return ['headers' => $headers, 'rp' => $rows];
@@ -113,7 +111,7 @@ final class PatientFinderRecentService
      * option_id is '*' or does not resolve to a real patient_data column (the
      * read-side guard matching addlistitem.php's write-side validation).
      *
-     * @return array<int, array<string, mixed>>
+     * @return array<int, array<mixed>>
      */
     private function resolveHeaders(): array
     {

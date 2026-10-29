@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientFinder;
 
-final class PatientFinderQueryPlan
+final readonly class PatientFinderQueryPlan
 {
     /**
      * @param string                  $dataSql           SELECT for the current page of rows.
@@ -30,12 +30,12 @@ final class PatientFinderQueryPlan
      * @param array<int, string|int>  $filteredCountBinds Bind values for $filteredCountSql, in order.
      */
     public function __construct(
-        public readonly string $dataSql,
-        public readonly array $dataBinds,
-        public readonly string $totalCountSql,
-        public readonly array $totalCountBinds,
-        public readonly string $filteredCountSql,
-        public readonly array $filteredCountBinds
+        public string $dataSql,
+        public array $dataBinds,
+        public string $totalCountSql,
+        public array $totalCountBinds,
+        public string $filteredCountSql,
+        public array $filteredCountBinds
     ) {
     }
 }

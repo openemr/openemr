@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientFinder;
 
-final class PatientFinderRequest
+final readonly class PatientFinderRequest
 {
     /**
      * @param int                      $echo          The sEcho token echoed back to DataTables.
@@ -40,15 +40,15 @@ final class PatientFinderRequest
      * @param array<int, string>       $columnSearches Per-column search terms, keyed by client column index.
      */
     public function __construct(
-        public readonly int $echo,
-        public readonly int $displayStart,
-        public readonly int $displayLength,
-        public readonly string $globalSearch,
-        public readonly bool $exactSearch,
-        public readonly bool $anySearch,
-        public readonly array $columnKeys,
-        public readonly array $sortColumns,
-        public readonly array $columnSearches
+        public int $echo,
+        public int $displayStart,
+        public int $displayLength,
+        public string $globalSearch,
+        public bool $exactSearch,
+        public bool $anySearch,
+        public array $columnKeys,
+        public array $sortColumns,
+        public array $columnSearches
     ) {
     }
 
@@ -60,7 +60,7 @@ final class PatientFinderRequest
      */
     public static function fromArray(array $get): self
     {
-        $echo = (int) ($get['sEcho'] ?? 0);
+        $echo = PatientFinderValue::int($get['sEcho'] ?? null);
 
         $displayStart = self::intParam($get, 'iDisplayStart', -1);
         $displayLength = self::intParam($get, 'iDisplayLength', -1);
@@ -68,14 +68,14 @@ final class PatientFinderRequest
         // `search_any` is only in effect when the any-column term is present AND
         // the normal sSearch box is empty; in that mode the any-term becomes the
         // global search term and matching is "contains".
-        $rawSearchAny = trim((string) ($get['search_any'] ?? ''));
-        $rawSearch = trim((string) ($get['sSearch'] ?? ''));
+        $rawSearchAny = trim(PatientFinderValue::string($get['search_any'] ?? null));
+        $rawSearch = trim(PatientFinderValue::string($get['sSearch'] ?? null));
         $anySearch = $rawSearchAny !== '' && $rawSearch === '';
         $globalSearch = $anySearch ? $rawSearchAny : $rawSearch;
 
-        $exactSearch = (string) ($get['searchType'] ?? '') === 'true';
+        $exactSearch = PatientFinderValue::string($get['searchType'] ?? null) === 'true';
 
-        $columnKeys = self::splitColumns((string) ($get['sColumns'] ?? ''));
+        $columnKeys = self::splitColumns(PatientFinderValue::string($get['sColumns'] ?? null));
 
         return new self(
             $echo,
@@ -126,7 +126,7 @@ final class PatientFinderRequest
         if ($sColumns === '') {
             return [];
         }
-        return array_map('trim', explode(',', $sColumns));
+        return array_map(trim(...), explode(',', $sColumns));
     }
 
     /**
@@ -141,17 +141,17 @@ final class PatientFinderRequest
         if (!isset($get['iSortCol_0'])) {
             return [];
         }
-        $count = (int) ($get['iSortingCols'] ?? 0);
+        $count = PatientFinderValue::int($get['iSortingCols'] ?? null);
         $sorts = [];
         for ($i = 0; $i < $count; ++$i) {
             if (!isset($get["iSortCol_$i"])) {
                 continue;
             }
-            $col = (int) $get["iSortCol_$i"];
-            if ((string) ($get["bSortable_$col"] ?? '') !== 'true') {
+            $col = PatientFinderValue::int($get["iSortCol_$i"]);
+            if (PatientFinderValue::string($get["bSortable_$col"] ?? null) !== 'true') {
                 continue;
             }
-            $dir = strtoupper((string) ($get["sSortDir_$i"] ?? '')) === 'DESC' ? 'DESC' : 'ASC';
+            $dir = strtoupper(PatientFinderValue::string($get["sSortDir_$i"] ?? null)) === 'DESC' ? 'DESC' : 'ASC';
             $sorts[] = ['index' => $col, 'dir' => $dir];
         }
         return $sorts;
@@ -168,10 +168,10 @@ final class PatientFinderRequest
     {
         $searches = [];
         for ($i = 0; $i < $columnCount; ++$i) {
-            if ((string) ($get["bSearchable_$i"] ?? '') !== 'true') {
+            if (PatientFinderValue::string($get["bSearchable_$i"] ?? null) !== 'true') {
                 continue;
             }
-            $term = (string) ($get["sSearch_$i"] ?? '');
+            $term = PatientFinderValue::string($get["sSearch_$i"] ?? null);
             if ($term === '') {
                 continue;
             }

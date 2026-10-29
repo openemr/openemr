@@ -31,6 +31,7 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
 use OpenEMR\Services\PatientFinder\PatientFinderPageService;
 use OpenEMR\Services\PatientFinder\PatientFinderRecentService;
+use OpenEMR\Services\PatientFinder\PatientFinderValue;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 require_once(__DIR__ . "/../../globals.php");
@@ -40,7 +41,6 @@ require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
 $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
 
-$popup = empty($_REQUEST['popup']) ? 0 : 1;
 $searchAny = empty($_GET['search_any']) ? "" : $_GET['search_any'];
 unset($_GET['search_any']);
 // Build the finder's column data from the shared registry (the core ptlistcols
@@ -54,11 +54,11 @@ $columns = (new PatientFinderPageService())->getColumns($registry);
 
 // Top-controls state for the finder form (rendered by the Twig template).
 $newWindowChecked = OEGlobalsBag::getInstance()->getBoolean('gbl_pt_list_new_window');
-$exactChecked = trim((string) $patient_finder_exact_search) === 'checked';
+$exactChecked = trim(PatientFinderValue::string($patient_finder_exact_search)) === 'checked';
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $cacheBust = attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes'));
-$pageSize = OEGlobalsBag::getInstance()->get('gbl_pt_list_page_size');
+$pageSize = OEGlobalsBag::getInstance()->getInt('gbl_pt_list_page_size');
 ?>
 <!DOCTYPE html>
 <html>
@@ -73,7 +73,7 @@ $pageSize = OEGlobalsBag::getInstance()->get('gbl_pt_list_page_size');
             webroot: <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>,
             csrfToken: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
             searchAny: <?php echo js_url($searchAny); ?>,
-            pageLength: <?php echo (int) (empty($pageSize) ? 10 : $pageSize); ?>,
+            pageLength: <?php echo $pageSize > 0 ? $pageSize : 10; ?>,
             // Column definitions from the shared registry (the Name column renders as a link).
             columns: <?php echo json_encode($columns, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
             <?php // DataTables translations; emits a "language": { ... } property. ?>

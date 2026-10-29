@@ -27,32 +27,25 @@ use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistry;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryBuilder;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryService;
 use OpenEMR\Services\PatientFinder\PatientFinderRequest;
+use OpenEMR\Services\PatientFinder\PatientFinderValue;
 use PHPUnit\Framework\TestCase;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PatientFinderQueryServiceTest extends TestCase
 {
     /**
-     * A minimal dispatcher that invokes one registered listener per event name.
+     * A real dispatcher with one registered listener per event name.
      *
      * @param array<string, callable> $listeners
      */
     private function dispatcher(array $listeners = []): EventDispatcherInterface
     {
-        return new class ($listeners) implements EventDispatcherInterface {
-            /** @param array<string, callable> $listeners */
-            public function __construct(private array $listeners)
-            {
-            }
-
-            public function dispatch(object $event, ?string $eventName = null): object
-            {
-                if ($eventName !== null && isset($this->listeners[$eventName])) {
-                    ($this->listeners[$eventName])($event);
-                }
-                return $event;
-            }
-        };
+        $dispatcher = new EventDispatcher();
+        foreach ($listeners as $eventName => $listener) {
+            $dispatcher->addListener($eventName, $listener);
+        }
+        return $dispatcher;
     }
 
     public function testResolveActiveColumnsFollowsClientOrderAndDropsUnknown(): void
@@ -89,8 +82,8 @@ class PatientFinderQueryServiceTest extends TestCase
             null,
             null,
             null,
-            static fn(mixed $v): string => (string) $v,              // attr = identity
-            static fn(array $info, mixed $v): string => 'FMT(' . $v . ')' // plaintext formatter
+            static fn(mixed $v): string => PatientFinderValue::string($v),              // attr = identity
+            static fn(array $info, mixed $v): string => 'FMT(' . PatientFinderValue::string($v) . ')'
         );
 
         $columns = [
@@ -178,8 +171,8 @@ class PatientFinderQueryServiceTest extends TestCase
             $builder,
             $fetch,
             $sqlQuery,
-            static fn(mixed $v): string => (string) $v,
-            static fn(array $info, mixed $v): string => (string) $v
+            static fn(mixed $v): string => PatientFinderValue::string($v),
+            static fn(array $info, mixed $v): string => PatientFinderValue::string($v)
         );
 
         $out = $service->handle([

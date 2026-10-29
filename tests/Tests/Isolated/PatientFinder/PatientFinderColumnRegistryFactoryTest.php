@@ -23,27 +23,19 @@ use OpenEMR\Events\PatientFinder\PatientFinderColumnRegistrationEvent;
 use OpenEMR\Services\PatientFinder\PatientFinderColumn;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
 use PHPUnit\Framework\TestCase;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PatientFinderColumnRegistryFactoryTest extends TestCase
 {
     /** @param array<string, callable> $listeners */
     private function dispatcher(array $listeners = []): EventDispatcherInterface
     {
-        return new class ($listeners) implements EventDispatcherInterface {
-            /** @param array<string, callable> $listeners */
-            public function __construct(private array $listeners)
-            {
-            }
-
-            public function dispatch(object $event, ?string $eventName = null): object
-            {
-                if ($eventName !== null && isset($this->listeners[$eventName])) {
-                    ($this->listeners[$eventName])($event);
-                }
-                return $event;
-            }
-        };
+        $dispatcher = new EventDispatcher();
+        foreach ($listeners as $eventName => $listener) {
+            $dispatcher->addListener($eventName, $listener);
+        }
+        return $dispatcher;
     }
 
     public function testSeedsColumnsWithSortDirectionAndRunsEvent(): void

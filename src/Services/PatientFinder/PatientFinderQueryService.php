@@ -39,43 +39,40 @@ use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderRowEnrichEvent;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 final class PatientFinderQueryService
 {
-    private PatientFinderQueryBuilder $builder;
+    private readonly PatientFinderQueryBuilder $builder;
 
-    private PatientFinderColumnRegistryFactory $registryFactory;
+    private readonly PatientFinderColumnRegistryFactory $registryFactory;
 
-    /** @var callable(string, array<int, string|int>): array<int, array<string, mixed>> */
+    /** @var callable(string, array<int, string|int>): list<array<mixed>> */
     private $fetchRecords;
 
-    /** @var callable(string, array<int, string|int>): (array<string, mixed>|false|null) */
-    private $sqlQuery;
+    /** @var callable(string, array<int, string|int>): (array<mixed>|false) */
+    private $singleRow;
 
     /** @var callable(mixed): string */
     private $attr;
 
-    /** @var callable(array<string, mixed>, mixed): string */
+    /** @var (callable(array<mixed>, mixed): mixed)|null */
     private $plaintext;
 
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
         ?PatientFinderQueryBuilder $builder = null,
         ?callable $fetchRecords = null,
-        ?callable $sqlQuery = null,
+        ?callable $singleRow = null,
         ?callable $attr = null,
         ?callable $plaintext = null,
         ?PatientFinderColumnRegistryFactory $registryFactory = null
     ) {
         $this->builder = $builder ?? new PatientFinderQueryBuilder();
-        $this->fetchRecords = $fetchRecords
-            ?? static fn(string $sql, array $binds): array => QueryUtils::fetchRecords($sql, $binds);
-        $this->sqlQuery = $sqlQuery
-            ?? static fn(string $sql, array $binds) => sqlQuery($sql, $binds);
-        $this->attr = $attr ?? static fn(mixed $value): string => attr((string) $value);
-        $this->plaintext = $plaintext
-            ?? static fn(array $fieldInfo, mixed $value): string => generate_plaintext_field($fieldInfo, $value);
+        $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
+        $this->singleRow = $singleRow ?? QueryUtils::querySingleRow(...);
+        $this->attr = $attr ?? attr(...);
+        $this->plaintext = $plaintext;
         // Share the registry builder with the finder page so both sides agree on
         // the column set; default to one backed by this service's fetcher.
         $this->registryFactory = $registryFactory
@@ -157,8 +154,8 @@ final class PatientFinderQueryService
      * the enrich event, and every value is escaped.
      *
      * @param array<int, PatientFinderColumn>          $columns
-     * @param array<int, array<string, mixed>>         $rows
-     * @param array<string, array<string, mixed>>      $fieldsInfo field_id => layout_options row
+     * @param array<int, array<mixed>>                 $rows
+     * @param array<string, array<mixed>>              $fieldsInfo field_id => layout_options row
      * @return array<int, array<int|string, string>>
      */
     public function assembleRows(
@@ -169,8 +166,8 @@ final class PatientFinderQueryService
     ): array {
         $aaData = [];
         foreach ($rows as $row) {
-            $pid = (int) ($row['pid'] ?? 0);
-            $arow = ['DT_RowId' => 'pid_' . (string) ($row['pid'] ?? '')];
+            $pid = PatientFinderValue::int($row['pid'] ?? null);
+            $arow = ['DT_RowId' => 'pid_' . $pid];
             foreach ($columns as $column) {
                 if ($column->key === PatientFinderQueryBuilder::NAME_KEY) {
                     $arow[] = ($this->attr)($this->concatName($row));
@@ -178,7 +175,12 @@ final class PatientFinderQueryService
                     $values = $enrich->getValuesForPid($pid);
                     $arow[] = ($this->attr)($values[$column->key] ?? '');
                 } elseif (isset($fieldsInfo[$column->key])) {
-                    $arow[] = ($this->attr)(($this->plaintext)($fieldsInfo[$column->key], $row[$column->key] ?? ''));
+                    $fieldInfo = $fieldsInfo[$column->key];
+                    $value = $row[$column->key] ?? '';
+                    $formatted = $this->plaintext !== null
+                        ? ($this->plaintext)($fieldInfo, $value)
+                        : generate_plaintext_field($fieldInfo, $value);
+                    $arow[] = ($this->attr)($formatted);
                 } else {
                     $arow[] = ($this->attr)($row[$column->key] ?? '');
                 }
@@ -188,10 +190,13 @@ final class PatientFinderQueryService
         return $aaData;
     }
 
+    /**
+     * @param array<int, string|int> $binds
+     */
     private function count(string $sql, array $binds): int
     {
-        $row = ($this->sqlQuery)($sql, $binds);
-        return (int) (is_array($row) ? ($row['count'] ?? 0) : 0);
+        $row = ($this->singleRow)($sql, $binds);
+        return is_array($row) ? PatientFinderValue::int($row['count'] ?? null) : 0;
     }
 
     /**
@@ -234,7 +239,7 @@ final class PatientFinderQueryService
         );
         $columns = [];
         foreach ($rows as $row) {
-            $fieldId = (string) ($row['field_id'] ?? '');
+            $fieldId = PatientFinderValue::string($row['field_id'] ?? null);
             if ($fieldId !== '') {
                 $columns[] = PatientFinderColumn::fromTable($fieldId, $fieldId);
             }
@@ -247,7 +252,7 @@ final class PatientFinderQueryService
      * format their cell values (lists, dates, etc.).
      *
      * @param array<int, PatientFinderColumn> $columns
-     * @return array<string, array<string, mixed>>
+     * @return array<string, array<mixed>>
      */
     private function fetchFieldsInfo(array $columns): array
     {
@@ -271,14 +276,14 @@ final class PatientFinderQueryService
         );
         $info = [];
         foreach ($rows as $row) {
-            $info[(string) $row['field_id']] = $row;
+            $info[PatientFinderValue::string($row['field_id'] ?? null)] = $row;
         }
         return $info;
     }
 
     /**
      * @param array<int, PatientFinderColumn>  $columns
-     * @param array<int, array<string, mixed>> $rows
+     * @param array<int, array<mixed>>         $rows
      */
     private function dispatchEnrich(array $columns, array $rows): PatientFinderRowEnrichEvent
     {
@@ -288,7 +293,7 @@ final class PatientFinderQueryService
         ));
         $pids = [];
         foreach ($rows as $row) {
-            $pids[] = (int) ($row['pid'] ?? 0);
+            $pids[] = PatientFinderValue::int($row['pid'] ?? null);
         }
         $event = new PatientFinderRowEnrichEvent($pids, $enrichedColumns);
         // Only bother dispatching when there is something to enrich.
@@ -299,13 +304,13 @@ final class PatientFinderQueryService
     }
 
     /**
-     * @param array<string, mixed> $row
+     * @param array<mixed> $row
      */
     private function concatName(array $row): string
     {
-        $name = (string) ($row['lname'] ?? '');
-        $fname = (string) ($row['fname'] ?? '');
-        $mname = (string) ($row['mname'] ?? '');
+        $name = PatientFinderValue::string($row['lname'] ?? null);
+        $fname = PatientFinderValue::string($row['fname'] ?? null);
+        $mname = PatientFinderValue::string($row['mname'] ?? null);
         if ($name !== '' && $fname !== '') {
             $name .= ', ';
         }

@@ -28,22 +28,22 @@ namespace OpenEMR\Services\PatientFinder;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Events\PatientFinder\PatientFinderColumnRegistrationEvent;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 final class PatientFinderColumnRegistryFactory
 {
-    /** @var callable(string, array<int, string|int>): array<int, array<string, mixed>> */
+    /** @var callable(string, array<int, string|int>): list<array<mixed>> */
     private $fetchRecords;
 
-    /** @var callable(string): array<string, string> */
+    /** @var (callable(string): array<array-key, mixed>)|null */
     private $listMapResolver;
 
-    /** @var array<string, string>|null Cached Sort_Direction map. */
+    /** @var array<array-key, mixed>|null Cached Sort_Direction map. */
     private ?array $sortDirectionMap = null;
 
     /**
-     * @param callable(string, array<int, string|int>): array<int, array<string, mixed>>|null $fetchRecords
-     * @param callable(string): array<string, string>|null $listMapResolver
+     * @param callable(string, array<int, string|int>): list<array<mixed>>|null $fetchRecords
+     * @param callable(string): array<array-key, mixed>|null $listMapResolver
      *        Resolves a list id to a value => title map (defaults to generate_list_map()).
      */
     public function __construct(
@@ -51,10 +51,8 @@ final class PatientFinderColumnRegistryFactory
         ?callable $fetchRecords = null,
         ?callable $listMapResolver = null
     ) {
-        $this->fetchRecords = $fetchRecords
-            ?? static fn(string $sql, array $binds): array => QueryUtils::fetchRecords($sql, $binds);
-        $this->listMapResolver = $listMapResolver
-            ?? static fn(string $listId): array => generate_list_map($listId);
+        $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
+        $this->listMapResolver = $listMapResolver;
     }
 
     public function create(): PatientFinderColumnRegistry
@@ -66,18 +64,18 @@ final class PatientFinderColumnRegistryFactory
             []
         );
         foreach ($rows as $row) {
-            $key = (string) ($row['option_id'] ?? '');
+            $key = PatientFinderValue::string($row['option_id'] ?? null);
             if ($key === '') {
                 continue;
             }
-            $title = (string) ($row['title'] ?? $key);
+            $title = PatientFinderValue::string($row['title'] ?? null) ?: $key;
             if (function_exists('xl_list_label')) {
-                $title = (string) xl_list_label($title);
+                $title = PatientFinderValue::string(xl_list_label($title));
             }
             $registry->add(PatientFinderColumn::fromTable(
                 $key,
                 $title,
-                defaultSortDir: $this->sortDirection((string) ($row['toggle_setting_1'] ?? ''))
+                defaultSortDir: $this->sortDirection(PatientFinderValue::string($row['toggle_setting_1'] ?? null))
             ));
         }
 
@@ -98,8 +96,10 @@ final class PatientFinderColumnRegistryFactory
         if ($toggleSetting === '') {
             return 'asc';
         }
-        $this->sortDirectionMap ??= ($this->listMapResolver)('Sort_Direction');
-        $dir = $this->sortDirectionMap[$toggleSetting] ?? 'asc';
+        $this->sortDirectionMap ??= $this->listMapResolver !== null
+            ? ($this->listMapResolver)('Sort_Direction')
+            : generate_list_map('Sort_Direction');
+        $dir = PatientFinderValue::string($this->sortDirectionMap[$toggleSetting] ?? 'asc');
         return strtolower($dir) === 'desc' ? 'desc' : 'asc';
     }
 }

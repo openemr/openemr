@@ -61,10 +61,8 @@ final class PatientFinderQueryBuilder
      */
     public function __construct(?callable $columnEscaper = null, ?callable $dateSearch = null)
     {
-        $this->columnEscaper = $columnEscaper ?? static fn(string $col, array $tables): string =>
-            escape_sql_column_name($col, $tables);
-        $this->dateSearch = $dateSearch ?? static fn(string $term): string =>
-            self::legacyDateSearch($term);
+        $this->columnEscaper = $columnEscaper ?? escape_sql_column_name(...);
+        $this->dateSearch = $dateSearch ?? self::legacyDateSearch(...);
     }
 
     /**
@@ -320,9 +318,10 @@ final class PatientFinderQueryBuilder
     private static function legacyDateSearch(string $sSearch): string
     {
         $globals = OEGlobalsBag::getInstance();
-        $mdy = empty($globals->get('date_display_format'))
+        $dateDisplayFormat = $globals->getInt('date_display_format');
+        $mdy = $dateDisplayFormat === 0
             ? ($globals->getInt('phone_country_code') === 1)
-            : ($globals->get('date_display_format') == 1);
+            : ($dateDisplayFormat === 1);
 
         $mystr = "%$sSearch%";
         if (preg_match('/[^0-9]/', $sSearch)) {

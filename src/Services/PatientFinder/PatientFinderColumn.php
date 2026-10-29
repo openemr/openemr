@@ -34,7 +34,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientFinder;
 
-final class PatientFinderColumn
+final readonly class PatientFinderColumn
 {
     /** A column resolved against a database table (whitelisted by identifier). */
     public const TYPE_PATIENT_DATA = 'patient_data';
@@ -60,17 +60,17 @@ final class PatientFinderColumn
      *        column ("asc" or "desc"); drives the DataTables "order" option.
      */
     private function __construct(
-        public readonly string $key,
-        public readonly string $title,
-        public readonly string $type,
-        public readonly bool $searchable,
-        public readonly bool $sortable,
-        public readonly string $table = 'patient_data',
-        public readonly ?string $selectExpression = null,
-        public readonly ?string $joinClause = null,
-        public readonly ?string $searchExpression = null,
-        public readonly array $boundValues = [],
-        public readonly string $defaultSortDir = 'asc'
+        public string $key,
+        public string $title,
+        public string $type,
+        public bool $searchable,
+        public bool $sortable,
+        public string $table = 'patient_data',
+        public ?string $selectExpression = null,
+        public ?string $joinClause = null,
+        public ?string $searchExpression = null,
+        public array $boundValues = [],
+        public string $defaultSortDir = 'asc'
     ) {
     }
 

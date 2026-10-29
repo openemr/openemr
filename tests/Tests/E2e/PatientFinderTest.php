@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\PatientFinder\PatientFinderValue;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
@@ -59,10 +60,10 @@ class PatientFinderTest extends PantherTestCase
             // (1) The finder page renders its table with column headers.
             $this->client->request('GET', '/interface/main/finder/dynamic_finder.php');
             $this->client->waitFor('#pt_table', 20);
-            $headers = (string) $this->client->executeScript(
+            $headers = PatientFinderValue::string($this->client->executeScript(
                 'return Array.from(document.querySelectorAll("#pt_table thead th"))'
                 . '.map(function (th) { return th.textContent.trim(); }).join("|");'
-            );
+            ));
             $this->assertNotSame('', $headers, 'the finder should render at least one column header');
 
             // (2) The AJAX endpoint returns well-formed DataTables JSON.
@@ -74,7 +75,11 @@ class PatientFinderTest extends PantherTestCase
             // (3) A global search narrows to the seeded patient, whose row carries
             //     the expected DT_RowId and name.
             $hit = $this->fetchAjax('sEcho=2&iDisplayStart=0&iDisplayLength=50&sSearch=' . self::SEEDED_LASTNAME);
-            $this->assertGreaterThanOrEqual(1, (int) $hit['iTotalDisplayRecords'], 'search should find the seeded patient');
+            $this->assertGreaterThanOrEqual(
+                1,
+                PatientFinderValue::int($hit['iTotalDisplayRecords'] ?? null),
+                'search should find the seeded patient'
+            );
             $cells = $this->cellsForPid($hit, $this->seededPid);
             $this->assertNotEmpty($cells, 'the seeded patient row should be returned');
             $this->assertTrue(
@@ -92,12 +97,12 @@ class PatientFinderTest extends PantherTestCase
     /**
      * Fetch the finder AJAX endpoint in the logged-in browser and decode the JSON.
      *
-     * @return array<string, mixed>
+     * @return array<array-key, mixed>
      */
     private function fetchAjax(string $query): array
     {
         $this->client->request('GET', '/interface/main/finder/dynamic_finder_ajax.php?' . $query);
-        $text = (string) $this->client->executeScript('return document.body.innerText;');
+        $text = PatientFinderValue::string($this->client->executeScript('return document.body.innerText;'));
         $decoded = json_decode(trim($text), true);
         $this->assertIsArray($decoded, 'finder AJAX did not return JSON: ' . substr($text, 0, 300));
         return $decoded;
@@ -106,21 +111,26 @@ class PatientFinderTest extends PantherTestCase
     /**
      * The string cell values (excluding DT_RowId) of the row for the given pid.
      *
-     * @param array<string, mixed> $payload
+     * @param array<array-key, mixed> $payload
      * @return array<int, string>
      */
     private function cellsForPid(array $payload, int $pid): array
     {
-        foreach (($payload['aaData'] ?? []) as $row) {
-            if (($row['DT_RowId'] ?? '') === 'pid_' . $pid) {
-                $cells = [];
-                foreach ($row as $key => $value) {
-                    if ($key !== 'DT_RowId') {
-                        $cells[] = (string) $value;
-                    }
-                }
-                return $cells;
+        $aaData = $payload['aaData'] ?? [];
+        if (!is_array($aaData)) {
+            return [];
+        }
+        foreach ($aaData as $row) {
+            if (!is_array($row) || ($row['DT_RowId'] ?? '') !== 'pid_' . $pid) {
+                continue;
             }
+            $cells = [];
+            foreach ($row as $key => $value) {
+                if ($key !== 'DT_RowId') {
+                    $cells[] = PatientFinderValue::string($value);
+                }
+            }
+            return $cells;
         }
         return [];
     }
@@ -141,10 +151,10 @@ class PatientFinderTest extends PantherTestCase
     private function seedPatient(): void
     {
         $this->cleanUpPatients();
-        $pid = (int) QueryUtils::fetchSingleValue(
+        $pid = PatientFinderValue::int(QueryUtils::fetchSingleValue(
             'SELECT COALESCE(MAX(pid), 0) + 1 AS pid FROM patient_data',
             'pid'
-        );
+        ));
         $this->seededPid = $pid;
         QueryUtils::sqlInsert(
             'INSERT INTO patient_data (pid, pubpid, fname, lname, DOB, sex, date)'

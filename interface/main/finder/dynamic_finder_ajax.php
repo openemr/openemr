@@ -33,6 +33,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryService;
+use Symfony\Component\HttpFoundation\Request;
 
 // Align the permission check with the Patient Finder page (`patients/demo`
 // per `standard.json`). The AJAX endpoint reads the same `patient_data`
@@ -47,7 +48,7 @@ if (!AclMain::aclCheckCore('patients', 'demo')) {
 //  2. Additionally, in this script there are no state changes, thus it is not even sensitive to csrf vulnerabilities.
 
 $service = new PatientFinderQueryService(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
-$out = $service->handle($_GET);
+$out = $service->handle(Request::createFromGlobals()->query->all());
 
 // Encoding with options for escaping a special chars - JSON_HEX_TAG (<)(>), JSON_HEX_AMP(&), JSON_HEX_APOS('), JSON_HEX_QUOT(").
 echo json_encode($out, 15);

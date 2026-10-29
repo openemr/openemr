@@ -20,6 +20,7 @@ namespace OpenEMR\Tests\Isolated\PatientFinder;
 
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Services\PatientFinder\PatientFinderRecentService;
+use OpenEMR\Services\PatientFinder\PatientFinderValue;
 use PHPUnit\Framework\TestCase;
 
 class PatientFinderRecentServiceTest extends TestCase
@@ -60,7 +61,10 @@ class PatientFinderRecentServiceTest extends TestCase
 
         $result = $service->build();
 
-        $headerIds = array_map(static fn(array $h): string => (string) $h['option_id'], $result['headers']);
+        $headerIds = array_map(
+            static fn(array $h): string => PatientFinderValue::string($h['option_id'] ?? null),
+            $result['headers']
+        );
         $this->assertSame(['name', 'DOB'], $headerIds);
 
         $this->assertSame(
