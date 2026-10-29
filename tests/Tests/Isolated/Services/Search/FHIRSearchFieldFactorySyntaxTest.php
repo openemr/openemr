@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Services\Search;
 
 use InvalidArgumentException;
+use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -102,6 +103,46 @@ class FHIRSearchFieldFactorySyntaxTest extends TestCase
         } catch (InvalidArgumentException $exception) {
             $this->assertNotInstanceOf(SearchParameterSyntaxException::class, $exception);
         }
+    }
+
+    /**
+     * The date values Inferno's US Core test kit sends (us_core_test_kit/search_test.rb: search_param_value() and
+     * date_comparator_value()): a resource's own date at year, month, day or second precision, and gt/ge/lt/le
+     * before a date one day off, written by Ruby's DateTime#xmlschema with a numeric offset. Each must parse, so
+     * none of them is answered with a 400. A parameter mapped to two columns builds a composite of date fields.
+     *
+     * @return array<string, array{string, string, class-string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function infernoUsCoreDateProvider(): array
+    {
+        return [
+            'birthDate as exported' => ['birthdate', '1980-07-04', DateSearchField::class],
+            'a year' => ['date', '2020', DateSearchField::class],
+            'a month' => ['date', '2020-01', DateSearchField::class],
+            'a day' => ['date', '2020-01-31', DateSearchField::class],
+            'a dateTime in UTC' => ['date', '2020-01-31T13:45:00Z', DateSearchField::class],
+            'a dateTime with an offset' => ['date', '2020-01-31T13:45:00+00:00', DateSearchField::class],
+            'a dateTime with a negative offset' => ['date', '2020-01-31T08:45:00-05:00', DateSearchField::class],
+            'a dateTime with fractional seconds' => ['date', '2020-01-31T13:45:00.123+00:00', DateSearchField::class],
+            'gt before a day, as xmlschema writes it' => ['date', 'gt2020-01-30T00:00:00+00:00', DateSearchField::class],
+            'ge before a day' => ['date', 'ge2020-01-30T13:45:00+00:00', DateSearchField::class],
+            'lt after a day' => ['date', 'lt2020-02-01T13:45:00+00:00', DateSearchField::class],
+            'le after a day' => ['date', 'le2020-02-01T13:45:00+00:00', DateSearchField::class],
+            'gt from a year, as the kit converts it' => ['date', 'gt2019-12-31T00:00:00+00:00', DateSearchField::class],
+            'gt on a period start' => ['period', 'gt2020-01-30T13:45:00+00:00', CompositeSearchField::class],
+            'lt on a period end' => ['period', 'lt2020-02-01T13:45:00+00:00', CompositeSearchField::class],
+        ];
+    }
+
+    /**
+     * @param class-string $fieldClass
+     */
+    #[DataProvider('infernoUsCoreDateProvider')]
+    public function testTheDatesInfernoSendsParse(string $parameter, string $value, string $fieldClass): void
+    {
+        $this->assertInstanceOf($fieldClass, $this->factory()->buildSearchField($parameter, $value));
     }
 
     public function testAWellFormedDateStillBuildsADateField(): void
