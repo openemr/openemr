@@ -43,6 +43,7 @@ use OpenEMR\Billing\Statement\StatementRun;
 use OpenEMR\Billing\Statement\StatementRunResult;
 use OpenEMR\Billing\Statement\StatementRunSteps;
 use OpenEMR\Billing\StatementEnvelope;
+use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -277,7 +278,14 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     }
 
     if (OEGlobalsBag::getInstance()->get('statement_appearance') == '1') {
-        $config_mpdf = StatementEnvelope::fromGlobals()->mpdfConfig();
+        if (
+            function_exists('statement_supports_envelope_windows')
+            && statement_supports_envelope_windows()
+        ) {
+            $config_mpdf = StatementEnvelope::fromGlobals()->mpdfConfig();
+        } else {
+            $config_mpdf = Config_Mpdf::getConfigMpdf();
+        }
         $pdf2 = new mPDF($config_mpdf);
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($session->get('language_direction') === 'rtl') {
@@ -292,7 +300,17 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
         $pdf2->Output($temp_filename, 'F');
     } else {
         $pdf = new Cezpdf('LETTER');//pdf creation starts
-        $pdf->ezSetMargins(45, 9, 36, 10);
+        $windowedTextPdf = function_exists('statement_supports_envelope_windows')
+            && statement_supports_envelope_windows()
+            && StatementEnvelope::fromGlobals()->isWindowed();
+        // The text file is positioned from the corner of the sheet. Cezpdf's
+        // stock 45pt/36pt margins push that text out of the envelope windows.
+        // A printer fed the text file directly still has its own offsets.
+        if ($windowedTextPdf) {
+            $pdf->ezSetMargins(0, 0, 0, 0);
+        } else {
+            $pdf->ezSetMargins(45, 9, 36, 10);
+        }
         $pdf->selectFont('Courier');
         $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
         $countline = 1;
@@ -370,6 +388,16 @@ if (
         CsrfUtils::csrfNotVerified();
     }
 
+    $envelopeReady = true;
+    if (
+        function_exists('statement_supports_envelope_windows')
+        && statement_supports_envelope_windows()
+        && StatementEnvelope::fromGlobals()->isMisconfigured()
+    ) {
+        $envelopeReady = false;
+        $alertmsg = xlt('The custom envelope measurements are blank or do not fit the page. No statements were printed.');
+    }
+    if ($envelopeReady) {
     /** @var list<int> $checkedEncounterIds form_encounter.id of every checked invoice */
     $checkedEncounterIds = [];
     $checkedBoxes = $_REQUEST['form_cb'];
@@ -424,7 +452,15 @@ if (
             $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
             $mimetype = $isPdf ? 'pdf' : 'text/plain';
             if ($isPdf) {
-                $pdf2 = new mPDF(StatementEnvelope::fromGlobals()->mpdfConfig());
+                if (
+                    function_exists('statement_supports_envelope_windows')
+                    && statement_supports_envelope_windows()
+                ) {
+                    $invoicePdfConfig = StatementEnvelope::fromGlobals()->mpdfConfig();
+                } else {
+                    $invoicePdfConfig = Config_Mpdf::getConfigMpdf();
+                }
+                $pdf2 = new mPDF($invoicePdfConfig);
                 $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 if ($session->get('language_direction') === 'rtl') {
                     $pdf2->SetDirectionality('rtl');
@@ -526,6 +562,7 @@ if (
             }
         } // end not debug
     } // end not form_download
+    } // custom envelope was usable
 } // end statements requested
 
 // let biller know no why statement was not generated
