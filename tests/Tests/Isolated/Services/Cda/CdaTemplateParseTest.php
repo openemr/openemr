@@ -32,6 +32,22 @@ class CdaTemplateParseTest extends TestCase
     /** @var ReflectionClass<CdaTemplateParse> */
     private ReflectionClass $reflection;
 
+    private ?string $timeZone = null;
+
+    protected function tearDown(): void
+    {
+        if ($this->timeZone !== null) {
+            date_default_timezone_set($this->timeZone);
+        }
+    }
+
+    /** Runs the rest of the test in $zone; tearDown() puts the original back. */
+    private function inTimeZone(string $zone): void
+    {
+        $this->timeZone ??= date_default_timezone_get();
+        date_default_timezone_set($zone);
+    }
+
     protected function setUp(): void
     {
         $this->reflection = new ReflectionClass(CdaTemplateParse::class);
@@ -633,17 +649,75 @@ class CdaTemplateParseTest extends TestCase
     }
 
     /**
-     * 202401201900-0800 is 03:00 UTC on the 21st, later than 20240121 (the start of the 21st), though it sorts
-     * first as written.
+     * 202401201900-0800 is 03:00 UTC on the 21st, later than 20240121 read on a UTC server (the start of the
+     * 21st there), though it sorts first as written.
      */
     public function testFetchSocialHistoryDataComparesInstantsAcrossOffsets(): void
     {
+        $this->inTimeZone('UTC');
         $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => '202401201900-0800'], '266919005'));
         $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => '20240121']));
 
         $smoking = $this->getFieldRecord('social_history', 0)['smoking'];
         $this->assertIsArray($smoking);
         $this->assertSame('266919005', $smoking['status']);
+    }
+
+    /**
+     * @return array<string, array{list<string>}>
+     */
+    public static function offsetlessOrderProvider(): array
+    {
+        return [
+            'listed second' => [['202401201900-0800', '20240121']],
+            'listed first' => [['20240121', '202401201900-0800']],
+        ];
+    }
+
+    /**
+     * A date without an offset is the sender's local time, read in OpenEMR's own zone: on a Pacific server
+     * 20240121 starts at 08:00 UTC, later than 202401201900-0800 (03:00 UTC).
+     *
+     * @param list<string> $dates
+     */
+    #[DataProvider('offsetlessOrderProvider')]
+    public function testFetchSocialHistoryDataReadsADateWithoutAnOffsetInOpenEMRsTimeZone(array $dates): void
+    {
+        $this->inTimeZone('America/Los_Angeles');
+        foreach ($dates as $date) {
+            $status = $date === '20240121' ? '266919005' : '449868002';
+            $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => $date], $status));
+        }
+
+        $smoking = $this->getFieldRecord('social_history', 0)['smoking'];
+        $this->assertIsArray($smoking);
+        $this->assertSame('20240121', $smoking['begdate']);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function unparsableDateProvider(): array
+    {
+        return [
+            'an offset PHP refuses' => ['202401011200-9999'],
+            'an offset beyond +/-14:59' => ['202401011200+2400'],
+            'a day PHP would roll over' => ['20230229'],
+        ];
+    }
+
+    /**
+     * A date that doesn't parse neither stops the import nor replaces a status with a real date.
+     */
+    #[DataProvider('unparsableDateProvider')]
+    public function testFetchSocialHistoryDataKeepsADatedStatusOverOneWithADateThatDoesNotParse(string $bad): void
+    {
+        $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => '20230228'], '266919005'));
+        $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => $bad]));
+
+        $smoking = $this->getFieldRecord('social_history', 0)['smoking'];
+        $this->assertIsArray($smoking);
+        $this->assertSame('20230228', $smoking['begdate']);
     }
 
     public function testFetchSocialHistoryDataSkipsTemplatesItDoesNotMap(): void

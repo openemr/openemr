@@ -1337,8 +1337,10 @@ class CdaTemplateParse
     /**
      * A social history record's date as a UTC instant that sorts as text (YmdHis), or '' when it has none or it
      * doesn't parse. C-CDA writes YYYYMMDD[HHMM[SS[.S]]] with an optional +/-ZZZZ offset, so 20240121 and
-     * 202401201900-0800 can't be compared as written. A missing time is the start of the day, and a missing
-     * offset is read as UTC.
+     * 202401201900-0800 can't be compared as written. A missing time is the start of the day. A missing offset
+     * means the sender's local time, which the document doesn't name, so it's read in OpenEMR's own time zone, as
+     * the rest of the import reads dates. An offset beyond +/-14:59 and a date PHP would roll over (20230229 to
+     * March 1) don't parse.
      */
     private static function recordInstant(mixed $record): string
     {
@@ -1348,8 +1350,17 @@ class CdaTemplateParse
         }
         $part = static fn(int $i, string $default): string => ($m[$i] ?? '') !== '' ? $m[$i] : $default;
         $text = $part(1, '') . '-' . $part(2, '01') . '-' . $part(3, '01') . ' ' . $part(4, '00') . ':' . $part(5, '00') . ':' . $part(6, '00');
-        $instant = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $text, new \DateTimeZone($part(7, '+0000')));
-        return $instant === false ? '' : $instant->setTimezone(new \DateTimeZone('UTC'))->format('YmdHis');
+        $offset = $part(7, '');
+        if ($offset !== '' && ((int) substr($offset, 1, 2) > 14 || (int) substr($offset, 3, 2) > 59)) {
+            return '';
+        }
+        $zone = new \DateTimeZone($offset !== '' ? $offset : date_default_timezone_get());
+        $instant = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $text, $zone);
+        $problems = \DateTimeImmutable::getLastErrors();
+        if ($instant === false || ($problems !== false && ($problems['warning_count'] > 0 || $problems['error_count'] > 0))) {
+            return '';
+        }
+        return $instant->setTimezone(new \DateTimeZone('UTC'))->format('YmdHis');
     }
 
     public function encounter($component)
