@@ -366,15 +366,17 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
         // The unit as the immunization form stores it, a Drug Units option id. A unit the list
         // doesn't have is refused on insert and update rather than stored in another form.
+        $doseSystem = is_array($doseQuantity) && is_string($doseQuantity['system'] ?? null) ? trim($doseQuantity['system']) : '';
         $doseCode = is_array($doseQuantity) && is_string($doseQuantity['code'] ?? null) ? $doseQuantity['code'] : null;
         $doseUnitText = is_array($doseQuantity) && is_string($doseQuantity['unit'] ?? null) ? $doseQuantity['unit'] : null;
         $sentUnit = trim($doseCode ?? '') !== '' ? trim($doseCode) : trim($doseUnitText ?? '');
         if ($sentUnit !== '') {
-            $optionId = DoseUnit::optionFor($doseCode, $doseUnitText, self::drugUnitOptions());
+            $optionId = DoseUnit::optionFor($doseSystem, $doseCode, $doseUnitText, self::drugUnitOptions());
             if ($optionId !== null) {
                 $data['amount_administered_unit'] = $optionId;
             } else {
-                $data[self::UNKNOWN_DOSE_UNIT] = $sentUnit;
+                $codedElsewhere = trim($doseCode ?? '') !== '' && $doseSystem !== '' && $doseSystem !== FhirCodeSystemConstants::UNITS_OF_MEASURE;
+                $data[self::UNKNOWN_DOSE_UNIT] = '"' . $sentUnit . '"' . ($codedElsewhere ? ' from system ' . $doseSystem : '');
             }
         }
 
@@ -562,7 +564,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
         $result = new ProcessingResult();
         $result->setValidationMessages([
-            'doseQuantity' => 'Immunization.doseQuantity unit "' . $unit . '" is not in the Drug Units list; send one of its units, as UCUM (mL, ug, g) or by name',
+            'doseQuantity' => 'Immunization.doseQuantity unit ' . $unit . ' names no unit in the Drug Units list; send one of its units as a UCUM code (mL, ug, g) or by name with no code',
         ]);
         return $result;
     }

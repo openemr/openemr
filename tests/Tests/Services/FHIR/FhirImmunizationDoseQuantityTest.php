@@ -97,7 +97,19 @@ class FhirImmunizationDoseQuantityTest extends TestCase
         $messages = $result->getValidationMessages();
         $this->assertIsArray($messages);
         $this->assertIsString($messages['doseQuantity'] ?? null);
-        $this->assertStringContainsString('"[iU]" is not in the Drug Units list', $messages['doseQuantity']);
+        $this->assertStringContainsString('"[iU]" names no unit in the Drug Units list', $messages['doseQuantity']);
+        $this->assertEquals(0, QueryUtils::fetchSingleValue("SELECT COUNT(*) AS n FROM immunizations WHERE note LIKE 'test-fixture%'", 'n'));
+    }
+
+    public function testACodeFromAnotherSystemIsRefused(): void
+    {
+        $result = $this->service->insert($this->resource(['value' => 1, 'unit' => 'grams', 'system' => 'http://snomed.info/sct', 'code' => 'g']));
+
+        $this->assertFalse($result->isValid());
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertIsString($messages['doseQuantity'] ?? null);
+        $this->assertStringContainsString('"g" from system http://snomed.info/sct names no unit', $messages['doseQuantity']);
         $this->assertEquals(0, QueryUtils::fetchSingleValue("SELECT COUNT(*) AS n FROM immunizations WHERE note LIKE 'test-fixture%'", 'n'));
     }
 

@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services\FHIR\Immunization;
 
 use OpenEMR\Cqm\Cql\Ucum\Ucum;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 
 final class DoseUnit
 {
@@ -50,26 +51,33 @@ final class DoseUnit
     }
 
     /**
-     * The Drug Units option id a doseQuantity names: the option whose title, or its UCUM code,
-     * is the doseQuantity's code, else the option whose title is its unit text. Null when no
-     * option fits.
+     * The Drug Units option id a doseQuantity names. With a code, the option whose title, or its
+     * UCUM code, is that code; a code means what its system says, so only a UCUM code, or one with
+     * no system, can name an option, and a code that names none is refused rather than read from
+     * the unit text, which is only its display. With no code, the option whose title, in any case,
+     * or UCUM code is the unit text. Null when no option fits.
      *
      * @param array<array-key, string> $options option id => title
      */
-    public static function optionFor(?string $code, ?string $unit, array $options): ?string
+    public static function optionFor(?string $system, ?string $code, ?string $unit, array $options): ?string
     {
+        $system = trim((string)$system);
         $code = trim((string)$code);
         $unit = trim((string)$unit);
         if ($code !== '') {
+            if ($system !== '' && $system !== FhirCodeSystemConstants::UNITS_OF_MEASURE) {
+                return null;
+            }
             foreach ($options as $id => $title) {
                 if ($title === $code || self::ucumFor($title) === $code) {
                     return (string)$id;
                 }
             }
+            return null;
         }
         if ($unit !== '') {
             foreach ($options as $id => $title) {
-                if (strcasecmp(trim($title), $unit) === 0) {
+                if (strcasecmp(trim($title), $unit) === 0 || self::ucumFor($title) === $unit) {
                     return (string)$id;
                 }
             }

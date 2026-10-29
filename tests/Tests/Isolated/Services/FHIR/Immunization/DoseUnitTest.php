@@ -45,22 +45,28 @@ class DoseUnitTest extends TestCase
         $this->assertSame($expected, DoseUnit::ucumFor($title));
     }
 
-    /** @return array<string, array{?string, ?string, ?string}> */
+    private const UCUM = 'http://unitsofmeasure.org';
+
+    /** @return array<string, array{?string, ?string, ?string, ?string}> system, code, unit text, then the option expected */
     public static function doses(): array
     {
         return [
-            'a UCUM code that is a title' => ['mL', null, '9'],
-            'ug is the mcg option' => ['ug', 'micrograms', '7'],
-            'g is the grams option' => ['g', null, '8'],
-            'with no code, the unit text, in any case' => [null, 'ML', '9'],
-            'a code the list has no unit for' => ['[iU]', 'international units', null],
-            'nothing sent' => [null, null, null],
+            'a UCUM code that is a title' => [self::UCUM, 'mL', null, '9'],
+            'ug is the mcg option' => [self::UCUM, 'ug', 'micrograms', '7'],
+            'g is the grams option' => [self::UCUM, 'g', null, '8'],
+            'a code with no system' => [null, 'mL', null, '9'],
+            'with no code, the unit text, in any case' => [null, null, 'ML', '9'],
+            'with no code, unit text that is a UCUM alias' => [null, null, 'ug', '7'],
+            'a code the list has no unit for' => [self::UCUM, '[iU]', 'international units', null],
+            'a code the list has no unit for, with unit text it has' => [self::UCUM, '[iU]', 'mg', null],
+            'a code from another system' => ['http://snomed.info/sct', 'g', 'grams', null],
+            'nothing sent' => [null, null, null, null],
         ];
     }
 
     #[DataProvider('doses')]
-    public function testOptionFor(?string $code, ?string $unit, ?string $expected): void
+    public function testOptionFor(?string $system, ?string $code, ?string $unit, ?string $expected): void
     {
-        $this->assertSame($expected, DoseUnit::optionFor($code, $unit, self::SEEDED));
+        $this->assertSame($expected, DoseUnit::optionFor($system, $code, $unit, self::SEEDED));
     }
 }
