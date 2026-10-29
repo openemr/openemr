@@ -25,6 +25,7 @@ on:
     - .github/workflows/upgrade-parity.yml
     - .github/scripts/upgrade-parity.sh
     - .github/scripts/upgrade-parity-run.php
+    - .github/scripts/lib/derive-from-version.sh
   workflow_dispatch:
 
 permissions:

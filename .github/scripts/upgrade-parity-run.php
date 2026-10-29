@@ -13,8 +13,9 @@
  *
  * Exit codes:
  *   0  The upgrade file ran.
- *   2  Bad arguments, or the connection was not on parity_upgraded. An SQL
- *      error in the upgrade file throws, which also exits non-zero.
+ *   2  Bad arguments, an upgrade file that can't be read, or the connection
+ *      was not on parity_upgraded. An SQL error in the upgrade file throws,
+ *      which also exits non-zero.
  * A web request gets a 403 and nothing else.
  *
  * @package   OpenEMR
@@ -27,6 +28,7 @@
 declare(strict_types=1);
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
 // It boots OpenEMR with $ignoreAuth and runs SQL against a database, so it never
@@ -37,7 +39,8 @@ if (PHP_SAPI !== 'cli') {
 }
 
 $upgradeFile = isset($argv[1]) ? realpath($argv[1]) : false;
-if ($upgradeFile === false || !is_file($upgradeFile)) {
+// SQLUpgradeService only logs a file it can't open and returns, which would read as a clean run.
+if ($upgradeFile === false || !is_file($upgradeFile) || !is_readable($upgradeFile)) {
     fwrite(STDERR, "usage: php upgrade-parity-run.php <upgrade file>\n");
     exit(2);
 }
@@ -54,6 +57,9 @@ foreach ([sqlQueryNoLog('SELECT DATABASE() AS d'), QueryUtils::querySingleRow('S
     }
 }
 
+// As sql_upgrade.php does on the command line: no per-line browser progress, which with output
+// off would otherwise be kept in the service's buffer for every line of the file.
+OEGlobalsBag::getInstance()->set('force_simple_sql_upgrade', true);
 $service = new SQLUpgradeService();
 $service->setRenderOutputToScreen(false);
 $service->setThrowExceptionOnError(true);

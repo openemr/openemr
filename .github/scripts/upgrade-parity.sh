@@ -160,8 +160,9 @@ schema() {
 }
 
 # Rows of every table both databases have, over the columns both have (the
-# schema comparison reports the rest), auto-increment ids left out. The client
-# reads /dev/null so it can't consume the table list the loop is reading.
+# schema comparison reports the rest), auto-increment ids left out. facility.id
+# stays in: the seed fixes it at 3, and the installer's first user refers to it.
+# The client reads /dev/null so it can't consume the table list the loop is reading.
 rows() {
     local table cols table_list
     # Captured first, so a failed query stops the script instead of reading as no tables.
@@ -175,7 +176,8 @@ rows() {
                        JOIN information_schema.columns u
                          ON u.table_schema = 'parity_upgraded' AND u.table_name = f.table_name AND u.column_name = f.column_name
                       WHERE f.table_schema = 'parity_fresh' AND f.table_name = '${table}'
-                        AND f.extra NOT LIKE '%auto_increment%'" < /dev/null)
+                        AND (f.extra NOT LIKE '%auto_increment%'
+                             OR (f.table_name = 'facility' AND f.column_name = 'id'))" < /dev/null)
         [[ -n "${cols}" && "${cols}" != NULL ]] || continue
         q -e "SELECT ${cols} FROM \`$1\`.\`${table}\`" < /dev/null | sed -E "s/${loaded}/<load-time>/g" | LC_ALL=C sort | sed "s/^/${table}\t/"
     done <<< "${table_list}"
