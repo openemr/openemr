@@ -1324,7 +1324,7 @@ class CdaTemplateParse
         // the field keeps its newest status, by the document's date; undated ones give way to dated ones.
         $row = $rows[0] ?? [];
         $row = is_array($row) ? $row : [];
-        if (strcmp(self::recordDate($entry['record']), self::recordDate($row[$field] ?? null)) >= 0) {
+        if (strcmp(self::recordInstant($entry['record']), self::recordInstant($row[$field] ?? null)) >= 0) {
             $row[$field] = $entry['record'];
         }
         $rows = [0 => $row];
@@ -1335,12 +1335,21 @@ class CdaTemplateParse
     }
 
     /**
-     * A social history record's date as the document writes it (YYYYMMDD...), or '' when it has none.
+     * A social history record's date as a UTC instant that sorts as text (YmdHis), or '' when it has none or it
+     * doesn't parse. C-CDA writes YYYYMMDD[HHMM[SS[.S]]] with an optional +/-ZZZZ offset, so 20240121 and
+     * 202401201900-0800 can't be compared as written. A missing time is the start of the day, and a missing
+     * offset is read as UTC.
      */
-    private static function recordDate(mixed $record): string
+    private static function recordInstant(mixed $record): string
     {
         $date = is_array($record) ? ($record['begdate'] ?? null) : null;
-        return is_string($date) ? $date : '';
+        if (!is_string($date) || preg_match('/^(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?(?:\.\d+)?([+-]\d{4})?$/', $date, $m) !== 1) {
+            return '';
+        }
+        $part = static fn(int $i, string $default): string => ($m[$i] ?? '') !== '' ? $m[$i] : $default;
+        $text = $part(1, '') . '-' . $part(2, '01') . '-' . $part(3, '01') . ' ' . $part(4, '00') . ':' . $part(5, '00') . ':' . $part(6, '00');
+        $instant = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $text, new \DateTimeZone($part(7, '+0000')));
+        return $instant === false ? '' : $instant->setTimezone(new \DateTimeZone('UTC'))->format('YmdHis');
     }
 
     public function encounter($component)

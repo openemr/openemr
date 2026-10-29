@@ -632,6 +632,20 @@ class CdaTemplateParseTest extends TestCase
         $this->assertSame('20240121', $smoking['begdate']);
     }
 
+    /**
+     * 202401201900-0800 is 03:00 UTC on the 21st, later than 20240121 (the start of the 21st), though it sorts
+     * first as written.
+     */
+    public function testFetchSocialHistoryDataComparesInstantsAcrossOffsets(): void
+    {
+        $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => '202401201900-0800'], '266919005'));
+        $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => '20240121']));
+
+        $smoking = $this->getFieldRecord('social_history', 0)['smoking'];
+        $this->assertIsArray($smoking);
+        $this->assertSame('266919005', $smoking['status']);
+    }
+
     public function testFetchSocialHistoryDataSkipsTemplatesItDoesNotMap(): void
     {
         // Tobacco Use (4.85) and an entry with no templateId are not imported.

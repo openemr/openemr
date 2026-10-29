@@ -64,6 +64,24 @@ class CdaSocialHistoryWriterTest extends TestCase
         $this->assertSame(2, $this->rows());
     }
 
+    /**
+     * history_data's date has one-second precision, so a version written in the same second as the one before
+     * it shares its date; the later row must still be the current one.
+     */
+    public function testTheVersionWrittenLastIsCurrentEvenInTheSameSecond(): void
+    {
+        $this->service->create(['pid' => $this->pid, 'alcohol' => 'kept|currentalcohol|2020-01-01']);
+        QueryUtils::sqlStatementThrowException("UPDATE history_data SET `date` = '2026-01-01 00:00:00' WHERE pid = ?", [$this->pid]);
+
+        CdaSocialHistoryWriter::write($this->service, $this->pid, ['tobacco' => self::TOBACCO]);
+        QueryUtils::sqlStatementThrowException("UPDATE history_data SET `date` = '2026-01-01 00:00:00' WHERE pid = ?", [$this->pid]);
+
+        $current = $this->service->getHistoryData($this->pid);
+        $this->assertIsArray($current);
+        $this->assertSame(self::TOBACCO, $current['tobacco']);
+        $this->assertSame('kept|currentalcohol|2020-01-01', $current['alcohol']);
+    }
+
     public function testAPatientWithNoHistoryGetsAFirstRow(): void
     {
         CdaSocialHistoryWriter::write($this->service, $this->pid, ['tobacco' => self::TOBACCO]);
