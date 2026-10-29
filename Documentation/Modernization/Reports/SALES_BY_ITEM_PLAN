@@ -1,0 +1,234 @@
+# Sales by Item Report Modernization Plan
+## Overview
+Migrate the legacy `sales_by_item.php` report from inline PHP/HTML rendering to a modern, testable architecture using service classes, Twig templates, and TDD. The current implementation spans 735 lines with complex conditional rendering logic, nested loops, and mixed data preparation/presentation concerns.
+## Current State Analysis
+### File Structure
+* **Controller:** `/interface/reports/sales_by_item.php` (735 lines)
+    * Mixed data queries, aggregation logic, and HTML rendering
+    * Uses deprecated `sqlStatement()` and `sqlFetchArray()`
+    * Complex inline PHP conditional logic
+    * No separation of concerns
+    * Handles both HTML rendering and CSV export inline
+### Key Complexity Areas
+1. **Data Aggregation** (~150 lines)
+    * Billing table query with joins (lines 546-570)
+    * Drug sales query with joins (lines 586-606)
+    * Runs two separate queries with similar logic
+2. **Grouping Logic** (~130 lines)
+    * `thisLineItem()` function handles product/category grouping
+    * Complex state management for category/product changes
+    * Intermingled total calculations with rendering logic
+    * Generates both detail rows and summary rows
+3. **Output Rendering** (~350 lines)
+    * HTML table rendering with conditional columns
+    * CSV export headers and row generation
+    * Category and product subtotals
+    * Grand totals calculation
+    * Details toggle changes rendering entirely
+4. **Display Logic** (~100 lines)
+    * Conditional facility, provider, date range filters
+    * ACL restrictions per provider
+    * Global configuration (`$GLOBALS['sales_report_invoice']`)
+## Target Architecture
+### New File Structure
+```warp-runnable-command
+src/Reports/SalesByItems/
+├── Repository/
+│   └── SalesByItemsRepository.php          (Database queries)
+├── Services/
+│   ├── BillingItemService.php              (Process billing items)
+│   ├── DrugSalesService.php                (Process drug sales)
+│   ├── GroupingService.php                 (Aggregate by category/product)
+│   ├── FormattingService.php               (Format currency, text)
+│   ├── TotalsService.php                   (Calculate subtotals/grand totals)
+│   └── DataPreparationService.php          (Orchestrate all services)
+└── Model/
+    ├── SalesItem.php                       (Data object)
+    └── SalesGroup.php                      (Grouped data object)
+templates/reports/sales_by_item/
+├── base.twig                               (Extend base template)
+├── _filters_form.twig                      (Filter controls)
+├── _table_header.twig                      (Dynamic headers)
+├── _detail_row.twig                        (Invoice line item)
+├── _product_subtotal_row.twig              (Product total row)
+├── _category_subtotal_row.twig             (Category total row)
+├── _grand_totals_row.twig                  (Grand total row)
+├── _results_table.twig                     (Table orchestration)
+└── sales_by_item.twig                      (Main entry point)
+interface/reports/
+└── sales_by_item.php                       (Modernized controller)
+tests/Tests/Services/
+├── SalesByItemsBillingServiceTest.php      (Billing item processing)
+├── SalesByItemsDrugSalesServiceTest.php    (Drug sales processing)
+├── SalesByItemsGroupingServiceTest.php     (Grouping logic)
+├── SalesByItemsTotalsServiceTest.php       (Total calculations)
+└── SalesByItemsDataPreparationServiceTest.php (Integration)
+tests/Tests/Templates/
+├── SalesByItemsHeaderTemplateTest.php      (Header rendering)
+├── SalesByItemsDetailRowTemplateTest.php   (Detail row rendering)
+├── SalesByItemsSubtotalTemplateTest.php    (Subtotal rows)
+└── SalesByItemsTemplateTest.php            (Full template)
+```
+## Migration Phases
+### Phase 1: Foundation & Repository Layer
+**Goal:** Extract database queries into repository
+**Complexity:** Low
+**Lines from Original:** 546-606 (60 lines)
+**Estimated Duration:** 2 hours
+**Tasks:**
+1. Create `SalesByItemsRepository.php` to encapsulate both billing and drug sales queries
+2. Replace deprecated `sqlStatement()/sqlFetchArray()` with `QueryUtils`
+3. Add parameter binding and facility/provider filters
+4. Create data model classes: `SalesItem.php`, `SalesGroup.php`
+5. Write repository tests (8-10 tests)
+**Deliverables:**
+* `Repository/SalesByItemsRepository.php` (~100 lines)
+* `Model/SalesItem.php` (~50 lines)
+* `Model/SalesGroup.php` (~50 lines)
+* `RepositoryTest.php` (~180 lines, 10 tests)
+### Phase 2: Service Layer - Data Processing
+**Goal:** Extract grouping and aggregation logic into services
+**Complexity:** High (most complex logic)
+**Lines from Original:** 61-256 (thisLineItem function) + aggregation setup
+**Estimated Duration:** 4 hours
+**Tasks:**
+1. Create `BillingItemService.php` to process billing records
+2. Create `DrugSalesService.php` to process drug sales records
+3. Create `GroupingService.php` to handle category/product grouping
+    * Replace state-based logic with data structures
+    * Calculate subtotals during grouping (not rendering)
+4. Create `TotalsService.php` to calculate all totals
+5. Create `DataPreparationService.php` to orchestrate all services
+6. Write comprehensive service tests (25-30 tests)
+**Deliverables:**
+* `Services/BillingItemService.php` (~120 lines)
+* `Services/DrugSalesService.php` (~100 lines)
+* `Services/GroupingService.php` (~150 lines)
+* `Services/TotalsService.php` (~80 lines)
+* `Services/DataPreparationService.php` (~100 lines)
+* Service test files (~1000 lines, 25+ tests)
+### Phase 3: Twig Template Migration
+**Goal:** Convert HTML rendering to Twig templates
+**Complexity:** Medium
+**Lines from Original:** 100-246 (table rendering), 295-527 (HTML structure)
+**Estimated Duration:** 3 hours
+**Tasks:**
+1. Create `base.twig` extending OpenEMR base template
+2. Create `_filters_form.twig` for filter controls
+3. Create `_table_header.twig` for column headers
+4. Create `_detail_row.twig` for invoice detail rows
+5. Create `_product_subtotal_row.twig` for product totals
+6. Create `_category_subtotal_row.twig` for category totals
+7. Create `_grand_totals_row.twig` for grand totals
+8. Create `_results_table.twig` for table orchestration
+9. Create `sales_by_item.twig` as main template
+10. Write template tests (12-15 tests)
+**Deliverables:**
+* 9 Twig template files (~400 lines total)
+* Template test files (~600 lines, 15+ tests)
+### Phase 4: Controller Modernization
+**Goal:** Refactor PHP controller to use new services
+**Complexity:** Low-Medium
+**Lines from Original:** Full file 735 lines
+**Estimated Duration:** 2 hours
+**Tasks:**
+1. Update imports to use new service classes
+2. Replace direct database queries with repository
+3. Replace grouping logic with DataPreparationService
+4. Pass prepared data to Twig template
+5. Keep CSV export in controller (not UI rendering)
+6. Maintain form handling and CSRF protection
+7. Write controller tests (5-8 tests)
+**Deliverables:**
+* Modernized `sales_by_item.php` (~150 lines)
+* `ControllerTest.php` (~250 lines, 8 tests)
+### Phase 5: CSV Export Implementation
+**Goal:** Implement CSV export using data services
+**Complexity:** Medium
+**Lines from Original:** 262-293 (headers), 623-627 (export logic)
+**Estimated Duration:** 1.5 hours
+**Tasks:**
+1. Create `CsvExportService.php` to format data for CSV
+2. Implement CSV header generation
+3. Implement CSV row formatting
+4. Handle special characters and escaping
+5. Write export tests (4-6 tests)
+**Deliverables:**
+* `Services/CsvExportService.php` (~80 lines)
+* `CsvExportServiceTest.php` (~150 lines, 6 tests)
+### Phase 6: Feature Flag & Integration Testing
+**Goal:** Enable gradual rollout and verify all components work together
+**Complexity:** Low
+**Estimated Duration:** 1 hour
+**Tasks:**
+1. Implement feature flag to toggle old/new rendering
+2. Run full integration tests
+3. Test all filter combinations
+4. Test edge cases (empty results, single row, many rows)
+5. Performance testing
+**Deliverables:**
+* Feature flag configuration
+* Integration test suite (~300 lines, 10 tests)
+* Performance baseline documentation
+### Phase 7: Documentation & Cleanup
+**Goal:** Document changes and prepare for merge
+**Complexity:** Low
+**Estimated Duration:** 1 hour
+**Tasks:**
+1. Create `docs/SALES_BY_ITEM_MIGRATION.md`
+2. Document service responsibilities
+3. Document data flow
+4. Add PHPDoc comments to all classes
+5. Update parent documentation
+**Deliverables:**
+* Migration documentation
+* Architecture diagram
+* Data flow documentation
+* Code comments and PHPDoc
+## Testing Strategy
+### Unit Tests
+* Repository tests: Query correctness, parameter binding (10 tests)
+* Service tests: Data transformation, calculations (25+ tests)
+* Template tests: Rendering, conditional logic (15+ tests)
+* CSV export tests: Formatting, escaping (6 tests)
+### Integration Tests
+* End-to-end with sample data (10 tests)
+* All filter combinations (8 tests)
+* Edge cases: empty results, single item, many items (5 tests)
+### Total Test Count: 80-85 tests with 300+ assertions
+## Critical Success Criteria
+1. ✓ All tests pass with 100% on critical paths
+2. ✓ QueryUtils used instead of deprecated functions
+3. ✓ Twig templates use `{{ text | xlt }}` for all user-facing strings
+4. ✓ Service classes follow SOLID principles
+5. ✓ CSV export produces identical output to current implementation
+6. ✓ No patient identifiable information (PII) in any service classes
+7. ✓ Zero performance regression on report generation
+8. ✓ Feature flag allows safe rollout
+## Risk Mitigation
+1. **Keep Legacy Code:** Original `sales_by_item.php` remains as fallback
+2. **Feature Flag:** Toggle between old/new rendering during transition
+3. **Incremental Integration:** Each phase can be tested independently
+4. **Comprehensive Testing:** 80+ tests ensure regressions caught early
+5. **Documentation:** Clear data flow prevents misunderstandings
+## Timeline
+* **Phase 1:** 2 hours (Repository)
+* **Phase 2:** 4 hours (Services)
+* **Phase 3:** 3 hours (Templates)
+* **Phase 4:** 2 hours (Controller)
+* **Phase 5:** 1.5 hours (CSV Export)
+* **Phase 6:** 1 hour (Integration)
+* **Phase 7:** 1 hour (Documentation)
+**Total:** ~15 hours of focused development
+## Key Differences from Collections Report
+1. **Simpler Grouping:** Only 2 levels (category/product) vs. 3 (patient/insurance/line items)
+2. **Simpler Filters:** Fewer optional columns to display
+3. **Two Data Sources:** Billing + Drug Sales (separate queries)
+4. **CSV-Focused:** CSV export is primary alternate output
+5. **No Invoice Details Modal:** Simpler detail display logic
+## Success Metrics
+* All tests passing
+* Report generation time within 5% of original
+* CSV output byte-identical to original (except date formatting if changed)
+* Zero production incidents from migration
+* Code complexity reduced by 60% (from 735 lines to ~400 total)
