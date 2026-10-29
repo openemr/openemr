@@ -17,6 +17,7 @@ require_once(__DIR__ . '/patient_tracker.inc.php');
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Encounter\ArrivalEncounterCreator;
 
 //===============================================================================
 //This section handles the events of payment screen.
@@ -43,7 +44,9 @@ function calendar_arrived($form_pid)
         echo "<br /><br /><br /><h2 class='text-center'>" . htmlspecialchars(xl('Sorry No Appointment is Fixed'), ENT_QUOTES) . ". " . htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
         exit;
     } elseif ($appt_count == 1) {
-        $enc = todaysEncounterCheck($form_pid);
+        // The appointment's category and provider, as the calendar and the flow board pass them.
+        $appt = is_array($appts[0]) ? $appts[0] : [];
+        $enc = todaysEncounterCheck($form_pid, '', '', '', '', $appt['uprovider_id'] ?? '', $appt['pc_catid'] ?? '');
         if ($appts[0]['pc_recurrtype'] == 0) {
             sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus = '@' WHERE pc_eid = ?", [$appts[0]['pc_eid']]);
         } else {
@@ -71,52 +74,8 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
         }
     }
 
-    if (is_array($provider)) {
-        $visit_provider = (int)$provider[0];
-    } elseif ($provider) {
-        $visit_provider = (int)$provider;
-    } else {
-        $visit_provider = '(NULL)';
-    }
-
-    $dos = $enc_date ?: $today;
-    $visit_reason = $reason ?: xl('Please indicate visit reason');
-    if (OEGlobalsBag::getInstance()->getBoolean('auto_create_prevent_reason')) {
-        $visit_reason = 'Please indicate visit reason';
-    }
-    $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", [$session->get('authUserID')]);
-    $username = $tmprow['username'];
-    $facility = $tmprow['facility'];
-    $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
-    $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
-    $pos_code = sqlQuery("SELECT pos_code FROM facility WHERE id = ?", [$facility_id])['pos_code'];
-    $visit_cat = $cat ?: '(NULL)';
-    $encounter = QueryUtils::generateId();
-    addForm(
-        $encounter,
-        "New Patient Encounter",
-        sqlInsert(
-            "INSERT INTO form_encounter SET " .
-            "date = ?, " .
-            "reason = ?, " .
-            "facility = ?, " .
-            "facility_id = ?, " .
-            "billing_facility = ?, " .
-            "provider_id = ?, " .
-            "pid = ?, " .
-            "encounter = ?," .
-            "pc_catid = ?," .
-            "pos_code = ?",
-            [$dos,$visit_reason,$facility,$facility_id,$billing_facility,$visit_provider,$patient_id,$encounter,$visit_cat, $pos_code]
-        ),
-        "newpatient",
-        $patient_id,
-        "1",
-        "NOW()",
-        $username
-    );
-    return $encounter;
+    // Insert it through EncounterService so it gets a UUID and fires the save events.
+    return (new ArrivalEncounterCreator())->create($patient_id, $enc_date ?: $today, $reason, $fac_id, $billing_fac, $provider, $cat);
 }
 
     //===============================================================================

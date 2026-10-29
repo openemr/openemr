@@ -30,6 +30,7 @@
 
 use Mpdf\Mpdf;
 use OpenEMR\Billing\EraFilenameValidator;
+use OpenEMR\Billing\InvoiceServiceDates;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Billing\Statement\PatientCreditEncounters;
@@ -673,6 +674,10 @@ $language_direction = $session->get('language_direction'); // fetch before the <
 $searchRequest = CurrentRequest::get()->request;
 $lastStatementBeforeInput = $searchRequest->getString('form_last_stmt_before');
 $lastStatementBefore = fixDate($lastStatementBeforeInput, '');
+$serviceDates = new InvoiceServiceDates(
+    fixDate($searchRequest->getString('form_date'), ''),
+    fixDate($searchRequest->getString('form_to_date'), '')
+);
 
 // What an invoice search was limited to, shown with its results: the search
 // fields are hidden once results are shown.
@@ -692,12 +697,12 @@ if ($searchRequest->getString('form_search') === 'Search') {
             $searchFilters[] = $label . ': ' . $value;
         }
     }
-    $serviceFrom = fixDate($searchRequest->getString('form_date'), '');
-    $serviceTo = fixDate($searchRequest->getString('form_to_date'), '');
-    if ($serviceFrom !== '') {
-        $searchFilters[] = $serviceTo !== ''
-            ? xl('Service dates') . ': ' . $shortDate($serviceFrom) . ' - ' . $shortDate($serviceTo)
-            : xl('Service date') . ': ' . $shortDate($serviceFrom);
+    if ($serviceDates->from !== '' && $serviceDates->to !== '') {
+        $searchFilters[] = xl('Service dates') . ': ' . $shortDate($serviceDates->from) . ' - ' . $shortDate($serviceDates->to);
+    } elseif ($serviceDates->from !== '') {
+        $searchFilters[] = xl('Service dates from') . ' ' . $shortDate($serviceDates->from);
+    } elseif ($serviceDates->to !== '') {
+        $searchFilters[] = xl('Service dates through') . ' ' . $shortDate($serviceDates->to);
     }
     if ($lastStatementBefore !== '') {
         $searchFilters[] = xl('Last statement before') . ' ' . $shortDate($lastStatementBefore);
@@ -949,11 +954,11 @@ if ($searchRequest->getString('form_search') === 'Search') {
                             <div class="form-group col-lg">
                                 <label class="control-label oe-large" for="form_date"><?php echo xlt('Service Date From'); ?>:</label>
                                 <label class="control-label oe-small" for="form_date"><?php echo xlt('Svc Date'); ?>:</label>
-                                <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_date'] ?? ''); ?>' title='<?php echo xla("Date of service mm/dd/yyyy"); ?>' />
+                                <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_date'] ?? ''); ?>' title='<?php echo xla("List invoices with a service date on or after this date"); ?>' />
                             </div>
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>:</label>
-                                <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_to_date'] ?? ''); ?>' title='<?php echo xla("Ending DOS mm/dd/yyyy if you wish to enter a range"); ?>' />
+                                <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_to_date'] ?? ''); ?>' title='<?php echo xla("List invoices with a service date on or before this date"); ?>' />
                             </div>
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_last_stmt_before"><?php echo xlt('Last Statement Before'); ?>:</label>
@@ -1017,8 +1022,6 @@ if ($searchRequest->getString('form_search') === 'Search') {
                             $form_name = trim((string) $_REQUEST['form_name']);
                             $form_pid = trim((string) $_REQUEST['form_pid']);
                             $form_encounter = trim((string) $_REQUEST['form_encounter']);
-                            $form_date = fixDate($_REQUEST['form_date'], "");
-                            $form_to_date = fixDate($_REQUEST['form_to_date'], "");
 
                             $where = "";
                             $searchBinds = [];
@@ -1129,15 +1132,13 @@ if ($searchRequest->getString('form_search') === 'Search') {
                                     }
                                     $where .= "f.encounter = '" . add_escape_custom($form_encounter) . "'";
                                 }
-                                if ($form_date) {
+                                if ($serviceDates->isSet()) {
                                     if ($where) {
                                         $where .= " AND ";
                                     }
-                                    if ($form_to_date) {
-                                        $where .= "f.date >= '" . add_escape_custom($form_date) . "' AND f.date <= '" . add_escape_custom($form_to_date) . "'";
-                                    } else {
-                                        $where .= "f.date = '" . add_escape_custom($form_date) . "'";
-                                    }
+                                    [$serviceDateCondition, $serviceDateBinds] = $serviceDates->condition('f.date');
+                                    $where .= $serviceDateCondition;
+                                    array_push($searchBinds, ...$serviceDateBinds);
                                 }
                                 if ($lastStatementBefore !== '') {
                                     if ($where) {
