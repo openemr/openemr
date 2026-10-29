@@ -614,6 +614,22 @@ prepare_swarm_leader() {
         touch "${OE_ROOT}/sites/docker-initiated"
         update_leader_heartbeat
 
+        # Keep leader_file fresh in a background daemon so followers don't
+        # declare us stale during long phases without inline heartbeats
+        # (composer install, npm install, webpack build, auto_configure.php,
+        # etc.). LEADER_TIMEOUT defaults to 300s; 60s cadence leaves plenty
+        # of margin. The daemon self-terminates when the main script PID is
+        # gone, and is killed explicitly before apache exec / early exit.
+        if [[ -z "${HEARTBEAT_DAEMON_PID:-}" ]]; then
+            (
+                while kill -0 "$$" 2>/dev/null; do
+                    update_leader_heartbeat
+                    sleep 60
+                done
+            ) &
+            HEARTBEAT_DAEMON_PID=$!
+        fi
+
         # Restore swarm-pieces if needed (for swarm mode with empty volumes)
         if [[ ! -f /etc/ssl/openssl.cnf ]]; then
             echo "Restoring empty /etc/ssl directory..."
@@ -905,6 +921,10 @@ if [[ "${FLEX_BUILD_ONLY:-}" = "yes" ]]; then
     fi
     unset SSL_PID
     flex_timing 'build-only mode exit'
+    if [[ -n "${HEARTBEAT_DAEMON_PID:-}" ]]; then
+        kill "${HEARTBEAT_DAEMON_PID}" 2>/dev/null || true
+        unset HEARTBEAT_DAEMON_PID
+    fi
     exit 0
 fi
 
@@ -1257,6 +1277,10 @@ if [[ "${OPERATOR}" = "yes" ]]; then
     # see the script exit cleanly and finalize its coverage buffer; if we
     # exec apache here, bash gets replaced and kcov never gets the exit
     # signal (openemr-devops#797). Wrapper execs apache itself afterward.
+    if [[ -n "${HEARTBEAT_DAEMON_PID:-}" ]]; then
+        kill "${HEARTBEAT_DAEMON_PID}" 2>/dev/null || true
+        unset HEARTBEAT_DAEMON_PID
+    fi
     if [[ "${FLEX_SKIP_APACHE_EXEC:-}" = "yes" ]]; then
         exit 0
     fi

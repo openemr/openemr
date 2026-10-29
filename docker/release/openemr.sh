@@ -347,6 +347,22 @@ handle_swarm_mode() {
         touch "${OE_ROOT}/sites/docker-initiated"
         update_leader_heartbeat
 
+        # Keep leader_file fresh in a background daemon so followers don't
+        # declare us stale during long phases without inline heartbeats
+        # (upgrade scripts, auto_configure.php, etc.). LEADER_TIMEOUT
+        # defaults to 300s; 60s cadence leaves plenty of margin. The
+        # daemon self-terminates when the main script PID is gone, and
+        # is killed explicitly before apache exec below.
+        if [[ -z "${HEARTBEAT_DAEMON_PID:-}" ]]; then
+            (
+                while kill -0 "$$" 2>/dev/null; do
+                    update_leader_heartbeat
+                    sleep 60
+                done
+            ) &
+            HEARTBEAT_DAEMON_PID=$!
+        fi
+
         # Restore swarm-pieces if needed (for swarm mode with empty volumes)
         if [[ ! -f /etc/ssl/openssl.cnf ]]; then
             echo "Restoring empty /etc/ssl directory..."
@@ -1156,6 +1172,10 @@ if [[ "${OPERATOR}" = "yes" ]]; then
     fi
     echo "[TIMING] Total script execution time: ${TOTAL_DURATION}s before Apache start"
     echo 'Starting Apache!'
+    if [[ -n "${HEARTBEAT_DAEMON_PID:-}" ]]; then
+        kill "${HEARTBEAT_DAEMON_PID}" 2>/dev/null || true
+        unset HEARTBEAT_DAEMON_PID
+    fi
     exec /usr/sbin/httpd -D FOREGROUND
 fi
 
