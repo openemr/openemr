@@ -367,4 +367,24 @@ class PatientFinderQueryBuilderTest extends TestCase
             $plan->dataSql
         );
     }
+
+    public function testGlobalSearchSqlColumnJoinReachesDataQueryEvenWhenNotDisplayed(): void
+    {
+        // A SQL global-search column with a JOIN that is not among the displayed
+        // columns must still have its JOIN in the data query's FROM, otherwise the
+        // WHERE references an unknown table.
+        $join = 'LEFT JOIN tb ON tb.pid = patient_data.pid';
+        $displayed = [PatientFinderColumn::fromTable(PatientFinderQueryBuilder::NAME_KEY, 'Name')];
+        $globalCols = [PatientFinderColumn::fromSql('b', 'B', 'tb.val', $join)];
+
+        $plan = $this->builder()->build(
+            $displayed,
+            $this->request(globalSearch: 'x'),
+            new BoundFilter(),
+            $globalCols
+        );
+
+        $this->assertStringContainsString('FROM patient_data ' . $join . ' WHERE', $plan->dataSql);
+        $this->assertStringContainsString('(tb.val) LIKE ?', $plan->dataSql);
+    }
 }

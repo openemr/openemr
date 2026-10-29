@@ -96,15 +96,24 @@ final class PatientFinderQueryBuilder
             $limitBinds = [$request->displayLength, $request->displayStart];
         }
 
+        // The data query needs every JOIN referenced anywhere in it: the displayed
+        // SQL columns (SELECT) plus any searched SQL column's JOIN — including a
+        // global-search column that is not displayed, whose JOIN would otherwise be
+        // absent from FROM and make the WHERE reference an unknown table.
+        $dataJoins = $dataJoinMap;
+        foreach ($whereJoinMap as $clause => $joinBinds) {
+            $dataJoins[$clause] ??= $joinBinds;
+        }
+
         // Bind values follow the SQL left-to-right: SELECT placeholders, then the
         // JOIN placeholders (once per distinct JOIN, in JOIN order), then the
         // WHERE (filter then search), then LIMIT.
         $dataSql = 'SELECT ' . implode(', ', $selectList)
-            . ' FROM patient_data' . $this->joinSql(array_keys($dataJoinMap))
+            . ' FROM patient_data' . $this->joinSql(array_keys($dataJoins))
             . ' WHERE ' . $fullWhere . $orderBy . $limitSql;
         $dataBinds = array_merge(
             $selectBinds,
-            $this->joinBinds($dataJoinMap),
+            $this->joinBinds($dataJoins),
             $filterBinds,
             $searchBinds,
             $limitBinds
