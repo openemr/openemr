@@ -1085,15 +1085,18 @@ class CdaTemplateParse
         if (is_string($pq['value'] ?? null)) {
             return ['value' => $pq['value'], 'unit' => $unit];
         }
-        $translation = $pq['translation'] ?? null;
-        if (is_array($translation) && array_is_list($translation)) {
-            $translation = $translation[0] ?? null;
+        // One translation comes as that translation, several as a list; take the first with a number.
+        $translations = $pq['translation'] ?? null;
+        if (is_array($translations) && !array_is_list($translations)) {
+            $translations = [$translations];
         }
-        if (!is_array($translation) || !is_string($translation['value'] ?? null)) {
-            return ['value' => null, 'unit' => $unit];
+        foreach (is_array($translations) ? $translations : [] as $translation) {
+            if (is_array($translation) && is_string($translation['value'] ?? null)) {
+                $text = $translation['originalText'] ?? null;
+                return ['value' => $translation['value'], 'unit' => is_string($text) ? trim($text) : ''];
+            }
         }
-        $text = $translation['originalText'] ?? null;
-        return ['value' => $translation['value'], 'unit' => is_string($text) ? trim($text) : ''];
+        return ['value' => null, 'unit' => $unit];
     }
 
     public function fetchQrdaLabResultData($entry)

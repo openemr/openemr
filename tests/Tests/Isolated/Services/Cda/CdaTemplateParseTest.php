@@ -577,6 +577,25 @@ class CdaTemplateParseTest extends TestCase
         $this->assertSame('150 400 THOUS/MCL', $item['results_range']);
     }
 
+    public function testFetchLabResultDataReadsTheTranslationThatHasTheNumber(): void
+    {
+        $this->parser->fetchLabResultData($this->labResultEntry(
+            [
+                'type' => 'PQ',
+                'nullFlavor' => 'OTH',
+                'translation' => [
+                    ['code' => 'THOUS/MCL', 'codeSystem' => '2.16.840.1.113883.19'],
+                    ['value' => '152', 'nullFlavor' => 'OTH', 'originalText' => 'THOUS/MCL'],
+                ],
+            ],
+            ['type' => 'IVL_PQ'],
+        ));
+
+        $item = $this->getFieldRecord('procedure_result', 1);
+        $this->assertSame('152', $item['results_value']);
+        $this->assertSame('THOUS/MCL', $item['results_unit']);
+    }
+
     public function testFetchLabResultDataPrefersTheUcumQuantityOverItsTranslation(): void
     {
         $this->parser->fetchLabResultData($this->labResultEntry(
