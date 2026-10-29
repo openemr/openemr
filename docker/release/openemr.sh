@@ -330,14 +330,20 @@ handle_swarm_mode() {
             fi
         fi
 
-        # If we timed out, check if configuration actually exists
+        # If we timed out, check if configuration actually exists AND the
+        # leader has actually gone away. The leader-stale check is important
+        # because the background heartbeat daemon keeps the leader file
+        # fresh across long phases; without this check a follower could
+        # time out while the leader is still mid-upgrade and race it to
+        # apache start on a partially-upgraded DB.
         if [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
             local config_state
             config_state=$(is_configured)
-            if [[ "${config_state}" = "1" ]]; then
-                # Configuration exists, create completion marker
+            # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
+            if [[ "${config_state}" = "1" ]] && is_leader_stale; then
+                # Configuration exists and leader is gone; create completion marker
                 touch "${OE_ROOT}/sites/docker-completed" 2>/dev/null || true
-                echo "Configuration detected, marking swarm as completed"
+                echo "Leader stale with existing configuration, marking swarm as completed"
             fi
         fi
     fi
