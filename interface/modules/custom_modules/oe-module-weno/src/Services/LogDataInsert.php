@@ -17,7 +17,10 @@ class LogDataInsert
     public function __construct()
     {
     }
-    public function insertPrescriptions($insertdata)
+    /**
+     * @return true|string true when the row was written, otherwise the database error
+     */
+    public function insertPrescriptions($insertdata): bool|string
     {
         $sql = "INSERT INTO prescriptions SET ";
         $sql .= "active = ?, ";
@@ -52,9 +55,13 @@ class LogDataInsert
         } catch (\Throwable $e) {
             return $e->getMessage();
         }
+        return true;
     }
 
-    public function updatePrescriptions($updatedata)
+    /**
+     * @return true|string true when the statement ran, otherwise the database error
+     */
+    public function updatePrescriptions($updatedata): bool|string
     {
         $sql = "UPDATE prescriptions SET ";
         $sql .= "active = ?, ";
@@ -89,5 +96,6 @@ class LogDataInsert
         } catch (\Throwable $e) {
             return $e->getMessage();
         }
+        return true;
     }
 }
