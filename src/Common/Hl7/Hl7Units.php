@@ -5,7 +5,8 @@
  *
  * The syndromic surveillance OBX-6 and the immunization RXA-7 named UCUM as the coding
  * system for any unit, free text and Drug Units titles alike. A unit UCUM doesn't accept
- * now goes in the element's text component, with no coding system.
+ * now goes in the element's text component, with no coding system. The unit is trimmed
+ * first, since core's UCUM engine checks it trimmed.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -27,6 +28,7 @@ final class Hl7Units
      */
     public static function obx6(string $unit): string
     {
+        $unit = trim($unit);
         if ($unit === '') {
             return '';
         }
@@ -38,6 +40,7 @@ final class Hl7Units
      */
     public static function rxa7(string $unit): string
     {
+        $unit = trim($unit);
         if ($unit === '') {
             return '';
         }

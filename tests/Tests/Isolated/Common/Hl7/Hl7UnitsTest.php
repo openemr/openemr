@@ -30,6 +30,9 @@ class Hl7UnitsTest extends TestCase
             'a Drug Units title that is not UCUM' => ['mcg', '^mcg', '^mcg^^^^'],
             'mg/1cc' => ['mg/1cc', '^mg/1cc', '^mg/1cc^^^^'],
             'no unit' => ['', '', ''],
+            'a UCUM unit with spaces around it' => [' mL ', 'mL^^UCUM', 'mL^mL^UCUM^^^'],
+            'free text with spaces around it' => [' bpm ', '^bpm', '^bpm^^^^'],
+            'only spaces' => ['  ', '', ''],
         ];
     }
 
