@@ -59,6 +59,7 @@ class OnsiteActivityViewController extends AppBasePortalController
         }
 
         $this->Assign('cuser', $user);
+        $this->Assign('authUserID', $session->get('authUserID', 0));
         $this->Render();
     }
 

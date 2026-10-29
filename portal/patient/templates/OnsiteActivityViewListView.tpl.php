@@ -28,7 +28,7 @@ if (!AclMain::aclCheckCore('patientportal', 'portal')) {
 $globalsBag = OEGlobalsBag::getInstance();
 
 $this->display('_FormsHeader.tpl.php');
-echo "<script>var cuser='" . $this->cuser . "';</script>";
+echo "<script>var cuser='" . $this->cuser . "';var authUserID=" . js_escape($this->authUserID) . ";</script>";
 ?>
 <script>
     let csrfToken = <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
