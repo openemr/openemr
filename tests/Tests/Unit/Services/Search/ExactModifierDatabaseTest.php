@@ -146,7 +146,8 @@ class ExactModifierDatabaseTest extends TestCase
      */
     private function plan(string $where, array $binds): array
     {
-        $plan = QueryUtils::fetchRecords("EXPLAIN SELECT pid FROM patient_data WHERE $where", $binds);
+        // TRADITIONAL, the table form: MySQL 9 defaults to a tree, which has no access type column.
+        $plan = QueryUtils::fetchRecords("EXPLAIN FORMAT=TRADITIONAL SELECT pid FROM patient_data WHERE $where", $binds);
         $this->assertCount(1, $plan);
         $type = $plan[0]['type'] ?? null;
         $key = $plan[0]['key'] ?? null;
