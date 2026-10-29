@@ -1,0 +1,341 @@
+<?php
+
+/**
+ * PatientFinderQueryBuilder
+ *
+ * Pure SQL builder for the Patient Finder's server-side endpoint. Given the
+ * active columns (in the client's order), a parsed {@see PatientFinderRequest},
+ * and the custom {@see BoundFilter} contributed by
+ * {@see \OpenEMR\Events\PatientFinder\PatientFinderFilterEvent}, it produces a
+ * {@see PatientFinderQueryPlan}: the paged data query plus the total and
+ * post-filter COUNT queries, each with its bound values in parameter order.
+ *
+ * It reproduces the behaviour of the legacy dynamic_finder_ajax.php — the
+ * exact / prefix ("like") / contains ("any") match modes, the special
+ * `name` => (lname, fname, mname) expansion, the `DOB` date search, and the
+ * filter-clause composition — and extends it to columns drawn from other tables
+ * (see {@see PatientFinderColumn}). `patient_data` (and other whitelisted-table)
+ * columns are validated through the injected identifier escaper; SQL columns use
+ * their author-supplied, parameter-free search expression; enriched columns are
+ * display-only and never reach the SQL.
+ *
+ * Building touches no database. The identifier escaper and the date-search
+ * helper are injectable so the builder is unit-testable in isolation; they
+ * default to OpenEMR core's implementations.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 Open Plan IT Ltd
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Services\PatientFinder;
+
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\BoundFilter;
+
+final class PatientFinderQueryBuilder
+{
+    /** The patient-name column, expanded to last/first/middle name parts. */
+    public const NAME_KEY = 'name';
+
+    /** The date-of-birth column, which uses the fuzzy date search. */
+    public const DOB_KEY = 'DOB';
+
+    /** @var callable(string, array<int, string>): string */
+    private $columnEscaper;
+
+    /** @var callable(string): string */
+    private $dateSearch;
+
+    /**
+     * @param callable(string, array<int, string>): string|null $columnEscaper
+     *        Validates/quotes a DB identifier against a table whitelist
+     *        (defaults to core's escape_sql_column_name()).
+     * @param callable(string): string|null $dateSearch
+     *        Turns a user date fragment into a MySQL LIKE pattern (defaults to
+     *        the legacy finder behaviour).
+     */
+    public function __construct(?callable $columnEscaper = null, ?callable $dateSearch = null)
+    {
+        $this->columnEscaper = $columnEscaper ?? static fn(string $col, array $tables): string =>
+            escape_sql_column_name($col, $tables);
+        $this->dateSearch = $dateSearch ?? static fn(string $term): string =>
+            self::legacyDateSearch($term);
+    }
+
+    /**
+     * @param array<int, PatientFinderColumn> $columns Active columns in client order.
+     */
+    public function build(array $columns, PatientFinderRequest $request, BoundFilter $filter): PatientFinderQueryPlan
+    {
+        [$selectList, $dataJoins, $selectBinds] = $this->buildSelect($columns);
+        [$searchWhere, $searchBinds, $whereJoins] = $this->buildWhere($columns, $request);
+        $orderBy = $this->buildOrderBy($columns, $request);
+
+        $customWhere = $filter->getFilterClause();
+        $filterBinds = $filter->getBoundValues();
+
+        $fullWhere = $searchWhere === ''
+            ? $customWhere
+            : $customWhere . ' AND ( ' . $searchWhere . ' )';
+
+        $limitSql = '';
+        $limitBinds = [];
+        if ($request->hasPaging()) {
+            $limitSql = ' LIMIT ? OFFSET ?';
+            $limitBinds = [$request->displayLength, $request->displayStart];
+        }
+
+        $dataSql = 'SELECT ' . implode(', ', $selectList)
+            . ' FROM patient_data' . $this->joinSql($dataJoins)
+            . ' WHERE ' . $fullWhere . $orderBy . $limitSql;
+        $dataBinds = array_merge($selectBinds, $filterBinds, $searchBinds, $limitBinds);
+
+        // Total count: the custom filter only, against patient_data with no
+        // joins and no search, so it needs only the filter's bound values.
+        $totalCountSql = 'SELECT COUNT(id) AS count FROM patient_data WHERE ' . $customWhere;
+
+        // Filtered count: include the joins of any SQL column referenced in the
+        // WHERE so those references resolve, and count DISTINCT patients so a
+        // 1:many join cannot inflate the total.
+        $countExpr = $whereJoins === [] ? 'COUNT(id)' : 'COUNT(DISTINCT patient_data.pid)';
+        $filteredCountSql = 'SELECT ' . $countExpr . ' AS count FROM patient_data'
+            . $this->joinSql($whereJoins) . ' WHERE ' . $fullWhere;
+        $filteredCountBinds = array_merge($filterBinds, $searchBinds);
+
+        return new PatientFinderQueryPlan(
+            $dataSql,
+            $dataBinds,
+            $totalCountSql,
+            $filterBinds,
+            $filteredCountSql,
+            $filteredCountBinds
+        );
+    }
+
+    /**
+     * @param array<int, PatientFinderColumn> $columns
+     * @return array{0: array<int, string>, 1: array<int, string>, 2: array<int, string|int>}
+     *         [select fragments, distinct JOIN clauses, select bind values]
+     */
+    private function buildSelect(array $columns): array
+    {
+        // Qualify pid so it is unambiguous once a module adds a JOIN whose table
+        // also has a pid column.
+        $select = ['patient_data.pid'];
+        $joins = [];
+        $binds = [];
+
+        foreach ($columns as $column) {
+            if ($column->key === 'pid') {
+                continue;
+            }
+            if ($column->key === self::NAME_KEY) {
+                $select[] = 'lname';
+                $select[] = 'fname';
+                $select[] = 'mname';
+                continue;
+            }
+            if ($column->isEnriched()) {
+                continue; // populated post-query, not selected in SQL
+            }
+            if ($column->isSql()) {
+                $select[] = (string) $column->selectExpression . ' AS ' . $this->alias($column->key);
+                foreach ($column->boundValues as $bind) {
+                    $binds[] = $bind;
+                }
+                if ($column->joinClause !== null) {
+                    $joins[$column->joinClause] = true;
+                }
+                continue;
+            }
+            $select[] = ($this->columnEscaper)($column->key, [$column->table]);
+        }
+
+        return [$select, array_keys($joins), $binds];
+    }
+
+    /**
+     * @param array<int, PatientFinderColumn> $columns
+     * @return array{0: string, 1: array<int, string|int>, 2: array<int, string>}
+     *         [WHERE fragment (without the filter clause), bind values, distinct JOINs needed by it]
+     */
+    private function buildWhere(array $columns, PatientFinderRequest $request): array
+    {
+        $parts = [];
+        $binds = [];
+        $joins = [];
+
+        // Global search: one OR group across every searchable column.
+        if ($request->hasGlobalSearch()) {
+            $term = $request->globalSearch;
+            $ors = [];
+            foreach ($columns as $column) {
+                if (!$column->searchable) {
+                    continue; // enriched + any module display-only column
+                }
+                if ($column->key === self::NAME_KEY) {
+                    $ors[] = 'lname LIKE ? OR fname LIKE ? OR mname LIKE ?';
+                    $value = $request->exactSearch ? $term : $term . '%';
+                    $binds[] = $value;
+                    $binds[] = $value;
+                    $binds[] = $value;
+                    continue;
+                }
+                $ors[] = $this->searchTarget($column) . ' LIKE ?';
+                if ($column->isSql()) {
+                    $this->collectJoin($joins, $column);
+                }
+                // Match mode precedence matches the legacy script: exact wins,
+                // then the any-column "contains" mode, otherwise prefix.
+                if ($request->exactSearch) {
+                    $binds[] = $term;
+                } elseif ($request->anySearch) {
+                    $binds[] = '%' . $term . '%';
+                } else {
+                    $binds[] = $term . '%';
+                }
+            }
+            if ($ors !== []) {
+                $parts[] = '( ' . implode(' OR ', $ors) . ' )';
+            }
+        }
+
+        // Per-column search.
+        foreach ($columns as $index => $column) {
+            if (!isset($request->columnSearches[$index])) {
+                continue;
+            }
+            if (!$column->searchable) {
+                continue;
+            }
+            $term = $request->columnSearches[$index];
+            if ($column->key === self::NAME_KEY) {
+                // NB: faithfully reproduces the legacy script, which does not
+                // parenthesise this OR group, so it binds less tightly than the
+                // surrounding ANDs.
+                $parts[] = 'lname LIKE ? OR fname LIKE ? OR mname LIKE ?';
+                $value = $request->exactSearch ? $term : $term . '%';
+                $binds[] = $value;
+                $binds[] = $value;
+                $binds[] = $value;
+                continue;
+            }
+            if ($column->key === self::DOB_KEY) {
+                $parts[] = ($this->columnEscaper)($column->key, [$column->table]) . ' LIKE ?';
+                $binds[] = ($this->dateSearch)($term);
+                continue;
+            }
+            $parts[] = $this->searchTarget($column) . ' LIKE ?';
+            if ($column->isSql()) {
+                $this->collectJoin($joins, $column);
+            }
+            $binds[] = $request->exactSearch ? $term : $term . '%';
+        }
+
+        return [implode(' AND ', $parts), $binds, array_keys($joins)];
+    }
+
+    /**
+     * @param array<int, PatientFinderColumn> $columns
+     */
+    private function buildOrderBy(array $columns, PatientFinderRequest $request): string
+    {
+        $clauses = [];
+        foreach ($request->sortColumns as $sort) {
+            $column = $columns[$sort['index']] ?? null;
+            if ($column === null || !$column->sortable) {
+                continue;
+            }
+            $dir = $sort['dir']; // already normalised to ASC|DESC by the request
+            if ($column->key === self::NAME_KEY) {
+                $clauses[] = "lname $dir, fname $dir, mname $dir";
+            } elseif ($column->isSql()) {
+                $clauses[] = '(' . $column->searchExpression . ") $dir";
+            } else {
+                $clauses[] = ($this->columnEscaper)($column->key, [$column->table]) . " $dir";
+            }
+        }
+
+        return $clauses === [] ? '' : ' ORDER BY ' . implode(', ', $clauses);
+    }
+
+    /**
+     * The SQL used to search a non-name column: the parameter-free author search
+     * expression for a SQL column, otherwise the whitelisted identifier.
+     */
+    private function searchTarget(PatientFinderColumn $column): string
+    {
+        if ($column->isSql()) {
+            return '(' . $column->searchExpression . ')';
+        }
+        return ($this->columnEscaper)($column->key, [$column->table]);
+    }
+
+    /**
+     * @param array<string, bool> $joins
+     */
+    private function collectJoin(array &$joins, PatientFinderColumn $column): void
+    {
+        if ($column->joinClause !== null) {
+            $joins[$column->joinClause] = true;
+        }
+    }
+
+    /**
+     * @param array<int, string> $joins
+     */
+    private function joinSql(array $joins): string
+    {
+        return $joins === [] ? '' : ' ' . implode(' ', $joins);
+    }
+
+    private function alias(string $key): string
+    {
+        return '`' . str_replace('`', '', $key) . '`';
+    }
+
+    /**
+     * Legacy fuzzy date search: turn a partial date into a MySQL LIKE pattern.
+     * Ported verbatim from dynamic_finder_ajax.php so the default behaviour is
+     * unchanged; callers may inject their own implementation for testing.
+     */
+    private static function legacyDateSearch(string $sSearch): string
+    {
+        $globals = OEGlobalsBag::getInstance();
+        $mdy = empty($globals->get('date_display_format'))
+            ? ($globals->getInt('phone_country_code') === 1)
+            : ($globals->get('date_display_format') == 1);
+
+        $mystr = "%$sSearch%";
+        if (preg_match('/[^0-9]/', $sSearch)) {
+            $parts = preg_split('/[^0-9]/', $sSearch) ?: [];
+            $parts[0] ??= '';
+            $parts[1] ??= '';
+            $parts[2] ??= '';
+            if (strlen($parts[0]) <= 2) {
+                $parts = $mdy
+                    ? [$parts[2], $parts[0], $parts[1]]
+                    : [$parts[2], $parts[1], $parts[0]];
+            }
+            $parts[0] = substr($parts[0] . '____', 0, 4);
+            if (strlen($parts[1]) === 0) {
+                $parts[1] = '__';
+            } elseif (strlen($parts[1]) === 1) {
+                $parts[1] = '0' . $parts[1];
+            }
+            if (strlen($parts[2]) === 0) {
+                $parts[2] = '__';
+            } elseif (strlen($parts[2]) === 1) {
+                $parts[2] = '0' . $parts[2];
+            }
+            $mystr = $parts[0] . '-' . $parts[1] . '-' . $parts[2];
+        }
+
+        return $mystr;
+    }
+}
