@@ -116,6 +116,23 @@
 -- Fix swapped SNOMED CT codes for the administrative_sex list (see #13767).
 -- 248153007 is Male (finding), 248152002 is Female (finding); the seed had them reversed.
 
+-- Lookups by encounter alone, and questionnaire answers by response_id, read the whole table without these (#14863).
+#IfNotIndex form_encounter encounter
+CREATE INDEX `encounter` ON `form_encounter` (`encounter`);
+#EndIf
+
+#IfNotIndex issue_encounter encounter
+CREATE INDEX `encounter` ON `issue_encounter` (`encounter`);
+#EndIf
+
+#IfNotIndex issue_encounter list_id
+CREATE INDEX `list_id` ON `issue_encounter` (`list_id`);
+#EndIf
+
+#IfNotIndex form_questionnaire_assessments response_id
+CREATE INDEX `response_id` ON `form_questionnaire_assessments` (`response_id`(64));
+#EndIf
+
 -- FHIR ServiceRequest referrals (D8 of #13266): a uuid for each transaction, so the Transactions screen's referrals have a FHIR id.
 #IfMissingColumn transactions uuid
 ALTER TABLE `transactions` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`, ADD UNIQUE KEY `uuid` (`uuid`);
