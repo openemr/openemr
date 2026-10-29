@@ -42,7 +42,10 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 // Conversion functions/constants
 function convertFtoC($a): float
 {
-    return floatval(MeasurementUtils::fhToCelsius($a));
+    if (!is_numeric($a)) {
+        return 0.0;
+    }
+    return floatval(MeasurementUtils::fhToCelsius((float) $a));
 }
 function getLbstoKgMultiplier(): float
 {
