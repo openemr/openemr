@@ -20,14 +20,15 @@
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Menu\BaseMenuItem;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\Services\PatientService;
+use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
+use OpenEMR\Services\PatientFinder\PatientFinderPageService;
+use OpenEMR\Services\PatientFinder\PatientFinderRecentService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 require_once(__DIR__ . "/../../globals.php");
@@ -40,40 +41,19 @@ $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search'
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 $searchAny = empty($_GET['search_any']) ? "" : $_GET['search_any'];
 unset($_GET['search_any']);
-// Generate some code based on the list of columns.
-//
-$colcount = 0;
-$header0 = "";
-$header = "";
-$coljson = "";
-$orderjson = "";
-$res = sqlStatement("SELECT option_id, title, toggle_setting_1 FROM list_options WHERE list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
-$sort_dir_map = generate_list_map('Sort_Direction');
-while ($row = sqlFetchArray($res)) {
-    $colname = $row['option_id'];
-    $colorder = $sort_dir_map[$row['toggle_setting_1']]; // Get the title 'asc' or 'desc' using the value
-    $title = xl_list_label($row['title']);
-    $title1 = ($title == xl('Full Name')) ? xl('Name') : $title;
-    $header .= "   <th>";
-    $header .= text($title);
-    $header .= "</th>\n";
-    $header0 .= "   <td ><input type='text' size='20' ";
-    $header0 .= "value='' class='form-control search_init' placeholder='" . xla("Search by") . " " . $title1 . "'/></td>\n";
-    if ($coljson) {
-        $coljson .= ", ";
-    }
-
-    $coljson .= "{\"sName\": \"" . addcslashes((string) $colname, "\t\r\n\"\\") . "\"";
-    if ($title1 == xl('Name')) {
-        $coljson .= ", \"mRender\": wrapInLink";
-    }
-    $coljson .= "}";
-    if ($orderjson) {
-        $orderjson .= ", ";
-    }
-    $orderjson .= "[\"$colcount\", \"" . addcslashes((string) $colorder, "\t\r\n\"\\") . "\"]";
-    ++$colcount;
-}
+// Build the finder's column configuration from the shared registry (the core
+// ptlistcols columns plus any a module contributed via
+// PatientFinderColumnRegistrationEvent), then render the page column view. The
+// server-side endpoint (dynamic_finder_ajax.php) builds the same registry, so
+// the displayed and queried columns agree.
+$eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+$registry = (new PatientFinderColumnRegistryFactory($eventDispatcher))->create();
+$columnView = (new PatientFinderPageService())->buildColumnView($registry);
+$header0 = $columnView['header0'];
+$header = $columnView['header'];
+$coljson = $columnView['coljson'];
+$orderjson = $columnView['orderjson'];
+$colcount = $columnView['colcount'];
 $loading = "";
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -361,8 +341,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 </script>
 <?php
-    /** @var EventDispatcher */
-    $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+    /** @var EventDispatcher $eventDispatcher (resolved above when building the column registry) */
     $arrOeUiSettings = [
     'heading_title' => xl('Patient Finder'),
     'include_patient_name' => false,
@@ -394,79 +373,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 <body>
 <?php
 
-function rp(): array
-{
-    $sql = "SELECT option_id, title FROM list_options WHERE list_id = 'recent_patient_columns' AND activity = '1' ORDER BY seq ASC";
-    $res = sqlStatement($sql);
-    $headers = [];
-    while ($row = sqlFetchArray($res)) {
-        // Validate the stored option_id resolves to a real `patient_data`
-        // column before it reaches the SELECT concat below. `addlistitem.php`
-        // already validates at the write seam; this is the matching
-        // read-side guard so legacy rows that predate the write guard
-        // (or are inserted directly in the database) still get rejected.
-        // `escape_sql_column_name()` short-circuits `*` without checking
-        // the schema, so reject it explicitly here (the SELECT below
-        // already carries an explicit `pid` list and never wants `*`).
-        $optionId = is_string($row['option_id'] ?? null) ? $row['option_id'] : '';
-        if ($optionId === '*') {
-            continue;
-        }
-        try {
-            escape_sql_column_name($optionId, ['patient_data'], false, true);
-        } catch (SqlQueryException) {
-            continue;
-        }
-        $headers[] = $row;
-    }
-    $patientService = new PatientService();
-    $rp = $patientService->getRecentPatientList();
-    $dateColumns = $patientService->getDateColumns();
-    $date_cols = $dateColumns['date'];
-    $datetime_cols = $dateColumns['datetime'];
-    // Build SQL statement to pull desired columns from patient_data table...
-    $pd_sql = "SELECT pid";
-    foreach ($headers as $v) {
-        $pd_sql .= ', ';
-        $col_name = $v['option_id'];
-        $dt_format = '';
-        if (in_array($col_name, $date_cols) || in_array($col_name, $datetime_cols)) {
-            switch (OEGlobalsBag::getInstance()->get('date_display_format')) {
-                case 0: // mysql YYYY-MM-DD format
-                    $dt_format = "'%Y-%m-%d";
-                    break;
-                case 1: // MM/DD/YYYY format
-                    $dt_format = "'%m/%d/%Y";
-                    break;
-                case 2: // DD/MM/YYYY format
-                    $dt_format = "'%d/%m/%Y";
-                    break;
-            }
-            if (in_array($col_name, $datetime_cols)) {
-                switch (OEGlobalsBag::getInstance()->get('time_display_format')) {
-                    case 0: // 24 Hr fmt
-                        $dt_format .= " %T";
-                        break;
-                    case 1: // AM PM fmt
-                        $dt_format .= " %r";
-                        break;
-                }
-            }
-            $dt_format .= "'";  // Don't forget the closing '!
-            $pd_sql .= "DATE_FORMAT(" . $col_name . ", " . $dt_format . ") AS " . $col_name;
-        } else {
-            $pd_sql .= $col_name;
-        }
-    }
-    $pd_sql .= " FROM patient_data WHERE pid = ?";
-    $pd_data = [];
-    foreach ($rp as $v) {
-        $pd_data[] = sqlQuery($pd_sql, $v['pid']);
-    }
-    return ['headers' => $headers, 'rp' => $pd_data];
-}
-
-$rp = rp();
+$recent = (new PatientFinderRecentService())->build();
 
 $templateVars = [
     'oeContainer' => $oemr_ui->oeContainer(),
@@ -475,8 +382,8 @@ $templateVars = [
     'header0' => $header0,
     'header' => $header,
     'colcount' => $colcount,
-    'headers' => $rp['headers'],
-    'rp' => $rp['rp'],
+    'headers' => $recent['headers'],
+    'rp' => $recent['rp'],
 ];
 
 $t = ServiceContainer::getTwig();
