@@ -1050,13 +1050,16 @@ class CdaTemplateParse
                         $this->templateData['field_name_value_array']['procedure_result'][$i]['results_value'] = $value['observation']['value']['displayName'] ?? null;
                         $this->templateData['field_name_value_array']['procedure_result'][$i]['results_unit'] = $value['observation']['value']['unit'] ?: 'UNK';
                     } else {
-                        $this->templateData['field_name_value_array']['procedure_result'][$i]['results_value'] = $value['observation']['value']['value'] ?? null;
-                        $this->templateData['field_name_value_array']['procedure_result'][$i]['results_unit'] = $value['observation']['value']['unit'] ?: 'UNK';
+                        $quantity = self::quantity($value['observation']['value'] ?? null);
+                        $this->templateData['field_name_value_array']['procedure_result'][$i]['results_value'] = $quantity['value'];
+                        $this->templateData['field_name_value_array']['procedure_result'][$i]['results_unit'] = $quantity['unit'] ?: 'UNK';
                     }
                     if (!empty($value['observation']['referenceRange']['observationRange']['text'])) {
                         $this->templateData['field_name_value_array']['procedure_result'][$i]['results_range'] = $value['observation']['referenceRange']['observationRange']['text'];
                     } else {
-                        $this->templateData['field_name_value_array']['procedure_result'][$i]['results_range'] = ($value['observation']['referenceRange']['observationRange']['value']['low']['value'] ?? '') . ' ' . ($value['observation']['referenceRange']['observationRange']['value']['high']['value'] ?? '') . ' ' . ($value['observation']['referenceRange']['observationRange']['value']['low']['unit'] ?? '');
+                        $low = self::quantity($value['observation']['referenceRange']['observationRange']['value']['low'] ?? null);
+                        $high = self::quantity($value['observation']['referenceRange']['observationRange']['value']['high'] ?? null);
+                        $this->templateData['field_name_value_array']['procedure_result'][$i]['results_range'] = ($low['value'] ?? '') . ' ' . ($high['value'] ?? '') . ' ' . $low['unit'];
                     }
 
                     $this->templateData['entry_identification_array']['procedure_result'][$i] = $i;
@@ -1064,6 +1067,33 @@ class CdaTemplateParse
                 }
             }
         }
+    }
+
+    /**
+     * A physical quantity's number and unit. A unit that isn't UCUM comes as nullFlavor="OTH"
+     * with the number and the unit's text in a translation, as in HL7's "Results Unit Non-UCUM"
+     * example; that is how OpenEMR's own export sends one.
+     *
+     * @return array{value: ?string, unit: string}
+     */
+    private static function quantity(mixed $pq): array
+    {
+        if (!is_array($pq)) {
+            return ['value' => null, 'unit' => ''];
+        }
+        $unit = is_string($pq['unit'] ?? null) ? $pq['unit'] : '';
+        if (is_string($pq['value'] ?? null)) {
+            return ['value' => $pq['value'], 'unit' => $unit];
+        }
+        $translation = $pq['translation'] ?? null;
+        if (is_array($translation) && array_is_list($translation)) {
+            $translation = $translation[0] ?? null;
+        }
+        if (!is_array($translation) || !is_string($translation['value'] ?? null)) {
+            return ['value' => null, 'unit' => $unit];
+        }
+        $text = $translation['originalText'] ?? null;
+        return ['value' => $translation['value'], 'unit' => is_string($text) ? trim($text) : ''];
     }
 
     public function fetchQrdaLabResultData($entry)
