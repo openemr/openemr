@@ -13,6 +13,7 @@ namespace OpenEMR\Modules\WenoModule\Services;
 use DateTime;
 use DateTimeZone;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Rx\Weno\WenoPrescriptionLog;
 
 class LogImportBuild
 {
@@ -70,19 +71,6 @@ class LogImportBuild
         $date->setTimezone($tz);
 
         return $date->format('Y-m-d H:i:s');
-    }
-
-    /**
-     * The prescriptions.substitute code for the log's substitution column:
-     * 1 substitution allowed, 2 not allowed, 0 not stated.
-     */
-    public static function substituteValue(mixed $value): int
-    {
-        $value = strtolower(trim((string) ($value ?? '')));
-        if ($value === '') {
-            return 0;
-        }
-        return $value === 'allowed' ? 1 : 2;
     }
 
     public function buildPrescriptionInserts(): bool|string
@@ -146,7 +134,7 @@ class LogImportBuild
                     $insertdata['drug'] = $drug;
                     $insertdata['quantity'] = $line[18] ?? '';
                     $insertdata['refills'] = $refills;
-                    $insertdata['substitute'] = self::substituteValue($line[14] ?? null);
+                    $insertdata['substitute'] = WenoPrescriptionLog::substituteValue($line[14] ?? null);
                     $insertdata['note'] = $line[21] ?? '';
                     $insertdata['rxnorm_drugcode'] = $line[12] ?? '';
                     $insertdata['provider_id'] = $pr;
