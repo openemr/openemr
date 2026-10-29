@@ -52,6 +52,7 @@ class RoleContextSymmetryApiTest extends TestCase
     private mixed $originalPasswordGrantSetting = null;
     private bool $originalPasswordGrantSettingWasSet = false;
     private ?string $savedSiteAddrOath = null;
+    private bool $serverIsNginx = false;
 
     protected function setUp(): void
     {
@@ -71,6 +72,12 @@ class RoleContextSymmetryApiTest extends TestCase
             }
             $this->markTestSkipped('OAuth flow requires a real webserver');
         }
+        // Portal routes are not mounted under the nginx test vhost — a GET
+        // against /apis/default/portal/* returns 404 "File not found" at the
+        // webserver layer instead of the 401/403 the role-context deny tests
+        // expect. Record the server family here so the 4 portal cells can
+        // skip under nginx while the standard-api + FHIR cells keep running.
+        $this->serverIsNginx = stripos($probe->getHeaderLine('Server'), 'nginx') !== false;
         // Enable password grant for staff + portal tokens.
         $globals->set('oauth_password_grant', 3);
 
@@ -181,6 +188,7 @@ class RoleContextSymmetryApiTest extends TestCase
     #[Test]
     public function testUserRoleTokenCannotReachPortalEncounter(): void
     {
+        $this->skipIfPortalRoutesUnreachable();
         $token = $this->mintUserRoleTokenPasswordGrant('CellTwoEncounter', 'openid api:oemr api:port user/Patient.read');
         $resp = $this->rawGet('/apis/default/portal/patient/encounter', $this->bearerHeaders($token));
         $this->assertRoleContextDeny($resp, 'User-role token must not reach /portal/patient/encounter');
@@ -189,6 +197,7 @@ class RoleContextSymmetryApiTest extends TestCase
     #[Test]
     public function testUserRoleTokenCannotReachPortalAppointment(): void
     {
+        $this->skipIfPortalRoutesUnreachable();
         $token = $this->mintUserRoleTokenPasswordGrant('CellTwoAppointment', 'openid api:oemr api:port user/Patient.read');
         $resp = $this->rawGet('/apis/default/portal/patient/appointment', $this->bearerHeaders($token));
         $this->assertRoleContextDeny($resp, 'User-role token must not reach /portal/patient/appointment');
@@ -261,6 +270,7 @@ class RoleContextSymmetryApiTest extends TestCase
     #[Test]
     public function testSystemRoleTokenCannotReachPortalPatient(): void
     {
+        $this->skipIfPortalRoutesUnreachable();
         $token = $this->mintSystemRoleToken();
         $resp = $this->rawGet('/apis/default/portal/patient', $this->bearerHeaders($token));
         $this->assertRoleContextDeny($resp, 'System-role token must not reach /portal/patient');
@@ -269,6 +279,7 @@ class RoleContextSymmetryApiTest extends TestCase
     #[Test]
     public function testSystemRoleTokenCannotReachPortalEncounter(): void
     {
+        $this->skipIfPortalRoutesUnreachable();
         $token = $this->mintSystemRoleToken();
         $resp = $this->rawGet('/apis/default/portal/patient/encounter', $this->bearerHeaders($token));
         $this->assertRoleContextDeny($resp, 'System-role token must not reach /portal/patient/encounter');
@@ -590,6 +601,25 @@ class RoleContextSymmetryApiTest extends TestCase
             $context . ' — expected 401 or 403 from the role-context gate (not 400 validator short-circuit, not 404 route-not-matched). Status: '
             . $response['status'] . ', Body: ' . substr($response['body'], 0, 500)
         );
+    }
+
+    /**
+     * Skip the current test if the probe recorded nginx. The nginx test
+     * vhost in dev compose does not mount /apis/default/portal/* — a GET
+     * returns 404 "File not found" at the webserver layer before any
+     * authorization listener runs, which collapses the role-context deny
+     * invariant (401/403) into an unrelated 404. The apache lane covers
+     * these cells; sibling PortalApiBehavioralDepthApiTest applies the
+     * same guard for the same reason.
+     */
+    private function skipIfPortalRoutesUnreachable(): void
+    {
+        if ($this->serverIsNginx) {
+            $this->markTestSkipped(
+                'Portal API routes not reachable under the nginx test config — '
+                . 'apache lane covers this role-context cell.'
+            );
+        }
     }
 
     private function buildClient(): Client
