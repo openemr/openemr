@@ -15,7 +15,6 @@ use BadMethodCallException;
 use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
@@ -49,6 +48,7 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\VitalsCalculatedService;
 use OpenEMR\Services\VitalsService;
+use OpenEMR\Services\VitalsStorageUnits;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirObservationVitalsService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
@@ -1152,49 +1152,6 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     }
 
     /**
-     * Converts an incoming quantity into the unit the column is stored in.
-     *
-     * Returns null when the unit is one this service cannot place. Storing the bare
-     * number in that case would silently record 70 lb for a 70 kg patient, so callers
-     * reject instead.
-     */
-    private static function convertQuantityToStorageUnit(float $value, string $fromUnit, string $storageUnit): ?float
-    {
-        $from = strtolower(trim($fromUnit));
-        // UCUM spells several of these more than one way, and the read side emits the
-        // short forms, so both are accepted.
-        $from = match ($from) {
-            '[lb_av]', 'lbs' => 'lb',
-            '[in_i]', 'inch', 'inches' => 'in',
-            '[degf]', 'f' => 'degf',
-            'cel', 'c' => 'cel',
-            '1/min', 'bpm', 'beats/min', 'breaths/min' => '/min',
-            '%%' => '%',
-            default => $from,
-        };
-        $to = strtolower($storageUnit);
-
-        if ($from === $to) {
-            return $value;
-        }
-
-        // Computed here rather than through MeasurementUtils' converters: those return
-        // number_format() strings with a thousands separator, and casting "1,102.311311" to
-        // float stops at the comma and yields 1.0 -- a 500 kg patient stored as 1 lb. The
-        // factors and precision are the ones MeasurementUtils uses, so a value converted
-        // here reads back through the read-side converters unchanged.
-        $precision = MeasurementUtils::MEASUREMENT_PRECISION;
-        return match ([$from, $to]) {
-            ['kg', 'lb'] => round($value * 2.20462262185, $precision),
-            ['g', 'lb'] => round(($value / 1000) * 2.20462262185, $precision),
-            ['cm', 'in'] => round($value / 2.54, $precision),
-            ['m', 'in'] => round(($value * 100) / 2.54, $precision),
-            ['cel', 'degf'] => round(((9 / 5) * $value) + 32, $precision),
-            default => null,
-        };
-    }
-
-    /**
      * Pulls a numeric quantity value + unit out of a FHIR element.
      *
      * @param mixed $quantity The FHIRQuantity fragment as decoded JSON.
@@ -1359,7 +1316,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             if ($quantity === null) {
                 continue;
             }
-            $converted = self::convertQuantityToStorageUnit($quantity['value'], $quantity['unit'], $spec[$column]['unit']);
+            $converted = VitalsStorageUnits::convert($quantity['value'], $quantity['unit'], $spec[$column]['unit']);
             if ($converted === null) {
                 return self::vitalsValidationError(
                     'component',
@@ -1398,7 +1355,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             // The single-value codes list exactly one column. Pulse oximetry lists several and
             // carries its saturation in valueQuantity, which is its first entry.
             $column = array_key_first($spec);
-            $converted = self::convertQuantityToStorageUnit($quantity['value'], $quantity['unit'], $spec[$column]['unit']);
+            $converted = VitalsStorageUnits::convert($quantity['value'], $quantity['unit'], $spec[$column]['unit']);
             if ($converted === null) {
                 return self::vitalsValidationError(
                     'valueQuantity',

@@ -17,9 +17,21 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\CDA\CDAPostParseEvent;
 use OpenEMR\Events\CDA\CDAPreParseEvent;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\VitalsStorageUnits;
 
 class CdaTemplateParse
 {
+    /**
+     * The unit each form_vitals column stores, for the vitals sent with a unit that can
+     * differ from it.
+     */
+    private const VITAL_STORAGE_UNITS = [
+        'weight' => 'lb',
+        'height' => 'in',
+        'head_circ' => 'in',
+        'temperature' => 'degF',
+    ];
+
     private $templateData;
     private $codeService;
     private $currentOid;
@@ -1190,7 +1202,7 @@ class CdaTemplateParse
                     $this->templateData['field_name_value_array']['vital_sign'][$i]['bpd'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][1]['observation']['value']['value'] ?? null;
                 } else {
                     if ($code !== null && array_key_exists($code, $vitals_array)) {
-                        $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital_sign_data['organizer']['component'][$j]['observation']['value']['value'] ?? null;
+                        $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $this->vitalValue($vitals_array[$code], $vital_sign_data['organizer']['component'][$j]['observation']['value'] ?? null);
                     }
                 }
             }
@@ -1241,7 +1253,7 @@ class CdaTemplateParse
             $is_negated = !empty($entry['observation']['negationInd'] ?? false);
             $code = $entry['observation']['code']['code'] ?? null;
             if ($code !== null && array_key_exists($code, $vitals_array)) {
-                $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $entry['observation']['value']['value'] ?? null;
+                $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $this->vitalValue($vitals_array[$code], $entry['observation']['value'] ?? null);
                 $this->templateData['field_name_value_array']['vital_sign'][$i]['vital_column'] = $vitals_array[$code] ?? '';
             } else {
                 // log missed exam
@@ -1263,6 +1275,29 @@ class CdaTemplateParse
 
             $this->templateData['entry_identification_array']['vital_sign'][$i] = $i;
         }
+    }
+
+    /**
+     * A vital's value in the unit its form_vitals column stores, read with the unit it was
+     * sent in. Sent in kilograms, centimetres or Celsius, it was saved as that number of
+     * pounds, inches or degrees Fahrenheit. A value with no unit is kept as it was, as before;
+     * one in a unit that doesn't convert is left out, not saved as if it were the column's.
+     *
+     * @param mixed $value the observation's value element (value and unit attributes)
+     */
+    private function vitalValue(string $column, mixed $value): mixed
+    {
+        $number = is_array($value) ? ($value['value'] ?? null) : null;
+        $unit = is_array($value) && is_string($value['unit'] ?? null) ? trim($value['unit']) : '';
+        $storageUnit = self::VITAL_STORAGE_UNITS[$column] ?? null;
+        if ($storageUnit === null || $unit === '' || !is_numeric($number)) {
+            return $number;
+        }
+        $converted = VitalsStorageUnits::convert((float)$number, $unit, $storageUnit);
+        if ($converted === null) {
+            ServiceContainer::getLogger()->warning('Vital sign left out: its unit does not convert to the Vitals form\'s', ['column' => $column, 'unit' => $unit]);
+        }
+        return $converted;
     }
 
     public function socialHistory($component)
