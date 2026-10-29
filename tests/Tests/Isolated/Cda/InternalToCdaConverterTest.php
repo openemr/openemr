@@ -1792,6 +1792,78 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * @return array<string, array{string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function resultUnitProvider(): array
+    {
+        return [
+            'UCUM' => ['mg/dL', true],
+            'UCUM with a power of ten' => ['10*3/uL', true],
+            'UCUM is case-sensitive' => ['MG/DL', false],
+            'lab text' => ['Thous/CU.MM', false],
+        ];
+    }
+
+    /**
+     * A result's PQ @unit, and its reference range's, is UCUM or absent. Any other
+     * unit goes in a translation's originalText under nullFlavor="OTH", as in HL7's
+     * "Results Unit Non-UCUM" example.
+     */
+    #[DataProvider('resultUnitProvider')]
+    public function testResultQuantityClaimsUcumOnlyForUcumUnits(string $unit, bool $isUcum): void
+    {
+        $input = <<<XML
+            <CCDA>
+                <results>
+                    <result>
+                        <extension>RES-1</extension>
+                        <test_code>58410-2</test_code>
+                        <test_name>CBC panel</test_name>
+                        <subtest>
+                            <result_code>6690-2</result_code>
+                            <result_desc>WBC</result_desc>
+                            <result_value>7.2</result_value>
+                            <unit>{$unit}</unit>
+                            <range>4.5-11.0</range>
+                            <low>4.5</low>
+                            <high>11.0</high>
+                        </subtest>
+                    </result>
+                </results>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+        $observation = '//hl7:organizer/hl7:component/hl7:observation';
+        $quantities = [
+            '7.2' => $this->singleElement($xpath, $observation . '/hl7:value'),
+            '4.5' => $this->singleElement($xpath, $observation . '/hl7:referenceRange/hl7:observationRange/hl7:value/hl7:low'),
+            '11.0' => $this->singleElement($xpath, $observation . '/hl7:referenceRange/hl7:observationRange/hl7:value/hl7:high'),
+        ];
+        foreach ($quantities as $number => $quantity) {
+            if ($isUcum) {
+                self::assertSame($number, $quantity->getAttribute('value'));
+                self::assertSame($unit, $quantity->getAttribute('unit'));
+                self::assertFalse($quantity->hasAttribute('nullFlavor'));
+                self::assertSame(0, $quantity->childNodes->length, 'A UCUM quantity needs no translation');
+                continue;
+            }
+            self::assertSame('OTH', $quantity->getAttribute('nullFlavor'));
+            self::assertFalse($quantity->hasAttribute('value'));
+            self::assertFalse($quantity->hasAttribute('unit'), 'A unit UCUM rejects must not be claimed as UCUM');
+            $translation = $quantity->firstElementChild;
+            self::assertInstanceOf(\DOMElement::class, $translation);
+            self::assertSame('translation', $translation->localName);
+            self::assertSame($number, $translation->getAttribute('value'));
+            self::assertSame('OTH', $translation->getAttribute('nullFlavor'));
+            self::assertSame($unit, $translation->textContent, 'The unit as recorded goes in originalText');
+            self::assertSame('originalText', $translation->firstElementChild?->localName);
+        }
+    }
+
+    /**
      * The encounter performer assignedEntity code uses Node's leafLevel.code:
      * a missing physician type code collapses to nullFlavor="UNK", and a present
      * code with an unknown code system omits the empty codeSystemName attribute.
