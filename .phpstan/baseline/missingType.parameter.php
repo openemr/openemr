@@ -4927,6 +4927,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function dateSearch\\(\\) has parameter \\$sSearch with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function AddIfPresent\\(\\) has parameter \\$tag with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/ippf_export.php',

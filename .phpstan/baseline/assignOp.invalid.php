@@ -382,6 +382,26 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Binary operation "\\.\\=" between non\\-falsy\\-string and mixed results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\.\\=" between mixed and \', \' results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\.\\=" between mixed and mixed results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and "\\\\t" results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/ippf_export.php',

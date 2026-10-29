@@ -103,7 +103,10 @@ final class PatientFinderQueryService
         $rows = ($this->fetchRecords)($plan->dataSql, $plan->dataBinds);
         $fieldsInfo = $this->fetchFieldsInfo($activeColumns);
         $enrich = $this->dispatchEnrich($activeColumns, $rows);
-        $aaData = $this->assembleRows($activeColumns, $rows, $fieldsInfo, $enrich);
+        // Emit exactly as many cells as the client has columns, so unknown keys in
+        // sColumns leave an (empty) cell in place rather than shifting the rest.
+        $columnCount = $request->columnKeys === [] ? count($activeColumns) : count($request->columnKeys);
+        $aaData = $this->assembleRows($activeColumns, $rows, $fieldsInfo, $enrich, $columnCount);
 
         return [
             'sEcho' => $request->echo,
@@ -124,9 +127,11 @@ final class PatientFinderQueryService
     }
 
     /**
-     * Map the client's column order (sColumns) to registered columns, preserving
-     * that order and dropping any key the registry does not know. Falls back to
-     * the full registry when the client sent no column list.
+     * Map the client's column order (sColumns) to registered columns, keeping each
+     * column at its original client index so the per-column search/sort
+     * instructions (also keyed by that index) still line up; an unknown key simply
+     * leaves a gap. Falls back to the full registry when the client sent no column
+     * list. The returned array may therefore be sparse.
      *
      * @return array<int, PatientFinderColumn>
      */
@@ -138,38 +143,45 @@ final class PatientFinderQueryService
             return $registry->all();
         }
         $columns = [];
-        foreach ($request->columnKeys as $key) {
+        foreach ($request->columnKeys as $index => $key) {
             $column = $registry->get($key);
             if ($column !== null) {
-                $columns[] = $column;
+                $columns[$index] = $column;
             }
         }
         return $columns;
     }
 
     /**
-     * Build the DataTables aaData rows: a DT_RowId per patient plus one cell per
-     * active column, in column order. Name is concatenated, patient_data cells
-     * are run through generate_plaintext_field, enriched cells are filled from
-     * the enrich event, and every value is escaped.
+     * Build the DataTables aaData rows: a DT_RowId per patient plus one cell for
+     * each of the client's $columnCount columns, in client-index order. Name is
+     * concatenated, patient_data cells are run through generate_plaintext_field,
+     * enriched cells are filled from the enrich event, and every value is escaped.
+     * A client index with no resolved column (an unknown sColumns key) gets an
+     * empty cell so the remaining cells keep their positions.
      *
-     * @param array<int, PatientFinderColumn>          $columns
+     * @param array<int, PatientFinderColumn>          $columns    sparse, keyed by client index
      * @param array<int, array<mixed>>                 $rows
      * @param array<string, array<mixed>>              $fieldsInfo field_id => layout_options row
+     * @param int                                      $columnCount number of columns the client sent
      * @return array<int, array<int|string, string>>
      */
     public function assembleRows(
         array $columns,
         array $rows,
         array $fieldsInfo,
-        PatientFinderRowEnrichEvent $enrich
+        PatientFinderRowEnrichEvent $enrich,
+        int $columnCount
     ): array {
         $aaData = [];
         foreach ($rows as $row) {
             $pid = PatientFinderValue::int($row['pid'] ?? null);
             $arow = ['DT_RowId' => 'pid_' . $pid];
-            foreach ($columns as $column) {
-                if ($column->key === PatientFinderQueryBuilder::NAME_KEY) {
+            for ($i = 0; $i < $columnCount; ++$i) {
+                $column = $columns[$i] ?? null;
+                if ($column === null) {
+                    $arow[] = ($this->attr)(''); // unknown sColumns key: placeholder cell
+                } elseif ($column->key === PatientFinderQueryBuilder::NAME_KEY) {
                     $arow[] = ($this->attr)($this->concatName($row));
                 } elseif ($column->isEnriched()) {
                     $values = $enrich->getValuesForPid($pid);

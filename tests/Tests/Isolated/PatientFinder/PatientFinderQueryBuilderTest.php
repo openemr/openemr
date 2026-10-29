@@ -273,6 +273,7 @@ class PatientFinderQueryBuilderTest extends TestCase
                 null,
                 null,
                 ['care'],
+                [],
                 false // not searchable, so it only appears in SELECT
             ),
             PatientFinderColumn::fromTable('sex', 'Sex'),
@@ -285,5 +286,85 @@ class PatientFinderQueryBuilderTest extends TestCase
 
         // select bind 'care' first, then the search term, then the limit binds.
         $this->assertSame(['care', 'male%', 5, 0], $plan->dataBinds);
+    }
+
+    public function testSelectAndJoinBoundValuesBindInSqlPlaceholderOrder(): void
+    {
+        // Column A: a parameterised SELECT subquery, not searchable.
+        // Column B: a parameterised JOIN, searchable. The data query's placeholders
+        // run SELECT -> JOIN -> WHERE -> LIMIT, so the binds must too; the filtered
+        // count must bind B's JOIN parameter as well (it carries the JOIN).
+        $columns = [
+            PatientFinderColumn::fromSql(
+                'a',
+                'A',
+                '(SELECT ta.x FROM ta WHERE ta.pid = patient_data.pid AND ta.k = ? LIMIT 1)',
+                null,
+                null,
+                ['aSel'],
+                [],
+                false // display-only
+            ),
+            PatientFinderColumn::fromSql(
+                'b',
+                'B',
+                'tb.val',
+                'LEFT JOIN tb ON tb.pid = patient_data.pid AND tb.k = ?',
+                'tb.val',
+                [],
+                ['bJoin'],
+                true
+            ),
+        ];
+        $plan = $this->builder()->build(
+            $columns,
+            $this->request(globalSearch: 'z', columnKeys: ['a', 'b'], start: 0, length: 5),
+            new BoundFilter()
+        );
+
+        // SELECT (aSel) -> JOIN (bJoin) -> WHERE search (z%) -> LIMIT (5, 0).
+        $this->assertSame(['aSel', 'bJoin', 'z%', 5, 0], $plan->dataBinds);
+        // Filtered count carries B's JOIN, so its JOIN bind leads, then the search.
+        $this->assertSame(['bJoin', 'z%'], $plan->filteredCountBinds);
+    }
+
+    public function testSharedParameterisedJoinBindsOnlyOnce(): void
+    {
+        // Two columns share one parameterised JOIN clause: it is emitted once and
+        // its bind value is added once, from the first column that owns it.
+        $join = 'LEFT JOIN tb ON tb.pid = patient_data.pid AND tb.k = ?';
+        $columns = [
+            PatientFinderColumn::fromSql('b1', 'B1', 'tb.v1', $join, 'tb.v1', [], ['shared'], false),
+            PatientFinderColumn::fromSql('b2', 'B2', 'tb.v2', $join, 'tb.v2', [], ['shared'], false),
+        ];
+        $plan = $this->builder()->build(
+            $columns,
+            $this->request(columnKeys: ['b1', 'b2']),
+            new BoundFilter()
+        );
+
+        $this->assertSame(1, substr_count($plan->dataSql, $join), 'the shared JOIN should appear once');
+        $this->assertSame(['shared'], $plan->dataBinds, 'the shared JOIN binds exactly once');
+    }
+
+    public function testPerColumnNameSearchIsParenthesised(): void
+    {
+        // A name per-column filter combined with another per-column filter must
+        // keep its OR-group parenthesised so the first/middle-name branch cannot
+        // bypass the other column's AND.
+        $columns = [
+            PatientFinderColumn::fromTable(PatientFinderQueryBuilder::NAME_KEY, 'Name'),
+            PatientFinderColumn::fromTable('sex', 'Sex'),
+        ];
+        $plan = $this->builder()->build(
+            $columns,
+            $this->request(columnKeys: ['name', 'sex'], columnSearches: [0 => 'smith', 1 => 'M']),
+            new BoundFilter()
+        );
+
+        $this->assertStringContainsString(
+            '( ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? ) AND `sex` LIKE ? )',
+            $plan->dataSql
+        );
     }
 }

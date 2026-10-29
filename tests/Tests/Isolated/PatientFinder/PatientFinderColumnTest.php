@@ -58,6 +58,7 @@ class PatientFinderColumnTest extends TestCase
             'LEFT JOIN ihi_data ihi ON ihi.pid = patient_data.pid',
             'ihi.ihi_number',
             [],
+            [],
             true,
             true,
             'desc'

@@ -78,8 +78,8 @@ final class PatientFinderQueryBuilder
         BoundFilter $filter,
         ?array $globalSearchColumns = null
     ): PatientFinderQueryPlan {
-        [$selectList, $dataJoins, $selectBinds] = $this->buildSelect($columns);
-        [$searchWhere, $searchBinds, $whereJoins] = $this->buildWhere($columns, $request, $globalSearchColumns);
+        [$selectList, $dataJoinMap, $selectBinds] = $this->buildSelect($columns);
+        [$searchWhere, $searchBinds, $whereJoinMap] = $this->buildWhere($columns, $request, $globalSearchColumns);
         $orderBy = $this->buildOrderBy($columns, $request);
 
         $customWhere = $filter->getFilterClause();
@@ -96,22 +96,31 @@ final class PatientFinderQueryBuilder
             $limitBinds = [$request->displayLength, $request->displayStart];
         }
 
+        // Bind values follow the SQL left-to-right: SELECT placeholders, then the
+        // JOIN placeholders (once per distinct JOIN, in JOIN order), then the
+        // WHERE (filter then search), then LIMIT.
         $dataSql = 'SELECT ' . implode(', ', $selectList)
-            . ' FROM patient_data' . $this->joinSql($dataJoins)
+            . ' FROM patient_data' . $this->joinSql(array_keys($dataJoinMap))
             . ' WHERE ' . $fullWhere . $orderBy . $limitSql;
-        $dataBinds = array_merge($selectBinds, $filterBinds, $searchBinds, $limitBinds);
+        $dataBinds = array_merge(
+            $selectBinds,
+            $this->joinBinds($dataJoinMap),
+            $filterBinds,
+            $searchBinds,
+            $limitBinds
+        );
 
         // Total count: the custom filter only, against patient_data with no
         // joins and no search, so it needs only the filter's bound values.
         $totalCountSql = 'SELECT COUNT(id) AS count FROM patient_data WHERE ' . $customWhere;
 
         // Filtered count: include the joins of any SQL column referenced in the
-        // WHERE so those references resolve, and count DISTINCT patients so a
-        // 1:many join cannot inflate the total.
-        $countExpr = $whereJoins === [] ? 'COUNT(id)' : 'COUNT(DISTINCT patient_data.pid)';
+        // WHERE so those references resolve (and bind their parameters), and count
+        // DISTINCT patients so a 1:many join cannot inflate the total.
+        $countExpr = $whereJoinMap === [] ? 'COUNT(id)' : 'COUNT(DISTINCT patient_data.pid)';
         $filteredCountSql = 'SELECT ' . $countExpr . ' AS count FROM patient_data'
-            . $this->joinSql($whereJoins) . ' WHERE ' . $fullWhere;
-        $filteredCountBinds = array_merge($filterBinds, $searchBinds);
+            . $this->joinSql(array_keys($whereJoinMap)) . ' WHERE ' . $fullWhere;
+        $filteredCountBinds = array_merge($this->joinBinds($whereJoinMap), $filterBinds, $searchBinds);
 
         return new PatientFinderQueryPlan(
             $dataSql,
@@ -125,8 +134,8 @@ final class PatientFinderQueryBuilder
 
     /**
      * @param array<int, PatientFinderColumn> $columns
-     * @return array{0: array<int, string>, 1: array<int, string>, 2: array<int, string|int>}
-     *         [select fragments, distinct JOIN clauses, select bind values]
+     * @return array{0: array<int, string>, 1: array<string, array<int, string|int>>, 2: array<int, string|int>}
+     *         [select fragments, JOIN clause => its bind values (distinct, first owner wins), select bind values]
      */
     private function buildSelect(array $columns): array
     {
@@ -151,25 +160,23 @@ final class PatientFinderQueryBuilder
             }
             if ($column->isSql()) {
                 $select[] = (string) $column->selectExpression . ' AS ' . $this->alias($column->key);
-                foreach ($column->boundValues as $bind) {
+                foreach ($column->selectBoundValues as $bind) {
                     $binds[] = $bind;
                 }
-                if ($column->joinClause !== null) {
-                    $joins[$column->joinClause] = true;
-                }
+                $this->collectJoin($joins, $column);
                 continue;
             }
             $select[] = ($this->columnEscaper)($column->key, [$column->table]);
         }
 
-        return [$select, array_keys($joins), $binds];
+        return [$select, $joins, $binds];
     }
 
     /**
      * @param array<int, PatientFinderColumn> $columns
      * @param array<int, PatientFinderColumn>|null $globalSearchColumns
-     * @return array{0: string, 1: array<int, string|int>, 2: array<int, string>}
-     *         [WHERE fragment (without the filter clause), bind values, distinct JOINs needed by it]
+     * @return array{0: string, 1: array<int, string|int>, 2: array<string, array<int, string|int>>}
+     *         [WHERE fragment (without the filter clause), bind values, JOIN clause => its bind values]
      */
     private function buildWhere(
         array $columns,
@@ -226,10 +233,11 @@ final class PatientFinderQueryBuilder
             }
             $term = $request->columnSearches[$index];
             if ($column->key === self::NAME_KEY) {
-                // NB: faithfully reproduces the legacy script, which does not
-                // parenthesise this OR group, so it binds less tightly than the
-                // surrounding ANDs.
-                $parts[] = 'lname LIKE ? OR fname LIKE ? OR mname LIKE ?';
+                // Parenthesised so the name OR-group binds tighter than the ANDs
+                // joining the other per-column filters; otherwise a first-/
+                // middle-name match could bypass another column's filter (and the
+                // data query and filtered count would then disagree).
+                $parts[] = '( lname LIKE ? OR fname LIKE ? OR mname LIKE ? )';
                 $value = $request->exactSearch ? $term : $term . '%';
                 $binds[] = $value;
                 $binds[] = $value;
@@ -248,7 +256,7 @@ final class PatientFinderQueryBuilder
             $binds[] = $request->exactSearch ? $term : $term . '%';
         }
 
-        return [implode(' AND ', $parts), $binds, array_keys($joins)];
+        return [implode(' AND ', $parts), $binds, $joins];
     }
 
     /**
@@ -288,13 +296,29 @@ final class PatientFinderQueryBuilder
     }
 
     /**
-     * @param array<string, bool> $joins
+     * Register a SQL column's JOIN (if any), keyed by its clause text so a JOIN
+     * shared by several columns is emitted — and its parameters bound — only once.
+     * The first column to own a given JOIN clause supplies its bind values.
+     *
+     * @param array<string, array<int, string|int>> $joins JOIN clause => its bind values
      */
     private function collectJoin(array &$joins, PatientFinderColumn $column): void
     {
         if ($column->joinClause !== null) {
-            $joins[$column->joinClause] = true;
+            $joins[$column->joinClause] ??= $column->joinBoundValues;
         }
+    }
+
+    /**
+     * Flatten an ordered JOIN-clause => bind-values map into a single bind list,
+     * in JOIN order, matching the order the clauses appear in the SQL.
+     *
+     * @param array<string, array<int, string|int>> $joins
+     * @return array<int, string|int>
+     */
+    private function joinBinds(array $joins): array
+    {
+        return $joins === [] ? [] : array_merge(...array_values($joins));
     }
 
     /**

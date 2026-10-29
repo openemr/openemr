@@ -41,7 +41,7 @@ require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
 $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
 
-$searchAny = empty($_GET['search_any']) ? "" : $_GET['search_any'];
+$searchAny = PatientFinderValue::string(empty($_GET['search_any']) ? '' : $_GET['search_any']);
 unset($_GET['search_any']);
 // Build the finder's column data from the shared registry (the core ptlistcols
 // columns plus any a module contributed via PatientFinderColumnRegistrationEvent).
@@ -72,7 +72,7 @@ $pageSize = OEGlobalsBag::getInstance()->getInt('gbl_pt_list_page_size');
             uspfx: <?php echo js_escape($uspfx); ?>,
             webroot: <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>,
             csrfToken: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
-            searchAny: <?php echo js_url($searchAny); ?>,
+            searchAny: <?php echo js_escape($searchAny); ?>,
             pageLength: <?php echo $pageSize > 0 ? $pageSize : 10; ?>,
             // Column definitions from the shared registry (the Name column renders as a link).
             columns: <?php echo json_encode($columns, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,

@@ -46,6 +46,13 @@ class PatientFinderColumnRegistry
             return;
         }
 
+        if ($beforeKey === $column->key) {
+            // "Before itself" is a no-op move: replace the definition in place
+            // (like add()) rather than dropping it in the rebuild loop below.
+            $this->columns[$column->key] = $column;
+            return;
+        }
+
         $rebuilt = [];
         foreach ($this->columns as $key => $existing) {
             if ($key === $column->key) {

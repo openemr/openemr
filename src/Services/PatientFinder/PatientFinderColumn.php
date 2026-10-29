@@ -55,7 +55,8 @@ final readonly class PatientFinderColumn
      * @param string|null $selectExpression TYPE_SQL: SQL yielding the value, aliased to the key.
      * @param string|null $joinClause TYPE_SQL: optional JOIN appended to the base FROM.
      * @param string|null $searchExpression TYPE_SQL: SQL used in WHERE/ORDER BY (see fromSql()).
-     * @param array<int, string|int> $boundValues TYPE_SQL: values bound to ?s in the select/join clauses.
+     * @param array<int, string|int> $selectBoundValues TYPE_SQL: values bound to the ?s in $selectExpression.
+     * @param array<int, string|int> $joinBoundValues TYPE_SQL: values bound to the ?s in $joinClause.
      * @param string $defaultSortDir Initial sort direction the finder page requests for this
      *        column ("asc" or "desc"); drives the DataTables "order" option.
      */
@@ -69,7 +70,8 @@ final readonly class PatientFinderColumn
         public ?string $selectExpression = null,
         public ?string $joinClause = null,
         public ?string $searchExpression = null,
-        public array $boundValues = [],
+        public array $selectBoundValues = [],
+        public array $joinBoundValues = [],
         public string $defaultSortDir = 'asc'
     ) {
     }
@@ -124,13 +126,19 @@ final readonly class PatientFinderColumn
      * MySQL forbids SELECT aliases in WHERE; it therefore defaults to
      * $selectExpression. The finder appends "<searchExpression> LIKE ?" and binds
      * the user's search term itself, exactly as it does for a native column. For
-     * a searchable column keep $searchExpression free of its own bound
-     * parameters (as the examples above are); $boundValues are only for values
-     * embedded in the SELECT/JOIN clauses, and bind ahead of the finder's WHERE
-     * and LIMIT values. Set $searchable/$sortable false to make the column
-     * display-only.
+     * a searchable/sortable column keep $searchExpression free of its own bound
+     * parameters, since it is re-embedded in WHERE and ORDER BY without any extra
+     * binds. Set $searchable/$sortable false to make the column display-only.
      *
-     * @param array<int, string|int> $boundValues
+     * Any ?s embedded in the clauses are bound separately so the finder can place
+     * them in the right spot of each query it builds: $selectBoundValues for the
+     * ?s in $selectExpression (bound in the data SELECT), and $joinBoundValues for
+     * the ?s in $joinClause (bound once per distinct JOIN, in JOIN order, in both
+     * the data query and the filtered-count query). Keep the SELECT and JOIN
+     * parameter lists in their own clause so they are never mixed.
+     *
+     * @param array<int, string|int> $selectBoundValues values for the ?s in $selectExpression
+     * @param array<int, string|int> $joinBoundValues   values for the ?s in $joinClause
      */
     public static function fromSql(
         string $key,
@@ -138,7 +146,8 @@ final readonly class PatientFinderColumn
         string $selectExpression,
         ?string $joinClause = null,
         ?string $searchExpression = null,
-        array $boundValues = [],
+        array $selectBoundValues = [],
+        array $joinBoundValues = [],
         bool $searchable = true,
         bool $sortable = true,
         string $defaultSortDir = 'asc'
@@ -153,7 +162,8 @@ final readonly class PatientFinderColumn
             $selectExpression,
             $joinClause,
             $searchExpression ?? $selectExpression,
-            $boundValues,
+            $selectBoundValues,
+            $joinBoundValues,
             $defaultSortDir
         );
     }
@@ -193,7 +203,8 @@ final readonly class PatientFinderColumn
             $this->selectExpression,
             $this->joinClause,
             $this->searchExpression,
-            $this->boundValues,
+            $this->selectBoundValues,
+            $this->joinBoundValues,
             $dir
         );
     }

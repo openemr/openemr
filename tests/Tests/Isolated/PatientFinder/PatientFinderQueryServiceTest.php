@@ -64,6 +64,24 @@ class PatientFinderQueryServiceTest extends TestCase
         $this->assertSame(['sex', 'name'], $keys);
     }
 
+    public function testResolveActiveColumnsPreservesClientIndexesWithGaps(): void
+    {
+        // An unknown key in the middle must leave a gap so the surviving columns
+        // keep their client index (which the per-column search/sort rely on).
+        $registry = new PatientFinderColumnRegistry();
+        $registry->add(PatientFinderColumn::fromTable('name', 'Name'));
+        $registry->add(PatientFinderColumn::fromTable('sex', 'Sex'));
+
+        $service = new PatientFinderQueryService($this->dispatcher());
+        $request = PatientFinderRequest::fromArray(['sColumns' => 'name,unknown,sex']);
+
+        $resolved = $service->resolveActiveColumns($registry, $request);
+
+        $this->assertSame([0, 2], array_keys($resolved));
+        $this->assertSame('name', $resolved[0]->key);
+        $this->assertSame('sex', $resolved[2]->key);
+    }
+
     public function testResolveActiveColumnsFallsBackToFullRegistry(): void
     {
         $registry = new PatientFinderColumnRegistry();
@@ -99,7 +117,7 @@ class PatientFinderQueryServiceTest extends TestCase
         $enrich = new PatientFinderRowEnrichEvent([1], [$columns[2]]);
         $enrich->setValue(1, 'ihi', '539305455928516268');
 
-        $aaData = $service->assembleRows($columns, $rows, $fieldsInfo, $enrich);
+        $aaData = $service->assembleRows($columns, $rows, $fieldsInfo, $enrich, count($columns));
 
         $this->assertSame([
             [
