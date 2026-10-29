@@ -2,21 +2,26 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRImmunization;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDate;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRImmunizationStatusCodes;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRImmunization\FHIRImmunizationPerformer;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\Immunization\DoseUnit;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -52,6 +57,11 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
     private $immunizationService;
 
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization';
+
+    /**
+     * Where parseFhirResource() leaves a dose unit the Drug Units list doesn't have, for insert and update to refuse.
+     */
+    private const UNKNOWN_DOSE_UNIT = '__unknown_dose_unit__';
 
     public function __construct(?string $fhirAPIURL = null)
     {
@@ -195,11 +205,21 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             $immunizationResource->setLotNumber($dataRecord['lot_number']);
         }
 
-        if (!empty($dataRecord['administration_site'])) {
+        // The dose whenever one is recorded, whatever the site, with its unit's name; the UCUM
+        // system and code only for a unit that is UCUM (the list stores option ids, not units).
+        $amount = $dataRecord['amount_administered'] ?? null;
+        if (is_numeric($amount) && (float)$amount > 0) {
             $doseQuantity = new FHIRQuantity();
-            $doseQuantity->setValue($dataRecord['amount_administered']);
-            $doseQuantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
-            $doseQuantity->setCode($dataRecord['amount_administered_unit']);
+            $doseQuantity->setValue(new FHIRDecimal((float)$amount));
+            $unit = self::doseUnitName($dataRecord);
+            if ($unit !== null) {
+                $doseQuantity->setUnit(new FHIRString($unit));
+                $code = DoseUnit::ucumFor($unit);
+                if ($code !== null) {
+                    $doseQuantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
+                    $doseQuantity->setCode(new FHIRCode($code));
+                }
+            }
             $immunizationResource->setDoseQuantity($doseQuantity);
         }
 
@@ -344,9 +364,20 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         if (is_numeric($doseValue) && (float) $doseValue !== 0.0) {
             $data['amount_administered'] = $doseValue;
         }
-        $doseUnit = is_array($doseQuantity) ? ($doseQuantity['code'] ?? null) : null;
-        if (is_string($doseUnit) && $doseUnit !== '') {
-            $data['amount_administered_unit'] = $doseUnit;
+        // The unit as the immunization form stores it, a Drug Units option id. A unit the list
+        // doesn't have is refused on insert and update rather than stored in another form.
+        $doseSystem = is_array($doseQuantity) && is_string($doseQuantity['system'] ?? null) ? trim($doseQuantity['system']) : '';
+        $doseCode = is_array($doseQuantity) && is_string($doseQuantity['code'] ?? null) ? $doseQuantity['code'] : null;
+        $doseUnitText = is_array($doseQuantity) && is_string($doseQuantity['unit'] ?? null) ? $doseQuantity['unit'] : null;
+        $sentUnit = trim($doseCode ?? '') !== '' ? trim($doseCode) : trim($doseUnitText ?? '');
+        if ($sentUnit !== '') {
+            $optionId = DoseUnit::optionFor($doseSystem, $doseCode, $doseUnitText, self::drugUnitOptions());
+            if ($optionId !== null) {
+                $data['amount_administered_unit'] = $optionId;
+            } else {
+                $codedElsewhere = trim($doseCode ?? '') !== '' && $doseSystem !== '' && $doseSystem !== FhirCodeSystemConstants::UNITS_OF_MEASURE;
+                $data[self::UNKNOWN_DOSE_UNIT] = '"' . $sentUnit . '"' . ($codedElsewhere ? ' from system ' . $doseSystem : '');
+            }
         }
 
         // Note -> note
@@ -445,6 +476,10 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         if (!is_array($openEmrRecord)) {
             throw new \InvalidArgumentException('Expected a parsed OpenEMR Immunization record array');
         }
+        $refused = self::refuseUnknownDoseUnit($openEmrRecord);
+        if ($refused !== null) {
+            return $refused;
+        }
 
         return $this->immunizationService->insert($openEmrRecord);
     }
@@ -466,6 +501,10 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         // url uuid alone. Immunization.patient is 1..1 in R4, so rejecting the omission is also
         // what the spec asks for, and it matches how MedicationRequest and ServiceRequest
         // already handle their own subject on this path.
+        $refused = self::refuseUnknownDoseUnit($updatedOpenEMRRecord);
+        if ($refused !== null) {
+            return $refused;
+        }
         $patientId = $updatedOpenEMRRecord['patient_id'] ?? null;
         if (!is_numeric($patientId)) {
             $result = new ProcessingResult();
@@ -476,6 +515,58 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         return $this->immunizationService->update($fhirResourceId, $updatedOpenEMRRecord, (int) $patientId);
+    }
+
+    /**
+     * The dose unit's name: the Drug Units title for a stored option id, else the stored value
+     * itself when it is a unit (earlier FHIR writes stored the code as sent). An id the list no
+     * longer has is no unit.
+     *
+     * @param array<array-key, mixed> $dataRecord
+     */
+    private static function doseUnitName(array $dataRecord): ?string
+    {
+        $title = $dataRecord['amount_administered_unit_title'] ?? null;
+        if (is_string($title) && trim($title) !== '') {
+            return trim($title);
+        }
+        $stored = $dataRecord['amount_administered_unit'] ?? null;
+        if (is_string($stored) && trim($stored) !== '' && !ctype_digit(trim($stored))) {
+            return trim($stored);
+        }
+        return null;
+    }
+
+    /**
+     * The Drug Units list's options in use, option id => title.
+     *
+     * @return array<array-key, string>
+     */
+    private static function drugUnitOptions(): array
+    {
+        $options = [];
+        foreach (QueryUtils::fetchRecords("SELECT option_id, title FROM list_options WHERE list_id = 'drug_units' AND activity = 1 ORDER BY seq") as $row) {
+            if (is_scalar($row['option_id'] ?? null) && is_string($row['title'] ?? null) && trim($row['title']) !== '') {
+                $options[(string)$row['option_id']] = $row['title'];
+            }
+        }
+        return $options;
+    }
+
+    /**
+     * @param array<array-key, mixed> $record
+     */
+    private static function refuseUnknownDoseUnit(array $record): ?ProcessingResult
+    {
+        $unit = $record[self::UNKNOWN_DOSE_UNIT] ?? null;
+        if (!is_string($unit)) {
+            return null;
+        }
+        $result = new ProcessingResult();
+        $result->setValidationMessages([
+            'doseQuantity' => 'Immunization.doseQuantity unit ' . $unit . ' names no unit in the Drug Units list; send one of its units as a UCUM code (mL, ug, g) or by name with no code',
+        ]);
+        return $result;
     }
 
     /**
