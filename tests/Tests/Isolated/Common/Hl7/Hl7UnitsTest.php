@@ -35,6 +35,8 @@ class Hl7UnitsTest extends TestCase
             'a UCUM unit with spaces around it' => [' mL ', 'mL^^UCUM', 'mL^mL^UCUM^^^'],
             'free text with spaces around it' => [' bpm ', '^bpm', '^bpm^^^^'],
             'only spaces' => ['  ', '', ''],
+            'a delimiter in free text' => ['foo^UCUM', '^foo\\S\\UCUM', '^foo\\S\\UCUM^^^^'],
+            'each delimiter escaped' => ['a|b~c&d\\e', '^a\\F\\b\\R\\c\\T\\d\\E\\e', '^a\\F\\b\\R\\c\\T\\d\\E\\e^^^^'],
         ];
     }
 

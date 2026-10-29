@@ -33,7 +33,7 @@ final class Hl7Units
         if ($unit === '') {
             return '';
         }
-        return self::isUcum($unit) ? $unit . '^^UCUM' : '^' . $unit;
+        return self::isUcum($unit) ? self::escape($unit) . '^^UCUM' : '^' . self::escape($unit);
     }
 
     /**
@@ -47,7 +47,18 @@ final class Hl7Units
             return '';
         }
         $code = DoseUnit::ucumFor($unit);
-        return $code !== null ? $code . '^' . $unit . '^UCUM^^^' : '^' . $unit . '^^^^';
+        return $code !== null
+            ? self::escape($code) . '^' . self::escape($unit) . '^UCUM^^^'
+            : '^' . self::escape($unit) . '^^^^';
+    }
+
+    /**
+     * HL7 v2's escape sequences for the delimiters in a component's text, as hl7Text() in
+     * global_functions.inc.php writes them: a unit of "foo^UCUM" must not become a coding system.
+     */
+    private static function escape(string $text): string
+    {
+        return str_replace(['\\', '^', '|', '~', '&', "\r"], ['\\E\\', '\\S\\', '\\F\\', '\\R\\', '\\T\\', '\\X0d\\'], $text);
     }
 
     private static function isUcum(string $unit): bool
