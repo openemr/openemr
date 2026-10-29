@@ -35,6 +35,9 @@ final class FhirSearchSyntaxError
     /** The validation-message key that names the parameter whose value didn't parse. */
     public const VALIDATION_KEY = '_search_parameter_syntax_error';
 
+    /** The validation-message key that holds what the client is told about that value. */
+    public const CLIENT_MESSAGE_KEY = '_search_parameter_syntax_error_message';
+
     /**
      * Records the exception as a validation message, as the services always have, and marks a syntax error.
      */
@@ -43,6 +46,7 @@ final class FhirSearchSyntaxError
         $messages = [$exception->getField() => $exception->getMessage()];
         if ($exception instanceof SearchParameterSyntaxException) {
             $messages[self::VALIDATION_KEY] = $exception->getField();
+            $messages[self::CLIENT_MESSAGE_KEY] = $exception->getClientMessage();
         }
         $result->setValidationMessages($messages);
     }
@@ -61,11 +65,22 @@ final class FhirSearchSyntaxError
     }
 
     /**
-     * The diagnostics are fixed text naming the parameter and the form it takes. The parser's own message stays
-     * in the validation messages and the server log, out of the response. Only date parameters are marked today,
-     * so the text names the date forms.
+     * What the client is told about the value, as the exception that marked it said; the generic message when
+     * the result carries none.
      */
-    public static function operationOutcome(string $parameter): FHIROperationOutcome
+    public static function clientMessage(ProcessingResult $result): string
+    {
+        $messages = $result->getValidationMessages();
+        $message = is_array($messages) ? ($messages[self::CLIENT_MESSAGE_KEY] ?? null) : null;
+        return is_string($message) && $message !== '' ? $message : SearchParameterSyntaxException::DEFAULT_CLIENT_MESSAGE;
+    }
+
+    /**
+     * The diagnostics name the parameter and say what is wrong with its value, in the words the exception gave
+     * for the client (clientMessage()). The parser's own message stays in the validation messages and the
+     * server log, out of the response.
+     */
+    public static function operationOutcome(string $parameter, string $clientMessage): FHIROperationOutcome
     {
         $issue = new FHIROperationOutcomeIssue();
         $severity = new FHIRIssueSeverity();
@@ -74,9 +89,7 @@ final class FhirSearchSyntaxError
         $code = new FHIRIssueType();
         $code->setValue('invalid');
         $issue->setCode($code);
-        $issue->setDiagnostics(new FHIRString(
-            "Search parameter '" . $parameter . "' must be a FHIR date or dateTime, such as 2020-01-31 or 2020-01-31T13:45:00Z."
-        ));
+        $issue->setDiagnostics(new FHIRString("Search parameter '" . $parameter . "' " . $clientMessage));
         $outcome = new FHIROperationOutcome();
         $outcome->addIssue($issue);
         return $outcome;

@@ -518,7 +518,7 @@ class RestControllerHelper
             return null;
         }
         return self::responseHandler(
-            FhirSearchSyntaxError::operationOutcome($parameter),
+            FhirSearchSyntaxError::operationOutcome($parameter, FhirSearchSyntaxError::clientMessage($processingResult)),
             null,
             Response::HTTP_BAD_REQUEST
         );
@@ -537,7 +537,7 @@ class RestControllerHelper
             return null;
         }
         return self::returnSingleObjectResponse(
-            FhirSearchSyntaxError::operationOutcome($parameter)
+            FhirSearchSyntaxError::operationOutcome($parameter, FhirSearchSyntaxError::clientMessage($processingResult))
         )->withStatus(Response::HTTP_BAD_REQUEST);
     }
 

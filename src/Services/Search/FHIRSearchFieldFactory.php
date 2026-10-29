@@ -213,7 +213,13 @@ class FHIRSearchFieldFactory
                     if ($this->isApproximateDate($fieldName, $value, $dateType)) {
                         continue;
                     }
-                    throw new SearchParameterSyntaxException($fieldName, $valueException->getMessage(), $valueException->getCode(), $valueException);
+                    throw new SearchParameterSyntaxException(
+                        $fieldName,
+                        $valueException->getMessage(),
+                        $valueException->getCode(),
+                        $valueException,
+                        'must be a FHIR date or dateTime, such as 2020-01-31 or 2020-01-31T13:45:00Z.',
+                    );
                 }
             }
             throw $exception;

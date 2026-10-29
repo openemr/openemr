@@ -108,7 +108,11 @@ namespace OpenEMR\Tests\Isolated\Services\FHIR {
             $syntax = new ProcessingResult();
             FhirSearchSyntaxError::record($syntax, new SearchParameterSyntaxException('date', 'Invalid ISO8601 date'));
             $this->assertSame(
-                ['date' => 'Invalid ISO8601 date', FhirSearchSyntaxError::VALIDATION_KEY => 'date'],
+                [
+                    'date' => 'Invalid ISO8601 date',
+                    FhirSearchSyntaxError::VALIDATION_KEY => 'date',
+                    FhirSearchSyntaxError::CLIENT_MESSAGE_KEY => SearchParameterSyntaxException::DEFAULT_CLIENT_MESSAGE,
+                ],
                 $syntax->getValidationMessages()
             );
         }
@@ -119,12 +123,56 @@ namespace OpenEMR\Tests\Isolated\Services\FHIR {
         public function testTheMarkSurvivesAMappedServiceCombiningResults(): void
         {
             $inner = new ProcessingResult();
-            FhirSearchSyntaxError::record($inner, new SearchParameterSyntaxException('date', 'Invalid ISO8601 date'));
+            FhirSearchSyntaxError::record(
+                $inner,
+                new SearchParameterSyntaxException('date', 'Invalid ISO8601 date', 0, null, 'must be a FHIR date.')
+            );
             $combined = new ProcessingResult();
             $combined->addProcessingResult($inner);
             $combined->clearData();
 
             $this->assertSame('date', FhirSearchSyntaxError::find($combined));
+            $this->assertSame('must be a FHIR date.', FhirSearchSyntaxError::clientMessage($combined));
+        }
+
+        /**
+         * The thrower says what is wrong with the value; any kind of syntax error, not only a date, reaches the
+         * client in its own words, and the parser's message doesn't.
+         */
+        public function testTheClientIsToldWhatTheThrowerSaid(): void
+        {
+            $result = new ProcessingResult();
+            FhirSearchSyntaxError::record(
+                $result,
+                new SearchParameterSyntaxException('_count', 'parser: not an integer', 0, null, 'must be a whole number, such as 10.')
+            );
+
+            $diagnostics = $this->diagnostics($result);
+            $this->assertSame("Search parameter '_count' must be a whole number, such as 10.", $diagnostics);
+            $this->assertStringNotContainsString('parser', $diagnostics);
+        }
+
+        public function testWithoutAMessageForTheClientTheValueIsSaidNotToBeValid(): void
+        {
+            $result = new ProcessingResult();
+            FhirSearchSyntaxError::record($result, new SearchParameterSyntaxException('code', 'parser: unexpected token'));
+
+            $this->assertSame("Search parameter 'code' has a value that is not valid.", $this->diagnostics($result));
+        }
+
+        private function diagnostics(ProcessingResult $result): string
+        {
+            $response = RestControllerHelper::getFhirSearchErrorResponse($result);
+            $this->assertNotNull($response);
+            $body = json_decode((string) $response->getContent(), true);
+            $this->assertIsArray($body);
+            $issues = $body['issue'] ?? null;
+            $this->assertIsArray($issues);
+            $issue = $issues[0] ?? null;
+            $this->assertIsArray($issue);
+            $diagnostics = $issue['diagnostics'] ?? null;
+            $this->assertIsString($diagnostics);
+            return $diagnostics;
         }
 
         public function testTheResponseIsA400OperationOutcomeNamingTheParameter(): void

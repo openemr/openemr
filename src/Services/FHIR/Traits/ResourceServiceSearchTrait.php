@@ -80,7 +80,13 @@ trait ResourceServiceSearchTrait
                 $message = "The search field argument was invalid, improperly formatted, or could not be parsed. "
                     . " Inner message: " . $exception->getMessage();
                 if ($exception instanceof SearchParameterSyntaxException) {
-                    throw new SearchParameterSyntaxException($fhirSearchField, $message, $exception->getCode(), $exception);
+                    throw new SearchParameterSyntaxException(
+                        $fhirSearchField,
+                        $message,
+                        $exception->getCode(),
+                        $exception,
+                        $exception->getClientMessage(),
+                    );
                 }
                 throw new SearchFieldException($fhirSearchField, $message, $exception->getCode(), $exception);
             }
