@@ -330,20 +330,14 @@ handle_swarm_mode() {
             fi
         fi
 
-        # If we timed out, check if configuration actually exists AND the
-        # leader has actually gone away. The leader-stale check is important
-        # because the background heartbeat daemon keeps the leader file
-        # fresh across long phases; without this check a follower could
-        # time out while the leader is still mid-upgrade and race it to
-        # apache start on a partially-upgraded DB.
+        # If we timed out, check if configuration actually exists
         if [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
             local config_state
             config_state=$(is_configured)
-            # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-            if [[ "${config_state}" = "1" ]] && is_leader_stale; then
-                # Configuration exists and leader is gone; create completion marker
+            if [[ "${config_state}" = "1" ]]; then
+                # Configuration exists, create completion marker
                 touch "${OE_ROOT}/sites/docker-completed" 2>/dev/null || true
-                echo "Leader stale with existing configuration, marking swarm as completed"
+                echo "Configuration detected, marking swarm as completed"
             fi
         fi
     fi
@@ -352,22 +346,6 @@ handle_swarm_mode() {
     if [[ "${AUTHORITY}" = "yes" ]]; then
         touch "${OE_ROOT}/sites/docker-initiated"
         update_leader_heartbeat
-
-        # Keep leader_file fresh in a background daemon so followers don't
-        # declare us stale during long phases without inline heartbeats
-        # (upgrade scripts, auto_configure.php, etc.). LEADER_TIMEOUT
-        # defaults to 300s; 60s cadence leaves plenty of margin. The
-        # daemon self-terminates when the main script PID is gone, and
-        # is killed explicitly before apache exec below.
-        if [[ -z "${HEARTBEAT_DAEMON_PID:-}" ]]; then
-            (
-                while kill -0 "$$" 2>/dev/null; do
-                    update_leader_heartbeat
-                    sleep 60
-                done
-            ) &
-            HEARTBEAT_DAEMON_PID=$!
-        fi
 
         # Restore swarm-pieces if needed (for swarm mode with empty volumes)
         if [[ ! -f /etc/ssl/openssl.cnf ]]; then
@@ -811,6 +789,22 @@ run_auto_configure() {
     # Update heartbeat right before the long-running PHP command
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
 
+    # Scoped heartbeat around the one opaque PHP call that can exceed
+    # LEADER_TIMEOUT (300s). Bounded to 15 iterations (~15 min) so a
+    # genuinely hung install eventually releases the lease and lets a
+    # follower take over. Step-boundary heartbeat semantics are preserved
+    # everywhere else — this is the single phase we can't subdivide.
+    local auto_config_heartbeat_pid=
+    if [[ "${AUTHORITY}" = "yes" ]]; then
+        (
+            for _ in $(seq 1 15); do
+                sleep 60
+                update_leader_heartbeat
+            done
+        ) &
+        auto_config_heartbeat_pid=$!
+    fi
+
     # Run auto_configure with optimized PHP settings.
     # Drop privileges to apache: auto_configure.php goes through the
     # Installer class, which openemr#12267's RootCliGuard refuses to
@@ -824,8 +818,19 @@ run_auto_configure() {
     # entrypoint either way.
     chmod 0644 auto_configure.php
     read -r -a config_args <<< "${CONFIGURATION}"
+    local auto_config_rc=0
     su-exec apache \
-        php -c auto_configure.ini auto_configure.php "${config_args[@]}" || return 1
+        php -c auto_configure.ini auto_configure.php "${config_args[@]}" || auto_config_rc=$?
+
+    # Reap the scoped heartbeat regardless of php exit status.
+    if [[ -n "${auto_config_heartbeat_pid}" ]]; then
+        kill "${auto_config_heartbeat_pid}" 2>/dev/null || true
+        wait "${auto_config_heartbeat_pid}" 2>/dev/null || true
+    fi
+
+    if (( auto_config_rc != 0 )); then
+        return 1
+    fi
 
     # Update heartbeat after PHP execution completes
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
@@ -1178,10 +1183,6 @@ if [[ "${OPERATOR}" = "yes" ]]; then
     fi
     echo "[TIMING] Total script execution time: ${TOTAL_DURATION}s before Apache start"
     echo 'Starting Apache!'
-    if [[ -n "${HEARTBEAT_DAEMON_PID:-}" ]]; then
-        kill "${HEARTBEAT_DAEMON_PID}" 2>/dev/null || true
-        unset HEARTBEAT_DAEMON_PID
-    fi
     exec /usr/sbin/httpd -D FOREGROUND
 fi
 

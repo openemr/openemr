@@ -306,6 +306,22 @@ auto_setup() {
     # Update heartbeat right before long-running PHP command
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
 
+    # Scoped heartbeat around the one opaque PHP call that can exceed
+    # LEADER_TIMEOUT (300s). Bounded to 15 iterations (~15 min) so a
+    # genuinely hung install eventually releases the lease and lets a
+    # follower take over. Step-boundary heartbeat semantics are preserved
+    # everywhere else — this is the single phase we can't subdivide.
+    local auto_config_heartbeat_pid=
+    if [[ "${AUTHORITY}" = "yes" ]]; then
+        (
+            for _ in $(seq 1 15); do
+                sleep 60
+                update_leader_heartbeat
+            done
+        ) &
+        auto_config_heartbeat_pid=$!
+    fi
+
     # Run auto_configure with optimized PHP settings.
     # Drop privileges to apache: auto_configure.php goes through the
     # Installer class, which openemr#12267's RootCliGuard refuses to
@@ -318,8 +334,19 @@ auto_setup() {
     # apache can read it. The file is rm'd at the end of this
     # entrypoint either way.
     chmod 0644 /var/www/localhost/htdocs/auto_configure.php
+    local auto_config_rc=0
     su-exec apache \
-        php /var/www/localhost/htdocs/auto_configure.php -c auto_configure.ini -f "${CONFIGURATION}" || return 1
+        php /var/www/localhost/htdocs/auto_configure.php -c auto_configure.ini -f "${CONFIGURATION}" || auto_config_rc=$?
+
+    # Reap the scoped heartbeat regardless of php exit status.
+    if [[ -n "${auto_config_heartbeat_pid}" ]]; then
+        kill "${auto_config_heartbeat_pid}" 2>/dev/null || true
+        wait "${auto_config_heartbeat_pid}" 2>/dev/null || true
+    fi
+
+    if (( auto_config_rc != 0 )); then
+        return 1
+    fi
 
     # Update heartbeat after PHP execution completes
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
@@ -595,20 +622,14 @@ wait_for_swarm_completion() {
             fi
         fi
 
-        # If we timed out, check if configuration actually exists AND the
-        # leader has actually gone away. The leader-stale check is important
-        # because the background heartbeat daemon keeps the leader file
-        # fresh across long phases; without this check a follower could
-        # time out while the leader is still mid-upgrade and race it to
-        # apache start on a partially-upgraded DB.
+        # If we timed out, check if configuration actually exists
         if [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
             local config_state
             config_state=$(is_configured)
-            # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-            if [[ "${config_state}" = "1" ]] && is_leader_stale; then
-                # Configuration exists and leader is gone; create completion marker
+            if [[ "${config_state}" = "1" ]]; then
+                # Configuration exists, create completion marker
                 touch "${OE_ROOT}/sites/docker-completed" 2>/dev/null || true
-                echo "Leader stale with existing configuration, marking swarm as completed"
+                echo "Configuration detected, marking swarm as completed"
             fi
         fi
     fi
@@ -619,22 +640,6 @@ prepare_swarm_leader() {
     if [[ "${AUTHORITY}" = "yes" ]]; then
         touch "${OE_ROOT}/sites/docker-initiated"
         update_leader_heartbeat
-
-        # Keep leader_file fresh in a background daemon so followers don't
-        # declare us stale during long phases without inline heartbeats
-        # (composer install, npm install, webpack build, auto_configure.php,
-        # etc.). LEADER_TIMEOUT defaults to 300s; 60s cadence leaves plenty
-        # of margin. The daemon self-terminates when the main script PID is
-        # gone, and is killed explicitly before apache exec / early exit.
-        if [[ -z "${HEARTBEAT_DAEMON_PID:-}" ]]; then
-            (
-                while kill -0 "$$" 2>/dev/null; do
-                    update_leader_heartbeat
-                    sleep 60
-                done
-            ) &
-            HEARTBEAT_DAEMON_PID=$!
-        fi
 
         # Restore swarm-pieces if needed (for swarm mode with empty volumes)
         if [[ ! -f /etc/ssl/openssl.cnf ]]; then
@@ -854,11 +859,13 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
 
         # install php dependencies
         flex_timing 'composer install start'
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         if [[ "${DEVELOPER_TOOLS}" = "yes" ]]; then
             composer_install_with_retry
         else
             composer_install_with_retry --no-dev
         fi
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'composer install done'
         RAN_ANY_BUILD=true
     fi
@@ -878,11 +885,14 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
             chown -R apache:1000 public
         fi
         flex_timing 'npm install (root) start (includes napa postinstall)'
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         npm install
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'npm install (root) done'
         # build css
         flex_timing 'npm run build (webpack) start'
         npm run build
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'npm run build (webpack) done'
         RAN_ANY_BUILD=true
     fi
@@ -890,9 +900,11 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
     if [[ "${NEED_NPM_BUILD}" = "true" ]] && [[ -f /var/www/localhost/htdocs/openemr/ccdaservice/package.json ]]; then
         # install ccdaservice
         flex_timing 'npm install (ccdaservice) start'
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         cd /var/www/localhost/htdocs/openemr/ccdaservice
         npm install --allow-git=all
         cd /var/www/localhost/htdocs/openemr
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'npm install (ccdaservice) done'
         RAN_ANY_BUILD=true
     fi
@@ -900,6 +912,7 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
     # clean up and optimize (only if we ran any builds)
     if [[ "${RAN_ANY_BUILD}" = "true" ]]; then
         flex_timing 'phing + dump-autoload start'
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         composer global require phing/phing
         /root/.composer/vendor/bin/phing vendor-clean
         /root/.composer/vendor/bin/phing assets-clean
@@ -907,6 +920,7 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
 
         # optimize
         composer dump-autoload --optimize --apcu
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'phing + dump-autoload done'
     fi
 
@@ -927,10 +941,6 @@ if [[ "${FLEX_BUILD_ONLY:-}" = "yes" ]]; then
     fi
     unset SSL_PID
     flex_timing 'build-only mode exit'
-    if [[ -n "${HEARTBEAT_DAEMON_PID:-}" ]]; then
-        kill "${HEARTBEAT_DAEMON_PID}" 2>/dev/null || true
-        unset HEARTBEAT_DAEMON_PID
-    fi
     exit 0
 fi
 
@@ -1283,10 +1293,6 @@ if [[ "${OPERATOR}" = "yes" ]]; then
     # see the script exit cleanly and finalize its coverage buffer; if we
     # exec apache here, bash gets replaced and kcov never gets the exit
     # signal (openemr-devops#797). Wrapper execs apache itself afterward.
-    if [[ -n "${HEARTBEAT_DAEMON_PID:-}" ]]; then
-        kill "${HEARTBEAT_DAEMON_PID}" 2>/dev/null || true
-        unset HEARTBEAT_DAEMON_PID
-    fi
     if [[ "${FLEX_SKIP_APACHE_EXEC:-}" = "yes" ]]; then
         exit 0
     fi
