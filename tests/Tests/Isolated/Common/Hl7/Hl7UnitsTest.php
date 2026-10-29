@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * Isolated tests for Hl7Units: UCUM named as the coding system only for UCUM units.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    anun333 <anun333@posteo.net>
+ * @copyright Copyright (c) 2026 anun333 <anun333@posteo.net>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Isolated\Common\Hl7;
+
+use OpenEMR\Common\Hl7\Hl7Units;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+
+class Hl7UnitsTest extends TestCase
+{
+    /** @return array<string, array{string, string, string}> unit, then OBX-6 and RXA-7 */
+    public static function units(): array
+    {
+        return [
+            'a UCUM unit' => ['mL', 'mL^^UCUM', 'mL^mL^UCUM^^^'],
+            'a UCUM rate' => ['/min', '/min^^UCUM', '/min^/min^UCUM^^^'],
+            'free text from the observation form' => ['bpm', '^bpm', '^bpm^^^^'],
+            'a Drug Units title that is not UCUM' => ['mcg', '^mcg', '^mcg^^^^'],
+            'mg/1cc' => ['mg/1cc', '^mg/1cc', '^mg/1cc^^^^'],
+            'no unit' => ['', '', ''],
+        ];
+    }
+
+    #[DataProvider('units')]
+    public function testObx6(string $unit, string $obx6, string $rxa7): void
+    {
+        $this->assertSame($obx6, Hl7Units::obx6($unit));
+    }
+
+    #[DataProvider('units')]
+    public function testRxa7(string $unit, string $obx6, string $rxa7): void
+    {
+        $this->assertSame($rxa7, Hl7Units::rxa7($unit));
+    }
+}
