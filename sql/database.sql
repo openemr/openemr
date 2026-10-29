@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 559
+-- v_database: 563
 --
 
 --
@@ -2062,7 +2062,8 @@ CREATE TABLE `form_encounter` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
-  KEY `encounter_date` (`date`)
+  KEY `encounter_date` (`date`),
+  KEY `encounter` (`encounter`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -3453,7 +3454,9 @@ CREATE TABLE `issue_encounter` (
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'timestamp when this issue encounter record was last updated',
   UNIQUE KEY `uniq_issue_key`(`pid`,`list_id`,`encounter`),
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid_unique` (`uuid`)
+  UNIQUE KEY `uuid_unique` (`uuid`),
+  KEY `encounter` (`encounter`),
+  KEY `list_id` (`list_id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -14507,7 +14510,8 @@ CREATE TABLE `form_questionnaire_assessments` (
   `lform` longtext,
   `lform_response` longtext,
   `category` VARCHAR(64) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `response_id` (`response_id`(64))
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `content_assignments`;

@@ -20,6 +20,8 @@
 namespace Patientvalidation\Controller;
 
 use Application\Listener\Listener;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use Patientvalidation\Model\PatientDataTable;
 
 class PatientvalidationController extends BaseController
@@ -33,7 +35,6 @@ class PatientvalidationController extends BaseController
     {
         parent::__construct();
         $this->listenerObject = new Listener();
-        //todo add permission of admin
     }
 
     private function getAllRealatedPatients()
@@ -69,6 +70,9 @@ class PatientvalidationController extends BaseController
 
     public function indexAction()
     {
+        if (!AclMain::aclCheckCore('patients', 'demo')) {
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Patient validation", $this->listenerObject->z_xlt("Patient validation"));
+        }
 
         $this->getJsFiles();
         $this->getCssFiles();

@@ -116,6 +116,23 @@
 -- Fix swapped SNOMED CT codes for the administrative_sex list (see #13767).
 -- 248153007 is Male (finding), 248152002 is Female (finding); the seed had them reversed.
 
+-- Lookups by encounter alone, and questionnaire answers by response_id, read the whole table without these (#14863).
+#IfNotIndex form_encounter encounter
+CREATE INDEX `encounter` ON `form_encounter` (`encounter`);
+#EndIf
+
+#IfNotIndex issue_encounter encounter
+CREATE INDEX `encounter` ON `issue_encounter` (`encounter`);
+#EndIf
+
+#IfNotIndex issue_encounter list_id
+CREATE INDEX `list_id` ON `issue_encounter` (`list_id`);
+#EndIf
+
+#IfNotIndex form_questionnaire_assessments response_id
+CREATE INDEX `response_id` ON `form_questionnaire_assessments` (`response_id`(64));
+#EndIf
+
 -- FHIR Task inputs and outputs (part 3 of #14521): the system Task.code is from, what the work needs, and what it produced.
 -- Codes written before the system was kept were all task-code's, except the questionnaire task's.
 #IfMissingColumn task code_system

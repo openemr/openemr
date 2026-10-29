@@ -35,18 +35,36 @@ class TokenSearchValue implements \Stringable
 
     /**
      * Given a FHIR code system string, return the FHIR class value.
-     * @param $codeSystemValue
-     * @param mixed $isUuid @isUuid Whether the code system value represents a unique uuid in the system and should be converted to binary
+     * A backslash is a plain character here. Values from a FHIR request go through buildFromEscapedFHIRString().
+     * @param bool $isUuid Whether the code system value represents a unique uuid in the system and should be converted to binary
      */
-    public static function buildFromFHIRString($codeSystemValue, $isUuid = false): TokenSearchValue
+    public static function buildFromFHIRString(string $codeSystemValue, bool $isUuid = false): TokenSearchValue
     {
         $code = $codeSystemValue;
-        $valueParts = explode("|", (string) $codeSystemValue);
+        $valueParts = explode("|", $codeSystemValue);
         if (count($valueParts) == 1) {
             $system = null;
         } else {
             $system = $valueParts[0];
             $code = end($valueParts);
+        }
+        return new TokenSearchValue($code, $system, $isUuid);
+    }
+
+    /**
+     * Reads a system|code value as a FHIR request sends it: an escaped separator (\|) is part of the system or code.
+     * @see https://hl7.org/fhir/R4/search.html#escaping
+     * @param bool $isUuid Whether the code represents a unique uuid in the system and should be converted to binary
+     */
+    public static function buildFromEscapedFHIRString(string $codeSystemValue, bool $isUuid = false): TokenSearchValue
+    {
+        $valueParts = FhirSearchValueEscape::split($codeSystemValue, '|');
+        if (count($valueParts) == 1) {
+            $system = null;
+            $code = FhirSearchValueEscape::unescape($valueParts[0]);
+        } else {
+            $system = FhirSearchValueEscape::unescape($valueParts[0]);
+            $code = FhirSearchValueEscape::unescape(end($valueParts));
         }
         return new TokenSearchValue($code, $system, $isUuid);
     }
@@ -95,7 +113,7 @@ class TokenSearchValue implements \Stringable
     public function getHumanReadableCode()
     {
         $code = $this->getCode();
-        if ($this->isUuid && !empty($code)) {
+        if ($this->isUuid && is_string($code) && $code !== '') {
             return UuidRegistry::uuidToString($code);
         } else {
             return $code;

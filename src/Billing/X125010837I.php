@@ -21,6 +21,20 @@ class X125010837I
         return ('20' . substr((string) $frmdate, 4, 2) . substr((string) $frmdate, 0, 2) . substr((string) $frmdate, 2, 2));
     }
 
+    /**
+     * Build CLM05 from UB-04 box 4, the type of bill (e.g. 0771, or 771 without the leading zero).
+     * CLM05 is the two-digit facility type code, the qualifier A and the claim frequency code,
+     * so 0771 becomes 77:A:1. The frequency code may be a letter (e.g. 081A). Returns an empty
+     * string when the type of bill is not in that form or the facility type starts with zero.
+     */
+    public static function claimFacilityCode(string $typeOfBill): string
+    {
+        if (preg_match('/^0?([1-9]\d)([0-9A-Z])$/', strtoupper(trim($typeOfBill)), $matches) !== 1) {
+            return '';
+        }
+        return $matches[1] . ':A:' . $matches[2];
+    }
+
     public $ub04id = [];
 
     public static function generateX12837I($pid, $encounter, $x12_partner, &$log, $ub04id)
@@ -358,10 +372,13 @@ class X125010837I
             "*" . sprintf("%.2f", $clm_total_charges) . // Zirmed computes and replaces this
             "*" .
             "*";
-        // Service location this need to be bill type from ub form type_of_bill
-        if (strlen($ub04id[7] ?? '') >= 3) {
-            $out .= "*" . substr((string) $ub04id[7], 1, 1) . ":" . substr((string) $ub04id[7], 2, 1) . ":" . substr((string) $ub04id[7], 3, 1);
+        // CLM05 service location, from the UB-04 type of bill (box 4)
+        $typeOfBill = $ub04id[7] ?? '';
+        $facilityCode = self::claimFacilityCode(is_string($typeOfBill) || is_int($typeOfBill) ? (string) $typeOfBill : '');
+        if ($facilityCode === '') {
+            $log .= "*** Error: Missing or invalid Type of Bill (UB-04 box 4)!\n";
         }
+        $out .= "*" . $facilityCode;
 
         $out .= "*" .
             "*" . "A" .
