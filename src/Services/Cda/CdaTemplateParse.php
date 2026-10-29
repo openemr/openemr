@@ -1319,19 +1319,28 @@ class CdaTemplateParse
         $field = $entry['field'];
         $rows = $this->templateData['field_name_value_array']['social_history'] ?? [];
         $rows = is_array($rows) ? $rows : [];
-        // Join the last entry still missing this field, or start a new one.
-        $i = 0;
-        foreach ($rows as $key => $row) {
-            $i = is_array($row) && array_key_exists($field, $row) ? count($rows) + 1 : $key;
-        }
-        $row = $rows[$i] ?? [];
+        // One entry per document. The patient's history keeps one current value per field, and every version an
+        // import writes is dated when it's written, so older statuses would only be versions of the same moment:
+        // the field keeps its newest status, by the document's date; undated ones give way to dated ones.
+        $row = $rows[0] ?? [];
         $row = is_array($row) ? $row : [];
-        $row[$field] = $entry['record'];
-        $rows[$i] = $row;
+        if (strcmp(self::recordDate($entry['record']), self::recordDate($row[$field] ?? null)) >= 0) {
+            $row[$field] = $entry['record'];
+        }
+        $rows = [0 => $row];
 
         // Each social history entry is identified by its own index, as every section's are.
         $this->templateData['field_name_value_array']['social_history'] = $rows;
         $this->templateData['entry_identification_array']['social_history'] = array_combine(array_keys($rows), array_keys($rows));
+    }
+
+    /**
+     * A social history record's date as the document writes it (YYYYMMDD...), or '' when it has none.
+     */
+    private static function recordDate(mixed $record): string
+    {
+        $date = is_array($record) ? ($record['begdate'] ?? null) : null;
+        return is_string($date) ? $date : '';
     }
 
     public function encounter($component)

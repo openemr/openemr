@@ -25,11 +25,13 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
+use OpenEMR\Services\Cda\CdaSocialHistoryWriter;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
 use OpenEMR\Services\Cda\CdaTemplateParse;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\SocialHistoryService;
 
 class CarecoordinationTable
 {
@@ -771,7 +773,8 @@ class CarecoordinationTable
                     '228274009' => 'Never'
                 ];
                 // note|status|date; a document may carry only one of the two.
-                $alcohol = array_pad(explode("|", $newdata['social_history']['alcohol'] ?? ''), 3, '');
+                $alcoholRecord = $newdata['social_history']['alcohol'] ?? '';
+                $alcohol = array_pad(explode("|", $alcoholRecord), 3, '');
                 $alcohol_date = !empty($alcohol[2]) ? $this->formatDate($alcohol[2], 1) : $alcohol[2];
 
                 $alcohol_date_value = fixDate($alcohol_date);
@@ -783,7 +786,8 @@ class CarecoordinationTable
 
                 $alcohol_value = $alcohol[0] . "|" . $alcohol[1] . "|" . $alcohol_date_value;
 
-                $tobacco = array_pad(explode("|", $newdata['social_history']['smoking'] ?? ''), 3, '');
+                $smokingRecord = $newdata['social_history']['smoking'] ?? '';
+                $tobacco = array_pad(explode("|", $smokingRecord), 3, '');
                 $smoking_date = !empty($tobacco[2]) ? $this->formatDate($tobacco[2], 1) : $tobacco[2];
 
                 $smoking_date_value = fixDate($smoking_date);
@@ -795,24 +799,15 @@ class CarecoordinationTable
 
                 $smoking_value = $tobacco[0] . "|" . $tobacco[1] . "|" . $smoking_date_value;
 
-                $query_insert = "INSERT INTO history_data
-                         (
-                          pid,
-                          alcohol,
-                          tobacco,
-                          date
-                         )
-                         VALUES
-                         (
-                          ?,
-                          ?,
-                          ?,
-                          ?
-                         )";
-                QueryUtils::sqlStatementThrowException($query_insert, [$pid,
-                    $alcohol_value,
-                    $smoking_value,
-                    date('Y-m-d H:i:s')]);
+                // Only what the document carries; CdaSocialHistoryWriter keeps the rest of the patient's history.
+                $changes = [];
+                if ($smokingRecord !== '') {
+                    $changes['tobacco'] = $smoking_value;
+                }
+                if ($alcoholRecord !== '') {
+                    $changes['alcohol'] = $alcohol_value;
+                }
+                CdaSocialHistoryWriter::write(new SocialHistoryService(), $pid, $changes);
             } elseif ($table == 'procedure_result') {
                 if (!empty($newdata['procedure_result']['date'])) {
                     $proc_date = $this->formatDate($newdata['procedure_result']['date'], 1);

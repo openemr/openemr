@@ -605,18 +605,31 @@ class CdaTemplateParseTest extends TestCase
         $this->assertNull($smoking['enddate']);
     }
 
-    public function testFetchSocialHistoryDataGivesASecondSmokingStatusItsOwnEntry(): void
+    /**
+     * The patient's history keeps one current tobacco value, so a document's newest smoking status is the one
+     * imported, whichever order the document lists them in.
+     */
+    public function testFetchSocialHistoryDataKeepsTheNewestSmokingStatus(): void
     {
         $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => '20200101']));
         $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => '20240121'], '266919005'));
 
-        $this->assertEntityCount('social_history', 2);
-        $first = $this->getFieldRecord('social_history', 0)['smoking'];
-        $second = $this->getFieldRecord('social_history', 2)['smoking'];
-        $this->assertIsArray($first);
-        $this->assertIsArray($second);
-        $this->assertSame('8517006', $first['status']);
-        $this->assertSame('266919005', $second['status']);
+        $this->assertEntityCount('social_history', 1);
+        $smoking = $this->getFieldRecord('social_history', 0)['smoking'];
+        $this->assertIsArray($smoking);
+        $this->assertSame('266919005', $smoking['status']);
+    }
+
+    public function testFetchSocialHistoryDataKeepsTheNewestWhenTheDocumentListsItFirst(): void
+    {
+        $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => '20240121'], '266919005'));
+        $this->parser->fetchSocialHistoryData(self::smokingStatus(['root' => '2.16.840.1.113883.10.20.22.4.78'], ['value' => '20200101']));
+
+        $this->assertEntityCount('social_history', 1);
+        $smoking = $this->getFieldRecord('social_history', 0)['smoking'];
+        $this->assertIsArray($smoking);
+        $this->assertSame('266919005', $smoking['status']);
+        $this->assertSame('20240121', $smoking['begdate']);
     }
 
     public function testFetchSocialHistoryDataSkipsTemplatesItDoesNotMap(): void
