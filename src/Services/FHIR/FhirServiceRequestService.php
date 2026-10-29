@@ -127,7 +127,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
                 'exception' => $exception,
                 'field' => $exception->getField(),
             ]);
-            $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
+            FhirSearchSyntaxError::record($fhirSearchResult, $exception);
         }
         return $fhirSearchResult;
     }

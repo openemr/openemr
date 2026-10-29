@@ -13,8 +13,10 @@
 
 namespace OpenEMR\Tests\Isolated\Services\FHIR\ServiceRequest;
 
+use OpenEMR\Services\FHIR\FhirSearchSyntaxError;
 use OpenEMR\Services\FHIR\FhirServiceRequestService;
 use OpenEMR\Services\FHIR\ServiceRequest\FhirServiceRequestReferralService;
+use OpenEMR\Services\Search\SearchParameterSyntaxException;
 use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -128,6 +130,19 @@ class FhirServiceRequestServiceRoutingTest extends TestCase
     }
 
     #[Test]
+    public function aMalformedValueOneServiceRejectsKeepsItsSyntaxErrorMark(): void
+    {
+        // The mark is what makes the controller answer 400 with an OperationOutcome, not 200 and an empty Bundle.
+        $this->referrals->syntaxErrorOn = 'authored';
+
+        $result = $this->service->getAll(['category' => 'http://snomed.info/sct|' . self::REFERRAL, 'authored' => 'not-a-date']);
+
+        $this->assertSame('authored', FhirSearchSyntaxError::find($result));
+        $this->assertSame('must be a FHIR date or dateTime.', FhirSearchSyntaxError::clientMessage($result));
+        $this->assertSame([], $this->data($result));
+    }
+
+    #[Test]
     public function thePatientBindReachesEachService(): void
     {
         $this->service->getAll([], 'patient-uuid');
@@ -149,6 +164,7 @@ abstract class RoutingTestStore extends FhirServiceRequestReferralService
     public int $calls = 0;
     public ?string $lastBind = null;
     public ?string $failWith = null;
+    public ?string $syntaxErrorOn = null;
     /** @var list<string> */
     public array $categoriesRouted = [];
 
@@ -178,6 +194,10 @@ abstract class RoutingTestStore extends FhirServiceRequestReferralService
         $this->calls++;
         $this->lastBind = is_string($puuidBind) ? $puuidBind : null;
         $result = new ProcessingResult();
+        if ($this->syntaxErrorOn !== null) {
+            FhirSearchSyntaxError::record($result, new SearchParameterSyntaxException($this->syntaxErrorOn, 'unparsable', clientMessage: 'must be a FHIR date or dateTime.'));
+            return $result;
+        }
         if ($this->failWith !== null) {
             $result->setValidationMessages([$this->failWith => 'not valid']);
             return $result;
