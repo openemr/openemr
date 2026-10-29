@@ -1162,7 +1162,7 @@ class CdaTemplateParse
 
     public function fetchVitalSignData($vital_sign_data)
     {
-        $components = self::organizerComponents($vital_sign_data);
+        $components = self::withIntervalStartTimes(self::organizerComponents($vital_sign_data));
         $organizer = is_array($vital_sign_data) ? ($vital_sign_data['organizer'] ?? null) : null;
         if (is_array($vital_sign_data) && is_array($organizer)) {
             $organizer['component'] = $components;
@@ -1207,6 +1207,37 @@ class CdaTemplateParse
 
             $this->templateData['entry_identification_array']['vital_sign'][$i] = $i;
         }
+    }
+
+    /**
+     * Each component whose time is the start of an interval (effectiveTime/low), which C-CDA
+     * allows in place of a value, given that start as its time's value, which is what the
+     * import reads.
+     *
+     * @param list<mixed> $components
+     * @return list<mixed>
+     */
+    private static function withIntervalStartTimes(array $components): array
+    {
+        foreach ($components as $k => $component) {
+            if (!is_array($component) || !is_array($component['observation'] ?? null)) {
+                continue;
+            }
+            $observation = $component['observation'];
+            $time = $observation['effectiveTime'] ?? null;
+            if (!is_array($time) || ($time['value'] ?? '') !== '' || !is_array($time['low'] ?? null)) {
+                continue;
+            }
+            $start = $time['low']['value'] ?? null;
+            if (!is_string($start) || $start === '') {
+                continue;
+            }
+            $time['value'] = $start;
+            $observation['effectiveTime'] = $time;
+            $component['observation'] = $observation;
+            $components[$k] = $component;
+        }
+        return $components;
     }
 
     /**

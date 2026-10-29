@@ -90,6 +90,71 @@ class CdaVitalSignComponentsTest extends TestCase
     }
 
     /**
+     * C-CDA allows an observation's time as the start of an interval (effectiveTime/low)
+     * instead of a value.
+     */
+    public function testAVitalSignDatedByTheStartOfAnIntervalIsRead(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizerOf([
+            ['8867-4', '72', '/min', '<effectiveTime><low value="20260301093000"/></effectiveTime>'],
+        ]));
+
+        $vital = $this->vitalSign(1);
+        $this->assertSame('20260301093000', $vital['date']);
+        $this->assertSame('72', $vital['pulse']);
+    }
+
+    public function testAnOrganizerWhoseFirstVitalSignIsDatedByAnIntervalIsRead(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizerOf([
+            ['8867-4', '72', '/min', '<effectiveTime><low value="20260301093000"/></effectiveTime>'],
+            ['9279-1', '16', '/min', '<effectiveTime value="20260301093000"/>'],
+        ]));
+
+        $vital = $this->vitalSign(1);
+        $this->assertSame('20260301093000', $vital['date']);
+        $this->assertSame('72', $vital['pulse']);
+        $this->assertSame('16', $vital['respiration']);
+    }
+
+    /**
+     * A vital signs organizer entry with one component per [LOINC code, value, unit, effectiveTime].
+     *
+     * @param list<array{string, string, string, string}> $components
+     * @return array<string, mixed>
+     */
+    private function organizerOf(array $components): array
+    {
+        $xml = '';
+        foreach ($components as [$code, $value, $unit, $effectiveTime]) {
+            $xml .= <<<XML
+                <component>
+                  <observation classCode="OBS" moodCode="EVN">
+                    <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                    <code code="$code" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                    <statusCode code="completed"/>
+                    $effectiveTime
+                    <value xsi:type="PQ" value="$value" unit="$unit"/>
+                  </observation>
+                </component>
+                XML;
+        }
+        $organizer = (new XmlExtended())->fromString(<<<XML
+            <entry xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <organizer classCode="CLUSTER" moodCode="EVN">
+                <templateId root="2.16.840.1.113883.10.20.22.4.26" extension="2015-08-01"/>
+                <id root="1.3.6.1.4.1.115" extension="vitals-1"/>
+                <statusCode code="completed"/>
+                $xml
+              </organizer>
+            </entry>
+            XML);
+        $this->assertIsArray($organizer);
+        /** @var array<string, mixed> $organizer */
+        return $organizer;
+    }
+
+    /**
      * The vital signs section of the export, as the import hands it to VitalSign().
      *
      * @return array<string, mixed>
