@@ -1974,6 +1974,8 @@ class CdaTemplateImportDispose
                         $value['extension']]
                 );
             } else {
+                // A reading the document doesn't carry keeps its stored value instead of being cleared.
+                $readings = CdaVitalsReimport::withStoredReadings($value, end($res_q_sel_vitals));
                 $q_upd_vitals = "UPDATE form_vitals
                          SET pid=?,
                              date=?,
@@ -1990,16 +1992,16 @@ class CdaTemplateImportDispose
                          WHERE external_id=?";
                 QueryUtils::sqlStatementThrowException($q_upd_vitals, [$pid,
                     $vitals_date_value,
-                    $value['bps'],
-                    $value['bpd'],
-                    $value['height'],
-                    $value['weight'],
-                    $value['temperature'],
-                    $value['pulse'],
-                    $value['respiration'],
-                    $value['head_circ'],
-                    $value['oxygen_saturation'],
-                    $value['BMI'],
+                    $readings['bps'],
+                    $readings['bpd'],
+                    $readings['height'],
+                    $readings['weight'],
+                    $readings['temperature'],
+                    $readings['pulse'],
+                    $readings['respiration'],
+                    $readings['head_circ'],
+                    $readings['oxygen_saturation'],
+                    $readings['BMI'],
                     $value['extension']]);
                 foreach ($res_q_sel_vitals as $row_vitals) {
                     $vitals_id = $row_vitals['id'];
