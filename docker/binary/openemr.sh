@@ -315,8 +315,12 @@ handle_swarm_mode() {
             (( waited += 10 ))
         done
 
-        # Try one more time to become leader (in case leader died just as we timed out)
-        if [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
+        # Try one more time to become leader (in case leader died just as we
+        # timed out). Guard on AUTHORITY=no: if we already took over inside the
+        # wait loop above (break'd out with AUTHORITY=yes), we hold the leader
+        # file, so calling try_become_leader again would see its own file via
+        # noclobber-fail and demote us back to a follower.
+        if [[ "${AUTHORITY}" = "no" ]] && [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
             try_become_leader
             if [[ "${AUTHORITY}" = "yes" ]]; then
                 echo "Promoted to leader after waiting period"
