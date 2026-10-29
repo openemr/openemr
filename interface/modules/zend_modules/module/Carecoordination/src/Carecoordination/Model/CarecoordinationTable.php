@@ -22,6 +22,7 @@ use DOMDocument;
 use Exception;
 use OpenEMR\Common\Command\Trait\CommandLineDebugStylerTrait;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
@@ -1916,11 +1917,16 @@ class CarecoordinationTable
                             }
                         }
                     }
-                } elseif (str_starts_with((string) $key, 'patient_data')) {
+                } elseif (is_string($key) && str_starts_with($key, 'patient_data')) {
                     if ($val == 'update') {
-                        $var_name = substr((string) $key, 0, -4);
+                        $var_name = substr($key, 0, -4);
                         $field_name = substr($var_name, 13);
-                        $patient_data_fields .= $field_name . '=?,';
+                        try {
+                            $escaped = escape_sql_column_name($field_name, ['patient_data'], false, true);
+                        } catch (SqlQueryException) {
+                            continue;
+                        }
+                        $patient_data_fields .= "$escaped=?,";
                         array_push($patient_data_values, $data[$var_name]);
                     }
                 }

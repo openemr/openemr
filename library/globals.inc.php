@@ -1333,6 +1333,13 @@ $GLOBALS_METADATA = [
             xl('Automatically replicate justification codes in Fee Sheet (basically fills in the blanks with the justification code above it).')
         ],
 
+        'fee_sheet_save_appt_status' => [
+            xl('Fee Sheet Save: Ask to Set Appointment Status'),
+            'text',                           // data type
+            '',                               // default = off
+            xl('Code of an appointment status, for example $ for Coding done. When set, Save on the fee sheet asks whether to set the patient\'s appointment on the visit date to this status, and on Yes opens the calendar on that date. Not asked for an appointment that already has the status or is canceled or a no show. Blank: off.')
+        ],
+
         'display_units_in_billing' => [
             xl('Display the Units Column on the Billing Screen'),
             'bool',                           // data type

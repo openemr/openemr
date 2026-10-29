@@ -14,6 +14,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
@@ -40,16 +41,24 @@ function send_email($subject, $body): void
     }
 }
 
-$sale_id         = $_REQUEST['sale_id'];
-$drug_id         = $_REQUEST['drug_id'];
-$prescription_id = $_REQUEST['prescription'];
-$quantity        = $_REQUEST['quantity'];
-$fee             = $_REQUEST['fee'];
+$sale_id         = $_REQUEST['sale_id'] ?? '';
+$drug_id         = $_REQUEST['drug_id'] ?? '';
+$prescription_id = $_REQUEST['prescription'] ?? '';
+$quantity        = $_REQUEST['quantity'] ?? '';
+$fee             = $_REQUEST['fee'] ?? '';
 $user            = $session->get('authUser');
 $encounter       = $_REQUEST['encounter'] ?? $session->get('encounter') ?? 0;
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs: Dispense Drug", xl("Dispense Drug"));
+}
+
+// New-dispensation (create-sale) path mutates inventory — require CSRF and write permission.
+if (!$sale_id) {
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+    if (!AclMain::aclCheckCore('admin', 'drugs', '', 'write')) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs write: Dispense Drug", xl("Dispense Drug"));
+    }
 }
 
 if (!$drug_id) {

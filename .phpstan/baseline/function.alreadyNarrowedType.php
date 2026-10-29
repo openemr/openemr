@@ -283,7 +283,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 7,
+    'count' => 5,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [

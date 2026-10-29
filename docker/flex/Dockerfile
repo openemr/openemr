@@ -105,8 +105,17 @@ RUN apk add --no-cache \
 # Other: php-fpm, php-phar, php-zip, php-zlib, php-ldap, php-sockets, php-tokenizer
 # Note: opcache was brought into core PHP for PHP 8.5+, so unable to install
 #       separate extension for those versions.
-RUN apk add --no-cache \
-    php${PHP_VERSION_ABBR} \
+# The minimum patch versions make the build fail rather than ship a PHP
+# missing a security fix that Alpine has not packaged yet.
+RUN case "${PHP_VERSION}" in \
+        8.2) php_min_version=8.2.35 ;; \
+        8.3) php_min_version=8.3.36 ;; \
+        8.4) php_min_version=8.4.27 ;; \
+        8.5) php_min_version=8.5.12 ;; \
+        *) echo "No minimum patch version set for PHP ${PHP_VERSION}" >&2; exit 1 ;; \
+    esac \
+    && apk add --no-cache \
+    "php${PHP_VERSION_ABBR}>=${php_min_version}" \
     php${PHP_VERSION_ABBR}-apache2 \
     php${PHP_VERSION_ABBR}-bcmath \
     php${PHP_VERSION_ABBR}-calendar \

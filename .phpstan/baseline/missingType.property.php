@@ -22792,11 +22792,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\Claim\\:\\:\\$pay_to_provider has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Billing\\\\Claim\\:\\:\\$payers has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
@@ -29275,11 +29270,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\FacilityService\\:\\:\\$facilityValidator has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:\\$addressService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:\\$phoneNumberService has no type specified\\.$#',

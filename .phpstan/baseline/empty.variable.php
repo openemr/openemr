@@ -57,6 +57,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$pid in empty\\(\\) always exists and is not falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$reply_to in empty\\(\\) always exists and is always falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/messages.php',

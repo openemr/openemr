@@ -324,3 +324,96 @@ CREATE TABLE `oauth_auth_code_revocations` (
     KEY `idx_revoked_at` (`revoked_at`)
 ) ENGINE=InnoDB;
 #EndIf
+
+-- FHIR Task (#14521, D9 of #13266): its own table, as QuestionnaireResponse has.
+#IfNotTable task
+CREATE TABLE `task` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
+  `status` varchar(31) NOT NULL DEFAULT 'requested' COMMENT 'FHIR Task.status code',
+  `status_reason` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.statusReason, as text',
+  `business_status` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.businessStatus, as text',
+  `intent` varchar(31) NOT NULL DEFAULT 'order' COMMENT 'FHIR Task.intent code',
+  `priority` varchar(31) DEFAULT NULL COMMENT 'FHIR Task.priority code',
+  `code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.code, from http://hl7.org/fhir/CodeSystem/task-code',
+  `description` text,
+  `patient_id` bigint(20) DEFAULT NULL COMMENT 'FHIR Task.for: patient_data.pid',
+  `focus_type` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.focus: resource type',
+  `focus_uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Task.focus: resource id',
+  `owner_type` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.owner: resource type',
+  `owner_uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Task.owner: resource id',
+  `requester_type` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.requester: resource type',
+  `requester_uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Task.requester: resource id',
+  `part_of_uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Task.partOf: the parent task.uuid',
+  `authored_on` datetime DEFAULT NULL,
+  `last_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` bigint(20) DEFAULT NULL COMMENT 'users.id',
+  `updated_by` bigint(20) DEFAULT NULL COMMENT 'users.id',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  KEY `patient_id` (`patient_id`),
+  KEY `status` (`status`),
+  KEY `focus_uuid` (`focus_uuid`),
+  KEY `owner_uuid` (`owner_uuid`),
+  KEY `part_of_uuid` (`part_of_uuid`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- FHIR Task writes (part 2 of #14521): meta.versionId, raised on each update, for If-Match.
+#IfMissingColumn task version
+ALTER TABLE `task` ADD COLUMN `version` int(11) NOT NULL DEFAULT 1 COMMENT 'FHIR meta.versionId: 1 on create, raised by each update (If-Match)';
+#EndIf
+
+#IfNotTable content_assignments
+CREATE TABLE `content_assignments` (
+  `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `resource_type` varchar(63) NOT NULL DEFAULT 'questionnaire' COMMENT 'what is being assigned. A resource belongs here when "may this appear on this surface, in this context" is answered by the columns below; content scoped by patient cohort or carrying a send schedule does not',
+  `resource_id` bigint(21) UNSIGNED DEFAULT NULL COMMENT 'fk into the resource_type table, e.g. questionnaire_repository.id. NULL with a category set means every resource in that category',
+  `surface` varchar(31) NOT NULL COMMENT 'dashboard, encounter, portal, smart',
+  `category` varchar(64) DEFAULT NULL COMMENT 'with resource_id set, unused; with resource_id NULL, assigns every resource whose own category matches',
+  `facility` int(11) DEFAULT NULL COMMENT 'fk to facility.id; NULL means any',
+  `provider` int(11) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id; NULL means any',
+  `visit_category_id` int(11) DEFAULT NULL COMMENT 'fk to openemr_postcalendar_categories.pc_catid, as form_encounter.pc_catid carries it; NULL means any',
+  `client_id` varchar(255) DEFAULT NULL COMMENT 'oauth client for surface=smart; NULL means any',
+  `acl_section` varchar(64) DEFAULT NULL COMMENT 'ACL section required; set with acl_level or leave both NULL to use the surface default',
+  `acl_level` varchar(31) DEFAULT NULL COMMENT 'ACL level required; set with acl_section or leave both NULL to use the surface default',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `seq` int(11) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_by` int(10) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id',
+  `updated_by` int(10) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id',
+  PRIMARY KEY (`id`),
+  KEY `lookup` (`resource_type`,`surface`,`active`),
+  KEY `resource` (`resource_type`,`resource_id`)
+) ENGINE=InnoDB;
+
+-- Backfill from current state so an upgraded site sees exactly what it saw before.
+-- Every questionnaire was reachable from the dashboard and every registry-registered one
+-- from the encounter; both become unscoped assignment rows.
+--
+-- Inside the #IfNotTable block so it runs once, when the table is created. Run on every
+-- upgrade pass instead, it would put back any assignment an admin has since removed in
+-- the availability manager.
+--
+-- Deliberately NOT filtered on questionnaire_repository.active or registry.state. Those
+-- flags are applied at read time -- the availability join requires qr.active = 1 and
+-- getFormsByCategory() selects on registry.state -- so an assignment for something
+-- currently inactive or disabled has no visible effect. Filtering here instead would
+-- change behaviour on upgrade: before, re-activating a questionnaire or re-enabling its
+-- registry row made it visible again; with the flags filtered it would have no assignment
+-- and would stay hidden. Backfilling everything keeps re-activation working exactly as it
+-- does today.
+INSERT INTO `content_assignments` (`resource_type`, `resource_id`, `surface`, `active`, `seq`)
+SELECT 'questionnaire', qr.`id`, 'dashboard', 1, 0
+  FROM `questionnaire_repository` qr;
+
+-- form_foreign_id > 0 stays: a questionnaire_assessments registry row without one is the
+-- generic "New Questionnaire" launcher, which stands for no questionnaire and needs no
+-- assignment. DISTINCT because a questionnaire can hold more than one registry row.
+INSERT INTO `content_assignments` (`resource_type`, `resource_id`, `surface`, `active`, `seq`)
+SELECT DISTINCT 'questionnaire', r.`form_foreign_id`, 'encounter', 1, 0
+  FROM `registry` r
+ WHERE r.`directory` = 'questionnaire_assessments'
+   AND r.`form_foreign_id` > 0;
+#EndIf

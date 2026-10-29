@@ -128,13 +128,29 @@ function changeMFA()
 function logout()
 {
     top.restoreSession();
-    document.getElementById("logoutinnerframe").src=webroot_url+"/interface/logout.php";
+    document.getElementById("logoutinnerframe").src = logoutUrl(false);
 }
 
 function timeoutLogout()
 {
     top.restoreSession();
-    document.getElementById("logoutinnerframe").src=webroot_url+"/interface/logout.php?timeout=1";
+    document.getElementById("logoutinnerframe").src = logoutUrl(true);
+}
+
+// Pass the window's site along: when the session is already gone (expired and
+// garbage collected, or ended elsewhere) logout.php has no other way to know it,
+// and would send the window to the default site's login page.
+function logoutUrl(timedOut)
+{
+    const params = new URLSearchParams();
+    if (timedOut) {
+        params.set('timeout', '1');
+    }
+    if (typeof site_id_js === 'string' && site_id_js !== '') {
+        params.set('site', site_id_js);
+    }
+    const query = params.toString();
+    return webroot_url + "/interface/logout.php" + (query ? "?" + query : "");
 }
 
 function viewSmsCount()

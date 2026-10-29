@@ -15,6 +15,7 @@ namespace Immunization\Controller;
 use Application\Listener\Listener;
 use Immunization\Form\ImmunizationForm;
 use Immunization\Model\ImmunizationTable;
+use Immunization\Model\PatientSelectionMarker;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -140,8 +141,12 @@ class ImmunizationController extends AbstractActionController
         $details = $this->getImmunizationTable()->immunizedPatientDetails($params);
         $rows = [];
         foreach ($details as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
             $rows[] = $row;
         }
+        $rows = PatientSelectionMarker::markFirstRowForEachPatient($rows);
 
         $params['res_count'] = $count;
         $params['total_pages'] = $totalpages;

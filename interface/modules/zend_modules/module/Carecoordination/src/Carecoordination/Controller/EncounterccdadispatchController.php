@@ -14,6 +14,7 @@
 namespace Carecoordination\Controller;
 
 use Application\Listener\Listener;
+use Carecoordination\Controller\CarecoordAuthzTrait;
 use Carecoordination\Controller\EncountermanagerController;
 use Carecoordination\Model\CcdaGenerator;
 use Carecoordination\Model\CcdaServiceConnectionException;
@@ -23,6 +24,7 @@ use Exception;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -35,6 +37,8 @@ use XSLTProcessor;
  */
 class EncounterccdadispatchController extends AbstractActionController
 {
+    use CarecoordAuthzTrait;
+
     protected $data;
 
     protected $patient_id;
@@ -83,11 +87,15 @@ class EncounterccdadispatchController extends AbstractActionController
 
         $content = '';
         $request = $this->getRequest();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->patient_id = $request->getQuery('pid');
         $this->encounter_id = $request->getQuery('encounter');
-        $combination = $request->getQuery('combination');
+        $rawCombination = $request->getQuery('combination');
+        $combination = is_string($rawCombination) ? $rawCombination : '';
         $this->sections = $request->getQuery('sections');
-        $sent_by = $request->getQuery('sent_by');
+        // The sender's identity on the generated document is always the current
+        // session user — never a request parameter.
+        $sent_by = (int) ($session->get('authUserID') ?? 0);
         $send = $request->getQuery('send') ?: 0;
         $view = $request->getQuery('view') ?: 0;
         $emr_transfer = $request->getQuery('emr_transfer') ?: 0;
@@ -116,42 +124,57 @@ class EncounterccdadispatchController extends AbstractActionController
             'filter_content' => $filter_content
         ];
 
+        [$authUser, $authProvider] = $this->auditIdentity();
+
         // QRDA I user view html version
         if ($this->getRequest()->getQuery('doctype') === 'qrda') {
+            $singlePid = (int) explode('_', $combination)[0];
+            if (!$this->isPatientAuthorized($singlePid)) {
+                AccessDeniedHelper::deny('EncounterccdadispatchController::qrda: pid not accessible by caller');
+            }
             $xmlController = new QrdaReportController();
             $document = $xmlController->getCategoryIReport($combination, '', 'html');
             echo $document;
+            EventAuditLogger::getInstance()->newEvent("qrda-export", $authUser, $authProvider, 1, "QRDA view pid=$singlePid");
             exit;
         }
 
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $authUser = $session->get('authUser');
-        $authProvider = $session->get('authProvider');
         // QRDA III user view html version
         if ($this->getRequest()->getQuery('doctype') === 'qrda3') {
+            $singlePid = (int) explode('_', $combination)[0];
+            if (!$this->isPatientAuthorized($singlePid)) {
+                AccessDeniedHelper::deny('EncounterccdadispatchController::qrda3: pid not accessible by caller');
+            }
             $xmlController = new QrdaReportController();
             $document = $xmlController->getCategoryIIIReport($combination, '');
             echo $document;
-            EventAuditLogger::getInstance()->newEvent("qrda3-export", $authUser, $authProvider, 1, "QRDA3 view");
+            EventAuditLogger::getInstance()->newEvent("qrda3-export", $authUser, $authProvider, 1, "QRDA3 view pid=$singlePid");
             exit;
         }
 
         // QRDA III Consolidated user view
         if ($this->getRequest()->getQuery('doctype') === 'qrda3_consolidated') {
+            $singlePid = (int) explode('_', $combination)[0];
+            if (!$this->isPatientAuthorized($singlePid)) {
+                AccessDeniedHelper::deny('EncounterccdadispatchController::qrda3_consolidated: pid not accessible by caller');
+            }
             $xmlController = new QrdaReportController();
             $document = $xmlController->getConsolidatedCategoryIIIReport($combination, '');
 
             // For HTML view, you could add XSL transformation here if needed
             echo $document;
-            EventAuditLogger::getInstance()->newEvent("qrda3-consolidated-export", $authUser, $authProvider, 1, "QRDA3 Consolidated view");
+            EventAuditLogger::getInstance()->newEvent("qrda3-consolidated-export", $authUser, $authProvider, 1, "QRDA3 Consolidated view pid=$singlePid");
             exit;
         }
 
         // QRDA I batch selected pids download as zip.
         if ($downloadqrda === 'download_qrda') {
             $xmlController = new QrdaReportController();
-            $combination = $this->params('pids');
-            $pids = explode('|', (string) $combination);
+            $combination = $this->paramString('pids');
+            $pids = $this->filterAuthorizedPids(explode('|', $combination));
+            if ($pids === []) {
+                AccessDeniedHelper::deny('EncounterccdadispatchController::download_qrda: no accessible pids in request');
+            }
             $measures = $_REQUEST['report_measures'] ?? "";
             if (is_array($measures)) {
                 if (empty($measures[0])) {
@@ -160,6 +183,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $measures = 'all'; // defaults to all current measures per patient.
                 }
             }
+            EventAuditLogger::getInstance()->newEvent("qrda-batch-export", $authUser, $authProvider, 1, 'pids=' . implode(',', $pids));
             $xmlController->downloadQrdaIAsZip($pids, $measures, 'xml');
             exit;
         }
@@ -167,8 +191,11 @@ class EncounterccdadispatchController extends AbstractActionController
         // QRDA III batch selected pids download as zip (individual files per measure).
         if ($downloadqrda3 === 'download_qrda3') {
             $xmlController = new QrdaReportController();
-            $combination = $this->params('pids');
-            $pids = explode('|', (string) $combination);
+            $combination = $this->paramString('pids');
+            $pids = $this->filterAuthorizedPids(explode('|', $combination));
+            if ($pids === []) {
+                AccessDeniedHelper::deny('EncounterccdadispatchController::download_qrda3: no accessible pids in request');
+            }
             $measures = $_REQUEST['report_measures_cat3'] ?? "";
             if (is_array($measures)) {
                 if (empty($measures[0])) {
@@ -177,6 +204,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $measures = 'all'; // defaults to all current measures
                 }
             }
+            EventAuditLogger::getInstance()->newEvent("qrda3-batch-export", $authUser, $authProvider, 1, 'pids=' . implode(',', $pids));
             $xmlController->downloadQrdaIII($pids, $measures);
             exit;
         }
@@ -188,7 +216,7 @@ class EncounterccdadispatchController extends AbstractActionController
         }
 
         if ($downloadccda === 'download_ccda') {
-            $combination = $this->params('pids');
+            $combination = $this->paramString('pids');
             $view = $this->params('view');
         }
         // Since called outside a route(api from cdaDocumentService) we haven't any route parameters
@@ -196,7 +224,8 @@ class EncounterccdadispatchController extends AbstractActionController
         if (!empty($_POST['sent_by_app'] ?? '')) {
             $downloadccda = $this->getRequest()->getPost('downloadccda');
             if ($downloadccda === 'download_ccda') {
-                $combination = $this->getRequest()->getPost('combination');
+                $rawPostCombination = $this->getRequest()->getPost('combination');
+                $combination = is_string($rawPostCombination) ? $rawPostCombination : '';
                 $view = $this->getRequest()->getPost('view');
                 $this->latest_ccda = $this->getRequest()->getPost('latest_ccda');
                 $this->components = $this->getRequest()->getPost('components');
@@ -206,11 +235,18 @@ class EncounterccdadispatchController extends AbstractActionController
         try {
             $ccdaGenerator = new CcdaGenerator($this->getEncounterccdadispatchTable());
             if (!empty($combination)) {
-                $arr = explode('|', (string) $combination);
+                $authorizedCombinationPids = $this->filterAuthorizedPids(explode('|', $combination));
+                if ($authorizedCombinationPids === []) {
+                    AccessDeniedHelper::deny('EncounterccdadispatchController::indexAction: no accessible pids in combination');
+                }
+                $arr = explode('|', $combination);
                 foreach ($arr as $row) {
                     $arr = explode('_', $row);
                     $this->patient_id = $arr[0];
                     $this->encounter_id = (($arr[1] ?? '') > 0 ? $arr[1] : null);
+                    if (!$this->isPatientAuthorized((int) $this->patient_id)) {
+                        continue;
+                    }
                     if ($this->latest_ccda) {
                         $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
                     }
@@ -323,14 +359,53 @@ class EncounterccdadispatchController extends AbstractActionController
      * Handle consolidated QRDA III download
      *
      */
+    /**
+     * Reduce a raw list of pid strings to the integers the current caller is
+     * actually permitted to see. The empty-combination case is NOT a legit
+     * HTTP flow — the batch QRDA export only expects explicitly-selected
+     * patients from the Reports UI — so an unauthenticated-feeling empty
+     * list collapses to an empty array and the caller returns 403.
+     */
+    /**
+     * @param array<int, mixed> $pids
+     * @return array<int, int>
+     */
+    private function filterAuthorizedPids(array $pids): array
+    {
+        $authorized = [];
+        foreach ($pids as $row) {
+            $rowString = is_scalar($row) ? (string) $row : '';
+            $pid = (int) explode('_', $rowString)[0];
+            if ($pid > 0 && $this->isPatientAuthorized($pid)) {
+                $authorized[] = $pid;
+            }
+        }
+        return $authorized;
+    }
+
+    /**
+     * Fetch a Zend route param ($this->params()) as a string. Mirrors the
+     * shape of `is_string(x) ? x : ''` applied once per lookup so we don't
+     * sprinkle casts at every call site.
+     */
+    private function paramString(string $name): string
+    {
+        $v = $this->params($name);
+        return is_string($v) ? $v : '';
+    }
+
     private function handleConsolidatedQrda3Download(): void
     {
         try {
             $xmlController = new QrdaReportController();
 
             // Get parameters using your existing pattern
-            $combination = $this->params('pids');
-            $pids = !empty($combination) ? explode('|', (string) $combination) : null;
+            $combination = $this->paramString('pids');
+            $rawPids = !empty($combination) ? explode('|', $combination) : [];
+            $pids = $this->filterAuthorizedPids($rawPids);
+            if ($pids === []) {
+                AccessDeniedHelper::deny('EncounterccdadispatchController::handleConsolidatedQrda3Download: no accessible pids in request');
+            }
 
             // Get measures from request (same as your QRDA III logic)
             $measures = $_REQUEST['report_measures_cat3'] ?? "";
@@ -460,7 +535,7 @@ class EncounterccdadispatchController extends AbstractActionController
             return;
         }
 
-        $combination = $this->params('pids');
+        $combination = $this->paramString('pids');
         $view = new ViewModel([
             'combination' => $combination,
             'listenerObject' => $this->listenerObject,

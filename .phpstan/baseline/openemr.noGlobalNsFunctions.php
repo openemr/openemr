@@ -2857,11 +2857,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function printPDF may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getListData may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/stats.php',

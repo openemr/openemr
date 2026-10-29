@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 550
+-- v_database: 561
 --
 
 --
@@ -2062,7 +2062,8 @@ CREATE TABLE `form_encounter` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
-  KEY `encounter_date` (`date`)
+  KEY `encounter_date` (`date`),
+  KEY `encounter` (`encounter`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -3453,7 +3454,9 @@ CREATE TABLE `issue_encounter` (
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'timestamp when this issue encounter record was last updated',
   UNIQUE KEY `uniq_issue_key`(`pid`,`list_id`,`encounter`),
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid_unique` (`uuid`)
+  UNIQUE KEY `uuid_unique` (`uuid`),
+  KEY `encounter` (`encounter`),
+  KEY `list_id` (`list_id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -7043,7 +7046,7 @@ VALUES ('lists', 'sdoh_food_insecurity_risk', 'SDOH – Food Insecurity (Risk)',
 INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
 VALUES ('pregnancy_intent', 'not_sure', 'Not sure of desire to become pregnant (finding)', 10, 'SNOMED-CT:454381000124105', ''),
        ('pregnancy_intent', 'ambivalent', 'Ambivalent about becoming pregnant (finding)', 20, 'SNOMED-CT:454391000124108', ''),
-       ('pregnancy_intent', 'no_desire', 'No desire to become pregnant (finding)', 30, 'SNOMED-CT:454391000124108', ''),
+       ('pregnancy_intent', 'no_desire', 'No desire to become pregnant (finding)', 30, 'SNOMED-CT:454401000124105', ''),
        ('pregnancy_intent', 'wants_pregnancy', 'Wants to become pregnant (finding)', 40, 'SNOMED-CT:454411000124108', '');
 
 INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
@@ -14400,6 +14403,45 @@ CREATE TABLE `questionnaire_response` (
   KEY `response_index` (`response_id`, `patient_id`, `questionnaire_id`, `questionnaire_name`)
 ) ENGINE=InnoDB;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `task`
+--
+
+DROP TABLE IF EXISTS `task`;
+CREATE TABLE `task` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
+  `status` varchar(31) NOT NULL DEFAULT 'requested' COMMENT 'FHIR Task.status code',
+  `status_reason` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.statusReason, as text',
+  `business_status` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.businessStatus, as text',
+  `intent` varchar(31) NOT NULL DEFAULT 'order' COMMENT 'FHIR Task.intent code',
+  `priority` varchar(31) DEFAULT NULL COMMENT 'FHIR Task.priority code',
+  `code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.code, from http://hl7.org/fhir/CodeSystem/task-code',
+  `description` text,
+  `patient_id` bigint(20) DEFAULT NULL COMMENT 'FHIR Task.for: patient_data.pid',
+  `focus_type` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.focus: resource type',
+  `focus_uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Task.focus: resource id',
+  `owner_type` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.owner: resource type',
+  `owner_uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Task.owner: resource id',
+  `requester_type` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.requester: resource type',
+  `requester_uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Task.requester: resource id',
+  `part_of_uuid` binary(16) DEFAULT NULL COMMENT 'FHIR Task.partOf: the parent task.uuid',
+  `authored_on` datetime DEFAULT NULL,
+  `last_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` bigint(20) DEFAULT NULL COMMENT 'users.id',
+  `updated_by` bigint(20) DEFAULT NULL COMMENT 'users.id',
+  `version` int(11) NOT NULL DEFAULT 1 COMMENT 'FHIR meta.versionId: 1 on create, raised by each update (If-Match)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  KEY `patient_id` (`patient_id`),
+  KEY `status` (`status`),
+  KEY `focus_uuid` (`focus_uuid`),
+  KEY `owner_uuid` (`owner_uuid`),
+  KEY `part_of_uuid` (`part_of_uuid`)
+) ENGINE=InnoDB;
+
 DROP TABLE IF EXISTS `form_questionnaire_assessments`;
 CREATE TABLE `form_questionnaire_assessments` (
   `id` bigint(21) NOT NULL AUTO_INCREMENT,
@@ -14419,7 +14461,32 @@ CREATE TABLE `form_questionnaire_assessments` (
   `lform` longtext,
   `lform_response` longtext,
   `category` VARCHAR(64) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `response_id` (`response_id`(64))
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `content_assignments`;
+CREATE TABLE `content_assignments` (
+  `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `resource_type` varchar(63) NOT NULL DEFAULT 'questionnaire' COMMENT 'what is being assigned. A resource belongs here when "may this appear on this surface, in this context" is answered by the columns below; content scoped by patient cohort or carrying a send schedule does not',
+  `resource_id` bigint(21) UNSIGNED DEFAULT NULL COMMENT 'fk into the resource_type table, e.g. questionnaire_repository.id. NULL with a category set means every resource in that category',
+  `surface` varchar(31) NOT NULL COMMENT 'dashboard, encounter, portal, smart',
+  `category` varchar(64) DEFAULT NULL COMMENT 'with resource_id set, unused; with resource_id NULL, assigns every resource whose own category matches',
+  `facility` int(11) DEFAULT NULL COMMENT 'fk to facility.id; NULL means any',
+  `provider` int(11) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id; NULL means any',
+  `visit_category_id` int(11) DEFAULT NULL COMMENT 'fk to openemr_postcalendar_categories.pc_catid, as form_encounter.pc_catid carries it; NULL means any',
+  `client_id` varchar(255) DEFAULT NULL COMMENT 'oauth client for surface=smart; NULL means any',
+  `acl_section` varchar(64) DEFAULT NULL COMMENT 'ACL section required; set with acl_level or leave both NULL to use the surface default',
+  `acl_level` varchar(31) DEFAULT NULL COMMENT 'ACL level required; set with acl_section or leave both NULL to use the surface default',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `seq` int(11) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_by` int(10) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id',
+  `updated_by` int(10) UNSIGNED DEFAULT NULL COMMENT 'fk to users.id',
+  PRIMARY KEY (`id`),
+  KEY `lookup` (`resource_type`,`surface`,`active`),
+  KEY `resource` (`resource_type`,`resource_id`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `onetime_auth`;

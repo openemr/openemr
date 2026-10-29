@@ -862,11 +862,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportOnsiteMessagesTableDefinition.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$user_id \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/setup_services.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$field_id \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/utility.php',

@@ -8,4 +8,4 @@
 
 $v_major = '6';
 $v_minor = '0';
-$v_patch = '0';
+$v_patch = '2';

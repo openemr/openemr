@@ -388,10 +388,12 @@ class EncounterService extends BaseService
      *
      * @param $puuid The patient identifier of particular encounter
      * @param $data  The encounter fields (array) to insert.
+     * @param ?string $authorized the encounter form's `forms.authorized` value; when null (every caller but the
+     *               arrival path), the provider id is stored there, as before
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      *               payload.
      */
-    public function insertEncounter($puuid, $data)
+    public function insertEncounter($puuid, $data, ?string $authorized = null)
     {
         $processingResult = new ProcessingResult();
         $processingResult = $this->encounterValidator->validate(
@@ -428,7 +430,7 @@ class EncounterService extends BaseService
             $results,
             "newpatient",
             $data['pid'],
-            $data["provider_id"],
+            $authorized ?? $data["provider_id"],
             $data["date"],
             $data['user'],
             $data['group']
@@ -604,7 +606,10 @@ class EncounterService extends BaseService
         return 1;
     }
 
-    public function updateVital($pid, $eid, $vid, $data)
+    /**
+     * @param array<mixed> $data
+     */
+    public function updateVital($pid, $eid, $vid, array $data)
     {
         // Verify the vital belongs to this patient/encounter before updating
         // to prevent IDOR attacks where an attacker supplies another patient's vid.
@@ -617,6 +622,10 @@ class EncounterService extends BaseService
         $data['date'] = date("Y-m-d H:i:s");
         $data['activity'] = 1;
         $data['id'] = $vid;
+        $existingUuid = $existingVital['uuid'] ?? null;
+        if (is_string($existingUuid)) {
+            $data['uuid'] = $existingUuid;
+        }
         $data['pid'] = $pid;
         $data['eid'] = $eid;
 

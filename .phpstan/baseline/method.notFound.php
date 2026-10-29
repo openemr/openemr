@@ -113,12 +113,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getPost\\(\\)\\.$#',
-    'count' => 7,
+    'count' => 9,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getQuery\\(\\)\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
 $ignoreErrors[] = [
@@ -485,21 +485,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Particle\\\\Validator\\\\Chain\\:\\:listOption\\(\\)\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:getAttribute\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:hasAttribute\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:setAttribute\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:getMessages\\(\\)\\.$#',

@@ -15,8 +15,11 @@
 
 namespace OpenEMR\Tests\Isolated\Services\Cda;
 
+use OpenEMR\Cda\InternalToCdaConverter;
 use OpenEMR\Services\Cda\CdaTemplateParse;
+use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -639,6 +642,174 @@ class CdaTemplateParseTest extends TestCase
     // ──────────────────────────────────────────────────────────────────────
     // Helpers
     // ──────────────────────────────────────────────────────────────────────
+
+    // ──────────────────────────────────────────────────────────────────────
+    // fetchLabResultData
+    // ──────────────────────────────────────────────────────────────────────
+
+    /**
+     * A unit that isn't UCUM comes as nullFlavor="OTH", with the number and the unit's
+     * text in a translation (HL7's "Results Unit Non-UCUM" example).
+     */
+    public function testFetchLabResultDataReadsANonUcumQuantityFromItsTranslation(): void
+    {
+        $nonUcum = fn(string $number): array => [
+            'nullFlavor' => 'OTH',
+            'translation' => ['value' => $number, 'nullFlavor' => 'OTH', 'originalText' => 'THOUS/MCL'],
+        ];
+        $this->parser->fetchLabResultData($this->labResultEntry(
+            ['type' => 'PQ'] + $nonUcum('152'),
+            ['low' => $nonUcum('150'), 'high' => $nonUcum('400'), 'type' => 'IVL_PQ'],
+        ));
+
+        $item = $this->getFieldRecord('procedure_result', 1);
+        $this->assertSame('152', $item['results_value']);
+        $this->assertSame('THOUS/MCL', $item['results_unit']);
+        $this->assertSame('150 400 THOUS/MCL', $item['results_range']);
+    }
+
+    public function testFetchLabResultDataReadsTheTranslationThatHasTheNumber(): void
+    {
+        $this->parser->fetchLabResultData($this->labResultEntry(
+            [
+                'type' => 'PQ',
+                'nullFlavor' => 'OTH',
+                'translation' => [
+                    ['code' => 'THOUS/MCL', 'codeSystem' => '2.16.840.1.113883.19'],
+                    ['value' => '152', 'nullFlavor' => 'OTH', 'originalText' => 'THOUS/MCL'],
+                ],
+            ],
+            ['type' => 'IVL_PQ'],
+        ));
+
+        $item = $this->getFieldRecord('procedure_result', 1);
+        $this->assertSame('152', $item['results_value']);
+        $this->assertSame('THOUS/MCL', $item['results_unit']);
+    }
+
+    public function testFetchLabResultDataPrefersTheUcumQuantityOverItsTranslation(): void
+    {
+        $this->parser->fetchLabResultData($this->labResultEntry(
+            [
+                'type' => 'PQ',
+                'value' => '7.2',
+                'unit' => '10*3/uL',
+                'translation' => ['value' => '7.2', 'code' => 'K/uL', 'codeSystem' => '2.16.840.1.113883.19'],
+            ],
+            ['low' => ['value' => '4.5', 'unit' => '10*3/uL'], 'high' => ['value' => '11.0', 'unit' => '10*3/uL'], 'type' => 'IVL_PQ'],
+        ));
+
+        $item = $this->getFieldRecord('procedure_result', 1);
+        $this->assertSame('7.2', $item['results_value']);
+        $this->assertSame('10*3/uL', $item['results_unit']);
+        $this->assertSame('4.5 11.0 10*3/uL', $item['results_range']);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function roundTripUnitProvider(): array
+    {
+        return [
+            'UCUM' => ['mg/dL'],
+            'not UCUM' => ['Thous/CU.MM'],
+        ];
+    }
+
+    /**
+     * A lab result OpenEMR exports comes back with its number, unit and range, whether
+     * or not its unit is UCUM.
+     */
+    #[DataProvider('roundTripUnitProvider')]
+    public function testFetchLabResultDataReadsWhatOpenEmrExports(string $unit): void
+    {
+        $cda = (new InternalToCdaConverter())->convert(<<<XML
+            <CCDA>
+                <results>
+                    <result>
+                        <extension>RES-1</extension>
+                        <test_code>58410-2</test_code>
+                        <test_name>CBC panel</test_name>
+                        <subtest>
+                            <result_code>6690-2</result_code>
+                            <result_desc>WBC</result_desc>
+                            <result_value>7.2</result_value>
+                            <unit>{$unit}</unit>
+                            <low>4.5</low>
+                            <high>11.0</high>
+                        </subtest>
+                    </result>
+                </results>
+            </CCDA>
+            XML);
+        $organizer = $this->findOrganizer((new XmlExtended())->fromString($cda), '2.16.840.1.113883.10.20.22.4.1');
+        $this->assertNotNull($organizer, 'The export must hold a Result Organizer');
+
+        $this->parser->fetchLabResultData(['organizer' => $organizer]);
+
+        $item = $this->getFieldRecord('procedure_result', 1);
+        $this->assertSame('7.2', $item['results_value']);
+        $this->assertSame($unit, $item['results_unit']);
+        $this->assertSame('4.5 11.0 ' . $unit, $item['results_range']);
+    }
+
+    /**
+     * One Result Organizer entry holding one result observation.
+     *
+     * @param array<string, mixed> $value
+     * @param array<string, mixed> $rangeValue
+     * @return array<string, mixed>
+     */
+    private function labResultEntry(array $value, array $rangeValue): array
+    {
+        return [
+            'organizer' => [
+                'id' => ['root' => 'org-root', 'extension' => 'org-ext'],
+                'code' => ['code' => '58410-2', 'codeSystemName' => 'LOINC', 'displayName' => 'CBC panel'],
+                'statusCode' => ['code' => 'completed'],
+                'component' => [[
+                    'observation' => [
+                        'id' => ['root' => 'obs-root', 'extension' => 'obs-ext'],
+                        'code' => ['code' => '6690-2', 'codeSystemName' => 'LOINC', 'displayName' => 'WBC'],
+                        'effectiveTime' => ['value' => '20261029'],
+                        'value' => $value,
+                        'referenceRange' => ['observationRange' => ['value' => $rangeValue]],
+                    ],
+                ]],
+            ],
+        ];
+    }
+
+    /**
+     * The first organizer in a parsed document carrying the given templateId.
+     *
+     * @return array<mixed>|null
+     */
+    private function findOrganizer(mixed $node, string $templateId): ?array
+    {
+        if (!is_array($node)) {
+            return null;
+        }
+        $organizer = $node['organizer'] ?? null;
+        if (is_array($organizer)) {
+            $ids = $organizer['templateId'] ?? [];
+            $ids = is_array($ids) && array_is_list($ids) ? $ids : [$ids];
+            foreach ($ids as $id) {
+                if (is_array($id) && ($id['root'] ?? null) === $templateId) {
+                    return $organizer;
+                }
+            }
+        }
+        foreach ($node as $child) {
+            $found = $this->findOrganizer($child, $templateId);
+            if ($found !== null) {
+                return $found;
+            }
+        }
+        return null;
+    }
 
     private function setProperty(string $name, mixed $value): void
     {

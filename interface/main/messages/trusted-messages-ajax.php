@@ -89,6 +89,14 @@ if (!CsrfUtils::verifyCsrfToken($csrf, session: $session)) {
             if (!$document->can_access()) {
                 throw new AccessDeniedException("patients", "demo", "Access to patient data is denied");
             }
+
+            // the document's foreign_id must match the pid passed on this
+            // request — the per-category check above is table-level and does
+            // not stop a caller from pointing a legitimate pid at an
+            // unrelated patient's document.
+            if ((int) $document->get_foreign_id() !== $pid) {
+                throw new AccessDeniedException("patients", "demo", "Access to patient data is denied");
+            }
         }
         /** @var string|int $rawVerify */
         $rawVerify = $_REQUEST['verifyMessageReceived'] ?? 0;

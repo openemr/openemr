@@ -22,6 +22,10 @@ ob_start();
 require_once("../globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\EraAdjustmentMemo;
+use OpenEMR\Billing\EraCheckPosting;
+use OpenEMR\Billing\EraReversal;
+use OpenEMR\Billing\EraReversalOutcome;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
@@ -29,6 +33,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -244,7 +249,11 @@ function eob_process_era_callback_check(array &$out): void
         for ($check_count = 1; $check_count <= $out['check_count']; $check_count++) {
             $bgcolor = $check_count % 2 === 1 ? '#ddddff' : '#ffdddd';
 
-            $records = QueryUtils::fetchRecords("select reference from ar_session where reference=?", [$out['check_number' . $check_count]]);
+            $listedCheck = $out['check_number' . $check_count];
+            $records = QueryUtils::fetchRecords(
+                "select reference from ar_session where reference IN (?, ?)",
+                EraCheckPosting::references(is_string($listedCheck) ? $listedCheck : '')
+            );
 
             if (!empty($records)) {
                 $bgcolor = '#ff0000';
@@ -280,7 +289,17 @@ function eob_process_era_callback_check(array &$out): void
                 $check_date = $out['check_date' . $check_count] ?: $_REQUEST['paydate'];
                 $post_to_date = $_REQUEST['post_to_date'] ?: date('Y-m-d');
                 $deposit_date = $_REQUEST['deposit_date'] ?: date('Y-m-d');
-                $InsertionId[$out['check_number' . $check_count]] = SLEOB::arPostSession(
+                // A check posted before keeps its payment session: a second one would
+                // count the check twice. Its claims already posted are skipped below.
+                $thisCheck = $out['check_number' . $check_count];
+                $thisCheck = is_string($thisCheck) ? $thisCheck : '';
+                $thisCheckDate = $out['check_date' . $check_count];
+                $eraRun = EraCheckPosting::forRequest(CurrentRequest::get());
+                $existingSession = $eraRun->existingSession($thisCheck, is_string($thisCheckDate) ? $thisCheckDate : '');
+                if ($existingSession > 0) {
+                    $eraRun->reuseSession($thisCheck, $existingSession);
+                }
+                $InsertionId[$out['check_number' . $check_count]] = $existingSession > 0 ? $existingSession : SLEOB::arPostSession(
                     payer_id: $_REQUEST['InsId'],
                     check_number: $out['check_number' . $check_count],
                     check_date: $out['check_date' . $check_count],
@@ -307,6 +326,9 @@ function eob_process_era_callback(array &$out): void
     // last inserted ID of ar_session table
     global $InsertionId;
 
+    $checkNumber = is_string($out['check_number'] ?? null) ? $out['check_number'] : '';
+    $checkDate = is_string($out['check_date'] ?? null) ? $out['check_date'] : '';
+
     // Some heading information.
     $chk_123 = str_replace(' ', '_', $out['check_number']);
     if (isset($_REQUEST['chk' . $chk_123])) {
@@ -323,6 +345,16 @@ function eob_process_era_callback(array &$out): void
                     "WITHOUT UPDATE is selected; no changes will be applied."
                 );
             }
+        }
+        $eraRun = EraCheckPosting::forRequest(CurrentRequest::get());
+        $reusedSession = $eraRun->takeReusedSession($checkNumber);
+        if ($reusedSession !== null) {
+            echo getMessageLine(
+                'var(--white)',
+                'errdetail',
+                "Check $checkNumber was posted before (payment session $reusedSession); "
+                . "only claims not yet posted from it are posted now"
+            );
         }
 
         $last_code = '';
@@ -357,6 +389,26 @@ function eob_process_era_callback(array &$out): void
             default => 'Ins1'
         };
 
+        // The claim's date of service as the ERA gives it; the payer lookups below use it.
+        $service_date = parseDate($out['dos'] ?? $out['claim_date']);
+
+        // CLP07, the payer's claim control number. It is stored on every row this
+        // claim posts, so a claim the payer paid nothing on still records it, and a
+        // reversal uses it to find the payment it takes back.
+        $payer_claim_number = is_string($out['payer_claim_id'] ?? null) && $out['payer_claim_id'] !== ''
+            ? $out['payer_claim_id']
+            : null;
+
+        // Re-posting an ERA must not post a claim's payments and adjustments twice:
+        // skip a claim this check was already posted to in an earlier run. Several
+        // claim lines (CLPs) for one claim in this ERA still post.
+        $alreadyPosted = !$inverror && $eraRun->postedBefore(
+            is_numeric($pid) ? (int) $pid : 0,
+            is_numeric($encounter) ? (int) $encounter : 0,
+            $checkNumber,
+            $checkDate
+        );
+
         $primary = ($inslabel === 'Ins1');
         echo getMessageLine(
             $bgcolor,
@@ -382,7 +434,14 @@ function eob_process_era_callback(array &$out): void
             // }
         }
 
-        if ($csc === '4') {
+        if ($alreadyPosted) {
+            $inverror = true;
+            echo getMessageLine(
+                $bgcolor,
+                'errdetail',
+                "Already posted from check $checkNumber; not posted again"
+            );
+        } elseif ($csc === '4') {
             // Denial case, code is stored in the claims table for display in the billing manager screen with reason explained.
             $inverror = true;
             if (!$debug) {
@@ -396,9 +455,25 @@ function eob_process_era_callback(array &$out): void
                     }
 
                     $code_value = substr($code_value, 0, -1);
-                    // We store the reason code to display it with description in the billing manager screen.
-                    // process_file is used as for the denial case file name will not be there, and extra field(to store reason) can be avoided.
-                    BillingUtilities::updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
+                    // A re-posted ERA must not add the same denial again.
+                    if (
+                        $eraRun->denialRecorded(
+                            is_numeric($pid) ? (int) $pid : 0,
+                            is_numeric($encounter) ? (int) $encounter : 0,
+                            (int) substr($inslabel, 3),
+                            $code_value
+                        )
+                    ) {
+                        echo getMessageLine(
+                            $bgcolor,
+                            'errdetail',
+                            "Denial already recorded for this claim; not recorded again"
+                        );
+                    } else {
+                        // We store the reason code to display it with description in the billing manager screen.
+                        // process_file is used as for the denial case file name will not be there, and extra field(to store reason) can be avoided.
+                        BillingUtilities::updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
+                    }
                 }
             }
 
@@ -409,6 +484,31 @@ function eob_process_era_callback(array &$out): void
             );
         } elseif ($csc === '22') {
             $inverror = true;
+            // The reversal isn't posted, but the payment it takes back closed its
+            // insurance level: re-open it so the balance isn't treated as the patient's.
+            if (!$debug && $pid && $encounter) {
+                $reversal = new EraReversal(CurrentRequest::get()->query->getString('InsId'));
+                $reversalPid = is_numeric($pid) ? (int) $pid : 0;
+                $reversalEncounter = is_numeric($encounter) ? (int) $encounter : 0;
+                // The ERA's date of service, as the rest of the posting uses; the encounter's if it has none.
+                $reversalDos = $service_date !== ''
+                    ? $service_date
+                    : (is_string($ferow['date'] ?? null) ? substr($ferow['date'], 0, 10) : '');
+                $reversalLevel = $reversal->reversedLevel(
+                    $reversalPid,
+                    $reversalEncounter,
+                    $reversalDos,
+                    $payer_claim_number ?? ''
+                );
+                $outcome = $reversal->reopenLevel($reversalPid, $reversalEncounter, $reversalLevel, $checkNumber, $checkDate);
+                echo getMessageLine($bgcolor, 'errdetail', match ($outcome) {
+                    EraReversalOutcome::Reopened => "Ins$reversalLevel re-opened, so the balance stays with insurance",
+                    EraReversalOutcome::CorrectionPosted => "Ins$reversalLevel stays closed: this check also posted a corrected payment",
+                    EraReversalOutcome::AlreadyOpen => "Ins$reversalLevel was not closed; left as is",
+                    EraReversalOutcome::PayerNotOnClaim => "This payer is not on the claim for the date of service; insurance levels left as they are",
+                    EraReversalOutcome::LevelUnknown => "Could not tell which insurance this reversal is for; insurance levels left as they are",
+                });
+            }
             echo getMessageLine(
                 $bgcolor,
                 'errdetail',
@@ -427,21 +527,21 @@ function eob_process_era_callback(array &$out): void
         }
 
         // Simplify some claim attributes for cleaner code.
-        $service_date = parseDate($out['dos'] ?? $out['claim_date']);
         $check_date = $paydate ?: parseDate($out['check_date']);
         $production_date = $paydate ?: parseDate($out['production_date']);
-        // CLP07, the payer's claim control number. It is stored on every row this
-        // claim posts, so a claim the payer paid nothing on still records it.
-        $payer_claim_number = is_string($out['payer_claim_id'] ?? null) && $out['payer_claim_id'] !== ''
-            ? $out['payer_claim_id']
-            : null;
-
         $insurance_id = SLEOB::arGetPayerID($pid, $service_date, substr($inslabel, 3));
         $patient_name = empty($ferow['lname'])
             ? $out['patient_fname'] . ' ' . $out['patient_lname']
             : $ferow['fname'] . ' ' . $ferow['lname'];
 
         $error = $inverror;
+        // Service lines the payer pended (adjustment reason 133) are tracked for the whole
+        // run: another claim payment (CLP) in this ERA may cover the same claim.
+        $claimPid = is_numeric($pid) ? (int) $pid : 0;
+        $claimEncounter = is_numeric($encounter) ? (int) $encounter : 0;
+        $claimLevel = (int) substr($inslabel, 3);
+        $pendedCodes = [];
+        $answeredCodes = [];
 
         // create array of cpts and mods for complex matching
         $codes_arr_keys = array_keys($codes);
@@ -459,6 +559,7 @@ function eob_process_era_callback(array &$out): void
 
         // This loops once for each service item in this claim.
         foreach ($out['svc'] as $svc) {
+            $svcPended = false;
             // Treat a modifier in the remit data as part of the procedure key.
             // This key will then make its way into SQL-Ledger.
             $codekey = $svc['code'];
@@ -607,27 +708,29 @@ function eob_process_era_callback(array &$out): void
             foreach ($svc['adj'] as $adj) {
                 $description = ($adj['reason_code'] ?? '') . ': ' .
                     BillingUtilities::CLAIM_ADJUSTMENT_REASON_CODES[$adj['reason_code'] ?? ''];
+                if (($adj['reason_code'] ?? '') === '133') {
+                    // 133: the disposition of this line is pending further review. It is not
+                    // the payer's answer, whatever group it comes with: post nothing for it and
+                    // leave the level open. The payer sends a reversal and correction once the
+                    // line is decided.
+                    $svcPended = true;
+                    echo getMessageLine($bgcolor, 'infdetail', "$description (pended by the payer; not posted)");
+                    continue;
+                }
                 $isContractualWriteoff = $adj['group_code'] === 'CO'
                     && in_array($adj['reason_code'], ['45', '59'], true);
                 if ($adj['group_code'] === 'PR' || !$primary) {
                     // Group code PR is Patient Responsibility.  Enter these as zero
                     // adjustments to retain the note without crediting the claim.
-                    if ($primary) {
-                        // Reasons should be 25 chars or less.
-                        $reason = match ($adj['reason_code']) {
-                            '1' => "$inslabel dedbl: ",
-                            '2' => "$inslabel coins: ",
-                            '3' => "$inslabel copay: ",
-                            default => "$inslabel ptresp: "
-                        };
-                    } else {
-                        // Non-primary insurance adjustments are garbage, either repeating
-                        // the primary or are not adjustments at all.  Report them as notes
-                        // but do not post any amounts.
-                        $reason = "$inslabel note " . $adj['reason_code'] . ': ';
-                    }
-
-                    $reason .= sprintf("%.2f", $adj['amount']);
+                    // Non-primary insurance adjustments are garbage, either repeating
+                    // the primary or are not adjustments at all.  Report them as notes
+                    // but do not post any amounts.
+                    $reason = EraAdjustmentMemo::forAdjustment(
+                        $inslabel,
+                        $primary,
+                        is_scalar($adj['reason_code'] ?? null) ? (string) $adj['reason_code'] : '',
+                        is_numeric($adj['amount'] ?? null) ? (float) $adj['amount'] : 0.0
+                    );
                     // Post a zero-dollar adjustment just to save it as a comment.
                     if (!$error && !$debug) {
                         SLEOB::arPostAdjustment(
@@ -678,7 +781,21 @@ function eob_process_era_callback(array &$out): void
                     balance: ($error ? '' : $invoice_total)
                 );
             }
+            $lineCode = is_string($codekey) ? $codekey : '';
+            if ($svcPended) {
+                $pendedCodes[] = $lineCode;
+            } else {
+                $answeredCodes[] = $lineCode;
+            }
         } // End of service item
+        // Lines answered here settle lines pended by an earlier CLP in this run. Only a
+        // claim matched to a patient and encounter is tracked; an unmatched one is
+        // reported by the invoice error path. A CLP in error posted nothing, so its
+        // lines don't settle anything.
+        $hasClaimIdentity = $claimPid > 0 && $claimEncounter > 0;
+        if ($hasClaimIdentity) {
+            $eraRun->recordClaimPayment($claimPid, $claimEncounter, $claimLevel, $pendedCodes, $error ? [] : $answeredCodes);
+        }
 
         // Report any existing service items not mentioned in the ERA, and
         // determine if any of them are still missing an insurance response
@@ -704,6 +821,17 @@ function eob_process_era_callback(array &$out): void
             if (!$got_response) {
                 $insurance_done = false;
             }
+        }
+
+        // A pended line means the payer isn't done with the claim yet.
+        $pendedCount = $hasClaimIdentity ? $eraRun->pendedLineCount($claimPid, $claimEncounter, $claimLevel) : 0;
+        if ($pendedCount > 0) {
+            $insurance_done = false;
+            echo getMessageLine(
+                $bgcolor,
+                'errdetail',
+                "$inslabel left open: the payer pended $pendedCount line(s) (adjustment reason 133); wait for its final remittance"
+            );
         }
 
         // Cleanup: If all is well, mark Ins<x> done and check for secondary billing.
@@ -838,7 +966,7 @@ if (!$debug) {
 <title><?php echo xlt('EOB Posting - Electronic Remittances'); ?></title>
 </head>
 <body class='m-0'>
-<form action="sl_eob_process.php" method="get">
+<form action="sl_eob_process.php" method="get" onsubmit="return submitOnce(this)">
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <?php
@@ -917,6 +1045,33 @@ if ($alertmsg) {
     echo " alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
+// Post a check list once: a double click or a second Enter would post the checks again.
+function submitOnce(form) {
+    if (form.dataset.submitted) {
+        return false;
+    }
+    form.dataset.submitted = '1';
+    setTimeout(function () {
+        form.querySelectorAll('input[type=submit]').forEach(function (button) {
+            button.disabled = true;
+        });
+    }, 0);
+    return true;
+}
+
+// Coming back to the check list with the Back button can restore it from the
+// browser's cache still marked as submitted; unlock it so it can be used again.
+window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+        document.querySelectorAll('form').forEach(function (form) {
+            delete form.dataset.submitted;
+            form.querySelectorAll('input[type=submit]').forEach(function (button) {
+                button.disabled = false;
+            });
+        });
+    }
+});
+
 function checkAll(checked) {
     var f = document.forms[0];
     for (var i = 0; i < f.elements.length; ++i) {

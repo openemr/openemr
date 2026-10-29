@@ -266,6 +266,25 @@ class SLEOB
         return $nprow['provider'];
     }
 
+    /**
+     * An invoice's dunning count, as the statement list uses it: while any
+     * insurance level is still open, minus the number of open levels (the
+     * invoice is due from insurance); otherwise the number of statements
+     * the patient has been sent. Open levels are checked whatever the
+     * statement count, so an invoice moved back to insurance after a
+     * statement (to rebill after a denial, say) is not due from the
+     * patient until insurance is closed again.
+     *
+     * @param int $statementCount form_encounter.stmt_count
+     * @param int $lastLevelClosed form_encounter.last_level_closed
+     * @param int $payerCount insurance levels on file for the date of service (0-3)
+     */
+    public static function dunningCount(int $statementCount, int $lastLevelClosed, int $payerCount): int
+    {
+        $openLevels = $payerCount - $lastLevelClosed;
+        return $openLevels > 0 ? -$openLevels : $statementCount;
+    }
+
     // Make this invoice re-billable, new style.
     //
     public static function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0): void

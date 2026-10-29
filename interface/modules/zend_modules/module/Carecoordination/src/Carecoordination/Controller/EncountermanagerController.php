@@ -25,7 +25,11 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\RequestTerminator;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use OpenEMR\Services\FacilityService;
@@ -41,6 +45,8 @@ use XSLTProcessor;
  */
 class EncountermanagerController extends AbstractActionController
 {
+    use CarecoordAuthzTrait;
+
     // TODO: is there a better place for this?  These are the values from the applications/sendto/sendto.phtml for
     // the document types.  We should probably extract these into a model somewhere...
     const VALID_CCDA_DOCUMENT_TYPES = ['ccd', 'referral', 'toc', 'careplan', 'unstructured'];
@@ -242,14 +248,14 @@ class EncountermanagerController extends AbstractActionController
         try {
             $twig = ServiceContainer::getTwig();
             // can_access will check session if no params are passed.
-            if (!$document->can_access()) {
+            if (!$document->can_access() || !$this->isPatientAuthorized((int) $document->get_foreign_id())) {
                 (new RequestTerminator())->respond(new Response(
-                    $twig->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']),
+                    $twig->render("error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']),
                     Response::HTTP_UNAUTHORIZED,
                 ));
             } elseif ($document->is_deleted()) {
                 (new RequestTerminator())->respond(new Response(
-                    $twig->render("templates/error/404.html.twig"),
+                    $twig->render("error/404.html.twig"),
                     Response::HTTP_NOT_FOUND,
                 ));
             }
@@ -257,7 +263,7 @@ class EncountermanagerController extends AbstractActionController
             $content = $document->get_data();
             if (empty($content)) {
                 (new RequestTerminator())->respond(new Response(
-                    $twig->render("templates/error/404.html.twig"),
+                    $twig->render("error/404.html.twig"),
                     Response::HTTP_NOT_FOUND,
                 ));
             }
@@ -315,6 +321,21 @@ class EncountermanagerController extends AbstractActionController
         }
         $id = (int)$id;
 
+        $ccdaDocument = new \Document($id);
+        if (!$this->isDocumentAuthorized($ccdaDocument)) {
+            AccessDeniedHelper::deny('EncountermanagerController::downloadAction: document ownership denied');
+        }
+        [$authUser, $authProvider] = $this->auditIdentity();
+        $docForeignId = (int) $ccdaDocument->get_foreign_id();
+        EventAuditLogger::getInstance()->newEvent(
+            'carecoord-ccda-download',
+            $authUser,
+            $authProvider,
+            1,
+            "doc_id=$id",
+            $docForeignId > 0 ? $docForeignId : null
+        );
+
         $dir = sys_get_temp_dir() . "/CCDA_$id/";
         $filename = "CCDA_$id.xml";
         $filename_html = "CCDA_$id.html";
@@ -329,7 +350,6 @@ class EncountermanagerController extends AbstractActionController
         $zip_dir = sys_get_temp_dir() . "/";
         $zip_name = "CCDA_$id.zip";
 
-        $ccdaDocument = new \Document($id);
         $content = $ccdaDocument->get_data();
         $f = fopen($dir . $filename, "w");
         fwrite($f, $content);
@@ -381,7 +401,10 @@ class EncountermanagerController extends AbstractActionController
             $dir = $parent_dir . "/";
             $arr = explode('|', (string)$pids);
             foreach ($arr as $row) {
-                $pid = $row;
+                $pid = (int) $row;
+                if (!$this->isPatientAuthorized($pid)) {
+                    continue;
+                }
                 $ids = $this->getEncountermanagerTable()->getFileID($pid, 2);
                 $doc_type = $document_type;
                 foreach ($ids as $row_inner) {
@@ -468,9 +491,41 @@ class EncountermanagerController extends AbstractActionController
      */
     public function transmitCCDAction()
     {
-        $combination = $this->getRequest()->getQuery('combination');
-        $recipients = $this->getRequest()->getQuery('recipients');
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $rawCsrf = $this->getRequest()->getQuery('csrf_token') ?? '';
+        $csrfToken = is_string($rawCsrf) ? $rawCsrf : '';
+        if (!CsrfUtils::verifyCsrfToken($csrfToken, $session)) {
+            AccessDeniedHelper::deny('EncountermanagerController::transmitCCDAction: CSRF token invalid');
+        }
+
+        $rawCombination = $this->getRequest()->getQuery('combination');
+        $combination = is_string($rawCombination) ? $rawCombination : '';
+        $rawRecipients = $this->getRequest()->getQuery('recipients');
+        $recipients = is_string($rawRecipients) ? $rawRecipients : '';
         $xml_type = $this->getRequest()->getQuery('xml_type');
+
+        // Every pid encoded in `combination` must be reachable to the caller.
+        // Reject the whole call if any pid falls outside the caller's scope,
+        // not just filter — the recipient list goes to an external Direct
+        // address, so a partial-success leak would be worse than a full stop.
+        $authorizedPids = [];
+        foreach (explode('|', $combination) as $row) {
+            $pid = (int) explode('_', $row)[0];
+            if (!$this->isPatientAuthorized($pid)) {
+                AccessDeniedHelper::deny('EncountermanagerController::transmitCCDAction: pid not accessible by caller');
+            }
+            $authorizedPids[] = $pid;
+        }
+
+        [$authUser, $authProvider] = $this->auditIdentity();
+        EventAuditLogger::getInstance()->newEvent(
+            'carecoord-ccda-transmit',
+            $authUser,
+            $authProvider,
+            1,
+            'pids=' . implode(',', $authorizedPids) . ' recipients=' . $recipients
+        );
+
         $result = $this->getEncountermanagerTable()->transmitCcdToRecipients(["ccda_combination" => $combination, "recipients" => $recipients, "xml_type" => $xml_type]);
         // need to make sure we escape this since we are escaping this into html
         echo text($result);

@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:12.3.3@sha256:2bdff1534a7e569fecaf4b10b66ad0d410806e382d9db29ba305448addda97c4
+    image: mariadb:12.3.3@sha256:d46e102fa8b9b72bfcdeb56f9dd538742092119dc8b11f31fe662605cd234cd9
     command: ['mariadbd', '--character-set-server=utf8mb4', '--ssl-ca=/etc/ssl/ca.pem', '--ssl_cert=/etc/ssl/server-cert.pem', '--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - "${WT_MYSQL_PORT:-8320}:3306"
@@ -26,7 +26,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:8c3f148d467d7d51ba6013d1f5f2f8ee743bdb34774dbe10b70359d5307f7527
+    image: openemr/openemr:flex@sha256:9c2076fa3c68223cd6564b89081747e0f2a2c3826566d779cc601e40ab5973a7
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -118,14 +118,14 @@ services:
       - --show-error
       - --silent
       - https://localhost/meta/health/readyz
-      start_period: 3m
+      start_period: 10m
       start_interval: 10s
       interval: 1m
       timeout: 5s
       retries: 3
   selenium:
     restart: always
-    image: selenium/standalone-chromium:152.0.7977.82@sha256:08fd293648e126275782c616a61f4ee1d90cf413b1972ebc35dbd054d6789f55
+    image: selenium/standalone-chromium:155.0.8059.39@sha256:c7c17cd79c62819a8329df00e610dbc4073c279da034a6f37135d454eb0d8870
     ports:
     - "${WT_SELENIUM_PORT:-4444}:4444"
     - "${WT_VNC_PORT:-7900}:7900"
@@ -145,7 +145,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:7ebeef41095cbe071a00e3c85c8b44309f110eee546c7b3a6d1fcfe259d58e59
+    image: phpmyadmin:5.2.3@sha256:fb0cb638f7d1c2529407921d86679b2b2faf5bb8542314821e9f16e7e3d2954f
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
@@ -155,7 +155,7 @@ services:
         condition: service_healthy
   couchdb:
     restart: always
-    image: couchdb:3.5.2@sha256:5fc596110eac7f412173a7d9de14f70aa5d3e816790fb6e70642755d4a4cf464
+    image: couchdb:3.5.3@sha256:bed314d10cdf58c0fff63352db4c3f168df58a185a773c0e2295105375c5ef10
     ports:
     - "${WT_COUCHDB_PORT:-5984}:5984"
     - "${WT_COUCHDB_SSL_PORT:-6984}:6984"
@@ -178,7 +178,7 @@ services:
       LDAP_TLS_KEY_FILENAME: server-key.pem
   mailpit:
     restart: unless-stopped
-    image: axllent/mailpit:v1.31.5@sha256:94f6b70c1436defae6799d9ac7ff0eeff9540465b842026d5cdb018f1c0234ea
+    image: axllent/mailpit:v1.32.0@sha256:0790692be935ea4420d085694f7985b1f692ca6a8771ab0e0bd8ba75ac180498
     ports:
     - "${WT_MAILPIT_UI_PORT:-8025}:8025"
     - "${WT_MAILPIT_SMTP_PORT:-1025}:1025"
