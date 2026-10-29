@@ -173,8 +173,11 @@ final class PatientFinderQueryBuilder
      * @return array{0: string, 1: array<int, string|int>, 2: array<int, string>}
      *         [WHERE fragment (without the filter clause), bind values, distinct JOINs needed by it]
      */
-    private function buildWhere(array $columns, PatientFinderRequest $request, ?array $globalSearchColumns = null): array
-    {
+    private function buildWhere(
+        array $columns,
+        PatientFinderRequest $request,
+        ?array $globalSearchColumns = null
+    ): array {
         $parts = [];
         $binds = [];
         $joins = [];

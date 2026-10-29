@@ -37,7 +37,6 @@ namespace OpenEMR\Services\PatientFinder;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
-use OpenEMR\Events\PatientFinder\PatientFinderColumnRegistrationEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderRowEnrichEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -45,6 +44,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 final class PatientFinderQueryService
 {
     private PatientFinderQueryBuilder $builder;
+
+    private PatientFinderColumnRegistryFactory $registryFactory;
 
     /** @var callable(string, array<int, string|int>): array<int, array<string, mixed>> */
     private $fetchRecords;
@@ -64,7 +65,8 @@ final class PatientFinderQueryService
         ?callable $fetchRecords = null,
         ?callable $sqlQuery = null,
         ?callable $attr = null,
-        ?callable $plaintext = null
+        ?callable $plaintext = null,
+        ?PatientFinderColumnRegistryFactory $registryFactory = null
     ) {
         $this->builder = $builder ?? new PatientFinderQueryBuilder();
         $this->fetchRecords = $fetchRecords
@@ -74,6 +76,10 @@ final class PatientFinderQueryService
         $this->attr = $attr ?? static fn(mixed $value): string => attr((string) $value);
         $this->plaintext = $plaintext
             ?? static fn(array $fieldInfo, mixed $value): string => generate_plaintext_field($fieldInfo, $value);
+        // Share the registry builder with the finder page so both sides agree on
+        // the column set; default to one backed by this service's fetcher.
+        $this->registryFactory = $registryFactory
+            ?? new PatientFinderColumnRegistryFactory($dispatcher, $this->fetchRecords);
     }
 
     /**
@@ -111,35 +117,13 @@ final class PatientFinderQueryService
     }
 
     /**
-     * Seed the registry with the active `ptlistcols` columns (in seq order),
-     * then let modules adjust it.
+     * Build the shared column registry (core ptlistcols columns + module
+     * contributions). Delegates to the factory so the finder page and this
+     * endpoint produce an identical column set.
      */
     public function buildColumnRegistry(): PatientFinderColumnRegistry
     {
-        $registry = new PatientFinderColumnRegistry();
-        $rows = ($this->fetchRecords)(
-            "SELECT option_id, title FROM list_options "
-            . "WHERE list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title",
-            []
-        );
-        foreach ($rows as $row) {
-            $key = (string) ($row['option_id'] ?? '');
-            if ($key === '') {
-                continue;
-            }
-            $title = (string) ($row['title'] ?? $key);
-            if (function_exists('xl_list_label')) {
-                $title = (string) xl_list_label($title);
-            }
-            $registry->add(PatientFinderColumn::fromTable($key, $title));
-        }
-
-        $this->dispatcher->dispatch(
-            new PatientFinderColumnRegistrationEvent($registry),
-            PatientFinderColumnRegistrationEvent::EVENT_HANDLE
-        );
-
-        return $registry;
+        return $this->registryFactory->create();
     }
 
     /**

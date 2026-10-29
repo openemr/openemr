@@ -56,6 +56,8 @@ final class PatientFinderColumn
      * @param string|null $joinClause TYPE_SQL: optional JOIN appended to the base FROM.
      * @param string|null $searchExpression TYPE_SQL: SQL used in WHERE/ORDER BY (see fromSql()).
      * @param array<int, string|int> $boundValues TYPE_SQL: values bound to ?s in the select/join clauses.
+     * @param string $defaultSortDir Initial sort direction the finder page requests for this
+     *        column ("asc" or "desc"); drives the DataTables "order" option.
      */
     private function __construct(
         public readonly string $key,
@@ -67,7 +69,8 @@ final class PatientFinderColumn
         public readonly ?string $selectExpression = null,
         public readonly ?string $joinClause = null,
         public readonly ?string $searchExpression = null,
-        public readonly array $boundValues = []
+        public readonly array $boundValues = [],
+        public readonly string $defaultSortDir = 'asc'
     ) {
     }
 
@@ -81,9 +84,18 @@ final class PatientFinderColumn
         string $title,
         bool $searchable = true,
         bool $sortable = true,
-        string $table = 'patient_data'
+        string $table = 'patient_data',
+        string $defaultSortDir = 'asc'
     ): self {
-        return new self($key, $title, self::TYPE_PATIENT_DATA, $searchable, $sortable, $table);
+        return new self(
+            $key,
+            $title,
+            self::TYPE_PATIENT_DATA,
+            $searchable,
+            $sortable,
+            $table,
+            defaultSortDir: $defaultSortDir
+        );
     }
 
     /**
@@ -128,7 +140,8 @@ final class PatientFinderColumn
         ?string $searchExpression = null,
         array $boundValues = [],
         bool $searchable = true,
-        bool $sortable = true
+        bool $sortable = true,
+        string $defaultSortDir = 'asc'
     ): self {
         return new self(
             $key,
@@ -140,7 +153,8 @@ final class PatientFinderColumn
             $selectExpression,
             $joinClause,
             $searchExpression ?? $selectExpression,
-            $boundValues
+            $boundValues,
+            $defaultSortDir
         );
     }
 
@@ -162,5 +176,25 @@ final class PatientFinderColumn
     public function isSql(): bool
     {
         return $this->type === self::TYPE_SQL;
+    }
+
+    /**
+     * Return a copy of this column with a different initial sort direction.
+     */
+    public function withDefaultSortDir(string $dir): self
+    {
+        return new self(
+            $this->key,
+            $this->title,
+            $this->type,
+            $this->searchable,
+            $this->sortable,
+            $this->table,
+            $this->selectExpression,
+            $this->joinClause,
+            $this->searchExpression,
+            $this->boundValues,
+            $dir
+        );
     }
 }
