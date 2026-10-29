@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Hl7;
 
 use OpenEMR\Cqm\Cql\Ucum\Ucum;
+use OpenEMR\Services\FHIR\Immunization\DoseUnit;
 
 final class Hl7Units
 {
@@ -36,7 +37,8 @@ final class Hl7Units
     }
 
     /**
-     * RXA-7: "unit^unit^UCUM^^^" for a UCUM unit, "^unit^^^^" for any other, "" for none.
+     * RXA-7: "code^title^UCUM^^^" for a Drug Units title with a UCUM code (mcg is ug in UCUM, grams is g),
+     * "^title^^^^" for any other, "" for none. The titles are mapped as the FHIR Immunization dose maps them.
      */
     public static function rxa7(string $unit): string
     {
@@ -44,7 +46,8 @@ final class Hl7Units
         if ($unit === '') {
             return '';
         }
-        return self::isUcum($unit) ? $unit . '^' . $unit . '^UCUM^^^' : '^' . $unit . '^^^^';
+        $code = DoseUnit::ucumFor($unit);
+        return $code !== null ? $code . '^' . $unit . '^UCUM^^^' : '^' . $unit . '^^^^';
     }
 
     private static function isUcum(string $unit): bool
