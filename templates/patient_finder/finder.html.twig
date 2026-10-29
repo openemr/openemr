@@ -81,6 +81,23 @@
             {{ csrfToken('', 'csrf_token_form') }}
             <input type='hidden' name='patientID' value='0'/>
         </form>
+        <!-- Top controls; dynamic_finder.js moves this form into the DataTables toolbar. -->
+        <div id="finder-topform" class="d-none">
+            <form name="myform">
+                <div class="form-check form-check-inline">
+                    <label for="form_new_window" class="form-check-label" id="form_new_window_label">
+                        <input type="checkbox" class="form-check-input" id="form_new_window" name="form_new_window" value="1"{{ newWindowChecked ? ' checked' : '' }} />
+                        {{ "Open in New Browser Tab"|xlt }}
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label for="setting_search_type" class="form-check-label" id="setting_search_type_label">
+                        <input type="checkbox" class="form-check-input" id="setting_search_type" name="setting_search_type" value="{{ exactSearch|attr }}"{{ exactChecked ? ' checked' : '' }} />
+                        {{ "Search with exact method"|xlt }}
+                    </label>
+                </div>
+            </form>
+        </div>
     </div> <!--End of Container div-->
     {{ oeBelowContainerDiv }}
 

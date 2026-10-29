@@ -11,10 +11,12 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2012-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Open Plan IT Ltd
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -49,303 +51,37 @@ unset($_GET['search_any']);
 $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 $registry = (new PatientFinderColumnRegistryFactory($eventDispatcher))->create();
 $columns = (new PatientFinderPageService())->getColumns($registry);
-$loading = "";
+
+// Top-controls state for the finder form (rendered by the Twig template).
+$newWindowChecked = OEGlobalsBag::getInstance()->getBoolean('gbl_pt_list_new_window');
+$exactChecked = trim((string) $patient_finder_exact_search) === 'checked';
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$cacheBust = attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes'));
+$pageSize = OEGlobalsBag::getInstance()->get('gbl_pt_list_page_size');
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs']); ?>
     <title><?php echo xlt("Patient Finder"); ?></title>
-<style>
-    /* Finder Processing style */
-    div.dataTables_wrapper div.dataTables_processing {
-        width: auto;
-        margin: 0;
-        color: var(--danger);
-        transform: translateX(-50%);
-    }
-    .card {
-        border: 0;
-        border-radius: 0;
-    }
-
-    @media screen and (max-width: 640px) {
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_filter {
-            float: inherit;
-            text-align: justify;
-        }
-    }
-
-    /* Color Overrides for jQuery-DT */
-    table.dataTable thead th,
-    table.dataTable thead td {
-        border-bottom: 1px solid var(--gray900) !important;
-    }
-
-    table.dataTable tfoot th,
-    table.dataTable tfoot td {
-        border-top: 1px solid var(--gray900) !important;
-    }
-
-    table.dataTable tbody tr {
-        background-color: var(--white) !important;
-        cursor: pointer;
-    }
-
-    table.dataTable.row-border tbody th,
-    table.dataTable.row-border tbody td,
-    table.dataTable.display tbody th,
-    table.dataTable.display tbody td {
-        border-top: 1px solid var(--gray300) !important;
-    }
-
-    table.dataTable.cell-border tbody th,
-    table.dataTable.cell-border tbody td {
-        border-top: 1px solid var(--gray300) !important;
-        border-right: 1px solid var(--gray300) !important;
-    }
-
-    table.dataTable.cell-border tbody tr th:first-child,
-    table.dataTable.cell-border tbody tr td:first-child {
-        border-left: 1px solid var(--gray300) !important;
-    }
-
-    table.dataTable.stripe tbody tr.odd,
-    table.dataTable.display tbody tr.odd {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.hover tbody tr:hover,
-    table.dataTable.display tbody tr:hover {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.order-column tbody tr>.sorting_1,
-    table.dataTable.order-column tbody tr>.sorting_2,
-    table.dataTable.order-column tbody tr>.sorting_3,
-    table.dataTable.display tbody tr>.sorting_1,
-    table.dataTable.display tbody tr>.sorting_2,
-    table.dataTable.display tbody tr>.sorting_3 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr.odd>.sorting_1,
-    table.dataTable.order-column.stripe tbody tr.odd>.sorting_1 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr.odd>.sorting_2,
-    table.dataTable.order-column.stripe tbody tr.odd>.sorting_2 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr.odd>.sorting_3,
-    table.dataTable.order-column.stripe tbody tr.odd>.sorting_3 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr.even>.sorting_1,
-    table.dataTable.order-column.stripe tbody tr.even>.sorting_1 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr.even>.sorting_2,
-    table.dataTable.order-column.stripe tbody tr.even>.sorting_2 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr.even>.sorting_3,
-    table.dataTable.order-column.stripe tbody tr.even>.sorting_3 {
-        background-color: var(--light) !important;
-    }
-
-    table.dataTable.display tbody tr:hover>.sorting_1,
-    table.dataTable.order-column.hover tbody tr:hover>.sorting_1 {
-        background-color: var(--gray200) !important;
-    }
-
-    table.dataTable.display tbody tr:hover>.sorting_2,
-    table.dataTable.order-column.hover tbody tr:hover>.sorting_2 {
-        background-color: var(--gray200) !important;
-    }
-
-    table.dataTable.display tbody tr:hover>.sorting_3,
-    table.dataTable.order-column.hover tbody tr:hover>.sorting_3 {
-        background-color: var(--gray200) !important;
-    }
-
-    table.dataTable.display tbody .odd:hover,
-    table.dataTable.display tbody .even:hover {
-        background-color: var(--gray200) !important;
-    }
-
-    table.dataTable.no-footer {
-        border-bottom: 1px solid var(--gray900) !important;
-    }
-
-    .dataTables_wrapper .dataTables_processing {
-        background-color: var(--white) !important;
-        background: -webkit-gradient(linear, left top, right top, color-stop(0%, transparent), color-stop(25%, rgba(var(--black), 0.9)), color-stop(75%, rgba(var(--black), 0.9)), color-stop(100%, transparent)) !important;
-        background: -webkit-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-        background: -moz-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-        background: -ms-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-        background: -o-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-        background: linear-gradient(to right, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-    }
-
-    .dataTables_wrapper .dataTables_length,
-    .dataTables_wrapper .dataTables_filter,
-    .dataTables_wrapper .dataTables_info,
-    .dataTables_wrapper .dataTables_processing,
-    .dataTables_wrapper .dataTables_paginate {
-        color: var(--dark) !important;
-    }
-
-    div.dataTables_length select {
-        width: 50px !important;
-    }
-
-    .dataTables_wrapper.no-footer .dataTables_scrollBody {
-        border-bottom: 1px solid var(--gray900) !important;
-    }
-
-    /* Pagination button Overrides for jQuery-DT */
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-        padding: 0 !important;
-        margin: 0 !important;
-        border: 0 !important;
-    }
-
-    /* Sort indicator Overrides for jQuery-DT */
-    table thead .sorting::before,
-    table thead .sorting_asc::before,
-    table thead .sorting_asc::after,
-    table thead .sorting_desc::before,
-    table thead .sorting_desc::after,
-    table thead .sorting::after {
-        display: none !important;
-    }
-</style>
-<script>
-    var uspfx = '<?php echo attr($uspfx); ?>';
-    // Column data from the shared registry; the DataTables "columns"/"order"
-    // config is built from this below (the Name column renders as a link).
-    var finderColumns = <?php echo json_encode($columns, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
-
-    $(function () {
-        // Initializing the DataTable.
-        //
-        let serverUrl = "dynamic_finder_ajax.php";
-        let srcAny = <?php echo js_url($searchAny); ?>;
-        if (srcAny) {
-            serverUrl += "?search_any=" + srcAny;
-        }
-        var oTable = $('#pt_table').dataTable({
-            "processing": true,
-            // next 2 lines invoke server side processing
-            "serverSide": true,
-            // NOTE kept the legacy command 'sAjaxSource' here for now since was unable to get
-            // the new 'ajax' command to work.
-            "sAjaxSource": serverUrl,
-            "fnServerParams": function (aoData) {
-                var searchType = $("#setting_search_type:checked").length > 0;
-                aoData.push({"name": "searchType", "value": searchType});
-            },
-            // dom invokes ColReorderWithResize and allows inclusion of a custom div
-            "dom": 'Rlfrt<"mytopdiv">ip',
-            // These column names come over as $_GET['sColumns'], a comma-separated list of the names.
-            // See: http://datatables.net/usage/columns and
-            // http://datatables.net/release-datatables/extras/ColReorder/server_side.html
-            "columns": finderColumns.map(function (c) {
-                var col = {"sName": c.key};
-                if (c.link) {
-                    col.mRender = wrapInLink;
-                }
-                return col;
-            }),
-            "order": finderColumns.map(function (c, idx) {
-                return [idx, c.sortDir];
-            }),
-            "lengthMenu": [10, 25, 50, 100],
-            "pageLength": <?php echo empty(OEGlobalsBag::getInstance()->get('gbl_pt_list_page_size')) ? '10' : OEGlobalsBag::getInstance()->get('gbl_pt_list_page_size'); ?>,
-            <?php // Bring in the translations ?>
-            <?php $translationsDatatablesOverride = ['search' => (xla('Search all columns') . ':')]; ?>
-            <?php $translationsDatatablesOverride = ['processing' => $loading]; ?>
+    <link rel="stylesheet" href="dynamic_finder.css?v=<?php echo $cacheBust; ?>">
+    <script>
+        // Server-provided configuration consumed by dynamic_finder.js.
+        window.finderConfig = {
+            uspfx: <?php echo js_escape($uspfx); ?>,
+            webroot: <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>,
+            csrfToken: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
+            searchAny: <?php echo js_url($searchAny); ?>,
+            pageLength: <?php echo (int) (empty($pageSize) ? 10 : $pageSize); ?>,
+            // Column definitions from the shared registry (the Name column renders as a link).
+            columns: <?php echo json_encode($columns, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
+            <?php // DataTables translations; emits a "language": { ... } property. ?>
+            <?php $translationsDatatablesOverride = ['processing' => '']; ?>
             <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/datatables-net.js.php'); ?>
-        });
-
-
-        <?php
-        $checked = (OEGlobalsBag::getInstance()->getBoolean('gbl_pt_list_new_window')) ? 'checked' : '';
-        ?>
-        $("div.mytopdiv").html("<form name='myform'><div class='form-check form-check-inline'><label for='form_new_window' class='form-check-label' id='form_new_window_label'><input type='checkbox' class='form-check-input' id='form_new_window' name='form_new_window' value='1' <?php echo $checked; ?> /><?php echo xlt('Open in New Browser Tab'); ?></label></div><div class='form-check form-check-inline'><label for='setting_search_type' id='setting_search_type_label' class='form-check-label'><input type='checkbox' name='setting_search_type' class='form-check-input' id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo attr($patient_finder_exact_search); ?>'<?php echo text($patient_finder_exact_search); ?>/><?php echo xlt('Search with exact method'); ?></label></div></form>");
-
-        // This is to support column-specific search fields.
-        // Borrowed from the multi_filter.html example.
-        $("thead input").keyup(function () {
-            // Filter on the column (the index) of this element
-            oTable.fnFilter(this.value, $("thead input").index(this));
-        });
-
-        $('#pt_table').on('mouseenter', 'tbody tr', function() {
-            $(this).find('a').css('text-decoration', 'underline');
-        });
-        $('#pt_table').on('mouseleave', 'tbody tr', function() {
-            $(this).find('a').css('text-decoration', '');
-        });
-        // OnClick handler for the rows
-        $('#pt_table').on('click', 'tbody tr', function () {
-            // ID of a row element is pid_{value}
-            var newpid = this.id.substring(4);
-            // If the pid is invalid, then don't attempt to set
-            // The row display for "No matching records found" has no valid ID, but is
-            // otherwise clickable. (Matches this CSS selector).  This prevents an invalid
-            // state for the PID to be set.
-            if (newpid.length === 0) {
-                return;
-            }
-            if (document.myform.form_new_window.checked) {
-                openNewTopWindow(newpid);
-            }
-            else {
-                top.restoreSession();
-                top.RTop.location = "../../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
-            }
-        });
-    });
-
-    function wrapInLink(data, type, full) {
-        if (type == 'display') {
-            return '<a href="">' + data + "</a>";
-        } else {
-            return data;
-        }
-    }
-
-    function openNewTopWindow(pid) {
-        document.fnew.patientID.value = pid;
-        top.restoreSession();
-        document.fnew.submit();
-    }
-
-    function persistCriteria(el, e) {
-        e.preventDefault();
-        let target = uspfx + "patient_finder_exact_search";
-        let val = el.checked ? ' checked' : ' ';
-        top.restoreSession();
-        $.post("../../../library/ajax/user_settings.php",
-            {
-                target: target,
-                setting: val,
-                csrf_token_form: "<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
-            }
-        );
-    }
-
-</script>
+        };
+    </script>
+    <script src="dynamic_finder.js?v=<?php echo $cacheBust; ?>"></script>
 <?php
     /** @var EventDispatcher $eventDispatcher (resolved above when building the column registry) */
     $arrOeUiSettings = [
@@ -386,6 +122,9 @@ $templateVars = [
     'oeBelowContainerDiv' => $oemr_ui->oeBelowContainerDiv(),
     'pageHeading' => $oemr_ui->pageHeading(),
     'columns' => $columns,
+    'newWindowChecked' => $newWindowChecked,
+    'exactSearch' => $patient_finder_exact_search,
+    'exactChecked' => $exactChecked,
     'headers' => $recent['headers'],
     'rp' => $recent['rp'],
 ];
