@@ -7046,7 +7046,7 @@ VALUES ('lists', 'sdoh_food_insecurity_risk', 'SDOH – Food Insecurity (Risk)',
 INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)
 VALUES ('pregnancy_intent', 'not_sure', 'Not sure of desire to become pregnant (finding)', 10, 'SNOMED-CT:454381000124105', ''),
        ('pregnancy_intent', 'ambivalent', 'Ambivalent about becoming pregnant (finding)', 20, 'SNOMED-CT:454391000124108', ''),
-       ('pregnancy_intent', 'no_desire', 'No desire to become pregnant (finding)', 30, 'SNOMED-CT:454391000124108', ''),
+       ('pregnancy_intent', 'no_desire', 'No desire to become pregnant (finding)', 30, 'SNOMED-CT:454401000124105', ''),
        ('pregnancy_intent', 'wants_pregnancy', 'Wants to become pregnant (finding)', 40, 'SNOMED-CT:454411000124108', '');
 
 INSERT INTO list_options (list_id, option_id, title, seq, codes, notes)

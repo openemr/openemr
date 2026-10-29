@@ -133,6 +133,12 @@ CREATE INDEX `list_id` ON `issue_encounter` (`list_id`);
 CREATE INDEX `response_id` ON `form_questionnaire_assessments` (`response_id`(64));
 #EndIf
 
+-- No desire to become pregnant was seeded with the code for Ambivalent (454391000124108).
+-- 454401000124105 is No desire to become pregnant (finding).
+#IfRow3D list_options list_id pregnancy_intent option_id no_desire codes SNOMED-CT:454391000124108
+UPDATE `list_options` SET `codes` = 'SNOMED-CT:454401000124105' WHERE `list_id` = 'pregnancy_intent' AND `option_id` = 'no_desire';
+#EndIf
+
 -- FHIR Task inputs and outputs (part 3 of #14521): the system Task.code is from, what the work needs, and what it produced.
 -- Codes written before the system was kept were all task-code's, except the questionnaire task's.
 #IfMissingColumn task code_system
