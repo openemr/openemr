@@ -17,6 +17,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Cqm\Cql\Ucum\Ucum;
+use OpenEMR\Cqm\Cql\Util\JavaScript;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
@@ -136,14 +137,16 @@ class UtilsService
     }
 
     /**
-     * Whether a unit is a UCUM code, as core's UCUM engine reads it. Codes are case-sensitive:
-     * mg/dL is UCUM, MG/DL is not.
+     * Whether a unit is a UCUM code as written, as core's UCUM engine reads it. Codes are
+     * case-sensitive: mg/dL is UCUM, MG/DL is not. The engine trims what it checks, so a code
+     * with spaces around it is refused here rather than sent with them under UCUM's system.
      *
      * @phpstan-assert-if-true non-empty-string $code
      */
     public static function isUcumCode(mixed $code): bool
     {
-        return is_string($code) && $code !== '' && Ucum::instance()->isValid($code);
+        return is_string($code) && $code !== '' && JavaScript::trim($code) === $code
+            && Ucum::instance()->isValid($code);
     }
 
     public static function createCoding($code, $display, $system): FHIRCoding

@@ -32,6 +32,7 @@ class UtilsServiceQuantityTest extends TestCase
             'pounds by name' => ['lb', 'lb', null],
             'pounds in UCUM' => ['[lb_av]', '[lb_av]', '[lb_av]'],
             'a unit with no code' => ['mL', '', null],
+            'a UCUM code with a space after it' => ['mg/dL', 'mg/dL ', null],
         ];
     }
 
@@ -45,6 +46,27 @@ class UtilsServiceQuantityTest extends TestCase
         $this->assertSame($unit, $json['unit'] ?? null, 'the unit text is always sent');
         $this->assertSame($expectedCode, $json['code'] ?? null);
         $this->assertSame($expectedCode === null ? null : 'http://unitsofmeasure.org', $json['system'] ?? null);
+    }
+
+    /** @return array<string, array{string, bool}> a code, then whether it is UCUM as written */
+    public static function codesAsWritten(): array
+    {
+        return [
+            'UCUM' => ['mg/dL', true],
+            'a space before it' => [' mg/dL', false],
+            'a newline after it' => ["mg/dL\n", false],
+            'only a space' => [' ', false],
+        ];
+    }
+
+    /**
+     * The UCUM engine trims what it checks, so a padded code would pass it and go out with
+     * its spaces; it isn't UCUM as written. Observation values and components use this too.
+     */
+    #[DataProvider('codesAsWritten')]
+    public function testIsUcumCodeTakesTheCodeAsWritten(string $code, bool $isUcum): void
+    {
+        $this->assertSame($isUcum, UtilsService::isUcumCode($code));
     }
 
     public function testNoUnitIsASimpleQuantity(): void
