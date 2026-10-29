@@ -4377,11 +4377,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function convertHeightToUs\\(\\) has parameter \\$height with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function convertWeightToUs\\(\\) has parameter \\$weight with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',
@@ -14340,11 +14335,6 @@ $ignoreErrors[] = [
     'message' => '#^Function get_patients_list\\(\\) has parameter \\$req with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/document_helpers.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function convertFtoC\\(\\) has parameter \\$a with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/graphs.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getIdealYSteps\\(\\) has parameter \\$a with no type specified\\.$#',

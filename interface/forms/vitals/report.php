@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../globals.php");
@@ -122,7 +123,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 }
             } elseif ($key == "Temperature") {
                 $value = floatval($value);
-                $convValue = number_format((($value - 32) * 0.5556), 2);
+                $convValue = number_format(MeasurementUtils::fhToCelsiusFloat($value), 2);
                 // show appropriate units
                 if (OEGlobalsBag::getInstance()->get('units_of_measurement') == 2) {
                     $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($convValue) . " " . xlt('C') . " (" . text($value) . " " . xlt('F')  . ")</div></td>";
