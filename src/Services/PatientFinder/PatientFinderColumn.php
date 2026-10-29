@@ -54,7 +54,7 @@ final class PatientFinderColumn
      * @param string            $table           Owning table for a TYPE_PATIENT_DATA column (identifier whitelist).
      * @param string|null $selectExpression TYPE_SQL: SQL yielding the value, aliased to the key.
      * @param string|null $joinClause TYPE_SQL: optional JOIN appended to the base FROM.
-     * @param string|null $searchExpression TYPE_SQL: SQL used in WHERE/ORDER BY (defaults to the key alias).
+     * @param string|null $searchExpression TYPE_SQL: SQL used in WHERE/ORDER BY (see fromSql()).
      * @param array<int, string|int> $boundValues TYPE_SQL: values bound to ?s in the select/join clauses.
      */
     private function __construct(
@@ -87,9 +87,36 @@ final class PatientFinderColumn
     }
 
     /**
-     * A module column whose value comes from a parameterised SQL expression,
-     * optionally joining another table. The expression is author-controlled and
-     * is not identifier-whitelisted, so it must already be safe/parameterised.
+     * A module column whose value comes from an author-supplied SQL expression,
+     * drawn from a table other than `patient_data`. The expression is
+     * author-controlled and is NOT run through the identifier whitelist, so it
+     * must already be safe (and parameterised if it embeds any values).
+     *
+     * There are two shapes:
+     *
+     *  - Correlated subquery (recommended default): $selectExpression is a
+     *    self-contained sub-SELECT, e.g.
+     *        (SELECT i.ihi_number FROM ihi_data i WHERE i.pid = patient_data.pid LIMIT 1)
+     *    The base FROM stays `patient_data`, so the finder's COUNT(*) totals are
+     *    unaffected, and the LIMIT/aggregate guarantees one value per patient
+     *    (no row multiplication). Leave $joinClause null.
+     *  - JOIN: pass a $joinClause (e.g. "LEFT JOIN ihi_data ihi ON ihi.pid =
+     *    patient_data.pid") and a column reference as $selectExpression (e.g.
+     *    "ihi.ihi_number"). The finder appends the join to the data AND count
+     *    queries and counts DISTINCT pids so a 1:many join can't inflate totals.
+     *    Prefer this only when the relation is effectively 1:1 and you want index
+     *    performance.
+     *
+     * $searchExpression is the SQL used in WHERE (for searching) and ORDER BY
+     * (for sorting). It must be a real expression, NOT the column alias, because
+     * MySQL forbids SELECT aliases in WHERE; it therefore defaults to
+     * $selectExpression. The finder appends "<searchExpression> LIKE ?" and binds
+     * the user's search term itself, exactly as it does for a native column. For
+     * a searchable column keep $searchExpression free of its own bound
+     * parameters (as the examples above are); $boundValues are only for values
+     * embedded in the SELECT/JOIN clauses, and bind ahead of the finder's WHERE
+     * and LIMIT values. Set $searchable/$sortable false to make the column
+     * display-only.
      *
      * @param array<int, string|int> $boundValues
      */
@@ -112,7 +139,7 @@ final class PatientFinderColumn
             'patient_data',
             $selectExpression,
             $joinClause,
-            $searchExpression ?? $key,
+            $searchExpression ?? $selectExpression,
             $boundValues
         );
     }

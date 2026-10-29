@@ -53,4 +53,13 @@ final class PatientFinderColumnRegistrationEvent extends Event
     {
         $this->registry->add($column);
     }
+
+    /**
+     * Convenience passthrough so a listener can hide a core column (e.g. SSN)
+     * without first reaching for the registry.
+     */
+    public function removeColumn(string $key): void
+    {
+        $this->registry->remove($key);
+    }
 }

@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientFinder;
 
-final class PatientFinderColumnRegistry
+class PatientFinderColumnRegistry
 {
     /** @var array<string, PatientFinderColumn> keyed by column key, insertion-ordered */
     private array $columns = [];
@@ -32,6 +32,50 @@ final class PatientFinderColumnRegistry
     public function add(PatientFinderColumn $column): void
     {
         $this->columns[$column->key] = $column;
+    }
+
+    /**
+     * Insert (or move) a column immediately before an existing one. When
+     * $beforeKey is unknown the column is appended. Lets a module place its
+     * column ahead of a core column rather than only at the end.
+     */
+    public function addBefore(string $beforeKey, PatientFinderColumn $column): void
+    {
+        if (!isset($this->columns[$beforeKey])) {
+            $this->add($column);
+            return;
+        }
+
+        $rebuilt = [];
+        foreach ($this->columns as $key => $existing) {
+            if ($key === $column->key) {
+                // Drop any existing copy so the column lands at the new position.
+                continue;
+            }
+            if ($key === $beforeKey) {
+                $rebuilt[$column->key] = $column;
+            }
+            $rebuilt[$key] = $existing;
+        }
+        $this->columns = $rebuilt;
+    }
+
+    /**
+     * Remove a column by key. Lets a module hide a core column (e.g. SSN) from
+     * the finder. No-op when the key is absent.
+     */
+    public function remove(string $key): void
+    {
+        unset($this->columns[$key]);
+    }
+
+    /**
+     * Drop every column. Intended for a module that wants to define the finder's
+     * column set from scratch rather than build on the core defaults.
+     */
+    public function clear(): void
+    {
+        $this->columns = [];
     }
 
     public function has(string $key): bool
