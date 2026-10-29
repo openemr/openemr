@@ -26,8 +26,31 @@
  */
 
 use OpenEMR\Billing\StatementEnvelope;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
+
+/**
+ * This copy of the statement template draws envelope windows.
+ * A site that kept an older statement.inc.php does not define this,
+ * and the PDF margins stay at the stock values.
+ */
+function statement_supports_envelope_windows(): bool
+{
+    return true;
+}
+
+/**
+ * Open one windowed sheet. The first sheet in a batch stays on page one.
+ * Each later sheet starts a new page, so a following statement is not
+ * left off the PDF and the batch does not end on a blank page.
+ */
+function statement_window_sheet_open(StatementEnvelope $env): string
+{
+    static $opened = 0;
+    $opened++;
+    $css = $opened === 1 ? $env->windowCss() : '';
+    $break = $opened > 1 ? ' style="page-break-before:always;"' : '';
+    return $css . '<div class="stmt-env-sheet"' . $break . '>';
+}
 
 // The location/name of a temporary file to hold printable statements.
 // May want to alter these names to allow multi-site installs out-of-the-box
@@ -157,18 +180,16 @@ function create_HTML_statement($stmt)
     $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
     $remit_name = StatementEnvelope::stmtString($row, 'name');
-    [$remit_addr, $remit_csz] = StatementEnvelope::facilityRemitAddr($row);
-
     $env = StatementEnvelope::fromGlobals();
     $windowed = $env->isWindowed();
+    [$remit_addr, $remit_csz] = StatementEnvelope::remitLines($row, $windowed);
     ob_start();
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", [$stmt['pid'],$stmt['encounter']]);
     $providerID = $find_provider['provider_id'] ?? '';
     if ($windowed) {
-        echo '<html><head>' . $env->windowCss() . '</head><body style="margin:0;padding:0;">';
-        echo '<div class="stmt-env-sheet">';
+        echo statement_window_sheet_open($env);
         echo $env->windowHtml($remit_name, $remit_addr, $remit_csz, [
             StatementEnvelope::stmtToLine($stmt, 0),
             StatementEnvelope::stmtToLine($stmt, 1),
@@ -519,11 +540,16 @@ function create_HTML_statement($stmt)
         $out .= '</div>';
         $out .= '<div style="width:100%;border-top:1pt solid black;margin-top:8pt;padding-top:8pt;">';
         $out .= '<table width="100%" style="width:100%;margin:0;"><tr>';
+        $addressed = '';
+        foreach ([0, 1, 2, 3] as $toIndex) {
+            $toLine = StatementEnvelope::stmtToLine($stmt, $toIndex);
+            if ($toLine !== '') {
+                $addressed .= text($toLine) . '<br />';
+            }
+        }
         $out .= '<td style="width:3.3in;vertical-align:top;text-align:left;"><b>'
             . text($label_addressee) . '</b><br />'
-            . text(StatementEnvelope::stmtToLine($stmt, 0)) . '<br />'
-            . text(StatementEnvelope::stmtToLine($stmt, 1)) . '<br />'
-            . text(StatementEnvelope::stmtToLine($stmt, 2)) . '
+            . $addressed . '
       </td>
       <td style="width:3.7in;vertical-align:top;text-align:right;"><b>'
             . text($label_remitto) . '</b><br />'
@@ -532,7 +558,7 @@ function create_HTML_statement($stmt)
             . text($remit_csz) . '
       </td>
       </tr></table>';
-        $out .= '</div></div></div></body></html>';
+        $out .= '</div></div></div>';
     } else {
         $out .= '</div><br />
    <pre>';
@@ -663,8 +689,10 @@ function create_statement($stmt): string
     // Billing location modified by Daniel Pflieger at Growlingflea Software
     $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
+    $env = StatementEnvelope::fromGlobals();
+    $windowed = $env->isWindowed();
     $remit_name = StatementEnvelope::stmtString($row, 'name');
-    [$remit_addr, $remit_csz] = StatementEnvelope::facilityRemitAddr($row);
+    [$remit_addr, $remit_csz] = StatementEnvelope::remitLines($row, $windowed);
 
 
     // Contacts
@@ -732,8 +760,6 @@ function create_statement($stmt): string
     //  %-25s = left-justified string of 25 characters padded with spaces
     // Note that "\n" is a line feed (new line) character.
     // reformatted to handle i8n by tony
-    $env = StatementEnvelope::fromGlobals();
-    $windowed = $env->isWindowed();
     $providerNAME = getProviderName($stmt['provider_id']);
     if ($windowed) {
         $toLines = [];
@@ -958,7 +984,8 @@ function create_statement($stmt): string
 }
 
 /**
- * Portal HTML statement. Uses the facility mailing address when it is filled in.
+ * Portal HTML statement. Read on screen, so it keeps the stock layout
+ * even when printed statements are fitted to an envelope.
  */
 function osp_create_HTML_statement($stmt)
 {
@@ -971,60 +998,33 @@ function osp_create_HTML_statement($stmt)
         return "";
     }
 
-    // The encounter's own service location and billing facility. A service-location
-    // row chosen by the patient is not the statement's remit address.
-    $encounterId = null;
-    if (is_array($stmt)) {
-        $encounterId = $stmt['fid'] ?? null;
-    }
-    $row = QueryUtils::querySingleRow(
-        "SELECT f.name, f.street, f.city, f.state, f.postal_code, f.attn, f.phone, "
-        . "f.mail_street, f.mail_street2, f.mail_city, f.mail_state, f.mail_zip "
-        . "FROM form_encounter fe JOIN facility f ON fe.facility_id = f.id WHERE fe.id = ?",
-        [$encounterId]
-    ) ?: [];
-    $billing = QueryUtils::querySingleRow(
-        "SELECT f.name, f.street, f.city, f.state, f.postal_code, f.attn, f.phone, "
-        . "f.mail_street, f.mail_street2, f.mail_city, f.mail_state, f.mail_zip "
-        . "FROM form_encounter fe JOIN facility f ON fe.billing_facility = f.id WHERE fe.id = ?",
-        [$encounterId]
-    ) ?: [];
+    // First service-location facility, same source the stock portal statement uses.
+    $atres = sqlStatement(
+        "select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f "
+        . " left join users u on f.id=u.facility_id "
+        . " left join billing b on b.provider_id=u.id and b.pid = ? "
+        . " where service_location=1",
+        [$stmt['pid']]
+    );
+    $row = sqlFetchArray($atres);
     $clinic_name = StatementEnvelope::stmtString($row, 'name');
     $clinic_addr = StatementEnvelope::stmtString($row, 'street');
     $clinic_csz = StatementEnvelope::stmtString($row, 'city')
         . ', ' . StatementEnvelope::stmtString($row, 'state')
         . ', ' . StatementEnvelope::stmtString($row, 'postal_code');
-    $billing_contact = StatementEnvelope::stmtString($billing, 'attn');
-    $billing_phone = StatementEnvelope::stmtString($billing, 'phone');
-    $remit_name = StatementEnvelope::stmtString($billing, 'name');
-    [$remit_addr, $remit_csz] = StatementEnvelope::facilityRemitAddr($billing);
+    $billing_contact = StatementEnvelope::stmtString($row, 'attn');
+    $billing_phone = StatementEnvelope::stmtString($row, 'phone');
+    $remit_name = $clinic_name;
+    $remit_addr = $clinic_addr;
+    $remit_csz = $clinic_csz;
 
-    $env = StatementEnvelope::fromGlobals();
     ob_start();
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", [$stmt['pid'],$stmt['encounter']]);
     $providerID = $find_provider['provider_id'] ?? '';
-    if ($env->isWindowed()) {
-        echo $env->windowCss();
-        echo '<div class="stmt-env-sheet">';
-        echo $env->windowHtml($remit_name, $remit_addr, $remit_csz, [
-            StatementEnvelope::stmtToLine($stmt, 0),
-            StatementEnvelope::stmtToLine($stmt, 1),
-            StatementEnvelope::stmtToLine($stmt, 2),
-            StatementEnvelope::stmtToLine($stmt, 3),
-        ]);
-        echo '<div class="stmt-env-body">';
-        echo '<table width="100%" style="width:100%;font-size:13pt;margin:0 0 12pt 0;"><tr>';
-        echo '<td valign="top"><b style="font-size:16pt;">' . text($clinic_name) . '</b><br />' . xlt('Statement') . '</td>';
-        echo '<td valign="top" align="right"><b style="font-size:16pt;">' . text(StatementEnvelope::stmtString($stmt, 'patient')) . '</b><br />';
-        echo xlt('Chart') . ': ' . text(StatementEnvelope::stmtString($stmt, 'pid')) . '<br />';
-        echo xlt('Date') . ': ' . text(StatementEnvelope::stmtString($stmt, 'today')) . '<br />';
-        echo '<b>' . xlt('Amount due') . ': ' . text(StatementEnvelope::stmtString($stmt, 'amount')) . '</b></td></tr></table>';
-    } else {
-        echo '<div style="padding-left:25px;">';
-        echo report_header_2($stmt, $providerID);
-    }
+    echo '<div style="padding-left:25px;">';
+    echo report_header_2($stmt, $providerID);
 
     // dunning message setup
 
@@ -1269,11 +1269,9 @@ function osp_create_HTML_statement($stmt)
     $out .= "</td></tr></table>";
 
     $out .= '</div><br />';
-    if (!$env->isWindowed()) {
-        $to3 = StatementEnvelope::stmtToLine($stmt, 3);
-        if ($to3 !== '') {
-            $out .= sprintf("   %-32s\n", text($to3));
-        }
+    $to3 = StatementEnvelope::stmtToLine($stmt, 3);
+    if ($to3 !== '') {
+        $out .= sprintf("   %-32s\n", text($to3));
     }
 
     $out .= '<div style="width:8in;border-top:1pt solid black;"><br />';
@@ -1292,7 +1290,7 @@ function osp_create_HTML_statement($stmt)
       </td>
       </tr></table>';
 
-    $out .= $env->isWindowed() ? "      </div></div></div>" : "      </div></div>";
+    $out .= "      </div></div>";
     $out .= "\014
   <br /><br />"; // this is a form feed
     echo $out;

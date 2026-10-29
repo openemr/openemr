@@ -3,9 +3,11 @@
 /**
  * Window geometry for patient statements mailed in a double-window envelope.
  *
- * Stock modern/plain statements are unchanged. Windowed profiles zero the
- * mPDF page margins and print the return and patient addresses in the first
- * trifold panel using table row heights (mPDF ignores position:absolute).
+ * None keeps the stock layout and the physical remit address. A windowed
+ * profile zeroes the margins only when the site template draws the windows,
+ * and places the addresses in the first trifold. The folded sheet is taken
+ * to rest on the bottom of the envelope. mPDF ignores position:absolute, so
+ * the windows are table rows. Type is measured in the font the PDF embeds.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -33,6 +35,9 @@ final readonly class StatementEnvelope
 
     /** 2 mm inside the glass (Royal Mail window-internal minimum). */
     public const WINDOW_INSET_IN = 10.0 / 127.0;
+
+    /** mPDF font used in the windows. Same family as the stock PDF body. */
+    public const WINDOW_FONT = 'dejavusans';
 
     /**
      * Remit column in the non-windowed text stub: 7 spaces, 30-char addressee, 1 space.
@@ -99,6 +104,15 @@ final readonly class StatementEnvelope
     }
 
     /**
+     * A chosen profile whose windows are blank or do not fit the page.
+     * None is a valid choice and is not reported here.
+     */
+    public function isMisconfigured(): bool
+    {
+        return $this->profile !== self::PROFILE_DEFAULT && $this->geometry() === null;
+    }
+
+    /**
      * Billing-facility mailing address, or physical address if mailing is incomplete.
      *
      * @return array{0: string, 1: string}
@@ -121,6 +135,29 @@ final readonly class StatementEnvelope
             }
             return [$street, $mailCity . ', ' . $mailState . ', ' . $mailZip];
         }
+        return [
+            $str($row['street'] ?? ''),
+            $str($row['city'] ?? '') . ', ' . $str($row['state'] ?? '') . ', ' . $str($row['postal_code'] ?? ''),
+        ];
+    }
+
+    /**
+     * Remit street and city line.
+     *
+     * A window uses a complete mailing address. None keeps the physical address,
+     * which is what a site that never sets an envelope already prints.
+     *
+     * @return array{0: string, 1: string}
+     */
+    public static function remitLines(mixed $row, bool $windowed): array
+    {
+        if ($windowed) {
+            return self::facilityRemitAddr($row);
+        }
+        if (!is_array($row)) {
+            return ['', ''];
+        }
+        $str = static fn(mixed $v): string => is_scalar($v) ? trim((string) $v) : '';
         return [
             $str($row['street'] ?? ''),
             $str($row['city'] ?? '') . ', ' . $str($row['state'] ?? '') . ', ' . $str($row['postal_code'] ?? ''),
@@ -248,7 +285,6 @@ final readonly class StatementEnvelope
         $cfg['margin_bottom'] = 0;
         $cfg['margin_header'] = 0;
         $cfg['margin_footer'] = 0;
-        $cfg['default_font'] = 'helvetica';
         return $cfg;
     }
 
@@ -260,11 +296,12 @@ final readonly class StatementEnvelope
         if (!$this->isWindowed()) {
             return '';
         }
+        $sheet = self::sheetFormat();
         return '<style>
-@page { sheet-size: Letter; margin: 0; }
+@page { sheet-size: ' . $sheet . '; margin: 0; }
 body { margin: 0; padding: 0; }
 .stmt-env-sheet { margin: 0; padding: 0; }
-.stmt-env-windows td { font-family: helvetica; }
+.stmt-env-windows td { font-family: ' . self::WINDOW_FONT . '; }
 .stmt-env-body { margin: 0; padding: 0.15in 0.40in 0.08in 0.40in; }
 .stmt-env-stub { margin: 0; padding: 0.08in 0.40in 0.10in 0.40in; }
 .stmt-env-sheet + .stmt-env-sheet { page-break-before: always; }
@@ -312,7 +349,8 @@ body { margin: 0; padding: 0; }
         $gap = $toBox['top'] - ($returnBox['top'] + $returnBox['h']);
         $rest = $g['panel'] - ($toBox['top'] + $toBox['h']);
 
-        return '<table class="stmt-env-windows" cellpadding="0" cellspacing="0" style="width:612pt;height:' . $h($g['panel']) . ';border:0;">'
+        $pagePt = sprintf('%.2f', $g['page_w'] * 72);
+        return '<table class="stmt-env-windows" cellpadding="0" cellspacing="0" style="width:' . $pagePt . 'pt;height:' . $h($g['panel']) . ';border:0;">'
             . '<tr><td height="' . $pt($top) . '" style="height:' . $h($top) . ';font-size:1px;line-height:' . $h($top) . ';">&nbsp;</td></tr>'
             . '<tr>' . $this->addrCell($returnLines, $returnBox, 11.0, $g['page_w']) . '</tr>'
             . '<tr><td height="' . $pt($gap) . '" style="height:' . $h($gap) . ';font-size:1px;line-height:' . $h($gap) . ';">&nbsp;</td></tr>'
@@ -374,8 +412,7 @@ body { margin: 0; padding: 0; }
             returnFromBottom: 2.000,
             toH: 1.000,
             toW: 4.000,
-            toFromBottom: 0.500,
-            envH: 3.875
+            toFromBottom: 0.500
         );
     }
 
@@ -400,13 +437,14 @@ body { margin: 0; padding: 0; }
             returnFromBottom: 2.5,
             toH: 1.375,
             toW: 4.0,
-            toFromBottom: 0.75,
-            envH: 4.125
+            toFromBottom: 0.75
         );
     }
 
     /**
-     * Convert carton from-bottom numbers to letter-top geometry.
+     * Convert carton from-bottom numbers to the top of the folded panel.
+     * The panel rests on the bottom of the envelope, so a taller envelope
+     * leaves the spare under the flap instead of shifting the windows up.
      *
      * @return array{
      *   page_w: float,
@@ -425,21 +463,23 @@ body { margin: 0; padding: 0; }
         float $toH,
         float $toW,
         float $toFromBottom,
-        float $envH
+        float $pageW = 8.5,
+        float $pageH = 11.0
     ): array {
+        $panel = $pageH / 3.0;
         return [
-            'page_w' => 8.5,
-            'page_h' => 11.0,
-            'panel' => 11.0 / 3.0,
+            'page_w' => $pageW,
+            'page_h' => $pageH,
+            'panel' => $panel,
             'left' => $left,
             'return' => [
-                'top' => $envH - ($returnFromBottom + $returnH),
+                'top' => $panel - ($returnFromBottom + $returnH),
                 'h' => $returnH,
                 'w' => $returnW,
                 'left' => $left,
             ],
             'to' => [
-                'top' => $envH - ($toFromBottom + $toH),
+                'top' => $panel - ($toFromBottom + $toH),
                 'h' => $toH,
                 'w' => $toW,
                 'left' => $left,
@@ -478,9 +518,12 @@ body { margin: 0; padding: 0; }
             || !is_finite($toLeft) || !is_finite($toBottom) || !is_finite($toW) || !is_finite($toH)
             || $envH <= 0.0 || $returnW <= 0.0 || $returnH <= 0.0 || $toW <= 0.0 || $toH <= 0.0
             || $returnLeft < 0.0 || $toLeft < 0.0 || $returnBottom < 0.0 || $toBottom < 0.0
+            || ($returnBottom + $returnH) > $envH
+            || ($toBottom + $toH) > $envH
         ) {
             return null;
         }
+        [$pageW, $pageH] = self::pageSizeInches();
         $g = self::fromBottomOrigin(
             left: $returnLeft,
             returnH: $returnH,
@@ -489,7 +532,8 @@ body { margin: 0; padding: 0; }
             toH: $toH,
             toW: $toW,
             toFromBottom: $toBottom,
-            envH: $envH
+            pageW: $pageW,
+            pageH: $pageH
         );
         $g['to']['left'] = $toLeft;
         $g['left'] = $returnLeft;
@@ -650,26 +694,23 @@ body { margin: 0; padding: 0; }
         $maxH = $box['h'] - 2 * $inset;
         [$pt, $fitted] = self::fitLines($lines, $maxW, $maxH, $maxPt);
         $lh = 1.00;
-        $n = max(1, count($fitted));
-        $textH = $n * ($pt / 72.0) * $lh;
-        $padY = max(0.0, ($box['h'] - $textH) / 2.0);
         $html = [];
         foreach ($fitted as $ln) {
             $html[] = self::esc($ln);
         }
         $inner = implode('<br />', $html);
-        $padL = $box['left'];
-        $padR = $pageW - $box['left'] - $box['w'];
+        $padL = $box['left'] + $inset;
+        $padR = $pageW - $box['left'] - $box['w'] + $inset;
         $h = static fn(float $n): string => sprintf('%.4fin', $n);
 
-        return '<td height="' . sprintf('%.2f', $box['h'] * 72) . '" align="center" valign="top" style="'
+        return '<td height="' . sprintf('%.2f', $box['h'] * 72) . '" align="left" valign="top" style="'
             . 'height:' . $h($box['h']) . ';'
             . 'padding-left:' . $h($padL) . ';'
             . 'padding-right:' . $h($padR) . ';'
-            . 'padding-top:' . $h($padY) . ';'
+            . 'padding-top:' . $h($inset) . ';'
             . 'padding-bottom:0;'
-            . 'text-align:center;vertical-align:top;'
-            . 'font-family:helvetica;font-size:' . sprintf('%.2fpt', $pt) . ';'
+            . 'text-align:left;vertical-align:top;'
+            . 'font-family:' . self::WINDOW_FONT . ';font-size:' . sprintf('%.2fpt', $pt) . ';'
             . 'line-height:' . $lh . ';">'
             . $inner
             . '</td>';
@@ -876,38 +917,67 @@ body { margin: 0; padding: 0; }
     }
 
     /**
-     * Helvetica string width in inches at $pt.
+     * String width in inches at $pt, from the font the window actually embeds.
      */
     private static function textWidthIn(string $s, float $pt): float
     {
-        return self::helveticaWidthEm($s) * $pt / 72.0;
+        if ($s === '') {
+            return 0.0;
+        }
+        $pdf = self::measurePdf(self::sheetFormat());
+        $pdf->SetFont(self::WINDOW_FONT, '', $pt);
+        // mPDF reports the current user unit, which is millimetres.
+        return $pdf->GetStringWidth($s) / 25.4;
     }
 
     /**
-     * Helvetica WinAnsi widths in em (1000 units per em).
+     * Paper name safe to put in CSS. Falls back to letter when unset.
      */
-    private static function helveticaWidthEm(string $s): float
+    public static function sheetFormat(): string
     {
-        /** @var array<int, int> $w */
-        static $w = [
-            278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278,
-            556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556,
-            1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778,
-            667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556,
-            333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556,
-            556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584,
-        ];
-        $sum = 0;
-        foreach (mb_str_split($s, 1, 'UTF-8') as $ch) {
-            if (strlen($ch) === 1) {
-                $c = ord($ch);
-                if ($c >= 32 && $c <= 126) {
-                    $sum += $w[$c - 32];
-                    continue;
-                }
+        $name = 'LETTER';
+        try {
+            $raw = OEGlobalsBag::getInstance()->get('pdf_size');
+            if (is_string($raw) && preg_match('/^[A-Za-z0-9]+$/', $raw) === 1) {
+                $name = $raw;
             }
-            $sum += 600;
+        } catch (\Throwable) {
+            $name = 'LETTER';
         }
-        return $sum / 1000.0;
+        return $name;
+    }
+
+    /**
+     * Width and height of the PDF paper, in inches.
+     *
+     * @return array{0: float, 1: float}
+     */
+    private static function pageSizeInches(): array
+    {
+        $pdf = self::measurePdf(self::sheetFormat());
+        $width = $pdf->w / 25.4;
+        $height = $pdf->h / 25.4;
+        if ($width <= 0.0 || $height <= 0.0) {
+            return [8.5, 11.0];
+        }
+        return [$width, $height];
+    }
+
+    /**
+     * One mPDF instance per paper size, used only to measure type.
+     */
+    private static function measurePdf(string $format): \Mpdf\Mpdf
+    {
+        /** @var array<string, \Mpdf\Mpdf> $cache */
+        static $cache = [];
+        if (!isset($cache[$format])) {
+            $cache[$format] = new \Mpdf\Mpdf([
+                'mode' => 'utf-8',
+                'format' => $format,
+                'default_font' => self::WINDOW_FONT,
+                'tempDir' => sys_get_temp_dir(),
+            ]);
+        }
+        return $cache[$format];
     }
 }

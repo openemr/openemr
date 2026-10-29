@@ -39,10 +39,11 @@ final class StatementEnvelopeTest extends TestCase
         $g = (new StatementEnvelope(StatementEnvelope::PROFILE_HASH9))->geometry();
         $this->assertNotNull($g);
         $this->assertEqualsWithDelta(0.375, $g['left'], 0.0001);
-        $this->assertEqualsWithDelta(0.6875, $g['return']['top'], 0.0001);
+        // Letter third rests on the envelope bottom: 11/3 - (2 + 1-3/16).
+        $this->assertEqualsWithDelta((11.0 / 3.0) - (2.0 + 1.1875), $g['return']['top'], 0.0001);
         $this->assertEqualsWithDelta(1.1875, $g['return']['h'], 0.0001);
         $this->assertEqualsWithDelta(3.5, $g['return']['w'], 0.0001);
-        $this->assertEqualsWithDelta(2.375, $g['to']['top'], 0.0001);
+        $this->assertEqualsWithDelta((11.0 / 3.0) - (0.5 + 1.0), $g['to']['top'], 0.0001);
         $this->assertEqualsWithDelta(1.0, $g['to']['h'], 0.0001);
         $this->assertEqualsWithDelta(4.0, $g['to']['w'], 0.0001);
         $this->assertEqualsWithDelta(11.0 / 3.0, $g['panel'], 0.0001);
@@ -56,10 +57,10 @@ final class StatementEnvelopeTest extends TestCase
         $g = (new StatementEnvelope(StatementEnvelope::PROFILE_HASH10))->geometry();
         $this->assertNotNull($g);
         $this->assertEqualsWithDelta(0.5, $g['left'], 0.0001);
-        $this->assertEqualsWithDelta(0.625, $g['return']['top'], 0.0001);
+        $this->assertEqualsWithDelta((11.0 / 3.0) - (2.5 + 1.0), $g['return']['top'], 0.0001);
         $this->assertEqualsWithDelta(1.0, $g['return']['h'], 0.0001);
         $this->assertEqualsWithDelta(3.5, $g['return']['w'], 0.0001);
-        $this->assertEqualsWithDelta(2.0, $g['to']['top'], 0.0001);
+        $this->assertEqualsWithDelta((11.0 / 3.0) - (0.75 + 1.375), $g['to']['top'], 0.0001);
         $this->assertEqualsWithDelta(1.375, $g['to']['h'], 0.0001);
         $this->assertEqualsWithDelta(4.0, $g['to']['w'], 0.0001);
     }
@@ -189,7 +190,13 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertStringContainsString('stmt-env-windows', $html);
         $this->assertStringContainsString('Clinic &amp; Co', $html);
         $this->assertStringContainsString('Pat &lt;X&gt;', $html);
+        $this->assertStringContainsString('text-align:left', $html);
+        $this->assertStringNotContainsString('text-align:center', $html);
         $this->assertStringNotContainsString('position:absolute', $html);
+        $this->assertStringNotContainsString('<html', $html);
+        $css = $env->windowCss();
+        $this->assertStringContainsString('sheet-size: ' . StatementEnvelope::sheetFormat(), $css);
+        $this->assertStringContainsString('.stmt-env-sheet + .stmt-env-sheet { page-break-before: always; }', $css);
     }
 
     /**
@@ -449,5 +456,64 @@ final class StatementEnvelopeTest extends TestCase
             $this->assertTrue(mb_check_encoding($ln, 'UTF-8'));
         }
         $this->assertGreaterThanOrEqual(StatementEnvelope::MIN_ADDRESS_PT, $pt);
+    }
+
+    /**
+     * None keeps the physical remit address. A window uses a complete mailing address.
+     */
+    public function testRemitLinesStayPhysicalUntilAWindowIsSelected(): void
+    {
+        $row = [
+            'street' => '100 Main Street',
+            'city' => 'Montpelier',
+            'state' => 'VT',
+            'postal_code' => '05602',
+            'mail_street' => 'PO Box 4242',
+            'mail_city' => 'Burlington',
+            'mail_state' => 'VT',
+            'mail_zip' => '05401',
+        ];
+        $this->assertSame(
+            ['100 Main Street', 'Montpelier, VT, 05602'],
+            StatementEnvelope::remitLines($row, false)
+        );
+        $this->assertSame(
+            ['PO Box 4242', 'Burlington, VT, 05401'],
+            StatementEnvelope::remitLines($row, true)
+        );
+    }
+
+    /**
+     * Blank custom is a broken setup. None and a preset are not.
+     */
+    public function testBlankCustomIsMisconfigured(): void
+    {
+        $none = new StatementEnvelope(StatementEnvelope::PROFILE_DEFAULT);
+        $preset = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
+        $blank = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, []);
+        $this->assertFalse($none->isMisconfigured());
+        $this->assertFalse($preset->isMisconfigured());
+        $this->assertTrue($blank->isMisconfigured());
+        $this->assertFalse($blank->isWindowed());
+    }
+
+    /**
+     * A window that sticks out of the envelope is not printed as the stock layout.
+     */
+    public function testCustomGeometryRejectsAWindowPastTheEnvelope(): void
+    {
+        $past = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'envelope_height' => '3-7/8',
+            'return_height' => '2',
+            'return_width' => '3-1/2',
+            'return_left' => '3/8',
+            'return_bottom' => '3',
+            'to_height' => '1',
+            'to_width' => '4',
+            'to_left' => '3/8',
+            'to_bottom' => '1/2',
+        ]);
+        $this->assertNull($past->geometry());
+        $this->assertTrue($past->isMisconfigured());
     }
 }
