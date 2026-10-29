@@ -308,8 +308,8 @@ handle_swarm_mode() {
             # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
             if is_leader_stale; then
                 echo "Leader appears to have crashed, attempting to take over..."
-                # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-                if try_become_leader; then
+                try_become_leader
+                if [[ "${AUTHORITY}" = "yes" ]]; then
                     echo "Successfully became leader after previous leader failure"
                     break
                 fi
@@ -319,9 +319,11 @@ handle_swarm_mode() {
         done
 
         # Try one more time to become leader (in case leader died just as we timed out)
-        # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-        if [[ ! -f "${OE_ROOT}/sites/docker-completed" ]] && try_become_leader; then
-            echo "Promoted to leader after waiting period"
+        if [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
+            try_become_leader
+            if [[ "${AUTHORITY}" = "yes" ]]; then
+                echo "Promoted to leader after waiting period"
+            fi
         fi
 
         # If we timed out, check if configuration actually exists
