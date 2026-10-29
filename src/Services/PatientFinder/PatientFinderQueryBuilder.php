@@ -68,12 +68,20 @@ final class PatientFinderQueryBuilder
     }
 
     /**
-     * @param array<int, PatientFinderColumn> $columns Active columns in client order.
+     * @param array<int, PatientFinderColumn> $columns Active (displayed) columns in client order.
+     * @param array<int, PatientFinderColumn>|null $globalSearchColumns Columns the global search
+     *        term applies to, when it differs from the displayed set — the `search_any` any-column
+     *        mode searches the DEM layout fields rather than the displayed columns. Null (the
+     *        default) searches the displayed columns, as the normal mode does.
      */
-    public function build(array $columns, PatientFinderRequest $request, BoundFilter $filter): PatientFinderQueryPlan
-    {
+    public function build(
+        array $columns,
+        PatientFinderRequest $request,
+        BoundFilter $filter,
+        ?array $globalSearchColumns = null
+    ): PatientFinderQueryPlan {
         [$selectList, $dataJoins, $selectBinds] = $this->buildSelect($columns);
-        [$searchWhere, $searchBinds, $whereJoins] = $this->buildWhere($columns, $request);
+        [$searchWhere, $searchBinds, $whereJoins] = $this->buildWhere($columns, $request, $globalSearchColumns);
         $orderBy = $this->buildOrderBy($columns, $request);
 
         $customWhere = $filter->getFilterClause();
@@ -161,20 +169,22 @@ final class PatientFinderQueryBuilder
 
     /**
      * @param array<int, PatientFinderColumn> $columns
+     * @param array<int, PatientFinderColumn>|null $globalSearchColumns
      * @return array{0: string, 1: array<int, string|int>, 2: array<int, string>}
      *         [WHERE fragment (without the filter clause), bind values, distinct JOINs needed by it]
      */
-    private function buildWhere(array $columns, PatientFinderRequest $request): array
+    private function buildWhere(array $columns, PatientFinderRequest $request, ?array $globalSearchColumns = null): array
     {
         $parts = [];
         $binds = [];
         $joins = [];
 
-        // Global search: one OR group across every searchable column.
+        // Global search: one OR group across every searchable column (the DEM
+        // layout fields in search_any mode, otherwise the displayed columns).
         if ($request->hasGlobalSearch()) {
             $term = $request->globalSearch;
             $ors = [];
-            foreach ($columns as $column) {
+            foreach (($globalSearchColumns ?? $columns) as $column) {
                 if (!$column->searchable) {
                     continue; // enriched + any module display-only column
                 }

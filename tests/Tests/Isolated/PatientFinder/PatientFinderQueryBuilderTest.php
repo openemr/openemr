@@ -227,6 +227,32 @@ class PatientFinderQueryBuilderTest extends TestCase
         $this->assertSame([5, 6, 'male%'], $plan->filteredCountBinds);
     }
 
+    public function testGlobalSearchColumnsOverrideDisplayedColumnsForAnyMode(): void
+    {
+        // Displayed columns are name + sex, but search_any searches a wider set
+        // of DEM fields (here: street, phone_home) in "contains" mode.
+        $displayed = [
+            PatientFinderColumn::fromTable(PatientFinderQueryBuilder::NAME_KEY, 'Name'),
+            PatientFinderColumn::fromTable('sex', 'Sex'),
+        ];
+        $global = [
+            PatientFinderColumn::fromTable('street', 'Street'),
+            PatientFinderColumn::fromTable('phone_home', 'Phone'),
+        ];
+        $plan = $this->builder()->build(
+            $displayed,
+            $this->request(globalSearch: 'main', any: true),
+            new BoundFilter(),
+            $global
+        );
+
+        // SELECT is driven by the displayed columns...
+        $this->assertStringContainsString('SELECT patient_data.pid, lname, fname, mname, `sex` FROM', $plan->dataSql);
+        // ...while the global WHERE searches the DEM field set with contains binds.
+        $this->assertStringContainsString('( `street` LIKE ? OR `phone_home` LIKE ? )', $plan->dataSql);
+        $this->assertSame(['%main%', '%main%'], $plan->filteredCountBinds);
+    }
+
     public function testNoPagingOmitsLimit(): void
     {
         $columns = [PatientFinderColumn::fromTable('sex', 'Sex')];
