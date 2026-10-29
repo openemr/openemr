@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
@@ -882,10 +884,12 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             }
         }
 
-        if (!empty($fhirResource->getGeneralPractitioner())) {
-            $providerReference = UtilsService::parseReference($fhirResource->getGeneralPractitioner()[0]);
-            if (!empty($providerReference) && $providerReference['resourceType'] === 'Practitioner' && $providerReference['localResource']) {
+        // generalPractitioner may also list Organization and PractitionerRole references, so take the first local Practitioner
+        foreach ($fhirResource->getGeneralPractitioner() as $generalPractitioner) {
+            $providerReference = UtilsService::parseReference($generalPractitioner);
+            if (!empty($providerReference) && $providerReference['type'] === 'Practitioner' && $providerReference['localResource']) {
                 $data['provider_uuid'] = $providerReference['uuid'];
+                break;
             }
         }
 
@@ -900,6 +904,10 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      */
     public function insertOpenEMRRecord($openEmrRecord)
     {
+        $openEmrRecord = $this->resolveGeneralPractitioner($openEmrRecord);
+        if ($openEmrRecord instanceof ProcessingResult) {
+            return $openEmrRecord;
+        }
         return $this->patientService->insert($openEmrRecord);
     }
 
@@ -908,13 +916,50 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * Updates an existing OpenEMR record.
      *
      * @param $fhirResourceId //The OpenEMR record's FHIR Resource ID.
-     * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
+     * @param array $updatedOpenEMRRecord The "updated" OpenEMR record.
      * @return ProcessingResult
      */
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
+        $updatedOpenEMRRecord = $this->resolveGeneralPractitioner($updatedOpenEMRRecord);
+        if ($updatedOpenEMRRecord instanceof ProcessingResult) {
+            return $updatedOpenEMRRecord;
+        }
         $processingResult = $this->patientService->update($fhirResourceId, $updatedOpenEMRRecord);
         return $processingResult;
+    }
+
+    /**
+     * patient_data stores the general practitioner as providerID, so look up the users.id of the
+     * Practitioner that parseFhirResource() read from Patient.generalPractitioner.
+     *
+     * @param array<mixed> $openEmrRecord OpenEMR patient record
+     * @return array<mixed>|ProcessingResult the record with providerID set, or a validation result
+     *                                       when the Practitioner does not exist
+     */
+    private function resolveGeneralPractitioner(array $openEmrRecord): array|ProcessingResult
+    {
+        $providerUuid = $openEmrRecord['provider_uuid'] ?? null;
+        if (!is_string($providerUuid) || $providerUuid === '') {
+            return $openEmrRecord;
+        }
+
+        $providerId = null;
+        if (UuidRegistry::isValidStringUUID($providerUuid)) {
+            $providerId = QueryUtils::fetchSingleValue(
+                'SELECT id FROM users WHERE uuid = ?',
+                'id',
+                [UuidRegistry::uuidToBytes($providerUuid)]
+            );
+        }
+        if (!is_numeric($providerId)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['generalPractitioner' => 'Practitioner reference could not be resolved: ' . $providerUuid]);
+            return $result;
+        }
+
+        $openEmrRecord['providerID'] = (int) $providerId;
+        return $openEmrRecord;
     }
 
     protected function searchForOpenEMRRecordsWithConfig($openEMRSearchParameters, SearchQueryConfig $config): ProcessingResult
