@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 555
+-- v_database: 558
 --
 
 --
@@ -12589,9 +12589,28 @@ CREATE TABLE `log_comment_encrypt` (
   `encrypt` enum('Yes','No') NOT NULL DEFAULT 'No',
   `checksum` longtext,
   `checksum_api` longtext,
-  `version` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0 for mycrypt and 1 for openssl',
+  `version` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0 for mycrypt, 1 for openssl, 4 row checksum, 5 chained checksum',
+  `chain` char(128) DEFAULT NULL COMMENT 'HMAC of the previous chain, this log id, and the row checksum',
+  PRIMARY KEY (`id`),
+  KEY `log_id` (`log_id`)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `log_chain_anchor`
+--
+
+DROP TABLE IF EXISTS `log_chain_anchor`;
+CREATE TABLE `log_chain_anchor` (
+  `id` tinyint(3) NOT NULL,
+  `log_id` bigint(20) NOT NULL DEFAULT 0,
+  `chain` char(128) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
+
+
+-- The installer and the upgrade applicator create the audit triggers.
+-- A server that cannot create them still finishes. The application
+-- also refuses updates and deletes of these tables.
 
 -- --------------------------------------------------------
 
@@ -15568,4 +15587,41 @@ CREATE TABLE `migrations` (
     `executed_at` datetime DEFAULT NULL,
     `execution_duration_ms` int DEFAULT NULL,
     PRIMARY KEY (`version`)
+) ENGINE=InnoDB;
+
+-- Layout statement rules. Always installed; the rules screen is part of layout forms.
+CREATE TABLE `module_lbf_statement_forms` (
+  `form_id` varchar(31) NOT NULL,
+  `paragraph_field_id` varchar(31) NOT NULL,
+  PRIMARY KEY (`form_id`)
+) ENGINE=InnoDB;
+
+CREATE TABLE `module_lbf_statement_rules` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `form_id` varchar(31) NOT NULL,
+  `source_field_id` varchar(31) NOT NULL,
+  `source_field_id_2` varchar(31) DEFAULT NULL,
+  `op` varchar(32) NOT NULL,
+  `min_value` decimal(12,4) DEFAULT NULL,
+  `max_value` decimal(12,4) DEFAULT NULL,
+  `min_inclusive` tinyint(1) NOT NULL DEFAULT 1,
+  `max_inclusive` tinyint(1) NOT NULL DEFAULT 1,
+  `match_token` varchar(255) DEFAULT NULL,
+  `statement_text` text,
+  `seq` int(11) NOT NULL DEFAULT 0,
+  `enabled` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `form_id` (`form_id`)
+) ENGINE=InnoDB;
+
+CREATE TABLE `module_lbf_statement_runs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `form_id` varchar(31) NOT NULL,
+  `pid` bigint(20) NOT NULL,
+  `instance_form_id` int(11) NOT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `mode` varchar(16) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `pid_instance` (`pid`,`instance_form_id`)
 ) ENGINE=InnoDB;

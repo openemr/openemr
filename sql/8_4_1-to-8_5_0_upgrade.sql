@@ -417,3 +417,80 @@ SELECT DISTINCT 'questionnaire', r.`form_foreign_id`, 'encounter', 1, 0
  WHERE r.`directory` = 'questionnaire_assessments'
    AND r.`form_foreign_id` > 0;
 #EndIf
+-- Address Book NPI requirement. NPI is US-only (CMS/NPPES). New installs use
+-- the globals.inc.php default of on. Upgrades insert the flag off and leave
+-- it off. Units for Visit Forms is not a country, so this upgrade does not
+-- turn the setting on. A site that wants it enables it explicitly. The insert
+-- stays inside #IfNotRow so a later run does not add the row again.
+#IfNotRow globals gl_name addrbook_require_npi
+INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES ('addrbook_require_npi', 0, '0');
+#EndIf
+
+
+#IfNotTable module_lbf_statement_forms
+CREATE TABLE `module_lbf_statement_forms` (
+  `form_id` varchar(31) NOT NULL,
+  `paragraph_field_id` varchar(31) NOT NULL,
+  PRIMARY KEY (`form_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable module_lbf_statement_rules
+CREATE TABLE `module_lbf_statement_rules` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `form_id` varchar(31) NOT NULL,
+  `source_field_id` varchar(31) NOT NULL,
+  `source_field_id_2` varchar(31) DEFAULT NULL,
+  `op` varchar(32) NOT NULL,
+  `min_value` decimal(12,4) DEFAULT NULL,
+  `max_value` decimal(12,4) DEFAULT NULL,
+  `min_inclusive` tinyint(1) NOT NULL DEFAULT 1,
+  `max_inclusive` tinyint(1) NOT NULL DEFAULT 1,
+  `match_token` varchar(255) DEFAULT NULL,
+  `statement_text` text,
+  `seq` int(11) NOT NULL DEFAULT 0,
+  `enabled` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `form_id` (`form_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable module_lbf_statement_runs
+CREATE TABLE `module_lbf_statement_runs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `form_id` varchar(31) NOT NULL,
+  `pid` bigint(20) NOT NULL,
+  `instance_form_id` int(11) NOT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `mode` varchar(16) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `pid_instance` (`pid`,`instance_form_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+
+-- Audit chain: each new checksum includes the previous one, and the anchor
+-- remembers the newest link so a deleted tail is visible.
+#IfMissingColumn log_comment_encrypt chain
+ALTER TABLE `log_comment_encrypt` ADD COLUMN `chain` char(128) DEFAULT NULL COMMENT 'HMAC of the previous chain, this log id, and the row checksum';
+#EndIf
+
+#IfNotIndex log_comment_encrypt log_id
+CREATE INDEX `log_id` ON `log_comment_encrypt` (`log_id`);
+#EndIf
+
+#IfNotTable log_chain_anchor
+CREATE TABLE `log_chain_anchor` (
+  `id` tinyint(3) NOT NULL,
+  `log_id` bigint(20) NOT NULL DEFAULT 0,
+  `chain` char(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- Audit rows cannot be updated or deleted.
+
+-- The installer and the upgrade applicator create the audit triggers.
+-- A server that cannot create them still finishes. The application
+-- also refuses updates and deletes of these tables.

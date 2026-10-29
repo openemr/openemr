@@ -156,6 +156,10 @@ MSG;
         };
     }
 
+    public function flush(): void
+    {
+    }
+
     private function isEnabled(): bool
     {
         return $this->host !== '';
