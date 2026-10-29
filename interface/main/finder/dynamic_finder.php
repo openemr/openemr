@@ -41,19 +41,14 @@ $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search'
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 $searchAny = empty($_GET['search_any']) ? "" : $_GET['search_any'];
 unset($_GET['search_any']);
-// Build the finder's column configuration from the shared registry (the core
-// ptlistcols columns plus any a module contributed via
-// PatientFinderColumnRegistrationEvent), then render the page column view. The
-// server-side endpoint (dynamic_finder_ajax.php) builds the same registry, so
-// the displayed and queried columns agree.
+// Build the finder's column data from the shared registry (the core ptlistcols
+// columns plus any a module contributed via PatientFinderColumnRegistrationEvent).
+// The server-side endpoint (dynamic_finder_ajax.php) builds the same registry, so
+// the displayed and queried columns agree. The column HTML is rendered by the
+// Twig template; the DataTables column config is serialised to JSON below.
 $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 $registry = (new PatientFinderColumnRegistryFactory($eventDispatcher))->create();
-$columnView = (new PatientFinderPageService())->buildColumnView($registry);
-$header0 = $columnView['header0'];
-$header = $columnView['header'];
-$coljson = $columnView['coljson'];
-$orderjson = $columnView['orderjson'];
-$colcount = $columnView['colcount'];
+$columns = (new PatientFinderPageService())->getColumns($registry);
 $loading = "";
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -236,6 +231,9 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 </style>
 <script>
     var uspfx = '<?php echo attr($uspfx); ?>';
+    // Column data from the shared registry; the DataTables "columns"/"order"
+    // config is built from this below (the Name column renders as a link).
+    var finderColumns = <?php echo json_encode($columns, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 
     $(function () {
         // Initializing the DataTable.
@@ -261,8 +259,16 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             // These column names come over as $_GET['sColumns'], a comma-separated list of the names.
             // See: http://datatables.net/usage/columns and
             // http://datatables.net/release-datatables/extras/ColReorder/server_side.html
-            "columns": [ <?php echo $coljson; ?> ],
-            "order": [ <?php echo $orderjson; ?> ],
+            "columns": finderColumns.map(function (c) {
+                var col = {"sName": c.key};
+                if (c.link) {
+                    col.mRender = wrapInLink;
+                }
+                return col;
+            }),
+            "order": finderColumns.map(function (c, idx) {
+                return [idx, c.sortDir];
+            }),
             "lengthMenu": [10, 25, 50, 100],
             "pageLength": <?php echo empty(OEGlobalsBag::getInstance()->get('gbl_pt_list_page_size')) ? '10' : OEGlobalsBag::getInstance()->get('gbl_pt_list_page_size'); ?>,
             <?php // Bring in the translations ?>
@@ -379,9 +385,7 @@ $templateVars = [
     'oeContainer' => $oemr_ui->oeContainer(),
     'oeBelowContainerDiv' => $oemr_ui->oeBelowContainerDiv(),
     'pageHeading' => $oemr_ui->pageHeading(),
-    'header0' => $header0,
-    'header' => $header,
-    'colcount' => $colcount,
+    'columns' => $columns,
     'headers' => $recent['headers'],
     'rp' => $recent['rp'],
 ];

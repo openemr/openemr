@@ -3,9 +3,9 @@
 /**
  * Isolated PatientFinderPageService Test
  *
- * Checks that the finder page's column view (headers, per-column search inputs,
- * DataTables columns/order JSON, column count) is built from the shared registry,
- * including module columns and the Name column's link renderer.
+ * Checks that the finder page's column data (key, title, initial sort direction,
+ * link flag) is derived from the shared registry in order, including module
+ * columns and the Name column's link flag. No HTML is produced here.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -25,48 +25,28 @@ use PHPUnit\Framework\TestCase;
 
 class PatientFinderPageServiceTest extends TestCase
 {
-    private function service(): PatientFinderPageService
-    {
-        // Identity helpers so assertions read against the raw strings.
-        return new PatientFinderPageService(
-            static fn(string $s): string => $s,
-            static fn(string $s): string => $s,
-            static fn(string $s): string => $s
-        );
-    }
-
-    public function testBuildsColumnViewFromRegistry(): void
+    public function testBuildsColumnDataFromRegistry(): void
     {
         $registry = new PatientFinderColumnRegistry();
         $registry->add(PatientFinderColumn::fromTable('name', 'Full Name'));
         $registry->add(PatientFinderColumn::fromTable('sex', 'Sex', defaultSortDir: 'desc'));
         $registry->add(PatientFinderColumn::enriched('ihi', 'IHI'));
 
-        $view = $this->service()->buildColumnView($registry);
+        $columns = (new PatientFinderPageService())->getColumns($registry);
 
-        $this->assertSame(3, $view['colcount']);
         $this->assertSame(
-            '{"sName": "name", "mRender": wrapInLink}, {"sName": "sex"}, {"sName": "ihi"}',
-            $view['coljson']
+            [
+                ['key' => 'name', 'title' => 'Full Name', 'sortDir' => 'asc', 'link' => true],
+                ['key' => 'sex', 'title' => 'Sex', 'sortDir' => 'desc', 'link' => false],
+                ['key' => 'ihi', 'title' => 'IHI', 'sortDir' => 'asc', 'link' => false],
+            ],
+            $columns
         );
-        $this->assertSame('["0", "asc"], ["1", "desc"], ["2", "asc"]', $view['orderjson']);
-
-        $this->assertStringContainsString('<th>Full Name</th>', $view['header']);
-        $this->assertStringContainsString('<th>Sex</th>', $view['header']);
-        $this->assertStringContainsString('<th>IHI</th>', $view['header']);
-
-        // The name column's placeholder is "Search by Name", not "Full Name".
-        $this->assertStringContainsString("placeholder='Search by Name'", $view['header0']);
-        $this->assertStringContainsString("placeholder='Search by Sex'", $view['header0']);
     }
 
-    public function testEmptyRegistryYieldsEmptyView(): void
+    public function testEmptyRegistryYieldsNoColumns(): void
     {
-        $view = $this->service()->buildColumnView(new PatientFinderColumnRegistry());
-
-        $this->assertSame(0, $view['colcount']);
-        $this->assertSame('', $view['coljson']);
-        $this->assertSame('', $view['orderjson']);
-        $this->assertSame('', $view['header']);
+        $columns = (new PatientFinderPageService())->getColumns(new PatientFinderColumnRegistry());
+        $this->assertSame([], $columns);
     }
 }
