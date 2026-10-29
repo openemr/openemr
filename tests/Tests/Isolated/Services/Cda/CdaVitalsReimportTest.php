@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * CdaVitalsReimport fills the readings a re-imported vitals entry lacks from the stored row.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    anun333 <anun333@posteo.net>
