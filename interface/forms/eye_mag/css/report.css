@@ -1247,9 +1247,29 @@ input[type="text"].fullscreen {
 }
 
 .PRIORS textarea,
-input {
+.PRIORS input {
   background-color: #ccf;
   color: #000;
+}
+
+/* Dispense Rx field states: green base, yellow on focus, light blue once
+ * changed. Scoped to the dispense table so the rest of the form is untouched.
+ * (The unscoped `, input` variant of the rule above used to paint every input
+ * on the page purple with no state changes.) */
+#SpectacleRx input[type="text"],
+#SpectacleRx textarea,
+#SpectacleRx select {
+  background-color: rgba(144, 238, 144, 0.5);
+}
+#SpectacleRx input[type="text"]:focus,
+#SpectacleRx textarea:focus,
+#SpectacleRx select:focus {
+  background-color: #ffff99;
+}
+#SpectacleRx input[data-changed="1"],
+#SpectacleRx textarea[data-changed="1"],
+#SpectacleRx select[data-changed="1"] {
+  background-color: #F0F8FF;
 }
 
 .PRIORS a {
