@@ -137,6 +137,52 @@ class CdaImportVitalsAgainTest extends TestCase
         $this->assertSame(1, $this->vitalsForms());
     }
 
+    public function testAReasonImportedAgainWithANewStatusIsUpdated(): void
+    {
+        $reason = ['reason_code' => 'SNOMED-CT:183932001', 'reason_code_text' => 'Procedure contraindicated', 'reason_status' => 'negated', 'vital_column' => 'bps'];
+        $this->dispose->InsertVitals([$reason + $this->vitals()], self::PID, $this->table, 0);
+        $this->dispose->InsertVitals([['reason_status' => 'active', 'reason_code_text' => 'Procedure not done'] + $reason + $this->vitals()], self::PID, $this->table, 0);
+
+        $rows = QueryUtils::fetchRecords(
+            'SELECT `reason_description`, `reason_status` FROM `form_vital_details` WHERE `form_id` IN (SELECT `id` FROM `form_vitals` WHERE `pid` = ?)',
+            [self::PID]
+        );
+        $this->assertSame([['reason_description' => 'Procedure not done', 'reason_status' => 'active']], $rows);
+    }
+
+    public function testAReadingImportedAgainStaysInItsEncounter(): void
+    {
+        $this->dispose->InsertVitals([$this->vitals()], self::PID, $this->table, 0);
+        $filed = $this->vitalsEncounters();
+        // A visit added since, closer to the reading's time; the reading's first encounter may be signed.
+        $this->dispose->InsertEncounter([[
+            'extension' => 'visit-again-2',
+            'date' => '20260301093000',
+            'provider_npi' => self::NPI,
+            'provider_name' => 'Again',
+            'provider_family' => 'Provider',
+            'represented_organization_name' => self::ORGANIZATION,
+        ]], self::PID, $this->table, 0);
+        $this->dispose->InsertVitals([$this->vitals()], self::PID, $this->table, 0);
+
+        $this->assertCount(1, $filed);
+        $this->assertSame($filed, $this->vitalsEncounters());
+    }
+
+    public function testAReadingWhoseFormWasDeletedIsListedAgain(): void
+    {
+        $this->dispose->InsertVitals([$this->vitals()], self::PID, $this->table, 0);
+        QueryUtils::sqlStatementThrowException("UPDATE `forms` SET `deleted` = 1 WHERE `pid` = ? AND `formdir` = 'vitals'", [self::PID]);
+        $this->dispose->InsertVitals([$this->vitals()], self::PID, $this->table, 0);
+
+        $listed = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS n FROM `forms` WHERE `pid` = ? AND `formdir` = 'vitals' AND `deleted` = 0",
+            'n',
+            [self::PID]
+        );
+        $this->assertSame(1, (int)self::number($listed));
+    }
+
     /**
      * The entry's first import, as the parser hands it to InsertVitals.
      *
@@ -175,6 +221,15 @@ class CdaImportVitalsAgainTest extends TestCase
             'n',
             [self::PID]
         ));
+    }
+
+    /** @return list<mixed> */
+    private function vitalsEncounters(): array
+    {
+        return array_column(
+            QueryUtils::fetchRecords("SELECT `encounter` FROM `forms` WHERE `pid` = ? AND `formdir` = 'vitals' ORDER BY `id`", [self::PID]),
+            'encounter'
+        );
     }
 
     private function rowsLeft(): int
