@@ -163,6 +163,13 @@ $templateService = new DocumentTemplateService();
 <body class="p-0 m-0 mt-1">
     <script>
         <?php require($globalsBag->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
+        // Messages shown after a document upload (see initFileDrop in onsitedocuments.js).
+        window.portalUploadMessages = {
+            saved: <?php echo xlj('Your upload was submitted. Our staff has not yet confirmed receipt. Please contact the office if confirmation does not arrive.'); ?>,
+            someFailed: <?php echo xlj('Some files were not saved:'); ?>,
+            failed: <?php echo xlj('Your upload was not saved. Please try again or contact the office.'); ?>,
+            unknown: <?php echo xlj('We could not confirm that your upload was saved. Please try again or contact the office.'); ?>
+        };
         $LAB.script("<?php echo $webroot; ?>/portal/patient/scripts/app/onsitedocuments.js?v=<?php echo $v_js_includes; ?>").wait().script(
             "<?php echo $webroot; ?>/portal/patient/scripts/app/onsiteportalactivities.js?v=<?php echo $v_js_includes; ?>").
         wait(function () {

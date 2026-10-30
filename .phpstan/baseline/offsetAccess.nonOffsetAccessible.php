@@ -25572,11 +25572,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/track_events.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access an offset on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/upload.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'body\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/upload.php',
@@ -25597,18 +25592,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/upload.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'id\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/upload.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'message_status\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/upload.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/upload.php',
 ];
 $ignoreErrors[] = [
