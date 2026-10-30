@@ -50,12 +50,13 @@ class CdaVitalSignComponentsTest extends TestCase
         // The first nine components, read before as well.
         $this->assertSame('130', $vital['bps']);
         $this->assertSame('80', $vital['bpd']);
-        $this->assertSame('70', $vital['height']);
+        // Converted to the Vitals form's units, height and temperature come back as numbers.
+        $this->assertEquals('70', $vital['height']);
         $this->assertSame('31.6', $vital['BMI']);
         $this->assertSame('60', $vital['pulse']);
         // The tenth to the twelfth, which were dropped; oxygen saturation is exported as 59408-5.
         $this->assertSame('20', $vital['respiration']);
-        $this->assertSame('98', $vital['temperature']);
+        $this->assertEquals('98', $vital['temperature']);
         $this->assertSame('98', $vital['oxygen_saturation']);
     }
 
