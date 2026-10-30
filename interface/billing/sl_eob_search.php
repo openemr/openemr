@@ -34,6 +34,7 @@ use OpenEMR\Billing\InvoiceServiceDates;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Billing\Statement\PatientCreditEncounters;
+use OpenEMR\Billing\Statement\PatientNetDue;
 use OpenEMR\Billing\Statement\StatementLines;
 use OpenEMR\Billing\Statement\StatementRecipient;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -407,6 +408,10 @@ if (
 
     $stmt = [];
     $stmt_count = 0;
+    // Statements actually written, and the patients a Due Pt run skipped because
+    // their credits leave nothing due.
+    $statementsWritten = 0;
+    $skippedNothingDue = [];
 
     $flagT = true;
     $aPatientFirstName = '';
@@ -570,6 +575,7 @@ if (
                     // Nothing is due once the patient's credits are netted against the
                     // checked invoices, so no statement goes out and its invoices are
                     // not counted as statemented.
+                    $skippedNothingDue[] = is_string($stmt['patient'] ?? null) ? $stmt['patient'] : '';
                     $stmt = [];
                     $pendingStatementUpdates = [];
                 } else {
@@ -588,6 +594,7 @@ if (
                         $tmp .= "<br />\n\014<br /><br />";
                     }
                     fwrite($fhprint, (string) $tmp);
+                    $statementsWritten++;
                     // now save it to pt documents
                     $d = new Document();
                     $doc_pid = $inv_pid[$inv_count];
@@ -629,8 +636,13 @@ if (
 
     fclose($fhprint);
     sleep(1);
+    $nothingDueMessage = $skippedNothingDue === [] ? '' : xl('No statement for') . ' ' . implode(', ', $skippedNothingDue)
+        . ': ' . xl('nothing is due after their credits.');
     // Download or print the file, as selected
-    if (!empty($_REQUEST['form_download'])) {
+    if ($statementsWritten === 0 && $skippedNothingDue !== [] && CurrentRequest::get()->request->getString('form_portalnotify') === '') {
+        // Every checked patient was skipped: say so rather than hand back an empty file.
+        $alertmsg = $nothingDueMessage;
+    } elseif (!empty($_REQUEST['form_download'])) {
         upload_file_to_client($STMT_TEMP_FILE);
     } elseif ($_REQUEST['form_pdf']) {
         upload_file_to_client_pdf($STMT_TEMP_FILE, $aPatientFirstName, $aPatientID, $usePatientNamePdf);
@@ -644,9 +656,12 @@ if (
         } else {
             (new Process([OPENEMR_PRINT_COMMAND, (string) $STMT_TEMP_FILE]))->run();
             if ($_REQUEST['form_without']) {
-                $alertmsg = xl('Now printing') . ' ' . $stmt_count . ' ' . xl('statements; invoices will not be updated.');
+                $alertmsg = xl('Now printing') . ' ' . $statementsWritten . ' ' . xl('statements; invoices will not be updated.');
             } else {
-                $alertmsg = xl('Now printing') . ' ' . $stmt_count . ' ' . xl('statements and updating invoices.');
+                $alertmsg = xl('Now printing') . ' ' . $statementsWritten . ' ' . xl('statements and updating invoices.');
+            }
+            if ($nothingDueMessage !== '') {
+                $alertmsg .= ' ' . $nothingDueMessage;
             }
         } // end not debug
     } // end not form_download
@@ -706,6 +721,9 @@ if ($searchRequest->getString('form_search') === 'Search') {
     }
     if ($lastStatementBefore !== '') {
         $searchFilters[] = xl('Last statement before') . ' ' . $shortDate($lastStatementBefore);
+    }
+    if ($searchRequest->getString('form_show_nothing_due') !== '') {
+        $searchFilters[] = xl('Showing patients with nothing due after credits');
     }
 }
 ?>
@@ -915,6 +933,10 @@ if ($searchRequest->getString('form_search') === 'Search') {
                             <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>:</label>
                             <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>:</label>
                             <input <?php echo (!empty($_REQUEST['only_with_debt'])) ? 'checked=checked' : ''; ?> type="checkbox" name="only_with_debt" id="only_with_debt" />
+                        </div>
+                        <div class="form-group col-lg">
+                            <label class="control-label" for="form_show_nothing_due" title="<?php echo xla('Due Pt: also list patients whose credits on other visits cover what they owe (no statement goes out for them)'); ?>"><?php echo xlt('Show Nothing Due'); ?>:</label>
+                            <input <?php echo $searchRequest->getString('form_show_nothing_due') !== '' ? 'checked=checked' : ''; ?> type="checkbox" name="form_show_nothing_due" id="form_show_nothing_due" value="1" />
                         </div>
                     </div>
                 </fieldset>
@@ -1216,6 +1238,9 @@ if ($searchRequest->getString('form_search') === 'Search') {
                             // Sort values for the column headers (sl_eob_search_sort.js): raw, not display-formatted.
                             $sortValue = static fn(mixed $value): string => is_scalar($value) ? (string) $value : '';
 
+                            // First pass: the invoices to list. The second pass draws them once
+                            // each patient's net is known.
+                            $listRows = [];
                             while ($row = sqlFetchArray($t_res)) {
                                 $balance = sprintf("%.2f", $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments']);
                                 //new filter only patients with debt.
@@ -1267,6 +1292,44 @@ if ($searchRequest->getString('form_search') === 'Search') {
                                     continue;
                                 }
 
+                                $listRows[] = [
+                                    'row' => $row,
+                                    'balance' => $balance,
+                                    'in_collections' => $in_collections,
+                                    'duncount' => $duncount,
+                                    'isduept' => $isduept,
+                                ];
+                            }
+
+                            // A Due Pt run nets each patient's credits on other visits against
+                            // the checked invoices and sends nothing when that leaves nothing
+                            // due, so those patients are hidden unless asked for, and unchecked.
+                            $nothingDue = [];
+                            if ($searchRequest->getString('form_category') === 'Due Pt') {
+                                $openBalances = [];
+                                foreach ($listRows as $listRow) {
+                                    $listPid = $listRow['row']['pid'] ?? null;
+                                    $listId = $listRow['row']['id'] ?? null;
+                                    if (is_numeric($listPid) && is_numeric($listId)) {
+                                        $openBalances[(int) $listPid][(int) $listId] = (float) $listRow['balance'];
+                                    }
+                                }
+                                $nothingDue = PatientNetDue::nothingDue($openBalances);
+                            }
+                            $showNothingDue = $searchRequest->getString('form_show_nothing_due') !== '';
+                            $hiddenNothingDue = [];
+
+                            foreach ($listRows as ['row' => $row, 'balance' => $balance, 'in_collections' => $in_collections, 'duncount' => $duncount, 'isduept' => $isduept]) {
+                                $listPid = is_numeric($row['pid']) ? (int) $row['pid'] : 0;
+                                $netDue = $nothingDue[$listPid] ?? null;
+                                if ($netDue !== null) {
+                                    if (!$showNothingDue) {
+                                        $hiddenNothingDue[$listPid] = true;
+                                        continue;
+                                    }
+                                    $isduept = '';
+                                }
+
                                 $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
 
                                 $svcdate = substr((string) $row['date'], 0, 10);
@@ -1304,6 +1367,10 @@ if ($searchRequest->getString('form_search') === 'Search') {
                                             <?php
                                             if ($in_collections) {
                                                 echo "<span class='font-weight-bold text-danger'>IC</span>";
+                                            }
+                                            if ($netDue !== null) {
+                                                echo " <span class='badge badge-info' title='" . xla('Credits on other visits cover what is owed; no statement goes out') . "'>"
+                                                    . xlt('credit') . ' ' . text(FormatMoney::getBucks($netDue)) . "</span>";
                                             } ?>
                                             <?php
                                             if (function_exists('is_auth_portal') ? is_auth_portal($row['pid']) : false) {
@@ -1325,7 +1392,14 @@ if ($searchRequest->getString('form_search') === 'Search') {
                                     </td>
                                 </tr>
                                 <?php
-                            } // end while
+                            } // end foreach
+                            if ($hiddenNothingDue !== []) { ?>
+                                <tr id="nothing-due-hidden">
+                                    <td colspan="12" class="text-muted">
+                                        <?php echo xlt('Hidden, nothing due after credits') . ': ' . text((string) count($hiddenNothingDue)) . ' ' . xlt('patient(s). Their credits on other visits cover what they owe, so no statement goes out. Tick Show Nothing Due to list them.'); ?>
+                                    </td>
+                                </tr>
+                            <?php }
                         } // end search/print logic
                         ?>
                         </table>
