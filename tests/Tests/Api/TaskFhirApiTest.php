@@ -48,6 +48,7 @@ class TaskFhirApiTest extends TestCase
     private string $serviceRequestUuid;
 
     private string $questionnaireUuid;
+    private TaskReferenceFixtures $references;
 
     protected function setUp(): void
     {
@@ -60,9 +61,10 @@ class TaskFhirApiTest extends TestCase
         $this->otherPatient = self::patientOf($this->fixtures->createTestPatient());
 
         // References only have to look like ones in the tasks put in the table here (a read doesn't
-        // join on them), and in a body's Questionnaire focus (checked by type alone).
+        // join on them). A body's references are looked up, so its Questionnaire focus is a real one.
         $this->serviceRequestUuid = UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
-        $this->questionnaireUuid = UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
+        $this->references = new TaskReferenceFixtures($this->testClient);
+        $this->questionnaireUuid = $this->references->questionnaire();
         $this->tasks['referral'] = $this->insertTask($this->patient['pid'], [
             'status' => 'requested',
             'code' => 'fulfill',
@@ -99,6 +101,9 @@ class TaskFhirApiTest extends TestCase
                 "DELETE FROM uuid_registry WHERE table_name = 'task' AND uuid IN (" . implode(',', array_fill(0, count($uuids), '?')) . ')',
                 array_map(UuidRegistry::uuidToBytes(...), $uuids)
             );
+        }
+        if (isset($this->references)) {
+            $this->references->remove();
         }
         $this->fixtures->removeFixtures();
         $this->testClient->cleanupRevokeAuth();
@@ -336,7 +341,7 @@ class TaskFhirApiTest extends TestCase
             'code' => ['coding' => [['system' => 'http://hl7.org/fhir/CodeSystem/task-code', 'code' => 'fulfill']]],
             'description' => 'Referral to medically tailored meals',
             'for' => ['reference' => 'Patient/' . ($patientUuid ?? $this->patient['uuid'])],
-            // A Questionnaire is outside the patient's record, so its type is all that's checked. A
+            // A Questionnaire is outside the patient's record, so it only has to be on this server. A
             // ServiceRequest focus has to be the patient's own order (TaskInputOutputFhirApiTest).
             'focus' => ['reference' => 'Questionnaire/' . $this->questionnaireUuid],
         ], $changes);
@@ -488,8 +493,57 @@ class TaskFhirApiTest extends TestCase
         [$status, $result] = $this->create($this->body(['owner' => ['reference' => 'Device/' . $this->serviceRequestUuid]]));
         $this->assertSame(Response::HTTP_BAD_REQUEST, $status);
         $this->assertArrayHasKey('owner', $this->errors($result));
-        [$status] = $this->create($this->body(['owner' => ['reference' => 'Organization/' . $this->serviceRequestUuid]]));
+        [$status] = $this->create($this->body(['owner' => ['reference' => 'Organization/' . $this->references->organization()]]));
         $this->assertSame(Response::HTTP_CREATED, $status);
+    }
+
+    /**
+     * References outside the patient's record have to be on this server: there's no compartment to
+     * check them in, but a made-up one is refused, naming the element.
+     */
+    public function testReferencesOutsideTheRecordMustExist(): void
+    {
+        $unknown = UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
+        $cases = [
+            'focus' => ['focus' => ['reference' => 'Questionnaire/' . $unknown]],
+            'owner' => ['owner' => ['reference' => 'Organization/' . $unknown]],
+            'requester' => ['requester' => ['reference' => 'Practitioner/' . $unknown]],
+            'input[0]' => ['input' => [['type' => ['text' => 'Who to see'], 'valueReference' => ['reference' => 'PractitionerRole/' . $unknown]]]],
+        ];
+        foreach ($cases as $element => $changes) {
+            [$status, $result] = $this->create($this->body($changes));
+            $this->assertSame(Response::HTTP_BAD_REQUEST, $status, $element . ': ' . json_encode($result));
+            $errors = $this->errors($result);
+            $this->assertSame([$element], array_keys($errors), $element);
+            $this->assertStringContainsString('on this server', self::text($errors[$element]), $element);
+        }
+
+        // The same references to records that exist are accepted.
+        [$status, $result] = $this->create($this->body([
+            'owner' => ['reference' => 'Organization/' . $this->references->organization()],
+            'requester' => ['reference' => 'Practitioner/' . $this->references->practitioner()],
+            'input' => [['type' => ['text' => 'Who to see'], 'valueReference' => ['reference' => 'PractitionerRole/' . $this->references->practitionerRole()]]],
+        ]));
+        $this->assertSame(Response::HTTP_CREATED, $status, (string)json_encode($result));
+    }
+
+    /**
+     * Task.code is a code and its system, so a code search reads both, as a FHIR token does:
+     * system|code needs both, a bare code matches in any system, |code only where none was recorded.
+     */
+    public function testCodeSearchHonoursTheSystem(): void
+    {
+        $patient = ['patient' => $this->patient['uuid']];
+        $questionnaire = $this->tasks['questionnaire'];
+        $referral = $this->tasks['referral'];
+        $temp = 'http://hl7.org/fhir/uv/sdc/CodeSystem/temp';
+
+        $this->assertSame([$questionnaire], self::ids($this->search($patient + ['code' => $temp . '|complete-questionnaire'])), 'system|code');
+        $this->assertSame([], self::ids($this->search($patient + ['code' => 'http://hl7.org/fhir/CodeSystem/task-code|complete-questionnaire'])), 'the code in another system');
+        $this->assertSame([$questionnaire], self::ids($this->search($patient + ['code' => 'complete-questionnaire'])), 'a bare code, any system');
+        $this->assertSame([], self::ids($this->search($patient + ['code' => '|complete-questionnaire'])), '|code: it has a system');
+        $this->assertSame([$referral], self::ids($this->search($patient + ['code' => '|fulfill'])), '|code: none recorded');
+        $this->assertSame([$referral], self::ids($this->search($patient + ['code' => 'fulfill'])), 'a bare code with no system recorded');
     }
 
     public function testAParentTaskMustBeForTheSamePatient(): void

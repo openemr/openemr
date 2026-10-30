@@ -56,8 +56,10 @@ class EhiExporter
      */
     const EHI_DOCUMENT_FOLDER = 'system-ehi-export';
 
+    // A task's inputs and outputs are its children (task_input.task_id, task_output.task_id), so they are only
+    // reached by following the task's child keys.
     const PARENT_FK_TABLES_TRAVERSAL = ['patient_data', 'insurance_data', 'eligibility_verification', 'form_vitals'
-        , 'lbt_data',  'lbf_data', 'patient_tracker', 'documents', 'form_track_anything', 'contact'];
+        , 'lbt_data',  'lbf_data', 'patient_tracker', 'documents', 'form_track_anything', 'contact', 'task'];
     const ZIP_MIME_TYPE = "application/zip";
     const PATIENT_TASK_BATCH_FETCH_LIMIT = 5000;
     const CYCLE_MAX_ITERATIONS_LIMIT = 1500;

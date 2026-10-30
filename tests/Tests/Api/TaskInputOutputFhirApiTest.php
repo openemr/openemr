@@ -56,6 +56,7 @@ class TaskInputOutputFhirApiTest extends TestCase
 
     /** This run's questionnaire title, so tearDown deletes this run's responses and no one else's. */
     private string $questionnaireTitle;
+    private ?TaskReferenceFixtures $references = null;
 
     private string $encounterUuid;
 
@@ -175,6 +176,7 @@ class TaskInputOutputFhirApiTest extends TestCase
         } else {
             unset($GLOBALS['document_storage_method']);
         }
+        $this->references?->remove();
         if (isset($this->questionnaireTitle)) {
             QueryUtils::sqlStatementThrowException(
                 'DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_response WHERE questionnaire_name = ?)',
@@ -250,7 +252,9 @@ class TaskInputOutputFhirApiTest extends TestCase
 
     public function testAMakeContactTaskKeepsTheContactsAndTheOneChosen(): void
     {
-        $food = 'Organization/' . UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
+        // An Organization a task names has to be on this server.
+        $this->references = new TaskReferenceFixtures($this->testClient);
+        $food = 'Organization/' . $this->references->organization();
         $inputs = [['type' => ['coding' => [['system' => self::SDOHCC_TEMP, 'code' => 'contact-entity']]], 'valueReference' => ['reference' => $food, 'type' => 'Organization', 'display' => 'Community food pantry']]];
         $outputs = [
             ['type' => ['coding' => [['system' => self::SDOHCC_TEMP, 'code' => 'chosen-contact']]], 'valueMarkdown' => 'Called the **food pantry** on Tuesday'],

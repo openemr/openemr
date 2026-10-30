@@ -40,13 +40,19 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTask\FHIRTaskInput;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTask\FHIRTaskOutput;
+use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\StringSearchField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\TaskService;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -74,6 +80,9 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
 
     /** The types a task's references are looked up as, in its patient's record. */
     private const RECORD_TYPES = ['ServiceRequest', 'RelatedPerson', 'QuestionnaireResponse', 'Observation', 'Procedure', 'DocumentReference'];
+
+    /** The types a task's references are looked up as on this server; they aren't any one patient's. */
+    private const SERVER_TYPES = ['Questionnaire', 'Organization', 'Practitioner', 'PractitionerRole'];
 
     private function getTaskService(): TaskService
     {
@@ -150,7 +159,37 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
                 $search[$name] = $field;
             }
         }
+        if (($search['code'] ?? null) instanceof TokenSearchField) {
+            $search['code'] = self::codeSearch($search['code']);
+        }
         return $search;
+    }
+
+    /**
+     * Task.code is kept as a code and its system, so a code search matches on both, as FHIR's token
+     * search reads them: system|code needs both, a bare code matches it in any system, and |code
+     * only where no system was recorded.
+     */
+    private static function codeSearch(TokenSearchField $field): CompositeSearchField
+    {
+        $anyOf = new CompositeSearchField('code', [], false);
+        foreach ($field->getValues() as $value) {
+            if (!$value instanceof TokenSearchValue) {
+                continue;
+            }
+            $match = new CompositeSearchField('code', [], true);
+            $match->addChild(new StringSearchField('code', [(string) $value->getCode()], SearchModifier::EXACT));
+            $system = $value->getSystem();
+            if ($system === '') {
+                $noSystem = new TokenSearchField('code_system', [new TokenSearchValue(true)]);
+                $noSystem->setModifier(SearchModifier::MISSING);
+                $match->addChild($noSystem);
+            } elseif (is_string($system)) {
+                $match->addChild(new StringSearchField('code_system', [$system], SearchModifier::EXACT));
+            }
+            $anyOf->addChild($match);
+        }
+        return $anyOf;
     }
 
     /**
@@ -450,13 +489,14 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     }
 
     /**
-     * What's wrong with the references into the patient's record, by element: a ServiceRequest
-     * focus, a RelatedPerson owner, and each input and output that names a QuestionnaireResponse,
-     * Observation, Procedure or DocumentReference. Each has to be on this server and for the
-     * task's patient. The resource's own service looks it up inside that patient's compartment,
-     * so a task can't name another patient's record. References outside the record (a
-     * Questionnaire, an Organization, a Practitioner) are checked by type only; a Patient owner
-     * or requester is checked against Task.for when the body is read.
+     * What's wrong with the task's references, by element. Those into the patient's record (a
+     * ServiceRequest focus, a RelatedPerson owner, and each input and output that names a
+     * QuestionnaireResponse, Observation, Procedure or DocumentReference) have to be on this server
+     * and for the task's patient: the resource's own service looks each up inside that patient's
+     * compartment, so a task can't name another patient's record. Those outside the record (a
+     * Questionnaire, Organization, Practitioner or PractitionerRole, as focus, owner, requester or
+     * input) have to be on this server; they aren't any one patient's, so there's no compartment to
+     * check. A Patient owner or requester is checked against Task.for when the body is read.
      *
      * @param array<string, string|null> $fields
      * @param array<int, array<string, string|null>> $inputs
@@ -466,16 +506,17 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     private function recordProblems(array $fields, array $inputs, array $outputs, string $puuid): array
     {
         $references = [];
-        foreach (['focus', 'owner'] as $element) {
+        $looked = array_merge(self::RECORD_TYPES, self::SERVER_TYPES);
+        foreach (['focus', 'owner', 'requester'] as $element) {
             $type = $fields[$element . '_type'] ?? null;
-            if ($type !== null && in_array($type, self::RECORD_TYPES, true)) {
+            if ($type !== null && in_array($type, $looked, true)) {
                 $references[$element] = [$type, $fields[$element . '_uuid'] ?? null];
             }
         }
         foreach (['input' => $inputs, 'output' => $outputs] as $element => $rows) {
             foreach ($rows as $i => $row) {
                 $type = $row['value_type'] ?? null;
-                if ($type !== null && in_array($type, self::RECORD_TYPES, true)) {
+                if ($type !== null && in_array($type, $looked, true)) {
                     $references[$element . "[$i]"] = [$type, $row['value_uuid'] ?? null];
                 }
             }
@@ -486,30 +527,34 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         $problems = [];
         foreach ($references as $element => [$type, $uuid]) {
             $key = $type . '/' . strtolower($uuid ?? '');
-            $found[$key] ??= $uuid !== null && self::inRecord($services[$type] ??= $this->recordService($type), $uuid, $puuid);
+            $onServer = in_array($type, self::SERVER_TYPES, true);
+            $found[$key] ??= $uuid !== null && self::inRecord($services[$type] ??= $this->recordService($type), $uuid, $onServer ? null : $puuid);
             if (!$found[$key]) {
-                $problems[$element] = "Task.$element names no $type for this task's patient: " . ($uuid ?? '');
+                $problems[$element] = "Task.$element names no $type " . ($onServer ? 'on this server' : "for this task's patient") . ': ' . ($uuid ?? '');
             }
         }
         return $problems;
     }
 
-    /** Whether the record with this uuid is the patient's, as its own service finds it. */
-    private static function inRecord(FhirServiceBase $service, string $uuid, string $puuid): bool
+    /** Whether its own service finds the record with this uuid: in the patient's compartment, or with no patient on this server. */
+    private static function inRecord(IResourceReadableService $service, string $uuid, ?string $puuid): bool
     {
         $found = $service->getOne($uuid, $puuid);
         return $found->isValid() && $found->hasData();
     }
 
     /**
-     * The service for one of RECORD_TYPES, built as its read route builds it. QuestionnaireResponse's
-     * responses saved from forms are a mapped service.
+     * The service for one of RECORD_TYPES or SERVER_TYPES, built as its read route builds it.
+     * QuestionnaireResponse's responses saved from forms, and Questionnaire's forms, are mapped services.
      */
-    private function recordService(string $type): FhirServiceBase
+    private function recordService(string $type): IResourceReadableService
     {
         if ($type === 'QuestionnaireResponse') {
             $service = new FhirQuestionnaireResponseService();
             $service->addMappedService(new FhirQuestionnaireResponseFormService());
+        } elseif ($type === 'Questionnaire') {
+            $service = new FhirQuestionnaireService();
+            $service->addMappedService(new FhirQuestionnaireFormService());
         } else {
             $service = match ($type) {
                 'ServiceRequest' => new FhirServiceRequestService(),
@@ -517,11 +562,14 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
                 'Observation' => new FhirObservationService(),
                 'Procedure' => new FhirProcedureService(),
                 'DocumentReference' => new FhirDocumentReferenceService(),
-                default => throw new \LogicException("$type is not looked up in the patient's record"),
+                'Organization' => new FhirOrganizationService(),
+                'Practitioner' => new FhirPractitionerService(),
+                'PractitionerRole' => new FhirPractitionerRoleService(),
+                default => throw new \LogicException("$type is not looked up"),
             };
         }
         $session = $this->getSession();
-        if ($session !== null) {
+        if ($session !== null && $service instanceof FhirServiceBase) {
             $service->setSession($session);
         }
         return $service;
