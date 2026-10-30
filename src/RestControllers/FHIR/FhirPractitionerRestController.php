@@ -476,6 +476,10 @@ class FhirPractitionerRestController
     public function getAll($searchParams)
     {
         $processingResult = $this->fhirPractitionerService->getAll($searchParams);
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
