@@ -208,6 +208,10 @@ class FhirConditionRestController
     public function getAll($searchParams, $puuidBind = null): JsonResponse|Response
     {
         $processingResult = $this->fhirConditionService->getAll($searchParams, $puuidBind);
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [

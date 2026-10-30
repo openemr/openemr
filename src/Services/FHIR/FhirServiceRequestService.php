@@ -16,6 +16,8 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryPagination;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\ServiceRequest\FhirServiceRequestProcedureOrderService;
 use OpenEMR\Services\FHIR\ServiceRequest\FhirServiceRequestReferralService;
@@ -29,6 +31,8 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class FhirServiceRequestService extends FhirServiceBase implements
     IResourceUSCIGProfileService,
@@ -42,9 +46,11 @@ class FhirServiceRequestService extends FhirServiceBase implements
     private ?FhirServiceRequestProcedureOrderService $orderService = null;
 
     /**
-     * @var list<FhirServiceBase>
+     * null until the services are built or set, so an empty set stays empty.
+     *
+     * @var ?list<FhirServiceBase>
      */
-    private array $mappedServices = [];
+    private ?array $mappedServices = null;
 
     /**
      * Procedure orders are the only ServiceRequests written through the API, so create
@@ -52,7 +58,12 @@ class FhirServiceRequestService extends FhirServiceBase implements
      */
     private function getOrderService(): FhirServiceRequestProcedureOrderService
     {
-        return $this->orderService ??= new FhirServiceRequestProcedureOrderService();
+        if ($this->orderService === null) {
+            $orderService = new FhirServiceRequestProcedureOrderService();
+            $this->configure($orderService);
+            $this->orderService = $orderService;
+        }
+        return $this->orderService;
     }
 
     /**
@@ -62,8 +73,10 @@ class FhirServiceRequestService extends FhirServiceBase implements
      */
     public function getMappedServices(): array
     {
-        if ($this->mappedServices === []) {
-            $this->mappedServices = [$this->getOrderService(), new FhirServiceRequestReferralService()];
+        if ($this->mappedServices === null) {
+            $referrals = new FhirServiceRequestReferralService();
+            $this->configure($referrals);
+            $this->mappedServices = [$this->getOrderService(), $referrals];
         }
         return $this->mappedServices;
     }
@@ -73,7 +86,70 @@ class FhirServiceRequestService extends FhirServiceBase implements
      */
     public function setMappedServices(array $services): void
     {
+        foreach ($services as $service) {
+            $this->configure($service);
+        }
         $this->mappedServices = $services;
+    }
+
+    /**
+     * The session, globals and logger set on this service reach the services it hands work to, as
+     * FhirDiagnosticReportService's setSession() does; the order service's write checks the session's user.
+     */
+    public function setSession(SessionInterface $session): void
+    {
+        parent::setSession($session);
+        foreach ($this->builtServices() as $service) {
+            $service->setSession($session);
+        }
+    }
+
+    public function setGlobalsBag(OEGlobalsBag $globalsBag): void
+    {
+        parent::setGlobalsBag($globalsBag);
+        foreach ($this->builtServices() as $service) {
+            $service->setGlobalsBag($globalsBag);
+        }
+    }
+
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+        foreach ($this->builtServices() as $service) {
+            $service->setLogger($logger);
+        }
+    }
+
+    /**
+     * Gives a service built or set after this one was configured what this one already has.
+     */
+    private function configure(FhirServiceBase $service): void
+    {
+        $session = $this->getSession();
+        if ($session !== null) {
+            $service->setSession($session);
+        }
+        $globalsBag = $this->getGlobalsBag();
+        if ($globalsBag !== null) {
+            $service->setGlobalsBag($globalsBag);
+        }
+        if ($this->logger !== null) {
+            $service->setLogger($this->logger);
+        }
+    }
+
+    /**
+     * The services built so far, each once.
+     *
+     * @return list<FhirServiceBase>
+     */
+    private function builtServices(): array
+    {
+        $services = [];
+        foreach (array_merge($this->orderService !== null ? [$this->orderService] : [], $this->mappedServices ?? []) as $service) {
+            $services[spl_object_id($service)] = $service;
+        }
+        return array_values($services);
     }
 
     protected function loadSearchParameters(): array
@@ -127,7 +203,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
                 'exception' => $exception,
                 'field' => $exception->getField(),
             ]);
-            $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
+            FhirSearchSyntaxError::record($fhirSearchResult, $exception);
         }
         return $fhirSearchResult;
     }
@@ -156,14 +232,26 @@ class FhirServiceRequestService extends FhirServiceBase implements
     }
 
     /**
-     * Each service's results in turn; on the first error, the errors and no data, as the mapped
-     * services' searchServices() does.
+     * Each service's results in turn, orders before referrals; on the first error, the errors and no
+     * data, as the mapped services' searchServices() does.
+     *
+     * A page (_count, _offset) is of the combined results, so it's cut from the merged list. Asked for the
+     * page themselves, each service would return up to _count of its own, twice the page between them.
+     * Neither pages in SQL (each reads its matches and trims them to the page), so asking for all of them
+     * reads no more rows than before.
      *
      * @param list<FhirServiceBase> $services
      * @param array<mixed> $searchParameters
      */
     private function searchServices(array $services, array $searchParameters, ?string $bind): ProcessingResult
     {
+        $page = new QueryPagination(self::intParameter($searchParameters, '_count'), self::intParameter($searchParameters, '_offset'));
+        $limit = $page->getLimit();
+        $offset = (int) $page->getCurrentOffsetId();
+        if ($limit > 0) {
+            unset($searchParameters['_count'], $searchParameters['_offset']);
+        }
+
         $processingResult = new ProcessingResult();
         foreach ($services as $service) {
             $processingResult->addProcessingResult($service->getAll($searchParameters, $bind));
@@ -172,8 +260,26 @@ class FhirServiceRequestService extends FhirServiceBase implements
                 return $processingResult;
             }
         }
+
+        if ($limit > 0) {
+            $data = $processingResult->getData();
+            $records = is_array($data) ? array_values($data) : [];
+            $page->setHasMoreData(count($records) > $offset + $limit);
+            $processingResult->setPagination($page);
+            $processingResult->setData(array_slice($records, $offset, $limit));
+        }
         return $processingResult;
     }
+
+    /**
+     * @param array<mixed> $searchParameters
+     */
+    private static function intParameter(array $searchParameters, string $name): int
+    {
+        $value = $searchParameters[$name] ?? null;
+        return is_string($value) && ctype_digit($value) ? (int) $value : (is_int($value) && $value >= 0 ? $value : 0);
+    }
+
 
     /**
      * getAll() searches the mapped services, so nothing searches this service directly.

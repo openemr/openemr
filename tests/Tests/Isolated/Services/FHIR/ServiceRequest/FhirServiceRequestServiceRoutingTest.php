@@ -13,11 +13,17 @@
 
 namespace OpenEMR\Tests\Isolated\Services\FHIR\ServiceRequest;
 
+use OpenEMR\Services\FHIR\FhirSearchSyntaxError;
 use OpenEMR\Services\FHIR\FhirServiceRequestService;
 use OpenEMR\Services\FHIR\ServiceRequest\FhirServiceRequestReferralService;
+use OpenEMR\Services\Search\SearchParameterSyntaxException;
 use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 class FhirServiceRequestServiceRoutingTest extends TestCase
 {
@@ -128,6 +134,82 @@ class FhirServiceRequestServiceRoutingTest extends TestCase
     }
 
     #[Test]
+    public function aMalformedValueOneServiceRejectsKeepsItsSyntaxErrorMark(): void
+    {
+        // The mark is what makes the controller answer 400 with an OperationOutcome, not 200 and an empty Bundle.
+        $this->referrals->syntaxErrorOn = 'authored';
+
+        $result = $this->service->getAll(['category' => 'http://snomed.info/sct|' . self::REFERRAL, 'authored' => 'not-a-date']);
+
+        $this->assertSame('authored', FhirSearchSyntaxError::find($result));
+        $this->assertSame('must be a FHIR date or dateTime.', FhirSearchSyntaxError::clientMessage($result));
+        $this->assertSame([], $this->data($result));
+    }
+
+    #[Test]
+    public function theSessionAndLoggerReachTheServices(): void
+    {
+        $session = new Session(new MockArraySessionStorage());
+        $logger = new NullLogger();
+
+        $this->service->setSession($session);
+        $this->service->setLogger($logger);
+
+        foreach ([$this->orders, $this->referrals] as $store) {
+            $this->assertSame($session, $store->getSession());
+            $this->assertSame($logger, $store->logger());
+        }
+    }
+
+    #[Test]
+    public function servicesSetAfterTheSessionGetItToo(): void
+    {
+        $session = new Session(new MockArraySessionStorage());
+        $service = new FhirServiceRequestService();
+        $service->setSession($session);
+        $late = new RoutingTestOrders('orders', [self::LABORATORY]);
+
+        $service->setMappedServices([$late]);
+
+        $this->assertSame($session, $late->getSession());
+    }
+
+    #[Test]
+    public function anEmptySetOfServicesStaysEmpty(): void
+    {
+        $this->service->setMappedServices([]);
+
+        $this->assertSame([], $this->service->getMappedServices());
+        $result = $this->service->getAll([]);
+        $this->assertFalse($result->hasErrors());
+        $this->assertSame([], $this->data($result));
+    }
+
+    #[Test]
+    public function aPageIsCutFromTheCombinedResults(): void
+    {
+        $this->orders->records = ['o1', 'o2', 'o3'];
+        $this->referrals->records = ['r1', 'r2'];
+
+        $first = $this->service->getAll(['_count' => '2']);
+        $this->assertSame(['o1', 'o2'], $this->data($first));
+        $this->assertTrue($first->getPagination()->hasMoreData());
+
+        $second = $this->service->getAll(['_count' => '2', '_offset' => '2']);
+        $this->assertSame(['o3', 'r1'], $this->data($second), 'the page runs on from orders into referrals');
+        $this->assertTrue($second->getPagination()->hasMoreData());
+
+        $last = $this->service->getAll(['_count' => '2', '_offset' => '4']);
+        $this->assertSame(['r2'], $this->data($last));
+        $this->assertFalse($last->getPagination()->hasMoreData());
+
+        // Each store is asked for all its matches; the page is the router's to cut.
+        $this->assertArrayNotHasKey('_count', $this->orders->lastParameters);
+        $this->assertArrayNotHasKey('_offset', $this->referrals->lastParameters);
+        $this->assertSame(['o1', 'o2', 'o3', 'r1', 'r2'], $this->data($this->service->getAll([])), 'no _count, no page');
+    }
+
+    #[Test]
     public function thePatientBindReachesEachService(): void
     {
         $this->service->getAll([], 'patient-uuid');
@@ -150,6 +232,11 @@ abstract class RoutingTestStore extends FhirServiceRequestReferralService
     public ?string $lastBind = null;
     public ?string $failWith = null;
     /** @var list<string> */
+    public array $records = [];
+    /** @var array<mixed> */
+    public array $lastParameters = [];
+    public ?string $syntaxErrorOn = null;
+    /** @var list<string> */
     public array $categoriesRouted = [];
 
     /**
@@ -158,6 +245,12 @@ abstract class RoutingTestStore extends FhirServiceRequestReferralService
     public function __construct(private readonly string $name, private readonly array $categories)
     {
         parent::__construct();
+        $this->records = [$name];
+    }
+
+    public function logger(): ?LoggerInterface
+    {
+        return $this->logger;
     }
 
     public function supportsCategory(string $category): bool
@@ -177,12 +270,19 @@ abstract class RoutingTestStore extends FhirServiceRequestReferralService
     {
         $this->calls++;
         $this->lastBind = is_string($puuidBind) ? $puuidBind : null;
+        $this->lastParameters = is_array($fhirSearchParameters) ? $fhirSearchParameters : [];
         $result = new ProcessingResult();
+        if ($this->syntaxErrorOn !== null) {
+            FhirSearchSyntaxError::record($result, new SearchParameterSyntaxException($this->syntaxErrorOn, 'unparsable', clientMessage: 'must be a FHIR date or dateTime.'));
+            return $result;
+        }
         if ($this->failWith !== null) {
             $result->setValidationMessages([$this->failWith => 'not valid']);
             return $result;
         }
-        $result->addData($this->name);
+        foreach ($this->records as $record) {
+            $result->addData($record);
+        }
         return $result;
     }
 }
