@@ -113,8 +113,8 @@ class IndexFriendlyQueriesDatabaseTest extends TestCase
         )), 'a number reads every event');
         $this->assertLessThan(self::FILLER, $this->rowsScanned(fn(): array => $service->getAppointmentsForPatient($this->pid)), 'getAppointmentsForPatient');
         $this->assertLessThan(self::FILLER, $this->rowsScanned(fn(): array => $this->searchByPatient($service, $this->uuid)), 'search by puuid');
-        $this->assertLessThan(self::FILLER, $this->rowsScanned(fn() => fetchRecurrences($this->pid)), 'fetchRecurrences');
-        $this->assertLessThan(self::FILLER, $this->rowsScanned(fn() => fetchAppointments('2031-03-01', '2031-03-31', $this->pid)), 'fetchAppointments');
+        $this->assertLessThan(self::FILLER, $this->rowsScanned(fn(): array => fetchRecurrences($this->pid)), 'fetchRecurrences');
+        $this->assertLessThan(self::FILLER, $this->rowsScanned(fn(): array => fetchAppointments('2031-03-01', '2031-03-31', $this->pid)), 'fetchAppointments');
     }
 
     public function testBillingDatesAreIndexed(): void
