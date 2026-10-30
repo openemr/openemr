@@ -62,6 +62,37 @@ final class Values
     }
 
     /**
+     * Closed span of a measurement box.
+     *
+     * A plain number, a trailing percent, or a mmHg suffix is one value.
+     * A hyphenated range is kept as both ends. Words are not a measurement.
+     *
+     * @return array{0: float, 1: float}|null
+     */
+    public static function measurementSpan(string $value): ?array
+    {
+        $text = trim($value);
+        if ($text === '') {
+            return null;
+        }
+        $stripped = preg_replace('/(?:\s*%|\s*mm\s*hg)\s*$/i', '', $text);
+        if (!is_string($stripped)) {
+            return null;
+        }
+        $text = trim($stripped);
+        if (preg_match('/^(\d+(?:\.\d+)?)(?:\s*-\s*(\d+(?:\.\d+)?))?$/', $text, $matches) !== 1) {
+            return null;
+        }
+        $low = (float) $matches[1];
+        $high = array_key_exists(2, $matches) ? (float) $matches[2] : $low;
+        if ($high < $low) {
+            return null;
+        }
+
+        return [$low, $high];
+    }
+
+    /**
      * Float form of a numeric scalar, or null when empty or non-numeric.
      */
     public static function asFloatOrNull(mixed $value): ?float
