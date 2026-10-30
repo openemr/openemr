@@ -22,6 +22,7 @@ namespace OpenEMR\Tests\Services\Billing;
 
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Common\Database\QueryUtils;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class X125010837PZipLogTest extends TestCase
@@ -108,9 +109,8 @@ class X125010837PZipLogTest extends TestCase
         [$claimText, $log] = $this->generateClaim('K1A 0B1', 'H0H 0H0', 'Canada');
 
         $this->assertStringContainsString('Billing facility postal code lost letters', $log);
-        $this->assertStringContainsString('837P loop 2010AA has no country code', $log);
         $this->assertStringContainsString('Service facility postal code lost letters', $log);
-        $this->assertStringContainsString('837P loop 2310C has no country code', $log);
+        $this->assertSame(2, substr_count($log, 'does not send the country code (N404)'));
         $this->assertStringNotContainsString('837P loop 2010AA requires a 9-digit ZIP', $log);
         $this->assertStringNotContainsString('837P loop 2310C requires a 9-digit ZIP', $log);
         $this->assertStringNotContainsString('Rejecting claim', $log);
@@ -130,6 +130,52 @@ class X125010837PZipLogTest extends TestCase
         $this->assertStringNotContainsString('lost letters', $log);
         $this->assertStringContainsString('N4*TESTVILLE*TX*101~', $claimText);
         $this->assertStringContainsString('N4*TESTVILLE*TX*000~', $claimText);
+    }
+
+    /**
+     * US territories use a USPS ZIP, so a short code gets the nine-digit warning.
+     *
+     * @param non-empty-string $country
+     */
+    #[DataProvider('unitedStatesTerritoryProvider')]
+    public function testAUsTerritoryZipUsesTheNineDigitWarning(string $country): void
+    {
+        [$claimText, $log] = $this->generateClaim('00901', '00802', $country);
+
+        $this->assertStringContainsString('837P loop 2010AA requires a 9-digit ZIP', $log);
+        $this->assertStringContainsString('837P loop 2310C requires a 9-digit ZIP', $log);
+        $this->assertStringNotContainsString('lost letters', $log);
+        $this->assertStringContainsString('*00901~', $claimText);
+        $this->assertStringContainsString('*00802~', $claimText);
+    }
+
+    /**
+     * The British Virgin Islands are a different country. A lettered code is not a US ZIP.
+     */
+    public function testTheBritishVirginIslandsAreNotAUsZip(): void
+    {
+        [$claimText, $log] = $this->generateClaim('VG1110', 'VG1110', 'Virgin Islands (British)');
+
+        $this->assertSame(2, substr_count($log, 'does not send the country code (N404)'));
+        $this->assertStringNotContainsString('requires a 9-digit ZIP', $log);
+        $this->assertStringContainsString('*1110~', $claimText);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unitedStatesTerritoryProvider(): array
+    {
+        return [
+            'Puerto Rico' => ['Puerto Rico'],
+            'PR' => ['PR'],
+            'Guam' => ['Guam'],
+            'US Virgin Islands' => ['Virgin Islands (U.S.)'],
+            'American Samoa' => ['American Samoa'],
+            'Northern Mariana Islands' => ['Northern Mariana Islands'],
+        ];
     }
 
     /**
