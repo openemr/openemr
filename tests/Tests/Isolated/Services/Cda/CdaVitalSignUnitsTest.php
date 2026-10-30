@@ -107,6 +107,23 @@ class CdaVitalSignUnitsTest extends TestCase
     }
 
     /**
+     * Saved as it came, MySQL would keep the digits it can read ("70,3" kg as 70) as pounds.
+     */
+    public function testAValueThatIsNotANumberInAUnitIsLeftOut(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizer([
+            ['3141-9', '70,3', 'kg'],
+            ['8302-2', '', 'cm'],
+            ['8310-5', '37', 'Cel'],
+        ]));
+
+        $vital = $this->vitalSign(1);
+        $this->assertNull($vital['weight']);
+        $this->assertNull($vital['height']);
+        $this->assertSame(98.6, $vital['temperature']);
+    }
+
+    /**
      * An organizer can carry the same measure twice.
      */
     public function testALeftOutVitalDoesNotReplaceOneAlreadyRead(): void

@@ -1317,14 +1317,6 @@ class CdaTemplateParse
     }
 
     /**
-     * A vital's value in the unit its form_vitals column stores, read with the unit it was
-     * sent in. Sent in kilograms, centimetres or Celsius, it was saved as that number of
-     * pounds, inches or degrees Fahrenheit. A value with no unit is kept as it was, as before;
-     * one in a unit that doesn't convert is left out, not saved as if it were the column's.
-     *
-     * @param mixed $value the observation's value element (value and unit attributes)
-     */
-    /**
      * Whether a vital sign record already holds a reading for a column. A reading left out (null)
      * doesn't replace one: an organizer, or QRDA exams on one date, can carry a measure twice.
      */
@@ -1345,13 +1337,29 @@ class CdaTemplateParse
         return is_array($record) && ($record[$column] ?? null) !== null;
     }
 
+    /**
+     * A vital's value in the unit its form_vitals column stores, read with the unit it was
+     * sent in. Sent in kilograms, centimetres or Celsius, it was saved as that number of
+     * pounds, inches or degrees Fahrenheit. A value with no unit is kept as it was, as before;
+     * one in a unit that doesn't convert, or that isn't a number, is left out, not saved as if
+     * it were in the column's unit.
+     *
+     * @param mixed $value the observation's value element (value and unit attributes)
+     */
     private function vitalValue(string $column, mixed $value): mixed
     {
         $number = is_array($value) ? ($value['value'] ?? null) : null;
         $unit = is_array($value) && is_string($value['unit'] ?? null) ? trim($value['unit']) : '';
         $storageUnit = self::VITAL_STORAGE_UNITS[$column] ?? null;
-        if ($storageUnit === null || $unit === '' || !is_numeric($number)) {
+        if ($storageUnit === null || $unit === '') {
             return $number;
+        }
+        if (!is_numeric($number)) {
+            // MySQL would keep the digits it can read ("70,3" kg as 70) in the column's unit.
+            if ($number !== null && $number !== '') {
+                ServiceContainer::getLogger()->warning('Vital sign left out: its value is not a number', ['column' => $column, 'unit' => $unit]);
+            }
+            return null;
         }
         $converted = VitalsStorageUnits::convert((float)$number, $unit, $storageUnit);
         if ($converted === null) {
