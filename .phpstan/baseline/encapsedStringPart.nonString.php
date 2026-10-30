@@ -792,11 +792,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$sSearch \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$search \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/finder/multi_patients_finder_ajax.php',

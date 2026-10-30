@@ -723,13 +723,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',

@@ -737,11 +737,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function rp\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Bootstrap\\:\\:\\$serviceRegistry type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Bootstrap.php',

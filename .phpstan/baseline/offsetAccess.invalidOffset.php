@@ -208,16 +208,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
 ];
