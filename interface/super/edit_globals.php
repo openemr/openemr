@@ -610,7 +610,7 @@ function checkBackgroundServices(): void
                                                 }
 
                                                 if (is_array($fldtype)) {
-                                                    echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                                    echo "  <select class='form-control' name='form_$i' id='form_$i' data-global='" . attr($fldid) . "'>\n";
                                                     foreach ($fldtype as $key => $value) {
                                                         if ($userMode) {
                                                             if ($globalValue == $key) {
@@ -644,13 +644,13 @@ function checkBackgroundServices(): void
                                                     if ($userMode) {
                                                         $globalTitle = $globalValue;
                                                     }
-                                                    echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
+                                                    echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' data-global='" . attr($fldid) . "' " .
                                                         "maxlength='15' value='" . attr($fldvalue) . "' />\n";
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_TEXT) {
                                                     if ($userMode) {
                                                         $globalTitle = $globalValue;
                                                     }
-                                                    echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
+                                                    echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' data-global='" . attr($fldid) . "' " .
                                                         "maxlength='255' value='" . attr($fldvalue) . "' />\n";
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_RANDOM_UUID) {
                                                     if ($userMode) {
@@ -661,7 +661,7 @@ function checkBackgroundServices(): void
                                                         $uuid4 = Uuid::uuid4();
                                                         $fldvalue = $uuid4->toString();
                                                     }
-                                                    echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
+                                                    echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' data-global='" . attr($fldid) . "' " .
                                                         "maxlength='255' value='" . attr($fldvalue) . "' />\n";
                                                 } elseif (($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED) || ($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED_HASH)) {
                                                     // A stored value that cannot be decrypted (for example after the
