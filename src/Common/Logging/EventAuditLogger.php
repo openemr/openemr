@@ -600,12 +600,7 @@ class EventAuditLogger implements AuditLoggerInterface
             && $this->config->queryDetail === AuditQueryDetail::Request
             && !$breakglass
         ) {
-            $patientId = null;
-            if (is_int($pid) && $pid > 0) {
-                $patientId = $pid;
-            } elseif (is_string($pid) && ctype_digit($pid) && (int) $pid > 0) {
-                $patientId = (int) $pid;
-            }
+            $patientId = $pid > 0 ? $pid : null;
             $this->pendingSelects->add($matchedTable, $eventCategory->value, $outcome !== false, $patientId, $category);
             $this->armQueryFlush();
             return;
