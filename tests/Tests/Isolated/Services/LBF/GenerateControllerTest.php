@@ -77,5 +77,31 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
             $this->assertSame('', $formId);
             $this->assertSame(0, $instanceId);
         }
+
+        /**
+         * An empty layout rule does not add a write check.
+         */
+        public function testLayoutWriteDecisionAllowsAnOpenLayout(): void
+        {
+            $this->assertTrue(GenerateController::layoutWriteDecision('', false, false));
+        }
+
+        /**
+         * A super user follows the layout form and is allowed.
+         */
+        public function testLayoutWriteDecisionAllowsASuperUser(): void
+        {
+            $this->assertTrue(GenerateController::layoutWriteDecision('patients|demo', true, false));
+        }
+
+        /**
+         * Anyone else needs write on the layout rule.
+         */
+        public function testLayoutWriteDecisionRequiresWriteOnTheLayout(): void
+        {
+            $this->assertFalse(GenerateController::layoutWriteDecision('patients|demo', false, false));
+            $this->assertTrue(GenerateController::layoutWriteDecision('patients|demo', false, true));
+        }
+
     }
 }

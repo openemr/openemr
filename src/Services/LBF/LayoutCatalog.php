@@ -149,6 +149,26 @@ class LayoutCatalog
     }
 
     /**
+     * Layout access rule in section|value form, or empty when the layout has none.
+     */
+    public function acoSpec(string $formId): string
+    {
+        if (!Identifiers::isFieldId($formId)) {
+            return '';
+        }
+        $row = Values::assocRow($this->sql->querySingleRow(
+            "SELECT grp_aco_spec FROM layout_group_properties " .
+            "WHERE grp_form_id = ? AND grp_group_id = ''",
+            [$formId]
+        ));
+        if ($row === null) {
+            return '';
+        }
+
+        return Values::rowString($row, 'grp_aco_spec');
+    }
+
+    /**
      * @param array<string, array{data_type:int,title:string,list_id:string,seq:int,group_id:string}> $meta
      */
     private static function textareaId(array $meta, string $fieldId): string
