@@ -202,8 +202,9 @@ Add no new instances of these; remove them opportunistically when you touch a fi
 - `new` on a service inside business logic; static service locators; global state as a
   service locator.
 - New Smarty templates; new `library/` procedural helpers.
-- API endpoints / services with no consumer in the tree — a frontend UX or CLI utility
-  (ideally both) must exercise them. ([api.md](api.md#every-endpoint-needs-a-real-consumer))
+- A service, API, or CLI tool with **no unit tests**; or an **internal (non-FHIR)** endpoint
+  landed with no consumer and no plan for one (FHIR/standardized endpoints are exercised by
+  tests and need no consumer). ([api.md](api.md#services-and-endpoints-must-be-exercised-the-consumer-question))
 - New call sites of an already-`@deprecated` function, or deprecating a function without
   converting it to a service-backed facade first. ([migration.md](migration.md#deprecating-and-retiring-legacy-functions))
 - catch-`\Exception` (misses `\Error`), catch-log-continue, leaking `$e->getMessage()` to

@@ -49,7 +49,7 @@ Why this is the one to back, over a bespoke UI router or more `apis/dispatch.php
    legacy files flow through `FallbackRouter` today, and modern routes get added *ahead* of
    the fallback incrementally. No big-bang cutover.
 4. **It unifies web and CLI on one bootstrap** — which is precisely what makes the
-   "[every endpoint needs a frontend and/or a CLI consumer](api.md#every-endpoint-needs-a-real-consumer)"
+   "[internal endpoints should have a frontend and/or a CLI consumer](api.md#services-and-endpoints-must-be-exercised-the-consumer-question)"
    recommendation cheap to honor: the CLI utility and the web request resolve the same
    services from the same container.
 
@@ -57,6 +57,10 @@ The file's own "future scope" note states the plan directly: put a modern `Route
 the fallback, so *well-formed new routes execute without touching the legacy systems* and
 must rely only on modern conventions (DI, no globals). That is the seam new controllers
 should aim to register against.
+
+> **Prior art.** An earlier front-controller draft exists as PR #12643 (a Slim-based attempt).
+> The router choice is not settled, and — per that author — the front-controller hook can land
+> **independently of** the broader module/plugin work; the two need not be coupled.
 
 ---
 

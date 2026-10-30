@@ -1,7 +1,7 @@
 # Technology stack and deprecation plan
 
 Part of the [OpenEMR architecture docs](README.md). What the architecture runs on, and where
-each piece is headed. The portal-specific additions (Phreez, Savant, LABjs) are in
+each piece is headed. The portal-specific additions (Phreez, Backbone, LABjs) are in
 [portal.md → Portal technology stack](portal.md#12-portal-technology-stack-and-deprecation).
 
 **Status legend:**
@@ -64,16 +64,18 @@ avoid engine-specific syntax that diverges between them. There is no plan to dro
 
 | Technology | Where | Role | Status |
 |---|---|---|---|
-| C-CDA / CQM Node packages | external npm packages `oe-cda-schematron`, `oe-cqm-service`, installed under `ccdaservice/` (installed packages, **not** in-repo source — nothing in `ccdaservice/` is git-tracked) | C-CDA Schematron validation and CQM tooling invoked at runtime | **Deprecate** → replace the Node dependency with PHP |
+| C-CDA / CQM (now PHP) | `src/Services/Cda/` (incl. `Schematron/SchematronValidator.php`), `src/Cda/`, `src/Cqm/` | C-CDA generation + Schematron validation + CQM calculation, in PHP | **Largely done** — PHP has replaced the Node `oe-cda-schematron` / `oe-cqm-service` sidecars; the untracked `ccdaservice/` npm packages are legacy/vestigial, pending removal |
 
-**Node.js for C-CDA/CQM → PHP.** C-CDA and CQM processing depends on the external npm
-packages `oe-cda-schematron` and `oe-cqm-service`, installed under `ccdaservice/` (that
-directory holds installed packages, not in-repo source). It is a Node runtime dependency
-sitting outside the PHP application and the DI/service model. PHP C-CDA code already lives
-under `src/Services/Cda/` (and CQM under `src/Cqm/`); the plan is to **replace the Node
-dependency with PHP** so this processing joins the same service/test architecture as
-everything else. This is *not* an in-repo Node service a contributor migrates, and it does
-**not** remove Node from the *build* (webpack/SASS, above).
+**Node.js for C-CDA/CQM → PHP (effectively done).** The Schematron validation and C-CDA/CQM
+processing have been **reimplemented in PHP**: `src/Services/Cda/Schematron/SchematronValidator.php`
+states outright that it *"replaces the Node.js oe-schematron-service / oe-cda-schematron
+sidecar"*, `SchematronParser.php` is a port of `parseSchematron.js`, C-CDA generation is PHP
+(`src/Cda/`, the Carecoordination module's `CcdaGenerator`), and CQM is PHP
+(`src/Cqm/PhpCqmCalculation`). The `ccdaservice/` directory (Node packages, not git-tracked)
+is legacy/vestigial — confirm no deployment path still invokes it, then remove it. (The
+external ONC *reference* C-CDA validator, referenced by `CdaValidateDocuments`, is a separate
+third-party service, not our sidecar.) Node remains only for the *build* (webpack/SASS,
+above).
 
 ---
 
@@ -89,6 +91,8 @@ everything else. This is *not* an in-repo Node service a contributor migrates, a
 | select2 | 4.1.0 | jQuery-bound select widget | **Evaluate** (jQuery-coupled) |
 | DataTables | 1.13.11 | Table widget | **Evaluate** |
 | Moment.js | 2.31.0 | Date handling | **Deprecate** — upstream is maintenance-only; move to native `Intl` / a modern date lib |
+| Backbone.js | 1.6.1 | MVC client for the portal's Phreez JSON API (`portal/patient/scripts/`) | **Retire with Phreez** — see [portal.md](portal.md#12-portal-technology-stack-and-deprecation) |
+| Underscore.js | 1.13.8 | Backbone's utility/template dependency | **Retire with Phreez / Backbone** |
 | DOMPurify | 3.4.x | HTML sanitization | **Keep** |
 
 **Vanilla-JS-first.** Write new client code in modern vanilla JS (ESM), reaching for a
@@ -103,12 +107,13 @@ standalone task.
 
 ## Deprecation summary — what not to add in new code
 
-- **Smarty** templates → Twig.
+- **Smarty** templates — and bare PHP/HTML (with inline CSS/JS) "polyglot" pages — → Twig
+  presentation (with logic moved to a controller/service).
 - **New Laminas-MVC** core controllers → `src/Controllers` + Symfony `Request`.
 - **jQuery / Knockout / AngularJS / React** → vanilla JS.
 - **Moment.js** → native `Intl`.
-- **Node.js as a runtime** (the C-CDA/CQM `oe-cda-schematron` / `oe-cqm-service` packages) →
-  PHP. Node stays only for the build.
+- **Node.js as a runtime** for C-CDA/CQM — **already replaced by PHP**; remove the vestigial
+  `ccdaservice/`. Node stays only for the build.
 
 See [portal.md § Portal technology stack](portal.md#12-portal-technology-stack-and-deprecation)
 for the portal-specific additions.

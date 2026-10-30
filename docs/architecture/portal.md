@@ -30,7 +30,7 @@ what is *different* about the portal and where its biggest gaps are.
 
 The portal is also a **two-era codebase**: a modernizing outer shell (Twig dashboard, a
 unit-tested `src/Controllers/Portal/` login flow, `src/Services` for credentials/messaging)
-wrapped around the **oldest stratum in the whole project** — the Phreez/Savant MVC app at
+wrapped around the **oldest stratum in the whole project** — the Phreez MVC app at
 `portal/patient/`. Both the layering rules and the migration strategy in `README.md` apply.
 
 ---
@@ -155,8 +155,9 @@ the rest of the app:
 **(a) The Phreez MVC + its own JSON API (`portal/patient/`) — legacy framework.**
 `portal/patient/index.php` bootstraps `_global_config.php` / `_app_config.php` /
 `_machine_config.php` and runs `Dispatcher::Dispatch(...)`. The framework is **Phreez** (an
-old PHP ORM/MVC) with the **Savant** template engine, vendored under
-`portal/patient/fwk/libs/{savant,util,verysimple}`.
+old PHP ORM/MVC), vendored under `portal/patient/fwk/`. Its view layer is **plain-PHP
+`.tpl.php` templates** (`portal/patient/templates/`) — ordinary PHP, no templating DSL — and
+its client is a **Backbone + Underscore** app (next section), not server-rendered HTML.
 
 - A REST-ish JSON route map in `_app_config.php` (`api/patient[/:num]`,
   `api/portalpatient/:num`, `api/onsitedocuments`, `api/onsiteportalactivities`,
@@ -203,9 +204,11 @@ Two eras here too:
   `datetime-picker`, `i18next`, `i18formatting`) — i.e. the main app's `Core\Header` asset
   system, themed via `portal_css_header`, rendered through `ServiceContainer::getTwig()`.
   i18n via i18next. Modern-ish (Twig), still Bootstrap/jQuery, not a SPA.
-- **Phreez app (`portal/patient/`): Savant `*.tpl.php` server templates** + jQuery/AJAX in
-  `portal/patient/scripts/` loaded by the ancient **LABjs** loader. Legacy — not
-  Knockout/Angular/React/Vue.
+- **Phreez app (`portal/patient/`): plain-PHP `.tpl.php` templates** plus a **Backbone 1.6.1
+  / Underscore 1.13.8** client in `portal/patient/scripts/` — models/collections/templates
+  (`model.js`) bound one-to-one to the Phreez JSON API (`api/onsitedocuments`,
+  `api/onsiteportalactivities`, …); `LAB.min.js` loads the scripts and jQuery is only
+  Backbone's DOM helper. Legacy — not Knockout/Angular/React/Vue.
 - **E-signature:** `portal/sign/assets/signature_pad.umd.js` + `signer_api.js` (vanilla).
 
 New portal UI should follow the main app's Presentation-layer rules
@@ -280,7 +283,7 @@ priorities, in rough order:
 1. **Converge data access onto core services and the REST/FHIR API** (§5). This is the
    headline goal — eliminate the parallel Phreez/direct-query stack so portal and clinical
    UI share one source of truth and one security surface.
-2. **Migrate Phreez/Savant controllers to `src/` + Twig**, strangler-style, using
+2. **Migrate Phreez controllers to `src/` + Twig**, strangler-style, using
    `get_patient_info.php` → `PatientPortalLoginController` as the template; retire the
    vendored framework when its last controller is gone.
 3. **Keep all patient-scoped access behind `PortalPatientAccessGuard` /
@@ -290,6 +293,12 @@ priorities, in rough order:
 4. **New portal UI in Twig**, new portal logic in injected services, new portal tables in
    `sql/database.sql` ([layers.md → schema](layers.md#database-schema-design-and-governance)).
 5. **Extend via events**, never by editing core portal files (§7).
+
+> **Under discussion (not settled):** a larger proposed step is to re-home the whole portal as
+> a **core module** once the REST/FHIR APIs are mature enough to back it, with **Phreeze removal
+> as the first chore**. That would change the end-state (a module rather than `portal/` in the
+> tree). It is recorded here as a direction under review by the maintainers, not a committed
+> plan.
 
 ---
 
@@ -303,7 +312,7 @@ priorities, in rough order:
 | Patient-scope guards | `src/Common/Session/PortalPatientAccessGuard.php`, `PortalSessionPidGuard.php` | Modern |
 | Secure messaging sender | `src/Services/PortalMessagingSender.php` | Modern |
 | Dashboard presentation | `portal/home.php` + `templates/portal/*.html.twig` | Mixed |
-| Legacy MVC + own JSON API (to retire) | `portal/patient/` (Phreez + Savant + DAOs) | Legacy |
+| Legacy MVC + own JSON API (to retire) | `portal/patient/` (Phreez + Backbone client + DAOs) | Legacy |
 | Legacy AJAX data endpoints (to migrate) | `portal/get_*.php` | Legacy |
 
 ---
@@ -318,12 +327,11 @@ Twig/Smarty, Node-for-C-CDA, and the jQuery/Knockout/vanilla-JS plan. The table 
 | Technology | Where | Role | Status |
 |---|---|---|---|
 | Phreez (PHP MVC/ORM) | `portal/patient/fwk/`, `libs/` | The `portal/patient/` app + its own JSON API & DAOs (§5) | **Deprecate** — migrate controllers to `src/`, retire the framework |
-| Savant | `portal/patient/fwk/libs/savant`, `*.tpl.php` | Phreez template engine | **Deprecate** → Twig |
+| Backbone 1.6.1 + Underscore 1.13.8 (Phreez client) | `portal/patient/scripts/` | Client for the Phreez JSON API: document review, signing, activity (jQuery is only Backbone's DOM helper) | **Retire with Phreez** — rewrite each screen when its Phreez controller moves to `src/Services`/REST; no standalone vanilla-JS rewrite |
 | LABjs | `portal/patient/scripts/libs/LAB.min.js` | Ancient async script loader | **Deprecate** → ESM / webpack bundles |
-| jQuery + AJAX (Phreez pattern) | `portal/patient/scripts/` | Dashboard client logic | **Deprecate** → vanilla JS (tracks core; see [tech-stack.md](tech-stack.md)) |
 | Twig | `templates/portal/*.html.twig` | Dashboard / login / registration presentation | **Keep** (§6) |
 | Bootstrap / jQuery (dashboard) | `setupHeader([...])` bundles | Dashboard CSS/JS, shared with core | **Upgrade / Deprecate** — tracks core |
-| i18next | dashboard asset bundle | **Client-side** i18n in the portal UI | **Evaluate** — distinct from server-side `xl()` ([subsystems.md → i18n](subsystems.md#internationalization-i18n)); keep one story |
+| i18next | dashboard asset bundle | **Client-side lookup over the shared `xl()` translations** — `portal/home.php` feeds `TranslationService::getLanguageDefinitionsForSession()` into `i18next.init()`, exactly as core does in `interface/main/tabs/main.php`; the JS `xl()` (`library/js/utility.js`) is `top.i18next.t()` | **Keep** |
 | signature_pad (UMD) | `portal/sign/assets/signature_pad.umd.js` | E-signature capture | **Keep** (vanilla) |
 | reCAPTCHA (Google) | `portal/account/register.php` | Registration bot defense | **Keep** |
 | Phreez JSON API | `portal/patient/_app_config.php` routes | Portal's private data API | **Deprecate** → core `src/Services` + REST/FHIR (§5, §10) |
@@ -331,15 +339,13 @@ Twig/Smarty, Node-for-C-CDA, and the jQuery/Knockout/vanilla-JS plan. The table 
 **Portal deprecation priorities.** The portal carries the project's **oldest technology
 stratum**, so its deprecation list is longer than core's:
 
-1. **Phreez + Savant + LABjs** — the whole `portal/patient/` framework is the top retirement
-   target. Migrate its controllers to `src/` (Twig + injected services) strangler-style and
-   remove the vendored framework when its last route is gone.
+1. **Phreez (framework + Backbone client + plain-PHP views)** — the whole `portal/patient/`
+   stack is the top retirement target. Migrate its controllers to `src/` (Twig + injected
+   services) strangler-style and remove the vendored framework when its last route is gone;
+   each screen's Backbone client is rewritten as its controller moves.
 2. **The Phreez JSON API → core services/REST** (§5) — the single most important portal move;
    it collapses the parallel data stack onto one source of truth.
 3. **jQuery/Knockout/AngularJS/Moment** — same vanilla-JS-first direction as core.
-4. **Reconcile i18n** — the portal dashboard uses client-side **i18next** while the rest of
-   the app translates server-side with `xl()` ([subsystems.md → i18n](subsystems.md#internationalization-i18n)). Pick one story rather than
-   maintaining two translation pipelines.
 
 Add no new usage of anything marked **Deprecate** here; follow the strangler strategy
 ([migration.md](migration.md)) to remove existing
