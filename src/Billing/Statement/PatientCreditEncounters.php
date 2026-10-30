@@ -27,6 +27,45 @@ use OpenEMR\Common\Database\QueryUtils;
 final class PatientCreditEncounters
 {
     /**
+     * An encounter's balance: charges (services and product sales) less
+     * payments and adjustments, the arithmetic InvoiceSummary::arGetInvoiceSummary()
+     * uses for the statement lines.
+     */
+    private const BALANCE_SQL =
+        "COALESCE((SELECT SUM(b.fee) FROM billing AS b " .
+        "WHERE b.pid = f.pid AND b.encounter = f.encounter AND b.activity = 1), 0) " .
+        "+ COALESCE((SELECT SUM(s.fee) FROM drug_sales AS s " .
+        "WHERE s.pid = f.pid AND s.encounter = f.encounter), 0) " .
+        "- COALESCE((SELECT SUM(a.pay_amount + a.adj_amount) FROM ar_activity AS a " .
+        "WHERE a.pid = f.pid AND a.encounter = f.encounter AND a.deleted IS NULL), 0)";
+
+    /**
+     * The statement balance of each of the patient's encounters given
+     * (form_encounter.id values), keyed by form_encounter.id.
+     *
+     * @param list<int> $encounterIds
+     * @return array<int, float>
+     */
+    public static function balances(int $pid, array $encounterIds): array
+    {
+        if ($encounterIds === []) {
+            return [];
+        }
+        $rows = QueryUtils::fetchRecords(
+            "SELECT f.id, " . self::BALANCE_SQL . " AS balance FROM form_encounter AS f " .
+            "WHERE f.pid = ? AND f.id IN (" . implode(', ', array_fill(0, count($encounterIds), '?')) . ")",
+            array_merge([$pid], $encounterIds)
+        );
+        $balances = [];
+        foreach ($rows as $row) {
+            if (is_numeric($row['id'] ?? null) && is_numeric($row['balance'] ?? null)) {
+                $balances[(int) $row['id']] = (float) $row['balance'];
+            }
+        }
+        return $balances;
+    }
+
+    /**
      * The patient's encounters, other than those in $excludedEncounterIds
      * (form_encounter.id values), whose charges (services and product sales)
      * less payments and adjustments are below zero. The arithmetic is the one
@@ -46,13 +85,7 @@ final class PatientCreditEncounters
         }
 
         $rows = QueryUtils::fetchRecords(
-            "SELECT f.id, f.encounter, f.date, f.stmt_count, " .
-            "COALESCE((SELECT SUM(b.fee) FROM billing AS b " .
-            "WHERE b.pid = f.pid AND b.encounter = f.encounter AND b.activity = 1), 0) " .
-            "+ COALESCE((SELECT SUM(s.fee) FROM drug_sales AS s " .
-            "WHERE s.pid = f.pid AND s.encounter = f.encounter), 0) " .
-            "- COALESCE((SELECT SUM(a.pay_amount + a.adj_amount) FROM ar_activity AS a " .
-            "WHERE a.pid = f.pid AND a.encounter = f.encounter AND a.deleted IS NULL), 0) AS balance " .
+            "SELECT f.id, f.encounter, f.date, f.stmt_count, " . self::BALANCE_SQL . " AS balance " .
             "FROM form_encounter AS f " .
             "WHERE f.pid = ?" . $exclusion . " " .
             "HAVING balance < 0 " .

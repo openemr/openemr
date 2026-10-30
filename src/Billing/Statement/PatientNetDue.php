@@ -24,18 +24,20 @@ namespace OpenEMR\Billing\Statement;
 final class PatientNetDue
 {
     /**
-     * The patients, among those given, whose open invoices net to zero or less
-     * against the credits on their other encounters.
+     * The patients, among those given, whose invoices net to zero or less
+     * against the credits on their other encounters. Balances come from the
+     * statement's own arithmetic (product sales included), not the search's.
      *
-     * @param array<int, array<int, float>> $openBalances pid => [form_encounter.id => balance due]
+     * @param array<int, list<int>> $encounterIds pid => form_encounter.id of the invoices a run would include
      * @return array<int, string> pid => net amount due (zero or negative), as "%.2f"
      */
-    public static function nothingDue(array $openBalances): array
+    public static function nothingDue(array $encounterIds): array
     {
         $nothingDue = [];
-        foreach ($openBalances as $pid => $balances) {
-            $credits = PatientCreditEncounters::find($pid, array_keys($balances));
-            $net = self::net(array_values($balances), array_map(
+        foreach ($encounterIds as $pid => $ids) {
+            $open = PatientCreditEncounters::balances($pid, $ids);
+            $credits = PatientCreditEncounters::find($pid, $ids);
+            $net = self::net(array_values($open), array_map(
                 static fn(array $credit): float => (float) $credit['balance'],
                 $credits
             ));

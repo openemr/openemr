@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\Billing;
 
+use OpenEMR\Billing\Statement\PatientCreditEncounters;
 use OpenEMR\Billing\Statement\PatientNetDue;
 use OpenEMR\Common\Database\QueryUtils;
 use PHPUnit\Framework\TestCase;
@@ -26,6 +27,8 @@ class PatientNetDueTest extends TestCase
     private const STILL_OWES_PID = 999912;
     /** Owes 25.00 and is owed exactly 25.00: nets to zero. */
     private const NETS_TO_ZERO_PID = 999913;
+    /** Owes 10.00 for the visit and 100.00 for a product sale on it, and is owed 20.00: still owes 90.00. */
+    private const PRODUCT_SALE_PID = 999914;
 
     /** @var array<int, array<int, int>> pid => [encounter number => form_encounter.id] */
     private array $ids = [];
@@ -43,6 +46,14 @@ class PatientNetDueTest extends TestCase
 
         $this->addEncounter(self::NETS_TO_ZERO_PID, 1, '2026-02-01', 40.00, 65.00);
         $this->addEncounter(self::NETS_TO_ZERO_PID, 2, '2026-04-01', 25.00, 0.00);
+
+        $this->addEncounter(self::PRODUCT_SALE_PID, 1, '2026-02-01', 30.00, 50.00);
+        $this->addEncounter(self::PRODUCT_SALE_PID, 2, '2026-04-01', 10.00, 0.00);
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO drug_sales (drug_id, pid, encounter, user, sale_date, quantity, fee) " .
+            "VALUES (1, ?, 2, 1, '2026-04-01', 1, 100.00)",
+            [self::PRODUCT_SALE_PID]
+        );
     }
 
     protected function tearDown(): void
@@ -53,12 +64,9 @@ class PatientNetDueTest extends TestCase
     public function testFindsThePatientsWhoseCreditsCoverTheirOpenInvoices(): void
     {
         $nothingDue = PatientNetDue::nothingDue([
-            self::NET_CREDIT_PID => [
-                $this->ids[self::NET_CREDIT_PID][2] => 10.07,
-                $this->ids[self::NET_CREDIT_PID][3] => 20.00,
-            ],
-            self::STILL_OWES_PID => [$this->ids[self::STILL_OWES_PID][2] => 30.00],
-            self::NETS_TO_ZERO_PID => [$this->ids[self::NETS_TO_ZERO_PID][2] => 25.00],
+            self::NET_CREDIT_PID => [$this->ids[self::NET_CREDIT_PID][2], $this->ids[self::NET_CREDIT_PID][3]],
+            self::STILL_OWES_PID => [$this->ids[self::STILL_OWES_PID][2]],
+            self::NETS_TO_ZERO_PID => [$this->ids[self::NETS_TO_ZERO_PID][2]],
         ]);
 
         $this->assertSame([
@@ -72,13 +80,36 @@ class PatientNetDueTest extends TestCase
         // The credit encounter is itself in the list (e.g. category All), so its
         // balance is already among the open ones and the lookup must skip it.
         $nothingDue = PatientNetDue::nothingDue([
-            self::STILL_OWES_PID => [
-                $this->ids[self::STILL_OWES_PID][1] => -10.00,
-                $this->ids[self::STILL_OWES_PID][2] => 30.00,
-            ],
+            self::STILL_OWES_PID => [$this->ids[self::STILL_OWES_PID][1], $this->ids[self::STILL_OWES_PID][2]],
         ]);
 
         $this->assertSame([], $nothingDue);
+    }
+
+    public function testProductSalesCountAsTheStatementCountsThem(): void
+    {
+        // The search's balance leaves out product sales: 10.00 owed against a 20.00
+        // credit would look like nothing due, but the statement shows 90.00.
+        $nothingDue = PatientNetDue::nothingDue([
+            self::PRODUCT_SALE_PID => [$this->ids[self::PRODUCT_SALE_PID][2]],
+        ]);
+
+        $this->assertSame([], $nothingDue);
+    }
+
+    public function testBalancesUseTheStatementArithmetic(): void
+    {
+        $balances = PatientCreditEncounters::balances(self::PRODUCT_SALE_PID, [
+            $this->ids[self::PRODUCT_SALE_PID][1],
+            $this->ids[self::PRODUCT_SALE_PID][2],
+        ]);
+
+        $this->assertSame([
+            $this->ids[self::PRODUCT_SALE_PID][1] => -20.0,
+            $this->ids[self::PRODUCT_SALE_PID][2] => 110.0,
+        ], $balances);
+        $this->assertSame([], PatientCreditEncounters::balances(self::PRODUCT_SALE_PID, []));
+        $this->assertSame([], PatientCreditEncounters::balances(self::STILL_OWES_PID, [$this->ids[self::PRODUCT_SALE_PID][2]]));
     }
 
     public function testNoPatientsGivenFindsNone(): void
@@ -118,8 +149,8 @@ class PatientNetDueTest extends TestCase
 
     private function cleanUp(): void
     {
-        foreach ([self::NET_CREDIT_PID, self::STILL_OWES_PID, self::NETS_TO_ZERO_PID] as $pid) {
-            foreach (['ar_activity', 'billing', 'form_encounter'] as $table) {
+        foreach ([self::NET_CREDIT_PID, self::STILL_OWES_PID, self::NETS_TO_ZERO_PID, self::PRODUCT_SALE_PID] as $pid) {
+            foreach (['ar_activity', 'drug_sales', 'billing', 'form_encounter'] as $table) {
                 QueryUtils::sqlStatementThrowException("DELETE FROM $table WHERE pid = ?", [$pid]);
             }
         }

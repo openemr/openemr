@@ -1304,17 +1304,18 @@ if ($searchRequest->getString('form_search') === 'Search') {
                             // A Due Pt run nets each patient's credits on other visits against
                             // the checked invoices and sends nothing when that leaves nothing
                             // due, so those patients are hidden unless asked for, and unchecked.
+                            // Only the invoices the list pre-checks count, as in a default run.
                             $nothingDue = [];
                             if ($searchRequest->getString('form_category') === 'Due Pt') {
-                                $openBalances = [];
+                                $checkedIds = [];
                                 foreach ($listRows as $listRow) {
                                     $listPid = $listRow['row']['pid'] ?? null;
                                     $listId = $listRow['row']['id'] ?? null;
-                                    if (is_numeric($listPid) && is_numeric($listId)) {
-                                        $openBalances[(int) $listPid][(int) $listId] = (float) $listRow['balance'];
+                                    if ($listRow['isduept'] !== '' && is_numeric($listPid) && is_numeric($listId)) {
+                                        $checkedIds[(int) $listPid][] = (int) $listId;
                                     }
                                 }
-                                $nothingDue = PatientNetDue::nothingDue($openBalances);
+                                $nothingDue = PatientNetDue::nothingDue($checkedIds);
                             }
                             $showNothingDue = $searchRequest->getString('form_show_nothing_due') !== '';
                             $hiddenNothingDue = [];
