@@ -833,10 +833,25 @@ class Claim
         return (string) $this->x12Zip($this->billingFacilityMailField('mail_zip'));
     }
 
+    /**
+     * One text column from a facility row. Empty when the row or the column is missing.
+     */
+    private function facilityText(mixed $facility, string $column): string
+    {
+        if (!is_array($facility)) {
+            return '';
+        }
+        $value = $facility[$column] ?? null;
+        if (!is_string($value)) {
+            return '';
+        }
+
+        return trim($value);
+    }
+
     private function billingFacilityMailField(string $field): string
     {
-        $value = is_array($this->billing_facility) ? ($this->billing_facility[$field] ?? null) : null;
-        return is_string($value) ? trim($value) : '';
+        return $this->facilityText($this->billing_facility, $field);
     }
 
     /**
@@ -880,34 +895,15 @@ class Claim
      */
     public function billingFacilityPostalCode(): string
     {
-        $facility = $this->billing_facility;
-        if (!is_array($facility)) {
-            return '';
-        }
-        $postal = $facility['postal_code'] ?? null;
-        if (!is_string($postal)) {
-            return '';
-        }
-
-        return trim($postal);
+        return $this->facilityText($this->billing_facility, 'postal_code');
     }
-
 
     /**
      * Country stored for the billing facility. Empty when the row has none.
      */
     public function billingFacilityCountry(): string
     {
-        $facility = $this->billing_facility;
-        if (!is_array($facility)) {
-            return '';
-        }
-        $country = $facility['country_code'] ?? null;
-        if (!is_string($country)) {
-            return '';
-        }
-
-        return trim($country);
+        return $this->facilityText($this->billing_facility, 'country_code');
     }
 
     /**
@@ -1059,16 +1055,7 @@ class Claim
      */
     public function facilityPostalCode(): string
     {
-        $facility = $this->facility;
-        if (!is_array($facility)) {
-            return '';
-        }
-        $postal = $facility['postal_code'] ?? null;
-        if (!is_string($postal)) {
-            return '';
-        }
-
-        return trim($postal);
+        return $this->facilityText($this->facility, 'postal_code');
     }
 
     /**
@@ -1076,16 +1063,7 @@ class Claim
      */
     public function facilityCountry(): string
     {
-        $facility = $this->facility;
-        if (!is_array($facility)) {
-            return '';
-        }
-        $country = $facility['country_code'] ?? null;
-        if (!is_string($country)) {
-            return '';
-        }
-
-        return trim($country);
+        return $this->facilityText($this->facility, 'country_code');
     }
 
     /**
