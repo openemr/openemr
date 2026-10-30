@@ -21,7 +21,6 @@ window.NewPatientForm = function(window) {
             webroot: config.webroot || '',
             pid: config.pid || '',
             encounter: config.encounter || '',
-            isPosEnabled: config.isPosEnabled || false,
             validationConstraints: config.validationConstraints || [],
             csrfToken: config.csrfToken || '',
             viewmode: config.viewmode || false,
@@ -166,9 +165,7 @@ window.NewPatientForm = function(window) {
             let facilitySelect = document.getElementById('facility_id_sel');
             let facilityHidden = document.getElementById('facility_id');
             facilityHidden.value = facilitySelect[facilitySelect.selectedIndex].value;
-            if (formConfig.isPosEnabled) {
-                getPOS();
-            }
+            getPOS();
         });
         $('#provider_id').on('change', newUserSelected);
 
@@ -215,12 +212,9 @@ window.NewPatientForm = function(window) {
         }
     };
 
-    // POS code handling
+    // POS code handling. The POS select is posted even when it's hidden
+    // (set_pos_code_encounter off), so it has to follow the facility either way.
     const getPOS = function() {
-        if (!formConfig.isPosEnabled) {
-            return false;
-        }
-
         const facility = document.forms[0].facility_id.value;
         $.ajax({
             url: formConfig.webroot + "/library/ajax/facility_ajax_code.php",
@@ -255,9 +249,7 @@ window.NewPatientForm = function(window) {
             if (document.forms[0].facility_id_sel) {
                 document.forms[0].facility_id_sel.value = rtn[0];
             }
-            if (formConfig.isPosEnabled) {
-                document.forms[0].pos_code.value = rtn[1];
-            }
+            document.forms[0].pos_code.value = rtn[1];
             if (Number(rtn[2]) === 1) {
                 document.forms[0]['billing_facility'].value = rtn[0];
             }
