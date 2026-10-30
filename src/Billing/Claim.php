@@ -6,8 +6,10 @@
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @author Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2009-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2026 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -244,6 +246,29 @@ class Claim
     {
         // this will take out anything non-numeric
         return preg_replace('/[^0-9]/', '', (string) $zip);
+    }
+
+    /**
+     * Digits for NM109. Edge whitespace is trimmed, then hyphens and spaces
+     * are removed. Any other character blanks the value.
+     */
+    public function x12NpiDigits(string $npi): string
+    {
+        return self::npiDigits($npi);
+    }
+
+    /**
+     * Digits for NM109. Edge whitespace is trimmed, then hyphens and spaces
+     * are removed. Any other character blanks the value.
+     */
+    public static function npiDigits(string $npi): string
+    {
+        $npi = trim($npi);
+        if (preg_match('/[^0-9 -]/', $npi) === 1) {
+            return '';
+        }
+
+        return str_replace(['-', ' '], '', $npi);
     }
 
     /**
@@ -886,7 +911,7 @@ class Claim
      */
     public function billingFacilityNPI()
     {
-        return $this->x12Clean(trim((string) $this->billing_facility['facility_npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->billing_facility['facility_npi']));
     }
 
     /**
@@ -1030,7 +1055,7 @@ class Claim
      */
     public function facilityNPI()
     {
-        return $this->x12Clean(trim((string) $this->facility['facility_npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->facility['facility_npi']));
     }
 
     /**
@@ -2135,7 +2160,7 @@ class Claim
     {
         $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
         $this->provider : $this->procs[$prockey]['provider'];
-        return $this->x12Clean(trim($tmp['npi'] ?? ''));
+        return $this->x12Clean($this->x12NpiDigits(trim($tmp['npi'] ?? '')));
     }
 
     public function NPIValid($npi)
@@ -2210,7 +2235,7 @@ class Claim
      */
     public function referrerNPI()
     {
-        return $this->x12Clean(trim((string) $this->referrer['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->referrer['npi']));
     }
 
     /**
@@ -2270,7 +2295,7 @@ class Claim
      */
     public function supervisorNPI()
     {
-        return $this->x12Clean(trim((string) $this->supervisor['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->supervisor['npi']));
     }
 
     /**
@@ -2343,7 +2368,7 @@ class Claim
      */
     public function billingProviderNPI()
     {
-        return $this->x12Clean(trim((string) $this->billing_prov_id['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->billing_prov_id['npi']));
     }
 
     /**
@@ -2471,7 +2496,7 @@ class Claim
      */
     public function ordererNPI()
     {
-        return $this->x12Clean(trim((string) $this->orderer['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->orderer['npi']));
     }
 
     /**
