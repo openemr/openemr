@@ -32,6 +32,17 @@ new Function('window', fs.readFileSync(
     'utf8'
 ))(window);
 
+// Answers held back until the test resolves them, to control the order replies arrive in.
+function holdAjax() {
+    const pending = [];
+    $.ajax = (options) => {
+        const deferred = $.Deferred();
+        pending.push({ data: options.data, answer: (reply) => deferred.resolve(JSON.stringify(reply)) });
+        return deferred.promise();
+    };
+    return pending;
+}
+
 // Each ajax call answers like library/ajax/facility_ajax_code.php.
 function stubAjax(reply) {
     const calls = [];
@@ -91,5 +102,52 @@ describe.each([true, false])('set_pos_code_encounter %s', (isPosEnabled) => {
 
         expect(document.forms[0].facility_id.value).toBe('4');
         expect(document.forms[0].pos_code.value).toBe('31');
+    });
+});
+
+describe('set_pos_code_encounter off', () => {
+    test('a provider at the same facility keeps the POS (an existing encounter\'s saved one)', () => {
+        stubAjax(() => ['3', '31', '1']);
+        setUpForm(false);
+
+        $('#provider_id').val('2').trigger('change');
+
+        expect(document.forms[0].pos_code.value).toBe('11');
+    });
+
+    test('until the facility lookup answers, no POS is posted', () => {
+        const pending = holdAjax();
+        setUpForm(false);
+
+        $('#facility_id_sel').val('4').trigger('change');
+
+        expect(new FormData(document.forms[0]).has('pos_code')).toBe(false);
+        pending[0].answer('31');
+        expect(new FormData(document.forms[0]).get('pos_code')).toBe('31');
+    });
+
+    test('a late answer to an earlier change is ignored', () => {
+        const pending = holdAjax();
+        setUpForm(false);
+
+        $('#facility_id_sel').val('4').trigger('change');
+        $('#facility_id_sel').val('3').trigger('change');
+        pending[1].answer('11');
+        pending[0].answer('31');
+
+        expect(document.forms[0].pos_code.value).toBe('11');
+    });
+
+    test('a late facility answer doesn\'t overwrite a newer provider change', () => {
+        const pending = holdAjax();
+        setUpForm(false);
+
+        $('#facility_id_sel').val('4').trigger('change');
+        $('#provider_id').val('2').trigger('change');
+        pending[1].answer(['3', '11', '1']);
+        pending[0].answer('31');
+
+        expect(document.forms[0].facility_id.value).toBe('3');
+        expect(document.forms[0].pos_code.value).toBe('11');
     });
 });
