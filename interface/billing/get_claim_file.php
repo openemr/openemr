@@ -17,6 +17,7 @@
 require_once(__DIR__ . "/../globals.php");
 
 use OpenEMR\Billing\BatchFilePublisher;
+use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -48,7 +49,7 @@ $claimFile = null;
 if ($location === 'tmp') {
     // Only the batch names BillingClaimBatch writes. The temporary directory
     // also holds CCDA, statement, and fax files.
-    if (preg_match('/^\d{4}-\d{2}-\d{2}-\d{6}-batch\.(pdf|txt)$/', $safeName) === 1) {
+    if (BillingClaimBatch::isTemporaryBatchName($safeName)) {
         $temporary = rtrim($globals->getString('temporary_files_dir'), DIRECTORY_SEPARATOR);
         $claimFile = BatchFilePublisher::listedFile($temporary, $safeName);
     }
