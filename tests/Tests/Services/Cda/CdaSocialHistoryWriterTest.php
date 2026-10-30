@@ -82,6 +82,28 @@ class CdaSocialHistoryWriterTest extends TestCase
         $this->assertSame('kept|currentalcohol|2020-01-01', $current['alcohol']);
     }
 
+    /**
+     * A document approved on the review screen with only a smoking status: the screen's alcohol fields are
+     * empty, and the patient's alcohol history must stay as it was.
+     */
+    public function testAReviewedSmokingStatusKeepsTheAlcoholHistory(): void
+    {
+        $this->service->create(['pid' => $this->pid, 'alcohol' => 'kept|currentalcohol|2020-01-01', 'exercise_patterns' => 'daily walks']);
+        QueryUtils::sqlStatementThrowException("UPDATE history_data SET `date` = NOW() - INTERVAL 1 DAY WHERE pid = ?", [$this->pid]);
+
+        CdaSocialHistoryWriter::write(
+            $this->service,
+            $this->pid,
+            CdaSocialHistoryWriter::reviewedChanges(['imported', '1', '2024-01-21', '449868002'], ['', '', false])
+        );
+
+        $current = $this->service->getHistoryData($this->pid);
+        $this->assertIsArray($current);
+        $this->assertSame('imported|1|2024-01-21|449868002', $current['tobacco']);
+        $this->assertSame('kept|currentalcohol|2020-01-01', $current['alcohol']);
+        $this->assertSame('daily walks', $current['exercise_patterns']);
+    }
+
     public function testAPatientWithNoHistoryGetsAFirstRow(): void
     {
         CdaSocialHistoryWriter::write($this->service, $this->pid, ['tobacco' => self::TOBACCO]);

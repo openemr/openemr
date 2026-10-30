@@ -1514,29 +1514,18 @@ class CarecoordinationTable
                                 $arr_vitals['vitals'][$q]['weight'] = $data['vital_sign-weight'][$i];
                                 $q++;
                             } elseif (substr((string) $key, 0, -4) == 'social_history') {
-                                $tobacco = $data['social_history-tobacco_note'][$i] . "|" .
-                                    $data['social_history-tobacco_status'][$i] . "|" .
-                                    ApplicationTable::fixDate($data['social_history-tobacco_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy') . "|" . $data['social_history-tobacco_snomed'][$i];
-                                $alcohol = $data['social_history-alcohol_note'][$i] . "|" .
-                                    $data['social_history-alcohol_status'][$i] . "|" .
-                                    ApplicationTable::fixDate($data['social_history-alcohol_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy');
-                                $query = "INSERT INTO history_data
-                                            ( pid,
-                                              tobacco,
-                                              alcohol,
-                                              date
-                                            )
-                                            VALUES
-                                            (
-                                              ?,
-                                              ?,
-                                              ?,
-                                              ?
-                                            )";
-                                QueryUtils::sqlStatementThrowException($query, [$data['pid'],
-                                    $tobacco,
-                                    $alcohol,
-                                    date('Y-m-d H:i:s')]);
+                                // Only what the document carries; CdaSocialHistoryWriter keeps the rest of the patient's history.
+                                $changes = CdaSocialHistoryWriter::reviewedChanges([
+                                    $data['social_history-tobacco_note'][$i],
+                                    $data['social_history-tobacco_status'][$i],
+                                    ApplicationTable::fixDate($data['social_history-tobacco_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy'),
+                                    $data['social_history-tobacco_snomed'][$i],
+                                ], [
+                                    $data['social_history-alcohol_note'][$i],
+                                    $data['social_history-alcohol_status'][$i],
+                                    ApplicationTable::fixDate($data['social_history-alcohol_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy'),
+                                ]);
+                                CdaSocialHistoryWriter::write(new SocialHistoryService(), $data['pid'], $changes);
                             } elseif (substr((string) $key, 0, -4) == 'encounter') {
                                 $arr_encounter['encounter'][$k]['extension'] = $data['encounter-extension'][$i];
                                 $arr_encounter['encounter'][$k]['root'] = $data['encounter-root'][$i];

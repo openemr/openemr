@@ -39,4 +39,25 @@ final class CdaSocialHistoryWriter
         }
         $service->updateHistoryDataForPatientPid($pid, $changes);
     }
+
+    /**
+     * The changes a document approved on the review screen carries: tobacco and alcohol, each only when the
+     * screen has any part of it, joined as that path has always stored them. One the document didn't carry
+     * used to be written as its separators alone (`|||`, `||`), replacing what the patient's history held.
+     *
+     * @param array<mixed> $tobacco the note, status, date and SNOMED CT code
+     * @param array<mixed> $alcohol the note, status and date
+     * @return array<string, string>
+     */
+    public static function reviewedChanges(array $tobacco, array $alcohol): array
+    {
+        $changes = [];
+        foreach (['tobacco' => $tobacco, 'alcohol' => $alcohol] as $column => $parts) {
+            $text = array_map(static fn(mixed $part): string => is_scalar($part) && $part !== false ? (string) $part : '', $parts);
+            if (implode('', $text) !== '') {
+                $changes[$column] = implode('|', $text);
+            }
+        }
+        return $changes;
+    }
 }
