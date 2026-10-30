@@ -1306,6 +1306,15 @@ STP2TBLBOT;
                         flush();
                     }
 
+                    echo "Creating audit log triggers...\n";
+                    flush();
+                    if ($installer->installAuditTriggers() === 0) {
+                        echo "$ok.<br />\n";
+                    } else {
+                        echo "Audit log triggers could not all be installed. The application still refuses changes to the audit log.<br />\n";
+                    }
+                    flush();
+
                     echo "Writing SQL configuration...\n";
                     flush();
                     if (! $installer->write_configuration_file()) {
