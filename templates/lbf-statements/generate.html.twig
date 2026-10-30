@@ -68,10 +68,10 @@
                     <div class="input-group">
                         <input type="text" class="form-control" id="patient_display" readonly
                                style="cursor:pointer;"
-                               placeholder="{{ "Click to select patient"|xlt }}"
+                               placeholder="{{ "Click to select patient"|xla }}"
                                value="{{ patient ? patient.name|attr : '' }}"
                                onclick="sel_patient()"
-                               title="{{ "Click to select patient"|xlt }}"
+                               title="{{ "Click to select patient"|xla }}"
                                data-finder-url="{{ finderUrl|attr }}" />
                         <div class="input-group-append">
                             <button type="button" class="btn btn-secondary" onclick="sel_patient()">{{ "Find"|xlt }}</button>

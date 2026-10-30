@@ -763,5 +763,36 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
                 $this->sql->locks
             );
         }
+
+        /**
+         * The layout access rule is the top group's grp_aco_spec.
+         */
+        public function testAcoSpecReadsTheLayoutGroup(): void
+        {
+            $this->sql->queue[] = ['grp_aco_spec' => 'patients|demo'];
+            $catalog = new LayoutCatalog($this->sql);
+            $this->assertSame('patients|demo', $catalog->acoSpec('LBFecho'));
+        }
+
+        /**
+         * A value that is not a layout id is not looked up.
+         */
+        public function testAcoSpecIsEmptyForABadFormId(): void
+        {
+            $catalog = new LayoutCatalog($this->sql);
+            $this->assertSame('', $catalog->acoSpec('not a form'));
+            $this->assertSame([], $this->sql->calls);
+        }
+
+        /**
+         * A layout with no access rule returns an empty string.
+         */
+        public function testAcoSpecIsEmptyWhenTheGroupHasNone(): void
+        {
+            $this->sql->queue[] = ['grp_aco_spec' => ''];
+            $catalog = new LayoutCatalog($this->sql);
+            $this->assertSame('', $catalog->acoSpec('LBFecho'));
+        }
+
     }
 }
