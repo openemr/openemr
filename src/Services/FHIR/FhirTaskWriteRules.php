@@ -79,10 +79,10 @@ final class FhirTaskWriteRules
     /** References into the patient's record are looked up when the task is written, so a task holds a bounded number of each. */
     public const MAX_PARAMETERS = 50;
 
-    /** The longest string, markdown, url or canonical kept, in characters: well inside the TEXT column's 65,535 bytes. */
+    /** The longest string, markdown, url or canonical, and description, kept, in characters: well inside the TEXT columns' 65,535 bytes. */
     public const MAX_TEXT = 10000;
 
-    /** The longest coding system, display and type text kept, in characters: the varchar(255) columns of task_input and task_output. */
+    /** The longest coding system, display and type text, and statusReason and businessStatus, kept, in characters: the varchar(255) columns. */
     public const MAX_SYSTEM = 255;
 
     /** The longest code kept, in characters: the varchar(63) columns. */
@@ -142,6 +142,15 @@ final class FhirTaskWriteRules
         $fields['description'] = is_string($description) && trim($description) !== '' ? $description : null;
         $fields['status_reason'] = self::conceptText($json['statusReason'] ?? null);
         $fields['business_status'] = self::conceptText($json['businessStatus'] ?? null);
+        // Longer text would be cut to its column without an error (OpenEMR runs with sql_mode ''), and read back changed.
+        foreach (['statusReason' => 'status_reason', 'businessStatus' => 'business_status'] as $element => $column) {
+            if ($fields[$column] !== null && mb_strlen($fields[$column]) > self::MAX_SYSTEM) {
+                $errors[$element] = "Task.$element is longer than " . self::MAX_SYSTEM . ' characters';
+            }
+        }
+        if ($fields['description'] !== null && mb_strlen($fields['description']) > self::MAX_TEXT) {
+            $errors['description'] = 'Task.description is longer than ' . self::MAX_TEXT . ' characters';
+        }
 
         $puuid = null;
         $for = self::reference($json['for'] ?? null, ['Patient']);

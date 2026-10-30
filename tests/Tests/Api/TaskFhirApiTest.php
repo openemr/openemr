@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,6 +69,7 @@ class TaskFhirApiTest extends TestCase
         $this->tasks['referral'] = $this->insertTask($this->patient['pid'], [
             'status' => 'requested',
             'code' => 'fulfill',
+            'code_system' => FhirTaskService::TASK_CODE_SYSTEM,
             'description' => 'Referral to a food pantry',
             'focus_type' => 'ServiceRequest',
             'focus_uuid' => $this->serviceRequestUuid,
@@ -528,8 +530,57 @@ class TaskFhirApiTest extends TestCase
     }
 
     /**
+     * A Practitioner reference only has to be a user here. FHIR's Practitioner search leaves out
+     * users with no NPI, but core names them as Practitioners, so a task can name them too.
+     */
+    public function testAPractitionerWithNoNpiCanOwnATask(): void
+    {
+        $practitioner = 'Practitioner/' . $this->references->practitionerWithoutNpi();
+        [$status, $result] = $this->create($this->body(['owner' => ['reference' => $practitioner], 'requester' => ['reference' => $practitioner]]));
+        $this->assertSame(Response::HTTP_CREATED, $status, (string)json_encode($result));
+        $read = $this->read(self::text(self::at($result, 'id')));
+        $this->assertSame($practitioner, self::at($read, 'owner', 'reference'));
+    }
+
+    /**
+     * An address book organization is a users row too, but FHIR serves it as an Organization, so a task
+     * can name it as one and not as a Practitioner.
+     */
+    public function testAnAddressBookOrganizationIsAnOrganizationNotAPractitioner(): void
+    {
+        $uuid = $this->references->addressBookOrganization();
+        [$status, $result] = $this->create($this->body(['owner' => ['reference' => 'Practitioner/' . $uuid]]));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status, (string)json_encode($result));
+        $this->assertSame(['owner'], array_keys($this->errors($result)));
+        [$status, $result] = $this->create($this->body(['owner' => ['reference' => 'Organization/' . $uuid]]));
+        $this->assertSame(Response::HTTP_CREATED, $status, (string)json_encode($result));
+    }
+
+    /**
+     * The reference fixtures take away what saving their records wrote elsewhere too: saving a
+     * questionnaire also assigns it to the dashboard (content_assignments).
+     */
+    public function testTheReferenceFixturesLeaveNothingBehind(): void
+    {
+        $count = static function (string $table): int {
+            $n = QueryUtils::fetchSingleValue("SELECT COUNT(*) AS n FROM `$table`", 'n');
+            return is_numeric($n) ? (int)$n : -1;
+        };
+        $tables = ['content_assignments', 'questionnaire_repository', 'users', 'uuid_registry'];
+        $before = array_map($count, $tables);
+        $fixtures = new TaskReferenceFixtures($this->testClient);
+        $fixtures->questionnaire();
+        $fixtures->practitionerWithoutNpi();
+        $fixtures->addressBookOrganization();
+        $this->assertNotSame($before, array_map($count, $tables), 'the fixtures wrote rows');
+        $fixtures->remove();
+        $this->assertSame(array_combine($tables, $before), array_combine($tables, array_map($count, $tables)));
+    }
+
+    /**
      * Task.code is a code and its system, so a code search reads both, as a FHIR token does:
-     * system|code needs both, a bare code matches in any system, |code only where none was recorded.
+     * system|code needs both, a bare code matches in any system, |code only where none was recorded
+     * (a write always records one, so |code finds no task written through the API).
      */
     public function testCodeSearchHonoursTheSystem(): void
     {
@@ -542,8 +593,9 @@ class TaskFhirApiTest extends TestCase
         $this->assertSame([], self::ids($this->search($patient + ['code' => 'http://hl7.org/fhir/CodeSystem/task-code|complete-questionnaire'])), 'the code in another system');
         $this->assertSame([$questionnaire], self::ids($this->search($patient + ['code' => 'complete-questionnaire'])), 'a bare code, any system');
         $this->assertSame([], self::ids($this->search($patient + ['code' => '|complete-questionnaire'])), '|code: it has a system');
-        $this->assertSame([$referral], self::ids($this->search($patient + ['code' => '|fulfill'])), '|code: none recorded');
-        $this->assertSame([$referral], self::ids($this->search($patient + ['code' => 'fulfill'])), 'a bare code with no system recorded');
+        $this->assertSame([$referral], self::ids($this->search($patient + ['code' => FhirTaskService::TASK_CODE_SYSTEM . '|fulfill'])), 'system|code, as the task reads back');
+        $this->assertSame([], self::ids($this->search($patient + ['code' => '|fulfill'])), '|code: it has a system');
+        $this->assertSame([$referral], self::ids($this->search($patient + ['code' => 'fulfill'])), 'a bare code, any system');
     }
 
     /**

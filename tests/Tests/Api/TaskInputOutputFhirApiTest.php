@@ -26,7 +26,6 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
 use OpenEMR\Services\FHIR\FhirEncounterService;
-use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Tests\Fixtures\ProcedureOrderFixtureManager;
@@ -54,8 +53,7 @@ class TaskInputOutputFhirApiTest extends TestCase
 
     private string $questionnaireUrl;
 
-    /** This run's questionnaire title, so tearDown deletes this run's responses and no one else's. */
-    private string $questionnaireTitle;
+    /** This run's questionnaire, organization and practitioners; removing them removes the responses too. */
     private ?TaskReferenceFixtures $references = null;
 
     private string $encounterUuid;
@@ -127,7 +125,8 @@ class TaskInputOutputFhirApiTest extends TestCase
         $this->serviceRequestUuid = self::text(self::at($bundle, 'entry', 0, 'resource', 'id'));
         $this->assertNotSame('', $this->serviceRequestUuid, 'a ServiceRequest for the patient: ' . json_encode($bundle));
 
-        $this->questionnaireUuid = $this->installQuestionnaire();
+        $this->references = new TaskReferenceFixtures($this->testClient);
+        $this->questionnaireUuid = $this->references->questionnaire();
         $url = QueryUtils::fetchSingleValue('SELECT source_url FROM questionnaire_repository WHERE uuid = ?', 'source_url', [UuidRegistry::uuidToBytes($this->questionnaireUuid)]);
         $this->assertIsString($url);
         $this->questionnaireUrl = $url;
@@ -176,19 +175,8 @@ class TaskInputOutputFhirApiTest extends TestCase
         } else {
             unset($GLOBALS['document_storage_method']);
         }
+        // The questionnaire, its responses and its dashboard assignment go with the reference fixtures.
         $this->references?->remove();
-        if (isset($this->questionnaireTitle)) {
-            QueryUtils::sqlStatementThrowException(
-                'DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_response WHERE questionnaire_name = ?)',
-                [$this->questionnaireTitle]
-            );
-            QueryUtils::sqlStatementThrowException('DELETE FROM questionnaire_response WHERE questionnaire_name = ?', [$this->questionnaireTitle]);
-            QueryUtils::sqlStatementThrowException(
-                'DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_repository WHERE name = ?)',
-                [$this->questionnaireTitle]
-            );
-            QueryUtils::sqlStatementThrowException('DELETE FROM questionnaire_repository WHERE name = ?', [$this->questionnaireTitle]);
-        }
         $fixtures = new FixtureManager();
         $fixtures->removeObservationFixtures();
         $fixtures->removeRelatedPersonFixtures();
@@ -253,7 +241,7 @@ class TaskInputOutputFhirApiTest extends TestCase
     public function testAMakeContactTaskKeepsTheContactsAndTheOneChosen(): void
     {
         // An Organization a task names has to be on this server.
-        $this->references = new TaskReferenceFixtures($this->testClient);
+        $this->assertNotNull($this->references);
         $food = 'Organization/' . $this->references->organization();
         $inputs = [['type' => ['coding' => [['system' => self::SDOHCC_TEMP, 'code' => 'contact-entity']]], 'valueReference' => ['reference' => $food, 'type' => 'Organization', 'display' => 'Community food pantry']]];
         $outputs = [
@@ -501,21 +489,6 @@ class TaskInputOutputFhirApiTest extends TestCase
             $body[$key] = $value;
         }
         return $body;
-    }
-
-    private function installQuestionnaire(): string
-    {
-        $data = json_decode((string)file_get_contents(__DIR__ . '/../Fixtures/FHIR/questionnaire.json'), true);
-        $questionnaire = is_array($data) ? ($data[0] ?? null) : null;
-        $this->assertIsArray($questionnaire);
-        $this->questionnaireTitle = 'test-fixture Task input Questionnaire ' . bin2hex(random_bytes(4));
-        $questionnaire['title'] = $this->questionnaireTitle;
-        unset($questionnaire['id'], $questionnaire['url']);
-        $rowId = (new QuestionnaireService())->saveQuestionnaireResource($questionnaire);
-        $this->assertNotEmpty($rowId);
-        $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM questionnaire_repository WHERE id = ?', 'uuid', [$rowId]);
-        $this->assertIsString($uuid);
-        return UuidRegistry::uuidToString($uuid);
     }
 
     /** Posts a response to this run's questionnaire for the patient and returns its id. */

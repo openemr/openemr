@@ -80,9 +80,14 @@ class TaskService extends BaseService
         try {
             $where = FhirSearchWhereClauseBuilder::build($search, $isAndCondition !== false);
             // The tasks, then their inputs, then their outputs: three statements, read in one
-            // transaction so they see one snapshot (InnoDB's repeatable read, MySQL's and MariaDB's
-            // default). Read apart, an update committing between them would pair one version of a
-            // task with another version's inputs and outputs.
+            // transaction so they see one snapshot. Read apart, an update committing between them
+            // would pair one version of a task with another version's inputs and outputs. The
+            // snapshot needs REPEATABLE READ, so it's asked for here rather than left to the server's
+            // default, which a site can set to READ COMMITTED (OpenEMR sets no level). SET TRANSACTION
+            // is refused inside an open transaction, so a caller that wraps this read in its own gets
+            // an error, where ADODB's BEGIN would otherwise commit the caller's transaction (ADODB's
+            // transactions don't nest).
+            QueryUtils::sqlStatementThrowException('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ', [], true);
             [$records, $parameters] = QueryUtils::inTransaction(static function () use ($where, $pagination): array {
                 $records = QueryUtils::fetchRecords(
                     'SELECT tasks.* FROM (' . self::SELECT . ') AS tasks ' . $where->getFragment() . ' ORDER BY tasks.id '

@@ -40,6 +40,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTask\FHIRTaskInput;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTask\FHIRTaskOutput;
+use OpenEMR\Services\AddressBookOrganizationService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -227,10 +228,12 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
             $task->setPriority(new FHIRRequestPriority(['value' => $priority]));
         }
         $code = self::text($dataRecord, 'code');
-        if ($code !== null) {
+        $codeSystem = self::text($dataRecord, 'code_system');
+        // A write keeps both, and the upgrade gave every earlier code its system, so a code without
+        // one isn't rendered: there's no system to put with it that codeSearch() would agree with.
+        if ($code !== null && $codeSystem !== null) {
             $concept = new FHIRCodeableConcept();
-            // Every code written before the system was kept was task-code's.
-            $concept->addCoding(UtilsService::createCoding($code, $code, self::text($dataRecord, 'code_system') ?? self::TASK_CODE_SYSTEM));
+            $concept->addCoding(UtilsService::createCoding($code, $code, $codeSystem));
             $task->setCode($concept);
         }
         $description = self::text($dataRecord, 'description');
@@ -446,8 +449,16 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         if (!($dataRecord instanceof FHIRTask)) {
             throw new \BadMethodCallException('Data record should be correct instance class');
         }
-        $provenance = (new FhirProvenanceService())->createProvenanceForDomainResource($dataRecord, $dataRecord->getRequester());
+        $provenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord, $dataRecord->getRequester());
         return $provenance instanceof FHIRProvenance ? $provenance : null;
+    }
+
+    /**
+     * Seam so unit tests can substitute the provenance factory.
+     */
+    protected function getFhirProvenanceService(): FhirProvenanceService
+    {
+        return new FhirProvenanceService();
     }
 
     /**
@@ -497,7 +508,9 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
      * compartment, so a task can't name another patient's record. Those outside the record (a
      * Questionnaire, Organization, Practitioner or PractitionerRole, as focus, owner, requester or
      * input) have to be on this server; they aren't any one patient's, so there's no compartment to
-     * check. A Patient owner or requester is checked against Task.for when the body is read.
+     * check. A Practitioner is any user but an address book organization; the others are looked up through their own service, so an
+     * Organization is one FHIR serves (a facility, insurance company, procedure provider or address
+     * book organization). A Patient owner or requester is checked against Task.for when the body is read.
      *
      * @param array<string, string|null> $fields
      * @param array<int, array<string, string|null>> $inputs
@@ -529,12 +542,30 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         foreach ($references as $element => [$type, $uuid]) {
             $key = $type . '/' . strtolower($uuid ?? '');
             $onServer = in_array($type, self::SERVER_TYPES, true);
-            $found[$key] ??= $uuid !== null && self::inRecord($services[$type] ??= $this->recordService($type), $uuid, $onServer ? null : $puuid);
+            // A Practitioner only has to be a user on this server. FHIR's Practitioner search shows only
+            // users with an NPI and a username or a listed address book type, but core names users
+            // without one as Practitioners too (Patient.generalPractitioner, CarePlan.author).
+            $found[$key] ??= $uuid !== null && ($type === 'Practitioner'
+                ? self::isUser($uuid)
+                : self::inRecord($services[$type] ??= $this->recordService($type), $uuid, $onServer ? null : $puuid));
             if (!$found[$key]) {
                 $problems[$element] = "Task.$element names no $type " . ($onServer ? 'on this server' : "for this task's patient") . ': ' . ($uuid ?? '');
             }
         }
         return $problems;
+    }
+
+    /**
+     * Whether a user on this server has this uuid, other than an address book organization: those are
+     * Organizations (AddressBookOrganizationService), so naming one as a Practitioner is refused.
+     */
+    private static function isUser(string $uuid): bool
+    {
+        return UuidRegistry::isValidStringUUID($uuid) && QueryUtils::fetchSingleValue(
+            'SELECT id FROM users WHERE uuid = ? AND COALESCE(abook_type, \'\') <> ?',
+            'id',
+            [UuidRegistry::uuidToBytes($uuid), AddressBookOrganizationService::ABOOK_TYPE]
+        ) !== null;
     }
 
     /** Whether its own service finds the record with this uuid: in the patient's compartment, or with no patient on this server. */

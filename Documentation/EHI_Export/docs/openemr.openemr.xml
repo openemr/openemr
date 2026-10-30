@@ -7969,7 +7969,7 @@
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="4" name="business_status" nullable="true" remarks="FHIR Task.businessStatus, as text" size="255" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="'order'" digits="0" id="5" name="intent" nullable="false" remarks="FHIR Task.intent code" size="31" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="6" name="priority" nullable="true" remarks="FHIR Task.priority code" size="31" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="NULL" digits="0" id="7" name="code" nullable="true" remarks="FHIR Task.code, from http://hl7.org/fhir/CodeSystem/task-code" size="63" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="7" name="code" nullable="true" remarks="FHIR Task.code: the code" size="63" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="8" name="code_system" nullable="true" remarks="FHIR Task.code: its system, such as http://hl7.org/fhir/CodeSystem/task-code" size="255" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="9" name="description" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="10" name="patient_id" nullable="true" remarks="FHIR Task.for: the patient the task is for" size="19" type="BIGINT" typeCode="-5">

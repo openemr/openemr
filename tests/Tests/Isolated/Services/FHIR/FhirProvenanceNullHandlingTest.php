@@ -28,6 +28,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRTask;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\DiagnosticReport\FhirDiagnosticReportLaboratoryService;
 use OpenEMR\Services\FHIR\FhirCoverageService;
@@ -35,6 +36,7 @@ use OpenEMR\Services\FHIR\FhirMedicationRequestService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirQuestionnaireService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
@@ -43,7 +45,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @phpstan-type ProvenanceServiceClass class-string<FhirCoverageService|FhirMedicationRequestService|FhirQuestionnaireService|FhirQuestionnaireFormService|FhirQuestionnaireResponseFormService|FhirObservationVitalsService|FhirDiagnosticReportLaboratoryService>
+ * @phpstan-type ProvenanceServiceClass class-string<FhirCoverageService|FhirMedicationRequestService|FhirQuestionnaireService|FhirQuestionnaireFormService|FhirQuestionnaireResponseFormService|FhirObservationVitalsService|FhirDiagnosticReportLaboratoryService|FhirTaskService>
  */
 class FhirProvenanceNullHandlingTest extends TestCase
 {
@@ -151,6 +153,29 @@ class FhirProvenanceNullHandlingTest extends TestCase
     public function testThrowsOnInvalidDataRecord(string $serviceClass, string $resourceClass): void
     {
         $service = $this->getServiceWithProvenanceResult($serviceClass, null);
+        $this->expectException(BadMethodCallException::class);
+        $service->createProvenanceResource([]);
+    }
+
+    /**
+     * Task's createProvenanceResource() keeps the contract #14443 gives every service: it returns the
+     * Provenance or null, and ignores encode. So it isn't in the list above, which expects false and
+     * JSON, but goes through the same seam.
+     */
+    public function testTaskReturnsNullWhenProvenanceIsUnavailable(): void
+    {
+        $this->assertNull($this->getServiceWithProvenanceResult(FhirTaskService::class, null)->createProvenanceResource(new FHIRTask()));
+    }
+
+    public function testTaskReturnsTheProvenanceWhenAvailable(): void
+    {
+        $provenance = new FHIRProvenance();
+        $this->assertSame($provenance, $this->getServiceWithProvenanceResult(FhirTaskService::class, $provenance)->createProvenanceResource(new FHIRTask()));
+    }
+
+    public function testTaskThrowsOnInvalidDataRecord(): void
+    {
+        $service = $this->getServiceWithProvenanceResult(FhirTaskService::class, null);
         $this->expectException(BadMethodCallException::class);
         $service->createProvenanceResource([]);
     }

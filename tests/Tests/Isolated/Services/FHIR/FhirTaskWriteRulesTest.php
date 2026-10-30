@@ -153,7 +153,30 @@ class FhirTaskWriteRulesTest extends TestCase
             'an input type display longer than its column' => [['input' => [['type' => ['coding' => [
                 ['system' => 'https://example.org', 'code' => 'form', 'display' => str_repeat('d', FhirTaskWriteRules::MAX_SYSTEM + 1)],
             ]], 'valueString' => 'x']]], 'input[0]'],
+            'a statusReason longer than its column' => [['statusReason' => ['text' => str_repeat('r', FhirTaskWriteRules::MAX_SYSTEM + 1)]], 'statusReason'],
+            'a statusReason display longer than its column' => [['statusReason' => ['coding' => [
+                ['system' => 'https://example.org', 'code' => 'r', 'display' => str_repeat('r', FhirTaskWriteRules::MAX_SYSTEM + 1)],
+            ]]], 'statusReason'],
+            'a businessStatus longer than its column' => [['businessStatus' => ['text' => str_repeat('b', FhirTaskWriteRules::MAX_SYSTEM + 1)]], 'businessStatus'],
+            'a description longer than the limit' => [['description' => str_repeat('d', FhirTaskWriteRules::MAX_TEXT + 1)], 'description'],
         ];
+    }
+
+    /**
+     * statusReason and businessStatus fill varchar(255) columns, and description a TEXT one; with
+     * sql_mode '' a longer value would be cut without an error, so the limits are checked, up to them.
+     */
+    public function testTaskTextAsLongAsItsColumnIsKept(): void
+    {
+        $read = FhirTaskWriteRules::read(self::task([
+            'statusReason' => ['text' => str_repeat('r', FhirTaskWriteRules::MAX_SYSTEM)],
+            'businessStatus' => ['text' => str_repeat('b', FhirTaskWriteRules::MAX_SYSTEM)],
+            'description' => str_repeat('d', FhirTaskWriteRules::MAX_TEXT),
+        ]));
+        $this->assertSame([], $read['errors']);
+        $this->assertSame(FhirTaskWriteRules::MAX_SYSTEM, mb_strlen((string)$read['fields']['status_reason']));
+        $this->assertSame(FhirTaskWriteRules::MAX_SYSTEM, mb_strlen((string)$read['fields']['business_status']));
+        $this->assertSame(FhirTaskWriteRules::MAX_TEXT, mb_strlen((string)$read['fields']['description']));
     }
 
     public function testValuesAsLongAsTheirColumnsAreKept(): void

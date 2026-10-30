@@ -2,8 +2,9 @@
 
 /**
  * Records a Task can name outside the patient's record (a Questionnaire, an Organization, a
- * Practitioner, a PractitionerRole), made for a test and removed after it. A task's references
- * to these have to exist on the server, so a test can't name made-up ones.
+ * Practitioner, a PractitionerRole), made for a test and removed after it, with what saving them
+ * wrote elsewhere. A task's references to these have to exist on the server, so a test can't name
+ * made-up ones.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -18,6 +19,7 @@ namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\AddressBookOrganizationService;
 use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use OpenEMR\Tests\Fixtures\FixtureManager;
@@ -30,6 +32,8 @@ final class TaskReferenceFixtures
     private ?string $practitionerUuid = null;
     private ?string $organizationUuid = null;
     private ?string $practitionerRoleUuid = null;
+    private ?string $userWithoutNpiUuid = null;
+    private ?string $addressBookOrganizationUuid = null;
     private ?PractitionerFixtureManager $practitioners = null;
     private ?FacilityFixtureManager $facilities = null;
 
@@ -64,6 +68,34 @@ final class TaskReferenceFixtures
             );
         }
         return $this->practitionerUuid;
+    }
+
+    /**
+     * A user with no NPI. FHIR's Practitioner search leaves such users out, but core names them as
+     * Practitioners (Patient.generalPractitioner, CarePlan.author), so a task can too.
+     */
+    public function practitionerWithoutNpi(): string
+    {
+        if ($this->userWithoutNpiUuid === null) {
+            $uuid = (new UuidRegistry(['table_name' => 'users']))->createUuid();
+            QueryUtils::sqlInsert("INSERT INTO users (uuid, fname, lname, npi, active) VALUES (?, 'test-fixture-no-npi', 'Practitioner', '', 1)", [$uuid]);
+            $this->userWithoutNpiUuid = UuidRegistry::uuidToString($uuid);
+        }
+        return $this->userWithoutNpiUuid;
+    }
+
+    /** An address book organization (a users row FHIR serves as an Organization, not a Practitioner). */
+    public function addressBookOrganization(): string
+    {
+        if ($this->addressBookOrganizationUuid === null) {
+            $uuid = (new UuidRegistry(['table_name' => 'users']))->createUuid();
+            QueryUtils::sqlInsert(
+                "INSERT INTO users (uuid, organization, abook_type, active) VALUES (?, 'test-fixture Address Book Organization', ?, 1)",
+                [$uuid, AddressBookOrganizationService::ABOOK_TYPE]
+            );
+            $this->addressBookOrganizationUuid = UuidRegistry::uuidToString($uuid);
+        }
+        return $this->addressBookOrganizationUuid;
     }
 
     /** An Organization (a facility) from the facility fixtures. */
@@ -105,11 +137,24 @@ final class TaskReferenceFixtures
     public function remove(): void
     {
         if ($this->questionnaireTitle !== null) {
+            $title = [$this->questionnaireTitle];
+            // Everything saving the questionnaire and answering it wrote: the dashboard assignment
+            // saveQuestionnaireResource() gives every new questionnaire, the responses, and the uuids.
             QueryUtils::sqlStatementThrowException(
-                'DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_repository WHERE name = ?)',
-                [$this->questionnaireTitle]
+                "DELETE FROM content_assignments WHERE resource_type = 'questionnaire' AND resource_id IN (SELECT id FROM questionnaire_repository WHERE name = ?)",
+                $title
             );
-            QueryUtils::sqlStatementThrowException('DELETE FROM questionnaire_repository WHERE name = ?', [$this->questionnaireTitle]);
+            QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_response WHERE questionnaire_name = ?)', $title);
+            QueryUtils::sqlStatementThrowException('DELETE FROM questionnaire_response WHERE questionnaire_name = ?', $title);
+            QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_repository WHERE name = ?)', $title);
+            QueryUtils::sqlStatementThrowException('DELETE FROM questionnaire_repository WHERE name = ?', $title);
+        }
+        foreach ([$this->userWithoutNpiUuid, $this->addressBookOrganizationUuid] as $user) {
+            if ($user !== null) {
+                $uuid = [UuidRegistry::uuidToBytes($user)];
+                QueryUtils::sqlStatementThrowException('DELETE FROM users WHERE uuid = ?', $uuid);
+                QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE uuid = ?', $uuid);
+            }
         }
         if ($this->practitionerRoleUuid !== null) {
             (new FixtureManager())->removePractitionerRoleFixtures();
