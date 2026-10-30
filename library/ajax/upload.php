@@ -161,7 +161,7 @@ if ($isPortal ?? false) {
     }
     // The page reads this JSON to tell the patient what happened; text() would HTML-escape quotes and break it.
     header('Content-Type: application/json');
-    echo json_encode($rtn, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    echo json_encode($rtn, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }
 if (!empty($_FILES)) {
