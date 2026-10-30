@@ -11,6 +11,7 @@
 namespace OpenEMR\Services\Qdm;
 
 use OpenEMR\Cqm\Generator;
+use OpenEMR\Cqm\Qdm\Patient;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
@@ -65,6 +66,9 @@ class QdmBuilder
         VitalSignsService::class,
     ];
 
+    /**
+     * @return list<Patient>
+     */
     public function build(QdmRequestInterface $request): array
     {
         // Create the patient service
@@ -72,6 +76,7 @@ class QdmBuilder
 
         // Query all patients and build QDM models in a loop, storing the QDM patient model in an associative array,
         // so we can later look up by PID
+        /** @var array<int, Patient> $qdm_patients_map */
         $qdm_patients_map = [];
         $patientResult = $patientService->executeQuery();
         while ($patient = sqlFetchArray($patientResult)) {
