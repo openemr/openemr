@@ -22,6 +22,8 @@ class SearchFieldStatementResolver
 {
     const MAX_NESTED_LEVEL = 10;
 
+    private const LITERAL_LIKE_ESCAPE = '!';
+
     /**
      * Given a search field that implements the ISearchField interface, convert the field based upon its type to a full
      * SQL Where Query fragment with its corresponding bound parameterized values.  This is a recursive method as it will
@@ -319,9 +321,9 @@ class SearchFieldStatementResolver
 
         foreach ($values as $value) {
             $result = match ($modifier) {
-                SearchModifier::PREFIX => [$field . ' LIKE ?', $value . '%'],
-                SearchModifier::SUFFIX => [$field . ' LIKE ?', '%' . $value],
-                SearchModifier::CONTAINS => [$field . ' LIKE ?', '%' . $value . '%'],
+                SearchModifier::PREFIX => [self::likeClause($searchField, $field), self::likeValue($searchField, $value) . '%'],
+                SearchModifier::SUFFIX => [self::likeClause($searchField, $field), '%' . self::likeValue($searchField, $value)],
+                SearchModifier::CONTAINS => [self::likeClause($searchField, $field), '%' . self::likeValue($searchField, $value) . '%'],
                 SearchModifier::EXACT => ["BINARY " . $field . ' = ?', $value],
                 SearchModifier::NOT_EQUALS_EXACT => ["BINARY " . $field . ' != ?', $value],
                 default => null,
@@ -339,6 +341,27 @@ class SearchFieldStatementResolver
             $searchFragment->setFragment($clauses[0]);
         }
         return $searchFragment;
+    }
+
+    /**
+     * A literal string field names its own LIKE escape character, so the match does not depend on MySQL's
+     * default backslash escape, which NO_BACKSLASH_ESCAPES turns off. Other callers keep the plain LIKE.
+     */
+    private static function likeClause(StringSearchField $searchField, string $field): string
+    {
+        return $field . ' LIKE ?' . ($searchField->isLiteral() ? " ESCAPE '" . self::LITERAL_LIKE_ESCAPE . "'" : '');
+    }
+
+    /**
+     * Escapes the LIKE wildcards and the escape character in a value of a literal string field.
+     */
+    private static function likeValue(StringSearchField $searchField, mixed $value): mixed
+    {
+        if (!$searchField->isLiteral() || !is_string($value)) {
+            return $value;
+        }
+        $escape = self::LITERAL_LIKE_ESCAPE;
+        return strtr($value, [$escape => $escape . $escape, '%' => $escape . '%', '_' => $escape . '_']);
     }
 
     /**
