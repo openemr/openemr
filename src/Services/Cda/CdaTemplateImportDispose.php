@@ -769,8 +769,8 @@ class CdaTemplateImportDispose
                     $provider_id,
                     $value['extension'],
                     $pid]);
-                $q_sel_enc = "SELECT id FROM form_encounter WHERE external_id=?";
-                $res_q_sel_enc = QueryUtils::fetchRecords($q_sel_enc, [$value['extension']]);
+                $q_sel_enc = "SELECT id FROM form_encounter WHERE external_id=? AND pid=?";
+                $res_q_sel_enc = QueryUtils::fetchRecords($q_sel_enc, [$value['extension'], $pid]);
                 $res_enc_cur = $res_q_sel_enc[0] ?? [];
                 $enc_id = $res_enc_cur['id'];
             }
@@ -1914,11 +1914,13 @@ class CdaTemplateImportDispose
                 $vitals_date_value = fixDate($vitals_date);
             }
 
+            // A document's vitals update the patient's own copy from an earlier import of it. Matched on the
+            // extension alone, another patient's vitals with the same one were moved to this patient.
             if (!empty($value['extension'])) {
                 $q_sel_vitals = "SELECT *
                            FROM form_vitals
-                           WHERE external_id=?";
-                $res_q_sel_vitals = QueryUtils::fetchRecords($q_sel_vitals, [$value['extension']]);
+                           WHERE external_id=? AND pid=?";
+                $res_q_sel_vitals = QueryUtils::fetchRecords($q_sel_vitals, [$value['extension'], $pid]);
             }
             $reimported = false;
             if (empty($value['extension']) || count($res_q_sel_vitals) == 0) {
@@ -1991,7 +1993,7 @@ class CdaTemplateImportDispose
                              head_circ=?,
                              oxygen_saturation=?,
                              BMI=?
-                         WHERE external_id=?";
+                         WHERE external_id=? AND pid=?";
                 QueryUtils::sqlStatementThrowException($q_upd_vitals, [$pid,
                     $vitals_date_value,
                     $readings['bps'],
@@ -2004,7 +2006,8 @@ class CdaTemplateImportDispose
                     $readings['head_circ'],
                     $readings['oxygen_saturation'],
                     $readings['BMI'],
-                    $value['extension']]);
+                    $value['extension'],
+                    $pid]);
                 foreach ($res_q_sel_vitals as $row_vitals) {
                     $vitals_id = $row_vitals['id'];
                 }

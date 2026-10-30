@@ -120,6 +120,9 @@ class FhirQuestionnaireRestController
             // RestConfig::authorization_check("patients", "med");
             $result = $this->getAll($request->getQueryParams());
         }
+        if ($result instanceof ResponseInterface) {
+            return $result;
+        }
         return RestControllerHelper::returnSingleObjectResponse($result);
     }
 
@@ -267,11 +270,15 @@ class FhirQuestionnaireRestController
      *
      * @param  array   $searchParams
      * @param  ?string $puuidBind    - Optional variable to only allow visibility of the patient with this puuid.
-     * @return FHIRBundle FHIR bundle with query results, if found
+     * @return FHIRBundle|ResponseInterface FHIR bundle with query results, or a 400 OperationOutcome for a search value that didn't parse
      */
-    private function getAll(array $searchParams, ?string $puuidBind = null): FHIRBundle
+    private function getAll(array $searchParams, ?string $puuidBind = null): FHIRBundle|ResponseInterface
     {
         $processingResult = $this->questionnaireResourceService->getAll($searchParams, $puuidBind);
+        $searchError = RestControllerHelper::getFhirSearchErrorPsrResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
