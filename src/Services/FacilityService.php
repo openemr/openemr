@@ -404,9 +404,7 @@ class FacilityService extends BaseService
      */
     public function insertFacility(array $data): int
     {
-        $facilityId = QueryUtils::inTransaction(function () use ($data): int {
-            return $this->writeInsertedFacility($data);
-        });
+        $facilityId = QueryUtils::inTransaction(fn(): int => $this->writeInsertedFacility($data));
 
         $created = $data;
         $created['id'] = $facilityId;
