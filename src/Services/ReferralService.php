@@ -48,9 +48,10 @@ class ReferralService extends BaseService
     /**
      * Search columns that are the transaction's own, by the column each is read from.
      * Filters on them are applied before the fields are grouped, so that a search by
-     * patient, id or last update doesn't group every referral first.
+     * patient or id doesn't group every referral first. The last update isn't one: it
+     * moves with the referral's Task too.
      */
-    private const SOURCE_COLUMNS = ['uuid' => 't.uuid', 'puuid' => 'patients.uuid', 'last_modified' => 't.date'];
+    private const SOURCE_COLUMNS = ['uuid' => 't.uuid', 'puuid' => 'patients.uuid'];
 
     /**
      * @param bool $createMissingUuids give every referral, patient and user without a uuid one,
@@ -78,7 +79,8 @@ class ReferralService extends BaseService
      * status (completed once a reply date is recorded or its Task is completed, revoked
      * when its Task is cancelled) and, for the requester and the person referred to, their
      * uuid and whether FHIR serves them as a Practitioner, or the one referred to as an
-     * Organization (an External Organization in the address book).
+     * Organization (an External Organization in the address book). Its last update is the
+     * later of the transaction's and its Tasks', since a Task's status is the referral's.
      *
      * authored is the Referral Date as a DATE, so a date search compares dates, not text
      * ('2026-10-10' sorts before '2026-10-10 00:00:00'). A referral without one has none:
@@ -100,6 +102,7 @@ class ReferralService extends BaseService
                     WHEN r.task_status = 'entered-in-error' THEN 'entered-in-error'
                     ELSE 'active' END AS status,
                 'order' AS intent,
+                COALESCE(GREATEST(r.transaction_date, r.task_modified), r.transaction_date, r.task_modified) AS last_modified,
                 CAST(CASE WHEN r.refer_date <> '' THEN r.refer_date END AS DATE) AS authored,
                 requester.uuid AS requester_uuid, " . $isPractitioner('requester') . " AS requester_is_practitioner,
                 TRIM(CONCAT_WS(' ', requester.fname, requester.lname)) AS requester_name,
@@ -108,9 +111,11 @@ class ReferralService extends BaseService
                 CASE WHEN " . AddressBookOrganizationService::isOrganizationSql('performer') . ' THEN ' . AddressBookOrganizationService::nameSql('performer') . "
                     ELSE COALESCE(NULLIF(TRIM(CONCAT_WS(' ', performer.fname, performer.lname)), ''), performer.organization) END AS performer_name
             FROM (
-                SELECT t.id, t.uuid, t.pid AS patient_id, patients.uuid AS puuid, t.date AS last_modified $fields,
+                SELECT t.id, t.uuid, t.pid AS patient_id, patients.uuid AS puuid, t.date AS transaction_date $fields,
                     (SELECT task.status FROM task WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid
-                        ORDER BY task.id DESC LIMIT 1) AS task_status
+                        ORDER BY task.id DESC LIMIT 1) AS task_status,
+                    (SELECT MAX(task.last_modified) FROM task WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid)
+                        AS task_modified
                 FROM transactions AS t
                 JOIN patient_data AS patients ON patients.pid = t.pid
                 LEFT JOIN lbt_data AS d ON d.form_id = t.id

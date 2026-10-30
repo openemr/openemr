@@ -197,6 +197,35 @@ class ReferralTaskFhirApiTest extends TestCase
         $this->assertSame('active', $this->read('ServiceRequest', $referral)['status'] ?? null);
     }
 
+    public function testATaskChangeMovesTheReferralsLastUpdate(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $taskUuid = $this->createTask($id);
+        $this->assertIsString($taskUuid);
+        $referral = $this->referralUuid($id);
+        // The referral was saved long ago; only its Task changes now, and the referral's status with it.
+        QueryUtils::sqlStatementThrowException("UPDATE transactions SET date = '2026-01-05 09:00:00' WHERE id = ?", [$id]);
+        (new TaskService())->update($taskUuid, ['status' => 'completed'], null);
+
+        $lastUpdated = self::at($this->read('ServiceRequest', $referral), 'meta', 'lastUpdated');
+        $this->assertIsString($lastUpdated);
+        $this->assertGreaterThan('2026-01-06', $lastUpdated, "the Task's change is the referral's last update");
+        $this->assertSame([$referral], self::ids($this->search('ServiceRequest', ['patient' => $this->patient['uuid'], '_lastUpdated' => 'gt2026-06-01'])));
+    }
+
+    public function testDeletingAReferralCancelsItsOpenTask(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $taskUuid = $this->createTask($id);
+        $this->assertIsString($taskUuid);
+
+        $this->assertSame(1, (new ReferralTaskService())->cancelForDeletedReferral($id, null));
+        $task = $this->read('Task', $taskUuid);
+        $this->assertSame('cancelled', $task['status'] ?? null);
+        $this->assertSame('The referral was deleted.', self::at($task, 'statusReason', 'text'));
+        $this->assertSame(0, (new ReferralTaskService())->cancelForDeletedReferral($id, null), 'a finished Task stays as it is');
+    }
+
     public function testATransactionListRowShowsTheReferralsStatus(): void
     {
         $referral = $this->saveReferral(['refer_date' => '2026-01-05', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);

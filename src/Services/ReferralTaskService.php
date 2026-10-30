@@ -26,6 +26,9 @@ use OpenEMR\Services\Search\TokenSearchField;
 
 class ReferralTaskService
 {
+    /** FHIR Task statuses a Task doesn't move on from. */
+    private const FINISHED_STATUSES = ['completed', 'cancelled', 'entered-in-error', 'failed', 'rejected'];
+
     private ?ReferralService $referralService = null;
 
     private ?TaskService $taskService = null;
@@ -130,6 +133,39 @@ class ReferralTaskService
                 UuidRegistry::createMissingUuidForRow('users', 'id', (int)$row[$person]);
             }
         }
+    }
+
+    /**
+     * A deleted referral's open Tasks are cancelled, so a recipient isn't left with a Task whose
+     * focus is gone. Called before the transaction is deleted; a finished Task stays as it is.
+     *
+     * @return int how many Tasks were cancelled
+     */
+    public function cancelForDeletedReferral(int $transactionId, ?int $userId): int
+    {
+        $uuid = QueryUtils::fetchSingleValue(
+            'SELECT uuid FROM transactions WHERE id = ? AND title = ?',
+            'uuid',
+            [$transactionId, ReferralService::FORM_ID]
+        );
+        if (!is_string($uuid) || $uuid === '') {
+            return 0;
+        }
+        $tasks = $this->getTaskService()->search([
+            'focus_uuid' => new TokenSearchField('focus_uuid', [UuidRegistry::uuidToString($uuid)], true),
+        ])->getData();
+        $cancelled = 0;
+        foreach (is_array($tasks) ? $tasks : [] as $task) {
+            $taskUuid = is_array($task) ? ($task['uuid'] ?? null) : null;
+            $status = is_array($task) ? ($task['status'] ?? null) : null;
+            if (!is_string($taskUuid) || in_array($status, self::FINISHED_STATUSES, true)) {
+                continue;
+            }
+            if ($this->getTaskService()->update($taskUuid, ['status' => 'cancelled', 'status_reason' => 'The referral was deleted.'], $userId)) {
+                $cancelled++;
+            }
+        }
+        return $cancelled;
     }
 
     private function hasTask(string $referralUuid, string $ownerUuid): bool

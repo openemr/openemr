@@ -31,6 +31,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\ReferralTaskService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -440,6 +441,9 @@ function popup_close() {
                     AccessDeniedHelper::deny('Unauthorized transaction deletion attempt');
                 }
 
+                // A referral's open Tasks are cancelled while its row still says which they are.
+                $deletedBy = $session->get('authUserID');
+                (new ReferralTaskService())->cancelForDeletedReferral((int)$transaction, is_numeric($deletedBy) ? (int)$deletedBy : null);
                 deleter_row_delete("transactions", "id = ?", [$transaction]);
             } else {
                 throw new \RuntimeException("Nothing was recognized to delete!");
