@@ -70,6 +70,11 @@ class ReferralService extends BaseService
      * Each referral with its fields, its patient's uuid, its status (completed once a
      * reply date is recorded) and, for the requester and the person referred to, their
      * uuid and whether FHIR serves them as a Practitioner.
+     *
+     * authored is the Referral Date as a DATE, so a date search compares dates, not text
+     * ('2026-10-10' sorts before '2026-10-10 00:00:00'). A referral without one has none:
+     * the transaction's date moves with every edit. (A CASE, not NULLIF: MySQL 8.4 casts
+     * NULLIF() of this column to NULL.)
      */
     private static function select(string $sourceFilter = ''): string
     {
@@ -83,7 +88,7 @@ class ReferralService extends BaseService
         return "SELECT r.*,
                 CASE WHEN COALESCE(r.reply_date, '') <> '' THEN 'completed' ELSE 'active' END AS status,
                 'order' AS intent,
-                COALESCE(NULLIF(r.refer_date, ''), DATE(r.last_modified)) AS authored,
+                CAST(CASE WHEN r.refer_date <> '' THEN r.refer_date END AS DATE) AS authored,
                 requester.uuid AS requester_uuid, " . $isPractitioner('requester') . " AS requester_is_practitioner,
                 TRIM(CONCAT_WS(' ', requester.fname, requester.lname)) AS requester_name,
                 performer.uuid AS performer_uuid, " . $isPractitioner('performer') . " AS performer_is_practitioner,

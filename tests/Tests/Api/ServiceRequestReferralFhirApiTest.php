@@ -173,6 +173,68 @@ class ServiceRequestReferralFhirApiTest extends TestCase
         $this->assertSame([$this->referrals['open']['uuid']], self::ids($this->search($patient + ['authored' => 'ge2026-10-05'])));
     }
 
+    /**
+     * The Referral Date is a date, so a search on that day finds it: before it was compared as text,
+     * and '2026-10-10' sorted before '2026-10-10 00:00:00'.
+     */
+    public function testAnAuthoredSearchFindsAReferralOnItsOwnDate(): void
+    {
+        $patient = ['patient' => $this->patient['uuid'], 'category' => self::REFERRAL];
+        $open = $this->referrals['open']['uuid'];
+        $replied = $this->referrals['replied']['uuid'];
+
+        $this->assertSame([$open], self::ids($this->search($patient + ['authored' => '2026-10-10'])), 'eq, its own date');
+        $this->assertSame([$open], self::ids($this->search($patient + ['authored' => 'ge2026-10-10'])));
+        $this->assertEqualsCanonicalizing([$open, $replied], self::ids($this->search($patient + ['authored' => 'le2026-10-10'])));
+        $this->assertSame([], self::ids($this->search($patient + ['authored' => 'gt2026-10-10'])));
+        $this->assertSame([$replied], self::ids($this->search($patient + ['authored' => 'lt2026-10-10'])));
+    }
+
+    /**
+     * Without a Referral Date there's no authoredOn: the transaction's date moves with every edit,
+     * so it can't stand in for when the referral was written.
+     */
+    public function testAReferralWithoutAReferralDateHasNoAuthoredDate(): void
+    {
+        $this->referrals['undated'] = $this->insertReferral($this->patient['pid'], ['body' => 'Undated referral']);
+        $this->assertArrayNotHasKey('authoredOn', $this->read($this->referrals['undated']['uuid']));
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $session->set('authUser', 'admin');
+        try {
+            (new PatientTransactionService())->update($this->referrals['undated']['id'], [
+                'referByNpi' => '', 'referToNpi' => '', 'body' => 'Undated referral, edited', 'referralDate' => '',
+                'referDiagnosis' => '', 'riskLevel' => '', 'includeVitals' => '', 'authorization' => '', 'visits' => '',
+                'validFrom' => '', 'validThrough' => '',
+            ]);
+        } finally {
+            $session->remove('authUser');
+        }
+
+        $this->assertArrayNotHasKey('authoredOn', $this->read($this->referrals['undated']['uuid']), 'nor after an edit');
+        $patient = ['patient' => $this->patient['uuid'], 'category' => self::REFERRAL];
+        $this->assertNotContains($this->referrals['undated']['uuid'], self::ids($this->search($patient + ['authored' => 'ge2000-01-01'])));
+    }
+
+    /**
+     * _count and _offset page the orders and referrals together, as the order search paged its own
+     * results before referrals joined it.
+     */
+    public function testCountAndOffsetPageOrdersAndReferralsTogether(): void
+    {
+        $this->createOrder();
+        $patient = ['patient' => $this->patient['uuid']];
+        $all = self::ids($this->search($patient));
+        $this->assertCount(3, $all, 'the order and two referrals');
+
+        $first = self::ids($this->search($patient + ['_count' => '2']));
+        $second = self::ids($this->search($patient + ['_count' => '2', '_offset' => '2']));
+
+        $this->assertCount(2, $first, '_count=2 returns two in all, not two from each store');
+        $this->assertCount(1, $second);
+        $this->assertEqualsCanonicalizing($all, array_merge($first, $second), 'the two pages together are every result, once');
+    }
+
     public function testAnEditThroughTheRestApiMovesTheLastUpdate(): void
     {
         // The fixtures were saved on 2026-10-15; the REST update is the path that left that date as it was.
