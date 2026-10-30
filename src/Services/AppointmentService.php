@@ -19,8 +19,13 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceDeleteEvent;
+use OpenEMR\Services\Search\BasicSearchField;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\ReferenceSearchValue;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
@@ -187,6 +192,16 @@ class AppointmentService extends BaseService
                       ) pd ON pd.pid = pce.pc_pid
                        LEFT JOIN users as providers ON pce.pc_aid = providers.id";
 
+        // A patient's events are found through pc_pid, a varchar whose index serves only a comparison with text.
+        // The join above compares it with patient_data.pid, a number, which reads every event; a cast in SQL
+        // clashes with the column's collation on MySQL 8. So the named patients' pids are looked up and bound as text.
+        if ($isAndCondition && ($search['puuid'] ?? null) instanceof ISearchField && !isset($search['pc_pid'])) {
+            $pids = self::patientPids($search['puuid']);
+            if ($pids !== []) {
+                $search['pc_pid'] = new StringSearchField('pc_pid', $pids, SearchModifier::EXACT);
+            }
+        }
+
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
         $sql .= $whereClause->getFragment();
@@ -199,6 +214,49 @@ class AppointmentService extends BaseService
         }
 
         return $processingResult;
+    }
+
+    /**
+     * A pid as openemr_postcalendar_events.pc_pid is matched: as text. pc_pid is a varchar, so compared with a
+     * number the database reads and converts every event; compared with text its index finds the patient's.
+     * A string or null is returned as it was.
+     */
+    public static function calendarPid(mixed $pid): mixed
+    {
+        return is_int($pid) ? (string) $pid : $pid;
+    }
+
+    /**
+     * The pids of the patients a plain puuid match names, as text; [] when the field is anything else (a
+     * modifier, or values that aren't uuids), so the search runs as before.
+     *
+     * @return list<string>
+     */
+    private static function patientPids(ISearchField $field): array
+    {
+        if (!$field instanceof BasicSearchField) {
+            return [];
+        }
+        // getModifier() is documented as a string but is null when none was given.
+        if (!in_array($field->getModifier(), [null, ''], true)) {
+            return [];
+        }
+        $pids = [];
+        foreach ($field->getValues() as $value) {
+            $uuid = match (true) {
+                $value instanceof ReferenceSearchValue => $value->getId(),
+                $value instanceof TokenSearchValue => $value->getCode(),
+                default => null,
+            };
+            if (!is_string($uuid) || strlen($uuid) !== 16) {
+                return [];
+            }
+            $pid = QueryUtils::fetchSingleValue('SELECT pid FROM patient_data WHERE uuid = ?', 'pid', [$uuid]);
+            if (is_numeric($pid)) {
+                $pids[] = (string) $pid;
+            }
+        }
+        return $pids;
     }
 
     public function getAppointmentsForPatient($pid): array
@@ -242,8 +300,9 @@ class AppointmentService extends BaseService
                        LEFT JOIN users as providers ON pce.pc_aid = providers.id";
 
         if ($pid) {
-            $sql .= " WHERE pd.pid = ?";
-            array_push($sqlBindArray, $pid);
+            // pc_pid bound as text lets its index find the patient's events; pd.pid keeps the rows the join gave.
+            $sql .= " WHERE pce.pc_pid = ? AND pd.pid = ?";
+            array_push($sqlBindArray, self::calendarPid($pid), $pid);
         }
 
         $records = QueryUtils::fetchRecords($sql, $sqlBindArray);

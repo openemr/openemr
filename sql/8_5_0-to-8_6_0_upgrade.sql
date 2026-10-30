@@ -138,3 +138,13 @@ CREATE INDEX `response_id` ON `form_questionnaire_assessments` (`response_id`(64
 #IfRow3D list_options list_id pregnancy_intent option_id no_desire codes SNOMED-CT:454391000124108
 UPDATE `list_options` SET `codes` = 'SNOMED-CT:454401000124105' WHERE `list_id` = 'pregnancy_intent' AND `option_id` = 'no_desire';
 #EndIf
+
+-- Appointments by patient filter pc_pid (a varchar, compared with text); the daily summary
+-- report's payments are filtered by billing.date. Both read the whole table without an index.
+#IfNotIndex openemr_postcalendar_events pc_pid
+CREATE INDEX `pc_pid` ON `openemr_postcalendar_events` (`pc_pid`);
+#EndIf
+
+#IfNotIndex billing date
+CREATE INDEX `date` ON `billing` (`date`);
+#EndIf

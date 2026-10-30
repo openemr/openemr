@@ -85,7 +85,7 @@ function insert_into_tgpa_table($form_id, $pid, $participantData): void
 function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, $participantData)
 {
     $select_sql = "SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_pid = ? AND pc_gid = ? AND pc_eventDate = ? AND pc_startTime = ?;";
-    $result = sqlStatement($select_sql, [$pid, $gid, $pc_eventDate, $pc_startTime]);
+    $result = sqlStatement($select_sql, [\OpenEMR\Services\AppointmentService::calendarPid($pid), $gid, $pc_eventDate, $pc_startTime]);
     $result_array = sqlFetchArray($result);
     if ($result_array) {
         $insert_sql = "UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid = ?;";

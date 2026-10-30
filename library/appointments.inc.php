@@ -393,8 +393,10 @@ function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_i
     }
 
     if ($patient_id) {
+        // pc_pid is a varchar: compared with text, its index finds the patient's events; compared with a
+        // number, every event is read and converted.
         $where .= " AND e.pc_pid = ?";
-        array_push($sqlBindArray, $patient_id);
+        array_push($sqlBindArray, \OpenEMR\Services\AppointmentService::calendarPid($patient_id));
     } elseif ($group_id) {
         //if $group_id this means we want only the group events
         $where .= " AND e.pc_gid = ? AND e.pc_pid = ''";
@@ -462,7 +464,7 @@ function fetchXPastAppts($pid2, $pastApptsNumber, $orderOfAppts = '1'): array
     $res2 = sqlStatement("SELECT MIN(pc_eventDate) as minDate " .
         "FROM openemr_postcalendar_events " .
         "WHERE pc_pid = ? " .
-        "AND pc_eventDate < ? ;", [$pid2, $currentDate]);
+        "AND pc_eventDate < ? ;", [\OpenEMR\Services\AppointmentService::calendarPid($pid2), $currentDate]);
     $row2 = sqlFetchArray($res2);
 
     if ($row2['minDate']) {
@@ -782,7 +784,7 @@ function fetchRecurrences($pid): array
                     . "JOIN openemr_postcalendar_categories AS pc ON pe.pc_catid=pc.pc_catid "
                     . "WHERE pe.pc_pid = ?  AND pe.pc_recurrtype > 0;";
     $sqlBindArray = [];
-    array_push($sqlBindArray, $pid);
+    array_push($sqlBindArray, \OpenEMR\Services\AppointmentService::calendarPid($pid));
     $res = sqlStatement($query, $sqlBindArray);
     $result_data = [];
     while ($row = sqlFetchArray($res)) {
