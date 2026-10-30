@@ -1920,6 +1920,7 @@ class CdaTemplateImportDispose
                            WHERE external_id=?";
                 $res_q_sel_vitals = QueryUtils::fetchRecords($q_sel_vitals, [$value['extension']]);
             }
+            $reimported = false;
             if (empty($value['extension']) || count($res_q_sel_vitals) == 0) {
                 // TODO: @adunsulag we should move this into the vitals service.
                 $query_insert = "INSERT INTO form_vitals
@@ -1974,8 +1975,9 @@ class CdaTemplateImportDispose
                         $value['extension']]
                 );
             } else {
+                $reimported = true;
                 // A reading the document doesn't carry keeps its stored value instead of being cleared.
-                $readings = CdaVitalsReimport::withStoredReadings($value, end($res_q_sel_vitals));
+                $readings = CdaVitalsReimport::withStoredReadings($value, end($res_q_sel_vitals), $pid);
                 $q_upd_vitals = "UPDATE form_vitals
                          SET pid=?,
                              date=?,
@@ -2043,14 +2045,34 @@ class CdaTemplateImportDispose
                 }
             }
             if (!empty($value['reason_code'] ?? null)) {
-                $detail_query = "INSERT INTO `form_vital_details` (`form_id`, `vitals_column`, `reason_code`, `reason_description`, `reason_status`) VALUES (?,?,?,?,?)";
-                QueryUtils::sqlStatementThrowException($detail_query, [
-                    $vitals_id,
-                    $value['vital_column'] ?? '',
-                    $value['reason_code'] ?? '',
-                    $value['reason_code_text'] ?? null,
-                    $value['reason_status'] ?? null
-                ]);
+                $reasonColumn = $value['vital_column'] ?? '';
+                $reasonCode = $value['reason_code'] ?? '';
+                // Imported again, a reason already stored for the reading isn't added a second time.
+                $storedReason = $reimported && QueryUtils::fetchSingleValue(
+                    "SELECT `id` FROM `form_vital_details` WHERE `form_id` = ? AND `vitals_column` = ? AND `reason_code` = ? LIMIT 1",
+                    'id',
+                    [$vitals_id, $reasonColumn, $reasonCode]
+                ) !== null;
+                if (!$storedReason) {
+                    $detail_query = "INSERT INTO `form_vital_details` (`form_id`, `vitals_column`, `reason_code`, `reason_description`, `reason_status`) VALUES (?,?,?,?,?)";
+                    QueryUtils::sqlStatementThrowException($detail_query, [
+                        $vitals_id,
+                        $reasonColumn,
+                        $reasonCode,
+                        $value['reason_code_text'] ?? null,
+                        $value['reason_status'] ?? null
+                    ]);
+                }
+            }
+            // Imported again: the reading's form entry moves with it instead of being listed a second time.
+            $vitalsForm = $reimported ? QueryUtils::fetchSingleValue(
+                "SELECT `id` FROM `forms` WHERE `formdir` = 'vitals' AND `form_id` = ? AND `pid` = ? ORDER BY `id` LIMIT 1",
+                'id',
+                [$vitals_id, $pid]
+            ) : null;
+            if ($vitalsForm !== null) {
+                QueryUtils::sqlStatementThrowException("UPDATE `forms` SET `date` = ?, `encounter` = ? WHERE `id` = ?", [$vitals_date_forms, $encounter_for_forms, $vitalsForm]);
+                continue;
             }
             $query = "INSERT INTO forms
                 (
