@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
 class FacilityPostalSaveNoticeTest extends TestCase
 {
     /**
-     * @return array<string, array{string, bool, bool, string, string, int}>
+     * @return array<string, array{string, bool, bool, string, string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
