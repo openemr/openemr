@@ -237,8 +237,12 @@ class FhirServiceRequestService extends FhirServiceBase implements
      *
      * A page (_count, _offset) is of the combined results, so it's cut from the merged list. Asked for the
      * page themselves, each service would return up to _count of its own, twice the page between them.
-     * Neither pages in SQL (each reads its matches and trims them to the page), so asking for all of them
-     * reads no more rows than before.
+     *
+     * The page needs at most _offset + _count results from each service, so each is asked for that many (its
+     * _count) and keeps no more; a service that dropped some says so, which tells whether another page follows.
+     * Neither pages in SQL, so each still reads all its matching rows, as before. A service's _count stops at
+     * QueryPagination::MAX_LIMIT: for a page that ends past it, each service is asked for all its matches, and
+     * the merged list is trimmed as each one answers.
      *
      * @param list<FhirServiceBase> $services
      * @param array<mixed> $searchParameters
@@ -248,23 +252,36 @@ class FhirServiceRequestService extends FhirServiceBase implements
         $page = new QueryPagination(self::intParameter($searchParameters, '_count'), self::intParameter($searchParameters, '_offset'));
         $limit = $page->getLimit();
         $offset = (int) $page->getCurrentOffsetId();
+        $needed = $limit > 0 ? $offset + $limit : 0;
         if ($limit > 0) {
             unset($searchParameters['_count'], $searchParameters['_offset']);
+            if ($needed <= QueryPagination::MAX_LIMIT) {
+                $searchParameters['_count'] = (string) $needed;
+            }
         }
 
         $processingResult = new ProcessingResult();
+        $moreAfterPage = false;
         foreach ($services as $service) {
-            $processingResult->addProcessingResult($service->getAll($searchParameters, $bind));
+            $result = $service->getAll($searchParameters, $bind);
+            // Asked for _count results, a service's result says whether it dropped any past them.
+            $moreAfterPage = $moreAfterPage || (isset($searchParameters['_count']) && $result->getPagination()->hasMoreData());
+            $processingResult->addProcessingResult($result);
             if ($processingResult->hasErrors()) {
                 $processingResult->clearData();
                 return $processingResult;
+            }
+            $merged = $processingResult->getData();
+            if ($needed > 0 && is_array($merged) && count($merged) > $needed) {
+                $moreAfterPage = true;
+                $processingResult->setData(array_slice(array_values($merged), 0, $needed));
             }
         }
 
         if ($limit > 0) {
             $data = $processingResult->getData();
             $records = is_array($data) ? array_values($data) : [];
-            $page->setHasMoreData(count($records) > $offset + $limit);
+            $page->setHasMoreData($moreAfterPage || count($records) > $offset + $limit);
             $processingResult->setPagination($page);
             $processingResult->setData(array_slice($records, $offset, $limit));
         }

@@ -51,7 +51,8 @@ class ServiceRequestReferralFhirApiTest extends TestCase
     /** @var array<string, array{uuid: string, id: int}> address book entries by name */
     private array $people = [];
 
-    private ?string $orderUuid = null;
+    /** @var list<string> the orders made through the API, in the order they were made */
+    private array $orderUuids = [];
 
     protected function setUp(): void
     {
@@ -93,8 +94,8 @@ class ServiceRequestReferralFhirApiTest extends TestCase
         foreach ($this->people as $person) {
             QueryUtils::sqlStatementThrowException('DELETE FROM users WHERE id = ?', [$person['id']]);
         }
-        if ($this->orderUuid !== null) {
-            $orderId = QueryUtils::fetchSingleValue('SELECT procedure_order_id FROM procedure_order WHERE uuid = ?', 'procedure_order_id', [UuidRegistry::uuidToBytes($this->orderUuid)]);
+        foreach ($this->orderUuids as $orderUuid) {
+            $orderId = QueryUtils::fetchSingleValue('SELECT procedure_order_id FROM procedure_order WHERE uuid = ?', 'procedure_order_id', [UuidRegistry::uuidToBytes($orderUuid)]);
             QueryUtils::sqlStatementThrowException('DELETE FROM procedure_order_code WHERE procedure_order_id = ?', [$orderId]);
             QueryUtils::sqlStatementThrowException('DELETE FROM procedure_order WHERE procedure_order_id = ?', [$orderId]);
         }
@@ -105,25 +106,25 @@ class ServiceRequestReferralFhirApiTest extends TestCase
 
     public function testAPatientsSearchHasTheirReferralsBesideTheirOrders(): void
     {
-        $this->createOrder();
+        $order = $this->createOrder();
 
         $ids = self::ids($this->search(['patient' => $this->patient['uuid']]));
 
         $this->assertContains($this->referrals['open']['uuid'], $ids);
         $this->assertContains($this->referrals['replied']['uuid'], $ids);
-        $this->assertContains($this->orderUuid, $ids, 'the order is still there');
+        $this->assertContains($order, $ids, 'the order is still there');
         $this->assertNotContains($this->referrals['other']['uuid'], $ids, 'another patient\'s referral is not');
     }
 
     public function testTheCategorySelectsTheStore(): void
     {
-        $this->createOrder();
+        $order = $this->createOrder();
 
         $referralsOnly = self::ids($this->search(['patient' => $this->patient['uuid'], 'category' => self::REFERRAL]));
         $this->assertEqualsCanonicalizing([$this->referrals['open']['uuid'], $this->referrals['replied']['uuid']], $referralsOnly);
 
         $ordersOnly = self::ids($this->search(['patient' => $this->patient['uuid'], 'category' => FhirCodeSystemConstants::SNOMED_CT . '|108252007']));
-        $this->assertSame([$this->orderUuid], $ordersOnly);
+        $this->assertSame([$order], $ordersOnly);
 
         $both = self::ids($this->search(['patient' => $this->patient['uuid'], 'category' => '108252007,3457005']));
         $this->assertCount(3, $both);
@@ -233,6 +234,23 @@ class ServiceRequestReferralFhirApiTest extends TestCase
         $this->assertCount(2, $first, '_count=2 returns two in all, not two from each store');
         $this->assertCount(1, $second);
         $this->assertEqualsCanonicalizing($all, array_merge($first, $second), 'the two pages together are every result, once');
+    }
+
+    public function testPagesOfSeveralOrdersKeepOneOrder(): void
+    {
+        for ($i = 0; $i < 4; $i++) {
+            $this->createOrder();
+        }
+        $patient = ['patient' => $this->patient['uuid']];
+        $all = self::ids($this->search($patient));
+        $this->assertCount(6, $all, 'four orders and two referrals');
+        $this->assertSame($this->orderUuids, array_slice($all, 0, 4), 'the orders come first, in the order they were made');
+
+        $pages = [];
+        foreach (['0', '2', '4'] as $offset) {
+            $pages = array_merge($pages, self::ids($this->search($patient + ['_count' => '2', '_offset' => $offset])));
+        }
+        $this->assertSame($all, $pages, 'pages of two, read in turn, are the whole list once and in its order');
     }
 
     public function testAnEditThroughTheRestApiMovesTheLastUpdate(): void
@@ -371,7 +389,7 @@ class ServiceRequestReferralFhirApiTest extends TestCase
         return $resource;
     }
 
-    private function createOrder(): void
+    private function createOrder(): string
     {
         $fixture = json_decode((string)file_get_contents(__DIR__ . '/../Fixtures/FHIR/service-request.json'), true);
         $this->assertIsArray($fixture);
@@ -389,7 +407,8 @@ class ServiceRequestReferralFhirApiTest extends TestCase
         $this->assertIsArray($body);
         $uuid = $body['uuid'] ?? $body['id'] ?? null;
         $this->assertIsString($uuid);
-        $this->orderUuid = $uuid;
+        $this->orderUuids[] = $uuid;
+        return $uuid;
     }
 
     /**

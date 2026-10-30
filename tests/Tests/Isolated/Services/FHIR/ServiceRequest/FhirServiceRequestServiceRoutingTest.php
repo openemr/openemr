@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Tests\Isolated\Services\FHIR\ServiceRequest;
 
+use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Services\FHIR\FhirSearchSyntaxError;
 use OpenEMR\Services\FHIR\FhirServiceRequestService;
 use OpenEMR\Services\FHIR\ServiceRequest\FhirServiceRequestReferralService;
@@ -203,10 +204,89 @@ class FhirServiceRequestServiceRoutingTest extends TestCase
         $this->assertSame(['r2'], $this->data($last));
         $this->assertFalse($last->getPagination()->hasMoreData());
 
-        // Each store is asked for all its matches; the page is the router's to cut.
-        $this->assertArrayNotHasKey('_count', $this->orders->lastParameters);
+        // Each store is asked for what the page needs (offset + count); the page is the router's to cut.
+        $this->assertSame('6', $this->orders->lastParameters['_count'] ?? null);
+        $this->assertSame('6', $this->referrals->lastParameters['_count'] ?? null);
         $this->assertArrayNotHasKey('_offset', $this->referrals->lastParameters);
         $this->assertSame(['o1', 'o2', 'o3', 'r1', 'r2'], $this->data($this->service->getAll([])), 'no _count, no page');
+        $this->assertArrayNotHasKey('_count', $this->orders->lastParameters, 'no page, so each store is asked for all its matches');
+    }
+
+    #[Test]
+    public function eachStoreKeepsOnlyWhatThePageNeeds(): void
+    {
+        $this->orders->records = self::named('o', 50);
+        $this->referrals->records = self::named('r', 50);
+
+        $page = $this->service->getAll(['_count' => '5', '_offset' => '10']);
+
+        $this->assertSame(['o11', 'o12', 'o13', 'o14', 'o15'], $this->data($page));
+        $this->assertTrue($page->getPagination()->hasMoreData());
+        $this->assertSame('15', $this->orders->lastParameters['_count'] ?? null);
+        $this->assertSame(15, $this->orders->kept, 'a store keeps offset + count of its 50, not all of them');
+        $this->assertSame(15, $this->referrals->kept);
+    }
+
+    #[Test]
+    public function theLargestPageIsBoundedToo(): void
+    {
+        $this->orders->records = self::named('o', 300);
+        $this->referrals->records = self::named('r', 300);
+
+        foreach (['200', '500'] as $count) {
+            $page = $this->service->getAll(['_count' => $count]);
+            $this->assertSame(self::named('o', 200), $this->data($page), "_count=$count is a page of 200");
+            $this->assertTrue($page->getPagination()->hasMoreData());
+            $this->assertSame('200', $this->orders->lastParameters['_count'] ?? null, "_count=$count");
+            $this->assertSame(200, $this->orders->kept, "_count=$count: a store keeps 200 of its 300");
+            $this->assertSame(200, $this->referrals->kept);
+        }
+    }
+
+    #[Test]
+    public function aPageEndingPastTheLargestCountAStoreTakesIsStillExact(): void
+    {
+        // A store's _count stops at QueryPagination::MAX_LIMIT, so it couldn't keep the 256 this page needs.
+        $this->orders->records = self::named('o', QueryPagination::MAX_LIMIT + 50);
+        $this->referrals->records = self::named('r', 10);
+        $offset = QueryPagination::MAX_LIMIT + 45;
+
+        $page = $this->service->getAll(['_count' => '10', '_offset' => (string) $offset]);
+
+        $all = array_merge($this->orders->records, $this->referrals->records);
+        $this->assertSame(array_slice($all, $offset, 10), $this->data($page), 'the last five orders, then five referrals');
+        $this->assertTrue($page->getPagination()->hasMoreData());
+        $this->assertArrayNotHasKey('_count', $this->orders->lastParameters, 'asked for all its matches, then trimmed by the router');
+    }
+
+    #[Test]
+    public function everyPageIsTheCombinedListCutDirectly(): void
+    {
+        for ($orders = 0; $orders <= 6; $orders++) {
+            for ($referrals = 0; $referrals <= 6; $referrals++) {
+                $this->orders->records = self::named('o', $orders);
+                $this->referrals->records = self::named('r', $referrals);
+                $all = array_merge($this->orders->records, $this->referrals->records);
+                for ($count = 1; $count <= 4; $count++) {
+                    for ($offset = 0; $offset <= 13; $offset++) {
+                        $page = $this->service->getAll(['_count' => (string) $count, '_offset' => (string) $offset]);
+                        $case = "$orders orders, $referrals referrals, _count=$count, _offset=$offset";
+                        $this->assertSame(array_slice($all, $offset, $count), $this->data($page), $case);
+                        $this->assertSame(count($all) > $offset + $count, $page->getPagination()->hasMoreData(), $case);
+                        $this->assertLessThanOrEqual($offset + $count, $this->orders->kept, $case);
+                        $this->assertLessThanOrEqual($offset + $count, $this->referrals->kept, $case);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function named(string $prefix, int $count): array
+    {
+        return array_map(static fn(int $n): string => $prefix . $n, $count > 0 ? range(1, $count) : []);
     }
 
     #[Test]
@@ -235,6 +315,8 @@ abstract class RoutingTestStore extends FhirServiceRequestReferralService
     public array $records = [];
     /** @var array<mixed> */
     public array $lastParameters = [];
+    /** How many records the last search kept, after its _count. */
+    public int $kept = 0;
     public ?string $syntaxErrorOn = null;
     /** @var list<string> */
     public array $categoriesRouted = [];
@@ -280,9 +362,16 @@ abstract class RoutingTestStore extends FhirServiceRequestReferralService
             $result->setValidationMessages([$this->failWith => 'not valid']);
             return $result;
         }
+        // As FhirServiceBase::getAll() does, a _count sets the result's limit and addData() keeps no more.
+        $count = $this->lastParameters['_count'] ?? null;
+        if (is_string($count) && ctype_digit($count)) {
+            $result->setPagination(new QueryPagination((int) $count));
+        }
         foreach ($this->records as $record) {
             $result->addData($record);
         }
+        $kept = $result->getData();
+        $this->kept = is_array($kept) ? count($kept) : 0;
         return $result;
     }
 }
