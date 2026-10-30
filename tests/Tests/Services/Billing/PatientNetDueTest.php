@@ -99,17 +99,32 @@ class PatientNetDueTest extends TestCase
 
     public function testBalancesUseTheStatementArithmetic(): void
     {
-        $balances = PatientCreditEncounters::balances(self::PRODUCT_SALE_PID, [
-            $this->ids[self::PRODUCT_SALE_PID][1],
-            $this->ids[self::PRODUCT_SALE_PID][2],
-        ]);
+        $productSale = $this->ids[self::PRODUCT_SALE_PID];
+        $stillOwes = $this->ids[self::STILL_OWES_PID];
 
+        $balances = PatientCreditEncounters::balancesByPatient([$productSale[1], $productSale[2], $stillOwes[2]]);
+
+        ksort($balances);
         $this->assertSame([
-            $this->ids[self::PRODUCT_SALE_PID][1] => -20.0,
-            $this->ids[self::PRODUCT_SALE_PID][2] => 110.0,
+            self::STILL_OWES_PID => [$stillOwes[2] => 30.0],
+            self::PRODUCT_SALE_PID => [$productSale[1] => -20.0, $productSale[2] => 110.0],
         ], $balances);
-        $this->assertSame([], PatientCreditEncounters::balances(self::PRODUCT_SALE_PID, []));
-        $this->assertSame([], PatientCreditEncounters::balances(self::STILL_OWES_PID, [$this->ids[self::PRODUCT_SALE_PID][2]]));
+        $this->assertSame([], PatientCreditEncounters::balancesByPatient([]));
+    }
+
+    public function testCreditsAreFoundForSeveralPatientsAtOnce(): void
+    {
+        $credits = PatientCreditEncounters::creditsByPatient(
+            [self::NET_CREDIT_PID, self::STILL_OWES_PID, self::NETS_TO_ZERO_PID],
+            [$this->ids[self::NETS_TO_ZERO_PID][1]]
+        );
+
+        ksort($credits);
+        $this->assertSame([
+            self::NET_CREDIT_PID => [-42.59],
+            self::STILL_OWES_PID => [-10.0],
+        ], $credits);
+        $this->assertSame([], PatientCreditEncounters::creditsByPatient([], []));
     }
 
     public function testNoPatientsGivenFindsNone(): void

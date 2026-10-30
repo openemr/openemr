@@ -27,20 +27,24 @@ final class PatientNetDue
      * The patients, among those given, whose invoices net to zero or less
      * against the credits on their other encounters. Balances come from the
      * statement's own arithmetic (product sales included), not the search's.
+     * Two queries in all, however many patients a Due Pt search lists.
      *
      * @param array<int, list<int>> $encounterIds pid => form_encounter.id of the invoices a run would include
      * @return array<int, string> pid => net amount due (zero or negative), as "%.2f"
      */
     public static function nothingDue(array $encounterIds): array
     {
+        if ($encounterIds === []) {
+            return [];
+        }
+        $allIds = array_merge(...array_values($encounterIds));
+        $open = PatientCreditEncounters::balancesByPatient($allIds);
+        $credits = PatientCreditEncounters::creditsByPatient(array_keys($encounterIds), $allIds);
+
         $nothingDue = [];
         foreach ($encounterIds as $pid => $ids) {
-            $open = PatientCreditEncounters::balances($pid, $ids);
-            $credits = PatientCreditEncounters::find($pid, $ids);
-            $net = self::net(array_values($open), array_map(
-                static fn(array $credit): float => (float) $credit['balance'],
-                $credits
-            ));
+            $balances = array_intersect_key($open[$pid] ?? [], array_flip($ids));
+            $net = self::net(array_values($balances), $credits[$pid] ?? []);
             if ($net <= 0.0) {
                 $nothingDue[$pid] = sprintf('%.2f', $net);
             }

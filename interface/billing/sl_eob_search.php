@@ -1322,7 +1322,9 @@ if ($searchRequest->getString('form_search') === 'Search') {
 
                             foreach ($listRows as ['row' => $row, 'balance' => $balance, 'in_collections' => $in_collections, 'duncount' => $duncount, 'isduept' => $isduept]) {
                                 $listPid = is_numeric($row['pid']) ? (int) $row['pid'] : 0;
-                                $netDue = $nothingDue[$listPid] ?? null;
+                                // Only the invoices a run would include (pre-checked) are covered;
+                                // an unchecked one, e.g. in collections, stays listed as before.
+                                $netDue = $isduept !== '' ? ($nothingDue[$listPid] ?? null) : null;
                                 if ($netDue !== null) {
                                     if (!$showNothingDue) {
                                         $hiddenNothingDue[$listPid] = true;

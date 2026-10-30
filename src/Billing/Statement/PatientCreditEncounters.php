@@ -40,29 +40,71 @@ final class PatientCreditEncounters
         "WHERE a.pid = f.pid AND a.encounter = f.encounter AND a.deleted IS NULL), 0)";
 
     /**
-     * The statement balance of each of the patient's encounters given
-     * (form_encounter.id values), keyed by form_encounter.id.
+     * The statement balance of each encounter given (form_encounter.id
+     * values), grouped by patient: pid => [form_encounter.id => balance].
+     * One query for any number of encounters.
      *
      * @param list<int> $encounterIds
-     * @return array<int, float>
+     * @return array<int, array<int, float>>
      */
-    public static function balances(int $pid, array $encounterIds): array
+    public static function balancesByPatient(array $encounterIds): array
     {
         if ($encounterIds === []) {
             return [];
         }
         $rows = QueryUtils::fetchRecords(
-            "SELECT f.id, " . self::BALANCE_SQL . " AS balance FROM form_encounter AS f " .
-            "WHERE f.pid = ? AND f.id IN (" . implode(', ', array_fill(0, count($encounterIds), '?')) . ")",
-            array_merge([$pid], $encounterIds)
+            "SELECT f.id, f.pid, " . self::BALANCE_SQL . " AS balance FROM form_encounter AS f " .
+            "WHERE f.id IN (" . self::placeholders($encounterIds) . ")",
+            $encounterIds
         );
         $balances = [];
         foreach ($rows as $row) {
-            if (is_numeric($row['id'] ?? null) && is_numeric($row['balance'] ?? null)) {
-                $balances[(int) $row['id']] = (float) $row['balance'];
+            if (is_numeric($row['id'] ?? null) && is_numeric($row['pid'] ?? null) && is_numeric($row['balance'] ?? null)) {
+                $balances[(int) $row['pid']][(int) $row['id']] = (float) $row['balance'];
             }
         }
         return $balances;
+    }
+
+    /**
+     * The credits (negative balances) on the given patients' encounters, other
+     * than those in $excludedEncounterIds, grouped by patient: pid => list of
+     * balances. One query for any number of patients; find() is the per-patient
+     * version with the encounter details the statement lines need.
+     *
+     * @param list<int> $pids
+     * @param list<int> $excludedEncounterIds
+     * @return array<int, list<float>>
+     */
+    public static function creditsByPatient(array $pids, array $excludedEncounterIds): array
+    {
+        if ($pids === []) {
+            return [];
+        }
+        $exclusion = $excludedEncounterIds === []
+            ? ''
+            : ' AND f.id NOT IN (' . self::placeholders($excludedEncounterIds) . ')';
+        $rows = QueryUtils::fetchRecords(
+            "SELECT f.pid, " . self::BALANCE_SQL . " AS balance FROM form_encounter AS f " .
+            "WHERE f.pid IN (" . self::placeholders($pids) . ")" . $exclusion . " " .
+            "HAVING balance < 0",
+            array_merge($pids, $excludedEncounterIds)
+        );
+        $credits = [];
+        foreach ($rows as $row) {
+            if (is_numeric($row['pid'] ?? null) && is_numeric($row['balance'] ?? null)) {
+                $credits[(int) $row['pid']][] = (float) $row['balance'];
+            }
+        }
+        return $credits;
+    }
+
+    /**
+     * @param non-empty-list<int> $values
+     */
+    private static function placeholders(array $values): string
+    {
+        return implode(', ', array_fill(0, count($values), '?'));
     }
 
     /**
