@@ -14,7 +14,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -52,6 +54,9 @@ class BillingClaimBatch
      */
     private ?\Closure $generationOwner = null;
 
+    /**
+     * Opens a batch for one billing run.
+     */
     public function __construct(
         protected string $ext = '.txt',
         private array $context = []
@@ -62,12 +67,13 @@ class BillingClaimBatch
         $this->bat_content = '';
         $this->bat_gscount = 0;
         $this->bat_stcount = 0;
-        $this->bat_time = time();
-        $this->bat_hhmm = date('Hi', $this->bat_time);
-        $this->bat_yymmdd = date('ymd', $this->bat_time);
-        $this->bat_yyyymmdd = date('Ymd', $this->bat_time);
+        $batchTime = time();
+        $this->bat_time = $batchTime;
+        $this->bat_hhmm = date('Hi', $batchTime);
+        $this->bat_yymmdd = date('ymd', $batchTime);
+        $this->bat_yyyymmdd = date('Ymd', $batchTime);
         $this->bat_icn = (str_contains($this->context['claims'][0]->action ?? '', 'validate')) ? '000000001' : BillingClaimBatchControlNumber::getIsa13();
-        $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-" . bin2hex(random_bytes(3)) . "-batch" . $this->ext;
+        $this->bat_filename = self::batchFilename($batchTime, $this->ext);
         $this->bat_filedir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
         $this->bat_gs06 = (str_contains($this->context['claims'][0]->action ?? '', 'validate')) ? '2' : BillingClaimBatchControlNumber::getGs06();
     }
@@ -142,6 +148,29 @@ class BillingClaimBatch
     public function setBatFilename(string $bat_filename): void
     {
         $this->bat_filename = $bat_filename;
+    }
+
+    /**
+     * Batch file name written for this run.
+     *
+     * The random suffix keeps a later run from billing or clearing a file
+     * it does not own. Validate only downloads this name from the temporary
+     * directory, so that download has to accept the same shape.
+     */
+    public static function batchFilename(int $timestamp, string $extension): string
+    {
+        return date('Y-m-d-His', $timestamp) . '-' . bin2hex(random_bytes(3)) . '-batch' . $extension;
+    }
+
+    /**
+     * True when a temporary download may open this batch name.
+     */
+    public static function isTemporaryBatchName(string $filename): bool
+    {
+        return preg_match(
+            '/^\d{4}-\d{2}-\d{2}-\d{6}-[0-9a-f]{6}-batch\.(pdf|txt)$/',
+            $filename
+        ) === 1;
     }
 
     /**

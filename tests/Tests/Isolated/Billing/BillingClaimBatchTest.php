@@ -99,14 +99,19 @@ class BillingClaimBatchTest extends TestCase
         $this->assertNotEmpty($icn);
     }
 
+    /**
+     * Validate only can download the PDF name this batch writes.
+     */
     public function testFilenameFormat(): void
     {
-        $batch = new BillingClaimBatchStub('.txt', []);
+        $text = new BillingClaimBatchStub('.txt', []);
+        $pdf = new BillingClaimBatchStub('.pdf', []);
 
-        $filename = $batch->getBatFilename();
-
-        // Filename should match pattern: YYYY-mm-dd-HHiiss-batch.txt
-        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}-\d{6}-batch\.txt$/', $filename);
+        $this->assertTrue(BillingClaimBatch::isTemporaryBatchName($text->getBatFilename()));
+        $this->assertTrue(BillingClaimBatch::isTemporaryBatchName($pdf->getBatFilename()));
+        $this->assertFalse(BillingClaimBatch::isTemporaryBatchName('2026-10-30-143415-batch.pdf'));
+        $this->assertFalse(BillingClaimBatch::isTemporaryBatchName('2026-10-30-143415-abcdef-batch.edi'));
+        $this->assertFalse(BillingClaimBatch::isTemporaryBatchName('2026-10-30-143415-abcdef-batch.pdf/../other.pdf'));
     }
 
     public function testBatchWithValidateAction(): void
@@ -185,6 +190,9 @@ class BillingClaimBatchTest extends TestCase
  */
 class BillingClaimBatchStub extends BillingClaimBatch
 {
+    /**
+     * Builds the same batch name as the real constructor, without the site directory.
+     */
     public function __construct(string $ext = '.txt', array $context = [])
     {
         // Set basic properties manually to avoid calling parent and GLOBALS dependencies
@@ -193,10 +201,11 @@ class BillingClaimBatchStub extends BillingClaimBatch
         $this->bat_stcount = 0;
         $this->claims = [];
 
-        $this->bat_time = time();
-        $this->bat_hhmm = date('Hi', $this->bat_time);
-        $this->bat_yymmdd = date('ymd', $this->bat_time);
-        $this->bat_yyyymmdd = date('Ymd', $this->bat_time);
+        $batchTime = time();
+        $this->bat_time = $batchTime;
+        $this->bat_hhmm = date('Hi', $batchTime);
+        $this->bat_yymmdd = date('ymd', $batchTime);
+        $this->bat_yyyymmdd = date('Ymd', $batchTime);
 
         // Mock control numbers based on context
         $hasValidateAction = false;
@@ -212,7 +221,7 @@ class BillingClaimBatchStub extends BillingClaimBatch
             $this->bat_gs06 = '12345';
         }
 
-        $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-batch" . $ext;
+        $this->bat_filename = BillingClaimBatch::batchFilename($batchTime, $ext);
         $this->bat_filedir = '/tmp/edi';
     }
 
