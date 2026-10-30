@@ -755,7 +755,9 @@
                                 <templateId root="2.16.840.1.113883.10.20.22.4.61"/>
                                 <id root="a208621d-2f4f-4c60-940a-1ebfd6289ef0" extension="44"/>
                                 <code code="72" displayName="PPO" codeSystem="2.16.840.1.113883.3.221.5"
-                                      codeSystemName="Insurance Type Code"/>
+                                      codeSystemName="Insurance Type Code">
+                                    <translation nullFlavor="UNK"/>
+                                </code>
                                 <statusCode code="completed"/>
                                 <performer typeCode="PRF">
                                     <templateId root="2.16.840.1.113883.10.20.22.4.87"/>
