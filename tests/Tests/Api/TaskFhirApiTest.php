@@ -546,6 +546,15 @@ class TaskFhirApiTest extends TestCase
         $this->assertSame([$referral], self::ids($this->search($patient + ['code' => 'fulfill'])), 'a bare code with no system recorded');
     }
 
+    /**
+     * A modifier on code is the search's own: code:missing=true finds the tasks with no code.
+     */
+    public function testACodeSearchKeepsItsModifier(): void
+    {
+        $this->assertSame([$this->tasks['other']], self::ids($this->search(['patient' => $this->otherPatient['uuid'], 'code:missing' => 'true'])), 'a task with no code');
+        $this->assertSame([], self::ids($this->search(['patient' => $this->patient['uuid'], 'code:missing' => 'true'])), 'every task has a code');
+    }
+
     public function testAParentTaskMustBeForTheSamePatient(): void
     {
         $partOf = static fn(string $uuid): array => ['partOf' => [['reference' => 'Task/' . $uuid]]];

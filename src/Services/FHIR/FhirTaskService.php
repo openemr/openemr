@@ -159,7 +159,8 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
                 $search[$name] = $field;
             }
         }
-        if (($search['code'] ?? null) instanceof TokenSearchField) {
+        // code:missing is read as for any token; a code search reads the system as well.
+        if (($search['code'] ?? null) instanceof TokenSearchField && $search['code']->getModifier() !== SearchModifier::MISSING) {
             $search['code'] = self::codeSearch($search['code']);
         }
         return $search;

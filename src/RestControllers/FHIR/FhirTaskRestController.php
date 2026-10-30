@@ -185,6 +185,13 @@ class FhirTaskRestController
                 schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
+                name: 'subject',
+                in: 'query',
+                description: 'The patient the task is for, as Patient/{uuid}.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
                 name: 'status',
                 in: 'query',
                 description: 'The status of the Task resource.',
@@ -194,7 +201,7 @@ class FhirTaskRestController
             new OA\Parameter(
                 name: 'code',
                 in: 'query',
-                description: 'The code of the Task resource, for example fulfill (http://hl7.org/fhir/CodeSystem/task-code), complete-questionnaire (http://hl7.org/fhir/uv/sdc/CodeSystem/temp), or make-contact, review-material and general-information (http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes). Only the code is compared: a system given as system|code is not checked, and each supported code belongs to one system.',
+                description: 'The code of the Task resource, for example fulfill (http://hl7.org/fhir/CodeSystem/task-code), complete-questionnaire (http://hl7.org/fhir/uv/sdc/CodeSystem/temp), or make-contact, review-material and general-information (http://hl7.org/fhir/us/sdoh-clinicalcare/CodeSystem/SDOHCC-CodeSystemTemporaryCodes). system|code matches the code only in that system, a code alone matches it in any system, and |code only where no system is recorded.',
                 required: false,
                 schema: new OA\Schema(type: 'string')
             ),
