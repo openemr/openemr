@@ -1175,6 +1175,7 @@ class CdaTemplateParse
                 '8462-4' => 'bpd',
                 '8480-6' => 'bps',
                 '8287-5' => 'head_circ',
+                '9843-4' => 'head_circ', // Head occipital-frontal circumference, the FHIR and US Core code
                 '8867-4' => 'pulse',
                 '8302-2' => 'height',
                 '2710-2' => 'oxygen_saturation',
@@ -1230,6 +1231,7 @@ class CdaTemplateParse
                 '8462-4' => 'bpd',
                 '8480-6' => 'bps',
                 '8287-5' => 'head_circ',
+                '9843-4' => 'head_circ', // Head occipital-frontal circumference, the FHIR and US Core code
                 '8867-4' => 'pulse',
                 '8302-2' => 'height',
                 '2710-2' => 'oxygen_saturation', // deprecated code
