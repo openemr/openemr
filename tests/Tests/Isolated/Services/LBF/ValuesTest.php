@@ -82,6 +82,22 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
         }
 
         /**
+         * Read a percent, a unit, or a hyphenated range as a closed span.
+         */
+        public function testMeasurementSpanReadsTypedBoxes(): void
+        {
+            $this->assertSame([55.0, 55.0], Values::measurementSpan('55%'));
+            $this->assertSame([35.0, 35.0], Values::measurementSpan('35 mmHg'));
+            $this->assertSame([35.0, 35.0], Values::measurementSpan('35 mm Hg'));
+            $this->assertSame([60.0, 65.0], Values::measurementSpan('60-65%'));
+            $this->assertSame([45.0, 50.0], Values::measurementSpan('45-50mmHg'));
+            $this->assertNull(Values::measurementSpan('WNL'));
+            $this->assertNull(Values::measurementSpan('-'));
+            $this->assertNull(Values::measurementSpan('65-60'));
+            $this->assertNull(Values::measurementSpan(''));
+        }
+
+        /**
          * Accept layout ids and reject identifiers with spaces.
          */
         public function testIdentifiers(): void
