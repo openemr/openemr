@@ -667,7 +667,7 @@ class C_EncounterVisitForm
         }
 // START AI GENERATED CODE
 // If viewing an existing encounter, use its POS code instead of facility default
-        $facilityPosCode = $viewmode && !empty($encounter['pos_code']) ? $encounter['pos_code'] : $posCode;
+        $facilityPosCode = EncounterPosCode::toSelect($viewmode, $encounter['pos_code'] ?? null, $posCode);
         $billingFacilities = $this->getBillingFacilityForTemplate($facilityService, $encounter['billing_facility'] ?? null);
         $inCollectionOptions = $this->getInCollectionOptionsForTemplate($encounter);
         $dischargeDispositions = $this->getDischargeDispositionsForTemplate($viewmode ? $encounter : null);
