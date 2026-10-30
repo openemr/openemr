@@ -220,6 +220,8 @@ window.NewPatientForm = function(window) {
     // Facility and provider lookups share one counter so a late answer to an
     // earlier change can't overwrite the current one.
     let posRequestSequence = 0;
+    // The provider's billing facility doesn't depend on later facility changes.
+    let providerRequestSequence = 0;
     const getPOS = function() {
         const requestSequence = ++posRequestSequence;
         const facility = document.forms[0].facility_id.value;
@@ -244,6 +246,7 @@ window.NewPatientForm = function(window) {
     // Provider selection handling
     const newUserSelected = function() {
         const requestSequence = ++posRequestSequence;
+        const providerSequence = ++providerRequestSequence;
         const provider = document.getElementById('provider_id').value;
         $.ajax({
             url: formConfig.webroot + "/library/ajax/facility_ajax_code.php",
@@ -254,22 +257,26 @@ window.NewPatientForm = function(window) {
                 csrf_token_form: formConfig.csrfToken
             }
         }).done(function(data) {
-            if (requestSequence !== posRequestSequence) {
+            if (providerSequence !== providerRequestSequence) {
                 return;
             }
             const rtn = JSON.parse(data);
-            // Same facility: keep the POS, which may be an existing encounter's saved one.
+            if (Number(rtn[2]) === 1) {
+                document.forms[0]['billing_facility'].value = rtn[0];
+            }
+            if (requestSequence !== posRequestSequence) {
+                return;
+            }
+            // Same facility: keep the POS, which may be an existing encounter's saved one,
+            // unless a pending facility lookup this request superseded left it empty.
             const facilityChanged = String(document.forms[0].facility_id.value) !== String(rtn[0]);
             document.forms[0].facility_id.value = rtn[0];
             // facility_id can be hidden so we only set it if it exists
             if (document.forms[0].facility_id_sel) {
                 document.forms[0].facility_id_sel.value = rtn[0];
             }
-            if (facilityChanged) {
+            if (facilityChanged || document.forms[0].pos_code.value === '') {
                 document.forms[0].pos_code.value = rtn[1];
-            }
-            if (Number(rtn[2]) === 1) {
-                document.forms[0]['billing_facility'].value = rtn[0];
             }
         }).fail(function(xhr) {
             console.error('Error fetching provider data:', xhr);

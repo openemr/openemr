@@ -150,4 +150,30 @@ describe('set_pos_code_encounter off', () => {
         expect(document.forms[0].facility_id.value).toBe('3');
         expect(document.forms[0].pos_code.value).toBe('11');
     });
+
+    test('a provider\'s billing facility still applies after a later facility change', () => {
+        const pending = holdAjax();
+        setUpForm(false);
+
+        $('#provider_id').val('2').trigger('change');
+        $('#facility_id_sel').val('3').trigger('change');
+        pending[0].answer(['4', '31', '1']);
+        pending[1].answer('11');
+
+        expect(document.forms[0].facility_id.value).toBe('3');
+        expect(document.forms[0].pos_code.value).toBe('11');
+        expect(document.forms[0].billing_facility.value).toBe('4');
+    });
+
+    test('a provider at the new facility fills the POS a pending facility lookup left empty', () => {
+        const pending = holdAjax();
+        setUpForm(false);
+
+        $('#facility_id_sel').val('4').trigger('change');
+        $('#provider_id').val('2').trigger('change');
+        pending[1].answer(['4', '31', '0']);
+        pending[0].answer('31');
+
+        expect(document.forms[0].pos_code.value).toBe('31');
+    });
 });
