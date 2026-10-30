@@ -45,7 +45,9 @@ final class CdaVitalsReimport
         $bmiStillHolds = !self::changes($vitals, $stored, 'weight') && !self::changes($vitals, $stored, 'height');
         foreach (self::READINGS as $reading) {
             if ($reading === 'BMI' && !$bmiStillHolds) {
-                $vitals['BMI'] ??= null;
+                if (self::lacks($vitals, 'BMI')) {
+                    $vitals['BMI'] = null;
+                }
                 continue;
             }
             if (self::lacks($vitals, $reading) && array_key_exists($reading, $stored)) {

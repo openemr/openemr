@@ -2075,10 +2075,12 @@ class CdaTemplateImportDispose
                 }
             }
             // Imported again, a reading already listed in an encounter isn't listed a second time. It stays
-            // where it was first filed, which may be a signed encounter; one whose form was deleted is listed
-            // again, as before.
+            // where it was first filed, which may be a signed encounter. One whose form was deleted, or whose
+            // encounter number is gone (importing the encounter again gives it a new one), is listed again,
+            // as before.
             $listed = $reimported && QueryUtils::fetchSingleValue(
-                "SELECT `id` FROM `forms` WHERE `formdir` = 'vitals' AND `form_id` = ? AND `pid` = ? AND `deleted` = 0 LIMIT 1",
+                "SELECT f.`id` FROM `forms` AS f JOIN `form_encounter` AS fe ON fe.`encounter` = f.`encounter` AND fe.`pid` = f.`pid`"
+                . " WHERE f.`formdir` = 'vitals' AND f.`form_id` = ? AND f.`pid` = ? AND f.`deleted` = 0 LIMIT 1",
                 'id',
                 [$vitals_id, $pid]
             ) !== null;

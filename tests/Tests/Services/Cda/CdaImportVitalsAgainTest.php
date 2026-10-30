@@ -39,14 +39,7 @@ class CdaImportVitalsAgainTest extends TestCase
         QueryUtils::sqlInsert("INSERT INTO `users` (`username`, `organization`, `active`, `abook_type`) VALUES ('', ?, 1, 'external_org')", [self::ORGANIZATION]);
         $this->dispose = new CdaTemplateImportDispose();
         $this->table = $this->createMock(CarecoordinationTable::class);
-        $this->dispose->InsertEncounter([[
-            'extension' => 'visit-again-1',
-            'date' => '20260301090000',
-            'provider_npi' => self::NPI,
-            'provider_name' => 'Again',
-            'provider_family' => 'Provider',
-            'represented_organization_name' => self::ORGANIZATION,
-        ]], self::PID, $this->table, 0);
+        $this->dispose->InsertEncounter([$this->encounter()], self::PID, $this->table, 0);
     }
 
     protected function tearDown(): void
@@ -169,6 +162,23 @@ class CdaImportVitalsAgainTest extends TestCase
         $this->assertSame($filed, $this->vitalsEncounters());
     }
 
+    public function testAReadingImportedAgainWithItsEncounterStaysInAnEncounter(): void
+    {
+        $this->dispose->InsertVitals([$this->vitals()], self::PID, $this->table, 0);
+        // The same document again: both import paths take its encounter before its vitals, and
+        // an encounter imported again gets a new encounter number.
+        $this->dispose->InsertEncounter([$this->encounter()], self::PID, $this->table, 0);
+        $this->dispose->InsertVitals([$this->vitals()], self::PID, $this->table, 0);
+
+        $listed = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS n FROM `forms` AS f JOIN `form_encounter` AS fe ON fe.`encounter` = f.`encounter` AND fe.`pid` = f.`pid`"
+            . " WHERE f.`pid` = ? AND f.`formdir` = 'vitals' AND f.`deleted` = 0",
+            'n',
+            [self::PID]
+        );
+        $this->assertSame(1, (int)self::number($listed), 'the reading is listed in an encounter that exists');
+    }
+
     public function testAReadingWhoseFormWasDeletedIsListedAgain(): void
     {
         $this->dispose->InsertVitals([$this->vitals()], self::PID, $this->table, 0);
@@ -181,6 +191,23 @@ class CdaImportVitalsAgainTest extends TestCase
             [self::PID]
         );
         $this->assertSame(1, (int)self::number($listed));
+    }
+
+    /**
+     * The document's encounter, as the parser hands it to InsertEncounter.
+     *
+     * @return array<string, string>
+     */
+    private function encounter(): array
+    {
+        return [
+            'extension' => 'visit-again-1',
+            'date' => '20260301090000',
+            'provider_npi' => self::NPI,
+            'provider_name' => 'Again',
+            'provider_family' => 'Provider',
+            'represented_organization_name' => self::ORGANIZATION,
+        ];
     }
 
     /**

@@ -128,5 +128,9 @@ class CdaVitalsReimportTest extends TestCase
             CdaVitalsReimport::withStoredReadings(['weight' => '160', 'BMI' => '26'] + $approved, self::STORED, self::PID)['BMI'],
             'a BMI the document carries is its own'
         );
+        $this->assertNull(
+            CdaVitalsReimport::withStoredReadings(['weight' => '160', 'BMI' => ''] + $approved, self::STORED, self::PID)['BMI'],
+            'a blank BMI with a new weight, which would be stored as 0'
+        );
     }
 }
