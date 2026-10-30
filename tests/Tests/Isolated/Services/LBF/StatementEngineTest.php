@@ -73,6 +73,17 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
         }
 
         /**
+         * A percent or a range fires when every end sits in the band.
+         */
+        public function testBandAcceptsPercentAndContainedRange(): void
+        {
+            $this->assertSame('In range.', $this->paragraph('LBFstmt_demo', ['num' => '15%'], $this->demoRules));
+            $this->assertSame('In range.', $this->paragraph('LBFstmt_demo', ['num' => '12-18 mmHg'], $this->demoRules));
+            $this->assertSame('', $this->paragraph('LBFstmt_demo', ['num' => '18-22%'], $this->demoRules));
+            $this->assertSame('', $this->paragraph('LBFstmt_demo', ['num' => 'WNL'], $this->demoRules));
+        }
+
+        /**
          * Substitute the source value into the sentence.
          */
         public function testInterpolateSource(): void

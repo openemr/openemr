@@ -79,18 +79,20 @@ class StatementEngine
      */
     private function matchBand(array $rule, string $raw, string $source2, string $raw2): bool
     {
-        $v = Values::asFloatOrNull($raw);
-        if ($v === null) {
+        $span = Values::measurementSpan($raw);
+        if ($span === null) {
             return false;
         }
         if ($source2 !== '' && trim($raw2) === '') {
             return false;
         }
-        if (!$this->inBound($v, $rule['min_value'] ?? null, Values::asBool($rule['min_inclusive'] ?? 1), true)) {
-            return false;
-        }
-        if (!$this->inBound($v, $rule['max_value'] ?? null, Values::asBool($rule['max_inclusive'] ?? 1), false)) {
-            return false;
+        foreach ($span as $end) {
+            if (!$this->inBound($end, $rule['min_value'] ?? null, Values::asBool($rule['min_inclusive'] ?? 1), true)) {
+                return false;
+            }
+            if (!$this->inBound($end, $rule['max_value'] ?? null, Values::asBool($rule['max_inclusive'] ?? 1), false)) {
+                return false;
+            }
         }
         return true;
     }
