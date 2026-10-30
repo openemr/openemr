@@ -93,8 +93,9 @@ These doc rules already fail CI. No new work — cited so the docs and the check
 
 These are judgment calls; they live in the `AGENTS.md` gate and code review, not in a rule.
 
-- **Every API endpoint has a real consumer** (UI and/or CLI) — cross-cutting, not statically
-  decidable ([api.md](api.md#every-endpoint-needs-a-real-consumer)).
+- **Internal (non-FHIR) endpoints have a real consumer** (UI and/or CLI) — cross-cutting, not
+  statically decidable; unit-test presence *is* enforceable, the consumer judgment is not
+  ([api.md](api.md#services-and-endpoints-must-be-exercised-the-consumer-question)).
 - **New forms use the MVC shape** rather than the procedural quartet
   ([interface-and-forms.md](interface-and-forms.md#direction-forms-toward-mvc)).
 - **Authorization via `AclMain` / a scoped service**, not ad-hoc role strings

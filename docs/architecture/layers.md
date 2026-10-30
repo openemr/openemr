@@ -203,7 +203,9 @@ delivered.
   and OpenEMR's long history of joining on textual values (list option ids, codes, free
   text) means those columns are not clean enough to carry referential integrity. Relate
   tables by their numeric surrogate keys and keep the text as descriptive data, not as a
-  join key.
+  join key. (OpenEMR's `uuid` columns are stored as **binary**, not text, so foreign keys
+  against them are fine — "numeric" here means integer *or* binary surrogate keys, not
+  char/varchar. This rule may be revisited as UUID/ULID usage grows and the schema improves.)
 - A relationship that genuinely can only be expressed textually (legacy list ids,
   pipe-delimited id lists like `patient_data.care_team_provider`, cross-table ids with no
   enforceable constraint) does **not** get a database foreign key — it gets *documented* as

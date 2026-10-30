@@ -45,6 +45,20 @@ The file is still the URL target, but it holds no logic — it is wiring. `Curre
 is the transitional seam that gives procedural entry points the one Symfony `Request`
 object without a full router (`AGENTS.md` → Request Input).
 
+> **Where this is heading (not codified yet).** Once the remaining blockers to fully
+> leveraging the DI container are cleared (multisite and non-root deployments are the known
+> ones), the shim collapses to roughly three lines — resolve the controller from the
+> container and send its response:
+>
+> ```php
+> $container  = require path_to_bootstrap;
+> $controller = $container->get(CarePlanController::class);
+> $controller->newAction(CurrentRequest::get())->send();
+> ```
+>
+> Until those blockers are resolved this is a direction, not a required pattern — keep writing
+> the explicit wiring above for now.
+
 ---
 
 ## The migration recipe

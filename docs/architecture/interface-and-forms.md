@@ -25,8 +25,7 @@ REST/LocalApi stack) and site/session context that inner frames read via `top`.
 Above the tabs sits the **patient header** (`interface/main/tabs/templates/patient_data_template.php`)
 — the demographic banner and dashboard shown whenever a patient is "in context" (a `pid` is
 set in the session). It persists across tab changes so every inner frame shares one patient
-context. See [`docs/main_dashboard_patient_clear_architecture.md`](../main_dashboard_patient_clear_architecture.md)
-for how patient context is set and cleared.
+context, and clearing the patient resets that context across the shell.
 
 ## Menus and how they are overridden
 
@@ -53,8 +52,10 @@ observable (`tabs_view_model.js`). Two behaviors worth knowing:
   guard on `locked()`, so a pinned tab is **not reused or replaced by navigation** — opening
   another page spawns a *new* tab instead. (A pinned tab can still be closed explicitly via
   `tabClose()`, and `openExistingTab()` updates an existing tab that matches the same name.)
-  E-signed ("locked") **encounters** are a related but distinct concept — `isEncounterLocked()`
-  stops a locked encounter from accepting new forms.
+  E-signed ("locked") **encounters** are a related but distinct concept. In the main menu,
+  `isEncounterLocked()` (`tabs_view_model.js`) blocks adding a form to a locked encounter,
+  except Fees > Fee Sheet; the encounter page's own form menu applies
+  `LockedEncounterBillingForms` (see [Encounters as the clinical focus](#encounters-as-the-clinical-focus)).
 - **Side-by-side.** The shell can show two frames at once; inter-frame coordination goes
   through `interface/main/tabs/js/frame_proxies.js` rather than direct cross-frame calls.
 
@@ -114,7 +115,10 @@ The clinical data model centers on the **encounter** (a patient visit):
   encounter sets `encounter`; forms are then added to *that* encounter.
 - The **encounter form itself is a form** — `interface/forms/newpatient/`
   (`C_EncounterVisitForm`) creates/edits the visit. A locked (e-signed) encounter accepts no
-  new forms (fee-sheet exceptions aside).
+  new forms **except its billing forms — the Fee Sheet and Misc Billing Options**
+  (`src/Forms/LockedEncounterBillingForms.php`): the encounter page's form menu offers only
+  those two, and an existing one keeps its Edit button. (A Misc Billing Options form that was
+  itself e-signed and locked stays locked.)
 
 ## PHP forms: structure, registration, management
 

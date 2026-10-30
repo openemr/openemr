@@ -66,7 +66,7 @@ standard, not just CI.
 | **(b)(11)** — Decision support interventions (DSI) | Evidence-based + predictive DSIs (HTI-1; replaced the former CDS (a)(9)) | `library/clinical_rules.php`, `src/ClinicalDecisionRules/` |
 | **(c)(1)–(c)(3)** — CQM record / import / report | Capture, import/calculate, and report CQMs as **QRDA I / III** | `src/Cqm/`, `src/Cqm/QrdaControllers/QrdaReportController.php` |
 | **(g)(2)** — Automated measure calculation | CQM calculation engine — note **(g)(1)** numerator recording is **not** in this cert | `src/Cqm/` (CQL/QDM engine, OIDs in `oids_qdm_*.json`, `PhpCqmCalculation.php`) |
-| **(g)(6)** — C-CDA creation performance | More than Schematron validity: generated C-CDA must also match the **reference files**, conform to the **document templates**, and meet performance outcomes — Schematron success alone is **not** sufficient (see the ONC test procedure) | PHP C-CDA code `src/Services/Cda/` + Schematron validation (`oe-cda-schematron` package) |
+| **(g)(6)** — C-CDA creation performance | More than Schematron validity: generated C-CDA must also match the **reference files**, conform to the **document templates**, and meet performance outcomes — Schematron success alone is **not** sufficient (see the ONC test procedure) | PHP C-CDA code `src/Services/Cda/` + PHP Schematron validation (`Schematron/SchematronValidator.php`) |
 | **(g)(7)** — App access: patient selection | API returns a patient context to an app | the REST/FHIR API (`src/RestControllers/`, `src/FHIR/`) |
 | **(g)(9)** — App access: all data request | API returns all USCDI data for a patient | the REST/FHIR API, `src/FHIR/` |
 | **(g)(10)** — Standardized API (FHIR) | **FHIR R4 + US Core**, **SMART App Launch**, **Bulk Data**, client registration + **manual app approval** | `src/FHIR/`, `src/FHIR/SMART/` + `src/RestControllers/SMART/` (incl. `ClientAdminController` approve/enable/revoke; `interface/smart/register-app.php`), `src/FHIR/Export/` (`$export`), OAuth2 (`src/RestControllers/AuthorizationController.php`) |
@@ -84,11 +84,11 @@ standard, not just CI.
 Four output pipelines carry the heaviest compliance weight, because external validators and
 test procedures judge their exact output:
 
-- **C-CDA** (b1, g6) — PHP C-CDA code in `src/Services/Cda/`, Schematron validation via the
-  external `oe-cda-schematron` package. Changing a template, section, or code binding can fail
-  validation **or** reference-file matching. The Node C-CDA/CQM packages are slated to be
-  replaced by PHP — any such move must preserve C-CDA conformance exactly
-  ([tech-stack.md](tech-stack.md#runtime-services)).
+- **C-CDA** (b1, g6) — PHP C-CDA code in `src/Services/Cda/` (generation and the PHP
+  `Schematron/SchematronValidator.php`, which replaced the Node sidecar — see
+  [tech-stack.md](tech-stack.md#runtime-services)). Changing a template, section, or code
+  binding can fail validation **or** reference-file matching, so any change must preserve
+  C-CDA conformance exactly.
 - **FHIR** (g10) — US Core resource shapes, SMART launch, and Bulk Data in `src/FHIR/`. The
   resource structure, search parameters, and `CapabilityStatement` are conformance-bound.
 - **QRDA** ((g)(2), (c)(1)–(c)(3)) — `src/Cqm/` produces QRDA I/III from CQL/QDM measures; the

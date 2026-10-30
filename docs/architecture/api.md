@@ -30,31 +30,33 @@ expressed as one — **prefer driving that endpoint over writing a parallel impl
 
 ---
 
-## Every endpoint needs a real consumer
+## Services and endpoints must be exercised (the consumer question)
 
-An API endpoint — and the service class behind it — **must have at least one consumer in
-the codebase: a frontend UX, a CLI utility, or both.** Prefer both where it makes sense.
+**The non-negotiable baseline: services, APIs, and CLI tools must have unit tests.** Tests are
+what prove the logic works headlessly. Beyond tests, whether an endpoint also needs a *real
+consumer* depends on what kind of endpoint it is.
 
-The reason is exercise. Code with no caller is code no test, no reviewer, and no user ever
-runs against a real request. It rots silently: its types drift, its edge cases go
-unverified, its failures surface only when someone finally wires it up months later. An
-endpoint that ships with a consumer is an endpoint that is proven to work end-to-end, kept
-honest by an actual call site, and covered by whatever tests exercise that consumer.
+**Standardized / FHIR APIs do not require a consumer.** The full conformant FHIR resource set
+is a goal in itself — certification and interoperability mean we want the complete surface
+even where the frontend never calls it. A new FHIR endpoint is justified by the standard; it
+needs unit tests, not a consuming feature.
+
+**Internal / non-FHIR APIs should have a consumer — and it is the consumer, not the tests,
+that proves the *shape*.** Unit tests prove an endpoint runs; only an actual caller proves it
+is shaped to serve its intended purpose. Endpoints without consumers tend to rot: types
+drift, edge cases go unverified, mis-shaping is discovered late. So:
 
 - **A frontend consumer** proves the endpoint serves the UI's real shape — the fields it
   needs, the errors it must present, the auth context it runs under.
 - **A CLI consumer** (a `src/Console/` command) proves the service is usable headlessly:
-  deterministic, injectable, free of request-only assumptions. It also gives operators and
-  tests a scriptable entry point, and often surfaces hidden coupling to `$_SESSION`/globals
-  that a browser request would have masked.
-- **Both** is the recommendation: the two consumers pull the service toward genuine
-  reusability — the same logic driven from two independent contexts is logic that has
-  earned its place as a service rather than a one-off.
+  deterministic, injectable, free of request-only assumptions, and gives operators and tests a
+  scriptable entry point.
 
-This is a design-time gate, not a nice-to-have: if you cannot name a consumer for a
-proposed endpoint, question whether the endpoint should exist yet. Build the service for
-the consumer that needs it first, expose the endpoint when a second context genuinely
-needs the same logic, and retire endpoints whose last consumer goes away.
+It is acceptable to land an internal API **ahead** of the feature that consumes it — but do
+it deliberately, ideally as a **PR stack** (API + consumer together) so it is not added
+speculatively or in the wrong shape, rather than merged alone and left to rot. If you cannot
+name who will consume a proposed internal endpoint, question whether it should exist yet, and
+retire internal endpoints whose last consumer goes away.
 
 This also means: **the REST front controller is the working proof that `interface/` can
 reach the same end-state.** It already exists for the API;
