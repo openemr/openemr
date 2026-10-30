@@ -113,14 +113,18 @@ class GenerateController
         $encounter = 0;
 
         $selectedInstance = null;
-        if ($formId !== '' && $pid > 0) {
+        $layoutWrite = $this->layoutWriteAllowed($catalog, $formId);
+        if (!$layoutWrite && $error === '') {
+            $error = xl('Access Denied');
+        }
+        if ($layoutWrite && $formId !== '' && $pid > 0) {
             $instances = $reader->instancesForPatient($formId, $pid);
             if ($instanceId === 0 && count($instances) === 1) {
                 $instanceId = $instances[0]['instance_id'];
             }
         }
 
-        if ($instanceId > 0 && $formId !== '') {
+        if ($layoutWrite && $instanceId > 0 && $formId !== '') {
             $row = $reader->instanceRow($instanceId, $formId);
             if ($row === null) {
                 $error = xl('Form instance not found.');
@@ -145,6 +149,9 @@ class GenerateController
                     $actions = $engine->evaluate($formId, $values, $rules);
                 }
             }
+        } elseif (!$layoutWrite) {
+            $instanceId = 0;
+            $instances = [];
         }
 
         if ($pid > 0) {
@@ -171,7 +178,14 @@ class GenerateController
                 $formId = Values::asString($formChoices[0]['form_id'] ?? '');
             }
             $patient = $reader->patientName($pid);
-            if ($formId !== '' && $instances === []) {
+            $layoutWrite = $this->layoutWriteAllowed($catalog, $formId);
+            if (!$layoutWrite) {
+                $instances = [];
+                $instanceId = 0;
+                if ($error === '') {
+                    $error = xl('Access Denied');
+                }
+            } elseif ($formId !== '' && $instances === []) {
                 $instances = $reader->instancesForPatient($formId, $pid);
             }
         }
@@ -184,7 +198,9 @@ class GenerateController
                 $csrfOk = false;
                 $error = xl('Invalid CSRF token');
             }
-            if ($csrfOk && ($instanceId <= 0 || $pid <= 0 || $formId === '')) {
+            if ($csrfOk && !$this->layoutWriteAllowed($catalog, $formId)) {
+                $error = xl('Access Denied');
+            } elseif ($csrfOk && ($instanceId <= 0 || $pid <= 0 || $formId === '')) {
                 $error = xl('Select a patient and form instance.');
             } elseif ($csrfOk && !in_array($formId, $ruleFormIds, true)) {
                 $error = xl('This form has no statement rules.');
@@ -345,6 +361,39 @@ class GenerateController
             $instanceId = 0;
         }
         return [$formChoices, $formId, $instanceId];
+    }
+
+    /**
+     * True when this user may read or overwrite the layout.
+     *
+     * Encounter notes are checked earlier. A layout access rule still has
+     * to allow write, matching the layout form. An empty rule adds nothing.
+     * A super user is allowed, matching the layout form.
+     */
+    private function layoutWriteAllowed(LayoutCatalog $catalog, string $formId): bool
+    {
+        if ($formId === '') {
+            return true;
+        }
+        $acoSpec = $catalog->acoSpec($formId);
+
+        return self::layoutWriteDecision(
+            $acoSpec,
+            AclMain::aclCheckCore('admin', 'super'),
+            AclMain::aclCheckAcoSpec($acoSpec, '', 'write')
+        );
+    }
+
+    /**
+     * Decide write access from an already loaded layout access rule.
+     */
+    public static function layoutWriteDecision(string $acoSpec, bool $isSuperUser, bool $hasLayoutWrite): bool
+    {
+        if ($isSuperUser || $acoSpec === '') {
+            return true;
+        }
+
+        return $hasLayoutWrite;
     }
 
     /**
