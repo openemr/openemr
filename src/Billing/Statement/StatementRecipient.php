@@ -44,6 +44,16 @@ final class StatementRecipient
     }
 
     /**
+     * Whether the statement goes to the patient: lines() names the guardian whenever one is set.
+     *
+     * @param array<mixed> $patient a patient_data row
+     */
+    public static function isPatient(array $patient): bool
+    {
+        return !is_string($patient['guardiansname'] ?? null) || trim($patient['guardiansname']) === '';
+    }
+
+    /**
      * @param list<string> $streetLines blank ones are left out
      * @return list<string>
      */

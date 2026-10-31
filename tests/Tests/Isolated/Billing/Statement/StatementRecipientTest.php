@@ -64,6 +64,16 @@ final class StatementRecipientTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, ?string> $guardian
+     * @param list<string> $expected
+     */
+    #[DataProvider('recipientProvider')]
+    public function testIsPatientWhenTheStatementIsInThePatientsName(array $guardian, array $expected): void
+    {
+        $this->assertSame($expected[0] === 'Ann Patient', StatementRecipient::isPatient([...self::patient(), ...$guardian]));
+    }
+
     public function testBlankStreetLinesAreLeftOut(): void
     {
         $this->assertSame(
