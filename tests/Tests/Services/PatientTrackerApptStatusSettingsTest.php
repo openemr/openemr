@@ -33,10 +33,20 @@ class PatientTrackerApptStatusSettingsTest extends TestCase
         'ZZN' => ['notes' => '', 'activity' => 1],
         'ZZC' => ['notes' => '#FF0000', 'activity' => 1],
         'ZZS' => ['notes' => ' #00FF00 | 5 ', 'activity' => 1],
+        'ZZX' => ['notes' => '#0000FF|soon', 'activity' => 1],
     ];
+
+    /** @var list<array<mixed>> list entries with the fixture ids that were there before the test */
+    private array $saved = [];
 
     protected function setUp(): void
     {
+        // Keep any real entries that happen to use the fixture ids, to put them back afterwards.
+        $this->saved = QueryUtils::fetchRecords(
+            "SELECT * FROM list_options WHERE list_id = 'apptstat' AND option_id IN ("
+                . implode(', ', array_fill(0, count(self::STATUSES), '?')) . ")",
+            array_keys(self::STATUSES)
+        );
         $this->cleanUp();
         $seq = 9000;
         foreach (self::STATUSES as $id => $status) {
@@ -50,6 +60,17 @@ class PatientTrackerApptStatusSettingsTest extends TestCase
     protected function tearDown(): void
     {
         $this->cleanUp();
+        foreach ($this->saved as $row) {
+            $columns = array_filter(array_keys($row), is_string(...));
+            if ($columns === []) {
+                continue;
+            }
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO list_options (`" . implode('`, `', $columns) . "`) VALUES ("
+                    . implode(', ', array_fill(0, count($columns), '?')) . ")",
+                array_values(array_intersect_key($row, array_flip($columns)))
+            );
+        }
     }
 
     public function testAnActiveStatusHasItsColourAndAlert(): void
@@ -64,19 +85,34 @@ class PatientTrackerApptStatusSettingsTest extends TestCase
 
     public function testAStatusWithoutNotesHasNoColourOrAlert(): void
     {
-        $this->assertSame(['color' => '', 'time_alert' => ''], PatientTrackerService::collectApptStatusSettings('ZZN'));
+        $this->assertSame(['color' => '', 'time_alert' => '0'], PatientTrackerService::collectApptStatusSettings('ZZN'));
     }
 
     public function testAnUnknownStatusHasNoColourOrAlert(): void
     {
-        $this->assertSame(['color' => '', 'time_alert' => ''], PatientTrackerService::collectApptStatusSettings('ZZ?'));
-        $this->assertSame(['color' => '', 'time_alert' => ''], PatientTrackerService::collectApptStatusSettings(''));
-        $this->assertSame(['color' => '', 'time_alert' => ''], PatientTrackerService::collectApptStatusSettings(null));
+        $this->assertSame(['color' => '', 'time_alert' => '0'], PatientTrackerService::collectApptStatusSettings('ZZ?'));
+        $this->assertSame(['color' => '', 'time_alert' => '0'], PatientTrackerService::collectApptStatusSettings(''));
+        $this->assertSame(['color' => '', 'time_alert' => '0'], PatientTrackerService::collectApptStatusSettings(null));
     }
 
     public function testAColourWithoutAnAlertTime(): void
     {
-        $this->assertSame(['color' => 'FF0000', 'time_alert' => ''], PatientTrackerService::collectApptStatusSettings('ZZC'));
+        $this->assertSame(['color' => 'FF0000', 'time_alert' => '0'], PatientTrackerService::collectApptStatusSettings('ZZC'));
+    }
+
+    public function testAnAlertTimeThatIsNotANumberIsNoAlert(): void
+    {
+        // The Flow Board Report raises an alert for any time_alert other than "0".
+        $this->assertSame(['color' => '0000FF', 'time_alert' => '0'], PatientTrackerService::collectApptStatusSettings('ZZX'));
+    }
+
+    public function testAnExistingStatusWithAFixtureIdIsPutBack(): void
+    {
+        $this->saved = [['list_id' => 'apptstat', 'option_id' => 'ZZA', 'title' => 'real one', 'seq' => 1, 'notes' => '#111111|1', 'activity' => 1]];
+        $this->tearDown();
+
+        $this->assertSame(['color' => '111111', 'time_alert' => '1'], PatientTrackerService::collectApptStatusSettings('ZZA'));
+        $this->saved = [];
     }
 
     public function testSpacesAroundTheNotesAreIgnored(): void
@@ -88,7 +124,7 @@ class PatientTrackerApptStatusSettingsTest extends TestCase
     {
         require_once __DIR__ . '/../../../library/patient_tracker.inc.php';
 
-        $this->assertSame(['color' => '', 'time_alert' => ''], collectApptStatusSettings('ZZ?'));
+        $this->assertSame(['color' => '', 'time_alert' => '0'], collectApptStatusSettings('ZZ?'));
         $this->assertSame(['color' => 'ABCDEF', 'time_alert' => '15'], collectApptStatusSettings('ZZA'));
     }
 

@@ -284,7 +284,8 @@ class PatientTrackerService extends BaseService
      * of its Appointment Statuses list entry ("color|minutes", e.g. "#FEFDCF|10").
      *
      * A status with no Notes, or one no longer in the list, gets no colour and
-     * no alert rather than breaking the board. An inactive status still has its
+     * no alert ("0", which both Flow Board pages treat as none) rather than
+     * breaking the board. An inactive status still has its
      * colour: inactive only stops it being picked for new appointments, and
      * appointments already in it (e.g. set by MedEx) are still shown.
      *
@@ -292,7 +293,7 @@ class PatientTrackerService extends BaseService
      */
     public static function collectApptStatusSettings(mixed $option): array
     {
-        $settings = ['color' => '', 'time_alert' => ''];
+        $settings = ['color' => '', 'time_alert' => '0'];
         if (!is_string($option) && !is_int($option)) {
             return $settings;
         }
@@ -307,7 +308,8 @@ class PatientTrackerService extends BaseService
 
         $parts = explode('|', $notes, 2);
         $settings['color'] = ltrim(trim($parts[0]), '#');
-        $settings['time_alert'] = trim($parts[1] ?? '');
+        $minutes = trim($parts[1] ?? '');
+        $settings['time_alert'] = ctype_digit($minutes) ? $minutes : '0';
         return $settings;
     }
 
