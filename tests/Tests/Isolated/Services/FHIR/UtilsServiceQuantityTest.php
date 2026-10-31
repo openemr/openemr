@@ -20,7 +20,11 @@ use PHPUnit\Framework\TestCase;
 
 class UtilsServiceQuantityTest extends TestCase
 {
-    /** @return array<string, array{string, string, string, ?string}> unit and code sent, then the unit and UCUM code expected */
+    /**
+     * @return array<string, array{string, string, string, ?string}> unit and code sent, then the unit and UCUM code expected
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
     public static function units(): array
     {
         return [
@@ -53,7 +57,11 @@ class UtilsServiceQuantityTest extends TestCase
         $this->assertSame($expectedCode === null ? null : 'http://unitsofmeasure.org', $json['system'] ?? null);
     }
 
-    /** @return array<string, array{mixed, ?string}> a unit, then its UCUM code */
+    /**
+     * @return array<string, array{mixed, ?string}> a unit, then its UCUM code
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
     public static function ucumCodes(): array
     {
         return [
