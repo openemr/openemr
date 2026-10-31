@@ -579,8 +579,9 @@ class TaskFhirApiTest extends TestCase
 
     /**
      * Task.code is a code and its system, so a code search reads both, as a FHIR token does:
-     * system|code needs both, a bare code matches in any system, |code only where none was recorded
-     * (a write always records one, so |code finds no task written through the API).
+     * system|code needs both, system| matches any code in that system, a bare code matches in any
+     * system, |code only where none was recorded (a write always records one, so |code finds no task
+     * written through the API).
      */
     public function testCodeSearchHonoursTheSystem(): void
     {
@@ -596,6 +597,10 @@ class TaskFhirApiTest extends TestCase
         $this->assertSame([$referral], self::ids($this->search($patient + ['code' => FhirTaskService::TASK_CODE_SYSTEM . '|fulfill'])), 'system|code, as the task reads back');
         $this->assertSame([], self::ids($this->search($patient + ['code' => '|fulfill'])), '|code: it has a system');
         $this->assertSame([$referral], self::ids($this->search($patient + ['code' => 'fulfill'])), 'a bare code, any system');
+        $this->assertSame([$questionnaire], self::ids($this->search($patient + ['code' => $temp . '|'])), 'system|: any code in that system');
+        $this->assertSame([$referral], self::ids($this->search($patient + ['code' => FhirTaskService::TASK_CODE_SYSTEM . '|'])), 'system|: any code in that system');
+        $this->assertSame([], self::ids($this->search($patient + ['code' => 'http://example.org/no-such-system|'])), 'system|: a system no task uses');
+        $this->assertSame([], self::ids($this->search($patient + ['code' => '|'])), 'neither a system nor a code, as before');
     }
 
     /**

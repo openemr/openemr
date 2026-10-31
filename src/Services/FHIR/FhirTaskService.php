@@ -169,8 +169,8 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
 
     /**
      * Task.code is kept as a code and its system, so a code search matches on both, as FHIR's token
-     * search reads them: system|code needs both, a bare code matches it in any system, and |code
-     * only where no system was recorded.
+     * search reads them: system|code needs both, system| matches any code in that system, a bare
+     * code matches it in any system, and |code only where no system was recorded.
      */
     private static function codeSearch(TokenSearchField $field): CompositeSearchField
     {
@@ -180,8 +180,12 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
                 continue;
             }
             $match = new CompositeSearchField('code', [], true);
-            $match->addChild(new StringSearchField('code', [(string) $value->getCode()], SearchModifier::EXACT));
+            $code = (string) $value->getCode();
             $system = $value->getSystem();
+            // system| (a system and no code) is any code in that system, so only the system is compared.
+            if ($code !== '' || !is_string($system) || $system === '') {
+                $match->addChild(new StringSearchField('code', [$code], SearchModifier::EXACT));
+            }
             if ($system === '') {
                 $noSystem = new TokenSearchField('code_system', [new TokenSearchValue(true)]);
                 $noSystem->setModifier(SearchModifier::MISSING);
