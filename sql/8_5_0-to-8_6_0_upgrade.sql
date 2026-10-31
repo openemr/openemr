@@ -115,3 +115,31 @@
 
 -- Fix swapped SNOMED CT codes for the administrative_sex list (see #13767).
 -- 248153007 is Male (finding), 248152002 is Female (finding); the seed had them reversed.
+
+-- Lookups by encounter alone, and questionnaire answers by response_id, read the whole table without these (#14863).
+#IfNotIndex form_encounter encounter
+CREATE INDEX `encounter` ON `form_encounter` (`encounter`);
+#EndIf
+
+#IfNotIndex issue_encounter encounter
+CREATE INDEX `encounter` ON `issue_encounter` (`encounter`);
+#EndIf
+
+#IfNotIndex issue_encounter list_id
+CREATE INDEX `list_id` ON `issue_encounter` (`list_id`);
+#EndIf
+
+#IfNotIndex form_questionnaire_assessments response_id
+CREATE INDEX `response_id` ON `form_questionnaire_assessments` (`response_id`(64));
+#EndIf
+
+-- No desire to become pregnant was seeded with the code for Ambivalent (454391000124108).
+-- 454401000124105 is No desire to become pregnant (finding).
+#IfRow3D list_options list_id pregnancy_intent option_id no_desire codes SNOMED-CT:454391000124108
+UPDATE `list_options` SET `codes` = 'SNOMED-CT:454401000124105' WHERE `list_id` = 'pregnancy_intent' AND `option_id` = 'no_desire';
+#EndIf
+
+-- FHIR ServiceRequest referrals (D8 of #13266): a uuid for each transaction, so the Transactions screen's referrals have a FHIR id.
+#IfMissingColumn transactions uuid
+ALTER TABLE `transactions` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`, ADD UNIQUE KEY `uuid` (`uuid`);
+#EndIf
