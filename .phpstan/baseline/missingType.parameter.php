@@ -36532,22 +36532,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceBase.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceRequestService\\:\\:buildPerformerType\\(\\) has parameter \\$performerTypeCode with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceRequestService\\:\\:buildReasonCodes\\(\\) has parameter \\$diagnosisString with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceRequestService\\:\\:export\\(\\) has parameter \\$lastResourceIdExported with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceRequestService\\:\\:inferPerformerTypeFromCategory\\(\\) has parameter \\$procedureOrderType with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
 ];

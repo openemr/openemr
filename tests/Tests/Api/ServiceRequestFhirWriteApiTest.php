@@ -111,6 +111,22 @@ class ServiceRequestFhirWriteApiTest extends TestCase
         $this->assertIsString($contents['uuid']);
     }
 
+    public function testPostNamingTheCallerAsRequesterIsAccepted(): void
+    {
+        // The requester check reads the session's user (admin may name anyone, anyone may name
+        // themselves), so the ServiceRequest router has to pass the session to the service that
+        // writes the order. Without it, every named requester is refused.
+        UuidRegistry::createMissingUuidsForTables(['users']);
+        $adminUuid = QueryUtils::fetchSingleValue("SELECT uuid FROM users WHERE username = 'admin'", 'uuid');
+        $this->assertIsString($adminUuid);
+        $fixture = ['requester' => ['reference' => 'Practitioner/' . UuidRegistry::uuidToString($adminUuid)]] + $this->fhirFixture;
+
+        $response = $this->testClient->post(self::RESOURCE_URL, $fixture);
+        $body = $response->getBody()->getContents();
+
+        $this->assertSame(Response::HTTP_CREATED, $response->getStatusCode(), 'POST with the caller as requester. Body: ' . $body);
+    }
+
     public function testPutUpdatesServiceRequest(): void
     {
         $createResponse = $this->testClient->post(self::RESOURCE_URL, $this->fhirFixture);

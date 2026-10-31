@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 561
+-- v_database: 562
 --
 
 --
@@ -9793,6 +9793,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 DROP TABLE IF EXISTS `transactions`;
 CREATE TABLE `transactions` (
   `id`                      bigint(20)   NOT NULL auto_increment,
+  `uuid`                    binary(16)   DEFAULT NULL,
   `date`                    datetime     default NULL,
   `title`                   varchar(255) NOT NULL DEFAULT '',
   `pid`                     bigint(20)   default NULL,
@@ -9800,6 +9801,7 @@ CREATE TABLE `transactions` (
   `groupname`               varchar(255) NOT NULL DEFAULT '',
   `authorized`              tinyint(4)   default NULL,
   PRIMARY KEY  (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
