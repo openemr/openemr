@@ -1960,7 +1960,7 @@ class CdaTemplateImportDispose
                          )";
                 $vitals_id = QueryUtils::sqlInsert(
                     $query_insert,
-                    // A date's record carries only the readings sent for that date.
+                    // A record carries only the readings sent for it.
                     [
                         $pid,
                         $vitals_date_value,

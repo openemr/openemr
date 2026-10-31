@@ -34,6 +34,12 @@ class VitalsStorageUnitsDatabaseTest extends TestCase
             ['in', 'm', 0.3, 2.5, 0.01],
             ['degF', 'Cel', 30.0, 43.0, 0.01],
             ['lb', '[lb_av]', 1.0, 400.0, 3.3],
+            // Other spellings of the same units, which the two must read alike.
+            ['lb', 'kilograms', 40.0, 140.0, 3.7],
+            ['in', 'centimetres', 100.0, 200.0, 3.7],
+            ['degF', '°C', 35.0, 41.0, 0.37],
+            ['degF', 'deg C', 35.0, 41.0, 0.37],
+            ['lb', 'pounds', 100.0, 300.0, 7.7],
         ];
         $compared = 0;
         $converted = 0;

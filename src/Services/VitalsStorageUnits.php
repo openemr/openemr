@@ -4,9 +4,10 @@
  * Converts a vital sign sent in another unit into the unit form_vitals stores it in.
  *
  * form_vitals keeps weight in pounds, height and head circumference in inches and
- * temperature in Fahrenheit, whatever the units_of_measurement display setting. Every
- * write that takes a value with its unit converts it here, so the FHIR API and the
- * C-CDA/QRDA import store the same number for the same measurement.
+ * temperature in Fahrenheit, whatever the units_of_measurement display setting. The FHIR
+ * API and the C-CDA/QRDA import convert a value sent with its unit here, so they store the
+ * same number for the same measurement (the Vitals form converts its own metric fields in
+ * vitals.js).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -31,9 +32,9 @@ final class VitalsStorageUnits
      * agree once both are rounded to MeasurementUtils::MEASUREMENT_PRECISION.
      */
     private const SQL_CONVERSIONS = [
-        'lb' => ['kg' => '%s * 2.20462262185', 'g' => '(%s / 1000) * 2.20462262185'],
-        'in' => ['cm' => '%s / 2.54', 'm' => '(%s * 100) / 2.54'],
-        'degf' => ['cel' => '((9 / 5) * %s) + 32', 'c' => '((9 / 5) * %s) + 32'],
+        'lb' => ['kg' => '%s * 2.20462262185', 'kilogram' => '%s * 2.20462262185', 'kilograms' => '%s * 2.20462262185', 'g' => '(%s / 1000) * 2.20462262185'],
+        'in' => ['cm' => '%s / 2.54', 'centimeter' => '%s / 2.54', 'centimeters' => '%s / 2.54', 'centimetre' => '%s / 2.54', 'centimetres' => '%s / 2.54', 'm' => '(%s * 100) / 2.54'],
+        'degf' => ['cel' => '((9 / 5) * %s) + 32', 'c' => '((9 / 5) * %s) + 32', 'degc' => '((9 / 5) * %s) + 32', 'deg c' => '((9 / 5) * %s) + 32', '°c' => '((9 / 5) * %s) + 32'],
     ];
 
     /**
@@ -48,11 +49,15 @@ final class VitalsStorageUnits
         $from = strtolower(trim($fromUnit));
         // UCUM spells several of these more than one way, and the read side emits the
         // short forms, so both are accepted.
+        // Spellings of the storage units themselves need no conversion, so convertSql(), which
+        // leaves any unit it doesn't convert as it is, agrees without listing them.
         $from = match ($from) {
-            '[lb_av]', 'lbs' => 'lb',
-            '[in_i]', 'inch', 'inches' => 'in',
-            '[degf]', 'f' => 'degf',
-            'cel', 'c' => 'cel',
+            '[lb_av]', 'lbs', 'lb_av', 'pound', 'pounds' => 'lb',
+            '[in_i]', '[in_us]', 'inch', 'inches' => 'in',
+            '[degf]', 'f', 'deg f', '°f' => 'degf',
+            'cel', 'c', 'degc', 'deg c', '°c' => 'cel',
+            'kilogram', 'kilograms' => 'kg',
+            'centimeter', 'centimeters', 'centimetre', 'centimetres' => 'cm',
             '1/min', 'bpm', 'beats/min', 'breaths/min' => '/min',
             '%%' => '%',
             default => $from,

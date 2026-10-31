@@ -22,6 +22,9 @@ use Psr\Log\LoggerInterface;
 
 class CdaTemplateParse
 {
+    /** The longest gap between two readings of one visit's record (see fetchVitalSignData()). */
+    private const VISIT_GAP_SECONDS = 3600;
+
     /**
      * The unit each form_vitals column stores, for the vitals sent with a unit that can
      * differ from it.
@@ -1234,51 +1237,97 @@ class CdaTemplateParse
             ];
 
             // Every component (OpenEMR's own export writes respiration, temperature and oxygen saturation after
-            // the ninth), and one record per date: an organizer can hold several dates (Synthea writes all of a
-            // patient's vital signs into one), while one visit's readings can be minutes apart (C-CDA dates the
-            // organizer by an interval around them). A record is dated by its date's first time, and a component
-            // with no time of its own is read with the organizer's first.
-            $byDate = [];
+            // the ninth), read first by time. At one time an oxygen saturation joins the group holding the same
+            // value under its other code (2710-2 and 59408-5); any reading joins the first group with none of its
+            // measures, else starts another group; and afterwards a group whose every value one earlier group at
+            // that time already holds (a reading sent twice) folds into it. So a blood pressure taken twice under
+            // one day-only time keeps each pair, whichever half repeats. Then the groups are read in time order
+            // as visits: a group joins the latest record when it's within an hour of that record's last reading
+            // (or one time is the other at less precision: a day, an hour) and holds none of its measures, else
+            // starts a record dated by its own time. Readings
+            // of different measures minutes apart are one record (C-CDA dates an organizer by an interval around
+            // them), a measure taken again is another, a later visit is its own record, and an organizer of
+            // several dates (Synthea writes all of a patient's vital signs into one, #12302) is a record per
+            // date. Nothing is merged over a value. A component with no time of its own is read with the
+            // organizer's first.
+            $times = [];
+            $readings = [];
+            $codes = [];
             foreach ($components as $component) {
                 $time = self::componentTime($component) ?? $firstTime;
-                $byDate[substr($time, 0, 8)] ??= ['time' => $time, 'components' => []];
-                $byDate[substr($time, 0, 8)]['components'][] = $component;
+                $values = $this->componentValues($component, $vitals_array);
+                if ($values === []) {
+                    continue;
+                }
+                $code = self::componentCode($component);
+                $target = self::groupFor($times, $readings, $codes, $time, $values, $code);
+                if ($target === null) {
+                    $times[] = $time;
+                    $readings[] = [];
+                    $codes[] = [];
+                    $target = count($times) - 1;
+                }
+                foreach ($values as $column => $value) {
+                    if ($value !== null && !array_key_exists($column, $codes[$target])) {
+                        $codes[$target][$column] = $code;
+                    }
+                }
+                $readings[$target] = self::withReadings($readings[$target], $values);
+            }
+            [$times, $readings] = self::withoutCopies($times, $readings);
+            $order = array_keys($times);
+            usort($order, fn(int $a, int $b): int => [self::paddedTime($times[$a]), $a] <=> [self::paddedTime($times[$b]), $b]);
+            $groupTimes = $times;
+            $groupReadings = $readings;
+            $times = [];
+            $readings = [];
+            $lastTime = null;
+            foreach ($order as $g) {
+                $last = count($times) - 1;
+                $read = $last >= 0 ? array_filter($readings[$last], fn($v): bool => $v !== null) : [];
+                $joins = $last >= 0 && $lastTime !== null
+                    && self::sameVisitTime($groupTimes[$g], $lastTime)
+                    && array_intersect_key(array_filter($groupReadings[$g], fn($v): bool => $v !== null), $read) === [];
+                if (!$joins) {
+                    $times[] = $groupTimes[$g];
+                    $readings[] = [];
+                    $last = count($times) - 1;
+                }
+                $readings[$last] = self::withReadings($readings[$last], $groupReadings[$g]);
+                $lastTime = $groupTimes[$g];
             }
             $extension = is_string($id['extension'] ?? null) && $id['extension'] !== '' ? $id['extension'] : null;
             $saved = 0;
-            foreach ($byDate as $date => ['time' => $time, 'components' => $dateComponents]) {
-                $record = ['extension' => null, 'root' => $id['root'] ?? null, 'date' => $time];
-                foreach ($dateComponents as $component) {
-                    $observation = is_array($component) && is_array($component['observation'] ?? null) ? $component['observation'] : [];
-                    $code = $observation['code']['code'] ?? null;
-                    if (!empty($observation['entryRelationship'])) {
-                        $relationships = is_array($observation['entryRelationship']) ? $observation['entryRelationship'] : [];
-                        foreach (['bps' => 0, 'bpd' => 1] as $column => $k) {
-                            $bp = self::relatedValue($relationships[$k] ?? null);
-                            if ($bp !== null || !isset($record[$column])) {
-                                $record[$column] = $bp;
-                            }
-                        }
-                    } elseif (is_string($code) && array_key_exists($code, $vitals_array)) {
-                        $vital = $this->vitalValue($vitals_array[$code], $observation['value'] ?? null);
-                        // A measure sent twice (2710-2 and 59408-5), or a reading left out for its unit, doesn't
-                        // replace one already read.
-                        if ($vital !== null || !isset($record[$vitals_array[$code]])) {
-                            $record[$vitals_array[$code]] = $vital;
-                        }
-                    }
-                }
-                // A date with nothing the Vitals form records isn't saved as an empty form.
-                if (array_filter(array_diff_key($record, ['extension' => 0, 'root' => 0, 'date' => 0]), fn($v): bool => $v !== null) === []) {
+            $savedAtTime = [];
+            // Ids already given in this document: OpenEMR's own export gives every Vitals form of an encounter
+            // the encounter's id, and two records with one id would be saved as one.
+            $templateData = is_array($this->templateData) ? $this->templateData : [];
+            $fields = is_array($templateData['field_name_value_array'] ?? null) ? $templateData['field_name_value_array'] : [];
+            // external_id is compared as the database compares it (utf8mb4_general_ci: case and trailing
+            // spaces ignored).
+            $used = array_map(self::idKey(...), array_column(is_array($fields['vital_sign'] ?? null) ? $fields['vital_sign'] : [], 'extension'));
+            foreach ($times as $k => $time) {
+                $values = $readings[$k];
+                // A record with nothing the Vitals form records isn't saved as an empty form.
+                if (array_filter($values, fn($v): bool => $v !== null) === []) {
                     continue;
                 }
                 // The organizer's id finds an entry imported before (external_id), so importing the document again
-                // updates it. The first date saved keeps the id; each later date gets one made from it and the date,
-                // which stays the same on every import and fits external_id's 20 characters (a longer one would be
-                // cut on saving and never match).
+                // updates it. The first record saved keeps the id when it fits external_id's 20 characters (a
+                // longer one would be cut on saving and never match); every other gets one made from the id, its
+                // time and, for a second record at one time, its place there: the same on every import.
+                $atTime = $savedAtTime[$time] = ($savedAtTime[$time] ?? -1) + 1;
+                $external = null;
                 if ($extension !== null) {
-                    $record['extension'] = $saved === 0 ? $extension : substr(hash('sha256', $extension . '|' . $date), 0, 20);
+                    $external = $saved === 0 && strlen($extension) <= 20
+                        ? $extension
+                        : substr(hash('sha256', $extension . '|' . $time . ($atTime > 0 ? '|' . $atTime : '')), 0, 20);
+                    for ($taken = 1; in_array(self::idKey($external), $used, true); $taken++) {
+                        $external = substr(hash('sha256', $extension . '|' . $time . '|' . $atTime . '|taken ' . $taken), 0, 20);
+                    }
+                    $used[] = self::idKey($external);
                 }
+                $record = ['extension' => $external, 'root' => $id['root'] ?? null, 'date' => $time] + $values;
                 $i = 1 + count($this->templateData['field_name_value_array']['vital_sign'] ?? []);
                 $this->templateData['field_name_value_array']['vital_sign'][$i] = $record;
                 $this->templateData['entry_identification_array']['vital_sign'][$i] = $i;
@@ -1288,13 +1337,227 @@ class CdaTemplateParse
     }
 
     /**
-     * The value of an entry relationship's observation: a blood pressure's systolic or diastolic reading.
+     * The Vitals form columns a component reads, with their values: a blood pressure's two, or one measure's;
+     * none for a measure the form doesn't record.
+     *
+     * @param array<string, string> $vitalsArray LOINC code => form_vitals column
+     * @return array<string, mixed>
+     */
+    private function componentValues(mixed $component, array $vitalsArray): array
+    {
+        $observation = is_array($component) && is_array($component['observation'] ?? null) ? $component['observation'] : [];
+        $code = is_array($observation['code'] ?? null) ? ($observation['code']['code'] ?? null) : null;
+        if (is_array($observation['entryRelationship'] ?? null)) {
+            // A blood pressure's two readings come as entry relationships: each read by its code (8480-6
+            // systolic, 8462-4 diastolic), and one without either code by its position (first systolic, second
+            // diastolic), as before. An observation the form records by its own code (a weight with a comment)
+            // isn't a blood pressure unless a relationship carries one of those codes.
+            $relationships = $observation['entryRelationship'];
+            $relationships = array_key_exists('observation', $relationships) || array_key_exists('act', $relationships)
+                ? [$relationships]
+                : array_values($relationships);
+            $values = [];
+            $readAt = [];
+            foreach ($relationships as $i => $relationship) {
+                $related = is_array($relationship) && is_array($relationship['observation'] ?? null) ? $relationship['observation'] : [];
+                $relatedCode = is_array($related['code'] ?? null) ? ($related['code']['code'] ?? null) : null;
+                $column = is_string($relatedCode) ? (['8480-6' => 'bps', '8462-4' => 'bpd'][$relatedCode] ?? null) : null;
+                if ($column !== null && !array_key_exists($column, $values)) {
+                    $values[$column] = self::relatedValue($relationship);
+                    $readAt[] = $i;
+                }
+            }
+            $ownMeasure = is_string($code) && array_key_exists($code, $vitalsArray);
+            // The observation's own reading too, when the form records it (a systolic with its diastolic nested).
+            if ($values !== [] && $ownMeasure && !array_key_exists($vitalsArray[$code], $values)) {
+                $values[$vitalsArray[$code]] = $this->vitalValue($vitalsArray[$code], $observation['value'] ?? null);
+            }
+            // By position only for two readings or more: one observation nested under a code the form doesn't
+            // record (a flow rate under an oxygen concentration) is no blood pressure.
+            $observations = count(array_filter($relationships, fn($relationship): bool => is_array($relationship) && is_array($relationship['observation'] ?? null)));
+            if ($values !== [] || (!$ownMeasure && $observations >= 2)) {
+                // A reading without either code fills the column the codes left, from the first relationship not
+                // read yet, in order: systolic, then diastolic.
+                foreach (['bps', 'bpd'] as $column) {
+                    if (array_key_exists($column, $values)) {
+                        continue;
+                    }
+                    foreach (array_keys($relationships) as $position) {
+                        $isObservation = is_array($relationships[$position]) && is_array($relationships[$position]['observation'] ?? null);
+                        if ($isObservation && !in_array($position, $readAt, true)) {
+                            $values[$column] = self::relatedValue($relationships[$position]);
+                            $readAt[] = $position;
+                            break;
+                        }
+                    }
+                }
+                if ($values !== []) {
+                    return $values;
+                }
+            }
+        }
+        if (!is_string($code) || !array_key_exists($code, $vitalsArray)) {
+            return [];
+        }
+        return [$vitalsArray[$code] => $this->vitalValue($vitalsArray[$code], $observation['value'] ?? null)];
+    }
+
+    /**
+     * The group a reading joins at its time (see fetchVitalSignData()), or null when it starts one.
+     *
+     * @param list<string>                    $times    each group's time
+     * @param array<int, array<string, mixed>> $readings each group's values, by column
+     * @param array<int, array<string, mixed>> $codes    the code each group's values were read under, by column
+     * @param array<string, mixed>            $values   the reading's values, by column
+     */
+    private static function groupFor(array $times, array $readings, array $codes, string $time, array $values, ?string $code): ?int
+    {
+        $present = array_filter($values, fn($v): bool => $v !== null);
+        $atTime = array_keys(array_filter($times, fn(string $groupTime): bool => $groupTime === $time));
+        // Only oxygen saturation has two codes of its own; a blood pressure sent twice folds in withoutCopies().
+        $onlySaturation = array_keys($present) === ['oxygen_saturation'];
+        // Every one of its values held, not blank, and the same.
+        $holdsSame = function (int $k) use ($present, $readings): bool {
+            foreach ($present as $column => $value) {
+                $held = $readings[$k][$column] ?? null;
+                if ($held === null || !self::sameReading($value, $held)) {
+                    return false;
+                }
+            }
+            return $present !== [];
+        };
+        foreach ($atTime as $k) {
+            if ($onlySaturation && $holdsSame($k) && ($codes[$k]['oxygen_saturation'] ?? null) !== $code) {
+                return $k;
+            }
+        }
+        foreach ($atTime as $k) {
+            if (array_intersect_key($present, $readings[$k]) === []) {
+                return $k;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * The groups with each one whose every value an earlier group at its time already holds (a reading sent
+     * twice) folded into that group.
+     *
+     * @param list<string>                    $times
+     * @param array<int, array<string, mixed>> $readings
+     * @return array{list<string>, list<array<string, mixed>>}
+     */
+    private static function withoutCopies(array $times, array $readings): array
+    {
+        $keptTimes = [];
+        $keptReadings = [];
+        foreach ($times as $k => $time) {
+            $present = array_filter($readings[$k] ?? [], fn($v): bool => $v !== null);
+            $into = null;
+            foreach ($keptTimes as $j => $keptTime) {
+                if ($keptTime !== $time) {
+                    continue;
+                }
+                $holds = true;
+                foreach ($present as $column => $value) {
+                    $held = $keptReadings[$j][$column] ?? null;
+                    $holds = $holds && $held !== null && self::sameReading($value, $held);
+                }
+                if ($holds) {
+                    $into = $j;
+                    break;
+                }
+            }
+            if ($into === null) {
+                $keptTimes[] = $time;
+                $keptReadings[] = $readings[$k] ?? [];
+            } else {
+                $keptReadings[$into] = self::withReadings($keptReadings[$into], $readings[$k] ?? []);
+            }
+        }
+        return [$keptTimes, $keptReadings];
+    }
+
+    /**
+     * Whether two readings' times are within one visit: one the other at less precision (a day, or an hour,
+     * given alone), or both with an hour and an hour apart at most.
+     */
+    private static function sameVisitTime(string $a, string $b): bool
+    {
+        $digitsA = preg_match('/^\d+/', $a, $m) === 1 ? $m[0] : '';
+        $digitsB = preg_match('/^\d+/', $b, $m) === 1 ? $m[0] : '';
+        if ($digitsA !== '' && $digitsB !== '' && (str_starts_with($digitsA, $digitsB) || str_starts_with($digitsB, $digitsA))) {
+            return true;
+        }
+        // The hour applies to two times that both carry an hour; a day-only reading could be from any hour.
+        return strlen($digitsA) >= 10 && strlen($digitsB) >= 10 && abs(self::instant($a) - self::instant($b)) <= self::VISIT_GAP_SECONDS;
+    }
+
+    /**
+     * An HL7 time's digits before any fraction or zone offset (202603011600-0500), padded to fourteen, for
+     * ordering times of different precision.
+     */
+    private static function paddedTime(string $time): string
+    {
+        return str_pad(preg_match('/^\d{1,14}/', $time, $digits) === 1 ? $digits[0] : '', 14, '0');
+    }
+
+    /** An HL7 time as seconds, its zone offset left out, for the gap between two readings. */
+    private static function instant(string $time): int
+    {
+        $parsed = \DateTimeImmutable::createFromFormat('!YmdHis', self::paddedTime($time), new \DateTimeZone('UTC'));
+        return $parsed === false ? 0 : $parsed->getTimestamp();
+    }
+
+    /** The code a component's observation is read under. */
+    private static function componentCode(mixed $component): ?string
+    {
+        $observation = is_array($component) && is_array($component['observation'] ?? null) ? $component['observation'] : [];
+        $code = is_array($observation['code'] ?? null) ? ($observation['code']['code'] ?? null) : null;
+        return is_string($code) ? $code : null;
+    }
+
+    /**
+     * A record's values with more readings added. A measure sent twice (2710-2 and 59408-5), or a reading left
+     * out for its unit, doesn't replace one already read.
+     *
+     * @param array<string, mixed> $held
+     * @param array<string, mixed> $values
+     * @return array<string, mixed>
+     */
+    private static function withReadings(array $held, array $values): array
+    {
+        foreach ($values as $column => $value) {
+            if ($value !== null || !array_key_exists($column, $held)) {
+                $held[$column] = $value;
+            }
+        }
+        return $held;
+    }
+
+    private static function idKey(mixed $id): string
+    {
+        return is_string($id) ? strtolower(rtrim($id)) : '';
+    }
+
+    private static function sameReading(mixed $a, mixed $b): bool
+    {
+        if (is_numeric($a) && is_numeric($b)) {
+            return (float) $a === (float) $b;
+        }
+        return $a === $b;
+    }
+
+    /**
+     * The value of an entry relationship's observation: a blood pressure's systolic or diastolic reading; null
+     * for a blank one.
      */
     private static function relatedValue(mixed $relationship): mixed
     {
         $observation = is_array($relationship) ? ($relationship['observation'] ?? null) : null;
         $value = is_array($observation) ? ($observation['value'] ?? null) : null;
-        return is_array($value) ? ($value['value'] ?? null) : null;
+        $reading = is_array($value) ? ($value['value'] ?? null) : null;
+        return is_string($reading) && trim($reading) === '' ? null : $reading;
     }
 
     /**
@@ -1404,7 +1667,7 @@ class CdaTemplateParse
                 $this->templateData['field_name_value_array']['vital_sign'][$i]['vital_column'] = $vitals_array[$code] ?? '';
             } else {
                 // log missed exam
-                ServiceContainer::getLogger()->warning('Missed Physical Exam code (likely vital)', ['code' => $code]);
+                $this->logger->warning('Missed Physical Exam code (likely vital)', ['code' => $code]);
             }
 
             if (!empty($entry['observation']['entryRelationship']['observation']['value']['code'] ?? null)) {
@@ -1460,7 +1723,8 @@ class CdaTemplateParse
         $unit = is_array($value) && is_string($value['unit'] ?? null) ? trim($value['unit']) : '';
         $storageUnit = self::VITAL_STORAGE_UNITS[$column] ?? null;
         if ($storageUnit === null || $unit === '') {
-            return is_string($number) ? $number : null;
+            // A blank value is no reading, so it neither replaces one read nor makes a record of zeros.
+            return is_string($number) && trim($number) !== '' ? $number : null;
         }
         if (!is_numeric($number)) {
             // MySQL would keep the digits it can read ("70,3" kg as 70) in the column's unit.

@@ -70,6 +70,53 @@ class CdaVitalSignReimportTest extends TestCase
     }
 
     /**
+     * OpenEMR's own export gives every Vitals form of an encounter the encounter's id: two organizers with
+     * one id are saved as two rows, not the second over the first.
+     */
+    public function testTwoOrganizersWithOneIdAreTwoRows(): void
+    {
+        $table = $this->createMock(CarecoordinationTable::class);
+        $this->dispose->InsertEncounter([[
+            'extension' => 'reimport-visit',
+            'date' => '20240422090000',
+            'provider_npi' => self::NPI,
+            'provider_name' => 'Reimport',
+            'provider_family' => 'Provider',
+            'represented_organization_name' => self::ORGANIZATION,
+        ]], self::PID, $table, 0);
+        $parser = new CdaTemplateParse();
+        foreach (['150', '128'] as $systolic) {
+            $parser->fetchVitalSignData((new XmlExtended())->fromString(<<<XML
+                <entry xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                  <organizer classCode="CLUSTER" moodCode="EVN">
+                    <id root="1.3.6.1.4.1.115" extension="encounter-1"/>
+                    <component>
+                      <observation classCode="OBS" moodCode="EVN">
+                        <code code="8480-6" codeSystem="2.16.840.1.113883.6.1"/>
+                        <effectiveTime value="20240422"/>
+                        <value xsi:type="PQ" value="$systolic" unit="mm[Hg]"/>
+                      </observation>
+                    </component>
+                  </organizer>
+                </entry>
+                XML));
+        }
+        $templateData = (new ReflectionProperty(CdaTemplateParse::class, 'templateData'))->getValue($parser);
+        $this->assertIsArray($templateData);
+        $fields = $templateData['field_name_value_array'] ?? null;
+        $this->assertIsArray($fields);
+        $records = $fields['vital_sign'] ?? null;
+        $this->assertIsArray($records);
+        /** @var list<array<string, mixed>> $list */
+        $list = array_values($records);
+
+        $this->dispose->InsertVitals($list, self::PID, $table, 0);
+
+        $rows = QueryUtils::fetchRecords('SELECT `bps` FROM `form_vitals` WHERE `pid` = ? ORDER BY `id`', [self::PID]);
+        $this->assertSame(['150', '128'], array_map(static fn(array $row): string => is_scalar($row['bps']) ? (string) $row['bps'] : '', $rows));
+    }
+
+    /**
      * The organizer's two dates as the parser hands them to InsertVitals.
      *
      * @return list<array<string, mixed>>
