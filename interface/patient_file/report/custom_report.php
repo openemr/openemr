@@ -9,15 +9,18 @@
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Tony McCormick <tony@mi-squared.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = $session->get('pid', 0);
+$sessionPid = $session->get('pid', 0);
+$pid = is_numeric($sessionPid) ? (int) $sessionPid : 0;
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/report.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
@@ -37,6 +40,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Pdf\Config_Mpdf;
+use OpenEMR\Services\ActiveMedicationListService;
 use OpenEMR\Services\FacilityService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -426,6 +430,47 @@ function getContent()
                         }
 
                         echo "</div>\n"; // end of billing DIV
+                    } elseif ($val == "medications") {
+                        if (AclMain::aclCheckCore('patients', 'med')) {
+                            $squadPatient = [];
+                            foreach (getPatientData($pid, "squad") as $column => $value) {
+                                if (!is_string($column)) {
+                                    continue;
+                                }
+                                $squadPatient[$column] = $value;
+                            }
+                            $squadValue = $squadPatient['squad'] ?? null;
+                            $squad = is_string($squadValue) ? $squadValue : '';
+                            if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
+                                AccessDeniedHelper::deny('Not authorized for squad: ' . $squad);
+                            }
+                            echo "<hr />\n<div class='text medications'>\n";
+                            echo "<h4>" . text(xl('Medications')) . ":</h4>\n";
+                            $medListService = new ActiveMedicationListService();
+                            $activeMeds = $medListService->getActiveList($pid);
+                            $inactiveMeds = $medListService->getInactiveList($pid, $activeMeds);
+                            $medDate = static fn (?string $d): string => ActiveMedicationListService::formatListDate(
+                                $d,
+                                static fn (string $raw) => oeFormatShortDate($raw)
+                            );
+                            echo ActiveMedicationListService::sectionHtml(
+                                'Active',
+                                $activeMeds,
+                                xl(...),
+                                'text',
+                                $medDate,
+                                'table table-sm'
+                            );
+                            echo ActiveMedicationListService::sectionHtml(
+                                'Inactive',
+                                $inactiveMeds,
+                                xl(...),
+                                'text',
+                                $medDate,
+                                'table table-sm'
+                            );
+                            echo "</div>\n";
+                        }
                     } elseif ($val == "immunizations") {
                         if (AclMain::aclCheckCore('patients', 'med')) {
                             echo "<hr />";

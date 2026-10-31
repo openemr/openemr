@@ -242,9 +242,7 @@ class SentinelUtil
             try {
                 $host = $this->predisTls ? 'tls://' . trim($sentinelHost) : trim($sentinelHost);
 
-                // phpredis 6.0+ supports an array constructor for RedisSentinel with
-                // TLS options.  PHPStan stubs only know the older positional constructor.
-                // phpredis 6.0+ array constructor; stubs only know positional form
+                // phpredis 6.0+ accepts an array constructor so TLS options can be passed.
                 $sentinel = new \RedisSentinel([
                     'host'           => $host,
                     'port'           => 26379,
