@@ -168,8 +168,8 @@ class UtilsService
         if ($unit === '') {
             return null;
         }
-        // Kept per unit, as Cql's Units::checkUnit() keeps its answers: a unit the engine refuses costs a parse
-        // and a caught exception, and an Observation with a range asks three times.
+        // Kept per unit, as Cql's Units::checkUnit() keeps its answers: a unit the engine refuses costs a full
+        // parse, and an Observation with a range asks three times.
         if (!array_key_exists($unit, self::$ucumCodes)) {
             $ucum = Ucum::instance();
             self::$ucumCodes[$unit] = null;

@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\FHIR\Immunization;
 
+use OpenEMR\Cqm\Cql\Util\JavaScript;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\UtilsService;
 
@@ -30,7 +31,8 @@ final class DoseUnit
     public static function ucumFor(string $title): ?string
     {
         // UCUM accepts a bare number as a unit of one; as a dose's unit it's the option id #14699 saw sent.
-        if (is_numeric(trim($title))) {
+        // Trimmed as ucumCodeFor() trims, so a no-break space doesn't carry a number past this check.
+        if (is_numeric(JavaScript::trim($title))) {
             return null;
         }
         return UtilsService::ucumCodeFor($title);
