@@ -108,6 +108,15 @@ class IndexFriendlyQueriesDatabaseTest extends TestCase
         $this->assertCount(2, $service->getAppointmentsForPatient('0' . $this->pid), 'a pid with a leading zero, as a URL can give it');
         $this->assertSame([], $service->getAppointmentsForPatient('00'), "'00' names no patient, not the events stored with pc_pid '0'");
         $this->assertSame([], $service->getAppointmentsForPatient(' '), "' ' names no patient, not the event with none");
+        $this->assertSame([], $service->getAppointmentsForPatient((float) $this->pid), 'a value neither a number nor text names no patient, never all');
+        $this->assertSame([], $service->getAppointmentsForPatient(true));
+        $this->assertSame([], $service->getAppointmentsForPatient('tfx-filler'), 'events whose pc_pid names no patient are no one\'s, as on master');
+        $this->insertEvent((string) ($this->otherPid + 1), '2031-03-04', 0);
+        try {
+            $this->assertSame([], $service->getAppointmentsForPatient($this->otherPid + 1), 'nor are a removed patient\'s');
+        } finally {
+            QueryUtils::sqlStatementThrowException('DELETE FROM openemr_postcalendar_events WHERE pc_pid = ?', [(string) ($this->otherPid + 1)]);
+        }
         $this->assertCount(2, $this->searchByPatient($service, $this->uuid));
         $this->assertCount(1, $this->searchByPatient($service, $this->otherUuid));
         $this->assertCount(0, $this->searchByPatient($service, random_bytes(16)), 'a patient who is not here');

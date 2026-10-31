@@ -97,6 +97,25 @@ class AppointmentServiceTest extends TestCase
         $this->assertArrayHasKey('pc_billing_location', $messages);
     }
 
+    /**
+     * A pid is the plain number the pc_pid lookups match: '05' names the patient, but text only a numeric
+     * comparison reads as the pid ('<pid>abc', '<pid>e0') doesn't, since the appointment would be stored
+     * as given and no lookup would find it again.
+     */
+    #[Test]
+    public function testValidatePidIsThePlainNumberTheLookupsMatch(): void
+    {
+        foreach (['0' . $this->testPid => true, (string) $this->testPid => true, $this->testPid . 'abc' => false, $this->testPid . 'e0' => false, ' ' => false] as $pid => $valid) {
+            $data = ['pid' => (string) $pid] + $this->appointmentData;
+            $result = $this->appointmentService->validate($data);
+            $this->assertInstanceOf(ValidationResult::class, $result);
+            $this->assertSame($valid, $result->isValid(), "pid '$pid'");
+            if (!$valid) {
+                $this->assertArrayHasKey('pid', $result->getMessages(), "pid '$pid'");
+            }
+        }
+    }
+
     #[Test]
     public function testValidateFailureTitleTooShort(): void
     {

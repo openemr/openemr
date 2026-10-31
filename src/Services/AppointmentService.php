@@ -114,7 +114,10 @@ class AppointmentService extends BaseService
                 return true;
             });
         $validator->optional('pid')->callback(function ($value, $data) {
-            $id = QueryUtils::fetchSingleValue('Select id FROM patient_data WHERE pid = ? ', 'id', [$value]);
+            // The plain number the pc_pid lookups match ('05' is patient 5). Text the numeric comparison would
+            // also read as 5 ('5abc', '5e0') names no patient: stored as given, no lookup would find it again.
+            $pid = is_int($value) || is_string($value) ? self::calendarPid($value) : '';
+            $id = ctype_digit($pid) ? QueryUtils::fetchSingleValue('Select id FROM patient_data WHERE pid = ? ', 'id', [$pid]) : null;
             if (empty($id)) {
                 throw new InvalidValueException('pid must be for a valid patient', 'pid');
             }
@@ -328,14 +331,18 @@ class AppointmentService extends BaseService
                        LEFT JOIN patient_data as pd ON pd.pid = pce.pc_pid
                        LEFT JOIN users as providers ON pce.pc_aid = providers.id";
 
-        // pc_pid bound as text lets its index find the patient's events.
-        if ((is_int($pid) && $pid !== 0) || (is_string($pid) && $pid !== '' && $pid !== '0')) {
-            $calendarPid = self::calendarPid($pid);
+        // pc_pid bound as text lets its index find the patient's events. No pid (null, false, 0, '' or '0', as
+        // master's `if ($pid)` read them) lists every appointment; any other value names one patient, or none.
+        if ($pid !== null && $pid !== false && $pid !== 0 && $pid !== '' && $pid !== '0') {
+            $calendarPid = is_int($pid) || is_string($pid) ? self::calendarPid($pid) : '';
             if ($calendarPid === '' || $calendarPid === '0') {
-                // '00' or ' ' names no patient: it would find the events with none, or holidays.
+                // '00' or ' ' names no patient (it would find the events with none, or holidays), and neither does a
+                // value that's neither a number nor text: never every patient's events.
                 return [];
             }
-            $sql .= " WHERE pce.pc_pid = ?";
+            // The patient has to exist, as master's join on pd.pid required: events whose pc_pid names no patient
+            // (a removed one, or text) aren't anyone's. The pc_pid index still finds the rows.
+            $sql .= " WHERE pce.pc_pid = ? AND pd.pid IS NOT NULL";
             $sqlBindArray[] = $calendarPid;
         }
 
