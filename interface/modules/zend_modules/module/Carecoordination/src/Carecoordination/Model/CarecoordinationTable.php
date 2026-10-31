@@ -50,9 +50,7 @@ class CarecoordinationTable
     private $importService;
     public $conditionedXmlContent;
 
-    private ?CdaSocialHistoryWriter $socialHistoryWriter = null;
-
-    public function __construct()
+    public function __construct(private ?CdaSocialHistoryWriter $socialHistoryWriter = null)
     {
         $this->resetData();
         $this->codeService = new CodeTypesService();
@@ -70,7 +68,8 @@ class CarecoordinationTable
     }
 
     /**
-     * Built on first use: the history service registers missing history uuids when it's constructed.
+     * The writer given to the constructor, or one built on first use: the history service registers missing
+     * history uuids when it's constructed, so it's built only for a document that carries social history.
      */
     private function getSocialHistoryWriter(): CdaSocialHistoryWriter
     {
@@ -957,7 +956,9 @@ class CarecoordinationTable
 
         // After the loop, as the other sections are: the patient_data entry, which comes last, can make $pid a
         // patient imported before, and written in the loop the history went to a pid no patient had yet.
-        $this->getSocialHistoryWriter()->write($pid, $socialHistoryChanges);
+        if ($socialHistoryChanges !== []) {
+            $this->getSocialHistoryWriter()->write($pid, $socialHistoryChanges);
+        }
         $this->importService->InsertImmunization(($arr_immunization['immunization'] ?? null), $pid, $this, 0);
         $this->importService->InsertPrescriptions(($arr_prescriptions['lists3'] ?? null), $pid, $this, 0);
         $this->importService->InsertAllergies(($arr_allergies['lists2'] ?? null), $pid, $this, 0);
@@ -1529,7 +1530,7 @@ class CarecoordinationTable
                                 $q++;
                             } elseif (substr((string) $key, 0, -4) == 'social_history') {
                                 // Only what the document carries; CdaSocialHistoryWriter keeps the rest of the patient's history.
-                                // The screen has no note fields, and a status radio with none checked posts nothing.
+                                // The screen has no tobacco note field, and a status radio with none checked posts nothing.
                                 $changes = CdaSocialHistoryWriter::reviewedChanges([
                                     $data['social_history-tobacco_note'][$i] ?? null,
                                     $data['social_history-tobacco_status'][$i] ?? null,
@@ -1540,7 +1541,9 @@ class CarecoordinationTable
                                     $data['social_history-alcohol_status'][$i] ?? null,
                                     ApplicationTable::fixDate($data['social_history-alcohol_date'][$i] ?? '', 'yyyy-mm-dd', 'dd/mm/yyyy'),
                                 ]);
-                                $this->getSocialHistoryWriter()->write($data['pid'], $changes);
+                                if ($changes !== []) {
+                                    $this->getSocialHistoryWriter()->write($data['pid'], $changes);
+                                }
                             } elseif (substr((string) $key, 0, -4) == 'encounter') {
                                 $arr_encounter['encounter'][$k]['extension'] = $data['encounter-extension'][$i];
                                 $arr_encounter['encounter'][$k]['root'] = $data['encounter-root'][$i];

@@ -488,11 +488,13 @@ $insert = $this->listenerObject->z_xlt('Insert');
             '228274009' => 'Never'
         );
         foreach ($this->social_history_audit['social_history'] as $key => $val) {
-            $array_his_alcohol = explode("|", $val['alcohol']);
+            // note|status|date; a document may carry only one of the two (no import carries alcohol yet).
+            $his_alc_date = $his_tob_date = '';
+            $array_his_alcohol = array_pad(explode("|", (string) ($val['alcohol'] ?? '')), 3, '');
             if ($array_his_alcohol[2] != 0 && $array_his_alcohol[2] != '') {
                 $his_alc_date = $this->carecoordinationTable->formatDate($array_his_alcohol[2], 0);
             }
-            $array_his_tobacco = explode("|", $val['smoking']);
+            $array_his_tobacco = array_pad(explode("|", (string) ($val['smoking'] ?? '')), 3, '');
             if ($array_his_tobacco[2] != 0 && $array_his_tobacco[2] != '') {
                 $his_tob_date = $this->carecoordinationTable->formatDate($array_his_tobacco[2], 0);
             }

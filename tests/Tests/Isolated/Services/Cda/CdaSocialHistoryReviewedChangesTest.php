@@ -23,11 +23,12 @@ use PHPUnit\Framework\TestCase;
 class CdaSocialHistoryReviewedChangesTest extends TestCase
 {
     /**
-     * The review screen's alcohol fields when the document has no alcohol section: no note field, no status radio
-     * checked, and fixDate('') is false. The tobacco parts are the note (no field either), the status radio
-     * (quittobacco), the date and the Smoking Status list's option id (3 is Former smoker).
+     * The review screen's alcohol fields when the document has no alcohol section: an empty note field, no status
+     * radio checked, and fixDate('') is false. The tobacco parts are the note (the screen has no tobacco note
+     * field), the status radio (quittobacco), the date and the Smoking Status list's option id (3 is Former
+     * smoker; the select always posts one).
      */
-    private const NO_ALCOHOL = [null, null, false];
+    private const NO_ALCOHOL = ['', null, false];
 
     public function testASmokingStatusAloneLeavesAlcoholOut(): void
     {
@@ -41,7 +42,7 @@ class CdaSocialHistoryReviewedChangesTest extends TestCase
     {
         $this->assertSame(
             ['alcohol' => '|currentalcohol|2020-01-01'],
-            CdaSocialHistoryWriter::reviewedChanges([null, null, false, ''], [null, 'currentalcohol', '2020-01-01'])
+            CdaSocialHistoryWriter::reviewedChanges([null, null, false, null], ['', 'currentalcohol', '2020-01-01'])
         );
     }
 
@@ -49,7 +50,7 @@ class CdaSocialHistoryReviewedChangesTest extends TestCase
     {
         $this->assertSame(
             ['tobacco' => '|currenttobacco||1', 'alcohol' => '|quitalcohol|'],
-            CdaSocialHistoryWriter::reviewedChanges([null, 'currenttobacco', false, '1'], [null, 'quitalcohol', false])
+            CdaSocialHistoryWriter::reviewedChanges([null, 'currenttobacco', false, '1'], ['', 'quitalcohol', false])
         );
     }
 

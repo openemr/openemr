@@ -46,8 +46,8 @@ final readonly class CdaSocialHistoryWriter
 
     /**
      * The changes a document approved on the review screen carries: tobacco and alcohol, each only when the
-     * screen has any part of it, joined as that path has always stored them. One the document didn't carry
-     * used to be written as its separators alone (`|||`, `||`), replacing what the patient's history held.
+     * screen has any part of it, joined as that path has always stored them. Alcohol the document didn't carry
+     * used to be written as its separators alone (`||`), replacing what the patient's history held.
      *
      * @param array<mixed> $tobacco the note, status, date and Smoking Status list option (smoking_status's option_id)
      * @param array<mixed> $alcohol the note, status and date
