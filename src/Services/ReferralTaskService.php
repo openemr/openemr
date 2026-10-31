@@ -18,7 +18,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
@@ -104,7 +106,28 @@ class ReferralTaskService
         if ($formId !== ReferralStatus::FORM_ID || !is_numeric($transactionId)) {
             return null;
         }
-        return $this->createForReferral((int)$transactionId, is_numeric($userId) ? (int)$userId : null);
+        return $this->createAfterSave((int)$transactionId, is_numeric($userId) ? (int)$userId : null);
+    }
+
+    /**
+     * createForReferral() for a caller that has already saved the referral: a database failure is
+     * logged, not thrown, since the referral is saved either way and its next save makes the Task this one
+     * missed (a recipient that has a Task is skipped). Thrown, it would answer a REST client's
+     * successful save with an error, and a retry would save the referral twice.
+     *
+     * @return ?string the new Task's uuid
+     */
+    public function createAfterSave(int $transactionId, ?int $userId): ?string
+    {
+        try {
+            return $this->createForReferral($transactionId, $userId);
+        } catch (SqlQueryException $e) {
+            ServiceContainer::getLogger()->error('A referral was saved but its FHIR Task was not created', [
+                'transaction_id' => $transactionId,
+                'exception' => $e,
+            ]);
+            return null;
+        }
     }
 
     /**

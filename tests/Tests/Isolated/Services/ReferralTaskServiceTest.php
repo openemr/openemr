@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services;
 
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Services\ReferralTaskService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -58,5 +59,22 @@ class ReferralTaskServiceTest extends TestCase
 
         $this->assertSame($expected === null ? [] : [$expected], $service->calls);
         $this->assertSame($expected === null ? null : 'task-uuid', $uuid);
+    }
+
+    /**
+     * The referral is saved before its Task is made, so a Task that can't be made is logged and
+     * the save still succeeds, from the screen and from the REST API alike.
+     */
+    public function testATaskThatFailsDoesNotFailTheSavedReferral(): void
+    {
+        $service = new class extends ReferralTaskService {
+            public function createForReferral(int $transactionId, ?int $userId): string
+            {
+                throw new SqlQueryException('', 'the database went away');
+            }
+        };
+
+        $this->assertNull($service->createAfterSave(12, 3), 'the REST API\'s path');
+        $this->assertNull($service->createForSavedTransaction('LBTref', '12', '3'), 'the screen\'s path');
     }
 }
