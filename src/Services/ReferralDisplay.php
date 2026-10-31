@@ -117,16 +117,16 @@ final class ReferralDisplay
     }
 
     /**
-     * The earliest Referral Date the report fetches: the From date, except under Show: Overdue,
-     * where it is none (''), since an overdue referral is an old one and the From date defaults
-     * to the first of the year.
+     * The earliest Referral Date the report fetches: the From date, except under Show: Open and
+     * Overdue, the worklists, where it is none (''). An open or overdue referral can be an old one,
+     * and the From date defaults to the first of the year.
      *
      * @param mixed $fromDate the report's From date, from DateToYYYYMMDD(), which has no return type
      *     but gives text for the text the report passes it
      */
     public static function fromDate(string $show, mixed $fromDate): string
     {
-        return $show === self::SHOW_OVERDUE || !is_string($fromDate) ? '' : $fromDate;
+        return in_array($show, [self::SHOW_OPEN, self::SHOW_OVERDUE], true) || !is_string($fromDate) ? '' : $fromDate;
     }
 
     /**

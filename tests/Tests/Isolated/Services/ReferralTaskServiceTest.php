@@ -95,7 +95,8 @@ class ReferralTaskServiceTest extends TestCase
         $service = new class extends ReferralTaskService {
             public function createForReferral(int $transactionId, ?int $userId): string
             {
-                throw new class ('the audit log could not be written') extends \RuntimeException implements DbalException {
+                // As DBAL's own DriverException: an \Exception, not a RuntimeException, so only the catch's DBAL arm holds it.
+                throw new class ('the audit log could not be written') extends \Exception implements DbalException {
                 };
             }
         };

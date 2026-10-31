@@ -22,10 +22,6 @@ use OpenEMR\Core\OEGlobalsBag;
 
 final readonly class ReferralStatus
 {
-    public const OPEN = 'open';
-    public const COMPLETED = 'completed';
-    public const CLOSED = 'closed';
-
     /**
      * The Transactions form a referral is saved with: ReferralService::FORM_ID, repeated so that
      * this class and the pages' pieces load without ReferralService, whose parent BaseService
@@ -36,11 +32,8 @@ final readonly class ReferralStatus
     /** Task statuses after which nothing more is expected of the recipient. */
     private const CLOSING_TASK_STATUSES = ['cancelled', 'entered-in-error'];
 
-    /**
-     * @param self::OPEN|self::COMPLETED|self::CLOSED $state
-     */
     private function __construct(
-        public string $state,
+        public ReferralState $state,
         public ?string $taskStatus,
         public ?string $replyDate,
         public bool $overdue,
@@ -58,13 +51,13 @@ final readonly class ReferralStatus
         $taskStatus = self::value($taskStatus);
         $replyDate = self::value($replyDate);
         $state = match (true) {
-            $replyDate !== null || $taskStatus === 'completed' => self::COMPLETED,
-            in_array($taskStatus, self::CLOSING_TASK_STATUSES, true) => self::CLOSED,
-            default => self::OPEN,
+            $replyDate !== null || $taskStatus === 'completed' => ReferralState::Completed,
+            in_array($taskStatus, self::CLOSING_TASK_STATUSES, true) => ReferralState::Closed,
+            default => ReferralState::Open,
         };
         $referDate = self::value($referDate);
         $referred = $referDate === null ? false : self::date(substr($referDate, 0, 10));
-        $overdue = $state === self::OPEN && $overdueDays > 0 && $referred !== false
+        $overdue = $state === ReferralState::Open && $overdueDays > 0 && $referred !== false
             && $referred <= $today->setTime(0, 0)->modify("-$overdueDays days");
         return new self($state, $taskStatus, $replyDate, $overdue);
     }
@@ -106,7 +99,7 @@ final readonly class ReferralStatus
 
     public function isOpen(): bool
     {
-        return $this->state === self::OPEN;
+        return $this->state === ReferralState::Open;
     }
 
     /**

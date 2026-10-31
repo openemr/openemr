@@ -40,6 +40,15 @@ class ReferralTaskService
     /** How long a save waits for another save of the same referral to finish making its Task. */
     private const LOCK_SECONDS = 5;
 
+    /** The reasons this service cancels a Task with. A Task a recipient cancelled carries its own, or none. */
+    public const REASON_SENT_ELSEWHERE = 'The referral was sent to another recipient.';
+    public const REASON_NO_RECIPIENT = 'The referral no longer names a recipient.';
+    public const REASON_DELETED = 'The referral was deleted.';
+    public const OWN_REASONS = [self::REASON_SENT_ELSEWHERE, self::REASON_NO_RECIPIENT, self::REASON_DELETED];
+
+    /** How many times a cancellation reads again when a recipient's change slips in between its read and its write. */
+    private const CANCEL_PASSES = 3;
+
     /**
      * Each collaborator is the caller's, or made the first time it's needed rather than as a default
      * here: loading BaseService requires custom/code_types.inc.php, which queries the database, and
@@ -78,31 +87,31 @@ class ReferralTaskService
      * One Task per referral and recipient, so saving the referral again adds none. When Refer To
      * changes, or is cleared, the open Tasks of anyone else are cancelled with the reason, so they
      * leave that recipient's queue and stay as a record; a recipient the referral returns to gets a
-     * new Task (a cancelled one doesn't count). Nothing when the global is off, the transaction isn't
-     * a referral, or the recipient isn't a Practitioner or Organization in FHIR, since a Task's owner
-     * has to be one.
+     * new Task (one this service cancelled doesn't count, one they cancelled or finished does).
+     * No new Task when the global is off, the referral has a Reply Date (it's answered), or the
+     * recipient isn't a Practitioner or Organization in FHIR, since a Task's owner has to be one.
+     * With the global off, a referral that already has open Tasks still has the other recipients'
+     * cancelled, so turning the setting off doesn't leave them in a queue.
+     *
+     * Only the Tasks this service makes count as the referral's: code fulfill, not part of another.
      *
      * @return ?string the new Task's uuid
      */
     public function createForReferral(int $transactionId, ?int $userId): ?string
     {
-        if (!OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value)) {
+        $tracking = OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value);
+        if (!$tracking && !self::hasOpenTasks($transactionId)) {
             return null;
         }
         self::createMissingUuids($transactionId);
-        $referral = $this->getReferralService()->getReferral($transactionId);
-        if ($referral === null) {
-            return null;
-        }
-        $referralUuid = self::text($referral, 'uuid');
-        $patientId = $referral['patient_id'] ?? null;
-        $owner = self::party($referral, 'performer');
-        if ($referralUuid === null || !is_numeric($patientId)) {
+        $referralUuid = $this->getReferralService()->getReferralUuid($transactionId);
+        if ($referralUuid === null) {
             return null;
         }
         // Two saves of the referral at once would each find no Task and each make one, and the task
         // table doesn't prevent it: a lock on the referral is held across the check and the insert,
-        // so the second save finds the first one's Task.
+        // so the second save finds the first one's Task. The referral is read under the lock, so each
+        // save acts on the Refer To saved last.
         $lock = self::LOCK_PREFIX . $referralUuid;
         $locked = self::lock($lock);
         if ($locked !== true) {
@@ -115,13 +124,25 @@ class ReferralTaskService
             return null;
         }
         try {
+            $referral = $this->getReferralService()->getReferral($transactionId);
+            if ($referral === null) {
+                return null;
+            }
+            $patientId = $referral['patient_id'] ?? null;
+            $owner = self::party($referral, 'performer');
+            // Kept by Refer To's own uuid, whether or not FHIR serves them now: a recipient whose entry lost its
+            // NPI still hasn't been sent elsewhere.
+            $recipientUuid = self::text($referral, 'performer_uuid');
             $this->cancelOpenTasks(
                 $referralUuid,
-                $owner[1] ?? null,
-                self::text($referral, 'performer_uuid') === null ? 'The referral no longer names a recipient.' : 'The referral was sent to another recipient.',
+                $recipientUuid,
+                $recipientUuid === null ? self::REASON_NO_RECIPIENT : self::REASON_SENT_ELSEWHERE,
                 $userId
             );
-            if ($owner === null || $this->hasTask($referralUuid, $owner[1])) {
+            if (
+                !$tracking || $owner === null || !is_numeric($patientId)
+                || self::text($referral, 'reply_date') !== null || $this->hasTask($referralUuid, $owner[1])
+            ) {
                 return null;
             }
             $requester = self::party($referral, 'requester');
@@ -217,48 +238,100 @@ class ReferralTaskService
      */
     public function cancelForDeletedReferral(int $transactionId, ?int $userId): int
     {
-        $uuid = QueryUtils::fetchSingleValue(
-            'SELECT uuid FROM transactions WHERE id = ? AND title = ?',
-            'uuid',
+        $uuid = $this->getReferralService()->getReferralUuid($transactionId);
+        return $uuid === null ? 0 : $this->cancelOpenTasks($uuid, null, self::REASON_DELETED, $userId);
+    }
+
+    /**
+     * cancelForDeletedReferral() for each referral of a patient being deleted, before their
+     * transactions go.
+     *
+     * @return int how many Tasks were cancelled
+     */
+    public function cancelForDeletedPatient(int $patientId, ?int $userId): int
+    {
+        $cancelled = 0;
+        foreach (QueryUtils::fetchTableColumn('SELECT id FROM transactions WHERE pid = ? AND title = ?', 'id', [$patientId, ReferralService::FORM_ID]) as $id) {
+            if (is_numeric($id)) {
+                $cancelled += $this->cancelForDeletedReferral((int)$id, $userId);
+            }
+        }
+        return $cancelled;
+    }
+
+    /**
+     * Whether the referral has an open Task of this service's: with the global off, a save does
+     * nothing more when it hasn't (one indexed query).
+     */
+    private static function hasOpenTasks(int $transactionId): bool
+    {
+        $found = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS n FROM transactions AS t
+                JOIN task ON task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid
+                WHERE t.id = ? AND t.title = ? AND task.code = 'fulfill' AND task.part_of_uuid IS NULL
+                AND task.status NOT IN ('" . implode("', '", self::FINISHED_STATUSES) . "')",
+            'n',
             [$transactionId, ReferralService::FORM_ID]
         );
-        if (!is_string($uuid) || $uuid === '') {
-            return 0;
-        }
-        return $this->cancelOpenTasks(UuidRegistry::uuidToString($uuid), null, 'The referral was deleted.', $userId);
+        return is_numeric($found) && (int)$found > 0;
     }
 
     /**
      * Cancels the referral's open Tasks, all of them or all but one owner's, with the reason. Each
-     * update names the version the search read, so a recipient's change in between (a PUT to
-     * completed, say) isn't written over: that Task just isn't counted.
+     * update names the version the search read, so a recipient's change in between isn't written
+     * over. The Tasks are read again when one moved: a Task finished in between (a PUT to completed)
+     * stays as it is; one still open (accepted, say) is cancelled at its new version.
      *
      * @return int how many Tasks were cancelled
      */
     private function cancelOpenTasks(string $referralUuid, ?string $keepOwnerUuid, string $reason, ?int $userId): int
     {
-        $tasks = $this->getTaskService()->search([
-            'focus_uuid' => new TokenSearchField('focus_uuid', [$referralUuid], true),
-        ])->getData();
         $cancelled = 0;
-        foreach (is_array($tasks) ? $tasks : [] as $task) {
-            if (!is_array($task)) {
-                continue;
+        for ($pass = 0; $pass < self::CANCEL_PASSES; $pass++) {
+            $moved = 0;
+            foreach ($this->ownTasks($referralUuid) as $task) {
+                $taskUuid = $task['uuid'] ?? null;
+                $version = $task['version'] ?? null;
+                if (
+                    !is_string($taskUuid) || !is_numeric($version)
+                    || in_array($task['status'] ?? null, self::FINISHED_STATUSES, true)
+                    || ($keepOwnerUuid !== null && ($task['owner_uuid'] ?? null) === $keepOwnerUuid)
+                ) {
+                    continue;
+                }
+                if ($this->getTaskService()->update($taskUuid, ['status' => 'cancelled', 'status_reason' => $reason], $userId, (int)$version)) {
+                    $cancelled++;
+                } else {
+                    $moved++;
+                }
             }
-            $taskUuid = $task['uuid'] ?? null;
-            $version = $task['version'] ?? null;
-            if (
-                !is_string($taskUuid) || !is_numeric($version)
-                || in_array($task['status'] ?? null, self::FINISHED_STATUSES, true)
-                || ($keepOwnerUuid !== null && ($task['owner_uuid'] ?? null) === $keepOwnerUuid)
-            ) {
-                continue;
-            }
-            if ($this->getTaskService()->update($taskUuid, ['status' => 'cancelled', 'status_reason' => $reason], $userId, (int)$version)) {
-                $cancelled++;
+            if ($moved === 0) {
+                break;
             }
         }
         return $cancelled;
+    }
+
+    /**
+     * The referral's Tasks that this service makes, optionally one owner's: code fulfill and not part
+     * of another Task, so a recipient's own sub-Tasks with the same focus aren't taken for them.
+     *
+     * @return list<array<mixed>>
+     */
+    private function ownTasks(string $referralUuid, ?string $ownerUuid = null): array
+    {
+        $search = ['focus_uuid' => new TokenSearchField('focus_uuid', [$referralUuid], true)];
+        if ($ownerUuid !== null) {
+            $search['owner_uuid'] = new TokenSearchField('owner_uuid', [$ownerUuid], true);
+        }
+        $tasks = $this->getTaskService()->search($search)->getData();
+        $own = [];
+        foreach (is_array($tasks) ? $tasks : [] as $task) {
+            if (is_array($task) && ($task['code'] ?? null) === 'fulfill' && in_array($task['part_of_uuid'] ?? null, [null, ''], true)) {
+                $own[] = $task;
+            }
+        }
+        return $own;
     }
 
     /**
@@ -288,17 +361,14 @@ class ReferralTaskService
     }
 
     /**
-     * Whether the recipient has a Task for the referral that wasn't cancelled: one they finished
-     * stays theirs, but a cancelled one (the referral went elsewhere, then came back) doesn't count.
+     * Whether the recipient has a Task for the referral: one they finished or cancelled themselves
+     * stays theirs, but one this service cancelled (the referral went elsewhere, then came back)
+     * doesn't count.
      */
     private function hasTask(string $referralUuid, string $ownerUuid): bool
     {
-        $tasks = $this->getTaskService()->search([
-            'focus_uuid' => new TokenSearchField('focus_uuid', [$referralUuid], true),
-            'owner_uuid' => new TokenSearchField('owner_uuid', [$ownerUuid], true),
-        ])->getData();
-        foreach (is_array($tasks) ? $tasks : [] as $task) {
-            if (is_array($task) && ($task['status'] ?? null) !== 'cancelled') {
+        foreach ($this->ownTasks($referralUuid, $ownerUuid) as $task) {
+            if (($task['status'] ?? null) !== 'cancelled' || !in_array($task['status_reason'] ?? null, self::OWN_REASONS, true)) {
                 return true;
             }
         }

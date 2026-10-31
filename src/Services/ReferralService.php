@@ -36,6 +36,9 @@ class ReferralService extends BaseService
     /** The referral form's id, in transactions.title. */
     public const FORM_ID = 'LBTref';
 
+    /** The referral's own Tasks, the ones ReferralTaskService makes: code fulfill, not part of another Task. */
+    private const OWN_TASK_SQL = "task.code = 'fulfill' AND task.part_of_uuid IS NULL";
+
     /** The lbt_data fields read, each as a column of the same name. */
     private const FIELDS = ['refer_date', 'refer_from', 'refer_to', 'body', 'refer_diag', 'refer_related_code', 'reply_date'];
 
@@ -77,7 +80,9 @@ class ReferralService extends BaseService
     /**
      * The status of the latest Task owned by the referral's recipient (Refer To), for the
      * transaction aliased $transaction. Only the current recipient's Task decides: when Refer To
-     * changes, an earlier recipient's Task stops being the referral's status (#14710).
+     * changes, an earlier recipient's Task stops being the referral's status (#14710). Only the
+     * referral's own Tasks count (code fulfill, not part of another), not a recipient's sub-Tasks, and
+     * not one ReferralTaskService cancelled because the referral went elsewhere.
      */
     public static function taskStatusSql(string $transaction): string
     {
@@ -85,7 +90,31 @@ class ReferralService extends BaseService
             JOIN lbt_data AS recipient ON recipient.form_id = $transaction.id AND recipient.field_id = 'refer_to'
             JOIN users AS recipient_user ON recipient_user.id = recipient.field_value
             WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = $transaction.uuid AND task.owner_uuid = recipient_user.uuid
+                AND " . self::OWN_TASK_SQL . " AND NOT (task.status = 'cancelled' AND COALESCE(task.status_reason, '') IN (" . self::ownReasonsSql() . "))
             ORDER BY task.id DESC LIMIT 1)";
+    }
+
+    /**
+     * ReferralTaskService's own cancellation reasons as SQL literals: a Task it cancelled (the referral went
+     * elsewhere) isn't its recipient's answer, so it doesn't set the status, as it doesn't count in hasTask().
+     */
+    private static function ownReasonsSql(): string
+    {
+        return implode(', ', array_map(static fn(string $reason): string => "'" . str_replace("'", "''", $reason) . "'", ReferralTaskService::OWN_REASONS));
+    }
+
+    /**
+     * A referral's uuid as text, by its transaction id, or null when it has none or the transaction
+     * isn't a referral.
+     */
+    public function getReferralUuid(int $transactionId): ?string
+    {
+        $uuid = QueryUtils::fetchSingleValue(
+            'SELECT uuid FROM ' . self::TABLE_NAME . ' WHERE id = ? AND title = ?',
+            'uuid',
+            [$transactionId, self::FORM_ID]
+        );
+        return is_string($uuid) && $uuid !== '' ? UuidRegistry::uuidToString($uuid) : null;
     }
 
     /**
@@ -127,8 +156,8 @@ class ReferralService extends BaseService
             FROM (
                 SELECT t.id, t.uuid, t.pid AS patient_id, patients.uuid AS puuid, t.date AS transaction_date $fields,
                     " . self::taskStatusSql('t') . " AS task_status,
-                    (SELECT MAX(task.last_modified) FROM task WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid)
-                        AS task_modified
+                    (SELECT MAX(task.last_modified) FROM task WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid
+                        AND " . self::OWN_TASK_SQL . ") AS task_modified
                 FROM transactions AS t
                 JOIN patient_data AS patients ON patients.pid = t.pid
                 LEFT JOIN lbt_data AS d ON d.form_id = t.id

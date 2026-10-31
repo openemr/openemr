@@ -178,18 +178,18 @@ class ReferralDisplayTest extends TestCase
     {
         $html = self::squeeze($this->display()->showFilter('overdue'));
         $this->assertStringStartsWith("<td class='col-form-label'> Show: </td><td><select name='form_show' id='form_show' class='form-control'>", $html);
-        $this->assertStringContainsString("<option value=''>All</option><option value='open'>Open</option><option value='overdue' selected>Overdue, from any date</option>", $html);
+        $this->assertStringContainsString("<option value=''>All</option><option value='open'>Open, from any date</option><option value='overdue' selected>Overdue, from any date</option>", $html);
         $this->assertStringNotContainsString('selected', self::squeeze($this->display()->showFilter('')));
     }
 
     /**
-     * Overdue referrals are old ones, so under Show: Overdue the report fetches every Referral Date
-     * up to To, not just those since From (the first of the year by default).
+     * Open and overdue referrals can be old ones, so under those Show choices the report fetches every
+     * Referral Date up to To, not just those since From (the first of the year by default).
      */
-    public function testOverdueLooksBeforeTheFromDate(): void
+    public function testTheWorklistsLookBeforeTheFromDate(): void
     {
         $this->assertSame('', ReferralDisplay::fromDate('overdue', '2026-01-01'));
-        $this->assertSame('2026-01-01', ReferralDisplay::fromDate('open', '2026-01-01'));
+        $this->assertSame('', ReferralDisplay::fromDate('open', '2026-01-01'), 'an open referral can be from last year too');
         $this->assertSame('2026-01-01', ReferralDisplay::fromDate('', '2026-01-01'));
     }
 
