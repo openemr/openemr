@@ -27,7 +27,8 @@ use PHPUnit\Framework\TestCase;
  * collation folds case, pads trailing spaces and folds accents) and BINARY then keeps only the exact
  * match, so the result should be the rows BINARY alone keeps. These tests check that over the values
  * where a collation and a byte comparison disagree, on a text and an integer column, and that the
- * new form lets the index answer.
+ * new form lets the index answer. A value that isn't text keeps BINARY alone, which an ENUM column
+ * searched with a number needs.
  *
  * Four patients are seeded whose last names differ only in case, a trailing space and an accent.
  */
@@ -99,6 +100,28 @@ class ExactModifierDatabaseTest extends TestCase
     }
 
     /**
+     * An ENUM column like lists.erx_source, searched with a number as well as text. ADOdb binds a PHP int
+     * as a number, and compared with a number an ENUM gives the member's position ('0' is the first member,
+     * position 1), so a plain comparison would pick other rows than BINARY does.
+     */
+    public function testEnumColumnMatchesTheRowsBinaryMatches(): void
+    {
+        QueryUtils::sqlStatementThrowException("CREATE TEMPORARY TABLE exact_enum_probe (v ENUM('0','1') NOT NULL, KEY (v))");
+        try {
+            foreach (['0', '1', '1'] as $member) {
+                QueryUtils::sqlStatementThrowException('INSERT INTO exact_enum_probe (v) VALUES (?)', [$member]);
+            }
+            foreach ([[0, 1], [1, 2], ['0', 1], ['1', 2]] as [$probe, $binaryMatches]) {
+                $label = get_debug_type($probe) . " $probe";
+                $this->assertSame($binaryMatches, $this->enumRows('BINARY v = ?', [$probe]), "BINARY alone for $label");
+                $this->assertSame($binaryMatches, $this->enumRows(...$this->exactFragment('v', $probe)), "EXACT for $label");
+            }
+        } finally {
+            QueryUtils::sqlStatementThrowException('DROP TEMPORARY TABLE IF EXISTS exact_enum_probe');
+        }
+    }
+
+    /**
      * The point of the change: the plan looks the row up through the pid key, where BINARY alone
      * read the whole table or the whole of an index.
      */
@@ -115,12 +138,22 @@ class ExactModifierDatabaseTest extends TestCase
     /**
      * @return array{string, list<mixed>}
      */
-    private function exactFragment(string $column, string $value): array
+    private function exactFragment(string $column, int|string $value): array
     {
         $fragment = SearchFieldStatementResolver::resolveStringSearchField(
             new StringSearchField($column, [$value], SearchModifier::EXACT)
         );
         return [$fragment->getFragment(), array_values($fragment->getBoundValues())];
+    }
+
+    /**
+     * @param list<mixed> $binds
+     */
+    private function enumRows(string $where, array $binds): int
+    {
+        $count = QueryUtils::fetchSingleValue("SELECT COUNT(*) AS n FROM exact_enum_probe WHERE $where", 'n', $binds);
+        $this->assertIsNumeric($count);
+        return (int) $count;
     }
 
     /**

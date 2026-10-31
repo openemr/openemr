@@ -187,6 +187,17 @@ class SearchFieldStatementResolverTest extends TestCase
         }
     }
 
+    #[Test]
+    public function testStringFieldExactKeepsBinaryAloneForANumber(): void
+    {
+        // Compared with a number, an ENUM column gives the member's position, so only text gets the plain comparison.
+        $fragment = SearchFieldStatementResolver::resolveStringSearchField(
+            new StringSearchField('erx_source', [0], SearchModifier::EXACT)
+        );
+        $this->assertSame('BINARY erx_source = ?', $fragment->getFragment());
+        $this->assertSame([0], $fragment->getBoundValues());
+    }
+
     /**
      * @return array<string, array{bool, string, string, list<string>}>
      *
