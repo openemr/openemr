@@ -53,6 +53,9 @@ class ReferralTaskService
     /** How many times a cancellation reads again when a recipient's change slips in between its read and its write. */
     private const CANCEL_PASSES = 3;
 
+    /** How many times a reply reads the Task again when a recipient's change slips in between its read and its write. */
+    private const WRITE_PASSES = 3;
+
     /**
      * Each collaborator is the caller's, or made the first time it's needed rather than as a default
      * here: loading BaseService requires custom/code_types.inc.php, which queries the database, and
@@ -222,8 +225,15 @@ class ReferralTaskService
     /**
      * When a referral records a reply (a Reply Date), its latest Task is completed, with the
      * Counter-Referral section filed in the patient's documents as its output. Nothing when
-     * the global is off, there's no Task, or the Task is already in a final status, so saving
-     * the referral again files no second document.
+     * the global is off, there's no Task, or the Task is already in a final status.
+     *
+     * It runs under the referral's lock, as createForReferral() does, so two saves at once file
+     * one document. The reply is filed once per referral: a save that finds it already filed (an
+     * earlier save filed it, then lost the Task's update) uses that document. The Task isn't
+     * completed without it, so a reply that couldn't be filed is tried again on the next save.
+     * The update names the version it read, so a recipient's change in between (a PUT to
+     * rejected, or a new output) isn't written over: the Task is read again, and one that has
+     * reached a final status in the meantime stays as it is.
      *
      * @return ?string the completed Task's uuid
      */
@@ -232,18 +242,85 @@ class ReferralTaskService
         if (!OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value)) {
             return null;
         }
+        $referralUuid = $this->getReferralService()->getReferralUuid($transactionId);
+        if ($referralUuid === null) {
+            return null;
+        }
+        $lock = self::LOCK_PREFIX . $referralUuid;
+        $locked = self::lock($lock);
+        if ($locked !== true) {
+            // The reply completes the Task on the referral's next save.
+            $this->getLogger()->warning('A referral\'s reply was not recorded on its Task: its lock was not acquired', [
+                'referral_uuid' => $referralUuid,
+                'reason' => $locked === false ? 'another save held it past the wait' : 'GET_LOCK failed',
+            ]);
+            return null;
+        }
+        try {
+            return $this->recordReplyLocked($transactionId, $referralUuid, $userId);
+        } finally {
+            self::unlock($lock);
+        }
+    }
+
+    /**
+     * recordReply() once it holds the referral's lock.
+     */
+    private function recordReplyLocked(int $transactionId, string $referralUuid, ?int $userId): ?string
+    {
         $referral = $this->getReferralService()->getReferral($transactionId);
-        $referralUuid = $referral === null ? null : self::text($referral, 'uuid');
         $patientId = $referral['patient_id'] ?? null;
-        if ($referral === null || $referralUuid === null || !is_numeric($patientId) || self::text($referral, 'reply_date') === null) {
+        if ($referral === null || !is_numeric($patientId) || self::text($referral, 'reply_date') === null) {
             return null;
         }
-        $task = $this->latestTask($referralUuid);
-        $status = $task === null ? null : self::text($task, 'status');
-        $taskUuid = $task === null ? null : self::text($task, 'uuid');
-        if ($task === null || $taskUuid === null || $status === null || in_array($status, FhirTaskWriteRules::FINAL_STATUSES, true)) {
-            return null;
+        $document = null;
+        for ($pass = 0; $pass < self::WRITE_PASSES; $pass++) {
+            $task = $this->latestTask($referralUuid);
+            $status = $task === null ? null : self::text($task, 'status');
+            $taskUuid = $task === null ? null : self::text($task, 'uuid');
+            $version = $task['version'] ?? null;
+            if (
+                $task === null || $taskUuid === null || $status === null || !is_numeric($version)
+                || in_array($status, FhirTaskWriteRules::FINAL_STATUSES, true)
+            ) {
+                return null;
+            }
+            $document ??= $this->filedReply($transactionId) ?? $this->fileReply($transactionId, (int)$patientId, $referral, $userId);
+            if ($document === null) {
+                $this->getLogger()->warning('A referral\'s reply was not filed, so its Task was left open', [
+                    'transaction_id' => $transactionId,
+                    'task_uuid' => $taskUuid,
+                ]);
+                return null;
+            }
+            $outputs = [];
+            foreach (self::outputRows($task) as $row) {
+                // The reply once, however many times it's recorded.
+                if (($row['value_uuid'] ?? null) !== $document) {
+                    $outputs[] = $row;
+                }
+            }
+            $outputs[] = self::REPLY_OUTPUT_TYPE + ['value_element' => 'valueReference', 'value_type' => 'DocumentReference', 'value_uuid' => $document];
+            if ($this->getTaskService()->update($taskUuid, ['status' => 'completed'], $userId, (int)$version, null, $outputs)) {
+                return $taskUuid;
+            }
         }
+        // The Task kept changing under this save; its next save tries again with the same document.
+        $this->getLogger()->warning('A referral\'s reply was filed but its Task kept changing, so it was left as the recipient has it', [
+            'transaction_id' => $transactionId,
+            'document_uuid' => $document,
+        ]);
+        return null;
+    }
+
+    /**
+     * A Task's outputs as TaskService::update() takes them back.
+     *
+     * @param array<string, mixed> $task
+     * @return list<array<string, string|null>>
+     */
+    private static function outputRows(array $task): array
+    {
         $outputs = [];
         foreach (is_array($task['outputs'] ?? null) ? $task['outputs'] : [] as $output) {
             $row = [];
@@ -256,24 +333,66 @@ class ReferralTaskService
                 $outputs[] = $row;
             }
         }
-        $document = $this->fileReply($transactionId, (int)$patientId, $referral, $userId);
-        if ($document !== null) {
-            $outputs[] = self::REPLY_OUTPUT_TYPE + ['value_element' => 'valueReference', 'value_type' => 'DocumentReference', 'value_uuid' => $document];
+        return $outputs;
+    }
+
+    /**
+     * The uuid of the reply fileReply() already filed for the referral, or null when there's none.
+     */
+    private function filedReply(int $transactionId): ?string
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT id, uuid FROM documents WHERE foreign_reference_table = ? AND foreign_reference_id = ? AND name = ? AND deleted = 0 ORDER BY id DESC LIMIT 1',
+            [ReferralService::TABLE_NAME, $transactionId, self::replyFileName($transactionId)]
+        );
+        if (!is_array($row) || !is_numeric($row['id'] ?? null)) {
+            return null;
         }
-        $this->getTaskService()->update($taskUuid, ['status' => 'completed'], $userId, null, null, $outputs);
-        return $taskUuid;
+        if (!is_string($row['uuid'] ?? null)) {
+            UuidRegistry::createMissingUuidForRow('documents', 'id', (int)$row['id']);
+            $row['uuid'] = QueryUtils::fetchSingleValue('SELECT uuid FROM documents WHERE id = ?', 'uuid', [(int)$row['id']]);
+        }
+        return is_string($row['uuid']) ? UuidRegistry::uuidToString($row['uuid']) : null;
+    }
+
+    private static function replyFileName(int $transactionId): string
+    {
+        return 'counter-referral-' . $transactionId . '.txt';
     }
 
     /**
      * After the FHIR API changes a Task's status: when the Task tracks a referral and is now
      * accepted, rejected or completed, a message to the one who made the referral (Refer By),
-     * in their inbox under the Referral type.
+     * in their inbox under the Referral type. Nothing when the global is off.
+     *
+     * Called once the Task's update is committed, so a failure is logged, not thrown: thrown, it
+     * would answer the client's successful PUT with an error, and a retry naming the version it
+     * read would then meet a version conflict for a change already made.
      */
     public function taskStatusChanged(string $taskUuid, string $from, string $to, ?int $userId): void
     {
-        if ($from === $to || !in_array($to, self::NOTIFIED_STATUSES, true)) {
+        if (
+            $from === $to || !in_array($to, self::NOTIFIED_STATUSES, true)
+            || !OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value)
+        ) {
             return;
         }
+        try {
+            $this->notifyReferrer($taskUuid, $to, $userId);
+        } catch (\RuntimeException | \LogicException | DbalException $e) {
+            $this->getLogger()->error('A referral\'s Task changed status but the referrer was not told', [
+                'task_uuid' => $taskUuid,
+                'status' => $to,
+                'exception' => $e,
+            ]);
+        }
+    }
+
+    /**
+     * The message taskStatusChanged() files: to Refer By, about the Task's new status.
+     */
+    private function notifyReferrer(string $taskUuid, string $to, ?int $userId): void
+    {
         $task = $this->getTaskService()->getOne($taskUuid);
         $focus = $task === null ? null : self::text($task, 'focus_uuid');
         if ($task === null || ($task['focus_type'] ?? null) !== 'ServiceRequest' || $focus === null) {
@@ -313,16 +432,16 @@ class ReferralTaskService
     }
 
     /**
-     * The referral's latest Task, as TaskService returns it, with its outputs.
+     * The referral's latest Task of this service's (ownTasks()), as TaskService returns it, with
+     * its outputs: a recipient's sub-Task with the same focus isn't the one a reply completes.
      *
      * @return ?array<string, mixed>
      */
     private function latestTask(string $referralUuid): ?array
     {
-        $tasks = $this->getTaskService()->search(['focus_uuid' => new TokenSearchField('focus_uuid', [$referralUuid], true)])->getData();
         $latest = null;
-        foreach (is_array($tasks) ? $tasks : [] as $task) {
-            if (is_array($task) && is_numeric($task['id'] ?? null) && ($latest === null || (int)$task['id'] > (int)$latest['id'])) {
+        foreach ($this->ownTasks($referralUuid) as $task) {
+            if (is_numeric($task['id'] ?? null) && ($latest === null || (int)$task['id'] > (int)$latest['id'])) {
                 $latest = $task;
             }
         }
@@ -374,7 +493,7 @@ class ReferralTaskService
         $error = $document->createDocument(
             (string)$patientId,
             (int)$category,
-            'counter-referral-' . $transactionId . '.txt',
+            self::replyFileName($transactionId),
             'text/plain',
             $data,
             '',
