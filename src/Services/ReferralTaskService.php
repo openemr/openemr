@@ -27,6 +27,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Services\FHIR\FhirTaskWriteRules;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -62,8 +63,6 @@ class ReferralTaskService
 
     /** LOINC 11488-4, the type of the reply a Task's output holds. */
     private const REPLY_OUTPUT_TYPE = ['type_system' => 'http://loinc.org', 'type_code' => '11488-4', 'type_text' => 'Consult note'];
-
-    private const TASK_CODE_SYSTEM = 'http://hl7.org/fhir/CodeSystem/task-code';
 
     /** Task statuses the referring provider hears about (#14710). */
     private const NOTIFIED_STATUSES = ['accepted', 'rejected', 'completed'];
@@ -101,7 +100,8 @@ class ReferralTaskService
             'status' => 'requested',
             'intent' => 'order',
             'code' => 'fulfill',
-            'code_system' => self::TASK_CODE_SYSTEM,
+            // #14669 renders a code only with its system, so the referral's Task records task-code's.
+            'code_system' => FhirTaskService::TASK_CODE_SYSTEM,
             'focus_type' => 'ServiceRequest',
             'focus_uuid' => $referralUuid,
             'owner_type' => $owner[0],
