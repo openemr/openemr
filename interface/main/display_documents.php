@@ -22,6 +22,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\LabDocumentQuery;
 
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
@@ -173,33 +174,20 @@ $display_div = "style='display:block;'";
     <div class='col-12' id='docdiv' <?php echo $display_div; ?>>
         <?php
         $current_user = $session->get('authUserID');
-        $date_filter = '';
-            $query_array = [];
-        if ($form_from_doc_date) {
-            $form_from_doc_date = DateToYYYYMMDD($form_from_doc_date);
-            $date_filter = " DATE(d.date) >= ? ";
-                    array_push($query_array, $form_from_doc_date);
-        }
-
-        if ($form_to_doc_date) {
-            $form_to_doc_date = DateToYYYYMMDD($form_to_doc_date);
-            $date_filter .= " AND DATE(d.date) <= ? ";
-                    array_push($query_array, $form_to_doc_date);
-        }
+        $fromDate = DateToYYYYMMDD($form_from_doc_date);
+        $toDate = DateToYYYYMMDD($form_to_doc_date);
 
         // Get the category ID for lab reports.
         $query = "SELECT rght FROM categories WHERE name = ?";
         $catIDRs = sqlQuery($query, [OEGlobalsBag::getInstance()->getString('lab_results_category_name')]);
-        $catID = $catIDRs['rght'];
+        $catID = is_array($catIDRs) && is_numeric($catIDRs['rght'] ?? null) ? (int) $catIDRs['rght'] : 0;
 
-        $query = "SELECT d.*,CONCAT(pd.fname,' ',pd.lname) AS pname,GROUP_CONCAT(n.note ORDER BY n.date DESC SEPARATOR '|') AS docNotes,
-            GROUP_CONCAT(n.date ORDER BY n.date DESC SEPARATOR '|') AS docDates FROM documents d
-            INNER JOIN patient_data pd ON d.foreign_id = pd.pid
-            INNER JOIN categories_to_documents ctd ON d.id = ctd.document_id AND ctd.category_id = ?
-            LEFT JOIN notes n ON d.id = n.foreign_id
-            WHERE " . $date_filter . " GROUP BY d.id ORDER BY date DESC";
-            array_unshift($query_array, $catID);
-        $resultSet = sqlStatement($query, $query_array);
+        $labQuery = (new LabDocumentQuery())->build(
+            $catID,
+            is_string($fromDate) && $fromDate !== '' ? $fromDate : null,
+            is_string($toDate) && $toDate !== '' ? $toDate : null
+        );
+        $resultSet = sqlStatement($labQuery['sql'], $labQuery['binds']);
         ?>
 
         <div class="table-responsive">
