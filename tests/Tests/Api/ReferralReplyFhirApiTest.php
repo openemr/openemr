@@ -25,6 +25,7 @@ use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\TaskService;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
 use Symfony\Component\HttpFoundation\Response;
 
 class ReferralReplyFhirApiTest extends TestCase
@@ -208,6 +209,197 @@ class ReferralReplyFhirApiTest extends TestCase
         }
         $this->assertStringContainsString(': Accepted', $bodies[0]);
         $this->assertStringContainsString(': Completed', $bodies[1]);
+    }
+
+    public function testWithTheGlobalOffTheReferrerHearsNothing(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, '0');
+
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->onlyTask($id), 'accepted'));
+
+        $this->assertSame([], QueryUtils::fetchRecords('SELECT id FROM pnotes WHERE pid = ?', [$this->patient['pid']]));
+    }
+
+    /**
+     * The Task's update is committed before the referrer is told, so a notice that fails is logged
+     * rather than thrown at the client whose PUT already succeeded.
+     */
+    public function testANoticeThatFailsIsLoggedNotThrown(): void
+    {
+        $logger = self::logger();
+        $tasks = new class extends TaskService {
+            public function getOne(string $uuid): ?array
+            {
+                throw new \RuntimeException('the database went away');
+            }
+        };
+
+        (new ReferralTaskService(taskService: $tasks, logger: $logger))->taskStatusChanged('a-task-uuid', 'requested', 'accepted', null);
+
+        $this->assertSame([['error', 'A referral\'s Task changed status but the referrer was not told']], $logger->records);
+    }
+
+    /**
+     * A save that filed the reply and then lost the Task's update leaves the document: the next
+     * save completes the Task with that document rather than filing a second one.
+     */
+    public function testAReplyFiledBeforeItsTaskUpdateFailedIsNotFiledAgain(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $failing = new class extends TaskService {
+            public function update(string $uuid, array $fields, ?int $userId, ?int $expectedVersion = null, ?array $inputs = null, ?array $outputs = null): bool
+            {
+                throw new \RuntimeException('the Task could not be updated');
+            }
+        };
+
+        $this->assertNull((new ReferralTaskService(taskService: $failing, logger: self::logger()))->afterSave($id, null));
+        $this->assertSame('requested', $this->onlyTask($id)['status'] ?? null);
+        $this->assertCount(1, $this->replyDocuments($id), 'the reply was filed before the update failed');
+
+        $this->afterSave($id);
+
+        $task = $this->onlyTask($id);
+        $this->assertSame('completed', $task['status'] ?? null);
+        $documents = $this->replyDocuments($id);
+        $this->assertCount(1, $documents, 'no second copy');
+        $outputs = self::at($task, 'output');
+        $this->assertIsArray($outputs);
+        $this->assertCount(1, $outputs);
+        $documentUuid = QueryUtils::fetchSingleValue('SELECT uuid FROM documents WHERE id = ?', 'uuid', [$documents[0]]);
+        $this->assertIsString($documentUuid);
+        $this->assertSame('DocumentReference/' . UuidRegistry::uuidToString($documentUuid), self::at($outputs, 0, 'valueReference', 'reference'));
+    }
+
+    /**
+     * A recipient that rejects the Task between the reply's read and its write keeps their
+     * rejection: the reply doesn't write completed over it.
+     */
+    public function testARejectionMadeWhileTheReplyIsRecordedStands(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18']);
+
+        $this->assertNull($this->replyRacing(['status' => 'rejected'])->recordReply($id, null));
+
+        $this->assertSame('rejected', $this->onlyTask($id)['status'] ?? null);
+    }
+
+    /**
+     * A recipient's change that leaves the Task open (a new output) is read again and kept: the
+     * reply completes the Task alongside it.
+     */
+    public function testAnOutputAddedWhileTheReplyIsRecordedIsKept(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18']);
+        $theirs = ['type_text' => 'Intake note', 'value_element' => 'valueString', 'value_text' => 'Seen at intake'];
+
+        $this->assertIsString($this->replyRacing(['status' => 'in-progress'], [$theirs])->recordReply($id, null));
+
+        $task = $this->onlyTask($id);
+        $this->assertSame('completed', $task['status'] ?? null);
+        $outputs = self::at($task, 'output');
+        $this->assertIsArray($outputs);
+        $this->assertCount(2, $outputs, 'theirs, then the reply');
+        $this->assertSame('Seen at intake', self::at($outputs, 0, 'valueString'));
+        $this->assertSame([['system' => 'http://loinc.org', 'code' => '11488-4']], self::at($outputs, 1, 'type', 'coding'));
+    }
+
+    /**
+     * A reply that can't be filed (no Medical Record category here) leaves the Task open, so the
+     * Task never reaches completed without the reply as its output.
+     */
+    public function testAReplyThatCannotBeFiledLeavesTheTaskOpen(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18']);
+        $categories = QueryUtils::fetchTableColumn("SELECT id FROM categories WHERE name = 'Medical Record'", 'id');
+        $this->assertNotSame([], $categories);
+        $marks = implode(', ', array_fill(0, count($categories), '?'));
+        QueryUtils::sqlStatementThrowException("UPDATE categories SET name = 'Zq Medical Record' WHERE id IN ($marks)", $categories);
+        try {
+            $this->assertNull((new ReferralTaskService(logger: self::logger()))->recordReply($id, null));
+        } finally {
+            QueryUtils::sqlStatementThrowException("UPDATE categories SET name = 'Medical Record' WHERE id IN ($marks)", $categories);
+        }
+
+        $this->assertSame('requested', $this->onlyTask($id)['status'] ?? null);
+        $this->assertSame([], $this->replyDocuments($id));
+
+        $this->afterSave($id);
+        $this->assertSame('completed', $this->onlyTask($id)['status'] ?? null, 'the next save files it');
+    }
+
+    /**
+     * A ReferralTaskService whose first write to the Task finds the recipient changed it just
+     * before: the change is made at the version the reply read, then the reply's write goes ahead.
+     *
+     * @param array<string, string> $change
+     * @param ?list<array<string, string>> $outputs the recipient's outputs, or null to leave them
+     */
+    private function replyRacing(array $change, ?array $outputs = null): ReferralTaskService
+    {
+        $tasks = new class ($change, $outputs) extends TaskService {
+            private bool $raced = false;
+
+            /**
+             * @param array<string, string> $change
+             * @param ?list<array<string, string>> $theirOutputs
+             */
+            public function __construct(private readonly array $change, private readonly ?array $theirOutputs)
+            {
+                parent::__construct();
+            }
+
+            public function update(string $uuid, array $fields, ?int $userId, ?int $expectedVersion = null, ?array $inputs = null, ?array $outputs = null): bool
+            {
+                if (!$this->raced) {
+                    $this->raced = true;
+                    parent::update($uuid, $this->change, null, null, null, $this->theirOutputs);
+                }
+                return parent::update($uuid, $fields, $userId, $expectedVersion, $inputs, $outputs);
+            }
+        };
+        return new ReferralTaskService(taskService: $tasks, logger: self::logger());
+    }
+
+    /**
+     * @return list<int> the ids of the replies filed for the referral
+     */
+    private function replyDocuments(int $transactionId): array
+    {
+        $ids = [];
+        foreach (QueryUtils::fetchTableColumn("SELECT id FROM documents WHERE foreign_reference_table = 'transactions' AND foreign_reference_id = ?", 'id', [$transactionId]) as $id) {
+            if (is_numeric($id)) {
+                $ids[] = (int)$id;
+            }
+        }
+        return $ids;
+    }
+
+    /**
+     * @return AbstractLogger&object{records: list<array{mixed, string}>}
+     */
+    private static function logger(): AbstractLogger
+    {
+        return new class extends AbstractLogger {
+            /** @var list<array{mixed, string}> level and message */
+            public array $records = [];
+
+            /** @param array<mixed> $context */
+            public function log($level, string|\Stringable $message, array $context = []): void
+            {
+                $this->records[] = [$level, (string)$message];
+            }
+        };
     }
 
     private function afterSave(int $transactionId): void
