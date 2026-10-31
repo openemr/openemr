@@ -194,11 +194,13 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 
 See `ci/README.md` for details on the CI system.
 
-**Tip:** During development, you can add `Skip-Slow-Tests: true` as a commit trailer to skip the full test matrix and get faster feedback from linting:
+**Tip:** On a pull request, the database tests run on PHP 8.3 only, and the isolated tests on the supported PHP versions, for faster feedback. A commit trailer on any commit in the PR asks for more:
+- `Test-Mode: full` runs every database-test configuration, as a push to master does, and the isolated tests on PHP pre-releases too. It's useful for a failure that appears in only one configuration.
+- `Test-PHP: 8.6` runs the isolated tests on that pre-release.
 ```sh
-git commit --trailer "Skip-Slow-Tests: true" -m "fix: work in progress"
+git commit --trailer "Test-Mode: full" -m "fix: reproduce the PHP 8.5 test failure"
 ```
-You must remove any `Skip-Slow-Tests` or `skip-ci` trailers before your PR can be merged.
+Don't end a PR on a commit whose message contains `[skip ci]`: GitHub then skips the checks the PR needs before it can be merged.
 
 **Review process:** A maintainer will review your PR. Please respond to feedback and push updates to the same branch—the PR will update automatically.
 
