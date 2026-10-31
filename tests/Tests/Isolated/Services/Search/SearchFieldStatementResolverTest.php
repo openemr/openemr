@@ -23,6 +23,7 @@ namespace OpenEMR\Tests\Isolated\Services\Search;
 
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\DateSearchField;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ReferenceSearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldStatementResolver;
@@ -176,6 +177,20 @@ class SearchFieldStatementResolverTest extends TestCase
         );
         $this->assertSame('(pc_pid = ? AND BINARY pc_pid = ?)', $fragment->getFragment());
         $this->assertSame(['5', '5'], $fragment->getBoundValues());
+    }
+
+    #[Test]
+    public function testAPlainValueUsesTheIndexWhenItIsText(): void
+    {
+        $text = SearchFieldStatementResolver::resolveStringSearchField(FhirSearchWhereClauseBuilder::exactFieldForValue('pid', '5'));
+        $this->assertSame('(pid = ? AND BINARY pid = ?)', $text->getFragment());
+        // A number keeps BINARY alone: compared with a number, an ENUM column gives the member's position.
+        $number = SearchFieldStatementResolver::resolveStringSearchField(FhirSearchWhereClauseBuilder::exactFieldForValue('erx_source', 0));
+        $this->assertSame('BINARY erx_source = ?', $number->getFragment());
+        $this->assertSame([0], $number->getBoundValues());
+        $float = SearchFieldStatementResolver::resolveStringSearchField(FhirSearchWhereClauseBuilder::exactFieldForValue('weight', 1.5));
+        $this->assertSame('BINARY weight = ?', $float->getFragment(), 'a float keeps BINARY alone too');
+        $this->assertSame(['1.5'], $float->getBoundValues());
     }
 
     #[Test]

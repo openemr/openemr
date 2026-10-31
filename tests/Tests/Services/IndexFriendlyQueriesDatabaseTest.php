@@ -106,6 +106,8 @@ class IndexFriendlyQueriesDatabaseTest extends TestCase
 
         $this->assertCount(2, $service->getAppointmentsForPatient($this->pid));
         $this->assertCount(2, $service->getAppointmentsForPatient('0' . $this->pid), 'a pid with a leading zero, as a URL can give it');
+        $this->assertSame([], $service->getAppointmentsForPatient('00'), "'00' names no patient, not the events stored with pc_pid '0'");
+        $this->assertSame([], $service->getAppointmentsForPatient(' '), "' ' names no patient, not the event with none");
         $this->assertCount(2, $this->searchByPatient($service, $this->uuid));
         $this->assertCount(1, $this->searchByPatient($service, $this->otherUuid));
         $this->assertCount(0, $this->searchByPatient($service, random_bytes(16)), 'a patient who is not here');

@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Unit\Services\Search;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
@@ -116,6 +117,11 @@ class ExactModifierDatabaseTest extends TestCase
                 $label = get_debug_type($probe) . " $probe";
                 $this->assertSame($binaryMatches, $this->enumRows('BINARY v = ?', [$probe]), "BINARY alone for $label");
                 $this->assertSame($binaryMatches, $this->enumRows(...$this->exactFragment('v', $probe, false)), "EXACT for $label");
+                // A service's plain value gets FhirSearchWhereClauseBuilder's field for it, which keeps a number on BINARY alone.
+                $where = SearchFieldStatementResolver::resolveStringSearchField(FhirSearchWhereClauseBuilder::exactFieldForValue('v', $probe));
+                $count = QueryUtils::fetchSingleValue('SELECT COUNT(*) AS n FROM exact_enum_probe WHERE ' . $where->getFragment(), 'n', array_values($where->getBoundValues()));
+                $this->assertIsNumeric($count);
+                $this->assertSame($binaryMatches, (int) $count, "a plain value, $label");
             }
         } finally {
             QueryUtils::sqlStatementThrowException('DROP TEMPORARY TABLE IF EXISTS exact_enum_probe');

@@ -330,8 +330,13 @@ class AppointmentService extends BaseService
 
         // pc_pid bound as text lets its index find the patient's events.
         if ((is_int($pid) && $pid !== 0) || (is_string($pid) && $pid !== '' && $pid !== '0')) {
+            $calendarPid = self::calendarPid($pid);
+            if ($calendarPid === '' || $calendarPid === '0') {
+                // '00' or ' ' names no patient: it would find the events with none, or holidays.
+                return [];
+            }
             $sql .= " WHERE pce.pc_pid = ?";
-            $sqlBindArray[] = self::calendarPid($pid);
+            $sqlBindArray[] = $calendarPid;
         }
 
         $records = QueryUtils::fetchRecords($sql, $sqlBindArray);

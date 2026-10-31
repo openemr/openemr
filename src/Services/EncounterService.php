@@ -768,8 +768,10 @@ class EncounterService extends BaseService
      */
     public function getSensitivity(mixed $pid, mixed $encounter_id): ?string
     {
+        // pid and eid are integer columns, which compare the same with a number as text; given as
+        // text, the lookup uses their index (FhirSearchWhereClauseBuilder keeps a number on BINARY alone).
         $encounterResult = $this->search(
-            ['pid' => $pid, 'eid' => $encounter_id],
+            ['pid' => is_int($pid) ? (string) $pid : $pid, 'eid' => is_int($encounter_id) ? (string) $encounter_id : $encounter_id],
             options: ['limit' => 1],
         );
         if (!$encounterResult->hasData()) {
