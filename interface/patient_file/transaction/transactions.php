@@ -22,7 +22,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\Services\Utils\DateFormatterUtils;
+use OpenEMR\Services\ReferralDisplay;
+use OpenEMR\Services\TransactionDisplay;
 
 ?>
 <html>
@@ -96,25 +97,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <th scope="col">&nbsp;</th>
                                     <th scope="col"><?php echo xlt('Type'); ?></th>
                                     <th scope="col"><?php echo xlt('Date'); ?></th>
+                                    <th scope="col"><?php echo xlt('Status'); ?></th>
                                     <th scope="col"><?php echo xlt('User'); ?></th>
                                     <th scope="col"><?php echo xlt('Details'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
+                                // Where a referral stands (#14710); other transactions have no status.
+                                $referralDisplay = new ReferralDisplay();
+                                $taskStatuses = $referralDisplay->taskStatuses($result);
                                 foreach ($result as $item) {
-                                    $item['body'] ??= '';
-
-                                    // Collect date
-                                    if (!empty($item['refer_date'])) {
-                                        // Special case for referrals, which uses refer_date stored in lbt_data table
-                                        //  rather than date in transactions table.
-                                        //  (note this only contains a date without a time)
-                                        $date = oeFormatShortDate($item['refer_date']);
-                                    } else {
-                                        $date = DateFormatterUtils::oeFormatDateTime($item['date']);
-                                    }
-
                                     $id = $item['id'];
                                     $edit = xl('View/Edit');
                                     $view = xl('Print'); //actually prints or displays ready to print
@@ -145,9 +138,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             </div>
                                         </td>
                                         <td><?php echo text(getLayoutTitle('Transactions', $item['title'])); ?></td>
-                                        <td><?php echo text($date); ?></td>
+                                        <td><?php echo text(TransactionDisplay::listDate($item)); ?></td>
+                                        <?php echo $referralDisplay->transactionCell($item, $taskStatuses); ?>
                                         <td><?php echo text($item['user']); ?></td>
-                                        <td><?php echo text($item['body']); ?></td>
+                                        <td><?php echo text($item['body'] ?? ''); ?></td>
                                     </tr>
                                     <?php
                                 }
