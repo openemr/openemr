@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services;
 
 use OpenEMR\BC\ServiceContainer;
+use Psr\Clock\ClockInterface;
 use Twig\Environment;
 
 final class ReferralDisplay
@@ -25,19 +26,24 @@ final class ReferralDisplay
     public const SHOW_OPEN = 'open';
     public const SHOW_OVERDUE = 'overdue';
 
-    private readonly \DateTimeImmutable $today;
+    private readonly \DateTimeImmutable $now;
 
     /**
+     * The referral lookups are closures, not a ReferralService, so the isolated tests can stand in
+     * for them: loading BaseService requires custom/code_types.inc.php, which queries the database.
+     *
      * @param ?\Closure(int): ?array<mixed> $findReferral a referral by its transaction id; ReferralService::getReferral() when null
+     * @param ?\Closure(list<int>): array<int, ?string> $findTaskStatuses referrals' Task statuses by transaction id; ReferralService::getTaskStatuses() when null
      * @param ?int $overdueDays the referral_overdue_days global when null
      */
     public function __construct(
         private ?Environment $twig = null,
         private ?\Closure $findReferral = null,
-        ?\DateTimeImmutable $today = null,
+        private ?\Closure $findTaskStatuses = null,
+        ?ClockInterface $clock = null,
         private ?int $overdueDays = null,
     ) {
-        $this->today = $today ?? new \DateTimeImmutable('today');
+        $this->now = ($clock ?? ServiceContainer::getClock())->now();
     }
 
     /**
@@ -53,18 +59,42 @@ final class ReferralDisplay
         if ($referral === null) {
             return '';
         }
-        return $this->render('referrals/status_block.html.twig', ReferralStatus::ofReferral($referral, $this->today, $this->overdueDays()));
+        return $this->render('referrals/status_block.html.twig', ReferralStatus::ofReferral($referral, $this->now, $this->overdueDays()));
+    }
+
+    /**
+     * The Task statuses of the referrals among the patient's transactions, by transaction id, found
+     * in one query for the whole list.
+     *
+     * @param array<mixed> $transactions as getTransByPid() lists them
+     * @return array<int, ?string>
+     */
+    public function taskStatuses(array $transactions): array
+    {
+        $ids = [];
+        foreach ($transactions as $transaction) {
+            if (is_array($transaction) && ($transaction['title'] ?? null) === ReferralStatus::FORM_ID && is_numeric($transaction['id'] ?? null)) {
+                $ids[] = (int)$transaction['id'];
+            }
+        }
+        if ($ids === []) {
+            return [];
+        }
+        $find = $this->findTaskStatuses ??= (new ReferralService(createMissingUuids: false))->getTaskStatuses(...);
+        return $find($ids);
     }
 
     /**
      * The Status cell for a row of the patient's Transactions list, empty for a transaction
      * that isn't a referral.
+     *
+     * @param array<int, ?string> $taskStatuses from taskStatuses()
      */
-    public function transactionCell(mixed $transaction): string
+    public function transactionCell(mixed $transaction, array $taskStatuses): string
     {
         return $this->render(
             'referrals/status_cell.html.twig',
-            ReferralStatus::ofTransaction($transaction, $this->findReferral(), $this->today, $this->overdueDays())
+            ReferralStatus::ofTransaction($transaction, $taskStatuses, $this->now, $this->overdueDays())
         );
     }
 
@@ -87,6 +117,19 @@ final class ReferralDisplay
     }
 
     /**
+     * The earliest Referral Date the report fetches: the From date, except under Show: Open and
+     * Overdue, the worklists, where it is none (''). An open or overdue referral can be an old one,
+     * and the From date defaults to the first of the year.
+     *
+     * @param mixed $fromDate the report's From date, from DateToYYYYMMDD(), which has no return type
+     *     but gives text for the text the report passes it
+     */
+    public static function fromDate(string $show, mixed $fromDate): string
+    {
+        return in_array($show, [self::SHOW_OPEN, self::SHOW_OVERDUE], true) || !is_string($fromDate) ? '' : $fromDate;
+    }
+
+    /**
      * The report's Show filter, as two table cells.
      */
     public function showFilter(string $show): string
@@ -96,8 +139,9 @@ final class ReferralDisplay
 
     /**
      * Whether the report lists a row under its filters: the Show choice, and the facility. A
-     * facility id keeps the rows referred from it; a false-like one ('0') keeps those referred
-     * from no facility; '' keeps all. The facility is compared loosely, as the report always has.
+     * facility id keeps the rows referred from it, compared loosely as the report always has; a
+     * false-like one ('0') keeps those referred from no facility, whose facility_id is null, ''
+     * or 0 (an int when the driver returns native types, '0' when it doesn't); '' keeps all.
      *
      * @param array<mixed> $row
      */
@@ -114,7 +158,7 @@ final class ReferralDisplay
         if ((bool)$facility) {
             return $rowFacility == $facility;
         }
-        return in_array($rowFacility, [null, '', '0'], true);
+        return in_array($rowFacility, [null, '', '0', 0], true);
     }
 
     /**
@@ -138,7 +182,7 @@ final class ReferralDisplay
      */
     private function statusOf(array $row): ReferralStatus
     {
-        return ReferralStatus::ofReferral($row, $this->today, $this->overdueDays());
+        return ReferralStatus::ofReferral($row, $this->now, $this->overdueDays());
     }
 
     private function render(string $template, ?ReferralStatus $status): string

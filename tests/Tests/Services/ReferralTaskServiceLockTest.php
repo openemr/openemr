@@ -55,6 +55,7 @@ class ReferralTaskServiceLockTest extends TestCase
 
         $this->assertSame('task-uuid', $service->createForReferral(0, 1));
         $this->assertTrue($tasks->heldDuringInsert, 'this session held the referral\'s lock while the Task was made');
+        $this->assertSame([true], $this->referrals->reads, 'and read the referral under it, so it acts on the Refer To saved last');
         $this->assertTrue($this->lockIsFree(), 'and let it go after');
     }
 
@@ -68,15 +69,27 @@ class ReferralTaskServiceLockTest extends TestCase
         $this->assertTrue($this->lockIsFree());
     }
 
+    /** @var ReferralService&object{reads: list<bool>} */
+    private ReferralService $referrals;
+
     private function service(TaskService $tasks): ReferralTaskService
     {
-        $service = new ReferralTaskService();
-        $service->setReferralService(new class (false) extends ReferralService {
+        $this->referrals = new class (false) extends ReferralService {
+            /** @var list<bool> whether this session held the referral's lock at each read of the referral */
+            public array $reads = [];
+
+            public function getReferralUuid(int $transactionId): string
+            {
+                return '9a0b6f2c-5d1e-4c3a-8b7f-0e1d2c3b4a59';
+            }
+
             /**
              * @return array<string, mixed>
              */
             public function getReferral(int $transactionId): array
             {
+                $held = QueryUtils::fetchSingleValue('SELECT IS_USED_LOCK(?) = CONNECTION_ID() AS held', 'held', ['openemr.referral_task.9a0b6f2c-5d1e-4c3a-8b7f-0e1d2c3b4a59']);
+                $this->reads[] = $held === 1 || $held === '1';
                 return [
                     'uuid' => '9a0b6f2c-5d1e-4c3a-8b7f-0e1d2c3b4a59',
                     'patient_id' => 1,
@@ -84,9 +97,8 @@ class ReferralTaskServiceLockTest extends TestCase
                     'performer_is_practitioner' => 1,
                 ];
             }
-        });
-        $service->setTaskService($tasks);
-        return $service;
+        };
+        return new ReferralTaskService($this->referrals, $tasks);
     }
 
     /**
@@ -106,7 +118,8 @@ class ReferralTaskServiceLockTest extends TestCase
             {
                 $result = new ProcessingResult();
                 if ($this->hasTask) {
-                    $result->addData(['uuid' => 'existing-task']);
+                    $result->addData(['uuid' => 'existing-task', 'code' => 'fulfill', 'part_of_uuid' => null, 'status' => 'requested',
+                        'owner_uuid' => '5f4e3d2c-1b0a-4987-a6b5-c4d3e2f1a0b9', 'version' => 1]);
                 }
                 return $result;
             }

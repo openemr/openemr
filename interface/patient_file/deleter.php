@@ -224,6 +224,10 @@ function popup_close() {
                     AccessDeniedHelper::deny('Unauthorized patient deletion attempt');
                 }
 
+                // The patient's referrals' open Tasks are cancelled first, while their rows still say which they
+                // are, and before anything is deleted, so a failure here leaves the patient whole.
+                $deletedBy = $session->get('authUserID');
+                (new ReferralTaskService())->cancelForDeletedPatient($patient, is_numeric($deletedBy) ? (int)$deletedBy : null);
                 deleter_row_modify("billing", "activity = 0", "pid = ?", [$patient]);
                 deleter_row_modify("pnotes", "deleted = 1", "pid = ?", [$patient]);
                 deleter_row_delete("prescriptions", "patient_id = ?", [$patient]);
