@@ -1151,7 +1151,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 // MEDICAL PROBLEMS CARD
                 if ($pl === 1) {
-                    $_rawPL = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medical_problem'])->getData();
+                    $_rawPL = $patIssueService->search(['lists.pid' => is_int($pid) ? (string) $pid : $pid, 'lists.type' => 'medical_problem'])->getData();
                     $id = 'medical_problem_ps_expand';
                     $viewArgs = [
                         'title' => xl('Medical Problems'),
@@ -1173,7 +1173,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 // MEDICATION CARD
                 if ($meds === 1) {
-                    $_rawMedList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medication'])->getData();
+                    $_rawMedList = $patIssueService->search(['lists.pid' => is_int($pid) ? (string) $pid : $pid, 'lists.type' => 'medication'])->getData();
                     $id = 'medication_ps_expand';
                     $viewArgs = [
                         'title' => xl('Medications'),

@@ -230,7 +230,7 @@ function popup_close() {
                 delete_drug_sales($patient);
                 deleter_row_delete("payments", "pid = ?", [$patient]);
                 deleter_row_modify("ar_activity", "deleted = NOW()", "pid = ? AND deleted IS NULL", [$patient]);
-                deleter_row_delete("openemr_postcalendar_events", "pc_pid = ?", [$patient]);
+                deleter_row_delete("openemr_postcalendar_events", "pc_pid = ?", [\OpenEMR\Services\AppointmentService::calendarPid($patient)]);
                 deleter_row_delete("immunizations", "patient_id = ?", [$patient]);
                 deleter_row_delete("issue_encounter", "pid = ?", [$patient]);
                 deleter_row_delete("lists", "pid = ?", [$patient]);

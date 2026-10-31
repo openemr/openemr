@@ -85,7 +85,7 @@ function insert_into_tgpa_table($form_id, $pid, $participantData): void
 function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, $participantData)
 {
     $select_sql = "SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_pid = ? AND pc_gid = ? AND pc_eventDate = ? AND pc_startTime = ?;";
-    $result = sqlStatement($select_sql, [$pid, $gid, $pc_eventDate, $pc_startTime]);
+    $result = sqlStatement($select_sql, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($pid), $gid, $pc_eventDate, $pc_startTime]);
     $result_array = sqlFetchArray($result);
     if ($result_array) {
         $insert_sql = "UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid = ?;";
@@ -98,7 +98,7 @@ function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, 
             "VALUES (?, ?, ?, ?, 'Group Therapy', 1, ?, ?, ?, 0, ?); ";
         $recurrspec = 'a:6:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";s:6:"exdate";s:0:"";}';
         $sqlBindArray = [];
-        array_push($sqlBindArray, get_groups_cat_id(), $pc_aid, $pid, $gid, $pc_eventDate, $recurrspec, $pc_startTime, $participantData['status']);
+        array_push($sqlBindArray, get_groups_cat_id(), $pc_aid, \OpenEMR\Services\AppointmentService::calendarPidOrNull($pid), $gid, $pc_eventDate, $recurrspec, $pc_startTime, $participantData['status']);
         $pc_eid = sqlInsert($insert_sql, $sqlBindArray);
         return $pc_eid;
     }

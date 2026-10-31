@@ -194,3 +194,21 @@ CREATE TABLE `task_output` (
   KEY `task_id` (`task_id`, `seq`)
 ) ENGINE=InnoDB;
 #EndIf
+
+-- Appointments by patient compare pc_pid with text. A pc_pid of digits stored another way (05 from a
+-- REST URL, or with spaces) is written as the plain number, which the text comparison matches as the
+-- numeric one did. It runs on every upgrade, since a site may have added its own pc_pid index; once the
+-- rows are plain it changes nothing.
+#IfTable openemr_postcalendar_events
+UPDATE `openemr_postcalendar_events` SET `pc_pid` = CAST(TRIM(`pc_pid`) AS UNSIGNED) WHERE TRIM(`pc_pid`) REGEXP '^[0-9]+$' AND `pc_pid` NOT REGEXP '^(0|[1-9][0-9]*)$';
+#EndIf
+
+-- Appointments by patient filter pc_pid (a varchar, compared with text); the daily summary
+-- report's payments are filtered by billing.date. Both read the whole table without an index.
+#IfNotIndex openemr_postcalendar_events pc_pid
+CREATE INDEX `pc_pid` ON `openemr_postcalendar_events` (`pc_pid`);
+#EndIf
+
+#IfNotIndex billing date
+CREATE INDEX `date` ON `billing` (`date`);
+#EndIf

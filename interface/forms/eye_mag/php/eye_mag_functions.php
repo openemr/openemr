@@ -5745,7 +5745,7 @@ function findProvider($pid, $encounter)
        //find the default providerID from the calendar
         $visit_date = date('Y-m-d', strtotime($find_provider['date'] ?? ''));
         $query = "select * from openemr_postcalendar_events where pc_pid=? and pc_eventDate=?";
-        $find_provider3 = sqlQuery($query, [$pid,$visit_date]);
+        $find_provider3 = sqlQuery($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($pid), $visit_date]);
         $new_providerid = $find_provider3['pc_aid'] ?? '';
         if (($new_providerid < '1') || (!$new_providerid)) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
