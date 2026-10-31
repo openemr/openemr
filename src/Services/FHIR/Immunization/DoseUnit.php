@@ -6,7 +6,7 @@
  *
  * The list's titles are not all UCUM: "mcg" is ug and "grams" is g in UCUM, and "mg/1cc" is
  * no unit at all. A title is sent as UCUM only when the UCUM engine accepts it or its alias,
- * by the rule createQuantity() uses (UtilsService::ucumCodeFor()).
+ * by the rule createQuantity() uses (UtilsService::ucumCodeFor()), and isn't a bare number.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

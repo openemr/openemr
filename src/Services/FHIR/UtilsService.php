@@ -56,6 +56,9 @@ class UtilsService
         'grams' => 'g',
     ];
 
+    /** @var array<string, ?string> each trimmed unit's UCUM code, or null, once asked */
+    private static array $ucumCodes = [];
+
     public static function createRelativeReference($type, $uuid, $displayName = null): FHIRReference
     {
         $reference = new FHIRReference();
@@ -152,7 +155,8 @@ class UtilsService
      * The UCUM code for a unit, or null when it isn't one: the unit without spaces around it, when
      * core's UCUM engine accepts it, else its UCUM spelling ("mcg" is ug, "grams" is g). Codes are
      * case-sensitive (mg/dL is UCUM, MG/DL is not); the two aliases match in any case.
-     * createQuantity(), an immunization's dose (DoseUnit) and HL7 v2's RXA-7 read units by this rule.
+     * createQuantity(), an immunization's dose (DoseUnit) and HL7 v2's RXA-7 read units by this rule;
+     * DoseUnit also refuses a bare number, which as a dose's unit is an option id.
      */
     public static function ucumCodeFor(mixed $unit): ?string
     {
@@ -164,13 +168,19 @@ class UtilsService
         if ($unit === '') {
             return null;
         }
-        $ucum = Ucum::instance();
-        foreach ([$unit, self::UCUM_ALIASES[strtolower($unit)] ?? null] as $candidate) {
-            if ($candidate !== null && $ucum->isValid($candidate)) {
-                return $candidate;
+        // Kept per unit, as Cql's Units::checkUnit() keeps its answers: a unit the engine refuses costs a parse
+        // and a caught exception, and an Observation with a range asks three times.
+        if (!array_key_exists($unit, self::$ucumCodes)) {
+            $ucum = Ucum::instance();
+            self::$ucumCodes[$unit] = null;
+            foreach ([$unit, self::UCUM_ALIASES[strtolower($unit)] ?? null] as $candidate) {
+                if ($candidate !== null && $ucum->isValid($candidate)) {
+                    self::$ucumCodes[$unit] = $candidate;
+                    break;
+                }
             }
         }
-        return null;
+        return self::$ucumCodes[$unit];
     }
 
     public static function createCoding($code, $display, $system): FHIRCoding
