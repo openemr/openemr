@@ -37,6 +37,8 @@ $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
 // kick out if patient not authenticated
 if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
+    // The event's pc_pid, as the calendar's text lookups match it.
+    $calendarPid = \OpenEMR\Services\AppointmentService::calendarPidOrNull($pid);
 } else {
     SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w');
@@ -268,7 +270,7 @@ if ($form_action === "save") {
                             $_POST['form_category'],
                             $row['pc_multiple'],
                             $to_be_inserted,
-                            $pid,
+                            $calendarPid,
                             $_POST['form_title'],
                             $_POST['form_comments'],
                             $session->get('providerId'),
@@ -303,7 +305,7 @@ if ($form_action === "save") {
                         WHERE pc_aid = ? AND pc_multiple = ?",
                     [
                         $_POST['form_category'],
-                        $pid,
+                        $calendarPid,
                         $_POST['form_title'],
                         $_POST['form_comments'],
                         $session->get('providerId'),
@@ -342,7 +344,7 @@ if ($form_action === "save") {
                 [
                     $_POST['form_category'],
                     $prov,
-                    $pid,
+                    $calendarPid,
                     $_POST['form_title'],
                     $_POST['form_comments'],
                     $session->get('providerId'),
@@ -397,7 +399,7 @@ if ($form_action === "save") {
                         $_POST['form_category'],
                         $new_multiple_value,
                         $provider,
-                        $pid,
+                        $calendarPid,
                         $_POST['form_title'],
                         $_POST['form_comments'],
                         $session->get('providerId'),
@@ -430,7 +432,7 @@ if ($form_action === "save") {
                 [
                     $_POST['form_category'],
                     $form_provider_ae,
-                    $pid,
+                    $calendarPid,
                     $_POST['form_title'],
                     $_POST['form_comments'],
                     $session->get('providerId'),

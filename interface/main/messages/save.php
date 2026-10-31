@@ -198,7 +198,7 @@ if ($_REQUEST['action'] == "new_recall") {
     }
 
     $query = "SELECT * FROM openemr_postcalendar_events WHERE pc_pid =? ORDER BY pc_eventDate DESC LIMIT 1";
-    $result2 = sqlQuery($query, [(string) $targetPidInput]);
+    $result2 = sqlQuery($query, [\OpenEMR\Services\AppointmentService::calendarPid($targetPidInput)]);
     if ($result2) { //if they were never actually scheduled this would be blank
         $result['DOLV']     = oeFormatShortDate($result2['pc_eventDate']);
         $result['provider'] = $result2['pc_aid'];

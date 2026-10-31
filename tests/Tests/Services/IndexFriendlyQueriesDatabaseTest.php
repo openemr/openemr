@@ -133,9 +133,13 @@ class IndexFriendlyQueriesDatabaseTest extends TestCase
         $this->assertSame('42', AppointmentService::calendarPid('42'));
         $this->assertSame('42', AppointmentService::calendarPid('0042'));
         $this->assertSame('0', AppointmentService::calendarPid('000'));
+        $this->assertSame('42', AppointmentService::calendarPid(' 42'), 'spaces around it');
+        $this->assertSame('42', AppointmentService::calendarPid("42\n"), 'a newline after it');
         $this->assertSame('', AppointmentService::calendarPid(''), 'no patient');
-        $this->assertNull(AppointmentService::calendarPid(null));
-        $this->assertSame(' 42', AppointmentService::calendarPid(' 42'), 'other text is left as it was');
+        $this->assertSame('abc', AppointmentService::calendarPid(' abc '), 'other text, trimmed');
+        $this->assertNull(AppointmentService::calendarPidOrNull(null), 'nothing matches no patient');
+        $this->assertNull(AppointmentService::calendarPidOrNull(4.2), 'nor a float');
+        $this->assertSame('42', AppointmentService::calendarPidOrNull('042'));
     }
 
     /**
@@ -163,10 +167,10 @@ class IndexFriendlyQueriesDatabaseTest extends TestCase
     }
 
     /**
-     * Before it adds the index, the upgrade writes a pc_pid of digits stored another way (the REST API
-     * stored "05" as given) as the plain number, so the text lookups find those events as the numeric
-     * comparison did. The upgrade file's own block runs through SQLUpgradeService, with the index dropped
-     * first, as on a site that hasn't upgraded yet.
+     * The upgrade writes a pc_pid of digits stored another way (the REST API stored "05" as given) as the
+     * plain number, so the text lookups find those events as the numeric comparison did. It runs on every
+     * upgrade, even where a pc_pid index exists already (a site may have added its own): the upgrade file's
+     * own block runs through SQLUpgradeService with the index in place.
      */
     public function testTheUpgradeWritesStoredPidsAsThePlainNumber(): void
     {
@@ -177,18 +181,11 @@ class IndexFriendlyQueriesDatabaseTest extends TestCase
         $others = fn(): mixed => QueryUtils::fetchSingleValue("SELECT COUNT(*) AS n FROM openemr_postcalendar_events WHERE pc_pid IN ('', 'tfx-filler')", 'n');
         $othersBefore = $others();
 
-        QueryUtils::sqlStatementThrowException('DROP INDEX `pc_pid` ON `openemr_postcalendar_events`');
-        try {
-            $this->runUpgradeBlock('#IfNotIndex openemr_postcalendar_events pc_pid');
-        } finally {
-            if (QueryUtils::fetchRecords("SHOW INDEX FROM openemr_postcalendar_events WHERE Key_name = 'pc_pid'") === []) {
-                QueryUtils::sqlStatementThrowException('CREATE INDEX `pc_pid` ON `openemr_postcalendar_events` (`pc_pid`)');
-            }
-        }
+        $this->assertCount(1, QueryUtils::fetchRecords("SHOW INDEX FROM openemr_postcalendar_events WHERE Key_name = 'pc_pid'"), 'the index is there already');
+        $this->runUpgradeBlock('#IfTable openemr_postcalendar_events');
 
         $this->assertCount(4, $service->getAppointmentsForPatient($this->pid));
         $this->assertSame($othersBefore, $others(), 'no patient, and text that is not a number, stay as they were');
-        $this->assertCount(1, QueryUtils::fetchRecords("SHOW INDEX FROM openemr_postcalendar_events WHERE Key_name = 'pc_pid'"), 'the block added the index');
     }
 
     public function testBillingDatesAreIndexed(): void

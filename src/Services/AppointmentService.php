@@ -198,7 +198,7 @@ class AppointmentService extends BaseService
         if ($isAndCondition && ($search['puuid'] ?? null) instanceof ISearchField && !isset($search['pc_pid'])) {
             $pids = self::patientPids($search['puuid']);
             if ($pids !== []) {
-                $search['pc_pid'] = new StringSearchField('pc_pid', $pids, SearchModifier::EXACT);
+                $search['pc_pid'] = new StringSearchField('pc_pid', $pids, SearchModifier::EXACT, usesIndex: true);
             }
         }
 
@@ -217,21 +217,31 @@ class AppointmentService extends BaseService
     }
 
     /**
-     * A pid as openemr_postcalendar_events.pc_pid is matched: as text. pc_pid is a varchar, so compared with a
-     * number the database reads and converts every event; compared with text its index finds the patient's.
-     * An int, or a string of digits (a pid from a URL can be "05"), becomes the plain number OpenEMR writes, as
-     * the numeric comparison matched it. Any other string, and null, is returned as it was.
+     * A pid as openemr_postcalendar_events.pc_pid is matched and written: as text. pc_pid is a varchar, so
+     * compared with a number the database reads and converts every event; compared with text its index finds
+     * the patient's. The pid is trimmed, and digits become the plain number OpenEMR writes ("05", " 5" and
+     * "5\n" are "5"), as the numeric comparison matched them. Other text comes back trimmed; '' is no patient.
      */
-    public static function calendarPid(mixed $pid): mixed
+    public static function calendarPid(int|string $pid): string
     {
         if (is_int($pid)) {
             return (string) $pid;
         }
-        if (is_string($pid) && ctype_digit($pid)) {
+        $pid = trim($pid);
+        if (ctype_digit($pid)) {
             $plain = ltrim($pid, '0');
             return $plain === '' ? '0' : $plain;
         }
         return $pid;
+    }
+
+    /**
+     * calendarPid() for a value typed mixed (a database row, a global, an untyped parameter): null, which
+     * matches no event, for anything but an int or a string.
+     */
+    public static function calendarPidOrNull(mixed $pid): ?string
+    {
+        return is_int($pid) || is_string($pid) ? self::calendarPid($pid) : null;
     }
 
     /**
@@ -249,7 +259,7 @@ class AppointmentService extends BaseService
         if (!in_array($field->getModifier(), [null, ''], true)) {
             return [];
         }
-        $pids = [];
+        $uuids = [];
         foreach ($field->getValues() as $value) {
             $uuid = match (true) {
                 $value instanceof ReferenceSearchValue => $value->getId(),
@@ -259,9 +269,20 @@ class AppointmentService extends BaseService
             if (!is_string($uuid) || strlen($uuid) !== 16) {
                 return [];
             }
-            $pid = QueryUtils::fetchSingleValue('SELECT pid FROM patient_data WHERE uuid = ?', 'pid', [$uuid]);
-            if (is_numeric($pid)) {
-                $pids[] = (string) $pid;
+            $uuids[] = $uuid;
+        }
+        if ($uuids === []) {
+            return [];
+        }
+        // One query for all the patients named, however many there are.
+        $rows = QueryUtils::fetchRecords(
+            'SELECT pid FROM patient_data WHERE uuid IN (' . implode(',', array_fill(0, count($uuids), '?')) . ')',
+            $uuids
+        );
+        $pids = [];
+        foreach ($rows as $row) {
+            if (is_numeric($row['pid'] ?? null)) {
+                $pids[] = (string) $row['pid'];
             }
         }
         return $pids;
@@ -307,10 +328,10 @@ class AppointmentService extends BaseService
                        LEFT JOIN patient_data as pd ON pd.pid = pce.pc_pid
                        LEFT JOIN users as providers ON pce.pc_aid = providers.id";
 
-        if ($pid) {
-            // pc_pid bound as text lets its index find the patient's events; pd.pid keeps the rows the join gave.
-            $sql .= " WHERE pce.pc_pid = ? AND pd.pid = ?";
-            array_push($sqlBindArray, self::calendarPid($pid), $pid);
+        // pc_pid bound as text lets its index find the patient's events.
+        if ((is_int($pid) && $pid !== 0) || (is_string($pid) && $pid !== '' && $pid !== '0')) {
+            $sql .= " WHERE pce.pc_pid = ?";
+            $sqlBindArray[] = self::calendarPid($pid);
         }
 
         $records = QueryUtils::fetchRecords($sql, $sqlBindArray);
@@ -414,7 +435,7 @@ class AppointmentService extends BaseService
             [
                 $uuid,
                 // the plain number, which the text lookups of pc_pid match ("05" from a URL is stored as "5")
-                self::calendarPid($pid),
+                self::calendarPidOrNull($pid),
                 $data["pc_catid"],
                 $data["pc_title"],
                 $data["pc_duration"],

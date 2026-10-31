@@ -2581,7 +2581,7 @@ function appointment_check($patient_id, $dateFocus = '', $dateTarget = '')
         "FROM openemr_postcalendar_events " .
         "WHERE openemr_postcalendar_events.pc_eventDate > ? " .
         "AND openemr_postcalendar_events.pc_eventDate <= ? " .
-        "AND openemr_postcalendar_events.pc_pid = ?", [$currentDate, $dateTarget, (string) $patient_id]);
+        "AND openemr_postcalendar_events.pc_pid = ?", [$currentDate, $dateTarget, \OpenEMR\Services\AppointmentService::calendarPid($patient_id)]);
 
     // return results of check
     //

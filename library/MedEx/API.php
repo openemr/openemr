@@ -264,7 +264,7 @@ class Practice extends Base
         while ($row = sqlFetchArray($result)) {
             $pid = trim((string) $row['msg_pc_eid'], "recall_");
             $query  = "SELECT pc_eid FROM openemr_postcalendar_events WHERE (pc_eventDate > CURDATE()) AND pc_pid=?";
-            $test3 = sqlStatement($query, [\OpenEMR\Services\AppointmentService::calendarPid($pid)]);
+            $test3 = sqlStatement($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($pid)]);
             $result3 = sqlFetchArray($test3);
             if ($result3) {
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'SCHEDULED', msg_extra_text=? WHERE msg_uid = ?";
@@ -1001,7 +1001,7 @@ class Events extends Base
                         $sql_NoFollowUp = "SELECT COUNT(*) AS num FROM openemr_postcalendar_events WHERE
                             pc_pid = ? AND
                             pc_eventDate > ( ? + INTERVAL " . (int) $no_interval . " DAY)";
-                        $result = sqlQuery($sql_NoFollowUp, [\OpenEMR\Services\AppointmentService::calendarPid($appt['pc_pid']), $appt['pc_eventDate']]);
+                        $result = sqlQuery($sql_NoFollowUp, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($appt['pc_pid']), $appt['pc_eventDate']]);
                         if ($result['num'] > 0) {
                             continue;
                         }
@@ -1136,7 +1136,7 @@ class Events extends Base
             "pc_billing_location,pc_room " .
             ") VALUES (?,?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)";
 
-            $pc_eid = sqlInsert($sql, [$appt['pc_catid'], $appt['pc_multiple'], $appt['pc_aid'], $appt['pc_pid'], $appt['pc_gid'], $appt['pc_title'],
+            $pc_eid = sqlInsert($sql, [$appt['pc_catid'], $appt['pc_multiple'], $appt['pc_aid'], \OpenEMR\Services\AppointmentService::calendarPidOrNull($appt['pc_pid']), $appt['pc_gid'], $appt['pc_title'],
             $appt['pc_hometext'], $appt['pc_informant'], $selected_date, $args['form_enddate'], $appt['pc_duration'], '0',
             serialize($noRecurrspec), $appt['pc_startTime'], $appt['pc_endTime'], $appt['pc_alldayevent'],
             $appt['pc_apptstatus'], $appt['pc_prefcatid'], $locationspec, (int)$appt['pc_facility'],
@@ -2294,7 +2294,7 @@ class Display extends Base
                  id="recall_' . attr($recall['pid']) . '" style="display:none;">';
 
             $query = "SELECT cal.pc_eventDate,pat.DOB FROM openemr_postcalendar_events AS cal JOIN patient_data AS pat ON cal.pc_pid=pat.pid WHERE cal.pc_pid =? ORDER BY cal.pc_eventDate DESC LIMIT 1";
-            $result2 = sqlQuery($query, [\OpenEMR\Services\AppointmentService::calendarPid($recall['pid'])]);
+            $result2 = sqlQuery($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($recall['pid'])]);
             $last_visit = $result2['pc_eventDate'];
             if (empty($result2['DOB'] ?? '')) {
                 $result2['DOB'] = sqlQuery("Select DOB From patient_data Where `pid` = ?", [$recall['pid']])['DOB'];
@@ -2417,7 +2417,7 @@ class Display extends Base
         $show['DONE'] = '';
         $query = "SELECT * FROM openemr_postcalendar_events WHERE
                   pc_eventDate >= CURDATE() AND pc_pid =? AND pc_eventDate > (? - INTERVAL 90 DAY)  AND pc_time >  (CURDATE()- INTERVAL 16 HOUR)";
-        $count = sqlFetchArray(sqlStatement($query, [\OpenEMR\Services\AppointmentService::calendarPid($recall['r_pid']), $recall['r_eventDate']]));
+        $count = sqlFetchArray(sqlStatement($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($recall['r_pid']), $recall['r_eventDate']]));
 
         if ($count) {
             $sqlDELETE = "DELETE FROM medex_outgoing WHERE msg_pc_eid = ?";
@@ -2545,7 +2545,7 @@ class Display extends Base
         }
 
         $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eventDate > CURDATE() AND pc_pid =? AND pc_time >  CURDATE()- INTERVAL 16 HOUR";
-        $result = sqlFetchArray(sqlStatement($query, [\OpenEMR\Services\AppointmentService::calendarPid($recall['r_pid'])]));
+        $result = sqlFetchArray(sqlStatement($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($recall['r_pid'])]));
 
         if ($something_happened || $result) {
             if ($result) {

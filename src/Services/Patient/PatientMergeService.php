@@ -43,6 +43,7 @@ use Document;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Services\AppointmentService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -560,7 +561,7 @@ class PatientMergeService
      */
     private static function boundPid(string $columnName, int $pid): int|string
     {
-        return $columnName === 'pc_pid' ? (string) $pid : $pid;
+        return $columnName === 'pc_pid' ? AppointmentService::calendarPid($pid) : $pid;
     }
 
     /**

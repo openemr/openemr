@@ -603,7 +603,7 @@ class C_EncounterVisitForm
             $q = "SELECT pc_aid, pc_facility, pc_billing_location, pc_catid, pc_startTime" .
                 " FROM openemr_postcalendar_events WHERE pc_pid=? AND pc_eventDate=?" .
                 " ORDER BY pc_startTime ASC";
-            $q_events = sqlStatement($q, [\OpenEMR\Services\AppointmentService::calendarPid($pid), $now]);
+            $q_events = sqlStatement($q, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($pid), $now]);
             while ($override = sqlFetchArray($q_events)) {
                 $q = "SELECT fe.encounter as encounter FROM form_encounter AS fe " .
                     "JOIN forms AS f ON f.form_id = fe.id AND f.encounter = fe.encounter " .
