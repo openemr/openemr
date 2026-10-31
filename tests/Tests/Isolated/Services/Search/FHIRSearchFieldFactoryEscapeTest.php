@@ -55,7 +55,7 @@ class FHIRSearchFieldFactoryEscapeTest extends TestCase
             ],
             'escaped backslash before a comma gives two string values' => [
                 'family:exact', 'a\\\\,b',
-                ' WHERE ((lname = ? AND BINARY lname = ?) OR (lname = ? AND BINARY lname = ?))', ['a\\', 'a\\', 'b', 'b'],
+                ' WHERE (BINARY lname = ? OR BINARY lname = ?)', ['a\\', 'b'],
             ],
             'escaped dollar and pipe in a string value' => [
                 'family', 'a\$b\|c',
@@ -79,7 +79,7 @@ class FHIRSearchFieldFactoryEscapeTest extends TestCase
             ],
             'escaped backslash with :exact is not a LIKE pattern' => [
                 'family:exact', 'O\\\\Brien',
-                ' WHERE (lname = ? AND BINARY lname = ?)', ['O\\Brien', 'O\\Brien'],
+                ' WHERE BINARY lname = ?', ['O\\Brien'],
             ],
             'escaped backslash on several columns' => [
                 'name', 'O\\\\Brien',

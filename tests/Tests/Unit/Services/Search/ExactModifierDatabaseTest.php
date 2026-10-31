@@ -22,13 +22,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * EXACT was `BINARY col = ?`, which keeps the match exact but stops the database from using the
- * column's index. It is now `(col = ? AND BINARY col = ?)`. The plain comparison is looser (the
- * collation folds case, pads trailing spaces and folds accents) and BINARY then keeps only the exact
- * match, so the result should be the rows BINARY alone keeps. These tests check that over the values
- * where a collation and a byte comparison disagree, on a text and an integer column, and that the
- * new form lets the index answer. A value that isn't text keeps BINARY alone, which an ENUM column
- * searched with a number needs.
+ * EXACT is `BINARY col = ?`, which keeps the match exact but stops the database from using the
+ * column's index. A field that asks for it (usesIndex) gets `(col = ? AND BINARY col = ?)`. The plain
+ * comparison is looser (the collation folds case, pads trailing spaces and folds accents) and BINARY
+ * then keeps only the exact match, so the result should be the rows BINARY alone keeps. These tests
+ * check that over the values where a collation and a byte comparison disagree, on a text and an
+ * integer column, and that the form lets the index answer. A field that doesn't ask keeps BINARY
+ * alone, which an ENUM column searched with a number needs.
  *
  * Four patients are seeded whose last names differ only in case, a trailing space and an accent.
  */
@@ -102,7 +102,8 @@ class ExactModifierDatabaseTest extends TestCase
     /**
      * An ENUM column like lists.erx_source, searched with a number as well as text. ADOdb binds a PHP int
      * as a number, and compared with a number an ENUM gives the member's position ('0' is the first member,
-     * position 1), so a plain comparison would pick other rows than BINARY does.
+     * position 1), so a plain comparison would pick other rows than BINARY does. A field that doesn't ask
+     * for the index keeps BINARY alone and finds the right rows either way.
      */
     public function testEnumColumnMatchesTheRowsBinaryMatches(): void
     {
@@ -114,7 +115,7 @@ class ExactModifierDatabaseTest extends TestCase
             foreach ([[0, 1], [1, 2], ['0', 1], ['1', 2]] as [$probe, $binaryMatches]) {
                 $label = get_debug_type($probe) . " $probe";
                 $this->assertSame($binaryMatches, $this->enumRows('BINARY v = ?', [$probe]), "BINARY alone for $label");
-                $this->assertSame($binaryMatches, $this->enumRows(...$this->exactFragment('v', $probe)), "EXACT for $label");
+                $this->assertSame($binaryMatches, $this->enumRows(...$this->exactFragment('v', $probe, false)), "EXACT for $label");
             }
         } finally {
             QueryUtils::sqlStatementThrowException('DROP TEMPORARY TABLE IF EXISTS exact_enum_probe');
@@ -138,10 +139,10 @@ class ExactModifierDatabaseTest extends TestCase
     /**
      * @return array{string, list<mixed>}
      */
-    private function exactFragment(string $column, int|string $value): array
+    private function exactFragment(string $column, int|string $value, bool $usesIndex = true): array
     {
         $fragment = SearchFieldStatementResolver::resolveStringSearchField(
-            new StringSearchField($column, [$value], SearchModifier::EXACT)
+            new StringSearchField($column, [$value], SearchModifier::EXACT, usesIndex: $usesIndex)
         );
         return [$fragment->getFragment(), array_values($fragment->getBoundValues())];
     }

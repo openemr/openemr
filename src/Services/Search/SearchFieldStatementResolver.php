@@ -325,12 +325,10 @@ class SearchFieldStatementResolver
                 SearchModifier::SUFFIX => [self::likeClause($searchField, $field), ['%' . self::likeValue($searchField, $value)]],
                 SearchModifier::CONTAINS => [self::likeClause($searchField, $field), ['%' . self::likeValue($searchField, $value) . '%']],
                 // BINARY on the column keeps the match exact (case, trailing spaces, accents) but
-                // stops the database from using the column's index, so a search for one patient
-                // read the whole table. The plain comparison lets the index find the rows and
-                // matches everything BINARY does, so the result is the same. That holds for text: a
-                // number compared with an ENUM column is taken as the member's position, not its
-                // value, so a value that isn't text keeps BINARY alone.
-                SearchModifier::EXACT => is_string($value)
+                // stops the database from using the column's index. A field that asks for it
+                // (usesIndex()) adds the plain comparison, which lets the index find the rows;
+                // BINARY then keeps only the exact match, so the result is the same.
+                SearchModifier::EXACT => $searchField->usesIndex()
                     ? ['(' . $field . ' = ? AND BINARY ' . $field . ' = ?)', [$value, $value]]
                     : ['BINARY ' . $field . ' = ?', [$value]],
                 SearchModifier::NOT_EQUALS_EXACT => ["BINARY " . $field . ' != ?', [$value]],

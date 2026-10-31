@@ -183,7 +183,7 @@ class FhirSearchModifierMatrixApiTest extends TestCase
      * must be case- and whitespace-exact on the whole value. Current
      * server behavior: implemented. StringSearchField accepts the
      * modifier and SearchFieldStatementResolver::resolveStringSearchField
-     * emits `(<field> = ? AND BINARY <field> = ?)`.
+     * emits `BINARY <field> = ?`.
      */
     #[Test]
     public function testStringExactMatchesWholeValue(): void

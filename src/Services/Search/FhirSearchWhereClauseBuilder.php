@@ -33,9 +33,10 @@ class FhirSearchWhereClauseBuilder
             foreach ($search as $key => $field) {
                 if (!$field instanceof ISearchField) {
                     // developer logic error
-                    // treat the field as an exact string match if they send us a primitive
+                    // treat the field as an exact string match if they send us a primitive; it's a
+                    // service's own lookup by a column such as pid or eid, so it uses the index
                     if (is_string($field) || is_numeric($field)) {
-                        $field = new StringSearchField($key, $field, SearchModifier::EXACT);
+                        $field = new StringSearchField($key, $field, SearchModifier::EXACT, usesIndex: true);
                     } else {
                         throw new \BadMethodCallException("Method called with invalid parameter.  Expected string, number, or SearchField object for parameter '" . $key . "'");
                     }

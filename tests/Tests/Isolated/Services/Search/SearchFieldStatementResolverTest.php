@@ -169,13 +169,34 @@ class SearchFieldStatementResolverTest extends TestCase
     }
 
     #[Test]
+    public function testStringFieldExactUsesTheIndexWhenTheFieldAsks(): void
+    {
+        $fragment = SearchFieldStatementResolver::resolveStringSearchField(
+            new StringSearchField('pc_pid', ['5'], SearchModifier::EXACT, usesIndex: true)
+        );
+        $this->assertSame('(pc_pid = ? AND BINARY pc_pid = ?)', $fragment->getFragment());
+        $this->assertSame(['5', '5'], $fragment->getBoundValues());
+    }
+
+    #[Test]
+    public function testStringFieldExactKeepsBinaryAloneByDefault(): void
+    {
+        // Compared with a number, an ENUM column gives the member's position, so only a field that asks gets the plain comparison.
+        $fragment = SearchFieldStatementResolver::resolveStringSearchField(
+            new StringSearchField('erx_source', [0], SearchModifier::EXACT)
+        );
+        $this->assertSame('BINARY erx_source = ?', $fragment->getFragment());
+        $this->assertSame([0], $fragment->getBoundValues());
+    }
+
+    #[Test]
     public function testStringFieldModifierFragments(): void
     {
         $cases = [
             [SearchModifier::PREFIX, 'name LIKE ?', ['bob%']],
             [SearchModifier::SUFFIX, 'name LIKE ?', ['%bob']],
             [SearchModifier::CONTAINS, 'name LIKE ?', ['%bob%']],
-            [SearchModifier::EXACT, '(name = ? AND BINARY name = ?)', ['bob', 'bob']],
+            [SearchModifier::EXACT, 'BINARY name = ?', ['bob']],
             [SearchModifier::NOT_EQUALS_EXACT, 'BINARY name != ?', ['bob']],
         ];
         foreach ($cases as [$modifier, $expectedSql, $expectedBinds]) {
@@ -187,46 +208,32 @@ class SearchFieldStatementResolverTest extends TestCase
         }
     }
 
-    #[Test]
-    public function testStringFieldExactKeepsBinaryAloneForANumber(): void
-    {
-        // Compared with a number, an ENUM column gives the member's position, so only text gets the plain comparison.
-        $fragment = SearchFieldStatementResolver::resolveStringSearchField(
-            new StringSearchField('erx_source', [0], SearchModifier::EXACT)
-        );
-        $this->assertSame('BINARY erx_source = ?', $fragment->getFragment());
-        $this->assertSame([0], $fragment->getBoundValues());
-    }
-
     /**
-     * @return array<string, array{bool, string, string, list<string>}>
+     * @return array<string, array{bool, string, string, string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function likeWildcardProvider(): array
     {
         return [
-            'literal prefix' => [true, SearchModifier::PREFIX, "name LIKE ? ESCAPE '!'", ['50!%!_a\\b!!%']],
-            'literal suffix' => [true, SearchModifier::SUFFIX, "name LIKE ? ESCAPE '!'", ['%50!%!_a\\b!!']],
-            'literal contains' => [true, SearchModifier::CONTAINS, "name LIKE ? ESCAPE '!'", ['%50!%!_a\\b!!%']],
-            'literal exact is not a LIKE pattern' => [true, SearchModifier::EXACT, '(name = ? AND BINARY name = ?)', ['50%_a\\b!', '50%_a\\b!']],
-            'wildcards stay for other callers, prefix' => [false, SearchModifier::PREFIX, 'name LIKE ?', ['50%_a\\b!%']],
-            'wildcards stay for other callers, contains' => [false, SearchModifier::CONTAINS, 'name LIKE ?', ['%50%_a\\b!%']],
+            'literal prefix' => [true, SearchModifier::PREFIX, "name LIKE ? ESCAPE '!'", '50!%!_a\\b!!%'],
+            'literal suffix' => [true, SearchModifier::SUFFIX, "name LIKE ? ESCAPE '!'", '%50!%!_a\\b!!'],
+            'literal contains' => [true, SearchModifier::CONTAINS, "name LIKE ? ESCAPE '!'", '%50!%!_a\\b!!%'],
+            'literal exact is not a LIKE pattern' => [true, SearchModifier::EXACT, 'BINARY name = ?', '50%_a\\b!'],
+            'wildcards stay for other callers, prefix' => [false, SearchModifier::PREFIX, 'name LIKE ?', '50%_a\\b!%'],
+            'wildcards stay for other callers, contains' => [false, SearchModifier::CONTAINS, 'name LIKE ?', '%50%_a\\b!%'],
         ];
     }
 
-    /**
-     * @param list<string> $expectedBinds
-     */
     #[Test]
     #[DataProvider('likeWildcardProvider')]
-    public function testStringFieldLikeWildcards(bool $isLiteral, string $modifier, string $expectedSql, array $expectedBinds): void
+    public function testStringFieldLikeWildcards(bool $isLiteral, string $modifier, string $expectedSql, string $expectedBind): void
     {
         $fragment = SearchFieldStatementResolver::resolveStringSearchField(
             new StringSearchField('name', ['50%_a\\b!'], $modifier, null, $isLiteral)
         );
         $this->assertSame($expectedSql, $fragment->getFragment());
-        $this->assertSame($expectedBinds, $fragment->getBoundValues());
+        $this->assertSame([$expectedBind], $fragment->getBoundValues());
     }
 
     #[Test]
