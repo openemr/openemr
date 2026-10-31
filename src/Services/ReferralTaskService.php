@@ -41,6 +41,12 @@ class ReferralTaskService
 
     private ?TaskService $taskService = null;
 
+    /** GET_LOCK's name for a referral's Task, prefixed as core's other advisory locks are (within MySQL's 64 characters). */
+    private const LOCK_PREFIX = 'openemr.referral_task.';
+
+    /** How long a save waits for another save of the same referral to finish making its Task. */
+    private const LOCK_SECONDS = 5;
+
     private function getReferralService(): ReferralService
     {
         return $this->referralService ??= new ReferralService(createMissingUuids: false);
@@ -92,24 +98,45 @@ class ReferralTaskService
         $referralUuid = self::text($referral, 'uuid');
         $patientId = $referral['patient_id'] ?? null;
         $owner = self::party($referral, 'performer');
-        if ($referralUuid === null || !is_numeric($patientId) || $owner === null || $this->hasTask($referralUuid, $owner[1])) {
+        if ($referralUuid === null || !is_numeric($patientId) || $owner === null) {
             return null;
         }
-        $requester = self::party($referral, 'requester');
-        return $this->getTaskService()->insert([
-            'status' => 'requested',
-            'intent' => 'order',
-            'code' => 'fulfill',
-            // #14669 renders a code only with its system, so the referral's Task records task-code's.
-            'code_system' => FhirTaskService::TASK_CODE_SYSTEM,
-            'focus_type' => 'ServiceRequest',
-            'focus_uuid' => $referralUuid,
-            'owner_type' => $owner[0],
-            'owner_uuid' => $owner[1],
-            'requester_type' => $requester[0] ?? null,
-            'requester_uuid' => $requester[1] ?? null,
-            'authored_on' => date('Y-m-d H:i:s'),
-        ], (int)$patientId, $userId);
+        // Two saves of the referral at once would each find no Task and each make one, and the task
+        // table doesn't prevent it: a lock on the referral is held across the check and the insert,
+        // so the second save finds the first one's Task.
+        $lock = self::LOCK_PREFIX . $referralUuid;
+        $locked = self::lock($lock);
+        if ($locked !== true) {
+            // Another save held it past the wait, or GET_LOCK failed: the Task comes with the referral's
+            // next save, and the log names the referral.
+            ServiceContainer::getLogger()->warning('A referral\'s Task was not made: its lock was not acquired', [
+                'referral_uuid' => $referralUuid,
+                'reason' => $locked === false ? 'another save held it past the wait' : 'GET_LOCK failed',
+            ]);
+            return null;
+        }
+        try {
+            if ($this->hasTask($referralUuid, $owner[1])) {
+                return null;
+            }
+            $requester = self::party($referral, 'requester');
+            return $this->getTaskService()->insert([
+                'status' => 'requested',
+                'intent' => 'order',
+                'code' => 'fulfill',
+                // #14669 renders a code only with its system, so the referral's Task records task-code's.
+                'code_system' => FhirTaskService::TASK_CODE_SYSTEM,
+                'focus_type' => 'ServiceRequest',
+                'focus_uuid' => $referralUuid,
+                'owner_type' => $owner[0],
+                'owner_uuid' => $owner[1],
+                'requester_type' => $requester[0] ?? null,
+                'requester_uuid' => $requester[1] ?? null,
+                'authored_on' => date('Y-m-d H:i:s'),
+            ], (int)$patientId, $userId);
+        } finally {
+            self::unlock($lock);
+        }
     }
 
     /**
@@ -388,6 +415,31 @@ class ReferralTaskService
             }
         }
         return $cancelled;
+    }
+
+    /**
+     * GET_LOCK, as BackgroundServiceRunner takes its lock: true when it's acquired, false when another
+     * session held it past the wait, null when GET_LOCK failed. The database session holds the lock, so
+     * a process that dies releases it.
+     */
+    private static function lock(string $name): ?bool
+    {
+        $row = QueryUtils::querySingleRow('SELECT GET_LOCK(?, ?) AS got', [$name, self::LOCK_SECONDS], false);
+        $got = is_array($row) ? ($row['got'] ?? null) : null;
+        return match ($got) {
+            1, '1' => true,
+            0, '0' => false,
+            default => null,
+        };
+    }
+
+    private static function unlock(string $name): void
+    {
+        try {
+            QueryUtils::fetchRecordsNoLog('SELECT RELEASE_LOCK(?) AS released', [$name]);
+        } catch (SqlQueryException) {
+            // The database releases it anyway when the session ends.
+        }
     }
 
     private function hasTask(string $referralUuid, string $ownerUuid): bool
