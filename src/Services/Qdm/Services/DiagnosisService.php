@@ -22,6 +22,7 @@ class DiagnosisService extends AbstractQdmService implements QdmServiceInterface
         $sql = "SELECT pid, begdate, enddate, `date`, diagnosis
                 FROM lists
                 WHERE `type` = 'medical_problem' AND subtype = 'diagnosis'
+                AND " . self::countedListEntry('`lists`') . "
                 ";
         return $sql;
     }

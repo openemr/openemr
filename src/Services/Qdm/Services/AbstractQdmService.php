@@ -42,6 +42,19 @@ abstract class AbstractQdmService
         $this->codeTypesService = $codeTypesService;
     }
 
+    /**
+     * Which lists rows (problems, concerns, allergies) the measures count, as SQL: not marked
+     * Entered in Error or Refuted in the issue's Verification Status (lists.verification, from
+     * the condition-verification and allergyintolerance-verification lists), which the issue
+     * screen offers for both. Any other status is kept, including the column's default, empty.
+     *
+     * @param string $table lists or its alias, as it appears in the query
+     */
+    public static function countedListEntry(string $table): string
+    {
+        return "$table.`verification` NOT IN ('entered-in-error', 'refuted')";
+    }
+
     public static function convertToObjectIdBSONFormat($id)
     {
         // max bigint size will fit in 16 characters so we will always have enough space for this.
@@ -109,6 +122,25 @@ abstract class AbstractQdmService
         }
 
         return $result;
+    }
+
+    /**
+     * SQL that is true unless the row's form was deleted from the visit: delete_form.php sets
+     * forms.deleted = 1 and leaves the form's own rows in place. The form has to be the row's
+     * patient's too, since form ids can repeat across patients (the procedure order and others
+     * pick theirs with an unlocked MAX() + 1). A row with no forms row is kept.
+     *
+     * @param string $formId  the column holding the row's form id, as it appears in the query
+     * @param string $pid     the column holding the row's patient, as it appears in the query
+     * @param string $formdir the form's directory, as forms.formdir records it
+     */
+    public static function notInDeletedForm(string $formId, string $pid, string $formdir): string
+    {
+        return "NOT EXISTS (
+                    SELECT 1 FROM `forms`
+                    WHERE `forms`.`form_id` = $formId AND `forms`.`pid` = $pid
+                      AND `forms`.`formdir` = '$formdir' AND `forms`.`deleted` = 1
+                )";
     }
 
     /**

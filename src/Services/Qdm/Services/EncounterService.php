@@ -34,8 +34,10 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                     L.codes AS discharge_dispo_code,
                     C.pc_duration
                 FROM form_encounter FE
-                LEFT JOIN issue_encounter IE ON FE.encounter = IE.encounter
-                LEFT JOIN lists LISTS ON IE.list_id = LISTS.id
+                LEFT JOIN (
+                    issue_encounter IE
+                    JOIN lists LISTS ON IE.list_id = LISTS.id AND " . self::countedListEntry('LISTS') . "
+                ) ON FE.encounter = IE.encounter
                 LEFT JOIN openemr_postcalendar_categories C ON FE.pc_catid = C.pc_catid
                 LEFT JOIN list_options L ON FE.discharge_disposition = L.option_id AND L.list_id = 'discharge-disposition'
                 ";

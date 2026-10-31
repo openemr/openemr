@@ -30,6 +30,7 @@ class InterventionService extends AbstractQdmService implements QdmServiceInterf
                 FROM procedure_order O
                     LEFT JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
                 WHERE O.procedure_order_type = 'intervention' AND O.activity != 0
+                AND " . self::notInDeletedForm('O.procedure_order_id', 'O.patient_id', 'procedure_order') . "
                 ";
 
         return $sql;

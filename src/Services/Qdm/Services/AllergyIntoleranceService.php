@@ -23,6 +23,7 @@ class AllergyIntoleranceService extends AbstractQdmService implements QdmService
         $sql = "SELECT pid, begdate, enddate, `date`, diagnosis
                 FROM lists
                 WHERE type = 'allergy'
+                AND " . self::countedListEntry('`lists`') . "
                 ";
         return $sql;
     }
