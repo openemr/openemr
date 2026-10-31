@@ -19,6 +19,7 @@ use OpenEMR\Services\Cda\CdaTemplateParse;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use ReflectionClass;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -40,6 +41,7 @@ class CdaVitalSignComponentsTest extends TestCase
         $this->reflection->getProperty('ed')->setValue($this->parser, $this->createMock(EventDispatcherInterface::class));
         $this->reflection->getProperty('is_qrda_import')->setValue($this->parser, false);
         $this->reflection->getProperty('currentOid')->setValue($this->parser, '');
+        $this->reflection->getProperty('logger')->setValue($this->parser, new NullLogger());
     }
 
     public function testOpenEmrsOwnExportIsReadPastTheNinthVitalSign(): void
@@ -120,23 +122,102 @@ class CdaVitalSignComponentsTest extends TestCase
 
     /**
      * Synthea writes all of a patient's vital signs into one organizer, each with its own time
-     * (issue #12302). Each time is a record of its own, and only the first carries the
-     * organizer's id, which finds an entry imported before.
+     * (issue #12302). Each date is a record of its own. The first keeps the organizer's id, which
+     * finds an entry imported before; a later date gets an id of its own made from it.
      */
-    public function testAnOrganizerOfSeveralTimesIsReadAsOneRecordPerTime(): void
+    public function testAnOrganizerOfSeveralDatesIsReadAsOneRecordPerDate(): void
     {
-        $this->parser->fetchVitalSignData($this->organizerOf([
-            ['8867-4', '72', '/min', '<effectiveTime value="20180114093000"/>'],
-            ['9279-1', '16', '/min', '<effectiveTime value="20180114093000"/>'],
-            ['8867-4', '80', '/min', '<effectiveTime value="20210120101500"/>'],
-            ['9279-1', '18', '/min', '<effectiveTime value="20210120101500"/>'],
-        ]));
+        $this->parser->fetchVitalSignData($this->severalDates());
 
         $first = $this->vitalSign(1);
         $this->assertSame(['20180114093000', '72', '16', 'vitals-1'], [$first['date'], $first['pulse'], $first['respiration'], $first['extension']]);
         $second = $this->vitalSign(2);
-        $this->assertSame(['20210120101500', '80', '18', null], [$second['date'], $second['pulse'], $second['respiration'], $second['extension']]);
+        $this->assertSame(['20210120101500', '80', '18'], [$second['date'], $second['pulse'], $second['respiration']]);
         $this->assertSame('1.3.6.1.4.1.115', $second['root']);
+        $this->assertIsString($second['extension']);
+        $this->assertNotSame('vitals-1', $second['extension']);
+        $this->assertLessThanOrEqual(20, strlen($second['extension']), "fits form_vitals.external_id's 20 characters");
+    }
+
+    /**
+     * Importing the document again finds each date's entry by its id, so it's updated rather
+     * than added again.
+     */
+    public function testEachDateGetsTheSameIdOnEveryImport(): void
+    {
+        $this->parser->fetchVitalSignData($this->severalDates());
+        $firstImport = [$this->vitalSign(1)['extension'], $this->vitalSign(2)['extension']];
+        $this->reflection->getProperty('templateData')->setValue($this->parser, []);
+
+        $this->parser->fetchVitalSignData($this->severalDates());
+
+        $this->assertSame($firstImport, [$this->vitalSign(1)['extension'], $this->vitalSign(2)['extension']]);
+    }
+
+    /**
+     * C-CDA dates an organizer by an interval around its readings, so one visit's readings can
+     * be minutes apart. They're one record, dated by the first.
+     */
+    public function testReadingsMinutesApartOnOneDateAreOneRecord(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizerOf([
+            ['8867-4', '72', '/min', '<effectiveTime value="20260301093000"/>'],
+            ['9279-1', '16', '/min', '<effectiveTime value="20260301093500"/>'],
+        ]));
+
+        $vital = $this->vitalSign(1);
+        $this->assertSame(['20260301093000', '72', '16', 'vitals-1'], [$vital['date'], $vital['pulse'], $vital['respiration'], $vital['extension']]);
+        $this->assertSame(1, $this->vitalSignCount());
+    }
+
+    /**
+     * A date whose readings the Vitals form doesn't record (pain severity here) isn't saved as an
+     * empty form, and the organizer's id goes to the first date that is saved.
+     */
+    public function testADateWithNothingTheVitalsFormRecordsIsNotSaved(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizerOf([
+            ['72514-3', '3', '{score}', '<effectiveTime value="20180114093000"/>'],
+            ['8867-4', '80', '/min', '<effectiveTime value="20210120101500"/>'],
+        ]));
+
+        $vital = $this->vitalSign(1);
+        $this->assertSame(['20210120101500', '80', 'vitals-1'], [$vital['date'], $vital['pulse'], $vital['extension']]);
+        $this->assertSame(1, $this->vitalSignCount());
+    }
+
+    public function testAnOrganizerWhoseFirstVitalSignHasNoTimeIsRead(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizerOf([
+            ['9279-1', '16', '/min', ''],
+            ['8867-4', '72', '/min', '<effectiveTime value="20260301093000"/>'],
+        ]));
+
+        $vital = $this->vitalSign(1);
+        $this->assertSame(['20260301093000', '72', '16'], [$vital['date'], $vital['pulse'], $vital['respiration']]);
+    }
+
+    /**
+     * A blood pressure is read from its two entry relationships; a second copy without values
+     * doesn't replace the reading.
+     */
+    public function testABloodPressureCopyWithoutValuesKeepsTheReading(): void
+    {
+        $bp = fn(?string $systolic, ?string $diastolic): array => ['observation' => [
+            'code' => ['code' => '85354-9'],
+            'effectiveTime' => ['value' => '20260301093000'],
+            'entryRelationship' => [
+                ['observation' => ['value' => ['value' => $systolic]]],
+                ['observation' => ['value' => ['value' => $diastolic]]],
+            ],
+        ]];
+        $this->parser->fetchVitalSignData(['organizer' => [
+            'id' => ['root' => '1.3.6.1.4.1.115', 'extension' => 'vitals-1'],
+            'component' => [$bp('120', '80'), $bp(null, null)],
+        ]]);
+
+        $vital = $this->vitalSign(1);
+        $this->assertSame(['120', '80'], [$vital['bps'], $vital['bpd']]);
     }
 
     public function testAVitalSignWithNoTimeOfItsOwnIsReadWithTheFirst(): void
@@ -194,6 +275,21 @@ class CdaVitalSignComponentsTest extends TestCase
 
         $vital = $this->vitalSign(1);
         $this->assertSame(['20260301093000', '72'], [$vital['date'], $vital['pulse']]);
+    }
+
+    /**
+     * Pulse and respiration on two dates.
+     *
+     * @return array<string, mixed>
+     */
+    private function severalDates(): array
+    {
+        return $this->organizerOf([
+            ['8867-4', '72', '/min', '<effectiveTime value="20180114093000"/>'],
+            ['9279-1', '16', '/min', '<effectiveTime value="20180114093000"/>'],
+            ['8867-4', '80', '/min', '<effectiveTime value="20210120101500"/>'],
+            ['9279-1', '18', '/min', '<effectiveTime value="20210120101500"/>'],
+        ]);
     }
 
     /**

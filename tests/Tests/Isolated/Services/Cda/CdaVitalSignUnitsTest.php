@@ -19,7 +19,9 @@ namespace OpenEMR\Tests\Isolated\Services\Cda;
 use OpenEMR\Services\Cda\CdaTemplateParse;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -28,6 +30,7 @@ class CdaVitalSignUnitsTest extends TestCase
     private CdaTemplateParse $parser;
     /** @var ReflectionClass<CdaTemplateParse> */
     private ReflectionClass $reflection;
+    private LoggerInterface&MockObject $logger;
 
     protected function setUp(): void
     {
@@ -47,6 +50,8 @@ class CdaVitalSignUnitsTest extends TestCase
         $this->reflection->getProperty('ed')->setValue($this->parser, $this->createMock(EventDispatcherInterface::class));
         $this->reflection->getProperty('is_qrda_import')->setValue($this->parser, false);
         $this->reflection->getProperty('currentOid')->setValue($this->parser, '');
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->reflection->getProperty('logger')->setValue($this->parser, $this->logger);
     }
 
     public function testMetricVitalsAreStoredInTheVitalsFormUnits(): void
@@ -96,6 +101,9 @@ class CdaVitalSignUnitsTest extends TestCase
 
     public function testAVitalInAUnitThatDoesNotConvertIsLeftOut(): void
     {
+        $this->logger->expects($this->once())->method('warning')
+            ->with("Vital sign left out: its unit does not convert to the Vitals form's", ['column' => 'weight', 'unit' => '[oz_av]']);
+
         $this->parser->fetchVitalSignData($this->organizer([
             ['3141-9', '160', '[oz_av]'],
             ['8302-2', '170', 'cm'],
@@ -111,6 +119,10 @@ class CdaVitalSignUnitsTest extends TestCase
      */
     public function testAValueThatIsNotANumberInAUnitIsLeftOut(): void
     {
+        // Only the value that isn't a number is logged: a blank one has nothing to report.
+        $this->logger->expects($this->once())->method('warning')
+            ->with('Vital sign left out: its value is not a number', ['column' => 'weight', 'unit' => 'kg']);
+
         $this->parser->fetchVitalSignData($this->organizer([
             ['3141-9', '70,3', 'kg'],
             ['8302-2', '', 'cm'],

@@ -18,6 +18,7 @@ use OpenEMR\Events\CDA\CDAPostParseEvent;
 use OpenEMR\Events\CDA\CDAPreParseEvent;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\VitalsStorageUnits;
+use Psr\Log\LoggerInterface;
 
 class CdaTemplateParse
 {
@@ -42,8 +43,11 @@ class CdaTemplateParse
      */
     private $ed;
 
-    public function __construct(public $conditionedXmlContent = "")
+    private readonly LoggerInterface $logger;
+
+    public function __construct(public $conditionedXmlContent = "", ?LoggerInterface $logger = null)
     {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->templateData = [];
         $this->is_qrda_import = false;
         $this->codeService = new CodeTypesService();
@@ -1208,7 +1212,10 @@ class CdaTemplateParse
     public function fetchVitalSignData($vital_sign_data)
     {
         $components = self::withIntervalStartTimes(self::organizerComponents($vital_sign_data));
-        $firstTime = self::componentTime($components[0] ?? null);
+        $firstTime = null;
+        foreach ($components as $component) {
+            $firstTime ??= self::componentTime($component);
+        }
         if ($firstTime !== null) {
             $organizer = is_array($vital_sign_data) ? ($vital_sign_data['organizer'] ?? null) : null;
             $id = is_array($organizer) && is_array($organizer['id'] ?? null) ? $organizer['id'] : [];
@@ -1227,25 +1234,31 @@ class CdaTemplateParse
             ];
 
             // Every component (OpenEMR's own export writes respiration, temperature and oxygen saturation after
-            // the ninth), and one record per time: an organizer can hold several dates (Synthea writes all of a
-            // patient's vital signs into one). A component with no time of its own is read with the first.
-            $byTime = [];
+            // the ninth), and one record per date: an organizer can hold several dates (Synthea writes all of a
+            // patient's vital signs into one), while one visit's readings can be minutes apart (C-CDA dates the
+            // organizer by an interval around them). A record is dated by its date's first time, and a component
+            // with no time of its own is read with the organizer's first.
+            $byDate = [];
             foreach ($components as $component) {
                 $time = self::componentTime($component) ?? $firstTime;
-                $byTime[$time] ??= ['time' => $time, 'components' => []];
-                $byTime[$time]['components'][] = $component;
+                $byDate[substr($time, 0, 8)] ??= ['time' => $time, 'components' => []];
+                $byDate[substr($time, 0, 8)]['components'][] = $component;
             }
-            $first = true;
-            foreach ($byTime as ['time' => $time, 'components' => $timeComponents]) {
-                // The organizer's id finds an entry imported before (external_id), and one id can't name
-                // several records, so a later time is saved as an entry of its own.
-                $record = ['extension' => $first ? ($id['extension'] ?? null) : null, 'root' => $id['root'] ?? null, 'date' => $time];
-                foreach ($timeComponents as $component) {
+            $extension = is_string($id['extension'] ?? null) && $id['extension'] !== '' ? $id['extension'] : null;
+            $saved = 0;
+            foreach ($byDate as $date => ['time' => $time, 'components' => $dateComponents]) {
+                $record = ['extension' => null, 'root' => $id['root'] ?? null, 'date' => $time];
+                foreach ($dateComponents as $component) {
                     $observation = is_array($component) && is_array($component['observation'] ?? null) ? $component['observation'] : [];
                     $code = $observation['code']['code'] ?? null;
                     if (!empty($observation['entryRelationship'])) {
-                        $record['bps'] = $observation['entryRelationship'][0]['observation']['value']['value'] ?? null;
-                        $record['bpd'] = $observation['entryRelationship'][1]['observation']['value']['value'] ?? null;
+                        $relationships = is_array($observation['entryRelationship']) ? $observation['entryRelationship'] : [];
+                        foreach (['bps' => 0, 'bpd' => 1] as $column => $k) {
+                            $bp = self::relatedValue($relationships[$k] ?? null);
+                            if ($bp !== null || !isset($record[$column])) {
+                                $record[$column] = $bp;
+                            }
+                        }
                     } elseif (is_string($code) && array_key_exists($code, $vitals_array)) {
                         $vital = $this->vitalValue($vitals_array[$code], $observation['value'] ?? null);
                         // A measure sent twice (2710-2 and 59408-5), or a reading left out for its unit, doesn't
@@ -1255,12 +1268,33 @@ class CdaTemplateParse
                         }
                     }
                 }
+                // A date with nothing the Vitals form records isn't saved as an empty form.
+                if (array_filter(array_diff_key($record, ['extension' => 0, 'root' => 0, 'date' => 0]), fn($v): bool => $v !== null) === []) {
+                    continue;
+                }
+                // The organizer's id finds an entry imported before (external_id), so importing the document again
+                // updates it. The first date saved keeps the id; each later date gets one made from it and the date,
+                // which stays the same on every import and fits external_id's 20 characters (a longer one would be
+                // cut on saving and never match).
+                if ($extension !== null) {
+                    $record['extension'] = $saved === 0 ? $extension : substr(hash('sha256', $extension . '|' . $date), 0, 20);
+                }
                 $i = 1 + count($this->templateData['field_name_value_array']['vital_sign'] ?? []);
                 $this->templateData['field_name_value_array']['vital_sign'][$i] = $record;
                 $this->templateData['entry_identification_array']['vital_sign'][$i] = $i;
-                $first = false;
+                $saved++;
             }
         }
+    }
+
+    /**
+     * The value of an entry relationship's observation: a blood pressure's systolic or diastolic reading.
+     */
+    private static function relatedValue(mixed $relationship): mixed
+    {
+        $observation = is_array($relationship) ? ($relationship['observation'] ?? null) : null;
+        $value = is_array($observation) ? ($observation['value'] ?? null) : null;
+        return is_array($value) ? ($value['value'] ?? null) : null;
     }
 
     /**
@@ -1420,24 +1454,24 @@ class CdaTemplateParse
      *
      * @param mixed $value the observation's value element (value and unit attributes)
      */
-    private function vitalValue(string $column, mixed $value): mixed
+    private function vitalValue(string $column, mixed $value): float|string|null
     {
         $number = is_array($value) ? ($value['value'] ?? null) : null;
         $unit = is_array($value) && is_string($value['unit'] ?? null) ? trim($value['unit']) : '';
         $storageUnit = self::VITAL_STORAGE_UNITS[$column] ?? null;
         if ($storageUnit === null || $unit === '') {
-            return $number;
+            return is_string($number) ? $number : null;
         }
         if (!is_numeric($number)) {
             // MySQL would keep the digits it can read ("70,3" kg as 70) in the column's unit.
             if ($number !== null && $number !== '') {
-                ServiceContainer::getLogger()->warning('Vital sign left out: its value is not a number', ['column' => $column, 'unit' => $unit]);
+                $this->logger->warning('Vital sign left out: its value is not a number', ['column' => $column, 'unit' => $unit]);
             }
             return null;
         }
         $converted = VitalsStorageUnits::convert((float)$number, $unit, $storageUnit);
         if ($converted === null) {
-            ServiceContainer::getLogger()->warning('Vital sign left out: its unit does not convert to the Vitals form\'s', ['column' => $column, 'unit' => $unit]);
+            $this->logger->warning('Vital sign left out: its unit does not convert to the Vitals form\'s', ['column' => $column, 'unit' => $unit]);
         }
         return $converted;
     }
