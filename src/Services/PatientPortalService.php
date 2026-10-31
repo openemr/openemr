@@ -87,7 +87,7 @@ class PatientPortalService
         if (!empty($content)) {
             $message = xl("Comment from provider") . ": " . $content . "\n";
         }
-        $message = $message . xl("Please click the below link (only valid for 48 hours) to edit document") . ': "' . $name . "\".\n";
+        $message = $message . self::oneTimeDocumentLine($name, $period);
 
         $statusMsg = xl("Notification requests are being sent!");
         $event_data = [
@@ -102,6 +102,47 @@ class PatientPortalService
         $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         $eventDispatcher->dispatch(new SendNotificationEvent($pid, $event_data), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_ONETIME);
         return text($statusMsg);
+    }
+
+    /**
+     * The message line for a one-time document link, stating the link's actual expiry.
+     */
+    public static function oneTimeDocumentLine(mixed $name, mixed $period): string
+    {
+        return xl("Please click the below link to edit document") . ': "' . (is_scalar($name) ? (string) $name : '')
+            . '" (' . xl("valid for") . ' ' . self::describeExpiry($period) . ").\n";
+    }
+
+    /**
+     * The patient-facing length of a one-time link, from the ISO 8601 interval actually used
+     * for its expiry (for example PT60M -> "60 minutes"). Unknown or empty intervals are
+     * described generically rather than with a fixed duration.
+     */
+    public static function describeExpiry(mixed $period): string
+    {
+        if (!is_string($period) || $period === '') {
+            return xl("a limited time");
+        }
+        try {
+            $interval = new \DateInterval($period);
+        } catch (\Throwable) {
+            return xl("a limited time");
+        }
+        $units = [
+            [$interval->y, xl("year"), xl("years")],
+            [$interval->m, xl("month"), xl("months")],
+            [$interval->d, xl("day"), xl("days")],
+            [$interval->h, xl("hour"), xl("hours")],
+            [$interval->i, xl("minute"), xl("minutes")],
+            [$interval->s, xl("second"), xl("seconds")],
+        ];
+        $parts = [];
+        foreach ($units as [$count, $one, $many]) {
+            if ($count > 0) {
+                $parts[] = $count . ' ' . ($count === 1 ? $one : $many);
+            }
+        }
+        return $parts === [] ? xl("a limited time") : implode(' ', $parts);
     }
 
     /**
