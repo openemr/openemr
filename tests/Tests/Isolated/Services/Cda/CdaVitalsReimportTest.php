@@ -40,13 +40,32 @@ class CdaVitalsReimportTest extends TestCase
 
     public function testAReadingTheDocumentCarriesIsKept(): void
     {
-        $vitals = ['extension' => 'vitals-1', 'date' => '20260401', 'bps' => '130', 'weight' => '151', 'pulse' => '0'];
+        $vitals = ['extension' => 'vitals-1', 'date' => '20260401', 'bps' => '130', 'weight' => '151', 'pulse' => '72'];
 
         $merged = CdaVitalsReimport::withStoredReadings($vitals, self::STORED, self::PID);
 
         $this->assertSame('130', $merged['bps']);
         $this->assertSame('151', $merged['weight']);
-        $this->assertSame('0', $merged['pulse'], 'a reading of 0 is a reading');
+        $this->assertSame('72', $merged['pulse']);
+    }
+
+    /**
+     * OpenEMR stores an unrecorded reading as 0, and its own export wrote one as 0.00 before 2026-10-07: two
+     * Vitals forms in one encounter export with one id, so the second form's 0.00 height would replace the
+     * first form's real one.
+     */
+    public function testACarriedZeroKeepsTheStoredReading(): void
+    {
+        $vitals = ['extension' => 'vitals-1', 'date' => '20260401', 'bps' => '128', 'height' => '0.00', 'weight' => 0, 'pulse' => '0', 'temperature' => 0.0];
+
+        $merged = CdaVitalsReimport::withStoredReadings($vitals, self::STORED, self::PID);
+
+        $this->assertSame('128', $merged['bps']);
+        $this->assertSame('65.000000', $merged['height']);
+        $this->assertSame('150.000000', $merged['weight']);
+        $this->assertSame('70.000000', $merged['pulse']);
+        $this->assertSame('98.600000', $merged['temperature']);
+        $this->assertSame('25.000000', $merged['BMI'], 'weight and height are unchanged, so BMI still holds');
     }
 
     public function testAReadingTheDocumentLacksKeepsTheStoredOne(): void
@@ -121,7 +140,7 @@ class CdaVitalsReimportTest extends TestCase
         $this->assertSame(
             '25.000000',
             CdaVitalsReimport::withStoredReadings(['weight' => 150.0004] + $approved, self::STORED, self::PID)['BMI'],
-            'the same weight, converted from kilograms'
+            'the same weight, rounded differently by the sender'
         );
         $this->assertSame(
             '26',

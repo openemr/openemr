@@ -32,7 +32,7 @@ final class CdaVitalsReimport
      * @param mixed $vitals the entry as InsertVitals() takes it
      * @param mixed $stored the form_vitals row the import updates
      * @param mixed $pid    the importing patient's pid
-     * @return array<mixed> the entry, with each reading it lacks (null or blank) taken from the stored row
+     * @return array<mixed> the entry, with each reading it lacks (null, blank or 0) taken from the stored row
      */
     public static function withStoredReadings(mixed $vitals, mixed $stored, mixed $pid): array
     {
@@ -57,16 +57,24 @@ final class CdaVitalsReimport
         return $vitals;
     }
 
-    /** @param array<mixed> $vitals */
+    /**
+     * OpenEMR stores an unrecorded reading as 0 (VitalSignConversion::recorded() reads 0 as none), and its own
+     * export wrote one as 0.00 before 2026-10-07, so a carried 0 is a reading the document doesn't have.
+     *
+     * @param array<mixed> $vitals
+     */
     private static function lacks(array $vitals, string $reading): bool
     {
         $value = $vitals[$reading] ?? null;
-        return $value === null || (is_string($value) && trim($value) === '');
+        if (is_string($value)) {
+            $value = trim($value);
+        }
+        return $value === null || $value === '' || (is_numeric($value) && (float) $value === 0.0);
     }
 
     /**
-     * Whether the document carries a reading different from the stored one (to the hundredth, as the
-     * converted readings and form_vitals' decimals can differ past that).
+     * Whether the document carries a reading different from the stored one, to the hundredth: a sender's
+     * own rounding can differ past that.
      *
      * @param array<mixed> $vitals
      * @param array<mixed> $stored
