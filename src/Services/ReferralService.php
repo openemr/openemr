@@ -36,6 +36,9 @@ class ReferralService extends BaseService
     /** The referral form's id, in transactions.title. */
     public const FORM_ID = 'LBTref';
 
+    /** The referral's own Tasks, the ones ReferralTaskService makes: code fulfill, not part of another Task. */
+    private const OWN_TASK_SQL = "task.code = 'fulfill' AND task.part_of_uuid IS NULL";
+
     /** The lbt_data fields read, each as a column of the same name. */
     private const FIELDS = ['refer_date', 'refer_from', 'refer_to', 'body', 'refer_diag', 'refer_related_code', 'reply_date'];
 
@@ -48,14 +51,22 @@ class ReferralService extends BaseService
     /**
      * Search columns that are the transaction's own, by the column each is read from.
      * Filters on them are applied before the fields are grouped, so that a search by
-     * patient, id or last update doesn't group every referral first.
+     * patient or id doesn't group every referral first. The last update isn't one: it
+     * moves with the referral's Task too.
      */
-    private const SOURCE_COLUMNS = ['uuid' => 't.uuid', 'puuid' => 'patients.uuid', 'last_modified' => 't.date'];
+    private const SOURCE_COLUMNS = ['uuid' => 't.uuid', 'puuid' => 'patients.uuid'];
 
-    public function __construct()
+    /**
+     * @param bool $createMissingUuids give every referral, patient and user without a uuid one,
+     *     as FHIR searches need; false where only a few known rows are read (a save, or one
+     *     patient's referrals on a page), which fill in their own rows or don't need uuids
+     */
+    public function __construct(bool $createMissingUuids = true)
     {
         parent::__construct(self::TABLE_NAME);
-        UuidRegistry::createMissingUuidsForTables([self::TABLE_NAME, 'patient_data', 'users']);
+        if ($createMissingUuids) {
+            UuidRegistry::createMissingUuidsForTables([self::TABLE_NAME, 'patient_data', 'users']);
+        }
     }
 
     /**
@@ -67,9 +78,52 @@ class ReferralService extends BaseService
     }
 
     /**
-     * Each referral with its fields, its patient's uuid, its status (completed once a
-     * reply date is recorded) and, for the requester and the person referred to, their
-     * uuid and whether FHIR serves them as a Practitioner.
+     * The status of the latest Task owned by the referral's recipient (Refer To), for the
+     * transaction aliased $transaction. Only the current recipient's Task decides: when Refer To
+     * changes, an earlier recipient's Task stops being the referral's status (#14710). Only the
+     * referral's own Tasks count (code fulfill, not part of another), not a recipient's sub-Tasks, and
+     * not one ReferralTaskService cancelled because the referral went elsewhere.
+     */
+    public static function taskStatusSql(string $transaction): string
+    {
+        return "(SELECT task.status FROM task
+            JOIN lbt_data AS recipient ON recipient.form_id = $transaction.id AND recipient.field_id = 'refer_to'
+            JOIN users AS recipient_user ON recipient_user.id = recipient.field_value
+            WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = $transaction.uuid AND task.owner_uuid = recipient_user.uuid
+                AND " . self::OWN_TASK_SQL . " AND NOT (task.status = 'cancelled' AND COALESCE(task.status_reason, '') IN (" . self::ownReasonsSql() . "))
+            ORDER BY task.id DESC LIMIT 1)";
+    }
+
+    /**
+     * ReferralTaskService's own cancellation reasons as SQL literals: a Task it cancelled (the referral went
+     * elsewhere) isn't its recipient's answer, so it doesn't set the status, as it doesn't count in hasTask().
+     */
+    private static function ownReasonsSql(): string
+    {
+        return implode(', ', array_map(static fn(string $reason): string => "'" . str_replace("'", "''", $reason) . "'", ReferralTaskService::OWN_REASONS));
+    }
+
+    /**
+     * A referral's uuid as text, by its transaction id, or null when it has none or the transaction
+     * isn't a referral.
+     */
+    public function getReferralUuid(int $transactionId): ?string
+    {
+        $uuid = QueryUtils::fetchSingleValue(
+            'SELECT uuid FROM ' . self::TABLE_NAME . ' WHERE id = ? AND title = ?',
+            'uuid',
+            [$transactionId, self::FORM_ID]
+        );
+        return is_string($uuid) && $uuid !== '' ? UuidRegistry::uuidToString($uuid) : null;
+    }
+
+    /**
+     * Each referral with its fields, its patient's uuid, the status of its recipient's latest Task, its
+     * status (completed once a reply date is recorded or its Task is completed, revoked
+     * when its Task is cancelled) and, for the requester and the person referred to, their
+     * uuid and whether FHIR serves them as a Practitioner, or the one referred to as an
+     * Organization (an External Organization in the address book). Its last update is the
+     * later of the transaction's and its Tasks', since a Task's status is the referral's.
      *
      * authored is the Referral Date as a DATE, so a date search compares dates, not text
      * ('2026-10-10' sorts before '2026-10-10 00:00:00'). A referral without one has none:
@@ -86,15 +140,24 @@ class ReferralService extends BaseService
             . " AND (COALESCE($alias.username, '') <> '' OR $alias.abook_type IN (" . self::PRACTITIONER_ABOOK_TYPES . ')))';
 
         return "SELECT r.*,
-                CASE WHEN COALESCE(r.reply_date, '') <> '' THEN 'completed' ELSE 'active' END AS status,
+                CASE WHEN COALESCE(r.reply_date, '') <> '' OR r.task_status = 'completed' THEN 'completed'
+                    WHEN r.task_status = 'cancelled' THEN 'revoked'
+                    WHEN r.task_status = 'entered-in-error' THEN 'entered-in-error'
+                    ELSE 'active' END AS status,
                 'order' AS intent,
+                COALESCE(GREATEST(r.transaction_date, r.task_modified), r.transaction_date, r.task_modified) AS last_modified,
                 CAST(CASE WHEN r.refer_date <> '' THEN r.refer_date END AS DATE) AS authored,
                 requester.uuid AS requester_uuid, " . $isPractitioner('requester') . " AS requester_is_practitioner,
                 TRIM(CONCAT_WS(' ', requester.fname, requester.lname)) AS requester_name,
                 performer.uuid AS performer_uuid, " . $isPractitioner('performer') . " AS performer_is_practitioner,
-                COALESCE(NULLIF(TRIM(CONCAT_WS(' ', performer.fname, performer.lname)), ''), performer.organization) AS performer_name
+                (performer.id IS NOT NULL AND " . AddressBookOrganizationService::isOrganizationSql('performer') . ") AS performer_is_organization,
+                CASE WHEN " . AddressBookOrganizationService::isOrganizationSql('performer') . ' THEN ' . AddressBookOrganizationService::nameSql('performer') . "
+                    ELSE COALESCE(NULLIF(TRIM(CONCAT_WS(' ', performer.fname, performer.lname)), ''), performer.organization) END AS performer_name
             FROM (
-                SELECT t.id, t.uuid, t.pid AS patient_id, patients.uuid AS puuid, t.date AS last_modified $fields
+                SELECT t.id, t.uuid, t.pid AS patient_id, patients.uuid AS puuid, t.date AS transaction_date $fields,
+                    " . self::taskStatusSql('t') . " AS task_status,
+                    (SELECT MAX(task.last_modified) FROM task WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid
+                        AND " . self::OWN_TASK_SQL . ") AS task_modified
                 FROM transactions AS t
                 JOIN patient_data AS patients ON patients.pid = t.pid
                 LEFT JOIN lbt_data AS d ON d.form_id = t.id
@@ -103,6 +166,69 @@ class ReferralService extends BaseService
             ) AS r
             LEFT JOIN users AS requester ON requester.id = r.refer_from
             LEFT JOIN users AS performer ON performer.id = r.refer_to";
+    }
+
+    /**
+     * One referral as search() returns it, by its transaction id, or null when the
+     * transaction isn't a referral.
+     *
+     * @return ?array<string, mixed>
+     */
+    public function getReferral(int $transactionId): ?array
+    {
+        $rows = QueryUtils::fetchRecords('SELECT referrals.* FROM (' . self::select(' AND t.id = ?') . ') AS referrals', [$transactionId]);
+        $row = $rows[0] ?? null;
+        if (!is_array($row)) {
+            return null;
+        }
+        $record = [];
+        foreach ($row as $column => $value) {
+            if (is_string($column)) {
+                $record[$column] = $value;
+            }
+        }
+        return $this->createResultRecordFromDatabaseResult($record);
+    }
+
+    /**
+     * One referral as search() returns it, by its uuid, or null.
+     *
+     * @return ?array<string, mixed>
+     */
+    public function getReferralByUuid(string $uuid): ?array
+    {
+        if (!UuidRegistry::isValidStringUUID($uuid)) {
+            return null;
+        }
+        $id = QueryUtils::fetchSingleValue('SELECT id FROM transactions WHERE uuid = ?', 'id', [UuidRegistry::uuidToBytes($uuid)]);
+        return is_numeric($id) ? $this->getReferral((int)$id) : null;
+    }
+
+    /**
+     * Each referral's Task status as taskStatusSql() finds it, by transaction id, in one query: for a
+     * page that lists referrals with their fields already in hand.
+     *
+     * @param list<int> $transactionIds
+     * @return array<int, ?string>
+     */
+    public function getTaskStatuses(array $transactionIds): array
+    {
+        if ($transactionIds === []) {
+            return [];
+        }
+        $rows = QueryUtils::fetchRecords(
+            'SELECT t.id, ' . self::taskStatusSql('t') . ' AS task_status FROM transactions AS t WHERE t.title = ? AND t.id IN ('
+                . implode(',', array_fill(0, count($transactionIds), '?')) . ')',
+            array_merge([self::FORM_ID], $transactionIds)
+        );
+        $statuses = [];
+        foreach ($rows as $row) {
+            if (is_numeric($row['id'] ?? null)) {
+                $status = $row['task_status'] ?? null;
+                $statuses[(int)$row['id']] = is_string($status) ? $status : null;
+            }
+        }
+        return $statuses;
     }
 
     /**

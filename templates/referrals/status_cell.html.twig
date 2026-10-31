@@ -1,0 +1,6 @@
+{# A referral's status as a table cell; empty for any other transaction. #}
+<td>
+{% if label is not null %}
+    {% include 'referrals/status.html.twig' %}
+{% endif %}
+</td>

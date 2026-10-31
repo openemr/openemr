@@ -17,9 +17,12 @@ namespace OpenEMR\Tests\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientTransactionService;
+use OpenEMR\Services\ReferralTaskService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 class PatientTransactionServiceTest extends TestCase
 {
@@ -76,5 +79,40 @@ class PatientTransactionServiceTest extends TestCase
             [$result['id']]
         );
         $this->assertSame('test-fixture referral body', $body);
+    }
+
+    /**
+     * A saved referral goes to the referral Task service the service was given, with the user of
+     * the session it was given (#14710).
+     */
+    #[Test]
+    public function aSavedReferralGoesToItsReferralTaskService(): void
+    {
+        $tasks = new class extends ReferralTaskService {
+            /** @var list<array{int, ?int}> */
+            public array $calls = [];
+
+            public function afterSave(int $transactionId, ?int $userId): ?string
+            {
+                $this->calls[] = [$transactionId, $userId];
+                return null;
+            }
+        };
+        $service = new PatientTransactionService($tasks);
+        $session = new Session(new MockArraySessionStorage());
+        $session->set('authUserID', 7);
+        $service->setSession($session);
+        $referral = [
+            'type' => 'LBTref', 'groupname' => 'Default', 'body' => 'test-fixture referral body', 'referralDate' => '2026-01-15',
+            'referDiagnosis' => '', 'referByNpi' => '', 'referToNpi' => '', 'riskLevel' => 'Low', 'includeVitals' => '0',
+            'authorization' => '', 'visits' => '', 'validFrom' => '', 'validThrough' => '',
+        ];
+
+        $saved = $service->insert(self::TEST_PID, $referral);
+        $this->assertIsArray($saved);
+        $this->assertIsNumeric($saved['id']);
+        $service->update($saved['id'], $referral);
+
+        $this->assertSame([[(int)$saved['id'], 7], [(int)$saved['id'], 7]], $tasks->calls, 'once when saved, once when updated');
     }
 }
