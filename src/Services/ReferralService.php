@@ -75,7 +75,21 @@ class ReferralService extends BaseService
     }
 
     /**
-     * Each referral with its fields, its patient's uuid, the status of its latest Task, its
+     * The status of the latest Task owned by the referral's recipient (Refer To), for the
+     * transaction aliased $transaction. Only the current recipient's Task decides: when Refer To
+     * changes, an earlier recipient's Task stops being the referral's status (#14710).
+     */
+    public static function taskStatusSql(string $transaction): string
+    {
+        return "(SELECT task.status FROM task
+            JOIN lbt_data AS recipient ON recipient.form_id = $transaction.id AND recipient.field_id = 'refer_to'
+            JOIN users AS recipient_user ON recipient_user.id = recipient.field_value
+            WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = $transaction.uuid AND task.owner_uuid = recipient_user.uuid
+            ORDER BY task.id DESC LIMIT 1)";
+    }
+
+    /**
+     * Each referral with its fields, its patient's uuid, the status of its recipient's latest Task, its
      * status (completed once a reply date is recorded or its Task is completed, revoked
      * when its Task is cancelled) and, for the requester and the person referred to, their
      * uuid and whether FHIR serves them as a Practitioner, or the one referred to as an
@@ -112,8 +126,7 @@ class ReferralService extends BaseService
                     ELSE COALESCE(NULLIF(TRIM(CONCAT_WS(' ', performer.fname, performer.lname)), ''), performer.organization) END AS performer_name
             FROM (
                 SELECT t.id, t.uuid, t.pid AS patient_id, patients.uuid AS puuid, t.date AS transaction_date $fields,
-                    (SELECT task.status FROM task WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid
-                        ORDER BY task.id DESC LIMIT 1) AS task_status,
+                    " . self::taskStatusSql('t') . " AS task_status,
                     (SELECT MAX(task.last_modified) FROM task WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid)
                         AS task_modified
                 FROM transactions AS t
@@ -146,6 +159,33 @@ class ReferralService extends BaseService
             }
         }
         return $this->createResultRecordFromDatabaseResult($record);
+    }
+
+    /**
+     * Each referral's Task status as taskStatusSql() finds it, by transaction id, in one query: for a
+     * page that lists referrals with their fields already in hand.
+     *
+     * @param list<int> $transactionIds
+     * @return array<int, ?string>
+     */
+    public function getTaskStatuses(array $transactionIds): array
+    {
+        if ($transactionIds === []) {
+            return [];
+        }
+        $rows = QueryUtils::fetchRecords(
+            'SELECT t.id, ' . self::taskStatusSql('t') . ' AS task_status FROM transactions AS t WHERE t.title = ? AND t.id IN ('
+                . implode(',', array_fill(0, count($transactionIds), '?')) . ')',
+            array_merge([self::FORM_ID], $transactionIds)
+        );
+        $statuses = [];
+        foreach ($rows as $row) {
+            if (is_numeric($row['id'] ?? null)) {
+                $status = $row['task_status'] ?? null;
+                $statuses[(int)$row['id']] = is_string($status) ? $status : null;
+            }
+        }
+        return $statuses;
     }
 
     /**

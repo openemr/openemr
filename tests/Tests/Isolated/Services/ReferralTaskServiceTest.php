@@ -19,6 +19,7 @@ use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Services\ReferralTaskService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
 
 class ReferralTaskServiceTest extends TestCase
 {
@@ -68,7 +69,8 @@ class ReferralTaskServiceTest extends TestCase
      */
     public function testATaskThatFailsDoesNotFailTheSavedReferral(): void
     {
-        $service = new class extends ReferralTaskService {
+        $logger = self::logger();
+        $service = new class (logger: $logger) extends ReferralTaskService {
             public function createForReferral(int $transactionId, ?int $userId): string
             {
                 throw new SqlQueryException('', 'the database went away');
@@ -77,6 +79,11 @@ class ReferralTaskServiceTest extends TestCase
 
         $this->assertNull($service->createAfterSave(12, 3), 'the REST API\'s path');
         $this->assertNull($service->createForSavedTransaction('LBTref', '12', '3'), 'the screen\'s path');
+        $this->assertSame(
+            [['error', 'A referral was saved but its FHIR Task was not created', 12], ['error', 'A referral was saved but its FHIR Task was not created', 12]],
+            $logger->records,
+            'each failure is logged, with the referral'
+        );
     }
 
     /**
@@ -94,5 +101,22 @@ class ReferralTaskServiceTest extends TestCase
         };
 
         $this->assertNull($service->createAfterSave(12, 3));
+    }
+
+    /**
+     * @return AbstractLogger&object{records: list<array{mixed, string, mixed}>}
+     */
+    private static function logger(): AbstractLogger
+    {
+        return new class extends AbstractLogger {
+            /** @var list<array{mixed, string, mixed}> level, message, and the context's transaction id */
+            public array $records = [];
+
+            /** @param array<mixed> $context */
+            public function log($level, string|\Stringable $message, array $context = []): void
+            {
+                $this->records[] = [$level, (string)$message, $context['transaction_id'] ?? null];
+            }
+        };
     }
 }

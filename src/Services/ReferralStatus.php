@@ -62,7 +62,8 @@ final readonly class ReferralStatus
             in_array($taskStatus, self::CLOSING_TASK_STATUSES, true) => self::CLOSED,
             default => self::OPEN,
         };
-        $referred = self::value($referDate) === null ? false : \DateTimeImmutable::createFromFormat('!Y-m-d', substr((string)$referDate, 0, 10));
+        $referDate = self::value($referDate);
+        $referred = $referDate === null ? false : self::date(substr($referDate, 0, 10));
         $overdue = $state === self::OPEN && $overdueDays > 0 && $referred !== false
             && $referred <= $today->setTime(0, 0)->modify("-$overdueDays days");
         return new self($state, $taskStatus, $replyDate, $overdue);
@@ -81,18 +82,17 @@ final readonly class ReferralStatus
     }
 
     /**
-     * For a transaction as getTransByPid() lists it: a referral's status, or null for any
-     * other transaction type.
+     * For a transaction as getTransByPid() lists it, with its form's fields: a referral's status,
+     * or null for any other transaction type.
      *
-     * @param \Closure(int): ?array<mixed> $findReferral a referral by its transaction id, as ReferralService::getReferral() finds it
+     * @param array<int, ?string> $taskStatuses referrals' Task statuses by transaction id, as ReferralService::getTaskStatuses() finds them
      */
-    public static function ofTransaction(mixed $transaction, \Closure $findReferral, \DateTimeImmutable $today, int $overdueDays): ?self
+    public static function ofTransaction(mixed $transaction, array $taskStatuses, \DateTimeImmutable $today, int $overdueDays): ?self
     {
         if (!is_array($transaction) || ($transaction['title'] ?? null) !== self::FORM_ID || !is_numeric($transaction['id'] ?? null)) {
             return null;
         }
-        $referral = $findReferral((int)$transaction['id']);
-        return $referral === null ? null : self::ofReferral($referral, $today, $overdueDays);
+        return self::ofReferral(['task_status' => $taskStatuses[(int)$transaction['id']] ?? null] + $transaction, $today, $overdueDays);
     }
 
     /**
@@ -134,6 +134,16 @@ final readonly class ReferralStatus
             'entered-in-error' => xl('Entered in Error'),
             default => $this->taskStatus,
         };
+    }
+
+    /**
+     * A Y-m-d date that exists, or false: createFromFormat() would roll '0000-00-00' or
+     * '2026-02-30' over into another date, which a free-text layout field can hold.
+     */
+    private static function date(string $value): \DateTimeImmutable|false
+    {
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+        return $date !== false && $date->format('Y-m-d') === $value ? $date : false;
     }
 
     private static function value(?string $value): ?string

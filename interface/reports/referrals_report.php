@@ -25,6 +25,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ReferralDisplay;
+use OpenEMR\Services\ReferralService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Referrals", xl("Referrals"));
@@ -192,9 +193,8 @@ if (!empty($_POST['form_refresh'])) {
         "d1.field_value AS refer_date, " .
         "d3.field_value AS reply_date, " .
         "d4.field_value AS body, " .
-        // The status of the referral's latest Task, which is the referral's status (#14710).
-        "(SELECT task.status FROM task WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid " .
-        "ORDER BY task.id DESC LIMIT 1) AS task_status, " .
+        // The status of the recipient's latest Task, which is the referral's status (#14710).
+        ReferralService::taskStatusSql('t') . " AS task_status, " .
         "ut.organization, uf.facility_id, p.pubpid, " .
         "CONCAT(uf.fname,' ', uf.lname) AS referer_name, " .
         "CONCAT(ut.fname,' ', ut.lname) AS referer_to, " .
@@ -211,7 +211,7 @@ if (!empty($_POST['form_refresh'])) {
         "WHERE t.title = 'LBTref' AND " .
         "d1.field_value >= ? AND d1.field_value <= ? " .
         "ORDER BY ut.organization, d1.field_value, t.id";
-        $res = sqlStatement($query, [$form_from_date, $form_to_date]);
+        $res = sqlStatement($query, [ReferralDisplay::fromDate($form_show, $form_from_date), $form_to_date]);
 
         while ($row = sqlFetchArray($res)) {
             // Rows outside the Show choice or the facility (#14710).

@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services;
 
+use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Common\Twig\TwigExtension;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ReferralDisplay;
@@ -54,15 +55,22 @@ class ReferralDisplayTest extends TestCase
 
     /**
      * @param array<int, array<string, ?string>> $referrals what ReferralService::getReferral() would find, by transaction id
-     * @param list<int> $asked the ids looked up
+     * @param list<int|list<int>> $asked the ids looked up, one by one or as a list
+     * @param array<int, ?string> $taskStatuses what ReferralService::getTaskStatuses() would find, by transaction id
      */
-    private function display(array $referrals = [], array &$asked = []): ReferralDisplay
+    private function display(array $referrals = [], array &$asked = [], array $taskStatuses = []): ReferralDisplay
     {
         $find = static function (int $transactionId) use ($referrals, &$asked): ?array {
             $asked[] = $transactionId;
             return $referrals[$transactionId] ?? null;
         };
-        return new ReferralDisplay(self::twig(), $find, new \DateTimeImmutable(self::TODAY), 14);
+        $findTaskStatuses = static function (array $transactionIds) use ($taskStatuses, &$asked): array {
+            $asked[] = $transactionIds;
+            return array_filter($taskStatuses, static fn(int $id): bool => in_array($id, $transactionIds, true), ARRAY_FILTER_USE_KEY);
+        };
+        // Mid-afternoon: a referral is overdue by days, counted from midnight.
+        $clock = new FrozenClock(new \DateTimeImmutable(self::TODAY . ' 15:30:00'));
+        return new ReferralDisplay(self::twig(), $find, $findTaskStatuses, $clock, 14);
     }
 
     /** Built like TwigContainer::getTwig(), without the kernel. */
@@ -117,14 +125,32 @@ class ReferralDisplayTest extends TestCase
         $this->assertSame('', $this->display()->forTransactionPage('LBTref', 42));
     }
 
+    /**
+     * The list's referrals have their fields already (getTransByPid()); one lookup finds all their
+     * Task statuses.
+     */
     public function testTheTransactionsListHasAStatusCellForReferralsOnly(): void
     {
         $asked = [];
-        $display = $this->display([7 => ['task_status' => null, 'reply_date' => '2026-10-12', 'refer_date' => '2026-10-01']], $asked);
+        $display = $this->display([], $asked, [7 => null, 9 => 'accepted']);
+        $transactions = [
+            ['id' => '7', 'title' => 'LBTref', 'reply_date' => '2026-10-12', 'refer_date' => '2026-10-01'],
+            ['id' => '8', 'title' => 'LBTptreq'],
+            ['id' => '9', 'title' => 'LBTref', 'refer_date' => '2026-10-01'],
+        ];
 
-        $this->assertSame('<td> Replied </td>', self::squeeze($display->transactionCell(['id' => '7', 'title' => 'LBTref'])));
-        $this->assertSame('<td></td>', self::squeeze($display->transactionCell(['id' => '8', 'title' => 'LBTptreq'])));
-        $this->assertSame([7], $asked, 'only the referral is looked up');
+        $statuses = $display->taskStatuses($transactions);
+        $this->assertSame('<td> Replied </td>', self::squeeze($display->transactionCell($transactions[0], $statuses)));
+        $this->assertSame('<td></td>', self::squeeze($display->transactionCell($transactions[1], $statuses)));
+        $this->assertSame('<td> Accepted <span class="text-danger">Overdue</span></td>', self::squeeze($display->transactionCell($transactions[2], $statuses)));
+        $this->assertSame([[7, 9]], $asked, 'one lookup, of the referrals, and none per row');
+    }
+
+    public function testATransactionsListWithoutReferralsLooksNothingUp(): void
+    {
+        $asked = [];
+        $this->assertSame([], $this->display([], $asked)->taskStatuses([['id' => '8', 'title' => 'LBTptreq'], 'not a row']));
+        $this->assertSame([], $asked);
     }
 
     public function testTheReportHasAStatusCellFromItsRow(): void
@@ -152,12 +178,23 @@ class ReferralDisplayTest extends TestCase
     {
         $html = self::squeeze($this->display()->showFilter('overdue'));
         $this->assertStringStartsWith("<td class='col-form-label'> Show: </td><td><select name='form_show' id='form_show' class='form-control'>", $html);
-        $this->assertStringContainsString("<option value=''>All</option><option value='open'>Open</option><option value='overdue' selected>Overdue</option>", $html);
+        $this->assertStringContainsString("<option value=''>All</option><option value='open'>Open</option><option value='overdue' selected>Overdue, from any date</option>", $html);
         $this->assertStringNotContainsString('selected', self::squeeze($this->display()->showFilter('')));
     }
 
     /**
-     * @return array<string, array{array<string, ?string>, string, mixed, bool}>
+     * Overdue referrals are old ones, so under Show: Overdue the report fetches every Referral Date
+     * up to To, not just those since From (the first of the year by default).
+     */
+    public function testOverdueLooksBeforeTheFromDate(): void
+    {
+        $this->assertSame('', ReferralDisplay::fromDate('overdue', '2026-01-01'));
+        $this->assertSame('2026-01-01', ReferralDisplay::fromDate('open', '2026-01-01'));
+        $this->assertSame('2026-01-01', ReferralDisplay::fromDate('', '2026-01-01'));
+    }
+
+    /**
+     * @return array<string, array{array<string, mixed>, string, mixed, bool}>
      */
     public static function rows(): array
     {
@@ -179,12 +216,14 @@ class ReferralDisplayTest extends TestCase
             'no facility (0): the row has one' => [$open, '', '0', false],
             'no facility (0): the row has none' => [$noFacility, '', '0', true],
             'no facility (0): the row has facility 0' => [['facility_id' => '0'] + $open, '', '0', true],
+            'no facility (0): the row has facility 0, as an int' => [['facility_id' => 0] + $open, '', '0', true],
+            'its facility, as an int' => [['facility_id' => 3] + $open, '', '3', true],
             'its facility but not open' => [$replied, 'open', '3', false],
         ];
     }
 
     /**
-     * @param array<string, ?string> $row
+     * @param array<string, mixed> $row
      */
     #[DataProvider('rows')]
     public function testTheReportKeepsRowsUnderItsFilters(array $row, string $show, mixed $facility, bool $listed): void

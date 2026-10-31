@@ -106,6 +106,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <?php
                                 // Where a referral stands (#14710); other transactions have no status.
                                 $referralDisplay = new ReferralDisplay();
+                                $taskStatuses = $referralDisplay->taskStatuses($result);
                                 foreach ($result as $item) {
                                     $id = $item['id'];
                                     $edit = xl('View/Edit');
@@ -138,7 +139,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         </td>
                                         <td><?php echo text(getLayoutTitle('Transactions', $item['title'])); ?></td>
                                         <td><?php echo text(TransactionDisplay::listDate($item)); ?></td>
-                                        <?php echo $referralDisplay->transactionCell($item); ?>
+                                        <?php echo $referralDisplay->transactionCell($item, $taskStatuses); ?>
                                         <td><?php echo text($item['user']); ?></td>
                                         <td><?php echo text($item['body'] ?? ''); ?></td>
                                     </tr>

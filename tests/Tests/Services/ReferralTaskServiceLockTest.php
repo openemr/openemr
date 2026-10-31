@@ -70,8 +70,7 @@ class ReferralTaskServiceLockTest extends TestCase
 
     private function service(TaskService $tasks): ReferralTaskService
     {
-        $service = new ReferralTaskService();
-        $service->setReferralService(new class (false) extends ReferralService {
+        return new ReferralTaskService(new class (false) extends ReferralService {
             /**
              * @return array<string, mixed>
              */
@@ -84,9 +83,7 @@ class ReferralTaskServiceLockTest extends TestCase
                     'performer_is_practitioner' => 1,
                 ];
             }
-        });
-        $service->setTaskService($tasks);
-        return $service;
+        }, $tasks);
     }
 
     /**

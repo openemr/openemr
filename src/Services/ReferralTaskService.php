@@ -21,21 +21,18 @@ namespace OpenEMR\Services;
 use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Search\TokenSearchField;
+use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
 
 class ReferralTaskService
 {
     /** FHIR Task statuses a Task doesn't move on from. */
     private const FINISHED_STATUSES = ['completed', 'cancelled', 'entered-in-error', 'failed', 'rejected'];
-
-    private ?ReferralService $referralService = null;
-
-    private ?TaskService $taskService = null;
 
     /** GET_LOCK's name for a referral's Task, prefixed as core's other advisory locks are (within MySQL's 64 characters). */
     private const LOCK_PREFIX = 'openemr.referral_task.';
@@ -43,14 +40,22 @@ class ReferralTaskService
     /** How long a save waits for another save of the same referral to finish making its Task. */
     private const LOCK_SECONDS = 5;
 
+    /**
+     * Each collaborator is the caller's, or made the first time it's needed rather than as a default
+     * here: loading BaseService requires custom/code_types.inc.php, which queries the database, and
+     * ReferralTaskServiceTest's isolated cases build this class.
+     */
+    public function __construct(
+        private ?ReferralService $referralService = null,
+        private ?TaskService $taskService = null,
+        private ?ClockInterface $clock = null,
+        private ?LoggerInterface $logger = null,
+    ) {
+    }
+
     private function getReferralService(): ReferralService
     {
         return $this->referralService ??= new ReferralService(createMissingUuids: false);
-    }
-
-    public function setReferralService(ReferralService $referralService): void
-    {
-        $this->referralService = $referralService;
     }
 
     private function getTaskService(): TaskService
@@ -58,17 +63,24 @@ class ReferralTaskService
         return $this->taskService ??= new TaskService();
     }
 
-    public function setTaskService(TaskService $taskService): void
+    private function getClock(): ClockInterface
     {
-        $this->taskService = $taskService;
+        return $this->clock ??= ServiceContainer::getClock();
+    }
+
+    private function getLogger(): LoggerInterface
+    {
+        return $this->logger ??= ServiceContainer::getLogger();
     }
 
     /**
      * After a transaction is saved: a Task for its referral's recipient, unless they have one.
-     * One Task per referral and recipient, so saving the referral again adds none, and a new
-     * Refer To adds one for the new recipient while the earlier Task stays as it is. Nothing
-     * when the global is off, the transaction isn't a referral, or the recipient isn't a
-     * Practitioner or Organization in FHIR, since a Task's owner has to be one.
+     * One Task per referral and recipient, so saving the referral again adds none. When Refer To
+     * changes, or is cleared, the open Tasks of anyone else are cancelled with the reason, so they
+     * leave that recipient's queue and stay as a record; a recipient the referral returns to gets a
+     * new Task (a cancelled one doesn't count). Nothing when the global is off, the transaction isn't
+     * a referral, or the recipient isn't a Practitioner or Organization in FHIR, since a Task's owner
+     * has to be one.
      *
      * @return ?string the new Task's uuid
      */
@@ -85,7 +97,7 @@ class ReferralTaskService
         $referralUuid = self::text($referral, 'uuid');
         $patientId = $referral['patient_id'] ?? null;
         $owner = self::party($referral, 'performer');
-        if ($referralUuid === null || !is_numeric($patientId) || $owner === null) {
+        if ($referralUuid === null || !is_numeric($patientId)) {
             return null;
         }
         // Two saves of the referral at once would each find no Task and each make one, and the task
@@ -96,14 +108,20 @@ class ReferralTaskService
         if ($locked !== true) {
             // Another save held it past the wait, or GET_LOCK failed: the Task comes with the referral's
             // next save, and the log names the referral.
-            ServiceContainer::getLogger()->warning('A referral\'s Task was not made: its lock was not acquired', [
+            $this->getLogger()->warning('A referral\'s Task was not made: its lock was not acquired', [
                 'referral_uuid' => $referralUuid,
                 'reason' => $locked === false ? 'another save held it past the wait' : 'GET_LOCK failed',
             ]);
             return null;
         }
         try {
-            if ($this->hasTask($referralUuid, $owner[1])) {
+            $this->cancelOpenTasks(
+                $referralUuid,
+                $owner[1] ?? null,
+                self::text($referral, 'performer_uuid') === null ? 'The referral no longer names a recipient.' : 'The referral was sent to another recipient.',
+                $userId
+            );
+            if ($owner === null || $this->hasTask($referralUuid, $owner[1])) {
                 return null;
             }
             $requester = self::party($referral, 'requester');
@@ -119,7 +137,7 @@ class ReferralTaskService
                 'owner_uuid' => $owner[1],
                 'requester_type' => $requester[0] ?? null,
                 'requester_uuid' => $requester[1] ?? null,
-                'authored_on' => date('Y-m-d H:i:s'),
+                'authored_on' => $this->getClock()->now()->format('Y-m-d H:i:s'),
             ], (int)$patientId, $userId);
         } finally {
             self::unlock($lock);
@@ -141,11 +159,12 @@ class ReferralTaskService
     }
 
     /**
-     * createForReferral() for a caller that has already saved the referral: a database failure,
-     * including the audit log's own (written through DBAL), is logged, not thrown, since the
-     * referral is saved either way and its next save makes the Task this one
+     * createForReferral() for a caller that has already saved the referral: a failure is logged,
+     * not thrown, since the referral is saved either way and its next save makes the Task this one
      * missed (a recipient that has a Task is skipped). Thrown, it would answer a REST client's
-     * successful save with an error, and a retry would save the referral twice.
+     * successful save with an error, and a retry would save the referral twice. It catches every
+     * exception a library throws (RuntimeException, LogicException, the audit log's DBAL ones) but
+     * not \Error, which the project's ForbiddenCatchTypeRule keeps visible: a TypeError is a bug.
      *
      * @return ?string the new Task's uuid
      */
@@ -153,8 +172,8 @@ class ReferralTaskService
     {
         try {
             return $this->createForReferral($transactionId, $userId);
-        } catch (SqlQueryException | DbalException $e) {
-            ServiceContainer::getLogger()->error('A referral was saved but its FHIR Task was not created', [
+        } catch (\RuntimeException | \LogicException | DbalException $e) {
+            $this->getLogger()->error('A referral was saved but its FHIR Task was not created', [
                 'transaction_id' => $transactionId,
                 'exception' => $e,
             ]);
@@ -206,17 +225,36 @@ class ReferralTaskService
         if (!is_string($uuid) || $uuid === '') {
             return 0;
         }
+        return $this->cancelOpenTasks(UuidRegistry::uuidToString($uuid), null, 'The referral was deleted.', $userId);
+    }
+
+    /**
+     * Cancels the referral's open Tasks, all of them or all but one owner's, with the reason. Each
+     * update names the version the search read, so a recipient's change in between (a PUT to
+     * completed, say) isn't written over: that Task just isn't counted.
+     *
+     * @return int how many Tasks were cancelled
+     */
+    private function cancelOpenTasks(string $referralUuid, ?string $keepOwnerUuid, string $reason, ?int $userId): int
+    {
         $tasks = $this->getTaskService()->search([
-            'focus_uuid' => new TokenSearchField('focus_uuid', [UuidRegistry::uuidToString($uuid)], true),
+            'focus_uuid' => new TokenSearchField('focus_uuid', [$referralUuid], true),
         ])->getData();
         $cancelled = 0;
         foreach (is_array($tasks) ? $tasks : [] as $task) {
-            $taskUuid = is_array($task) ? ($task['uuid'] ?? null) : null;
-            $status = is_array($task) ? ($task['status'] ?? null) : null;
-            if (!is_string($taskUuid) || in_array($status, self::FINISHED_STATUSES, true)) {
+            if (!is_array($task)) {
                 continue;
             }
-            if ($this->getTaskService()->update($taskUuid, ['status' => 'cancelled', 'status_reason' => 'The referral was deleted.'], $userId)) {
+            $taskUuid = $task['uuid'] ?? null;
+            $version = $task['version'] ?? null;
+            if (
+                !is_string($taskUuid) || !is_numeric($version)
+                || in_array($task['status'] ?? null, self::FINISHED_STATUSES, true)
+                || ($keepOwnerUuid !== null && ($task['owner_uuid'] ?? null) === $keepOwnerUuid)
+            ) {
+                continue;
+            }
+            if ($this->getTaskService()->update($taskUuid, ['status' => 'cancelled', 'status_reason' => $reason], $userId, (int)$version)) {
                 $cancelled++;
             }
         }
@@ -243,18 +281,28 @@ class ReferralTaskService
     {
         try {
             QueryUtils::fetchRecordsNoLog('SELECT RELEASE_LOCK(?) AS released', [$name]);
-        } catch (SqlQueryException) {
-            // The database releases it anyway when the session ends.
+        } catch (\RuntimeException | \LogicException | DbalException) {
+            // The database releases it anyway when the session ends, and a failure here mustn't take the
+            // place of what the try returned or threw.
         }
     }
 
+    /**
+     * Whether the recipient has a Task for the referral that wasn't cancelled: one they finished
+     * stays theirs, but a cancelled one (the referral went elsewhere, then came back) doesn't count.
+     */
     private function hasTask(string $referralUuid, string $ownerUuid): bool
     {
         $tasks = $this->getTaskService()->search([
             'focus_uuid' => new TokenSearchField('focus_uuid', [$referralUuid], true),
             'owner_uuid' => new TokenSearchField('owner_uuid', [$ownerUuid], true),
         ])->getData();
-        return is_array($tasks) && $tasks !== [];
+        foreach (is_array($tasks) ? $tasks : [] as $task) {
+            if (is_array($task) && ($task['status'] ?? null) !== 'cancelled') {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
