@@ -50,6 +50,8 @@ class CarecoordinationTable
     private $importService;
     public $conditionedXmlContent;
 
+    private ?CdaSocialHistoryWriter $socialHistoryWriter = null;
+
     public function __construct()
     {
         $this->resetData();
@@ -65,6 +67,14 @@ class CarecoordinationTable
     public function getImportService(): CdaTemplateImportDispose
     {
         return $this->importService;
+    }
+
+    /**
+     * Built on first use: the history service registers missing history uuids when it's constructed.
+     */
+    private function getSocialHistoryWriter(): CdaSocialHistoryWriter
+    {
+        return $this->socialHistoryWriter ??= new CdaSocialHistoryWriter(new SocialHistoryService());
     }
 
     /*
@@ -496,6 +506,7 @@ class CarecoordinationTable
         $arr_referral = [];
         $arr_observation_preformed = [];
         $arr_clinical_note = [];
+        $socialHistoryChanges = [];
 
         $pres = QueryUtils::fetchRecords("SELECT IFNULL(MAX(pid)+1,1) AS pid FROM patient_data");
         foreach ($pres as $prow) {
@@ -807,7 +818,7 @@ class CarecoordinationTable
                 if ($alcoholRecord !== '') {
                     $changes['alcohol'] = $alcohol_value;
                 }
-                CdaSocialHistoryWriter::write(new SocialHistoryService(), $pid, $changes);
+                $socialHistoryChanges = $changes;
             } elseif ($table == 'procedure_result') {
                 if (!empty($newdata['procedure_result']['date'])) {
                     $proc_date = $this->formatDate($newdata['procedure_result']['date'], 1);
@@ -944,6 +955,9 @@ class CarecoordinationTable
             }
         }
 
+        // After the loop, as the other sections are: the patient_data entry, which comes last, can make $pid a
+        // patient imported before, and written in the loop the history went to a pid no patient had yet.
+        $this->getSocialHistoryWriter()->write($pid, $socialHistoryChanges);
         $this->importService->InsertImmunization(($arr_immunization['immunization'] ?? null), $pid, $this, 0);
         $this->importService->InsertPrescriptions(($arr_prescriptions['lists3'] ?? null), $pid, $this, 0);
         $this->importService->InsertAllergies(($arr_allergies['lists2'] ?? null), $pid, $this, 0);
@@ -1515,17 +1529,18 @@ class CarecoordinationTable
                                 $q++;
                             } elseif (substr((string) $key, 0, -4) == 'social_history') {
                                 // Only what the document carries; CdaSocialHistoryWriter keeps the rest of the patient's history.
+                                // The screen has no note fields, and a status radio with none checked posts nothing.
                                 $changes = CdaSocialHistoryWriter::reviewedChanges([
-                                    $data['social_history-tobacco_note'][$i],
-                                    $data['social_history-tobacco_status'][$i],
-                                    ApplicationTable::fixDate($data['social_history-tobacco_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy'),
-                                    $data['social_history-tobacco_snomed'][$i],
+                                    $data['social_history-tobacco_note'][$i] ?? null,
+                                    $data['social_history-tobacco_status'][$i] ?? null,
+                                    ApplicationTable::fixDate($data['social_history-tobacco_date'][$i] ?? '', 'yyyy-mm-dd', 'dd/mm/yyyy'),
+                                    $data['social_history-tobacco_snomed'][$i] ?? null,
                                 ], [
-                                    $data['social_history-alcohol_note'][$i],
-                                    $data['social_history-alcohol_status'][$i],
-                                    ApplicationTable::fixDate($data['social_history-alcohol_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy'),
+                                    $data['social_history-alcohol_note'][$i] ?? null,
+                                    $data['social_history-alcohol_status'][$i] ?? null,
+                                    ApplicationTable::fixDate($data['social_history-alcohol_date'][$i] ?? '', 'yyyy-mm-dd', 'dd/mm/yyyy'),
                                 ]);
-                                CdaSocialHistoryWriter::write(new SocialHistoryService(), $data['pid'], $changes);
+                                $this->getSocialHistoryWriter()->write($data['pid'], $changes);
                             } elseif (substr((string) $key, 0, -4) == 'encounter') {
                                 $arr_encounter['encounter'][$k]['extension'] = $data['encounter-extension'][$i];
                                 $arr_encounter['encounter'][$k]['root'] = $data['encounter-root'][$i];

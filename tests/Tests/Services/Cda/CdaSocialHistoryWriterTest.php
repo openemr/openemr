@@ -25,6 +25,7 @@ class CdaSocialHistoryWriterTest extends TestCase
 
     private int $pid;
     private SocialHistoryService $service;
+    private CdaSocialHistoryWriter $writer;
 
     protected function setUp(): void
     {
@@ -36,12 +37,26 @@ class CdaSocialHistoryWriterTest extends TestCase
             [$this->pid, random_bytes(16)]
         );
         $this->service = new SocialHistoryService();
+        $this->writer = new CdaSocialHistoryWriter($this->service);
     }
 
     protected function tearDown(): void
     {
-        QueryUtils::sqlStatementThrowException("DELETE FROM history_data WHERE pid = ?", [$this->pid]);
+        self::removeHistory($this->pid);
         QueryUtils::sqlStatementThrowException("DELETE FROM patient_data WHERE pid = ?", [$this->pid]);
+    }
+
+    /**
+     * A patient's history rows, with the uuids each save registered: the row's own and the FHIR Observation
+     * mappings the save event adds for it.
+     */
+    public static function removeHistory(int $pid): void
+    {
+        $where = "target_uuid IN (SELECT uuid FROM history_data WHERE pid = ?)";
+        QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE $where)", [$pid]);
+        QueryUtils::sqlStatementThrowException("DELETE FROM uuid_mapping WHERE $where", [$pid]);
+        QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM history_data WHERE pid = ?)", [$pid]);
+        QueryUtils::sqlStatementThrowException("DELETE FROM history_data WHERE pid = ?", [$pid]);
     }
 
     /**
@@ -54,7 +69,7 @@ class CdaSocialHistoryWriterTest extends TestCase
         // Saved earlier, as a patient's history is: the latest row is found by date, to the second.
         QueryUtils::sqlStatementThrowException("UPDATE history_data SET `date` = NOW() - INTERVAL 1 DAY WHERE pid = ?", [$this->pid]);
 
-        CdaSocialHistoryWriter::write($this->service, $this->pid, ['tobacco' => self::TOBACCO]);
+        $this->writer->write($this->pid, ['tobacco' => self::TOBACCO]);
 
         $current = $this->service->getHistoryData($this->pid);
         $this->assertIsArray($current);
@@ -73,7 +88,7 @@ class CdaSocialHistoryWriterTest extends TestCase
         $this->service->create(['pid' => $this->pid, 'alcohol' => 'kept|currentalcohol|2020-01-01']);
         QueryUtils::sqlStatementThrowException("UPDATE history_data SET `date` = '2026-01-01 00:00:00' WHERE pid = ?", [$this->pid]);
 
-        CdaSocialHistoryWriter::write($this->service, $this->pid, ['tobacco' => self::TOBACCO]);
+        $this->writer->write($this->pid, ['tobacco' => self::TOBACCO]);
         QueryUtils::sqlStatementThrowException("UPDATE history_data SET `date` = '2026-01-01 00:00:00' WHERE pid = ?", [$this->pid]);
 
         $current = $this->service->getHistoryData($this->pid);
@@ -91,22 +106,21 @@ class CdaSocialHistoryWriterTest extends TestCase
         $this->service->create(['pid' => $this->pid, 'alcohol' => 'kept|currentalcohol|2020-01-01', 'exercise_patterns' => 'daily walks']);
         QueryUtils::sqlStatementThrowException("UPDATE history_data SET `date` = NOW() - INTERVAL 1 DAY WHERE pid = ?", [$this->pid]);
 
-        CdaSocialHistoryWriter::write(
-            $this->service,
+        $this->writer->write(
             $this->pid,
-            CdaSocialHistoryWriter::reviewedChanges(['imported', '1', '2024-01-21', '449868002'], ['', '', false])
+            CdaSocialHistoryWriter::reviewedChanges([null, 'quittobacco', '2024-01-21', '3'], [null, null, false])
         );
 
         $current = $this->service->getHistoryData($this->pid);
         $this->assertIsArray($current);
-        $this->assertSame('imported|1|2024-01-21|449868002', $current['tobacco']);
+        $this->assertSame('|quittobacco|2024-01-21|3', $current['tobacco']);
         $this->assertSame('kept|currentalcohol|2020-01-01', $current['alcohol']);
         $this->assertSame('daily walks', $current['exercise_patterns']);
     }
 
     public function testAPatientWithNoHistoryGetsAFirstRow(): void
     {
-        CdaSocialHistoryWriter::write($this->service, $this->pid, ['tobacco' => self::TOBACCO]);
+        $this->writer->write($this->pid, ['tobacco' => self::TOBACCO]);
 
         $current = $this->service->getHistoryData($this->pid);
         $this->assertIsArray($current);
@@ -116,7 +130,7 @@ class CdaSocialHistoryWriterTest extends TestCase
 
     public function testNothingCarriedWritesNothing(): void
     {
-        CdaSocialHistoryWriter::write($this->service, $this->pid, []);
+        $this->writer->write($this->pid, []);
 
         $this->assertSame(0, $this->rows());
     }

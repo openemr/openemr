@@ -22,30 +22,34 @@ use PHPUnit\Framework\TestCase;
 #[Group('isolated')]
 class CdaSocialHistoryReviewedChangesTest extends TestCase
 {
-    /** The review screen's alcohol fields when the document has no alcohol section; fixDate('') is false. */
-    private const NO_ALCOHOL = ['', '', false];
+    /**
+     * The review screen's alcohol fields when the document has no alcohol section: no note field, no status radio
+     * checked, and fixDate('') is false. The tobacco parts are the note (no field either), the status radio
+     * (quittobacco), the date and the Smoking Status list's option id (3 is Former smoker).
+     */
+    private const NO_ALCOHOL = [null, null, false];
 
     public function testASmokingStatusAloneLeavesAlcoholOut(): void
     {
         $this->assertSame(
-            ['tobacco' => 'imported|1|2024-01-21|449868002'],
-            CdaSocialHistoryWriter::reviewedChanges(['imported', '1', '2024-01-21', '449868002'], self::NO_ALCOHOL)
+            ['tobacco' => '|quittobacco|2024-01-21|3'],
+            CdaSocialHistoryWriter::reviewedChanges([null, 'quittobacco', '2024-01-21', '3'], self::NO_ALCOHOL)
         );
     }
 
     public function testAlcoholAloneLeavesTobaccoOut(): void
     {
         $this->assertSame(
-            ['alcohol' => 'social|currentalcohol|2020-01-01'],
-            CdaSocialHistoryWriter::reviewedChanges(['', '', false, ''], ['social', 'currentalcohol', '2020-01-01'])
+            ['alcohol' => '|currentalcohol|2020-01-01'],
+            CdaSocialHistoryWriter::reviewedChanges([null, null, false, ''], [null, 'currentalcohol', '2020-01-01'])
         );
     }
 
     public function testBothAreJoinedAsTheReviewPathStoresThem(): void
     {
         $this->assertSame(
-            ['tobacco' => '|1||449868002', 'alcohol' => 'social||'],
-            CdaSocialHistoryWriter::reviewedChanges(['', '1', false, '449868002'], ['social', '', false])
+            ['tobacco' => '|currenttobacco||1', 'alcohol' => '|quitalcohol|'],
+            CdaSocialHistoryWriter::reviewedChanges([null, 'currenttobacco', false, '1'], [null, 'quitalcohol', false])
         );
     }
 

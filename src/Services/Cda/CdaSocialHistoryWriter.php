@@ -21,23 +21,27 @@ namespace OpenEMR\Services\Cda;
 
 use OpenEMR\Services\SocialHistoryService;
 
-final class CdaSocialHistoryWriter
+final readonly class CdaSocialHistoryWriter
 {
+    public function __construct(private SocialHistoryService $service)
+    {
+    }
+
     /**
      * @param mixed                 $pid     the patient's pid, as the importer and the history service take it
      * @param array<string, string> $changes history_data column => value, only what the document carries
      */
-    public static function write(SocialHistoryService $service, mixed $pid, array $changes): void
+    public function write(mixed $pid, array $changes): void
     {
         if ($changes === []) {
             return;
         }
-        $current = $service->getHistoryData($pid);
+        $current = $this->service->getHistoryData($pid);
         if (!is_array($current) || $current === []) {
-            $service->create(['pid' => $pid] + $changes);
+            $this->service->create(['pid' => $pid] + $changes);
             return;
         }
-        $service->updateHistoryDataForPatientPid($pid, $changes);
+        $this->service->updateHistoryDataForPatientPid($pid, $changes);
     }
 
     /**
@@ -45,7 +49,7 @@ final class CdaSocialHistoryWriter
      * screen has any part of it, joined as that path has always stored them. One the document didn't carry
      * used to be written as its separators alone (`|||`, `||`), replacing what the patient's history held.
      *
-     * @param array<mixed> $tobacco the note, status, date and SNOMED CT code
+     * @param array<mixed> $tobacco the note, status, date and Smoking Status list option (smoking_status's option_id)
      * @param array<mixed> $alcohol the note, status and date
      * @return array<string, string>
      */

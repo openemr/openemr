@@ -665,6 +665,7 @@ class CdaTemplateParseTest extends TestCase
 
     /**
      * @return array<string, array{list<string>}>
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function offsetlessOrderProvider(): array
     {
@@ -696,6 +697,7 @@ class CdaTemplateParseTest extends TestCase
 
     /**
      * @return array<string, array{string}>
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function unparsableDateProvider(): array
     {
