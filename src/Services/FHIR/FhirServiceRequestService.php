@@ -18,6 +18,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRServiceRequest;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\ServiceRequest\FhirServiceRequestProcedureOrderService;
 use OpenEMR\Services\FHIR\ServiceRequest\FhirServiceRequestReferralService;
@@ -309,12 +310,14 @@ class FhirServiceRequestService extends FhirServiceBase implements
     }
 
     /**
+     * A procedure_order record as a ServiceRequest; the resource itself, never encoded.
+     *
      * @param mixed $dataRecord
      * @param mixed $encode
      */
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRServiceRequest
     {
-        return $this->getOrderService()->parseOpenEMRRecord(is_array($dataRecord) ? $dataRecord : [], $encode === true);
+        return $this->getOrderService()->parseOpenEMRRecord(is_array($dataRecord) ? $dataRecord : []);
     }
 
     /**

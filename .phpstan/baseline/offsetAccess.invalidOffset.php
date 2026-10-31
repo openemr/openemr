@@ -1284,11 +1284,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/ServiceRequest/FhirServiceRequestProcedureOrderService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Globals/GlobalSetting.php',
 ];
 $ignoreErrors[] = [

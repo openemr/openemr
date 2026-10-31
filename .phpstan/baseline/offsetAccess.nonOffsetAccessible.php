@@ -42012,16 +42012,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Serialization/FhirPractitionerSerializer.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'uuid\' on mixed\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../src/Services/FHIR/ServiceRequest/FhirServiceRequestProcedureOrderService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'resource_type\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/ServiceRequest/FhirServiceRequestProcedureOrderService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'category\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Subscriber/UuidMappingEventsSubscriber.php',
