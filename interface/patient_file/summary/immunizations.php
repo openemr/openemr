@@ -25,6 +25,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\Services\Immunization\ImmunizationFormSaver;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Immunizations", xl("Immunizations"));
@@ -59,65 +60,12 @@ if (isset($_GET['mode'])) {
      */
 
     if ($_GET['mode'] == "add") {
-        $sql = "REPLACE INTO immunizations set
-            id = ?,
-            uuid = ?,
-            administered_date = if(?,?,NULL),
-            immunization_id = ?,
-            cvx_code = ?,
-            manufacturer = ?,
-            lot_number = ?,
-            administered_by_id = if(?,?,NULL),
-            administered_by = if(?,?,NULL),
-            education_date = if(?,?,NULL),
-            vis_date = if(?,?,NULL),
-            note   = ?,
-            patient_id   = ?,
-            created_by = ?,
-            updated_by = ?,
-   			create_date = now(),
-			amount_administered = ?,
-			amount_administered_unit = ?,
-			expiration_date = if(?,?,NULL),
-			route = ?,
-			administration_site = ? ,
-            completion_status = ?,
-            information_source = ?,
-            refusal_reason = ?,
-            reason_code = ?,
-            reason_description = ?,
-            ordering_provider = ?,
-            encounter_id = ?";
-        $sqlBindArray = [
-            trim((string) $_GET['id']),
-            UuidRegistry::isValidStringUUID($_GET['uuid']) ? UuidRegistry::uuidToBytes($_GET['uuid']) : null,
-            trim((string) $_GET['administered_date']), trim((string) $_GET['administered_date']),
-            trim($_GET['form_immunization_id'] ?? ''),
-            trim((string) $_GET['cvx_code']),
-            trim((string) $_GET['manufacturer']),
-            trim($_GET['lot_number'] ?? ''),
-            trim((string) $_GET['administered_by_id']), trim((string) $_GET['administered_by_id']),
-            trim((string) $_GET['administered_by']), trim((string) $_GET['administered_by']),
-            trim((string) $_GET['education_date']), trim((string) $_GET['education_date']),
-            trim((string) $_GET['vis_date']), trim((string) $_GET['vis_date']),
-            trim((string) $_GET['note']),
-            $pid,
-            $session->get('authUserID'),
-            $session->get('authUserID'),
-            trim((string) $_GET['immuniz_amt_adminstrd']),
-            trim((string) $_GET['form_drug_units']),
-            trim((string) $_GET['immuniz_exp_date']), trim((string) $_GET['immuniz_exp_date']),
-            trim((string) $_GET['immuniz_route']),
-            trim((string) $_GET['immuniz_admin_ste']),
-            trim((string) $_GET['immuniz_completion_status']),
-            trim((string) $_GET['immunization_informationsource']),
-            trim((string) $_GET['immunization_refusal_reason']),
-            trim((string) $_GET['reason_code']),
-            trim($_GET['reason_description'] ?? ''),
-            trim((string) $_GET['ordered_by_id']),
-            trim((string) $_GET['encounter_id'])
-        ];
-        $newid = sqlInsert($sql, $sqlBindArray);
+        // An edit updates the immunization's row in place and a new one is
+        // inserted; an id that is not this patient's writes nothing.
+        $newid = (new ImmunizationFormSaver())->save($_GET, $pid, filter_var($session->get('authUserID'), FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE));
+        if ($newid === null) {
+            AccessDeniedHelper::denyWithTemplate("Immunization not found for current patient", xl("Immunizations"));
+        }
         $administered_date = date('Y-m-d H:i');
         $education_date = date('Y-m-d');
         $immunization_id = $cvx_code = $manufacturer = $lot_number = $administered_by_id = $note = $id = $ordered_by_id = "";
