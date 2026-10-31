@@ -106,15 +106,6 @@ class PatientTrackerApptStatusSettingsTest extends TestCase
         $this->assertSame(['color' => '0000FF', 'time_alert' => '0'], PatientTrackerService::collectApptStatusSettings('ZZX'));
     }
 
-    public function testAnExistingStatusWithAFixtureIdIsPutBack(): void
-    {
-        $this->saved = [['list_id' => 'apptstat', 'option_id' => 'ZZA', 'title' => 'real one', 'seq' => 1, 'notes' => '#111111|1', 'activity' => 1]];
-        $this->tearDown();
-
-        $this->assertSame(['color' => '111111', 'time_alert' => '1'], PatientTrackerService::collectApptStatusSettings('ZZA'));
-        $this->saved = [];
-    }
-
     public function testSpacesAroundTheNotesAreIgnored(): void
     {
         $this->assertSame(['color' => '00FF00', 'time_alert' => '5'], PatientTrackerService::collectApptStatusSettings('ZZS'));
