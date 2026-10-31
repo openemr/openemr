@@ -19,6 +19,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
@@ -190,10 +191,12 @@ class FhirObservationQuestionnaireItemServiceTest extends TestCase
         $this->assertNotEmpty($observation->getValueQuantity());
         $this->assertEquals($record['value'], $observation->getValueQuantity()->getValue());
 
-        // Test UCUM constraint (us-core-3) - should use UCUM units when system is specified
-        if ($record['value_unit'] !== '{score}') {
-            $this->assertEquals('http://unitsofmeasure.org', $observation->getValueQuantity()->getSystem()->getValue());
-        }
+        // Test UCUM constraint (us-core-3): 'lb' isn't UCUM ('[lb_av]' is), so it goes as the unit's text alone
+        $this->assertSame('lb', $record['value_unit'], 'the unit this check is written for');
+        $quantity = json_decode((string)json_encode($observation->getValueQuantity()), true);
+        $this->assertIsArray($quantity);
+        $this->assertArrayNotHasKey('system', $quantity, "a unit that isn't UCUM is sent without the UCUM system");
+        $this->assertArrayNotHasKey('code', $quantity);
 
         $this->assertNotEmpty($observation->getValueQuantity(), "Quantity should be populated");
         $this->assertEquals($record['value'], $observation->getValueQuantity()->getValue(), "Quantity value should be populated");
@@ -207,6 +210,44 @@ class FhirObservationQuestionnaireItemServiceTest extends TestCase
                 $observation->getHasMember()[0]->getReference()->getValue()
             );
         }
+    }
+
+    public function testParseOpenEMRRecordSendsAUcumUnitWithItsSystem(): void
+    {
+        $record = $this->getDefaultObservationRecord();
+        $record['value_unit'] = '[lb_av]';
+        $this->codeTypesService->method('lookup_code_description')->willReturn($record['code_description']);
+        $observation = $this->fhirService->parseOpenEMRRecord($record);
+        $this->assertInstanceOf(FHIRObservation::class, $observation);
+        $quantity = json_decode((string)json_encode($observation->getValueQuantity()), true);
+
+        $this->assertIsArray($quantity);
+        $this->assertSame('[lb_av]', $quantity['unit'] ?? null);
+        $this->assertSame('http://unitsofmeasure.org', $quantity['system'] ?? null);
+        $this->assertSame('[lb_av]', $quantity['code'] ?? null);
+    }
+
+    public function testParseOpenEMRRecordComponentQuantitiesClaimUcumOnlyForUcumUnits(): void
+    {
+        $record = $this->getDefaultObservationRecord();
+        unset($record['sub_observations']);
+        $record['components'] = [
+            ['code' => 'LOINC:8480-6', 'description' => 'Systolic blood pressure', 'value' => '120', 'value_unit' => 'mm[Hg]'],
+            ['code' => 'LOINC:8462-4', 'description' => 'Diastolic blood pressure', 'value' => '80', 'value_unit' => 'mmHg'],
+        ];
+        $this->codeTypesService->method('lookup_code_description')->willReturn($record['code_description']);
+        $observation = $this->fhirService->parseOpenEMRRecord($record);
+        $this->assertInstanceOf(FHIRObservation::class, $observation);
+        $quantities = array_map(
+            static fn(FHIRObservationComponent $component): mixed => json_decode((string)json_encode($component->getValueQuantity()), true),
+            $observation->getComponent()
+        );
+
+        // A UCUM unit gets its system and code; mmHg isn't UCUM (mm[Hg] is), so it goes as text alone.
+        $this->assertEquals([
+            ['value' => 120, 'unit' => 'mm[Hg]', 'system' => 'http://unitsofmeasure.org', 'code' => 'mm[Hg]'],
+            ['value' => 80, 'unit' => 'mmHg'],
+        ], $quantities);
     }
 
     public function testParseOpenEMRRecordScreeningAssessmentObservationDerivedFrom(): void

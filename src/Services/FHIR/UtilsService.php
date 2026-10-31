@@ -16,6 +16,8 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\ORDataObject\ContactAddress;
+use OpenEMR\Cqm\Cql\Ucum\Ucum;
+use OpenEMR\Cqm\Cql\Util\JavaScript;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
@@ -36,6 +38,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
@@ -43,6 +47,14 @@ class UtilsService
 {
     const UNKNOWNABLE_CODE_NULL_FLAVOR = "UNK";
     const UNKNOWNABLE_CODE_DATA_ABSENT = "unknown";
+
+    /**
+     * Unit titles in OpenEMR's lists (Drug Units) whose UCUM code is spelled differently.
+     */
+    private const UCUM_ALIASES = [
+        'mcg' => 'ug',
+        'grams' => 'g',
+    ];
 
     public static function createRelativeReference($type, $uuid, $displayName = null): FHIRReference
     {
@@ -117,21 +129,48 @@ class UtilsService
         return $uuid;
     }
 
-    public static function createQuantity($value, $unit, $code): FHIRQuantity
+    public static function createQuantity(mixed $value, mixed $unit, mixed $code): FHIRQuantity
     {
         $quantity = new FHIRQuantity();
-        // if there is no code provided we should not populate it nor the unit value
-        // that way it becomes a SimpleQuantity variant of Quantity
-        if (!empty($unit)) {
-            $quantity->setUnit($unit);
-            // only set the code if we have a unit as the unit is the textual display of the coded unit
-            if (!empty($code)) {
-                $quantity->setCode($code);
+        // With no unit, a SimpleQuantity. The unit's text whenever there is one, and UCUM's system and
+        // code only for a code UCUM accepts: receivers trust the system, and units such as MG/DL or
+        // tablet are not UCUM. A unit of 0 was left off before (empty()), and still is.
+        $unitText = is_string($unit) ? JavaScript::trim($unit) : '';
+        if ($unitText !== '' && $unitText !== '0') {
+            $quantity->setUnit(new FHIRString($unitText));
+            $ucumCode = self::ucumCodeFor($code);
+            if ($ucumCode !== null) {
+                $quantity->setCode(new FHIRCode($ucumCode));
+                $quantity->setSystem(new FHIRUri(FhirCodeSystemConstants::UNITS_OF_MEASURE));
             }
-            $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
         }
         $quantity->setValue($value);
         return $quantity;
+    }
+
+    /**
+     * The UCUM code for a unit, or null when it isn't one: the unit without spaces around it, when
+     * core's UCUM engine accepts it, else its UCUM spelling ("mcg" is ug, "grams" is g). Codes are
+     * case-sensitive (mg/dL is UCUM, MG/DL is not); the two aliases match in any case.
+     * createQuantity(), an immunization's dose (DoseUnit) and HL7 v2's RXA-7 read units by this rule.
+     */
+    public static function ucumCodeFor(mixed $unit): ?string
+    {
+        if (!is_string($unit)) {
+            return null;
+        }
+        // Trimmed as the engine trims, so a code never goes out with spaces under UCUM's system.
+        $unit = JavaScript::trim($unit);
+        if ($unit === '') {
+            return null;
+        }
+        $ucum = Ucum::instance();
+        foreach ([$unit, self::UCUM_ALIASES[strtolower($unit)] ?? null] as $candidate) {
+            if ($candidate !== null && $ucum->isValid($candidate)) {
+                return $candidate;
+            }
+        }
+        return null;
     }
 
     public static function createCoding($code, $display, $system): FHIRCoding
