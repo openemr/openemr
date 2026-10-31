@@ -48,14 +48,16 @@ class SocialHistoryService extends BaseService
             $where = 'tobacco is not null and';
         }
 
+        // Rows written in the same second share a date: the later id is the later version, as
+        // getHistoryData() in library/patient.inc.php already takes it.
         if ($dateStart && $dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", [$pid, $dateStart, $dateEnd]);
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC, id DESC limit 0,1", [$pid, $dateStart, $dateEnd]);
         } elseif ($dateStart && !$dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC limit 0,1", [$pid, $dateStart]);
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC, id DESC limit 0,1", [$pid, $dateStart]);
         } elseif (!$dateStart && $dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC limit 0,1", [$pid, $dateEnd]);
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC, id DESC limit 0,1", [$pid, $dateEnd]);
         } else {
-            $res = sqlQuery("select $given from history_data where $where pid=? order by date DESC limit 0,1", [$pid]);
+            $res = sqlQuery("select $given from history_data where $where pid=? order by date DESC, id DESC limit 0,1", [$pid]);
         }
 
         return $res;
