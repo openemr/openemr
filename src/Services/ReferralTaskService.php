@@ -92,7 +92,14 @@ class ReferralTaskService
         // table doesn't prevent it: a lock on the referral is held across the check and the insert,
         // so the second save finds the first one's Task.
         $lock = self::LOCK_PREFIX . $referralUuid;
-        if (!self::lock($lock)) {
+        $locked = self::lock($lock);
+        if ($locked !== true) {
+            // Another save held it past the wait, or GET_LOCK failed: the Task comes with the referral's
+            // next save, and the log names the referral.
+            ServiceContainer::getLogger()->warning('A referral\'s Task was not made: its lock was not acquired', [
+                'referral_uuid' => $referralUuid,
+                'reason' => $locked === false ? 'another save held it past the wait' : 'GET_LOCK failed',
+            ]);
             return null;
         }
         try {
@@ -217,14 +224,19 @@ class ReferralTaskService
     }
 
     /**
-     * GET_LOCK, as BackgroundServiceRunner takes its lock: 1 when it's acquired, 0 on a timeout,
-     * NULL on an error. The database session holds it, so a process that dies releases it.
+     * GET_LOCK, as BackgroundServiceRunner takes its lock: true when it's acquired, false when another
+     * session held it past the wait, null when GET_LOCK failed. The database session holds the lock, so
+     * a process that dies releases it.
      */
-    private static function lock(string $name): bool
+    private static function lock(string $name): ?bool
     {
         $row = QueryUtils::querySingleRow('SELECT GET_LOCK(?, ?) AS got', [$name, self::LOCK_SECONDS], false);
         $got = is_array($row) ? ($row['got'] ?? null) : null;
-        return $got === 1 || $got === '1';
+        return match ($got) {
+            1, '1' => true,
+            0, '0' => false,
+            default => null,
+        };
     }
 
     private static function unlock(string $name): void
