@@ -84,11 +84,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/ServiceRequest/FhirServiceRequestProcedureOrderService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of && is always false\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationEmployerServiceTest.php',
 ];
 $ignoreErrors[] = [

@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Services\FHIR\ServiceRequest;
 
 use OpenEMR\BC\ServiceContainer;
@@ -19,11 +21,19 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRServiceRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRRequestIntent;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRRequestStatus;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\EncounterService;
@@ -124,20 +134,16 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
     const ORDER_TYPE_CLINICAL_TEST = "clinical_test";
     const ORDER_TYPE_PROCEDURE = "procedure";
 
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
+    private const PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest';
+
+    private readonly ProcedureService $procedureService;
+
+    private readonly ProcedureOrderRelationshipService $relationshipService;
 
     /**
-     * @var ProcedureOrderRelationshipService
+     * Enable strict US Core validation (throws errors on missing required fields)
      */
-    private $relationshipService;
-
-    /**
-     * @var bool Enable strict US Core validation (throws errors on missing required fields)
-     */
-    private $strictValidation = false;
+    private bool $strictValidation = false;
 
     public function __construct()
     {
@@ -185,17 +191,18 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
         return $return;
     }
 
-    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    public function getLastModifiedSearchField(): FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date_ordered']);
     }
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @param array<mixed> $openEMRSearchParameters OpenEMR search fields
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
+        $openEMRSearchParameters = self::searchFields($openEMRSearchParameters);
         if (isset($openEMRSearchParameters['procedure_order_type']) && $openEMRSearchParameters['procedure_order_type'] instanceof TokenSearchField) {
             $codes = $openEMRSearchParameters['procedure_order_type']->getValues();
             $modifier = $openEMRSearchParameters['procedure_order_type']->getModifier();
@@ -205,7 +212,7 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
                     if ($code instanceof TokenSearchValue) {
                         if (
                             $code->getCode() === $category['code'] &&
-                            ($code->getSystem() == null || $code->getSystem() === $category['system'])
+                            (in_array($code->getSystem(), [null, ''], true) || $code->getSystem() === $category['system'])
                         ) {
                             // we don't pass in system as its a local codetype mapping internally
                             $newCodeValues[] = new TokenSearchValue($orderType);
@@ -213,7 +220,7 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
                     }
                 }
             }
-            if (!empty($newCodeValues)) {
+            if ($newCodeValues !== []) {
                 $openEMRSearchParameters['procedure_order_type'] = new TokenSearchField(
                     'procedure_order_type',
                     $newCodeValues
@@ -237,7 +244,7 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
             $exactStringCodeValues = [];
             foreach ($codeValues as $codeValue) {
                 if ($codeValue instanceof TokenSearchValue) {
-                    if (!empty($codeValue->getSystem())) {
+                    if (self::nonEmpty($codeValue->getSystem()) !== null) {
                         $newCodeValues[] = $codeValue;
                     } else {
                         $stringCodeValues[] = ":" . $codeValue->getCode();
@@ -245,17 +252,17 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
                     }
                 }
             }
-            if (!empty($newCodeValues)) {
+            if ($newCodeValues !== []) {
                 $compositeSearch->addChild(new TokenSearchField('procedure_code', $newCodeValues));
             }
             // note this will only work if we have single code usage of codetype:value multiple code usage
             // of codetype:value1;codetype:value2 won't work here
-            if (!empty($stringCodeValues)) {
+            if ($stringCodeValues !== []) {
                 $compositeSearch->addChild(new StringSearchField('procedure_code', $stringCodeValues, SearchModifier::SUFFIX, isLiteral: true));
                 // also add exact match for codes without codetype prefix in case someone is
                 $compositeSearch->addChild(new StringSearchField('procedure_code', $exactStringCodeValues, SearchModifier::EXACT));
             }
-            if (!empty($compositeSearch->getChildren())) {
+            if ($compositeSearch->getChildren() !== []) {
                 $openEMRSearchParameters['procedure_code'] = $compositeSearch;
             }
         }
@@ -266,41 +273,41 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
     /**
      * Validate that data record meets US Core 8.0 requirements
      *
-     * @param array $dataRecord The source data
-     * @return array Array of validation warnings/errors
+     * @param array<mixed> $dataRecord The source data
+     * @return array{errors: list<string>, warnings: list<string>}
      */
-    private function validateUSCoreRequirements($dataRecord): array
+    private function validateUSCoreRequirements(array $dataRecord): array
     {
         $errors = [];
         $warnings = [];
 
         // Required: category
-        if (empty($dataRecord['procedure_order_type'])) {
+        if (self::field($dataRecord, 'procedure_order_type') === null) {
             $errors[] = "procedure_order_type is required for ServiceRequest.category (USCDI v5 requirement)";
         }
 
         // Required: code
-        if (empty($dataRecord['procedure_code']) && empty($dataRecord['procedure_name'])) {
+        if (self::field($dataRecord, 'procedure_code') === null && self::field($dataRecord, 'procedure_name') === null) {
             $errors[] = "procedure_code or procedure_name required for ServiceRequest.code";
         }
 
         // Required: subject (patient)
-        if (empty($dataRecord['patient_id']) || empty($dataRecord['patient']['uuid'])) {
+        if (self::linkedUuid($dataRecord, 'patient_id', 'patient') === null) {
             $errors[] = "patient_id and patient.uuid are required for ServiceRequest.subject";
         }
 
         // Required: occurrence[x] OR authoredOn (at least one must be present)
-        $hasOccurrence = !empty($dataRecord['date_collected']) ||
-            !empty($dataRecord['scheduled_date']) ||
-            (!empty($dataRecord['scheduled_start']) && !empty($dataRecord['scheduled_end']));
-        $hasAuthored = !empty($dataRecord['date_ordered']);
+        $hasOccurrence = self::field($dataRecord, 'date_collected') !== null ||
+            self::field($dataRecord, 'scheduled_date') !== null ||
+            (self::field($dataRecord, 'scheduled_start') !== null && self::field($dataRecord, 'scheduled_end') !== null);
+        $hasAuthored = self::field($dataRecord, 'date_ordered') !== null;
 
         if (!$hasOccurrence && !$hasAuthored) {
             $warnings[] = "Either occurrence date (date_collected/scheduled_date/scheduled_start+end) or authoredOn (date_ordered) is recommended";
         }
 
         // Must Support: requester
-        if (empty($dataRecord['provider_id']) || empty($dataRecord['provider']['uuid'])) {
+        if (self::linkedUuid($dataRecord, 'provider_id', 'provider') === null) {
             $warnings[] = "provider_id and provider.uuid recommended for ServiceRequest.requester (Must Support element)";
         }
 
@@ -311,19 +318,19 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
     }
 
     /**
-     * Parses an OpenEMR procedure_order record into a FHIR ServiceRequest resource
+     * Parses an OpenEMR procedure_order record into a FHIR ServiceRequest resource. Always the
+     * resource itself, as FhirServiceBase declares: no caller asks for it encoded.
      *
-     * @param array $dataRecord The source OpenEMR data record from procedure_order + procedure_order_code
-     * @param bool  $encode     Indicates if the returned resource is encoded into a string
-     * @return FHIRServiceRequest
+     * @param array<mixed> $dataRecord The source OpenEMR data record from procedure_order + procedure_order_code
+     * @param bool  $encode     Not used (see above)
      */
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRServiceRequest
     {
         // Validate US Core 8.0 requirements
         $validation = $this->validateUSCoreRequirements($dataRecord);
 
         // Log validation issues
-        if (!empty($validation['errors'])) {
+        if ($validation['errors'] !== []) {
             $errorMsg = "US Core 8.0 validation errors: " . implode("; ", $validation['errors']);
             ServiceContainer::getLogger()->error($errorMsg, ['dataRecord_keys' => array_keys($dataRecord)]);
 
@@ -333,7 +340,7 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
             }
         }
 
-        if (!empty($validation['warnings'])) {
+        if ($validation['warnings'] !== []) {
             $warningMsg = "US Core 8.0 validation warnings: " . implode("; ", $validation['warnings']);
             ServiceContainer::getLogger()->debug($warningMsg);
         }
@@ -342,77 +349,55 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
 
         // Meta - US Core 8.0 profile
         $meta = new FHIRMeta();
-        $meta->setVersionId('1');
-        $meta->addProfile('http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest');
+        $meta->setVersionId(new FHIRId('1'));
+        $meta->addProfile(new FHIRCanonical(self::PROFILE_URI));
 
-        if (!empty($dataRecord['date_ordered'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered']));
-        } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        }
+        $dateOrdered = self::field($dataRecord, 'date_ordered');
+        $meta->setLastUpdated(new FHIRInstant($dateOrdered !== null ? self::utc($dateOrdered) : UtilsService::getDateFormattedAsUTC()));
         $serviceRequest->setMeta($meta);
 
         // ID - use procedure_order.uuid (aliased as order_uuid in query)
         $id = new FHIRId();
-        $id->setValue($dataRecord['order_uuid']);
+        $orderUuid = $dataRecord['order_uuid'] ?? null;
+        if (is_string($orderUuid)) {
+            $id->setValue($orderUuid);
+        }
         $serviceRequest->setId($id);
 
-        // Status - REQUIRED - map from order_status and activity fields
-        $status = $this->mapOrderStatus(
-            $dataRecord['order_status'] ?? '',
-            $dataRecord['activity'] ?? 1
-        );
-        $serviceRequest->setStatus($status);
+        // Status - REQUIRED - map from order_status and activity fields (activity 0 marks a deleted order)
+        $orderStatus = $dataRecord['order_status'] ?? '';
+        $activity = $dataRecord['activity'] ?? 1;
+        $status = $this->mapOrderStatus(is_string($orderStatus) ? $orderStatus : '', $activity === 0 || $activity === '0');
+        $serviceRequest->setStatus(new FHIRRequestStatus(['value' => $status]));
 
         // Intent - REQUIRED - typically 'order' for placed orders
         $intent = $dataRecord['order_intent'] ?? 'order';
-        $serviceRequest->setIntent($intent);
+        $serviceRequest->setIntent(new FHIRRequestIntent(['value' => is_string($intent) ? $intent : 'order']));
 
-        // Category - REQUIRED - USCDI v5 requirement from procedure_order_type
-        if (!empty($dataRecord['procedure_order_type'])) {
-            $category = $this->mapOrderTypeToCategory($dataRecord['procedure_order_type']);
-            if ($category) {
-                $serviceRequest->addCategory($category);
-            }
-        } else {
-            // Use default category if missing
-            $category = $this->mapOrderTypeToCategory('');
-            if ($category) {
-                $serviceRequest->addCategory($category);
-            }
-        }
+        // Category - REQUIRED - USCDI v5 requirement from procedure_order_type; a missing or
+        // unknown type maps to the default category
+        $orderType = self::field($dataRecord, 'procedure_order_type');
+        $serviceRequest->addCategory($this->mapOrderTypeToCategory($orderType ?? ''));
 
         // Code - REQUIRED - from procedure_order_code table
-        $code = $this->buildOrderCode($dataRecord);
-        if ($code) {
-            $serviceRequest->setCode($code);
-        }
+        $serviceRequest->setCode($this->buildOrderCode($dataRecord));
 
-        // Subject (patient) - REQUIRED
-        if (!empty($dataRecord['patient_id']) && !empty($dataRecord['patient']['uuid'])) {
-            $serviceRequest->setSubject(
-                UtilsService::createRelativeReference('Patient', $dataRecord['patient']['uuid'])
-            );
-        } elseif (!empty($dataRecord['puuid'])) {
-            // Fallback to puuid if patient array not populated
-            $serviceRequest->setSubject(
-                UtilsService::createRelativeReference('Patient', $dataRecord['puuid'])
-            );
+        // Subject (patient) - REQUIRED, falling back to puuid if the patient array isn't populated
+        $patientUuid = self::linkedUuid($dataRecord, 'patient_id', 'patient') ?? self::field($dataRecord, 'puuid');
+        if ($patientUuid !== null) {
+            $serviceRequest->setSubject(UtilsService::createRelativeReference('Patient', $patientUuid));
         } else {
-            // Last resort: use data missing extension (not ideal for US Core but prevents crash)
-            $serviceRequest->setSubject(UtilsService::createDataMissingExtension());
+            // Last resort: a reference carrying only the data-absent-reason extension (not ideal
+            // for US Core but prevents crash)
+            $missingSubject = new FHIRReference();
+            $missingSubject->addExtension(UtilsService::createDataAbsentReasonExtension());
+            $serviceRequest->setSubject($missingSubject);
         }
 
-        // Encounter context
-        if (!empty($dataRecord['encounter_id']) && !empty($dataRecord['encounter']['uuid'])) {
-            $serviceRequest->setEncounter(
-                UtilsService::createRelativeReference('Encounter', $dataRecord['encounter']['uuid'])
-            );
-        } elseif (!empty($dataRecord['euuid'])) {
-            // Fallback to euuid
-            $serviceRequest->setEncounter(
-                UtilsService::createRelativeReference('Encounter', $dataRecord['euuid'])
-            );
+        // Encounter context, falling back to euuid
+        $encounterUuid = self::linkedUuid($dataRecord, 'encounter_id', 'encounter') ?? self::field($dataRecord, 'euuid');
+        if ($encounterUuid !== null) {
+            $serviceRequest->setEncounter(UtilsService::createRelativeReference('Encounter', $encounterUuid));
         }
 
         // Track whether we set occurrence[x]
@@ -420,14 +405,15 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
 
         // Occurrence[x] - MUST SUPPORT - when service is to be performed
         // we go off the scheduled start time, then the scheduled date, then date collected of specimen if we have no other option
-        $serviceStartDate = $dataRecord['scheduled_start'] ?? $dataRecord['scheduled_date'] ?? $dataRecord['date_collected'];
-        if (!empty($serviceStartDate)) {
+        $serviceStartDate = self::nonEmpty($dataRecord['scheduled_start'] ?? $dataRecord['scheduled_date'] ?? $dataRecord['date_collected'] ?? null);
+        if ($serviceStartDate !== null) {
             // period takes precedence over dateTime if both start and end are present
-            $occurrenceStart = new FHIRDateTime(UtilsService::getLocalDateAsUTC($serviceStartDate));
-            if (!empty($dataRecord['scheduled_end'])) {
+            $occurrenceStart = new FHIRDateTime(self::utc($serviceStartDate));
+            $scheduledEnd = self::field($dataRecord, 'scheduled_end');
+            if ($scheduledEnd !== null) {
                 $period = new FHIRPeriod();
                 $period->setStart($occurrenceStart);
-                $period->setEnd(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['scheduled_end'])));
+                $period->setEnd(new FHIRDateTime(self::utc($scheduledEnd)));
                 $serviceRequest->setOccurrencePeriod($period);
             } else {
                 $serviceRequest->setOccurrenceDateTime($occurrenceStart);
@@ -437,165 +423,132 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
 
         // Authored date - REQUIRED if occurrence[x] not present - when order was created
         // US Core 8.0: Must have occurrence[x] OR authoredOn (at least one)
-        if (!empty($dataRecord['date_ordered'])) {
-            $serviceRequest->setAuthoredOn(
-                new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered']))
-            );
+        if ($dateOrdered !== null) {
+            $serviceRequest->setAuthoredOn(new FHIRDateTime(self::utc($dateOrdered)));
         } elseif (!$hasOccurrence) {
             // Fallback: Use current timestamp if no temporal data exists
-            $serviceRequest->setAuthoredOn(
-                new FHIRDateTime(UtilsService::getDateFormattedAsUTC())
-            );
+            $serviceRequest->setAuthoredOn(new FHIRDateTime(UtilsService::getDateFormattedAsUTC()));
         }
 
-        // Requester - MUST SUPPORT - the provider who ordered (provider_id)
-        if (!empty($dataRecord['provider_id']) && !empty($dataRecord['provider']['uuid'])) {
-            $serviceRequest->setRequester(
-                UtilsService::createRelativeReference('Practitioner', $dataRecord['provider']['uuid'])
-            );
-        } elseif (!empty($dataRecord['prov_uuid'])) {
-            // Fallback to prov_uuid
-            $serviceRequest->setRequester(
-                UtilsService::createRelativeReference('Practitioner', $dataRecord['prov_uuid'])
-            );
+        // Requester - MUST SUPPORT - the provider who ordered (provider_id), falling back to prov_uuid
+        $requesterUuid = self::linkedUuid($dataRecord, 'provider_id', 'provider') ?? self::field($dataRecord, 'prov_uuid');
+        if ($requesterUuid !== null) {
+            $serviceRequest->setRequester(UtilsService::createRelativeReference('Practitioner', $requesterUuid));
         }
 
-        // Performer - MUST SUPPORT - who will perform the service (lab_id references procedure_providers)
-        if (!empty($dataRecord['lab_id']) && !empty($dataRecord['lab']['uuid'])) {
-            $serviceRequest->addPerformer(
-                UtilsService::createRelativeReference('Organization', $dataRecord['lab']['uuid'])
-            );
-        } elseif (!empty($dataRecord['lab_uuid'])) {
-            // Fallback to lab_uuid
-            $serviceRequest->addPerformer(
-                UtilsService::createRelativeReference('Organization', $dataRecord['lab_uuid'])
-            );
+        // Performer - MUST SUPPORT - who will perform the service (lab_id references procedure_providers),
+        // falling back to lab_uuid
+        $labUuid = self::linkedUuid($dataRecord, 'lab_id', 'lab') ?? self::field($dataRecord, 'lab_uuid');
+        if ($labUuid !== null) {
+            $serviceRequest->addPerformer(UtilsService::createRelativeReference('Organization', $labUuid));
         }
 
         // PerformerType - type of performer (from new field or inferred from order type)
-        if (!empty($dataRecord['performer_type'])) {
-            $performerType = $this->buildPerformerType($dataRecord['performer_type']);
-            if ($performerType) {
-                $serviceRequest->setPerformerType($performerType);
-            }
-        } elseif (!empty($dataRecord['procedure_order_type'])) {
+        $performerTypeCode = self::field($dataRecord, 'performer_type');
+        $performerType = null;
+        if ($performerTypeCode !== null) {
+            $performerType = $this->buildPerformerType($performerTypeCode);
+        } elseif ($orderType !== null) {
             // Infer from order type if not specified
-            $performerType = $this->inferPerformerTypeFromCategory($dataRecord['procedure_order_type']);
-            if ($performerType) {
-                $serviceRequest->setPerformerType($performerType);
-            }
+            $performerType = $this->inferPerformerTypeFromCategory($orderType);
+        }
+        if ($performerType !== null) {
+            $serviceRequest->setPerformerType($performerType);
         }
 
         // LocationReference - where service should be performed
-        if (!empty($dataRecord['location_id']) && !empty($dataRecord['location']['uuid'])) {
-            $serviceRequest->addLocationReference(
-                UtilsService::createRelativeReference('Location', $dataRecord['location']['uuid'])
-            );
+        $locationUuid = self::linkedUuid($dataRecord, 'location_id', 'location');
+        if ($locationUuid !== null) {
+            $serviceRequest->addLocationReference(UtilsService::createRelativeReference('Location', $locationUuid));
         }
 
         // Priority - MUST SUPPORT - from order_priority field
-        if (!empty($dataRecord['order_priority'])) {
-            $priority = $this->mapOrderPriority($dataRecord['order_priority']);
-            $serviceRequest->setPriority($priority);
+        $orderPriority = self::field($dataRecord, 'order_priority');
+        if ($orderPriority !== null) {
+            $serviceRequest->setPriority(new FHIRRequestPriority(['value' => $this->mapOrderPriority($orderPriority)]));
         }
 
         // ReasonCode - from order_diagnosis (procedure_order) or diagnoses (procedure_order_code)
         $reasonCodes = [];
-        if (!empty($dataRecord['order_diagnosis'])) {
-            $reasonCodes = array_merge($reasonCodes, $this->buildReasonCodes($dataRecord['order_diagnosis']));
+        $orderDiagnosis = self::field($dataRecord, 'order_diagnosis');
+        if ($orderDiagnosis !== null) {
+            $reasonCodes = array_merge($reasonCodes, $this->buildReasonCodes($orderDiagnosis));
         }
-        if (!empty($dataRecord['diagnoses'])) {
-            $reasonCodes = array_merge($reasonCodes, $this->buildReasonCodes($dataRecord['diagnoses']));
+        $codeDiagnoses = self::field($dataRecord, 'diagnoses');
+        if ($codeDiagnoses !== null) {
+            $reasonCodes = array_merge($reasonCodes, $this->buildReasonCodes($codeDiagnoses));
         }
         foreach ($reasonCodes as $reasonCode) {
             $serviceRequest->addReasonCode($reasonCode);
         }
 
         // ReasonReference - from reason_code in procedure_order_code
-        if (!empty($dataRecord['reason_condition_uuid'])) {
-            $serviceRequest->addReasonReference(
-                UtilsService::createRelativeReference('Condition', $dataRecord['reason_condition_uuid'])
-            );
+        $reasonConditionUuid = self::field($dataRecord, 'reason_condition_uuid');
+        if ($reasonConditionUuid !== null) {
+            $serviceRequest->addReasonReference(UtilsService::createRelativeReference('Condition', $reasonConditionUuid));
         }
 
         // PatientInstruction - MUST SUPPORT - from patient_instructions field
-        if (!empty($dataRecord['patient_instructions'])) {
-            $serviceRequest->setPatientInstruction($dataRecord['patient_instructions']);
+        $patientInstructions = self::field($dataRecord, 'patient_instructions');
+        if ($patientInstructions !== null) {
+            $serviceRequest->setPatientInstruction(new FHIRString($patientInstructions));
         }
 
         // Note - clinical notes from clinical_hx field or reason_description
-        $notes = [];
-        if (!empty($dataRecord['clinical_hx'])) {
-            $note = new FHIRAnnotation();
-            $note->setText($dataRecord['clinical_hx']);
-            $notes[] = $note;
-        }
-        if (!empty($dataRecord['reason_description'])) {
-            $note = new FHIRAnnotation();
-            $note->setText($dataRecord['reason_description']);
-            $notes[] = $note;
-        }
-        foreach ($notes as $note) {
-            $serviceRequest->addNote($note);
+        foreach (['clinical_hx', 'reason_description'] as $noteColumn) {
+            $noteText = self::field($dataRecord, $noteColumn);
+            if ($noteText !== null) {
+                $note = new FHIRAnnotation();
+                $note->setText(new FHIRMarkdown($noteText));
+                $serviceRequest->addNote($note);
+            }
         }
 
         // SupportingInfo - additional clinical information
         // Fetch from procedure_order_relationships junction table
-        if (!empty($dataRecord['procedure_order_id'])) {
-            $relationshipRecords = $this->relationshipService->getRelationshipsForFhir(
-                $dataRecord['procedure_order_id']
-            );
-
-            foreach ($relationshipRecords as $rel) {
-                if (!empty($rel['resource_type']) && !empty($rel['uuid'])) {
-                    $serviceRequest->addSupportingInfo(
-                        UtilsService::createRelativeReference($rel['resource_type'], $rel['uuid'])
-                    );
+        $procedureOrderId = self::id($dataRecord, 'procedure_order_id');
+        if ($procedureOrderId !== null) {
+            foreach ($this->relationshipService->getRelationshipsForFhir($procedureOrderId) as $rel) {
+                $supportingInfo = self::typedReference($rel);
+                if ($supportingInfo !== null) {
+                    $serviceRequest->addSupportingInfo($supportingInfo);
                 }
             }
         }
         // Fallback: if supporting_info passed directly in dataRecord (for backwards compatibility)
-        if (!empty($dataRecord['supporting_info']) && is_array($dataRecord['supporting_info'])) {
-            foreach ($dataRecord['supporting_info'] as $info) {
-                if (!empty($info['resource_type']) && !empty($info['uuid'])) {
-                    $serviceRequest->addSupportingInfo(
-                        UtilsService::createRelativeReference($info['resource_type'], $info['uuid'])
-                    );
+        $passedSupportingInfo = $dataRecord['supporting_info'] ?? null;
+        if (is_array($passedSupportingInfo)) {
+            foreach ($passedSupportingInfo as $info) {
+                $supportingInfo = self::typedReference($info);
+                if ($supportingInfo !== null) {
+                    $serviceRequest->addSupportingInfo($supportingInfo);
                 }
             }
         }
 
         // Specimen - from specimen_type, specimen_location, specimen_volume
-        if (!empty($dataRecord['specimen_uuid'])) {
-            $serviceRequest->addSpecimen(
-                UtilsService::createRelativeReference('Specimen', $dataRecord['specimen_uuid'])
-            );
-        } elseif (!empty($dataRecord['specimen_type'])) {
+        $specimenUuid = self::field($dataRecord, 'specimen_uuid');
+        $specimenType = self::field($dataRecord, 'specimen_type');
+        if ($specimenUuid !== null) {
+            $serviceRequest->addSpecimen(UtilsService::createRelativeReference('Specimen', $specimenUuid));
+        } elseif ($specimenType !== null) {
             // Add specimen details as note if no specimen resource
+            $specimenText = "Specimen Type: " . $specimenType;
+            foreach (['specimen_location' => 'Location', 'specimen_volume' => 'Volume', 'specimen_fasting' => 'Fasting'] as $column => $label) {
+                $detail = self::field($dataRecord, $column);
+                if ($detail !== null) {
+                    $specimenText .= ", " . $label . ": " . $detail;
+                }
+            }
             $specimenNote = new FHIRAnnotation();
-            $specimenText = "Specimen Type: " . $dataRecord['specimen_type'];
-            if (!empty($dataRecord['specimen_location'])) {
-                $specimenText .= ", Location: " . $dataRecord['specimen_location'];
-            }
-            if (!empty($dataRecord['specimen_volume'])) {
-                $specimenText .= ", Volume: " . $dataRecord['specimen_volume'];
-            }
-            if (!empty($dataRecord['specimen_fasting'])) {
-                $specimenText .= ", Fasting: " . $dataRecord['specimen_fasting'];
-            }
-            $specimenNote->setText($specimenText);
+            $specimenNote->setText(new FHIRMarkdown($specimenText));
             $serviceRequest->addNote($specimenNote);
         }
 
         // Insurance/Coverage - from billing_type or linked coverage
-        if (!empty($dataRecord['insurance_uuid'])) {
-            $serviceRequest->addInsurance(
-                UtilsService::createRelativeReference('Coverage', $dataRecord['insurance_uuid'])
-            );
-        }
-
-        if ($encode) {
-            return json_encode($serviceRequest);
+        $insuranceUuid = self::field($dataRecord, 'insurance_uuid');
+        if ($insuranceUuid !== null) {
+            $serviceRequest->addInsurance(UtilsService::createRelativeReference('Coverage', $insuranceUuid));
         }
 
         return $serviceRequest;
@@ -605,13 +558,13 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
      * Map OpenEMR order_status and activity to FHIR ServiceRequest status
      *
      * @param string $orderStatus OpenEMR order_status value (pending,routed,complete,canceled)
-     * @param int    $activity    OpenEMR activity flag (0=deleted, 1=active)
+     * @param bool   $deleted     Whether the order's activity flag is 0 (deleted)
      * @return string FHIR status code
      */
-    private function mapOrderStatus($orderStatus, $activity = 1): string
+    private function mapOrderStatus(string $orderStatus, bool $deleted): string
     {
         // If activity = 0, it's deleted
-        if ($activity == 0) {
+        if ($deleted) {
             return 'entered-in-error';
         }
 
@@ -638,7 +591,7 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
      * @param string $orderPriority OpenEMR order_priority value
      * @return string FHIR priority code (routine | urgent | asap | stat)
      */
-    private function mapOrderPriority($orderPriority): string
+    private function mapOrderPriority(string $orderPriority): string
     {
         $priorityMap = [
             'routine' => 'routine',
@@ -658,9 +611,8 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
      * US Core 8.0 requires category from SNOMED CT
      *
      * @param string $procedureOrderType From procedure_order.procedure_order_type field
-     * @return FHIRCodeableConcept|null
      */
-    private function mapOrderTypeToCategory($procedureOrderType)
+    private function mapOrderTypeToCategory(string $procedureOrderType): FHIRCodeableConcept
     {
         if (!isset(self::CATEGORY_MAP[$procedureOrderType])) {
             // Default to diagnostic procedure
@@ -676,7 +628,7 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
     /**
      * Infer performer type from order category
      */
-    private function inferPerformerTypeFromCategory($procedureOrderType)
+    private function inferPerformerTypeFromCategory(string $procedureOrderType): ?FHIRCodeableConcept
     {
         $performerMap = [
             self::ORDER_TYPE_LABORATORY => 'laboratory',
@@ -685,7 +637,7 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
         ];
 
         $performerType = $performerMap[$procedureOrderType] ?? null;
-        if ($performerType) {
+        if ($performerType !== null) {
             return $this->buildPerformerType($performerType);
         }
         return null;
@@ -695,7 +647,7 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
      * Build performer type CodeableConcept
      * Uses SNOMED CT codes for healthcare provider taxonomy
      */
-    private function buildPerformerType($performerTypeCode)
+    private function buildPerformerType(string $performerTypeCode): ?FHIRCodeableConcept
     {
         $performerTypeMap = [
             'laboratory' => [
@@ -730,23 +682,26 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
      * Uses procedure_code from procedure_order_code table
      * US Core 8.0: Codes should be from LOINC, SNOMED CT, CPT, or HCPCS
      *
-     * @param array $dataRecord
-     * @return FHIRCodeableConcept|null
+     * @param array<mixed> $dataRecord
      */
-    private function buildOrderCode($dataRecord)
+    private function buildOrderCode(array $dataRecord): FHIRCodeableConcept
     {
         $codesService = new CodeTypesService();
         $codeableConcept = new FHIRCodeableConcept();
+        $procedureCode = self::field($dataRecord, 'procedure_code');
+        $procedureName = self::field($dataRecord, 'procedure_name');
 
         // Primary code from procedure_order_code.procedure_code
-        if (!empty($dataRecord['procedure_code'])) {
-            $codeParts = $codesService->parseCode($dataRecord['procedure_code']);
-            $system = $codesService->getSystemForCodeType($codeParts['code_type']);
+        if ($procedureCode !== null) {
+            $codeParts = $codesService->parseCode($procedureCode);
+            // code_type is null when the code has no "type:" prefix; null and '' find no system alike
+            $codeType = $codeParts['code_type'];
+            $system = $codesService->getSystemForCodeType(is_string($codeType) ? $codeType : '');
 
-            if (!empty($system)) {
-                $description = $codesService->lookup_code_description($dataRecord['procedure_code']);
-                if (empty($description) && !empty($dataRecord['procedure_name'])) {
-                    $description = $dataRecord['procedure_name'];
+            if (self::nonEmpty($system) !== null) {
+                $description = $codesService->lookup_code_description($procedureCode);
+                if (self::nonEmpty($description) === null && $procedureName !== null) {
+                    $description = $procedureName;
                 }
 
                 $codeableConcept->addCoding(
@@ -760,14 +715,18 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
         }
 
         // Text description from procedure_order_code.procedure_name
-        if (!empty($dataRecord['procedure_name'])) {
-            $codeableConcept->setText($dataRecord['procedure_name']);
+        if ($procedureName !== null) {
+            $codeableConcept->setText(new FHIRString($procedureName));
         }
 
         // US Core 8.0: Code is REQUIRED
         // If no coded values and no text, return data-absent
-        if (empty($codeableConcept->getCoding()) && empty($codeableConcept->getText())) {
-            return UtilsService::createDataAbsentUnknownCodeableConcept();
+        if ($codeableConcept->getCoding() === [] && $procedureName === null) {
+            // UtilsService declares no return type here; it builds a FHIRCodeableConcept
+            $dataAbsent = UtilsService::createDataAbsentUnknownCodeableConcept();
+            if ($dataAbsent instanceof FHIRCodeableConcept) {
+                return $dataAbsent;
+            }
         }
 
         return $codeableConcept;
@@ -777,17 +736,17 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
      * Build reason codes from diagnosis string
      * Format in OpenEMR: "ICD10:E11.9;ICD10:I10" or similar
      * Can be from order_diagnosis (procedure_order) or diagnoses (procedure_order_code)
-     * @return FHIRCodeableConcept[]
+     * @return list<FHIRCodeableConcept>
      */
-    private function buildReasonCodes($diagnosisString): array
+    private function buildReasonCodes(string $diagnosisString): array
     {
         $reasonCodes = [];
         $codesService = new CodeTypesService();
 
         // Split by semicolon for multiple diagnoses
-        $diagnoses = explode(";", (string) $diagnosisString);
+        $diagnoses = explode(";", $diagnosisString);
         foreach ($diagnoses as $diagnosis) {
-            if (empty(trim($diagnosis))) {
+            if (self::nonEmpty(trim($diagnosis)) === null) {
                 continue;
             }
 
@@ -801,7 +760,7 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
                 $description = $codesService->lookup_code_description($fullCode);
                 $system = $codesService->getSystemForCodeType($codeType);
 
-                if (!empty($system)) {
+                if (self::nonEmpty($system) !== null) {
                     $reasonCodes[] = UtilsService::createCodeableConcept([
                         $code => [
                             'code' => $code,
@@ -1153,7 +1112,92 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
     public function getProfileURIs(): array
     {
         return [
-            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest'
+            self::PROFILE_URI
         ];
+    }
+
+    /**
+     * @param array<mixed> $openEMRSearchParameters
+     * @return array<string, ISearchField>
+     */
+    private static function searchFields(array $openEMRSearchParameters): array
+    {
+        $search = [];
+        foreach ($openEMRSearchParameters as $name => $field) {
+            if (is_string($name) && $field instanceof ISearchField) {
+                $search[$name] = $field;
+            }
+        }
+        return $search;
+    }
+
+    /**
+     * A column's value as nonEmpty() reads it.
+     *
+     * @param array<mixed> $record
+     */
+    private static function field(array $record, string $column): ?string
+    {
+        return self::nonEmpty($record[$column] ?? null);
+    }
+
+    /**
+     * A string or number as a string, when empty() would have called it set: not '' or '0'. An int
+     * or float reads as its digits; anything else is null. empty()'s answer is kept from the code
+     * this class was moved from, because the id columns use 0 for none.
+     */
+    private static function nonEmpty(mixed $value): ?string
+    {
+        if (is_int($value) || is_float($value)) {
+            $value = (string) $value;
+        }
+        return is_string($value) && $value !== '' && $value !== '0' ? $value : null;
+    }
+
+    /**
+     * An id column as an int, or null when it's unset or not an integer.
+     *
+     * @param array<mixed> $record
+     */
+    private static function id(array $record, string $column): ?int
+    {
+        $id = filter_var(self::field($record, $column), FILTER_VALIDATE_INT);
+        return is_int($id) ? $id : null;
+    }
+
+    /**
+     * The uuid of a linked record (patient, encounter, provider, lab, location) when the record
+     * holds both the link's id column and the linked array with a uuid.
+     *
+     * @param array<mixed> $record
+     */
+    private static function linkedUuid(array $record, string $idColumn, string $linked): ?string
+    {
+        $linkedRecord = $record[$linked] ?? null;
+        if (self::field($record, $idColumn) === null || !is_array($linkedRecord)) {
+            return null;
+        }
+        return self::field($linkedRecord, 'uuid');
+    }
+
+    /**
+     * A reference from a row holding resource_type and uuid (procedure_order_relationships, or
+     * supporting_info passed in the record).
+     */
+    private static function typedReference(mixed $row): ?FHIRReference
+    {
+        if (!is_array($row)) {
+            return null;
+        }
+        $type = self::field($row, 'resource_type');
+        $uuid = self::field($row, 'uuid');
+        return $type === null || $uuid === null ? null : UtilsService::createRelativeReference($type, $uuid);
+    }
+
+    /** A local date and time from the database, as FHIR's UTC form. */
+    private static function utc(string $localDateTime): string
+    {
+        $utc = UtilsService::getLocalDateAsUTC($localDateTime);
+        return is_string($utc) ? $utc : $localDateTime;
     }
 }

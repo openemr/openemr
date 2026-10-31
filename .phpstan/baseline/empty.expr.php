@@ -38,11 +38,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/ServiceRequest/FhirServiceRequestProcedureOrderService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
 ];
