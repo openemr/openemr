@@ -149,6 +149,11 @@ groups:
     - questionnaire_response
     - questionnaire_repository
 
+  task:
+    - task
+    - task_input
+    - task_output
+
   therapy_patient:
     - therapy_groups_participant_attendance
     - therapy_groups_participants

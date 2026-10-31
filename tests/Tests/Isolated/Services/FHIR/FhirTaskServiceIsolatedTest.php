@@ -63,6 +63,7 @@ class FhirTaskServiceIsolatedTest extends TestCase
             'intent' => 'order',
             'priority' => 'urgent',
             'code' => 'fulfill',
+            'code_system' => FhirTaskService::TASK_CODE_SYSTEM,
             'description' => 'Referral to a food pantry',
             'puuid' => self::PATIENT,
             'focus_type' => 'ServiceRequest',
@@ -96,6 +97,22 @@ class FhirTaskServiceIsolatedTest extends TestCase
         $this->assertSame('Task/' . self::PARENT, self::at($json, 'partOf', 0, 'reference'));
         $this->assertStringStartsWith('2026-10-15T09:00:00', (string)self::text(self::at($json, 'authoredOn')));
         $this->assertSame($json['lastModified'], self::at($json, 'meta', 'lastUpdated'));
+    }
+
+    /**
+     * A write keeps a code with its system, and the upgrade gave every earlier code one, so a code
+     * without a system isn't rendered under a guessed one: code search wouldn't find it there.
+     */
+    public function testACodeWithoutItsSystemIsLeftOut(): void
+    {
+        $json = $this->toArray((new FhirTaskService())->parseOpenEMRRecord([
+            'uuid' => self::TASK,
+            'status' => 'requested',
+            'intent' => 'order',
+            'code' => 'fulfill',
+            'puuid' => self::PATIENT,
+        ]));
+        $this->assertArrayNotHasKey('code', $json);
     }
 
     public function testASparseRecordLeavesTheOptionalElementsOut(): void
