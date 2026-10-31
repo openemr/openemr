@@ -5,7 +5,8 @@
  * by option id and the UCUM code FHIR's doseQuantity carries.
  *
  * The list's titles are not all UCUM: "mcg" is ug and "grams" is g in UCUM, and "mg/1cc" is
- * no unit at all. A title is sent as UCUM only when the UCUM engine accepts it or its alias.
+ * no unit at all. A title is sent as UCUM only when the UCUM engine accepts it or its alias,
+ * by the rule createQuantity() uses (UtilsService::ucumCodeFor()).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -18,36 +19,21 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\FHIR\Immunization;
 
-use OpenEMR\Cqm\Cql\Ucum\Ucum;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\UtilsService;
 
 final class DoseUnit
 {
-    /**
-     * Drug Units titles whose UCUM code is spelled differently.
-     */
-    private const UCUM_ALIASES = [
-        'mcg' => 'ug',
-        'grams' => 'g',
-    ];
-
     /**
      * The UCUM code for a Drug Units title, or null when the title isn't a UCUM unit.
      */
     public static function ucumFor(string $title): ?string
     {
-        $title = trim($title);
         // UCUM accepts a bare number as a unit of one; as a dose's unit it's the option id #14699 saw sent.
-        if ($title === '' || is_numeric($title)) {
+        if (is_numeric(trim($title))) {
             return null;
         }
-        $ucum = Ucum::instance();
-        foreach ([$title, self::UCUM_ALIASES[strtolower($title)] ?? null] as $candidate) {
-            if ($candidate !== null && $ucum->isValid($candidate)) {
-                return $candidate;
-            }
-        }
-        return null;
+        return UtilsService::ucumCodeFor($title);
     }
 
     /**
