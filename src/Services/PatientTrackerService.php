@@ -17,6 +17,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 
@@ -279,23 +280,35 @@ class PatientTrackerService extends BaseService
     }
 
     /**
-     * This is used to break apart the information contained in the notes field of
-     * list_options. Currently the color and alert time are the only items stored
-     * @param $option
-     * @return array
+     * An appointment status's Flow Board colour and time alert, from the Notes
+     * of its Appointment Statuses list entry ("color|minutes", e.g. "#FEFDCF|10").
+     *
+     * A status with no Notes, or one no longer in the list, gets no colour and
+     * no alert rather than breaking the board. An inactive status still has its
+     * colour: inactive only stops it being picked for new appointments, and
+     * appointments already in it (e.g. set by MedEx) are still shown.
+     *
+     * @return array{color: string, time_alert: string} color without the leading "#"
      */
-    public static function collectApptStatusSettings($option)
+    public static function collectApptStatusSettings(mixed $option): array
     {
-        $color_settings = [];
-        $row = sqlQuery("SELECT notes FROM list_options WHERE " .
-            "list_id = 'apptstat' AND option_id = ? AND activity = 1", [$option]);
-        if (empty($row['notes'])) {
-            return $option;
+        $settings = ['color' => '', 'time_alert' => ''];
+        if (!is_string($option) && !is_int($option)) {
+            return $settings;
+        }
+        $row = QueryUtils::querySingleRow(
+            "SELECT notes FROM list_options WHERE list_id = 'apptstat' AND option_id = ? ORDER BY activity DESC LIMIT 1",
+            [(string) $option]
+        );
+        $notes = is_array($row) && is_string($row['notes'] ?? null) ? trim($row['notes']) : '';
+        if ($notes === '') {
+            return $settings;
         }
 
-        [$color_settings['color'], $color_settings['time_alert']] = explode("|", (string) $row['notes']);
-        $color_settings['color'] = ltrim($color_settings['color'],'#');
-        return $color_settings;
+        $parts = explode('|', $notes, 2);
+        $settings['color'] = ltrim(trim($parts[0]), '#');
+        $settings['time_alert'] = trim($parts[1] ?? '');
+        return $settings;
     }
 
     /**
