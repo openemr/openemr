@@ -24,6 +24,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Search\TokenSearchField;
 
@@ -86,6 +87,8 @@ class ReferralTaskService
             'status' => 'requested',
             'intent' => 'order',
             'code' => 'fulfill',
+            // #14669 renders a code only with its system, so the referral's Task records task-code's.
+            'code_system' => FhirTaskService::TASK_CODE_SYSTEM,
             'focus_type' => 'ServiceRequest',
             'focus_uuid' => $referralUuid,
             'owner_type' => $owner[0],
