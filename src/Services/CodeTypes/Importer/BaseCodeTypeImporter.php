@@ -22,7 +22,9 @@ namespace OpenEMR\Services\CodeTypes\Importer;
 
 use Generator;
 use InvalidArgumentException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Services\CodeTypes\CodeImportException;
 use Throwable;
 
@@ -34,6 +36,8 @@ abstract class BaseCodeTypeImporter
 
     /** Number of records written per transaction. See writeBatch(). */
     private const COMMIT_EVERY = 1000;
+
+    private ?string $importLockSchemaHash = null;
 
     abstract public function getCodeType(): string;
 
@@ -63,33 +67,92 @@ abstract class BaseCodeTypeImporter
     {
         $codeTypeId = $this->resolveCodeTypeId($this->getCodeType());
 
-        // readRecords() is a generator, so nothing is opened or parsed until it is first advanced.
-        // Prime it before the DELETE below: an unreadable file or an unrecognised layout must abort
-        // the import while the existing code set is still intact.
-        $records = $this->readRecords($filePath);
-        $records->rewind();
-
-        if ($isReplace) {
-            QueryUtils::sqlStatementThrowException("DELETE FROM codes WHERE code_type = ?", [$codeTypeId]);
+        if (!$this->acquireImportLock($codeTypeId)) {
+            throw new CodeImportException(
+                'Another import for code type ' . $this->getCodeType() . ' is already in progress.'
+            );
         }
 
-        $inserted = 0;
-        $updated = 0;
-        $batch = [];
+        try {
+            // readRecords() is a generator, so nothing is opened or parsed until it is first advanced.
+            // Prime it before the DELETE below: an unreadable file or an unrecognised layout must abort
+            // the import while the existing code set is still intact.
+            $records = $this->readRecords($filePath);
+            $records->rewind();
 
-        foreach ($records as $record) {
-            $batch[] = $record;
-            if (count($batch) < self::COMMIT_EVERY) {
-                continue;
+            if ($isReplace) {
+                QueryUtils::sqlStatementThrowException("DELETE FROM codes WHERE code_type = ?", [$codeTypeId]);
             }
-            $this->writeBatch($codeTypeId, $batch, $isReplace, $inserted, $updated);
+
+            $inserted = 0;
+            $updated = 0;
             $batch = [];
+
+            foreach ($records as $record) {
+                $batch[] = $record;
+                if (count($batch) < self::COMMIT_EVERY) {
+                    continue;
+                }
+                $this->writeBatch($codeTypeId, $batch, $isReplace, $inserted, $updated);
+                $batch = [];
+            }
+            if ($batch !== []) {
+                $this->writeBatch($codeTypeId, $batch, $isReplace, $inserted, $updated);
+            }
+
+            return ['inserted' => $inserted, 'updated' => $updated];
+        } finally {
+            $this->releaseImportLock($codeTypeId);
         }
-        if ($batch !== []) {
-            $this->writeBatch($codeTypeId, $batch, $isReplace, $inserted, $updated);
+    }
+
+    protected function acquireImportLock(int $codeTypeId): bool
+    {
+        $lockName = $this->getImportLockName($codeTypeId);
+        $row = QueryUtils::querySingleRow('SELECT GET_LOCK(?, 0) AS got', [$lockName], false);
+        if (!is_array($row)) {
+            throw new CodeImportException('Unable to acquire the code import lock for ' . $this->getCodeType());
         }
 
-        return ['inserted' => $inserted, 'updated' => $updated];
+        $got = $row['got'] ?? null;
+        if ($got === 1 || $got === '1') {
+            return true;
+        }
+        if ($got === 0 || $got === '0') {
+            return false;
+        }
+
+        throw new CodeImportException('Database failed to acquire the code import lock for ' . $this->getCodeType());
+    }
+
+    protected function releaseImportLock(int $codeTypeId): void
+    {
+        try {
+            $lockName = $this->getImportLockName($codeTypeId);
+            QueryUtils::fetchRecordsNoLog('SELECT RELEASE_LOCK(?) AS released', [$lockName]);
+        } catch (SqlQueryException $exception) {
+            ServiceContainer::getLogger()->error('Failed to release code import lock', [
+                'code_type' => $this->getCodeType(),
+                'exception' => $exception,
+            ]);
+        } finally {
+            $this->importLockSchemaHash = null;
+        }
+    }
+
+    private function getImportLockName(int $codeTypeId): string
+    {
+        if ($this->importLockSchemaHash === null) {
+            $databaseRows = QueryUtils::fetchRecordsNoLog('SELECT DATABASE() AS database_name');
+            $databaseName = $databaseRows[0]['database_name'] ?? null;
+            if (!is_string($databaseName) || $databaseName === '') {
+                throw new CodeImportException('Unable to determine the database for the code import lock');
+            }
+
+            $this->importLockSchemaHash = substr(hash('sha256', $databaseName), 0, 16);
+        }
+
+        return 'oe.ci.' . $this->importLockSchemaHash . '.' . $codeTypeId;
     }
 
     /**
