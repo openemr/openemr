@@ -390,11 +390,12 @@ if (
             $checkedEncounterIds[] = (int) $key;
         }
     }
+    $runRequest = CurrentRequest::get()->request;
     $delivery = match (true) {
-        !empty($_REQUEST['form_portalnotify']) => StatementDelivery::Portal,
-        !empty($_REQUEST['form_email']) => StatementDelivery::Email,
-        !empty($_REQUEST['form_download']) => StatementDelivery::Download,
-        !empty($_REQUEST['form_pdf']) => StatementDelivery::Pdf,
+        $runRequest->getString('form_portalnotify') !== '' => StatementDelivery::Portal,
+        $runRequest->getString('form_email') !== '' => StatementDelivery::Email,
+        $runRequest->getString('form_download') !== '' => StatementDelivery::Download,
+        $runRequest->getString('form_pdf') !== '' => StatementDelivery::Pdf,
         default => StatementDelivery::Print,
     };
 
