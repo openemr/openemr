@@ -184,8 +184,9 @@ $selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
         $sqlBindArrayAppointment = $sqlBindArrayTotalVisit = $sqlBindArrayTotalPayment = $sqlBindArrayPaid = $sqlBindArrayNewPatient = [];
 
         // make all condition on by default today's date
-        // Dates are compared as ranges on the bare columns, so their indexes serve a short period: DATE(column)
-        // makes the database read every row (MySQL, and MariaDB before 11.1). pc_eventDate is already a date.
+        // Dates are compared as ranges on the bare columns, so an index on the column can serve a short period:
+        // DATE(column) makes the database read every row (MySQL, and MariaDB before 11.1). payments.dtime has no
+        // index, so its range still reads every payment. pc_eventDate is already a date.
         if ($dateSet != 1 && $facilitySet != 1) {
             $whereNewPatientConditions .= ' AND `OPE`.`pc_eventDate` = ? ';
             array_push($sqlBindArrayNewPatient, date("Y-m-d"));

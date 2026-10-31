@@ -15,11 +15,19 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Services\AppointmentService;
+use OpenEMR\Services\Patient\DuplicatePatientService;
+use OpenEMR\Services\Patient\PatientMergeLog;
+use OpenEMR\Services\Patient\PatientMergeService;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 require_once dirname(__DIR__, 3) . '/library/appointments.inc.php';
 
@@ -96,6 +104,7 @@ class IndexFriendlyQueriesDatabaseTest extends TestCase
         $service = new AppointmentService();
 
         $this->assertCount(2, $service->getAppointmentsForPatient($this->pid));
+        $this->assertCount(2, $service->getAppointmentsForPatient('0' . $this->pid), 'a pid with a leading zero, as a URL can give it');
         $this->assertCount(2, $this->searchByPatient($service, $this->uuid));
         $this->assertCount(1, $this->searchByPatient($service, $this->otherUuid));
         $this->assertCount(0, $this->searchByPatient($service, random_bytes(16)), 'a patient who is not here');
@@ -115,6 +124,41 @@ class IndexFriendlyQueriesDatabaseTest extends TestCase
         $this->assertLessThan(self::FILLER, $this->rowsScanned(fn(): array => $this->searchByPatient($service, $this->uuid)), 'search by puuid');
         $this->assertLessThan(self::FILLER, $this->rowsScanned(fn(): array => fetchRecurrences($this->pid)), 'fetchRecurrences');
         $this->assertLessThan(self::FILLER, $this->rowsScanned(fn(): array => fetchAppointments('2031-03-01', '2031-03-31', $this->pid)), 'fetchAppointments');
+    }
+
+    public function testCalendarPidIsThePlainNumber(): void
+    {
+        $this->assertSame('42', AppointmentService::calendarPid(42));
+        $this->assertSame('42', AppointmentService::calendarPid('42'));
+        $this->assertSame('42', AppointmentService::calendarPid('0042'));
+        $this->assertSame('0', AppointmentService::calendarPid('000'));
+        $this->assertSame('', AppointmentService::calendarPid(''), 'no patient');
+        $this->assertNull(AppointmentService::calendarPid(null));
+        $this->assertSame(' 42', AppointmentService::calendarPid(' 42'), 'other text is left as it was');
+    }
+
+    /**
+     * A merge counts the source patient's events and moves them to the target through pc_pid's index. Its
+     * audit logger is a stand-in, so the test writes no log rows.
+     */
+    public function testAMergeFindsAndMovesThePatientsEventsThroughTheIndex(): void
+    {
+        $merge = new PatientMergeService(
+            $this->createMock(EventAuditLogger::class),
+            new Session(new MockArraySessionStorage()),
+            new NullLogger(),
+            new DuplicatePatientService(ServiceContainer::getClock()),
+            sys_get_temp_dir() . '/openemr-merge-test-documents',
+        );
+        $countRows = new \ReflectionMethod($merge, 'countRows');
+        $updateRows = new \ReflectionMethod($merge, 'updateRows');
+        $service = new AppointmentService();
+
+        $this->assertLessThan(self::FILLER, $this->rowsScanned(fn(): mixed => $countRows->invoke($merge, 'openemr_postcalendar_events', 'pc_pid', $this->pid)), 'counting the events');
+        $this->assertSame(2, $countRows->invoke($merge, 'openemr_postcalendar_events', 'pc_pid', $this->pid));
+        $this->assertLessThan(self::FILLER, $this->rowsScanned(fn(): mixed => $updateRows->invoke($merge, 'openemr_postcalendar_events', 'pc_pid', $this->pid, $this->otherPid, new PatientMergeLog())), 'moving them');
+        $this->assertCount(0, $service->getAppointmentsForPatient($this->pid));
+        $this->assertCount(3, $service->getAppointmentsForPatient($this->otherPid), 'the other patient has both, and their own');
     }
 
     public function testBillingDatesAreIndexed(): void

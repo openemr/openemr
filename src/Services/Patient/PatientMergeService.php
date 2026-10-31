@@ -438,7 +438,7 @@ class PatientMergeService
             return;
         }
 
-        QueryUtils::sqlStatementThrowException($sql, [$targetPid, $sourcePid]);
+        QueryUtils::sqlStatementThrowException($sql, [self::boundPid($columnName, $targetPid), self::boundPid($columnName, $sourcePid)]);
         $this->logMergeEvent(
             $targetPid,
             'update',
@@ -548,10 +548,19 @@ class PatientMergeService
         $row = QueryUtils::querySingleRow(
             "SELECT COUNT(*) AS count FROM " . QueryUtils::escapeTableName($tableName)
             . " WHERE " . QueryUtils::escapeColumnName($columnName, [$tableName]) . " = ?",
-            [$pid]
+            [self::boundPid($columnName, $pid)]
         );
 
         return is_array($row) ? self::asInt($row['count'] ?? 0) : 0;
+    }
+
+    /**
+     * A pid bound as its column holds it. openemr_postcalendar_events.pc_pid is a varchar, whose index serves
+     * only a comparison with text (see AppointmentService::calendarPid()); the other pid columns are numbers.
+     */
+    private static function boundPid(string $columnName, int $pid): int|string
+    {
+        return $columnName === 'pc_pid' ? (string) $pid : $pid;
     }
 
     /**

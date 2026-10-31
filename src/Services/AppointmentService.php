@@ -219,11 +219,19 @@ class AppointmentService extends BaseService
     /**
      * A pid as openemr_postcalendar_events.pc_pid is matched: as text. pc_pid is a varchar, so compared with a
      * number the database reads and converts every event; compared with text its index finds the patient's.
-     * A string or null is returned as it was.
+     * An int, or a string of digits (a pid from a URL can be "05"), becomes the plain number OpenEMR writes, as
+     * the numeric comparison matched it. Any other string, and null, is returned as it was.
      */
     public static function calendarPid(mixed $pid): mixed
     {
-        return is_int($pid) ? (string) $pid : $pid;
+        if (is_int($pid)) {
+            return (string) $pid;
+        }
+        if (is_string($pid) && ctype_digit($pid)) {
+            $plain = ltrim($pid, '0');
+            return $plain === '' ? '0' : $plain;
+        }
+        return $pid;
     }
 
     /**
@@ -405,7 +413,8 @@ class AppointmentService extends BaseService
             $sql,
             [
                 $uuid,
-                $pid,
+                // the plain number, which the text lookups of pc_pid match ("05" from a URL is stored as "5")
+                self::calendarPid($pid),
                 $data["pc_catid"],
                 $data["pc_title"],
                 $data["pc_duration"],
