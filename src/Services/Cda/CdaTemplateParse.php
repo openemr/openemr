@@ -1217,12 +1217,14 @@ class CdaTemplateParse
                 '8462-4' => 'bpd',
                 '8480-6' => 'bps',
                 '8287-5' => 'head_circ',
+                '9843-4' => 'head_circ', // Head occipital-frontal circumference, the FHIR and US Core code
                 '8867-4' => 'pulse',
                 '8302-2' => 'height',
                 '2710-2' => 'oxygen_saturation',
                 '59408-5' => 'oxygen_saturation',
                 '9279-1' => 'respiration',
                 '3141-9' => 'weight',
+                '29463-7' => 'weight', // Body weight, the FHIR and US Core vital signs code
                 '39156-5' => 'BMI'
             ];
 
@@ -1322,6 +1324,7 @@ class CdaTemplateParse
                 '8462-4' => 'bpd',
                 '8480-6' => 'bps',
                 '8287-5' => 'head_circ',
+                '9843-4' => 'head_circ', // Head occipital-frontal circumference, the FHIR and US Core code
                 '8867-4' => 'pulse',
                 '8302-2' => 'height',
                 '2710-2' => 'oxygen_saturation', // deprecated code

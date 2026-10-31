@@ -527,6 +527,62 @@ class CdaTemplateParseTest extends TestCase
         $this->assertSame(1, $this->getEntryId('vital_sign', 1));
     }
 
+    public function testFetchVitalSignDataReadsBodyWeightByEitherCode(): void
+    {
+        foreach (['3141-9', '29463-7'] as $index => $code) {
+            $this->parser->fetchVitalSignData([
+                'organizer' => [
+                    'id' => ['extension' => 'vs-ext', 'root' => 'vs-root'],
+                    'component' => [
+                        0 => [
+                            'observation' => [
+                                'effectiveTime' => ['value' => '20240121'],
+                                'code' => ['code' => $code],
+                                'value' => ['value' => '72.5'],
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+            $this->assertSame('72.5', $this->getFieldRecord('vital_sign', $index + 1)['weight'] ?? null, $code);
+        }
+    }
+
+    public function testFetchVitalSignDataReadsHeadCircumferenceByEitherCode(): void
+    {
+        foreach (['8287-5', '9843-4'] as $index => $code) {
+            $this->parser->fetchVitalSignData([
+                'organizer' => [
+                    'id' => ['extension' => 'vs-ext', 'root' => 'vs-root'],
+                    'component' => [
+                        0 => [
+                            'observation' => [
+                                'effectiveTime' => ['value' => '20240121'],
+                                'code' => ['code' => $code],
+                                'value' => ['value' => '18.5'],
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+            $this->assertSame('18.5', $this->getFieldRecord('vital_sign', $index + 1)['head_circ'] ?? null, $code);
+        }
+    }
+
+    public function testAPhysicalExamReadsHeadCircumferenceSentAs98434(): void
+    {
+        $this->parser->fetchPhysicalExamPerformedData([
+            'observation' => [
+                'effectiveTime' => ['value' => '20240121'],
+                'code' => ['code' => '9843-4', 'codeSystem' => '2.16.840.1.113883.6.1', 'codeSystemName' => 'LOINC'],
+                'text' => 'Head circumference',
+                'value' => ['value' => '18.5', 'unit' => '[in_i]'],
+            ],
+        ]);
+        // By value: once #14924 converts units, a head circumference sent in inches comes back as a number.
+        $this->assertEquals('18.5', $this->getFieldRecord('vital_sign', 1)['head_circ'] ?? null);
+    }
+
     public function testFetchVitalSignDataSkipsWhenMissingEffectiveTime(): void
     {
         $data = [
