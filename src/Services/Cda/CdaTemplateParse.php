@@ -17,9 +17,21 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\CDA\CDAPostParseEvent;
 use OpenEMR\Events\CDA\CDAPreParseEvent;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\VitalsStorageUnits;
 
 class CdaTemplateParse
 {
+    /**
+     * The unit each form_vitals column stores, for the vitals sent with a unit that can
+     * differ from it.
+     */
+    private const VITAL_STORAGE_UNITS = [
+        'weight' => 'lb',
+        'height' => 'in',
+        'head_circ' => 'in',
+        'temperature' => 'degF',
+    ];
+
     private $templateData;
     private $codeService;
     private $currentOid;
@@ -1199,19 +1211,10 @@ class CdaTemplateParse
     public function fetchVitalSignData($vital_sign_data)
     {
         $components = self::withIntervalStartTimes(self::organizerComponents($vital_sign_data));
-        $organizer = is_array($vital_sign_data) ? ($vital_sign_data['organizer'] ?? null) : null;
-        if (is_array($vital_sign_data) && is_array($organizer)) {
-            $organizer['component'] = $components;
-            $vital_sign_data['organizer'] = $organizer;
-        }
-        if (!empty($vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'])) {
-            $i = 1;
-            if (!empty($this->templateData['field_name_value_array']['vital_sign'])) {
-                $i += count($this->templateData['field_name_value_array']['vital_sign']);
-            }
-            $this->templateData['field_name_value_array']['vital_sign'][$i]['extension'] = $vital_sign_data['organizer']['id']['extension'] ?? null;
-            $this->templateData['field_name_value_array']['vital_sign'][$i]['root'] = $vital_sign_data['organizer']['id']['root'] ?? null;
-            $this->templateData['field_name_value_array']['vital_sign'][$i]['date'] = $vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'] ?? null;
+        $firstTime = self::componentTime($components[0] ?? null);
+        if ($firstTime !== null) {
+            $organizer = is_array($vital_sign_data) ? ($vital_sign_data['organizer'] ?? null) : null;
+            $id = is_array($organizer) && is_array($organizer['id'] ?? null) ? $organizer['id'] : [];
             $vitals_array = [
                 '8310-5' => 'temperature',
                 '8462-4' => 'bpd',
@@ -1226,23 +1229,51 @@ class CdaTemplateParse
                 '39156-5' => 'BMI'
             ];
 
-            // Every component: OpenEMR's own export writes thirteen, with respiration, temperature and
-            // oxygen saturation after the ninth.
-            $count = count($components);
-            for ($j = 0; $j < $count; $j++) {
-                $code = $vital_sign_data['organizer']['component'][$j]['observation']['code']['code'] ?? null;
-                if (!empty($vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'])) {
-                    $this->templateData['field_name_value_array']['vital_sign'][$i]['bps'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][0]['observation']['value']['value'] ?? null;
-                    $this->templateData['field_name_value_array']['vital_sign'][$i]['bpd'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][1]['observation']['value']['value'] ?? null;
-                } else {
-                    if ($code !== null && array_key_exists($code, $vitals_array)) {
-                        $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital_sign_data['organizer']['component'][$j]['observation']['value']['value'] ?? null;
+            // Every component (OpenEMR's own export writes respiration, temperature and oxygen saturation after
+            // the ninth), and one record per time: an organizer can hold several dates (Synthea writes all of a
+            // patient's vital signs into one). A component with no time of its own is read with the first.
+            $byTime = [];
+            foreach ($components as $component) {
+                $time = self::componentTime($component) ?? $firstTime;
+                $byTime[$time] ??= ['time' => $time, 'components' => []];
+                $byTime[$time]['components'][] = $component;
+            }
+            $first = true;
+            foreach ($byTime as ['time' => $time, 'components' => $timeComponents]) {
+                // The organizer's id finds an entry imported before (external_id), and one id can't name
+                // several records, so a later time is saved as an entry of its own.
+                $record = ['extension' => $first ? ($id['extension'] ?? null) : null, 'root' => $id['root'] ?? null, 'date' => $time];
+                foreach ($timeComponents as $component) {
+                    $observation = is_array($component) && is_array($component['observation'] ?? null) ? $component['observation'] : [];
+                    $code = $observation['code']['code'] ?? null;
+                    if (!empty($observation['entryRelationship'])) {
+                        $record['bps'] = $observation['entryRelationship'][0]['observation']['value']['value'] ?? null;
+                        $record['bpd'] = $observation['entryRelationship'][1]['observation']['value']['value'] ?? null;
+                    } elseif (is_string($code) && array_key_exists($code, $vitals_array)) {
+                        $vital = $this->vitalValue($vitals_array[$code], $observation['value'] ?? null);
+                        // A measure sent twice (2710-2 and 59408-5), or a reading left out for its unit, doesn't
+                        // replace one already read.
+                        if ($vital !== null || !isset($record[$vitals_array[$code]])) {
+                            $record[$vitals_array[$code]] = $vital;
+                        }
                     }
                 }
+                $i = 1 + count($this->templateData['field_name_value_array']['vital_sign'] ?? []);
+                $this->templateData['field_name_value_array']['vital_sign'][$i] = $record;
+                $this->templateData['entry_identification_array']['vital_sign'][$i] = $i;
+                $first = false;
             }
-
-            $this->templateData['entry_identification_array']['vital_sign'][$i] = $i;
         }
+    }
+
+    /**
+     * A component's time, as the reader leaves it once an interval's start stands in for a missing value.
+     */
+    private static function componentTime(mixed $component): ?string
+    {
+        $observation = is_array($component) ? ($component['observation'] ?? null) : null;
+        $time = is_array($observation) && is_array($observation['effectiveTime'] ?? null) ? ($observation['effectiveTime']['value'] ?? null) : null;
+        return is_string($time) && $time !== '' ? $time : null;
     }
 
     /**
@@ -1296,7 +1327,8 @@ class CdaTemplateParse
     {
         // create an observation for this exam.
         $this->fetchObservationPerformedData($entry);
-        // and a vital in vital forms.
+        // and a vital in vital forms, dated by the start of the exam's period when it has no single time.
+        $entry = self::withIntervalStartTimes([$entry])[0] ?? $entry;
         if (
             (!empty($entry['observation']['effectiveTime']['value']) && !empty($entry['observation']['value']['value']))
             || (!empty($entry['observation']['entryRelationship']['observation']['value']['code'] ?? null) && ($entry['observation']['entryRelationship']['typeCode'] ?? null) === 'RSON')
@@ -1334,7 +1366,10 @@ class CdaTemplateParse
             $is_negated = !empty($entry['observation']['negationInd'] ?? false);
             $code = $entry['observation']['code']['code'] ?? null;
             if ($code !== null && array_key_exists($code, $vitals_array)) {
-                $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $entry['observation']['value']['value'] ?? null;
+                $vital = $this->vitalValue($vitals_array[$code], $entry['observation']['value'] ?? null);
+                if ($vital !== null || !self::hasVital($this->templateData, $i, $vitals_array[$code])) {
+                    $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital;
+                }
                 $this->templateData['field_name_value_array']['vital_sign'][$i]['vital_column'] = $vitals_array[$code] ?? '';
             } else {
                 // log missed exam
@@ -1356,6 +1391,58 @@ class CdaTemplateParse
 
             $this->templateData['entry_identification_array']['vital_sign'][$i] = $i;
         }
+    }
+
+    /**
+     * Whether a vital sign record already holds a reading for a column. A reading left out (null)
+     * doesn't replace one: an organizer, or QRDA exams on one date, can carry a measure twice.
+     */
+    private static function hasVital(mixed $templateData, int $i, string $column): bool
+    {
+        if (!is_array($templateData)) {
+            return false;
+        }
+        $fields = $templateData['field_name_value_array'] ?? null;
+        if (!is_array($fields)) {
+            return false;
+        }
+        $records = $fields['vital_sign'] ?? null;
+        if (!is_array($records)) {
+            return false;
+        }
+        $record = $records[$i] ?? null;
+        return is_array($record) && ($record[$column] ?? null) !== null;
+    }
+
+    /**
+     * A vital's value in the unit its form_vitals column stores, read with the unit it was
+     * sent in. Sent in kilograms, centimetres or Celsius, it was saved as that number of
+     * pounds, inches or degrees Fahrenheit. A value with no unit is kept as it was, as before;
+     * one in a unit that doesn't convert, or that isn't a number, is left out, not saved as if
+     * it were in the column's unit.
+     *
+     * @param mixed $value the observation's value element (value and unit attributes)
+     */
+    private function vitalValue(string $column, mixed $value): mixed
+    {
+        $number = is_array($value) ? ($value['value'] ?? null) : null;
+        $unit = is_array($value) && is_string($value['unit'] ?? null) ? trim($value['unit']) : '';
+        $storageUnit = self::VITAL_STORAGE_UNITS[$column] ?? null;
+        if ($storageUnit === null || $unit === '') {
+            return $number;
+        }
+        if (!is_numeric($number)) {
+            // MySQL would keep the digits it can read ("70,3" kg as 70) in the column's unit.
+            if ($number !== null && $number !== '') {
+                ServiceContainer::getLogger()->warning('Vital sign left out: its value is not a number', ['column' => $column, 'unit' => $unit]);
+            }
+            return null;
+        }
+        $converted = VitalsStorageUnits::convert((float)$number, $unit, $storageUnit);
+        if ($converted === null) {
+            ServiceContainer::getLogger()->warning('Vital sign left out: its unit does not convert to the Vitals form\'s', ['column' => $column, 'unit' => $unit]);
+        }
+        return $converted;
     }
 
     public function socialHistory($component)

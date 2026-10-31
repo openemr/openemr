@@ -42,7 +42,7 @@ class CdaVitalSignComponentsTest extends TestCase
         $this->reflection->getProperty('currentOid')->setValue($this->parser, '');
     }
 
-    public function testEveryVitalSignInOpenEmrsOwnExportIsRead(): void
+    public function testOpenEmrsOwnExportIsReadPastTheNinthVitalSign(): void
     {
         $this->parser->VitalSign($this->vitalSignsSection());
 
@@ -50,12 +50,13 @@ class CdaVitalSignComponentsTest extends TestCase
         // The first nine components, read before as well.
         $this->assertSame('130', $vital['bps']);
         $this->assertSame('80', $vital['bpd']);
-        $this->assertSame('70', $vital['height']);
+        // Converted to the Vitals form's units, height and temperature come back as numbers.
+        $this->assertEquals('70', $vital['height']);
         $this->assertSame('31.6', $vital['BMI']);
         $this->assertSame('60', $vital['pulse']);
         // The tenth to the twelfth, which were dropped; oxygen saturation is exported as 59408-5.
         $this->assertSame('20', $vital['respiration']);
-        $this->assertSame('98', $vital['temperature']);
+        $this->assertEquals('98', $vital['temperature']);
         $this->assertSame('98', $vital['oxygen_saturation']);
     }
 
@@ -118,15 +119,95 @@ class CdaVitalSignComponentsTest extends TestCase
     }
 
     /**
-     * A vital signs organizer entry with one component per [LOINC code, value, unit, effectiveTime].
+     * Synthea writes all of a patient's vital signs into one organizer, each with its own time
+     * (issue #12302). Each time is a record of its own, and only the first carries the
+     * organizer's id, which finds an entry imported before.
+     */
+    public function testAnOrganizerOfSeveralTimesIsReadAsOneRecordPerTime(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizerOf([
+            ['8867-4', '72', '/min', '<effectiveTime value="20180114093000"/>'],
+            ['9279-1', '16', '/min', '<effectiveTime value="20180114093000"/>'],
+            ['8867-4', '80', '/min', '<effectiveTime value="20210120101500"/>'],
+            ['9279-1', '18', '/min', '<effectiveTime value="20210120101500"/>'],
+        ]));
+
+        $first = $this->vitalSign(1);
+        $this->assertSame(['20180114093000', '72', '16', 'vitals-1'], [$first['date'], $first['pulse'], $first['respiration'], $first['extension']]);
+        $second = $this->vitalSign(2);
+        $this->assertSame(['20210120101500', '80', '18', null], [$second['date'], $second['pulse'], $second['respiration'], $second['extension']]);
+        $this->assertSame('1.3.6.1.4.1.115', $second['root']);
+    }
+
+    public function testAVitalSignWithNoTimeOfItsOwnIsReadWithTheFirst(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizerOf([
+            ['8867-4', '72', '/min', '<effectiveTime value="20260301093000"/>'],
+            ['9279-1', '16', '/min', ''],
+        ]));
+
+        $vital = $this->vitalSign(1);
+        $this->assertSame(['20260301093000', '72', '16'], [$vital['date'], $vital['pulse'], $vital['respiration']]);
+        $this->assertSame(1, $this->vitalSignCount());
+    }
+
+    /**
+     * Oxygen saturation can come as both 2710-2 and 59408-5; a copy without a value keeps the reading.
+     */
+    public function testAMeasureSentTwiceKeepsItsReading(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizerOf([
+            ['2710-2', '97', '%', '<effectiveTime value="20260301093000"/>'],
+            ['59408-5', null, '%', '<effectiveTime value="20260301093000"/>'],
+        ]));
+
+        $this->assertSame('97', $this->vitalSign(1)['oxygen_saturation']);
+    }
+
+    public function testEachTimeIsReadInTheVitalsFormsUnits(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizerOf([
+            ['3141-9', '70', 'kg', '<effectiveTime value="20180114093000"/>'],
+            ['3141-9', '80', 'kg', '<effectiveTime value="20210120101500"/>'],
+            ['3141-9', '81', 'cm', '<effectiveTime value="20210120101500"/>'],
+        ]));
+
+        $this->assertEqualsWithDelta(154.32, $this->vitalSign(1)['weight'], 0.01);
+        // A weight in a unit that doesn't convert is left out and doesn't replace that time's reading.
+        $this->assertEqualsWithDelta(176.37, $this->vitalSign(2)['weight'], 0.01);
+        $this->assertSame(2, $this->vitalSignCount());
+    }
+
+    /**
+     * A QRDA Physical Exam, Performed is dated by its relevant period, which can have only a start.
+     */
+    public function testAQrdaPhysicalExamDatedByTheStartOfItsPeriodIsRead(): void
+    {
+        $this->parser->fetchPhysicalExamPerformedData([
+            'observation' => [
+                'code' => ['code' => '8867-4', 'codeSystem' => '2.16.840.1.113883.6.1', 'codeSystemName' => 'LOINC'],
+                'text' => 'Heart rate',
+                'effectiveTime' => ['low' => ['value' => '20260301093000']],
+                'value' => ['value' => '72', 'unit' => '/min'],
+            ],
+        ]);
+
+        $vital = $this->vitalSign(1);
+        $this->assertSame(['20260301093000', '72'], [$vital['date'], $vital['pulse']]);
+    }
+
+    /**
+     * A vital signs organizer entry with one component per [LOINC code, value, unit, effectiveTime];
+     * a null value is sent as nullFlavor.
      *
-     * @param list<array{string, string, string, string}> $components
+     * @param list<array{string, ?string, string, string}> $components
      * @return array<string, mixed>
      */
     private function organizerOf(array $components): array
     {
         $xml = '';
         foreach ($components as [$code, $value, $unit, $effectiveTime]) {
+            $valueXml = $value === null ? '<value xsi:type="PQ" nullFlavor="NI"/>' : "<value xsi:type=\"PQ\" value=\"$value\" unit=\"$unit\"/>";
             $xml .= <<<XML
                 <component>
                   <observation classCode="OBS" moodCode="EVN">
@@ -134,7 +215,7 @@ class CdaVitalSignComponentsTest extends TestCase
                     <code code="$code" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
                     <statusCode code="completed"/>
                     $effectiveTime
-                    <value xsi:type="PQ" value="$value" unit="$unit"/>
+                    $valueXml
                   </observation>
                 </component>
                 XML;
@@ -183,6 +264,17 @@ class CdaVitalSignComponentsTest extends TestCase
             }
         }
         $this->fail('the export has no vital signs section');
+    }
+
+    private function vitalSignCount(): int
+    {
+        $templateData = $this->reflection->getProperty('templateData')->getValue($this->parser);
+        $this->assertIsArray($templateData);
+        $fields = $templateData['field_name_value_array'] ?? null;
+        $this->assertIsArray($fields);
+        $records = $fields['vital_sign'] ?? null;
+        $this->assertIsArray($records, 'no vital signs read');
+        return count($records);
     }
 
     /**

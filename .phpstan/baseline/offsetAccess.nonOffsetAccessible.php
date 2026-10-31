@@ -38223,7 +38223,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'BMI\'\\|\'bpd\'\\|\'bps\'\\|\'head_circ\'\\|\'height\'\\|\'oxygen_saturation\'\\|\'pulse\'\\|\'respiration\'\\|\'temperature\'\\|\'weight\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -38332,16 +38332,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'bpd\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'bps\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'care_plan\' on mixed\\.$#',
     'count' => 14,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
@@ -38373,7 +38363,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
-    'count' => 221,
+    'count' => 220,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -38408,7 +38398,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'component\' on mixed\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -38448,7 +38438,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
-    'count' => 29,
+    'count' => 28,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -38503,7 +38493,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'effectiveTime\' on mixed\\.$#',
-    'count' => 62,
+    'count' => 61,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -38563,7 +38553,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'entryRelationship\' on mixed\\.$#',
-    'count' => 158,
+    'count' => 157,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -38573,7 +38563,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'extension\' on mixed\\.$#',
-    'count' => 51,
+    'count' => 49,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -38628,7 +38618,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
-    'count' => 49,
+    'count' => 47,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -38748,7 +38738,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'observation\' on mixed\\.$#',
-    'count' => 228,
+    'count' => 224,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -38778,7 +38768,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'organizer\' on mixed\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -39218,7 +39208,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'root\' on mixed\\.$#',
-    'count' => 66,
+    'count' => 64,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -39363,7 +39353,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'value\' on mixed\\.$#',
-    'count' => 220,
+    'count' => 216,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -39393,7 +39383,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 31,
+    'count' => 30,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -39408,7 +39398,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
-    'count' => 8,
+    'count' => 5,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
