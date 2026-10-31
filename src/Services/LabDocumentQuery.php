@@ -5,6 +5,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Apostolos Stergiakis
+ * @copyright Copyright (c) 2026 Apostolos Stergiakis
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
