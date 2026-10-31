@@ -146,7 +146,10 @@ ALTER TABLE `transactions` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`, ADD UN
 
 -- Appointments by patient filter pc_pid (a varchar, compared with text); the daily summary
 -- report's payments are filtered by billing.date. Both read the whole table without an index.
+-- A pc_pid of digits stored another way (05 from a REST URL, or with spaces) is first written as the
+-- plain number, which the text comparison matches as the numeric one did.
 #IfNotIndex openemr_postcalendar_events pc_pid
+UPDATE `openemr_postcalendar_events` SET `pc_pid` = CAST(TRIM(`pc_pid`) AS UNSIGNED) WHERE TRIM(`pc_pid`) REGEXP '^[0-9]+$' AND `pc_pid` NOT REGEXP '^(0|[1-9][0-9]*)$';
 CREATE INDEX `pc_pid` ON `openemr_postcalendar_events` (`pc_pid`);
 #EndIf
 

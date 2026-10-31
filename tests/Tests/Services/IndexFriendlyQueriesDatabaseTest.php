@@ -24,6 +24,7 @@ use OpenEMR\Services\Patient\PatientMergeLog;
 use OpenEMR\Services\Patient\PatientMergeService;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Services\Utils\SQLUpgradeService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -161,6 +162,35 @@ class IndexFriendlyQueriesDatabaseTest extends TestCase
         $this->assertCount(3, $service->getAppointmentsForPatient($this->otherPid), 'the other patient has both, and their own');
     }
 
+    /**
+     * Before it adds the index, the upgrade writes a pc_pid of digits stored another way (the REST API
+     * stored "05" as given) as the plain number, so the text lookups find those events as the numeric
+     * comparison did. The upgrade file's own block runs through SQLUpgradeService, with the index dropped
+     * first, as on a site that hasn't upgraded yet.
+     */
+    public function testTheUpgradeWritesStoredPidsAsThePlainNumber(): void
+    {
+        $this->insertEvent('0' . $this->pid, '2031-03-05', 0);
+        $this->insertEvent(' ' . $this->pid . ' ', '2031-03-06', 0);
+        $service = new AppointmentService();
+        $this->assertCount(2, $service->getAppointmentsForPatient($this->pid), 'the control: compared with text, those two are missed');
+        $others = fn(): mixed => QueryUtils::fetchSingleValue("SELECT COUNT(*) AS n FROM openemr_postcalendar_events WHERE pc_pid IN ('', 'tfx-filler')", 'n');
+        $othersBefore = $others();
+
+        QueryUtils::sqlStatementThrowException('DROP INDEX `pc_pid` ON `openemr_postcalendar_events`');
+        try {
+            $this->runUpgradeBlock('#IfNotIndex openemr_postcalendar_events pc_pid');
+        } finally {
+            if (QueryUtils::fetchRecords("SHOW INDEX FROM openemr_postcalendar_events WHERE Key_name = 'pc_pid'") === []) {
+                QueryUtils::sqlStatementThrowException('CREATE INDEX `pc_pid` ON `openemr_postcalendar_events` (`pc_pid`)');
+            }
+        }
+
+        $this->assertCount(4, $service->getAppointmentsForPatient($this->pid));
+        $this->assertSame($othersBefore, $others(), 'no patient, and text that is not a number, stay as they were');
+        $this->assertCount(1, QueryUtils::fetchRecords("SHOW INDEX FROM openemr_postcalendar_events WHERE Key_name = 'pc_pid'"), 'the block added the index');
+    }
+
     public function testBillingDatesAreIndexed(): void
     {
         $index = QueryUtils::fetchRecords("SHOW INDEX FROM billing WHERE Key_name = 'date'");
@@ -199,6 +229,31 @@ class IndexFriendlyQueriesDatabaseTest extends TestCase
     {
         $data = $service->search(['puuid' => new TokenSearchField('puuid', [new TokenSearchValue(\OpenEMR\Common\Uuid\UuidRegistry::uuidToString($uuid), null, true)])])->getData();
         return is_array($data) ? $data : [];
+    }
+
+    /** Runs one block of this release's upgrade file, as written there, through SQLUpgradeService. */
+    private function runUpgradeBlock(string $guard): void
+    {
+        $lines = file(dirname(__DIR__, 3) . '/sql/8_5_0-to-8_6_0_upgrade.sql', FILE_IGNORE_NEW_LINES);
+        $this->assertIsArray($lines);
+        $start = array_search($guard, $lines, true);
+        $this->assertIsInt($start, 'the block is in the upgrade file');
+        $end = array_search('#EndIf', array_slice($lines, $start, null, true), true);
+        $this->assertIsInt($end);
+        $dir = sys_get_temp_dir() . '/openemr-upgrade-block-' . bin2hex(random_bytes(4));
+        $this->assertTrue(mkdir($dir));
+        try {
+            file_put_contents("$dir/block.sql", implode("\n", array_slice($lines, $start, $end - $start + 1)) . "\n");
+            $upgrade = new SQLUpgradeService();
+            $upgrade->setRenderOutputToScreen(false);
+            $upgrade->setThrowExceptionOnError(true);
+            $upgrade->upgradeFromSqlFile('block.sql', $dir);
+        } finally {
+            if (is_file("$dir/block.sql")) {
+                unlink("$dir/block.sql");
+            }
+            rmdir($dir);
+        }
     }
 
     /** Rows read one after another while $run runs: table scans (Handler_read_rnd_next) and index scans (Handler_read_next). */
