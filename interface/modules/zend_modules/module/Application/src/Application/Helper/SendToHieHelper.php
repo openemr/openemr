@@ -45,7 +45,7 @@ class SendToHieHelper extends \Laminas\View\Helper\AbstractHelper
             $arr['download_format'] = $download_format;
         }
 
-        $this->getView()->layout('carecoordination/layout/encountermanager');
+        $this->getView()->layout($layoutName);
         echo $this->getView()->partial("application/sendto/send", $arr);
         return '';
     }
