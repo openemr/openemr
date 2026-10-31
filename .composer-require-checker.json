@@ -56,6 +56,7 @@
         "generate_display_field",
         "generate_form_field",
         "generate_id",
+        "generate_list_map",
         "generate_plaintext_field",
         "generate_select_list",
         "generic_sql_affected_rows",

@@ -308,8 +308,8 @@ handle_swarm_mode() {
             # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
             if is_leader_stale; then
                 echo "Leader appears to have crashed, attempting to take over..."
-                # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-                if try_become_leader; then
+                try_become_leader
+                if [[ "${AUTHORITY}" = "yes" ]]; then
                     echo "Successfully became leader after previous leader failure"
                     break
                 fi
@@ -318,10 +318,16 @@ handle_swarm_mode() {
             (( waited += 10 ))
         done
 
-        # Try one more time to become leader (in case leader died just as we timed out)
-        # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-        if [[ ! -f "${OE_ROOT}/sites/docker-completed" ]] && try_become_leader; then
-            echo "Promoted to leader after waiting period"
+        # Try one more time to become leader (in case leader died just as we
+        # timed out). Guard on AUTHORITY=no: if we already took over inside the
+        # wait loop above (break'd out with AUTHORITY=yes), we hold the leader
+        # file, so calling try_become_leader again would see its own file via
+        # noclobber-fail and demote us back to a follower.
+        if [[ "${AUTHORITY}" = "no" ]] && [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
+            try_become_leader
+            if [[ "${AUTHORITY}" = "yes" ]]; then
+                echo "Promoted to leader after waiting period"
+            fi
         fi
 
         # If we timed out, check if configuration actually exists
@@ -783,6 +789,22 @@ run_auto_configure() {
     # Update heartbeat right before the long-running PHP command
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
 
+    # Scoped heartbeat around the one opaque PHP call that can exceed
+    # LEADER_TIMEOUT (300s). Bounded to 15 iterations (~15 min) so a
+    # genuinely hung install eventually releases the lease and lets a
+    # follower take over. Step-boundary heartbeat semantics are preserved
+    # everywhere else — this is the single phase we can't subdivide.
+    local auto_config_heartbeat_pid=
+    if [[ "${AUTHORITY}" = "yes" ]]; then
+        (
+            for _ in $(seq 1 15); do
+                sleep 60
+                update_leader_heartbeat
+            done
+        ) &
+        auto_config_heartbeat_pid=$!
+    fi
+
     # Run auto_configure with optimized PHP settings.
     # Drop privileges to apache: auto_configure.php goes through the
     # Installer class, which openemr#12267's RootCliGuard refuses to
@@ -796,8 +818,19 @@ run_auto_configure() {
     # entrypoint either way.
     chmod 0644 auto_configure.php
     read -r -a config_args <<< "${CONFIGURATION}"
+    local auto_config_rc=0
     su-exec apache \
-        php -c auto_configure.ini auto_configure.php "${config_args[@]}" || return 1
+        php -c auto_configure.ini auto_configure.php "${config_args[@]}" || auto_config_rc=$?
+
+    # Reap the scoped heartbeat regardless of php exit status.
+    if [[ -n "${auto_config_heartbeat_pid}" ]]; then
+        kill "${auto_config_heartbeat_pid}" 2>/dev/null || true
+        wait "${auto_config_heartbeat_pid}" 2>/dev/null || true
+    fi
+
+    if (( auto_config_rc != 0 )); then
+        return 1
+    fi
 
     # Update heartbeat after PHP execution completes
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
