@@ -18,7 +18,9 @@ require_once($srcdir . "/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\Types\EncounterListOptionType;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -62,15 +64,19 @@ if (isset($_GET['mode'])) {
     if ($_GET['mode'] == "add") {
         // An edit updates the immunization's row in place and a new one is
         // inserted; an id that is not this patient's writes nothing.
-        $newid = (new ImmunizationFormSaver())->save($_GET, $pid, filter_var($session->get('authUserID'), FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE));
+        $newid = (new ImmunizationFormSaver())->save(CurrentRequest::get()->query->all(), $pid, filter_var($session->get('authUserID'), FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE));
         if ($newid === null) {
-            AccessDeniedHelper::denyWithTemplate("Immunization not found for current patient", xl("Immunizations"));
+            // The audit trail keeps which immunization was tried, for which patient.
+            $triedId = CurrentRequest::get()->query->all()['id'] ?? null;
+            $triedId = is_scalar($triedId) ? substr((string) $triedId, 0, 40) : 'not a single value';
+            AccessDeniedHelper::denyWithTemplate("Immunization " . $triedId . " not found for patient " . $pid, xl("Immunizations"));
         }
         $administered_date = date('Y-m-d H:i');
         $education_date = date('Y-m-d');
         $immunization_id = $cvx_code = $manufacturer = $lot_number = $administered_by_id = $note = $id = $ordered_by_id = "";
         $administered_by = $vis_date = "";
-        $newid = $_GET['id'] ?: $newid;
+        // $newid is the edited immunization's id or the new one's, as the saver checked it (an id of "00" is
+        // a new immunization, not immunization 0).
         if (OEGlobalsBag::getInstance()->getBoolean('observation_results_immunization')) {
             saveImmunizationObservationResults($newid, $_GET);
         }
@@ -97,12 +103,14 @@ if (isset($_GET['mode'])) {
             AccessDeniedHelper::denyWithTemplate("Immunization not found for current patient", xl("Immunizations"));
         }
 
-        $administered_date = new DateTime($result['administered_date']);
+        // A shot saved with no date shows none, rather than now, which an unchanged save would store.
+        $storedAdministered = $result['administered_date'] ?? null;
+        $administered_date = is_string($storedAdministered) && $storedAdministered !== '' ? new DateTime($storedAdministered) : '';
         $uuid = null;
         if (isset($result['uuid']) && !UuidRegistry::isEmptyBinaryUUID($result['uuid'])) {
             $uuid = UuidRegistry::uuidToString($result['uuid']);
         }
-        $administered_date = $administered_date->format('Y-m-d H:i');
+        $administered_date = $administered_date instanceof DateTime ? $administered_date->format('Y-m-d H:i') : '';
 
         $immuniz_amt_adminstrd = $result['amount_administered'];
         $drugunitselecteditem = $result['amount_administered_unit'];
@@ -365,12 +373,39 @@ tr.selected {
                     }
                     ?>
 
+                    <?php
+                    $editing = (CurrentRequest::get()->query->all()['mode'] ?? null) === 'edit';
+                    // The code field as the page shows it, posted back with the form so the save tells a change
+                    // the user made from one made meanwhile in another window.
+                    $noEntry = in_array($immunization_id, [null, '', '0', 0], true);
+                    $shownCode = '';
+                    if ($useCVX) {
+                        $shownCode = is_string($cvx_code ?? null) ? $cvx_code : '';
+                    } elseif (!$noEntry && (is_string($immunization_id) || is_int($immunization_id))) {
+                        // The option the list selects for the stored entry, as generate_select_list() picks it: an
+                        // active one loosely, an inactive one exactly. An entry no longer in the list selects
+                        // nothing (its fallback option isn't marked selected), so the page shows it as blank.
+                        foreach (QueryUtils::fetchRecords("SELECT option_id, activity FROM list_options WHERE list_id = 'immunizations'") as $option) {
+                            $optionId = is_scalar($option['option_id'] ?? null) ? (string) $option['option_id'] : '';
+                            $active = ($option['activity'] ?? null) == 1;
+                            if (($active && $optionId == $immunization_id) || (!$active && $optionId === (string) $immunization_id)) {
+                                $shownCode = $optionId;
+                                break;
+                            }
+                        }
+                    }
+                    if ($editing) { ?>
+                        <input type="hidden" name="shown_code_original" value="<?php echo attr($shownCode); ?>" />
+                    <?php } ?>
+
                     <?php if (!($useCVX)) { ?>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Immunization'); ?></label>
                         <?php
                         // Modified 7/2009 by BM to incorporate the immunization items into the list_options listings
-                        generate_form_field(['data_type' => 1,'field_id' => 'immunization_id','list_id' => 'immunizations','empty_title' => 'SKIP'], $immunization_id);
+                        // On an edit, a blank choice for a shot with no custom-list entry (stored 0 or NULL), so an
+                        // unchanged save posts none rather than the list's first entry, which would replace its CVX code.
+                        generate_form_field(['data_type' => 1,'field_id' => 'immunization_id','list_id' => 'immunizations','empty_title' => $editing ? 'Unassigned' : 'SKIP'], $editing && $shownCode === '' ? '' : $immunization_id);
                         ?>
                     </div>
                     <?php } else { ?>
@@ -388,7 +423,7 @@ tr.selected {
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Date & Time Administered'); ?></label>
                         <input type='text' size='14' class='datetimepicker form-control' name="administered_date" id="administered_date"
-                            value='<?php echo (!empty($administered_date)) ? attr($administered_date) : date('Y-m-d H:i'); ?>'
+                            value='<?php echo (!empty($administered_date)) ? attr($administered_date) : ($editing ? '' : date('Y-m-d H:i')); ?>'
                             title='<?php echo xla('yyyy-mm-dd Hours(24):minutes'); ?>'/>
                     </div>
                     <div class="form-group mt-3">
@@ -410,6 +445,7 @@ tr.selected {
                         <label><?php echo xlt('Immunization Lot Number'); ?></label>
                         <br>
                         <select class='auto form-control' name="lot_number" size="25">
+                            <option value=""></option>
                             <?php $storedLot = is_string($lot_number ?? null) ? $lot_number : ''; ?>
                             <?php if ($storedLot !== '') { // the stored lot, so an edit posts it back ?>
                                 <option value="<?php echo attr($storedLot); ?>" selected><?php echo text($storedLot); ?></option>
@@ -448,7 +484,7 @@ tr.selected {
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Date Immunization Information Statements Given'); ?></label>
                         <input type='text' size='10' class='datepicker form-control' name="education_date" id="education_date"
-                            value='<?php echo (!empty($education_date)) ? attr($education_date) : date('Y-m-d'); ?>'
+                            value='<?php echo (!empty($education_date)) ? attr($education_date) : ($editing ? '' : date('Y-m-d')); ?>'
                             title='<?php echo xla('yyyy-mm-dd'); ?>' />
                     </div>
                     <div class="form-group mt-3">
@@ -457,7 +493,7 @@ tr.selected {
                             (<a href="https://www.cdc.gov/vaccines/hcp/current-vis/index.html" title="<?php echo xla('Help'); ?>" rel="noopener" target="_blank">?</a>)
                         </label>
                         <input type='text' size='10' class='datepicker  form-control' name="vis_date" id="vis_date"
-                            value='<?php echo (!empty($vis_date)) ? attr($vis_date) : date('Y-m-d'); ?>'
+                            value='<?php echo (!empty($vis_date)) ? attr($vis_date) : ($editing ? '' : date('Y-m-d')); ?>'
                             title='<?php echo xla('yyyy-mm-dd'); ?>' />
                     </div>
                     <div class="form-group mt-3">
@@ -1222,9 +1258,10 @@ $(function () {
             processResults: function(data) {
                 return  {
                     results: $.map(data, function(item, index) {
+                        // The lot itself: the endpoint returns a plain list, so its index would be saved as the lot.
                         return {
                             text: item,
-                            id: index
+                            id: item
                         }
                     })
                 };
@@ -1233,7 +1270,10 @@ $(function () {
             cache: true
         },
         minimumInputLength: 1,
-        tags: true
+        tags: true,
+        // A lot entered on the wrong shot can be cleared, which posts the empty option.
+        placeholder: <?php echo xlj('Lot Number'); ?>,
+        allowClear: true
     })
 
 });

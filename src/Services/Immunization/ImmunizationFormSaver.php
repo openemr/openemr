@@ -26,7 +26,7 @@ final readonly class ImmunizationFormSaver
     // Columns written from the form in both cases. The if(?,?,NULL) wrappers
     // are kept exactly as they were, so stored values do not change: MySQL
     // reads the condition as a number, so it stores NULL unless the value
-    // starts with a nonzero digit.
+    // reads as a nonzero number.
     private const FORM_COLUMNS = "administered_date = if(?,?,NULL),
             manufacturer = ?,
             lot_number = ?,
@@ -48,13 +48,14 @@ final readonly class ImmunizationFormSaver
             ordering_provider = ?,
             encounter_id = ?";
 
-    // The page shows one of these: the custom immunization list, or the CVX code (always with the
-    // use_custom_immun_list setting off, and on an edit when the shot has a CVX code). The one not shown
-    // isn't posted, so an edit leaves it as stored rather than blanking it.
+    // The page shows one of these: the custom immunization list when use_custom_immun_list is on, or on
+    // an edit of a shot with no CVX code; the CVX code otherwise. The one not shown isn't posted. An edit
+    // leaves both as stored while the one shown is unchanged; once the one shown changes to a value, the
+    // other no longer describes the shot and is emptied, as the page's own script does (see shownCodes()).
     private const SHOWN_ONE_AT_A_TIME = ['immunization_id' => 'form_immunization_id', 'cvx_code' => 'cvx_code'];
 
-    /** @var \Closure(int, int): bool */
-    private \Closure $belongsToPatient;
+    /** @var \Closure(int, int): ?array<mixed> */
+    private \Closure $storedRow;
 
     /** @var \Closure(string, list<mixed>): void */
     private \Closure $update;
@@ -65,18 +66,18 @@ final readonly class ImmunizationFormSaver
     private ClockInterface $clock;
 
     /**
-     * @param ?\Closure(int, int): bool            $belongsToPatient whether an immunization id is one of this patient's
+     * @param ?\Closure(int, int): ?array<mixed>   $storedRow        the immunization's immunization_id and cvx_code, or
+     *                                                               null when the id isn't one of this patient's
      * @param ?\Closure(string, list<mixed>): void $update           runs an UPDATE
      * @param ?\Closure(string, list<mixed>): int  $insert           runs an INSERT and returns the new row's id
      * @param ?ClockInterface                      $clock            the new row's create_date
      */
-    public function __construct(?\Closure $belongsToPatient = null, ?\Closure $update = null, ?\Closure $insert = null, ?ClockInterface $clock = null)
+    public function __construct(?\Closure $storedRow = null, ?\Closure $update = null, ?\Closure $insert = null, ?ClockInterface $clock = null)
     {
-        $this->belongsToPatient = $belongsToPatient ?? static fn(int $immunizationId, int $pid): bool => QueryUtils::fetchSingleValue(
-            "SELECT id FROM immunizations WHERE id = ? AND patient_id = ?",
-            'id',
+        $this->storedRow = $storedRow ?? static fn(int $immunizationId, int $pid): ?array => QueryUtils::querySingleRow(
+            "SELECT immunization_id, cvx_code FROM immunizations WHERE id = ? AND patient_id = ?",
             [$immunizationId, $pid]
-        ) !== null;
+        ) ?: null;
         $this->update = $update ?? static function (string $sql, array $binds): void {
             QueryUtils::sqlStatementThrowException($sql, $binds);
         };
@@ -92,8 +93,8 @@ final readonly class ImmunizationFormSaver
      */
     public function save(array $form, int $pid, ?int $userId): ?int
     {
-        // The form posts an empty id for a new immunization, and the row's id
-        // when one is being edited. An edit updates that row in place: a
+        // The form posts 0 (or nothing) for a new immunization, and the row's
+        // id when one is being edited. An edit updates that row in place: a
         // REPLACE INTO deletes and re-inserts it, which drops the columns this
         // statement does not name (added_erroneously, external_id) and resets
         // the ones it always sets (created_by, create_date).
@@ -131,22 +132,21 @@ final readonly class ImmunizationFormSaver
             self::text($form, 'encounter_id'),
         ];
 
-        $shown = [];
-        foreach (self::SHOWN_ONE_AT_A_TIME as $column => $key) {
-            if ($immunizationId === 0 || array_key_exists($key, $form)) {
-                $shown[$column] = self::text($form, $key);
-            }
-        }
-        $shownColumns = implode('', array_map(fn(string $column): string => "$column = ?, ", array_keys($shown)));
-
+        $stored = null;
         if ($immunizationId > 0) {
             // Refuse an id that is not this patient's, the same way the edit
             // screen does, so the observation results are never written
             // against an immunization that does not exist. Affected rows will
             // not do here: MySQL reports none when a save changes nothing.
-            if (!($this->belongsToPatient)($immunizationId, $pid)) {
+            $stored = ($this->storedRow)($immunizationId, $pid);
+            if ($stored === null) {
                 return null;
             }
+        }
+        $shown = self::shownCodes($form, $stored);
+        $shownColumns = implode('', array_map(fn(string $column): string => "$column = ?, ", array_keys($shown)));
+
+        if ($stored !== null) {
             // The uuid is left alone: it identifies this immunization outside
             // OpenEMR, so an edit must not change or clear it.
             ($this->update)(
@@ -173,6 +173,62 @@ final readonly class ImmunizationFormSaver
                 $this->clock->now()->format('Y-m-d H:i:s'),
             ]
         );
+    }
+
+    /**
+     * The custom list's immunization and the CVX code to write: both for a new
+     * immunization; on an edit, none while the one the page showed is
+     * unchanged (both stay as stored); once it changes to a value, it and the
+     * other emptied; once it changes to none, it alone.
+     *
+     * @param array<mixed>  $form
+     * @param ?array<mixed> $stored the row's immunization_id and cvx_code, or null for a new immunization
+     * @return array<string, string> column => value, in SHOWN_ONE_AT_A_TIME's order
+     */
+    private static function shownCodes(array $form, ?array $stored): array
+    {
+        $shown = [];
+        foreach (self::SHOWN_ONE_AT_A_TIME as $column => $key) {
+            if ($stored === null || array_key_exists($key, $form)) {
+                $shown[$column] = self::text($form, $key);
+            }
+        }
+        // A change is judged against the value the page showed (shown_code_original), so a save from a window
+        // opened before another window changed the code doesn't count that change as its own; without it,
+        // against the stored row.
+        $changed = false;
+        foreach ($shown as $column => $value) {
+            $was = count($shown) === 1 && array_key_exists('shown_code_original', $form)
+                ? self::text($form, 'shown_code_original')
+                : ($stored[$column] ?? null);
+            $changed = $changed || ($stored !== null && self::code($value) !== self::code($was));
+        }
+        if ($stored === null) {
+            return $shown;
+        }
+        if (!$changed) {
+            return [];
+        }
+        // Changed to none (the blank choice): the shown one is emptied and the other kept, as the page's own
+        // script clears the CVX code only when an immunization is picked.
+        if (count($shown) === 1 && self::code(reset($shown)) === '') {
+            return $shown;
+        }
+        $codes = [];
+        foreach (array_keys(self::SHOWN_ONE_AT_A_TIME) as $column) {
+            $codes[$column] = $shown[$column] ?? '';
+        }
+        return $codes;
+    }
+
+    /**
+     * A stored or posted code for comparing: trimmed, and empty for none (NULL,
+     * or 0 in the integer immunization_id column).
+     */
+    private static function code(mixed $value): string
+    {
+        $text = is_scalar($value) ? trim((string) $value) : '';
+        return ltrim($text, '0') === '' ? '' : $text;
     }
 
     /**

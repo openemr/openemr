@@ -90,13 +90,16 @@ final class ImmunizationFormSaverTest extends TestCase
         ];
     }
 
-    /** A saver whose database records what it is asked, and owns immunization 25 for patient 7. */
+    /**
+     * A saver whose database records what it is asked, and owns immunization 25 for patient 7, stored with
+     * the custom list's immunization 12 and CVX code 115.
+     */
     private function saver(): ImmunizationFormSaver
     {
         return new ImmunizationFormSaver(
-            belongsToPatient: function (int $immunizationId, int $pid): bool {
+            storedRow: function (int $immunizationId, int $pid): ?array {
                 $this->ownershipAsked[] = [$immunizationId, $pid];
-                return $immunizationId === 25 && $pid === self::PID;
+                return $immunizationId === 25 && $pid === self::PID ? ['immunization_id' => 12, 'cvx_code' => '115'] : null;
             },
             update: function (string $sql, array $binds): void {
                 $this->updates[] = [$sql, $binds];
@@ -144,17 +147,18 @@ final class ImmunizationFormSaverTest extends TestCase
         $this->assertSame([], $this->inserts, 'an edit never inserts');
         $this->assertCount(1, $this->updates);
         [$sql, $binds] = $this->updates[0];
-        $this->assertStringStartsWith('UPDATE immunizations SET immunization_id = ?, cvx_code = ?, administered_date = if(?,?,NULL),', $sql);
+        // The immunization and CVX code are as stored, so neither is written.
+        $this->assertStringStartsWith('UPDATE immunizations SET administered_date = if(?,?,NULL),', $sql);
         $this->assertStringEndsWith('encounter_id = ?, updated_by = ? WHERE id = ? AND patient_id = ?', $sql);
         $this->assertStringNotContainsString('uuid', $sql, 'the uuid identifies it outside OpenEMR, so it stays');
         $this->assertStringNotContainsString('created_by', $sql);
         $this->assertCount(substr_count($sql, '?'), $binds, 'one bind per placeholder');
-        $this->assertSame([...self::formBinds(), self::USER, 25, self::PID], $binds);
+        $this->assertSame([...array_slice(self::formBinds(), 2), self::USER, 25, self::PID], $binds);
     }
 
     /**
      * The page shows the custom list or the CVX code, not both, so the one it
-     * doesn't show isn't posted. An edit leaves that column as stored.
+     * doesn't show isn't posted. An unchanged edit leaves both as stored.
      */
     public function testAnEditLeavesTheImmunizationFieldThePageDidNotShow(): void
     {
@@ -165,16 +169,119 @@ final class ImmunizationFormSaverTest extends TestCase
         unset($cvx['form_immunization_id']);
         $this->saver()->save($cvx, self::PID, self::USER);
 
+        foreach ($this->updates as [$sql, $binds]) {
+            $this->assertStringStartsWith('UPDATE immunizations SET administered_date = if(?,?,NULL),', $sql);
+            $this->assertStringNotContainsString('cvx_code', $sql);
+            $this->assertStringNotContainsString('immunization_id', $sql);
+            $this->assertCount(substr_count($sql, '?'), $binds, 'one bind per placeholder');
+        }
+        $this->assertCount(2, $this->updates);
+    }
+
+    /**
+     * Once the field the page showed changes, the other no longer describes the shot: it's emptied, as master
+     * did and as the page's own script does, rather than kept naming the old vaccine.
+     */
+    public function testChangingTheImmunizationFieldShownEmptiesTheOther(): void
+    {
+        $customList = self::form('25');
+        unset($customList['cvx_code']);
+        $customList['form_immunization_id'] = '13';
+        $this->saver()->save($customList, self::PID, self::USER);
+        $cvx = self::form('25');
+        unset($cvx['form_immunization_id']);
+        $cvx['cvx_code'] = ' 141 ';
+        $this->saver()->save($cvx, self::PID, self::USER);
+
         [$sql, $binds] = $this->updates[0];
-        $this->assertStringStartsWith('UPDATE immunizations SET immunization_id = ?, administered_date = if(?,?,NULL),', $sql);
-        $this->assertStringNotContainsString('cvx_code', $sql);
+        $this->assertStringStartsWith('UPDATE immunizations SET immunization_id = ?, cvx_code = ?, administered_date = if(?,?,NULL),', $sql);
+        $this->assertSame(['13', ''], array_slice($binds, 0, 2));
         $this->assertCount(substr_count($sql, '?'), $binds, 'one bind per placeholder');
-        $this->assertSame('12', $binds[0]);
         [$sql, $binds] = $this->updates[1];
-        $this->assertStringStartsWith('UPDATE immunizations SET cvx_code = ?, administered_date = if(?,?,NULL),', $sql);
-        $this->assertStringNotContainsString('immunization_id', $sql);
-        $this->assertCount(substr_count($sql, '?'), $binds, 'one bind per placeholder');
-        $this->assertSame('115', $binds[0]);
+        $this->assertStringStartsWith('UPDATE immunizations SET immunization_id = ?, cvx_code = ?, administered_date = if(?,?,NULL),', $sql);
+        $this->assertSame(['', '141'], array_slice($binds, 0, 2));
+    }
+
+    /**
+     * A stored immunization_id of 0 or NULL is none, and a posted blank is none too: no change.
+     */
+    public function testNoImmunizationStoredAndNonePostedIsNoChange(): void
+    {
+        $saver = new ImmunizationFormSaver(
+            storedRow: fn(int $immunizationId, int $pid): array => ['immunization_id' => 0, 'cvx_code' => '115'],
+            update: function (string $sql, array $binds): void {
+                $this->updates[] = [$sql, $binds];
+            },
+        );
+        $form = self::form('25');
+        unset($form['cvx_code']);
+        $form['form_immunization_id'] = '';
+        $saver->save($form, self::PID, self::USER);
+
+        [$sql] = $this->updates[0];
+        $this->assertStringStartsWith('UPDATE immunizations SET administered_date', $sql);
+        $this->assertStringNotContainsString('cvx_code', $sql, 'a stored 0 and a posted blank are both none');
+    }
+
+    /**
+     * Two windows open on one shot: one picks a custom-list entry (stored as 13, the CVX code emptied), then
+     * the other saves what it showed, an unassigned entry. Judged against what that page showed, its save
+     * changes no code, so it neither undoes the entry nor leaves the shot with no code at all.
+     */
+    public function testAWindowOpenedBeforeAnotherChangedTheCodeLeavesItAlone(): void
+    {
+        $saver = new ImmunizationFormSaver(
+            storedRow: fn(int $immunizationId, int $pid): array => ['immunization_id' => 13, 'cvx_code' => ''],
+            update: function (string $sql, array $binds): void {
+                $this->updates[] = [$sql, $binds];
+            },
+        );
+        $form = self::form('25');
+        unset($form['cvx_code']);
+        $form['form_immunization_id'] = '';
+        $form['shown_code_original'] = '';
+        $saver->save($form, self::PID, self::USER);
+
+        [$sql] = $this->updates[0];
+        $this->assertStringStartsWith('UPDATE immunizations SET administered_date', $sql);
+        $this->assertStringNotContainsString('cvx_code', $sql);
+    }
+
+    public function testAChangeFromWhatThePageShowedIsWritten(): void
+    {
+        $saver = new ImmunizationFormSaver(
+            storedRow: fn(int $immunizationId, int $pid): array => ['immunization_id' => 0, 'cvx_code' => '141'],
+            update: function (string $sql, array $binds): void {
+                $this->updates[] = [$sql, $binds];
+            },
+        );
+        $form = self::form('25');
+        unset($form['cvx_code']);
+        $form['form_immunization_id'] = '13';
+        $form['shown_code_original'] = '';
+        $saver->save($form, self::PID, self::USER);
+
+        [$sql, $binds] = $this->updates[0];
+        $this->assertStringStartsWith('UPDATE immunizations SET immunization_id = ?, cvx_code = ?,', $sql);
+        $this->assertSame(['13', ''], array_slice($binds, 0, 2));
+    }
+
+    /**
+     * Picking the blank choice empties the custom list's entry and keeps the CVX code, as the page's own
+     * script clears the CVX code only when an immunization is picked.
+     */
+    public function testChangingTheShownFieldToNoneEmptiesItAlone(): void
+    {
+        $form = self::form('25');
+        unset($form['cvx_code']);
+        $form['form_immunization_id'] = '';
+        $form['shown_code_original'] = '12';
+        $this->saver()->save($form, self::PID, self::USER);
+
+        [$sql, $binds] = $this->updates[0];
+        $this->assertStringStartsWith('UPDATE immunizations SET immunization_id = ?, administered_date', $sql);
+        $this->assertStringNotContainsString('cvx_code', $sql);
+        $this->assertSame('', $binds[0]);
     }
 
     public function testANewImmunizationSavesBothImmunizationFieldsEvenIfOneIsNotPosted(): void
