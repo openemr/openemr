@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services;
 
+use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
@@ -127,8 +128,9 @@ class ReferralTaskService
 
     /**
      * After a referral is saved and committed: its Task (createForReferral()), and the Task's
-     * completion when the referral records a reply (recordReply()). A database failure is logged,
-     * not thrown, since the referral is saved either way and its next save makes up what this one
+     * completion when the referral records a reply (recordReply()). A database failure, including
+     * the audit log's own (written through DBAL), is logged, not thrown, since the referral is
+     * saved either way and its next save makes up what this one
      * missed (a recipient that has a Task is skipped, and a reply completes a Task that isn't
      * final yet). Thrown, it would answer a REST client's successful save with an error, and a
      * retry would save the referral twice.
@@ -141,7 +143,7 @@ class ReferralTaskService
             $uuid = $this->createForReferral($transactionId, $userId);
             $this->recordReply($transactionId, $userId);
             return $uuid;
-        } catch (SqlQueryException $e) {
+        } catch (SqlQueryException | DbalException $e) {
             ServiceContainer::getLogger()->error('A referral was saved but its FHIR Task was not updated', [
                 'transaction_id' => $transactionId,
                 'exception' => $e,

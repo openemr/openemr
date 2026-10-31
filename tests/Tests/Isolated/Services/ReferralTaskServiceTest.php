@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services;
 
+use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Services\ReferralTaskService;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -92,6 +93,23 @@ class ReferralTaskServiceTest extends TestCase
             public function recordReply(int $transactionId, ?int $userId): string
             {
                 throw new SqlQueryException('', 'the Task could not be updated');
+            }
+        };
+
+        $this->assertNull($service->afterSave(12, 3));
+    }
+
+    /**
+     * With audit logging on, each query's audit row is written through DBAL, which throws its own
+     * exceptions; one of those, after the save, is contained too.
+     */
+    public function testAnAuditLogFailureDoesNotFailTheSavedReferral(): void
+    {
+        $service = new class extends ReferralTaskService {
+            public function createForReferral(int $transactionId, ?int $userId): string
+            {
+                throw new class ('the audit log could not be written') extends \RuntimeException implements DbalException {
+                };
             }
         };
 
