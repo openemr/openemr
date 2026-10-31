@@ -20,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Condition\Enum\FhirConditionCategory;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
@@ -135,26 +136,76 @@ trait FhirConditionTrait
 
     protected function populateCode($dataRecord, FHIRCondition $conditionResource, string $defaultText)
     {
-        if (!empty($dataRecord['diagnosis']) && is_array($dataRecord['diagnosis'])) {
-            $diagnosisCoding = new FHIRCoding();
-            $diagnosisCode = new FHIRCodeableConcept();
+        $title = $dataRecord['title'] ?? $defaultText;
+        $diagnosis = $dataRecord['diagnosis'] ?? null;
 
-            foreach ($dataRecord['diagnosis'] as $code => $codeValues) {
+        $codings = [];
+        if (is_string($diagnosis) && $diagnosis !== '') {
+            // Services querying lists.diagnosis directly hand us the stored
+            // "ICD10:I10." string rather than a parsed array
+            $codings = $this->parseDiagnosisCodes($diagnosis, is_string($title) ? $title : '');
+        } elseif (!empty($diagnosis) && is_array($diagnosis)) {
+            foreach ($diagnosis as $code => $codeValues) {
                 if (!is_string($code)) {
                     $code = "$code"; // FHIR expects a string
                 }
-                $diagnosisCoding->setCode($code);
-                $diagnosisCoding->setDisplay($codeValues['description']);
-                $diagnosisCoding->setSystem($codeValues['system']);
-                $diagnosisCode->addCoding($diagnosisCoding);
+                $codings[] = [
+                    'code' => $code,
+                    'description' => $codeValues['description'],
+                    'system' => $codeValues['system'],
+                ];
             }
-            $conditionResource->setCode($diagnosisCode);
-        } else {
-            // Fallback to title if no structured diagnosis
-            $diagnosisCode = new FHIRCodeableConcept();
-            $diagnosisCode->setText($dataRecord['title'] ?? 'Problem');
-            $conditionResource->setCode($diagnosisCode);
         }
+
+        $diagnosisCode = new FHIRCodeableConcept();
+        foreach ($codings as $coding) {
+            $diagnosisCoding = new FHIRCoding();
+            $diagnosisCoding->setCode($coding['code']);
+            $diagnosisCoding->setDisplay($coding['description']);
+            $diagnosisCoding->setSystem($coding['system']);
+            $diagnosisCode->addCoding($diagnosisCoding);
+        }
+        $diagnosisCode->setText($title);
+        $conditionResource->setCode($diagnosisCode);
+    }
+
+    /**
+     * Parse OpenEMR's stored "TYPE:CODE" diagnosis string into coding values.
+     *
+     * A code value can repeat across systems, so the parsed entries stay a list.
+     * Each coding takes its code's own description, like BaseService::addCoding(),
+     * and falls back to the problem title when the code tables have none.
+     *
+     * @return list<array{code: string, description: string, system: string|null}>
+     */
+    private function parseDiagnosisCodes(string $diagnosis, string $title): array
+    {
+        $codeTypes = new CodeTypesService();
+        $parsed = [];
+        foreach (explode(';', $diagnosis) as $item) {
+            $code = $codeTypes->parseCode($item);
+            $codeType = is_string($code['code_type'] ?? null) ? $code['code_type'] : '';
+            $codeValue = is_string($code['code'] ?? null) ? $code['code'] : '';
+            // free text such as "headache", or the empty item after a trailing ';', is no coding
+            if ($codeType === '' || $codeValue === '') {
+                continue;
+            }
+            $description = $this->lookupCodeDescription($codeTypes, $item);
+            $parsed[] = [
+                'code' => $codeValue,
+                'description' => $description !== '' ? $description : $title,
+                'system' => $codeTypes->getSystemForCodeType($codeType),
+            ];
+        }
+        return $parsed;
+    }
+
+    /**
+     * The description of one "TYPE:CODE" value from the code tables, or '' when they have none.
+     */
+    protected function lookupCodeDescription(CodeTypesService $codeTypes, string $code): string
+    {
+        return $codeTypes->lookup_code_description($code);
     }
 
     protected function populateSubject($dataRecord, FHIRCondition $conditionResource)
