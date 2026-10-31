@@ -139,7 +139,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
     public function sendFax(): string
     {
         if (!$this->authenticate()) {
-            return $this->authErrorDefault;
+            return json_encode(['success' => false, 'message' => $this->authErrorDefault]);
         }
 
         if ($this->client === null) {
@@ -579,7 +579,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
     public function getPending(): string
     {
         if (!$this->authenticate()) {
-            return $this->authErrorDefault;
+            return json_encode(['success' => false, 'message' => $this->authErrorDefault]);
         }
 
         $fromTs = strtotime((string)$this->getRequest('datefrom'));
