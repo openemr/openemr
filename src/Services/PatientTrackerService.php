@@ -280,13 +280,13 @@ class PatientTrackerService extends BaseService
     }
 
     /**
-     * An appointment status's Flow Board colour and time alert, from the Notes
+     * An appointment status's Flow Board color and time alert, from the Notes
      * of its Appointment Statuses list entry ("color|minutes", e.g. "#FEFDCF|10").
      *
-     * A status with no Notes, or one no longer in the list, gets no colour and
+     * A status with no Notes, or one no longer in the list, gets no color and
      * no alert ("0", which both Flow Board pages treat as none) rather than
      * breaking the board. An inactive status still has its
-     * colour: inactive only stops it being picked for new appointments, and
+     * color: inactive only stops it being picked for new appointments, and
      * appointments already in it (e.g. set by MedEx) are still shown.
      *
      * @return array{color: string, time_alert: string} color without the leading "#"

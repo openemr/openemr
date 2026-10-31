@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Database tests for the Flow Board's appointment status colours.
+ * Database tests for the Flow Board's appointment status colors.
  *
  * The Flow Board stopped with a TypeError on an appointment whose status had
- * no colour set or was inactive: the lookup returned the status code itself,
+ * no color set or was inactive: the lookup returned the status code itself,
  * and the board read ['color'] from that string. Seen when MedEx marked
  * appointments "AVM" (voice-confirmed) at a practice where that status was
  * inactive.
@@ -73,29 +73,29 @@ class PatientTrackerApptStatusSettingsTest extends TestCase
         }
     }
 
-    public function testAnActiveStatusHasItsColourAndAlert(): void
+    public function testAnActiveStatusHasItsColorAndAlert(): void
     {
         $this->assertSame(['color' => 'ABCDEF', 'time_alert' => '15'], PatientTrackerService::collectApptStatusSettings('ZZA'));
     }
 
-    public function testAnInactiveStatusStillHasItsColour(): void
+    public function testAnInactiveStatusStillHasItsColor(): void
     {
         $this->assertSame(['color' => 'CEFFBE', 'time_alert' => '0'], PatientTrackerService::collectApptStatusSettings('ZZI'));
     }
 
-    public function testAStatusWithoutNotesHasNoColourOrAlert(): void
+    public function testAStatusWithoutNotesHasNoColorOrAlert(): void
     {
         $this->assertSame(['color' => '', 'time_alert' => '0'], PatientTrackerService::collectApptStatusSettings('ZZN'));
     }
 
-    public function testAnUnknownStatusHasNoColourOrAlert(): void
+    public function testAnUnknownStatusHasNoColorOrAlert(): void
     {
         $this->assertSame(['color' => '', 'time_alert' => '0'], PatientTrackerService::collectApptStatusSettings('ZZ?'));
         $this->assertSame(['color' => '', 'time_alert' => '0'], PatientTrackerService::collectApptStatusSettings(''));
         $this->assertSame(['color' => '', 'time_alert' => '0'], PatientTrackerService::collectApptStatusSettings(null));
     }
 
-    public function testAColourWithoutAnAlertTime(): void
+    public function testAColorWithoutAnAlertTime(): void
     {
         $this->assertSame(['color' => 'FF0000', 'time_alert' => '0'], PatientTrackerService::collectApptStatusSettings('ZZC'));
     }
