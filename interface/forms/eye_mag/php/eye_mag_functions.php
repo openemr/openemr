@@ -27,6 +27,9 @@ use OpenEMR\Forms\EyeMag\PmsfhPanel;
 use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Services\FacilityService;
 
+// build_PMSFH() calls generate_display_field(); report.php doesn't load it otherwise
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+
 $facilityService = new FacilityService();
 
 /**

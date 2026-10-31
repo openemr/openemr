@@ -139,6 +139,11 @@ CREATE INDEX `response_id` ON `form_questionnaire_assessments` (`response_id`(64
 UPDATE `list_options` SET `codes` = 'SNOMED-CT:454401000124105' WHERE `list_id` = 'pregnancy_intent' AND `option_id` = 'no_desire';
 #EndIf
 
+-- FHIR ServiceRequest referrals (D8 of #13266): a uuid for each transaction, so the Transactions screen's referrals have a FHIR id.
+#IfMissingColumn transactions uuid
+ALTER TABLE `transactions` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`, ADD UNIQUE KEY `uuid` (`uuid`);
+#EndIf
+
 -- Appointments by patient filter pc_pid (a varchar, compared with text); the daily summary
 -- report's payments are filtered by billing.date. Both read the whole table without an index.
 #IfNotIndex openemr_postcalendar_events pc_pid

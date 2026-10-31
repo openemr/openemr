@@ -15,16 +15,20 @@
                                 <table class="table" class="border-0 display" id="pt_table">
                                     <thead class="thead-light">
                                         <tr id="advanced_search" class="hideaway d-none">
-                                            {{ header0 }}
+                                            {% for column in columns %}
+                                                <td><input type="text" size="20" value="" class="form-control search_init" placeholder="{{ "Search by"|xla }} {{ column.link ? "Name"|xla : column.title|attr }}"/></td>
+                                            {% endfor %}
                                         </tr>
                                         <tr class="">
-                                            {{ header }}
+                                            {% for column in columns %}
+                                                <th>{{ column.title|text }}</th>
+                                            {% endfor %}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
-                                            <td class="dataTables_empty" colspan="{{ colcount|attr }}">...</td>
+                                            <td class="dataTables_empty" colspan="{{ columns|length|attr }}">...</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -77,6 +81,23 @@
             {{ csrfToken('', 'csrf_token_form') }}
             <input type='hidden' name='patientID' value='0'/>
         </form>
+        <!-- Top controls; dynamic_finder.js moves this form into the DataTables toolbar. -->
+        <div id="finder-topform" class="d-none">
+            <form name="myform">
+                <div class="form-check form-check-inline">
+                    <label for="form_new_window" class="form-check-label" id="form_new_window_label">
+                        <input type="checkbox" class="form-check-input" id="form_new_window" name="form_new_window" value="1"{{ newWindowChecked ? ' checked' : '' }} />
+                        {{ "Open in New Browser Tab"|xlt }}
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label for="setting_search_type" class="form-check-label" id="setting_search_type_label">
+                        <input type="checkbox" class="form-check-input" id="setting_search_type" name="setting_search_type" value="{{ exactSearch|attr }}"{{ exactChecked ? ' checked' : '' }} />
+                        {{ "Search with exact method"|xlt }}
+                    </label>
+                </div>
+            </form>
+        </div>
     </div> <!--End of Container div-->
     {{ oeBelowContainerDiv }}
 
