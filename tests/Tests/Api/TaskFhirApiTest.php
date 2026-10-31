@@ -127,10 +127,11 @@ class TaskFhirApiTest extends TestCase
     }
 
     /**
+     * @param ?int $pid the task's patient, or null for a task with none
      * @param array<string, string> $columns
      * @return string the task's uuid
      */
-    private function insertTask(int $pid, array $columns): string
+    private function insertTask(?int $pid, array $columns): string
     {
         $uuid = UuidRegistry::getRegistryForTable('task')->createUuid();
         $row = $columns + ['intent' => 'order', 'authored_on' => '2026-10-15 09:00:00'];
@@ -145,7 +146,7 @@ class TaskFhirApiTest extends TestCase
             }
         }
         $row['uuid'] = $uuid;
-        $row['patient_id'] = (string)$pid;
+        $row['patient_id'] = $pid === null ? null : (string)$pid;
         QueryUtils::sqlStatementThrowException(
             'INSERT INTO task (' . implode(', ', array_keys($row)) . ') VALUES (' . implode(', ', array_fill(0, count($row), '?')) . ')',
             array_values($row)
@@ -459,6 +460,20 @@ class TaskFhirApiTest extends TestCase
         [$status, $result] = $this->update($uuid, $this->body([], $this->otherPatient['uuid']), ['If-Match' => 'W/"9"']);
         $this->assertSame(Response::HTTP_BAD_REQUEST, $status, (string)json_encode($result));
         $this->assertArrayHasKey('for', $this->errors($result));
+    }
+
+    /**
+     * A task with no patient compared an unknown Task.for as no patient too, so the update went
+     * through and dropped the reference. It's refused, as a create refuses it.
+     */
+    public function testAnUpdateRefusesAPatientWhoIsNotHere(): void
+    {
+        $this->tasks['patientless'] = $this->insertTask(null, ['status' => 'requested']);
+        $unknown = UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
+        [$status, $result] = $this->update($this->tasks['patientless'], $this->body([], $unknown));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $status, (string)json_encode($result));
+        $this->assertArrayHasKey('for', $this->errors($result));
+        $this->assertArrayNotHasKey('for', $this->read($this->tasks['patientless']), 'the task still has no patient');
     }
 
     public function testABadAuthoredOnIsNamedAndAnUpdateIgnoresIt(): void

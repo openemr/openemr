@@ -404,7 +404,10 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         // The patient a task is for doesn't change: the body has to name the one it has, so a
         // task id can't be used to move a task, or write one, under another patient.
         $pid = $puuid === null ? null : self::patientId($puuid);
-        if ($puuid !== null && $pid !== $stored['patient_id']) {
+        if ($puuid !== null && $pid === null) {
+            // Not compared as "no patient": a task with none would take the reference and drop it.
+            $errors['for'] = 'Patient reference could not be resolved: ' . $puuid;
+        } elseif ($puuid !== null && $pid !== $stored['patient_id']) {
             $errors['for'] = "Task.for can't change: it must name the task's patient";
         } elseif ($puuid !== null) {
             $errors += $this->recordProblems($fields, $inputs, $outputs, $puuid);
