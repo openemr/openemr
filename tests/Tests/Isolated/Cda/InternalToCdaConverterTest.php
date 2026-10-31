@@ -1536,6 +1536,80 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * CONF:1198-32852: the Policy Activity code SHALL carry at least one
+     * translation (Payer value set). There is no mapping to that value set in
+     * the input, so the translation is stated as nullFlavor.
+     */
+    public function testPolicyActivityCodeCarriesATranslation(): void
+    {
+        $xpath = $this->convertToXPath($this->payerInput(
+            '<code code="512" code_system="2.16.840.1.113883.3.221.5" code_system_name="Source of Payment Typology" name="" />',
+            '<code name="self" code="SELF" code_system="2.16.840.1.113883.5.111" code_system_name="HL7 RoleCode" />',
+        ));
+
+        $translation = $this->singleElement($xpath, "//hl7:act[hl7:templateId/@root='2.16.840.1.113883.10.20.22.4.61']/hl7:code/hl7:translation");
+        self::assertSame('UNK', $translation->getAttribute('nullFlavor'));
+    }
+
+    /**
+     * CONF:1198-19158: the Allergy Concern Act code is the fixed concern code
+     * CONC (HL7ActClass), not the LOINC code of the allergies section.
+     */
+    public function testAllergyConcernActUsesTheFixedConcernCode(): void
+    {
+        $xpath = $this->convertToXPath(<<<'XML'
+            <CCDA>
+                <allergies>
+                    <allergy>
+                        <id>1</id>
+                        <sha_id>2.16.840.1.113883.19.5</sha_id>
+                        <title>Penicillin</title>
+                        <startdate>2020-01-01</startdate>
+                    </allergy>
+                </allergies>
+            </CCDA>
+            XML);
+
+        $code = $this->singleElement($xpath, "//hl7:act[hl7:templateId/@root='2.16.840.1.113883.10.20.22.4.30']/hl7:code");
+        self::assertSame('CONC', $code->getAttribute('code'));
+        self::assertSame('2.16.840.1.113883.5.6', $code->getAttribute('codeSystem'));
+        self::assertSame('HL7ActClass', $code->getAttribute('codeSystemName'));
+        self::assertSame('Concern', $code->getAttribute('displayName'));
+    }
+
+    /**
+     * II/@extension has a minimum length of 1 in the CDA schema, so an empty
+     * extension is not written. A non-empty one is kept.
+     */
+    public function testEmptyIdExtensionIsNotWritten(): void
+    {
+        $xpath = $this->convertToXPath(<<<'XML'
+            <CCDA>
+                <allergies>
+                    <allergy>
+                        <id></id>
+                        <sha_id>2.16.840.1.113883.19.5</sha_id>
+                        <title>Penicillin</title>
+                    </allergy>
+                    <allergy>
+                        <id>7</id>
+                        <sha_id>2.16.840.1.113883.19.5</sha_id>
+                        <title>Latex</title>
+                    </allergy>
+                </allergies>
+            </CCDA>
+            XML);
+
+        $empty = $xpath->query('//hl7:id[@extension=""]');
+        self::assertNotFalse($empty, 'Query must be valid');
+        self::assertSame(0, $empty->length, 'No id may carry an empty extension attribute');
+
+        $kept = $xpath->query("//hl7:act[hl7:templateId/@root='2.16.840.1.113883.10.20.22.4.30']/hl7:id[@extension='7']");
+        self::assertNotFalse($kept, 'Query must be valid');
+        self::assertSame(1, $kept->length, 'A non-empty extension must be kept');
+    }
+
+    /**
      * A care team member with no phone or start date carries nullFlavor. An
      * empty TEL has no URL scheme and an empty TS is not a date.
      */

@@ -97,6 +97,13 @@ class InternalToCdaConverter
 
     private function serializeDocument(): string
     {
+        // II/@extension has a minimum length of 1 in the CDA schema: an empty one is dropped, not written.
+        $xpath = new DOMXPath($this->output);
+        foreach ($xpath->query('//id[@extension=""]') ?: [] as $emptyExtension) {
+            if ($emptyExtension instanceof DOMElement) {
+                $emptyExtension->removeAttribute('extension');
+            }
+        }
         $xml = $this->output->saveXML();
         if ($xml === false) {
             throw new \RuntimeException('Failed to serialize XML');
@@ -1476,7 +1483,13 @@ class InternalToCdaConverter
         $idEl->setAttribute('extension', $id);
         $act->appendChild($idEl);
 
-        $act->appendChild($this->createLoincCode('48765-2', 'Allergies, adverse reactions, alerts'));
+        // Allergy Concern Act: the act code is the fixed concern code (CONF:1198-19158), not the section code.
+        $concernCode = $this->createElement('code');
+        $concernCode->setAttribute('code', 'CONC');
+        $concernCode->setAttribute('displayName', 'Concern');
+        $concernCode->setAttribute('codeSystem', '2.16.840.1.113883.5.6');
+        $concernCode->setAttribute('codeSystemName', 'HL7ActClass');
+        $act->appendChild($concernCode);
 
         $this->appendStatusCode($act, ActStatus::Active);
 
@@ -4930,12 +4943,18 @@ class InternalToCdaConverter
         // Coverage type in Source of Payment Typology (2.16.840.1.113883.3.221.5).
         // Node defaults a missing type to 72 (PPO) named "Self"; an unknown
         // coverage type is carried as nullFlavor instead of asserting one.
-        $policyAct->appendChild($this->createPayerCode(
+        $payerCodeEl = $this->createPayerCode(
             $policyCode,
             $policyName,
             $policyCodeSystem !== '' ? $policyCodeSystem : '2.16.840.1.113883.3.221.5',
             $policyCodeSystemName !== '' ? $policyCodeSystemName : 'Source of Payment Typology',
-        ));
+        );
+        // CONF:1198-32852: the policy code SHALL carry at least one translation (Payer value set). No mapping
+        // to that value set exists in the input, so an unknown translation is stated as nullFlavor.
+        $payerTranslation = $this->createElement('translation');
+        $payerTranslation->setAttribute('nullFlavor', 'UNK');
+        $payerCodeEl->appendChild($payerTranslation);
+        $policyAct->appendChild($payerCodeEl);
 
         $this->appendStatusCode($policyAct, ActStatus::Completed);
 
