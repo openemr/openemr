@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\Immunization;
 
+use DateTimeImmutable;
+use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Immunization\ImmunizationFormSaver;
 use PHPUnit\Framework\TestCase;
@@ -21,6 +23,7 @@ final class ImmunizationFormSaverTest extends TestCase
     private const PID = 7;
     private const USER = 3;
     private const UUID = '9f6d8b5e-2c1a-4e0b-8d3f-6a7b8c9d0e1f';
+    private const NOW = '2026-10-31 14:05:00';
 
     /** @var list<array{int, int}> */
     private array $ownershipAsked = [];
@@ -59,29 +62,31 @@ final class ImmunizationFormSaverTest extends TestCase
             'immuniz_completion_status' => 'Completed',
             'immunization_informationsource' => 'new_immunization_record',
             'immunization_refusal_reason' => '',
-            'reason_code' => '',
-            'reason_description' => '',
+            'reason_code' => 'SNOMED-CT:429060002',
+            'reason_code_text' => 'Procedure to meet occupational requirement',
             'ordered_by_id' => '5',
             'encounter_id' => '41',
         ];
     }
 
     /**
-     * The form's binds, in the order of the shared column list.
+     * The form's binds, in the order of the shared column list, after the
+     * custom list's immunization_id and the CVX code.
      *
      * @return list<string>
      */
     private static function formBinds(): array
     {
         return [
+            '12', '115',
             '2026-10-20 09:30', '2026-10-20 09:30',
-            '12', '115', 'Sanofi', 'AB123',
+            'Sanofi', 'AB123',
             '5', '5', '', '',
             '2026-10-20', '2026-10-20', '2021-08-06', '2021-08-06',
             'left deltoid', '0.5', 'mL',
             '2027-01-31', '2027-01-31',
             'intramuscular', 'left_arm', 'Completed', 'new_immunization_record', '',
-            '', '', '5', '41',
+            'SNOMED-CT:429060002', 'Procedure to meet occupational requirement', '5', '41',
         ];
     }
 
@@ -100,6 +105,7 @@ final class ImmunizationFormSaverTest extends TestCase
                 $this->inserts[] = [$sql, $binds];
                 return 99;
             },
+            clock: new FrozenClock(new DateTimeImmutable(self::NOW)),
         );
     }
 
@@ -111,12 +117,12 @@ final class ImmunizationFormSaverTest extends TestCase
         $this->assertSame([], $this->updates);
         $this->assertCount(1, $this->inserts);
         [$sql, $binds] = $this->inserts[0];
-        $this->assertStringStartsWith('INSERT INTO immunizations SET uuid = ?, administered_date = if(?,?,NULL),', $sql);
+        $this->assertStringStartsWith('INSERT INTO immunizations SET uuid = ?, immunization_id = ?, cvx_code = ?, administered_date = if(?,?,NULL),', $sql);
         $this->assertStringContainsString('encounter_id = ?,', $sql);
-        $this->assertStringEndsWith('create_date = now()', $sql);
+        $this->assertStringEndsWith('create_date = ?', $sql);
         $this->assertCount(substr_count($sql, '?'), $binds, 'one bind per placeholder');
         $this->assertSame(
-            [UuidRegistry::uuidToBytes(self::UUID), ...self::formBinds(), self::PID, self::USER, self::USER],
+            [UuidRegistry::uuidToBytes(self::UUID), ...self::formBinds(), self::PID, self::USER, self::USER, self::NOW],
             $binds
         );
     }
@@ -138,12 +144,48 @@ final class ImmunizationFormSaverTest extends TestCase
         $this->assertSame([], $this->inserts, 'an edit never inserts');
         $this->assertCount(1, $this->updates);
         [$sql, $binds] = $this->updates[0];
-        $this->assertStringStartsWith('UPDATE immunizations SET administered_date = if(?,?,NULL),', $sql);
+        $this->assertStringStartsWith('UPDATE immunizations SET immunization_id = ?, cvx_code = ?, administered_date = if(?,?,NULL),', $sql);
         $this->assertStringEndsWith('encounter_id = ?, updated_by = ? WHERE id = ? AND patient_id = ?', $sql);
         $this->assertStringNotContainsString('uuid', $sql, 'the uuid identifies it outside OpenEMR, so it stays');
         $this->assertStringNotContainsString('created_by', $sql);
         $this->assertCount(substr_count($sql, '?'), $binds, 'one bind per placeholder');
         $this->assertSame([...self::formBinds(), self::USER, 25, self::PID], $binds);
+    }
+
+    /**
+     * The page shows the custom list or the CVX code, not both, so the one it
+     * doesn't show isn't posted. An edit leaves that column as stored.
+     */
+    public function testAnEditLeavesTheImmunizationFieldThePageDidNotShow(): void
+    {
+        $customList = self::form('25');
+        unset($customList['cvx_code']);
+        $this->saver()->save($customList, self::PID, self::USER);
+        $cvx = self::form('25');
+        unset($cvx['form_immunization_id']);
+        $this->saver()->save($cvx, self::PID, self::USER);
+
+        [$sql, $binds] = $this->updates[0];
+        $this->assertStringStartsWith('UPDATE immunizations SET immunization_id = ?, administered_date = if(?,?,NULL),', $sql);
+        $this->assertStringNotContainsString('cvx_code', $sql);
+        $this->assertCount(substr_count($sql, '?'), $binds, 'one bind per placeholder');
+        $this->assertSame('12', $binds[0]);
+        [$sql, $binds] = $this->updates[1];
+        $this->assertStringStartsWith('UPDATE immunizations SET cvx_code = ?, administered_date = if(?,?,NULL),', $sql);
+        $this->assertStringNotContainsString('immunization_id', $sql);
+        $this->assertCount(substr_count($sql, '?'), $binds, 'one bind per placeholder');
+        $this->assertSame('115', $binds[0]);
+    }
+
+    public function testANewImmunizationSavesBothImmunizationFieldsEvenIfOneIsNotPosted(): void
+    {
+        $form = self::form('');
+        unset($form['cvx_code']);
+        $this->saver()->save($form, self::PID, self::USER);
+
+        [$sql, $binds] = $this->inserts[0];
+        $this->assertStringStartsWith('INSERT INTO immunizations SET uuid = ?, immunization_id = ?, cvx_code = ?,', $sql);
+        $this->assertSame(['12', ''], array_slice($binds, 1, 2));
     }
 
     public function testAnotherPatientsImmunizationIsRefusedAndNothingIsWritten(): void
@@ -174,8 +216,8 @@ final class ImmunizationFormSaverTest extends TestCase
         $this->assertSame([], $this->ownershipAsked, 'a blank id is a new immunization');
         [, $binds] = $this->inserts[0];
         $this->assertNull($binds[0], 'no uuid');
-        $this->assertSame(['', ''], array_slice($binds, 1, 2), 'administered_date, missing');
-        $this->assertSame('115', $binds[4], 'cvx_code, posted as a number');
+        $this->assertSame(['', '115'], array_slice($binds, 1, 2), 'immunization_id missing, cvx_code posted as a number');
+        $this->assertSame(['', ''], array_slice($binds, 3, 2), 'administered_date, missing');
         $this->assertSame('', $binds[15], 'note, posted as a list');
     }
 }

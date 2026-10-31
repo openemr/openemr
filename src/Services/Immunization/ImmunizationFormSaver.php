@@ -15,8 +15,11 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Immunization;
 
+use DateTimeZone;
+use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use Psr\Clock\ClockInterface;
 
 final readonly class ImmunizationFormSaver
 {
@@ -25,8 +28,6 @@ final readonly class ImmunizationFormSaver
     // reads the condition as a number, so it stores NULL unless the value
     // starts with a nonzero digit.
     private const FORM_COLUMNS = "administered_date = if(?,?,NULL),
-            immunization_id = ?,
-            cvx_code = ?,
             manufacturer = ?,
             lot_number = ?,
             administered_by_id = if(?,?,NULL),
@@ -47,6 +48,11 @@ final readonly class ImmunizationFormSaver
             ordering_provider = ?,
             encounter_id = ?";
 
+    // The page shows one of these: the custom immunization list, or the CVX code (always with the
+    // use_custom_immun_list setting off, and on an edit when the shot has a CVX code). The one not shown
+    // isn't posted, so an edit leaves it as stored rather than blanking it.
+    private const SHOWN_ONE_AT_A_TIME = ['immunization_id' => 'form_immunization_id', 'cvx_code' => 'cvx_code'];
+
     /** @var \Closure(int, int): bool */
     private \Closure $belongsToPatient;
 
@@ -56,12 +62,15 @@ final readonly class ImmunizationFormSaver
     /** @var \Closure(string, list<mixed>): int */
     private \Closure $insert;
 
+    private ClockInterface $clock;
+
     /**
      * @param ?\Closure(int, int): bool            $belongsToPatient whether an immunization id is one of this patient's
      * @param ?\Closure(string, list<mixed>): void $update           runs an UPDATE
      * @param ?\Closure(string, list<mixed>): int  $insert           runs an INSERT and returns the new row's id
+     * @param ?ClockInterface                      $clock            the new row's create_date
      */
-    public function __construct(?\Closure $belongsToPatient = null, ?\Closure $update = null, ?\Closure $insert = null)
+    public function __construct(?\Closure $belongsToPatient = null, ?\Closure $update = null, ?\Closure $insert = null, ?ClockInterface $clock = null)
     {
         $this->belongsToPatient = $belongsToPatient ?? static fn(int $immunizationId, int $pid): bool => QueryUtils::fetchSingleValue(
             "SELECT id FROM immunizations WHERE id = ? AND patient_id = ?",
@@ -72,6 +81,7 @@ final readonly class ImmunizationFormSaver
             QueryUtils::sqlStatementThrowException($sql, $binds);
         };
         $this->insert = $insert ?? QueryUtils::sqlInsert(...);
+        $this->clock = $clock ?? new SystemClock(new DateTimeZone(date_default_timezone_get()));
     }
 
     /**
@@ -99,8 +109,6 @@ final readonly class ImmunizationFormSaver
 
         $formBindArray = [
             self::text($form, 'administered_date'), self::text($form, 'administered_date'),
-            self::text($form, 'form_immunization_id'),
-            self::text($form, 'cvx_code'),
             self::text($form, 'manufacturer'),
             self::text($form, 'lot_number'),
             self::text($form, 'administered_by_id'), self::text($form, 'administered_by_id'),
@@ -117,10 +125,19 @@ final readonly class ImmunizationFormSaver
             self::text($form, 'immunization_informationsource'),
             self::text($form, 'immunization_refusal_reason'),
             self::text($form, 'reason_code'),
-            self::text($form, 'reason_description'),
+            // The reason code's description, which the page posts as reason_code_text.
+            self::text($form, 'reason_code_text'),
             self::text($form, 'ordered_by_id'),
             self::text($form, 'encounter_id'),
         ];
+
+        $shown = [];
+        foreach (self::SHOWN_ONE_AT_A_TIME as $column => $key) {
+            if ($immunizationId === 0 || array_key_exists($key, $form)) {
+                $shown[$column] = self::text($form, $key);
+            }
+        }
+        $shownColumns = implode('', array_map(fn(string $column): string => "$column = ?, ", array_keys($shown)));
 
         if ($immunizationId > 0) {
             // Refuse an id that is not this patient's, the same way the edit
@@ -133,25 +150,27 @@ final readonly class ImmunizationFormSaver
             // The uuid is left alone: it identifies this immunization outside
             // OpenEMR, so an edit must not change or clear it.
             ($this->update)(
-                "UPDATE immunizations SET " . self::FORM_COLUMNS . ", updated_by = ? WHERE id = ? AND patient_id = ?",
-                [...$formBindArray, $userId, $immunizationId, $pid]
+                "UPDATE immunizations SET " . $shownColumns . self::FORM_COLUMNS . ", updated_by = ? WHERE id = ? AND patient_id = ?",
+                [...array_values($shown), ...$formBindArray, $userId, $immunizationId, $pid]
             );
             return $immunizationId;
         }
 
         $uuid = $form['uuid'] ?? null;
         return ($this->insert)(
-            "INSERT INTO immunizations SET uuid = ?, " . self::FORM_COLUMNS . ",
+            "INSERT INTO immunizations SET uuid = ?, " . $shownColumns . self::FORM_COLUMNS . ",
                 patient_id = ?,
                 created_by = ?,
                 updated_by = ?,
-                create_date = now()",
+                create_date = ?",
             [
                 is_string($uuid) && UuidRegistry::isValidStringUUID($uuid) ? UuidRegistry::uuidToBytes($uuid) : null,
+                ...array_values($shown),
                 ...$formBindArray,
                 $pid,
                 $userId,
                 $userId,
+                $this->clock->now()->format('Y-m-d H:i:s'),
             ]
         );
     }

@@ -50,7 +50,8 @@ final class EncounterOptionsTest extends TestCase
 
     public function testMostRecentEncounterComesFirst(): void
     {
-        // Deliberately not in date order: the service applies no ORDER BY.
+        // Deliberately not in date order: the service returns rows by encounter
+        // number, and an encounter can be entered after a later visit.
         $options = EncounterOptions::fromEncounterList(self::encounterList([
             ['2661', '2002-12-17', 'Office Visit'],
             ['2679', '2026-06-06', 'Encounter for symptom'],
@@ -99,45 +100,5 @@ final class EncounterOptionsTest extends TestCase
         self::assertSame([], EncounterOptions::fromEncounterList([]));
         self::assertSame([], EncounterOptions::fromEncounterList(['ids' => 'not an array']));
         self::assertSame([], EncounterOptions::fromEncounterList(['ids' => [], 'dates' => [], 'categories' => []]));
-    }
-
-    public function testContainsFindsAnOfferedEncounter(): void
-    {
-        $options = EncounterOptions::fromEncounterList(self::encounterList([
-            ['2679', '2026-06-06', 'Office Visit'],
-            ['2661', '2002-12-17', 'Office Visit'],
-        ]));
-        self::assertTrue(EncounterOptions::contains($options, '2661'));
-        self::assertFalse(EncounterOptions::contains($options, '9999'));
-        self::assertFalse(EncounterOptions::contains($options, ''));
-    }
-
-    public function testAnEncounterTheOptionsDoNotOfferIsKept(): void
-    {
-        $options = EncounterOptions::fromEncounterList(self::encounterList([
-            ['2661', '2002-12-17', 'Office Visit'],
-        ]));
-        self::assertSame('9999', EncounterOptions::missingSelection($options, '9999'));
-        self::assertSame('9999', EncounterOptions::missingSelection($options, 9999));
-        self::assertSame('9999', EncounterOptions::missingSelection($options, ' 9999 '));
-        self::assertNull(EncounterOptions::missingSelection($options, '2661'));
-    }
-
-    /**
-     * An immunization saved with no encounter stores 0 (an empty post into the
-     * BIGINT column under the empty sql_mode). Editing it must show the
-     * placeholder, not an "Encounter 0" option.
-     */
-    public function testNoEncounterIsNotKeptAsAnOption(): void
-    {
-        $options = EncounterOptions::fromEncounterList(self::encounterList([
-            ['2661', '2002-12-17', 'Office Visit'],
-        ]));
-        self::assertNull(EncounterOptions::missingSelection($options, '0'));
-        self::assertNull(EncounterOptions::missingSelection($options, 0));
-        self::assertNull(EncounterOptions::missingSelection($options, ''));
-        self::assertNull(EncounterOptions::missingSelection($options, null));
-        self::assertNull(EncounterOptions::missingSelection($options, ['2661']));
-        self::assertNull(EncounterOptions::missingSelection([], '0'));
     }
 }

@@ -409,7 +409,12 @@ tr.selected {
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Immunization Lot Number'); ?></label>
                         <br>
-                        <select class='auto form-control' type='text' name="lot_number" size="25" value="<?php echo attr($lot_number ?? ''); ?>"></select>
+                        <select class='auto form-control' name="lot_number" size="25">
+                            <?php $storedLot = is_string($lot_number ?? null) ? $lot_number : ''; ?>
+                            <?php if ($storedLot !== '') { // the stored lot, so an edit posts it back ?>
+                                <option value="<?php echo attr($storedLot); ?>" selected><?php echo text($storedLot); ?></option>
+                            <?php } ?>
+                        </select>
                     </div>
                     <div class="form-row mt-3">
                         <div class="col-12">

@@ -88,13 +88,6 @@ class EncounterListOptionType implements IOptionFormType
             $this->getEncounterService()->getPatientEncounterListWithCategories($this->pid)
         );
 
-        // Keep a link to an encounter that is not among them (one belonging to
-        // another patient, or since removed) rather than letting the save drop it.
-        $missing = EncounterOptions::missingSelection($options, $currvalue);
-        if ($missing !== null) {
-            $options[] = ['value' => $missing, 'label' => xl('Encounter') . ' ' . $missing, 'date' => ''];
-        }
-
         $optionsList = [];
         foreach ($options as $option) {
             $optionsList[$option['value']] = $option['label'];
