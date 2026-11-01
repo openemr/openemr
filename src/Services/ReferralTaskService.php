@@ -325,7 +325,7 @@ class ReferralTaskService
             }
         }
         // The Task kept changing under this save; its next save tries again, with the same document
-        // when the reply's text hasn't changed.
+        // when the reply hasn't changed.
         $this->getLogger()->warning('A referral\'s reply was filed but its Task kept changing, so it was left as the recipient has it', [
             'transaction_id' => $transactionId,
             'document_uuid' => $document,
@@ -364,21 +364,23 @@ class ReferralTaskService
      */
     private function replyDocument(int $transactionId, int $patientId, array $referral, ?int $userId): ?string
     {
-        $text = $this->replyText($transactionId, $referral);
-        return $this->filedReply($transactionId, $text) ?? $this->fileReply($transactionId, $patientId, $text, $userId);
+        $values = self::storedValues($transactionId);
+        $name = self::replyFileName($transactionId, $values);
+        return $this->filedReply($transactionId, $name) ?? $this->fileReply($transactionId, $patientId, $name, self::replyText($values, $referral), $userId);
     }
 
     /**
-     * The uuid of a reply fileReply() already filed for the referral with this text, or null when
-     * there's none. A different text is a different reply: one edited since it was filed, or another
-     * recipient's after the referral was sent on, so it's filed anew rather than taking the old one.
-     * Compared by the hash Document::createDocument() keeps of what it stored.
+     * The uuid of a reply fileReply() already filed for the referral under this name, or null when
+     * there's none. The name carries a key made from the reply's stored values (replyFileName()):
+     * a reply edited since it was filed, or another recipient's after the referral was sent on, has
+     * another name and is filed anew, while a change outside the reply (Refer To's entry renamed, a
+     * layout title changed) finds the reply already filed.
      */
-    private function filedReply(int $transactionId, string $text): ?string
+    private function filedReply(int $transactionId, string $name): ?string
     {
         $row = QueryUtils::querySingleRow(
-            'SELECT id, uuid FROM documents WHERE foreign_reference_table = ? AND foreign_reference_id = ? AND name = ? AND hash = ? AND deleted = 0 ORDER BY id DESC LIMIT 1',
-            [ReferralService::TABLE_NAME, $transactionId, self::replyFileName($transactionId), hash('sha3-512', $text)]
+            'SELECT id, uuid FROM documents WHERE foreign_reference_table = ? AND foreign_reference_id = ? AND name = ? AND deleted = 0 ORDER BY id DESC LIMIT 1',
+            [ReferralService::TABLE_NAME, $transactionId, $name]
         );
         if (!is_array($row) || !is_numeric($row['id'] ?? null)) {
             return null;
@@ -390,9 +392,41 @@ class ReferralTaskService
         return is_string($row['uuid']) ? UuidRegistry::uuidToString($row['uuid']) : null;
     }
 
-    private static function replyFileName(int $transactionId): string
+    /**
+     * The name a reply is filed under: the referral's id and the first 12 hex digits of the SHA-256
+     * of a key made from the reply's stored values (each reply_ field and Refer To's stored id, in
+     * field id order). Display names and layout titles stay out of it, so renaming them doesn't
+     * make the same reply look new; editing a reply field, or sending the referral to someone else,
+     * does.
+     *
+     * @param array<string, string> $values the referral's stored values (storedValues())
+     */
+    private static function replyFileName(int $transactionId, array $values): string
     {
-        return 'counter-referral-' . $transactionId . '.txt';
+        $key = [];
+        foreach ($values as $field => $value) {
+            if ($field === 'refer_to' || str_starts_with($field, 'reply_')) {
+                $key[$field] = $field . '=' . $value;
+            }
+        }
+        ksort($key, SORT_STRING);
+        return 'counter-referral-' . $transactionId . '-' . substr(hash('sha256', implode("\n", $key)), 0, 12) . '.txt';
+    }
+
+    /**
+     * The referral's stored values (lbt_data) that have something in them, trimmed, by field id.
+     *
+     * @return array<string, string>
+     */
+    private static function storedValues(int $transactionId): array
+    {
+        $values = [];
+        foreach (QueryUtils::fetchRecords("SELECT field_id, field_value FROM lbt_data WHERE form_id = ?", [$transactionId]) as $row) {
+            if (is_string($row['field_id'] ?? null) && is_string($row['field_value'] ?? null) && trim($row['field_value']) !== '') {
+                $values[$row['field_id']] = trim($row['field_value']);
+            }
+        }
+        return $values;
     }
 
     /**
@@ -534,20 +568,13 @@ class ReferralTaskService
      * its id starts with reply_; otherwise it stays on the screen and in the referral but isn't
      * filed with the reply. Nothing of the referral itself goes in. Titles are the layout's as
      * stored, not translated, and values are as stored (a date stays YYYY-MM-DD, a list field keeps
-     * its option id), so the text reads the same whoever saves the referral: filedReply() finds a
-     * filed reply by its text, and a retry by a user in another language would otherwise file it a
-     * second time.
+     * its option id), so the text reads the same whoever saves the referral.
      *
+     * @param array<string, string> $values the referral's stored values (storedValues())
      * @param array<string, mixed> $referral
      */
-    private function replyText(int $transactionId, array $referral): string
+    private static function replyText(array $values, array $referral): string
     {
-        $values = [];
-        foreach (QueryUtils::fetchRecords("SELECT field_id, field_value FROM lbt_data WHERE form_id = ?", [$transactionId]) as $row) {
-            if (is_string($row['field_id'] ?? null) && is_string($row['field_value'] ?? null) && trim($row['field_value']) !== '') {
-                $values[$row['field_id']] = trim($row['field_value']);
-            }
-        }
         // The form's order: a group's fields, then its subgroups', each by seq, with the field id
         // breaking a tie so the order never varies.
         $layout = QueryUtils::fetchRecords('SELECT field_id, title, uor FROM layout_options WHERE form_id = ? ORDER BY group_id, seq, field_id', [ReferralService::FORM_ID]);
@@ -585,7 +612,7 @@ class ReferralTaskService
      * Returns its uuid, or null when there's no Medical Record category or the document couldn't
      * be saved.
      */
-    private function fileReply(int $transactionId, int $patientId, string $text, ?int $userId): ?string
+    private function fileReply(int $transactionId, int $patientId, string $name, string $text, ?int $userId): ?string
     {
         $category = QueryUtils::fetchSingleValue("SELECT id FROM categories WHERE name = 'Medical Record' ORDER BY id LIMIT 1", 'id', []);
         if (!is_numeric($category)) {
@@ -596,7 +623,7 @@ class ReferralTaskService
         $error = $document->createDocument(
             (string)$patientId,
             (int)$category,
-            self::replyFileName($transactionId),
+            $name,
             'text/plain',
             $text,
             '',

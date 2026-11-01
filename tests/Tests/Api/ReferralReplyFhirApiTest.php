@@ -671,6 +671,28 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * Refer To's entry renamed between a save that filed the reply and lost the Task's update and
+     * the next save doesn't make the reply a new one: the next save completes the Task with the
+     * document already filed, which keeps the name it was filed with.
+     */
+    public function testARecipientRenamedBeforeTheRetryFilesNoSecondCopy(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->assertNull((new ReferralTaskService(taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
+        $this->assertCount(1, $this->replyDocuments($id), 'filed before the update failed');
+        QueryUtils::sqlStatementThrowException('UPDATE users SET organization = ? WHERE id = ?', ['Zq Reply Pantry Renamed', $this->people['pantry']['id']]);
+
+        $this->afterSave($id);
+
+        $task = $this->onlyTask($id);
+        $this->assertSame('completed', $task['status'] ?? null);
+        $this->assertCount(1, $this->replyDocuments($id), 'no second copy');
+        $this->assertStringContainsString("Refer To: Zq Reply Pantry\n", $this->outputText($task, 0));
+    }
+
+    /**
      * A reply edited after a save that filed it and then lost the Task's update is a new reply:
      * the next save files it and completes the Task with it, not with the text it replaced.
      */
