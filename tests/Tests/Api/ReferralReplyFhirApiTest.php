@@ -304,6 +304,24 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * The reason is folded as UTF-8: a character whose bytes include A0 (à is C3 A0) comes through
+     * whole, and a no-break space counts as a space.
+     */
+    public function testTheReasonIsFoldedAsUtf8(): void
+    {
+        $id = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+
+        $reason = "Home visits stop at\u{00A0}30 km, \u{00E0} la carte only";
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->onlyTask($id), 'rejected', ['statusReason' => ['text' => $reason]]));
+
+        $body = QueryUtils::fetchSingleValue('SELECT body FROM pnotes WHERE pid = ?', 'body', [$this->patient['pid']]);
+        $this->assertIsString($body);
+        $this->assertTrue(mb_check_encoding($body, 'UTF-8'));
+        $this->assertStringEndsWith(": Home visits stop at 30 km, \u{00E0} la carte only", $body);
+    }
+
+    /**
      * A recipient that marks the Task failed is news to the referrer too, with their reason when
      * they gave one (Task.statusReason).
      */

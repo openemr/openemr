@@ -457,8 +457,10 @@ class ReferralTaskService
         $sender = $userId === null ? null : QueryUtils::fetchSingleValue('SELECT username FROM users WHERE id = ?', 'username', [$userId]);
         $sender = is_string($sender) && $sender !== '' ? $sender : 'FHIR API';
         // The recipient's reason on one line: Messages reformats a YYYY-MM-DD that starts a line, as it does
-        // each entry's header, so a dated line in the reason would look like another entry's header.
-        $reason = preg_replace('/\s+/', ' ', self::text($task, 'status_reason') ?? '');
+        // each entry's header, so a dated line in the reason would look like another entry's header. Read
+        // as UTF-8, so no byte of a character (the A0 in à) is taken for a space; a reason that isn't
+        // UTF-8 is left out.
+        $reason = preg_replace('/\s+/u', ' ', self::text($task, 'status_reason') ?? '');
         $reason = is_string($reason) && trim($reason) !== '' ? trim($reason) : null;
         $text = $notice->text(self::text($referral, 'performer_name') ?? xl('the recipient'), self::text($referral, 'refer_date'), $reason);
         // As other background notices are filed, from $sender, dated by the service's clock (addPnote()
