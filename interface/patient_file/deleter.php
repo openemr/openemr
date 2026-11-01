@@ -31,6 +31,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\ReferralTaskService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -223,6 +224,10 @@ function popup_close() {
                     AccessDeniedHelper::deny('Unauthorized patient deletion attempt');
                 }
 
+                // The patient's referrals' open Tasks are cancelled first, while their rows still say which they
+                // are, and before anything is deleted, so a failure here leaves the patient whole.
+                $deletedBy = $session->get('authUserID');
+                (new ReferralTaskService())->cancelForDeletedPatient($patient, is_numeric($deletedBy) ? (int)$deletedBy : null);
                 deleter_row_modify("billing", "activity = 0", "pid = ?", [$patient]);
                 deleter_row_modify("pnotes", "deleted = 1", "pid = ?", [$patient]);
                 deleter_row_delete("prescriptions", "patient_id = ?", [$patient]);
@@ -440,6 +445,9 @@ function popup_close() {
                     AccessDeniedHelper::deny('Unauthorized transaction deletion attempt');
                 }
 
+                // A referral's open Tasks are cancelled while its row still says which they are.
+                $deletedBy = $session->get('authUserID');
+                (new ReferralTaskService())->cancelForDeletedReferral((int)$transaction, is_numeric($deletedBy) ? (int)$deletedBy : null);
                 deleter_row_delete("transactions", "id = ?", [$transaction]);
             } else {
                 throw new \RuntimeException("Nothing was recognized to delete!");

@@ -1,0 +1,694 @@
+<?php
+
+/**
+ * The Task a saved referral gets when the fhir_referral_tasks global is on (#14710), read
+ * through GET /fhir/Task. The referrals are saved as the Transactions screen saves them
+ * (a transactions row without a uuid, and its lbt_data fields), then handed to
+ * ReferralTaskService as add_transaction.php hands them over.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    anun333 <anun333@posteo.net>
+ * @copyright Copyright (c) 2026 anun333 <anun333@posteo.net>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Api;
+
+use Lcobucci\Clock\FrozenClock;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FHIR\FhirTaskService;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
+use OpenEMR\Services\PatientTransactionService;
+use OpenEMR\Services\ReferralService;
+use OpenEMR\Services\ReferralStatus;
+use OpenEMR\Services\ReferralTaskService;
+use OpenEMR\Services\Search\SearchQueryConfig;
+use OpenEMR\Services\TaskService;
+use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
+use OpenEMR\Validators\ProcessingResult;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Response;
+
+class ReferralTaskFhirApiTest extends TestCase
+{
+    private const FHIR_URL = '/apis/default/fhir/';
+
+    private ApiTestClient $testClient;
+    private ConditionFixtureManager $fixtures;
+    private mixed $globalBefore;
+
+    /** @var array{uuid: string, pid: int} */
+    private array $patient;
+
+    /** @var array<string, array{uuid: string, id: int}> address book entries and users by name */
+    private array $people = [];
+
+    /** @var list<int> transaction ids */
+    private array $transactions = [];
+
+    protected function setUp(): void
+    {
+        $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
+        $this->testClient = new ApiTestClient($baseUrl, false);
+        $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->fixtures = new ConditionFixtureManager();
+        $patient = $this->fixtures->createTestPatient();
+        $this->assertIsString($patient['uuid'] ?? null);
+        $this->assertIsInt($patient['pid'] ?? null);
+        $this->patient = ['uuid' => $patient['uuid'], 'pid' => $patient['pid']];
+
+        $this->globalBefore = OEGlobalsBag::getInstance()->get(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value);
+        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, '1');
+
+        // A referring doctor with a login and an NPI (a Practitioner), an External
+        // Organization, a specialist with an NPI (a Practitioner) and one without (neither).
+        $this->people['doctor'] = $this->insertPerson(['username' => 'zq-referrer', 'fname' => 'Rae', 'lname' => 'Zq', 'npi' => '1245319599', 'authorized' => '1']);
+        $this->people['pantry'] = $this->insertPerson(['abook_type' => 'external_org', 'organization' => 'Zq Food Pantry']);
+        $this->people['cardiologist'] = $this->insertPerson(['abook_type' => 'spe', 'fname' => 'Cara', 'lname' => 'Zq', 'npi' => '1234567893']);
+        $this->people['no npi'] = $this->insertPerson(['abook_type' => 'spe', 'fname' => 'Nell', 'lname' => 'Zq']);
+        // The REST service finds people by NPI, so these NPIs are the test's own.
+        $this->people['rest referrer'] = $this->insertPerson(['username' => 'zq-rest-referrer', 'fname' => 'Ray', 'lname' => 'Zq', 'npi' => '1765483213', 'authorized' => '1']);
+        $this->people['oncologist'] = $this->insertPerson(['abook_type' => 'spe', 'fname' => 'Onna', 'lname' => 'Zq', 'npi' => '1765483221']);
+        $this->people['dermatologist'] = $this->insertPerson(['abook_type' => 'spe', 'fname' => 'Derm', 'lname' => 'Zq', 'npi' => '1765483239']);
+    }
+
+    protected function tearDown(): void
+    {
+        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, $this->globalBefore);
+        foreach ($this->transactions as $id) {
+            $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM transactions WHERE id = ?', 'uuid', [$id]);
+            if (is_string($uuid)) {
+                QueryUtils::sqlStatementThrowException('DELETE FROM task WHERE focus_uuid = ?', [$uuid]);
+            }
+            QueryUtils::sqlStatementThrowException('DELETE FROM lbt_data WHERE form_id = ?', [$id]);
+            QueryUtils::sqlStatementThrowException('DELETE FROM transactions WHERE id = ?', [$id]);
+        }
+        foreach ($this->people as $person) {
+            QueryUtils::sqlStatementThrowException('DELETE FROM users WHERE id = ?', [$person['id']]);
+        }
+        $this->fixtures->removeFixtures();
+        $this->testClient->cleanupRevokeAuth();
+        $this->testClient->cleanupClient();
+    }
+
+    public function testAReferralToAnExternalOrganizationGetsATaskTheOrganizationOwns(): void
+    {
+        $id = $this->saveReferral(['refer_date' => '2026-10-19', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+
+        $clock = new FrozenClock(new \DateTimeImmutable('2026-10-19 09:15:00'));
+        $taskUuid = (new ReferralTaskService(clock: $clock))->createForReferral($id, null);
+        $this->assertIsString($taskUuid);
+        $referral = $this->referralUuid($id);
+        $task = $this->read('Task', $taskUuid);
+
+        $this->assertSame('requested', $task['status'] ?? null);
+        $this->assertSame('order', $task['intent'] ?? null);
+        $this->assertSame([['system' => FhirTaskService::TASK_CODE_SYSTEM, 'code' => 'fulfill', 'display' => 'fulfill']], self::at($task, 'code', 'coding'));
+        $this->assertSame('ServiceRequest/' . $referral, self::at($task, 'focus', 'reference'));
+        $this->assertSame('Patient/' . $this->patient['uuid'], self::at($task, 'for', 'reference'));
+        $this->assertSame('Organization/' . $this->people['pantry']['uuid'], self::at($task, 'owner', 'reference'));
+        $this->assertSame('Practitioner/' . $this->people['doctor']['uuid'], self::at($task, 'requester', 'reference'));
+        $this->assertIsString($task['authoredOn'] ?? null);
+        $this->assertStringStartsWith('2026-10-19T09:15:00', $task['authoredOn'], 'made when the clock says');
+
+        // What the Task points at is there: the referral, with the organization as its performer.
+        $serviceRequest = $this->read('ServiceRequest', $referral);
+        $this->assertSame('Organization/' . $this->people['pantry']['uuid'], self::at($serviceRequest, 'performer', 0, 'reference'));
+        $this->assertSame('Zq Food Pantry', self::at($serviceRequest, 'performer', 0, 'display'));
+        $this->assertSame('Zq Food Pantry', $this->read('Organization', $this->people['pantry']['uuid'])['name'] ?? null);
+    }
+
+    public function testAReferralToAPractitionerGetsATaskTheyOwn(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['cardiologist']['id'], 'body' => 'Evaluate']);
+
+        $taskUuid = $this->createTask($id);
+        $this->assertIsString($taskUuid);
+        $this->assertSame('Practitioner/' . $this->people['cardiologist']['uuid'], self::at($this->read('Task', $taskUuid), 'owner', 'reference'));
+    }
+
+    public function testSavingAgainAddsNoTaskAndANewRecipientTakesItOver(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $first = $this->createTask($id);
+        $this->assertIsString($first);
+
+        $this->assertNull($this->createTask($id), 'saved again, same recipient');
+
+        $this->sendTo($id, 'cardiologist');
+        $second = $this->createTask($id);
+        $this->assertIsString($second);
+
+        $owners = [];
+        foreach ($this->search('Task', ['focus' => 'ServiceRequest/' . $this->referralUuid($id)]) as $task) {
+            $owners[] = self::at($task, 'owner', 'reference');
+        }
+        $this->assertEqualsCanonicalizing(['Organization/' . $this->people['pantry']['uuid'], 'Practitioner/' . $this->people['cardiologist']['uuid']], $owners);
+        // The first recipient's Task leaves their queue and stays as a record.
+        $task = $this->read('Task', $first);
+        $this->assertSame('cancelled', $task['status'] ?? null);
+        $this->assertSame('The referral was sent to another recipient.', self::at($task, 'statusReason', 'text'));
+        $this->assertSame('requested', $this->read('Task', $second)['status'] ?? null);
+    }
+
+    /**
+     * Sent to A, then B, then back to A: each change cancels the open Task of the one it left, A
+     * gets a new Task (their first was cancelled), and the referral's status is A's, not that of B,
+     * whose Task is the newer of the two that came before.
+     */
+    public function testARecipientTheReferralReturnsToGetsANewTaskThatIsItsStatus(): void
+    {
+        $id = $this->saveReferral(['refer_date' => '2026-10-15', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $pantryFirst = $this->createTask($id);
+        $this->assertIsString($pantryFirst);
+        $this->sendTo($id, 'cardiologist');
+        $cardiologist = $this->createTask($id);
+        $this->assertIsString($cardiologist);
+        (new TaskService())->update($cardiologist, ['status' => 'rejected'], null);
+
+        $this->sendTo($id, 'pantry');
+        $pantrySecond = $this->createTask($id);
+        $this->assertIsString($pantrySecond, 'the pantry gets a Task again');
+
+        $this->assertSame('cancelled', $this->read('Task', $pantryFirst)['status'] ?? null);
+        $this->assertSame('rejected', $this->read('Task', $cardiologist)['status'] ?? null, 'a finished Task stays as it is');
+        $today = new \DateTimeImmutable('2026-10-19');
+        foreach (['requested' => 'Requested', 'accepted' => 'Accepted'] as $taskStatus => $label) {
+            (new TaskService())->update($pantrySecond, ['status' => $taskStatus], null);
+            $referral = (new ReferralService(createMissingUuids: false))->getReferral($id);
+            $this->assertIsArray($referral);
+            $this->assertSame($taskStatus, $referral['task_status'] ?? null, "the pantry's Task $taskStatus");
+            $this->assertSame($label, ReferralStatus::ofReferral($referral, $today, 14)->label());
+            $this->assertSame([$id => $taskStatus], (new ReferralService(createMissingUuids: false))->getTaskStatuses([$id]), 'and as the Transactions list finds it');
+        }
+    }
+
+    /**
+     * A recipient who finished their Task has one, so a referral that comes back to them makes
+     * none, and their Task is still the referral's status, though the one they left in between
+     * has the newer Task.
+     */
+    public function testARecipientWhoFinishedKeepsTheirStatusWhenTheReferralReturns(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $pantry = $this->createTask($id);
+        $this->assertIsString($pantry);
+        (new TaskService())->update($pantry, ['status' => 'completed'], null);
+        $this->sendTo($id, 'cardiologist');
+        $this->assertIsString($this->createTask($id));
+        $this->sendTo($id, 'pantry');
+
+        $this->assertNull($this->createTask($id), 'the pantry has a Task');
+        $this->assertSame('completed', $this->read('Task', $pantry)['status'] ?? null);
+        $this->assertSame('completed', $this->read('ServiceRequest', $this->referralUuid($id))['status'] ?? null);
+    }
+
+    /**
+     * As the Transactions screen clears a field: its lbt_data row is deleted.
+     */
+    public function testClearingTheRecipientCancelsTheOpenTask(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $taskUuid = $this->createTask($id);
+        $this->assertIsString($taskUuid);
+
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'refer_to'", [$id]);
+        $this->assertNull($this->createTask($id));
+
+        $task = $this->read('Task', $taskUuid);
+        $this->assertSame('cancelled', $task['status'] ?? null);
+        $this->assertSame('The referral no longer names a recipient.', self::at($task, 'statusReason', 'text'));
+        $referral = (new ReferralService(createMissingUuids: false))->getReferral($id);
+        $this->assertIsArray($referral);
+        $this->assertNull($referral['task_status'] ?? null, 'no recipient, so no Task decides');
+    }
+
+    /**
+     * @return array<string, array{string, int, string}>
+     */
+    public static function changesAfterTheRead(): array
+    {
+        // the recipient's change between the cancellation's read and its write => Tasks cancelled, the status after
+        return [
+            'completed: it stands, and isn\'t counted' => ['completed', 0, 'completed'],
+            'accepted, still open: read again and cancelled' => ['accepted', 1, 'cancelled'],
+        ];
+    }
+
+    /**
+     * The cancellation names the version it read, so a recipient's change in between isn't written
+     * over. A Task finished in between stays as it is; one still open is read again and cancelled.
+     */
+    #[DataProvider('changesAfterTheRead')]
+    public function testACancellationDoesNotWriteOverAChangeMadeAfterItsRead(string $change, int $cancelled, string $after): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $taskUuid = $this->createTask($id);
+        $this->assertIsString($taskUuid);
+        $tasks = new class ($taskUuid, $change) extends TaskService {
+            private bool $raced = false;
+
+            public function __construct(private readonly string $racing, private readonly string $change)
+            {
+                parent::__construct();
+            }
+
+            public function search(array $search, $isAndCondition = true, ?SearchQueryConfig $config = null): ProcessingResult
+            {
+                $result = parent::search($search, $isAndCondition, $config);
+                if (!$this->raced) {
+                    // The recipient changes the Task after the first read, before the cancellation writes.
+                    $this->raced = true;
+                    parent::update($this->racing, ['status' => $this->change], null);
+                }
+                return $result;
+            }
+        };
+
+        $this->assertSame($cancelled, (new ReferralTaskService(taskService: $tasks))->cancelForDeletedReferral($id, null));
+        $this->assertSame($after, $this->read('Task', $taskUuid)['status'] ?? null);
+    }
+
+    /**
+     * Turning the setting off makes no new Tasks, but a referral that has open ones still has the
+     * other recipients' cancelled when it's sent elsewhere.
+     */
+    public function testWithTheGlobalOffANewRecipientStillCancelsTheOpenTask(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $taskUuid = $this->createTask($id);
+        $this->assertIsString($taskUuid);
+        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, '0');
+
+        $this->sendTo($id, 'cardiologist');
+        $this->assertNull($this->createTask($id), 'no new Task with the setting off');
+
+        $this->assertSame('cancelled', $this->read('Task', $taskUuid)['status'] ?? null);
+        $this->assertSame(1, $this->taskCount());
+    }
+
+    /**
+     * With the setting off, a referral sent from A to B and back to A cancels A's Task on the way and
+     * makes no new one; that cancelled Task, the service's own doing, isn't A's answer, so the referral
+     * reads open again, not cancelled.
+     */
+    public function testWithTheGlobalOffAReturnToTheFirstRecipientReadsOpen(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $this->assertIsString($this->createTask($id));
+        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, '0');
+        $this->sendTo($id, 'cardiologist');
+        $this->assertNull($this->createTask($id));
+        $this->sendTo($id, 'pantry');
+        $this->assertNull($this->createTask($id));
+
+        $referral = (new ReferralService(createMissingUuids: false))->getReferral($id);
+        $this->assertIsArray($referral);
+        $this->assertNull($referral['task_status'] ?? null, 'no Task of the pantry\'s answers for it');
+        $this->assertSame('active', $this->read('ServiceRequest', $this->referralUuid($id))['status'] ?? null);
+    }
+
+    /**
+     * A recipient whose address book entry no longer makes them a Practitioner (its NPI cleared) still
+     * hasn't been sent elsewhere: saving the referral again leaves their Task alone.
+     */
+    public function testARecipientFhirNoLongerServesKeepsTheirTask(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['cardiologist']['id'], 'body' => 'Evaluate']);
+        $taskUuid = $this->createTask($id);
+        $this->assertIsString($taskUuid);
+        QueryUtils::sqlStatementThrowException("UPDATE users SET npi = '' WHERE id = ?", [$this->people['cardiologist']['id']]);
+
+        $this->assertNull($this->createTask($id), 'no Task for a recipient FHIR doesn\'t serve');
+        $this->assertSame('requested', $this->read('Task', $taskUuid)['status'] ?? null);
+    }
+
+    /**
+     * A referral with a Reply Date is answered: saving it makes no Task (a site that turns the
+     * setting on and edits an old referral doesn't put it in a queue).
+     */
+    public function testAnAnsweredReferralGetsNoTask(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'reply_date' => '2026-03-02', 'body' => 'Food insecurity']);
+
+        $this->assertNull($this->createTask($id));
+        $this->assertSame(0, $this->taskCount());
+    }
+
+    /**
+     * A recipient who cancelled their own Task keeps it: saving the referral again doesn't ask
+     * them again. Only the cancellations this service makes leave room for a new Task.
+     */
+    public function testARecipientsOwnCancellationStands(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $taskUuid = $this->createTask($id);
+        $this->assertIsString($taskUuid);
+        (new TaskService())->update($taskUuid, ['status' => 'cancelled', 'status_reason' => 'Client moved away'], null);
+
+        $this->assertNull($this->createTask($id));
+        $this->assertSame(1, $this->taskCount());
+        $referral = (new ReferralService(createMissingUuids: false))->getReferral($id);
+        $this->assertSame('cancelled', $referral['task_status'] ?? null);
+    }
+
+    /**
+     * Deleting a patient cancels the open Tasks of each of their referrals before the rows go.
+     */
+    public function testDeletingAPatientCancelsTheirReferralsOpenTasks(): void
+    {
+        $first = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $second = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['cardiologist']['id'], 'body' => 'Evaluate']);
+        $tasks = [$this->createTask($first), $this->createTask($second)];
+
+        $this->assertSame(2, (new ReferralTaskService())->cancelForDeletedPatient($this->patient['pid'], null));
+        foreach ($tasks as $taskUuid) {
+            $this->assertIsString($taskUuid);
+            $task = $this->read('Task', $taskUuid);
+            $this->assertSame('cancelled', $task['status'] ?? null);
+            $this->assertSame(ReferralTaskService::REASON_DELETED, self::at($task, 'statusReason', 'text'));
+        }
+    }
+
+    /**
+     * A recipient's own sub-Task with the referral as its focus isn't the referral's Task: it isn't
+     * cancelled when the referral moves, and its status isn't the referral's.
+     */
+    public function testARecipientsSubTaskIsNotTheReferralsTask(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $taskUuid = $this->createTask($id);
+        $this->assertIsString($taskUuid);
+        $subTask = (new TaskService())->insert([
+            'status' => 'completed', 'intent' => 'order', 'code' => 'fulfill', 'code_system' => FhirTaskService::TASK_CODE_SYSTEM,
+            'focus_type' => 'ServiceRequest', 'focus_uuid' => $this->referralUuid($id), 'owner_type' => 'Organization',
+            'owner_uuid' => $this->people['pantry']['uuid'], 'part_of_uuid' => $taskUuid, 'authored_on' => '2026-10-19 10:00:00',
+        ], $this->patient['pid'], null);
+
+        $referral = (new ReferralService(createMissingUuids: false))->getReferral($id);
+        $this->assertSame('requested', $referral['task_status'] ?? null, 'the referral\'s own Task, not the newer sub-Task');
+        // The referral and its own Task last changed long ago; only the sub-Task changes now.
+        QueryUtils::sqlStatementThrowException("UPDATE transactions SET date = '2026-01-05 09:00:00' WHERE id = ?", [$id]);
+        QueryUtils::sqlStatementThrowException("UPDATE task SET last_modified = '2026-01-05 09:00:00' WHERE uuid = ?", [UuidRegistry::uuidToBytes($taskUuid)]);
+        (new TaskService())->update($subTask, ['status' => 'in-progress'], null);
+        $lastUpdated = self::at($this->read('ServiceRequest', $this->referralUuid($id)), 'meta', 'lastUpdated');
+        $this->assertIsString($lastUpdated);
+        $this->assertLessThan('2026-01-06', $lastUpdated, 'a sub-Task\'s change isn\'t the referral\'s');
+        $this->sendTo($id, 'cardiologist');
+        $this->assertIsString($this->createTask($id));
+        $this->assertSame('in-progress', $this->read('Task', $subTask)['status'] ?? null, 'the sub-Task is left alone');
+        $this->assertSame('cancelled', $this->read('Task', $taskUuid)['status'] ?? null);
+    }
+
+    public function testAReferralSavedThroughTheRestServiceGetsItsTask(): void
+    {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $session->set('authUser', 'admin');
+        try {
+            $service = new PatientTransactionService();
+            $referral = [
+                'type' => 'LBTref', 'groupname' => 'Default', 'body' => 'Evaluate the rash', 'referralDate' => '2026-10-19',
+                'referDiagnosis' => '', 'referByNpi' => '1765483213', 'referToNpi' => '1765483221', 'riskLevel' => 'low',
+                'includeVitals' => '0', 'authorization' => '', 'visits' => '', 'validFrom' => '', 'validThrough' => '',
+            ];
+            $saved = $service->insert($this->patient['pid'], $referral);
+            $this->assertIsArray($saved);
+            $this->assertIsNumeric($saved['id'] ?? null);
+            $id = (int)$saved['id'];
+            $this->transactions[] = $id;
+            $service->update($id, ['referToNpi' => '1765483239'] + $referral);
+        } finally {
+            $session->remove('authUser');
+        }
+
+        $owners = [];
+        foreach ($this->search('Task', ['focus' => 'ServiceRequest/' . $this->referralUuid($id)]) as $task) {
+            $owners[] = self::at($task, 'owner', 'reference');
+            $this->assertSame('Practitioner/' . $this->people['rest referrer']['uuid'], self::at($task, 'requester', 'reference'));
+        }
+        $this->assertEqualsCanonicalizing(['Practitioner/' . $this->people['oncologist']['uuid'], 'Practitioner/' . $this->people['dermatologist']['uuid']], $owners, 'one when saved, one for the new recipient');
+    }
+
+    public function testTheReferralTakesItsLatestTasksStatus(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $taskUuid = $this->createTask($id);
+        $this->assertIsString($taskUuid);
+        $referral = $this->referralUuid($id);
+
+        $this->assertSame('active', $this->read('ServiceRequest', $referral)['status'] ?? null, 'requested');
+        foreach (['accepted' => 'active', 'completed' => 'completed', 'cancelled' => 'revoked', 'entered-in-error' => 'entered-in-error'] as $taskStatus => $requestStatus) {
+            (new TaskService())->update($taskUuid, ['status' => $taskStatus], null);
+            $this->assertSame($requestStatus, $this->read('ServiceRequest', $referral)['status'] ?? null, "Task $taskStatus");
+        }
+        $this->assertSame([$referral], self::ids($this->search('ServiceRequest', ['patient' => $this->patient['uuid'], 'status' => 'entered-in-error'])));
+
+        // A new recipient's Task is the latest, so the referral is active again.
+        (new TaskService())->update($taskUuid, ['status' => 'cancelled'], null);
+        $this->sendTo($id, 'cardiologist');
+        $this->assertIsString($this->createTask($id));
+        $this->assertSame('active', $this->read('ServiceRequest', $referral)['status'] ?? null);
+    }
+
+    public function testATaskChangeMovesTheReferralsLastUpdate(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $taskUuid = $this->createTask($id);
+        $this->assertIsString($taskUuid);
+        $referral = $this->referralUuid($id);
+        // The referral was saved long ago; only its Task changes now, and the referral's status with it.
+        QueryUtils::sqlStatementThrowException("UPDATE transactions SET date = '2026-01-05 09:00:00' WHERE id = ?", [$id]);
+        (new TaskService())->update($taskUuid, ['status' => 'completed'], null);
+
+        $lastUpdated = self::at($this->read('ServiceRequest', $referral), 'meta', 'lastUpdated');
+        $this->assertIsString($lastUpdated);
+        $this->assertGreaterThan('2026-01-06', $lastUpdated, "the Task's change is the referral's last update");
+        $this->assertSame([$referral], self::ids($this->search('ServiceRequest', ['patient' => $this->patient['uuid'], '_lastUpdated' => 'gt2026-06-01'])));
+    }
+
+    public function testDeletingAReferralCancelsItsOpenTask(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $taskUuid = $this->createTask($id);
+        $this->assertIsString($taskUuid);
+
+        $this->assertSame(1, (new ReferralTaskService())->cancelForDeletedReferral($id, null));
+        $task = $this->read('Task', $taskUuid);
+        $this->assertSame('cancelled', $task['status'] ?? null);
+        $this->assertSame('The referral was deleted.', self::at($task, 'statusReason', 'text'));
+        $this->assertSame(0, (new ReferralTaskService())->cancelForDeletedReferral($id, null), 'a finished Task stays as it is');
+    }
+
+    public function testATransactionListRowShowsTheReferralsStatus(): void
+    {
+        $referral = $this->saveReferral(['refer_date' => '2026-01-05', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $taskUuid = $this->createTask($referral);
+        $this->assertIsString($taskUuid);
+        (new TaskService())->update($taskUuid, ['status' => 'rejected'], null);
+        $other = $this->saveTransaction('LBTptreq', ['body' => 'x']);
+        $today = new \DateTimeImmutable('2026-10-19');
+
+        // As getTransByPid() lists them, which is what the Transactions screen shows.
+        $rows = [];
+        foreach (getTransByPid($this->patient['pid']) as $row) {
+            if (is_array($row) && is_numeric($row['id'] ?? null)) {
+                $rows[(int)$row['id']] = $row;
+            }
+        }
+        $statuses = (new ReferralService(createMissingUuids: false))->getTaskStatuses([$referral, $other]);
+        $this->assertSame([$referral => 'rejected'], $statuses, 'one query, for referrals only');
+        $status = ReferralStatus::ofTransaction($rows[$referral] ?? null, $statuses, $today, 14);
+        $this->assertNotNull($status);
+        $this->assertSame('Rejected', $status->label());
+        $this->assertTrue($status->overdue);
+        $this->assertNull(ReferralStatus::ofTransaction($rows[$other] ?? null, $statuses, $today, 14));
+    }
+
+    public function testSavingAReferralFillsInOnlyItsOwnMissingUuids(): void
+    {
+        // As the address book and the Transactions screen save them: no uuid.
+        $insert = static fn(string $name): int => (int)QueryUtils::sqlInsert(
+            "INSERT INTO users (username, active, authorized, abook_type, organization) VALUES ('', 1, 0, 'external_org', ?)",
+            [$name]
+        );
+        $this->people['saved pantry'] = ['uuid' => '', 'id' => $insert('Zq Saved Pantry')];
+        $this->people['bystander'] = ['uuid' => '', 'id' => $insert('Zq Bystander')];
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['saved pantry']['id'], 'body' => 'x']);
+        $other = $this->saveReferral(['refer_to' => $this->people['bystander']['id'], 'body' => 'not saved again']);
+
+        $taskUuid = $this->createTask($id);
+
+        $this->assertIsString($taskUuid);
+        $uuidOf = static fn(string $table, int $id): mixed => QueryUtils::fetchSingleValue("SELECT uuid FROM $table WHERE id = ?", 'uuid', [$id]);
+        $pantry = $uuidOf('users', $this->people['saved pantry']['id']);
+        $this->assertIsString($pantry, 'the recipient got a uuid');
+        $this->assertIsString($uuidOf('transactions', $id), 'the referral got a uuid');
+        $this->assertNull($uuidOf('users', $this->people['bystander']['id']), 'another entry is left as it was');
+        $this->assertNull($uuidOf('transactions', $other), 'another referral is left as it was');
+        $this->assertSame('Organization/' . UuidRegistry::uuidToString($pantry), self::at($this->read('Task', $taskUuid), 'owner', 'reference'));
+    }
+
+    public function testNoTaskWithoutARecipientFhirServes(): void
+    {
+        $toNoNpi = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['no npi']['id'], 'body' => 'x']);
+        $toNobody = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'body' => 'x']);
+        $notAReferral = $this->saveTransaction('LBTptreq', ['body' => 'x']);
+
+        $this->assertNull($this->createTask($toNoNpi), 'a specialist without an NPI');
+        $this->assertNull($this->createTask($toNobody), 'no Refer To');
+        $this->assertNull($this->createTask($notAReferral), 'another transaction type');
+        $this->assertSame(0, $this->taskCount());
+    }
+
+    public function testNoTaskWhenTheGlobalIsOff(): void
+    {
+        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, '0');
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+
+        $this->assertNull($this->createTask($id));
+        $this->assertSame(0, $this->taskCount());
+    }
+
+    /**
+     * @phpstan-impure it saves a Task, so a second call can answer differently
+     */
+    private function createTask(int $transactionId): ?string
+    {
+        return (new ReferralTaskService())->createForReferral($transactionId, null);
+    }
+
+    /**
+     * Sends the referral to someone else, as a save of its Refer To does.
+     */
+    private function sendTo(int $transactionId, string $person): void
+    {
+        QueryUtils::sqlStatementThrowException("REPLACE INTO lbt_data SET field_value = ?, form_id = ?, field_id = 'refer_to'", [$this->people[$person]['id'], $transactionId]);
+    }
+
+    private function taskCount(): int
+    {
+        $count = QueryUtils::fetchSingleValue('SELECT COUNT(*) AS n FROM task WHERE patient_id = ?', 'n', [$this->patient['pid']]);
+        return is_numeric($count) ? (int)$count : -1;
+    }
+
+    private function referralUuid(int $transactionId): string
+    {
+        $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM transactions WHERE id = ?', 'uuid', [$transactionId]);
+        $this->assertIsString($uuid, 'the referral was given a uuid');
+        return UuidRegistry::uuidToString($uuid);
+    }
+
+    /**
+     * @param array<string, int|string> $fields lbt_data field_id => field_value
+     */
+    private function saveReferral(array $fields): int
+    {
+        return $this->saveTransaction('LBTref', $fields);
+    }
+
+    /**
+     * A transaction as add_transaction.php saves a new one: no uuid, and only the fields
+     * that have a value.
+     *
+     * @param array<string, int|string> $fields
+     */
+    private function saveTransaction(string $formId, array $fields): int
+    {
+        $id = (int)QueryUtils::sqlInsert(
+            "INSERT INTO transactions SET title = ?, user = 'admin', groupname = 'Default', authorized = 1, date = NOW(), pid = ?",
+            [$formId, $this->patient['pid']]
+        );
+        $this->transactions[] = $id;
+        foreach ($fields as $field => $value) {
+            QueryUtils::sqlStatementThrowException('INSERT INTO lbt_data (form_id, field_id, field_value) VALUES (?, ?, ?)', [$id, $field, (string)$value]);
+        }
+        return $id;
+    }
+
+    /**
+     * @param array<string, string> $query
+     * @return list<array<mixed>>
+     */
+    private function search(string $type, array $query): array
+    {
+        $response = $this->testClient->get(self::FHIR_URL . $type, $query);
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), (string)$response->getBody());
+        $bundle = json_decode((string)$response->getBody(), true);
+        $this->assertIsArray($bundle);
+        $resources = [];
+        foreach (is_array($bundle['entry'] ?? null) ? $bundle['entry'] : [] as $entry) {
+            if (is_array($entry) && is_array($entry['resource'] ?? null)) {
+                $resources[] = $entry['resource'];
+            }
+        }
+        return $resources;
+    }
+
+    /**
+     * @return array<mixed>
+     * @phpstan-impure a resource can change between reads
+     */
+    private function read(string $type, string $uuid): array
+    {
+        $response = $this->testClient->get(self::FHIR_URL . $type . '/' . $uuid);
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), (string)$response->getBody());
+        $resource = json_decode((string)$response->getBody(), true);
+        $this->assertIsArray($resource);
+        return $resource;
+    }
+
+    /**
+     * @param list<array<mixed>> $resources
+     * @return list<string>
+     */
+    private static function ids(array $resources): array
+    {
+        $ids = [];
+        foreach ($resources as $resource) {
+            if (is_string($resource['id'] ?? null)) {
+                $ids[] = $resource['id'];
+            }
+        }
+        return $ids;
+    }
+
+    /**
+     * The value at a path of keys in a decoded resource, or null.
+     *
+     * @param array<mixed> $resource
+     */
+    private static function at(array $resource, string|int ...$path): mixed
+    {
+        $value = $resource;
+        foreach ($path as $key) {
+            if (!is_array($value) || !array_key_exists($key, $value)) {
+                return null;
+            }
+            $value = $value[$key];
+        }
+        return $value;
+    }
+
+    /**
+     * @param array<string, string> $columns
+     * @return array{uuid: string, id: int}
+     */
+    private function insertPerson(array $columns): array
+    {
+        $uuid = UuidRegistry::getRegistryForTable('users')->createUuid();
+        $row = $columns + ['username' => '', 'active' => '1', 'authorized' => '0'];
+        $row['uuid'] = $uuid;
+        $id = QueryUtils::sqlInsert(
+            'INSERT INTO users (' . implode(', ', array_keys($row)) . ') VALUES (' . implode(', ', array_fill(0, count($row), '?')) . ')',
+            array_values($row)
+        );
+        return ['uuid' => UuidRegistry::uuidToString($uuid), 'id' => (int)$id];
+    }
+}
