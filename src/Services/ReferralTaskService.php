@@ -60,12 +60,16 @@ class ReferralTaskService
      * Each collaborator is the caller's, or made the first time it's needed rather than as a default
      * here: loading BaseService requires custom/code_types.inc.php, which queries the database, and
      * ReferralTaskServiceTest's isolated cases build this class.
+     *
+     * @param (\Closure(): \Document)|null $documentFactory makes the Document a reply is filed as
      */
     public function __construct(
         private ?ReferralService $referralService = null,
         private ?TaskService $taskService = null,
         private ?ClockInterface $clock = null,
         private ?LoggerInterface $logger = null,
+        private ?UserService $userService = null,
+        private readonly ?\Closure $documentFactory = null,
     ) {
     }
 
@@ -89,11 +93,18 @@ class ReferralTaskService
         return $this->logger ??= ServiceContainer::getLogger();
     }
 
+    private function getUserService(): UserService
+    {
+        return $this->userService ??= new UserService();
+    }
+
+    private function newDocument(): \Document
+    {
+        return $this->documentFactory === null ? new \Document() : ($this->documentFactory)();
+    }
+
     /** LOINC 11488-4, the type of the reply a Task's output holds. */
     private const REPLY_OUTPUT_TYPE = ['type_system' => 'http://loinc.org', 'type_code' => '11488-4', 'type_text' => 'Consult note'];
-
-    /** Task statuses the referring provider hears about (#14710). */
-    private const NOTIFIED_STATUSES = ['accepted', 'rejected', 'completed'];
 
     /** The Counter-Referral section's fields, in the form's order. */
     private const REPLY_FIELDS = ['reply_date', 'reply_from', 'reply_init_diag', 'reply_final_diag', 'reply_documents', 'reply_findings', 'reply_services', 'reply_recommend', 'reply_rx_refer'];
@@ -389,14 +400,15 @@ class ReferralTaskService
      */
     public function taskStatusChanged(string $taskUuid, string $from, string $to, ?int $userId): void
     {
+        $notice = ReferralTaskNotice::tryFrom($to);
         if (
-            $from === $to || !in_array($to, self::NOTIFIED_STATUSES, true)
+            $from === $to || $notice === null
             || !OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value)
         ) {
             return;
         }
         try {
-            $this->notifyReferrer($taskUuid, $to, $userId);
+            $this->notifyReferrer($taskUuid, $notice, $userId);
         } catch (\RuntimeException | \LogicException | DbalException $e) {
             $this->getLogger()->error('A referral\'s Task changed status but the referrer was not told', [
                 'task_uuid' => $taskUuid,
@@ -409,7 +421,7 @@ class ReferralTaskService
     /**
      * The message taskStatusChanged() files: to Refer By, about the Task's new status.
      */
-    private function notifyReferrer(string $taskUuid, string $to, ?int $userId): void
+    private function notifyReferrer(string $taskUuid, ReferralTaskNotice $notice, ?int $userId): void
     {
         $task = $this->getTaskService()->getOne($taskUuid);
         $focus = $task === null ? null : self::text($task, 'focus_uuid');
@@ -428,24 +440,12 @@ class ReferralTaskService
         }
         $sender = $userId === null ? null : QueryUtils::fetchSingleValue('SELECT username FROM users WHERE id = ?', 'username', [$userId]);
         $sender = is_string($sender) && $sender !== '' ? $sender : 'FHIR API';
-        $text = sprintf(
-            '%s %s: %s',
-            xl('Referral to'),
-            self::text($referral, 'performer_name') ?? xl('Unknown recipient'),
-            match ($to) {
-                'accepted' => xl('Accepted'),
-                'rejected' => xl('Rejected'),
-                default => xl('Completed'),
-            }
-        );
-        $referred = self::text($referral, 'refer_date');
-        if ($referred !== null) {
-            $text .= ' (' . xl('Referral Date') . ' ' . $referred . ')';
-        }
+        $text = $notice->text(self::text($referral, 'performer_name') ?? xl('The recipient'), self::text($referral, 'refer_date'));
+        $now = $this->getClock()->now();
         // As other background notices are filed (labNotice(), the Direct message check).
         QueryUtils::sqlInsert(
-            'INSERT INTO pnotes (date, body, pid, user, groupname, authorized, activity, title, assigned_to, message_status) VALUES (NOW(), ?, ?, ?, ?, 0, 1, ?, ?, ?)',
-            [date('Y-m-d H:i') . " ($sender to $recipient) $text", (int)$patientId, $sender, 'Default', 'Referral', $recipient, 'New']
+            'INSERT INTO pnotes (date, body, pid, user, groupname, authorized, activity, title, assigned_to, message_status) VALUES (?, ?, ?, ?, ?, 0, 1, ?, ?, ?)',
+            [$now->format('Y-m-d H:i:s'), $now->format('Y-m-d H:i') . " ($sender to $recipient) $text", (int)$patientId, $sender, 'Default', 'Referral', $recipient, 'New']
         );
     }
 
@@ -513,8 +513,8 @@ class ReferralTaskService
         if (!is_numeric($category)) {
             return null;
         }
-        $owner = $userId ?? (new UserService())->getSystemUser()['id'] ?? 0;
-        $document = new \Document();
+        $owner = $userId ?? $this->getUserService()->getSystemUser()['id'] ?? 0;
+        $document = $this->newDocument();
         $error = $document->createDocument(
             (string)$patientId,
             (int)$category,

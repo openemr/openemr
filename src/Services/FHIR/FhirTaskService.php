@@ -72,6 +72,8 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
 
     private ?TaskService $taskService = null;
 
+    private ?ReferralTaskService $referralTaskService = null;
+
     /** The version an update must find (If-Match), or null for any. */
     private ?int $expectedVersion = null;
 
@@ -98,6 +100,20 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     public function setTaskService(TaskService $taskService): void
     {
         $this->taskService = $taskService;
+    }
+
+    private function getReferralTaskService(): ReferralTaskService
+    {
+        return $this->referralTaskService ??= new ReferralTaskService();
+    }
+
+    /**
+     * Puts another ReferralTaskService behind a Task's status change, which tells the one who made a
+     * referral when its Task is accepted, rejected or completed.
+     */
+    public function setReferralTaskService(ReferralTaskService $referralTaskService): void
+    {
+        $this->referralTaskService = $referralTaskService;
     }
 
     /**
@@ -436,7 +452,7 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         }
         // A referral's Task: the one who made the referral hears when it's accepted, rejected or completed (#14710).
         if (isset($fields['status'])) {
-            (new ReferralTaskService())->taskStatusChanged($fhirResourceId, $stored['status'], $fields['status'], $this->userId());
+            $this->getReferralTaskService()->taskStatusChanged($fhirResourceId, $stored['status'], $fields['status'], $this->userId());
         }
         // update() turns the row into the FHIR resource itself.
         $result = new ProcessingResult();

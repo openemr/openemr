@@ -17,9 +17,11 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Api;
 
 use Document;
+use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRTask;
 use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\ReferralTaskService;
@@ -212,12 +214,61 @@ class ReferralReplyFhirApiTest extends TestCase
             $this->assertSame('New', $note['message_status']);
             $body = $note['body'] ?? null;
             $this->assertIsString($body);
-            $this->assertStringContainsString('Referral to Zq Reply Pantry', $body);
-            $this->assertStringContainsString('(Referral Date 2026-10-10)', $body);
             $bodies[] = $body;
         }
-        $this->assertStringContainsString(': Accepted', $bodies[0]);
-        $this->assertStringContainsString(': Completed', $bodies[1]);
+        $this->assertStringEndsWith(' to zq-reply-referrer) Zq Reply Pantry accepted the referral made on 2026-10-10.', $bodies[0]);
+        $this->assertStringEndsWith(' to zq-reply-referrer) Zq Reply Pantry completed the referral made on 2026-10-10.', $bodies[1]);
+    }
+
+    /**
+     * The notice is dated by the service's clock, both the message and the line that opens its
+     * body, and without a Referral Date its sentence names none.
+     */
+    public function testTheNoticeIsDatedByTheClock(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $taskUuid = $this->onlyTask($id)['id'] ?? null;
+        $this->assertIsString($taskUuid);
+        $clock = new FrozenClock(new \DateTimeImmutable('2026-01-05 09:30:00'));
+
+        (new ReferralTaskService(clock: $clock))->taskStatusChanged($taskUuid, 'requested', 'rejected', null);
+
+        $this->assertSame(
+            [['date' => '2026-01-05 09:30:00', 'body' => '2026-01-05 09:30 (FHIR API to zq-reply-referrer) Zq Reply Pantry rejected the referral.']],
+            QueryUtils::fetchRecords('SELECT date, body FROM pnotes WHERE pid = ?', [$this->patient['pid']])
+        );
+    }
+
+    /**
+     * FhirTaskService hands a Task's status change to the referral's notice, with the status the
+     * Task had and the one it has now.
+     */
+    public function testAStatusChangeIsHandedToTheReferralsNotice(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $task = $this->onlyTask($id);
+        $taskUuid = $task['id'] ?? null;
+        $this->assertIsString($taskUuid);
+        $notices = new class extends ReferralTaskService {
+            /** @var list<array{string, string, string}> task, from, to */
+            public array $changes = [];
+
+            public function taskStatusChanged(string $taskUuid, string $from, string $to, ?int $userId): void
+            {
+                $this->changes[] = [$taskUuid, $from, $to];
+            }
+        };
+        $service = new FhirTaskService();
+        $service->setReferralTaskService($notices);
+        unset($task['meta']);
+        $task['status'] = 'accepted';
+
+        $result = $service->update($taskUuid, new FHIRTask($task));
+
+        $this->assertTrue($result->isValid(), (string)json_encode($result->getValidationMessages()));
+        $this->assertSame([[$taskUuid, 'requested', 'accepted']], $notices->changes);
     }
 
     /**
@@ -384,6 +435,42 @@ class ReferralReplyFhirApiTest extends TestCase
         $pantryReply = $this->outputText($this->taskOf($id, 'pantry'), 0);
         $this->assertStringContainsString('Refer To: Zq Reply Pantry', $pantryReply);
         $this->assertStringContainsString('Findings: Enrolled', $pantryReply);
+    }
+
+    /**
+     * A reply whose document isn't saved (createDocument() answers with an error) leaves the Task
+     * open, as a missing category does.
+     */
+    public function testAReplyWhoseDocumentIsNotSavedLeavesTheTaskOpen(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18']);
+        $logger = self::logger();
+        $unsaved = static fn(): Document => new class extends Document {
+            public function createDocument(
+                mixed $patient_id,
+                mixed $category_id,
+                mixed $filename,
+                mixed $mimetype,
+                mixed &$data,
+                mixed $higher_level_path = '',
+                int $path_depth = 1,
+                mixed $owner = 0,
+                mixed $tmpfile = null,
+                mixed $date_expires = null,
+                mixed $foreign_reference_id = null,
+                mixed $foreign_reference_table = null,
+                mixed $eid = '',
+            ): string {
+                return 'the disk is full';
+            }
+        };
+
+        $this->assertNull((new ReferralTaskService(logger: $logger, documentFactory: $unsaved))->recordReply($id, null));
+
+        $this->assertSame('requested', $this->onlyTask($id)['status'] ?? null);
+        $this->assertSame([['warning', 'A referral\'s reply was not filed, so its Task was left open']], $logger->records);
     }
 
     /**
