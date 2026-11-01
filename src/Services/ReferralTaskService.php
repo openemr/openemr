@@ -400,24 +400,27 @@ class ReferralTaskService
      * recipient); its header names the user who made the change. Nothing when the global is off,
      * or when Refer By is no longer an active user (that is logged).
      *
-     * Called once the Task's update is committed, so a failure is logged, not thrown: thrown, it
-     * would answer the client's successful PUT with an error, and a retry naming the version it
-     * read would then meet a version conflict for a change already made.
+     * The caller hands over the Task as it read it after the update (TaskService::getOne()), so it
+     * isn't read again. Called once the Task's update is committed, so a failure is logged, not
+     * thrown: thrown, it would answer the client's successful PUT with an error, and a retry naming
+     * the version it read would then meet a version conflict for a change already made.
+     *
+     * @param array<string, mixed> $task
      */
-    public function taskStatusChanged(string $taskUuid, string $from, string $to, ?int $userId): void
+    public function taskStatusChanged(array $task, string $from, string $to, ?int $userId): void
     {
         $notice = ReferralTaskNotice::tryFrom($to);
         if (
-            $from === $to || $notice === null
+            $from === $to || $notice === null || !self::isReferralTask($task)
             || !OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value)
         ) {
             return;
         }
         try {
-            $this->notifyReferrer($taskUuid, $notice, $userId);
+            $this->notifyReferrer($task, $notice, $userId);
         } catch (\RuntimeException | \LogicException | DbalException $e) {
             $this->getLogger()->error('A referral\'s Task changed status but the referrer was not told', [
-                'task_uuid' => $taskUuid,
+                'task_uuid' => $task['uuid'] ?? null,
                 'status' => $to,
                 'exception' => $e,
             ]);
@@ -425,13 +428,27 @@ class ReferralTaskService
     }
 
     /**
-     * The message taskStatusChanged() files: to Refer By, about the Task's new status.
+     * Whether a Task, as TaskService reads it, could be a referral's own: one this service makes
+     * (isOwnTask()) with a ServiceRequest as its focus. FhirTaskService asks this before handing a
+     * status change over, so a questionnaire's or another kind of Task costs nothing more.
+     *
+     * @param array<mixed> $task
      */
-    private function notifyReferrer(string $taskUuid, ReferralTaskNotice $notice, ?int $userId): void
+    public static function isReferralTask(array $task): bool
     {
-        $task = $this->getTaskService()->getOne($taskUuid);
-        $focus = $task === null ? null : self::text($task, 'focus_uuid');
-        if ($task === null || !self::isOwnTask($task) || ($task['focus_type'] ?? null) !== 'ServiceRequest' || $focus === null) {
+        return self::isOwnTask($task) && ($task['focus_type'] ?? null) === 'ServiceRequest' && is_string($task['focus_uuid'] ?? null);
+    }
+
+    /**
+     * The message taskStatusChanged() files: to Refer By, about the Task's new status.
+     *
+     * @param array<string, mixed> $task
+     */
+    private function notifyReferrer(array $task, ReferralTaskNotice $notice, ?int $userId): void
+    {
+        $taskUuid = self::text($task, 'uuid');
+        $focus = self::text($task, 'focus_uuid');
+        if ($taskUuid === null || $focus === null) {
             return;
         }
         $referral = $this->getReferralService()->getReferralByUuid($focus);

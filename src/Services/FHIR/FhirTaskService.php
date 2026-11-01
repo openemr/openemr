@@ -449,14 +449,15 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
             $this->versionConflict = true;
             return self::invalid(['meta.versionId' => 'The task changed while it was being updated: read it again before updating']);
         }
-        // A referral's Task: the one who made the referral hears when it's accepted, rejected, completed or failed (#14710).
-        if (isset($fields['status'])) {
-            $this->getReferralTaskService()->taskStatusChanged($fhirResourceId, $stored['status'], $fields['status'], $this->userId());
-        }
         // update() turns the row into the FHIR resource itself.
         $result = new ProcessingResult();
         $record = $this->getTaskService()->getOne($fhirResourceId);
         if ($record !== null) {
+            // A referral's Task: the one who made the referral hears when it's marked accepted, rejected,
+            // completed or failed (#14710). It's handed the Task as read here, and only a referral's.
+            if (isset($fields['status']) && ReferralTaskService::isReferralTask($record)) {
+                $this->getReferralTaskService()->taskStatusChanged($record, $stored['status'], $fields['status'], $this->userId());
+            }
             $result->addData($record);
         }
         return $result;

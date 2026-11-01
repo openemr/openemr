@@ -26,8 +26,10 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRTask;
 use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
+use OpenEMR\Services\ReferralService;
 use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\TaskService;
+use OpenEMR\Services\UserService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 use PHPUnit\Framework\TestCase;
@@ -381,7 +383,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertIsString($taskUuid);
         $clock = new FrozenClock(new \DateTimeImmutable('2026-01-05 09:30:00'));
 
-        (new ReferralTaskService(clock: $clock))->taskStatusChanged($taskUuid, 'requested', 'rejected', null);
+        (new ReferralTaskService(clock: $clock))->taskStatusChanged($this->taskRecord($taskUuid), 'requested', 'rejected', null);
 
         $notes = QueryUtils::fetchRecords('SELECT date, body, user, update_date FROM pnotes WHERE pid = ?', [$this->patient['pid']]);
         $this->assertCount(1, $notes);
@@ -394,8 +396,8 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
-     * FhirTaskService hands a Task's status change to the referral's notice, with the status the
-     * Task had and the one it has now.
+     * FhirTaskService hands a referral Task's status change to the referral's notice, with the Task
+     * as it read it after the update, the status the Task had and the one it has now.
      */
     public function testAStatusChangeIsHandedToTheReferralsNotice(): void
     {
@@ -405,12 +407,12 @@ class ReferralReplyFhirApiTest extends TestCase
         $taskUuid = $task['id'] ?? null;
         $this->assertIsString($taskUuid);
         $notices = new class extends ReferralTaskService {
-            /** @var list<array{string, string, string}> task, from, to */
+            /** @var list<array{mixed, mixed, string, string}> task uuid, status as handed over, from, to */
             public array $changes = [];
 
-            public function taskStatusChanged(string $taskUuid, string $from, string $to, ?int $userId): void
+            public function taskStatusChanged(array $task, string $from, string $to, ?int $userId): void
             {
-                $this->changes[] = [$taskUuid, $from, $to];
+                $this->changes[] = [$task['uuid'] ?? null, $task['status'] ?? null, $from, $to];
             }
         };
         $service = new FhirTaskService(referralTaskService: $notices);
@@ -420,7 +422,49 @@ class ReferralReplyFhirApiTest extends TestCase
         $result = $service->update($taskUuid, new FHIRTask($task));
 
         $this->assertTrue($result->isValid(), (string)json_encode($result->getValidationMessages()));
-        $this->assertSame([[$taskUuid, 'requested', 'accepted']], $notices->changes);
+        $this->assertSame([[$taskUuid, 'accepted', 'requested', 'accepted']], $notices->changes);
+    }
+
+    /**
+     * A Task's status change through FhirTaskService reads the Task once, whether or not it is a
+     * referral's: the referral's notice takes the record FhirTaskService read, and a Task of
+     * another kind isn't handed over at all.
+     */
+    public function testAStatusChangeReadsTheTaskOnce(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $referralTask = $this->onlyTask($id);
+        $referralUuid = QueryUtils::fetchSingleValue('SELECT uuid FROM transactions WHERE id = ?', 'uuid', [$id]);
+        $this->assertIsString($referralUuid);
+        $approval = (new TaskService())->insert([
+            'status' => 'requested', 'intent' => 'order', 'code' => 'approve', 'code_system' => FhirTaskService::TASK_CODE_SYSTEM, 'focus_type' => 'ServiceRequest',
+            'focus_uuid' => UuidRegistry::uuidToString($referralUuid), 'owner_type' => 'Organization', 'owner_uuid' => $this->people['pantry']['uuid'],
+        ], $this->patient['pid'], null);
+
+        foreach (['the referral\'s Task' => $referralTask, 'an approval Task' => $this->read('Task', $approval)] as $which => $task) {
+            $taskUuid = $task['id'] ?? null;
+            $this->assertIsString($taskUuid);
+            $reads = new class extends TaskService {
+                public int $reads = 0;
+
+                public function getOne(string $uuid): ?array
+                {
+                    $this->reads++;
+                    return parent::getOne($uuid);
+                }
+            };
+            $service = new FhirTaskService(referralTaskService: new ReferralTaskService(userService: new UserService(), taskService: $reads));
+            $service->setTaskService($reads);
+            unset($task['meta']);
+            $task['status'] = 'accepted';
+
+            $result = $service->update($taskUuid, new FHIRTask($task));
+
+            $this->assertTrue($result->isValid(), (string)json_encode($result->getValidationMessages()));
+            $this->assertSame(1, $reads->reads, $which);
+        }
+        $this->assertCount(1, QueryUtils::fetchRecords('SELECT id FROM pnotes WHERE pid = ?', [$this->patient['pid']]), 'the referral\'s Task only');
     }
 
     /**
@@ -543,7 +587,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $taskUuid = $this->onlyTask($id)['id'] ?? null;
         $this->assertIsString($taskUuid);
         $logger = self::logger();
-        (new ReferralTaskService(logger: $logger))->taskStatusChanged($taskUuid, 'accepted', 'completed', null);
+        (new ReferralTaskService(logger: $logger))->taskStatusChanged($this->taskRecord($taskUuid), 'accepted', 'completed', null);
         $this->assertSame([['warning', 'A referral\'s Task changed status but its referrer is not an active user, so no one was told']], $logger->records);
         $this->assertSame([], QueryUtils::fetchRecords('SELECT id FROM pnotes WHERE pid = ?', [$this->patient['pid']]));
     }
@@ -555,14 +599,15 @@ class ReferralReplyFhirApiTest extends TestCase
     public function testANoticeThatFailsIsLoggedNotThrown(): void
     {
         $logger = self::logger();
-        $tasks = new class extends TaskService {
-            public function getOne(string $uuid): ?array
+        $referrals = new class (createMissingUuids: false) extends ReferralService {
+            public function getReferralByUuid(string $uuid): ?array
             {
                 throw new \RuntimeException('the database went away');
             }
         };
+        $task = ['uuid' => 'a-task-uuid', 'code' => 'fulfill', 'part_of_uuid' => null, 'focus_type' => 'ServiceRequest', 'focus_uuid' => 'a-referral-uuid'];
 
-        (new ReferralTaskService(taskService: $tasks, logger: $logger))->taskStatusChanged('a-task-uuid', 'requested', 'accepted', null);
+        (new ReferralTaskService(referralService: $referrals, logger: $logger))->taskStatusChanged($task, 'requested', 'accepted', null);
 
         $this->assertSame([['error', 'A referral\'s Task changed status but the referrer was not told']], $logger->records);
     }
@@ -949,6 +994,18 @@ class ReferralReplyFhirApiTest extends TestCase
 
         $this->afterSave($id);
         $this->assertSame('completed', $this->onlyTask($id)['status'] ?? null, 'the next save files it');
+    }
+
+    /**
+     * A Task as TaskService reads it, as FhirTaskService hands it to the referral's notice.
+     *
+     * @return array<string, mixed>
+     */
+    private function taskRecord(string $taskUuid): array
+    {
+        $task = (new TaskService())->getOne($taskUuid);
+        $this->assertIsArray($task);
+        return $task;
     }
 
     /**
