@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 563
+-- v_database: 564
 --
 
 --
@@ -275,7 +275,8 @@ CREATE TABLE `billing` (
   `revenue_code` varchar(6) NOT NULL default '' COMMENT 'Item revenue code',
   `chargecat` varchar(31) default '' COMMENT 'Charge category or customer',
   PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
+  KEY `pid` (`pid`),
+  KEY `date` (`date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -8318,6 +8319,7 @@ CREATE TABLE `openemr_postcalendar_events` (
   PRIMARY KEY  (`pc_eid`),
   KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`),
   KEY `pc_eventDate` (`pc_eventDate`),
+  KEY `pc_pid` (`pc_pid`),
   UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7;
 
