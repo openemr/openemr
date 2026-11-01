@@ -998,6 +998,30 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A reply no signed-in user saved is filed under the system user; when there's none, it isn't
+     * filed under whoever's session happens to be active: the log says why, and the Task stays open.
+     */
+    public function testAReplyWithNoUserToFileItUnderIsNotFiled(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $noSystemUser = new class extends UserService {
+            public function getSystemUser(): bool
+            {
+                return false;
+            }
+        };
+        $logger = self::logger();
+
+        $this->assertNull((new ReferralTaskService(logger: $logger, userService: $noSystemUser))->recordReply($id, null));
+
+        $this->assertSame('requested', $this->onlyTask($id)['status'] ?? null);
+        $this->assertSame([], $this->replyDocuments($id));
+        $this->assertContains(['warning', 'A referral\'s reply was not filed: there is no user to file it under'], $logger->records);
+    }
+
+    /**
      * A recipient that rejects the Task between the reply's filing and its write keeps their
      * rejection: the reply doesn't write completed over it. The reply already filed is attached as
      * the Task's output, so it isn't left in the chart without its Task.

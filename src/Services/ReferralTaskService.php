@@ -657,7 +657,15 @@ class ReferralTaskService
         if (!is_numeric($category)) {
             return null;
         }
-        $owner = $userId ?? $this->getUserService()->getSystemUser()['id'] ?? 0;
+        // Filed under the user who saved the referral, else the system user; without either it isn't
+        // filed, rather than falling to whoever's session createDocument() finds.
+        $owner = $userId ?? $this->systemUserId();
+        if ($owner === null) {
+            $this->getLogger()->warning('A referral\'s reply was not filed: there is no user to file it under', [
+                'transaction_id' => $transactionId,
+            ]);
+            return null;
+        }
         $document = $this->newDocument();
         $error = $document->createDocument(
             (string)$patientId,
@@ -667,7 +675,7 @@ class ReferralTaskService
             $text,
             '',
             1,
-            (int)$owner,
+            $owner,
             null,
             null,
             (string)$transactionId,
@@ -682,6 +690,17 @@ class ReferralTaskService
         }
         $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM documents WHERE id = ?', 'uuid', [(int)$id]);
         return is_string($uuid) ? UuidRegistry::uuidToString($uuid) : null;
+    }
+
+    /**
+     * The system user's id (UserService::getSystemUser()), which files a reply no signed-in user
+     * saved, or null when there's no system user or its id isn't a positive whole number.
+     */
+    private function systemUserId(): ?int
+    {
+        $user = $this->getUserService()->getSystemUser();
+        $id = filter_var(is_array($user) ? $user['id'] : null, FILTER_VALIDATE_INT);
+        return is_int($id) && $id > 0 ? $id : null;
     }
 
     /**
