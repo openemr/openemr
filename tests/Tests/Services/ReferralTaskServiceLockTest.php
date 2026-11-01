@@ -22,6 +22,7 @@ use OpenEMR\Services\ReferralService;
 use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\TaskService;
+use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\TestCase;
 
@@ -98,7 +99,7 @@ class ReferralTaskServiceLockTest extends TestCase
                 ];
             }
         };
-        return new ReferralTaskService($this->referrals, $tasks);
+        return new ReferralTaskService(new UserService(), $this->referrals, $tasks);
     }
 
     /**

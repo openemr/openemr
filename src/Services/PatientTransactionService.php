@@ -27,7 +27,7 @@ class PatientTransactionService extends BaseService
     /**
      * @param ReferralTaskService $referralTaskService makes a saved referral's FHIR Task (#14710)
      */
-    public function __construct(private readonly ReferralTaskService $referralTaskService = new ReferralTaskService())
+    public function __construct(private readonly ReferralTaskService $referralTaskService = new ReferralTaskService(new UserService()))
     {
         parent::__construct(self::TABLE_NAME);
     }

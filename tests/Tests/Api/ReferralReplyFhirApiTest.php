@@ -425,7 +425,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertIsString($taskUuid);
         $clock = new FrozenClock(new \DateTimeImmutable('2026-01-05 09:30:00'));
 
-        (new ReferralTaskService(clock: $clock))->taskStatusChanged($this->taskRecord($taskUuid), 'requested', 'rejected', null);
+        (new ReferralTaskService(new UserService(), clock: $clock))->taskStatusChanged($this->taskRecord($taskUuid), 'requested', 'rejected', null);
 
         $notes = QueryUtils::fetchRecords('SELECT date, body, user, update_date FROM pnotes WHERE pid = ?', [$this->patient['pid']]);
         $this->assertCount(1, $notes);
@@ -448,7 +448,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $task = $this->onlyTask($id);
         $taskUuid = $task['id'] ?? null;
         $this->assertIsString($taskUuid);
-        $notices = new class extends ReferralTaskService {
+        $notices = new class (new UserService()) extends ReferralTaskService {
             /** @var list<array{mixed, mixed, string, string}> task uuid, status as handed over, from, to */
             public array $changes = [];
 
@@ -629,7 +629,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $taskUuid = $this->onlyTask($id)['id'] ?? null;
         $this->assertIsString($taskUuid);
         $logger = self::logger();
-        (new ReferralTaskService(logger: $logger))->taskStatusChanged($this->taskRecord($taskUuid), 'accepted', 'completed', null);
+        (new ReferralTaskService(new UserService(), logger: $logger))->taskStatusChanged($this->taskRecord($taskUuid), 'accepted', 'completed', null);
         $this->assertSame([['warning', 'A referral\'s Task changed status but its referrer is not an active user, so no one was told']], $logger->records);
         $this->assertSame([], QueryUtils::fetchRecords('SELECT id FROM pnotes WHERE pid = ?', [$this->patient['pid']]));
     }
@@ -649,7 +649,7 @@ class ReferralReplyFhirApiTest extends TestCase
         };
         $task = ['uuid' => 'a-task-uuid', 'code' => 'fulfill', 'part_of_uuid' => null, 'focus_type' => 'ServiceRequest', 'focus_uuid' => 'a-referral-uuid'];
 
-        (new ReferralTaskService(referralService: $referrals, logger: $logger))->taskStatusChanged($task, 'requested', 'accepted', null);
+        (new ReferralTaskService(new UserService(), referralService: $referrals, logger: $logger))->taskStatusChanged($task, 'requested', 'accepted', null);
 
         $this->assertSame([['error', 'A referral\'s Task changed status but the referrer was not told']], $logger->records);
     }
@@ -664,7 +664,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->afterSave($id);
         $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
 
-        $this->assertNull((new ReferralTaskService(taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
+        $this->assertNull((new ReferralTaskService(new UserService(), taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
         $this->assertSame('requested', $this->onlyTask($id)['status'] ?? null);
         $this->assertCount(1, $this->replyDocuments($id), 'the reply was filed before the update failed');
 
@@ -692,7 +692,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
         $this->afterSave($id);
         $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
-        $this->assertNull((new ReferralTaskService(taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
+        $this->assertNull((new ReferralTaskService(new UserService(), taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
         $this->assertCount(1, $this->replyDocuments($id), 'filed before the update failed');
         QueryUtils::sqlStatementThrowException('UPDATE users SET organization = ? WHERE id = ?', ['Zq Reply Pantry Renamed', $this->people['pantry']['id']]);
 
@@ -713,7 +713,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
         $this->afterSave($id);
         $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
-        $this->assertNull((new ReferralTaskService(taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
+        $this->assertNull((new ReferralTaskService(new UserService(), taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
         $this->assertCount(1, $this->replyDocuments($id), 'the first text was filed before the update failed');
         $this->saveFields($id, ['reply_findings' => 'Enrolled in weekly delivery']);
 
@@ -738,7 +738,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $id = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
         $this->afterSave($id);
         $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
-        $this->assertNull((new ReferralTaskService(taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
+        $this->assertNull((new ReferralTaskService(new UserService(), taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
         $this->assertCount(1, $this->replyDocuments($id), 'filed before the update failed');
 
         $this->useLanguage(['Counter-Referral' => 'Zq Contrarreferencia', 'Reply Date' => 'Zq Fecha de respuesta', 'Findings' => 'Zq Conclusiones']);
@@ -944,7 +944,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
         $this->afterSave($id);
         $this->saveFields($id, ['refer_to' => $this->people['clinic']['id'], 'reply_date' => '2026-10-25', 'reply_findings' => 'Seen in clinic']);
-        $lockMissed = new class extends ReferralTaskService {
+        $lockMissed = new class (new UserService()) extends ReferralTaskService {
             // As createForReferral() returns when the lock isn't acquired: before it cancels anything.
             public function createForReferral(int $transactionId, ?int $userId): ?string
             {
@@ -991,7 +991,7 @@ class ReferralReplyFhirApiTest extends TestCase
             }
         };
 
-        $this->assertNull((new ReferralTaskService(logger: $logger, documentFactory: $unsaved))->recordReply($id, null));
+        $this->assertNull((new ReferralTaskService(new UserService(), logger: $logger, documentFactory: $unsaved))->recordReply($id, null));
 
         $this->assertSame('requested', $this->onlyTask($id)['status'] ?? null);
         $this->assertSame([['warning', 'A referral\'s reply was not filed, so its Task was left open']], $logger->records);
@@ -1125,7 +1125,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertCount(1, $uploads, 'uploaded once, though the Task was read again');
         $this->assertContains(['info', 'A referral\'s reply went to remote storage, so its Task was completed without the reply as its output'], $logger->records);
 
-        $this->assertNull((new ReferralTaskService(logger: self::logger(), documentFactory: $counting))->recordReply($id, null));
+        $this->assertNull((new ReferralTaskService(new UserService(), logger: self::logger(), documentFactory: $counting))->recordReply($id, null));
         $this->assertCount(1, $uploads, 'the next save uploads nothing more');
     }
 
@@ -1143,7 +1143,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $marks = implode(', ', array_fill(0, count($categories), '?'));
         QueryUtils::sqlStatementThrowException("UPDATE categories SET name = 'Zq Medical Record' WHERE id IN ($marks)", $categories);
         try {
-            $this->assertNull((new ReferralTaskService(logger: self::logger()))->recordReply($id, null));
+            $this->assertNull((new ReferralTaskService(new UserService(), logger: self::logger()))->recordReply($id, null));
         } finally {
             QueryUtils::sqlStatementThrowException("UPDATE categories SET name = 'Medical Record' WHERE id IN ($marks)", $categories);
         }
@@ -1285,7 +1285,7 @@ class ReferralReplyFhirApiTest extends TestCase
                 return parent::update($uuid, $fields, $userId, $expectedVersion, $inputs, $outputs);
             }
         };
-        return new ReferralTaskService(taskService: $tasks, logger: $logger ?? self::logger(), documentFactory: $documentFactory);
+        return new ReferralTaskService(new UserService(), taskService: $tasks, logger: $logger ?? self::logger(), documentFactory: $documentFactory);
     }
 
     /**
@@ -1321,7 +1321,7 @@ class ReferralReplyFhirApiTest extends TestCase
 
     private function afterSave(int $transactionId): void
     {
-        (new ReferralTaskService())->afterSave($transactionId, null);
+        (new ReferralTaskService(new UserService()))->afterSave($transactionId, null);
     }
 
     /**

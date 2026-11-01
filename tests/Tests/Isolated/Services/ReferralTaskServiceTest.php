@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Isolated\Services;
 use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Services\ReferralTaskService;
+use OpenEMR\Services\UserService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
@@ -46,7 +47,7 @@ class ReferralTaskServiceTest extends TestCase
     #[DataProvider('saves')]
     public function testOnlyASavedReferralGetsATask(mixed $formId, mixed $transactionId, mixed $userId, ?array $expected): void
     {
-        $service = new class extends ReferralTaskService {
+        $service = new class (new UserService()) extends ReferralTaskService {
             /** @var list<array{int, ?int}> */
             public array $calls = [];
 
@@ -70,7 +71,7 @@ class ReferralTaskServiceTest extends TestCase
     public function testATaskThatFailsDoesNotFailTheSavedReferral(): void
     {
         $logger = self::logger();
-        $service = new class (logger: $logger) extends ReferralTaskService {
+        $service = new class (new UserService(), logger: $logger) extends ReferralTaskService {
             public function createForReferral(int $transactionId, ?int $userId): string
             {
                 throw new SqlQueryException('', 'the database went away');
@@ -91,7 +92,7 @@ class ReferralTaskServiceTest extends TestCase
      */
     public function testAReplyThatFailsDoesNotFailTheSavedReferral(): void
     {
-        $service = new class extends ReferralTaskService {
+        $service = new class (new UserService()) extends ReferralTaskService {
             public function createForReferral(int $transactionId, ?int $userId): string
             {
                 return 'task-uuid';
@@ -112,7 +113,7 @@ class ReferralTaskServiceTest extends TestCase
      */
     public function testAnAuditLogFailureDoesNotFailTheSavedReferral(): void
     {
-        $service = new class extends ReferralTaskService {
+        $service = new class (new UserService()) extends ReferralTaskService {
             public function createForReferral(int $transactionId, ?int $userId): string
             {
                 // As DBAL's own DriverException: an \Exception, not a RuntimeException, so only the catch's DBAL arm holds it.

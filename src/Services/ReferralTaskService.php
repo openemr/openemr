@@ -57,18 +57,21 @@ class ReferralTaskService
     private const WRITE_PASSES = 3;
 
     /**
-     * Each collaborator is the caller's, or made the first time it's needed rather than as a default
-     * here: loading BaseService requires custom/code_types.inc.php, which queries the database, and
-     * ReferralTaskServiceTest's isolated cases build this class.
+     * The UserService (the system user a reply no signed-in user saved is filed under) is the
+     * caller's. The other collaborators are the caller's, or made the first time they're needed
+     * rather than as defaults here: loading BaseService requires custom/code_types.inc.php, which
+     * queries the database, and ReferralTaskServiceTest's isolated cases build this class. Each reply
+     * is a new Document, the record being made rather than a service, so a test can only swap in
+     * how one is made.
      *
      * @param (\Closure(): \Document)|null $documentFactory makes the Document a reply is filed as
      */
     public function __construct(
+        private readonly UserService $userService,
         private ?ReferralService $referralService = null,
         private ?TaskService $taskService = null,
         private ?ClockInterface $clock = null,
         private ?LoggerInterface $logger = null,
-        private ?UserService $userService = null,
         private readonly ?\Closure $documentFactory = null,
     ) {
     }
@@ -91,11 +94,6 @@ class ReferralTaskService
     private function getLogger(): LoggerInterface
     {
         return $this->logger ??= ServiceContainer::getLogger();
-    }
-
-    private function getUserService(): UserService
-    {
-        return $this->userService ??= new UserService();
     }
 
     private function newDocument(): \Document
@@ -698,7 +696,7 @@ class ReferralTaskService
      */
     private function systemUserId(): ?int
     {
-        $user = $this->getUserService()->getSystemUser();
+        $user = $this->userService->getSystemUser();
         $id = filter_var(is_array($user) ? $user['id'] : null, FILTER_VALIDATE_INT);
         return is_int($id) && $id > 0 ? $id : null;
     }

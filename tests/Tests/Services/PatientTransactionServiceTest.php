@@ -18,6 +18,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientTransactionService;
 use OpenEMR\Services\ReferralTaskService;
+use OpenEMR\Services\UserService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -88,7 +89,7 @@ class PatientTransactionServiceTest extends TestCase
     #[Test]
     public function aSavedReferralGoesToItsReferralTaskService(): void
     {
-        $tasks = new class extends ReferralTaskService {
+        $tasks = new class (new UserService()) extends ReferralTaskService {
             /** @var list<array{int, ?int}> */
             public array $calls = [];
 

@@ -87,11 +87,16 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     private const SERVER_TYPES = ['Questionnaire', 'Organization', 'Practitioner', 'PractitionerRole'];
 
     /**
-     * @param ?ReferralTaskService $referralTaskService what a Task's status change is handed to, which tells
-     *     the one who made a referral when its Task is accepted, rejected, completed or failed; made the
-     *     first time it's needed when none is given
+     * The ReferralTaskService is the caller's, and FhirTaskRestController, which updates Tasks, passes
+     * one. It can't be required: the capability statement (RestControllerHelper) and FhirServiceLocator
+     * build every FHIR service with no arguments to read what it supports, and they update nothing.
+     * A FhirTaskService built without one sends no referral notices.
+     *
+     * @param ?ReferralTaskService $referralTaskService what a referral Task's status change is handed
+     *     to, which tells the one who made the referral when its Task is marked accepted, rejected,
+     *     completed or failed
      */
-    public function __construct(?string $fhirApiURL = null, private ?ReferralTaskService $referralTaskService = null)
+    public function __construct(?string $fhirApiURL = null, private readonly ?ReferralTaskService $referralTaskService = null)
     {
         parent::__construct($fhirApiURL);
     }
@@ -108,11 +113,6 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     public function setTaskService(TaskService $taskService): void
     {
         $this->taskService = $taskService;
-    }
-
-    private function getReferralTaskService(): ReferralTaskService
-    {
-        return $this->referralTaskService ??= new ReferralTaskService();
     }
 
     /**
@@ -456,7 +456,7 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
             // A referral's Task: the one who made the referral hears when it's marked accepted, rejected,
             // completed or failed (#14710). It's handed the Task as read here, and only a referral's.
             if (isset($fields['status']) && ReferralTaskService::isReferralTask($record)) {
-                $this->getReferralTaskService()->taskStatusChanged($record, $stored['status'], $fields['status'], $this->userId());
+                $this->referralTaskService?->taskStatusChanged($record, $stored['status'], $fields['status'], $this->userId());
             }
             $result->addData($record);
         }

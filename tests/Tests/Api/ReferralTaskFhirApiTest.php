@@ -30,6 +30,7 @@ use OpenEMR\Services\ReferralStatus;
 use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\TaskService;
+use OpenEMR\Services\UserService;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -103,7 +104,7 @@ class ReferralTaskFhirApiTest extends TestCase
         $id = $this->saveReferral(['refer_date' => '2026-10-19', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
 
         $clock = new FrozenClock(new \DateTimeImmutable('2026-10-19 09:15:00'));
-        $taskUuid = (new ReferralTaskService(clock: $clock))->createForReferral($id, null);
+        $taskUuid = (new ReferralTaskService(new UserService(), clock: $clock))->createForReferral($id, null);
         $this->assertIsString($taskUuid);
         $referral = $this->referralUuid($id);
         $task = $this->read('Task', $taskUuid);
@@ -272,7 +273,7 @@ class ReferralTaskFhirApiTest extends TestCase
             }
         };
 
-        $this->assertSame($cancelled, (new ReferralTaskService(taskService: $tasks))->cancelForDeletedReferral($id, null));
+        $this->assertSame($cancelled, (new ReferralTaskService(new UserService(), taskService: $tasks))->cancelForDeletedReferral($id, null));
         $this->assertSame($after, $this->read('Task', $taskUuid)['status'] ?? null);
     }
 
@@ -368,7 +369,7 @@ class ReferralTaskFhirApiTest extends TestCase
         $second = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['cardiologist']['id'], 'body' => 'Evaluate']);
         $tasks = [$this->createTask($first), $this->createTask($second)];
 
-        $this->assertSame(2, (new ReferralTaskService())->cancelForDeletedPatient($this->patient['pid'], null));
+        $this->assertSame(2, (new ReferralTaskService(new UserService()))->cancelForDeletedPatient($this->patient['pid'], null));
         foreach ($tasks as $taskUuid) {
             $this->assertIsString($taskUuid);
             $task = $this->read('Task', $taskUuid);
@@ -479,11 +480,11 @@ class ReferralTaskFhirApiTest extends TestCase
         $taskUuid = $this->createTask($id);
         $this->assertIsString($taskUuid);
 
-        $this->assertSame(1, (new ReferralTaskService())->cancelForDeletedReferral($id, null));
+        $this->assertSame(1, (new ReferralTaskService(new UserService()))->cancelForDeletedReferral($id, null));
         $task = $this->read('Task', $taskUuid);
         $this->assertSame('cancelled', $task['status'] ?? null);
         $this->assertSame('The referral was deleted.', self::at($task, 'statusReason', 'text'));
-        $this->assertSame(0, (new ReferralTaskService())->cancelForDeletedReferral($id, null), 'a finished Task stays as it is');
+        $this->assertSame(0, (new ReferralTaskService(new UserService()))->cancelForDeletedReferral($id, null), 'a finished Task stays as it is');
     }
 
     public function testATransactionListRowShowsTheReferralsStatus(): void
@@ -561,7 +562,7 @@ class ReferralTaskFhirApiTest extends TestCase
      */
     private function createTask(int $transactionId): ?string
     {
-        return (new ReferralTaskService())->createForReferral($transactionId, null);
+        return (new ReferralTaskService(new UserService()))->createForReferral($transactionId, null);
     }
 
     /**
