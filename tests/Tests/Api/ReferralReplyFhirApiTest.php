@@ -26,6 +26,7 @@ use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\TaskService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
@@ -37,9 +38,13 @@ class ReferralReplyFhirApiTest extends TestCase
 
     private ApiTestClient $testClient;
     private ConditionFixtureManager $fixtures;
-    private mixed $globalBefore;
-    /** The global as the API's process reads it, from the globals table; null when it had no row. */
-    private mixed $storedGlobalBefore = null;
+    /**
+     * Each global a test set, as it was: in this process, and as the API's process reads it, from the
+     * globals table (null when it had no row).
+     *
+     * @var array<string, array{mixed, mixed}>
+     */
+    private array $globalsBefore = [];
     private bool $hadStorageMethod = false;
     private mixed $storageMethodBefore = null;
 
@@ -63,8 +68,6 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertIsInt($patient['pid'] ?? null);
         $this->patient = ['uuid' => $patient['uuid'], 'pid' => $patient['pid']];
 
-        $this->globalBefore = OEGlobalsBag::getInstance()->get(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value);
-        $this->storedGlobalBefore = QueryUtils::fetchSingleValue('SELECT gl_value FROM globals WHERE gl_name = ? AND gl_index = 0', 'gl_value', [GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value]);
         $this->setReferralTasks('1');
         // The reply is filed in this process, so its document goes to the file system here.
         $this->hadStorageMethod = array_key_exists('document_storage_method', $GLOBALS);
@@ -77,11 +80,13 @@ class ReferralReplyFhirApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, $this->globalBefore);
-        if (is_scalar($this->storedGlobalBefore)) {
-            QueryUtils::sqlStatementThrowException('UPDATE globals SET gl_value = ? WHERE gl_name = ? AND gl_index = 0', [(string) $this->storedGlobalBefore, GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value]);
-        } else {
-            QueryUtils::sqlStatementThrowException('DELETE FROM globals WHERE gl_name = ? AND gl_index = 0', [GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value]);
+        foreach ($this->globalsBefore as $name => [$before, $storedBefore]) {
+            OEGlobalsBag::getInstance()->set($name, $before);
+            if (is_scalar($storedBefore)) {
+                QueryUtils::sqlStatementThrowException('UPDATE globals SET gl_value = ? WHERE gl_name = ? AND gl_index = 0', [(string) $storedBefore, $name]);
+            } else {
+                QueryUtils::sqlStatementThrowException('DELETE FROM globals WHERE gl_name = ? AND gl_index = 0', [$name]);
+            }
         }
         foreach ($this->transactions as $id) {
             foreach (QueryUtils::fetchRecords("SELECT id FROM documents WHERE foreign_reference_table = 'transactions' AND foreign_reference_id = ?", [$id]) as $row) {
@@ -230,6 +235,29 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * The notice and the filed reply keep the referral's dates as stored (YYYY-MM-DD), whatever date
+     * format the site or the user saving it shows: the text is stored, then read by people whose
+     * formats differ and by the receiving system, and a retry finds the filed reply by its text.
+     */
+    public function testStoredDatesStayYearMonthDayWhateverTheDateFormat(): void
+    {
+        $this->setGlobal('date_display_format', (string)DateFormatterUtils::DATE_FORMAT_US);
+        $id = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->onlyTask($id), 'accepted'));
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled in weekly delivery']);
+
+        $this->afterSave($id);
+
+        $body = QueryUtils::fetchSingleValue('SELECT body FROM pnotes WHERE pid = ?', 'body', [$this->patient['pid']]);
+        $this->assertIsString($body);
+        $this->assertStringEndsWith(' Zq Reply Pantry accepted the referral made on 2026-10-10.', $body);
+        $text = $this->outputText($this->onlyTask($id), 0);
+        $this->assertStringContainsString("Referral Date: 2026-10-10\n", $text);
+        $this->assertStringContainsString("Reply Date: 2026-10-18\n", $text);
+    }
+
+    /**
      * The notice is dated by the service's clock, both the message and the line that opens its
      * body, and without a Referral Date its sentence names none.
      */
@@ -353,10 +381,22 @@ class ReferralReplyFhirApiTest extends TestCase
      */
     private function setReferralTasks(string $value): void
     {
-        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, $value);
+        $this->setGlobal(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, $value);
+    }
+
+    /**
+     * A global, in this process and in the globals table, put back in tearDown().
+     */
+    private function setGlobal(string $name, string $value): void
+    {
+        $this->globalsBefore[$name] ??= [
+            OEGlobalsBag::getInstance()->get($name),
+            QueryUtils::fetchSingleValue('SELECT gl_value FROM globals WHERE gl_name = ? AND gl_index = 0', 'gl_value', [$name]),
+        ];
+        OEGlobalsBag::getInstance()->set($name, $value);
         QueryUtils::sqlStatementThrowException(
             'INSERT INTO globals (gl_name, gl_index, gl_value) VALUES (?, 0, ?) ON DUPLICATE KEY UPDATE gl_value = VALUES(gl_value)',
-            [GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, $value]
+            [$name, $value]
         );
     }
 

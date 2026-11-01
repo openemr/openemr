@@ -193,8 +193,9 @@ class ReferralTaskService
     }
 
     /**
-     * createForReferral() for whatever the Transactions screen just saved: nothing unless it
-     * is a referral, with its id and the signed-in user's as the screen has them.
+     * afterSave() (the referral's Task, then its reply) for whatever the Transactions screen just
+     * saved: nothing unless it is a referral, with its id and the signed-in user's as the screen
+     * has them.
      *
      * @return ?string the new Task's uuid
      */
