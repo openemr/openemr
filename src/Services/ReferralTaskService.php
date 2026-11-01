@@ -398,7 +398,7 @@ class ReferralTaskService
      * message to the one who made the referral (Refer By), in their inbox under the Referral type.
      * The message says Refer To acted, so a recipient's sub-Task, another Task with the referral as
      * its focus, or one an API client made for someone else doesn't count. Nothing when the global
-     * is off.
+     * is off, or when Refer By is no longer an active user (that is logged).
      *
      * Called once the Task's update is committed, so a failure is logged, not thrown: thrown, it
      * would answer the client's successful PUT with an error, and a retry naming the version it
@@ -444,8 +444,14 @@ class ReferralTaskService
         ) {
             return;
         }
-        $recipient = QueryUtils::fetchSingleValue('SELECT username FROM users WHERE id = ?', 'username', [(int)$referrer]);
+        // Only to someone who can still sign in: a referrer who has left (their user made inactive)
+        // would never read it, so the log says the notice went nowhere.
+        $recipient = QueryUtils::fetchSingleValue('SELECT username FROM users WHERE id = ? AND active = 1', 'username', [(int)$referrer]);
         if (!is_string($recipient) || $recipient === '') {
+            $this->getLogger()->warning('A referral\'s Task changed status but its referrer is not an active user, so no one was told', [
+                'task_uuid' => $taskUuid,
+                'status' => $notice->value,
+            ]);
             return;
         }
         $sender = $userId === null ? null : QueryUtils::fetchSingleValue('SELECT username FROM users WHERE id = ?', 'username', [$userId]);

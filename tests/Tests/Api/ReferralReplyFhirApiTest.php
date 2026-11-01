@@ -412,6 +412,27 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A referrer who has left (their user made inactive) isn't sent a notice no one would read: the
+     * PUT still succeeds, and the service logs that no one was told.
+     */
+    public function testAReferrerWhoHasLeftIsNotSentTheNotice(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        QueryUtils::sqlStatementThrowException('UPDATE users SET active = 0 WHERE id = ?', [$this->people['doctor']['id']]);
+
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->onlyTask($id), 'accepted'));
+        $this->assertSame([], QueryUtils::fetchRecords('SELECT id FROM pnotes WHERE pid = ?', [$this->patient['pid']]));
+
+        $taskUuid = $this->onlyTask($id)['id'] ?? null;
+        $this->assertIsString($taskUuid);
+        $logger = self::logger();
+        (new ReferralTaskService(logger: $logger))->taskStatusChanged($taskUuid, 'accepted', 'completed', null);
+        $this->assertSame([['warning', 'A referral\'s Task changed status but its referrer is not an active user, so no one was told']], $logger->records);
+        $this->assertSame([], QueryUtils::fetchRecords('SELECT id FROM pnotes WHERE pid = ?', [$this->patient['pid']]));
+    }
+
+    /**
      * The Task's update is committed before the referrer is told, so a notice that fails is logged
      * rather than thrown at the client whose PUT already succeeded.
      */
