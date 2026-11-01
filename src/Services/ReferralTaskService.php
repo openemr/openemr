@@ -106,9 +106,6 @@ class ReferralTaskService
     /** LOINC 11488-4, the type of the reply a Task's output holds. */
     private const REPLY_OUTPUT_TYPE = ['type_system' => 'http://loinc.org', 'type_code' => '11488-4', 'type_text' => 'Consult note'];
 
-    /** The Counter-Referral section's fields, in the form's order. */
-    private const REPLY_FIELDS = ['reply_date', 'reply_from', 'reply_init_diag', 'reply_final_diag', 'reply_documents', 'reply_findings', 'reply_services', 'reply_recommend', 'reply_rx_refer'];
-
     /**
      * After a transaction is saved: a Task for its referral's recipient, unless they have one.
      * One Task per referral and recipient, so saving the referral again adds none. When Refer To
@@ -501,27 +498,61 @@ class ReferralTaskService
     }
 
     /**
-     * The Counter-Referral section as the text fileReply() files.
+     * The Counter-Referral section as the text fileReply() files, as the referral's layout has it:
+     * the title of the group that holds the Reply Date, the Referral Date and Refer To, then each
+     * field of that group in use (uor above 0) that has a value, in the form's order. Titles are the
+     * layout's as stored, not translated, and values are as stored (a date stays YYYY-MM-DD, a list
+     * field keeps its option id), so the text reads the same whoever saves the referral: filedReply()
+     * finds a filed reply by its text, and a retry by a user in another language would otherwise
+     * file it a second time. A field a site added to the section is in the text, and a title it
+     * changed reads as the site wrote it.
      *
      * @param array<string, mixed> $referral
      */
     private function replyText(int $transactionId, array $referral): string
     {
-        $fields = [];
+        $values = [];
         foreach (QueryUtils::fetchRecords("SELECT field_id, field_value FROM lbt_data WHERE form_id = ?", [$transactionId]) as $row) {
             if (is_string($row['field_id'] ?? null) && is_string($row['field_value'] ?? null) && trim($row['field_value']) !== '') {
-                $fields[$row['field_id']] = trim($row['field_value']);
+                $values[$row['field_id']] = trim($row['field_value']);
             }
         }
-        $labels = [
-            'reply_date' => xl('Reply Date'), 'reply_from' => xl('Reply From'), 'reply_init_diag' => xl('Presumed Diagnosis'),
-            'reply_final_diag' => xl('Final Diagnosis'), 'reply_documents' => xl('Documents'), 'reply_findings' => xl('Findings'),
-            'reply_services' => xl('Services Provided'), 'reply_recommend' => xl('Recommendations'), 'reply_rx_refer' => xl('Prescriptions/Referrals'),
+        // The field id breaks a tie in seq, so two fields at the same place come out in one order every time.
+        $layout = QueryUtils::fetchRecords('SELECT field_id, group_id, title, uor FROM layout_options WHERE form_id = ? ORDER BY seq, field_id', [ReferralService::FORM_ID]);
+        $titles = [];
+        $group = null;
+        foreach ($layout as $row) {
+            $field = $row['field_id'] ?? null;
+            $title = $row['title'] ?? null;
+            if (is_string($field)) {
+                // A field without a title goes by its id.
+                $titles[$field] ??= is_string($title) && trim($title) !== '' ? trim($title) : $field;
+                if ($field === 'reply_date' && $group === null && is_string($row['group_id'] ?? null)) {
+                    $group = $row['group_id'];
+                }
+            }
+        }
+        $heading = $group === null ? null : QueryUtils::fetchSingleValue(
+            'SELECT grp_title FROM layout_group_properties WHERE grp_form_id = ? AND grp_group_id = ?',
+            'grp_title',
+            [ReferralService::FORM_ID, $group]
+        );
+        $lines = [
+            // The seeded group's title when the site's has none.
+            is_string($heading) && trim($heading) !== '' ? trim($heading) : 'Counter-Referral',
+            ($titles['refer_date'] ?? 'refer_date') . ': ' . ($values['refer_date'] ?? ''),
+            ($titles['refer_to'] ?? 'refer_to') . ': ' . (self::text($referral, 'performer_name') ?? ''),
+            '',
         ];
-        $lines = [xl('Counter-Referral'), xl('Referral Date') . ': ' . ($fields['refer_date'] ?? ''), xl('Refer To') . ': ' . (self::text($referral, 'performer_name') ?? ''), ''];
-        foreach (self::REPLY_FIELDS as $field) {
-            if (isset($fields[$field])) {
-                $lines[] = $labels[$field] . ': ' . $fields[$field];
+        $listed = [];
+        foreach ($layout as $row) {
+            $field = $row['field_id'] ?? null;
+            if (
+                is_string($field) && isset($values[$field]) && !isset($listed[$field])
+                && ($row['group_id'] ?? null) === $group && is_numeric($row['uor'] ?? null) && (int)$row['uor'] > 0
+            ) {
+                $listed[$field] = true;
+                $lines[] = $titles[$field] . ': ' . $values[$field];
             }
         }
         return implode("\n", $lines) . "\n";

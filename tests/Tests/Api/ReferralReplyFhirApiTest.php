@@ -19,6 +19,8 @@ namespace OpenEMR\Tests\Api;
 use Document;
 use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Translation\TranslationCache;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRTask;
@@ -57,6 +59,15 @@ class ReferralReplyFhirApiTest extends TestCase
     /** @var list<int> transaction ids */
     private array $transactions = [];
 
+    /** @var list<string> the fields a test added to the referral's layout */
+    private array $layoutFields = [];
+
+    /** The language id useLanguage() gives the session: one no site has, whose translations the test sets. */
+    private const TEST_LANGUAGE = 9999;
+
+    /** @var ?array{bool, mixed} whether the session had a language before useLanguage(), and which */
+    private ?array $languageBefore = null;
+
     protected function setUp(): void
     {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
@@ -80,6 +91,19 @@ class ReferralReplyFhirApiTest extends TestCase
 
     protected function tearDown(): void
     {
+        foreach ($this->layoutFields as $field) {
+            QueryUtils::sqlStatementThrowException("DELETE FROM layout_options WHERE form_id = 'LBTref' AND field_id = ?", [$field]);
+        }
+        if ($this->languageBefore !== null) {
+            [$had, $language] = $this->languageBefore;
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            if ($had) {
+                $session->set('language_choice', $language);
+            } else {
+                $session->remove('language_choice');
+            }
+            TranslationCache::reset();
+        }
         foreach ($this->globalsBefore as $name => [$before, $storedBefore]) {
             OEGlobalsBag::getInstance()->set($name, $before);
             if (is_scalar($storedBefore)) {
@@ -166,10 +190,12 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertIsNumeric($documentId);
         $text = (new Document((int)$documentId))->get_data();
         $this->assertIsString($text);
-        $this->assertStringContainsString('Counter-Referral', $text);
-        $this->assertStringContainsString('Findings: Enrolled in weekly delivery', $text);
-        $this->assertStringContainsString('Recommendations: Recheck in 3 months', $text);
-        $this->assertStringContainsString('Refer To: Zq Reply Pantry', $text);
+        // The seeded layout's titles, in its order: the text a reply filed before had too.
+        $this->assertSame(
+            "Counter-Referral\nReferral Date: 2026-10-10\nRefer To: Zq Reply Pantry\n\n"
+            . "Reply Date: 2026-10-18\nReply From: Zq intake desk\nFindings: Enrolled in weekly delivery\nRecommendations: Recheck in 3 months\n",
+            $text
+        );
 
         // Saving the referral again files nothing more.
         $this->afterSave($id);
@@ -477,14 +503,8 @@ class ReferralReplyFhirApiTest extends TestCase
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
         $this->afterSave($id);
         $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
-        $failing = new class extends TaskService {
-            public function update(string $uuid, array $fields, ?int $userId, ?int $expectedVersion = null, ?array $inputs = null, ?array $outputs = null): bool
-            {
-                throw new \RuntimeException('the Task could not be updated');
-            }
-        };
 
-        $this->assertNull((new ReferralTaskService(taskService: $failing, logger: self::logger()))->afterSave($id, null));
+        $this->assertNull((new ReferralTaskService(taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
         $this->assertSame('requested', $this->onlyTask($id)['status'] ?? null);
         $this->assertCount(1, $this->replyDocuments($id), 'the reply was filed before the update failed');
 
@@ -511,13 +531,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
         $this->afterSave($id);
         $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
-        $failing = new class extends TaskService {
-            public function update(string $uuid, array $fields, ?int $userId, ?int $expectedVersion = null, ?array $inputs = null, ?array $outputs = null): bool
-            {
-                throw new \RuntimeException('the Task could not be updated');
-            }
-        };
-        $this->assertNull((new ReferralTaskService(taskService: $failing, logger: self::logger()))->afterSave($id, null));
+        $this->assertNull((new ReferralTaskService(taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
         $this->assertCount(1, $this->replyDocuments($id), 'the first text was filed before the update failed');
         $this->saveFields($id, ['reply_findings' => 'Enrolled in weekly delivery']);
 
@@ -530,6 +544,54 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertIsArray($outputs);
         $this->assertCount(1, $outputs);
         $this->assertStringContainsString('Findings: Enrolled in weekly delivery', $this->outputText($task, 0));
+    }
+
+    /**
+     * A reply filed while one user saved the referral, then retried by a user who works in another
+     * language, is the same reply: its text takes the layout's titles as stored, not translated, so
+     * the retry finds the filed document by its text and files no second copy.
+     */
+    public function testAReplyRetriedInAnotherLanguageIsNotFiledAgain(): void
+    {
+        $id = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->assertNull((new ReferralTaskService(taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
+        $this->assertCount(1, $this->replyDocuments($id), 'filed before the update failed');
+
+        $this->useLanguage(['Counter-Referral' => 'Zq Contrarreferencia', 'Reply Date' => 'Zq Fecha de respuesta', 'Findings' => 'Zq Conclusiones']);
+        $this->assertSame('Zq Conclusiones', xl('Findings'), 'the retry runs in the other language');
+        $this->afterSave($id);
+
+        $task = $this->onlyTask($id);
+        $this->assertSame('completed', $task['status'] ?? null);
+        $this->assertCount(1, $this->replyDocuments($id), 'no second copy');
+        $this->assertSame(
+            "Counter-Referral\nReferral Date: 2026-10-10\nRefer To: Zq Reply Pantry\n\nReply Date: 2026-10-18\nFindings: Enrolled\n",
+            $this->outputText($task, 0)
+        );
+    }
+
+    /**
+     * The reply's text follows the referral's layout: a field a site added to the Counter-Referral
+     * group is in it, under the title the site gave it and in the form's order, and a field the site
+     * set to unused is left out.
+     */
+    public function testAFieldAddedToTheCounterReferralSectionIsInTheReply(): void
+    {
+        $group = QueryUtils::fetchSingleValue("SELECT group_id FROM layout_options WHERE form_id = 'LBTref' AND field_id = 'reply_date'", 'group_id', []);
+        $this->assertIsString($group);
+        $this->addLayoutField('zq_reply_follow_up', $group, 'Zq Follow-up Plan', 98, 1);
+        $this->addLayoutField('zq_reply_unused', $group, 'Zq Unused Field', 99, 0);
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled', 'zq_reply_follow_up' => 'Call in a week', 'zq_reply_unused' => 'Not in use']);
+
+        $this->afterSave($id);
+
+        $text = $this->outputText($this->onlyTask($id), 0);
+        $this->assertStringEndsWith("\nFindings: Enrolled\nZq Follow-up Plan: Call in a week\n", $text);
+        $this->assertStringNotContainsString('Not in use', $text);
     }
 
     /**
@@ -688,6 +750,49 @@ class ReferralReplyFhirApiTest extends TestCase
 
         $this->afterSave($id);
         $this->assertSame('completed', $this->onlyTask($id)['status'] ?? null, 'the next save files it');
+    }
+
+    /**
+     * A TaskService whose updates fail, as when a save files the reply and then loses the Task's update.
+     */
+    private static function tasksThatFailToUpdate(): TaskService
+    {
+        return new class extends TaskService {
+            public function update(string $uuid, array $fields, ?int $userId, ?int $expectedVersion = null, ?array $inputs = null, ?array $outputs = null): bool
+            {
+                throw new \RuntimeException('the Task could not be updated');
+            }
+        };
+    }
+
+    /**
+     * A field in the referral's layout (a single-line text field), removed in tearDown().
+     */
+    private function addLayoutField(string $field, string $group, string $title, int $seq, int $uor): void
+    {
+        $this->layoutFields[] = $field;
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO layout_options (form_id, field_id, group_id, title, seq, data_type, uor) VALUES ('LBTref', ?, ?, ?, ?, 2, ?)",
+            [$field, $group, $title, $seq, $uor]
+        );
+    }
+
+    /**
+     * Gives the session a language whose translations are these, as a user who works in another
+     * language has; tearDown() puts the session's language back. The translation cache holds them,
+     * so xl() finds them without a row in the translation tables.
+     *
+     * @param array<string, string> $translations
+     */
+    private function useLanguage(array $translations): void
+    {
+        $this->setGlobal('disable_translation', '0');
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->languageBefore ??= [$session->has('language_choice'), $session->get('language_choice')];
+        foreach ($translations as $constant => $definition) {
+            TranslationCache::set(self::TEST_LANGUAGE, $constant, $definition);
+        }
+        $session->set('language_choice', self::TEST_LANGUAGE);
     }
 
     /**
