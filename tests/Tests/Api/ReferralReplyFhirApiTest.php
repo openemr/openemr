@@ -3,7 +3,7 @@
 /**
  * A referral's reply and its Task (#14710): a reply recorded in the Counter-Referral section
  * completes the Task with the reply filed as its output, and the one who made the referral
- * hears when the receiving system accepts, rejects or completes the Task through the API.
+ * hears when the receiving system accepts, rejects, completes or fails the Task through the API.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -275,6 +275,31 @@ class ReferralReplyFhirApiTest extends TestCase
         $body = QueryUtils::fetchSingleValue('SELECT body FROM pnotes WHERE pid = ?', 'body', [$this->patient['pid']]);
         $this->assertIsString($body);
         $this->assertStringEndsWith(' to zq-reply-referrer) Zq Reply Pantry rejected the referral made on 2026-10-10: Outside our service area', $body);
+    }
+
+    /**
+     * A recipient that marks the Task failed is news to the referrer too, with their reason when
+     * they gave one (Task.statusReason).
+     */
+    public function testTheReferrerHearsWhenTheTaskFails(): void
+    {
+        $plain = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($plain);
+        $withReason = $this->saveReferral(['refer_date' => '2026-10-12', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($withReason);
+
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->onlyTask($plain), 'failed'));
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->onlyTask($withReason), 'failed', ['statusReason' => ['text' => 'The client could not be reached']]));
+
+        $bodies = [];
+        foreach (QueryUtils::fetchRecords('SELECT body FROM pnotes WHERE pid = ? ORDER BY id', [$this->patient['pid']]) as $note) {
+            $body = $note['body'] ?? null;
+            $this->assertIsString($body);
+            $bodies[] = $body;
+        }
+        $this->assertCount(2, $bodies);
+        $this->assertStringEndsWith(' to zq-reply-referrer) Zq Reply Pantry could not complete the referral made on 2026-10-10.', $bodies[0]);
+        $this->assertStringEndsWith(' to zq-reply-referrer) Zq Reply Pantry could not complete the referral made on 2026-10-12: The client could not be reached', $bodies[1]);
     }
 
     /**

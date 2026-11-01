@@ -7,8 +7,8 @@
  * for its patient, owned by the one it is sent to (Refer To) and requested by the one who
  * made it (Refer By). When the referral's Counter-Referral section records a reply, the
  * reply is filed as a document and becomes the Task's output, completing it. When the
- * receiving system accepts, rejects or completes the Task through the FHIR API, the one who
- * made the referral gets a message.
+ * receiving system accepts, rejects or completes the Task through the FHIR API, or marks it
+ * failed, the one who made the referral gets a message.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -391,12 +391,12 @@ class ReferralTaskService
 
     /**
      * After the FHIR API changes a Task's status: when the Task is a referral's own (isOwnTask()),
-     * owned by the referral's recipient (Refer To), and is now accepted, rejected or completed, a
-     * message to the one who made the referral (Refer By), in their inbox under the Referral type;
-     * a rejection carries the recipient's reason when the Task has one. The message says Refer To
-     * acted, so a recipient's sub-Task, another Task with the referral as its focus, or one an API
-     * client made for someone else doesn't count. Nothing when the global is off, or when Refer By
-     * is no longer an active user (that is logged).
+     * owned by the referral's recipient (Refer To), and is now accepted, rejected, completed or
+     * failed, a message to the one who made the referral (Refer By), in their inbox under the
+     * Referral type; a rejection or a failure carries the recipient's reason when the Task has one.
+     * The message says Refer To acted, so a recipient's sub-Task, another Task with the referral as
+     * its focus, or one an API client made for someone else doesn't count. Nothing when the global
+     * is off, or when Refer By is no longer an active user (that is logged).
      *
      * Called once the Task's update is committed, so a failure is logged, not thrown: thrown, it
      * would answer the client's successful PUT with an error, and a retry naming the version it

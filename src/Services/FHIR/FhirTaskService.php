@@ -88,8 +88,8 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
 
     /**
      * @param ?ReferralTaskService $referralTaskService what a Task's status change is handed to, which tells
-     *     the one who made a referral when its Task is accepted, rejected or completed; made the first
-     *     time it's needed when none is given
+     *     the one who made a referral when its Task is accepted, rejected, completed or failed; made the
+     *     first time it's needed when none is given
      */
     public function __construct(?string $fhirApiURL = null, private ?ReferralTaskService $referralTaskService = null)
     {
@@ -449,7 +449,7 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
             $this->versionConflict = true;
             return self::invalid(['meta.versionId' => 'The task changed while it was being updated: read it again before updating']);
         }
-        // A referral's Task: the one who made the referral hears when it's accepted, rejected or completed (#14710).
+        // A referral's Task: the one who made the referral hears when it's accepted, rejected, completed or failed (#14710).
         if (isset($fields['status'])) {
             $this->getReferralTaskService()->taskStatusChanged($fhirResourceId, $stored['status'], $fields['status'], $this->userId());
         }
