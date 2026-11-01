@@ -79,9 +79,8 @@ if ($_POST['mode'] === 'Sphere') {
     }
 
     $form_pid = $paymentResult['patient_id'] ?? 0;
-    if ($isPortal) {
-        PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
-    }
+    // Only a portal session reaches here (checked above), so the payment must be its patient's.
+    PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
 
     $cc = [
         'cardHolderName' => $paymentResult['name'] ?? '',
