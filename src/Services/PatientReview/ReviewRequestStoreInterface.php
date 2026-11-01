@@ -46,11 +46,12 @@ interface ReviewRequestStoreInterface
     public function findForUpdate(int $id): ?ReviewRequest;
 
     /**
-     * Open requests for one patient and type, newest first.
+     * Open requests for one patient, type and resource type, newest first. A null resource type
+     * matches only requests without one.
      *
      * @return list<ReviewRequest>
      */
-    public function findOpen(int $pid, ReviewType $type): array;
+    public function findOpen(int $pid, ReviewType $type, ?FhirResourceType $resourceType = null): array;
 
     /**
      * Oldest first, so staff work the queue in the order it arrived.

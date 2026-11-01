@@ -19,6 +19,7 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewHandlerMissingException;
 use OpenEMR\Services\PatientReview\Exception\ReviewRequestNotFoundException;
+use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewActorType;
 use OpenEMR\Services\PatientReview\ReviewHandlerInterface;
@@ -144,6 +145,49 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         $this->assertSame(ReviewStatus::Cancelled, $superseded->status);
         $this->assertSame(['fname' => 'Ann'], $superseded->payload, 'the earlier submission is kept as submitted');
         $this->assertSame(ReviewQueueService::NOTE_SUPERSEDED, $service->history($first->id)[1]->note);
+    }
+
+    private function fhirWrite(string $resourceType): ReviewSubmission
+    {
+        return new ReviewSubmission(
+            self::PID,
+            ReviewType::FhirWrite,
+            'Patient app ' . $resourceType . ' write',
+            ['resourceType' => $resourceType],
+            ReviewSource::Api,
+            'client-abc',
+            resourceType: new FhirResourceType($resourceType),
+        );
+    }
+
+    public function testAFhirWriteRecordsItsResourceType(): void
+    {
+        $request = $this->service()->submit($this->fhirWrite('Condition'), $this->patient());
+
+        $this->assertSame(ReviewType::FhirWrite, $request->type);
+        $this->assertSame('Condition', $request->resourceType?->value);
+        $this->assertSame(ReviewStatus::Pending, $request->status);
+    }
+
+    public function testReplacePendingSupersedesFhirWritesOnlyOfTheSameResourceType(): void
+    {
+        $service = $this->service();
+        $allergy = $service->replacePending($this->fhirWrite('AllergyIntolerance'), $this->patient());
+        $firstCondition = $service->replacePending($this->fhirWrite('Condition'), $this->patient());
+        $secondCondition = $service->replacePending($this->fhirWrite('Condition'), $this->patient());
+
+        $this->assertSame(ReviewStatus::Pending, $service->get($allergy->id)->status);
+        $this->assertSame(ReviewStatus::Cancelled, $service->get($firstCondition->id)->status);
+        $this->assertSame(
+            $secondCondition->id,
+            $service->openFor(self::PID, ReviewType::FhirWrite, new FhirResourceType('Condition'))?->id
+        );
+        $this->assertSame(
+            $allergy->id,
+            $service->openFor(self::PID, ReviewType::FhirWrite, new FhirResourceType('AllergyIntolerance'))?->id
+        );
+        $this->assertNull($service->openFor(self::PID, ReviewType::FhirWrite));
+        $this->assertSame(2, $service->countPending(ReviewType::FhirWrite));
     }
 
     public function testReplacePendingLeavesOtherTypesAndPatientsAlone(): void
@@ -414,6 +458,10 @@ class ReviewQueueServiceIsolatedTest extends TestCase
             static fn(): ReviewSubmission => new ReviewSubmission(0, ReviewType::Profile, '', []),
             static fn(): ReviewSubmission => new ReviewSubmission(self::PID, ReviewType::Profile, '', [], ReviewSource::Api),
             static fn(): ReviewSubmission => new ReviewSubmission(self::PID, ReviewType::Profile, '', [], ReviewSource::Portal, 'client-abc'),
+            static fn(): ReviewSubmission => new ReviewSubmission(self::PID, ReviewType::FhirWrite, '', [], ReviewSource::Api, 'client-abc'),
+            static fn(): ReviewSubmission => new ReviewSubmission(self::PID, ReviewType::Profile, '', [], resourceType: new FhirResourceType('Patient')),
+            static fn(): FhirResourceType => new FhirResourceType('condition'),
+            static fn(): FhirResourceType => new FhirResourceType(''),
             static fn(): ReviewActor => ReviewActor::patient(0, 'x'),
             static fn(): ReviewActor => ReviewActor::user(-1, 'x'),
         ];

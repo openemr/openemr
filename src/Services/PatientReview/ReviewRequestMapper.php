@@ -38,6 +38,7 @@ final class ReviewRequestMapper
             uuid: strlen($uuid) === 16 ? Uuid::fromBytes($uuid)->toString() : $uuid,
             pid: $this->int($row, 'pid'),
             type: ReviewType::from($this->string($row, 'type')),
+            resourceType: $this->nullableResourceType($row),
             source: ReviewSource::from($this->string($row, 'source')),
             clientId: $this->nullableString($row, 'client_id'),
             status: ReviewStatus::from($this->string($row, 'status')),
@@ -106,6 +107,16 @@ final class ReviewRequestMapper
         };
 
         return is_array($decoded) ? $decoded : ['value' => $decoded];
+    }
+
+    /**
+     * @param array<array-key, mixed> $row
+     */
+    private function nullableResourceType(array $row): ?FhirResourceType
+    {
+        $value = $this->nullableString($row, 'resource_type');
+
+        return $value === null || $value === '' ? null : new FhirResourceType($value);
     }
 
     /**

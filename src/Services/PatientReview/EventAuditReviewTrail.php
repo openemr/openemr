@@ -34,6 +34,9 @@ final readonly class EventAuditReviewTrail implements ReviewAuditTrailInterface
         $comment = $from === null
             ? 'Review request ' . $request->id . ' (' . $request->type->value . ') submitted as ' . $request->status->value
             : 'Review request ' . $request->id . ' (' . $request->type->value . ') ' . $from->value . ' to ' . $request->status->value;
+        if ($request->resourceType !== null) {
+            $comment .= ' for ' . $request->resourceType->value;
+        }
         if ($request->clientId !== null) {
             $comment .= ' via API client ' . $request->clientId;
         }

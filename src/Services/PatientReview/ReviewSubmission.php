@@ -22,6 +22,8 @@ final readonly class ReviewSubmission
      * @param ?string $clientId oauth_clients.client_id, required when the source is an API app
      * @param ?string $targetTable the table the request applies to, when known
      * @param ?string $targetId the row or uuid in that table
+     * @param ?FhirResourceType $resourceType the FHIR resource type; required for FhirWrite and
+     *                                        refused for every other type
      */
     public function __construct(
         public int $pid,
@@ -32,6 +34,7 @@ final readonly class ReviewSubmission
         public ?string $clientId = null,
         public ?string $targetTable = null,
         public ?string $targetId = null,
+        public ?FhirResourceType $resourceType = null,
     ) {
         if ($pid <= 0) {
             throw new \DomainException('Patient id must be positive');
@@ -41,6 +44,12 @@ final readonly class ReviewSubmission
         }
         if ($source === ReviewSource::Portal && $clientId !== null) {
             throw new \DomainException('A portal submission has no client');
+        }
+        if ($type->requiresResourceType() && $resourceType === null) {
+            throw new \DomainException('A FHIR write submission must name its resource type');
+        }
+        if (!$type->requiresResourceType() && $resourceType !== null) {
+            throw new \DomainException('Only a FHIR write submission has a resource type');
         }
         if ($type === ReviewType::Payment && (new PaymentCardDetector())->containsCardData($payload)) {
             // The payload is stored as readable JSON. Card details go through

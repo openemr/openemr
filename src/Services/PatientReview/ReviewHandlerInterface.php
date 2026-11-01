@@ -4,8 +4,9 @@
  * Applies an approved review request to the chart.
  *
  * One handler per ReviewType. The handler writes through the normal service for that data;
- * ReviewQueueService owns the state change around it. A handler for patient-app FHIR writes
- * plugs in here later.
+ * ReviewQueueService owns the state change around it. The ReviewType::FhirWrite handler (added
+ * with the patient-app write path) is a single handler that dispatches on the request's
+ * resourceType.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

@@ -27,6 +27,7 @@ final readonly class ReviewRequest
         public string $uuid,
         public int $pid,
         public ReviewType $type,
+        public ?FhirResourceType $resourceType,
         public ReviewSource $source,
         public ?string $clientId,
         public ReviewStatus $status,

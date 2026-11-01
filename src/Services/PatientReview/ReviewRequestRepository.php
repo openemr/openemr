@@ -34,13 +34,14 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
     {
         $timestamp = $this->mapper->formatDateTime($now);
         return QueryUtils::sqlInsert(
-            'INSERT INTO `patient_review_request` (`uuid`, `pid`, `type`, `source`, `client_id`, `status`, `summary`,'
+            'INSERT INTO `patient_review_request` (`uuid`, `pid`, `type`, `resource_type`, `source`, `client_id`, `status`, `summary`,'
             . ' `payload`, `payload_format`, `target_table`, `target_id`, `created_at`, `updated_at`)'
-            . ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            . ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 $uuidBytes,
                 $submission->pid,
                 $submission->type->value,
+                $submission->resourceType?->value,
                 $submission->source->value,
                 $submission->clientId,
                 $status->value,
@@ -67,13 +68,17 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
         return is_array($row) && $row !== [] ? $this->mapper->toRequest($row) : null;
     }
 
-    public function findOpen(int $pid, ReviewType $type): array
+    public function findOpen(int $pid, ReviewType $type, ?FhirResourceType $resourceType = null): array
     {
-        $rows = QueryUtils::fetchRecords(
-            'SELECT * FROM `patient_review_request` WHERE `pid` = ? AND `type` = ? AND `status` IN (?, ?)'
-            . ' ORDER BY `created_at` DESC, `id` DESC',
-            [$pid, $type->value, ReviewStatus::Pending->value, ReviewStatus::AwaitingPayment->value]
-        );
+        $sql = 'SELECT * FROM `patient_review_request` WHERE `pid` = ? AND `type` = ? AND `status` IN (?, ?)';
+        $binds = [$pid, $type->value, ReviewStatus::Pending->value, ReviewStatus::AwaitingPayment->value];
+        if ($resourceType === null) {
+            $sql .= ' AND `resource_type` IS NULL';
+        } else {
+            $sql .= ' AND `resource_type` = ?';
+            $binds[] = $resourceType->value;
+        }
+        $rows = QueryUtils::fetchRecords($sql . ' ORDER BY `created_at` DESC, `id` DESC', $binds);
         return array_map($this->mapper->toRequest(...), $rows);
     }
 

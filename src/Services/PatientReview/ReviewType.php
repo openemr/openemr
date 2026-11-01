@@ -5,7 +5,9 @@
  *
  * Stored in patient_review_request.type, so the values are a persistence contract. The first
  * four are the workflows the patient portal has always had; Invoice is the one staff start
- * (billing asks the patient to pay online).
+ * (billing asks the patient to pay online). FhirWrite is a patient-app FHIR create or update held
+ * for clinician review; the resource type it writes is carried separately (FhirResourceType), so
+ * this enum does not grow a case per FHIR resource.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -24,6 +26,7 @@ enum ReviewType: string
     case Payment = 'payment';
     case Document = 'document';
     case Invoice = 'invoice';
+    case FhirWrite = 'fhir-write';
 
     /**
      * An invoice waits on the patient, not on staff, so it is never in the staff review queue.
@@ -32,7 +35,18 @@ enum ReviewType: string
     {
         return match ($this) {
             self::Invoice => ReviewStatus::AwaitingPayment,
-            self::Profile, self::Payment, self::Document => ReviewStatus::Pending,
+            self::Profile, self::Payment, self::Document, self::FhirWrite => ReviewStatus::Pending,
+        };
+    }
+
+    /**
+     * Whether a request of this type names the FHIR resource type it writes.
+     */
+    public function requiresResourceType(): bool
+    {
+        return match ($this) {
+            self::FhirWrite => true,
+            self::Profile, self::Payment, self::Document, self::Invoice => false,
         };
     }
 }

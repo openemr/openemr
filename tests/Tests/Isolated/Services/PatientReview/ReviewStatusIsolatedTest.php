@@ -79,7 +79,7 @@ class ReviewStatusIsolatedTest extends TestCase
         foreach (['pending', 'awaiting_payment', 'approved', 'denied', 'cancelled', 'completed'] as $value) {
             $cases['status ' . $value] = [ReviewStatus::class, $value];
         }
-        foreach (['profile', 'payment', 'document', 'invoice'] as $value) {
+        foreach (['profile', 'payment', 'document', 'invoice', 'fhir-write'] as $value) {
             $cases['type ' . $value] = [ReviewType::class, $value];
         }
         foreach (['portal', 'api'] as $value) {
@@ -110,6 +110,13 @@ class ReviewStatusIsolatedTest extends TestCase
                 $type === ReviewType::Invoice ? ReviewStatus::AwaitingPayment : ReviewStatus::Pending,
                 $type->initialStatus()
             );
+        }
+    }
+
+    public function testOnlyAFhirWriteNamesAResourceType(): void
+    {
+        foreach (ReviewType::cases() as $type) {
+            $this->assertSame($type === ReviewType::FhirWrite, $type->requiresResourceType());
         }
     }
 }

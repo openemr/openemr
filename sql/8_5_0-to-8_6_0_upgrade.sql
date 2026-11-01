@@ -214,7 +214,7 @@ CREATE INDEX `date` ON `billing` (`date`);
 #EndIf
 
 -- Patient review queue: patient-submitted data (portal profile changes, online payments,
--- documents) held for staff review. One row per submission, a single status column, an
+-- documents, and patient-app FHIR writes) held for staff review. One row per submission, a single status column, an
 -- append-only history, and sensitive data kept apart from the payload. Replaces the
 -- onsite_portal_activity workflow, which is migrated onto these tables separately.
 #IfNotTable patient_review_request
@@ -222,7 +222,8 @@ CREATE TABLE `patient_review_request` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `uuid` binary(16) NOT NULL,
   `pid` bigint(20) NOT NULL COMMENT 'pid from patient_data table',
-  `type` varchar(32) NOT NULL COMMENT 'profile, payment, document, invoice',
+  `type` varchar(32) NOT NULL COMMENT 'profile, payment, document, invoice, fhir-write',
+  `resource_type` varchar(64) DEFAULT NULL COMMENT 'FHIR resource type when type is fhir-write, e.g. Condition; NULL otherwise',
   `source` varchar(16) NOT NULL DEFAULT 'portal' COMMENT 'portal or api',
   `client_id` varchar(80) DEFAULT NULL COMMENT 'oauth_clients.client_id when source is api',
   `status` varchar(24) NOT NULL DEFAULT 'pending' COMMENT 'pending, awaiting_payment, approved, denied, cancelled, completed',

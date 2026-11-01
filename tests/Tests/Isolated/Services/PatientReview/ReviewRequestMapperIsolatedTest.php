@@ -39,6 +39,7 @@ class ReviewRequestMapperIsolatedTest extends TestCase
             'uuid' => Uuid::fromString(self::UUID)->getBytes(),
             'pid' => '7',
             'type' => 'profile',
+            'resource_type' => null,
             'source' => 'portal',
             'client_id' => null,
             'status' => 'pending',
@@ -63,6 +64,7 @@ class ReviewRequestMapperIsolatedTest extends TestCase
         $this->assertSame(self::UUID, $request->uuid);
         $this->assertSame(7, $request->pid);
         $this->assertSame(ReviewType::Profile, $request->type);
+        $this->assertNull($request->resourceType);
         $this->assertSame(ReviewSource::Portal, $request->source);
         $this->assertNull($request->clientId);
         $this->assertSame(ReviewStatus::Pending, $request->status);
@@ -92,6 +94,26 @@ class ReviewRequestMapperIsolatedTest extends TestCase
         $this->assertSame(3, $request->reviewedBy);
         $this->assertSame('2026-10-02 10:00:00', $request->reviewedAt?->format('Y-m-d H:i:s'));
         $this->assertSame('accept', $request->reviewNote);
+    }
+
+    public function testMapsAFhirWriteRequestWithItsResourceType(): void
+    {
+        $request = (new ReviewRequestMapper())->toRequest($this->row([
+            'type' => 'fhir-write',
+            'resource_type' => 'AllergyIntolerance',
+            'source' => 'api',
+            'client_id' => 'client-abc',
+            'payload' => '{"resourceType":"AllergyIntolerance"}',
+        ]));
+
+        $this->assertSame(ReviewType::FhirWrite, $request->type);
+        $this->assertSame('AllergyIntolerance', $request->resourceType?->value);
+    }
+
+    public function testRejectsAStoredResourceTypeThatIsNotAFhirName(): void
+    {
+        $this->expectException(\DomainException::class);
+        (new ReviewRequestMapper())->toRequest($this->row(['type' => 'fhir-write', 'resource_type' => 'condition; drop']));
     }
 
     /**

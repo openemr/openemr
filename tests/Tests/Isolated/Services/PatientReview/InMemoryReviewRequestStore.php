@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Services\PatientReview;
 
 use DateTimeImmutable;
+use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\PayloadFormat;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewRequest;
@@ -63,6 +64,7 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
             'uuid' => $uuidBytes,
             'pid' => $submission->pid,
             'type' => $submission->type->value,
+            'resource_type' => $submission->resourceType?->value,
             'source' => $submission->source->value,
             'client_id' => $submission->clientId,
             'status' => $status->value,
@@ -91,12 +93,17 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         return $this->find($id);
     }
 
-    public function findOpen(int $pid, ReviewType $type): array
+    public function findOpen(int $pid, ReviewType $type, ?FhirResourceType $resourceType = null): array
     {
         $open = [];
         foreach (array_reverse($this->requests) as $row) {
             $request = $this->mapper->toRequest($row);
-            if ($request->pid === $pid && $request->type === $type && $request->status->isOpen()) {
+            if (
+                $request->pid === $pid
+                && $request->type === $type
+                && $request->resourceType?->value === $resourceType?->value
+                && $request->status->isOpen()
+            ) {
                 $open[] = $request;
             }
         }

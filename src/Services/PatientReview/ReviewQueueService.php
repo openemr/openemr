@@ -87,12 +87,13 @@ final class ReviewQueueService
      *
      * This is what the portal means by "pending": a patient who edits their profile twice
      * before staff look has one pending change, the later one. The earlier request is kept as
-     * cancelled, so what was submitted and when is not lost.
+     * cancelled, so what was submitted and when is not lost. FHIR writes are matched on their
+     * resource type too: a pending Condition does not replace a pending AllergyIntolerance.
      */
     public function replacePending(ReviewSubmission $submission, ReviewActor $actor): ReviewRequest
     {
         return $this->atomically(function () use ($submission, $actor): ReviewRequest {
-            foreach ($this->store->findOpen($submission->pid, $submission->type) as $open) {
+            foreach ($this->store->findOpen($submission->pid, $submission->type, $submission->resourceType) as $open) {
                 $this->transition($open, ReviewStatus::Cancelled, $actor, self::NOTE_SUPERSEDED);
             }
             return $this->create($submission, $actor);
@@ -153,11 +154,12 @@ final class ReviewQueueService
     }
 
     /**
-     * The request the patient and staff currently see as open for this type, if any.
+     * The request the patient and staff currently see as open for this type (and, for FHIR
+     * writes, resource type), if any.
      */
-    public function openFor(int $pid, ReviewType $type): ?ReviewRequest
+    public function openFor(int $pid, ReviewType $type, ?FhirResourceType $resourceType = null): ?ReviewRequest
     {
-        return $this->store->findOpen($pid, $type)[0] ?? null;
+        return $this->store->findOpen($pid, $type, $resourceType)[0] ?? null;
     }
 
     /**

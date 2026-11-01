@@ -20,6 +20,7 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Services\PatientReview\EventAuditReviewTrail;
+use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewActorType;
@@ -153,6 +154,32 @@ class ReviewQueueDatabaseTest extends TestCase
         $found = $service->get($submitted->id);
         $this->assertSame(ReviewSource::Api, $found->source);
         $this->assertSame('review-test-client', $found->clientId);
+    }
+
+    public function testFhirWriteStoresItsResourceTypeAndSupersedesOnlyItsOwnType(): void
+    {
+        $service = ReviewQueueFactory::create();
+        $submission = static fn(string $resourceType): ReviewSubmission => new ReviewSubmission(
+            self::PID,
+            ReviewType::FhirWrite,
+            'Patient app ' . $resourceType . ' write',
+            ['resourceType' => $resourceType],
+            ReviewSource::Api,
+            'review-test-client',
+            resourceType: new FhirResourceType($resourceType),
+        );
+        $allergy = $service->replacePending($submission('AllergyIntolerance'), $this->patient());
+        $first = $service->replacePending($submission('Condition'), $this->patient());
+        $second = $service->replacePending($submission('Condition'), $this->patient());
+
+        $this->assertSame('AllergyIntolerance', $service->get($allergy->id)->resourceType?->value);
+        $this->assertSame(ReviewStatus::Pending, $service->get($allergy->id)->status);
+        $this->assertSame(ReviewStatus::Cancelled, $service->get($first->id)->status);
+        $this->assertSame(
+            $second->id,
+            $service->openFor(self::PID, ReviewType::FhirWrite, new FhirResourceType('Condition'))?->id
+        );
+        $this->assertNull($service->openFor(self::PID, ReviewType::Profile));
     }
 
     public function testReplacePendingCancelsTheEarlierRequest(): void
