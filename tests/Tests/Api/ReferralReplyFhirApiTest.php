@@ -4,7 +4,7 @@
  * A referral's reply and its Task (#14710): a reply recorded in the Counter-Referral section
  * completes the Task with the reply filed as its output (a Reply Date the referral screen clears
  * again undoes that and makes a new Task), and the one who made the referral hears when the
- * receiving system accepts, rejects, completes or fails the Task through the API.
+ * receiving system accepts, rejects, completes, fails or cancels the Task through the API.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -757,6 +757,48 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertCount(2, $bodies);
         $this->assertStringEndsWith(' to zq-reply-referrer) The Task for the referral to Zq Reply Pantry made on 2026-10-10 was marked failed.', $bodies[0]);
         $this->assertStringEndsWith(' to zq-reply-referrer) The Task for the referral to Zq Reply Pantry made on 2026-10-12 was marked failed: The client could not be reached', $bodies[1]);
+    }
+
+    /**
+     * A recipient that cancels the Task through the API is news to the referrer, with their reason
+     * (Task.statusReason) when they gave one, as a rejection is.
+     */
+    public function testTheReferrerHearsWhenTheRecipientCancelsTheTask(): void
+    {
+        $id = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->onlyTask($id), 'cancelled', ['statusReason' => ['text' => 'Client moved away']]));
+
+        $notes = QueryUtils::fetchRecords('SELECT title, assigned_to, body FROM pnotes WHERE pid = ?', [$this->patient['pid']]);
+        $this->assertCount(1, $notes);
+        $this->assertSame('Referral', $notes[0]['title'] ?? null);
+        $this->assertSame('zq-reply-referrer', $notes[0]['assigned_to'] ?? null);
+        $body = $notes[0]['body'] ?? null;
+        $this->assertIsString($body);
+        $this->assertStringEndsWith(' to zq-reply-referrer) The Task for the referral to Zq Reply Pantry made on 2026-10-10 was marked cancelled: Client moved away', $body);
+    }
+
+    /**
+     * The service's own cancellations are written without the API, so they tell no one: the
+     * referral sent to another recipient, then deleted, cancels each open Task with the service's
+     * reason and files no message.
+     */
+    public function testTheServicesOwnCancellationsTellNoOne(): void
+    {
+        $this->people['clinic'] = $this->insertPerson(['abook_type' => 'external_org', 'organization' => 'Zq Reply Clinic']);
+        $id = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+
+        $this->saveFields($id, ['refer_to' => $this->people['clinic']['id']]);
+        $this->afterSave($id);
+        $pantry = $this->taskOf($id, 'pantry');
+        $this->assertSame('cancelled', $pantry['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REASON_SENT_ELSEWHERE, self::at($pantry, 'statusReason', 'text'));
+        $this->assertSame(1, (new ReferralTaskService(new UserService()))->cancelForDeletedReferral($id, null));
+        $this->assertSame('cancelled', $this->taskOf($id, 'clinic')['status'] ?? null);
+
+        $this->assertSame([], QueryUtils::fetchRecords('SELECT id FROM pnotes WHERE pid = ?', [$this->patient['pid']]));
     }
 
     /**

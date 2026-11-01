@@ -8,8 +8,8 @@
  * made it (Refer By). When the referral's Counter-Referral section records a reply, the
  * reply is filed as a document and becomes the Task's output, completing it; a Reply Date
  * cleared again on the referral screen marks that Task entered-in-error, and the recipient gets
- * a new one when FHIR serves them. When the Task is marked accepted, rejected, completed or
- * failed through the FHIR API, the one who made the referral gets a message.
+ * a new one when FHIR serves them. When the Task is marked accepted, rejected, completed,
+ * failed or cancelled through the FHIR API, the one who made the referral gets a message.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -532,14 +532,16 @@ class ReferralTaskService
 
     /**
      * After the FHIR API changes a Task's status: when the Task is a referral's own (isOwnTask()),
-     * owned by the referral's recipient (Refer To), and is now accepted, rejected, completed or
-     * failed, a message to the one who made the referral (Refer By), in their inbox under the
-     * Referral type; a rejection or a failure carries the Task's reason when it has one. The
-     * message says what the referral's Task to Refer To was marked, so a recipient's sub-Task,
-     * another Task with the referral as its focus, or one an API client made for someone else
-     * doesn't count. It doesn't say who marked it (nothing yet ties an API client to the
-     * recipient); its header names the user who made the change. Nothing when the global is off,
-     * or when Refer By is no longer an active user (that is logged).
+     * owned by the referral's recipient (Refer To), and is now accepted, rejected, completed,
+     * failed or cancelled, a message to the one who made the referral (Refer By), in their inbox
+     * under the Referral type; a rejection, a failure or a cancellation carries the Task's reason
+     * when it has one. This service's own writes (the cancellations when the referral goes
+     * elsewhere or is deleted, a reply's completion) go to TaskService, not through the API, so
+     * they aren't told. The message says what the referral's Task to Refer To was marked, so a
+     * recipient's sub-Task, another Task with the referral as its focus, or one an API client made
+     * for someone else doesn't count. It doesn't say who marked it (nothing yet ties an API client
+     * to the recipient); its header names the user who made the change. Nothing when the global is
+     * off, or when Refer By is no longer an active user (that is logged).
      *
      * The caller hands over the Task as it read it after the update (TaskService::getOne()), so it
      * isn't read again. Called once the Task's update is committed, so a failure is logged, not
