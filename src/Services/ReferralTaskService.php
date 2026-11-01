@@ -454,7 +454,10 @@ class ReferralTaskService
         }
         $sender = $userId === null ? null : QueryUtils::fetchSingleValue('SELECT username FROM users WHERE id = ?', 'username', [$userId]);
         $sender = is_string($sender) && $sender !== '' ? $sender : 'FHIR API';
-        $text = $notice->text(self::text($referral, 'performer_name') ?? xl('The recipient'), self::text($referral, 'refer_date'), self::text($task, 'status_reason'));
+        // The recipient's reason on one line, as Messages starts an entry at a line that begins with a date.
+        $reason = preg_replace('/\s+/', ' ', self::text($task, 'status_reason') ?? '');
+        $reason = is_string($reason) && trim($reason) !== '' ? trim($reason) : null;
+        $text = $notice->text(self::text($referral, 'performer_name') ?? xl('The recipient'), self::text($referral, 'refer_date'), $reason);
         $now = $this->getClock()->now();
         // As other background notices are filed (labNotice(), the Direct message check).
         QueryUtils::sqlInsert(

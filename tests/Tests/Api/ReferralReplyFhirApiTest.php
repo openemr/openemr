@@ -284,6 +284,24 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * The recipient's reason goes into the notice on one line: Messages starts a new entry at any
+     * line that begins with a date, so a reason with a dated line would read as a second message.
+     */
+    public function testTheRecipientsReasonIsKeptOnOneLine(): void
+    {
+        $id = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $reason = "Outside our service area\n\n2026-10-20  seen\telsewhere \n";
+
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->onlyTask($id), 'rejected', ['statusReason' => ['text' => $reason]]));
+
+        $body = QueryUtils::fetchSingleValue('SELECT body FROM pnotes WHERE pid = ?', 'body', [$this->patient['pid']]);
+        $this->assertIsString($body);
+        $this->assertStringNotContainsString("\n", $body);
+        $this->assertStringEndsWith(' Zq Reply Pantry rejected the referral made on 2026-10-10: Outside our service area 2026-10-20 seen elsewhere', $body);
+    }
+
+    /**
      * A recipient that marks the Task failed is news to the referrer too, with their reason when
      * they gave one (Task.statusReason).
      */
