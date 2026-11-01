@@ -8615,8 +8615,10 @@ CREATE TABLE `patient_review_request` (
   `reviewed_by` bigint(20) DEFAULT NULL COMMENT 'users.id of the staff user who decided the request',
   `reviewed_at` datetime DEFAULT NULL,
   `review_note` text,
+  `legacy_activity_id` bigint(20) DEFAULT NULL COMMENT 'onsite_portal_activity.id this request was migrated from',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uuid` (`uuid`),
+  UNIQUE KEY `legacy_activity_id` (`legacy_activity_id`),
   KEY `status_type` (`status`,`type`),
   KEY `pid_type_status` (`pid`,`type`,`status`),
   KEY `created_at` (`created_at`)

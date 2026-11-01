@@ -21,6 +21,8 @@ namespace OpenEMR\Services\PatientReview;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PatientReview\Migration\LegacyActivityMapping;
+use OpenEMR\Services\PatientReview\Migration\PortalActivityMigrator;
 use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
 
 final class ReviewQueueFactory
@@ -40,6 +42,19 @@ final class ReviewQueueFactory
             ServiceContainer::getCrypto(),
             ServiceContainer::getLogger(),
             $handlers,
+        );
+    }
+
+    /**
+     * The onsite_portal_activity migration, as the SQL upgrade runs it.
+     */
+    public static function portalActivityMigrator(): PortalActivityMigrator
+    {
+        return new PortalActivityMigrator(
+            new LegacyActivityMapping(),
+            ServiceContainer::getClock(),
+            ServiceContainer::getUuidFactory(),
+            ServiceContainer::getLogger(),
         );
     }
 
