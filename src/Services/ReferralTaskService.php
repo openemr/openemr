@@ -680,7 +680,7 @@ class ReferralTaskService
             ReferralService::TABLE_NAME
         );
         if ($error !== '') {
-            return OEGlobalsBag::getInstance()->getBoolean('documentStoredRemotely') ? false : null;
+            return self::storedRemotely() ? false : null;
         }
         $id = $document->get_id();
         if (!is_numeric($id)) {
@@ -688,6 +688,15 @@ class ReferralTaskService
         }
         $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM documents WHERE id = ?', 'uuid', [(int)$id]);
         return is_string($uuid) ? UuidRegistry::uuidToString($uuid) : null;
+    }
+
+    /**
+     * Whether an offsite store took the document just made, read as Document::createDocument() reads
+     * it: any value PHP takes as true in documentStoredRemotely, not only a boolean.
+     */
+    private static function storedRemotely(): bool
+    {
+        return !in_array(OEGlobalsBag::getInstance()->get('documentStoredRemotely'), [null, false, 0, 0.0, '', '0', []], true);
     }
 
     /**

@@ -1130,6 +1130,23 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A listener may mark the upload with any value PHP takes as true, not only a boolean:
+     * Document::createDocument() takes it as stored offsite, and so does the reply.
+     */
+    public function testAnyTrueMarkOfRemoteStorageCountsAsStoredOffsite(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->storeDocumentsRemotely('uploaded');
+
+        $this->assertIsString((new ReferralTaskService(new UserService(), logger: self::logger()))->recordReply($id, null));
+
+        $this->assertSame('completed', $this->onlyTask($id)['status'] ?? null);
+        $this->assertSame([], $this->replyDocuments($id));
+    }
+
+    /**
      * A reply that can't be filed (no Medical Record category here) leaves the Task open, so the
      * Task never reaches completed without the reply as its output.
      */
@@ -1230,10 +1247,10 @@ class ReferralReplyFhirApiTest extends TestCase
      * Marks documents as an offsite store's PatientDocumentStoreOffsite listener does, so
      * Document::createDocument() writes no documents row; tearDown() puts it back.
      */
-    private function storeDocumentsRemotely(): void
+    private function storeDocumentsRemotely(mixed $mark = true): void
     {
         $this->remoteStorageBefore ??= [OEGlobalsBag::getInstance()->has('documentStoredRemotely'), OEGlobalsBag::getInstance()->get('documentStoredRemotely')];
-        OEGlobalsBag::getInstance()->set('documentStoredRemotely', true);
+        OEGlobalsBag::getInstance()->set('documentStoredRemotely', $mark);
     }
 
     /**
