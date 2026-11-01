@@ -1212,6 +1212,27 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A reply an offsite store took while the recipient put the Task in a final status has no
+     * local document to attach: the Task keeps the recipient's status, and the log says why the
+     * reply isn't on it.
+     */
+    public function testAReplyStoredOffsiteAsTheTaskWentFinalIsLogged(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->storeDocumentsRemotely();
+        $logger = self::logger();
+
+        $this->assertNull($this->replyRacing(['status' => 'rejected'], null, $logger)->recordReply($id, null));
+
+        $task = $this->onlyTask($id);
+        $this->assertSame('rejected', $task['status'] ?? null);
+        $this->assertArrayNotHasKey('output', $task);
+        $this->assertSame([['info', 'A referral\'s reply went to remote storage but its Task went final first, so it isn\'t attached']], $logger->records);
+    }
+
+    /**
      * A listener may mark the upload with any value PHP takes as true, not only a boolean:
      * Document::createDocument() takes it as stored offsite, and so does the reply.
      */

@@ -312,7 +312,16 @@ class ReferralTaskService
                 // filed the reply, as the recipient may have removed it from the outputs. A Task that
                 // went final during this save (the recipient's PUT to rejected came in between) gets
                 // the reply this save filed, or found already filed, while the Task was still open:
-                // attached as an output at the version read, without touching the status.
+                // attached as an output at the version read, without touching the status. A reply an
+                // offsite store took has no local document to attach, and the log says so.
+                if ($document === false) {
+                    $this->getLogger()->info('A referral\'s reply went to remote storage but its Task went final first, so it isn\'t attached', [
+                        'transaction_id' => $transactionId,
+                        'task_uuid' => $taskUuid,
+                        'status' => $status,
+                    ]);
+                    return null;
+                }
                 if (!is_string($document) || in_array($document, array_column(self::outputRows($task), 'value_uuid'), true)) {
                     return null;
                 }
