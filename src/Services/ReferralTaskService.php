@@ -406,7 +406,7 @@ class ReferralTaskService
     {
         $values = self::storedValues($transactionId);
         $name = self::replyFileName($transactionId, $values);
-        return $this->filedReply($transactionId, $name) ?? $this->fileReply($transactionId, $patientId, $name, self::replyText($values, $referral), $userId);
+        return $this->filedReply($transactionId, $patientId, $name) ?? $this->fileReply($transactionId, $patientId, $name, self::replyText($values, $referral), $userId);
     }
 
     /**
@@ -414,13 +414,15 @@ class ReferralTaskService
      * there's none. The name carries a key made from the reply's stored values (replyFileName()):
      * a reply edited since it was filed, or another recipient's after the referral was sent on, has
      * another name and is filed anew, while a change outside the reply (Refer To's entry renamed, a
-     * layout title changed) finds the reply already filed.
+     * layout title changed) finds the reply already filed. Only one still in the referral's
+     * patient's chart counts: Document::change_patient() moves a document to another chart and keeps
+     * its link to the referral, and that one isn't this patient's reply any more.
      */
-    private function filedReply(int $transactionId, string $name): ?string
+    private function filedReply(int $transactionId, int $patientId, string $name): ?string
     {
         $row = QueryUtils::querySingleRow(
-            'SELECT id, uuid FROM documents WHERE foreign_reference_table = ? AND foreign_reference_id = ? AND name = ? AND deleted = 0 ORDER BY id DESC LIMIT 1',
-            [ReferralService::TABLE_NAME, $transactionId, $name]
+            'SELECT id, uuid FROM documents WHERE foreign_reference_table = ? AND foreign_reference_id = ? AND foreign_id = ? AND name = ? AND deleted = 0 ORDER BY id DESC LIMIT 1',
+            [ReferralService::TABLE_NAME, $transactionId, $patientId, $name]
         );
         if (!is_array($row) || !is_numeric($row['id'] ?? null)) {
             return null;

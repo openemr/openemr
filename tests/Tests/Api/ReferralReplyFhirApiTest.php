@@ -706,6 +706,33 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A filed reply moved to another patient's chart (Document::change_patient() keeps its link to
+     * the referral) isn't this patient's reply any more: the next save files a new one in this
+     * patient's chart and completes the Task with it.
+     */
+    public function testAReplyMovedToAnotherChartIsFiledAgainForThisPatient(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->assertNull((new ReferralTaskService(new UserService(), taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
+        $moved = $this->replyDocuments($id);
+        $this->assertCount(1, $moved, 'filed before the update failed');
+        // Another chart: a patient id this test's patient doesn't have.
+        QueryUtils::sqlStatementThrowException('UPDATE documents SET foreign_id = ? WHERE id = ?', [$this->patient['pid'] + 900000, $moved[0]]);
+
+        $this->afterSave($id);
+
+        $task = $this->onlyTask($id);
+        $this->assertSame('completed', $task['status'] ?? null);
+        $this->assertCount(2, $this->replyDocuments($id), 'a new one for this patient');
+        $reference = self::at($task, 'output', 0, 'valueReference', 'reference');
+        $this->assertIsString($reference);
+        $owner = QueryUtils::fetchSingleValue('SELECT foreign_id FROM documents WHERE uuid = ?', 'foreign_id', [UuidRegistry::uuidToBytes(substr($reference, strlen('DocumentReference/')))]);
+        $this->assertEquals($this->patient['pid'], $owner);
+    }
+
+    /**
      * A reply edited after a save that filed it and then lost the Task's update is a new reply:
      * the next save files it and completes the Task with it, not with the text it replaced.
      */
