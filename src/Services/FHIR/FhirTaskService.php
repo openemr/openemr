@@ -72,8 +72,6 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
 
     private ?TaskService $taskService = null;
 
-    private ?ReferralTaskService $referralTaskService = null;
-
     /** The version an update must find (If-Match), or null for any. */
     private ?int $expectedVersion = null;
 
@@ -87,6 +85,16 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
 
     /** The types a task's references are looked up as on this server; they aren't any one patient's. */
     private const SERVER_TYPES = ['Questionnaire', 'Organization', 'Practitioner', 'PractitionerRole'];
+
+    /**
+     * @param ?ReferralTaskService $referralTaskService what a Task's status change is handed to, which tells
+     *     the one who made a referral when its Task is accepted, rejected or completed; made the first
+     *     time it's needed when none is given
+     */
+    public function __construct(?string $fhirApiURL = null, private ?ReferralTaskService $referralTaskService = null)
+    {
+        parent::__construct($fhirApiURL);
+    }
 
     private function getTaskService(): TaskService
     {
@@ -105,15 +113,6 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     private function getReferralTaskService(): ReferralTaskService
     {
         return $this->referralTaskService ??= new ReferralTaskService();
-    }
-
-    /**
-     * Puts another ReferralTaskService behind a Task's status change, which tells the one who made a
-     * referral when its Task is accepted, rejected or completed.
-     */
-    public function setReferralTaskService(ReferralTaskService $referralTaskService): void
-    {
-        $this->referralTaskService = $referralTaskService;
     }
 
     /**

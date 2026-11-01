@@ -260,8 +260,7 @@ class ReferralReplyFhirApiTest extends TestCase
                 $this->changes[] = [$taskUuid, $from, $to];
             }
         };
-        $service = new FhirTaskService();
-        $service->setReferralTaskService($notices);
+        $service = new FhirTaskService(referralTaskService: $notices);
         unset($task['meta']);
         $task['status'] = 'accepted';
 
