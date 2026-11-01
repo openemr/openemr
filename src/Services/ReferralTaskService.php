@@ -377,9 +377,11 @@ class ReferralTaskService
     }
 
     /**
-     * After the FHIR API changes a Task's status: when the Task tracks a referral and is now
-     * accepted, rejected or completed, a message to the one who made the referral (Refer By),
-     * in their inbox under the Referral type. Nothing when the global is off.
+     * After the FHIR API changes a Task's status: when the Task is a referral's own (isOwnTask())
+     * and is now accepted, rejected or completed, a message to the one who made the referral
+     * (Refer By), in their inbox under the Referral type. A recipient's sub-Task, or another Task
+     * with the referral as its focus, doesn't count, as it doesn't for the referral's status.
+     * Nothing when the global is off.
      *
      * Called once the Task's update is committed, so a failure is logged, not thrown: thrown, it
      * would answer the client's successful PUT with an error, and a retry naming the version it
@@ -411,7 +413,7 @@ class ReferralTaskService
     {
         $task = $this->getTaskService()->getOne($taskUuid);
         $focus = $task === null ? null : self::text($task, 'focus_uuid');
-        if ($task === null || ($task['focus_type'] ?? null) !== 'ServiceRequest' || $focus === null) {
+        if ($task === null || !self::isOwnTask($task) || ($task['focus_type'] ?? null) !== 'ServiceRequest' || $focus === null) {
             return;
         }
         $referral = $this->getReferralService()->getReferralByUuid($focus);
@@ -663,11 +665,21 @@ class ReferralTaskService
         $tasks = $this->getTaskService()->search($search)->getData();
         $own = [];
         foreach (is_array($tasks) ? $tasks : [] as $task) {
-            if (is_array($task) && ($task['code'] ?? null) === 'fulfill' && in_array($task['part_of_uuid'] ?? null, [null, ''], true)) {
+            if (is_array($task) && self::isOwnTask($task)) {
                 $own[] = $task;
             }
         }
         return $own;
+    }
+
+    /**
+     * Whether a Task is one this service makes: code fulfill and not part of another Task.
+     *
+     * @param array<mixed> $task
+     */
+    private static function isOwnTask(array $task): bool
+    {
+        return ($task['code'] ?? null) === 'fulfill' && in_array($task['part_of_uuid'] ?? null, [null, ''], true);
     }
 
     /**

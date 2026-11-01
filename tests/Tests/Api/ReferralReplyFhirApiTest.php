@@ -20,6 +20,7 @@ use Document;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\TaskService;
@@ -217,6 +218,34 @@ class ReferralReplyFhirApiTest extends TestCase
         }
         $this->assertStringContainsString(': Accepted', $bodies[0]);
         $this->assertStringContainsString(': Completed', $bodies[1]);
+    }
+
+    /**
+     * Only the referral's own Task is news to the referrer: a recipient's sub-Task, or a Task of
+     * another kind with the referral as its focus, completed through the API files no message.
+     */
+    public function testTheReferrerHearsNothingOfOtherTasksAboutTheReferral(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $own = $this->onlyTask($id);
+        $ownUuid = $own['id'] ?? null;
+        $this->assertIsString($ownUuid);
+        $referralUuid = QueryUtils::fetchSingleValue('SELECT uuid FROM transactions WHERE id = ?', 'uuid', [$id]);
+        $this->assertIsString($referralUuid);
+        $about = [
+            'status' => 'requested', 'intent' => 'order', 'code_system' => FhirTaskService::TASK_CODE_SYSTEM, 'focus_type' => 'ServiceRequest',
+            'focus_uuid' => UuidRegistry::uuidToString($referralUuid), 'owner_type' => 'Organization', 'owner_uuid' => $this->people['pantry']['uuid'],
+        ];
+        $subTask = (new TaskService())->insert($about + ['code' => 'fulfill', 'part_of_uuid' => $ownUuid], $this->patient['pid'], null);
+        $approval = (new TaskService())->insert($about + ['code' => 'approve'], $this->patient['pid'], null);
+
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->read('Task', $subTask), 'completed'));
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->read('Task', $approval), 'completed'));
+        $this->assertSame([], QueryUtils::fetchRecords('SELECT id FROM pnotes WHERE pid = ?', [$this->patient['pid']]));
+
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->read('Task', $ownUuid), 'accepted'));
+        $this->assertCount(1, QueryUtils::fetchRecords('SELECT id FROM pnotes WHERE pid = ?', [$this->patient['pid']]), 'the referral\'s own Task');
     }
 
     /**
