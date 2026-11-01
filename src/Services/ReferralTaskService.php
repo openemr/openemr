@@ -502,17 +502,19 @@ class ReferralTaskService
     }
 
     /**
-     * The Counter-Referral section as the text fileReply() files, as the referral's layout has it:
-     * the title of the group that holds the Reply Date, the Referral Date and Refer To, then each
-     * field in use (uor above 0) that has a value, of that group and its subgroups, in the form's
-     * order. A layout that keeps the reply in the referral's own group (one that holds Refer To too,
-     * as a one-tab form does) has no section of its own: the text then takes only the reply's own
-     * fields (reply_*) from it, under the seeded heading, so nothing of the referral itself goes
-     * into the reply. Titles are the layout's as stored, not translated, and values are as stored
-     * (a date stays YYYY-MM-DD, a list field keeps its option id), so the text reads the same
-     * whoever saves the referral: filedReply() finds a filed reply by its text, and a retry by a
-     * user in another language would otherwise file it a second time. A field a site added to the
-     * section is in the text, and a title it changed reads as the site wrote it.
+     * The Counter-Referral section as the text fileReply() files, as the referral's layout has it.
+     * It opens with a heading, the Referral Date and Refer To, then lists each field in use (uor
+     * above 0) that has a value, in the form's order. Every field of the reply's own (an id that
+     * starts with reply_) is listed, whichever group it is in. The other fields of the group that
+     * holds the Reply Date, and of its subgroups, are listed only when that group and its subgroups
+     * hold none of the referral's own fields (an id that starts with refer_, body or
+     * billing_facility_id): it is then the reply's own section, so a field a site added to it is
+     * in the text, and its title is the heading. Otherwise, as on a form that keeps the referral and
+     * its reply in one group, the heading is "Counter-Referral" and nothing of the referral itself
+     * goes into the reply. Titles are the layout's as stored, not translated, and values are as
+     * stored (a date stays YYYY-MM-DD, a list field keeps its option id), so the text reads the
+     * same whoever saves the referral: filedReply() finds a filed reply by its text, and a retry by
+     * a user in another language would otherwise file it a second time.
      *
      * @param array<string, mixed> $referral
      */
@@ -528,7 +530,7 @@ class ReferralTaskService
         // one character more), each by seq, with the field id breaking a tie so the order never varies.
         $layout = QueryUtils::fetchRecords('SELECT field_id, group_id, title, uor FROM layout_options WHERE form_id = ? ORDER BY group_id, seq, field_id', [ReferralService::FORM_ID]);
         $titles = [];
-        $groups = [];
+        $group = null;
         foreach ($layout as $row) {
             $field = $row['field_id'] ?? null;
             $title = $row['title'] ?? null;
@@ -536,18 +538,28 @@ class ReferralTaskService
             if (is_string($field) && is_string($rowGroup)) {
                 // A field without a title goes by its id.
                 $titles[$field] ??= is_string($title) && trim($title) !== '' ? trim($title) : $field;
-                $groups[$field] ??= $rowGroup;
+                if ($field === 'reply_date') {
+                    $group ??= $rowGroup;
+                }
             }
         }
-        $group = $groups['reply_date'] ?? null;
-        $merged = $group !== null && isset($groups['refer_to']) && str_starts_with($groups['refer_to'], $group);
-        $heading = $group === null || $merged ? null : QueryUtils::fetchSingleValue(
+        // The Reply Date's group, with its subgroups, is the reply's own section unless it holds a field of the referral's.
+        $ownSection = $group !== null;
+        foreach ($layout as $row) {
+            $field = $row['field_id'] ?? null;
+            $rowGroup = $row['group_id'] ?? null;
+            if ($group !== null && is_string($field) && is_string($rowGroup) && str_starts_with($rowGroup, $group) && self::isReferralField($field)) {
+                $ownSection = false;
+            }
+        }
+        $section = $ownSection ? $group : null;
+        $heading = $section === null ? null : QueryUtils::fetchSingleValue(
             'SELECT grp_title FROM layout_group_properties WHERE grp_form_id = ? AND grp_group_id = ?',
             'grp_title',
-            [ReferralService::FORM_ID, $group]
+            [ReferralService::FORM_ID, $section]
         );
         $lines = [
-            // The seeded group's title when the site's has none, or the reply has no group of its own.
+            // The seeded group's title when the site's has none, or the reply has no section of its own.
             is_string($heading) && trim($heading) !== '' ? trim($heading) : 'Counter-Referral',
             ($titles['refer_date'] ?? 'refer_date') . ': ' . ($values['refer_date'] ?? ''),
             ($titles['refer_to'] ?? 'refer_to') . ': ' . (self::text($referral, 'performer_name') ?? ''),
@@ -557,10 +569,10 @@ class ReferralTaskService
         foreach ($layout as $row) {
             $field = $row['field_id'] ?? null;
             $rowGroup = $row['group_id'] ?? null;
-            $inSection = $group !== null && is_string($field) && is_string($rowGroup) && str_starts_with($rowGroup, $group)
-                && (!$merged || str_starts_with($field, 'reply_'));
+            $inReply = is_string($field) && is_string($rowGroup)
+                && (str_starts_with($field, 'reply_') || ($section !== null && str_starts_with($rowGroup, $section)));
             if (
-                $inSection && isset($values[$field]) && !isset($listed[$field])
+                $inReply && isset($values[$field]) && !isset($listed[$field])
                 && is_numeric($row['uor'] ?? null) && (int)$row['uor'] > 0
             ) {
                 $listed[$field] = true;
@@ -568,6 +580,15 @@ class ReferralTaskService
             }
         }
         return implode("\n", $lines) . "\n";
+    }
+
+    /**
+     * Whether a field of the referral's layout is one of the referral's own, not the reply's: Refer
+     * By, Refer To and the other refer_ fields, the reason, the billing facility.
+     */
+    private static function isReferralField(string $field): bool
+    {
+        return str_starts_with($field, 'refer_') || in_array($field, ['body', 'billing_facility_id'], true);
     }
 
     /**

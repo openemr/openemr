@@ -688,6 +688,52 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A site that moved only the Reply Date next to Refer To, leaving the other reply fields in
+     * their section, still files the whole reply, and nothing of the referral itself.
+     */
+    public function testAReplyDateMovedIntoTheReferralsGroupKeepsTheRestOfTheReply(): void
+    {
+        $group = QueryUtils::fetchSingleValue("SELECT group_id FROM layout_options WHERE form_id = 'LBTref' AND field_id = 'refer_to'", 'group_id', []);
+        $this->assertIsString($group);
+        $this->moveLayoutFields($group, ['reply_date']);
+        $id = $this->saveReferral([
+            'refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'],
+            'body' => 'Food insecurity', 'billing_facility_id' => '3',
+        ]);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_from' => 'Zq intake desk', 'reply_findings' => 'Enrolled']);
+
+        $this->afterSave($id);
+
+        $this->assertSame(
+            "Counter-Referral\nReferral Date: 2026-10-10\nRefer To: Zq Reply Pantry\n\nReply Date: 2026-10-18\nReply From: Zq intake desk\nFindings: Enrolled\n",
+            $this->outputText($this->onlyTask($id), 0)
+        );
+    }
+
+    /**
+     * A group that holds the Reply Date with some of the referral's own fields (Refer By and the
+     * reason) but not Refer To isn't the reply's own section either: none of them goes into it.
+     */
+    public function testAReplyGroupedWithSomeOfTheReferralsFieldsTakesNoneOfThem(): void
+    {
+        $group = QueryUtils::fetchSingleValue("SELECT group_id FROM layout_options WHERE form_id = 'LBTref' AND field_id = 'refer_to'", 'group_id', []);
+        $this->assertIsString($group);
+        // A subgroup of the referral's group, without Refer To.
+        $this->moveLayoutFields($group . '1', ['reply_date', 'refer_from', 'body']);
+        $id = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+
+        $this->afterSave($id);
+
+        $this->assertSame(
+            "Counter-Referral\nReferral Date: 2026-10-10\nRefer To: Zq Reply Pantry\n\nReply Date: 2026-10-18\nFindings: Enrolled\n",
+            $this->outputText($this->onlyTask($id), 0)
+        );
+    }
+
+    /**
      * A referral sent on to another recipient after the first one's reply was recorded: the
      * second recipient's reply is filed as its own document and completes their Task, and the
      * first recipient's Task keeps the first reply.
@@ -876,13 +922,32 @@ class ReferralReplyFhirApiTest extends TestCase
      */
     private function moveReplyFieldsTo(string $group): void
     {
-        foreach (QueryUtils::fetchRecords("SELECT field_id, seq, group_id FROM layout_options WHERE form_id = 'LBTref' AND field_id LIKE 'reply\\_%'") as $row) {
+        $fields = [];
+        foreach (QueryUtils::fetchTableColumn("SELECT field_id FROM layout_options WHERE form_id = 'LBTref' AND field_id LIKE 'reply\\_%'", 'field_id') as $field) {
+            if (is_string($field)) {
+                $fields[] = $field;
+            }
+        }
+        $this->moveLayoutFields($group, $fields);
+    }
+
+    /**
+     * Moves fields of the referral's layout to another group, as a site may have rearranged them;
+     * tearDown() puts them back.
+     *
+     * @param list<string> $fields
+     */
+    private function moveLayoutFields(string $group, array $fields): void
+    {
+        $marks = implode(', ', array_fill(0, count($fields), '?'));
+        $rows = QueryUtils::fetchRecords("SELECT field_id, seq, group_id FROM layout_options WHERE form_id = 'LBTref' AND field_id IN ($marks)", $fields);
+        $this->assertCount(count($fields), $rows);
+        foreach ($rows as $row) {
             $field = $row['field_id'] ?? null;
             $this->assertIsString($field);
             $this->movedLayoutFields[] = [$field, $row['seq'] ?? null, $row['group_id'] ?? null];
             QueryUtils::sqlStatementThrowException("UPDATE layout_options SET group_id = ? WHERE form_id = 'LBTref' AND field_id = ? AND seq = ?", [$group, $field, $row['seq'] ?? null]);
         }
-        $this->assertNotSame([], $this->movedLayoutFields);
     }
 
     /**
