@@ -58,7 +58,9 @@ final class UnitStringParser
     /**
      * @return array{UcumUnit|null, ?string} the unit, and the
      *     expression it was read as (null after an annotation error)
-     * @throws UcumException where ucum-lhc throws
+     * @throws UcumException where ucum-lhc throws, and for a power whose exponent or
+     *     dimensions pass PHP's integer range (a product or quotient that does comes
+     *     back as no unit)
      */
     public function parse(string $unitString): array
     {
@@ -460,10 +462,10 @@ final class UnitStringParser
             if ($unit->isSpecial) {
                 return [null, $origString];
             }
-            $exponent = (int) JavaScript::parseSignedDigits($exponentText);
-            $unit->dim = array_map(static fn (int $d): int => $d * $exponent, $unit->dim);
-            $unit->equivalentExp *= $exponent;
-            $unit->moleExp *= $exponent;
+            $exponent = UcumUnit::exponent(JavaScript::parseSignedDigits($exponentText));
+            $unit->dim = array_map(static fn (int $d): int => UcumUnit::exponent($d * $exponent), $unit->dim);
+            $unit->equivalentExp = UcumUnit::exponent($unit->equivalentExp * $exponent);
+            $unit->moleExp = UcumUnit::exponent($unit->moleExp * $exponent);
             $magnitude = Fdlibm::pow($magnitude, $exponent);
             $unit->magnitude = $magnitude;
             if ($prefix !== null) {
