@@ -247,8 +247,9 @@ class ReferralTaskService
      * documents row) counts as filed: the Task is completed without it as an output, the log says
      * so, and the reply is uploaded once however many times the Task is read again in this call.
      * The update names the version it read, so a recipient's change in between (a PUT to
-     * rejected, or a new output) isn't written over: the Task is read again, and one that has
-     * reached a final status in the meantime stays as it is.
+     * rejected, or a new output) isn't written over: the Task is read again. One that has reached
+     * a final status in the meantime keeps the status the recipient gave it, and the reply this
+     * save filed is attached as its output, so no filed reply is left without its Task.
      *
      * @return ?string the completed Task's uuid
      */
@@ -301,11 +302,25 @@ class ReferralTaskService
             $status = $task === null ? null : self::text($task, 'status');
             $taskUuid = $task === null ? null : self::text($task, 'uuid');
             $version = $task['version'] ?? null;
-            if (
-                $task === null || $taskUuid === null || $status === null || !is_numeric($version)
-                || in_array($status, FhirTaskWriteRules::FINAL_STATUSES, true)
-            ) {
+            if ($task === null || $taskUuid === null || $status === null || !is_numeric($version)) {
                 return null;
+            }
+            if (in_array($status, FhirTaskWriteRules::FINAL_STATUSES, true)) {
+                // Final before this save filed anything: left as it is. Final once it had (the
+                // recipient's PUT to rejected came in between): the reply is attached as an output,
+                // at the version read, without touching the status the recipient gave it.
+                if (!is_string($document) || in_array($document, array_column(self::outputRows($task), 'value_uuid'), true)) {
+                    return null;
+                }
+                if ($this->getTaskService()->update($taskUuid, [], $userId, (int)$version, null, self::withReply($task, $document))) {
+                    $this->getLogger()->info('A referral\'s reply was filed as its Task reached a final status, so it was attached to the Task as it is', [
+                        'transaction_id' => $transactionId,
+                        'task_uuid' => $taskUuid,
+                        'status' => $status,
+                    ]);
+                    return null;
+                }
+                continue;
             }
             $document ??= $this->replyDocument($transactionId, (int)$patientId, $referral, $userId);
             if ($document === null) {
@@ -315,16 +330,7 @@ class ReferralTaskService
                 ]);
                 return null;
             }
-            $outputs = [];
-            foreach (self::outputRows($task) as $row) {
-                // The reply once, however many times it's recorded.
-                if (($row['value_uuid'] ?? null) !== $document) {
-                    $outputs[] = $row;
-                }
-            }
-            if ($document !== false) {
-                $outputs[] = self::REPLY_OUTPUT_TYPE + ['value_element' => 'valueReference', 'value_type' => 'DocumentReference', 'value_uuid' => $document];
-            }
+            $outputs = $document === false ? self::outputRows($task) : self::withReply($task, $document);
             if ($this->getTaskService()->update($taskUuid, ['status' => 'completed'], $userId, (int)$version, null, $outputs)) {
                 if ($document === false) {
                     $this->getLogger()->info('A referral\'s reply went to remote storage, so its Task was completed without the reply as its output', [
@@ -342,6 +348,25 @@ class ReferralTaskService
             'document_uuid' => $document,
         ]);
         return null;
+    }
+
+    /**
+     * A Task's outputs with the reply's document as the last of them, once however many times it's
+     * recorded.
+     *
+     * @param array<string, mixed> $task
+     * @return list<array<string, string|null>>
+     */
+    private static function withReply(array $task, string $document): array
+    {
+        $outputs = [];
+        foreach (self::outputRows($task) as $row) {
+            if (($row['value_uuid'] ?? null) !== $document) {
+                $outputs[] = $row;
+            }
+        }
+        $outputs[] = self::REPLY_OUTPUT_TYPE + ['value_element' => 'valueReference', 'value_type' => 'DocumentReference', 'value_uuid' => $document];
+        return $outputs;
     }
 
     /**

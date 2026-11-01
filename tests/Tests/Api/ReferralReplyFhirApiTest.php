@@ -998,18 +998,34 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
-     * A recipient that rejects the Task between the reply's read and its write keeps their
-     * rejection: the reply doesn't write completed over it.
+     * A recipient that rejects the Task between the reply's filing and its write keeps their
+     * rejection: the reply doesn't write completed over it. The reply already filed is attached as
+     * the Task's output, so it isn't left in the chart without its Task.
      */
-    public function testARejectionMadeWhileTheReplyIsRecordedStands(): void
+    public function testARejectionMadeWhileTheReplyIsRecordedStandsWithTheReplyAttached(): void
     {
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
         $this->afterSave($id);
-        $this->saveFields($id, ['reply_date' => '2026-10-18']);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $logger = self::logger();
 
-        $this->assertNull($this->replyRacing(['status' => 'rejected'])->recordReply($id, null));
+        $this->assertNull($this->replyRacing(['status' => 'rejected'], null, $logger)->recordReply($id, null));
 
-        $this->assertSame('rejected', $this->onlyTask($id)['status'] ?? null);
+        $task = $this->onlyTask($id);
+        $this->assertSame('rejected', $task['status'] ?? null);
+        $outputs = self::at($task, 'output');
+        $this->assertIsArray($outputs);
+        $this->assertCount(1, $outputs);
+        $this->assertCount(1, $this->replyDocuments($id));
+        $this->assertStringContainsString("Findings: Enrolled\n", $this->outputText($task, 0));
+        $this->assertSame([['info', 'A referral\'s reply was filed as its Task reached a final status, so it was attached to the Task as it is']], $logger->records);
+
+        // The next save finds it attached and changes nothing.
+        $this->afterSave($id);
+        $this->assertCount(1, $this->replyDocuments($id));
+        $again = self::at($this->onlyTask($id), 'output');
+        $this->assertIsArray($again);
+        $this->assertCount(1, $again);
     }
 
     /**
