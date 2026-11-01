@@ -297,6 +297,67 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A reply edited after a save that filed it and then lost the Task's update is a new reply:
+     * the next save files it and completes the Task with it, not with the text it replaced.
+     */
+    public function testAReplyEditedAfterItsTaskUpdateFailedIsFiledAnew(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $failing = new class extends TaskService {
+            public function update(string $uuid, array $fields, ?int $userId, ?int $expectedVersion = null, ?array $inputs = null, ?array $outputs = null): bool
+            {
+                throw new \RuntimeException('the Task could not be updated');
+            }
+        };
+        $this->assertNull((new ReferralTaskService(taskService: $failing, logger: self::logger()))->afterSave($id, null));
+        $this->assertCount(1, $this->replyDocuments($id), 'the first text was filed before the update failed');
+        $this->saveFields($id, ['reply_findings' => 'Enrolled in weekly delivery']);
+
+        $this->afterSave($id);
+
+        $task = $this->onlyTask($id);
+        $this->assertSame('completed', $task['status'] ?? null);
+        $this->assertCount(2, $this->replyDocuments($id), 'the edited reply is filed beside the first');
+        $outputs = self::at($task, 'output');
+        $this->assertIsArray($outputs);
+        $this->assertCount(1, $outputs);
+        $this->assertStringContainsString('Findings: Enrolled in weekly delivery', $this->outputText($task, 0));
+    }
+
+    /**
+     * A referral sent on to another recipient after the first one's reply was recorded: the
+     * second recipient's reply is filed as its own document and completes their Task, and the
+     * first recipient's Task keeps the first reply.
+     */
+    public function testASecondRecipientsReplyIsFiledForTheirTask(): void
+    {
+        $this->people['clinic'] = $this->insertPerson(['abook_type' => 'external_org', 'organization' => 'Zq Reply Clinic']);
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+        // Sent on: a referral with a Reply Date gets no new Task, so the Reply Date is cleared first.
+        $this->saveFields($id, ['refer_to' => $this->people['clinic']['id'], 'reply_date' => '']);
+        $this->afterSave($id);
+        $this->assertSame('requested', $this->taskOf($id, 'clinic')['status'] ?? null);
+        $this->saveFields($id, ['reply_date' => '2026-10-25', 'reply_findings' => 'Seen in clinic']);
+
+        $this->afterSave($id);
+
+        $this->assertCount(2, $this->replyDocuments($id));
+        $clinic = $this->taskOf($id, 'clinic');
+        $this->assertSame('completed', $clinic['status'] ?? null);
+        $clinicReply = $this->outputText($clinic, 0);
+        $this->assertStringContainsString('Refer To: Zq Reply Clinic', $clinicReply);
+        $this->assertStringContainsString('Findings: Seen in clinic', $clinicReply);
+        $pantryReply = $this->outputText($this->taskOf($id, 'pantry'), 0);
+        $this->assertStringContainsString('Refer To: Zq Reply Pantry', $pantryReply);
+        $this->assertStringContainsString('Findings: Enrolled', $pantryReply);
+    }
+
+    /**
      * A recipient that rejects the Task between the reply's read and its write keeps their
      * rejection: the reply doesn't write completed over it.
      */
@@ -467,6 +528,47 @@ class ReferralReplyFhirApiTest extends TestCase
         $task = self::at($entries, 0, 'resource');
         $this->assertIsArray($task);
         return $task;
+    }
+
+    /**
+     * The referral's Task that one of the test's people owns, read through the API.
+     *
+     * @return array<mixed>
+     * @phpstan-impure the Task changes between reads
+     */
+    private function taskOf(int $transactionId, string $person): array
+    {
+        $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM transactions WHERE id = ?', 'uuid', [$transactionId]);
+        $this->assertIsString($uuid);
+        $response = $this->testClient->get(self::FHIR_URL . 'Task', [
+            'focus' => 'ServiceRequest/' . UuidRegistry::uuidToString($uuid),
+            'owner' => 'Organization/' . $this->people[$person]['uuid'],
+        ]);
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), (string)$response->getBody());
+        $bundle = json_decode((string)$response->getBody(), true);
+        $this->assertIsArray($bundle);
+        $entries = is_array($bundle['entry'] ?? null) ? $bundle['entry'] : [];
+        $this->assertCount(1, $entries);
+        $task = self::at($entries, 0, 'resource');
+        $this->assertIsArray($task);
+        return $task;
+    }
+
+    /**
+     * The text of the document a Task's output refers to.
+     *
+     * @param array<mixed> $task
+     */
+    private function outputText(array $task, int $output): string
+    {
+        $reference = self::at($task, 'output', $output, 'valueReference', 'reference');
+        $this->assertIsString($reference);
+        $this->assertStringStartsWith('DocumentReference/', $reference);
+        $documentId = QueryUtils::fetchSingleValue('SELECT id FROM documents WHERE uuid = ?', 'id', [UuidRegistry::uuidToBytes(substr($reference, strlen('DocumentReference/')))]);
+        $this->assertIsNumeric($documentId);
+        $text = (new Document((int)$documentId))->get_data();
+        $this->assertIsString($text);
+        return $text;
     }
 
     /**

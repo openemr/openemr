@@ -228,8 +228,9 @@ class ReferralTaskService
      * the global is off, there's no Task, or the Task is already in a final status.
      *
      * It runs under the referral's lock, as createForReferral() does, so two saves at once file
-     * one document. The reply is filed once per referral: a save that finds it already filed (an
-     * earlier save filed it, then lost the Task's update) uses that document. The Task isn't
+     * one document. A reply is filed once: a save that finds the same reply already filed (an
+     * earlier save filed it, then lost the Task's update) uses that document, while a reply edited
+     * since, or another recipient's after the referral was sent on, is filed anew. The Task isn't
      * completed without it, so a reply that couldn't be filed is tried again on the next save.
      * The update names the version it read, so a recipient's change in between (a PUT to
      * rejected, or a new output) isn't written over: the Task is read again, and one that has
@@ -285,7 +286,7 @@ class ReferralTaskService
             ) {
                 return null;
             }
-            $document ??= $this->filedReply($transactionId) ?? $this->fileReply($transactionId, (int)$patientId, $referral, $userId);
+            $document ??= $this->replyDocument($transactionId, (int)$patientId, $referral, $userId);
             if ($document === null) {
                 $this->getLogger()->warning('A referral\'s reply was not filed, so its Task was left open', [
                     'transaction_id' => $transactionId,
@@ -337,13 +338,28 @@ class ReferralTaskService
     }
 
     /**
-     * The uuid of the reply fileReply() already filed for the referral, or null when there's none.
+     * The uuid of the referral's reply as a document: the one already filed when it's the same
+     * reply (filedReply()), else a new one (fileReply()).
+     *
+     * @param array<string, mixed> $referral
      */
-    private function filedReply(int $transactionId): ?string
+    private function replyDocument(int $transactionId, int $patientId, array $referral, ?int $userId): ?string
+    {
+        $text = $this->replyText($transactionId, $referral);
+        return $this->filedReply($transactionId, $text) ?? $this->fileReply($transactionId, $patientId, $text, $userId);
+    }
+
+    /**
+     * The uuid of a reply fileReply() already filed for the referral with this text, or null when
+     * there's none. A different text is a different reply: one edited since it was filed, or another
+     * recipient's after the referral was sent on, so it's filed anew rather than taking the old one.
+     * Compared by the hash Document::createDocument() keeps of what it stored.
+     */
+    private function filedReply(int $transactionId, string $text): ?string
     {
         $row = QueryUtils::querySingleRow(
-            'SELECT id, uuid FROM documents WHERE foreign_reference_table = ? AND foreign_reference_id = ? AND name = ? AND deleted = 0 ORDER BY id DESC LIMIT 1',
-            [ReferralService::TABLE_NAME, $transactionId, self::replyFileName($transactionId)]
+            'SELECT id, uuid FROM documents WHERE foreign_reference_table = ? AND foreign_reference_id = ? AND name = ? AND hash = ? AND deleted = 0 ORDER BY id DESC LIMIT 1',
+            [ReferralService::TABLE_NAME, $transactionId, self::replyFileName($transactionId), hash('sha3-512', $text)]
         );
         if (!is_array($row) || !is_numeric($row['id'] ?? null)) {
             return null;
@@ -458,18 +474,12 @@ class ReferralTaskService
     }
 
     /**
-     * The Counter-Referral section as a text document in the patient's Medical Record,
-     * linked to the referral. Returns its uuid, or null when there's no Medical Record
-     * category or the document couldn't be saved.
+     * The Counter-Referral section as the text fileReply() files.
      *
      * @param array<string, mixed> $referral
      */
-    private function fileReply(int $transactionId, int $patientId, array $referral, ?int $userId): ?string
+    private function replyText(int $transactionId, array $referral): string
     {
-        $category = QueryUtils::fetchSingleValue("SELECT id FROM categories WHERE name = 'Medical Record' ORDER BY id LIMIT 1", 'id', []);
-        if (!is_numeric($category)) {
-            return null;
-        }
         $fields = [];
         foreach (QueryUtils::fetchRecords("SELECT field_id, field_value FROM lbt_data WHERE form_id = ?", [$transactionId]) as $row) {
             if (is_string($row['field_id'] ?? null) && is_string($row['field_value'] ?? null) && trim($row['field_value']) !== '') {
@@ -487,7 +497,20 @@ class ReferralTaskService
                 $lines[] = $labels[$field] . ': ' . $fields[$field];
             }
         }
-        $data = implode("\n", $lines) . "\n";
+        return implode("\n", $lines) . "\n";
+    }
+
+    /**
+     * The reply's text as a document in the patient's Medical Record, linked to the referral.
+     * Returns its uuid, or null when there's no Medical Record category or the document couldn't
+     * be saved.
+     */
+    private function fileReply(int $transactionId, int $patientId, string $text, ?int $userId): ?string
+    {
+        $category = QueryUtils::fetchSingleValue("SELECT id FROM categories WHERE name = 'Medical Record' ORDER BY id LIMIT 1", 'id', []);
+        if (!is_numeric($category)) {
+            return null;
+        }
         $owner = $userId ?? (new UserService())->getSystemUser()['id'] ?? 0;
         $document = new \Document();
         $error = $document->createDocument(
@@ -495,7 +518,7 @@ class ReferralTaskService
             (int)$category,
             self::replyFileName($transactionId),
             'text/plain',
-            $data,
+            $text,
             '',
             1,
             (int)$owner,
