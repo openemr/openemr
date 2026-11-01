@@ -23,10 +23,17 @@ enum ReferralTaskNotice: string
     case Completed = 'completed';
 
     /**
-     * The notice, naming the recipient and, when the referral has one, its Referral Date.
+     * The notice, naming the recipient and, when the referral has one, its Referral Date. A
+     * rejection ends with the recipient's reason (the Task's statusReason) when they gave one; the
+     * other notices don't carry it.
      */
-    public function text(string $recipient, ?string $referralDate): string
+    public function text(string $recipient, ?string $referralDate, ?string $reason = null): string
     {
+        if ($this === self::Rejected && $reason !== null) {
+            return $referralDate === null
+                ? sprintf(xl('%1$s rejected the referral: %2$s'), $recipient, $reason)
+                : sprintf(xl('%1$s rejected the referral made on %2$s: %3$s'), $recipient, $referralDate, $reason);
+        }
         if ($referralDate === null) {
             return sprintf(match ($this) {
                 self::Accepted => xl('%s accepted the referral.'),

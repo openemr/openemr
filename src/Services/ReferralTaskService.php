@@ -395,10 +395,11 @@ class ReferralTaskService
     /**
      * After the FHIR API changes a Task's status: when the Task is a referral's own (isOwnTask()),
      * owned by the referral's recipient (Refer To), and is now accepted, rejected or completed, a
-     * message to the one who made the referral (Refer By), in their inbox under the Referral type.
-     * The message says Refer To acted, so a recipient's sub-Task, another Task with the referral as
-     * its focus, or one an API client made for someone else doesn't count. Nothing when the global
-     * is off, or when Refer By is no longer an active user (that is logged).
+     * message to the one who made the referral (Refer By), in their inbox under the Referral type;
+     * a rejection carries the recipient's reason when the Task has one. The message says Refer To
+     * acted, so a recipient's sub-Task, another Task with the referral as its focus, or one an API
+     * client made for someone else doesn't count. Nothing when the global is off, or when Refer By
+     * is no longer an active user (that is logged).
      *
      * Called once the Task's update is committed, so a failure is logged, not thrown: thrown, it
      * would answer the client's successful PUT with an error, and a retry naming the version it
@@ -456,7 +457,7 @@ class ReferralTaskService
         }
         $sender = $userId === null ? null : QueryUtils::fetchSingleValue('SELECT username FROM users WHERE id = ?', 'username', [$userId]);
         $sender = is_string($sender) && $sender !== '' ? $sender : 'FHIR API';
-        $text = $notice->text(self::text($referral, 'performer_name') ?? xl('The recipient'), self::text($referral, 'refer_date'));
+        $text = $notice->text(self::text($referral, 'performer_name') ?? xl('The recipient'), self::text($referral, 'refer_date'), self::text($task, 'status_reason'));
         $now = $this->getClock()->now();
         // As other background notices are filed (labNotice(), the Direct message check).
         QueryUtils::sqlInsert(

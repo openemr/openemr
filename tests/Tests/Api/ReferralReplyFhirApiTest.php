@@ -235,6 +235,23 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A recipient that rejects the referral with a reason (Task.statusReason) has it passed on: the
+     * referrer's notice ends with it.
+     */
+    public function testARejectionCarriesTheRecipientsReason(): void
+    {
+        $id = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->onlyTask($id), 'rejected', ['statusReason' => ['text' => 'Outside our service area']]));
+
+        $this->assertSame('Outside our service area', self::at($this->onlyTask($id), 'statusReason', 'text'));
+        $body = QueryUtils::fetchSingleValue('SELECT body FROM pnotes WHERE pid = ?', 'body', [$this->patient['pid']]);
+        $this->assertIsString($body);
+        $this->assertStringEndsWith(' to zq-reply-referrer) Zq Reply Pantry rejected the referral made on 2026-10-10: Outside our service area', $body);
+    }
+
+    /**
      * The notice and the filed reply keep the referral's dates as stored (YYYY-MM-DD), whatever date
      * format the site or the user saving it shows: the text is stored, then read by people whose
      * formats differ and by the receiving system, and a retry finds the filed reply by its text.
@@ -746,8 +763,9 @@ class ReferralReplyFhirApiTest extends TestCase
      * Changes a Task's status through PUT /fhir/Task, as the receiving system would.
      *
      * @param array<mixed> $task
+     * @param array<string, mixed> $elements other elements the PUT sets (statusReason, say)
      */
-    private function putStatus(array $task, string $status): int
+    private function putStatus(array $task, string $status, array $elements = []): int
     {
         $uuid = $task['id'] ?? null;
         $this->assertIsString($uuid);
@@ -757,6 +775,7 @@ class ReferralReplyFhirApiTest extends TestCase
                 $body[$element] = $value;
             }
         }
+        $body = array_merge($body, $elements);
         $body['status'] = $status;
         $response = $this->testClient->put(self::FHIR_URL . 'Task', $uuid, $body);
         return $response->getStatusCode();
