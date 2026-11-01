@@ -1027,6 +1027,59 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A reply an earlier save filed, then lost the Task's update for, isn't attached once the Task
+     * has gone final: the next save finds the Task final and leaves it as the recipient has it.
+     */
+    public function testAReplyFiledByAnEarlierSaveIsNotAttachedOnceTheTaskIsFinal(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->assertNull((new ReferralTaskService(new UserService(), taskService: self::tasksThatFailToUpdate(), logger: self::logger()))->afterSave($id, null));
+        $task = $this->onlyTask($id);
+        $this->assertSame('requested', $task['status'] ?? null);
+        $taskUuid = $task['id'] ?? null;
+        $this->assertIsString($taskUuid);
+        $this->assertCount(1, $this->replyDocuments($id), 'filed before the update failed');
+        (new TaskService())->update($taskUuid, ['status' => 'rejected'], null);
+
+        $this->afterSave($id);
+
+        $again = $this->onlyTask($id);
+        $this->assertSame('rejected', $again['status'] ?? null);
+        $this->assertArrayNotHasKey('output', $again);
+        $this->assertCount(1, $this->replyDocuments($id));
+    }
+
+    /**
+     * A recipient that takes the reply out of a completed Task's outputs (a PUT that keeps the
+     * status and drops the output) keeps it out: a later save of the referral writes nothing to the
+     * Task, so its version stays where the recipient left it.
+     */
+    public function testAReplyTheRecipientRemovedStaysRemoved(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+        $task = $this->onlyTask($id);
+        $this->assertSame('completed', $task['status'] ?? null);
+        $outputs = self::at($task, 'output');
+        $this->assertIsArray($outputs);
+        $this->assertCount(1, $outputs);
+        $taskUuid = $task['id'] ?? null;
+        $this->assertIsString($taskUuid);
+        (new TaskService())->update($taskUuid, [], null, null, null, []);
+        $version = $this->taskVersion($taskUuid);
+
+        $this->afterSave($id);
+
+        $this->assertArrayNotHasKey('output', $this->onlyTask($id));
+        $this->assertSame($version, $this->taskVersion($taskUuid), 'the save wrote nothing to the Task');
+        $this->assertCount(1, $this->replyDocuments($id));
+    }
+
+    /**
      * A reply no signed-in user saved is filed under the system user; when there's none, it isn't
      * filed under whoever's session happens to be active: the log says why, and the Task stays open.
      */
@@ -1199,6 +1252,16 @@ class ReferralReplyFhirApiTest extends TestCase
 
         $this->afterSave($id);
         $this->assertSame('completed', $this->onlyTask($id)['status'] ?? null, 'the next save files it');
+    }
+
+    /**
+     * A Task's version, as the task table has it.
+     */
+    private function taskVersion(string $taskUuid): int
+    {
+        $version = QueryUtils::fetchSingleValue('SELECT version FROM task WHERE uuid = ?', 'version', [UuidRegistry::uuidToBytes($taskUuid)]);
+        $this->assertIsNumeric($version);
+        return (int)$version;
     }
 
     /**
