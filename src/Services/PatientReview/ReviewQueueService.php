@@ -10,7 +10,8 @@
  *  - Every state change is checked against ReviewStatus, written as a patient_review_event row
  *    and recorded in the audit log.
  *  - Sensitive data (payment card details) lives apart from the payload, encrypted, and is
- *    deleted as soon as the request is no longer open.
+ *    deleted as soon as the request is decided (reaches a terminal status). An approved
+ *    request keeps it until its handler has run, so a payment handler can charge the card.
  *
  * The queue is for patient-originated data: the portal today, patient-facing API apps next
  * (ReviewSource::Api with the OAuth2 client id). Writes a signed-in clinician makes are not
@@ -212,12 +213,13 @@ final class ReviewQueueService
     }
 
     /**
-     * The decrypted secret, or null when the request is no longer open or has none.
+     * The decrypted secret, or null when the request has been decided or has none. It stays
+     * readable while the request is approved, so the handler applying it can use it.
      */
     public function readSecret(int $id, string $kind): ?string
     {
         $request = $this->store->find($id);
-        if ($request === null || !$request->status->isOpen()) {
+        if ($request === null || $request->status->isTerminal()) {
             return null;
         }
         $ciphertext = $this->store->getSecret($id, $kind);
@@ -315,7 +317,9 @@ final class ReviewQueueService
             throw InvalidReviewTransitionException::changedConcurrently($request->id, $from);
         }
         $this->store->appendEvent($request->id, $from, $to, $actor, $now, $note);
-        if (!$to->isOpen()) {
+        // Not on approved: approve() runs the handler after this, and the handler may need the
+        // secret. approve() moves on to completed in the same transaction, which deletes it.
+        if ($to->isTerminal()) {
             $this->store->deleteSecrets($request->id);
         }
 

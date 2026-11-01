@@ -237,6 +237,38 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         $this->assertCount(1, $this->trail->entries, 'the audit log must not record an approval that was rolled back');
     }
 
+    public function testAPaymentHandlerCanReadTheCardWhileApplyingAndItIsDeletedAfter(): void
+    {
+        $handler = new class implements ReviewHandlerInterface {
+            public ?ReviewQueueService $service = null;
+            public ?string $cardSeen = null;
+            public ?ReviewStatus $statusSeen = null;
+
+            public function type(): ReviewType
+            {
+                return ReviewType::Payment;
+            }
+
+            public function apply(ReviewRequest $request, ReviewActor $reviewer): void
+            {
+                $this->statusSeen = $request->status;
+                $this->cardSeen = $this->service?->readSecret($request->id, ReviewQueueService::SECRET_PAYMENT_CARD);
+            }
+        };
+        $service = $this->service([$handler]);
+        $handler->service = $service;
+        $payment = $service->submit(new ReviewSubmission(self::PID, ReviewType::Payment, 'Authorize online payment.', ['amount' => '10.00']), $this->patient());
+        $service->attachSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD, '4111111111111111');
+
+        $completed = $service->approve($payment->id, $this->staff());
+
+        $this->assertSame(ReviewStatus::Approved, $handler->statusSeen);
+        $this->assertSame('4111111111111111', $handler->cardSeen, 'the handler can charge the card');
+        $this->assertSame(ReviewStatus::Completed, $completed->status);
+        $this->assertSame(0, $this->store->secretCount(), 'the card is gone once the payment is completed');
+        $this->assertNull($service->readSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD));
+    }
+
     public function testApproveNeedsAHandlerForTheType(): void
     {
         $service = $this->service([new RecordingReviewHandler(ReviewType::Payment)]);

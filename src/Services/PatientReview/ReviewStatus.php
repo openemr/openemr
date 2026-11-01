@@ -59,8 +59,9 @@ enum ReviewStatus: string
     }
 
     /**
-     * Open requests are the ones still waiting on someone. Only an open request may hold a
-     * secret (payment card data), and there is at most one visible per patient and type.
+     * Open requests are the ones still waiting on someone. Only an open request may be given a
+     * secret (payment card data); it is kept until the request reaches a terminal status. There
+     * is at most one open request visible per patient and type.
      */
     public function isOpen(): bool
     {
