@@ -116,7 +116,7 @@ $payment = $recid
     ? $reviewWorkflows->payment($recid, $isPortal ? $sessionPid : null)
     : $reviewWorkflows->pendingPayment($sessionPid);
 // When the payment was submitted, shown as "Pending since".
-$pendingSince = $payment === null ? '' : $payment->createdAt->format('Y-m-d H:i:s');
+$pendingSince = $payment?->createdAt->format('Y-m-d H:i:s') ?? '';
 $ccdata = [];
 $invdata = [];
 if ($payment !== null) {

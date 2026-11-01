@@ -118,7 +118,7 @@ class PortalPatientController extends AppBasePortalController
             }
             PortalPatientAccessGuard::assertCanRead($patient->Pid);
             $pending = ReviewQueueFactory::portalWorkflows()->pendingProfileChange($patient->Pid);
-            $changed = $pending === null ? [] : $pending->payload;
+            $changed = $pending->payload ?? [];
             $newv = [];
             foreach ($changed as $key => $val) {
                 $newv[lcfirst(ucwords((string) preg_replace_callback("/(\_(.))/", fn($match): string => strtoupper($match[2]), strtolower((string) $key))))] = $val;
