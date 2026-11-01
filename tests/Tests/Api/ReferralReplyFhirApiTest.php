@@ -284,8 +284,9 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
-     * The recipient's reason goes into the notice on one line: Messages starts a new entry at any
-     * line that begins with a date, so a reason with a dated line would read as a second message.
+     * The recipient's reason goes into the notice on one line: Messages (oeFormatPatientNote())
+     * reformats a YYYY-MM-DD that starts a line, as it does each entry's header, so a dated line in
+     * the reason would look like another entry's header.
      */
     public function testTheRecipientsReasonIsKeptOnOneLine(): void
     {
