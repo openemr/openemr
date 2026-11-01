@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Isolated\Services;
 use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Services\ReferralTaskService;
+use OpenEMR\Services\UserService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
@@ -46,7 +47,7 @@ class ReferralTaskServiceTest extends TestCase
     #[DataProvider('saves')]
     public function testOnlyASavedReferralGetsATask(mixed $formId, mixed $transactionId, mixed $userId, ?array $expected): void
     {
-        $service = new class extends ReferralTaskService {
+        $service = new class (new UserService()) extends ReferralTaskService {
             /** @var list<array{int, ?int}> */
             public array $calls = [];
 
@@ -70,20 +71,40 @@ class ReferralTaskServiceTest extends TestCase
     public function testATaskThatFailsDoesNotFailTheSavedReferral(): void
     {
         $logger = self::logger();
-        $service = new class (logger: $logger) extends ReferralTaskService {
+        $service = new class (new UserService(), logger: $logger) extends ReferralTaskService {
             public function createForReferral(int $transactionId, ?int $userId): string
             {
                 throw new SqlQueryException('', 'the database went away');
             }
         };
 
-        $this->assertNull($service->createAfterSave(12, 3), 'the REST API\'s path');
+        $this->assertNull($service->afterSave(12, 3), 'the REST API\'s path');
         $this->assertNull($service->createForSavedTransaction('LBTref', '12', '3'), 'the screen\'s path');
         $this->assertSame(
-            [['error', 'A referral was saved but its FHIR Task was not created', 12], ['error', 'A referral was saved but its FHIR Task was not created', 12]],
+            [['error', 'A referral was saved but its FHIR Task was not updated', 12], ['error', 'A referral was saved but its FHIR Task was not updated', 12]],
             $logger->records,
             'each failure is logged, with the referral'
         );
+    }
+
+    /**
+     * A reply that can't complete the Task, after the Task was made, is contained the same way.
+     */
+    public function testAReplyThatFailsDoesNotFailTheSavedReferral(): void
+    {
+        $service = new class (new UserService()) extends ReferralTaskService {
+            public function createForReferral(int $transactionId, ?int $userId): string
+            {
+                return 'task-uuid';
+            }
+
+            public function recordReply(int $transactionId, ?int $userId): string
+            {
+                throw new SqlQueryException('', 'the Task could not be updated');
+            }
+        };
+
+        $this->assertNull($service->afterSave(12, 3));
     }
 
     /**
@@ -92,7 +113,7 @@ class ReferralTaskServiceTest extends TestCase
      */
     public function testAnAuditLogFailureDoesNotFailTheSavedReferral(): void
     {
-        $service = new class extends ReferralTaskService {
+        $service = new class (new UserService()) extends ReferralTaskService {
             public function createForReferral(int $transactionId, ?int $userId): string
             {
                 // As DBAL's own DriverException: an \Exception, not a RuntimeException, so only the catch's DBAL arm holds it.
@@ -101,7 +122,7 @@ class ReferralTaskServiceTest extends TestCase
             }
         };
 
-        $this->assertNull($service->createAfterSave(12, 3));
+        $this->assertNull($service->afterSave(12, 3));
     }
 
     /**

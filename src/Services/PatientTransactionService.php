@@ -27,7 +27,7 @@ class PatientTransactionService extends BaseService
     /**
      * @param ReferralTaskService $referralTaskService makes a saved referral's FHIR Task (#14710)
      */
-    public function __construct(private readonly ReferralTaskService $referralTaskService = new ReferralTaskService())
+    public function __construct(private readonly ReferralTaskService $referralTaskService = new ReferralTaskService(new UserService()))
     {
         parent::__construct(self::TABLE_NAME);
     }
@@ -158,9 +158,9 @@ class PatientTransactionService extends BaseService
     }
 
     /**
-     * The referral's FHIR Task, when the fhir_referral_tasks global is on (#14710), made by the
-     * user of the service's session (setSession()), else of the active one. The referral is already
-     * committed, so a failure here is logged rather than thrown (createAfterSave()).
+     * The referral's FHIR Task and its reply, when the fhir_referral_tasks global is on (#14710), made
+     * by the user of the service's session (setSession()), else of the active one. The referral is
+     * already committed, so a failure here is logged rather than thrown (afterSave()).
      */
     private function createReferralTask(mixed $transactionId): void
     {
@@ -168,7 +168,7 @@ class PatientTransactionService extends BaseService
             return;
         }
         $userId = ($this->getSession() ?? SessionWrapperFactory::getInstance()->getActiveSession())->get('authUserID');
-        $this->referralTaskService->createAfterSave((int)$transactionId, is_numeric($userId) ? (int)$userId : null);
+        $this->referralTaskService->afterSave((int)$transactionId, is_numeric($userId) ? (int)$userId : null);
     }
 
     public function insertTransaction($pid, $data)

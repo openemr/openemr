@@ -30,6 +30,7 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\ReferralDisplay;
 use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\TransactionDisplay;
+use OpenEMR\Services\UserService;
 
 
 /** @var string $date_init */
@@ -126,8 +127,8 @@ if ($mode) {
         $transid = $newid;
     }
 
-    // The referral's FHIR Task, when the fhir_referral_tasks global is on (#14710).
-    (new ReferralTaskService())->createForSavedTransaction($form_id, $transid, $session->get('authUserID'));
+    // The referral's FHIR Task and its reply, when the fhir_referral_tasks global is on (#14710).
+    (new ReferralTaskService(new UserService()))->createForSavedTransaction($form_id, $transid, $session->get('authUserID'));
 
   // Set the AMC sent records flag
     if (!(empty($_POST['send_sum_flag']))) {

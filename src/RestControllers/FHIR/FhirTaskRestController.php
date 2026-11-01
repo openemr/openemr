@@ -24,6 +24,8 @@ use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Services\FHIR\UtilsService;
+use OpenEMR\Services\ReferralTaskService;
+use OpenEMR\Services\UserService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -33,7 +35,7 @@ class FhirTaskRestController
 
     public function __construct(private readonly HttpRestRequest $request, private readonly OEGlobalsBag $globalsBag)
     {
-        $this->service = new FhirTaskService();
+        $this->service = new FhirTaskService(referralTaskService: new ReferralTaskService(new UserService()));
     }
 
     private function controller(): FhirGenericRestController
