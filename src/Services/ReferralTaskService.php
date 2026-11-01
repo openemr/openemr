@@ -242,7 +242,10 @@ class ReferralTaskService
      * one document. A reply is filed once: a save that finds the same reply already filed (an
      * earlier save filed it, then lost the Task's update) uses that document, while a reply edited
      * since, or another recipient's after the referral was sent on, is filed anew. The Task isn't
-     * completed without it, so a reply that couldn't be filed is tried again on the next save.
+     * completed without it, so a reply that couldn't be filed is tried again on the next save. A
+     * reply an offsite store takes (a PatientDocumentStoreOffsite listener, which leaves no local
+     * documents row) counts as filed: the Task is completed without it as an output, the log says
+     * so, and the reply is uploaded once however many times the Task is read again in this call.
      * The update names the version it read, so a recipient's change in between (a PUT to
      * rejected, or a new output) isn't written over: the Task is read again, and one that has
      * reached a final status in the meantime stays as it is.
@@ -319,8 +322,16 @@ class ReferralTaskService
                     $outputs[] = $row;
                 }
             }
-            $outputs[] = self::REPLY_OUTPUT_TYPE + ['value_element' => 'valueReference', 'value_type' => 'DocumentReference', 'value_uuid' => $document];
+            if ($document !== false) {
+                $outputs[] = self::REPLY_OUTPUT_TYPE + ['value_element' => 'valueReference', 'value_type' => 'DocumentReference', 'value_uuid' => $document];
+            }
             if ($this->getTaskService()->update($taskUuid, ['status' => 'completed'], $userId, (int)$version, null, $outputs)) {
+                if ($document === false) {
+                    $this->getLogger()->info('A referral\'s reply went to remote storage, so its Task was completed without the reply as its output', [
+                        'transaction_id' => $transactionId,
+                        'task_uuid' => $taskUuid,
+                    ]);
+                }
                 return $taskUuid;
             }
         }
@@ -361,8 +372,10 @@ class ReferralTaskService
      * reply (filedReply()), else a new one (fileReply()).
      *
      * @param array<string, mixed> $referral
+     * @return string|false|null the document's uuid; false when an offsite store took it, which
+     *     leaves no local document; null when it wasn't filed
      */
-    private function replyDocument(int $transactionId, int $patientId, array $referral, ?int $userId): ?string
+    private function replyDocument(int $transactionId, int $patientId, array $referral, ?int $userId): string|false|null
     {
         $values = self::storedValues($transactionId);
         $name = self::replyFileName($transactionId, $values);
@@ -609,10 +622,11 @@ class ReferralTaskService
 
     /**
      * The reply's text as a document in the patient's Medical Record, linked to the referral.
-     * Returns its uuid, or null when there's no Medical Record category or the document couldn't
-     * be saved.
+     * Returns its uuid; false when an offsite store took the file (Document::createDocument() then
+     * answers with a message and writes no documents row); null when there's no Medical Record
+     * category or the document couldn't be saved.
      */
-    private function fileReply(int $transactionId, int $patientId, string $name, string $text, ?int $userId): ?string
+    private function fileReply(int $transactionId, int $patientId, string $name, string $text, ?int $userId): string|false|null
     {
         $category = QueryUtils::fetchSingleValue("SELECT id FROM categories WHERE name = 'Medical Record' ORDER BY id LIMIT 1", 'id', []);
         if (!is_numeric($category)) {
@@ -635,7 +649,7 @@ class ReferralTaskService
             ReferralService::TABLE_NAME
         );
         if ($error !== '') {
-            return null;
+            return OEGlobalsBag::getInstance()->getBoolean('documentStoredRemotely') ? false : null;
         }
         $id = $document->get_id();
         if (!is_numeric($id)) {

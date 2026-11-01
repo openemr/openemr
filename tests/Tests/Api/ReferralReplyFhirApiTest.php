@@ -73,6 +73,9 @@ class ReferralReplyFhirApiTest extends TestCase
     /** @var ?array{bool, mixed} whether the session had a language before useLanguage(), and which */
     private ?array $languageBefore = null;
 
+    /** @var ?array{bool, mixed} whether documentStoredRemotely was set before storeDocumentsRemotely(), and to what */
+    private ?array $remoteStorageBefore = null;
+
     protected function setUp(): void
     {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
@@ -101,6 +104,15 @@ class ReferralReplyFhirApiTest extends TestCase
         }
         foreach ($this->layoutFields as $field) {
             QueryUtils::sqlStatementThrowException("DELETE FROM layout_options WHERE form_id = 'LBTref' AND field_id = ?", [$field]);
+        }
+        if ($this->remoteStorageBefore !== null) {
+            [$had, $value] = $this->remoteStorageBefore;
+            if ($had) {
+                OEGlobalsBag::getInstance()->set('documentStoredRemotely', $value);
+            } else {
+                OEGlobalsBag::getInstance()->remove('documentStoredRemotely');
+                unset($GLOBALS['documentStoredRemotely']);
+            }
         }
         if ($this->languageBefore !== null) {
             [$had, $language] = $this->languageBefore;
@@ -1023,6 +1035,61 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A reply an offsite store takes (its PatientDocumentStoreOffsite listener marks the document
+     * stored remotely, and no documents row is written) counts as filed: the Task is completed
+     * without it as an output, the log says so, and the reply is uploaded once, though the Task is
+     * read again in the same save, and not again on the next save.
+     */
+    public function testAReplyStoredRemotelyCompletesTheTaskWithoutALocalDocument(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->storeDocumentsRemotely();
+        /** @var \ArrayObject<int, mixed> $uploads each upload's file name */
+        $uploads = new \ArrayObject();
+        $counting = static fn(): Document => new class ($uploads) extends Document {
+            /** @param \ArrayObject<int, mixed> $uploads */
+            public function __construct(private readonly \ArrayObject $uploads)
+            {
+                parent::__construct();
+            }
+
+            public function createDocument(
+                mixed $patient_id,
+                mixed $category_id,
+                mixed $filename,
+                mixed $mimetype,
+                mixed &$data,
+                mixed $higher_level_path = '',
+                int $path_depth = 1,
+                mixed $owner = 0,
+                mixed $tmpfile = null,
+                mixed $date_expires = null,
+                mixed $foreign_reference_id = null,
+                mixed $foreign_reference_table = null,
+                mixed $eid = '',
+            ): string {
+                $this->uploads->append($filename);
+                return parent::createDocument($patient_id, $category_id, $filename, $mimetype, $data, $higher_level_path, $path_depth, $owner, $tmpfile, $date_expires, $foreign_reference_id, $foreign_reference_table, $eid);
+            }
+        };
+        $logger = self::logger();
+
+        $this->assertIsString($this->replyRacing(['status' => 'in-progress'], null, $logger, $counting)->recordReply($id, null));
+
+        $task = $this->onlyTask($id);
+        $this->assertSame('completed', $task['status'] ?? null);
+        $this->assertArrayNotHasKey('output', $task);
+        $this->assertSame([], $this->replyDocuments($id));
+        $this->assertCount(1, $uploads, 'uploaded once, though the Task was read again');
+        $this->assertContains(['info', 'A referral\'s reply went to remote storage, so its Task was completed without the reply as its output'], $logger->records);
+
+        $this->assertNull((new ReferralTaskService(logger: self::logger(), documentFactory: $counting))->recordReply($id, null));
+        $this->assertCount(1, $uploads, 'the next save uploads nothing more');
+    }
+
+    /**
      * A reply that can't be filed (no Medical Record category here) leaves the Task open, so the
      * Task never reaches completed without the reply as its output.
      */
@@ -1120,6 +1187,16 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * Marks documents as an offsite store's PatientDocumentStoreOffsite listener does, so
+     * Document::createDocument() writes no documents row; tearDown() puts it back.
+     */
+    private function storeDocumentsRemotely(): void
+    {
+        $this->remoteStorageBefore ??= [OEGlobalsBag::getInstance()->has('documentStoredRemotely'), OEGlobalsBag::getInstance()->get('documentStoredRemotely')];
+        OEGlobalsBag::getInstance()->set('documentStoredRemotely', true);
+    }
+
+    /**
      * Gives the session a language whose translations are these, as a user who works in another
      * language has; tearDown() puts the session's language back. The translation cache holds them,
      * so xl() finds them without a row in the translation tables.
@@ -1143,8 +1220,9 @@ class ReferralReplyFhirApiTest extends TestCase
      *
      * @param array<string, string> $change
      * @param ?list<array<string, string>> $outputs the recipient's outputs, or null to leave them
+     * @param (\Closure(): Document)|null $documentFactory
      */
-    private function replyRacing(array $change, ?array $outputs = null): ReferralTaskService
+    private function replyRacing(array $change, ?array $outputs = null, ?AbstractLogger $logger = null, ?\Closure $documentFactory = null): ReferralTaskService
     {
         $tasks = new class ($change, $outputs) extends TaskService {
             private bool $raced = false;
@@ -1167,7 +1245,7 @@ class ReferralReplyFhirApiTest extends TestCase
                 return parent::update($uuid, $fields, $userId, $expectedVersion, $inputs, $outputs);
             }
         };
-        return new ReferralTaskService(taskService: $tasks, logger: self::logger());
+        return new ReferralTaskService(taskService: $tasks, logger: $logger ?? self::logger(), documentFactory: $documentFactory);
     }
 
     /**
