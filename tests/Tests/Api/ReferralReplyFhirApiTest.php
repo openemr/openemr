@@ -35,6 +35,8 @@ class ReferralReplyFhirApiTest extends TestCase
     private ApiTestClient $testClient;
     private ConditionFixtureManager $fixtures;
     private mixed $globalBefore;
+    /** The global as the API's process reads it, from the globals table; null when it had no row. */
+    private mixed $storedGlobalBefore = null;
     private bool $hadStorageMethod = false;
     private mixed $storageMethodBefore = null;
 
@@ -59,7 +61,8 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->patient = ['uuid' => $patient['uuid'], 'pid' => $patient['pid']];
 
         $this->globalBefore = OEGlobalsBag::getInstance()->get(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value);
-        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, '1');
+        $this->storedGlobalBefore = QueryUtils::fetchSingleValue('SELECT gl_value FROM globals WHERE gl_name = ? AND gl_index = 0', 'gl_value', [GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value]);
+        $this->setReferralTasks('1');
         // The reply is filed in this process, so its document goes to the file system here.
         $this->hadStorageMethod = array_key_exists('document_storage_method', $GLOBALS);
         $this->storageMethodBefore = $GLOBALS['document_storage_method'] ?? null;
@@ -72,6 +75,11 @@ class ReferralReplyFhirApiTest extends TestCase
     protected function tearDown(): void
     {
         OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, $this->globalBefore);
+        if (is_scalar($this->storedGlobalBefore)) {
+            QueryUtils::sqlStatementThrowException('UPDATE globals SET gl_value = ? WHERE gl_name = ? AND gl_index = 0', [(string) $this->storedGlobalBefore, GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value]);
+        } else {
+            QueryUtils::sqlStatementThrowException('DELETE FROM globals WHERE gl_name = ? AND gl_index = 0', [GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value]);
+        }
         foreach ($this->transactions as $id) {
             foreach (QueryUtils::fetchRecords("SELECT id FROM documents WHERE foreign_reference_table = 'transactions' AND foreign_reference_id = ?", [$id]) as $row) {
                 if (!is_numeric($row['id'] ?? null)) {
@@ -175,7 +183,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->afterSave($id);
         $this->assertSame('requested', $this->onlyTask($id)['status'] ?? null, 'no Reply Date yet');
 
-        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, '0');
+        $this->setReferralTasks('0');
         $this->saveFields($id, ['reply_date' => '2026-10-18']);
         $this->afterSave($id);
         $this->assertSame('requested', $this->onlyTask($id)['status'] ?? null, 'the global is off');
@@ -211,11 +219,24 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertStringContainsString(': Completed', $bodies[1]);
     }
 
+    /**
+     * The global, in this process and in the globals table: a Task's status change comes in through the API,
+     * whose process reads it from the database, so the referrer's notice, which respects it, follows that.
+     */
+    private function setReferralTasks(string $value): void
+    {
+        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, $value);
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO globals (gl_name, gl_index, gl_value) VALUES (?, 0, ?) ON DUPLICATE KEY UPDATE gl_value = VALUES(gl_value)',
+            [GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, $value]
+        );
+    }
+
     public function testWithTheGlobalOffTheReferrerHearsNothing(): void
     {
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
         $this->afterSave($id);
-        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, '0');
+        $this->setReferralTasks('0');
 
         $this->assertSame(Response::HTTP_OK, $this->putStatus($this->onlyTask($id), 'accepted'));
 
