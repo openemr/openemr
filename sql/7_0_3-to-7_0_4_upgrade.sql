@@ -1979,7 +1979,7 @@ CREATE TABLE `contact_relation` (
 
 
 #IfMissingColumn contact_address created_by
-ALTER TABLE `contact_address` ADD COLUMN `created_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id';
+ALTER TABLE `contact_address` ADD COLUMN `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id';
 #EndIf
 
 #IfMissingColumn contact_address updated_date
@@ -1987,7 +1987,7 @@ ALTER TABLE `contact_address` ADD COLUMN `updated_date` DATETIME DEFAULT CURRENT
 #EndIf
 
 #IfMissingColumn contact_address updated_by
-ALTER TABLE `contact_address` ADD COLUMN `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id';
+ALTER TABLE `contact_address` ADD COLUMN `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id';
 #EndIf
 
 #IfNotTable contact_telecom
