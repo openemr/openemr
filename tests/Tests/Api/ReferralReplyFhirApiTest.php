@@ -62,6 +62,9 @@ class ReferralReplyFhirApiTest extends TestCase
     /** @var list<string> the fields a test added to the referral's layout */
     private array $layoutFields = [];
 
+    /** @var list<array{string, mixed, mixed}> the layout rows a test moved to another group: field, seq, the group it had */
+    private array $movedLayoutFields = [];
+
     /** The language id useLanguage() gives the session: one no site has, whose translations the test sets. */
     private const TEST_LANGUAGE = 9999;
 
@@ -91,6 +94,9 @@ class ReferralReplyFhirApiTest extends TestCase
 
     protected function tearDown(): void
     {
+        foreach ($this->movedLayoutFields as [$field, $seq, $group]) {
+            QueryUtils::sqlStatementThrowException("UPDATE layout_options SET group_id = ? WHERE form_id = 'LBTref' AND field_id = ? AND seq = ?", [$group, $field, $seq]);
+        }
         foreach ($this->layoutFields as $field) {
             QueryUtils::sqlStatementThrowException("DELETE FROM layout_options WHERE form_id = 'LBTref' AND field_id = ?", [$field]);
         }
@@ -620,6 +626,49 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A field in a subgroup of the Counter-Referral section (its group id is the section's and one
+     * character more) is in the reply too, after the section's own fields, as the form shows it.
+     */
+    public function testAFieldInASubgroupOfTheCounterReferralSectionIsInTheReply(): void
+    {
+        $group = QueryUtils::fetchSingleValue("SELECT group_id FROM layout_options WHERE form_id = 'LBTref' AND field_id = 'reply_date'", 'group_id', []);
+        $this->assertIsString($group);
+        $this->addLayoutField('zq_reply_sub_note', $group . '1', 'Zq Subgroup Note', 1, 1);
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled', 'zq_reply_sub_note' => 'Seen by the social worker']);
+
+        $this->afterSave($id);
+
+        $this->assertStringEndsWith("\nReply Date: 2026-10-18\nFindings: Enrolled\nZq Subgroup Note: Seen by the social worker\n", $this->outputText($this->onlyTask($id), 0));
+    }
+
+    /**
+     * A site that keeps the reply in the referral's own group (a one-tab form) files only the reply:
+     * under the seeded heading, with nothing of the referral itself (Refer By, the reason, the
+     * billing facility, its fields' stored ids).
+     */
+    public function testAReplyKeptInTheReferralsOwnGroupCarriesNothingElseOfTheReferral(): void
+    {
+        $group = QueryUtils::fetchSingleValue("SELECT group_id FROM layout_options WHERE form_id = 'LBTref' AND field_id = 'refer_to'", 'group_id', []);
+        $this->assertIsString($group);
+        $this->moveReplyFieldsTo($group);
+        $id = $this->saveReferral([
+            'refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'],
+            'body' => 'Food insecurity', 'billing_facility_id' => '3',
+        ]);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+
+        $this->afterSave($id);
+
+        $this->assertSame(
+            "Counter-Referral\nReferral Date: 2026-10-10\nRefer To: Zq Reply Pantry\n\nReply Date: 2026-10-18\nFindings: Enrolled\n",
+            $this->outputText($this->onlyTask($id), 0)
+        );
+    }
+
+    /**
      * A referral sent on to another recipient after the first one's reply was recorded: the
      * second recipient's reply is filed as its own document and completes their Task, and the
      * first recipient's Task keeps the first reply.
@@ -800,6 +849,21 @@ class ReferralReplyFhirApiTest extends TestCase
             "INSERT INTO layout_options (form_id, field_id, group_id, title, seq, data_type, uor) VALUES ('LBTref', ?, ?, ?, ?, 2, ?)",
             [$field, $group, $title, $seq, $uor]
         );
+    }
+
+    /**
+     * Moves the Counter-Referral fields (reply_*) to another group of the referral's layout, as a
+     * site that keeps the whole referral in one group has them; tearDown() puts them back.
+     */
+    private function moveReplyFieldsTo(string $group): void
+    {
+        foreach (QueryUtils::fetchRecords("SELECT field_id, seq, group_id FROM layout_options WHERE form_id = 'LBTref' AND field_id LIKE 'reply\\_%'") as $row) {
+            $field = $row['field_id'] ?? null;
+            $this->assertIsString($field);
+            $this->movedLayoutFields[] = [$field, $row['seq'] ?? null, $row['group_id'] ?? null];
+            QueryUtils::sqlStatementThrowException("UPDATE layout_options SET group_id = ? WHERE form_id = 'LBTref' AND field_id = ? AND seq = ?", [$group, $field, $row['seq'] ?? null]);
+        }
+        $this->assertNotSame([], $this->movedLayoutFields);
     }
 
     /**
