@@ -210,8 +210,8 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertIsNumeric($documentId);
         $text = (new Document((int)$documentId))->get_data();
         $this->assertIsString($text);
-        // The seeded layout's titles, in its order. The text depends only on the stored layout and
-        // values, so a retry finds the reply it filed.
+        // The seeded layout's titles, in its order, and Refer To's name as the address book has it. A
+        // retry finds the reply it filed by its name, made from the reply's stored values, not by this text.
         $this->assertSame(
             "Counter-Referral\nReferral Date: 2026-10-10\nRefer To: Zq Reply Pantry\n\n"
             . "Reply Date: 2026-10-18\nReply From: Zq intake desk\nFindings: Enrolled in weekly delivery\nRecommendations: Recheck in 3 months\n",
@@ -393,7 +393,7 @@ class ReferralReplyFhirApiTest extends TestCase
     /**
      * The notice and the filed reply keep the referral's dates as stored (YYYY-MM-DD), whatever date
      * format the site or the user saving it shows: the text is stored, then read by people whose
-     * formats differ and by the receiving system, and a retry finds the filed reply by its text.
+     * formats differ and by the receiving system.
      */
     public function testStoredDatesStayYearMonthDayWhateverTheDateFormat(): void
     {
@@ -539,7 +539,8 @@ class ReferralReplyFhirApiTest extends TestCase
 
     /**
      * A Task of the referral's own kind that an API client made for someone other than Refer To
-     * isn't the recipient's: accepted, it files no message, which would say Refer To accepted.
+     * isn't the recipient's: accepted, it files no message, which would report another owner's Task
+     * as the referral's Task to Refer To.
      */
     public function testTheReferrerHearsNothingOfAnotherOwnersTask(): void
     {
@@ -730,8 +731,9 @@ class ReferralReplyFhirApiTest extends TestCase
 
     /**
      * A reply filed while one user saved the referral, then retried by a user who works in another
-     * language, is the same reply: its text takes the layout's titles as stored, not translated, so
-     * the retry finds the filed document by its text and files no second copy.
+     * language, is the same reply: the retry finds the filed document by its name, made from the
+     * reply's stored values, and files no second copy, and the text takes the layout's titles as
+     * stored, not translated.
      */
     public function testAReplyRetriedInAnotherLanguageIsNotFiledAgain(): void
     {
