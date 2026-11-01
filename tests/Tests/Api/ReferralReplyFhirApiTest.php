@@ -196,7 +196,8 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertIsNumeric($documentId);
         $text = (new Document((int)$documentId))->get_data();
         $this->assertIsString($text);
-        // The seeded layout's titles, in its order: the text a reply filed before had too.
+        // The seeded layout's titles, in its order. The text depends only on the stored layout and
+        // values, so a retry finds the reply it filed.
         $this->assertSame(
             "Counter-Referral\nReferral Date: 2026-10-10\nRefer To: Zq Reply Pantry\n\n"
             . "Reply Date: 2026-10-18\nReply From: Zq intake desk\nFindings: Enrolled in weekly delivery\nRecommendations: Recheck in 3 months\n",
@@ -623,43 +624,56 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
-     * The reply's text follows the referral's layout: a field a site added to the Counter-Referral
-     * group is in it, under the title the site gave it and in the form's order, and a field the site
-     * set to unused is left out.
+     * A field a site added to the Counter-Referral section is in the reply when its id starts with
+     * reply_, under the title the site gave it and in the form's order. One with another id stays in
+     * the referral but isn't filed with the reply, and one the site set to unused is left out.
      */
-    public function testAFieldAddedToTheCounterReferralSectionIsInTheReply(): void
+    public function testASiteFieldInTheCounterReferralSectionIsInTheReplyWhenNamedReply(): void
     {
         $group = QueryUtils::fetchSingleValue("SELECT group_id FROM layout_options WHERE form_id = 'LBTref' AND field_id = 'reply_date'", 'group_id', []);
         $this->assertIsString($group);
-        $this->addLayoutField('zq_reply_follow_up', $group, 'Zq Follow-up Plan', 98, 1);
-        $this->addLayoutField('zq_reply_unused', $group, 'Zq Unused Field', 99, 0);
+        $this->addLayoutField('reply_zq_follow_up', $group, 'Zq Follow-up Plan', 97, 1);
+        $this->addLayoutField('zq_site_note', $group, 'Zq Site Note', 98, 1);
+        $this->addLayoutField('reply_zq_unused', $group, 'Zq Unused Field', 99, 0);
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
         $this->afterSave($id);
-        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled', 'zq_reply_follow_up' => 'Call in a week', 'zq_reply_unused' => 'Not in use']);
+        $this->saveFields($id, [
+            'reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled',
+            'reply_zq_follow_up' => 'Call in a week', 'zq_site_note' => 'Not filed', 'reply_zq_unused' => 'Not in use',
+        ]);
 
         $this->afterSave($id);
 
         $text = $this->outputText($this->onlyTask($id), 0);
         $this->assertStringEndsWith("\nFindings: Enrolled\nZq Follow-up Plan: Call in a week\n", $text);
+        $this->assertStringNotContainsString('Not filed', $text);
         $this->assertStringNotContainsString('Not in use', $text);
     }
 
     /**
-     * A field in a subgroup of the Counter-Referral section (its group id is the section's and one
-     * character more) is in the reply too, after the section's own fields, as the form shows it.
+     * A site field whose id starts with reply_ is in the reply wherever the layout puts it: in a
+     * subgroup of the Counter-Referral section (its group id is the section's and one character
+     * more) or in another group, in the form's order.
      */
-    public function testAFieldInASubgroupOfTheCounterReferralSectionIsInTheReply(): void
+    public function testAReplyNamedSiteFieldIsInTheReplyWhereverItIs(): void
     {
         $group = QueryUtils::fetchSingleValue("SELECT group_id FROM layout_options WHERE form_id = 'LBTref' AND field_id = 'reply_date'", 'group_id', []);
         $this->assertIsString($group);
-        $this->addLayoutField('zq_reply_sub_note', $group . '1', 'Zq Subgroup Note', 1, 1);
-        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $referralGroup = QueryUtils::fetchSingleValue("SELECT group_id FROM layout_options WHERE form_id = 'LBTref' AND field_id = 'refer_to'", 'group_id', []);
+        $this->assertIsString($referralGroup);
+        $this->addLayoutField('reply_zq_sub_note', $group . '1', 'Zq Subgroup Note', 1, 1);
+        $this->addLayoutField('reply_zq_elsewhere', $referralGroup, 'Zq Intake Code', 99, 1);
+        $id = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
         $this->afterSave($id);
-        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled', 'zq_reply_sub_note' => 'Seen by the social worker']);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled', 'reply_zq_sub_note' => 'Seen by the social worker', 'reply_zq_elsewhere' => 'ZQ-7']);
 
         $this->afterSave($id);
 
-        $this->assertStringEndsWith("\nReply Date: 2026-10-18\nFindings: Enrolled\nZq Subgroup Note: Seen by the social worker\n", $this->outputText($this->onlyTask($id), 0));
+        $this->assertSame(
+            "Counter-Referral\nReferral Date: 2026-10-10\nRefer To: Zq Reply Pantry\n\n"
+            . "Zq Intake Code: ZQ-7\nReply Date: 2026-10-18\nFindings: Enrolled\nZq Subgroup Note: Seen by the social worker\n",
+            $this->outputText($this->onlyTask($id), 0)
+        );
     }
 
     /**
@@ -712,8 +726,32 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
-     * A group that holds the Reply Date with some of the referral's own fields (Refer By and the
-     * reason) but not Refer To isn't the reply's own section either: none of them goes into it.
+     * A site that moved the Reply Date next to Refer To and added a reply field (an id that starts
+     * with reply_) to the Counter-Referral section still files that field with the reply.
+     */
+    public function testAReplyNamedSiteFieldLeftInTheSectionIsInTheReplyWhenTheReplyDateMoves(): void
+    {
+        $section = QueryUtils::fetchSingleValue("SELECT group_id FROM layout_options WHERE form_id = 'LBTref' AND field_id = 'reply_date'", 'group_id', []);
+        $this->assertIsString($section);
+        $group = QueryUtils::fetchSingleValue("SELECT group_id FROM layout_options WHERE form_id = 'LBTref' AND field_id = 'refer_to'", 'group_id', []);
+        $this->assertIsString($group);
+        $this->moveLayoutFields($group, ['reply_date']);
+        $this->addLayoutField('reply_zq_follow_up', $section, 'Zq Follow-up Plan', 98, 1);
+        $id = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled', 'reply_zq_follow_up' => 'Call in a week']);
+
+        $this->afterSave($id);
+
+        $this->assertSame(
+            "Counter-Referral\nReferral Date: 2026-10-10\nRefer To: Zq Reply Pantry\n\nReply Date: 2026-10-18\nFindings: Enrolled\nZq Follow-up Plan: Call in a week\n",
+            $this->outputText($this->onlyTask($id), 0)
+        );
+    }
+
+    /**
+     * A Reply Date grouped with some of the referral's own fields (Refer By and the reason) but not
+     * Refer To files none of them with the reply.
      */
     public function testAReplyGroupedWithSomeOfTheReferralsFieldsTakesNoneOfThem(): void
     {
