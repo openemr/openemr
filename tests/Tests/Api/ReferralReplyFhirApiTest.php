@@ -91,6 +91,8 @@ class ReferralReplyFhirApiTest extends TestCase
                 $document = new Document((int)$row['id']);
                 $file = $document->get_url_filepath();
                 QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE table_name = 'documents' AND uuid IN (SELECT uuid FROM documents WHERE id = ?)", [$row['id']]);
+                // The stored file's name, which createDocument() registers as a drive uuid.
+                QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE document_drive = 1 AND uuid IN (SELECT drive_uuid FROM documents WHERE id = ?)', [$row['id']]);
                 QueryUtils::sqlStatementThrowException('DELETE FROM categories_to_documents WHERE document_id = ?', [$row['id']]);
                 QueryUtils::sqlStatementThrowException('DELETE FROM documents WHERE id = ?', [$row['id']]);
                 if (is_string($file) && is_file($file)) {
@@ -103,8 +105,12 @@ class ReferralReplyFhirApiTest extends TestCase
             }
             $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM transactions WHERE id = ?', 'uuid', [$id]);
             if (is_string($uuid)) {
+                QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE table_name = 'task' AND uuid IN (SELECT uuid FROM task WHERE focus_uuid = ?)", [$uuid]);
+                QueryUtils::sqlStatementThrowException('DELETE FROM task_input WHERE task_id IN (SELECT id FROM task WHERE focus_uuid = ?)', [$uuid]);
                 QueryUtils::sqlStatementThrowException('DELETE FROM task_output WHERE task_id IN (SELECT id FROM task WHERE focus_uuid = ?)', [$uuid]);
                 QueryUtils::sqlStatementThrowException('DELETE FROM task WHERE focus_uuid = ?', [$uuid]);
+                // The referral's own, which the service gave it on its first save.
+                QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE table_name = 'transactions' AND uuid = ?", [$uuid]);
             }
             QueryUtils::sqlStatementThrowException('DELETE FROM lbt_data WHERE form_id = ?', [$id]);
             QueryUtils::sqlStatementThrowException('DELETE FROM transactions WHERE id = ?', [$id]);
@@ -112,6 +118,7 @@ class ReferralReplyFhirApiTest extends TestCase
         QueryUtils::sqlStatementThrowException('DELETE FROM pnotes WHERE pid = ?', [$this->patient['pid']]);
         foreach ($this->people as $person) {
             QueryUtils::sqlStatementThrowException('DELETE FROM users WHERE id = ?', [$person['id']]);
+            QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE table_name = 'users' AND uuid = ?", [UuidRegistry::uuidToBytes($person['uuid'])]);
         }
         if ($this->hadStorageMethod) {
             $GLOBALS['document_storage_method'] = $this->storageMethodBefore;
@@ -119,6 +126,8 @@ class ReferralReplyFhirApiTest extends TestCase
             unset($GLOBALS['document_storage_method']);
         }
         $this->fixtures->removeFixtures();
+        // The fixture removes its patient but not the patient's uuid.
+        QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE table_name = 'patient_data' AND uuid = ?", [UuidRegistry::uuidToBytes($this->patient['uuid'])]);
         $this->testClient->cleanupRevokeAuth();
         $this->testClient->cleanupClient();
     }
