@@ -32,6 +32,7 @@ use OpenEMR\Services\TaskService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
 use Symfony\Component\HttpFoundation\Response;
@@ -239,6 +240,41 @@ class ReferralReplyFhirApiTest extends TestCase
 
         $this->assertSame('rejected', $this->onlyTask($id)['status'] ?? null);
         $this->assertSame([], QueryUtils::fetchRecords("SELECT id FROM documents WHERE foreign_reference_table = 'transactions' AND foreign_reference_id = ?", [$id]));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function reasonsThatOnlyLookLikeTheServicesOwn(): array
+    {
+        return [
+            'another case' => [strtolower(ReferralTaskService::REASON_SENT_ELSEWHERE)],
+            'a trailing space' => [ReferralTaskService::REASON_SENT_ELSEWHERE . ' '],
+            'an accent' => [str_replace('recipient', "r\u{00E9}cipient", ReferralTaskService::REASON_SENT_ELSEWHERE)],
+        ];
+    }
+
+    /**
+     * A recipient's cancellation whose reason only looks like one of the service's (another case, a
+     * trailing space, an accent) is the recipient's own, which the table's collation would take for
+     * the service's: the service counts it, so a save makes no new Task, and the referral's status
+     * reads it too.
+     */
+    #[DataProvider('reasonsThatOnlyLookLikeTheServicesOwn')]
+    public function testAReasonThatOnlyLooksLikeTheServicesOwnIsTheRecipients(string $reason): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $taskUuid = $this->onlyTask($id)['id'] ?? null;
+        $this->assertIsString($taskUuid);
+        // As the recipient's write stores it.
+        (new TaskService())->update($taskUuid, ['status' => 'cancelled', 'status_reason' => $reason], null);
+
+        $this->afterSave($id);
+
+        $this->assertSame($reason, self::at($this->onlyTask($id), 'statusReason', 'text'), 'no new Task');
+        $this->assertSame('cancelled', $this->taskStatus($id));
+        $this->assertSame([$id => 'cancelled'], (new ReferralService(createMissingUuids: false))->getTaskStatuses([$id]));
     }
 
     /**
@@ -1452,6 +1488,20 @@ class ReferralReplyFhirApiTest extends TestCase
     private function afterSave(int $transactionId): void
     {
         (new ReferralTaskService(new UserService()))->afterSave($transactionId, null);
+    }
+
+    /**
+     * The referral's Task status as ReferralService reads it (taskStatusSql()).
+     *
+     * @phpstan-impure the Task changes between reads
+     */
+    private function taskStatus(int $transactionId): ?string
+    {
+        $referral = (new ReferralService(createMissingUuids: false))->getReferral($transactionId);
+        $this->assertIsArray($referral);
+        $status = $referral['task_status'] ?? null;
+        $this->assertTrue($status === null || is_string($status));
+        return $status;
     }
 
     /**

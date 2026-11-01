@@ -91,13 +91,15 @@ class ReferralService extends BaseService
             JOIN lbt_data AS recipient ON recipient.form_id = $transaction.id AND recipient.field_id = 'refer_to'
             JOIN users AS recipient_user ON recipient_user.id = recipient.field_value
             WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = $transaction.uuid AND task.owner_uuid = recipient_user.uuid
-                AND " . self::OWN_TASK_SQL . " AND NOT (task.status = 'cancelled' AND COALESCE(task.status_reason, '') IN (" . self::ownReasonsSql() . "))
+                AND " . self::OWN_TASK_SQL . " AND NOT (task.status = 'cancelled' AND CAST(COALESCE(task.status_reason, '') AS BINARY) IN (" . self::ownReasonsSql() . "))
             ORDER BY task.id DESC LIMIT 1)";
     }
 
     /**
      * ReferralTaskService's own cancellation reasons as SQL literals: a Task it cancelled (the referral went
      * elsewhere) isn't its recipient's answer, so it doesn't set the status, as it doesn't count in recipientTask().
+     * taskStatusSql() compares them with the reason byte for byte, as recipientTask() does: under the column's
+     * collation a recipient's reason in another case, with an accent or a trailing space would match one.
      */
     private static function ownReasonsSql(): string
     {
