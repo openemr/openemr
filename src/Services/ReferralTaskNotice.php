@@ -2,8 +2,10 @@
 
 /**
  * The FHIR Task statuses the one who made a referral (Refer By) hears about (#14710): the
- * receiving system accepted, rejected or completed the referral's Task through the FHIR API, or
- * marked it failed. Each case is the status, as FHIR names it.
+ * referral's Task was marked accepted, rejected, completed or failed through the FHIR API. Each
+ * case is the status, as FHIR names it. The notice says what the Task was marked and names Refer
+ * To as the referral's recipient, not as the one who marked it: nothing yet ties an API client to
+ * the recipient, and the message's header names whoever made the change.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -25,18 +27,18 @@ enum ReferralTaskNotice: string
 
     /**
      * The notice, naming the recipient and, when the referral has one, its Referral Date. A
-     * rejection or a failure ends with the recipient's reason (the Task's statusReason) when they
-     * gave one; the other notices don't carry it.
+     * rejection or a failure ends with the reason the Task carries (its statusReason) when it has
+     * one; the other notices don't carry it.
      */
     public function text(string $recipient, ?string $referralDate, ?string $reason = null): string
     {
         $withReason = $reason === null ? null : match ($this) {
             self::Rejected => $referralDate === null
-                ? sprintf(xl('%1$s rejected the referral: %2$s'), $recipient, $reason)
-                : sprintf(xl('%1$s rejected the referral made on %2$s: %3$s'), $recipient, $referralDate, $reason),
+                ? sprintf(xl('The Task for the referral to %1$s was marked rejected: %2$s'), $recipient, $reason)
+                : sprintf(xl('The Task for the referral to %1$s made on %2$s was marked rejected: %3$s'), $recipient, $referralDate, $reason),
             self::Failed => $referralDate === null
-                ? sprintf(xl('%1$s could not complete the referral: %2$s'), $recipient, $reason)
-                : sprintf(xl('%1$s could not complete the referral made on %2$s: %3$s'), $recipient, $referralDate, $reason),
+                ? sprintf(xl('The Task for the referral to %1$s was marked failed: %2$s'), $recipient, $reason)
+                : sprintf(xl('The Task for the referral to %1$s made on %2$s was marked failed: %3$s'), $recipient, $referralDate, $reason),
             self::Accepted, self::Completed => null,
         };
         if ($withReason !== null) {
@@ -44,17 +46,17 @@ enum ReferralTaskNotice: string
         }
         if ($referralDate === null) {
             return sprintf(match ($this) {
-                self::Accepted => xl('%s accepted the referral.'),
-                self::Rejected => xl('%s rejected the referral.'),
-                self::Completed => xl('%s completed the referral.'),
-                self::Failed => xl('%s could not complete the referral.'),
+                self::Accepted => xl('The Task for the referral to %s was marked accepted.'),
+                self::Rejected => xl('The Task for the referral to %s was marked rejected.'),
+                self::Completed => xl('The Task for the referral to %s was marked completed.'),
+                self::Failed => xl('The Task for the referral to %s was marked failed.'),
             }, $recipient);
         }
         return sprintf(match ($this) {
-            self::Accepted => xl('%1$s accepted the referral made on %2$s.'),
-            self::Rejected => xl('%1$s rejected the referral made on %2$s.'),
-            self::Completed => xl('%1$s completed the referral made on %2$s.'),
-            self::Failed => xl('%1$s could not complete the referral made on %2$s.'),
+            self::Accepted => xl('The Task for the referral to %1$s made on %2$s was marked accepted.'),
+            self::Rejected => xl('The Task for the referral to %1$s made on %2$s was marked rejected.'),
+            self::Completed => xl('The Task for the referral to %1$s made on %2$s was marked completed.'),
+            self::Failed => xl('The Task for the referral to %1$s made on %2$s was marked failed.'),
         }, $recipient, $referralDate);
     }
 }

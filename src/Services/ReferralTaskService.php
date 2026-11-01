@@ -6,9 +6,9 @@
  * Task: status requested, intent order, code fulfill, focus the referral's ServiceRequest,
  * for its patient, owned by the one it is sent to (Refer To) and requested by the one who
  * made it (Refer By). When the referral's Counter-Referral section records a reply, the
- * reply is filed as a document and becomes the Task's output, completing it. When the
- * receiving system accepts, rejects or completes the Task through the FHIR API, or marks it
- * failed, the one who made the referral gets a message.
+ * reply is filed as a document and becomes the Task's output, completing it. When the Task is
+ * marked accepted, rejected, completed or failed through the FHIR API, the one who made the
+ * referral gets a message.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -393,10 +393,12 @@ class ReferralTaskService
      * After the FHIR API changes a Task's status: when the Task is a referral's own (isOwnTask()),
      * owned by the referral's recipient (Refer To), and is now accepted, rejected, completed or
      * failed, a message to the one who made the referral (Refer By), in their inbox under the
-     * Referral type; a rejection or a failure carries the recipient's reason when the Task has one.
-     * The message says Refer To acted, so a recipient's sub-Task, another Task with the referral as
-     * its focus, or one an API client made for someone else doesn't count. Nothing when the global
-     * is off, or when Refer By is no longer an active user (that is logged).
+     * Referral type; a rejection or a failure carries the Task's reason when it has one. The
+     * message says what the referral's Task to Refer To was marked, so a recipient's sub-Task,
+     * another Task with the referral as its focus, or one an API client made for someone else
+     * doesn't count. It doesn't say who marked it (nothing yet ties an API client to the
+     * recipient); its header names the user who made the change. Nothing when the global is off,
+     * or when Refer By is no longer an active user (that is logged).
      *
      * Called once the Task's update is committed, so a failure is logged, not thrown: thrown, it
      * would answer the client's successful PUT with an error, and a retry naming the version it
@@ -458,7 +460,7 @@ class ReferralTaskService
         // each entry's header, so a dated line in the reason would look like another entry's header.
         $reason = preg_replace('/\s+/', ' ', self::text($task, 'status_reason') ?? '');
         $reason = is_string($reason) && trim($reason) !== '' ? trim($reason) : null;
-        $text = $notice->text(self::text($referral, 'performer_name') ?? xl('The recipient'), self::text($referral, 'refer_date'), $reason);
+        $text = $notice->text(self::text($referral, 'performer_name') ?? xl('the recipient'), self::text($referral, 'refer_date'), $reason);
         $now = $this->getClock()->now();
         // As other background notices are filed (labNotice(), the Direct message check).
         QueryUtils::sqlInsert(

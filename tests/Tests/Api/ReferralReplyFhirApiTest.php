@@ -263,8 +263,8 @@ class ReferralReplyFhirApiTest extends TestCase
             $this->assertIsString($body);
             $bodies[] = $body;
         }
-        $this->assertStringEndsWith(' to zq-reply-referrer) Zq Reply Pantry accepted the referral made on 2026-10-10.', $bodies[0]);
-        $this->assertStringEndsWith(' to zq-reply-referrer) Zq Reply Pantry completed the referral made on 2026-10-10.', $bodies[1]);
+        $this->assertStringEndsWith(' to zq-reply-referrer) The Task for the referral to Zq Reply Pantry made on 2026-10-10 was marked accepted.', $bodies[0]);
+        $this->assertStringEndsWith(' to zq-reply-referrer) The Task for the referral to Zq Reply Pantry made on 2026-10-10 was marked completed.', $bodies[1]);
     }
 
     /**
@@ -281,7 +281,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertSame('Outside our service area', self::at($this->onlyTask($id), 'statusReason', 'text'));
         $body = QueryUtils::fetchSingleValue('SELECT body FROM pnotes WHERE pid = ?', 'body', [$this->patient['pid']]);
         $this->assertIsString($body);
-        $this->assertStringEndsWith(' to zq-reply-referrer) Zq Reply Pantry rejected the referral made on 2026-10-10: Outside our service area', $body);
+        $this->assertStringEndsWith(' to zq-reply-referrer) The Task for the referral to Zq Reply Pantry made on 2026-10-10 was marked rejected: Outside our service area', $body);
     }
 
     /**
@@ -300,7 +300,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $body = QueryUtils::fetchSingleValue('SELECT body FROM pnotes WHERE pid = ?', 'body', [$this->patient['pid']]);
         $this->assertIsString($body);
         $this->assertStringNotContainsString("\n", $body);
-        $this->assertStringEndsWith(' Zq Reply Pantry rejected the referral made on 2026-10-10: Outside our service area 2026-10-20 seen elsewhere', $body);
+        $this->assertStringEndsWith(' The Task for the referral to Zq Reply Pantry made on 2026-10-10 was marked rejected: Outside our service area 2026-10-20 seen elsewhere', $body);
     }
 
     /**
@@ -324,8 +324,8 @@ class ReferralReplyFhirApiTest extends TestCase
             $bodies[] = $body;
         }
         $this->assertCount(2, $bodies);
-        $this->assertStringEndsWith(' to zq-reply-referrer) Zq Reply Pantry could not complete the referral made on 2026-10-10.', $bodies[0]);
-        $this->assertStringEndsWith(' to zq-reply-referrer) Zq Reply Pantry could not complete the referral made on 2026-10-12: The client could not be reached', $bodies[1]);
+        $this->assertStringEndsWith(' to zq-reply-referrer) The Task for the referral to Zq Reply Pantry made on 2026-10-10 was marked failed.', $bodies[0]);
+        $this->assertStringEndsWith(' to zq-reply-referrer) The Task for the referral to Zq Reply Pantry made on 2026-10-12 was marked failed: The client could not be reached', $bodies[1]);
     }
 
     /**
@@ -345,7 +345,7 @@ class ReferralReplyFhirApiTest extends TestCase
 
         $body = QueryUtils::fetchSingleValue('SELECT body FROM pnotes WHERE pid = ?', 'body', [$this->patient['pid']]);
         $this->assertIsString($body);
-        $this->assertStringEndsWith(' Zq Reply Pantry accepted the referral made on 2026-10-10.', $body);
+        $this->assertStringEndsWith(' The Task for the referral to Zq Reply Pantry made on 2026-10-10 was marked accepted.', $body);
         $text = $this->outputText($this->onlyTask($id), 0);
         $this->assertStringContainsString("Referral Date: 2026-10-10\n", $text);
         $this->assertStringContainsString("Reply Date: 2026-10-18\n", $text);
@@ -366,7 +366,7 @@ class ReferralReplyFhirApiTest extends TestCase
         (new ReferralTaskService(clock: $clock))->taskStatusChanged($taskUuid, 'requested', 'rejected', null);
 
         $this->assertSame(
-            [['date' => '2026-01-05 09:30:00', 'body' => '2026-01-05 09:30 (FHIR API to zq-reply-referrer) Zq Reply Pantry rejected the referral.']],
+            [['date' => '2026-01-05 09:30:00', 'body' => '2026-01-05 09:30 (FHIR API to zq-reply-referrer) The Task for the referral to Zq Reply Pantry was marked rejected.']],
             QueryUtils::fetchRecords('SELECT date, body FROM pnotes WHERE pid = ?', [$this->patient['pid']])
         );
     }

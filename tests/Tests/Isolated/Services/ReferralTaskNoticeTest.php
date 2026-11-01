@@ -43,21 +43,21 @@ class ReferralTaskNoticeTest extends TestCase
     {
         // Task status, Referral Date, the recipient's reason => the notice
         return [
-            'accepted' => ['accepted', '2026-10-10', null, 'Zq Pantry accepted the referral made on 2026-10-10.'],
-            'rejected' => ['rejected', '2026-10-10', null, 'Zq Pantry rejected the referral made on 2026-10-10.'],
-            'completed' => ['completed', '2026-10-10', null, 'Zq Pantry completed the referral made on 2026-10-10.'],
-            'failed' => ['failed', '2026-10-10', null, 'Zq Pantry could not complete the referral made on 2026-10-10.'],
-            'accepted, no Referral Date' => ['accepted', null, null, 'Zq Pantry accepted the referral.'],
-            'rejected, no Referral Date' => ['rejected', null, null, 'Zq Pantry rejected the referral.'],
-            'completed, no Referral Date' => ['completed', null, null, 'Zq Pantry completed the referral.'],
-            'failed, no Referral Date' => ['failed', null, null, 'Zq Pantry could not complete the referral.'],
-            'rejected, with a reason' => ['rejected', '2026-10-10', 'Outside our service area', 'Zq Pantry rejected the referral made on 2026-10-10: Outside our service area'],
-            'rejected, with a reason, no Referral Date' => ['rejected', null, 'Outside our service area', 'Zq Pantry rejected the referral: Outside our service area'],
-            'failed, with a reason' => ['failed', '2026-10-10', 'The client could not be reached', 'Zq Pantry could not complete the referral made on 2026-10-10: The client could not be reached'],
-            'failed, with a reason, no Referral Date' => ['failed', null, 'The client could not be reached', 'Zq Pantry could not complete the referral: The client could not be reached'],
+            'accepted' => ['accepted', '2026-10-10', null, 'The Task for the referral to Zq Pantry made on 2026-10-10 was marked accepted.'],
+            'rejected' => ['rejected', '2026-10-10', null, 'The Task for the referral to Zq Pantry made on 2026-10-10 was marked rejected.'],
+            'completed' => ['completed', '2026-10-10', null, 'The Task for the referral to Zq Pantry made on 2026-10-10 was marked completed.'],
+            'failed' => ['failed', '2026-10-10', null, 'The Task for the referral to Zq Pantry made on 2026-10-10 was marked failed.'],
+            'accepted, no Referral Date' => ['accepted', null, null, 'The Task for the referral to Zq Pantry was marked accepted.'],
+            'rejected, no Referral Date' => ['rejected', null, null, 'The Task for the referral to Zq Pantry was marked rejected.'],
+            'completed, no Referral Date' => ['completed', null, null, 'The Task for the referral to Zq Pantry was marked completed.'],
+            'failed, no Referral Date' => ['failed', null, null, 'The Task for the referral to Zq Pantry was marked failed.'],
+            'rejected, with a reason' => ['rejected', '2026-10-10', 'Outside our service area', 'The Task for the referral to Zq Pantry made on 2026-10-10 was marked rejected: Outside our service area'],
+            'rejected, with a reason, no Referral Date' => ['rejected', null, 'Outside our service area', 'The Task for the referral to Zq Pantry was marked rejected: Outside our service area'],
+            'failed, with a reason' => ['failed', '2026-10-10', 'The client could not be reached', 'The Task for the referral to Zq Pantry made on 2026-10-10 was marked failed: The client could not be reached'],
+            'failed, with a reason, no Referral Date' => ['failed', null, 'The client could not be reached', 'The Task for the referral to Zq Pantry was marked failed: The client could not be reached'],
             // Only a rejection or a failure carries the reason.
-            'accepted, with a reason' => ['accepted', '2026-10-10', 'Seen at intake', 'Zq Pantry accepted the referral made on 2026-10-10.'],
-            'completed, with a reason, no Referral Date' => ['completed', null, 'Seen at intake', 'Zq Pantry completed the referral.'],
+            'accepted, with a reason' => ['accepted', '2026-10-10', 'Seen at intake', 'The Task for the referral to Zq Pantry made on 2026-10-10 was marked accepted.'],
+            'completed, with a reason, no Referral Date' => ['completed', null, 'Seen at intake', 'The Task for the referral to Zq Pantry was marked completed.'],
         ];
     }
 
