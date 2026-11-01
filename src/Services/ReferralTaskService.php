@@ -234,9 +234,11 @@ class ReferralTaskService
     }
 
     /**
-     * When a referral records a reply (a Reply Date), its latest Task is completed, with the
-     * Counter-Referral section filed in the patient's documents as its output. Nothing when
-     * the global is off, there's no Task, or the Task is already in a final status.
+     * When a referral records a reply (a Reply Date), its recipient's Task (recipientTask(), the
+     * one the referral's status reads) is completed, with the Counter-Referral section filed in
+     * the patient's documents as its output. Nothing when the global is off, Refer To has no
+     * Task, or the Task is already in a final status. A Task someone else owns (an earlier
+     * recipient's still open, or one an API client made for another owner) isn't completed with it.
      *
      * It runs under the referral's lock, as createForReferral() does, so two saves at once file
      * one document. A reply is filed once: a save that finds the same reply already filed (an
@@ -282,12 +284,13 @@ class ReferralTaskService
     {
         $referral = $this->getReferralService()->getReferral($transactionId);
         $patientId = $referral['patient_id'] ?? null;
-        if ($referral === null || !is_numeric($patientId) || self::text($referral, 'reply_date') === null) {
+        $recipientUuid = $referral === null ? null : self::text($referral, 'performer_uuid');
+        if ($referral === null || !is_numeric($patientId) || $recipientUuid === null || self::text($referral, 'reply_date') === null) {
             return null;
         }
         $document = null;
         for ($pass = 0; $pass < self::WRITE_PASSES; $pass++) {
-            $task = $this->latestTask($referralUuid);
+            $task = $this->recipientTask($referralUuid, $recipientUuid);
             $status = $task === null ? null : self::text($task, 'status');
             $taskUuid = $task === null ? null : self::text($task, 'uuid');
             $version = $task['version'] ?? null;
@@ -317,7 +320,8 @@ class ReferralTaskService
                 return $taskUuid;
             }
         }
-        // The Task kept changing under this save; its next save tries again with the same document.
+        // The Task kept changing under this save; its next save tries again, with the same document
+        // when the reply's text hasn't changed.
         $this->getLogger()->warning('A referral\'s reply was filed but its Task kept changing, so it was left as the recipient has it', [
             'transaction_id' => $transactionId,
             'document_uuid' => $document,
@@ -388,11 +392,12 @@ class ReferralTaskService
     }
 
     /**
-     * After the FHIR API changes a Task's status: when the Task is a referral's own (isOwnTask())
-     * and is now accepted, rejected or completed, a message to the one who made the referral
-     * (Refer By), in their inbox under the Referral type. A recipient's sub-Task, or another Task
-     * with the referral as its focus, doesn't count, as it doesn't for the referral's status.
-     * Nothing when the global is off.
+     * After the FHIR API changes a Task's status: when the Task is a referral's own (isOwnTask()),
+     * owned by the referral's recipient (Refer To), and is now accepted, rejected or completed, a
+     * message to the one who made the referral (Refer By), in their inbox under the Referral type.
+     * The message says Refer To acted, so a recipient's sub-Task, another Task with the referral as
+     * its focus, or one an API client made for someone else doesn't count. Nothing when the global
+     * is off.
      *
      * Called once the Task's update is committed, so a failure is logged, not thrown: thrown, it
      * would answer the client's successful PUT with an error, and a retry naming the version it
@@ -431,7 +436,11 @@ class ReferralTaskService
         $referral = $this->getReferralService()->getReferralByUuid($focus);
         $referrer = $referral['refer_from'] ?? null;
         $patientId = $referral['patient_id'] ?? null;
-        if ($referral === null || !is_numeric($referrer) || !is_numeric($patientId)) {
+        $recipientUuid = $referral === null ? null : self::text($referral, 'performer_uuid');
+        if (
+            $referral === null || !is_numeric($referrer) || !is_numeric($patientId)
+            || $recipientUuid === null || ($task['owner_uuid'] ?? null) !== $recipientUuid
+        ) {
             return;
         }
         $recipient = QueryUtils::fetchSingleValue('SELECT username FROM users WHERE id = ?', 'username', [(int)$referrer]);
@@ -450,17 +459,25 @@ class ReferralTaskService
     }
 
     /**
-     * The referral's latest Task of this service's (ownTasks()), as TaskService returns it, with
-     * its outputs: a recipient's sub-Task with the same focus isn't the one a reply completes.
+     * The recipient's Task for the referral, as TaskService returns it, with its outputs: the
+     * latest of the referral's own Tasks (ownTasks()) that the recipient owns, leaving out one this
+     * service cancelled because the referral went elsewhere. One the recipient finished or
+     * cancelled themselves is still theirs. ReferralService::taskStatusSql() reads the referral's
+     * status from the same Task, and both createForReferral() (does Refer To have one?) and
+     * recordReplyLocked() (which one does the reply complete?) ask this, so the three agree.
      *
      * @return ?array<string, mixed>
      */
-    private function latestTask(string $referralUuid): ?array
+    private function recipientTask(string $referralUuid, string $ownerUuid): ?array
     {
         $latest = null;
-        foreach ($this->ownTasks($referralUuid) as $task) {
-            if (is_numeric($task['id'] ?? null) && ($latest === null || (int)$task['id'] > (int)$latest['id'])) {
+        $latestId = 0;
+        foreach ($this->ownTasks($referralUuid, $ownerUuid) as $task) {
+            $id = is_numeric($task['id'] ?? null) ? (int)$task['id'] : 0;
+            $cancelledHere = ($task['status'] ?? null) === 'cancelled' && in_array($task['status_reason'] ?? null, self::OWN_REASONS, true);
+            if (!$cancelledHere && ($latest === null || $id > $latestId)) {
                 $latest = $task;
+                $latestId = $id;
             }
         }
         if ($latest === null) {
@@ -709,18 +726,13 @@ class ReferralTaskService
     }
 
     /**
-     * Whether the recipient has a Task for the referral: one they finished or cancelled themselves
-     * stays theirs, but one this service cancelled (the referral went elsewhere, then came back)
-     * doesn't count.
+     * Whether the recipient has a Task for the referral (recipientTask()): one they finished or
+     * cancelled themselves stays theirs, but one this service cancelled (the referral went
+     * elsewhere, then came back) doesn't count.
      */
     private function hasTask(string $referralUuid, string $ownerUuid): bool
     {
-        foreach ($this->ownTasks($referralUuid, $ownerUuid) as $task) {
-            if (($task['status'] ?? null) !== 'cancelled' || !in_array($task['status_reason'] ?? null, self::OWN_REASONS, true)) {
-                return true;
-            }
-        }
-        return false;
+        return $this->recipientTask($referralUuid, $ownerUuid) !== null;
     }
 
     /**

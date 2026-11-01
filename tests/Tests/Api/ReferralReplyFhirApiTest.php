@@ -300,6 +300,46 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A Task of the referral's own kind that an API client made for someone other than Refer To
+     * isn't the recipient's: accepted, it files no message, which would say Refer To accepted.
+     */
+    public function testTheReferrerHearsNothingOfAnotherOwnersTask(): void
+    {
+        $this->people['clinic'] = $this->insertPerson(['abook_type' => 'external_org', 'organization' => 'Zq Reply Clinic']);
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $theirs = $this->postTaskFor($id, 'clinic');
+
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->read('Task', $theirs), 'accepted'));
+        $this->assertSame([], QueryUtils::fetchRecords('SELECT id FROM pnotes WHERE pid = ?', [$this->patient['pid']]));
+
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->taskOf($id, 'pantry'), 'accepted'));
+        $this->assertCount(1, QueryUtils::fetchRecords('SELECT id FROM pnotes WHERE pid = ?', [$this->patient['pid']]), 'Refer To\'s Task');
+    }
+
+    /**
+     * A reply completes Refer To's Task, not a later one of the same kind that an API client made
+     * for someone else.
+     */
+    public function testAReplyCompletesTheRecipientsTaskNotAnotherOwners(): void
+    {
+        $this->people['clinic'] = $this->insertPerson(['abook_type' => 'external_org', 'organization' => 'Zq Reply Clinic']);
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $theirs = $this->postTaskFor($id, 'clinic');
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+
+        $this->afterSave($id);
+
+        $pantry = $this->taskOf($id, 'pantry');
+        $this->assertSame('completed', $pantry['status'] ?? null);
+        $this->assertStringContainsString('Refer To: Zq Reply Pantry', $this->outputText($pantry, 0));
+        $other = $this->read('Task', $theirs);
+        $this->assertNotSame('completed', $other['status'] ?? null);
+        $this->assertArrayNotHasKey('output', $other);
+    }
+
+    /**
      * The global, in this process and in the globals table: a Task's status change comes in through the API,
      * whose process reads it from the database, so the referrer's notice, which respects it, follows that.
      */
@@ -435,6 +475,34 @@ class ReferralReplyFhirApiTest extends TestCase
         $pantryReply = $this->outputText($this->taskOf($id, 'pantry'), 0);
         $this->assertStringContainsString('Refer To: Zq Reply Pantry', $pantryReply);
         $this->assertStringContainsString('Findings: Enrolled', $pantryReply);
+    }
+
+    /**
+     * One save sends the referral on and records its reply, and its Task step doesn't get the
+     * referral's lock, so the first recipient's open Task isn't cancelled: the reply, which names
+     * the new Refer To, isn't recorded on it. The next save cancels it.
+     */
+    public function testAReplyIsNotRecordedOnTheTaskOfARecipientTheReferralLeft(): void
+    {
+        $this->people['clinic'] = $this->insertPerson(['abook_type' => 'external_org', 'organization' => 'Zq Reply Clinic']);
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['refer_to' => $this->people['clinic']['id'], 'reply_date' => '2026-10-25', 'reply_findings' => 'Seen in clinic']);
+        $lockMissed = new class extends ReferralTaskService {
+            // As createForReferral() returns when the lock isn't acquired: before it cancels anything.
+            public function createForReferral(int $transactionId, ?int $userId): ?string
+            {
+                return null;
+            }
+        };
+
+        $lockMissed->afterSave($id, null);
+
+        $this->assertSame('requested', $this->taskOf($id, 'pantry')['status'] ?? null);
+        $this->assertSame([], $this->replyDocuments($id));
+
+        $this->afterSave($id);
+        $this->assertSame('cancelled', $this->taskOf($id, 'pantry')['status'] ?? null, 'the next save');
     }
 
     /**
@@ -668,6 +736,33 @@ class ReferralReplyFhirApiTest extends TestCase
         $task = self::at($entries, 0, 'resource');
         $this->assertIsArray($task);
         return $task;
+    }
+
+    /**
+     * A Task of the referral's own kind (code fulfill, not part of another) for one of the test's
+     * people, made through POST /fhir/Task as an API client would make it.
+     *
+     * @return string its uuid
+     */
+    private function postTaskFor(int $transactionId, string $person): string
+    {
+        $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM transactions WHERE id = ?', 'uuid', [$transactionId]);
+        $this->assertIsString($uuid);
+        $response = $this->testClient->post(self::FHIR_URL . 'Task', [
+            'resourceType' => 'Task',
+            'status' => 'requested',
+            'intent' => 'order',
+            'code' => ['coding' => [['system' => FhirTaskService::TASK_CODE_SYSTEM, 'code' => 'fulfill']]],
+            'for' => ['reference' => 'Patient/' . $this->patient['uuid']],
+            'focus' => ['reference' => 'ServiceRequest/' . UuidRegistry::uuidToString($uuid)],
+            'owner' => ['reference' => 'Organization/' . $this->people[$person]['uuid']],
+        ]);
+        $this->assertSame(Response::HTTP_CREATED, $response->getStatusCode(), (string)$response->getBody());
+        $task = json_decode((string)$response->getBody(), true);
+        $this->assertIsArray($task);
+        $taskUuid = $task['id'] ?? null;
+        $this->assertIsString($taskUuid);
+        return $taskUuid;
     }
 
     /**

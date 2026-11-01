@@ -82,7 +82,8 @@ class ReferralService extends BaseService
      * transaction aliased $transaction. Only the current recipient's Task decides: when Refer To
      * changes, an earlier recipient's Task stops being the referral's status (#14710). Only the
      * referral's own Tasks count (code fulfill, not part of another), not a recipient's sub-Tasks, and
-     * not one ReferralTaskService cancelled because the referral went elsewhere.
+     * not one ReferralTaskService cancelled because the referral went elsewhere. The Task a reply
+     * completes is the same one (ReferralTaskService::recipientTask()).
      */
     public static function taskStatusSql(string $transaction): string
     {
@@ -96,7 +97,7 @@ class ReferralService extends BaseService
 
     /**
      * ReferralTaskService's own cancellation reasons as SQL literals: a Task it cancelled (the referral went
-     * elsewhere) isn't its recipient's answer, so it doesn't set the status, as it doesn't count in hasTask().
+     * elsewhere) isn't its recipient's answer, so it doesn't set the status, as it doesn't count in recipientTask().
      */
     private static function ownReasonsSql(): string
     {
