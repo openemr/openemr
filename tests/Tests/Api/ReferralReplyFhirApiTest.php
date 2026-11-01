@@ -229,6 +229,36 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertSame([], QueryUtils::fetchRecords("SELECT id FROM documents WHERE foreign_reference_table = 'transactions' AND foreign_reference_id = ?", [$id]));
     }
 
+    /**
+     * A save that records no reply (no Reply Date) settles that with one read: it takes no lock and
+     * reads no more of the referral.
+     */
+    public function testASaveWithoutAReplyReadsNoMoreOfTheReferral(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $referrals = new class (createMissingUuids: false) extends ReferralService {
+            public int $reads = 0;
+
+            public function getReferralUuid(int $transactionId): ?string
+            {
+                $this->reads++;
+                return parent::getReferralUuid($transactionId);
+            }
+
+            public function getReferral(int $transactionId): ?array
+            {
+                $this->reads++;
+                return parent::getReferral($transactionId);
+            }
+        };
+
+        $this->assertNull((new ReferralTaskService(userService: new UserService(), referralService: $referrals))->recordReply($id, null));
+
+        $this->assertSame(0, $referrals->reads);
+        $this->assertSame('requested', $this->onlyTask($id)['status'] ?? null);
+    }
+
     public function testNoReplyMeansNoChangeAndTheGlobalTurnsItOff(): void
     {
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);

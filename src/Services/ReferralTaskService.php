@@ -254,6 +254,12 @@ class ReferralTaskService
         if (!OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value)) {
             return null;
         }
+        // Most saves record no reply: one read of the Reply Date settles that before the lock is taken.
+        // Under the lock the referral is read whole, as the save may have changed it since.
+        $replyDate = QueryUtils::fetchSingleValue("SELECT field_value FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", 'field_value', [$transactionId]);
+        if (!is_string($replyDate) || trim($replyDate) === '') {
+            return null;
+        }
         $referralUuid = $this->getReferralService()->getReferralUuid($transactionId);
         if ($referralUuid === null) {
             return null;
