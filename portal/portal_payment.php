@@ -29,6 +29,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
+use OpenEMR\Services\PatientReview\ReviewStatus;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -83,10 +84,13 @@ $recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
 // action, so the save finds the same patient. A recid that isn't a payment record
 // (deleted or changed since the dialog opened) is refused rather than falling back
 // to the open chart. A portal patient stays on the session patient.
+// A payment the patient has since replaced (cancelled) is refused too, so its old invoice
+// selection cannot be posted. A completed one is allowed: posting closes the request
+// (paylib.php review-save) just before this page receives the form.
 if (!$isPortal && $recid) {
     $paymentRecord = $reviewWorkflows->payment($recid);
-    if ($paymentRecord === null) {
-        throw new \RuntimeException('Portal payment record not found');
+    if ($paymentRecord === null || !in_array($paymentRecord->status, [ReviewStatus::Pending, ReviewStatus::Completed], true)) {
+        throw new \RuntimeException('Portal payment record not found or no longer pending');
     }
     $pid = $paymentRecord->pid;
 }
@@ -707,6 +711,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
     }
     ?>
     <form id="invoiceForm" method='post' action='<?php echo attr($invoiceAction); ?>'>
+        <input type='hidden' name='form_recid' value='<?php echo attr((string) $recid) ?>'/>
         <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
         <input type='hidden' name='form_pid' value='<?php echo attr($pidField) ?>'/>
         <input type='hidden' name='form_save' value='<?php echo xla('Invoice'); ?>'/>

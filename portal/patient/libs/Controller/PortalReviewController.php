@@ -18,6 +18,7 @@
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientReview\Legacy\LegacyActivityRow;
@@ -143,7 +144,15 @@ class PortalReviewController extends AppBasePortalController
             $actor = SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession());
             $workflows = $this->workflows();
 
-            $result = match ($json['status'] ?? null) {
+            $status = $json['status'] ?? null;
+            // Only a submission creates a request, so only it needs the document checked. Closing
+            // or deleting acts on a request that was checked when it was submitted (and a deleted
+            // document's row is already gone).
+            if ($status === 'waiting' && !self::documentBelongsTo($documentId, $pid)) {
+                throw new InvalidArgumentException('The document does not belong to this patient');
+            }
+
+            $result = match ($status) {
                 'waiting' => $workflows->submitDocument(
                     $pid,
                     $documentId,
@@ -180,17 +189,27 @@ class PortalReviewController extends AppBasePortalController
         try {
             $request = $this->requestFromUrl();
             PortalPatientAccessGuard::assertCanWrite($request->pid);
-            $documentId = filter_var($request->targetId, FILTER_VALIDATE_INT);
-            if ($request->type !== ReviewType::Document || !is_int($documentId)) {
+            if ($request->type !== ReviewType::Document) {
                 throw new InvalidArgumentException('Not a document review request');
             }
+            // Cancel this request, not whichever one is open for the document now.
+            if (!$request->status->isOpen()) {
+                throw new InvalidArgumentException('This review request is no longer open');
+            }
             $actor = SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession());
-            $this->workflows()->cancelDocument($request->pid, $documentId, $actor, 'Removed from review');
+            ReviewQueueFactory::create()->cancel($request->id, $actor, 'Removed from review');
 
             $this->RenderJSON(new stdClass(), $this->JSONPCallback());
         } catch (\RuntimeException | \LogicException $ex) {
             $this->RenderExceptionJSON($ex);
         }
+    }
+
+    private static function documentBelongsTo(int $documentId, int $pid): bool
+    {
+        $owner = QueryUtils::fetchSingleValue('SELECT `pid` FROM `onsite_documents` WHERE `id` = ?', 'pid', [$documentId]);
+
+        return is_numeric($owner) && intval($owner) === $pid;
     }
 
     private function pageSize(): int

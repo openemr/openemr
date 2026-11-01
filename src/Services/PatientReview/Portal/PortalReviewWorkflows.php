@@ -166,6 +166,22 @@ final readonly class PortalReviewWorkflows
     }
 
     /**
+     * Staff posted this payment (the one they opened). Unlike completePayment(), a payment the
+     * patient has since replaced is not closed, and neither is the newer one.
+     *
+     * @return ?ReviewRequest the closed request, or null when it is not this patient's open payment
+     */
+    public function completePaymentRequest(int $id, int $pid, ReviewActor $staff): ?ReviewRequest
+    {
+        $payment = $this->payment($id, $pid);
+        if ($payment === null || !$payment->status->isOpen()) {
+            return null;
+        }
+
+        return $this->queue->complete($payment->id, $staff, self::NOTE_PAYMENT_POSTED);
+    }
+
+    /**
      * A biller asks the patient to pay these encounters online. It waits on the patient, not on
      * staff, so it is never counted as pending review.
      *

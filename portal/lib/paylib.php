@@ -14,6 +14,7 @@
 
 use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -211,7 +212,7 @@ if ($_POST['mode'] == 'portal-save') {
     $form_source = trim((string) $_POST['form_source']);
     // The posted invoice and card values are not kept: the payment itself is recorded in
     // ar_session/ar_activity, and the card details are deleted when the request closes.
-    $s = CloseAudit($form_pid);
+    $s = CloseAudit($form_pid, CurrentRequest::get()->request->getInt('form_recid'));
     if ($s) {
         echo 'failed';
         exit();
@@ -248,11 +249,13 @@ function SaveAudit($pid, $amts, $cc)
 }
 
 /**
- * Staff posted the patient's pending online payment.
+ * Staff posted the patient's pending online payment. With the id of the payment staff opened,
+ * only that payment is closed, and only while it is still pending: if the patient replaced it
+ * in the meantime, neither it nor the newer payment is closed.
  *
  * @return int|\Throwable 0 on success
  */
-function CloseAudit($pid)
+function CloseAudit($pid, int $recid = 0)
 {
     try {
         $patientId = filter_var($pid, FILTER_VALIDATE_INT);
@@ -260,7 +263,15 @@ function CloseAudit($pid)
             throw new InvalidArgumentException('A valid patient ID is required');
         }
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        ReviewQueueFactory::portalWorkflows()->completePayment($patientId, SessionReviewActor::staff($session));
+        $staff = SessionReviewActor::staff($session);
+        $workflows = ReviewQueueFactory::portalWorkflows();
+        if ($recid > 0) {
+            if ($workflows->completePaymentRequest($recid, $patientId, $staff) === null) {
+                throw new RuntimeException('The portal payment is no longer pending');
+            }
+        } else {
+            $workflows->completePayment($patientId, $staff);
+        }
     } catch (\Throwable $ex) {
         return $ex;
     }

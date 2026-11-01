@@ -126,7 +126,24 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         $this->assertSame($second->id, $this->workflows->pendingPayment(self::PID)?->id);
     }
 
-    public function testPaymentLookupChecksTypeAndPatient(): void
+    public function testClosingTheOpenedPaymentLeavesAReplacementAlone(): void
+    {
+        $opened = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, $this->patient());
+        $replacement = $this->workflows->submitPayment(self::PID, '{"1001":"12.00"}', self::CARD, $this->patient());
+
+        $staleClose = $this->workflows->completePaymentRequest($opened->id, self::PID, $this->staff());
+        $wrongPatient = $this->workflows->completePaymentRequest($replacement->id, 8, $this->staff());
+        $this->assertNull($staleClose, 'a payment the patient replaced is not posted');
+        $this->assertNull($wrongPatient, "another patient's id does not close it");
+        $this->assertSame(ReviewStatus::Pending, $this->queue->get($replacement->id)->status, 'the newer payment stays pending');
+
+        $closed = $this->workflows->completePaymentRequest($replacement->id, self::PID, $this->staff());
+        $this->assertNotNull($closed);
+        $this->assertSame(ReviewStatus::Completed, $closed->status);
+        $this->assertSame(PortalReviewWorkflows::NOTE_PAYMENT_POSTED, $closed->reviewNote);
+    }
+
+        public function testPaymentLookupChecksTypeAndPatient(): void
     {
         $payment = $this->workflows->submitPayment(self::PID, '{}', '', $this->patient());
         $profile = $this->workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $this->patient());
