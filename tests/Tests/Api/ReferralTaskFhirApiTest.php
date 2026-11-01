@@ -86,13 +86,21 @@ class ReferralTaskFhirApiTest extends TestCase
         foreach ($this->transactions as $id) {
             $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM transactions WHERE id = ?', 'uuid', [$id]);
             if (is_string($uuid)) {
+                foreach (QueryUtils::fetchTableColumn('SELECT uuid FROM task WHERE focus_uuid = ?', 'uuid', [$uuid]) as $taskUuid) {
+                    self::forgetUuid('task', $taskUuid);
+                }
                 QueryUtils::sqlStatementThrowException('DELETE FROM task WHERE focus_uuid = ?', [$uuid]);
+                self::forgetUuid('transactions', $uuid);
             }
             QueryUtils::sqlStatementThrowException('DELETE FROM lbt_data WHERE form_id = ?', [$id]);
             QueryUtils::sqlStatementThrowException('DELETE FROM transactions WHERE id = ?', [$id]);
         }
         foreach ($this->people as $person) {
+            self::forgetUuid('users', QueryUtils::fetchSingleValue('SELECT uuid FROM users WHERE id = ?', 'uuid', [$person['id']]));
             QueryUtils::sqlStatementThrowException('DELETE FROM users WHERE id = ?', [$person['id']]);
+        }
+        if (isset($this->patient)) {
+            self::forgetUuid('patient_data', UuidRegistry::uuidToBytes($this->patient['uuid']));
         }
         $this->fixtures->removeFixtures();
         $this->testClient->cleanupRevokeAuth();
@@ -717,6 +725,16 @@ class ReferralTaskFhirApiTest extends TestCase
             $value = $value[$key];
         }
         return $value;
+    }
+
+    /**
+     * Deleting a row leaves its uuid_registry row behind; this removes it.
+     */
+    private static function forgetUuid(string $table, mixed $uuid): void
+    {
+        if (is_string($uuid) && $uuid !== '') {
+            QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE table_name = ? AND uuid = ?', [$table, $uuid]);
+        }
     }
 
     /**
