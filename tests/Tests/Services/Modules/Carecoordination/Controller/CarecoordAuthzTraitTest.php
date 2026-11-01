@@ -182,9 +182,15 @@ class CarecoordAuthzTraitTest extends TestCase
 
     private function insertAuditRow(int $storedPid): int
     {
+        // audit_master.user_id and modified_time are NOT NULL with no
+        // DEFAULT; set both explicitly so the fixture also works under
+        // strict SQL mode. user_id = 0 matches what the real import path
+        // produces (CommonPlugin::insert_ccr_into_audit_data leaves it
+        // unset and MySQL's implicit default fills in 0).
         $amid = (int) QueryUtils::sqlInsert(
             "INSERT INTO audit_master "
-            . "SET pid = ?, approval_status = 1, ip_address = '', type = 1, "
+            . "SET pid = ?, user_id = 0, approval_status = 1, "
+            . "modified_time = NOW(), ip_address = '', type = 1, "
             . "is_qrda_document = 0, is_unstructured_document = 0",
             [$storedPid]
         );
