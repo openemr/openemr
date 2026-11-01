@@ -26,8 +26,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e;
 
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\PatientReview\ReviewActor;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
@@ -117,8 +118,10 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
                 array_map(fn(array $row): array => [$this->toInt($row['patient_id']), is_string($row['pay_total']) ? $row['pay_total'] : ''], $sessions),
                 'The payment must be recorded for the paying patient only'
             );
-            $status = QueryUtils::fetchSingleValue('SELECT status FROM onsite_portal_activity WHERE id = ?', 'status', [$this->recordId]);
-            $this->assertSame('closed', $status, 'The portal payment must be closed once posted');
+            $status = QueryUtils::fetchSingleValue('SELECT status FROM patient_review_request WHERE id = ?', 'status', [$this->recordId]);
+            $this->assertSame('completed', $status, 'The portal payment must be closed once posted');
+            $secrets = QueryUtils::fetchSingleValue('SELECT COUNT(*) AS c FROM patient_review_secret WHERE request_id = ?', 'c', [$this->recordId]);
+            $this->assertSame(0, $this->toInt($secrets), 'The card details must be deleted once the payment is posted');
         } finally {
             try {
                 if (isset($this->client)) {
@@ -142,7 +145,7 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
             $this->openPaymentFromPortalActivity();
 
             // The record stops being a payment between opening the dialog and posting.
-            QueryUtils::sqlStatementThrowException("UPDATE onsite_portal_activity SET activity = 'profile' WHERE id = ?", [$this->recordId]);
+            QueryUtils::sqlStatementThrowException("UPDATE patient_review_request SET type = 'profile' WHERE id = ?", [$this->recordId]);
             $this->client->executeScript('window.alert = function () {}; window.confirm = function () { return true; };');
             $this->client->executeScript('document.querySelector("button[form=invoiceForm][type=submit]").click();');
             $this->client->wait(30)->until(
@@ -229,12 +232,12 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
             'cc_type' => 'Visa',
             'zip' => '05701',
         ], JSON_THROW_ON_ERROR);
-        $this->recordId = $this->toInt(QueryUtils::sqlInsert(
-            'INSERT INTO onsite_portal_activity (date, patient_id, activity, require_audit, pending_action, action_taken,'
-            . ' status, narrative, table_action, table_args, action_user, action_taken_time, checksum)'
-            . " VALUES (NOW(), ?, 'payment', 1, 'review', '', 'waiting', ?, '', ?, 0, NULL, ?)",
-            [$this->payingPid, self::FIXTURE_MARKER, $invoice, ServiceContainer::getCrypto()->encryptForDatabase($card)]
-        ));
+        $this->recordId = ReviewQueueFactory::portalWorkflows()->submitPayment(
+            $this->payingPid,
+            $invoice,
+            $card,
+            ReviewActor::patient($this->payingPid, self::FIXTURE_MARKER),
+        )->id;
     }
 
     private function cleanUpFixtureData(): void
@@ -248,7 +251,14 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
             QueryUtils::sqlStatementThrowException('DELETE FROM ar_session WHERE patient_id = ?', [$pid]);
             QueryUtils::sqlStatementThrowException('DELETE FROM payments WHERE pid = ?', [$pid]);
             QueryUtils::sqlStatementThrowException('DELETE FROM billing WHERE pid = ?', [$pid]);
-            QueryUtils::sqlStatementThrowException('DELETE FROM onsite_portal_activity WHERE patient_id = ?', [$pid]);
+            foreach (['patient_review_secret', 'patient_review_event'] as $table) {
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM ' . QueryUtils::escapeTableName($table)
+                    . ' WHERE request_id IN (SELECT id FROM patient_review_request WHERE pid = ?)',
+                    [$pid]
+                );
+            }
+            QueryUtils::sqlStatementThrowException('DELETE FROM patient_review_request WHERE pid = ?', [$pid]);
         }
         QueryUtils::sqlStatementThrowException('DELETE FROM form_encounter WHERE reason = ?', [self::FIXTURE_MARKER]);
         QueryUtils::sqlStatementThrowException('DELETE FROM patient_data WHERE pubpid = ?', [self::FIXTURE_MARKER]);

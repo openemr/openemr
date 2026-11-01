@@ -28,6 +28,8 @@ use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
+use OpenEMR\Services\PatientReview\Legacy\LegacyActivityRow;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -63,7 +65,6 @@ if (!$isPortal) {
 }
 
 $srcdir = $globalsBag->getString('srcdir');
-require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
@@ -74,7 +75,7 @@ $cryptoGen = ServiceContainer::getCrypto();
 
 $recorder = new Recorder();
 
-$appsql = new ApplicationTable();
+$reviewWorkflows = ReviewQueueFactory::portalWorkflows();
 $recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
 
 // Staff open a patient's portal payment from Portal Activity (recid). It is that
@@ -84,17 +85,11 @@ $recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
 // (deleted or changed since the dialog opened) is refused rather than falling back
 // to the open chart. A portal patient stays on the session patient.
 if (!$isPortal && $recid) {
-    $paymentRecord = $appsql->getPortalAuditRec($recid);
-    if (!is_array($paymentRecord)) {
-        throw new \RuntimeException('Portal activity record not found');
+    $paymentRecord = $reviewWorkflows->payment($recid);
+    if ($paymentRecord === null) {
+        throw new \RuntimeException('Portal payment record not found');
     }
-    if (($paymentRecord['activity'] ?? null) !== 'payment') {
-        throw new \RuntimeException('Portal activity record is not a payment');
-    }
-    if (!is_numeric($paymentRecord['patient_id'] ?? null)) {
-        throw new \RuntimeException('Portal payment record has no patient');
-    }
-    $pid = (int) $paymentRecord['patient_id'];
+    $pid = $paymentRecord->pid;
 }
 // Otherwise $pid is the session patient, set by globals.php (PHPStan can't see through require_once).
 if (!isset($pid)) {
@@ -115,14 +110,21 @@ if ($session->get('authUserID', '')) {
     $adminUser = sqlQueryNoLog($query, [$session->get('authUserID')]);
 }
 
-$edata = $recid ? $appsql->getPortalAuditRec($recid, $isPortal ? (int)$pid : null) : $appsql->getPortalAudit($pid, 'review', 'payment');
+// The payment staff opened (recid), or the patient's own pending payment. A portal patient can
+// only open their own.
+$sessionPid = is_numeric($pid) ? intval($pid) : 0;
+$payment = $recid
+    ? $reviewWorkflows->payment($recid, $isPortal ? $sessionPid : null)
+    : $reviewWorkflows->pendingPayment($sessionPid);
+$edata = $payment === null ? false : LegacyActivityRow::fromRequest($payment)->toColumns();
 $ccdata = [];
 $invdata = [];
-if ($edata) {
-    $ccdataRaw = $cryptoGen->decryptFromDatabase(is_string($edata['checksum']) ? $edata['checksum'] : null);
-    $ccdata = json_decode($ccdataRaw, true);
-    $invdata = json_decode((string) $edata['table_args'], true);
-    echo "<script>var jsondata=" . js_escape($edata['table_args']) . ";var ccdata=" . js_escape($edata['checksum']) . "</script>";
+if ($payment !== null) {
+    // Readable only while the payment waits to be posted; deleted once it is.
+    $ccdata = $reviewWorkflows->paymentCardDetails($payment);
+    $invoiceValues = $reviewWorkflows->paymentInvoiceValues($payment);
+    $invdata = json_decode($invoiceValues, true);
+    echo "<script>var jsondata=" . js_escape($invoiceValues) . ";</script>";
 }
 
 $now = time();

@@ -14,6 +14,8 @@ use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
 /**
  * PatientController is the controller class for the Patient object.
@@ -400,38 +402,21 @@ class PatientController extends AppBasePortalController
             $this->RenderExceptionJSON($ex);
         }
     }
+    /**
+     * Closes the patient's pending profile edit once staff have committed it to the chart.
+     */
     public function CloseAudit($p)
     {
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $appsql = new ApplicationTable();
-        $ja = $p->GetArray();
-        try {
-            $audit =  [];
-            $audit['patient_id'] = $ja['pid'];
-            $audit['activity'] = "profile";
-            $audit['require_audit'] = "1";
-            $audit['pending_action'] = "completed";
-            $audit['action_taken'] = "accept";
-            $audit['status'] = "closed";
-            $audit['narrative'] = "Changes reviewed and committed to demographics.";
-            $audit['table_action'] = "update";
-            $audit['table_args'] = $ja;
-            $audit['action_user'] = $session->get('authUserID', "0");
-            $audit['action_taken_time'] = date("Y-m-d H:i:s");
-            $audit['checksum'] = "0";
-            // returns false for new audit
-            $edata = $appsql->getPortalAudit($ja['pid'], 'review');
-            if ($edata) {
-                if (empty($edata['id'])) {
-                    throw new Exception("Invalid ID on Save!");
-                }
-                $audit['date'] = $edata['date'] ?? null;
-                $appsql->portalAudit('update', $edata['id'], $audit);
-            }
-        } catch (\Throwable $ex) {
-            $this->RenderExceptionJSON($ex);
+        $pid = filter_var($p->Pid, FILTER_VALIDATE_INT);
+        if (!is_int($pid) || $pid <= 0) {
+            throw new InvalidArgumentException('A valid patient ID is required');
         }
+        ReviewQueueFactory::portalWorkflows()->completeProfileChange(
+            $pid,
+            SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession()),
+        );
     }
+
     /**
      * API Method deletes an existing Patient record and render response as JSON
      */

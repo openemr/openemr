@@ -12,12 +12,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -46,8 +47,6 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
         exit();
     }
 }
-
-require_once("./appsql.class.php");
 
 if ($session->get('portal_init') !== true) {
     SessionUtil::setSession('whereto', '#paymentcard');
@@ -211,10 +210,9 @@ if ($_POST['mode'] == 'portal-save') {
     }
     $form_method = trim((string) $_POST['form_method']);
     $form_source = trim((string) $_POST['form_source']);
-    $upay = $_POST['form_upay'] ?? '';
-    $cc = $_POST['extra_values'] ?? '';
-    $amts = $_POST['inv_values'] ?? '';
-    $s = CloseAudit($form_pid, $amts, $cc);
+    // The posted invoice and card values are not kept: the payment itself is recorded in
+    // ar_session/ar_activity, and the card details are deleted when the request closes.
+    $s = CloseAudit($form_pid);
     if ($s) {
         echo 'failed';
         exit();
@@ -223,32 +221,26 @@ if ($_POST['mode'] == 'portal-save') {
     echo true;
 }
 
+/**
+ * Holds the patient's online payment for staff to post. A second payment before posting
+ * replaces the first. The card details are stored encrypted and deleted once posted.
+ *
+ * @return int|\Throwable 0 on success
+ */
 function SaveAudit($pid, $amts, $cc)
 {
-    $appsql = new ApplicationTable();
     try {
-        $audit = [];
-        $audit['patient_id'] = $pid;
-        $audit['activity'] = "payment";
-        $audit['require_audit'] = "1";
-        $audit['pending_action'] = "review";
-        $audit['action_taken'] = "";
-        $audit['status'] = "waiting";
-        $audit['narrative'] = "Authorize online payment.";
-        $audit['table_action'] = '';
-        $audit['table_args'] = $amts;
-        $audit['action_user'] = "0";
-        $audit['action_taken_time'] = "";
-        $cryptoGen = ServiceContainer::getCrypto();
-        $audit['checksum'] = $cryptoGen->encryptForDatabase(is_string($cc) ? $cc : null);
-
-        $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
-        $audit['date'] = $edata['date'];
-        if ($edata['id'] > 0) {
-            $appsql->portalAudit('update', $edata['id'], $audit);
-        } else {
-            $appsql->portalAudit('insert', '', $audit);
+        $patientId = filter_var($pid, FILTER_VALIDATE_INT);
+        if (!is_int($patientId) || $patientId <= 0) {
+            throw new InvalidArgumentException('A valid patient ID is required');
         }
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        ReviewQueueFactory::portalWorkflows()->submitPayment(
+            $patientId,
+            is_string($amts) ? $amts : '',
+            is_string($cc) ? $cc : '',
+            SessionReviewActor::from($session),
+        );
     } catch (\Throwable $ex) {
         return $ex;
     }
@@ -256,31 +248,20 @@ function SaveAudit($pid, $amts, $cc)
     return 0;
 }
 
-function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'notify patient')
+/**
+ * Staff posted the patient's pending online payment.
+ *
+ * @return int|\Throwable 0 on success
+ */
+function CloseAudit($pid)
 {
-    $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    $appsql = new ApplicationTable();
     try {
-        $audit = [];
-        $audit['patient_id'] = $pid;
-        $audit['activity'] = "payment";
-        $audit['require_audit'] = "1";
-        $audit['pending_action'] = $paction;//'review';//
-        $audit['action_taken'] = $action;
-        $audit['status'] = "closed";//'waiting';
-        $audit['narrative'] = "Payment authorized.";
-        $audit['table_action'] = "update";
-        $audit['table_args'] = $amts;
-        $audit['action_user'] = $session->get('authUserID', "0");
-        $audit['action_taken_time'] = date("Y-m-d H:i:s");
-        $cryptoGen = ServiceContainer::getCrypto();
-        $audit['checksum'] = $cryptoGen->encryptForDatabase(is_string($cc) ? $cc : null);
-
-        $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
-        $audit['date'] = $edata['date'];
-        if ($edata['id'] > 0) {
-            $appsql->portalAudit('update', $edata['id'], $audit);
+        $patientId = filter_var($pid, FILTER_VALIDATE_INT);
+        if (!is_int($patientId) || $patientId <= 0) {
+            throw new InvalidArgumentException('A valid patient ID is required');
         }
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        ReviewQueueFactory::portalWorkflows()->completePayment($patientId, SessionReviewActor::staff($session));
     } catch (\Throwable $ex) {
         return $ex;
     }

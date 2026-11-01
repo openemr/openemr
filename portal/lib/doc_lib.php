@@ -12,12 +12,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\PatientPortalPDFDocumentCreator;
+use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -74,34 +78,30 @@ $category = $_POST['catid'] ?? 0;
 
 
 if ($dispose == $_POST['audit_delete'] ?? null) {
-    if (!empty($_POST['delete_id']) && !empty($_POST['update_id'])) {
-        $deleteId = intval($_POST['delete_id']);
-        $updateId = intval($_POST['update_id']);
-        // Start a transaction
-        QueryUtils::startTransaction();
-        try {
-            // Update table_action to 'delete' and narrative to user deleted msg
-            $msg = xl("User deleted document");
-            $updateActivity = sqlQuery("UPDATE onsite_portal_activity SET action_taken_time = NOW(), table_action = 'delete', status = 'deleted', narrative = ? WHERE id = ?", [$msg, $updateId]);
-            $deleteDocument = sqlQuery("DELETE FROM onsite_documents WHERE id = ?", [$deleteId]);
-
-            if (!$updateActivity && !$deleteDocument) {
-                // Commit the transaction if both successful
-                QueryUtils::commitTransaction();
-                echo js_escape(['success' => true]);
-            } else {
-                // Rollback transaction on failure
-                QueryUtils::rollbackTransaction();
-                ;
-                echo js_escape(['success' => false, 'message' => 'Failed to update or delete record.']);
-            }
-        } catch (\Throwable $e) {
-            // Rollback on error
-            QueryUtils::rollbackTransaction();
-            echo js_escape(['success' => false, 'message' => $e->getMessage()]);
-        }
-    } else {
-        echo js_escape(['success' => false, 'message' => 'Failed Action']);
+    // Staff delete a portal document still in review from the review list: the review request
+    // is cancelled and the un-charted document removed. (Portal sessions never reach here; they
+    // are limited to the download handlers above.)
+    $postBody = CurrentRequest::get()->request;
+    $requestId = $postBody->getInt('update_id');
+    $documentId = $postBody->getInt('delete_id');
+    $reviewWorkflows = ReviewQueueFactory::portalWorkflows();
+    $request = $requestId > 0 ? $reviewWorkflows->document($requestId) : null;
+    if (
+        $request === null
+        || $documentId <= 0
+        || $request->targetId !== (string) $documentId
+        || !$request->status->isOpen()
+    ) {
+        echo js_escape(['success' => false, 'message' => xl('Failed Action')]);
+        exit;
+    }
+    try {
+        $reviewWorkflows->cancelDocument($request->pid, $documentId, SessionReviewActor::staff($session), xl('User deleted document'));
+        QueryUtils::sqlStatementThrowException('DELETE FROM `onsite_documents` WHERE `id` = ? AND `pid` = ?', [$documentId, $request->pid]);
+        echo js_escape(['success' => true]);
+    } catch (\Throwable $e) {
+        ServiceContainer::getLogger()->error('Could not delete portal document in review', ['request_id' => $requestId, 'exception' => $e]);
+        echo js_escape(['success' => false, 'message' => xl('Failed to update or delete record.')]);
     }
     exit;
 }

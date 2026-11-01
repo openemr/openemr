@@ -183,24 +183,21 @@ GlobalConfig::$ROUTE_MAP = [
         'p_reg' => false
     ],
 
-    // OnsitePortalActivity
-    'GET:onsiteportalactivities' => [
-        'route' => 'OnsitePortalActivity.ListView',
-        'p_acl' => 'p_none',
-        'p_reg' => false
-    ],
+    // Portal review queue (PortalReviewController). These URLs used to be served by the
+    // OnsitePortalActivity and OnsiteActivityView Phreeze stacks; the JavaScript that calls
+    // them is unchanged.
     'GET:api/onsiteportalactivities' => [
-        'route' => 'OnsitePortalActivity.Query',
+        'route' => 'PortalReview.DocumentQuery',
         'p_acl' => 'p_all', // Secured this at downstream function level
         'p_reg' => false
     ],
     'POST:api/onsiteportalactivity' => [
-        'route' => 'OnsitePortalActivity.Create',
+        'route' => 'PortalReview.DocumentChange',
         'p_acl' => 'p_all', // Secured this at downstream function level
         'p_reg' => false
     ],
     'GET:api/onsiteportalactivity/(:num)' => [
-        'route' => 'OnsitePortalActivity.Read',
+        'route' => 'PortalReview.Read',
         'params' => [
             'id' => 2
         ],
@@ -208,7 +205,7 @@ GlobalConfig::$ROUTE_MAP = [
         'p_reg' => false
     ],
     'PUT:api/onsiteportalactivity/(:num)' => [
-        'route' => 'OnsitePortalActivity.Update',
+        'route' => 'PortalReview.DocumentChange',
         'params' => [
             'id' => 2
         ],
@@ -216,27 +213,25 @@ GlobalConfig::$ROUTE_MAP = [
         'p_reg' => false
     ],
     'DELETE:api/onsiteportalactivity/(:num)' => [
-        'route' => 'OnsitePortalActivity.Delete',
+        'route' => 'PortalReview.DocumentCancel',
         'params' => [
             'id' => 2
         ],
         'p_acl' => 'p_none',
         'p_reg' => false
     ],
-
-    // OnsiteActivityView
     'GET:onsiteactivityviews' => [
-        'route' => 'OnsiteActivityView.ListView',
+        'route' => 'PortalReview.ListView',
         'p_acl' => 'p_staff',
         'p_reg' => false
     ],
     'GET:api/onsiteactivityviews' => [
-        'route' => 'OnsiteActivityView.Query',
+        'route' => 'PortalReview.Query',
         'p_acl' => 'p_staff',
         'p_reg' => false
     ],
     'GET:api/onsiteactivityview/(:any)' => [
-        'route' => 'OnsiteActivityView.Read',
+        'route' => 'PortalReview.Read',
         'params' => [
             'id' => 2
         ],

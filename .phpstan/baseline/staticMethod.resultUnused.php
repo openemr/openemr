@@ -9,17 +9,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to AppBasePortalController\\:\\:Init\\(\\) on a separate line has no effect\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteActivityViewController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to AppBasePortalController\\:\\:Init\\(\\) on a separate line has no effect\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to AppBasePortalController\\:\\:Init\\(\\) on a separate line has no effect\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to AppBasePortalController\\:\\:Init\\(\\) on a separate line has no effect\\.$#',

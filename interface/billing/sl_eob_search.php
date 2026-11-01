@@ -51,6 +51,8 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Pdf\Config_Mpdf;
+use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use Symfony\Component\Process\Process;
 
 require_once("../globals.php");
@@ -83,7 +85,6 @@ $form_cb = false;
 if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
     /* Addition of onsite portal patient notify of invoice and reformatted invoice - sjpadgett 01/2017 */
     require_once("../../portal/lib/portal_mail.inc.php");
-    require_once("../../portal/lib/appsql.class.php");
 
     function is_auth_portal($pid = 0): bool
     {
@@ -138,32 +139,18 @@ if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
         return true;
     }
 
-    function SavePatientAudit($pid, $invs)
+    /**
+     * Asks the patient to pay these invoices online. A newer request replaces the one still
+     * waiting on the patient.
+     */
+    function SavePatientAudit($pid, $invs): bool
     {
-        $appsql = new ApplicationTable();
-        try {
-            $audit = [];
-            $audit['patient_id'] = $pid;
-            $audit['activity'] = "invoice";
-            $audit['require_audit'] = "0";
-            $audit['pending_action'] = "payment";
-            $audit['action_taken'] = "";
-            $audit['status'] = "waiting transaction";
-            $audit['narrative'] = "Request patient online payment.";
-            $audit['table_action'] = '';
-            $audit['table_args'] = json_encode($invs);
-            $audit['action_user'] = $pid;
-            $audit['action_taken_time'] = "";
-            $audit['checksum'] = "";
-            $edata = $appsql->getPortalAudit($pid, 'payment', 'invoice', "waiting transaction", 0);
-            if ($edata['id'] > 0) {
-                $appsql->portalAudit('update', $edata['id'], $audit);
-            } else {
-                $appsql->portalAudit('insert', '', $audit);
-            }
-        } catch (\Throwable $ex) {
-            return $ex;
+        $patientId = filter_var($pid, FILTER_VALIDATE_INT);
+        if (!is_int($patientId) || $patientId <= 0 || !is_array($invs)) {
+            return false;
         }
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        ReviewQueueFactory::portalWorkflows()->requestInvoicePayment($patientId, $invs, SessionReviewActor::staff($session));
 
         return true;
     }

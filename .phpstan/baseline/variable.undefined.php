@@ -1758,11 +1758,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/templates/OnsitePortalActivityListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
     'count' => 14,
     'path' => __DIR__ . '/../../portal/patient/templates/PatientListView.tpl.php',
 ];

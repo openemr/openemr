@@ -203,6 +203,16 @@ final readonly class PortalReviewWorkflows
         );
     }
 
+    /**
+     * The document review request with this id, if it is one.
+     */
+    public function document(int $id): ?ReviewRequest
+    {
+        $request = $this->queue->find($id);
+
+        return $request !== null && $request->type === ReviewType::Document ? $request : null;
+    }
+
     public function pendingDocument(int $pid, int $documentId): ?ReviewRequest
     {
         return $this->queue->openForTarget($pid, ReviewType::Document, self::DOCUMENT_TABLE, (string) $documentId);

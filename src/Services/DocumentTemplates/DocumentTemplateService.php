@@ -899,8 +899,10 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function fetchPatientDocumentStatus($pid, $name, bool $return_content = false): bool|array|null
     {
-        $sql = "SELECT od.id AS audit_id, od.pid, od.create_date, od.doc_type, od.*, oa.* FROM onsite_documents as od" .
-            " LEFT JOIN `onsite_portal_activity` AS oa ON od.id = oa.id AND od.doc_type = oa.narrative" .
+        // The document's own row only. This used to join onsite_portal_activity on
+        // od.id = oa.id, which matched an unrelated activity row (or none); callers read only
+        // the document's columns and audit_id (the document id).
+        $sql = "SELECT od.id AS audit_id, od.* FROM onsite_documents as od" .
             " WHERE od.pid = ? AND od.file_path = ? ORDER BY od.create_date DESC LIMIT 1";
 
         $q = sqlQuery($sql, [$pid, $name]);
