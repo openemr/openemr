@@ -147,7 +147,7 @@ class ReviewQueueDatabaseTest extends TestCase
     {
         $service = ReviewQueueFactory::create();
         $submitted = $service->submit(
-            new ReviewSubmission(self::PID, ReviewType::Document, 'Uploaded document', ['name' => 'a.pdf'], ReviewSource::Api, 'review-test-client'),
+            new ReviewSubmission(self::PID, ReviewType::Document, 'Uploaded document', ['name' => 'a.pdf'], ReviewSource::Api, 'review-test-client', 'onsite_documents', '41'),
             $this->patient()
         );
 

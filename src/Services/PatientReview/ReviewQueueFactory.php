@@ -21,6 +21,7 @@ namespace OpenEMR\Services\PatientReview;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
 
 final class ReviewQueueFactory
 {
@@ -40,5 +41,13 @@ final class ReviewQueueFactory
             ServiceContainer::getLogger(),
             $handlers,
         );
+    }
+
+    /**
+     * The portal's review workflows over a queue built as create() builds it.
+     */
+    public static function portalWorkflows(): PortalReviewWorkflows
+    {
+        return new PortalReviewWorkflows(self::create());
     }
 }

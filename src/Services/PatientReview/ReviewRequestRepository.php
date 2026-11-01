@@ -82,6 +82,26 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
         return array_map($this->mapper->toRequest(...), $rows);
     }
 
+    public function findOpenForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): array
+    {
+        $rows = QueryUtils::fetchRecords(
+            'SELECT * FROM `patient_review_request` WHERE `pid` = ? AND `type` = ? AND `target_table` = ? AND `target_id` = ?'
+            . ' AND `status` IN (?, ?) ORDER BY `created_at` DESC, `id` DESC',
+            [$pid, $type->value, $targetTable, $targetId, ReviewStatus::Pending->value, ReviewStatus::AwaitingPayment->value]
+        );
+        return array_map($this->mapper->toRequest(...), $rows);
+    }
+
+    public function findLatestForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): ?ReviewRequest
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT * FROM `patient_review_request` WHERE `pid` = ? AND `type` = ? AND `target_table` = ? AND `target_id` = ?'
+            . ' ORDER BY `created_at` DESC, `id` DESC LIMIT 1',
+            [$pid, $type->value, $targetTable, $targetId]
+        );
+        return is_array($row) && $row !== [] ? $this->mapper->toRequest($row) : null;
+    }
+
     public function findByStatus(ReviewStatus $status, ?ReviewType $type, int $limit, int $offset): array
     {
         $sql = 'SELECT * FROM `patient_review_request` WHERE `status` = ?';

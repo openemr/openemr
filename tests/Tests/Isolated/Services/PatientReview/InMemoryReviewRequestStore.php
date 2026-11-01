@@ -110,6 +110,39 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         return $open;
     }
 
+    public function findOpenForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): array
+    {
+        return array_values(array_filter(
+            $this->allForTarget($pid, $type, $targetTable, $targetId),
+            static fn(ReviewRequest $request): bool => $request->status->isOpen()
+        ));
+    }
+
+    public function findLatestForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): ?ReviewRequest
+    {
+        return $this->allForTarget($pid, $type, $targetTable, $targetId)[0] ?? null;
+    }
+
+    /**
+     * @return list<ReviewRequest> newest first
+     */
+    private function allForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): array
+    {
+        $found = [];
+        foreach (array_reverse($this->requests) as $row) {
+            $request = $this->mapper->toRequest($row);
+            if (
+                $request->pid === $pid
+                && $request->type === $type
+                && $request->targetTable === $targetTable
+                && $request->targetId === $targetId
+            ) {
+                $found[] = $request;
+            }
+        }
+        return $found;
+    }
+
     public function findByStatus(ReviewStatus $status, ?ReviewType $type, int $limit, int $offset): array
     {
         $found = [];

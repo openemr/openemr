@@ -54,6 +54,18 @@ interface ReviewRequestStoreInterface
     public function findOpen(int $pid, ReviewType $type, ?FhirResourceType $resourceType = null): array;
 
     /**
+     * Open requests for one patient, type and target row, newest first.
+     *
+     * @return list<ReviewRequest>
+     */
+    public function findOpenForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): array;
+
+    /**
+     * The most recent request, open or not, for one patient, type and target row.
+     */
+    public function findLatestForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): ?ReviewRequest;
+
+    /**
      * Oldest first, so staff work the queue in the order it arrived.
      *
      * @return list<ReviewRequest>
