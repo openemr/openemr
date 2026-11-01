@@ -68,8 +68,10 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         $first = $this->workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $this->patient());
         $second = $this->workflows->submitProfileChange(self::PID, ['fname' => 'Anne'], $this->patient());
 
-        $this->assertSame($second->id, $this->workflows->pendingProfileChange(self::PID)?->id);
-        $this->assertSame(['fname' => 'Anne'], $this->workflows->pendingProfileChange(self::PID)?->payload);
+        $pending = $this->workflows->pendingProfileChange(self::PID);
+        $this->assertNotNull($pending);
+        $this->assertSame($second->id, $pending->id);
+        $this->assertSame(['fname' => 'Anne'], $pending->payload);
         $this->assertSame(ReviewStatus::Cancelled, $this->queue->get($first->id)->status);
         $this->assertSame('patient_data', $second->targetTable);
         $this->assertSame((string) self::PID, $second->targetId);
@@ -77,7 +79,8 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testStaffCommittingAProfileEditClosesIt(): void
     {
-        $this->assertNull($this->workflows->completeProfileChange(self::PID, $this->staff()), 'nothing to close');
+        $nothingOpen = $this->workflows->completeProfileChange(self::PID, $this->staff());
+        $this->assertNull($nothingOpen, 'nothing to close');
 
         $this->workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $this->patient());
         $closed = $this->workflows->completeProfileChange(self::PID, $this->staff());
@@ -159,8 +162,10 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testChartingOrDeletingADocumentClosesItsRequest(): void
     {
-        $this->assertNull($this->workflows->completeDocument(self::PID, 11, $this->staff()));
-        $this->assertNull($this->workflows->cancelDocument(self::PID, 11, $this->patient(), 'deleted'));
+        $nothingToChart = $this->workflows->completeDocument(self::PID, 11, $this->staff());
+        $nothingToCancel = $this->workflows->cancelDocument(self::PID, 11, $this->patient(), 'deleted');
+        $this->assertNull($nothingToChart);
+        $this->assertNull($nothingToCancel);
 
         $this->workflows->submitDocument(self::PID, 11, 'Consent', $this->patient());
         $this->workflows->submitDocument(self::PID, 12, 'History', $this->patient());
@@ -168,8 +173,10 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         $charted = $this->workflows->completeDocument(self::PID, 11, $this->staff());
         $deleted = $this->workflows->cancelDocument(self::PID, 12, $this->patient(), 'Patient deleted un-charted template');
 
-        $this->assertSame(ReviewStatus::Completed, $charted?->status);
-        $this->assertSame(ReviewStatus::Cancelled, $deleted?->status);
+        $this->assertNotNull($charted);
+        $this->assertNotNull($deleted);
+        $this->assertSame(ReviewStatus::Completed, $charted->status);
+        $this->assertSame(ReviewStatus::Cancelled, $deleted->status);
         $this->assertSame('Patient deleted un-charted template', $this->queue->history($deleted->id)[1]->note);
         $this->assertSame(ReviewStatus::Completed, $this->workflows->latestDocument(self::PID, 11)?->status);
         $this->assertNull($this->workflows->pendingDocument(self::PID, 11));

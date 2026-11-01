@@ -28,7 +28,6 @@ use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
-use OpenEMR\Services\PatientReview\Legacy\LegacyActivityRow;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
 // Will start the (patient) portal OpenEMR session/cookie.
@@ -116,7 +115,8 @@ $sessionPid = is_numeric($pid) ? intval($pid) : 0;
 $payment = $recid
     ? $reviewWorkflows->payment($recid, $isPortal ? $sessionPid : null)
     : $reviewWorkflows->pendingPayment($sessionPid);
-$edata = $payment === null ? false : LegacyActivityRow::fromRequest($payment)->toColumns();
+// When the payment was submitted, shown as "Pending since".
+$pendingSince = $payment === null ? '' : $payment->createdAt->format('Y-m-d H:i:s');
 $ccdata = [];
 $invdata = [];
 if ($payment !== null) {
@@ -1057,10 +1057,10 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             echo '<div class="col-5"><div class="card panel-default height">';
             if (!$session->has('authUserID')) {
                 echo '<div class="card-heading">' . xlt("Payment Information") .
-                    '<span style="color: #cc0000"><em> ' . xlt("Pending Auth since") . ': </em>' . text($edata["date"]) . '</span></div>';
+                    '<span style="color: #cc0000"><em> ' . xlt("Pending Auth since") . ': </em>' . text($pendingSince) . '</span></div>';
             } else {
                 echo '<div class="card-heading">' . xlt("Audit Payment") .
-                    '<span style="color: #cc0000"><em> ' . xlt("Pending since") . ': </em>' . text($edata["date"]) . '</span>' .
+                    '<span style="color: #cc0000"><em> ' . xlt("Pending since") . ': </em>' . text($pendingSince) . '</span>' .
                     ' <button type="button" class="btn btn-warning btn-sm" onclick="getAuth()">' . xlt("Authorize") . '</button></div>';
             }
         } else {
@@ -1085,7 +1085,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 <span class="font-weight-bold"><?php echo xlt('Exp Date'); ?>:  </span><span id="ed"><?php echo text($ccdata["month"] ?? '') . "/" . text($ccdata["year"] ?? '') ?></span>
                 <span class="font-weight-bold"><?php echo xlt('CVV'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["cardCode"] ?? '') ?></span><br />
         <?php } else { ?>
-                <span class="font-weight-bold"><?php echo xlt('Transaction Id'); ?>:  </span><span id="ed"><?php echo text($ccdata["transId"] ?? '') . "/" . text($ccdata["year"]) ?></span>
+                <span class="font-weight-bold"><?php echo xlt('Transaction Id'); ?>:  </span><span id="ed"><?php echo text($ccdata["transId"]) . "/" . text($ccdata["year"] ?? '') ?></span>
                 <span class="font-weight-bold"><?php echo xlt('Authorization'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["authCode"] ?? '') ?></span><br />
         <?php } ?>
         <span class="font-weight-bold"><?php echo xlt('Charge Total'); ?>:  </span><span id="ct"><?php echo text($invdata["form_paytotal"] ?? '') ?></span><br />

@@ -89,7 +89,19 @@ class PortalActivityMigratorDatabaseTest extends TestCase
     {
         $row = QueryUtils::querySingleRow('SELECT * FROM `patient_review_request` WHERE `legacy_activity_id` = ?', [$legacyId]);
         $this->assertIsArray($row, 'legacy row ' . $legacyId . ' was migrated');
-        return $row;
+        $columns = [];
+        foreach ($row as $column => $value) {
+            if (is_string($column)) {
+                $columns[$column] = $value;
+            }
+        }
+        return $columns;
+    }
+
+    private function intOf(mixed $value): int
+    {
+        $this->assertIsNumeric($value);
+        return intval($value);
     }
 
     private function pendingFor(?ReviewType $type = null): int
@@ -138,12 +150,12 @@ class PortalActivityMigratorDatabaseTest extends TestCase
         $this->assertSame('new', $report->unrecognised[$odd] ?? null);
 
         $queue = ReviewQueueFactory::create();
-        $profileRequest = $queue->get(intval($this->migratedRow($profile)['id']));
+        $profileRequest = $queue->get($this->intOf($this->migratedRow($profile)['id']));
         $this->assertSame(ReviewType::Profile, $profileRequest->type);
         $this->assertSame(ReviewStatus::Pending, $profileRequest->status);
         $this->assertSame('Ann', $profileRequest->payload['fname'] ?? null, 'the serialized profile payload is readable');
 
-        $paymentId = intval($this->migratedRow($payment)['id']);
+        $paymentId = $this->intOf($this->migratedRow($payment)['id']);
         $this->assertSame(['value' => '{"1001":"10.00"}'], $queue->get($paymentId)->payload);
         $secret = QueryUtils::querySingleRow(
             'SELECT `ciphertext` FROM `patient_review_secret` WHERE `request_id` = ? AND `kind` = ?',
@@ -154,26 +166,26 @@ class PortalActivityMigratorDatabaseTest extends TestCase
         $postedRow = $this->migratedRow($posted);
         $this->assertSame(ReviewStatus::Completed->value, $postedRow['status']);
         $this->assertSame('payment posted', $postedRow['review_note']);
-        $this->assertSame(1, intval($postedRow['reviewed_by']));
+        $this->assertSame(1, $this->intOf($postedRow['reviewed_by']));
         $this->assertFalse(
-            is_array(QueryUtils::querySingleRow('SELECT 1 AS `found` FROM `patient_review_secret` WHERE `request_id` = ?', [intval($postedRow['id'])])),
+            is_array(QueryUtils::querySingleRow('SELECT 1 AS `found` FROM `patient_review_secret` WHERE `request_id` = ?', [$this->intOf($postedRow['id'])])),
             'a posted payment does not keep card data'
         );
-        $this->assertCount(2, $queue->history(intval($postedRow['id'])));
+        $this->assertCount(2, $queue->history($this->intOf($postedRow['id'])));
 
         $documentRow = $this->migratedRow($document);
         $this->assertSame(['onsite_documents', '77'], [$documentRow['target_table'], $documentRow['target_id']]);
         $this->assertSame(ReviewStatus::Cancelled->value, $this->migratedRow($editing)['status']);
         $this->assertSame(ReviewStatus::AwaitingPayment->value, $this->migratedRow($invoice)['status']);
 
-        $oddHistory = $queue->history(intval($this->migratedRow($odd)['id']));
+        $oddHistory = $queue->history($this->intOf($this->migratedRow($odd)['id']));
         $this->assertStringStartsWith(LegacyActivityMapping::NOTE_UNRECOGNISED, (string) $oddHistory[0]->note);
 
         // A second run copies nothing new.
         $again = $migrator->migrate();
         $this->assertSame(0, $again->migrated);
         $copies = QueryUtils::querySingleRow('SELECT COUNT(*) AS `total` FROM `patient_review_request` WHERE `pid` = ?', [self::PID])['total'] ?? 0;
-        $this->assertSame(7, intval(is_numeric($copies) ? $copies : 0));
+        $this->assertSame(7, $this->intOf($copies));
     }
 
     public function testPendingCountsMatchTheLegacyCounts(): void

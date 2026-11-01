@@ -36,7 +36,7 @@ class PortalReviewController extends AppBasePortalController
     /**
      * Staff review list page (Portal > Review Audits).
      */
-    public function ListView()
+    public function ListView(): void
     {
         $this->assertStaffReviewer();
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -52,7 +52,7 @@ class PortalReviewController extends AppBasePortalController
     /**
      * The staff review list as JSON: GET api/onsiteactivityviews.
      */
-    public function Query()
+    public function Query(): void
     {
         try {
             $this->assertStaffReviewer();
@@ -67,13 +67,13 @@ class PortalReviewController extends AppBasePortalController
                 is_string($orderBy) ? $orderBy : null,
                 RequestUtil::Get('orderDesc') != '',
                 is_numeric($page) ? intval($page) : 1,
-                $this->GetDefaultPageSize(),
+                $this->pageSize(),
             );
             $output['orderBy'] = $orderBy;
             $output['orderDesc'] = RequestUtil::Get('orderDesc') != '';
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (\Throwable $ex) {
+        } catch (\RuntimeException | \LogicException $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -82,13 +82,13 @@ class PortalReviewController extends AppBasePortalController
      * One request: GET api/onsiteactivityview/{id} (staff) and GET api/onsiteportalactivity/{id}
      * (the document screen, patient or staff).
      */
-    public function Read()
+    public function Read(): void
     {
         try {
             $request = $this->requestFromUrl();
             PortalPatientAccessGuard::assertCanRead($request->pid);
             $this->RenderJSON(LegacyActivityRow::fromRequest($request)->toModel(), $this->JSONPCallback());
-        } catch (\Throwable $ex) {
+        } catch (\RuntimeException | \LogicException $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -97,7 +97,7 @@ class PortalReviewController extends AppBasePortalController
      * The document screen looks up a document's review activity:
      * GET api/onsiteportalactivities?patientId=&activity=document&doc=.
      */
-    public function DocumentQuery()
+    public function DocumentQuery(): void
     {
         try {
             $pid = self::requirePositiveInt(RequestUtil::Get('patientId'), 'patient ID');
@@ -113,7 +113,7 @@ class PortalReviewController extends AppBasePortalController
                 'pageSize' => count($rows),
                 'currentPage' => 1,
             ], $this->JSONPCallback());
-        } catch (\Throwable $ex) {
+        } catch (\RuntimeException | \LogicException $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -127,7 +127,7 @@ class PortalReviewController extends AppBasePortalController
      *   deleted  the patient deleted it before it was charted
      *   editing  the patient is still editing; nothing is in review
      */
-    public function DocumentChange()
+    public function DocumentChange(): void
     {
         try {
             $json = json_decode((string) RequestUtil::GetBody(), true);
@@ -167,7 +167,7 @@ class PortalReviewController extends AppBasePortalController
                 $result === null ? ['id' => null] + $json : LegacyActivityRow::fromRequest($result)->toModel(),
                 $this->JSONPCallback()
             );
-        } catch (\Throwable $ex) {
+        } catch (\RuntimeException | \LogicException $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -175,7 +175,7 @@ class PortalReviewController extends AppBasePortalController
     /**
      * DELETE api/onsiteportalactivity/{id}: cancels a document request still in review.
      */
-    public function DocumentCancel()
+    public function DocumentCancel(): void
     {
         try {
             $request = $this->requestFromUrl();
@@ -188,9 +188,16 @@ class PortalReviewController extends AppBasePortalController
             $this->workflows()->cancelDocument($request->pid, $documentId, $actor, 'Removed from review');
 
             $this->RenderJSON(new stdClass(), $this->JSONPCallback());
-        } catch (\Throwable $ex) {
+        } catch (\RuntimeException | \LogicException $ex) {
             $this->RenderExceptionJSON($ex);
         }
+    }
+
+    private function pageSize(): int
+    {
+        $size = $this->GetDefaultPageSize();
+
+        return is_int($size) && $size > 0 ? $size : 25;
     }
 
     private function workflows(): PortalReviewWorkflows
@@ -202,7 +209,7 @@ class PortalReviewController extends AppBasePortalController
     {
         $id = self::requirePositiveInt($this->GetRouter()->GetUrlParam('id'), 'review request ID');
 
-        return ReviewQueueFactory::create()->find($id) ?? throw new Exception('Not found');
+        return ReviewQueueFactory::create()->find($id) ?? throw new RuntimeException('Not found');
     }
 
     private function assertStaffReviewer(): void

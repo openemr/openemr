@@ -405,14 +405,10 @@ class PatientController extends AppBasePortalController
     /**
      * Closes the patient's pending profile edit once staff have committed it to the chart.
      */
-    public function CloseAudit($p)
+    public function CloseAudit(Patient $p): void
     {
-        $pid = filter_var($p->Pid, FILTER_VALIDATE_INT);
-        if (!is_int($pid) || $pid <= 0) {
-            throw new InvalidArgumentException('A valid patient ID is required');
-        }
         ReviewQueueFactory::portalWorkflows()->completeProfileChange(
-            $pid,
+            $p->Pid,
             SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession()),
         );
     }

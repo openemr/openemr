@@ -82,7 +82,9 @@ function GetPortalAlertCounts(): array
     $counts['paymentCnt'] = (string) $reviewCounts['payments'];
 
     // Payments are already included in auditCnt, so do not add them twice.
-    $counts['total'] = $counts['mailCnt'] + $counts['auditCnt'] + $counts['chatCnt'];
+    $counts['total'] = (is_numeric($counts['mailCnt']) ? intval($counts['mailCnt']) : 0)
+        + $reviewCounts['audits']
+        + (is_numeric($counts['chatCnt']) ? intval($counts['chatCnt']) : 0);
 
     return $counts;
 }

@@ -212,13 +212,16 @@ class ReviewQueueServiceIsolatedTest extends TestCase
     public function testLatestForTargetIncludesClosedRequests(): void
     {
         $service = $this->service();
-        $this->assertNull($service->latestForTarget(self::PID, ReviewType::Document, 'onsite_documents', '11'));
+        $before = $service->latestForTarget(self::PID, ReviewType::Document, 'onsite_documents', '11');
+        $this->assertNull($before);
 
         $request = $service->submit($this->document('11'), $this->patient());
         $service->complete($request->id, $this->staff());
 
-        $this->assertNull($service->openForTarget(self::PID, ReviewType::Document, 'onsite_documents', '11'));
-        $this->assertSame(ReviewStatus::Completed, $service->latestForTarget(self::PID, ReviewType::Document, 'onsite_documents', '11')?->status);
+        $open = $service->openForTarget(self::PID, ReviewType::Document, 'onsite_documents', '11');
+        $latest = $service->latestForTarget(self::PID, ReviewType::Document, 'onsite_documents', '11');
+        $this->assertNull($open);
+        $this->assertSame(ReviewStatus::Completed, $latest?->status);
     }
 
     public function testReplacePendingLeavesOtherTypesAndPatientsAlone(): void

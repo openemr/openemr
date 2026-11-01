@@ -117,9 +117,8 @@ class PortalPatientController extends AppBasePortalController
                 throw new Exception('Not found');
             }
             PortalPatientAccessGuard::assertCanRead($patient->Pid);
-            $pid = filter_var($patient->Pid, FILTER_VALIDATE_INT);
-            $pending = is_int($pid) ? ReviewQueueFactory::portalWorkflows()->pendingProfileChange($pid) : null;
-            $changed = $pending?->payload ?? [];
+            $pending = ReviewQueueFactory::portalWorkflows()->pendingProfileChange($patient->Pid);
+            $changed = $pending === null ? [] : $pending->payload;
             $newv = [];
             foreach ($changed as $key => $val) {
                 $newv[lcfirst(ucwords((string) preg_replace_callback("/(\_(.))/", fn($match): string => strtoupper($match[2]), strtolower((string) $key))))] = $val;
@@ -237,16 +236,12 @@ class PortalPatientController extends AppBasePortalController
     /**
      * Holds the patient's edit for staff review. A second edit before review replaces the first.
      */
-    public function SaveAudit($p)
+    public function SaveAudit(Patient $p): void
     {
-        $pid = filter_var($p->Pid, FILTER_VALIDATE_INT);
-        if (!is_int($pid) || $pid <= 0) {
-            throw new InvalidArgumentException('A valid patient ID is required');
-        }
         $changes = $p->GetArray();
         $changes['note'] = $p->Note;
         ReviewQueueFactory::portalWorkflows()->submitProfileChange(
-            $pid,
+            $p->Pid,
             $changes,
             SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession()),
         );
