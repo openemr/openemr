@@ -6,9 +6,10 @@
  * Task: status requested, intent order, code fulfill, focus the referral's ServiceRequest,
  * for its patient, owned by the one it is sent to (Refer To) and requested by the one who
  * made it (Refer By). When the referral's Counter-Referral section records a reply, the
- * reply is filed as a document and becomes the Task's output, completing it. When the Task is
- * marked accepted, rejected, completed or failed through the FHIR API, the one who made the
- * referral gets a message.
+ * reply is filed as a document and becomes the Task's output, completing it; a Reply Date
+ * cleared again on the referral screen marks that Task entered-in-error, and the recipient gets
+ * a new one when FHIR serves them. When the Task is marked accepted, rejected, completed or
+ * failed through the FHIR API, the one who made the referral gets a message.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -44,11 +45,25 @@ class ReferralTaskService
     /** How long a save waits for another save of the same referral to finish making its Task. */
     private const LOCK_SECONDS = 5;
 
-    /** The reasons this service cancels a Task with. A Task a recipient cancelled carries its own, or none. */
+    /**
+     * The reasons this service sets a Task aside with: it cancels one when the referral goes elsewhere,
+     * loses its recipient or is deleted, and marks one entered-in-error when the reply that completed it
+     * is cleared. A Task a recipient cancelled carries its own reason, or none.
+     */
     public const REASON_SENT_ELSEWHERE = 'The referral was sent to another recipient.';
     public const REASON_NO_RECIPIENT = 'The referral no longer names a recipient.';
     public const REASON_DELETED = 'The referral was deleted.';
-    public const OWN_REASONS = [self::REASON_SENT_ELSEWHERE, self::REASON_NO_RECIPIENT, self::REASON_DELETED];
+    public const REASON_REPLY_CLEARED = 'The referral\'s reply was cleared.';
+    public const OWN_REASONS = [self::REASON_SENT_ELSEWHERE, self::REASON_NO_RECIPIENT, self::REASON_DELETED, self::REASON_REPLY_CLEARED];
+
+    /** The statuses this service sets a Task aside in, each time with one of its own reasons (OWN_REASONS). */
+    public const SET_ASIDE_STATUSES = ['cancelled', 'entered-in-error'];
+
+    /**
+     * The reason on a Task a reply completed, so a later save can tell it from one the recipient
+     * completed: only this one is undone when the Reply Date is cleared.
+     */
+    public const REASON_REPLY_RECORDED = 'Completed by the reply recorded on the referral.';
 
     /** How many times a cancellation reads again when a recipient's change slips in between its read and its write. */
     private const CANCEL_PASSES = 3;
@@ -105,11 +120,15 @@ class ReferralTaskService
     private const REPLY_OUTPUT_TYPE = ['type_system' => 'http://loinc.org', 'type_code' => '11488-4', 'type_text' => 'Consult note'];
 
     /**
-     * After a transaction is saved: a Task for its referral's recipient, unless they have one.
-     * One Task per referral and recipient, so saving the referral again adds none. When Refer To
-     * changes, or is cleared, the open Tasks of anyone else are cancelled with the reason, so they
-     * leave that recipient's queue and stay as a record; a recipient the referral returns to gets a
-     * new Task (one this service cancelled doesn't count, one they cancelled or finished does).
+     * After a transaction is saved: a Task for its referral's recipient, unless they have one that
+     * counts (recipientTask()), so saving the referral again adds none. A recipient gets another
+     * Task only when this service has set theirs aside. When Refer To changes, or is cleared, the
+     * open Tasks of anyone else are cancelled with the reason, so they leave that recipient's queue
+     * and stay as a record; a recipient the referral returns to gets a new Task (one this service
+     * cancelled doesn't count, one they cancelled or finished does). A save that cleared the Reply
+     * Date its form showed first has the Task that reply completed undone: the Task of the recipient
+     * the form showed, whether or not the same save sends the referral elsewhere or clears Refer To
+     * (undoClearedReply()), so the same save gives Refer To a new Task.
      * No new Task when the global is off, the referral has a Reply Date (it's answered), or the
      * recipient isn't a Practitioner or Organization in FHIR, since a Task's owner has to be one.
      * With the global off, a referral that already has open Tasks still has the other recipients'
@@ -117,9 +136,13 @@ class ReferralTaskService
      *
      * Only the Tasks this service makes count as the referral's: code fulfill, not part of another.
      *
+     * @param ?ReferralFormLoaded $loaded what the saving form showed, before this save, when it posted
+     *     the Reply Date's field (ReferralFormLoaded::fromRequest()); null from a caller with no form
+     *     (the REST API, which never writes the Reply Date) or a form that didn't post the field, so
+     *     its save never undoes a reply
      * @return ?string the new Task's uuid
      */
-    public function createForReferral(int $transactionId, ?int $userId): ?string
+    public function createForReferral(int $transactionId, ?int $userId, ?ReferralFormLoaded $loaded = null): ?string
     {
         $tracking = OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value);
         if (!$tracking && !self::hasOpenTasks($transactionId)) {
@@ -138,11 +161,18 @@ class ReferralTaskService
         $locked = self::lock($lock);
         if ($locked !== true) {
             // Another save held it past the wait, or GET_LOCK failed: the Task comes with the referral's
-            // next save, and the log names the referral.
-            $this->getLogger()->warning('A referral\'s Task was not made: its lock was not acquired', [
+            // next save, and the log names the referral. A cleared reply this save was to undo isn't
+            // undone later (undoClearedReply()), so the log says so.
+            $context = [
+                'transaction_id' => $transactionId,
                 'referral_uuid' => $referralUuid,
                 'reason' => $locked === false ? 'another save held it past the wait' : 'GET_LOCK failed',
-            ]);
+            ];
+            if ($tracking && $loaded?->showedReply === true && self::storedReplyDate($transactionId) === null) {
+                $this->getLogger()->warning('A referral\'s Task was not made and the reply its form cleared was not undone, nor will it be: its lock was not acquired', $context);
+            } else {
+                $this->getLogger()->warning('A referral\'s Task was not made: its lock was not acquired', $context);
+            }
             return null;
         }
         try {
@@ -161,9 +191,19 @@ class ReferralTaskService
                 $recipientUuid === null ? self::REASON_NO_RECIPIENT : self::REASON_SENT_ELSEWHERE,
                 $userId
             );
+            if (!$tracking || self::text($referral, 'reply_date') !== null) {
+                return null;
+            }
+            // When this save cleared the Reply Date its form showed, the Task that reply completed, the
+            // recipient's the form showed, is undone first, whatever Refer To is now. A form that showed none
+            // (a stale form, saved after another user recorded the reply), or didn't post the field (a
+            // read-only Reply Date), undoes nothing.
+            if ($loaded?->showedReply === true) {
+                $this->undoClearedReply($transactionId, $referralUuid, $loaded->referTo, $userId);
+            }
             if (
-                !$tracking || $owner === null || !is_numeric($patientId)
-                || self::text($referral, 'reply_date') !== null || $this->hasTask($referralUuid, $owner[1])
+                $recipientUuid === null || $owner === null || !is_numeric($patientId)
+                || $this->recipientTask($referralUuid, $recipientUuid) !== null
             ) {
                 return null;
             }
@@ -189,35 +229,40 @@ class ReferralTaskService
 
     /**
      * afterSave() (the referral's Task, then its reply) for whatever the Transactions screen just
-     * saved: nothing unless it is a referral, with its id and the signed-in user's as the screen
-     * has them.
+     * saved: nothing unless it is a referral, with its id, the signed-in user's and what the
+     * screen's form showed, as the screen has them.
      *
+     * @param ?ReferralFormLoaded $loaded what the form showed (ReferralFormLoaded::fromRequest()),
+     *     which tells a Reply Date the user cleared from one a stale form deleted
      * @return ?string the new Task's uuid
      */
-    public function createForSavedTransaction(mixed $formId, mixed $transactionId, mixed $userId): ?string
+    public function createForSavedTransaction(mixed $formId, mixed $transactionId, mixed $userId, ?ReferralFormLoaded $loaded = null): ?string
     {
         if ($formId !== ReferralStatus::FORM_ID || !is_numeric($transactionId)) {
             return null;
         }
-        return $this->afterSave((int)$transactionId, is_numeric($userId) ? (int)$userId : null);
+        return $this->afterSave((int)$transactionId, is_numeric($userId) ? (int)$userId : null, $loaded);
     }
 
     /**
      * After a referral is saved and committed: its Task (createForReferral()), and the Task's
      * completion when the referral records a reply (recordReply()). A failure is logged, not thrown,
      * since the referral is saved either way and its next save makes up what this one missed (a
-     * recipient that has a Task is skipped, and a reply completes a Task that isn't final yet).
-     * Thrown, it would answer a REST client's successful save with an error, and a retry would save
-     * the referral twice. It catches every exception a library throws (RuntimeException,
-     * LogicException, the audit log's DBAL ones) but not \Error, which the project's
-     * ForbiddenCatchTypeRule keeps visible: a TypeError is a bug.
+     * recipient that has a Task is skipped, and a reply completes a Task that isn't final yet). An
+     * undo of a cleared reply is the exception: the Reply Date is already deleted, so later forms
+     * load none and the undo isn't retried. The log names the transaction, and re-entering the Reply
+     * Date and clearing it again undoes it. Thrown, a failure would answer a REST client's
+     * successful save with an error, and a retry would save the referral twice. It catches every
+     * exception a library throws (RuntimeException, LogicException, the audit log's DBAL ones) but
+     * not \Error, which the project's ForbiddenCatchTypeRule keeps visible: a TypeError is a bug.
      *
+     * @param ?ReferralFormLoaded $loaded what the saving form showed (createForReferral())
      * @return ?string the new Task's uuid; null when none was made or a step failed
      */
-    public function afterSave(int $transactionId, ?int $userId): ?string
+    public function afterSave(int $transactionId, ?int $userId, ?ReferralFormLoaded $loaded = null): ?string
     {
         try {
-            $uuid = $this->createForReferral($transactionId, $userId);
+            $uuid = $this->createForReferral($transactionId, $userId, $loaded);
             $this->recordReply($transactionId, $userId);
             return $uuid;
         } catch (\RuntimeException | \LogicException | DbalException $e) {
@@ -232,7 +277,8 @@ class ReferralTaskService
     /**
      * When a referral records a reply (a Reply Date), its recipient's Task (recipientTask(), the
      * one the referral's status reads) is completed, with the reply (replyText()) filed in the
-     * patient's documents as its output. Nothing when the global is off, Refer To has no
+     * patient's documents as its output and REASON_REPLY_RECORDED as its reason, so clearing the
+     * Reply Date can undo it (undoClearedReply()). Nothing when the global is off, Refer To has no
      * Task, or the Task is already in a final status. A Task someone else owns (an earlier
      * recipient's still open, or one an API client made for another owner) isn't completed with it.
      *
@@ -262,8 +308,7 @@ class ReferralTaskService
         }
         // Most saves record no reply: one read of the Reply Date settles that before the lock is taken.
         // Under the lock the referral is read whole, as the save may have changed it since.
-        $replyDate = QueryUtils::fetchSingleValue("SELECT field_value FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", 'field_value', [$transactionId]);
-        if (!is_string($replyDate) || trim($replyDate) === '') {
+        if (self::storedReplyDate($transactionId) === null) {
             return null;
         }
         $referralUuid = $this->getReferralService()->getReferralUuid($transactionId);
@@ -344,7 +389,10 @@ class ReferralTaskService
                 return null;
             }
             $outputs = $document === false ? self::outputRows($task) : self::withReply($task, $document);
-            if ($this->getTaskService()->update($taskUuid, ['status' => 'completed'], $userId, (int)$version, null, $outputs)) {
+            // Completed with the reply's own reason, which a later save that finds the Reply Date cleared
+            // looks for (undoClearedReply()).
+            $completed = ['status' => 'completed', 'status_reason' => self::REASON_REPLY_RECORDED];
+            if ($this->getTaskService()->update($taskUuid, $completed, $userId, (int)$version, null, $outputs)) {
                 if ($document === false) {
                     $this->getLogger()->info('A referral\'s reply went to remote storage, so its Task was completed without the reply as its output', [
                         'transaction_id' => $transactionId,
@@ -580,11 +628,10 @@ class ReferralTaskService
 
     /**
      * The recipient's Task for the referral, as TaskService returns it, with its outputs: the
-     * latest of the referral's own Tasks (ownTasks()) that the recipient owns, leaving out one this
-     * service cancelled because the referral went elsewhere. One the recipient finished or
-     * cancelled themselves is still theirs. ReferralService::taskStatusSql() reads the referral's
-     * status from the same Task, and both createForReferral() (does Refer To have one?) and
-     * recordReplyLocked() (which one does the reply complete?) ask this, so the three agree.
+     * latest of the referral's own Tasks (ownTasks()) that the recipient owns and that still
+     * counts as theirs (countsForRecipient()). ReferralService::taskStatusSql() reads the
+     * referral's status from the same Task, and both createForReferral() (does Refer To have one?)
+     * and recordReplyLocked() (which one does the reply complete?) ask this, so the three agree.
      *
      * @return ?array<string, mixed>
      */
@@ -594,8 +641,7 @@ class ReferralTaskService
         $latestId = 0;
         foreach ($this->ownTasks($referralUuid, $ownerUuid) as $task) {
             $id = is_numeric($task['id'] ?? null) ? (int)$task['id'] : 0;
-            $cancelledHere = ($task['status'] ?? null) === 'cancelled' && in_array($task['status_reason'] ?? null, self::OWN_REASONS, true);
-            if (!$cancelledHere && ($latest === null || $id > $latestId)) {
+            if (self::countsForRecipient($task) && ($latest === null || $id > $latestId)) {
                 $latest = $task;
                 $latestId = $id;
             }
@@ -610,6 +656,149 @@ class ReferralTaskService
             }
         }
         return $record;
+    }
+
+    /**
+     * Whether one of the referral's own Tasks still counts as its recipient's. One this service set
+     * aside doesn't: a status in SET_ASIDE_STATUSES with a reason in OWN_REASONS, matched exactly
+     * (cancelled because the referral went elsewhere, lost its recipient or was deleted, or
+     * entered-in-error because the reply that completed it was cleared). Every other Task they own
+     * does, whatever its status: one they finished, rejected or cancelled themselves, or one whose
+     * reason only looks like the service's. ReferralService::taskStatusSql() leaves out the same
+     * Tasks.
+     *
+     * @param array<mixed> $task
+     */
+    private static function countsForRecipient(array $task): bool
+    {
+        return !(in_array($task['status'] ?? null, self::SET_ASIDE_STATUSES, true) && in_array($task['status_reason'] ?? null, self::OWN_REASONS, true));
+    }
+
+    /**
+     * Undoes a reply the referral no longer records. createForReferral() calls it only when the
+     * saving form showed a Reply Date, posted the field and saved it cleared, as when one saved by
+     * mistake is cleared. The reply it showed was the reply of the recipient it showed (its Refer To
+     * as loaded, whatever this save made of Refer To), so the latest of that recipient's Tasks the
+     * reply completed (replyCompletedTask()) is marked entered-in-error with REASON_REPLY_CLEARED.
+     * Another recipient's answer is never touched, even when the Reply Date shown had been written
+     * over for someone else. The undone Task stops counting as its owner's, so they get a new Task
+     * while the referral is theirs, or when it comes back to them. The reply stays in the patient's
+     * documents and on the Task's outputs, as a record. The update names the version it read, as the
+     * other writes do: a recipient's change in between is read again, and a Task it left with another
+     * status or reason stays as it is.
+     *
+     * The reply's completion is known by its reason alone, as the service's cancellations are: a
+     * Task the recipient completed has none of the service's, a recipient's write that replaces the
+     * statusReason takes the Task out of the undo, and an API client that completes a Task with the
+     * service's exact reason text would have it undone. The Task's owner is found from the Refer To
+     * the form showed, so nothing is undone when the form showed none, or when that address book
+     * entry or user has since been deleted; each is logged as a warning. So is a recipient with Tasks
+     * of the referral none of which the reply completed. A recipient with none at all (one FHIR
+     * doesn't serve, or a reply recorded while the global was off) is logged at info.
+     *
+     * It isn't retried: the Reply Date is already deleted, so later forms show none. When nothing
+     * is undone, the log names the transaction; re-entering the Reply Date and clearing it again
+     * undoes it.
+     *
+     * @param ?int $referToLoaded the Refer To the form showed (a users.id), or null when it showed none
+     */
+    private function undoClearedReply(int $transactionId, string $referralUuid, ?int $referToLoaded, ?int $userId): void
+    {
+        if ($referToLoaded === null) {
+            $this->getLogger()->warning('A referral\'s Reply Date was cleared but its form showed no Refer To, so no reply\'s Task was undone', [
+                'transaction_id' => $transactionId,
+            ]);
+            return;
+        }
+        $ownerUuid = self::userUuid($referToLoaded);
+        if ($ownerUuid === null && !self::userExists($referToLoaded)) {
+            $this->getLogger()->warning('A referral\'s Reply Date was cleared but the Refer To its form showed no longer exists, so its reply\'s Task was not undone', [
+                'transaction_id' => $transactionId,
+                'refer_to' => $referToLoaded,
+            ]);
+            return;
+        }
+        $taskUuid = null;
+        for ($pass = 0; $pass < self::WRITE_PASSES; $pass++) {
+            // A user without a uuid owns no Task: a Task names its owner by uuid.
+            $tasks = $ownerUuid === null ? [] : $this->ownTasks($referralUuid, $ownerUuid);
+            $task = self::replyCompletedTask($tasks);
+            $taskUuid = $task['uuid'] ?? null;
+            $version = $task['version'] ?? null;
+            if (!is_string($taskUuid) || !is_numeric($version)) {
+                if ($pass === 0 && $tasks === []) {
+                    $this->getLogger()->info('A referral\'s Reply Date was cleared, and the recipient its form showed has no Task of the referral\'s, so there was nothing to undo', [
+                        'transaction_id' => $transactionId,
+                    ]);
+                } elseif ($pass === 0) {
+                    $this->getLogger()->warning('A referral\'s Reply Date was cleared but none of the Tasks of the recipient its form showed was completed by the reply, so nothing was undone', [
+                        'transaction_id' => $transactionId,
+                    ]);
+                }
+                return;
+            }
+            $undone = ['status' => 'entered-in-error', 'status_reason' => self::REASON_REPLY_CLEARED];
+            if ($this->getTaskService()->update($taskUuid, $undone, $userId, (int)$version)) {
+                return;
+            }
+        }
+        $this->getLogger()->warning('A referral\'s Reply Date was cleared but the Task its reply completed kept changing, so it was not undone, nor will it be', [
+            'transaction_id' => $transactionId,
+            'task_uuid' => $taskUuid,
+        ]);
+    }
+
+    /**
+     * The latest of these Tasks (one owner's, from ownTasks()) that a reply completed: completed,
+     * with REASON_REPLY_RECORDED as its reason.
+     *
+     * @param list<array<mixed>> $tasks
+     * @return ?array<mixed>
+     */
+    private static function replyCompletedTask(array $tasks): ?array
+    {
+        $latest = null;
+        $latestId = 0;
+        foreach ($tasks as $task) {
+            $id = is_numeric($task['id'] ?? null) ? (int)$task['id'] : 0;
+            if (
+                ($task['status'] ?? null) === 'completed' && ($task['status_reason'] ?? null) === self::REASON_REPLY_RECORDED
+                && ($latest === null || $id > $latestId)
+            ) {
+                $latest = $task;
+                $latestId = $id;
+            }
+        }
+        return $latest;
+    }
+
+    /**
+     * The uuid FHIR serves an address book entry or user by, as a Task's owner names it (Refer To's
+     * performer_uuid), for a users.id as a referral stores it; null when there's no such row, or it
+     * has no uuid, which no Task can name.
+     */
+    private static function userUuid(int $userId): ?string
+    {
+        $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM users WHERE id = ?', 'uuid', [$userId]);
+        return is_string($uuid) && $uuid !== '' ? UuidRegistry::uuidToString($uuid) : null;
+    }
+
+    /**
+     * Whether an address book entry or user with this id still exists.
+     */
+    private static function userExists(int $userId): bool
+    {
+        $found = QueryUtils::fetchSingleValue('SELECT COUNT(*) AS n FROM users WHERE id = ?', 'n', [$userId]);
+        return is_numeric($found) && (int)$found > 0;
+    }
+
+    /**
+     * The referral's stored Reply Date, or null when it has none (one indexed read).
+     */
+    private static function storedReplyDate(int $transactionId): ?string
+    {
+        $replyDate = QueryUtils::fetchSingleValue("SELECT field_value FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", 'field_value', [$transactionId]);
+        return is_string($replyDate) && trim($replyDate) !== '' ? $replyDate : null;
     }
 
     /**
@@ -893,16 +1082,6 @@ class ReferralTaskService
             // The database releases it anyway when the session ends, and a failure here mustn't take the
             // place of what the try returned or threw.
         }
-    }
-
-    /**
-     * Whether the recipient has a Task for the referral (recipientTask()): one they finished or
-     * cancelled themselves stays theirs, but one this service cancelled (the referral went
-     * elsewhere, then came back) doesn't count.
-     */
-    private function hasTask(string $referralUuid, string $ownerUuid): bool
-    {
-        return $this->recipientTask($referralUuid, $ownerUuid) !== null;
     }
 
     /**

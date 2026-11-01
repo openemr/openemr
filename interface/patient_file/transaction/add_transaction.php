@@ -28,6 +28,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\ReferralDisplay;
+use OpenEMR\Services\ReferralFormLoaded;
 use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\TransactionDisplay;
 use OpenEMR\Services\UserService;
@@ -127,8 +128,15 @@ if ($mode) {
         $transid = $newid;
     }
 
-    // The referral's FHIR Task and its reply, when the fhir_referral_tasks global is on (#14710).
-    (new ReferralTaskService(new UserService()))->createForSavedTransaction($form_id, $transid, $session->get('authUserID'));
+    // The referral's FHIR Task and its reply, when the fhir_referral_tasks global is on (#14710). What the
+    // form showed tells a Reply Date the user cleared from one this save deleted as a stale form's blank, or
+    // as a read-only field's, which isn't posted, and whose reply it was.
+    (new ReferralTaskService(new UserService()))->createForSavedTransaction(
+        $form_id,
+        $transid,
+        $session->get('authUserID'),
+        ReferralFormLoaded::fromRequest(CurrentRequest::get())
+    );
 
   // Set the AMC sent records flag
     if (!(empty($_POST['send_sum_flag']))) {
@@ -436,6 +444,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url((string) $transid); ?>' onsubmit='return validate(this)'>
             <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type='hidden' name='mode' value='add' />
+            <input type='hidden' name='<?php echo attr(ReferralFormLoaded::REPLY_DATE_FIELD); ?>' value='<?php echo attr(is_array($trow) && is_string($trow['reply_date'] ?? null) ? $trow['reply_date'] : ''); ?>' />
+            <input type='hidden' name='<?php echo attr(ReferralFormLoaded::REFER_TO_FIELD); ?>' value='<?php echo attr(is_array($trow) && is_string($trow['refer_to'] ?? null) ? $trow['refer_to'] : ''); ?>' />
             <div class="row">
                 <div class="col-sm-12">
                     <?php require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/interface/patient_file/summary/dashboard_header.php"); ?>

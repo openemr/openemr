@@ -16,11 +16,13 @@ namespace OpenEMR\Tests\Isolated\Services;
 
 use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Services\ReferralFormLoaded;
 use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
+use Symfony\Component\HttpFoundation\Request;
 
 class ReferralTaskServiceTest extends TestCase
 {
@@ -51,7 +53,7 @@ class ReferralTaskServiceTest extends TestCase
             /** @var list<array{int, ?int}> */
             public array $calls = [];
 
-            public function createForReferral(int $transactionId, ?int $userId): string
+            public function createForReferral(int $transactionId, ?int $userId, ?ReferralFormLoaded $loaded = null): string
             {
                 $this->calls[] = [$transactionId, $userId];
                 return 'task-uuid';
@@ -65,6 +67,62 @@ class ReferralTaskServiceTest extends TestCase
     }
 
     /**
+     * What the screen's form showed reaches createForReferral() as the screen read it, and a screen
+     * that read nothing (null) passes nothing.
+     */
+    public function testWhatTheFormShowedIsPassedOn(): void
+    {
+        $service = new class (new UserService()) extends ReferralTaskService {
+            /** @var list<?ReferralFormLoaded> */
+            public array $loaded = [];
+
+            public function createForReferral(int $transactionId, ?int $userId, ?ReferralFormLoaded $loaded = null): string
+            {
+                $this->loaded[] = $loaded;
+                return 'task-uuid';
+            }
+        };
+        $shown = new ReferralFormLoaded(true, 41);
+
+        $service->createForSavedTransaction('LBTref', 12, 3, $shown);
+        $service->createForSavedTransaction('LBTref', 12, 3);
+
+        $this->assertSame([$shown, null], $service->loaded);
+    }
+
+    /**
+     * @return array<string, array{array<string, string>, ?array{bool, ?int}}>
+     */
+    public static function postedForms(): array
+    {
+        // the referral screen's POST => whether it showed a Reply Date, and the Refer To it showed, as fromRequest() parses them
+        return [
+            'the Reply Date cleared' => [['referral_reply_date_loaded' => '2026-10-18', 'referral_refer_to_loaded' => '41', 'form_reply_date' => ''], [true, 41]],
+            'a Reply Date entered' => [['referral_reply_date_loaded' => '', 'referral_refer_to_loaded' => '41', 'form_reply_date' => '2026-10-18'], [false, 41]],
+            'the Reply Date read-only, so not posted' => [['referral_reply_date_loaded' => '2026-10-18', 'referral_refer_to_loaded' => '41'], null],
+            'nothing shown posted' => [['form_reply_date' => ''], [false, null]],
+            'a Refer To padded with spaces' => [['referral_reply_date_loaded' => '2026-10-18', 'referral_refer_to_loaded' => ' 41 ', 'form_reply_date' => ''], [true, 41]],
+            'a Refer To that is not an id' => [['referral_reply_date_loaded' => '2026-10-18', 'referral_refer_to_loaded' => '41x', 'form_reply_date' => ''], [true, null]],
+            'a blank Reply Date' => [['referral_reply_date_loaded' => '  ', 'referral_refer_to_loaded' => '41', 'form_reply_date' => ''], [false, 41]],
+        ];
+    }
+
+    /**
+     * What the form showed counts only when the form posted the Reply Date's own field: a read-only
+     * one is disabled, so it isn't posted, and its save mustn't undo a reply.
+     *
+     * @param array<string, string> $posted
+     * @param ?array{bool, ?int} $expected
+     */
+    #[DataProvider('postedForms')]
+    public function testWhatTheFormShowedCountsOnlyWhenTheReplyDateWasPosted(array $posted, ?array $expected): void
+    {
+        $loaded = ReferralFormLoaded::fromRequest(new Request([], $posted));
+
+        $this->assertSame($expected, $loaded === null ? null : [$loaded->showedReply, $loaded->referTo]);
+    }
+
+    /**
      * The referral is saved before its Task is made, so a Task that can't be made is logged and
      * the save still succeeds, from the screen and from the REST API alike.
      */
@@ -72,7 +130,7 @@ class ReferralTaskServiceTest extends TestCase
     {
         $logger = self::logger();
         $service = new class (new UserService(), logger: $logger) extends ReferralTaskService {
-            public function createForReferral(int $transactionId, ?int $userId): string
+            public function createForReferral(int $transactionId, ?int $userId, ?ReferralFormLoaded $loaded = null): string
             {
                 throw new SqlQueryException('', 'the database went away');
             }
@@ -93,7 +151,7 @@ class ReferralTaskServiceTest extends TestCase
     public function testAReplyThatFailsDoesNotFailTheSavedReferral(): void
     {
         $service = new class (new UserService()) extends ReferralTaskService {
-            public function createForReferral(int $transactionId, ?int $userId): string
+            public function createForReferral(int $transactionId, ?int $userId, ?ReferralFormLoaded $loaded = null): string
             {
                 return 'task-uuid';
             }
@@ -114,7 +172,7 @@ class ReferralTaskServiceTest extends TestCase
     public function testAnAuditLogFailureDoesNotFailTheSavedReferral(): void
     {
         $service = new class (new UserService()) extends ReferralTaskService {
-            public function createForReferral(int $transactionId, ?int $userId): string
+            public function createForReferral(int $transactionId, ?int $userId, ?ReferralFormLoaded $loaded = null): string
             {
                 // As DBAL's own DriverException: an \Exception, not a RuntimeException, so only the catch's DBAL arm holds it.
                 throw new class ('the audit log could not be written') extends \Exception implements DbalException {

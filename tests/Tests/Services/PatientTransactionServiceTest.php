@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientTransactionService;
+use OpenEMR\Services\ReferralFormLoaded;
 use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\Attributes\Test;
@@ -93,7 +94,7 @@ class PatientTransactionServiceTest extends TestCase
             /** @var list<array{int, ?int}> */
             public array $calls = [];
 
-            public function afterSave(int $transactionId, ?int $userId): ?string
+            public function afterSave(int $transactionId, ?int $userId, ?ReferralFormLoaded $loaded = null): ?string
             {
                 $this->calls[] = [$transactionId, $userId];
                 return null;

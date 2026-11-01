@@ -2,8 +2,9 @@
 
 /**
  * A referral's reply and its Task (#14710): a reply recorded in the Counter-Referral section
- * completes the Task with the reply filed as its output, and the one who made the referral
- * hears when the receiving system accepts, rejects, completes or fails the Task through the API.
+ * completes the Task with the reply filed as its output (a Reply Date the referral screen clears
+ * again undoes that and makes a new Task), and the one who made the referral hears when the
+ * receiving system accepts, rejects, completes or fails the Task through the API.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -26,6 +27,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRTask;
 use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
+use OpenEMR\Services\ReferralFormLoaded;
 use OpenEMR\Services\ReferralService;
 use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\TaskService;
@@ -35,6 +37,7 @@ use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class ReferralReplyFhirApiTest extends TestCase
@@ -275,6 +278,336 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertSame($reason, self::at($this->onlyTask($id), 'statusReason', 'text'), 'no new Task');
         $this->assertSame('cancelled', $this->taskStatus($id));
         $this->assertSame([$id => 'cancelled'], (new ReferralService(createMissingUuids: false))->getTaskStatuses([$id]));
+    }
+
+    /**
+     * A Reply Date saved by mistake, then cleared: the reply completed the Task with the reply's own
+     * reason, and the save that clears it marks that Task entered-in-error with the service's reason
+     * and gives the recipient one new Task, which the referral's status then reads. The filed reply
+     * stays in the chart and on the old Task, as a record, and a later save adds no Task.
+     */
+    public function testAClearedReplyDateUndoesTheTaskItCompletedAndMakesOneNewTask(): void
+    {
+        $id = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+        $replied = $this->onlyTask($id);
+        $this->assertSame('completed', $replied['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REASON_REPLY_RECORDED, self::at($replied, 'statusReason', 'text'));
+        $repliedUuid = $replied['id'] ?? null;
+        $this->assertIsString($repliedUuid);
+
+        // As the Transactions screen clears a field: its lbt_data row is deleted. Its form had loaded the date.
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$id]);
+        $this->saveFromForm($id, '2026-10-18', 'pantry');
+
+        $undone = $this->read('Task', $repliedUuid);
+        $this->assertSame('entered-in-error', $undone['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REASON_REPLY_CLEARED, self::at($undone, 'statusReason', 'text'));
+        $this->assertStringContainsString("Findings: Enrolled\n", $this->outputText($undone, 0), 'the reply stays on it, as a record');
+        $this->assertCount(1, $this->replyDocuments($id), 'and in the chart');
+        $tasks = $this->tasksOf($id);
+        $this->assertCount(2, $tasks, 'one new Task');
+        $new = array_values(array_filter($tasks, static fn(array $task): bool => ($task['id'] ?? null) !== $repliedUuid));
+        $this->assertCount(1, $new);
+        $this->assertSame('requested', $new[0]['status'] ?? null);
+        $this->assertSame('Organization/' . $this->people['pantry']['uuid'], self::at($new[0], 'owner', 'reference'));
+        // The referral's status reads the new Task, wherever it's read.
+        $referral = (new ReferralService(createMissingUuids: false))->getReferral($id);
+        $this->assertIsArray($referral);
+        $this->assertSame('requested', $referral['task_status'] ?? null);
+        $this->assertSame([$id => 'requested'], (new ReferralService(createMissingUuids: false))->getTaskStatuses([$id]));
+        $this->assertSame('active', $this->read('ServiceRequest', $this->referralUuid($id))['status'] ?? null);
+
+        $this->afterSave($id);
+        $this->assertCount(2, $this->tasksOf($id), 'a later save adds none');
+    }
+
+    /**
+     * A cleared reply is undone even for a recipient FHIR no longer serves (their NPI cleared), who
+     * can't be given a new Task: the referral then has no Task that decides its status, so it reads
+     * open, not entered in error.
+     */
+    public function testAClearedReplyWithNoNewTaskLeavesTheReferralOpen(): void
+    {
+        $this->people['specialist'] = $this->insertPerson(['abook_type' => 'spe', 'fname' => 'Cara', 'lname' => 'Zq', 'npi' => '1234567893']);
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['specialist']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Seen']);
+        $this->afterSave($id);
+        $this->assertSame('completed', $this->onlyTask($id)['status'] ?? null);
+        QueryUtils::sqlStatementThrowException("UPDATE users SET npi = '' WHERE id = ?", [$this->people['specialist']['id']]);
+
+        $this->saveFields($id, ['reply_date' => '']);
+        $this->saveFromForm($id, '2026-10-18', 'specialist');
+
+        $this->assertSame('entered-in-error', $this->onlyTask($id)['status'] ?? null, 'undone, and no new Task');
+        $referral = (new ReferralService(createMissingUuids: false))->getReferral($id);
+        $this->assertIsArray($referral);
+        $this->assertNull($referral['task_status'] ?? null);
+        $this->assertSame([$id => null], (new ReferralService(createMissingUuids: false))->getTaskStatuses([$id]));
+        $this->assertSame('active', $this->read('ServiceRequest', $this->referralUuid($id))['status'] ?? null);
+    }
+
+    /**
+     * A Task the recipient completed carries no reason of the reply's: a Reply Date recorded after it
+     * leaves it as it is, and clearing the Reply Date doesn't undo it or make a new Task.
+     */
+    public function testAClearedReplyDateLeavesATaskTheRecipientCompleted(): void
+    {
+        $id = $this->saveReferral(['refer_date' => '2026-10-10', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($this->onlyTask($id), 'completed'));
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+
+        $this->saveFields($id, ['reply_date' => '']);
+        $this->saveFromForm($id, '2026-10-18', 'pantry');
+
+        $task = $this->onlyTask($id);
+        $this->assertSame('completed', $task['status'] ?? null);
+        $this->assertNull(self::at($task, 'statusReason'));
+    }
+
+    /**
+     * The Transactions screen deletes every field a save leaves blank, so a form loaded before another
+     * user recorded the reply, and saved after, deletes the Reply Date. That form loaded none, so its
+     * save undoes nothing: the Task stays completed by the reply, and no new Task is made. Nor does a
+     * save through the REST API, which never writes the Reply Date and passes no form's.
+     */
+    public function testAStaleFormThatDeletesTheReplyDateUndoesNothing(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        // Another user records the reply.
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+
+        // The form loaded before that saves its blank Reply Date: the row is deleted.
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$id]);
+        $this->saveFromForm($id, '', 'pantry');
+        $this->afterSave($id);
+
+        $task = $this->onlyTask($id);
+        $this->assertSame('completed', $task['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REASON_REPLY_RECORDED, self::at($task, 'statusReason', 'text'));
+        $this->assertSame('completed', $this->taskStatus($id));
+    }
+
+    /**
+     * A layout that makes the Reply Date read-only renders it disabled, so the form doesn't post it
+     * and the screen deletes the stored date as a blank. Nobody cleared it, so the save undoes
+     * nothing, though the form loaded the date.
+     */
+    public function testAReadOnlyReplyDateFieldUndoesNothing(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$id]);
+        $this->saveFromForm($id, '2026-10-18', 'pantry', replyDatePosted: false);
+
+        $task = $this->onlyTask($id);
+        $this->assertSame('completed', $task['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REASON_REPLY_RECORDED, self::at($task, 'statusReason', 'text'));
+    }
+
+    /**
+     * Clearing the Reply Date in the same save that sends the referral to someone else undoes the
+     * Task the reply completed, though it's the earlier recipient's: the new recipient gets a Task,
+     * and when the referral comes back to the first, they get a new one too.
+     */
+    public function testAReplyClearedAsTheReferralGoesElsewhereIsUndone(): void
+    {
+        $this->people['clinic'] = $this->insertPerson(['abook_type' => 'external_org', 'organization' => 'Zq Reply Clinic']);
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+        $repliedUuid = $this->onlyTask($id)['id'] ?? null;
+        $this->assertIsString($repliedUuid);
+
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$id]);
+        $this->saveFields($id, ['refer_to' => $this->people['clinic']['id']]);
+        $this->saveFromForm($id, '2026-10-18', 'pantry');
+
+        $undone = $this->read('Task', $repliedUuid);
+        $this->assertSame('entered-in-error', $undone['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REASON_REPLY_CLEARED, self::at($undone, 'statusReason', 'text'));
+        $this->assertSame('requested', $this->taskOf($id, 'clinic')['status'] ?? null);
+        $this->assertSame('requested', $this->taskStatus($id));
+
+        // Back to the pantry, from a form that loaded no Reply Date.
+        $this->saveFields($id, ['refer_to' => $this->people['pantry']['id']]);
+        $this->saveFromForm($id, '', 'clinic');
+
+        $pantry = array_values(array_filter(
+            $this->tasksOf($id),
+            fn(array $task): bool => self::at($task, 'owner', 'reference') === 'Organization/' . $this->people['pantry']['uuid'] && ($task['id'] ?? null) !== $repliedUuid
+        ));
+        $this->assertCount(1, $pantry, 'the pantry gets a new Task');
+        $this->assertSame('requested', $pantry[0]['status'] ?? null);
+        $this->assertSame('cancelled', $this->taskOf($id, 'clinic')['status'] ?? null);
+        $this->assertSame('requested', $this->taskStatus($id));
+    }
+
+    /**
+     * Clearing the Reply Date in the same save that clears Refer To undoes the Task the reply
+     * completed too: the referral then has no recipient, and no Task decides its status.
+     */
+    public function testAReplyClearedWithTheRecipientIsUndone(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id IN ('reply_date', 'refer_to')", [$id]);
+        $this->saveFromForm($id, '2026-10-18', 'pantry');
+
+        $task = $this->onlyTask($id);
+        $this->assertSame('entered-in-error', $task['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REASON_REPLY_CLEARED, self::at($task, 'statusReason', 'text'));
+        $this->assertNull($this->taskStatus($id));
+    }
+
+    /**
+     * A Reply Date written over for another recipient is no longer the first recipient's reply. The
+     * pantry replied, completing its Task; staff then sent the referral to the clinic and wrote the
+     * clinic's Reply Date over the pantry's (the clinic had no Task, so nothing was completed).
+     * Clearing that date from a form that showed the clinic finds no Task of the clinic's that a reply
+     * completed: the log says nothing was undone, and the pantry's answer stands. The clinic gets a
+     * Task, and a return to the pantry asks it nothing more.
+     */
+    public function testAReplyDateWrittenOverForAnotherRecipientLeavesTheFirstAnswer(): void
+    {
+        $this->people['clinic'] = $this->insertPerson(['abook_type' => 'external_org', 'organization' => 'Zq Reply Clinic']);
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+        $answeredUuid = $this->onlyTask($id)['id'] ?? null;
+        $this->assertIsString($answeredUuid);
+        $this->saveFields($id, ['refer_to' => $this->people['clinic']['id'], 'reply_date' => '2026-10-25', 'reply_findings' => 'Seen in clinic']);
+        $this->afterSave($id);
+        $this->assertCount(1, $this->tasksOf($id), 'the clinic has no Task');
+
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$id]);
+        $logger = self::logger();
+        $this->saveFromForm($id, '2026-10-25', 'clinic', logger: $logger);
+
+        $answered = $this->read('Task', $answeredUuid);
+        $this->assertSame('completed', $answered['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REASON_REPLY_RECORDED, self::at($answered, 'statusReason', 'text'));
+        $this->assertContains(['info', 'A referral\'s Reply Date was cleared, and the recipient its form showed has no Task of the referral\'s, so there was nothing to undo'], $logger->records);
+        $this->assertSame('requested', $this->taskOf($id, 'clinic')['status'] ?? null);
+
+        // Back to the pantry, from a form that showed no Reply Date.
+        $this->saveFields($id, ['refer_to' => $this->people['pantry']['id']]);
+        $this->saveFromForm($id, '', 'clinic');
+
+        $this->assertSame('completed', $this->taskOf($id, 'pantry')['status'] ?? null, 'no new Task for the pantry');
+        $this->assertSame('completed', $this->taskStatus($id));
+    }
+
+    /**
+     * A recipient whose address book entry was deleted after their reply completed their Task can't
+     * be found from the Refer To the form showed: clearing the Reply Date undoes nothing, the Task
+     * stays completed, and the log says that Refer To no longer exists.
+     */
+    public function testAClearedReplyOfADeletedRecipientIsLoggedNotUndone(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+        $taskUuid = $this->onlyTask($id)['id'] ?? null;
+        $this->assertIsString($taskUuid);
+        QueryUtils::sqlStatementThrowException('DELETE FROM users WHERE id = ?', [$this->people['pantry']['id']]);
+
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$id]);
+        $logger = self::logger();
+        $this->saveFromForm($id, '2026-10-18', 'pantry', logger: $logger);
+
+        // Read as stored: the Task's owner is gone, so the API wouldn't serve it whole.
+        $task = (new TaskService())->getOne($taskUuid);
+        $this->assertIsArray($task);
+        $this->assertSame('completed', $task['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REASON_REPLY_RECORDED, $task['status_reason'] ?? null);
+        $this->assertContains(['warning', 'A referral\'s Reply Date was cleared but the Refer To its form showed no longer exists, so its reply\'s Task was not undone'], $logger->records);
+    }
+
+    /**
+     * A Reply Date recorded on a referral that names no recipient completed no Task: clearing it from
+     * a form that showed no Refer To undoes nothing, and the log says the form showed none.
+     */
+    public function testAClearedReplyFromAFormThatShowedNoRecipientIsLogged(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'reply_date' => '2026-10-18', 'body' => 'x']);
+        $this->afterSave($id);
+
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$id]);
+        $logger = self::logger();
+        $this->saveFromForm($id, '2026-10-18', null, logger: $logger);
+
+        $this->assertSame([], $this->tasksOf($id));
+        $this->assertContains(['warning', 'A referral\'s Reply Date was cleared but its form showed no Refer To, so no reply\'s Task was undone'], $logger->records);
+    }
+
+    /**
+     * Clearing a Reply Date undoes the latest Task a reply completed for the recipient the form
+     * showed, not an earlier one. The pantry's first reply completed its Task; a stale form deleted
+     * that Reply Date, undoing nothing; an API client then made the pantry another Task of the
+     * referral's kind, and a second reply completed it. Clearing the second Reply Date undoes the
+     * second Task and leaves the first reply's.
+     */
+    public function testAClearedReplyDateUndoesTheLatestReplyOfTheRecipientTheFormShowed(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+        $firstUuid = $this->onlyTask($id)['id'] ?? null;
+        $this->assertIsString($firstUuid);
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$id]);
+        $this->saveFromForm($id, '', 'pantry');
+        $secondUuid = $this->postTaskFor($id, 'pantry');
+        $this->saveFields($id, ['reply_date' => '2026-10-25', 'reply_findings' => 'Seen again']);
+        $this->afterSave($id);
+        $this->assertSame('completed', $this->read('Task', $secondUuid)['status'] ?? null, 'the second reply completed the second Task');
+
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$id]);
+        $this->saveFromForm($id, '2026-10-25', 'pantry');
+
+        $second = $this->read('Task', $secondUuid);
+        $this->assertSame('entered-in-error', $second['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REASON_REPLY_CLEARED, self::at($second, 'statusReason', 'text'));
+        $first = $this->read('Task', $firstUuid);
+        $this->assertSame('completed', $first['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REASON_REPLY_RECORDED, self::at($first, 'statusReason', 'text'));
+    }
+
+    /**
+     * Undoing the reply names the Task's version it read: a recipient who marks the Task
+     * entered-in-error themselves just before keeps their reason, their Task still counts, and the
+     * save makes no new one.
+     */
+    public function testARecipientsChangeJustBeforeTheReplyIsUndoneStands(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '']);
+
+        $this->replyRacing(['status' => 'entered-in-error', 'status_reason' => 'Recorded for the wrong patient'])->afterSave($id, null, new ReferralFormLoaded(true, $this->people['pantry']['id']));
+
+        $task = $this->onlyTask($id);
+        $this->assertSame('entered-in-error', $task['status'] ?? null);
+        $this->assertSame('Recorded for the wrong patient', self::at($task, 'statusReason', 'text'));
     }
 
     /**
@@ -1011,7 +1344,7 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->saveFields($id, ['refer_to' => $this->people['clinic']['id'], 'reply_date' => '2026-10-25', 'reply_findings' => 'Seen in clinic']);
         $lockMissed = new class (new UserService()) extends ReferralTaskService {
             // As createForReferral() returns when the lock isn't acquired: before it cancels anything.
-            public function createForReferral(int $transactionId, ?int $userId): ?string
+            public function createForReferral(int $transactionId, ?int $userId, ?ReferralFormLoaded $loaded = null): ?string
             {
                 return null;
             }
@@ -1491,6 +1824,22 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A save from the Transactions screen whose form showed this Reply Date ('' for none) and one of
+     * the test's people as Refer To (null for none), posted with the Reply Date's own field left
+     * blank, or without it, as a read-only one (disabled) is, and handed over as add_transaction.php
+     * hands it.
+     */
+    private function saveFromForm(int $transactionId, string $replyDateLoaded, ?string $personLoaded, bool $replyDatePosted = true, ?AbstractLogger $logger = null): void
+    {
+        $posted = [
+            ReferralFormLoaded::REPLY_DATE_FIELD => $replyDateLoaded,
+            ReferralFormLoaded::REFER_TO_FIELD => $personLoaded === null ? '' : (string)$this->people[$personLoaded]['id'],
+        ] + ($replyDatePosted ? ['form_reply_date' => ''] : []);
+        (new ReferralTaskService(new UserService(), logger: $logger))
+            ->createForSavedTransaction('LBTref', $transactionId, null, ReferralFormLoaded::fromRequest(new Request([], $posted)));
+    }
+
+    /**
      * The referral's Task status as ReferralService reads it (taskStatusSql()).
      *
      * @phpstan-impure the Task changes between reads
@@ -1545,6 +1894,37 @@ class ReferralReplyFhirApiTest extends TestCase
         $task = self::at($entries, 0, 'resource');
         $this->assertIsArray($task);
         return $task;
+    }
+
+    /**
+     * Each of the referral's Tasks, read through the API.
+     *
+     * @return list<array<mixed>>
+     * @phpstan-impure the Tasks change between reads
+     */
+    private function tasksOf(int $transactionId): array
+    {
+        $response = $this->testClient->get(self::FHIR_URL . 'Task', ['focus' => 'ServiceRequest/' . $this->referralUuid($transactionId)]);
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), (string)$response->getBody());
+        $bundle = json_decode((string)$response->getBody(), true);
+        $this->assertIsArray($bundle);
+        $tasks = [];
+        foreach (is_array($bundle['entry'] ?? null) ? $bundle['entry'] : [] as $entry) {
+            if (is_array($entry) && is_array($entry['resource'] ?? null)) {
+                $tasks[] = $entry['resource'];
+            }
+        }
+        return $tasks;
+    }
+
+    /**
+     * The referral's uuid, as text.
+     */
+    private function referralUuid(int $transactionId): string
+    {
+        $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM transactions WHERE id = ?', 'uuid', [$transactionId]);
+        $this->assertIsString($uuid);
+        return UuidRegistry::uuidToString($uuid);
     }
 
     /**
