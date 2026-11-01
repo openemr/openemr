@@ -678,7 +678,7 @@ class ReferralReplyFhirApiTest extends TestCase
 
     /**
      * A site that keeps the reply in the referral's own group (a one-tab form) files only the reply:
-     * under the seeded heading, with nothing of the referral itself (Refer By, the reason, the
+     * under the heading Counter-Referral, with nothing of the referral itself (Refer By, the reason, the
      * billing facility, its fields' stored ids).
      */
     public function testAReplyKeptInTheReferralsOwnGroupCarriesNothingElseOfTheReferral(): void

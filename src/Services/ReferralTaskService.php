@@ -233,8 +233,8 @@ class ReferralTaskService
 
     /**
      * When a referral records a reply (a Reply Date), its recipient's Task (recipientTask(), the
-     * one the referral's status reads) is completed, with the Counter-Referral section filed in
-     * the patient's documents as its output. Nothing when the global is off, Refer To has no
+     * one the referral's status reads) is completed, with the reply (replyText()) filed in the
+     * patient's documents as its output. Nothing when the global is off, Refer To has no
      * Task, or the Task is already in a final status. A Task someone else owns (an earlier
      * recipient's still open, or one an API client made for another owner) isn't completed with it.
      *
