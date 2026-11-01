@@ -245,12 +245,13 @@ class ReferralTaskService
      * documents row) counts as filed: the Task is completed without it as an output, the log says
      * so, and the reply is uploaded once per save, and not again once the Task is completed.
      * The update names the version it read, so a recipient's change in between (a PUT to
-     * rejected, or a new output) isn't written over: the Task is read again. One that has reached
-     * a final status in the meantime keeps the status the recipient gave it, and the reply this
-     * save filed is attached as its output. A reply filed by an earlier save that then lost the
-     * Task's update stays unlinked if the Task goes final before the next save: that save finds the
-     * Task final and leaves it as the recipient has it, since the Task keeps no history to tell a
-     * reply never attached from an output the recipient removed, and a removal is never undone.
+     * rejected, or a new output) isn't written over: the Task is read again. One that has gone
+     * final during this save keeps the status the recipient gave it, and the reply this save filed,
+     * or found already filed, while the Task was still open (its first read found it open) is
+     * attached as its output. A save that finds the Task already final attaches nothing: a reply
+     * filed by an earlier save that then lost the Task's update stays unlinked if the Task goes
+     * final before the next save, since the Task keeps no history to tell a reply never attached
+     * from an output the recipient removed, and a removal is never undone.
      *
      * @return ?string the completed Task's uuid
      */
@@ -307,10 +308,11 @@ class ReferralTaskService
                 return null;
             }
             if (in_array($status, FhirTaskWriteRules::FINAL_STATUSES, true)) {
-                // Final before this save filed anything: left as it is, even when an earlier save
-                // filed the reply, as the recipient may have removed it from the outputs. Final once
-                // this save had filed it (the recipient's PUT to rejected came in between): the reply
-                // is attached as an output, at the version read, without touching the status.
+                // A save that finds the Task already final attaches nothing, even when an earlier save
+                // filed the reply, as the recipient may have removed it from the outputs. A Task that
+                // went final during this save (the recipient's PUT to rejected came in between) gets
+                // the reply this save filed, or found already filed, while the Task was still open:
+                // attached as an output at the version read, without touching the status.
                 if (!is_string($document) || in_array($document, array_column(self::outputRows($task), 'value_uuid'), true)) {
                     return null;
                 }
