@@ -461,12 +461,9 @@ class ReferralTaskService
         $reason = preg_replace('/\s+/', ' ', self::text($task, 'status_reason') ?? '');
         $reason = is_string($reason) && trim($reason) !== '' ? trim($reason) : null;
         $text = $notice->text(self::text($referral, 'performer_name') ?? xl('the recipient'), self::text($referral, 'refer_date'), $reason);
-        $now = $this->getClock()->now();
-        // As other background notices are filed (labNotice(), the Direct message check).
-        QueryUtils::sqlInsert(
-            'INSERT INTO pnotes (date, body, pid, user, groupname, authorized, activity, title, assigned_to, message_status) VALUES (?, ?, ?, ?, ?, 0, 1, ?, ?, ?)',
-            [$now->format('Y-m-d H:i:s'), $now->format('Y-m-d H:i') . " ($sender to $recipient) $text", (int)$patientId, $sender, 'Default', 'Referral', $recipient, 'New']
-        );
+        // As other background notices are filed, from $sender, dated by the service's clock (addPnote()
+        // writes the time that opens the body itself).
+        addPnote((int)$patientId, $text, 0, 1, 'Referral', $recipient, $this->getClock()->now()->format('Y-m-d H:i:s'), 'New', $sender);
     }
 
     /**

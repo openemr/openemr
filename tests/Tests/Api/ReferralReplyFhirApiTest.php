@@ -352,8 +352,8 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
-     * The notice is dated by the service's clock, both the message and the line that opens its
-     * body, and without a Referral Date its sentence names none.
+     * The notice is filed as other messages are (addPnote()): its date is the service's clock, it
+     * carries who last changed it and when, and without a Referral Date its sentence names none.
      */
     public function testTheNoticeIsDatedByTheClock(): void
     {
@@ -365,10 +365,14 @@ class ReferralReplyFhirApiTest extends TestCase
 
         (new ReferralTaskService(clock: $clock))->taskStatusChanged($taskUuid, 'requested', 'rejected', null);
 
-        $this->assertSame(
-            [['date' => '2026-01-05 09:30:00', 'body' => '2026-01-05 09:30 (FHIR API to zq-reply-referrer) The Task for the referral to Zq Reply Pantry was marked rejected.']],
-            QueryUtils::fetchRecords('SELECT date, body FROM pnotes WHERE pid = ?', [$this->patient['pid']])
-        );
+        $notes = QueryUtils::fetchRecords('SELECT date, body, user, update_date FROM pnotes WHERE pid = ?', [$this->patient['pid']]);
+        $this->assertCount(1, $notes);
+        $this->assertSame('2026-01-05 09:30:00', $notes[0]['date'] ?? null);
+        $this->assertSame('FHIR API', $notes[0]['user'] ?? null);
+        $this->assertNotNull($notes[0]['update_date'] ?? null, 'addPnote() records when the message was last changed');
+        $body = $notes[0]['body'] ?? null;
+        $this->assertIsString($body);
+        $this->assertMatchesRegularExpression('/^\d{4}-\d\d-\d\d \d\d:\d\d \(FHIR API to zq-reply-referrer\) The Task for the referral to Zq Reply Pantry was marked rejected\.$/', $body);
     }
 
     /**
