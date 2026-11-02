@@ -184,6 +184,55 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
         }
     }
 
+    #[Test]
+    #[Depends('testLoginAuthorized')]
+    public function testASaveWithNoAmountLeavesThePaymentPending(): void
+    {
+        $this->insertFixtureData();
+        try {
+            $this->base();
+            $this->login(LoginTestData::username, LoginTestData::password);
+            $this->openPaymentFromPortalActivity();
+
+            // Clear the amount and submit the form itself, past the page's validate(), as a
+            // hand-made POST would.
+            $this->client->executeScript(
+                'var form = document.forms["invoiceForm"];'
+                . ' form.elements["form_upay[" + arguments[0] + "]"].value = "";'
+                . ' HTMLFormElement.prototype.submit.call(form);',
+                [$this->payingEncounter]
+            );
+            $this->client->wait(30)->until(
+                fn(): bool => str_contains($this->client->getCurrentURL(), 'portal_payment.php'),
+                'Saving did not reach portal_payment.php'
+            );
+            // The whole response, so the script has finished whatever it was going to do.
+            $this->client->wait(30)->until(
+                fn(): bool => $this->client->executeScript('return document.readyState;') === 'complete',
+                'The page after saving did not finish loading'
+            );
+
+            $recorded = QueryUtils::fetchSingleValue(
+                'SELECT COUNT(*) AS c FROM ar_session WHERE patient_id = ?',
+                'c',
+                [$this->payingPid]
+            );
+            $this->assertSame(0, $this->toInt($recorded), 'Nothing was posted');
+            $status = QueryUtils::fetchSingleValue('SELECT status FROM patient_review_request WHERE id = ?', 'status', [$this->recordId]);
+            $this->assertSame('pending', $status, 'A save that posts nothing must leave the portal payment pending');
+            $secrets = QueryUtils::fetchSingleValue('SELECT COUNT(*) AS c FROM patient_review_secret WHERE request_id = ?', 'c', [$this->recordId]);
+            $this->assertGreaterThan(0, $this->toInt($secrets), 'Its card details must be kept for the posting');
+        } finally {
+            try {
+                if (isset($this->client)) {
+                    $this->client->quit();
+                }
+            } finally {
+                $this->cleanUpFixtureData();
+            }
+        }
+    }
+
     /**
      * As staff do: Portal Activity, then the payment's row, which loads
      * portal_payment.php into a dialog on that page.

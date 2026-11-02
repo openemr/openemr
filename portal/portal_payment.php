@@ -154,6 +154,8 @@ if ($_POST['form_save'] ?? '') {
     $form_source = trim((string) $_POST['form_source']);
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
+    // Set once a payment is written to the ledger; a save that writes none closes nothing.
+    $paymentRecorded = false;
 
     if ($radio_type_of_payment == 'pre_payment') {
         $prepayment = ValidationUtils::parsePositiveAmount(filter_input(INPUT_POST, 'form_prepayment'));
@@ -181,6 +183,7 @@ if ($_POST['form_save'] ?? '') {
             );
 
             frontPayment($form_pid, 0, $form_method, $form_source, $prepayment, 0, $timestamp);//insertion to 'payments' table.
+            $paymentRecorded = true;
         }
     }
 
@@ -235,6 +238,7 @@ if ($_POST['form_save'] ?? '') {
                 ]);
 
                 frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
+                $paymentRecorded = true;
             }
 
             if ($radio_type_of_payment == 'invoice_balance' || $radio_type_of_payment == 'cash') {                //Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
@@ -356,15 +360,17 @@ if ($_POST['form_save'] ?? '') {
                     ]);
                 }
 
+                $paymentRecorded = true;
                 //--------------------------------------------------------------------------------------------------------------------
             }//invoice_balance
         }//foreach
     }//if ($_POST['form_upay'])
 
-    // The payment is recorded; close the portal request staff were posting, and only now, so a
-    // posting that failed above leaves it pending (with its card details) to post again. With
-    // no recid, staff were posting from the chart: close the patient's pending payment, if any.
-    if ($alertmsg === '' && !$isPortal) {
+    // A payment was recorded; close the portal request staff were posting, and only now, so a
+    // posting that failed above, or a save with no amount to post, leaves it pending (with its
+    // card details) to post again. With no recid, staff were posting from the chart: close the
+    // patient's pending payment, if any.
+    if ($paymentRecorded && $alertmsg === '' && !$isPortal) {
         $postingStaff = SessionReviewActor::staff($session);
         if ($recid) {
             $reviewWorkflows->completePaymentRequest($recid, $sessionPid, $postingStaff);
