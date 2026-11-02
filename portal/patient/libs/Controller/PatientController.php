@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use Doctrine\DBAL\Exception as DbalException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -407,10 +409,22 @@ class PatientController extends AppBasePortalController
      */
     public function CloseAudit(Patient $p): void
     {
-        ReviewQueueFactory::portalWorkflows()->completeProfileChange(
-            $p->Pid,
-            SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession()),
-        );
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        // Only staff accept a profile change; a patient saving their own record leaves it in review.
+        if ($session->has('patient_portal_onsite_two')) {
+            return;
+        }
+        // The demographics are already saved. If the request cannot be closed (a concurrent close,
+        // say), it stays open for staff to clear; failing here would report the save as failed
+        // and invite a second save.
+        try {
+            ReviewQueueFactory::portalWorkflows()->completeProfileChange($p->Pid, SessionReviewActor::staff($session));
+        } catch (\RuntimeException | \LogicException | DbalException $e) {
+            ServiceContainer::getLogger()->error('Could not close the profile review request after saving', [
+                'pid' => $p->Pid,
+                'exception' => $e,
+            ]);
+        }
     }
 
     /**
