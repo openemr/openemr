@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Fixtures;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -296,6 +297,40 @@ class ProcedureOrderFixtureManagerTest extends TestCase
         self::assertSame([], $this->providerFixtureManager->getInstalledProviders());
     }
 
+    /**
+     * The orders and labs are installed without a uuid, and ProcedureService gives them one when
+     * it is constructed; the encounters register theirs when installed. removeFixtures() removes
+     * those uuid_registry rows with the rows themselves.
+     */
+    public function testRemoveFixturesRemovesTheUuidRegistryRowsOfTheRowsItDeletes(): void
+    {
+        $this->fixtureManager->installFixtures();
+        // As ProcedureService's constructor does, for the fixture rows only.
+        foreach ($this->fixtureManager->getInstalledOrderIds() as $orderId) {
+            UuidRegistry::createMissingUuidForRow('procedure_order', 'procedure_order_id', $orderId);
+        }
+        foreach ($this->providerFixtureManager->getInstalledProviders() as $provider) {
+            $ppid = $provider['ppid'] ?? null;
+            self::assertIsInt($ppid);
+            UuidRegistry::createMissingUuidForRow('procedure_providers', 'ppid', $ppid);
+        }
+        $uuids = [
+            'procedure_order' => QueryUtils::fetchTableColumn('SELECT uuid FROM procedure_order WHERE control_id LIKE ?', 'uuid', [self::FIXTURE_LIKE]),
+            'procedure_providers' => QueryUtils::fetchTableColumn('SELECT uuid FROM procedure_providers WHERE name LIKE ?', 'uuid', [self::FIXTURE_LIKE]),
+            'form_encounter' => QueryUtils::fetchTableColumn('SELECT uuid FROM form_encounter WHERE reason LIKE ?', 'uuid', [self::FIXTURE_LIKE]),
+        ];
+        foreach ($uuids as $table => $tableUuids) {
+            self::assertNotSame([], $tableUuids, "no fixture $table rows");
+            self::assertSame(count($tableUuids), $this->countRegistryRows($table, $tableUuids), "each fixture $table row is registered");
+        }
+
+        $this->fixtureManager->removeFixtures();
+
+        foreach ($uuids as $table => $tableUuids) {
+            self::assertSame(0, $this->countRegistryRows($table, $tableUuids), "$table uuid_registry rows survived removeFixtures()");
+        }
+    }
+
     public function testInstallRemoveInstallDoesNotAccumulateOrCollide(): void
     {
         $this->fixtureManager->installFixtures();
@@ -477,6 +512,17 @@ class ProcedureOrderFixtureManagerTest extends TestCase
     private static function placeholders(array $values): string
     {
         return implode(', ', array_fill(0, count($values), '?'));
+    }
+
+    /**
+     * @param array<mixed> $uuids
+     */
+    private function countRegistryRows(string $table, array $uuids): int
+    {
+        return $this->countRows(
+            'SELECT COUNT(*) AS cnt FROM uuid_registry WHERE table_name = ? AND uuid IN (' . implode(', ', array_fill(0, count($uuids), '?')) . ')',
+            [$table, ...array_values($uuids)]
+        );
     }
 
     /**
