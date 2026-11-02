@@ -927,7 +927,11 @@ body { margin: 0; padding: 0; }
         $pdf = self::measurePdf(self::sheetFormat());
         $pdf->SetFont(self::WINDOW_FONT, '', $pt);
         // mPDF reports the current user unit, which is millimetres.
-        return $pdf->GetStringWidth($s) / 25.4;
+        $widthMm = $pdf->GetStringWidth($s);
+        if (!is_int($widthMm) && !is_float($widthMm)) {
+            return 0.0;
+        }
+        return $widthMm / 25.4;
     }
 
     /**
@@ -941,7 +945,7 @@ body { margin: 0; padding: 0; }
             if (is_string($raw) && preg_match('/^[A-Za-z0-9]+$/', $raw) === 1) {
                 $name = $raw;
             }
-        } catch (\Throwable) {
+        } catch (\RuntimeException) {
             $name = 'LETTER';
         }
         return $name;
@@ -955,12 +959,17 @@ body { margin: 0; padding: 0; }
     private static function pageSizeInches(): array
     {
         $pdf = self::measurePdf(self::sheetFormat());
-        $width = $pdf->w / 25.4;
-        $height = $pdf->h / 25.4;
-        if ($width <= 0.0 || $height <= 0.0) {
+        $widthMm = $pdf->w;
+        $heightMm = $pdf->h;
+        if (
+            (!is_int($widthMm) && !is_float($widthMm))
+            || (!is_int($heightMm) && !is_float($heightMm))
+            || $widthMm <= 0
+            || $heightMm <= 0
+        ) {
             return [8.5, 11.0];
         }
-        return [$width, $height];
+        return [$widthMm / 25.4, $heightMm / 25.4];
     }
 
     /**
@@ -970,14 +979,12 @@ body { margin: 0; padding: 0; }
     {
         /** @var array<string, \Mpdf\Mpdf> $cache */
         static $cache = [];
-        if (!isset($cache[$format])) {
-            $cache[$format] = new \Mpdf\Mpdf([
-                'mode' => 'utf-8',
-                'format' => $format,
-                'default_font' => self::WINDOW_FONT,
-                'tempDir' => sys_get_temp_dir(),
-            ]);
-        }
+        $cache[$format] ??= new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => $format,
+            'default_font' => self::WINDOW_FONT,
+            'tempDir' => sys_get_temp_dir(),
+        ]);
         return $cache[$format];
     }
 }
