@@ -1,0 +1,15 @@
+{# One medication section. The caller translates labels. The template escapes. #}
+<p><b>{{ heading|text }}</b></p>
+{%- if rows is empty -%}
+<p>{{ emptyLabel|text }}</p>
+{%- else -%}
+<table class="{{ tableClass|text }}"><tr>
+{%- for label in columnLabels -%}
+<th>{{ label|text }}</th>
+{%- endfor -%}
+</tr>
+{%- for row in rows -%}
+<tr><td>{{ row.title|text }}</td><td>{{ row.dose|text }}</td><td>{{ row.start|text }}</td><td>{{ row.end|text }}</td><td>{{ row.comments|text }}</td></tr>
+{%- endfor -%}
+</table>
+{%- endif -%}

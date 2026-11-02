@@ -341,43 +341,6 @@ class ActiveMedicationListService extends BaseService
     }
 
     /**
-     * One medication section: a heading, an empty line, or a table.
-     *
-     * @param literal-string $heading
-     * @param list<array{title: string, dose: string, start: ?string, end: ?string, comments: string}> $rows
-     * @param callable(literal-string): string $translate
-     * @param callable(string): string $escape
-     * @param callable(?string): string $formatDate
-     */
-    public static function sectionHtml(
-        string $heading,
-        array $rows,
-        callable $translate,
-        callable $escape,
-        callable $formatDate,
-        string $tableClass
-    ): string {
-        $html = '<p><b>' . $escape($translate($heading)) . '</b></p>';
-        if ($rows === []) {
-            return $html . '<p>' . $escape($translate('None{{Issues}}')) . '</p>';
-        }
-        $html .= '<table class="' . $escape($tableClass) . '"><tr>';
-        foreach (['Medication', 'Dose', 'Start', 'End', 'Comments'] as $label) {
-            $html .= '<th>' . $escape($translate($label)) . '</th>';
-        }
-        $html .= '</tr>';
-        foreach ($rows as $row) {
-            $html .= '<tr><td>' . $escape($row['title']) . '</td>';
-            $html .= '<td>' . $escape($row['dose']) . '</td>';
-            $html .= '<td>' . $escape($formatDate($row['start'])) . '</td>';
-            $html .= '<td>' . $escape($formatDate($row['end'])) . '</td>';
-            $html .= '<td>' . $escape($row['comments']) . '</td></tr>';
-        }
-
-        return $html . '</table>';
-    }
-
-    /**
      * Keep a real calendar date, otherwise null.
      */
     private static function optionalDate(mixed $value): ?string
