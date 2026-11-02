@@ -327,10 +327,10 @@ class ProcedureOrderFixtureManagerTest extends TestCase
         // One record per table that no fixture owns, registered like any other, which the
         // cleanup must leave alone, record and registry row both.
         $unrelated = [];
-        foreach (array_keys($uuids) as $table) {
-            $unrelated[$table] = self::insertUnrelatedRecord($table);
-        }
         try {
+            foreach (array_keys($uuids) as $table) {
+                $unrelated[$table] = self::insertUnrelatedRecord($table);
+            }
             $this->fixtureManager->removeFixtures();
 
             foreach ($uuids as $table => $tableUuids) {
@@ -352,7 +352,16 @@ class ProcedureOrderFixtureManagerTest extends TestCase
     private static function insertUnrelatedRecord(string $table): string
     {
         $uuid = (new UuidRegistry(['table_name' => $table]))->createUuid();
-        QueryUtils::sqlStatementThrowException(self::unrelatedRecordSql($table, 'insert'), [$uuid]);
+        $inserted = false;
+        try {
+            QueryUtils::sqlStatementThrowException(self::unrelatedRecordSql($table, 'insert'), [$uuid]);
+            $inserted = true;
+        } finally {
+            // A record that couldn't be inserted leaves no registry row behind.
+            if (!$inserted) {
+                QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE uuid = ?', [$uuid]);
+            }
+        }
         return $uuid;
     }
 

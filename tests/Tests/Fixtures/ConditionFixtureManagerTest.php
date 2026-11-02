@@ -61,10 +61,10 @@ class ConditionFixtureManagerTest extends TestCase
         // One record per table that no fixture owns, registered like any other, which the
         // cleanup must leave alone, record and registry row both.
         $unrelated = [];
-        foreach (array_keys($registered) as $table) {
-            $unrelated[$table] = self::insertUnrelatedRecord($table);
-        }
         try {
+            foreach (array_keys($registered) as $table) {
+                $unrelated[$table] = self::insertUnrelatedRecord($table);
+            }
             $this->fixtures->removeFixtures();
 
             foreach ($registered as $table => $uuid) {
@@ -92,7 +92,16 @@ class ConditionFixtureManagerTest extends TestCase
             'users' => [$uuid, 'unrelated-record-' . bin2hex(random_bytes(4))],
             default => [$uuid],
         };
-        QueryUtils::sqlStatementThrowException(self::unrelatedRecordSql($table, 'insert'), $binds);
+        $inserted = false;
+        try {
+            QueryUtils::sqlStatementThrowException(self::unrelatedRecordSql($table, 'insert'), $binds);
+            $inserted = true;
+        } finally {
+            // A record that couldn't be inserted leaves no registry row behind.
+            if (!$inserted) {
+                QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE uuid = ?', [$uuid]);
+            }
+        }
         return $uuid;
     }
 
