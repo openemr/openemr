@@ -42,20 +42,23 @@ final readonly class PortalActivityMigrator
     }
 
     /**
-     * Whether any legacy row is still to be copied.
+     * Whether any legacy row is still to be copied. Rows the mapping skips (no patient, an
+     * unknown activity) stay in onsite_portal_activity unmarked, so they are planned here too:
+     * counting them would make every upgrade pass run the migration again.
      */
     public function isNeeded(): bool
     {
         if (!$this->tablesExist()) {
             return false;
         }
-        $row = QueryUtils::querySingleRow(
-            'SELECT 1 AS `found` FROM `onsite_portal_activity` AS `a`'
-            . ' WHERE NOT EXISTS (SELECT 1 FROM `patient_review_request` AS `r` WHERE `r`.`legacy_activity_id` = `a`.`id`)'
-            . ' LIMIT 1'
-        );
+        $now = $this->clock->now();
+        foreach ($this->unmigratedRows() as $row) {
+            if ($this->mapping->plan($row, $now) !== null) {
+                return true;
+            }
+        }
 
-        return is_array($row) && $row !== [];
+        return false;
     }
 
     public function migrate(): MigrationReport
@@ -65,13 +68,8 @@ final readonly class PortalActivityMigrator
             return $report;
         }
 
-        $rows = QueryUtils::fetchRecords(
-            'SELECT `a`.* FROM `onsite_portal_activity` AS `a`'
-            . ' WHERE NOT EXISTS (SELECT 1 FROM `patient_review_request` AS `r` WHERE `r`.`legacy_activity_id` = `a`.`id`)'
-            . ' ORDER BY `a`.`id` ASC'
-        );
         $now = $this->clock->now();
-        foreach ($rows as $row) {
+        foreach ($this->unmigratedRows() as $row) {
             $plan = $this->mapping->plan($row, $now);
             if ($plan === null) {
                 $report->skipped[] = is_numeric($row['id'] ?? null) ? intval($row['id']) : 0;
@@ -146,6 +144,18 @@ final readonly class PortalActivityMigrator
         }
 
         return $id;
+    }
+
+    /**
+     * @return list<array<mixed>>
+     */
+    private function unmigratedRows(): array
+    {
+        return QueryUtils::fetchRecords(
+            'SELECT `a`.* FROM `onsite_portal_activity` AS `a`'
+            . ' WHERE NOT EXISTS (SELECT 1 FROM `patient_review_request` AS `r` WHERE `r`.`legacy_activity_id` = `a`.`id`)'
+            . ' ORDER BY `a`.`id` ASC'
+        );
     }
 
     private function tablesExist(): bool

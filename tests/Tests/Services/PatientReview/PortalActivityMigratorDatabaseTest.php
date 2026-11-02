@@ -148,6 +148,7 @@ class PortalActivityMigratorDatabaseTest extends TestCase
 
         $this->assertContains($unknown, $report->skipped);
         $this->assertSame('new', $report->unrecognised[$odd] ?? null);
+        $this->assertFalse($migrator->isNeeded(), 'a skipped row does not make every upgrade pass run the migration again');
 
         $queue = ReviewQueueFactory::create();
         $profileRequest = $queue->get($this->intOf($this->migratedRow($profile)['id']));
