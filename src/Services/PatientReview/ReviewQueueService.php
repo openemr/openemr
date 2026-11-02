@@ -164,6 +164,22 @@ final class ReviewQueueService
     }
 
     /**
+     * Cancels the request and runs $alongside in the same transaction, so if either fails
+     * neither happens. $alongside must not open a transaction of its own.
+     *
+     * @param callable(ReviewRequest): void $alongside receives the cancelled request
+     */
+    public function cancelAlongside(int $id, ReviewActor $actor, ?string $note, callable $alongside): ReviewRequest
+    {
+        return $this->atomically(function () use ($id, $actor, $note, $alongside): ReviewRequest {
+            $cancelled = $this->transition($this->get($id), ReviewStatus::Cancelled, $actor, $note);
+            $alongside($cancelled);
+
+            return $cancelled;
+        });
+    }
+
+    /**
      * Closes a request whose change the caller has already applied. The legacy portal workflows
      * apply the change themselves and then close the request in one step; new code should
      * register a handler and call approve().

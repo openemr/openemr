@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientReview\Portal;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewActorType;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
@@ -265,6 +267,33 @@ final readonly class PortalReviewWorkflows
         $open = $this->pendingDocument($pid, $documentId);
 
         return $open === null ? null : $this->queue->cancel($open->id, $actor, $note);
+    }
+
+    /**
+     * Staff removed a request from the review list. A document request also takes its
+     * un-charted document with it, in the same transaction. Other types only cancel the request.
+     *
+     * @throws \DomainException when the actor is not a staff user
+     * @throws InvalidReviewTransitionException when the request is no longer open
+     */
+    public function discard(ReviewRequest $request, ReviewActor $staff, string $note): ReviewRequest
+    {
+        self::assertStaff($staff);
+        if ($request->type !== ReviewType::Document) {
+            return $this->queue->cancel($request->id, $staff, $note);
+        }
+
+        return $this->queue->cancelAlongside(
+            $request->id,
+            $staff,
+            $note,
+            static function (ReviewRequest $cancelled): void {
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM `' . self::DOCUMENT_TABLE . '` WHERE `id` = ? AND `pid` = ?',
+                    [$cancelled->targetId, $cancelled->pid]
+                );
+            },
+        );
     }
 
     /**

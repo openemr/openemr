@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Isolated\Services\PatientReview;
 
 use DateTimeImmutable;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
@@ -221,6 +222,26 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         } finally {
             $this->assertSame(ReviewStatus::Pending, $this->queue->get($submitted->id)->status);
         }
+    }
+
+    public function testDiscardingAPaymentCancelsItAndDropsTheCard(): void
+    {
+        $payment = $this->workflows->submitPayment(self::PID, '{"form_paytotal":"20.00"}', self::CARD, $this->patient());
+
+        $discarded = $this->workflows->discard($payment, $this->staff(), 'User deleted audit');
+
+        $this->assertSame(ReviewStatus::Cancelled, $discarded->status);
+        $this->assertNull($this->store->getSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD));
+        $this->assertNull($this->workflows->pendingPayment(self::PID));
+    }
+
+    public function testDiscardRefusesARequestAlreadyClosed(): void
+    {
+        $payment = $this->workflows->submitPayment(self::PID, '{}', '', $this->patient());
+        $this->workflows->completePayment(self::PID, $this->staff());
+
+        $this->expectException(InvalidReviewTransitionException::class);
+        $this->workflows->discard($payment, $this->staff(), 'stale row');
     }
 
     public function testAlertCountsIncludePaymentsInAudits(): void

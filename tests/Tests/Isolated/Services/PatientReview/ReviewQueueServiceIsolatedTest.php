@@ -368,6 +368,39 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         $this->assertNull($cancelled->reviewedAt);
     }
 
+    public function testCancelAlongsideRunsTheSideEffectWithTheCancel(): void
+    {
+        $service = $this->service();
+        $request = $service->submit($this->profile(), $this->patient());
+        $seen = null;
+
+        $cancelled = $service->cancelAlongside($request->id, $this->staff(), 'removed', function (ReviewRequest $r) use (&$seen): void {
+            $seen = $r;
+        });
+
+        $this->assertSame(ReviewStatus::Cancelled, $cancelled->status);
+        $this->assertInstanceOf(ReviewRequest::class, $seen);
+        $this->assertSame(ReviewStatus::Cancelled, $seen->status, 'the side effect sees the request already cancelled');
+    }
+
+    public function testCancelAlongsideLeavesTheRequestOpenWhenTheSideEffectFails(): void
+    {
+        $service = $this->service();
+        $request = $service->submit($this->profile(), $this->patient());
+
+        try {
+            $service->cancelAlongside($request->id, $this->staff(), 'removed', static function (): void {
+                throw new \RuntimeException('delete failed');
+            });
+            $this->fail('The side effect failure should propagate');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('delete failed', $e->getMessage());
+        }
+
+        $this->assertSame(ReviewStatus::Pending, $service->get($request->id)->status);
+        $this->assertCount(1, $service->history($request->id), 'no cancel event is kept');
+    }
+
     public function testAClosedRequestCannotChangeAgain(): void
     {
         $service = $this->service();

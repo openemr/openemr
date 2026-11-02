@@ -15,13 +15,13 @@
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\PatientPortalPDFDocumentCreator;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
+use OpenEMR\Services\PatientReview\ReviewType;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -78,29 +78,29 @@ $category = $_POST['catid'] ?? 0;
 
 
 if ($dispose == $_POST['audit_delete'] ?? null) {
-    // Staff delete a portal document still in review from the review list: the review request
-    // is cancelled and the un-charted document removed. (Portal sessions never reach here; they
-    // are limited to the download handlers above.)
+    // Staff remove a row from the review list: its review request is cancelled, and for a
+    // document the un-charted document is removed with it, in one transaction. The list sends
+    // the row's tableArgs as delete_id, which is the document id for a document and invoice or
+    // profile JSON otherwise, so it is read as a string and only checked for documents.
+    // (Portal sessions never reach here; they are limited to the download handlers above.)
     $postBody = CurrentRequest::get()->request;
-    $requestId = $postBody->getInt('update_id');
-    $documentId = $postBody->getInt('delete_id');
-    $reviewWorkflows = ReviewQueueFactory::portalWorkflows();
-    $request = $requestId > 0 ? $reviewWorkflows->document($requestId) : null;
+    $requestId = filter_var($postBody->getString('update_id'), FILTER_VALIDATE_INT);
+    $request = is_int($requestId) && $requestId > 0 ? ReviewQueueFactory::create()->find($requestId) : null;
     if (
         $request === null
-        || $documentId <= 0
-        || $request->targetId !== (string) $documentId
+        || !in_array($request->type, [ReviewType::Profile, ReviewType::Payment, ReviewType::Document], true)
         || !$request->status->isOpen()
+        || ($request->type === ReviewType::Document && $request->targetId !== $postBody->getString('delete_id'))
     ) {
         echo js_escape(['success' => false, 'message' => xl('Failed Action')]);
         exit;
     }
     try {
-        $reviewWorkflows->cancelDocument($request->pid, $documentId, SessionReviewActor::staff($session), xl('User deleted document'));
-        QueryUtils::sqlStatementThrowException('DELETE FROM `onsite_documents` WHERE `id` = ? AND `pid` = ?', [$documentId, $request->pid]);
+        // Throws if the request was closed since the list loaded; nothing is deleted then.
+        ReviewQueueFactory::portalWorkflows()->discard($request, SessionReviewActor::staff($session), xl('User deleted audit'));
         echo js_escape(['success' => true]);
     } catch (\Throwable $e) {
-        ServiceContainer::getLogger()->error('Could not delete portal document in review', ['request_id' => $requestId, 'exception' => $e]);
+        ServiceContainer::getLogger()->error('Could not remove a portal review request', ['request_id' => $request->id, 'exception' => $e]);
         echo js_escape(['success' => false, 'message' => xl('Failed to update or delete record.')]);
     }
     exit;
