@@ -175,8 +175,6 @@ class ReferralReplyFhirApiTest extends TestCase
             unset($GLOBALS['document_storage_method']);
         }
         $this->fixtures->removeFixtures();
-        // The fixture removes its patient but not the patient's uuid.
-        QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE table_name = 'patient_data' AND uuid = ?", [UuidRegistry::uuidToBytes($this->patient['uuid'])]);
         $this->testClient->cleanupRevokeAuth();
         $this->testClient->cleanupClient();
     }
