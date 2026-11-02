@@ -92,9 +92,10 @@ $recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
 // A staff save holds the payment's posting lock from this check until the request is closed
 // below, so two saves of the same payment at once cannot both post it: the second waits, then
 // finds it no longer pending.
+$isStaffSave = !$isPortal && CurrentRequest::get()->request->getString('form_save') !== '';
 $postingLock = null;
 if (!$isPortal && $recid) {
-    if (CurrentRequest::get()->request->getString('form_save') !== '') {
+    if ($isStaffSave) {
         $postingLock = new PaymentPostingLock();
         $postingLock->acquire($recid);
     }
@@ -126,6 +127,24 @@ if ($session->get('authUserID', '')) {
 // The payment staff opened (recid), or the patient's own pending payment. A portal patient can
 // only open their own.
 $sessionPid = is_numeric($pid) ? intval($pid) : 0;
+
+// The portal payment request a staff save closes once it is posted. From the chart (no recid)
+// it is the patient's pending payment, if any: it is locked like a recid, then read again under
+// the lock, so two chart saves at once cannot both post it; the second finds it posted and is
+// refused before writing to the ledger. Without a pending payment the save closes nothing.
+$postingRequestId = $recid;
+if ($isStaffSave && !$recid) {
+    $pendingAtSave = $reviewWorkflows->pendingPayment($sessionPid);
+    if ($pendingAtSave !== null) {
+        $postingLock = new PaymentPostingLock();
+        $postingLock->acquire($pendingAtSave->id);
+        if ($reviewWorkflows->pendingPayment($sessionPid)?->id !== $pendingAtSave->id) {
+            throw new \RuntimeException('The pending portal payment was posted or replaced while this save waited');
+        }
+        $postingRequestId = $pendingAtSave->id;
+    }
+}
+
 $payment = $recid
     ? $reviewWorkflows->payment($recid, $isPortal ? $sessionPid : null)
     : $reviewWorkflows->pendingPayment($sessionPid);
@@ -379,14 +398,9 @@ if ($_POST['form_save'] ?? '') {
     // A payment was recorded; close the portal request staff were posting, and only now, so a
     // posting that failed above, or a save with no amount to post, leaves it pending (with its
     // card details) to post again. With no recid, staff were posting from the chart: close the
-    // patient's pending payment, if any.
-    if ($paymentRecorded && $alertmsg === '' && !$isPortal) {
-        $postingStaff = SessionReviewActor::staff($session);
-        if ($recid) {
-            $reviewWorkflows->completePaymentRequest($recid, $sessionPid, $postingStaff);
-        } else {
-            $reviewWorkflows->completePayment($sessionPid, $postingStaff);
-        }
+    // patient's pending payment locked above, if any.
+    if ($paymentRecorded && $alertmsg === '' && !$isPortal && $postingRequestId) {
+        $reviewWorkflows->completePaymentRequest($postingRequestId, $sessionPid, SessionReviewActor::staff($session));
     }
     // Posted and closed, or refused: either way the next save of this payment may go ahead.
     $postingLock?->release();
