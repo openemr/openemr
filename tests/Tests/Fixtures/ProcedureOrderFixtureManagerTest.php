@@ -324,23 +324,52 @@ class ProcedureOrderFixtureManagerTest extends TestCase
             self::assertSame(count($tableUuids), $this->countRegistryRows($table, $tableUuids), "each fixture $table row is registered");
         }
 
-        // One unrelated row per table, which the cleanup must leave alone.
+        // One record per table that no fixture owns, registered like any other, which the
+        // cleanup must leave alone, record and registry row both.
         $unrelated = [];
         foreach (array_keys($uuids) as $table) {
-            $unrelated[$table] = (new UuidRegistry(['table_name' => $table]))->createUuid();
+            $unrelated[$table] = self::insertUnrelatedRecord($table);
         }
         try {
             $this->fixtureManager->removeFixtures();
 
             foreach ($uuids as $table => $tableUuids) {
                 self::assertSame(0, $this->countRegistryRows($table, $tableUuids), "$table uuid_registry rows survived removeFixtures()");
-                self::assertSame(1, $this->countRegistryRows($table, [$unrelated[$table]]), "removeFixtures() removed an unrelated $table uuid_registry row");
+                self::assertSame(1, $this->countRegistryRows($table, [$unrelated[$table]]), "removeFixtures() removed an unrelated $table record's uuid_registry row");
+                self::assertSame(1, $this->countRows(self::unrelatedRecordSql($table, 'count'), [$unrelated[$table]]), "removeFixtures() removed an unrelated $table record");
             }
         } finally {
-            foreach ($unrelated as $uuid) {
+            foreach ($unrelated as $table => $uuid) {
+                QueryUtils::sqlStatementThrowException(self::unrelatedRecordSql($table, 'delete'), [$uuid]);
                 QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE uuid = ?', [$uuid]);
             }
         }
+    }
+
+    /**
+     * A record that no fixture owns, with its uuid registered as OpenEMR registers any other.
+     */
+    private static function insertUnrelatedRecord(string $table): string
+    {
+        $uuid = (new UuidRegistry(['table_name' => $table]))->createUuid();
+        QueryUtils::sqlStatementThrowException(self::unrelatedRecordSql($table, 'insert'), [$uuid]);
+        return $uuid;
+    }
+
+    private static function unrelatedRecordSql(string $table, string $action): string
+    {
+        return match ([$table, $action]) {
+            ['procedure_order', 'insert'] => "INSERT INTO procedure_order (uuid, control_id, patient_id) VALUES (?, 'unrelated-record', 0)",
+            ['procedure_order', 'count'] => 'SELECT COUNT(*) AS cnt FROM procedure_order WHERE uuid = ?',
+            ['procedure_order', 'delete'] => 'DELETE FROM procedure_order WHERE uuid = ?',
+            ['procedure_providers', 'insert'] => "INSERT INTO procedure_providers (uuid, name) VALUES (?, 'unrelated-record')",
+            ['procedure_providers', 'count'] => 'SELECT COUNT(*) AS cnt FROM procedure_providers WHERE uuid = ?',
+            ['procedure_providers', 'delete'] => 'DELETE FROM procedure_providers WHERE uuid = ?',
+            ['form_encounter', 'insert'] => "INSERT INTO form_encounter (uuid, reason, pid) VALUES (?, 'unrelated-record', 0)",
+            ['form_encounter', 'count'] => 'SELECT COUNT(*) AS cnt FROM form_encounter WHERE uuid = ?',
+            ['form_encounter', 'delete'] => 'DELETE FROM form_encounter WHERE uuid = ?',
+            default => throw new \LogicException("No unrelated-record SQL for $table ($action)"),
+        };
     }
 
     public function testInstallRemoveInstallDoesNotAccumulateOrCollide(): void
