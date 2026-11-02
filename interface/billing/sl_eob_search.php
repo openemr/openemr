@@ -279,8 +279,8 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
 
     if (OEGlobalsBag::getInstance()->get('statement_appearance') == '1') {
         if (
-            function_exists('statement_supports_envelope_windows')
-            && statement_supports_envelope_windows()
+            class_exists(StatementSiteTemplate::class, false)
+            && StatementSiteTemplate::supportsEnvelopeWindows()
         ) {
             $config_mpdf = StatementEnvelope::fromGlobals()->mpdfConfig();
         } else {
@@ -300,8 +300,8 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
         $pdf2->Output($temp_filename, 'F');
     } else {
         $pdf = new Cezpdf('LETTER');//pdf creation starts
-        $windowedTextPdf = function_exists('statement_supports_envelope_windows')
-            && statement_supports_envelope_windows()
+        $windowedTextPdf = class_exists(StatementSiteTemplate::class, false)
+            && StatementSiteTemplate::supportsEnvelopeWindows()
             && StatementEnvelope::fromGlobals()->isWindowed();
         // The text file is positioned from the corner of the sheet. Cezpdf's
         // stock 45pt/36pt margins push that text out of the envelope windows.
@@ -390,8 +390,8 @@ if (
 
     $envelopeReady = true;
     if (
-        function_exists('statement_supports_envelope_windows')
-        && statement_supports_envelope_windows()
+        class_exists(StatementSiteTemplate::class, false)
+            && StatementSiteTemplate::supportsEnvelopeWindows()
         && StatementEnvelope::fromGlobals()->isMisconfigured()
     ) {
         $envelopeReady = false;
@@ -453,8 +453,8 @@ if (
             $mimetype = $isPdf ? 'pdf' : 'text/plain';
             if ($isPdf) {
                 if (
-                    function_exists('statement_supports_envelope_windows')
-                    && statement_supports_envelope_windows()
+                    class_exists(StatementSiteTemplate::class, false)
+            && StatementSiteTemplate::supportsEnvelopeWindows()
                 ) {
                     $invoicePdfConfig = StatementEnvelope::fromGlobals()->mpdfConfig();
                 } else {
