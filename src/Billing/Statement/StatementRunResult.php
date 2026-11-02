@@ -22,6 +22,8 @@ final readonly class StatementRunResult
     /**
      * @param string $output the statements, one after another, to print or download (empty for a portal run)
      * @param list<string> $skippedNothingDue patients who got no statement: their credits leave nothing due
+     * @param list<string> $skippedBelowMinimum patients who got no statement: the site's print rules left it
+     *     empty (at or under the minimum amount to print)
      * @param list<string> $emailFailures "patient: reason" for each statement that couldn't be emailed
      * @param ?string $portalError PORTAL_NOT_AUTHORIZED or PORTAL_FAILED when a portal run stopped
      * @param ?array{firstName: string, pid: int} $onlyPatient the patient, when every invoice was one patient's
@@ -30,6 +32,7 @@ final readonly class StatementRunResult
         public string $output,
         public int $statementsWritten,
         public array $skippedNothingDue,
+        public array $skippedBelowMinimum,
         public array $emailFailures,
         public ?string $portalError,
         public ?array $onlyPatient,

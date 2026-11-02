@@ -2,7 +2,8 @@
 
 /**
  * A statement run: one statement per patient, credits netted, nothing-due
- * patients skipped on Due Pt, counts recorded only when the run records, and
+ * patients skipped on Due Pt, statements the print rules leave empty skipped
+ * and logged, counts recorded only when the run records, and
  * the email and portal paths.
  *
  * @package   OpenEMR
@@ -21,6 +22,7 @@ use OpenEMR\Billing\Statement\StatementRun;
 use OpenEMR\Billing\Statement\StatementRunResult;
 use OpenEMR\Billing\Statement\StatementRunSteps;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
 
 class StatementRunTest extends TestCase
 {
@@ -28,9 +30,12 @@ class StatementRunTest extends TestCase
 
     private FakeStatementRunSteps $steps;
 
+    private RecordingLogger $logger;
+
     protected function setUp(): void
     {
         $this->steps = new FakeStatementRunSteps();
+        $this->logger = new RecordingLogger();
     }
 
     public function testOneStatementPerPatientWithEveryInvoiceAndTheCredits(): void
@@ -95,16 +100,25 @@ class StatementRunTest extends TestCase
         $this->assertSame([[1, 'statement 1|']], $this->steps->saved);
     }
 
-    public function testAnEmptyStatementGoesInTheBatchAsANotice(): void
+    public function testAStatementThePrintRulesLeaveEmptyIsNotSentRecordedOrSaved(): void
     {
-        $this->steps->owed = [101 => 3.0];
+        // Ann's 3.00 is under the site's minimum to print; Bob's 50.00 goes out.
+        $this->steps->owed = [101 => 3.0, 201 => 50.0];
         $this->steps->emptyFor = [1];
 
-        $result = $this->runStatements([self::invoice(1, 11, 101, '2026-03-04')]);
+        $result = $this->runStatements([self::invoice(1, 11, 101, '2026-03-04'), self::invoice(2, 21, 201, '2026-05-01', 'Bob', 'Owes')]);
 
-        $this->assertSame('notice 1/101', $result->output);
+        $this->assertSame('statement 2|', $result->output, 'no placeholder page in the batch');
         $this->assertSame(1, $result->statementsWritten);
-        $this->assertSame([[1, 'notice 1/101']], $this->steps->saved);
+        $this->assertSame(['Ann Credit'], $result->skippedBelowMinimum);
+        $this->assertSame([], $result->skippedNothingDue);
+        $this->assertSame([[2, 'statement 2|']], $this->steps->saved);
+        $this->assertSame([[21]], $this->steps->recorded, "the skipped patient's invoices aren't counted");
+        $this->assertSame([[
+            'warning',
+            'Statement not sent: the print rules leave it empty',
+            ['pid' => 1, 'encounters' => [11], 'amount' => 3.0, 'delivery' => 'Print'],
+        ]], $this->logger->records);
     }
 
     public function testEmailRunEmailsEachStatementAndKeepsGoingAfterAFailure(): void
@@ -127,9 +141,12 @@ class StatementRunTest extends TestCase
         $this->steps->owed = [101 => 3.0];
         $this->steps->emptyFor = [1];
 
-        $this->runStatements([self::invoice(1, 11, 101, '2026-03-04')], StatementDelivery::Email);
+        $result = $this->runStatements([self::invoice(1, 11, 101, '2026-03-04')], StatementDelivery::Email);
 
         $this->assertSame([], $this->steps->emailed);
+        $this->assertSame([], $this->steps->saved);
+        $this->assertSame(0, $result->statementsWritten);
+        $this->assertSame(['Ann Credit'], $result->skippedBelowMinimum);
     }
 
     public function testOnlyAnEmailRunEmails(): void
@@ -227,7 +244,7 @@ class StatementRunTest extends TestCase
         bool $recordRun = true,
         bool $skipNothingDue = false,
     ): StatementRunResult {
-        return (new StatementRun($this->steps))->run($invoices, $delivery, $recordRun, $skipNothingDue, self::TODAY);
+        return (new StatementRun($this->steps, $this->logger))->run($invoices, $delivery, $recordRun, $skipNothingDue, self::TODAY);
     }
 
     /**
@@ -297,11 +314,6 @@ final class FakeStatementRunSteps implements StatementRunSteps
         return in_array($pid, $this->emptyFor, true) ? '' : 'statement ' . $pid . '|';
     }
 
-    public function emptyStatementNotice(int $pid, string $encounter): string
-    {
-        return 'notice ' . $pid . '/' . $encounter;
-    }
-
     public function saveDocument(int $pid, string $statement): void
     {
         $this->saved[] = [$pid, $statement];
@@ -329,5 +341,19 @@ final class FakeStatementRunSteps implements StatementRunSteps
     public function recordStatementRun(array $encounterIds): void
     {
         $this->recorded[] = $encounterIds;
+    }
+}
+
+final class RecordingLogger extends AbstractLogger
+{
+    /** @var list<array{mixed, string, array<mixed>}> */
+    public array $records = [];
+
+    /**
+     * @param array<mixed> $context
+     */
+    public function log($level, string|\Stringable $message, array $context = []): void
+    {
+        $this->records[] = [$level, (string) $message, $context];
     }
 }
