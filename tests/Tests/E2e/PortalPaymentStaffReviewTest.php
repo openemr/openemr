@@ -100,13 +100,15 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
 
             $this->client->executeScript('window.alert = function () {}; window.confirm = function () { return true; };');
             $this->client->executeScript('document.querySelector("button[form=invoiceForm][type=submit]").click();');
+            // Closing the request is the last thing a successful posting does, after the
+            // ar_session and ar_activity writes; ar_session alone is written part way through.
             $this->client->wait(30)->until(
-                fn(): bool => $this->toInt(QueryUtils::fetchSingleValue(
-                    'SELECT COUNT(*) AS c FROM ar_session WHERE patient_id IN (?, ?)',
-                    'c',
-                    [$this->payingPid, $this->openPid]
-                )) > 0,
-                'Posting the payment did not record it'
+                fn(): bool => QueryUtils::fetchSingleValue(
+                    'SELECT status FROM patient_review_request WHERE id = ?',
+                    'status',
+                    [$this->recordId]
+                ) === 'completed',
+                'The portal payment must be closed once posted (did the posting fail part way?)'
             );
 
             $sessions = QueryUtils::fetchRecords(
@@ -118,8 +120,19 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
                 array_map(fn(array $row): array => [$this->toInt($row['patient_id']), is_string($row['pay_total']) ? $row['pay_total'] : ''], $sessions),
                 'The payment must be recorded for the paying patient only'
             );
-            $status = QueryUtils::fetchSingleValue('SELECT status FROM patient_review_request WHERE id = ?', 'status', [$this->recordId]);
-            $this->assertSame('completed', $status, 'The portal payment must be closed once posted');
+            $activity = QueryUtils::fetchRecords(
+                'SELECT pid, encounter, pay_amount FROM ar_activity WHERE pid IN (?, ?) AND deleted IS NULL',
+                [$this->payingPid, $this->openPid]
+            );
+            $this->assertSame(
+                [[$this->payingPid, $this->payingEncounter, '1.00']],
+                array_map(fn(array $row): array => [
+                    $this->toInt($row['pid']),
+                    $this->toInt($row['encounter']),
+                    is_string($row['pay_amount']) ? $row['pay_amount'] : '',
+                ], $activity),
+                "The payment must be applied to the paying patient's encounter only"
+            );
             $secrets = QueryUtils::fetchSingleValue('SELECT COUNT(*) AS c FROM patient_review_secret WHERE request_id = ?', 'c', [$this->recordId]);
             $this->assertSame(0, $this->toInt($secrets), 'The card details must be deleted once the payment is posted');
         } finally {
@@ -208,6 +221,8 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
                 'INSERT INTO form_encounter (date, reason, pid, encounter, provider_id) VALUES (NOW(), ?, ?, ?, 1)',
                 [self::FIXTURE_MARKER, $pid, $encounter]
             );
+            // billing.modifier is left NULL (the column allows it); posting must still record
+            // the payment, as ar_activity.modifier does not.
             QueryUtils::sqlInsert(
                 "INSERT INTO billing (date, code_type, code, pid, provider_id, encounter, code_text, billed, activity, units, fee)"
                 . " VALUES (NOW(), 'CPT4', '99213', ?, 1, ?, ?, 1, 1, 1, ?)",
