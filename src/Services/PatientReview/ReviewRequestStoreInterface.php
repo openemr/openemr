@@ -54,6 +54,27 @@ interface ReviewRequestStoreInterface
     public function findOpen(int $pid, ReviewType $type, ?FhirResourceType $resourceType = null): array;
 
     /**
+     * Holds the target row until the surrounding transaction ends, so two submissions for the
+     * same row cannot both find it without an open request. Call inside transactional().
+     *
+     * @throws \DomainException when requests for that table cannot be locked
+     * @throws \RuntimeException when the target row does not exist
+     */
+    public function lockTarget(string $targetTable, string $targetId): void;
+
+    /**
+     * Open requests for one patient, type and target row, newest first.
+     *
+     * @return list<ReviewRequest>
+     */
+    public function findOpenForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): array;
+
+    /**
+     * The most recent request, open or not, for one patient, type and target row.
+     */
+    public function findLatestForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): ?ReviewRequest;
+
+    /**
      * Oldest first, so staff work the queue in the order it arrived.
      *
      * @return list<ReviewRequest>

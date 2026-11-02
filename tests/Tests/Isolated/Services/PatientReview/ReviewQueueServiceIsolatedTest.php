@@ -123,7 +123,7 @@ class ReviewQueueServiceIsolatedTest extends TestCase
     public function testAnApiSubmissionRecordsItsClient(): void
     {
         $request = $this->service()->submit(
-            new ReviewSubmission(self::PID, ReviewType::Document, 'Uploaded document', ['name' => 'a.pdf'], ReviewSource::Api, 'client-abc'),
+            new ReviewSubmission(self::PID, ReviewType::Document, 'Uploaded document', ['name' => 'a.pdf'], ReviewSource::Api, 'client-abc', 'onsite_documents', '41'),
             $this->patient()
         );
 
@@ -188,6 +188,60 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         );
         $this->assertNull($service->openFor(self::PID, ReviewType::FhirWrite));
         $this->assertSame(2, $service->countPending(ReviewType::FhirWrite));
+    }
+
+    private function document(string $documentId): ReviewSubmission
+    {
+        return new ReviewSubmission(self::PID, ReviewType::Document, 'Consent form', [], targetTable: 'onsite_documents', targetId: $documentId);
+    }
+
+    public function testDocumentsAreSupersededPerDocumentNotPerPatient(): void
+    {
+        $service = $this->service();
+        $consent = $service->replacePending($this->document('11'), $this->patient());
+        $history = $service->replacePending($this->document('12'), $this->patient());
+        $consentAgain = $service->replacePending($this->document('11'), $this->patient());
+
+        $this->assertSame(ReviewStatus::Cancelled, $service->get($consent->id)->status);
+        $this->assertSame(ReviewStatus::Pending, $service->get($history->id)->status);
+        $this->assertSame($consentAgain->id, $service->openForTarget(self::PID, ReviewType::Document, 'onsite_documents', '11')?->id);
+        $this->assertSame($history->id, $service->openForTarget(self::PID, ReviewType::Document, 'onsite_documents', '12')?->id);
+        $this->assertSame(2, $service->countPending(ReviewType::Document));
+    }
+
+    public function testSubmitUnlessOpenLocksTheTargetAndKeepsOneOpenRequest(): void
+    {
+        $service = $this->service();
+        $first = $service->submitUnlessOpen($this->document('11'), $this->patient());
+        $again = $service->submitUnlessOpen($this->document('11'), $this->patient());
+        $other = $service->submitUnlessOpen($this->document('12'), $this->patient());
+
+        $this->assertSame($first->id, $again->id);
+        $this->assertNotSame($first->id, $other->id);
+        $this->assertSame(['onsite_documents|11', 'onsite_documents|11', 'onsite_documents|12'], $this->store->locks);
+        $this->assertSame(2, $service->countPending(ReviewType::Document));
+        $this->assertCount(1, $service->history($first->id), 'the second submission wrote no event');
+    }
+
+    public function testSubmitUnlessOpenNeedsATargetKeyedType(): void
+    {
+        $this->expectException(\DomainException::class);
+        $this->service()->submitUnlessOpen($this->profile(), $this->patient());
+    }
+
+    public function testLatestForTargetIncludesClosedRequests(): void
+    {
+        $service = $this->service();
+        $before = $service->latestForTarget(self::PID, ReviewType::Document, 'onsite_documents', '11');
+        $this->assertNull($before);
+
+        $request = $service->submit($this->document('11'), $this->patient());
+        $service->complete($request->id, $this->staff());
+
+        $open = $service->openForTarget(self::PID, ReviewType::Document, 'onsite_documents', '11');
+        $latest = $service->latestForTarget(self::PID, ReviewType::Document, 'onsite_documents', '11');
+        $this->assertNull($open);
+        $this->assertSame(ReviewStatus::Completed, $latest?->status);
     }
 
     public function testReplacePendingLeavesOtherTypesAndPatientsAlone(): void
@@ -312,6 +366,39 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         $this->assertSame(ReviewStatus::Cancelled, $cancelled->status);
         $this->assertNull($cancelled->reviewedBy);
         $this->assertNull($cancelled->reviewedAt);
+    }
+
+    public function testCancelAlongsideRunsTheSideEffectWithTheCancel(): void
+    {
+        $service = $this->service();
+        $request = $service->submit($this->profile(), $this->patient());
+        $seen = null;
+
+        $cancelled = $service->cancelAlongside($request->id, $this->staff(), 'removed', function (ReviewRequest $r) use (&$seen): void {
+            $seen = $r;
+        });
+
+        $this->assertSame(ReviewStatus::Cancelled, $cancelled->status);
+        $this->assertInstanceOf(ReviewRequest::class, $seen);
+        $this->assertSame(ReviewStatus::Cancelled, $seen->status, 'the side effect sees the request already cancelled');
+    }
+
+    public function testCancelAlongsideLeavesTheRequestOpenWhenTheSideEffectFails(): void
+    {
+        $service = $this->service();
+        $request = $service->submit($this->profile(), $this->patient());
+
+        try {
+            $service->cancelAlongside($request->id, $this->staff(), 'removed', static function (): void {
+                throw new \RuntimeException('delete failed');
+            });
+            $this->fail('The side effect failure should propagate');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('delete failed', $e->getMessage());
+        }
+
+        $this->assertSame(ReviewStatus::Pending, $service->get($request->id)->status);
+        $this->assertCount(1, $service->history($request->id), 'no cancel event is kept');
     }
 
     public function testAClosedRequestCannotChangeAgain(): void
@@ -491,6 +578,8 @@ class ReviewQueueServiceIsolatedTest extends TestCase
             static fn(): ReviewSubmission => new ReviewSubmission(self::PID, ReviewType::Profile, '', [], ReviewSource::Api),
             static fn(): ReviewSubmission => new ReviewSubmission(self::PID, ReviewType::Profile, '', [], ReviewSource::Portal, 'client-abc'),
             static fn(): ReviewSubmission => new ReviewSubmission(self::PID, ReviewType::FhirWrite, '', [], ReviewSource::Api, 'client-abc'),
+            static fn(): ReviewSubmission => new ReviewSubmission(self::PID, ReviewType::Document, '', []),
+            static fn(): ReviewSubmission => new ReviewSubmission(self::PID, ReviewType::Document, '', [], targetTable: 'onsite_documents', targetId: ''),
             static fn(): ReviewSubmission => new ReviewSubmission(self::PID, ReviewType::Profile, '', [], resourceType: new FhirResourceType('Patient')),
             static fn(): FhirResourceType => new FhirResourceType('condition'),
             static fn(): FhirResourceType => new FhirResourceType(''),

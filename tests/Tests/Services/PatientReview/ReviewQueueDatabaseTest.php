@@ -64,6 +64,17 @@ class ReviewQueueDatabaseTest extends TestCase
             $pids
         );
         QueryUtils::sqlStatementThrowException('DELETE FROM `patient_review_request` WHERE `pid` IN (?, ?)', $pids);
+        QueryUtils::sqlStatementThrowException('DELETE FROM `onsite_documents` WHERE `pid` IN (?, ?)', $pids);
+    }
+
+    /** A portal document row for the patient, as the portal creates one; returns its id. */
+    private function insertDocument(): int
+    {
+        return QueryUtils::sqlInsert(
+            'INSERT INTO `onsite_documents` (`pid`, `doc_type`, `patient_signed_status`, `accept_signed_status`,'
+            . " `authorizing_signator`, `denial_reason`, `file_name`, `file_path`) VALUES (?, 'Consent', 0, 0, '', '', 'review-test', '')",
+            [self::PID]
+        );
     }
 
     private function patient(): ReviewActor
@@ -147,7 +158,7 @@ class ReviewQueueDatabaseTest extends TestCase
     {
         $service = ReviewQueueFactory::create();
         $submitted = $service->submit(
-            new ReviewSubmission(self::PID, ReviewType::Document, 'Uploaded document', ['name' => 'a.pdf'], ReviewSource::Api, 'review-test-client'),
+            new ReviewSubmission(self::PID, ReviewType::Document, 'Uploaded document', ['name' => 'a.pdf'], ReviewSource::Api, 'review-test-client', 'onsite_documents', '41'),
             $this->patient()
         );
 
@@ -180,6 +191,54 @@ class ReviewQueueDatabaseTest extends TestCase
             $service->openFor(self::PID, ReviewType::FhirWrite, new FhirResourceType('Condition'))?->id
         );
         $this->assertNull($service->openFor(self::PID, ReviewType::Profile));
+    }
+
+    public function testLockTargetHoldsAnExistingTargetRow(): void
+    {
+        $repository = new ReviewRequestRepository(new ReviewRequestMapper());
+        $documentId = (string) $this->insertDocument();
+        $repository->transactional(static function () use ($repository, $documentId): bool {
+            $repository->lockTarget('onsite_documents', $documentId);
+            return true;
+        });
+        $this->addToAssertionCount(1); // an existing row of a known target locks without error
+    }
+
+    public function testLockTargetRefusesATableItCannotLock(): void
+    {
+        $repository = new ReviewRequestRepository(new ReviewRequestMapper());
+
+        $this->expectException(\DomainException::class);
+        $repository->lockTarget('patient_data', '1');
+    }
+
+    public function testSubmitUnlessOpenCreatesNothingForAMissingTargetRow(): void
+    {
+        $service = ReviewQueueFactory::create();
+        $documentId = (string) $this->insertDocument();
+        // The document is deleted after the caller checked it, before the request is created.
+        QueryUtils::sqlStatementThrowException('DELETE FROM `onsite_documents` WHERE `id` = ?', [$documentId]);
+        $submission = new ReviewSubmission(
+            self::PID,
+            ReviewType::Document,
+            'Consent',
+            ['doc_type' => 'Consent'],
+            targetTable: 'onsite_documents',
+            targetId: $documentId,
+        );
+
+        try {
+            $service->submitUnlessOpen($submission, $this->patient());
+            $this->fail('A request for a missing target row must be refused');
+        } catch (\RuntimeException) {
+            // expected
+        }
+        $created = QueryUtils::fetchSingleValue(
+            'SELECT COUNT(*) AS c FROM `patient_review_request` WHERE `pid` = ?',
+            'c',
+            [self::PID]
+        );
+        $this->assertSame(0, is_numeric($created) ? (int) $created : -1, 'No request may be left for a missing target row');
     }
 
     public function testReplacePendingCancelsTheEarlierRequest(): void

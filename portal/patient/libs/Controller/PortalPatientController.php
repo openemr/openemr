@@ -12,6 +12,9 @@
 
 use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
 /**
  * PatientController is the controller class for the Patient object.
@@ -114,9 +117,8 @@ class PortalPatientController extends AppBasePortalController
                 throw new Exception('Not found');
             }
             PortalPatientAccessGuard::assertCanRead($patient->Pid);
-            $appsql = new ApplicationTable();
-            $edata = $appsql->getPortalAudit($patient->Pid, 'review');
-            $changed = !empty($edata['table_args']) ? unserialize($edata['table_args'], ['allowed_classes' => false]) : [];
+            $pending = ReviewQueueFactory::portalWorkflows()->pendingProfileChange($patient->Pid);
+            $changed = $pending->payload ?? [];
             $newv = [];
             foreach ($changed as $key => $val) {
                 $newv[lcfirst(ucwords((string) preg_replace_callback("/(\_(.))/", fn($match): string => strtoupper($match[2]), strtolower((string) $key))))] = $val;
@@ -231,41 +233,18 @@ class PortalPatientController extends AppBasePortalController
             $this->RenderExceptionJSON($ex);
         }
     }
-    public function SaveAudit($p)
+    /**
+     * Holds the patient's edit for staff review. A second edit before review replaces the first.
+     */
+    public function SaveAudit(Patient $p): void
     {
-        $appsql = new ApplicationTable();
-        $ja = $p->GetArray();
-        $ja['note'] = $p->Note;
-        try {
-            $audit =  [];
-            // date("Y-m-d H:i:s");
-            $audit['patient_id'] = $ja['pid'];
-            $audit['activity'] = "profile";
-            $audit['require_audit'] = "1";
-            $audit['pending_action'] = "review";
-            $audit['action_taken'] = "";
-            $audit['status'] = "waiting";
-            $audit['narrative'] = "Patient request changes to demographics.";
-            $audit['table_action'] = "";
-            $audit['table_args'] = $ja; // edited record
-            $audit['action_user'] = "0";
-            $audit['action_taken_time'] = "";
-            $audit['checksum'] = "0";
-
-            // returns false for new audit
-            $edata = $appsql->getPortalAudit($ja['pid'], 'review');
-            if ($edata) {
-                if (empty($edata['id'])) {
-                    throw new Exception("Invalid ID on Save!");
-                }
-                $audit['date'] = $edata['date'] ?? null;
-                $appsql->portalAudit('update', $edata['id'], $audit);
-            } else {
-                $appsql->portalAudit('insert', '', $audit);
-            }
-        } catch (\Throwable $ex) {
-            $this->RenderExceptionJSON($ex);
-        }
+        $changes = $p->GetArray();
+        $changes['note'] = $p->Note;
+        ReviewQueueFactory::portalWorkflows()->submitProfileChange(
+            $p->Pid,
+            $changes,
+            SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession()),
+        );
     }
     /**
      * API Method deletes an existing Patient record and render response as JSON
