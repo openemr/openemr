@@ -29,27 +29,35 @@ use OpenEMR\Billing\StatementEnvelope;
 use OpenEMR\Core\OEGlobalsBag;
 
 /**
- * This copy of the statement template draws envelope windows.
- * A site that kept an older statement.inc.php does not define this,
+ * Opt-in for this copy of the statement template.
+ *
+ * A site that kept an older statement.inc.php does not define this class,
  * and the PDF margins stay at the stock values.
  */
-function statement_supports_envelope_windows(): bool
+final class StatementSiteTemplate
 {
-    return true;
-}
+    private static int $sheetsOpened = 0;
 
-/**
- * Open one windowed sheet. The first sheet in a batch stays on page one.
- * Each later sheet starts a new page, so a following statement is not
- * left off the PDF and the batch does not end on a blank page.
- */
-function statement_window_sheet_open(StatementEnvelope $env): string
-{
-    static $opened = 0;
-    $opened++;
-    $css = $opened === 1 ? $env->windowCss() : '';
-    $break = $opened > 1 ? ' style="page-break-before:always;"' : '';
-    return $css . '<div class="stmt-env-sheet"' . $break . '>';
+    /**
+     * This copy of the statement template draws envelope windows.
+     */
+    public static function supportsEnvelopeWindows(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Open one windowed sheet. The first sheet in a batch stays on page one.
+     * Each later sheet starts a new page, so a following statement is not
+     * left off the PDF and the batch does not end on a blank page.
+     */
+    public static function openWindowSheet(StatementEnvelope $env): string
+    {
+        self::$sheetsOpened++;
+        $css = self::$sheetsOpened === 1 ? $env->windowCss() : '';
+        $break = self::$sheetsOpened > 1 ? ' style="page-break-before:always;"' : '';
+        return $css . '<div class="stmt-env-sheet"' . $break . '>';
+    }
 }
 
 // The location/name of a temporary file to hold printable statements.
@@ -189,7 +197,7 @@ function create_HTML_statement($stmt)
         "ORDER BY id DESC LIMIT 1", [$stmt['pid'],$stmt['encounter']]);
     $providerID = $find_provider['provider_id'] ?? '';
     if ($windowed) {
-        echo statement_window_sheet_open($env);
+        echo StatementSiteTemplate::openWindowSheet($env);
         echo $env->windowHtml($remit_name, $remit_addr, $remit_csz, [
             StatementEnvelope::stmtToLine($stmt, 0),
             StatementEnvelope::stmtToLine($stmt, 1),
