@@ -698,9 +698,11 @@ class ReferralTaskService
      * of the referral none of which the reply completed. A recipient with none at all (one FHIR
      * doesn't serve, or a reply recorded while the global was off) is logged at info.
      *
-     * It isn't retried: the Reply Date is already deleted, so later forms show none. When nothing
-     * is undone, the log names the transaction; re-entering the Reply Date and clearing it again
-     * undoes it.
+     * It isn't retried: the Reply Date is already deleted, so later forms show none. When an undo
+     * is skipped (each case above, the lock missed, a failure, or the Task changing on every pass),
+     * the log names the transaction; re-entering the Reply Date and clearing it again undoes it. A
+     * recipient's change that lands between the read and the write stands, as their answer, and
+     * isn't logged.
      *
      * @param ?int $referToLoaded the Refer To the form showed (a users.id), or null when it showed none
      */

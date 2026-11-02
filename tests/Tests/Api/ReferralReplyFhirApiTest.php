@@ -613,6 +613,74 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A reply cleared by mistake and then recorded again: the undone Task stays entered-in-error,
+     * and the reply completes the recipient's new Task, with the reply already filed as its output.
+     */
+    public function testAReplyRecordedAgainAfterBeingClearedCompletesTheNewTask(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+        $firstUuid = $this->onlyTask($id)['id'] ?? null;
+        $this->assertIsString($firstUuid);
+        $filed = self::at($this->read('Task', $firstUuid), 'output', 0, 'valueReference', 'reference');
+        $this->assertIsString($filed);
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$id]);
+        $this->saveFromForm($id, '2026-10-18', 'pantry');
+
+        $this->saveFields($id, ['reply_date' => '2026-10-18']);
+        $this->afterSave($id);
+
+        $this->assertSame('entered-in-error', $this->read('Task', $firstUuid)['status'] ?? null);
+        $second = array_values(array_filter($this->tasksOf($id), static fn(array $task): bool => ($task['id'] ?? null) !== $firstUuid));
+        $this->assertCount(1, $second);
+        $this->assertSame('completed', $second[0]['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REASON_REPLY_RECORDED, self::at($second[0], 'statusReason', 'text'));
+        $this->assertSame($filed, self::at($second[0], 'output', 0, 'valueReference', 'reference'), 'the reply already filed');
+        $this->assertCount(1, $this->replyDocuments($id));
+        $this->assertSame('completed', $this->taskStatus($id));
+    }
+
+    /**
+     * An undo that's skipped (here the save's Task step doesn't get the referral's lock) isn't
+     * retried, since the Reply Date is already deleted: the Task stays completed by the reply.
+     * Entering the Reply Date again leaves that Task as it is, and clearing it again from a form
+     * that shows it undoes it.
+     */
+    public function testASkippedUndoIsMadeUpByEnteringTheReplyDateAgainAndClearingIt(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+        $this->afterSave($id);
+        $taskUuid = $this->onlyTask($id)['id'] ?? null;
+        $this->assertIsString($taskUuid);
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$id]);
+        $lockMissed = new class (new UserService()) extends ReferralTaskService {
+            // As createForReferral() returns when the lock isn't acquired: before it undoes anything.
+            public function createForReferral(int $transactionId, ?int $userId, ?ReferralFormLoaded $loaded = null): ?string
+            {
+                return null;
+            }
+        };
+        $lockMissed->createForSavedTransaction('LBTref', $id, null, new ReferralFormLoaded(true, $this->people['pantry']['id']));
+        $this->assertSame('completed', $this->read('Task', $taskUuid)['status'] ?? null, 'not undone');
+
+        $this->saveFields($id, ['reply_date' => '2026-10-18']);
+        $this->afterSave($id);
+        $this->assertSame('completed', $this->read('Task', $taskUuid)['status'] ?? null, 'entered again, it changes nothing');
+        $this->assertCount(1, $this->tasksOf($id));
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$id]);
+        $this->saveFromForm($id, '2026-10-18', 'pantry');
+
+        $undone = $this->read('Task', $taskUuid);
+        $this->assertSame('entered-in-error', $undone['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REASON_REPLY_CLEARED, self::at($undone, 'statusReason', 'text'));
+        $this->assertCount(2, $this->tasksOf($id), 'and one new Task');
+    }
+
+    /**
      * A save that records no reply (no Reply Date) settles that with one read: it takes no lock and
      * reads no more of the referral.
      */
