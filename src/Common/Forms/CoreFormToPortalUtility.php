@@ -57,7 +57,7 @@ class CoreFormToPortalUtility
     }
 
     /**
-     * The patient of the portal questionnaire document that holds this questionnaire form, if any.
+     * The portal questionnaire document's form, with its patient and encounter, if a document holds it.
      *
      * Staff open a portal document's questionnaire from the Portal Dashboard to audit it, often
      * with no chart (or another patient's chart) open, so the session-patient check would refuse
@@ -66,13 +66,13 @@ class CoreFormToPortalUtility
      * (onsite_documents.file_path holds its id) says so: only a {Questionnaire:...} directive
      * embeds a questionnaire_assessments form. The form must also be live and of the same patient.
      */
-    public static function questionnaireDocumentPatient(int $formId): ?int
+    public static function questionnaireDocumentForm(int $formId): ?QuestionnaireDocumentForm
     {
         if ($formId <= 0) {
             return null;
         }
         $row = QueryUtils::querySingleRow(
-            'SELECT od.pid FROM `onsite_documents` AS od'
+            'SELECT od.pid, f.encounter FROM `onsite_documents` AS od'
             . ' JOIN `document_templates` AS dt ON dt.id = od.file_path'
             . " AND dt.template_content LIKE '%{Questionnaire:%'"
             . " JOIN `forms` AS f ON f.form_id = od.encounter AND f.formdir = 'questionnaire_assessments'"
@@ -80,8 +80,16 @@ class CoreFormToPortalUtility
             . ' WHERE od.encounter = ? LIMIT 1',
             [$formId]
         );
-        $pid = is_array($row) ? ($row['pid'] ?? null) : null;
-        return is_numeric($pid) && (int) $pid > 0 ? (int) $pid : null;
+        if (!is_array($row)) {
+            return null;
+        }
+        $pid = $row['pid'] ?? null;
+        $encounter = $row['encounter'] ?? null;
+        if (!is_numeric($pid) || (int) $pid <= 0) {
+            return null;
+        }
+        $encounter = is_numeric($encounter) && (int) $encounter > 0 ? (int) $encounter : 0;
+        return new QuestionnaireDocumentForm((int) $pid, $encounter);
     }
 
     /**

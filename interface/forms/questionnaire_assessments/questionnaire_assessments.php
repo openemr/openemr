@@ -125,9 +125,9 @@ try {
         );
 
         // Staff auditing a portal document from the Portal Dashboard may have no chart open;
-        // the form is reachable there only as the document's own (see questionnaireDocumentPatient()).
+        // the form is reachable there only as the document's own (see questionnaireDocumentForm()).
         if (!$isPortal && $patientPortalOther) {
-            $auditPid = CoreFormToPortalUtility::questionnaireDocumentPatient($formid);
+            $auditPid = CoreFormToPortalUtility::questionnaireDocumentForm($formid)?->pid;
         }
         if (!$isPortal && $auditPid === null) {
             EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'questionnaire_assessments');

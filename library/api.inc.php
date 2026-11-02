@@ -72,10 +72,14 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
 }
 
 
-function formUpdate($tableName, $values, $id, $authorized = "0")
+/**
+ * @param ?int $pid The form row's patient; null for the session patient. A caller passes one
+ *                  only after verifying the form belongs to it (a staff portal-document audit).
+ */
+function formUpdate($tableName, $values, $id, $authorized = "0", ?int $pid = null)
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    $sqlBindingArray = [$session->get('pid'), $session->get('authProvider'), $session->get('authUser'), $authorized];
+    $sqlBindingArray = [$pid ?? $session->get('pid'), $session->get('authProvider'), $session->get('authUser'), $authorized];
     $sql = "update " . escape_table_name($tableName) . " set pid =?, groupname=?, user=? ,authorized=?, activity=1, date = NOW(),";
     foreach ($values as $key => $value) {
         if ($key == "csrf_token_form") {

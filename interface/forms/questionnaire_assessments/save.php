@@ -11,6 +11,8 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Forms\FormQuestionnaireAssessment;
@@ -81,10 +83,20 @@ if ($isPortal && $mode === 'update' && $formid > 0) {
 if (($_REQUEST['formOrigin'] ?? null) == 2) {
     $encounter = 0;
 }
+// Staff save under the same form ACL the questionnaire page checks.
+if (!$isPortal && !AclMain::aclCheckForm('questionnaire_assessments')) {
+    AccessDeniedHelper::deny('questionnaire_assessments/save.php: questionnaire_assessments form ACL not granted');
+}
 // Staff saving a portal document's questionnaire while auditing it from the Portal Dashboard:
-// the response belongs to the document's patient, not to whichever chart is open (if any).
+// the response and the form row belong to the document's patient and the form's own encounter,
+// not to whichever chart and encounter are open (if any). The session is left as it is.
+$auditForm = null;
 if (!$isPortal && $patientPortalOther && $mode === 'update' && $formid > 0) {
-    $pid = CoreFormToPortalUtility::questionnaireDocumentPatient($formid) ?? $pid;
+    $auditForm = CoreFormToPortalUtility::questionnaireDocumentForm($formid);
+}
+if ($auditForm !== null) {
+    $pid = $auditForm->pid;
+    $encounter = $auditForm->encounter;
 }
 
 if ($mode !== 'new' && !$isRegistering) {
@@ -232,7 +244,7 @@ if ($formid === 0) {
     unset($formUpdateData['select_item'], $formUpdateData['save_registry']);
     $formUpdateData['response_id'] = $qrid;
     $formUpdateData['response_meta'] = $responseMeta;
-    formUpdate('form_questionnaire_assessments', $formUpdateData, $formid, $userauthorized);
+    formUpdate('form_questionnaire_assessments', $formUpdateData, $formid, $userauthorized, $auditForm?->pid);
 }
 
 if ($isPortal || $patientPortalOther) {

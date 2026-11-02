@@ -1,8 +1,8 @@
 <?php
 
 /**
- * CoreFormToPortalUtility::questionnaireDocumentPatient() against the database: a questionnaire
- * form has a document patient only when a questionnaire document of that patient holds it.
+ * CoreFormToPortalUtility::questionnaireDocumentForm() against the database: a questionnaire form
+ * is a document's only when a questionnaire document of the form's own patient holds it.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -37,19 +37,21 @@ class CoreFormToPortalUtilityPortalDocumentFormTest extends TestCase
         $this->cleanUp();
     }
 
-    public function testTheFormOfThePatientsOwnQuestionnaireDocumentHasThatPatient(): void
+    public function testTheFormOfThePatientsOwnQuestionnaireDocumentHasThatPatientAndItsEncounter(): void
     {
-        $this->insertForm(self::PID);
+        $this->insertForm(self::PID, encounter: 77);
         $this->insertDocument(self::PID, $this->insertTemplate('{Questionnaire:PHQ-9}'));
 
-        $this->assertSame(self::PID, CoreFormToPortalUtility::questionnaireDocumentPatient(self::FORM_ID));
+        $form = CoreFormToPortalUtility::questionnaireDocumentForm(self::FORM_ID);
+        $this->assertNotNull($form);
+        $this->assertSame([self::PID, 77], [$form->pid, $form->encounter]);
     }
 
     public function testAFormWithNoDocumentHasNone(): void
     {
         $this->insertForm(self::PID);
 
-        $this->assertNull(CoreFormToPortalUtility::questionnaireDocumentPatient(self::FORM_ID));
+        $this->assertNull(CoreFormToPortalUtility::questionnaireDocumentForm(self::FORM_ID));
     }
 
     public function testAFormHeldByAnotherPatientsDocumentHasNone(): void
@@ -57,7 +59,7 @@ class CoreFormToPortalUtilityPortalDocumentFormTest extends TestCase
         $this->insertForm(self::PID);
         $this->insertDocument(self::OTHER_PID, $this->insertTemplate('{Questionnaire:PHQ-9}'));
 
-        $this->assertNull(CoreFormToPortalUtility::questionnaireDocumentPatient(self::FORM_ID));
+        $this->assertNull(CoreFormToPortalUtility::questionnaireDocumentForm(self::FORM_ID));
     }
 
     public function testTheSameIdHeldByADocumentEmbeddingAnotherFormHasNone(): void
@@ -66,7 +68,7 @@ class CoreFormToPortalUtilityPortalDocumentFormTest extends TestCase
         $this->insertForm(self::PID);
         $this->insertDocument(self::PID, $this->insertTemplate('{EncounterDocument:LBFtest}'));
 
-        $this->assertNull(CoreFormToPortalUtility::questionnaireDocumentPatient(self::FORM_ID));
+        $this->assertNull(CoreFormToPortalUtility::questionnaireDocumentForm(self::FORM_ID));
     }
 
     public function testADeletedFormHasNone(): void
@@ -74,16 +76,16 @@ class CoreFormToPortalUtilityPortalDocumentFormTest extends TestCase
         $this->insertForm(self::PID, deleted: 1);
         $this->insertDocument(self::PID, $this->insertTemplate('{Questionnaire:PHQ-9}'));
 
-        $this->assertNull(CoreFormToPortalUtility::questionnaireDocumentPatient(self::FORM_ID));
+        $this->assertNull(CoreFormToPortalUtility::questionnaireDocumentForm(self::FORM_ID));
     }
 
-    private function insertForm(int $pid, int $deleted = 0): void
+    private function insertForm(int $pid, int $deleted = 0, int $encounter = 0): void
     {
         QueryUtils::sqlInsert(
             'INSERT INTO `forms` (`date`, `encounter`, `form_name`, `form_id`, `pid`, `user`, `groupname`,'
             . " `authorized`, `deleted`, `formdir`, `issue_id`, `provider_id`)"
-            . " VALUES (NOW(), 0, ?, ?, ?, '', '', 0, ?, 'questionnaire_assessments', 0, 0)",
-            [self::MARKER, self::FORM_ID, $pid, $deleted]
+            . " VALUES (NOW(), ?, ?, ?, ?, '', '', 0, ?, 'questionnaire_assessments', 0, 0)",
+            [$encounter, self::MARKER, self::FORM_ID, $pid, $deleted]
         );
     }
 
