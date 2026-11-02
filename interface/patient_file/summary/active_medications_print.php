@@ -14,12 +14,14 @@ declare(strict_types=1);
 
 require_once("../../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ActiveMedicationListService;
+use OpenEMR\Services\ActiveMedicationSectionView;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = ActiveMedicationListService::printPatientId(
@@ -67,8 +69,9 @@ $formatMedDate = static fn (?string $d): string => ActiveMedicationListService::
     <?php echo ' ' . xlt('for') . ' ' . text($ptname); ?></p>
 
 <?php
-echo ActiveMedicationListService::sectionHtml('Active', $active, xl(...), 'text', $formatMedDate, 'table table-bordered table-sm');
-echo ActiveMedicationListService::sectionHtml('Inactive', $inactive, xl(...), 'text', $formatMedDate, 'table table-bordered table-sm');
+$medSection = new ActiveMedicationSectionView(ServiceContainer::getTwig());
+echo $medSection->render('Active', $active, xl(...), $formatMedDate, 'table table-bordered table-sm');
+echo $medSection->render('Inactive', $inactive, xl(...), $formatMedDate, 'table table-bordered table-sm');
 ?>
 
 <script>

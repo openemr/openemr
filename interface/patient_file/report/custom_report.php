@@ -32,6 +32,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/cont
 use ESign\Api;
 use Mpdf\Mpdf;
 use Mpdf\MpdfException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormReportRenderer;
@@ -41,6 +42,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\ActiveMedicationListService;
+use OpenEMR\Services\ActiveMedicationSectionView;
 use OpenEMR\Services\FacilityService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -453,19 +455,18 @@ function getContent()
                                 $d,
                                 static fn (string $raw) => oeFormatShortDate($raw)
                             );
-                            echo ActiveMedicationListService::sectionHtml(
+                            $medSection = new ActiveMedicationSectionView(ServiceContainer::getTwig());
+                            echo $medSection->render(
                                 'Active',
                                 $activeMeds,
                                 xl(...),
-                                'text',
                                 $medDate,
                                 'table table-sm'
                             );
-                            echo ActiveMedicationListService::sectionHtml(
+                            echo $medSection->render(
                                 'Inactive',
                                 $inactiveMeds,
                                 xl(...),
-                                'text',
                                 $medDate,
                                 'table table-sm'
                             );
