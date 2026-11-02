@@ -34,6 +34,9 @@ final readonly class PortalActivityMigrator
 {
     private const DATETIME_FORMAT = 'Y-m-d H:i:s';
 
+    /** Legacy rows read per query. */
+    private const BATCH_SIZE = 500;
+
     public function __construct(
         private LegacyActivityMapping $mapping,
         private ClockInterface $clock,
@@ -159,15 +162,32 @@ final readonly class PortalActivityMigrator
     }
 
     /**
-     * @return list<array<mixed>>
+     * The legacy rows not yet copied, read in id order a batch at a time so a large table is
+     * never held in memory at once. Paging is by the last id seen, not an offset: rows copied
+     * during the walk drop out of the query, and skipped or failed rows stay behind the cursor.
+     *
+     * @return \Generator<int, array<mixed>>
      */
-    private function unmigratedRows(): array
+    private function unmigratedRows(): \Generator
     {
-        return QueryUtils::fetchRecords(
-            'SELECT `a`.* FROM `onsite_portal_activity` AS `a`'
-            . ' WHERE NOT EXISTS (SELECT 1 FROM `patient_review_request` AS `r` WHERE `r`.`legacy_activity_id` = `a`.`id`)'
-            . ' ORDER BY `a`.`id` ASC'
-        );
+        $afterId = 0;
+        do {
+            $batch = QueryUtils::fetchRecords(
+                'SELECT `a`.* FROM `onsite_portal_activity` AS `a`'
+                . ' WHERE `a`.`id` > ?'
+                . ' AND NOT EXISTS (SELECT 1 FROM `patient_review_request` AS `r` WHERE `r`.`legacy_activity_id` = `a`.`id`)'
+                . ' ORDER BY `a`.`id` ASC LIMIT ' . self::BATCH_SIZE,
+                [$afterId]
+            );
+            foreach ($batch as $row) {
+                $id = $row['id'] ?? null;
+                if (!is_numeric($id)) {
+                    return;
+                }
+                $afterId = intval($id);
+                yield $row;
+            }
+        } while (count($batch) === self::BATCH_SIZE);
     }
 
     private function tablesExist(): bool
