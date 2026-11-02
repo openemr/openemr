@@ -19,7 +19,11 @@ if (!defined('OPENEMR_STATIC_ANALYSIS')) {
 }
 
 use OpenEMR\Services\ActiveMedicationListService;
+use OpenEMR\Services\ActiveMedicationSectionView;
 use PHPUnit\Framework\TestCase;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
+use Twig\TwigFilter;
 
 final class ActiveMedicationListServiceTest extends TestCase
 {
@@ -378,15 +382,23 @@ final class ActiveMedicationListServiceTest extends TestCase
      */
     public function testSectionHtmlCoversEmptyAndFilledLists(): void
     {
+        $twig = new Environment(
+            new FilesystemLoader(dirname(__DIR__, 4) . '/templates'),
+            ['autoescape' => false]
+        );
+        $twig->addFilter(new TwigFilter(
+            'text',
+            static fn (?string $value): string => htmlspecialchars($value ?? '', ENT_NOQUOTES)
+        ));
         $translate = static fn (string $s): string => $s;
-        $escape = static fn (string $s): string => htmlspecialchars($s, ENT_QUOTES);
         $dates = static fn (?string $d): string => $d ?? '';
-        $empty = ActiveMedicationListService::sectionHtml('Active', [], $translate, $escape, $dates, 'table');
+        $view = new ActiveMedicationSectionView($twig);
+        $empty = $view->render('Active', [], $translate, $dates, 'table');
         $this->assertStringContainsString('>Active<', $empty);
         $this->assertStringContainsString('None{{Issues}}', $empty);
         $this->assertStringNotContainsString('<table', $empty);
 
-        $filled = ActiveMedicationListService::sectionHtml(
+        $filled = $view->render(
             'Inactive',
             [[
                 'title' => 'A < B',
@@ -396,7 +408,6 @@ final class ActiveMedicationListServiceTest extends TestCase
                 'comments' => 'note',
             ]],
             $translate,
-            $escape,
             $dates,
             'table table-sm'
         );
