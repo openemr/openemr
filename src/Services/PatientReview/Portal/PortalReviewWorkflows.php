@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services\PatientReview\Portal;
 
 use OpenEMR\Services\PatientReview\ReviewActor;
+use OpenEMR\Services\PatientReview\ReviewActorType;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
 use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewSubmission;
@@ -80,6 +81,7 @@ final readonly class PortalReviewWorkflows
      */
     public function completeProfileChange(int $pid, ReviewActor $staff): ?ReviewRequest
     {
+        self::assertStaff($staff);
         $open = $this->pendingProfileChange($pid);
 
         return $open === null ? null : $this->queue->complete($open->id, $staff, self::NOTE_PROFILE_ACCEPTED);
@@ -160,6 +162,7 @@ final readonly class PortalReviewWorkflows
      */
     public function completePayment(int $pid, ReviewActor $staff): ?ReviewRequest
     {
+        self::assertStaff($staff);
         $open = $this->pendingPayment($pid);
 
         return $open === null ? null : $this->queue->complete($open->id, $staff, self::NOTE_PAYMENT_POSTED);
@@ -173,6 +176,7 @@ final readonly class PortalReviewWorkflows
      */
     public function completePaymentRequest(int $id, int $pid, ReviewActor $staff): ?ReviewRequest
     {
+        self::assertStaff($staff);
         $payment = $this->payment($id, $pid);
         if ($payment === null || !$payment->status->isOpen()) {
             return null;
@@ -189,6 +193,7 @@ final readonly class PortalReviewWorkflows
      */
     public function requestInvoicePayment(int $pid, array $encounters, ReviewActor $staff): ReviewRequest
     {
+        self::assertStaff($staff);
         return $this->queue->replacePending(
             new ReviewSubmission($pid, ReviewType::Invoice, self::SUMMARY_INVOICE, [self::INVOICE_ENCOUNTERS => $encounters]),
             $staff,
@@ -244,6 +249,7 @@ final readonly class PortalReviewWorkflows
      */
     public function completeDocument(int $pid, int $documentId, ReviewActor $staff): ?ReviewRequest
     {
+        self::assertStaff($staff);
         $open = $this->pendingDocument($pid, $documentId);
 
         return $open === null ? null : $this->queue->complete($open->id, $staff, null);
@@ -272,5 +278,18 @@ final readonly class PortalReviewWorkflows
             'audits' => $this->queue->countPending(),
             'payments' => $this->queue->countPending(ReviewType::Payment),
         ];
+    }
+
+    /**
+     * Closing a review, or asking a patient to pay, is a staff decision. A portal session that
+     * reaches one of these (a forged document status, say) is refused.
+     *
+     * @throws \DomainException when the actor is not a staff user
+     */
+    private static function assertStaff(ReviewActor $actor): void
+    {
+        if ($actor->type !== ReviewActorType::User) {
+            throw new \DomainException('Only staff can take this review action');
+        }
     }
 }

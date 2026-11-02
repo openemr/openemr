@@ -199,6 +199,30 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         $this->assertNull($this->workflows->pendingDocument(self::PID, 11));
     }
 
+    public function testAPatientCannotCloseTheirOwnDocumentReview(): void
+    {
+        $submitted = $this->workflows->submitDocument(self::PID, 11, 'Consent', $this->patient());
+
+        $this->expectException(\DomainException::class);
+        try {
+            $this->workflows->completeDocument(self::PID, 11, $this->patient());
+        } finally {
+            $this->assertSame(ReviewStatus::Pending, $this->queue->get($submitted->id)->status);
+        }
+    }
+
+    public function testAPatientCannotAcceptTheirOwnProfileChange(): void
+    {
+        $submitted = $this->workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $this->patient());
+
+        $this->expectException(\DomainException::class);
+        try {
+            $this->workflows->completeProfileChange(self::PID, $this->patient());
+        } finally {
+            $this->assertSame(ReviewStatus::Pending, $this->queue->get($submitted->id)->status);
+        }
+    }
+
     public function testAlertCountsIncludePaymentsInAudits(): void
     {
         $this->workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $this->patient());
