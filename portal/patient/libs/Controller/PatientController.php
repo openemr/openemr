@@ -10,10 +10,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use Doctrine\DBAL\Exception as DbalException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
 /**
  * PatientController is the controller class for the Patient object.
@@ -400,38 +404,29 @@ class PatientController extends AppBasePortalController
             $this->RenderExceptionJSON($ex);
         }
     }
-    public function CloseAudit($p)
+    /**
+     * Closes the patient's pending profile edit once staff have committed it to the chart.
+     */
+    public function CloseAudit(Patient $p): void
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $appsql = new ApplicationTable();
-        $ja = $p->GetArray();
+        // Only staff accept a profile change; a patient saving their own record leaves it in review.
+        if ($session->has('patient_portal_onsite_two')) {
+            return;
+        }
+        // The demographics are already saved. If the request cannot be closed (a concurrent close,
+        // say), it stays open for staff to clear; failing here would report the save as failed
+        // and invite a second save.
         try {
-            $audit =  [];
-            $audit['patient_id'] = $ja['pid'];
-            $audit['activity'] = "profile";
-            $audit['require_audit'] = "1";
-            $audit['pending_action'] = "completed";
-            $audit['action_taken'] = "accept";
-            $audit['status'] = "closed";
-            $audit['narrative'] = "Changes reviewed and committed to demographics.";
-            $audit['table_action'] = "update";
-            $audit['table_args'] = $ja;
-            $audit['action_user'] = $session->get('authUserID', "0");
-            $audit['action_taken_time'] = date("Y-m-d H:i:s");
-            $audit['checksum'] = "0";
-            // returns false for new audit
-            $edata = $appsql->getPortalAudit($ja['pid'], 'review');
-            if ($edata) {
-                if (empty($edata['id'])) {
-                    throw new Exception("Invalid ID on Save!");
-                }
-                $audit['date'] = $edata['date'] ?? null;
-                $appsql->portalAudit('update', $edata['id'], $audit);
-            }
-        } catch (\Throwable $ex) {
-            $this->RenderExceptionJSON($ex);
+            ReviewQueueFactory::portalWorkflows()->completeProfileChange($p->Pid, SessionReviewActor::staff($session));
+        } catch (\RuntimeException | \LogicException | DbalException $e) {
+            ServiceContainer::getLogger()->error('Could not close the profile review request after saving', [
+                'pid' => $p->Pid,
+                'exception' => $e,
+            ]);
         }
     }
+
     /**
      * API Method deletes an existing Patient record and render response as JSON
      */

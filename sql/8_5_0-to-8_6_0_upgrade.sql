@@ -271,3 +271,16 @@ CREATE TABLE `patient_review_secret` (
   UNIQUE KEY `request_kind` (`request_id`,`kind`)
 ) ENGINE=InnoDB COMMENT='Sensitive data held only while a patient_review_request is open';
 #EndIf
+
+-- Copy the patient portal's review workflow out of onsite_portal_activity into the review queue.
+-- legacy_activity_id records which legacy row each request came from, so the copy runs once
+-- per row however often the upgrade is run. onsite_portal_activity itself is left in place and
+-- dropped in a later release.
+#IfMissingColumn patient_review_request legacy_activity_id
+ALTER TABLE `patient_review_request`
+  ADD COLUMN `legacy_activity_id` bigint(20) DEFAULT NULL COMMENT 'onsite_portal_activity.id this request was migrated from',
+  ADD UNIQUE KEY `legacy_activity_id` (`legacy_activity_id`);
+#EndIf
+
+#IfPatientReviewMigrationNeeded
+#EndIf

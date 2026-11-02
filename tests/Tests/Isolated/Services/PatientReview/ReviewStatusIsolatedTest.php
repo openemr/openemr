@@ -113,6 +113,13 @@ class ReviewStatusIsolatedTest extends TestCase
         }
     }
 
+    public function testOnlyADocumentIsKeyedByItsTarget(): void
+    {
+        foreach (ReviewType::cases() as $type) {
+            $this->assertSame($type === ReviewType::Document, $type->isKeyedByTarget());
+        }
+    }
+
     public function testOnlyAFhirWriteNamesAResourceType(): void
     {
         foreach (ReviewType::cases() as $type) {
