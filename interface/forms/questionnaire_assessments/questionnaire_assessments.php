@@ -131,7 +131,11 @@ try {
             $nonNegativeInt($session->get('pid', 0)) ?? 0
         );
 
-        if (!$isPortal) {
+        // Staff auditing a portal document from the Portal Dashboard may have no chart open;
+        // the form is reachable there only as the document's own (see isPortalDocumentForm()).
+        $isStaffPortalAudit = $patientPortalOther
+            && CoreFormToPortalUtility::isPortalDocumentForm($formid, 'questionnaire_assessments');
+        if (!$isPortal && !$isStaffPortalAudit) {
             EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'questionnaire_assessments');
         }
 

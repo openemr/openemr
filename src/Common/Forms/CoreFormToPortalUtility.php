@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Common\Forms;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
@@ -53,6 +54,28 @@ class CoreFormToPortalUtility
         } else {
             return false;
         }
+    }
+
+    /**
+     * Is this form the one a portal document holds, for that document's own patient?
+     *
+     * A portal document keeps its embedded form's id in onsite_documents.encounter. Staff open
+     * the form from the Portal Dashboard to audit the document, often with no chart (or another
+     * patient's chart) open, so the session-patient check would refuse it; LBF/new.php lets
+     * these through the same way.
+     */
+    public static function isPortalDocumentForm(int $formId, string $formDir): bool
+    {
+        if ($formId <= 0 || $formDir === '') {
+            return false;
+        }
+        $row = QueryUtils::querySingleRow(
+            'SELECT od.id FROM `onsite_documents` AS od'
+            . ' JOIN `forms` AS f ON f.form_id = od.encounter AND f.formdir = ? AND f.pid = od.pid'
+            . ' WHERE od.encounter = ? LIMIT 1',
+            [$formDir, $formId]
+        );
+        return is_array($row) && $row !== [];
     }
 
     /**
