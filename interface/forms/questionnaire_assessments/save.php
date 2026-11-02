@@ -81,6 +81,11 @@ if ($isPortal && $mode === 'update' && $formid > 0) {
 if (($_REQUEST['formOrigin'] ?? null) == 2) {
     $encounter = 0;
 }
+// Staff saving a portal document's questionnaire while auditing it from the Portal Dashboard:
+// the response belongs to the document's patient, not to whichever chart is open (if any).
+if (!$isPortal && $patientPortalOther && $mode === 'update' && $formid > 0) {
+    $pid = CoreFormToPortalUtility::questionnaireDocumentPatient($formid) ?? $pid;
+}
 
 if ($mode !== 'new' && !$isRegistering) {
     $responseService = new QuestionnaireResponseService();

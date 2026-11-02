@@ -83,26 +83,19 @@ if ($isModule || $isPortal) {
     $questionnaireForm = $_GET['formname'] ?? $questionnaireForm;
 }
 
-// Questionnaires are database registry rows, not filesystem form directories. An
-// authenticated portal session authorizes the patient through the portal mechanism
+// An authenticated portal session authorizes the patient through the portal mechanism
 // ($ignoreAuth_onsite_portal), so the staff encounter-form ACL is applied only on the
-// staff/EHR path. On that path formname may still carry a specific questionnaire id
-// (dashboard launch), so resolve it to a real registry directory and fall back to
-// questionnaire_assessments; passing a numeric id straight to aclCheckForm() would look up a
-// non-existent directory and dereference the resulting false.
-if (!$isPortal) {
-    $formNameParam = $scalarString($_GET['formname'] ?? null, 'questionnaire_assessments');
-    $formDirectory = (getRegistryEntryByDirectory($formNameParam, 'directory') !== false)
-        ? $formNameParam
-        : 'questionnaire_assessments';
-    if (!AclMain::aclCheckForm($formDirectory)) {
-        $registryEntry = getRegistryEntryByDirectory($formDirectory, 'name');
-        $registryName = is_array($registryEntry) ? ($registryEntry['name'] ?? '') : '';
-        $formLabel = xl_form_title($registryName);
-        $formLabel = $formLabel !== '' ? $scalarString($formLabel) : $formDirectory;
-        AccessDeniedHelper::denyWithTemplate('ACL check failed for form: ' . $formLabel, $formLabel);
-    }
+// staff/EHR path. Every questionnaire is a questionnaire_assessments form, so that is the
+// ACL checked; formname (a questionnaire name or id on a dashboard launch) must not pick it.
+if (!$isPortal && !AclMain::aclCheckForm('questionnaire_assessments')) {
+    $registryEntry = getRegistryEntryByDirectory('questionnaire_assessments', 'name');
+    $registryName = is_array($registryEntry) ? ($registryEntry['name'] ?? '') : '';
+    $formLabel = xl_form_title($registryName);
+    $formLabel = $formLabel !== '' ? $scalarString($formLabel) : 'questionnaire_assessments';
+    AccessDeniedHelper::denyWithTemplate('ACL check failed for form: ' . $formLabel, $formLabel);
 }
+// The patient of the portal document staff are auditing, once verified; null otherwise.
+$auditPid = null;
 
 try {
     if (!empty($_GET['id'])) {
@@ -132,10 +125,11 @@ try {
         );
 
         // Staff auditing a portal document from the Portal Dashboard may have no chart open;
-        // the form is reachable there only as the document's own (see isPortalDocumentForm()).
-        $isStaffPortalAudit = $patientPortalOther
-            && CoreFormToPortalUtility::isPortalDocumentForm($formid, 'questionnaire_assessments');
-        if (!$isPortal && !$isStaffPortalAudit) {
+        // the form is reachable there only as the document's own (see questionnaireDocumentPatient()).
+        if (!$isPortal && $patientPortalOther) {
+            $auditPid = CoreFormToPortalUtility::questionnaireDocumentPatient($formid);
+        }
+        if (!$isPortal && $auditPid === null) {
             EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'questionnaire_assessments');
         }
 
@@ -223,7 +217,7 @@ try {
 
 $assessmentTitle = '';
 if ($mode !== 'new') {
-    $titlePid = $nonNegativeInt($session->get('pid', 0)) ?? 0;
+    $titlePid = $auditPid ?? $nonNegativeInt($session->get('pid', 0)) ?? 0;
     $titleEncounter = $nonNegativeInt($session->get('encounter', 0)) ?? 0;
     // Resolve the saved encounter rather than the currently selected encounter.
     if ($mode === 'update') {
