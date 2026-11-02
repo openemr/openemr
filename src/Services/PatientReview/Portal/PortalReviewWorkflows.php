@@ -46,6 +46,12 @@ final readonly class PortalReviewWorkflows
     /** Payload key holding the encounters a biller asked the patient to pay. */
     public const INVOICE_ENCOUNTERS = 'invoices';
 
+    /** The request types the portal review list shows, and the order it counts them in. */
+    public const LIST_TYPES = [ReviewType::Profile, ReviewType::Payment, ReviewType::Document, ReviewType::Invoice];
+
+    /** The portal request types that wait on staff review (an invoice waits on the patient). */
+    public const REVIEW_TYPES = [ReviewType::Profile, ReviewType::Payment, ReviewType::Document];
+
     public function __construct(private ReviewQueueService $queue)
     {
     }
@@ -306,9 +312,7 @@ final readonly class PortalReviewWorkflows
         return [
             // Only the types the portal review list shows; other sources (FHIR writes) have
             // their own screens.
-            'audits' => $this->queue->countPending(ReviewType::Profile)
-                + $this->queue->countPending(ReviewType::Payment)
-                + $this->queue->countPending(ReviewType::Document),
+            'audits' => array_sum(array_map($this->queue->countPending(...), self::REVIEW_TYPES)),
             'payments' => $this->queue->countPending(ReviewType::Payment),
         ];
     }

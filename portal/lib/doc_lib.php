@@ -19,6 +19,7 @@ use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\PatientPortalPDFDocumentCreator;
+use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\PatientReview\ReviewType;
@@ -88,7 +89,7 @@ if ($dispose == $_POST['audit_delete'] ?? null) {
     $request = is_int($requestId) && $requestId > 0 ? ReviewQueueFactory::create()->find($requestId) : null;
     if (
         $request === null
-        || !in_array($request->type, [ReviewType::Profile, ReviewType::Payment, ReviewType::Document], true)
+        || !in_array($request->type, PortalReviewWorkflows::REVIEW_TYPES, true)
         || !$request->status->isOpen()
         || ($request->type === ReviewType::Document && $request->targetId !== $postBody->getString('delete_id'))
     ) {

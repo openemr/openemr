@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services\PatientReview\Legacy;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
 use OpenEMR\Services\PatientReview\ReviewRequestMapper;
 use OpenEMR\Services\PatientReview\ReviewStatus;
 use OpenEMR\Services\PatientReview\ReviewType;
@@ -97,9 +98,12 @@ final readonly class ReviewListQuery
     ): array {
         $where = ' WHERE r.`status` = ?';
         $binds = [$status->value];
-        if ($type !== null) {
-            $where .= ' AND r.`type` = ?';
-            $binds[] = $type->value;
+        // With no type, the portal's own types only: other requests (FHIR writes) have no
+        // action on this list and are not in its alert count.
+        $types = $type !== null ? [$type] : PortalReviewWorkflows::LIST_TYPES;
+        $where .= ' AND r.`type` IN (' . implode(', ', array_fill(0, count($types), '?')) . ')';
+        foreach ($types as $listed) {
+            $binds[] = $listed->value;
         }
         if ($filter !== null && trim($filter) !== '') {
             $like = '%' . trim($filter) . '%';
