@@ -105,18 +105,30 @@ final readonly class PortalReviewWorkflows
      */
     public function submitPayment(int $pid, string $invoiceValues, string $cardDetails, ReviewActor $actor): ReviewRequest
     {
-        $secrets = $cardDetails === '' ? [] : [ReviewQueueService::SECRET_PAYMENT_CARD => $cardDetails];
+        return $this->queue->replacePending(self::paymentSubmission($pid, $invoiceValues), $actor, self::paymentSecrets($cardDetails));
+    }
 
-        return $this->queue->replacePending(
-            new ReviewSubmission(
-                $pid,
-                ReviewType::Payment,
-                self::SUMMARY_PAYMENT,
-                [self::PAYMENT_INVOICE_VALUES => $invoiceValues],
-            ),
-            $actor,
-            $secrets,
-        );
+    /**
+     * A charged payment recorded alongside the pending one rather than replacing it, for when
+     * staff may be posting the pending one right now (the posting lock could not be had).
+     * Replacing it would cancel the request under the staff posting; this leaves both for staff.
+     */
+    public function submitAdditionalPayment(int $pid, string $invoiceValues, string $cardDetails, ReviewActor $actor): ReviewRequest
+    {
+        return $this->queue->submit(self::paymentSubmission($pid, $invoiceValues), $actor, self::paymentSecrets($cardDetails));
+    }
+
+    private static function paymentSubmission(int $pid, string $invoiceValues): ReviewSubmission
+    {
+        return new ReviewSubmission($pid, ReviewType::Payment, self::SUMMARY_PAYMENT, [self::PAYMENT_INVOICE_VALUES => $invoiceValues]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function paymentSecrets(string $cardDetails): array
+    {
+        return $cardDetails === '' ? [] : [ReviewQueueService::SECRET_PAYMENT_CARD => $cardDetails];
     }
 
     public function pendingPayment(int $pid): ?ReviewRequest

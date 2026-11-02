@@ -220,25 +220,28 @@ function SaveAudit($pid, $amts, $cc)
             throw new InvalidArgumentException('A valid patient ID is required');
         }
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $workflows = ReviewQueueFactory::portalWorkflows();
+        $invoiceValues = is_string($amts) ? $amts : '';
+        $cardDetails = is_string($cc) ? $cc : '';
+        $actor = SessionReviewActor::from($session);
         // A new payment replaces the pending one, so it waits for a staff posting of this
-        // patient's pending payment to finish (portal_payment.php holds the same lock). The card
-        // has already been charged, so if the wait runs out the payment is still recorded.
+        // patient's pending payment to finish (portal_payment.php holds the same lock).
         $postingLock = new PaymentPostingLock();
         try {
             $postingLock->acquire($patientId);
         } catch (\RuntimeException $lockError) {
-            ServiceContainer::getLogger()->error('Recording a portal payment without the posting lock', [
+            // Staff may be posting the pending payment right now, so it must not be cancelled.
+            // The card is already charged, so failing would lose the only record of it: keep it
+            // as a second pending payment for staff to post.
+            ServiceContainer::getLogger()->warning('Portal payment recorded alongside the pending one: the posting lock was busy', [
                 'pid' => $patientId,
                 'exception' => $lockError,
             ]);
+            $workflows->submitAdditionalPayment($patientId, $invoiceValues, $cardDetails, $actor);
+            return 0;
         }
         try {
-            ReviewQueueFactory::portalWorkflows()->submitPayment(
-                $patientId,
-                is_string($amts) ? $amts : '',
-                is_string($cc) ? $cc : '',
-                SessionReviewActor::from($session),
-            );
+            $workflows->submitPayment($patientId, $invoiceValues, $cardDetails, $actor);
         } finally {
             $postingLock->release();
         }
