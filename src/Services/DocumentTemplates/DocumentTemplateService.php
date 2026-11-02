@@ -339,7 +339,8 @@ class DocumentTemplateService extends QuestionnaireService
 
     /**
      * Fetch a template row scoped to the given patient context. A row with
-     * `pid = 0` is a shared/profile template every caller may read; a row
+     * `pid = 0` (shared) or `pid = -1` (Repository, assigned through
+     * profiles) is a template every caller may read; a row
      * with a positive `pid` is returned only when `$patientId` matches.
      * Used by the portal and shared renderers; admin/profile flows that
      * already know the owner call `fetchTemplate()` directly.
@@ -353,7 +354,8 @@ class DocumentTemplateService extends QuestionnaireService
             return $return;
         }
         $rowPid = isset($return['pid']) && is_numeric($return['pid']) ? (int) $return['pid'] : 0;
-        if ($rowPid !== 0 && $rowPid !== $patientId) {
+        // 0 (all patients) and -1 (Repository, delivered through profiles) hold no patient's data.
+        if ($rowPid > 0 && $rowPid !== $patientId) {
             return null;
         }
         return $return;
