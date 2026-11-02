@@ -20,17 +20,17 @@ use PHPUnit\Framework\TestCase;
 
 class PaymentPostingLockDatabaseTest extends TestCase
 {
-    /** A request id no fixture uses. */
-    private const REQUEST_ID = 990091;
+    /** A patient id no fixture uses. */
+    private const PID = 990091;
 
-    private const LOCK_NAME = 'openemr.portal_payment.990091';
+    private const LOCK_NAME = 'openemr.portal_payment.pid.990091';
 
     public function testTheLockIsHeldFromAcquireUntilRelease(): void
     {
         $lock = new PaymentPostingLock();
         $this->assertTrue($this->isFree(), 'The lock must start free');
 
-        $lock->acquire(self::REQUEST_ID);
+        $lock->acquire(self::PID);
         $heldAfterAcquire = !$this->isFree();
         $lock->release();
         $freeAfterRelease = $this->isFree();
@@ -43,7 +43,7 @@ class PaymentPostingLockDatabaseTest extends TestCase
     {
         $lock = new PaymentPostingLock();
         $lock->release();
-        $lock->acquire(self::REQUEST_ID);
+        $lock->acquire(self::PID);
         $lock->release();
         $lock->release();
 

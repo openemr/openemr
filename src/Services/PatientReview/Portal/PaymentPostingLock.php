@@ -1,12 +1,14 @@
 <?php
 
 /**
- * Serializes staff postings of one portal payment.
+ * Serializes changes to one patient's pending portal payment.
  *
  * Posting a portal payment checks that its review request is still pending, writes the ledger
  * rows, then closes the request. Two staff saves of the same payment at once could both pass the
- * check and both write the ledger before either closed it. Holding this lock across the check,
- * the ledger writes and the close makes the second save wait, then find the request closed.
+ * check and both write the ledger before either closed it, and a patient replacing the payment
+ * in the meantime could cancel it while staff posted it, leaving the replacement pending to post
+ * again. The lock is per patient, so a staff posting and a patient's new payment both take it:
+ * whichever comes second waits, then sees what the first left.
  *
  * It is a MySQL advisory lock (GET_LOCK), as BackgroundServiceRunner and ReferralTaskService
  * take theirs, rather than a transaction: the ledger writes open their own transactions
@@ -32,7 +34,7 @@ final class PaymentPostingLock
     /** GET_LOCK's name prefix, as core's other advisory locks are prefixed (within MySQL's 64 characters). */
     private const PREFIX = 'openemr.portal_payment.';
 
-    /** How long a save waits for another save of the same payment to finish posting it. */
+    /** How long a save waits for another posting or submission for the same patient. */
     private const WAIT_SECONDS = 30;
 
     private ?string $held = null;
@@ -40,13 +42,13 @@ final class PaymentPostingLock
     private bool $releaseOnShutdown = false;
 
     /**
-     * Waits for, then holds, the lock on one payment request.
+     * Waits for, then holds, the lock on one patient's portal payment.
      *
      * @throws \RuntimeException when another save held it past the wait, or GET_LOCK failed
      */
-    public function acquire(int $requestId): void
+    public function acquire(int $pid): void
     {
-        $name = self::PREFIX . $requestId;
+        $name = self::PREFIX . 'pid.' . $pid;
         $row = QueryUtils::querySingleRow('SELECT GET_LOCK(?, ?) AS got', [$name, self::WAIT_SECONDS], false);
         $got = is_array($row) ? ($row['got'] ?? null) : null;
         if ($got !== 1 && $got !== '1') {

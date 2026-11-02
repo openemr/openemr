@@ -89,17 +89,19 @@ $recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
 // to the open chart. A portal patient stays on the session patient.
 // Only a payment still pending is opened or posted: one the patient has since replaced cannot
 // post its old invoice selection, and one already posted cannot be posted twice.
-// A staff save holds the payment's posting lock from this check until the request is closed
-// below, so two saves of the same payment at once cannot both post it: the second waits, then
-// finds it no longer pending.
+// A staff save holds the patient's posting lock from this check until the request is closed
+// below. Two saves of the same payment at once cannot both post it, and the patient cannot
+// replace it mid-posting (paylib.php takes the same lock): whoever comes second waits, then sees
+// what the first left. The record is read once to find its patient, then again under the lock.
 $isStaffSave = !$isPortal && CurrentRequest::get()->request->getString('form_save') !== '';
 $postingLock = null;
 if (!$isPortal && $recid) {
-    if ($isStaffSave) {
-        $postingLock = new PaymentPostingLock();
-        $postingLock->acquire($recid);
-    }
     $paymentRecord = $reviewWorkflows->payment($recid);
+    if ($isStaffSave && $paymentRecord !== null) {
+        $postingLock = new PaymentPostingLock();
+        $postingLock->acquire($paymentRecord->pid);
+        $paymentRecord = $reviewWorkflows->payment($recid);
+    }
     if ($paymentRecord === null || $paymentRecord->status !== ReviewStatus::Pending) {
         // Usually a stale row in the review list: another user posted the payment, or the
         // patient replaced it, after the list loaded. Say so rather than failing the page; a save
@@ -135,20 +137,19 @@ if ($session->get('authUserID', '')) {
 $sessionPid = is_numeric($pid) ? intval($pid) : 0;
 
 // The portal payment request a staff save closes once it is posted. From the chart (no recid)
-// it is the patient's pending payment, if any: it is locked like a recid, then read again under
-// the lock, so two chart saves at once cannot both post it; the second finds it posted and is
-// refused before writing to the ledger. Without a pending payment the save closes nothing.
+// it is the patient's pending payment, if any, read again under the patient's posting lock: a
+// payment posted or replaced while this save waited is refused before writing to the ledger, and
+// none can change until the save finishes. Without a pending payment the save closes nothing.
 $postingRequestId = $recid;
 if ($isStaffSave && !$recid) {
     $pendingAtSave = $reviewWorkflows->pendingPayment($sessionPid);
-    if ($pendingAtSave !== null) {
-        $postingLock = new PaymentPostingLock();
-        $postingLock->acquire($pendingAtSave->id);
-        if ($reviewWorkflows->pendingPayment($sessionPid)?->id !== $pendingAtSave->id) {
-            throw new \RuntimeException('The pending portal payment was posted or replaced while this save waited');
-        }
-        $postingRequestId = $pendingAtSave->id;
+    $postingLock = new PaymentPostingLock();
+    $postingLock->acquire($sessionPid);
+    $pendingUnderLock = $reviewWorkflows->pendingPayment($sessionPid);
+    if ($pendingUnderLock?->id !== $pendingAtSave?->id) {
+        throw new \RuntimeException('The pending portal payment was posted or replaced while this save waited');
     }
+    $postingRequestId = $pendingUnderLock->id ?? 0;
 }
 
 $payment = $recid
@@ -406,7 +407,17 @@ if ($_POST['form_save'] ?? '') {
     // card details) to post again. With no recid, staff were posting from the chart: close the
     // patient's pending payment locked above, if any.
     if ($paymentRecorded && $alertmsg === '' && !$isPortal && $postingRequestId) {
-        $reviewWorkflows->completePaymentRequest($postingRequestId, $sessionPid, SessionReviewActor::staff($session));
+        $closed = $reviewWorkflows->completePaymentRequest($postingRequestId, $sessionPid, SessionReviewActor::staff($session));
+        // Not expected while the lock is held. If it happens, the ledger rows are written but the
+        // request is still open (or another one is): say so instead of showing a receipt, so the
+        // payment is not posted a second time from the review list.
+        if ($closed === null) {
+            ServiceContainer::getLogger()->error('Portal payment posted but its review request could not be closed', [
+                'request_id' => $postingRequestId,
+                'pid' => $sessionPid,
+            ]);
+            $alertmsg = xl('The payment was recorded, but its portal payment request could not be closed. Check the patient ledger and the review list before posting it again.');
+        }
     }
     // Posted and closed, or refused: either way the next save of this payment may go ahead.
     $postingLock?->release();

@@ -12,11 +12,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\PatientReview\Portal\PaymentPostingLock;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
@@ -218,12 +220,28 @@ function SaveAudit($pid, $amts, $cc)
             throw new InvalidArgumentException('A valid patient ID is required');
         }
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        ReviewQueueFactory::portalWorkflows()->submitPayment(
-            $patientId,
-            is_string($amts) ? $amts : '',
-            is_string($cc) ? $cc : '',
-            SessionReviewActor::from($session),
-        );
+        // A new payment replaces the pending one, so it waits for a staff posting of this
+        // patient's pending payment to finish (portal_payment.php holds the same lock). The card
+        // has already been charged, so if the wait runs out the payment is still recorded.
+        $postingLock = new PaymentPostingLock();
+        try {
+            $postingLock->acquire($patientId);
+        } catch (\RuntimeException $lockError) {
+            ServiceContainer::getLogger()->error('Recording a portal payment without the posting lock', [
+                'pid' => $patientId,
+                'exception' => $lockError,
+            ]);
+        }
+        try {
+            ReviewQueueFactory::portalWorkflows()->submitPayment(
+                $patientId,
+                is_string($amts) ? $amts : '',
+                is_string($cc) ? $cc : '',
+                SessionReviewActor::from($session),
+            );
+        } finally {
+            $postingLock->release();
+        }
     } catch (\Throwable $ex) {
         return $ex;
     }
