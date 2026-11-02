@@ -28,6 +28,7 @@ use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
+use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\PatientReview\ReviewStatus;
 
@@ -84,12 +85,11 @@ $recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
 // action, so the save finds the same patient. A recid that isn't a payment record
 // (deleted or changed since the dialog opened) is refused rather than falling back
 // to the open chart. A portal patient stays on the session patient.
-// A payment the patient has since replaced (cancelled) is refused too, so its old invoice
-// selection cannot be posted. A completed one is allowed: posting closes the request
-// (paylib.php review-save) just before this page receives the form.
+// Only a payment still pending is opened or posted: one the patient has since replaced cannot
+// post its old invoice selection, and one already posted cannot be posted twice.
 if (!$isPortal && $recid) {
     $paymentRecord = $reviewWorkflows->payment($recid);
-    if ($paymentRecord === null || !in_array($paymentRecord->status, [ReviewStatus::Pending, ReviewStatus::Completed], true)) {
+    if ($paymentRecord === null || $paymentRecord->status !== ReviewStatus::Pending) {
         throw new \RuntimeException('Portal payment record not found or no longer pending');
     }
     $pid = $paymentRecord->pid;
@@ -360,6 +360,18 @@ if ($_POST['form_save'] ?? '') {
             }//invoice_balance
         }//foreach
     }//if ($_POST['form_upay'])
+
+    // The payment is recorded; close the portal request staff were posting, and only now, so a
+    // posting that failed above leaves it pending (with its card details) to post again. With
+    // no recid, staff were posting from the chart: close the patient's pending payment, if any.
+    if ($alertmsg === '' && !$isPortal) {
+        $postingStaff = SessionReviewActor::staff($session);
+        if ($recid) {
+            $reviewWorkflows->completePaymentRequest($recid, $sessionPid, $postingStaff);
+        } else {
+            $reviewWorkflows->completePayment($sessionPid, $postingStaff);
+        }
+    }
 }//if ($_POST['form_save'])
 
 // Skip the receipt when the payment was rejected; there is nothing to receipt for.
@@ -644,44 +656,15 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             $("#paymentAmount").val(total);
         });
 
+        // Posting records the payment and closes the portal payment request in one request
+        // (portal_payment.php form_save), so a failed posting leaves the request pending.
         $("#invoiceForm").on('submit', function (e) {
             e.preventDefault();
-            let thisform = this;
-            $("#mode").val("review-save");
-            let inv_values = JSON.stringify(getFormObj('invoiceForm'));
-            let extra_values = JSON.stringify(getFormObj('paymentForm'));
-            const params = new URLSearchParams();
-            $("#invoiceForm").serializeArray().forEach(function (field) {
-                if (field.name !== 'csrf_token_form') {
-                    params.append(field.name, field.value);
-                }
-            });
-            params.set('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>);
-            params.set('inv_values', inv_values);
-            params.set('extra_values', extra_values);
-
-            let flag = 0
-            let liburl = '<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php';
-            $.ajax({
-                type: "POST",
-                url: liburl,
-                data: params.toString(),
-                beforeSend: function (xhr) {
-                    if (validate() != true) {
-                        flag = 1;
-                        alert(<?php echo xlj('Validation error: Fix and resubmit.'); ?>)
-                        return false;
-                    }
-                },
-                error: function (xhr, textStatus, error) {
-                    alert(<?php echo xlj('There is a Post error'); ?>)
-                    console.log("There was an error:" + textStatus);
-                    return false;
-                },
-                success: function (templateHtml, textStatus, jqXHR) {
-                    thisform.submit();
-                }
-            });
+            if (validate() != true) {
+                alert(<?php echo xlj('Validation error: Fix and resubmit.'); ?>);
+                return false;
+            }
+            this.submit();
         });
 
         function getAuth() {
@@ -711,7 +694,6 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
     }
     ?>
     <form id="invoiceForm" method='post' action='<?php echo attr($invoiceAction); ?>'>
-        <input type='hidden' name='form_recid' value='<?php echo attr((string) $recid) ?>'/>
         <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
         <input type='hidden' name='form_pid' value='<?php echo attr($pidField) ?>'/>
         <input type='hidden' name='form_save' value='<?php echo xla('Invoice'); ?>'/>

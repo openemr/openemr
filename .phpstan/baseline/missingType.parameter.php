@@ -24797,11 +24797,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function CloseAudit\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function SaveAudit\\(\\) has parameter \\$amts with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
