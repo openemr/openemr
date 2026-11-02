@@ -101,7 +101,13 @@ if (!$isPortal && $recid) {
     }
     $paymentRecord = $reviewWorkflows->payment($recid);
     if ($paymentRecord === null || $paymentRecord->status !== ReviewStatus::Pending) {
-        throw new \RuntimeException('Portal payment record not found or no longer pending');
+        // Usually a stale row in the review list: another user posted the payment, or the
+        // patient replaced it, after the list loaded. Say so rather than failing the page; a save
+        // stops here too, before anything is written. The posting lock is released on shutdown.
+        echo "<!DOCTYPE html><html><body><p>"
+            . xlt('This portal payment has already been posted or was replaced by the patient. Refresh the review list.')
+            . "</p></body></html>";
+        exit;
     }
     $pid = $paymentRecord->pid;
 }
