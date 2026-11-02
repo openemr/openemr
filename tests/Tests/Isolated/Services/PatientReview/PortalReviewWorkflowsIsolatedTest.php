@@ -97,9 +97,9 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testAPaymentKeepsItsCardDetailsEncryptedUntilPosted(): void
     {
-        $payment = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, $this->patient());
+        $payment = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
 
-        $this->assertSame(['value' => '{"1001":"10.00"}'], $payment->payload, 'no card data in the payload');
+        $this->assertSame(['value' => '{"1001":"10.00"}', 'charged' => false], $payment->payload, 'no card data in the payload');
         $this->assertSame('{"1001":"10.00"}', $this->workflows->paymentInvoiceValues($payment));
         $this->assertSame('enc(' . self::CARD . ')', $this->store->getSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD));
         $this->assertSame('Ann Lee', $this->workflows->paymentCardDetails($payment)['cardHolderName'] ?? null);
@@ -114,7 +114,7 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testAPaymentWithoutCardDetailsStoresNoSecret(): void
     {
-        $payment = $this->workflows->submitPayment(self::PID, '{}', '', $this->patient());
+        $payment = $this->workflows->submitPayment(self::PID, '{}', '', false, $this->patient());
 
         $this->assertNull($this->store->getSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD));
         $this->assertSame([], $this->workflows->paymentCardDetails($payment));
@@ -122,18 +122,30 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testASecondPaymentReplacesTheFirstAndDropsItsCard(): void
     {
-        $first = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, $this->patient());
-        $second = $this->workflows->submitPayment(self::PID, '{"1001":"12.00"}', self::CARD, $this->patient());
+        $first = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        $second = $this->workflows->submitPayment(self::PID, '{"1001":"12.00"}', self::CARD, false, $this->patient());
 
         $this->assertSame(ReviewStatus::Cancelled, $this->queue->get($first->id)->status);
         $this->assertNull($this->store->getSecret($first->id, ReviewQueueService::SECRET_PAYMENT_CARD));
         $this->assertSame($second->id, $this->workflows->pendingPayment(self::PID)?->id);
     }
 
+    public function testAChargedPaymentNeitherReplacesNorIsReplaced(): void
+    {
+        $uncharged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        $charged = $this->workflows->submitPayment(self::PID, '{"1001":"12.00"}', self::CARD, true, $this->patient());
+        $resubmitted = $this->workflows->submitPayment(self::PID, '{"1001":"15.00"}', self::CARD, false, $this->patient());
+
+        $this->assertSame(ReviewStatus::Cancelled, $this->queue->get($uncharged->id)->status, 'an uncharged payment is still superseded');
+        $this->assertSame(ReviewStatus::Pending, $this->queue->get($charged->id)->status, 'a charged payment is never cancelled');
+        $this->assertNotNull($this->store->getSecret($charged->id, ReviewQueueService::SECRET_PAYMENT_CARD), 'and keeps its card details');
+        $this->assertSame(ReviewStatus::Pending, $this->queue->get($resubmitted->id)->status);
+    }
+
     public function testClosingTheOpenedPaymentLeavesAReplacementAlone(): void
     {
-        $opened = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, $this->patient());
-        $replacement = $this->workflows->submitPayment(self::PID, '{"1001":"12.00"}', self::CARD, $this->patient());
+        $opened = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        $replacement = $this->workflows->submitPayment(self::PID, '{"1001":"12.00"}', self::CARD, false, $this->patient());
 
         $staleClose = $this->workflows->completePaymentRequest($opened->id, self::PID, $this->staff());
         $wrongPatient = $this->workflows->completePaymentRequest($replacement->id, 8, $this->staff());
@@ -149,7 +161,7 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testPaymentLookupChecksTypeAndPatient(): void
     {
-        $payment = $this->workflows->submitPayment(self::PID, '{}', '', $this->patient());
+        $payment = $this->workflows->submitPayment(self::PID, '{}', '', false, $this->patient());
         $profile = $this->workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $this->patient());
 
         $this->assertSame($payment->id, $this->workflows->payment($payment->id)?->id);
@@ -229,7 +241,7 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testDiscardingAPaymentCancelsItAndDropsTheCard(): void
     {
-        $payment = $this->workflows->submitPayment(self::PID, '{"form_paytotal":"20.00"}', self::CARD, $this->patient());
+        $payment = $this->workflows->submitPayment(self::PID, '{"form_paytotal":"20.00"}', self::CARD, false, $this->patient());
 
         $discarded = $this->workflows->discard($payment, $this->staff(), 'User deleted audit');
 
@@ -240,7 +252,7 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testDiscardRefusesARequestAlreadyClosed(): void
     {
-        $payment = $this->workflows->submitPayment(self::PID, '{}', '', $this->patient());
+        $payment = $this->workflows->submitPayment(self::PID, '{}', '', false, $this->patient());
         $this->workflows->completePayment(self::PID, $this->staff());
 
         $this->expectException(InvalidReviewTransitionException::class);
@@ -269,9 +281,9 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
     public function testAlertCountsIncludePaymentsInAudits(): void
     {
         $this->workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $this->patient());
-        $this->workflows->submitPayment(self::PID, '{}', '', $this->patient());
+        $this->workflows->submitPayment(self::PID, '{}', '', false, $this->patient());
         $this->workflows->submitDocument(self::PID, 11, 'Consent', $this->patient());
-        $this->workflows->submitPayment(8, '{}', '', ReviewActor::patient(8, 'bob8'));
+        $this->workflows->submitPayment(8, '{}', '', false, ReviewActor::patient(8, 'bob8'));
 
         $this->assertSame(['audits' => 4, 'payments' => 2], $this->workflows->alertCounts());
     }

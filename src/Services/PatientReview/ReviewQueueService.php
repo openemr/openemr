@@ -122,11 +122,20 @@ final class ReviewQueueService
      */
     /**
      * @param array<string, string> $secrets as for submit()
+     * @param ?\Closure(ReviewRequest): bool $supersedes which open requests the new one replaces;
+     *                                              all of them when null
      */
-    public function replacePending(ReviewSubmission $submission, ReviewActor $actor, array $secrets = []): ReviewRequest
-    {
-        return $this->atomically(function () use ($submission, $actor, $secrets): ReviewRequest {
+    public function replacePending(
+        ReviewSubmission $submission,
+        ReviewActor $actor,
+        array $secrets = [],
+        ?\Closure $supersedes = null,
+    ): ReviewRequest {
+        return $this->atomically(function () use ($submission, $actor, $secrets, $supersedes): ReviewRequest {
             foreach ($this->openMatching($submission) as $open) {
+                if ($supersedes !== null && $supersedes($open) !== true) {
+                    continue;
+                }
                 $this->transition($open, ReviewStatus::Cancelled, $actor, self::NOTE_SUPERSEDED);
             }
             return $this->create($submission, $actor, $secrets);

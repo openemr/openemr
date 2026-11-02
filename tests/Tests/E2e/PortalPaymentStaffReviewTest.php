@@ -300,6 +300,7 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
             $this->payingPid,
             $invoice,
             $card,
+            true,
             ReviewActor::patient($this->payingPid, self::FIXTURE_MARKER),
         )->id;
     }

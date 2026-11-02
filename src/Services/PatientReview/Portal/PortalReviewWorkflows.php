@@ -43,6 +43,8 @@ final readonly class PortalReviewWorkflows
 
     /** Payload key holding the invoice selection the payment page posts, as it posts it. */
     public const PAYMENT_INVOICE_VALUES = 'value';
+    /** Payload key: whether the gateway had already charged the card when the payment was recorded. */
+    public const PAYMENT_CHARGED = 'charged';
     /** Payload key holding the encounters a biller asked the patient to pay. */
     public const INVOICE_ENCOUNTERS = 'invoices';
 
@@ -100,27 +102,47 @@ final readonly class PortalReviewWorkflows
      * response: card type, masked number, auth code) are kept encrypted and deleted when the
      * payment is posted.
      *
+     * A charged payment (the gateway took the money) is its own pending request and never
+     * replaces another: each is real money staff must post. A payment left for staff to charge
+     * replaces only another uncharged one, which it supersedes. A request with no charged flag
+     * (from before it was recorded) is treated as charged, so it is never cancelled.
+     *
      * @param string $invoiceValues the invoice selection, as the payment page posts it
      * @param string $cardDetails JSON from the payment page; empty when there are none
+     * @param bool $charged whether the gateway has already charged the card
      */
-    public function submitPayment(int $pid, string $invoiceValues, string $cardDetails, ReviewActor $actor): ReviewRequest
+    public function submitPayment(int $pid, string $invoiceValues, string $cardDetails, bool $charged, ReviewActor $actor): ReviewRequest
     {
-        return $this->queue->replacePending(self::paymentSubmission($pid, $invoiceValues), $actor, self::paymentSecrets($cardDetails));
+        $submission = self::paymentSubmission($pid, $invoiceValues, $charged);
+        if ($charged) {
+            return $this->queue->submit($submission, $actor, self::paymentSecrets($cardDetails));
+        }
+
+        return $this->queue->replacePending(
+            $submission,
+            $actor,
+            self::paymentSecrets($cardDetails),
+            static fn(ReviewRequest $open): bool => ($open->payload[self::PAYMENT_CHARGED] ?? true) === false,
+        );
     }
 
     /**
-     * A charged payment recorded alongside the pending one rather than replacing it, for when
-     * staff may be posting the pending one right now (the posting lock could not be had).
-     * Replacing it would cancel the request under the staff posting; this leaves both for staff.
+     * A payment recorded alongside the pending ones rather than replacing any, for when staff
+     * may be posting one right now (the posting lock could not be had).
      */
-    public function submitAdditionalPayment(int $pid, string $invoiceValues, string $cardDetails, ReviewActor $actor): ReviewRequest
+    public function submitAdditionalPayment(int $pid, string $invoiceValues, string $cardDetails, bool $charged, ReviewActor $actor): ReviewRequest
     {
-        return $this->queue->submit(self::paymentSubmission($pid, $invoiceValues), $actor, self::paymentSecrets($cardDetails));
+        return $this->queue->submit(self::paymentSubmission($pid, $invoiceValues, $charged), $actor, self::paymentSecrets($cardDetails));
     }
 
-    private static function paymentSubmission(int $pid, string $invoiceValues): ReviewSubmission
+    private static function paymentSubmission(int $pid, string $invoiceValues, bool $charged): ReviewSubmission
     {
-        return new ReviewSubmission($pid, ReviewType::Payment, self::SUMMARY_PAYMENT, [self::PAYMENT_INVOICE_VALUES => $invoiceValues]);
+        return new ReviewSubmission(
+            $pid,
+            ReviewType::Payment,
+            self::SUMMARY_PAYMENT,
+            [self::PAYMENT_INVOICE_VALUES => $invoiceValues, self::PAYMENT_CHARGED => $charged],
+        );
     }
 
     /**

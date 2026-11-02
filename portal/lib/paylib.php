@@ -98,7 +98,7 @@ if ($_POST['mode'] === 'Sphere') {
 
     SessionUtil::setSession('whereto', '#paymentcard');
 
-    SaveAudit($form_pid, $invoice, $ccaudit);
+    SaveAudit($form_pid, $invoice, $ccaudit, charged: true);
 
     echo 'ok';
     exit;
@@ -141,7 +141,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         echo $response;
         exit();
     }
-    $s = SaveAudit($form_pid, $invoice, $ccaudit);
+    $s = SaveAudit($form_pid, $invoice, $ccaudit, charged: true);
 
     echo 'ok';
 }
@@ -182,7 +182,7 @@ if ($_POST['mode'] == 'Stripe') {
         echo $response;
         exit();
     }
-    $s = SaveAudit($form_pid, $invoice, $ccaudit);
+    $s = SaveAudit($form_pid, $invoice, $ccaudit, charged: true);
 
     echo 'ok';
 }
@@ -197,7 +197,7 @@ if ($_POST['mode'] == 'portal-save') {
     $upay = $_POST['form_upay'] ?? '';
     $cc = $_POST['extra_values'] ?? '';
     $amts = $_POST['inv_values'] ?? '';
-    $s = SaveAudit($form_pid, $amts, $cc);
+    $s = SaveAudit($form_pid, $amts, $cc, charged: false);
     if ($s) {
         echo 'failed';
         exit();
@@ -207,12 +207,13 @@ if ($_POST['mode'] == 'portal-save') {
 }
 
 /**
- * Holds the patient's online payment for staff to post. A second payment before posting
- * replaces the first. The card details are stored encrypted and deleted once posted.
+ * Holds the patient's online payment for staff to post. A payment the gateway charged is
+ * always kept; one left for staff to charge replaces an earlier uncharged one. The card details
+ * are stored encrypted and deleted once posted.
  *
  * @return int|\Throwable 0 on success
  */
-function SaveAudit($pid, $amts, $cc)
+function SaveAudit($pid, $amts, $cc, bool $charged)
 {
     try {
         $patientId = filter_var($pid, FILTER_VALIDATE_INT);
@@ -237,11 +238,11 @@ function SaveAudit($pid, $amts, $cc)
                 'pid' => $patientId,
                 'exception' => $lockError,
             ]);
-            $workflows->submitAdditionalPayment($patientId, $invoiceValues, $cardDetails, $actor);
+            $workflows->submitAdditionalPayment($patientId, $invoiceValues, $cardDetails, $charged, $actor);
             return 0;
         }
         try {
-            $workflows->submitPayment($patientId, $invoiceValues, $cardDetails, $actor);
+            $workflows->submitPayment($patientId, $invoiceValues, $cardDetails, $charged, $actor);
         } finally {
             $postingLock->release();
         }
