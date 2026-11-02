@@ -2758,7 +2758,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
@@ -31522,16 +31522,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'opaqueDataDescriptor\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
@@ -31842,64 +31832,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/index.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'note\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'table_args\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset string on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset string on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteDocumentMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset string on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsitePortalActivityMap.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset string on mixed\\.$#',
@@ -32017,43 +31957,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'authCode\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'cardCode\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'cardHolderName\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'cardNumber\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'cc_type\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'checksum\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'city\' on array\\|false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
@@ -32099,11 +32004,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'mname\' on array\\|false\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'month\' on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
@@ -32162,16 +32062,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'table_args\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'transId\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'user\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
@@ -32183,16 +32073,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'username\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'year\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'zip\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
