@@ -18,6 +18,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Tests\Fixtures\EncounterFixtureManager;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -71,6 +72,7 @@ class EncounterFhirApiTest extends TestCase
             "SELECT uuid FROM patient_data WHERE pid = ?",
             [$enc['pid']]
         );
+        $this->assertNotEmpty($pat, "Owning patient for encounter fixture should exist");
         $this->patientUuid = UuidRegistry::uuidToString($pat['uuid']);
     }
 
@@ -121,24 +123,49 @@ class EncounterFhirApiTest extends TestCase
     }
 
     /**
+     * Searching by the seeded encounter's _id should return exactly that one
+     * encounter, and it should reference the seeded patient as its subject.
+     */
+    public function testSearchByIdReturnsSeededEncounter(): void
+    {
+        $result = $this->testClient->get(
+            "/apis/default/fhir/Encounter",
+            ['_id' => $this->encounterUuid]
+        );
+        $this->assertEquals(Response::HTTP_OK, $result->getStatusCode());
+
+        $bundle = json_decode((string) $result->getBody()->getContents(), true);
+        $this->assertIsArray($bundle);
+        $this->assertArrayHasKey("entry", $bundle);
+        $this->assertIsArray($bundle['entry']);
+        $this->assertCount(1, $bundle['entry'], "Search by _id should return a single encounter");
+
+        $this->assertIsArray($bundle['entry'][0]);
+        $this->assertArrayHasKey('resource', $bundle['entry'][0]);
+        $resource = $bundle['entry'][0]['resource'];
+        $this->assertIsArray($resource);
+        $this->assertEquals($this->encounterUuid, $resource['id']);
+        $this->assertCanonicalPatientSubject($resource);
+    }
+
+    /**
      * A search that matches no encounter should return an empty Bundle with
-     * HTTP 200 -- NOT a 404. (A random, unused patient uuid matches nothing.)
+     * HTTP 200 -- NOT a 404.
      */
     public function testSearchNoMatchReturnsEmptyBundle(): void
     {
         $result = $this->testClient->get(
             "/apis/default/fhir/Encounter",
-            ['patient' => $this->fixtureManager->getUnregisteredUuid()]
+            ['_id' => "00000000-0000-0000-0000-000000000000"]
         );
         $this->assertEquals(Response::HTTP_OK, $result->getStatusCode());
 
         $bundle = json_decode((string) $result->getBody()->getContents(), true);
         $this->assertIsArray($bundle);
         $this->assertEquals("Bundle", $bundle['resourceType'] ?? null);
-        $this->assertTrue(
-            empty($bundle['entry']),
-            "A search matching nothing should carry no entries"
-        );
+        $this->assertEquals("collection", $bundle['type'] ?? null);
+        $this->assertSame(0, $bundle['total'] ?? null, "No-match search should have total 0");
+        $this->assertEmpty($bundle['entry'] ?? [], "No-match search should have no entries");
     }
 
     // ---------------------------------------------------------------------
@@ -151,9 +178,8 @@ class EncounterFhirApiTest extends TestCase
      */
     public function testReadByUuidReturnsSeededEncounter(): void
     {
-        $result = $this->testClient->getOne(
-            "/apis/default/fhir/Encounter",
-            $this->encounterUuid
+        $result = $this->testClient->get(
+            "/apis/default/fhir/Encounter/" . $this->encounterUuid
         );
         $this->assertEquals(Response::HTTP_OK, $result->getStatusCode());
 
@@ -161,48 +187,34 @@ class EncounterFhirApiTest extends TestCase
         $this->assertIsArray($resource);
         $this->assertEquals("Encounter", $resource['resourceType'] ?? null);
         $this->assertEquals($this->encounterUuid, $resource['id'] ?? null);
-
-        // Subject should point at the seeded patient's uuid.
-        $subjectRef = $resource['subject']['reference'] ?? '';
-        $this->assertStringContainsString(
-            $this->patientUuid,
-            $subjectRef,
-            "Encounter.subject should reference the seeded patient"
-        );
+        $this->assertCanonicalPatientSubject($resource);
     }
 
     // ---------------------------------------------------------------------
-    // Negative paths
+    // Error paths: read one
     // ---------------------------------------------------------------------
 
     /**
-     * A request with no bearer token must be rejected with 401.
-     */
-    public function testReadWithoutAuthIsUnauthorized(): void
-    {
-        $this->testClient->removeAuthToken();
-        $result = $this->testClient->getOne(
-            "/apis/default/fhir/Encounter",
-            $this->encounterUuid
-        );
-        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $result->getStatusCode());
-    }
-
-    /**
-     * A well-formed but nonexistent uuid should return 404 (empty JSON array),
-     * not a 200 and not an OperationOutcome.
+     * A well-formed but nonexistent uuid should return 404 with an empty JSON
+     * array, not a 200, not {}, and not an OperationOutcome.
      */
     public function testReadNonexistentUuidReturnsNotFound(): void
     {
-        $result = $this->testClient->getOne(
-            "/apis/default/fhir/Encounter",
-            $this->fixtureManager->getUnregisteredUuid()
+        $result = $this->testClient->get(
+            "/apis/default/fhir/Encounter/" . $this->fixtureManager->getUnregisteredUuid()
         );
         $this->assertEquals(Response::HTTP_NOT_FOUND, $result->getStatusCode());
 
-        $body = json_decode((string) $result->getBody()->getContents(), true);
+        $raw = trim((string) $result->getBody()->getContents());
+        $this->assertNotSame('', $raw, "404 should return a JSON body");
+        $this->assertSame(
+            '[',
+            $raw[0],
+            "404 body must be a JSON array [], not an object {} or an OperationOutcome"
+        );
+        $body = json_decode($raw, true);
         $this->assertIsArray($body);
-        $this->assertEmpty($body);
+        $this->assertSame([], $body);
     }
 
     /**
@@ -211,14 +223,76 @@ class EncounterFhirApiTest extends TestCase
      */
     public function testReadMalformedUuidIsBadRequest(): void
     {
-        $result = $this->testClient->getOne(
-            "/apis/default/fhir/Encounter",
-            "not-a-valid-uuid"
-        );
+        $result = $this->testClient->get("/apis/default/fhir/Encounter/not-a-valid-uuid");
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $result->getStatusCode());
 
         $body = json_decode((string) $result->getBody()->getContents(), true);
         $this->assertIsArray($body);
         $this->assertArrayHasKey("validationErrors", $body);
+    }
+
+    // ---------------------------------------------------------------------
+    // Authorization
+    // ---------------------------------------------------------------------
+
+    /**
+     * Search without a valid token should be rejected with 401 and an OAuth denial body.
+     */
+    public function testSearchUnauthorizedReturns401(): void
+    {
+        $unauthClient = new ApiTestClient(
+            getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost",
+            false
+        );
+        // Deliberately do NOT call setAuthToken().
+        $result = $unauthClient->get("/apis/default/fhir/Encounter");
+        $this->assertOAuthUnauthorizedResponse($result);
+    }
+
+    /**
+     * Read-one without a valid token should be rejected with 401 and an OAuth denial body.
+     */
+    public function testReadUnauthorizedReturns401(): void
+    {
+        $unauthClient = new ApiTestClient(
+            getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost",
+            false
+        );
+        $result = $unauthClient->get("/apis/default/fhir/Encounter/" . $this->encounterUuid);
+        $this->assertOAuthUnauthorizedResponse($result);
+    }
+
+    private function assertOAuthUnauthorizedResponse(ResponseInterface $response): void
+    {
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+
+        $body = json_decode((string) $response->getBody()->getContents(), true);
+        $this->assertIsArray($body);
+        $this->assertArrayHasKey('error', $body);
+        $this->assertArrayHasKey('message', $body);
+        $this->assertIsString($body['message']);
+        $this->assertStringContainsString(
+            'denied the request',
+            $body['message'],
+            '401 should be an OAuth authorization denial, not a routing or server error'
+        );
+        $this->assertArrayNotHasKey('resourceType', $body, '401 body should not be a FHIR resource');
+    }
+
+    /**
+     * Subject must be the canonical FHIR R4 shape "Patient/<uuid>".
+     *
+     * @param array<array-key, mixed> $resource
+     */
+    private function assertCanonicalPatientSubject(array $resource): void
+    {
+        $this->assertArrayHasKey("subject", $resource);
+        $this->assertIsArray($resource['subject']);
+        $this->assertArrayHasKey('reference', $resource['subject']);
+        $this->assertSame(
+            'Patient/' . $this->patientUuid,
+            $resource['subject']['reference'],
+            "Encounter subject must be the canonical FHIR reference Patient/{uuid}"
+        );
     }
 }
