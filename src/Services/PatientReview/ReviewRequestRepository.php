@@ -21,6 +21,11 @@ use OpenEMR\Common\Database\QueryUtils;
 
 final readonly class ReviewRequestRepository implements ReviewRequestStoreInterface
 {
+    /** Target tables whose rows lockTarget() can hold, with their key column. */
+    private const LOCKABLE_TARGETS = [
+        'onsite_documents' => 'id',
+    ];
+
     public function __construct(private ReviewRequestMapper $mapper)
     {
     }
@@ -80,6 +85,17 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
         }
         $rows = QueryUtils::fetchRecords($sql . ' ORDER BY `created_at` DESC, `id` DESC', $binds);
         return array_map($this->mapper->toRequest(...), $rows);
+    }
+
+    public function lockTarget(string $targetTable, string $targetId): void
+    {
+        $key = self::LOCKABLE_TARGETS[$targetTable] ?? throw new \DomainException('Review requests for ' . $targetTable . ' cannot be locked');
+        // Table and column come from the constant above, never from the caller's text.
+        QueryUtils::fetchRecords(
+            'SELECT ' . QueryUtils::escapeColumnName($key, [$targetTable]) . ' FROM ' . QueryUtils::escapeTableName($targetTable)
+            . ' WHERE ' . QueryUtils::escapeColumnName($key, [$targetTable]) . ' = ? FOR UPDATE',
+            [$targetId]
+        );
     }
 
     public function findOpenForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): array

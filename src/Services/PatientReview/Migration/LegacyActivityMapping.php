@@ -20,8 +20,9 @@
  * reads both. The encrypted card data in checksum moves to patient_review_secret for a payment
  * that is still open and is dropped for a closed one.
  *
- * Rows whose activity is not profile, payment, document or invoice, or that have no patient,
- * are not migrated (plan() returns null).
+ * Rows whose activity is not profile, payment, document or invoice, that have no patient, or
+ * that are documents without a document id (nothing could find their request again), are not
+ * migrated (plan() returns null).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -67,6 +68,10 @@ final class LegacyActivityMapping
         if ($legacyId === null || $pid === null || $type === null || $type === ReviewType::FhirWrite) {
             return null;
         }
+        $documentId = $this->int($row['table_args'] ?? null);
+        if ($type === ReviewType::Document && $documentId === null) {
+            return null;
+        }
 
         $legacyStatus = trim($this->string($row['status'] ?? null));
         [$status, $statusNote, $unrecognised] = $this->status($type, $legacyStatus);
@@ -100,7 +105,7 @@ final class LegacyActivityMapping
             );
         }
 
-        [$targetTable, $targetId] = $this->target($type, $pid, $row['table_args'] ?? null);
+        [$targetTable, $targetId] = $this->target($type, $pid, $documentId);
         $payload = $this->nullableString($row['table_args'] ?? null);
         $checksum = trim($this->string($row['checksum'] ?? null));
 
@@ -145,13 +150,11 @@ final class LegacyActivityMapping
     /**
      * @return array{?string, ?string}
      */
-    private function target(ReviewType $type, int $pid, mixed $tableArgs): array
+    private function target(ReviewType $type, int $pid, ?int $documentId): array
     {
         return match ($type) {
             ReviewType::Profile => ['patient_data', (string) $pid],
-            ReviewType::Document => $this->int($tableArgs) !== null
-                ? [PortalReviewWorkflows::DOCUMENT_TABLE, (string) $this->int($tableArgs)]
-                : [null, null],
+            ReviewType::Document => $documentId === null ? [null, null] : [PortalReviewWorkflows::DOCUMENT_TABLE, (string) $documentId],
             ReviewType::Payment, ReviewType::Invoice, ReviewType::FhirWrite => [null, null],
         };
     }

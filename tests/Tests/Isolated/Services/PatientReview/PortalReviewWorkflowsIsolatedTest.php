@@ -143,7 +143,7 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         $this->assertSame(PortalReviewWorkflows::NOTE_PAYMENT_POSTED, $closed->reviewNote);
     }
 
-        public function testPaymentLookupChecksTypeAndPatient(): void
+    public function testPaymentLookupChecksTypeAndPatient(): void
     {
         $payment = $this->workflows->submitPayment(self::PID, '{}', '', $this->patient());
         $profile = $this->workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $this->patient());

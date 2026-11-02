@@ -201,12 +201,7 @@ final readonly class PortalReviewWorkflows
      */
     public function submitDocument(int $pid, int $documentId, string $documentType, ReviewActor $actor): ReviewRequest
     {
-        $open = $this->pendingDocument($pid, $documentId);
-        if ($open !== null) {
-            return $open;
-        }
-
-        return $this->queue->submit(
+        return $this->queue->submitUnlessOpen(
             new ReviewSubmission(
                 $pid,
                 ReviewType::Document,

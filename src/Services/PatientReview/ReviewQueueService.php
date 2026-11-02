@@ -88,6 +88,29 @@ final class ReviewQueueService
     }
 
     /**
+     * Adds a request for a target row unless one is already open for it, and returns the open
+     * one. The target row is locked for the check, so concurrent submissions for the same row
+     * end with one open request.
+     *
+     * @throws \DomainException when the type is not keyed by target
+     */
+    public function submitUnlessOpen(ReviewSubmission $submission, ReviewActor $actor): ReviewRequest
+    {
+        $targetTable = $submission->targetTable;
+        $targetId = $submission->targetId;
+        if (!$submission->type->isKeyedByTarget() || $targetTable === null || $targetId === null) {
+            throw new \DomainException('Only a request keyed by its target row can be submitted once per target');
+        }
+
+        return $this->atomically(function () use ($submission, $actor, $targetTable, $targetId): ReviewRequest {
+            $this->store->lockTarget($targetTable, $targetId);
+
+            return $this->store->findOpenForTarget($submission->pid, $submission->type, $targetTable, $targetId)[0]
+                ?? $this->create($submission, $actor, []);
+        });
+    }
+
+    /**
      * Adds a request and cancels the ones already open for the same patient and type.
      *
      * This is what the portal means by "pending": a patient who edits their profile twice

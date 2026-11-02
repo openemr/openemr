@@ -182,6 +182,19 @@ class ReviewQueueDatabaseTest extends TestCase
         $this->assertNull($service->openFor(self::PID, ReviewType::Profile));
     }
 
+    public function testLockTargetHoldsAKnownTargetAndRefusesOthers(): void
+    {
+        $repository = new ReviewRequestRepository(new ReviewRequestMapper());
+        $repository->transactional(static function () use ($repository): bool {
+            $repository->lockTarget('onsite_documents', '990001');
+            return true;
+        });
+        $this->addToAssertionCount(1); // a known target locks without error
+
+        $this->expectException(\DomainException::class);
+        $repository->lockTarget('patient_data', '1');
+    }
+
     public function testReplacePendingCancelsTheEarlierRequest(): void
     {
         $service = ReviewQueueFactory::create();

@@ -37,6 +37,9 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
     private array $secrets = [];
     private int $nextId = 1;
 
+    /** @var list<string> "table|id" of each lockTarget() call, in order */
+    public array $locks = [];
+
     /** When set, the next updateStatus() behaves as if another reviewer got there first. */
     public bool $loseNextUpdate = false;
 
@@ -108,6 +111,12 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
             }
         }
         return $open;
+    }
+
+    public function lockTarget(string $targetTable, string $targetId): void
+    {
+        // Nothing runs concurrently in memory; record the call so tests can see it was made.
+        $this->locks[] = $targetTable . '|' . $targetId;
     }
 
     public function findOpenForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): array

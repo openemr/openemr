@@ -249,6 +249,9 @@ final class LegacyActivityMappingIsolatedTest extends TestCase
             'patient zero' => [['patient_id' => '0']],
             'no id' => [['id' => null]],
             'fhir-write is not a legacy activity' => [['activity' => 'fhir-write']],
+            'document without a document id' => [['activity' => 'document', 'table_args' => '']],
+            'document with a non-numeric id' => [['activity' => 'document', 'table_args' => 'abc']],
+            'document with id zero' => [['activity' => 'document', 'table_args' => '0']],
         ];
     }
 

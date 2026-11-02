@@ -209,6 +209,26 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         $this->assertSame(2, $service->countPending(ReviewType::Document));
     }
 
+    public function testSubmitUnlessOpenLocksTheTargetAndKeepsOneOpenRequest(): void
+    {
+        $service = $this->service();
+        $first = $service->submitUnlessOpen($this->document('11'), $this->patient());
+        $again = $service->submitUnlessOpen($this->document('11'), $this->patient());
+        $other = $service->submitUnlessOpen($this->document('12'), $this->patient());
+
+        $this->assertSame($first->id, $again->id);
+        $this->assertNotSame($first->id, $other->id);
+        $this->assertSame(['onsite_documents|11', 'onsite_documents|11', 'onsite_documents|12'], $this->store->locks);
+        $this->assertSame(2, $service->countPending(ReviewType::Document));
+        $this->assertCount(1, $service->history($first->id), 'the second submission wrote no event');
+    }
+
+    public function testSubmitUnlessOpenNeedsATargetKeyedType(): void
+    {
+        $this->expectException(\DomainException::class);
+        $this->service()->submitUnlessOpen($this->profile(), $this->patient());
+    }
+
     public function testLatestForTargetIncludesClosedRequests(): void
     {
         $service = $this->service();
