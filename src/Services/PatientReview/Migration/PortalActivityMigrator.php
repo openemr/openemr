@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientReview\Migration;
 
+use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
 use Psr\Clock\ClockInterface;
@@ -75,7 +76,18 @@ final readonly class PortalActivityMigrator
                 $report->skipped[] = is_numeric($row['id'] ?? null) ? intval($row['id']) : 0;
                 continue;
             }
-            QueryUtils::inTransaction(fn(): int => $this->write($plan));
+            // One row that cannot be written is reported and left for the next pass; it does not
+            // stop the rest of the upgrade.
+            try {
+                QueryUtils::inTransaction(fn(): int => $this->write($plan));
+            } catch (\RuntimeException | \LogicException | DbalException $e) {
+                $report->failed[] = $plan->legacyId;
+                $this->logger->error('Portal activity row could not be copied to the review queue', [
+                    'legacy_id' => $plan->legacyId,
+                    'exception' => $e,
+                ]);
+                continue;
+            }
             $report->migrated++;
             if ($plan->unrecognisedStatus !== null) {
                 $report->unrecognised[$plan->legacyId] = $plan->unrecognisedStatus;

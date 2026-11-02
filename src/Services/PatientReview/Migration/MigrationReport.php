@@ -21,6 +21,9 @@ final class MigrationReport
     /** @var list<int> legacy ids left in onsite_portal_activity */
     public array $skipped = [];
 
+    /** @var list<int> legacy ids whose write failed; retried on the next upgrade pass */
+    public array $failed = [];
+
     /** @var array<int, string> legacy status keyed by legacy id, for rows migrated as pending */
     public array $unrecognised = [];
 }

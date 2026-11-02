@@ -779,7 +779,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $skipping = false;
                     $report = $migrator->migrate();
                     $this->echo("<p class='text-success'>" . xlt('Copied portal review activity to the review queue') . ': ' . text((string) $report->migrated) . "</p>\n");
-                    if ($report->skipped !== [] || $report->unrecognised !== []) {
+                    if ($report->skipped !== [] || $report->failed !== [] || $report->unrecognised !== []) {
                         $this->echo("<p class='text-warning'>" . xlt('Some portal activity rows need attention; see the system log') . "</p>\n");
                     }
                     $this->flush_echo();
