@@ -70,6 +70,20 @@ describe('convLbtoKg', () => {
         expect(convLbtoKg('#')).toBeNaN();
     });
 
+    test('accepts ounces from 0 up to but not including 16', () => {
+        expect(convLbtoKg('5#0')).toBeCloseTo(5 * LB_TO_KG, 10);
+        expect(convLbtoKg('5#15')).toBeCloseTo((5 + 15 / 16) * LB_TO_KG, 10);
+        expect(convLbtoKg('5#15.9')).toBeCloseTo((5 + 15.9 / 16) * LB_TO_KG, 10);
+    });
+
+    test('rejects 16 or more ounces and negative ounces', () => {
+        expect(convLbtoKg('5#16')).toBeNaN();
+        expect(convLbtoKg('5#16.0')).toBeNaN();
+        expect(convLbtoKg('5#32')).toBeNaN();
+        expect(convLbtoKg('5#-7')).toBeNaN();
+        expect(convLbtoKg('5# -7')).toBeNaN();
+    });
+
     test('convUnit uses it for USA weight input', () => {
         expect(convUnit('usa', 'lbs', '5#4')).toBeCloseTo(5.25 * LB_TO_KG, 10);
     });
@@ -113,7 +127,7 @@ describe('vitals form weight input', () => {
         expect(document.getElementById('weight_input_usa').classList.contains('error')).toBe(false);
     });
 
-    test.each(['5#abc', '5#4#2', '-5#4', '#', '.#4', '5#4.2.3', '5#1e2'])(
+    test.each(['5#abc', '5#4#2', '-5#4', '#', '.#4', '5#4.2.3', '5#1e2', '5#16', '5#32', '5#-7'])(
         'rejects %s on change and blocks submission of the previous weight', (value) => {
             const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
             const alert = jest.spyOn(window, 'alert').mockImplementation(() => {});

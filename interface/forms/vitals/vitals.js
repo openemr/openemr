@@ -254,7 +254,8 @@ function convUnit(system, unit, value)
 }
 
 // Converts a pounds#ounces weight (e.g. "5#4" for 5 lb 4 oz) to decimal pounds.
-// Returns NaN when the value is not in that form or either part is not a number.
+// Returns NaN when the value is not in that form, either part is not a number,
+// or the ounces are 16 or more (a pound has 16 ounces, so valid ounces are 0 up to 16).
 function convLbOztoLb(value) {
     var match = /^\s*(\d+(?:\.\d*)?|\.\d+)?\s*#\s*(\d+(?:\.\d*)?|\.\d+)?\s*$/.exec(value);
     if (!match || (match[1] === undefined && match[2] === undefined)) {
@@ -262,6 +263,9 @@ function convLbOztoLb(value) {
     }
     var pounds = match[1] === undefined ? 0 : parseFloat(match[1]);
     var ounces = match[2] === undefined ? 0 : parseFloat(match[2]);
+    if (ounces >= 16) {
+        return NaN;
+    }
     return pounds + ounces / 16;
 }
 
