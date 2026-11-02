@@ -304,7 +304,11 @@ final readonly class PortalReviewWorkflows
     public function alertCounts(): array
     {
         return [
-            'audits' => $this->queue->countPending(),
+            // Only the types the portal review list shows; other sources (FHIR writes) have
+            // their own screens.
+            'audits' => $this->queue->countPending(ReviewType::Profile)
+                + $this->queue->countPending(ReviewType::Payment)
+                + $this->queue->countPending(ReviewType::Document),
             'payments' => $this->queue->countPending(ReviewType::Payment),
         ];
     }

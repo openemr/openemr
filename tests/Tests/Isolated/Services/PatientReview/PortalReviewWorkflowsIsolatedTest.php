@@ -18,10 +18,13 @@ namespace OpenEMR\Tests\Isolated\Services\PatientReview;
 use DateTimeImmutable;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
+use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
+use OpenEMR\Services\PatientReview\ReviewSource;
 use OpenEMR\Services\PatientReview\ReviewStatus;
+use OpenEMR\Services\PatientReview\ReviewSubmission;
 use OpenEMR\Services\PatientReview\ReviewType;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
@@ -242,6 +245,25 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
         $this->expectException(InvalidReviewTransitionException::class);
         $this->workflows->discard($payment, $this->staff(), 'stale row');
+    }
+
+    public function testAlertCountsLeaveOutNonPortalRequests(): void
+    {
+        $this->workflows->submitDocument(self::PID, 11, 'Consent', $this->patient());
+        $this->queue->submit(
+            new ReviewSubmission(
+                self::PID,
+                ReviewType::FhirWrite,
+                'Patient app Condition write',
+                ['resourceType' => 'Condition'],
+                ReviewSource::Api,
+                'client-abc',
+                resourceType: new FhirResourceType('Condition'),
+            ),
+            $this->patient(),
+        );
+
+        $this->assertSame(['audits' => 1, 'payments' => 0], $this->workflows->alertCounts());
     }
 
     public function testAlertCountsIncludePaymentsInAudits(): void
