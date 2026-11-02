@@ -22,12 +22,14 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
+use OpenEMR\Services\PatientReview\Portal\PaymentPostingLock;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\PatientReview\ReviewStatus;
@@ -87,7 +89,15 @@ $recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
 // to the open chart. A portal patient stays on the session patient.
 // Only a payment still pending is opened or posted: one the patient has since replaced cannot
 // post its old invoice selection, and one already posted cannot be posted twice.
+// A staff save holds the payment's posting lock from this check until the request is closed
+// below, so two saves of the same payment at once cannot both post it: the second waits, then
+// finds it no longer pending.
+$postingLock = null;
 if (!$isPortal && $recid) {
+    if (CurrentRequest::get()->request->getString('form_save') !== '') {
+        $postingLock = new PaymentPostingLock();
+        $postingLock->acquire($recid);
+    }
     $paymentRecord = $reviewWorkflows->payment($recid);
     if ($paymentRecord === null || $paymentRecord->status !== ReviewStatus::Pending) {
         throw new \RuntimeException('Portal payment record not found or no longer pending');
@@ -378,6 +388,8 @@ if ($_POST['form_save'] ?? '') {
             $reviewWorkflows->completePayment($sessionPid, $postingStaff);
         }
     }
+    // Posted and closed, or refused: either way the next save of this payment may go ahead.
+    $postingLock?->release();
 }//if ($_POST['form_save'])
 
 // Skip the receipt when the payment was rejected; there is nothing to receipt for.
