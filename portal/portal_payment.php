@@ -147,7 +147,12 @@ if ($isStaffSave && !$recid) {
     $postingLock->acquire($sessionPid);
     $pendingUnderLock = $reviewWorkflows->pendingPayment($sessionPid);
     if ($pendingUnderLock?->id !== $pendingAtSave?->id) {
-        throw new \RuntimeException('The pending portal payment was posted or replaced while this save waited');
+        // Posted or replaced while this save waited. Nothing is written yet; the posting lock is
+        // released on shutdown.
+        echo "<!DOCTYPE html><html><body><p>"
+            . xlt('This portal payment has already been posted or was replaced by the patient. Refresh and try again.')
+            . "</p></body></html>";
+        exit;
     }
     $postingRequestId = $pendingUnderLock->id ?? 0;
 }
