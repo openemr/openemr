@@ -21,6 +21,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\Services\FHIR\Questionnaire\QuestionnaireItemNormalizer;
+use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 
 class QuestionnaireService extends BaseService
 {
@@ -212,6 +214,13 @@ class QuestionnaireService extends BaseService
             $id = $id['id'];
         } else {
             $id = sqlInsert($sql_insert, $bind) ?: 0;
+            // A newly imported questionnaire is offered on the dashboard, which is what
+            // happened before assignments existed. Only new records get this: re-saving an
+            // existing questionnaire must not resurrect an assignment an admin removed.
+            if ($id > 0) {
+                (new QuestionnaireAvailabilityService())
+                    ->assignDefault($id, QuestionnaireSurface::Dashboard);
+            }
         }
 
         return $id;

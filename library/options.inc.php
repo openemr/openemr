@@ -391,7 +391,7 @@ function generate_select_list(
     $output[] = $_selectString;
 
     if (array_key_exists('error', $_metadata)) {
-        $_errorString = sprintf("<span title=\"%s\">%s</span>", $_metadata['error']['title'], $metadata['error']['text']);
+        $_errorString = sprintf("<span title=\"%s\">%s</span>", $_metadata['error']['title'], $_metadata['error']['text']);
         $output[] = $_errorString;
     }
 

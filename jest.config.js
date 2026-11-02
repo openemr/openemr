@@ -9,7 +9,6 @@ const config = {
     coveragePathIgnorePatterns: [
         'jest.config.js',
         'node_modules',
-        'ccdaservice/node_modules',
         'coverage',
         'interface/forms/eye_mag/js/jquery-1-10-2',
         'interface/forms/eye_mag/js/jquery-panelslider',

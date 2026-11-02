@@ -11,14 +11,17 @@ parameters:
   tmpDir: tmp-phpstan
   excludePaths:
     analyseAndScan:
-    # excluding for easy dev setups since ccdaservice is a path below
-    - ccdaservice/node_modules/*
     # oe-module-claimrev-connect is a Composer dependency
     # (claimrevolution/oe-module-claimrev-connect), relocated into this path by the
     # oe-module-installer-plugin during `composer install`. It is third-party code,
     # not maintained in this repo, so exclude it from analysis the same way vendor/
     # is excluded.
     - interface/modules/custom_modules/oe-module-claimrev-connect/*
+    # ci/api-explorer/run.sh clones openemr/oe-module-api-explorer into
+    # /devtools/oe-module-api-explorer/ on every smoke run. It is third-party code,
+    # not maintained in this repo, so exclude it from analysis the same way vendor/
+    # is excluded.
+    - devtools/oe-module-api-explorer/*
     # Acceptance-harness bootstrap scripts — runtime-only. install-helper.php
     # is copied into a running container's mount point at execution time
     # and depends on container-absolute paths (autoload.php under
@@ -40,7 +43,6 @@ parameters:
   - acl_upgrade.php
   - admin.php
   - apis
-  - ccdaservice
   - ccr
   - cli
   - config

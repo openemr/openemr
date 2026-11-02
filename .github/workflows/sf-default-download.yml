@@ -1,0 +1,148 @@
+# After a GitHub release is published, wait for SourceForge's GitHub
+# integration to mirror the release assets, then mark the new tarball
+# (and zip, for the Windows button) as the default download on
+# https://sourceforge.net/projects/openemr/
+#
+# Why: the SourceForge importer copies every GitHub release into a
+# folder named after the tag (v8_4_1/openemr-8.4.1.tar.gz, ...), but
+# it never moves the project's "default download" pointer. Without
+# this workflow the big green button on SourceForge keeps serving
+# whatever release was last set by hand.
+#
+# Triggers:
+#   * release: published -- the normal path. reusable-publish-release.yml
+#     creates the release with the release App token, so this event
+#     fires (releases created with the default GITHUB_TOKEN would not
+#     trigger other workflows). Prereleases are skipped.
+#   * workflow_dispatch -- manual re-run for a tag, optionally with the
+#     SourceForge folder name when auto-detection failed.
+#
+# Requires one repo secret:
+#   SF_RELEASE_API_KEY - a Release API key generated in the SourceForge
+#   account preferences of a user who is an admin on the openemr project.
+
+name: SourceForge default download
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v8_4_2)"
+        required: true
+        type: string
+      folder:
+        description: "SF files subfolder (e.g. v8_4_2), only if auto-detection failed"
+        required: false
+        type: string
+
+# The job only talks to SourceForge; it needs nothing from the GitHub API.
+permissions: {}
+
+jobs:
+  set-default:
+    # skip prereleases / release candidates
+    if: ${{ github.event_name == 'workflow_dispatch' || !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    # 60 polls x 5 min = 5 h of waiting for the mirror, plus slack.
+    timeout-minutes: 350
+    steps:
+    - name: Set default download on SourceForge
+      env:
+        SF_API_KEY: ${{ secrets.SF_RELEASE_API_KEY }}
+        TAG: ${{ inputs.tag || github.event.release.tag_name }}
+        FOLDER_OVERRIDE: ${{ inputs.folder }}
+      run: |
+        set -euo pipefail
+
+        if [ -z "${SF_API_KEY:-}" ]; then
+          echo "::error::SF_RELEASE_API_KEY secret is not set"
+          exit 1
+        fi
+        if [ -z "${TAG:-}" ]; then
+          echo "::error::no release tag (expected a release event or the tag input)"
+          exit 1
+        fi
+
+        # v8_4_2 -> 8.4.2
+        VERSION="${TAG#v}"; VERSION="${VERSION//_/.}"
+        TARBALL="openemr-${VERSION}.tar.gz"
+        ZIPFILE="openemr-${VERSION}.zip"
+        BASE="https://sourceforge.net/projects/openemr/files"
+
+        # The SF importer puts each release in its own subfolder; the
+        # exact name (tag vs. release title) can vary, so probe a few
+        # candidates unless one was passed in manually.
+        if [ -n "${FOLDER_OVERRIDE:-}" ]; then
+          CANDIDATES=("$FOLDER_OVERRIDE")
+        else
+          CANDIDATES=("$TAG" "$VERSION" "OpenEMR $VERSION" "openemr-$VERSION")
+        fi
+
+        exists() {
+          # 200 after redirects means the file is live on a mirror
+          local code
+          code=$(curl -o /dev/null -s -w '%{http_code}' -L \
+            -A 'openemr-release-bot' "$1/download")
+          [ "$code" = "200" ]
+        }
+
+        FOUND=""
+        # poll up to ~5h: the GitHub->SF sync can lag the release
+        for i in $(seq 1 60); do
+          for f in "${CANDIDATES[@]}"; do
+            enc=$(python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1]))" "$f")
+            if exists "$BASE/$enc/$TARBALL"; then
+              FOUND="$enc"
+              break 2
+            fi
+          done
+          echo "Not mirrored yet (attempt $i), sleeping 5m..."
+          sleep 300
+        done
+
+        if [ -z "$FOUND" ]; then
+          echo "::error::$TARBALL never appeared on SourceForge; run this workflow manually with the folder name once it syncs."
+          exit 1
+        fi
+        echo "Found release under $BASE/$FOUND/"
+
+        set_default() {  # $1 = file path, $2... = platforms
+          local path data p
+          path="$1"; shift
+          data="api_key=${SF_API_KEY}"
+          for p in "$@"; do data="${data}&default=${p}"; done
+          curl -sf -H 'Accept: application/json' -X PUT \
+            -d "$data" "$BASE/$path" > /dev/null
+          echo "Default set: $path -> $*"
+        }
+
+        # Matches how the defaults were set by hand for 8.4.1: tarball for
+        # mac/linux/bsd/solaris, zip for windows only; android and others
+        # are left unset.
+        set_default "$FOUND/$TARBALL" linux bsd mac solaris
+        if exists "$BASE/$FOUND/$ZIPFILE"; then
+          set_default "$FOUND/$ZIPFILE" windows
+        else
+          set_default "$FOUND/$TARBALL" windows
+        fi
+
+        # Confirm the project-wide pointer moved. best_release.json is
+        # what SourceForge's download button reads; it can lag the PUT by
+        # a little, so give it a few minutes before calling it a failure.
+        ok=""
+        for _ in $(seq 1 6); do
+          best=$(curl -sf -A 'openemr-release-bot' \
+            https://sourceforge.net/projects/openemr/best_release.json || true)
+          if printf '%s' "$best" | grep -qF "$TARBALL"; then
+            ok=1
+            break
+          fi
+          sleep 30
+        done
+        echo "best_release.json: $best"
+        if [ -z "$ok" ]; then
+          echo "::error::best_release.json does not point at $TARBALL after 3 minutes; check https://sourceforge.net/projects/openemr/files/"
+          exit 1
+        fi

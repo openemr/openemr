@@ -99,11 +99,52 @@
         var newEntry=new menu_entry(object);
         target.push(newEntry);
     }
+    function build_main_menu(objects)
+    {
+        // Build every entry before replacing the menu, so a bad entry leaves the old menu in place.
+        var entries=[];
+        for(var menuIdx=0;menuIdx<objects.length;menuIdx++)
+        {
+            process_menu_object(objects[menuIdx],entries);
+        }
+        app_view_model.application_data.menu(entries);
+    }
     var menu_objects={{ menu_restrictions|json_encode }};
     app_view_model.application_data.menu=ko.observableArray();
-    for(var menuIdx=0;menuIdx<menu_objects.length;menuIdx++)
+    build_main_menu(menu_objects);
+
+    /**
+     * Rebuild the main menu from the server without reloading OpenEMR, for a
+     * module whose menu entries depend on something the user just changed.
+     * Call it from any frame as top.refreshMainMenu(). Resolves to true when
+     * the menu was replaced, false when it couldn't be fetched or built (the
+     * menu is then left as it was). When refreshes overlap, only the last one
+     * started is applied; the earlier ones resolve true without changing the menu.
+     */
+    var main_menu_refreshes=0;
+    window.refreshMainMenu=function()
     {
-        var curObj=menu_objects[menuIdx];
-        process_menu_object(curObj,app_view_model.application_data.menu);
-    }
+        var refresh=++main_menu_refreshes;
+        restoreSession();
+        var request=new FormData();
+        request.append("csrf_token_form", csrf_token_js);
+        return fetch(webroot_url + "/interface/main/tabs/menu_json.php", {
+            method: 'POST',
+            credentials: 'same-origin',
+            body: request
+        }).then(function(response) {
+            if (!response.ok) {
+                throw new Error("menu_json.php answered " + response.status);
+            }
+            return response.json();
+        }).then(function(objects) {
+            if (refresh===main_menu_refreshes) {
+                build_main_menu(objects);
+            }
+            return true;
+        }).catch(function(error) {
+            console.error("refreshMainMenu: " + error);
+            return false;
+        });
+    };
 </script>

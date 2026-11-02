@@ -184,7 +184,7 @@ class TelehealthGlobalConfig
      *
      * @return bool
      */
-    public function isTelehealthConfigured()
+    public function isTelehealthConfigured(): bool
     {
         if (!$this->isTelehealthCoreSettingsConfigured()) {
             return false;

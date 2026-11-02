@@ -14,6 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -22,6 +24,10 @@ require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxGloba
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxStore.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxXMLBuilder.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxPage.php');
+
+if (!AclMain::aclCheckCore('patients', 'rx')) {
+    AccessDeniedHelper::deny('eRx.php: patients/rx not granted');
+}
 
 set_time_limit(0);
 

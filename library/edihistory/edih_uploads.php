@@ -197,6 +197,13 @@ function edih_ziptoarray($zipfilename, $param_ar, $single = false): array
         return $f_zr;
     }
 
+    if (!\OpenEMR\Common\Zip\ZipExtractionGuard::isSafe($zip_obj)) {
+        $err = 'Archive exceeds extraction limits';
+        csv_edihist_log('edih_ziptoarray: ' . $zipfilename . ' ' . $err);
+        $f_zr['reject'][] = ['name' => $zipfilename, 'comment' => $err];
+        return $f_zr;
+    }
+
     // initialize output array and counter
     $f_zr = [];
     $p_ct = 0;
@@ -438,7 +445,7 @@ function edih_upload_files()
                 foreach ($f_upl as $tp => $fz) {
                     if ($tp == 'reject') {
                         if (isset($f_ar['reject']) && is_array($fz)) {
-                            array_merge($f_ar['reject'], $fz);
+                            $f_ar['reject'] = array_merge($f_ar['reject'], $fz);
                         } else {
                             $f_ar['reject'] = (is_array($fz)) ? $fz : [];
                         }

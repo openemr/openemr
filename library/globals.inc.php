@@ -1173,6 +1173,13 @@ $GLOBALS_METADATA = [
             xl('Display Invoice Number or Patient Name in the Cash Receipt Report')
         ],
 
+        'referral_overdue_days' => [
+            xl('Referrals Overdue After (Days)'),
+            'num',
+            '14',
+            xl('A referral not yet completed shows as overdue this many days after its Referral Date, on the Transactions screen and in the Referrals report. 0 turns this off.')
+        ],
+
     ],
 
     // Billing Tab
@@ -1331,6 +1338,13 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '0',                              // default = false
             xl('Automatically replicate justification codes in Fee Sheet (basically fills in the blanks with the justification code above it).')
+        ],
+
+        'fee_sheet_save_appt_status' => [
+            xl('Fee Sheet Save: Ask to Set Appointment Status'),
+            'text',                           // data type
+            '',                               // default = off
+            xl('Code of an appointment status, for example $ for Coding done. When set, Save on the fee sheet asks whether to set the patient\'s appointment on the visit date to this status, and on Yes opens the calendar on that date. Not asked for an appointment that already has the status or is canceled or a no show. Blank: off.')
         ],
 
         'display_units_in_billing' => [
@@ -3076,6 +3090,13 @@ $GLOBALS_METADATA = [
             xl('Website link for the Patient Portal.')
         ],
 
+        'pdf_allowed_host' => [
+            xl('Patient Portal PDF Renderer Allowed Host'),
+            'text',                           // data type
+            '',                               // default — blank blocks all remote http(s) fetches
+            xl('Origin the patient-portal PDF renderer accepts http(s) resource references for (barcodes, letterhead images, inline CSS url() values). Formats accepted: `host` (either scheme, default port), `host:port`, `http://host`, `https://host:port`. When left blank the renderer rejects all remote http(s) resources, which disables same-host barcodes and letterhead images.')
+        ],
+
         'portal_css_header' => [
             xl('Portal Default Theme'),
             [
@@ -3251,6 +3272,13 @@ $GLOBALS_METADATA = [
             'bool',
             '0',
             xl('Enable OpenEMR Standard FHIR RESTful API.')
+        ],
+
+        GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value => [
+            xl('Track Referrals with FHIR Tasks'),
+            'bool',
+            '0',
+            xl('When a referral is saved, on the Transactions screen or through the REST API, create a FHIR Task for the one it is sent to (Refer To) if FHIR serves them as a Practitioner or Organization. The receiving system can then accept, reject or complete it through the FHIR API, or mark it failed, and each of those sends the one who made the referral (Refer By) an inbox message. When the referral records a Reply Date, the reply is filed in the patient\'s documents and completes the recipient\'s Task.')
         ],
 
         GlobalConnectorsEnum::SMART_TEST_LAUNCHES_ENABLE->value => [
@@ -3600,7 +3628,7 @@ $GLOBALS_METADATA = [
         ],
 
         'ccda_alt_service_enable' => [
-            xl('Enable C-CDA Service'),
+            xl('Enable C-CDA Documents'),
             [
                 0 => xl('Off'),
                 1 => xl('Care Coordination Only'),
@@ -3608,7 +3636,7 @@ $GLOBALS_METADATA = [
                 3 => xl('Both'),
             ],
             '0',
-            xl('Enable C-CDA Service')
+            xl('Where C-CDA documents can be generated: the Care Coordination module, the patient portal, or both.')
         ],
 
         'phimail_enable' => [

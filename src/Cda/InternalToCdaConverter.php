@@ -18,6 +18,7 @@ use DOMDocument;
 use DOMElement;
 use DOMNodeList;
 use DOMXPath;
+use OpenEMR\Cqm\Cql\Ucum\Ucum;
 use Ramsey\Uuid\Uuid;
 
 class InternalToCdaConverter
@@ -2825,8 +2826,7 @@ class InternalToCdaConverter
         $value = $this->output->createElement('value');
         $this->setXsiType($value, $valueType);
         if ($valueType === 'PQ') {
-            $value->setAttribute('value', $resultValue);
-            $value->setAttribute('unit', $unit);
+            $this->setQuantity($value, $resultValue, $unit);
         } elseif ($valueType === 'CO') {
             $value->setAttribute('code', '260385009');
             $value->setAttribute('codeSystemName', 'SNOMED-CT');
@@ -2883,14 +2883,12 @@ class InternalToCdaConverter
             $this->setXsiType($rangeValue, 'IVL_PQ');
             if ($low !== '') {
                 $lowEl = $this->createElement('low');
-                $lowEl->setAttribute('value', $low);
-                $lowEl->setAttribute('unit', $unit);
+                $this->setQuantity($lowEl, $low, $unit);
                 $rangeValue->appendChild($lowEl);
             }
             if ($high !== '') {
                 $highEl = $this->createElement('high');
-                $highEl->setAttribute('value', $high);
-                $highEl->setAttribute('unit', $unit);
+                $this->setQuantity($highEl, $high, $unit);
                 $rangeValue->appendChild($highEl);
             }
             $obsRange->appendChild($rangeValue);
@@ -7168,8 +7166,8 @@ class InternalToCdaConverter
      * with its code/displayName/codeSystem/codeSystemName attributes, or
      * collapse it to nullFlavor="UNK" when no code is available.
      *
-     * This mirrors the Node service's shared code renderer
-     * (ccdaservice/oe-blue-button-generate/lib/translate.js `exports.code`,
+     * This mirrors the retired Node service's shared code renderer
+     * (oe-blue-button-generate/lib/translate.js `exports.code`,
      * lines 27-65), which is the authoritative behavior the PHP converter
      * replaces: an empty code becomes nullFlavor="UNK", and each remaining
      * attribute is emitted only when its value is non-empty. The cs/CD/st
@@ -7211,6 +7209,26 @@ class InternalToCdaConverter
     private function setXsiType(DOMElement $el, string $type): void
     {
         $el->setAttribute('xsi:type', $type);
+    }
+
+    /**
+     * C-CDA requires UCUM in a PQ's @unit. A unit UCUM doesn't accept goes in a
+     * translation's originalText under nullFlavor="OTH", as in HL7's approved
+     * "Results Unit Non-UCUM" example.
+     */
+    private function setQuantity(DOMElement $el, string $value, string $unit): void
+    {
+        if (Ucum::instance()->isValid($unit)) {
+            $el->setAttribute('value', $value);
+            $el->setAttribute('unit', $unit);
+            return;
+        }
+        $el->setAttribute('nullFlavor', 'OTH');
+        $translation = $this->createElement('translation');
+        $translation->setAttribute('value', $value);
+        $translation->setAttribute('nullFlavor', 'OTH');
+        $translation->appendChild($this->createElement('originalText', $unit));
+        $el->appendChild($translation);
     }
 
     private function createElement(string $name, ?string $text = null): DOMElement

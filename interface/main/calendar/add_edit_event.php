@@ -79,7 +79,9 @@ if (isset($_GET['group'])) {
     $_GET['group'] = $_GET['group'] == "true";
 }
 if (isset($_GET['prov'])) {
-    $_GET['prov'] = $_GET['prov'] == "true";
+    // The calendar passes the category type (1). The provider tab link passes the word true.
+    $provFlag = $_GET['prov'];
+    $_GET['prov'] = $provFlag === true || $provFlag === 'true' || $provFlag === '1' || $provFlag === 1;
 }
 $_POST['form_date'] = DateToYYYYMMDD($_POST['form_date'] ?? null);
 $_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? null) ?: null;
@@ -648,7 +650,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                         WHERE pc_aid = ? AND pc_multiple = ?",
                         [
                             $_POST['form_category'],
-                            $_POST['form_pid'],
+                            \OpenEMR\Services\AppointmentService::calendarPidOrNull($_POST['form_pid']),
                             $_POST['form_title'],
                             $_POST['form_comments'],
                             $_POST['form_room'],
@@ -771,7 +773,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                     [
                         $_POST['form_category'],
                         $prov,
-                        $_POST['form_pid'],
+                        \OpenEMR\Services\AppointmentService::calendarPidOrNull($_POST['form_pid']),
                         $_POST['form_title'],
                         $_POST['form_comments'],
                         $_POST['form_room'],

@@ -42,6 +42,7 @@ require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormRegistry;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -346,8 +347,11 @@ function image_widget($doc_id, $doc_catg): void
 }
 
 // Determine if the Vitals form is in use for this site.
-$tmp = sqlQuery("SELECT count(*) AS count FROM registry WHERE directory = 'vitals' AND state = 1");
-$vitals_is_registered = $tmp['count'];
+$vitals_is_registered = (new FormRegistry())->isEnabled('vitals');
+
+// Determine if the Track Anything form is in use for this site. Read here
+// because the card and the fragment that fills it are emitted far apart.
+$track_is_registered = (new FormRegistry())->isEnabled('track_anything');
 
 // Get patient/employer/insurance information.
 //
@@ -630,7 +634,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             });
             placeHtml("disc_fragment.php", "disclosures_ps_expand");
             placeHtml("labdata_fragment.php", "labdata_ps_expand");
+            <?php if ($track_is_registered) { ?>
             placeHtml("track_anything_fragment.php", "track_anything_ps_expand");
+            <?php } ?>
             <?php if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) { ?>
             // Initialize the Vitals form if it is registered and user is authorized.
             placeHtml("vitals_fragment.php", "vitals_ps_expand");
@@ -1145,7 +1151,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 // MEDICAL PROBLEMS CARD
                 if ($pl === 1) {
-                    $_rawPL = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medical_problem'])->getData();
+                    $_rawPL = $patIssueService->search(['lists.pid' => is_int($pid) ? (string) $pid : $pid, 'lists.type' => 'medical_problem'])->getData();
                     $id = 'medical_problem_ps_expand';
                     $viewArgs = [
                         'title' => xl('Medical Problems'),
@@ -1167,7 +1173,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 // MEDICATION CARD
                 if ($meds === 1) {
-                    $_rawMedList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medication'])->getData();
+                    $_rawMedList = $patIssueService->search(['lists.pid' => is_int($pid) ? (string) $pid : $pid, 'lists.type' => 'medication'])->getData();
                     $id = 'medication_ps_expand';
                     $viewArgs = [
                         'title' => xl('Medications'),
@@ -2063,9 +2069,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     echo "<div id=\"stats_div\"></div>";
 
                     // TRACK ANYTHING
-                    // Determine if track_anything form is in use for this site.
-                    $tmp = sqlQuery("SELECT count(*) AS count FROM registry WHERE directory = 'track_anything' AND state = 1");
-                    $track_is_registered = $tmp['count'];
                     if ($track_is_registered) {
                         $spruch = "SELECT id FROM forms WHERE pid = ? AND formdir = ?";
                         $existTracks = sqlQuery($spruch, [$pid, "track_anything"]);

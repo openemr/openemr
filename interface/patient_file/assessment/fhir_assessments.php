@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Patient FHIR assessment launcher.
+ * Patient questionnaire assessment launcher.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -24,9 +24,15 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\Services\Questionnaire\AvailabilityContext;
+use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 
 $pid = PatientSessionUtil::getPid();
 $authorized = AclMain::aclCheckCore('patients', 'med');
+// Managing where questionnaires are offered changes it for every patient and every user,
+// so the tab is shown only to administrators; the embedded page enforces the same check.
+$canManageAvailability = $authorized && AclMain::aclCheckCore('admin', 'super');
 $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
 $container = OEGlobalsBag::getInstance()->getBoolean('questionnaire_display_fullscreen')
     ? 'container'
@@ -109,32 +115,27 @@ $assessmentStatusClass = (static fn(string $status): string => match ($status) {
     'in-progress' => 'badge-warning',
     'amended' => 'badge-info',
     'stopped', 'entered-in-error' => 'badge-danger',
-    default => 'badge-secondary',
+    default => 'badge-info',
 });
 
 $questionnairesByCategory = [];
+// questionnaire id => the SMART apps it may be launched into. Empty unless a SMART
+// availability rule reaches the questionnaire, so the launch menu is offered only for
+// questionnaires an administrator selected, not for every assessment.
+$smartClientsByQuestionnaire = [];
 $assessmentHistory = [];
 $latestAssessmentByQuestionnaire = [];
 
 if ($authorized && $pid > 0) {
-    $questionnaireRecords = QueryUtils::fetchRecordsNoLog(
-        "SELECT
-            qr.id,
-            qr.name,
-            qr.version,
-            qr.profile,
-            qr.type,
-            qr.code_display,
-            qr.category,
-            qr.questionnaire,
-            lo.title AS category_title
-         FROM questionnaire_repository qr
-         LEFT JOIN list_options lo
-            ON lo.list_id = 'Observation_Types'
-            AND lo.option_id = qr.category
-            AND lo.activity = 1
-         WHERE qr.active = 1
-         ORDER BY COALESCE(lo.seq, 999999), COALESCE(lo.title, qr.category), qr.name"
+    // Which questionnaires belong on this dashboard is an assignment question, not a
+    // property of the repository row, so it is answered in one place for every surface.
+    $questionnaireRecords = (new QuestionnaireAvailabilityService())->getAvailableQuestionnaires(
+        new AvailabilityContext(
+            QuestionnaireSurface::Dashboard,
+            pid: $pid,
+            encounter: is_numeric($currentEncounterValue) ? (int)$currentEncounterValue : null,
+            facility: $assessmentPositiveInt($activeSession->get('facilityId')),
+        )
     );
 
     foreach ($questionnaireRecords as $questionnaireRecord) {
@@ -180,6 +181,28 @@ if ($authorized && $pid > 0) {
 
         $latestAssessmentByQuestionnaire[$questionnaireForeignId] = $assessmentRecord;
     }
+
+    // One availability question per app, because a SMART rule can name the app it allows.
+    // The launch endpoint asks the same question, so a hand-built launch URL is refused too.
+    if ($smartAssessmentClients !== []) {
+        $smartAvailability = new QuestionnaireAvailabilityService();
+        $smartFacility = $assessmentPositiveInt($activeSession->get('facilityId'));
+        foreach ($smartAssessmentClients as $smartClient) {
+            $smartClientIdentifier = $assessmentString($smartClient->getIdentifier());
+            if ($smartClientIdentifier === '') {
+                continue;
+            }
+            $launchableIds = $smartAvailability->getAvailableIds(new AvailabilityContext(
+                QuestionnaireSurface::Smart,
+                pid: $pid,
+                facility: $smartFacility,
+                clientId: $smartClientIdentifier,
+            ));
+            foreach ($launchableIds as $launchableId) {
+                $smartClientsByQuestionnaire[$launchableId][] = $smartClient;
+            }
+        }
+    }
 }
 
 $nativeQuestionnaireUrl = $webRoot . '/interface/forms/questionnaire_assessments/native_questionnaire.php';
@@ -190,7 +213,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
 <html>
 <head>
     <?php Header::setupHeader(); ?>
-    <title><?php echo xlt('FHIR Assessments'); ?></title>
+    <title><?php echo xlt('Questionnaire Assessments'); ?></title>
     <style>
         #assessment-frame {
             border: 0;
@@ -201,7 +224,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
 </head>
 <body class="body_top">
     <div class="<?php echo attr($container); ?> mt-3">
-        <h4><?php echo xlt('FHIR Assessments'); ?></h4>
+        <h4><?php echo xlt('Questionnaire Assessments'); ?></h4>
         <div class="row">
             <div class="col-sm-12">
                 <?php
@@ -229,7 +252,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <iframe id="assessment-frame" title="<?php echo xla('FHIR Assessment'); ?>"></iframe>
+                    <iframe id="assessment-frame" title="<?php echo xla('Questionnaire Assessment'); ?>"></iframe>
                 </div>
             </div>
 
@@ -330,10 +353,25 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         >
                             <?php echo xlt('Assessment History'); ?>
                             <?php if ($assessmentHistory !== []) : ?>
-                                <span class="badge badge-secondary ml-1"><?php echo text((string)count($assessmentHistory)); ?></span>
+                                <span class="badge badge-info ml-1"><?php echo text((string)count($assessmentHistory)); ?></span>
                             <?php endif; ?>
                         </a>
                     </li>
+                    <?php if ($canManageAvailability) : ?>
+                    <li class="nav-item" role="presentation">
+                        <a
+                            class="nav-link"
+                            id="questionnaire-availability-tab"
+                            data-toggle="tab"
+                            href="#questionnaire-availability"
+                            role="tab"
+                            aria-controls="questionnaire-availability"
+                            aria-selected="false"
+                        >
+                            <?php echo xlt('Availability'); ?>
+                        </a>
+                    </li>
+                    <?php endif; ?>
                 </ul>
                 <div class="tab-content border-left border-right border-bottom p-3 bg-light" id="assessment-tabs-content">
                     <div
@@ -395,6 +433,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                     ? ['response_id' => $latestResponseId]
                                                     : ['questionnaire_id' => $questionnaireId]
                                             );
+                                        $cardSmartClients = $smartClientsByQuestionnaire[$questionnaireId] ?? [];
                                         ?>
                                         <div class="col-12 col-lg-6 col-xl-4 mb-3">
                                             <div class="card h-100">
@@ -419,7 +458,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                         <?php if (str_contains($profile, '/uv/sdc/')) : ?>
                                                             <span class="badge badge-info ml-1"><?php echo xlt('FHIR SDC'); ?></span>
                                                         <?php else : ?>
-                                                            <span class="badge badge-secondary ml-1"><?php echo xlt('FHIR R4'); ?></span>
+                                                            <span class="badge badge-info ml-1"><?php echo xlt('FHIR R4'); ?></span>
                                                         <?php endif; ?>
                                                     </div>
                                                     <?php if ($lastUpdated !== '') : ?>
@@ -437,7 +476,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                         >
                                                             <?php echo $isContinuable ? xlt('Continue') : xlt('Start Assessment'); ?>
                                                         </button>
-                                                        <?php if ($smartAssessmentClients !== []) : ?>
+                                                        <?php if ($cardSmartClients !== []) : ?>
                                                             <div class="btn-group ml-1">
                                                                 <button
                                                                     type="button"
@@ -446,10 +485,10 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                                     aria-haspopup="true"
                                                                     aria-expanded="false"
                                                                 >
-                                                                    <?php echo xlt('Launch SMART App'); ?>
+                                                                    <?php echo xlt('Launch App'); ?>
                                                                 </button>
                                                                 <div class="dropdown-menu">
-                                                                    <?php foreach ($smartAssessmentClients as $smartClient) : ?>
+                                                                    <?php foreach ($cardSmartClients as $smartClient) : ?>
                                                                         <button
                                                                             type="button"
                                                                             class="dropdown-item assessment-smart-launch"
@@ -490,7 +529,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         </div>
 
                         <?php if ($assessmentHistory === []) : ?>
-                            <div class="text-muted"><?php echo xlt('No FHIR assessment history found.'); ?></div>
+                            <div class="text-muted"><?php echo xlt('No questionnaire assessment history found.'); ?></div>
                         <?php else : ?>
                             <div class="table-responsive">
                                 <table class="table table-sm table-striped mb-0">
@@ -521,6 +560,9 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                         $editUrl = $responseId !== ''
                                             ? $nativeQuestionnaireUrl . '?' . http_build_query(['response_id' => $responseId])
                                             : '';
+                                        $historySmartClients = $historyQuestionnaireId !== null
+                                            ? ($smartClientsByQuestionnaire[$historyQuestionnaireId] ?? [])
+                                            : [];
                                         ?>
                                         <tr>
                                             <td><?php echo text($questionnaireName); ?></td>
@@ -544,8 +586,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                     </button>
                                                 <?php endif; ?>
                                                 <?php if (
-                                                    $smartAssessmentClients !== []
-                                                    && $historyQuestionnaireId !== null
+                                                    $historySmartClients !== []
                                                     && $historyQuestionnaireResponseId !== null
                                                 ) : ?>
                                                     <div class="btn-group ml-1">
@@ -556,10 +597,10 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                             aria-haspopup="true"
                                                             aria-expanded="false"
                                                         >
-                                                            <?php echo xlt('Launch SMART App'); ?>
+                                                            <?php echo xlt('Launch App'); ?>
                                                         </button>
                                                         <div class="dropdown-menu dropdown-menu-right">
-                                                            <?php foreach ($smartAssessmentClients as $smartClient) : ?>
+                                                            <?php foreach ($historySmartClients as $smartClient) : ?>
                                                                 <button
                                                                     type="button"
                                                                     class="dropdown-item assessment-smart-launch"
@@ -582,10 +623,71 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             </div>
                         <?php endif; ?>
                     </div>
+                    <?php if ($canManageAvailability) : ?>
+                    <div
+                        class="tab-pane fade"
+                        id="questionnaire-availability"
+                        role="tabpanel"
+                        aria-labelledby="questionnaire-availability-tab"
+                    >
+                        <!--
+                            Embedded rather than merged into this page: the management screen
+                            has its own forms, CSRF tokens and POST handling, and keeping it a
+                            separate document means neither page's submit can reach the
+                            other's handler. Loaded on first open so ordinary dashboard
+                            visits pay nothing for it.
+                        -->
+                        <iframe
+                            id="questionnaire-availability-frame"
+                            title="<?php echo xla('Questionnaire Availability'); ?>"
+                            class="w-100 border-0"
+                            style="height: 75vh;"
+                            data-src="<?php echo attr($webRoot . '/interface/super/manage_questionnaire_availability.php'); ?>"
+                        ></iframe>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endif; ?>
     </div>
+    <?php if ($canManageAvailability) : ?>
+    <script>
+        (function () {
+            const tab = document.getElementById('questionnaire-availability-tab')
+            const frame = document.getElementById('questionnaire-availability-frame')
+            const availableTab = document.getElementById('available-assessments-tab')
+            if (!tab || !frame) {
+                return
+            }
+            // The first load is the screen itself; any later load is the screen coming
+            // back from a save, which can change what this patient's dashboard offers.
+            let loads = 0
+            let changed = false
+            frame.addEventListener('load', () => {
+                loads++
+                if (loads > 1) {
+                    changed = true
+                }
+            })
+            tab.addEventListener('click', () => {
+                if (!frame.getAttribute('src')) {
+                    top.restoreSession()
+                    frame.setAttribute('src', frame.dataset.src)
+                }
+            })
+            // The Available list was rendered before the change, so refresh it rather than
+            // show a list that no longer matches the rules just saved.
+            if (availableTab) {
+                availableTab.addEventListener('click', () => {
+                    if (changed) {
+                        top.restoreSession()
+                        window.location.reload()
+                    }
+                })
+            }
+        })()
+    </script>
+    <?php endif; ?>
 
     <?php if ($authorized && $pid > 0) : ?>
         <script>

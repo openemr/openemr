@@ -178,6 +178,10 @@ class FhirOrganizationRestController
     public function getAll($searchParams): Response
     {
         $processingResult = $this->fhirOrganizationService->getAll($searchParams);
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
         // TODO: adunsulag why isn't this work done in the fhirService->createBundle?
         foreach ($processingResult->getData() as $searchResult) {

@@ -82,13 +82,25 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
     }
 
     /**
-     * @return string
+     * Count of inbound faxes waiting to be read, for the main menu badge.
+     *
+     * Read live from the EtherFax inbox (unread), the same thing the other
+     * fax vendors report, so the count is current without downloading the
+     * faxes. If the account cannot be reached or the inbox request fails,
+     * the count of received faxes still in the local queue is returned
+     * instead (sent faxes are not counted).
+     * A real unread count of 0 is returned as 0.
      */
     public function fetchReminderCount(): string
     {
-        // removed polling API to download pending faxes.
-        // this is better served in a background task.
-        return json_encode($this->fetchQueueCount());
+        if ($this->authenticate()) {
+            $unread = $this->client->getUnreadFaxCount();
+            if ($unread !== null) {
+                return (string)$unread;
+            }
+        }
+
+        return (string)$this->fetchQueueCount();
     }
 
     /**
@@ -770,8 +782,9 @@ SQL;
         $details_encoded = json_encode($details);
         $sentDate = date('Y-m-d H:i:s');
 
-        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`)
-        VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, 'application/pdf', ?)";
+        // direction defaults to 'inbound', so a sent fax must say so.
+        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`, `direction`)
+        VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, 'application/pdf', ?, 'outbound')";
 
         return sqlInsert($sql, [$uid, $account, $jobId, $sentDate, $callerId, $dialNumber, $details_encoded]);
     }
@@ -837,11 +850,14 @@ SQL;
     }
 
     /**
+     * Received faxes still in the local queue (not deleted). Sent faxes
+     * share the table and are left out.
+     *
      * @return int
      */
     public function fetchQueueCount(): int
     {
-        return (int)sqlQuery("SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0")['count'] ?? 0;
+        return (int)sqlQuery("SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0 AND direction = 'inbound'")['count'] ?? 0;
     }
 
     /**

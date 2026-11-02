@@ -105,7 +105,9 @@ describe('Questionnaire item rendering', () => {
 
         expect(container.querySelector('[data-link-id="child"]')).not.toBeNull();
         expect(container.querySelectorAll('input[type="text"]')).toHaveLength(2);
-        expect(container.querySelector('.oe-questionnaire-help').textContent).toBe('Helpful information');
+        // itemControl 'help' content opens in a popup from the help button
+        container.querySelector('.oe-questionnaire-help-button').click();
+        expect(container.querySelector('.oe-questionnaire-popup.oe-questionnaire-help').textContent).toContain('Helpful information');
     });
 
     test('only links a question label to an input id that actually exists', () => {

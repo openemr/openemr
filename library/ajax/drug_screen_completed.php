@@ -14,11 +14,17 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
+if (!AclMain::aclCheckCore('patients', 'appt')) {
+    AccessDeniedHelper::deny('ACL check failed for patients/appt: drug_screen_completed');
+}
 
 $drugval = '0';
 if ($_POST['testcomplete'] == 'true') {

@@ -297,12 +297,18 @@ describe('temporal widgets', () => {
         expect(answerOf(runtime, 'dob')[0].valueDate).toBe('2026-07-23');
     });
 
-    test('time renders a time input and stores valueTime as entered', () => {
+    test('time renders a time input and stores valueTime as FHIR time, hh:mm:ss', () => {
         const { container, runtime } = mountSingle({ linkId: 'at', type: 'time', text: 'At' });
         const input = itemNode(container, 'at').querySelector('input[type="time"]');
         input.value = '13:45';
         change(input);
-        expect(answerOf(runtime, 'at')[0].valueTime).toBe('13:45');
+        expect(answerOf(runtime, 'at')[0].valueTime).toBe('13:45:00');
+    });
+
+    test('a saved time with zero seconds shows as hh:mm, and one with seconds as written', () => {
+        const saved = (value) => ({ resourceType: 'QuestionnaireResponse', status: 'in-progress', item: [{ linkId: 'at', answer: [{ valueTime: value }] }] });
+        expect(itemNode(mountSingle({ linkId: 'at', type: 'time', text: 'At' }, saved('13:45:00')).container, 'at').querySelector('input').value).toBe('13:45');
+        expect(itemNode(mountSingle({ linkId: 'at', type: 'time', text: 'At' }, saved('13:45:30')).container, 'at').querySelector('input').value).toBe('13:45:30');
     });
 });
 
@@ -388,9 +394,11 @@ describe('quantity widget', () => {
 });
 
 describe('readOnly propagation', () => {
-    test('readOnly text input cannot be edited', () => {
+    test('readOnly text input is disabled (issue #14736: disabled rather than readonly)', () => {
         const { container } = mountSingle({ linkId: 's', type: 'string', text: 'S', readOnly: true });
-        expect(itemNode(container, 's').querySelector('input[type="text"]').readOnly).toBe(true);
+        const input = itemNode(container, 's').querySelector('input[type="text"]');
+        expect(input.disabled).toBe(true);
+        expect(input.readOnly).toBe(false);
     });
 
     test('readOnly choice radios are disabled', () => {
@@ -404,9 +412,11 @@ describe('readOnly propagation', () => {
 
 describe('unsupported item types', () => {
     test('renders a visible warning naming the type instead of crashing', () => {
-        const { container } = mountSingle({ linkId: 'file', type: 'attachment', text: 'Upload' });
-        const warning = itemNode(container, 'file').querySelector('.alert.alert-warning');
+        // 'attachment' and 'reference' are now supported (issue #14736); use a
+        // genuinely unknown type to exercise the fallback branch.
+        const { container } = mountSingle({ linkId: 'x', type: 'not-a-real-type', text: 'Mystery' });
+        const warning = itemNode(container, 'x').querySelector('.alert.alert-warning');
         expect(warning).not.toBeNull();
-        expect(warning.textContent).toContain('attachment');
+        expect(warning.textContent).toContain('not-a-real-type');
     });
 });

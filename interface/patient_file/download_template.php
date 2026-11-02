@@ -46,7 +46,7 @@ $groupCount   = 0;      // 0 if no items in the group yet
 $itemSeparator = '; ';  // separator between group items
 
 // Check if the current location has the specified {string}.
-function keySearch(&$s, $key)
+function keySearch(&$s, $key): bool
 {
     global $keyLocation, $keyLength;
     $keyLength = strlen((string) $key);
@@ -188,7 +188,7 @@ function doSubs($s)
             $patientid = $ptrow['pid'];
             $DOS = substr((string) $enrow['date'], 0, 10);
             // Prefer appointment comment if one is present.
-            $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, [$patientid]);
+            $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($patientid)]);
             foreach ($evlist as $tmp) {
                 if ($tmp['pc_pid'] == $pid && !empty($tmp['pc_hometext'])) {
                     $cc = $tmp['pc_hometext'];

@@ -103,26 +103,8 @@ class Measure extends AbstractType
     {
         parent::__construct($measure);
         //$this->id = ($measure['_id'] ?? [])['oid'] ?? '';
-
-        $this->calculation_method = 'EPISODE_OF_CARE';
-        // CMS22v10 is EPISODE_OF_CARE, which seems to be default in measure file, but these measures
-        // require PATIENT
-
-        // refactored to be more generic across all measures years
-        // need to look into this more
-        if (
-            str_starts_with((string) $measure['cms_id'], 'CMS69') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS122') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS124') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS125') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS127') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS130') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS138') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS147') ||
-            str_starts_with((string) $measure['cms_id'], 'CMS165')
-        ) {
-            $this->calculation_method = 'PATIENT';
-        }
+        // calculation_method is the bundle's own. Every measure in the 2023-2025 bundles is
+        // PATIENT based; forcing EPISODE_OF_CARE here used to change their results.
 
         //$this->_measure = $measure;
         $this->population_sets = [];

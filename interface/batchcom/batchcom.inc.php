@@ -15,7 +15,7 @@
 use OpenEMR\BC\Utilities;
 
 //validation functions
-function check_date_format($date)
+function check_date_format($date): bool
 {
     if (Utilities::isDateEmpty($date)) {
         return true;

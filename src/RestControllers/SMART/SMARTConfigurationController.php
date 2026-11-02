@@ -32,6 +32,10 @@ class SMARTConfigurationController
         private readonly ScopeRepository $scopeRepository,
         private readonly ServerConfig $serverConfig
     ) {
+        // Without this, a freshly-constructed ScopeRepository lazy-creates a
+        // ServerScopeListEntity with systemScopesEnabled=false, so system/* scopes never
+        // reach .well-known/smart-configuration even when rest_system_scopes_api is on.
+        $this->scopeRepository->setServerConfig($this->serverConfig);
     }
 
     /**

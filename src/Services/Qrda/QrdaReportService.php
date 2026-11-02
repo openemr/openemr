@@ -16,7 +16,6 @@
 namespace OpenEMR\Services\Qrda;
 
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Services\Qdm\CqmCalculator;
 use OpenEMR\Services\Qdm\MeasureService;
 use OpenEMR\Services\Qdm\QdmBuilder;
@@ -31,21 +30,10 @@ class QrdaReportService
     protected $patientJson;
     protected $effectiveDate;
     protected $effectiveDateEnd;
-    protected $client;
     public $measuresPath;
 
     public function __construct()
     {
-        // first thing, ensure have a node service.
-        $this->client = CqmServiceManager::makeCqmClient();
-        if (empty($this->client->getHealth()['uptime'] ?? null)) {
-            $this->client->start();
-            sleep(2); // give cpu a rest
-        }
-        if (empty($this->client->getHealth()['uptime'] ?? null)) {
-            $msg = xlt("Can not complete report request. Node Service is not running.");
-            throw new \RuntimeException($msg);
-        }
         $this->builder = new QdmBuilder();
         $this->calculator = new CqmCalculator();
         $this->measuresPath = MeasureService::fetchMeasuresPath();
@@ -155,15 +143,8 @@ class QrdaReportService
             $request = new QdmRequestOne($pid);
         }
 
-        if (!empty($this->client->getHealth()['uptime'] ?? null)) {
-            $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
-            $xml = $exportService->export($measures);
-        } else {
-            $msg = xlt("Can not complete report request. Node Service is not running.");
-            throw new \RuntimeException($msg);
-        }
-
-        return $xml;
+        $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
+        return $exportService->export($measures);
     }
 
     /**
@@ -190,12 +171,6 @@ class QrdaReportService
             $measures = $this->resolveMeasuresPath($activeMeasures);
         } else {
             $measures = $this->resolveMeasuresPath($measures);
-        }
-
-        // Ensure CQM service is running
-        if (empty($this->client->getHealth()['uptime'] ?? null)) {
-            $msg = xlt("Can not complete report request. Node Service is not running.");
-            throw new \RuntimeException($msg);
         }
 
         // Generate consolidated report

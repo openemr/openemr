@@ -11,6 +11,8 @@
 
 namespace OpenEMR\Tests\Certification\HIT1\G10_Certification\SinglePatientApi;
 
+use OpenEMR\Services\FHIR\FhirCareTeamService;
+use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Tests\Certification\HIT1\G10_Certification\Trait\G10ApiTestTrait;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -96,6 +98,20 @@ class CapabilityStatementTest extends TestCase
         'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-adi-documentation',
     ];
 
+    /**
+     * Versioned profiles a resource service deliberately leaves out when the highest
+     * compatible US Core version is 8.0.0 (the default), keyed by version. The
+     * unversioned profile is still advertised.
+     * - CareTeam: US Core 3.1.1 doesn't allow RelatedPerson care team members, so
+     *   FhirCareTeamService advertises 3.1.1 or 7.0.0/8.0.0, never both.
+     * - Patient: 7.0.0 and 8.0.0 aren't compatible with each other, so
+     *   FhirPatientService advertises only the configured one.
+     */
+    const PROFILES_NOT_ADVERTISED = [
+        '3.1.1' => [FhirCareTeamService::USCGI_PROFILE_URI],
+        '7.0.0' => [FhirPatientService::USCGI_PROFILE_URI],
+    ];
+
     #[Test]
     public function testCapabilityStatement_v311(): void
     {
@@ -165,7 +181,11 @@ class CapabilityStatementTest extends TestCase
     protected function assertProfilesSupported(array $supportedProfiles, array $expectedProfiles, string $version): void
     {
         $suffix = !empty($version) ? "|" . $version : "";
+        $notAdvertised = self::PROFILES_NOT_ADVERTISED[$version] ?? [];
         foreach ($expectedProfiles as $profile) {
+            if (in_array($profile, $notAdvertised, true)) {
+                continue;
+            }
             $this->assertContains($profile . $suffix, $supportedProfiles, "Profile {$profile} is expected in US Core " . $version . " CapabilityStatement");
         }
     }

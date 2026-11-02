@@ -59,6 +59,57 @@ final readonly class HcpcsDrugDefaults
     }
 
     /**
+     * Use one particular inventory drug for a HCPCS code, e.g. when a custom fee sheet list
+     * entry names it ("HCPCS|J1010|<drug_id>") because several products share the code. Only
+     * an active drug related to that code counts; otherwise null, and the caller falls back to
+     * forCode().
+     */
+    public static function forDrug(int $drugId, string $code): ?self
+    {
+        $rows = QueryUtils::fetchRecords(
+            "SELECT d.ndc_number, d.billing_units, d.ndc_uom, d.ndc_quantity FROM drugs AS d " .
+            "WHERE d.drug_id = ? AND d.active = 1 AND FIND_IN_SET(?, REPLACE(d.related_code, ';', ',')) > 0",
+            [$drugId, 'HCPCS:' . $code]
+        );
+        $row = $rows[0] ?? null;
+        return is_array($row) ? self::fromDrugRow($row) : null;
+    }
+
+    /**
+     * The active inventory drugs related to each HCPCS code, by name, for choosing which
+     * product a fee sheet list entry takes its NDC and units from. Codes with no related
+     * drug are absent.
+     *
+     * @return array<string, list<array{id: int, label: string}>>
+     */
+    public static function choicesByCode(): array
+    {
+        $rows = QueryUtils::fetchRecords(
+            "SELECT d.drug_id, d.name, d.ndc_number, d.related_code FROM drugs AS d " .
+            "WHERE d.active = 1 AND d.related_code LIKE '%HCPCS:%' ORDER BY d.name, d.drug_id"
+        );
+        $choices = [];
+        foreach ($rows as $row) {
+            $drugId = $row['drug_id'] ?? null;
+            $related = $row['related_code'] ?? null;
+            if (!is_numeric($drugId) || !is_string($related)) {
+                continue;
+            }
+            $name = is_string($row['name'] ?? null) ? $row['name'] : '';
+            $ndc = is_string($row['ndc_number'] ?? null) ? trim($row['ndc_number']) : '';
+            $label = $ndc === '' ? $name : "$name ($ndc)";
+            // The same tokens FIND_IN_SET matches in forCode() and forDrug(), untrimmed, so
+            // every drug offered here is one the fee sheet will resolve.
+            foreach (preg_split('/[;,]/', $related) ?: [] as $entry) {
+                if (str_starts_with($entry, 'HCPCS:') && strlen($entry) > 6) {
+                    $choices[substr($entry, 6)][] = ['id' => (int) $drugId, 'label' => $label];
+                }
+            }
+        }
+        return $choices;
+    }
+
+    /**
      * @param array<mixed> $row A drugs row with ndc_number, billing_units, ndc_uom and ndc_quantity.
      */
     public static function fromDrugRow(array $row): self

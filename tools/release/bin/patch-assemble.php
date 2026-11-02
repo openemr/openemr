@@ -130,6 +130,7 @@ use Symfony\Component\Process\Process;
             ':!run-semgrep.sh',
             ':!semgrep.yaml',
             // Documentation
+            ':!AGENTS.md',
             ':!CLAUDE.md',
             ':!CONTRIBUTING.md',
             ':!CODE_OF_CONDUCT.md',

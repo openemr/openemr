@@ -87,6 +87,28 @@ final class SMARTConfigurationControllerTest extends TestCase
     }
 
     /**
+     * The controller must call setServerConfig on the injected ScopeRepository. Without this,
+     * ScopeRepository::getServerScopeList() lazy-creates a ServerScopeListEntity with
+     * systemScopesEnabled=false, and system/* scopes never reach the smart-configuration
+     * document even with rest_system_scopes_api=1.
+     */
+    public function testScopeRepositoryReceivesServerConfig(): void
+    {
+        $serverConfig = $this->createStub(ServerConfig::class);
+        $scopeRepository = $this->createMock(ScopeRepository::class);
+        $scopeRepository->expects($this->once())
+            ->method('setServerConfig')
+            ->with($serverConfig);
+        $scopeRepository->method('getCurrentSmartScopes')->willReturn([]);
+
+        new SMARTConfigurationController(
+            new OEGlobalsBag(['oauth_password_grant' => '0']),
+            $scopeRepository,
+            $serverConfig
+        );
+    }
+
+    /**
      * Builds the configuration with the given oauth_password_grant value, as the globals table stores it.
      *
      * @return array<string, mixed>

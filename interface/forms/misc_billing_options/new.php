@@ -21,6 +21,7 @@
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
@@ -58,7 +59,7 @@ if (isset($_REQUEST['isBilling'])) {
     SessionUtil::unsetSession(['billpid', 'billencounter']);
 }
 
-$MBO = new OpenEMR\Billing\MiscBillingOptions();
+$MBO = new MiscBillingOptions();
 
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
@@ -246,11 +247,13 @@ $obj = is_array($fetched) ? $fetched : [];
                         <div class="form-group">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider') ?>:</label>
                             <?php
-                            if (!empty($obj["provider_id"])) {
-                                $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj["provider_id"]);
-                            } else { // default to the patient's ref_prov
-                                $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
-                            } ?>
+                            // The form's own provider, falling back to the patient's
+                            // referring provider. Either can be absent: the select posts an
+                            // empty string when nothing is chosen, which the int column
+                            // stores as 0, and patient_data.ref_providerID is nullable.
+                            $boxSeventeenProvider = MiscBillingOptions::providerId($obj["provider_id"] ?? null)
+                                ?? MiscBillingOptions::providerId(getPatientData($pid, "ref_providerID")['ref_providerID'] ?? null);
+                            $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $boxSeventeenProvider); ?>
                         </div>
                         <div class="form-group">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider Qualifier'); ?>:</label>

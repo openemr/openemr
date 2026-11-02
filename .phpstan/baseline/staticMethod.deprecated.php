@@ -156,7 +156,7 @@ use createProcessingResultResponse\\(\\) instead\\.$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method handleProcessingResult\\(\\) of class OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:
 use createProcessingResultResponse\\(\\) instead\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',
 ];
 $ignoreErrors[] = [

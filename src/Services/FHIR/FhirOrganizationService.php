@@ -6,6 +6,7 @@ use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Services\FHIR\Organization\FhirOrganizationAddressBookService;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationFacilityService;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationInsuranceService;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationProcedureProviderService;
@@ -64,6 +65,8 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         // TODO: ask @brady.miller if we need x12 clearinghouses here for our organization list... eventually yes, but for ONC?
         // TODO: @adunsulag look at adding Pharmacies on here as well... @see C_Pharmacy class
         $this->addMappedService(new FhirOrganizationProcedureProviderService());
+        // External organizations from the address book, such as a referral's recipient (#14710).
+        $this->addMappedService(new FhirOrganizationAddressBookService());
     }
 
     public function setSystemLogger(LoggerInterface $systemLogger): void

@@ -31,6 +31,8 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\ReferralTaskService;
+use OpenEMR\Services\UserService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -223,6 +225,10 @@ function popup_close() {
                     AccessDeniedHelper::deny('Unauthorized patient deletion attempt');
                 }
 
+                // The patient's referrals' open Tasks are cancelled first, while their rows still say which they
+                // are, and before anything is deleted, so a failure here leaves the patient whole.
+                $deletedBy = $session->get('authUserID');
+                (new ReferralTaskService(new UserService()))->cancelForDeletedPatient($patient, is_numeric($deletedBy) ? (int)$deletedBy : null);
                 deleter_row_modify("billing", "activity = 0", "pid = ?", [$patient]);
                 deleter_row_modify("pnotes", "deleted = 1", "pid = ?", [$patient]);
                 deleter_row_delete("prescriptions", "patient_id = ?", [$patient]);
@@ -230,7 +236,7 @@ function popup_close() {
                 delete_drug_sales($patient);
                 deleter_row_delete("payments", "pid = ?", [$patient]);
                 deleter_row_modify("ar_activity", "deleted = NOW()", "pid = ? AND deleted IS NULL", [$patient]);
-                deleter_row_delete("openemr_postcalendar_events", "pc_pid = ?", [$patient]);
+                deleter_row_delete("openemr_postcalendar_events", "pc_pid = ?", [\OpenEMR\Services\AppointmentService::calendarPid($patient)]);
                 deleter_row_delete("immunizations", "patient_id = ?", [$patient]);
                 deleter_row_delete("issue_encounter", "pid = ?", [$patient]);
                 deleter_row_delete("lists", "pid = ?", [$patient]);
@@ -440,6 +446,9 @@ function popup_close() {
                     AccessDeniedHelper::deny('Unauthorized transaction deletion attempt');
                 }
 
+                // A referral's open Tasks are cancelled while its row still says which they are.
+                $deletedBy = $session->get('authUserID');
+                (new ReferralTaskService(new UserService()))->cancelForDeletedReferral((int)$transaction, is_numeric($deletedBy) ? (int)$deletedBy : null);
                 deleter_row_delete("transactions", "id = ?", [$transaction]);
             } else {
                 throw new \RuntimeException("Nothing was recognized to delete!");
@@ -450,8 +459,10 @@ function popup_close() {
             }
 
         // Close this window and tell our opener that it's done.
-        // Not sure yet if the callback can be used universally.
+        // If SQL debugging is enabled, preserve the output in the dialog but
+        // still notify the caller immediately so its view can refresh.
             echo "<script>\n";
+            $hideSql = OEGlobalsBag::getInstance()->getBoolean('sql_string_no_show_screen');
             if (!$encounterid) {
                 if ($info_msg) {
                     echo "let message = " . js_escape($info_msg) . ";
@@ -459,21 +470,27 @@ function popup_close() {
                     await asyncAlertMsg(message, time, 'success', 'lg');
                     })(message, 2000)
                     .then(res => {";
-                    // auto close on msg timeout with just enough time to show success or errors.
-                    if (OEGlobalsBag::getInstance()->getBoolean('sql_string_no_show_screen')) {
+                    if ($hideSql) {
                         echo "dlgclose();";
+                    } else {
+                        echo "if (opener && typeof opener.imdeleted === 'function') { opener.imdeleted(false); }";
                     }
-                    echo "});"; // close function.
-                    // any close will call below.
-                    echo " opener.dlgSetCallBack('imdeleted', false);\n";
+                    echo "});";
+                    if ($hideSql) {
+                        echo " opener.dlgSetCallBack('imdeleted', false);\n";
+                    }
                 } else {
-                    echo " dlgclose('imdeleted', false);\n";
+                    if ($hideSql) {
+                        echo " dlgclose('imdeleted', false);\n";
+                    } else {
+                        echo " if (opener && typeof opener.imdeleted === 'function') { opener.imdeleted(false); }\n";
+                    }
                 }
             } else {
-                if (OEGlobalsBag::getInstance()->getBoolean('sql_string_no_show_screen')) {
+                if ($hideSql) {
                     echo " dlgclose('imdeleted', " . js_escape($encounterid) . ");\n";
-                } else { // this allows dialog to stay open then close with button or X.
-                    echo " opener.dlgSetCallBack('imdeleted', " . js_escape($encounterid) . ");\n";
+                } else {
+                    echo " if (opener && typeof opener.imdeleted === 'function') { opener.imdeleted(" . js_escape($encounterid) . "); }\n";
                 }
             }
             echo "</script></body></html>\n";

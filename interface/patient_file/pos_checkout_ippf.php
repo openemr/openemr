@@ -1009,8 +1009,10 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
         "ORDER BY s.check_date, a.sequence_no",
         [$patient_id, $encounter]
     );
-    $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
     while ($inrow = sqlFetchArray($inres)) {
+        // Per row: $inrow is exhausted before the loop, so computing this
+        // above it labelled every payment 'Pt', insurance payments included.
+        $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
         $payments += formatMoneyNumber($inrow['pay_amount']);
         // Compute invoice number with payment suffix.
         $tmp = array_search($inrow['post_time'], $checkout_times);

@@ -277,6 +277,12 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             $service->setSession($this->getSession());
         }
         $serviceResult = $service->getAll($searchParams, $puuidBind);
+        // A _lastUpdated that didn't parse is marked in the service's result; keep the mark, so the search answers
+        // 400 instead of an empty Bundle. A service's other errors are still ignored, as before.
+        if (FhirSearchSyntaxError::find($serviceResult) !== null) {
+            $processingResult->addProcessingResult($serviceResult);
+            return;
+        }
         // now loop through and grab all of our provenance resources
         if ($serviceResult->hasData()) {
             foreach ($serviceResult->getData() as $record) {

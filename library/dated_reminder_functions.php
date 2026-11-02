@@ -19,6 +19,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
 /*
  * We really need to set up a separate service for this stuff i.e. Node server.
@@ -32,6 +33,13 @@ use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 function GetServiceOtherCounts(): array
 {
     $counts['faxCnt'] = $counts['smsCnt'] = 0;
+    // The fax/SMS enable flags can outlive the module: when it is disabled or
+    // removed its classes are not autoloadable, and calling AppDispatch would
+    // fail this request on every poll. Report no counts instead.
+    if (!class_exists(AppDispatch::class)) {
+        $counts['serviceTotal'] = 0;
+        return $counts;
+    }
     // unless main.php is reloaded Globals is most accurate.
     if (!empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null)) {
         $client = AppDispatch::getApiService('fax');
@@ -62,23 +70,21 @@ function GetPortalAlertCounts(): array
     $qrtn = sqlQueryNoLog($query, [$s_user, $s_user, '%new%']);
     $counts['mailCnt'] = $qrtn['count_mail'] ?: "0";
 
-    $query = "SELECT Count(`m`.status) AS count_audits FROM onsite_portal_activity `m` " .
-        "WHERE `m`.status = ? AND `m`.require_audit = ?";
-    $qrtn = QueryUtils::querySingleRow($query, ['waiting', 1], false);
-    $counts['auditCnt'] = $qrtn['count_audits'] ?? "0";
+    // Patient-submitted requests waiting for staff review (profile changes, payments, documents).
+    $reviewCounts = ReviewQueueFactory::portalWorkflows()->alertCounts();
+    $counts['auditCnt'] = (string) $reviewCounts['audits'];
 
     $query = "SELECT Count(`m`.id) AS count_chats FROM onsite_messages `m` " .
         "WHERE `m`.recip_id LIKE ? AND `m`.date > (CURRENT_DATE()-2) AND `m`.date < (CURRENT_DATE()+1)";
     $qrtn = sqlQueryNoLog($query, [$s_user]);
     $counts['chatCnt'] = $qrtn['count_chats'] ?: "0";
 
-    $query = "SELECT Count(`m`.status) AS count_payments FROM onsite_portal_activity `m` " .
-        "WHERE `m`.status = ? AND `m`.require_audit = ? AND `m`.activity = ?";
-    $qrtn = QueryUtils::querySingleRow($query, ['waiting', 1, 'payment'], false);
-    $counts['paymentCnt'] = $qrtn['count_payments'] ?? "0";
+    $counts['paymentCnt'] = (string) $reviewCounts['payments'];
 
     // Payments are already included in auditCnt, so do not add them twice.
-    $counts['total'] = $counts['mailCnt'] + $counts['auditCnt'] + $counts['chatCnt'];
+    $counts['total'] = (is_numeric($counts['mailCnt']) ? intval($counts['mailCnt']) : 0)
+        + $reviewCounts['audits']
+        + (is_numeric($counts['chatCnt']) ? intval($counts['chatCnt']) : 0);
 
     return $counts;
 }

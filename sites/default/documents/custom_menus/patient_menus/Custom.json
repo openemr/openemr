@@ -85,7 +85,11 @@
         "url": "interface/reports/external_data.php",
         "pid": "false",
         "children": [],
-        "requirement": 0
+        "requirement": 0,
+        "acl_req": [
+            "patients",
+            "med"
+        ]
     },
     {
         "label": "PRO{{Patient Reported Outcomes}}",

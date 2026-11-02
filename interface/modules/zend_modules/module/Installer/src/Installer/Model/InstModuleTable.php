@@ -61,7 +61,7 @@ class InstModuleTable
      * @param string $dir
      * @return bool
      */
-    public function installSQL($modId, $mod_type, $dir)
+    public function installSQL($modId, $mod_type, $dir): bool
     {
         // TODO: we will leave zend modules alone for now until we can come up with a mechanism to allow them to have
         // backwards compatibility to fix the sql line bug.

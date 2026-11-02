@@ -3,6 +3,7 @@
 namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirPractitionerService;
 use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
@@ -102,5 +103,20 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
         $this->assertEquals(0, count($actualResult->getInternalErrors()));
         $this->assertEquals(0, count($actualResult->getData()));
+    }
+
+    #[Test]
+    public function testSearchByName(): void
+    {
+        $this->fhirPractitionerFixture->setId(new FHIRId());
+        $inserted = $this->fhirPractitionerService->insert($this->fhirPractitionerFixture);
+        $this->assertTrue($inserted->isValid());
+        $lname = (string) $this->fhirPractitionerFixture->getName()[0]->getFamily();
+
+        // name spans users.title, which also exists on the joined list_options tables
+        $result = $this->fhirPractitionerService->getAll(['name' => $lname]);
+
+        $this->assertTrue($result->isValid());
+        $this->assertEmpty($result->getInternalErrors());
     }
 }

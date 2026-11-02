@@ -19,17 +19,25 @@ $pid = $session->get('pid', 0);
 $userauthorized = $session->get('userauthorized', 0);
 require_once($srcdir . "/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\ReferralDisplay;
+use OpenEMR\Services\ReferralTaskService;
+use OpenEMR\Services\TransactionDisplay;
+use OpenEMR\Services\UserService;
 
 
 /** @var string $date_init */
 $date_init = OEGlobalsBag::getInstance()->get('date_init', '');
 
 // This can come from the URL if it's an Add.
-$title   = empty($_REQUEST['title']) ? 'LBTref' : $_REQUEST['title'];
+$title   = CurrentRequest::get()->request->getString('title') ?: CurrentRequest::get()->query->getString('title') ?: 'LBTref';
 $form_id = $title;
 
 // Plugin support.
@@ -42,6 +50,29 @@ $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
 $mode    = empty($_POST['mode' ]) ? '' : $_POST['mode' ];
 // $inmode    = $_GET['inmode'];
 $body_onload_code = "";
+
+// Transaction read/write surface; align the permission check with the
+// `patients/trans` ACO. Writes additionally require `write` (or `addonly`
+// when inserting a new form).
+$aclReturn = $mode ? ['write', 'addonly'] : '';
+if (!AclMain::aclCheckCore('patients', 'trans', '', $aclReturn)) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/trans: Transactions", xl("Transactions"));
+}
+// Bind the request `transid` to the open chart. `$pid` is the session-scoped
+// chart id (switching the chart goes through the normal demographics path).
+$sessionPidInt = is_numeric($pid) ? (int) $pid : 0;
+if ($transid > 0) {
+    $owner = QueryUtils::querySingleRow("SELECT pid FROM transactions WHERE id = ?", [$transid]);
+    $ownerPid = is_array($owner) && isset($owner['pid']) && is_numeric($owner['pid'])
+        ? (int) $owner['pid']
+        : 0;
+    // transactions.pid is nullable; a NULL-owned row with no open chart
+    // would otherwise normalize to 0 === 0 and pass the match. Require
+    // both sides to be positive before comparing.
+    if ($sessionPidInt <= 0 || $ownerPid <= 0 || $ownerPid !== $sessionPidInt) {
+        AccessDeniedHelper::deny('add_transaction: transid does not belong to the open chart');
+    }
+}
 
 // Load array of properties for this layout and its groups.
 $grparr = [];
@@ -95,6 +126,9 @@ if ($mode) {
     if (!$transid) {
         $transid = $newid;
     }
+
+    // The referral's FHIR Task and its reply, when the fhir_referral_tasks global is on (#14710).
+    (new ReferralTaskService(new UserService()))->createForSavedTransaction($form_id, $transid, $session->get('authUserID'));
 
   // Set the AMC sent records flag
     if (!(empty($_POST['send_sum_flag']))) {
@@ -418,26 +452,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </a>
                     </div>
                 </div>
+                <?php echo (new ReferralDisplay())->forTransactionPage($form_id, is_numeric($transid) ? intval($transid) : 0); // Where a saved referral stands (#14710). ?>
                 <div class="col-sm-12 mt-3">
                     <fieldset>
                         <legend><?php echo xlt('Select Transaction Type'); ?></legend>
                         <div class="forms col-sm-7">
                             <label class="control-label" for="title"><?php echo xlt('Transaction Type'); ?>:</label>
-                            <?php
-                            $ttres = sqlStatement("SELECT grp_form_id, grp_title " .
-                              "FROM layout_group_properties WHERE " .
-                              "grp_form_id LIKE 'LBT%' AND grp_group_id = '' ORDER BY grp_seq, grp_title");
-                            echo "<select name='title' id='title' class='form-control' onchange='titleChanged()'>\n";
-                            while ($ttrow = sqlFetchArray($ttres)) {
-                                $thisid = $ttrow['grp_form_id'];
-                                echo "<option value='" . attr($thisid) . "'";
-                                if ($thisid == $form_id) {
-                                    echo ' selected';
-                                }
-                                echo ">" . text($ttrow['grp_title']) . "</option>\n";
-                            }
-                            echo "</select>\n";
-                            ?>
+                            <?php echo (new TransactionDisplay())->typeSelect(TransactionDisplay::types(), $form_id); ?>
                         </div>
                         <div class="forms col-sm-5">
                             <?php

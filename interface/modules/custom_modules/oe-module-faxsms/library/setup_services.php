@@ -20,6 +20,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
+use OpenEMR\Modules\FaxSMS\Service\PermissionUsers;
 
 $module_config = 1;
 
@@ -76,9 +77,8 @@ if ($_POST['form_save'] ?? null) {
 if ($_POST['form_save_permissions'] ?? null) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-    // Get all active users
-    $users_query = "SELECT id, username FROM users WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL";
-    $users_result = sqlStatement($users_query);
+    // The same users the form lists: anyone else would be reset to no
+    // permission here without a checkbox to turn it back on.
 
     $services = ['fax', 'sms', 'email', 'voice'];
     $primary_user_id = $_POST['primary_user'] ?? null;
@@ -86,8 +86,8 @@ if ($_POST['form_save_permissions'] ?? null) {
     // Handle primary user reset (when value is "0" or empty)
     $reset_primary = (in_array($primary_user_id, ['0', '', null], true));
 
-    while ($user = sqlFetchArray($users_result)) {
-        $user_id = $user['id'];
+    foreach (PermissionUsers::active() as $user) {
+        $user_id = (string) $user['id'];
 
         // Handle service permissions
         foreach ($services as $service) {
@@ -159,28 +159,8 @@ if ($_POST['form_save_permissions'] ?? null) {
     }
 }
 
-// Get all active users for the form
-$usersQuery = <<<'SQL'
-    SELECT
-        id,
-        username,
-        fname,
-        lname,
-        authorized
-    FROM users
-    WHERE active = 1
-      AND username IS NOT NULL AND username <> ''
-      AND fname IS NOT NULL AND fname <> ''
-      AND abook_type = ''
-    ORDER BY
-        lname,
-        fname
-SQL;
-$users_result = sqlStatement($usersQuery);
-$active_users = [];
-while ($user = sqlFetchArray($users_result)) {
-    $active_users[] = $user;
-}
+// Every active login user, including providers with an address book type.
+$active_users = PermissionUsers::active();
 
 // Get current primary user
 $current_primary_user = BootstrapService::getPrimaryUser();
@@ -405,7 +385,7 @@ $vendors = $boot->getVendorGlobals();
                                     <select class="form-control persist" name="editingUser" id="editingUser">
                                         <option value="0"><?php echo xlt("Default (You)"); ?></option>
                                         <?php foreach ($active_users as $user) {
-                                            $user_id = $user['id'];
+                                            $user_id = (string) $user['id'];
                                             if ($session->get('authUserID') == $user_id) {
                                                 continue;
                                             }
@@ -641,7 +621,7 @@ $vendors = $boot->getVendorGlobals();
                                 </thead>
                                 <tbody>
                                 <?php foreach ($active_users as $user) {
-                                    $user_id = $user['id'];
+                                    $user_id = (string) $user['id'];
                                     $display_name = trim($user['fname'] . ' ' . $user['lname']);
                                     if (empty($display_name)) {
                                         $display_name = $user['username'];

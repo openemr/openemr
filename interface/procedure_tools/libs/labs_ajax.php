@@ -81,11 +81,26 @@ if ($action === 'print_labels') {
     }
     $order = $_GET['order'];
     $specimen = [];
-    $specimens = explode(";", (string) $_GET['specimen']);
+    // createLabels() in interface/forms/procedure_order/common.php appends a
+    // trailing `;` after each specimen, so strip it before splitting to avoid
+    // an empty tail element inflating the bound-check count.
+    $specimens = explode(";", rtrim((string) $_GET['specimen'], ";"));
     $patient = strtoupper((string) $_GET['patient']);
     $order_date = orderDate($order);
     $dob = $_GET['dob'];
     $count = $query->getInt('count') ?: 1;
+
+    $maxCount = 50;
+    $maxSpecimens = 50;
+    $maxTotalLabels = 500;
+    $specimenCount = count($specimens);
+    if (
+        $count > $maxCount
+        || $specimenCount > $maxSpecimens
+        || ($count * $specimenCount) > $maxTotalLabels
+    ) {
+        (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, 'Label print bounds exceeded.');
+    }
 
     $pdf = new mPDF([
         'tempDir' => (new CacheDirectory())->for('openemr-mpdf'),

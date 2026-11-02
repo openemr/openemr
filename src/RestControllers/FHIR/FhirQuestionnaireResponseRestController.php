@@ -122,6 +122,9 @@ class FhirQuestionnaireResponseRestController
             // single source of truth.
             $result = $this->getAll($request->getQueryParams());
         }
+        if ($result instanceof ResponseInterface) {
+            return $result;
+        }
         return RestControllerHelper::returnSingleObjectResponse($result);
     }
 
@@ -197,11 +200,15 @@ class FhirQuestionnaireResponseRestController
      * - date {gt|lt|ge|le}
      *
      * @param  $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return false|FHIRBundle FHIR bundle with query results, if found
+     * @return false|FHIRBundle|ResponseInterface FHIR bundle with query results, or a 400 OperationOutcome for a search value that didn't parse
      */
-    private function getAll($searchParams, $puuidBind = null): FHIRBundle|false
+    private function getAll($searchParams, $puuidBind = null): FHIRBundle|ResponseInterface|false
     {
         $processingResult = $this->resourceService->getAll($searchParams, $puuidBind);
+        $searchError = RestControllerHelper::getFhirSearchErrorPsrResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [

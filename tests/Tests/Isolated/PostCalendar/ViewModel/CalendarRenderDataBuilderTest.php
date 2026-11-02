@@ -104,6 +104,18 @@ final class CalendarRenderDataBuilderTest extends TestCase
         return $value;
     }
 
+    /**
+     * A provider appointment keeps category type 1 on the calendar event.
+     */
+    public function testCategoryTypeTokenKeepsAProviderAppointment(): void
+    {
+        self::assertSame('1', CalendarRenderDataBuilder::categoryTypeToken(1));
+        self::assertSame('1', CalendarRenderDataBuilder::categoryTypeToken('1'));
+        self::assertSame('0', CalendarRenderDataBuilder::categoryTypeToken(0));
+        self::assertSame('', CalendarRenderDataBuilder::categoryTypeToken(null));
+        self::assertSame('', CalendarRenderDataBuilder::categoryTypeToken(''));
+    }
+
     public function testConstructorExposesViewModelAsPublicReadonlyProperty(): void
     {
         $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);

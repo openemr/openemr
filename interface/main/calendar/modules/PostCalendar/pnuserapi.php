@@ -843,7 +843,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args): array
     "a.pc_topic, a.pc_alldayevent, a.pc_location, a.pc_conttel, " .
     "a.pc_contname, a.pc_contemail, a.pc_website, a.pc_fee, a.pc_sharing, " .
     "a.pc_prefcatid, " .
-    "b.pc_catcolor, b.pc_catname, b.pc_catdesc, a.pc_pid, a.pc_aid, " .
+    "b.pc_catcolor, b.pc_catname, b.pc_catdesc, b.pc_cattype, a.pc_pid, a.pc_aid, " .
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.fname,' ',pd.lname) as patient_name, " .
     "concat(u2.fname, ' ', u2.lname) as owner_name,  " .
@@ -913,7 +913,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args): array
         // get the results from the query
         //RM include address
         $tmp = [];
-        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']] = $row;
+        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pccattype'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']] = $row;
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -958,6 +958,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args): array
         $events[$i]['catcolor']    = $tmp['catcolor'];
         $events[$i]['catname']     = $tmp['catname'];
         $events[$i]['catdesc']     = $tmp['catdesc'];
+        $events[$i]['pccattype']   = CalendarRenderDataBuilder::categoryTypeToken($tmp['pccattype'] ?? null);
         $events[$i]['pid']         = $tmp['pid'];
         $events[$i]['patient_name'] = $tmp['patient_name'];
         $events[$i]['provider_name'] = $tmp['provider_name'];
@@ -1104,7 +1105,7 @@ function &postcalendar_userapi_pcQueryEvents($args): array
     "a.pc_recurrspec, a.pc_topic, a.pc_alldayevent, a.pc_location, " .
     "a.pc_conttel, a.pc_contname, a.pc_contemail, a.pc_website, a.pc_fee, " .
     "a.pc_sharing, a.pc_prefcatid, b.pc_catcolor, b.pc_catname, " .
-    "b.pc_catdesc, a.pc_pid, a.pc_apptstatus, a.pc_aid, " .
+    "b.pc_catdesc, b.pc_cattype, a.pc_pid, a.pc_apptstatus, a.pc_aid, " .
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.lname,', ',pd.fname) as patient_name, " .
     "concat(u.fname, ' ', u.lname) as owner_name, " .
@@ -1273,6 +1274,7 @@ function &postcalendar_userapi_pcQueryEvents($args): array
             $tmp['catcolor'],
             $tmp['catname'],
             $tmp['catdesc'],
+            $tmp['pccattype'],
             $tmp['pid'],
             $tmp['apptstatus'],
             $tmp['aid'],
@@ -1325,6 +1327,7 @@ function &postcalendar_userapi_pcQueryEvents($args): array
         // Modified 06-2009 by BM to translate the category if applicable
         $events[$i]['catname']     = xl_appt_category($tmp['catname']);
         $events[$i]['catdesc']     = $tmp['catdesc'];
+        $events[$i]['pccattype']   = CalendarRenderDataBuilder::categoryTypeToken($tmp['pccattype'] ?? null);
         $events[$i]['pid']         = $tmp['pid'];
         $events[$i]['apptstatus']  = $tmp['apptstatus'];
         $events[$i]['pubpid']      = $tmp['pubpid'];
