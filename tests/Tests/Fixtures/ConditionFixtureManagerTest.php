@@ -58,10 +58,22 @@ class ConditionFixtureManagerTest extends TestCase
             $this->assertSame(1, self::registryRows($table, $uuid), "the $table record is registered");
         }
 
-        $this->fixtures->removeFixtures();
+        // One unrelated row per table, which the cleanup must leave alone.
+        $unrelated = [];
+        foreach (array_keys($registered) as $table) {
+            $unrelated[$table] = (new UuidRegistry(['table_name' => $table]))->createUuid();
+        }
+        try {
+            $this->fixtures->removeFixtures();
 
-        foreach ($registered as $table => $uuid) {
-            $this->assertSame(0, self::registryRows($table, $uuid), "the $table record's uuid_registry row survived removeFixtures()");
+            foreach ($registered as $table => $uuid) {
+                $this->assertSame(0, self::registryRows($table, $uuid), "the $table record's uuid_registry row survived removeFixtures()");
+                $this->assertSame(1, self::registryRows($table, $unrelated[$table]), "removeFixtures() removed an unrelated $table uuid_registry row");
+            }
+        } finally {
+            foreach ($unrelated as $uuid) {
+                QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE uuid = ?', [$uuid]);
+            }
         }
     }
 

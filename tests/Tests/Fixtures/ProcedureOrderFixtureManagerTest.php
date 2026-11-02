@@ -324,10 +324,22 @@ class ProcedureOrderFixtureManagerTest extends TestCase
             self::assertSame(count($tableUuids), $this->countRegistryRows($table, $tableUuids), "each fixture $table row is registered");
         }
 
-        $this->fixtureManager->removeFixtures();
+        // One unrelated row per table, which the cleanup must leave alone.
+        $unrelated = [];
+        foreach (array_keys($uuids) as $table) {
+            $unrelated[$table] = (new UuidRegistry(['table_name' => $table]))->createUuid();
+        }
+        try {
+            $this->fixtureManager->removeFixtures();
 
-        foreach ($uuids as $table => $tableUuids) {
-            self::assertSame(0, $this->countRegistryRows($table, $tableUuids), "$table uuid_registry rows survived removeFixtures()");
+            foreach ($uuids as $table => $tableUuids) {
+                self::assertSame(0, $this->countRegistryRows($table, $tableUuids), "$table uuid_registry rows survived removeFixtures()");
+                self::assertSame(1, $this->countRegistryRows($table, [$unrelated[$table]]), "removeFixtures() removed an unrelated $table uuid_registry row");
+            }
+        } finally {
+            foreach ($unrelated as $uuid) {
+                QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE uuid = ?', [$uuid]);
+            }
         }
     }
 
