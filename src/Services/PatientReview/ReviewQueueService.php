@@ -93,6 +93,7 @@ final class ReviewQueueService
      * end with one open request.
      *
      * @throws \DomainException when the type is not keyed by target
+     * @throws \RuntimeException when the target row does not exist (nothing is created)
      */
     public function submitUnlessOpen(ReviewSubmission $submission, ReviewActor $actor): ReviewRequest
     {

@@ -67,8 +67,13 @@ class PortalAlertCountsTest extends TestCase
         // An invoice waits on the patient, not on staff: not counted.
         $workflows->requestInvoicePayment(self::PID, [], $staff);
         // A charted document is no longer pending: not counted.
-        $workflows->submitDocument(self::PID, 990001, 'Consent', $patient);
-        $workflows->completeDocument(self::PID, 990001, $staff);
+        $documentId = QueryUtils::sqlInsert(
+            'INSERT INTO `onsite_documents` (`pid`, `doc_type`, `patient_signed_status`, `accept_signed_status`,'
+            . " `authorizing_signator`, `denial_reason`, `file_name`, `file_path`) VALUES (?, 'Consent', 0, 0, '', '', 'alert-counts-test', '')",
+            [self::PID]
+        );
+        $workflows->submitDocument(self::PID, $documentId, 'Consent', $patient);
+        $workflows->completeDocument(self::PID, $documentId, $staff);
 
         $after = GetPortalAlertCounts();
 
@@ -87,6 +92,7 @@ class PortalAlertCountsTest extends TestCase
             );
         }
         QueryUtils::sqlStatementThrowException('DELETE FROM `patient_review_request` WHERE `pid` = ?', [self::PID]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM `onsite_documents` WHERE `pid` = ?', [self::PID]);
     }
 
     /**

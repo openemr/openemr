@@ -58,6 +58,7 @@ interface ReviewRequestStoreInterface
      * same row cannot both find it without an open request. Call inside transactional().
      *
      * @throws \DomainException when requests for that table cannot be locked
+     * @throws \RuntimeException when the target row does not exist
      */
     public function lockTarget(string $targetTable, string $targetId): void;
 

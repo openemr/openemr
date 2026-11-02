@@ -91,11 +91,15 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
     {
         $key = self::LOCKABLE_TARGETS[$targetTable] ?? throw new \DomainException('Review requests for ' . $targetTable . ' cannot be locked');
         // Table and column come from the constant above, never from the caller's text.
-        QueryUtils::fetchRecords(
+        $locked = QueryUtils::fetchRecords(
             'SELECT ' . QueryUtils::escapeColumnName($key, [$targetTable]) . ' FROM ' . QueryUtils::escapeTableName($targetTable)
             . ' WHERE ' . QueryUtils::escapeColumnName($key, [$targetTable]) . ' = ? FOR UPDATE',
             [$targetId]
         );
+        // A row deleted since the caller checked it would leave a request for nothing.
+        if ($locked === []) {
+            throw new \RuntimeException('The review target no longer exists');
+        }
     }
 
     public function findOpenForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): array
