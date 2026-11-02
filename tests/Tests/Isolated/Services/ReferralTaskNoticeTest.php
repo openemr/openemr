@@ -38,6 +38,8 @@ class ReferralTaskNoticeTest extends TestCase
 
     /**
      * @return array<string, array{string, ?string, ?string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function notices(): array
     {

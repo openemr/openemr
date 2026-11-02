@@ -92,6 +92,8 @@ class ReferralTaskServiceTest extends TestCase
 
     /**
      * @return array<string, array{array<string, string>, ?array{bool, ?int}}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function postedForms(): array
     {
