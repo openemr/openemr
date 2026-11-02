@@ -40,6 +40,19 @@ enum ReviewType: string
     }
 
     /**
+     * Whether "one open request" is counted per target row rather than per patient. A patient
+     * can have several portal documents in review at once, one per document; a profile change
+     * or a payment is one per patient.
+     */
+    public function isKeyedByTarget(): bool
+    {
+        return match ($this) {
+            self::Document => true,
+            self::Profile, self::Payment, self::Invoice, self::FhirWrite => false,
+        };
+    }
+
+    /**
      * Whether a request of this type names the FHIR resource type it writes.
      */
     public function requiresResourceType(): bool

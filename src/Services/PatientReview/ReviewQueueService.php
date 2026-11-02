@@ -77,10 +77,38 @@ final class ReviewQueueService
     /**
      * Adds a request to the queue. Any request already open for the patient and type is left
      * alone; use replacePending() for the "one pending item" workflows.
+     *
+     * @param array<string, string> $secrets plaintext keyed by secret kind (e.g.
+     *                                       SECRET_PAYMENT_CARD), stored encrypted with the request
+     *                                       in the same transaction
      */
-    public function submit(ReviewSubmission $submission, ReviewActor $actor): ReviewRequest
+    public function submit(ReviewSubmission $submission, ReviewActor $actor, array $secrets = []): ReviewRequest
     {
-        return $this->atomically(fn(): ReviewRequest => $this->create($submission, $actor));
+        return $this->atomically(fn(): ReviewRequest => $this->create($submission, $actor, $secrets));
+    }
+
+    /**
+     * Adds a request for a target row unless one is already open for it, and returns the open
+     * one. The target row is locked for the check, so concurrent submissions for the same row
+     * end with one open request.
+     *
+     * @throws \DomainException when the type is not keyed by target
+     * @throws \RuntimeException when the target row does not exist (nothing is created)
+     */
+    public function submitUnlessOpen(ReviewSubmission $submission, ReviewActor $actor): ReviewRequest
+    {
+        $targetTable = $submission->targetTable;
+        $targetId = $submission->targetId;
+        if (!$submission->type->isKeyedByTarget() || $targetTable === null || $targetId === null) {
+            throw new \DomainException('Only a request keyed by its target row can be submitted once per target');
+        }
+
+        return $this->atomically(function () use ($submission, $actor, $targetTable, $targetId): ReviewRequest {
+            $this->store->lockTarget($targetTable, $targetId);
+
+            return $this->store->findOpenForTarget($submission->pid, $submission->type, $targetTable, $targetId)[0]
+                ?? $this->create($submission, $actor, []);
+        });
     }
 
     /**
@@ -89,15 +117,28 @@ final class ReviewQueueService
      * This is what the portal means by "pending": a patient who edits their profile twice
      * before staff look has one pending change, the later one. The earlier request is kept as
      * cancelled, so what was submitted and when is not lost. FHIR writes are matched on their
-     * resource type too: a pending Condition does not replace a pending AllergyIntolerance.
+     * resource type too: a pending Condition does not replace a pending AllergyIntolerance; and
+     * types keyed by target (documents) are matched on the target row.
      */
-    public function replacePending(ReviewSubmission $submission, ReviewActor $actor): ReviewRequest
-    {
-        return $this->atomically(function () use ($submission, $actor): ReviewRequest {
-            foreach ($this->store->findOpen($submission->pid, $submission->type, $submission->resourceType) as $open) {
+    /**
+     * @param array<string, string> $secrets as for submit()
+     * @param ?\Closure(ReviewRequest): bool $supersedes which open requests the new one replaces;
+     *                                              all of them when null
+     */
+    public function replacePending(
+        ReviewSubmission $submission,
+        ReviewActor $actor,
+        array $secrets = [],
+        ?\Closure $supersedes = null,
+    ): ReviewRequest {
+        return $this->atomically(function () use ($submission, $actor, $secrets, $supersedes): ReviewRequest {
+            foreach ($this->openMatching($submission) as $open) {
+                if ($supersedes !== null && $supersedes($open) !== true) {
+                    continue;
+                }
                 $this->transition($open, ReviewStatus::Cancelled, $actor, self::NOTE_SUPERSEDED);
             }
-            return $this->create($submission, $actor);
+            return $this->create($submission, $actor, $secrets);
         });
     }
 
@@ -132,6 +173,22 @@ final class ReviewQueueService
     }
 
     /**
+     * Cancels the request and runs $alongside in the same transaction, so if either fails
+     * neither happens. $alongside must not open a transaction of its own.
+     *
+     * @param callable(ReviewRequest): void $alongside receives the cancelled request
+     */
+    public function cancelAlongside(int $id, ReviewActor $actor, ?string $note, callable $alongside): ReviewRequest
+    {
+        return $this->atomically(function () use ($id, $actor, $note, $alongside): ReviewRequest {
+            $cancelled = $this->transition($this->get($id), ReviewStatus::Cancelled, $actor, $note);
+            $alongside($cancelled);
+
+            return $cancelled;
+        });
+    }
+
+    /**
      * Closes a request whose change the caller has already applied. The legacy portal workflows
      * apply the change themselves and then close the request in one step; new code should
      * register a handler and call approve().
@@ -161,6 +218,22 @@ final class ReviewQueueService
     public function openFor(int $pid, ReviewType $type, ?FhirResourceType $resourceType = null): ?ReviewRequest
     {
         return $this->store->findOpen($pid, $type, $resourceType)[0] ?? null;
+    }
+
+    /**
+     * The open request for one target row (a portal document), if any.
+     */
+    public function openForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): ?ReviewRequest
+    {
+        return $this->store->findOpenForTarget($pid, $type, $targetTable, $targetId)[0] ?? null;
+    }
+
+    /**
+     * The most recent request for one target row, open or closed.
+     */
+    public function latestForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): ?ReviewRequest
+    {
+        return $this->store->findLatestForTarget($pid, $type, $targetTable, $targetId);
     }
 
     /**
@@ -227,12 +300,32 @@ final class ReviewQueueService
         return $ciphertext === null ? null : $this->crypto->decryptFromDatabase($ciphertext);
     }
 
-    private function create(ReviewSubmission $submission, ReviewActor $actor): ReviewRequest
+    /**
+     * The open requests a new submission would supersede.
+     *
+     * @return list<ReviewRequest>
+     */
+    private function openMatching(ReviewSubmission $submission): array
+    {
+        if ($submission->type->isKeyedByTarget() && $submission->targetTable !== null && $submission->targetId !== null) {
+            return $this->store->findOpenForTarget($submission->pid, $submission->type, $submission->targetTable, $submission->targetId);
+        }
+
+        return $this->store->findOpen($submission->pid, $submission->type, $submission->resourceType);
+    }
+
+    /**
+     * @param array<string, string> $secrets
+     */
+    private function create(ReviewSubmission $submission, ReviewActor $actor, array $secrets): ReviewRequest
     {
         $now = $this->clock->now();
         $status = $submission->type->initialStatus();
         $id = $this->store->insert($submission, $status, $this->uuidFactory->uuid4()->getBytes(), $now);
         $this->store->appendEvent($id, null, $status, $actor, $now, null);
+        foreach ($secrets as $kind => $plaintext) {
+            $this->store->putSecret($id, $kind, $this->crypto->encryptForDatabase($plaintext), $now);
+        }
 
         $request = $this->get($id);
         $this->pendingAudit[] = ['request' => $request, 'from' => null, 'actor' => $actor, 'note' => null];

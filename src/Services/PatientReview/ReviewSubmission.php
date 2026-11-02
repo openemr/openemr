@@ -45,6 +45,9 @@ final readonly class ReviewSubmission
         if ($source === ReviewSource::Portal && $clientId !== null) {
             throw new \DomainException('A portal submission has no client');
         }
+        if ($type->isKeyedByTarget() && ($targetTable === null || $targetTable === '' || $targetId === null || $targetId === '')) {
+            throw new \DomainException('A ' . $type->value . ' submission must name its target row');
+        }
         if ($type->requiresResourceType() && $resourceType === null) {
             throw new \DomainException('A FHIR write submission must name its resource type');
         }

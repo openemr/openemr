@@ -1547,21 +1547,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteDocumentReporter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between "select\\\\n\\\\t\\\\t\\\\t\'custom…" and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsitePortalActivityReporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between \'select count\\(1\\) as…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsitePortalActivityReporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsitePortalActivityReporter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between "select\\\\n\\\\t\\\\t\\\\t `patient…" and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',

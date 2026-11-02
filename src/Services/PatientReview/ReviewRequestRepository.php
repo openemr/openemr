@@ -21,6 +21,11 @@ use OpenEMR\Common\Database\QueryUtils;
 
 final readonly class ReviewRequestRepository implements ReviewRequestStoreInterface
 {
+    /** Target tables whose rows lockTarget() can hold, with their key column. */
+    private const LOCKABLE_TARGETS = [
+        'onsite_documents' => 'id',
+    ];
+
     public function __construct(private ReviewRequestMapper $mapper)
     {
     }
@@ -80,6 +85,41 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
         }
         $rows = QueryUtils::fetchRecords($sql . ' ORDER BY `created_at` DESC, `id` DESC', $binds);
         return array_map($this->mapper->toRequest(...), $rows);
+    }
+
+    public function lockTarget(string $targetTable, string $targetId): void
+    {
+        $key = self::LOCKABLE_TARGETS[$targetTable] ?? throw new \DomainException('Review requests for ' . $targetTable . ' cannot be locked');
+        // Table and column come from the constant above, never from the caller's text.
+        $locked = QueryUtils::fetchRecords(
+            'SELECT ' . QueryUtils::escapeColumnName($key, [$targetTable]) . ' FROM ' . QueryUtils::escapeTableName($targetTable)
+            . ' WHERE ' . QueryUtils::escapeColumnName($key, [$targetTable]) . ' = ? FOR UPDATE',
+            [$targetId]
+        );
+        // A row deleted since the caller checked it would leave a request for nothing.
+        if ($locked === []) {
+            throw new \RuntimeException('The review target no longer exists');
+        }
+    }
+
+    public function findOpenForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): array
+    {
+        $rows = QueryUtils::fetchRecords(
+            'SELECT * FROM `patient_review_request` WHERE `pid` = ? AND `type` = ? AND `target_table` = ? AND `target_id` = ?'
+            . ' AND `status` IN (?, ?) ORDER BY `created_at` DESC, `id` DESC',
+            [$pid, $type->value, $targetTable, $targetId, ReviewStatus::Pending->value, ReviewStatus::AwaitingPayment->value]
+        );
+        return array_map($this->mapper->toRequest(...), $rows);
+    }
+
+    public function findLatestForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): ?ReviewRequest
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT * FROM `patient_review_request` WHERE `pid` = ? AND `type` = ? AND `target_table` = ? AND `target_id` = ?'
+            . ' ORDER BY `created_at` DESC, `id` DESC LIMIT 1',
+            [$pid, $type->value, $targetTable, $targetId]
+        );
+        return is_array($row) && $row !== [] ? $this->mapper->toRequest($row) : null;
     }
 
     public function findByStatus(ReviewStatus $status, ?ReviewType $type, int $limit, int $offset): array
