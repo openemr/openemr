@@ -28,6 +28,7 @@ use ESign\Api;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\MainScreenToken;
 use OpenEMR\Common\Session\MainScreenTokenDecision;
 use OpenEMR\Common\Session\SessionUtil;
@@ -79,8 +80,9 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 // Ensure token_main matches so this script can not be run by itself
 //  If tokens do not match, then destroy the session and go back to log in screen
 $token_main_php = $session->get('token_main_php');
-$presentedToken = $_GET['token_main'] ?? '';
-if (!is_string($presentedToken)) {
+try {
+    $presentedToken = CurrentRequest::get()->query->getString('token_main');
+} catch (\Symfony\Component\HttpFoundation\Exception\BadRequestException) {
     $presentedToken = '';
 }
 $expectedToken = is_string($token_main_php) ? $token_main_php : null;
