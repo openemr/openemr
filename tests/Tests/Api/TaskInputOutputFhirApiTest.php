@@ -157,6 +157,8 @@ class TaskInputOutputFhirApiTest extends TestCase
         }
         foreach ($this->documents as $documentId) {
             QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE table_name = 'documents' AND uuid IN (SELECT uuid FROM documents WHERE id = ?)", [$documentId]);
+            // createDocument() also registers the uuid that names the file on disk.
+            QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE document_drive = 1 AND uuid IN (SELECT drive_uuid FROM documents WHERE id = ?)', [$documentId]);
             QueryUtils::sqlStatementThrowException('DELETE FROM categories_to_documents WHERE document_id = ?', [$documentId]);
             QueryUtils::sqlStatementThrowException('DELETE FROM documents WHERE id = ?', [$documentId]);
         }
@@ -181,7 +183,11 @@ class TaskInputOutputFhirApiTest extends TestCase
         $fixtures->removeObservationFixtures();
         $fixtures->removeRelatedPersonFixtures();
         if (isset($this->encounterUuid)) {
-            QueryUtils::sqlStatementThrowException('DELETE FROM form_encounter WHERE uuid = ?', [UuidRegistry::uuidToBytes($this->encounterUuid)]);
+            // insertEncounter() also files the encounter in forms (formdir newpatient), as EncounterApiTest notes.
+            $encounter = [UuidRegistry::uuidToBytes($this->encounterUuid)];
+            QueryUtils::sqlStatementThrowException("DELETE FROM forms WHERE formdir = 'newpatient' AND form_id IN (SELECT id FROM form_encounter WHERE uuid = ?)", $encounter);
+            QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE table_name = 'form_encounter' AND uuid = ?", $encounter);
+            QueryUtils::sqlStatementThrowException('DELETE FROM form_encounter WHERE uuid = ?', $encounter);
         }
         if (isset($this->orders)) {
             $this->orders->removeFixtures();
