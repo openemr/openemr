@@ -291,7 +291,11 @@ class ApiTestClientTest extends TestCase
                 "Content-Type" => "application/json"
             ]
         );
-        $this->assertEquals(401, $authResponse->getStatusCode());
+        // RFC 6749 section 5.2: an invalid refresh token is a 400 invalid_grant, not a 401 (#13613).
+        $this->assertEquals(400, $authResponse->getStatusCode());
+        $error = json_decode($authResponse->getBody()->getContents(), true);
+        $this->assertIsArray($error);
+        $this->assertSame('invalid_grant', $error['error'] ?? null);
 
         $this->client->cleanupRevokeAuth();
         $this->client->cleanupClient();
