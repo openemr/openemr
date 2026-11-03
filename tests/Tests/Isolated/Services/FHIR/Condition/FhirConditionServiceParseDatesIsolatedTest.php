@@ -24,6 +24,20 @@ use PHPUnit\Framework\TestCase;
 #[Group('isolated')]
 class FhirConditionServiceParseDatesIsolatedTest extends TestCase
 {
+    private string $originalTimezone;
+
+    protected function setUp(): void
+    {
+        // toDbDate() converts to the server timezone, so pin it to make the expected dates exact.
+        $this->originalTimezone = date_default_timezone_get();
+        date_default_timezone_set('UTC');
+    }
+
+    protected function tearDown(): void
+    {
+        date_default_timezone_set($this->originalTimezone);
+    }
+
     /**
      * @return array<mixed>
      */
@@ -42,12 +56,8 @@ class FhirConditionServiceParseDatesIsolatedTest extends TestCase
 
         $data = $this->parse($condition);
 
-        $this->assertArrayHasKey('begdate', $data);
-        $this->assertArrayHasKey('enddate', $data);
-        $this->assertIsString($data['begdate']);
-        $this->assertIsString($data['enddate']);
-        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}$/', $data['begdate']);
-        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}$/', $data['enddate']);
+        $this->assertSame('2024-03-05', $data['begdate'] ?? null);
+        $this->assertSame('2024-04-06', $data['enddate'] ?? null);
     }
 
     public function testRawStringDatesAreStillParsed(): void
