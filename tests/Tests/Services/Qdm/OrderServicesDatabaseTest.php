@@ -6,7 +6,8 @@
  * from the visit (forms.deleted = 1), is left out by DeviceAppliedService, ProcedureService,
  * InterventionService, LaboratoryTestService and the AbstractCarePlanService services (here
  * InterventionOrderedService). One with no forms row, or whose form id another patient's deleted
- * form shares, is kept.
+ * form shares, is kept. A lab test or procedure is read with the results of its own line of the
+ * order, and without a result, or report, marked Error.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -115,6 +116,66 @@ class OrderServicesDatabaseTest extends TestCase
     }
 
     /**
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     * @return \Generator<string, array{class-string<AbstractQdmService>, string, string}>
+     */
+    public static function resultServices(): \Generator
+    {
+        yield 'laboratory tests' => [LaboratoryTestService::class, 'laboratory_test', 'result'];
+        yield 'procedures' => [ProcedureService::class, 'order', 'result_value'];
+    }
+
+    /** @param class-string<AbstractQdmService> $service */
+    #[DataProvider('resultServices')]
+    public function testEachResultIsReadWithItsOwnLinesCode(string $service, string $type, string $resultColumn): void
+    {
+        // One order of two tests, each with its own result: neither result is read under the other's code.
+        $this->resultedOrder($type, [
+            ['LOINC:4548-4', 'final', [['7.1', 'final']]],
+            ['LOINC:2089-1', 'final', [['130', 'final']]],
+        ]);
+
+        $this->assertSame(['LOINC:2089-1 130', 'LOINC:4548-4 7.1'], $this->results($service, $resultColumn));
+    }
+
+    /** @param class-string<AbstractQdmService> $service */
+    #[DataProvider('resultServices')]
+    public function testAResultOrReportMarkedErrorIsNotRead(string $service, string $type, string $resultColumn): void
+    {
+        $this->resultedOrder($type, [['LOINC:4548-4', 'final', [['7.1', 'final'], ['9.9', 'error']]]]);
+        $this->resultedOrder($type, [['LOINC:2089-1', 'error', [['130', 'final']]]]);
+        // Kept: no status (each column's default, empty), preliminary and corrected.
+        $this->resultedOrder($type, [['LOINC:2085-9', '', [['45', ''], ['46', 'prelim'], ['47', 'correct']]]]);
+
+        $read = ['LOINC:2085-9 45', 'LOINC:2085-9 46', 'LOINC:2085-9 47', 'LOINC:4548-4 7.1'];
+        if ($service === ProcedureService::class) {
+            // The procedure whose report is marked Error is still read, without its result.
+            $read = ['LOINC:2085-9 45', 'LOINC:2085-9 46', 'LOINC:2085-9 47', 'LOINC:2089-1 -', 'LOINC:4548-4 7.1'];
+        }
+        $this->assertSame($read, $this->results($service, $resultColumn));
+    }
+
+    /**
+     * @param class-string<AbstractQdmService> $service
+     * @return list<string> "code result" for each row the service reads (a missing result as -), sorted
+     */
+    private function results(string $service, string $resultColumn): array
+    {
+        $result = (new $service(new QdmRequestOne((string)self::PID), new CodeTypesService()))->executeQuery();
+        $this->assertInstanceOf(\ADORecordSet::class, $result);
+        $rows = [];
+        while (is_array($row = QueryUtils::fetchArrayFromResultSet($result))) {
+            $code = $row['procedure_code'] ?? null;
+            $value = $row[$resultColumn] ?? '-';
+            $this->assertIsString($code);
+            $this->assertIsString($value);
+            $rows[] = "$code $value";
+        }
+        sort($rows);
+        return $rows;
+    }
+
+    /**
      * @param class-string<AbstractQdmService> $service
      * @return list<string> the column's value for each row the service reads, sorted
      */
@@ -162,6 +223,38 @@ class OrderServicesDatabaseTest extends TestCase
             $this->form('procedure_order', $id, self::PID, deleted: $form === 'deleted');
         }
         return $id;
+    }
+
+    /**
+     * An order of one or more lines, each with a report naming its line (procedure_order_seq, as the
+     * results screen and the HL7 import file them) and the report's results.
+     *
+     * @param list<array{string, string, list<array{string, string}>}> $lines each line's code, its report's
+     *                                                                          status, and its results' values and statuses
+     */
+    private function resultedOrder(string $type, array $lines): void
+    {
+        $id = QueryUtils::sqlInsert(
+            "INSERT INTO `procedure_order` (`patient_id`, `encounter_id`, `date_ordered`, `procedure_order_type`, `activity`) VALUES (?, 0, '2026-03-02 09:00:00', ?, 1)",
+            [self::PID, $type],
+        );
+        foreach ($lines as $index => [$code, $reportStatus, $results]) {
+            $seq = $index + 1;
+            QueryUtils::sqlInsert(
+                'INSERT INTO `procedure_order_code` (`procedure_order_id`, `procedure_order_seq`, `procedure_code`) VALUES (?, ?, ?)',
+                [$id, $seq, $code],
+            );
+            $report = QueryUtils::sqlInsert(
+                "INSERT INTO `procedure_report` (`procedure_order_id`, `procedure_order_seq`, `date_report`, `report_status`) VALUES (?, ?, '2026-03-03 09:00:00', ?)",
+                [$id, $seq, $reportStatus],
+            );
+            foreach ($results as [$value, $resultStatus]) {
+                QueryUtils::sqlInsert(
+                    "INSERT INTO `procedure_result` (`procedure_report_id`, `result_code`, `result`, `units`, `date`, `result_status`) VALUES (?, ?, ?, '%', '2026-03-03 09:00:00', ?)",
+                    [$report, $code, $value, $resultStatus],
+                );
+            }
+        }
     }
 
     private function carePlanItem(int $formId, string $code): void
