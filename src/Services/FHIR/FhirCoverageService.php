@@ -11,8 +11,10 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMoney;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
@@ -132,9 +134,9 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         $meta->setVersionId('1');
         $meta->addProfile(self::USCGI_PROFILE_URI);
         if (!empty($dataRecord['date'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $coverageResource->setMeta($meta);
 
@@ -209,10 +211,10 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         if (!empty($dataRecord['date']) || !empty($dataRecord['date_end'])) {
             $period = new FHIRPeriod();
             if (!empty($dataRecord['date'])) {
-                $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+                $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
             }
             if (!empty($dataRecord['date_end'])) {
-                $period->setEnd(UtilsService::getLocalDateAsUTC($dataRecord['date_end']));
+                $period->setEnd(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date_end'])));
             }
             $coverageResource->setPeriod($period);
         }
