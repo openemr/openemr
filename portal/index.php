@@ -773,7 +773,7 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
             <?php } ?>
             <?php if (isset($_GET['w'])) { ?>
             // mdsupport - Would be good to include some clue about what went wrong!
-            <?php // One generic message for every failure so the page never reveals which credential was wrong. ?>
+                <?php // One generic message for every failure so the page never reveals which credential was wrong. ?>
             bsAlert(<?php echo $globalsBag->getBoolean('enforce_signin_email')
                 ? xlj('Something went wrong. Please check Username, Password and E-Mail Address and try again.')
                 : xlj('Something went wrong. Please check Username and Password and try again.'); ?>);
