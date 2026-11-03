@@ -65537,11 +65537,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/LocationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$dirs of method Symfony\\\\Component\\\\Finder\\\\Finder\\:\\:in\\(\\) expects array\\<string\\>\\|string, array given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/LogoService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$replace of function str_replace expects array\\<string\\>\\|string, list\\<mixed\\> given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/LogoService.php',

@@ -15,6 +15,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\LogoFilterEvent;
@@ -89,7 +90,7 @@ class LogoService
         try {
             $logo = $this->findLogo($paths, $filename);
         } catch (\Throwable $e) {
-            error_log($e->getMessage());
+            ServiceContainer::getLogger()->error('LogoService::getLogo failed', ['exception' => $e]);
             $logo = "";
         }
 
@@ -133,26 +134,55 @@ class LogoService
      * By default, will search in the directory array for any file named "logo" (extension agnostic). If found, only
      * the last file found will be returned. By default, will append a query string for time modified to cache bust.
      *
-     * @param array   $directory Array of directories to search
+     * @param list<string> $directory Array of directories to search
      * @param string  $filename  File to look for
      * @param bool $timestamp Will return with a query string of the last modified time
-     * @return string|null String of real path or null if no file found
+     * @return string String of real path or empty string if no file found
      */
     private function findLogo(array $directory, string $filename = 'logo.*', $timestamp = true): string
     {
-        if (empty($directory)) {
+        // Filter to only directories that actually exist and are
+        // readable. On NFS-backed sites volumes (typical Kubernetes
+        // deployments), an opendir() against a missing or
+        // transiently-unavailable directory returns EREMOTEIO rather
+        // than ENOENT, and RecursiveDirectoryIterator surfaces that
+        // as an UnexpectedValueException from inside Finder's lazy
+        // iterator — downstream the exception is harder to catch and
+        // can leak into test output under PHPUnit's strict-output
+        // mode. Pre-filtering with is_dir() removes the error path
+        // at source; is_dir() returns false cleanly on missing or
+        // unreadable without raising a warning.
+        $existing = [];
+        foreach ($directory as $d) {
+            if (is_dir($d)) {
+                $existing[] = $d;
+            }
+        }
+
+        if (empty($existing)) {
             return "";
         }
+        $directory = $existing;
 
         $this->finder->files()->in($directory)->name($filename);
 
         $return = "";
-        if ($this->finder->hasResults()) {
-            // There is at least 1 file in the sites directory for the given logo
-            foreach ($this->finder as $f) {
-                $return = $f->getRealPath();
-                $return = ($timestamp) ? $return . "?t=" . $f->getMTime() : $return;
+        // Defensive catch around Finder's lazy iteration: is_dir()
+        // above can still TOCTOU-race if a directory is removed
+        // between the check and the walk (unlikely but possible on
+        // NFS). Degrade gracefully to "no logo" rather than let the
+        // exception propagate.
+        try {
+            if ($this->finder->hasResults()) {
+                // There is at least 1 file in the sites directory for the given logo
+                foreach ($this->finder as $f) {
+                    $return = $f->getRealPath();
+                    $return = ($timestamp) ? $return . "?t=" . $f->getMTime() : $return;
+                }
             }
+        } catch (\UnexpectedValueException $e) {
+            ServiceContainer::getLogger()->error('LogoService::findLogo iteration failed', ['exception' => $e]);
+            return "";
         }
 
         return $return;

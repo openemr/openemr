@@ -127,11 +127,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ImageUtilities/HandleImageService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type string\\|null is not subtype of native type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/LogoService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type array is incompatible with native type void\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',

@@ -14902,11 +14902,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ListService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\LogoService\\:\\:findLogo\\(\\) has parameter \\$directory with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/LogoService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ONoteService\\:\\:getNotes\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ONoteService.php',

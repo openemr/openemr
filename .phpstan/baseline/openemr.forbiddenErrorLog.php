@@ -409,11 +409,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Use a PSR\\-3 logger such as OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead of error_log\\(\\)\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/LogoService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use a PSR\\-3 logger such as OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead of error_log\\(\\)\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientAccessOnsiteService.php',
 ];
 $ignoreErrors[] = [
