@@ -557,7 +557,7 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
                 <div class="form-row my-3">
                     <label class="col-md-2 col-form-label" for="pass"><?php echo empty($session->get('onetime')) ? xlt('Current Password') : ''; ?></label>
                     <div class="col-md">
-                        <?php $showCurrentPasswordToggle = empty($session->get('onetime')); ?>
+                        <?php $showCurrentPasswordToggle = !(bool) $session->get('onetime'); ?>
                         <div class="input-group">
                             <input class="form-control" name="pass" id="pass" <?php echo ($session->get('onetime')) ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($session->get('onetime') ?? '');
                             SessionUtil::setSession('password_update', ($session->get('onetime') ? 2 : 1));
