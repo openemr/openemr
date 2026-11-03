@@ -39,6 +39,8 @@ class UcumExponentRangeTest extends TestCase
             'a quotient whose dimensions overflow' => ['m-4611686018427387905/m4611686018427387904'],
             'a product whose mole exponent overflows' => ['mol9223372036854775807.mol'],
             'a product whose equivalent exponent overflows' => ['eq9223372036854775807.eq'],
+            'a quotient whose mole exponent overflows' => ['mol-9223372036854775808/mol'],
+            'a quotient whose equivalent exponent overflows' => ['eq-9223372036854775808/eq'],
             'an overflowing power with an annotation' => ['L4000000000000000000{x}'],
             'an overflowing power in parentheses' => ['(L4000000000000000000)'],
         ];
