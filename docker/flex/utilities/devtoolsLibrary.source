@@ -69,6 +69,30 @@ run_php_as_apache() {
     su-exec apache "$@"
 }
 
+current_time_us() {
+    echo "${EPOCHREALTIME/[.,]/}"
+}
+
+elapsed_time_us() {
+    local start_us="$1"
+    local end_us="$2"
+    local elapsed_us=$((end_us - start_us))
+
+    if [[ ${elapsed_us} -lt 0 ]]; then
+        elapsed_us=0
+    fi
+
+    echo "${elapsed_us}"
+}
+
+format_elapsed_seconds() {
+    local elapsed_us="$1"
+    local rounded_hundredths
+
+    rounded_hundredths=$(((elapsed_us + 5000) / 10000))
+    printf "%d.%02d" "$((rounded_hundredths / 100))" "$((rounded_hundredths % 100))"
+}
+
 # ============================================================================
 # CONFIGURATION PREPARATION
 # ============================================================================
