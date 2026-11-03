@@ -15,6 +15,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormQuestionnaireAssessment;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
@@ -97,6 +98,10 @@ if (!$isPortal && $patientPortalOther && $mode === 'update' && $formid > 0) {
 if ($auditForm !== null) {
     $pid = $auditForm->pid;
     $encounter = $auditForm->encounter;
+} elseif (!$isPortal && $patientPortalOther && $mode === 'update' && $formid > 0) {
+    // No document holds this form now: save it only as the session patient's own, as the
+    // questionnaire page would show it.
+    EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'questionnaire_assessments');
 }
 
 if ($mode !== 'new' && !$isRegistering) {
