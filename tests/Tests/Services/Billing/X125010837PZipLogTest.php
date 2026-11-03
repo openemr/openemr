@@ -208,7 +208,7 @@ class X125010837PZipLogTest extends TestCase
             $log,
             false,
             false,
-            0,
+            1,
             $edicount,
             $patSegmentCount
         );
