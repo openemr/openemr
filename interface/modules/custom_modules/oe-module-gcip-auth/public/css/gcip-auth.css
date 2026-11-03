@@ -1,0 +1,354 @@
+/**
+ * GCIP Authentication Module Styles
+ * 
+ * AI-Generated Content Start
+ * This CSS file provides styling for GCIP authentication components
+ * including login buttons, status indicators, and user interface
+ * enhancements for seamless integration with OpenEMR themes.
+ * AI-Generated Content End
+ */
+
+/* GCIP Authentication Container - AI-Generated */
+.gcip-auth-container {
+    margin: 15px 0;
+    text-align: center;
+}
+
+/* GCIP Separator - AI-Generated */
+.gcip-separator {
+    position: relative;
+    margin: 20px 0;
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.gcip-separator::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #dee2e6;
+    z-index: 1;
+}
+
+.gcip-separator span {
+    background-color: #fff;
+    padding: 0 15px;
+    position: relative;
+    z-index: 2;
+}
+
+/* GCIP Login Button - AI-Generated */
+.gcip-login-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    min-width: 200px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gcip-login-button:hover {
+    background-color: #3367d6;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    color: white;
+    text-decoration: none;
+}
+
+.gcip-login-button:active {
+    background-color: #2c5aa0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gcip-login-button:disabled {
+    background-color: #9aa0a6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.gcip-login-button:disabled:hover {
+    background-color: #9aa0a6;
+}
+
+/* GCIP Icon - AI-Generated */
+.gcip-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+/* GCIP Status Indicator - AI-Generated */
+.gcip-status-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    background-color: #4285f4;
+    color: white;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-left: 8px;
+}
+
+.gcip-status-indicator i {
+    margin-right: 4px;
+    font-size: 10px;
+}
+
+/* GCIP Error Alert - AI-Generated */
+.gcip-error-alert {
+    margin-bottom: 20px;
+    border-left: 4px solid #dc3545;
+}
+
+.gcip-error-alert .close {
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: 0;
+    color: inherit;
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 1;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.gcip-error-alert .close:hover {
+    opacity: 0.75;
+}
+
+/* GCIP Setup Form Styles - AI-Generated */
+.gcip-setup-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.config-section {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.config-section h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #495057;
+    font-weight: 600;
+}
+
+/* Status Indicators - AI-Generated */
+.status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.status-enabled {
+    background-color: #28a745;
+}
+
+.status-disabled {
+    background-color: #dc3545;
+}
+
+.status-warning {
+    background-color: #ffc107;
+}
+
+/* Form Styling - AI-Generated */
+.gcip-setup-container .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.gcip-setup-container .form-control {
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+}
+
+.gcip-setup-container .form-control:focus {
+    border-color: #4285f4;
+    box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25);
+}
+
+.gcip-setup-container .form-check {
+    margin-bottom: 1rem;
+}
+
+.gcip-setup-container .form-check-input {
+    margin-right: 0.5rem;
+}
+
+.gcip-setup-container .form-check-label {
+    font-weight: 500;
+}
+
+/* Help Text - AI-Generated */
+.form-help {
+    font-size: 0.875em;
+    color: #6c757d;
+    margin-top: 0.25rem;
+    line-height: 1.4;
+}
+
+/* Validation Messages - AI-Generated */
+.validation-error {
+    color: #dc3545;
+    font-size: 0.875em;
+    margin-top: 0.25rem;
+}
+
+.validation-success {
+    color: #28a745;
+    font-size: 0.875em;
+    margin-top: 0.25rem;
+}
+
+.validation-status {
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 15px;
+}
+
+.validation-status.success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.validation-status.error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+/* Button Styling - AI-Generated */
+.gcip-setup-container .btn {
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
+}
+
+.gcip-setup-container .btn-primary {
+    background-color: #4285f4;
+    border-color: #4285f4;
+}
+
+.gcip-setup-container .btn-primary:hover {
+    background-color: #3367d6;
+    border-color: #3367d6;
+}
+
+.gcip-setup-container .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.gcip-setup-container .btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+}
+
+/* Required Field Indicator - AI-Generated */
+.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Invalid Field Styling - AI-Generated */
+.form-control.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Loading Spinner - AI-Generated */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Responsive Design - AI-Generated */
+@media (max-width: 768px) {
+    .gcip-setup-container {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .config-section {
+        padding: 15px;
+    }
+    
+    .gcip-login-button {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .status-indicator {
+        margin-bottom: 8px;
+    }
+}
+
+/* Dark Theme Support - AI-Generated */
+@media (prefers-color-scheme: dark) {
+    .gcip-separator span {
+        background-color: #2d3748;
+    }
+    
+    .gcip-setup-container {
+        background-color: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .config-section {
+        background: #4a5568;
+        border-color: #718096;
+    }
+    
+    .form-control {
+        background-color: #4a5568;
+        border-color: #718096;
+        color: #e2e8f0;
+    }
+    
+    .form-control:focus {
+        background-color: #4a5568;
+        border-color: #4285f4;
+    }
+    
+    .form-help {
+        color: #a0aec0;
+    }
+}
+
+/* Print Styles - AI-Generated */
+@media print {
+    .gcip-login-button,
+    .gcip-auth-container,
+    .gcip-status-indicator {
+        display: none !important;
+    }
+}
