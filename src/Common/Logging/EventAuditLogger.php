@@ -567,19 +567,36 @@ class EventAuditLogger implements AuditLoggerInterface
             }
         }
 
-        foreach (self::LOG_TABLES as $table => $eventCategoryMatch) {
-            if (str_contains($truncated_sql, $table)) {
-                $eventCategory = $eventCategoryMatch;
-                $category = $this->eventCategoryFinder($comments, $eventCategory->value, $table);
-                $matchedTable = $table;
-                break;
-            }
+        $primaryTable = '';
+        if (preg_match('/\bfrom\s+`?([a-z0-9_]+)`?/i', $truncated_sql, $fromMatch) === 1) {
+            $primaryTable = strtolower($fromMatch[1]);
         }
-        // A form table counts only when the statement names no known table.
-        if ($matchedTable === '' && preg_match('/\b(form_[a-z0-9_]+)/i', $truncated_sql, $formMatch) === 1) {
-            $matchedTable = strtolower($formMatch[1]);
+        // The table after FROM is the read. A joined users row must not
+        // replace an unknown form table, and a known table named there
+        // wins over a table that only appears later in the statement.
+        if ($primaryTable !== '' && array_key_exists($primaryTable, self::LOG_TABLES)) {
+            $matchedTable = $primaryTable;
+            $eventCategory = self::LOG_TABLES[$primaryTable];
+            $category = $this->eventCategoryFinder($comments, $eventCategory->value, $matchedTable);
+        } elseif ($primaryTable !== '' && str_starts_with($primaryTable, 'form_')) {
+            $matchedTable = $primaryTable;
             $eventCategory = EventCategory::PatientRecord;
             $category = $this->eventCategoryFinder($comments, $eventCategory->value, $matchedTable);
+        } else {
+            foreach (self::LOG_TABLES as $table => $eventCategoryMatch) {
+                if (str_contains($truncated_sql, $table)) {
+                    $eventCategory = $eventCategoryMatch;
+                    $category = $this->eventCategoryFinder($comments, $eventCategory->value, $table);
+                    $matchedTable = $table;
+                    break;
+                }
+            }
+            // A form table counts only when the statement names no known table.
+            if ($matchedTable === '' && preg_match('/\b(form_[a-z0-9_]+)/i', $truncated_sql, $formMatch) === 1) {
+                $matchedTable = strtolower($formMatch[1]);
+                $eventCategory = EventCategory::PatientRecord;
+                $category = $this->eventCategoryFinder($comments, $eventCategory->value, $matchedTable);
+            }
         }
 
         // Now that we know _what_ to log, check _if_ it should be logged

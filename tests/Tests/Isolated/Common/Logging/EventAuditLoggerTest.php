@@ -691,6 +691,41 @@ class EventAuditLoggerTest extends TestCase
         self::assertStringContainsString('data=Encounter Form', $comments);
     }
 
+    /**
+     * A form table after FROM stays a patient record when users is joined.
+     */
+    public function testAFormReadJoinedToUsersStaysOnThePatient(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$captured): void {
+                $captured[] = $event;
+            });
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent(
+            'SELECT id FROM form_echo JOIN users ON users.id = 1 WHERE pid = 4',
+            true,
+        );
+        $logger->flushPendingQuerySummary();
+
+        self::assertCount(1, $captured);
+        self::assertSame('patient-record-select', $captured[0]->event);
+        $comments = base64_decode($captured[0]->comments, true);
+        self::assertIsString($comments);
+        self::assertStringContainsString('tables=form_echo', $comments);
+        self::assertStringNotContainsString('tables=users', $comments);
+    }
+
     public function testAPrescriptionReadKeepsTheOpenPatient(): void
     {
         $captured = [];
