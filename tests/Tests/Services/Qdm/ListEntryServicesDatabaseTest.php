@@ -4,7 +4,8 @@
  * Problems, concerns and allergies read from the database as the eCQMs read them: one marked
  * Entered in Error or Refuted in its Verification Status is left out, by DiagnosisService,
  * SymptomService, AllergyIntoleranceService and the diagnoses EncounterService joins; any other
- * status, the column's default (empty) included, is kept.
+ * status, the column's default (empty) included, is kept. A visit is one encounter, carrying the
+ * diagnoses of every problem linked to it that counts.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -18,7 +19,10 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Services\Qdm;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Cqm\Qdm\BaseTypes\Code;
+use OpenEMR\Cqm\Qdm\DiagnosisComponent;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\Qdm\QdmRecord;
 use OpenEMR\Services\Qdm\QdmRequestOne;
 use OpenEMR\Services\Qdm\Services\AbstractQdmService;
 use OpenEMR\Services\Qdm\Services\AllergyIntoleranceService;
@@ -113,6 +117,34 @@ class ListEntryServicesDatabaseTest extends TestCase
             $rows,
             'each visit once, with only the problems that count; a visit is never dropped for its problems',
         );
+    }
+
+    public function testAVisitLinkedToSeveralProblemsIsOneEncounterWithEachDiagnosis(): void
+    {
+        // Two problems that count, the second coded twice, and one entered in error, all linked to one visit.
+        $first = $this->entry('medical_problem', 'diagnosis', 'ICD10:I10', 'confirmed');
+        $second = $this->entry('medical_problem', 'diagnosis', 'ICD10:E11.9;SNOMED-CT:44054006', '');
+        $wrong = $this->entry('medical_problem', 'diagnosis', 'ICD10:J45.909', 'entered-in-error');
+        $this->visit(self::ENCOUNTER_KEPT, [$first, $second, $wrong]);
+
+        $service = new EncounterService(new QdmRequestOne((string)self::PID), new CodeTypesService());
+        $result = $service->executeQuery();
+        $this->assertInstanceOf(\ADORecordSet::class, $result);
+        $encounters = [];
+        while (is_array($row = QueryUtils::fetchArrayFromResultSet($result))) {
+            $encounters[] = $service->makeQdmModel(new QdmRecord($row, self::PID, 10000));
+        }
+
+        $this->assertCount(1, $encounters, 'the visit once, not once per linked problem');
+        $diagnoses = $encounters[0]->diagnoses;
+        $this->assertIsArray($diagnoses);
+        $codes = [];
+        foreach ($diagnoses as $diagnosis) {
+            $this->assertInstanceOf(DiagnosisComponent::class, $diagnosis);
+            $this->assertInstanceOf(Code::class, $diagnosis->code);
+            $codes[] = $diagnosis->code->code;
+        }
+        $this->assertSame(['I10', 'E11.9', '44054006'], $codes, 'every diagnosis that counts, on the one encounter');
     }
 
     /** @return list<string> the diagnosis column of each row the service reads, sorted */
