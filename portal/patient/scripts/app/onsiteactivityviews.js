@@ -266,7 +266,7 @@ const actpage = {
                 actpage.fetchInProgress = false;
             },
             error: function (m, r) {
-                app.appendAlert(app.getErrorMessage(r), 'alert-error', 0, 'collectionAlert');
+                app.appendAlert(app.getErrorMessage(r), 'alert-error', 0, 'collectionAlert', r);
                 app.hideProgress('loader');
                 actpage.fetchInProgress = false;
             }
@@ -303,7 +303,7 @@ const actpage = {
                 },
 
                 error: function (m, r) {
-                    app.appendAlert(app.getErrorMessage(r), 'alert-error', 0, 'modelAlert');
+                    app.appendAlert(app.getErrorMessage(r), 'alert-error', 0, 'modelAlert', r);
                     app.hideProgress('modelLoader');
                 }
 

@@ -655,7 +655,7 @@ var page = {
                 page.fetchInProgress = false;
             },
             error: function (m, r) {
-                app.appendAlert(app.getErrorMessage(r), 'alert-error', 0, 'collectionAlert');
+                app.appendAlert(app.getErrorMessage(r), 'alert-error', 0, 'collectionAlert', r);
                 app.hideProgress('loader');
                 page.fetchInProgress = false;
             }
@@ -879,7 +879,7 @@ var page = {
                     page.version = $("#portal_version").val() ? $("#portal_version").val() : 'Legacy';
                 },
                 error: function (m, r) {
-                    app.appendAlert(app.getErrorMessage(r), 'alert-error', 0, 'modelAlert');
+                    app.appendAlert(app.getErrorMessage(r), 'alert-error', 0, 'modelAlert', r);
                 }
             });
         }
@@ -1038,7 +1038,7 @@ var page = {
             },
             error: function (model, response, scope) {
                 app.hideProgress('modelLoader');
-                app.appendAlert(app.getErrorMessage(response), 'alert-error', 0, 'modelAlert');
+                app.appendAlert(app.getErrorMessage(response), 'alert-error', 0, 'modelAlert', response);
             }
         });
     },
@@ -1074,7 +1074,7 @@ var page = {
                 }
             },
             error: function (model, response, scope) {
-                app.appendAlert(app.getErrorMessage(response), 'alert-error', 0, 'modelAlert');
+                app.appendAlert(app.getErrorMessage(response), 'alert-error', 0, 'modelAlert', response);
                 app.hideProgress('modelLoader');
             }
         });

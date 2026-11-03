@@ -298,7 +298,7 @@ var page = {
                 page.fetchInProgress = false;
             },
             error: function (m, r) {
-                app.appendAlert(app.getErrorMessage(r), 'danger', 15000, 'collectionAlert');
+                app.appendAlert(app.getErrorMessage(r), 'danger', 15000, 'collectionAlert', r);
                 app.hideProgress('modelLoader');
                 page.fetchInProgress = false;
             }
@@ -324,7 +324,7 @@ var page = {
                     page.getEditedPatient(pm)
                 },
                 error: function (m, r) {
-                    app.appendAlert(app.getErrorMessage(r), 'danger', 15000, 'modelAlert');
+                    app.appendAlert(app.getErrorMessage(r), 'danger', 15000, 'modelAlert', r);
                     app.hideProgress('modelLoader');
                 }
             });
@@ -470,7 +470,7 @@ var page = {
             },
             error: function (model, response, scope) {
                 app.hideProgress('modelLoader');
-                app.appendAlert(app.getErrorMessage(response), 'danger', 15000, 'modelAlert');
+                app.appendAlert(app.getErrorMessage(response), 'danger', 15000, 'modelAlert', response);
                 try {
                     var json = $.parseJSON(response.responseText);
                     if (json.errors) {
@@ -510,7 +510,7 @@ var page = {
                 }
             },
             error: function (model, response, scope) {
-                app.appendAlert(app.getErrorMessage(response), 'danger', 15000, 'modelAlert');
+                app.appendAlert(app.getErrorMessage(response), 'danger', 15000, 'modelAlert', response);
                 app.hideProgress('modelLoader');
             }
         });
