@@ -89,7 +89,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
         if (!empty($dataRecord['modifydate'])) {
             $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['modifydate'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $device->setMeta($fhirMeta);
 

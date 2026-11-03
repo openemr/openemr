@@ -889,7 +889,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         if (!empty($dataRecord['date_modified'])) {
             $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date_modified'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $medRequestResource->setMeta($meta);
     }

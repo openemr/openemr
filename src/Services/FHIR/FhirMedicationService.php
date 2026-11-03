@@ -85,7 +85,7 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
         if (!empty($dataRecord['drug_last_updated'])) {
             $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['drug_last_updated'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $medicationResource->setMeta($meta);
 

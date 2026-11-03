@@ -99,7 +99,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         if (!empty($dataRecord['creation_date'])) {
             $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['creation_date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $fhirMeta->addProfile(self::USCGI_PROFILE_URI);
         $goal->setMeta($fhirMeta);

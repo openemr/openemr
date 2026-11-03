@@ -166,7 +166,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase implements IPatien
         } elseif (!empty($dataRecord['date_ordered'])) {
             $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
             $meta->addProfile($this->createProfile($profile));

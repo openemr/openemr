@@ -115,7 +115,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         if (!empty($dataRecord['date'])) {
             $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['modifydate'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $allergyIntoleranceResource->setMeta($fhirMeta);
 

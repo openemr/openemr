@@ -90,7 +90,7 @@ class FhirMediaService extends FhirServiceBase implements IFhirExportableResourc
         if (!empty($dataRecord['date'])) {
             $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $fhirMedia->setMeta($fhirMeta);
 

@@ -107,7 +107,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
         if (!empty($dataRecord['last_updated'])) {
             $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $organizationResource->setMeta($meta);
         $organizationResource->setActive($dataRecord['inactive'] == '0');

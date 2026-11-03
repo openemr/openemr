@@ -260,7 +260,7 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
         } elseif (!empty($dataRecord['created_at'])) {
             $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['created_at'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
 
         $meta->addProfile(self::USCDI_PROFILE);

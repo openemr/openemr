@@ -180,7 +180,7 @@ trait FhirObservationTrait
         if (!empty($dataRecord['last_updated_time'])) {
             $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated_time'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
 
         $observation->setMeta($meta);

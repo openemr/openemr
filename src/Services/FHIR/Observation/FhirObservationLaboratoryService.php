@@ -219,7 +219,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         if (!empty($dataRecord['report_date'])) {
             $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['report_date'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         // setup our profiles
         $meta = $this->addProfilesToMeta([

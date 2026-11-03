@@ -122,7 +122,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
         if (!empty($dataRecord['last_updated'])) {
             $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $person->setMeta($meta);
 

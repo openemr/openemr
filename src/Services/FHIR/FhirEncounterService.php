@@ -30,6 +30,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
@@ -125,7 +126,7 @@ class FhirEncounterService extends FhirServiceBase implements
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated((new \DateTime($dataRecord['last_update']) )->format(DATE_ATOM)); // stored as utc
+        $meta->setLastUpdated(new FHIRInstant((new \DateTime($dataRecord['last_update']))->format(DATE_ATOM))); // stored as utc
         $encounterResource->setMeta($meta);
 
         $id = new FhirId();

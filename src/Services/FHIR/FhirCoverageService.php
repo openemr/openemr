@@ -136,7 +136,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         if (!empty($dataRecord['date'])) {
             $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $coverageResource->setMeta($meta);
 

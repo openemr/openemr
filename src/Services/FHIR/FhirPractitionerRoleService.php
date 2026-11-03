@@ -91,7 +91,7 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
         if (!empty($dataRecord['role_last_updated'])) {
             $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['role_last_updated'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $practitionerRoleResource->setMeta($meta);
 

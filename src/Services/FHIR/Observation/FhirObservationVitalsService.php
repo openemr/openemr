@@ -716,7 +716,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         if (!empty($dataRecord['last_updated'])) {
             $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         // go through and populate our profiles now.
         foreach ($profiles as $baseProfile => $versions) {

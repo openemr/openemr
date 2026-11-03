@@ -74,7 +74,7 @@ class FhirPatientProviderGroupService extends FhirServiceBase implements IPatien
         if (!empty($dataRecord['last_modified_date'])) {
             $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_modified_date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $fhirGroup->setMeta($fhirMeta);
 

@@ -122,7 +122,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         if (!empty($dataRecord['date'])) {
             $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $careTeamResource->setMeta($fhirMeta);
 

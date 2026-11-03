@@ -104,7 +104,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         if (!empty($dataRecord['update_date'])) {
             $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['update_date'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $immunizationResource->setMeta($meta);
 

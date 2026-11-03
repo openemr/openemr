@@ -263,7 +263,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
         if (!empty($dataRecordReport['last_updated'])) {
             $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecordReport['last_updated'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         // Set profile (required, mustSupport)
         $this->addProfilesToMeta($fhirMeta, $dataRecordReport);
