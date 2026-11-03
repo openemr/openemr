@@ -14,19 +14,23 @@ declare(strict_types=1);
 
 namespace OpenEMR\Billing\Statement;
 
+use Psr\Log\LoggerInterface;
+
 /**
  * Takes the checked invoices (StatementInvoices::forRun(), ordered so each
  * patient's invoices are together) and builds one statement per patient:
  * every invoice's lines, then the patient's credits on other encounters so the
  * amount due nets them. A Due Pt run sends nothing to a patient left with
- * nothing due. Statements go to the portal, or into one batch to print or
- * download, each also saved to the patient's documents and, for an email run,
- * emailed. Invoices are counted as statemented only for statements that went
- * out, and only when the run records (not Without Update).
+ * nothing due, and no run sends a statement the site's print rules leave
+ * empty (a total at or under the minimum amount to print); those are logged
+ * and listed in the result. Statements go to the portal, or into one batch to
+ * print or download, each also saved to the patient's documents and, for an
+ * email run, emailed. Invoices are counted as statemented only for statements
+ * that went out, and only when the run records (not Without Update).
  */
 final readonly class StatementRun
 {
-    public function __construct(private StatementRunSteps $steps)
+    public function __construct(private StatementRunSteps $steps, private LoggerInterface $logger)
     {
     }
 
@@ -51,6 +55,7 @@ final readonly class StatementRun
         $output = '';
         $written = 0;
         $skipped = [];
+        $belowMinimum = [];
         $emailFailures = [];
 
         foreach (self::byPatient($invoices) as $pid => $patientInvoices) {
@@ -66,12 +71,12 @@ final readonly class StatementRun
 
             if ($delivery === StatementDelivery::Portal) {
                 if (!$this->steps->isPortalAuthorized($pid)) {
-                    return $this->result($output, $written, $skipped, $emailFailures, StatementRunResult::PORTAL_NOT_AUTHORIZED, $invoices);
+                    return $this->result($output, $written, $skipped, $belowMinimum, $emailFailures, StatementRunResult::PORTAL_NOT_AUTHORIZED, $invoices);
                 }
                 $statement = $this->steps->buildStatement($stmt);
                 $invoiceId = $pid . '-' . self::string($stmt, 'encounter');
                 if (!$this->steps->notifyPortal($pid, $snapshots, $statement, $invoiceId)) {
-                    return $this->result($output, $written, $skipped, $emailFailures, StatementRunResult::PORTAL_FAILED, $invoices);
+                    return $this->result($output, $written, $skipped, $belowMinimum, $emailFailures, StatementRunResult::PORTAL_FAILED, $invoices);
                 }
                 // Count the invoices as statemented only once the portal has the statement.
                 if ($toRecord !== []) {
@@ -88,26 +93,36 @@ final readonly class StatementRun
                 continue;
             }
 
+            $statement = $this->steps->buildStatement($stmt);
+            if ($statement === '') {
+                // The site's print rules leave this statement out (its total is at or
+                // under the minimum amount to print). Nothing goes in the batch or the
+                // patient's documents, and the invoices aren't counted as statemented.
+                $belowMinimum[] = $patient;
+                $this->logger->warning('Statement not sent: the print rules leave it empty', [
+                    'pid' => $pid,
+                    'encounters' => $encounterIds,
+                    'amount' => $amountDue,
+                    'delivery' => $delivery->name,
+                ]);
+                continue;
+            }
             if ($toRecord !== []) {
                 $this->steps->recordStatementRun($toRecord);
             }
-            $statement = $this->steps->buildStatement($stmt);
-            if ($delivery === StatementDelivery::Email && $statement !== '') {
+            if ($delivery === StatementDelivery::Email) {
                 try {
                     $this->steps->email($pid, $statement);
                 } catch (\RuntimeException | \InvalidArgumentException $e) {
                     $emailFailures[] = $patient . ': ' . $e->getMessage();
                 }
             }
-            if ($statement === '') {
-                $statement = $this->steps->emptyStatementNotice($pid, self::string($stmt, 'encounter'));
-            }
             $output .= $statement;
             $written++;
             $this->steps->saveDocument($pid, $statement);
         }
 
-        return $this->result($output, $written, $skipped, $emailFailures, null, $invoices);
+        return $this->result($output, $written, $skipped, $belowMinimum, $emailFailures, null, $invoices);
     }
 
     /**
@@ -192,17 +207,18 @@ final readonly class StatementRun
 
     /**
      * @param list<string> $skipped
+     * @param list<string> $belowMinimum
      * @param list<string> $emailFailures
      * @param list<array<string, mixed>> $invoices
      */
-    private function result(string $output, int $written, array $skipped, array $emailFailures, ?string $portalError, array $invoices): StatementRunResult
+    private function result(string $output, int $written, array $skipped, array $belowMinimum, array $emailFailures, ?string $portalError, array $invoices): StatementRunResult
     {
         $pids = array_unique(array_map(static fn(array $invoice): int => self::int($invoice, 'pid'), $invoices));
         $onlyPatient = null;
         if (count($pids) === 1 && $invoices !== []) {
             $onlyPatient = ['firstName' => self::string($invoices[0], 'fname'), 'pid' => self::int($invoices[0], 'pid')];
         }
-        return new StatementRunResult($output, $written, $skipped, $emailFailures, $portalError, $onlyPatient);
+        return new StatementRunResult($output, $written, $skipped, $belowMinimum, $emailFailures, $portalError, $onlyPatient);
     }
 
     /**

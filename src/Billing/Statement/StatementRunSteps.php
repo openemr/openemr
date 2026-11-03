@@ -48,11 +48,6 @@ interface StatementRunSteps
     public function buildStatement(array $stmt): string;
 
     /**
-     * What goes in the batch in place of a statement that came out empty.
-     */
-    public function emptyStatementNotice(int $pid, string $encounter): string;
-
-    /**
      * Save the statement in the patient's documents.
      */
     public function saveDocument(int $pid, string $statement): void;
