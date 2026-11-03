@@ -46,12 +46,14 @@ class FhirOrganizationInsuranceServiceTest extends TestCase
         'name' => self::NAME,
         'cms_id' => 'PAYER1',
         'alt_cms_id' => 'PAYER2',
+        'inactive' => 0,
         'line1' => '4 Workbench Way',
         'line2' => 'Suite 200, Floor 3',
         'zip' => '90001',
         'city' => 'Testville',
         'state' => 'CA',
         'country' => 'US',
+        'fax' => '(555) 200-9999',
         'phone' => '(555) 200-3003',
     ];
 
@@ -95,6 +97,7 @@ class FhirOrganizationInsuranceServiceTest extends TestCase
                 'name' => null,
                 'cms_id' => null,
                 'alt_cms_id' => null,
+                'inactive' => 0,
                 'line1' => null,
                 'line2' => null,
                 'zip' => null,
@@ -106,6 +109,25 @@ class FhirOrganizationInsuranceServiceTest extends TestCase
         );
     }
 
+    #[Test]
+    public function anInactiveInsurerKeepsOnlyAPhoneStillInUse(): void
+    {
+        $organization = FhirOrganizationSerializer::deserialize([
+            'resourceType' => 'Organization',
+            'name' => self::NAME,
+            'active' => false,
+            'telecom' => [
+                ['system' => 'phone', 'value' => '(555) 200-0001', 'use' => 'old'],
+                ['system' => 'phone', 'value' => '(555) 200-0002', 'period' => ['end' => '2001-01-01']],
+                // the system this service emitted for the phone before it used 'phone'
+                ['system' => 'work', 'value' => '(555) 200-0003'],
+            ],
+        ]);
+
+        $record = (new FhirOrganizationInsuranceService())->parseFhirResource($organization);
+        $this->assertSame([1, '(555) 200-0003'], [$record['inactive'] ?? null, $record['phone'] ?? null]);
+    }
+
     private static function deserialized(): FHIROrganization
     {
         return FhirOrganizationSerializer::deserialize([
@@ -115,6 +137,8 @@ class FhirOrganizationInsuranceServiceTest extends TestCase
                 ['system' => FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE, 'value' => 'PAYER1'],
                 ['system' => 'http://example.org/other', 'value' => 'IGNORED'],
                 ['system' => FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE, 'value' => 'PAYER2'],
+                // a third has nowhere to go and does not overwrite the second
+                ['system' => FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE, 'value' => 'PAYER3'],
             ],
             'telecom' => [
                 ['system' => 'fax', 'value' => '(555) 200-9999'],
@@ -139,6 +163,7 @@ class FhirOrganizationInsuranceServiceTest extends TestCase
                 [FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE, 'PAYER1'],
                 ['http://example.org/other', 'IGNORED'],
                 [FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE, 'PAYER2'],
+                [FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE, 'PAYER3'],
             ] as [$system, $value]
         ) {
             $identifier = new FHIRIdentifier();

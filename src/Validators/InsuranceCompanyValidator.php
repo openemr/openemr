@@ -36,6 +36,9 @@ class InsuranceCompanyValidator extends BaseValidator
                 $context->optional('ins_type_code')->numeric();
                 $context->optional('x12_receiver_id')->lengthBetween(2, 25);
                 $context->optional('x12_default_partner_id')->numeric();
+                // the addresses columns' widths
+                $context->optional('state')->lengthBetween(1, 35);
+                $context->optional('zip')->lengthBetween(1, 10);
             }
         );
 

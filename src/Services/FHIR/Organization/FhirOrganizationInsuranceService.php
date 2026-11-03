@@ -11,8 +11,12 @@
 
 namespace OpenEMR\Services\FHIR\Organization;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -150,7 +154,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
 
         $organizationResource->addAddress(UtilsService::createAddressFromRecord($dataRecord));
 
-        $contactPoints = ['work_number' => 'work', 'fax_number' => 'fax'];
+        $contactPoints = ['work_number' => 'phone', 'fax_number' => 'fax'];
         foreach ($contactPoints as $field => $contact) {
             if (!empty($dataRecord[$field])) {
                 $organizationResource->addTelecom(UtilsService::createContactPoint(
@@ -187,10 +191,42 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
         if (!$processingResult->isValid()) {
             return $processingResult;
         }
-        $id = $this->insuranceService->insert($record);
+        $unstorable = self::unstorableParts($record);
+        if ($unstorable !== []) {
+            $processingResult->setValidationMessages($unstorable);
+            return $processingResult;
+        }
+        // The company, its address and its phones are stored together or not at all.
+        $id = QueryUtils::inTransaction(fn(): int|string => $this->insuranceService->insert($record));
         $stored = $this->insuranceService->getOneById($id);
         $processingResult->addData(['id' => $id, 'uuid' => is_array($stored) ? ($stored['uuid'] ?? null) : null]);
         return $processingResult;
+    }
+
+    /**
+     * What InsuranceCompanyService::insert() would drop without a word: an address it stores only
+     * with a city and a state, and a phone or fax it can split only as a NANP number.
+     *
+     * @param array<string, mixed> $record
+     * @return array<string, string> validation messages by field
+     */
+    private static function unstorableParts(array $record): array
+    {
+        $messages = [];
+        $addressGiven = false;
+        foreach (['line1', 'line2', 'zip', 'city', 'state', 'country'] as $field) {
+            $addressGiven = $addressGiven || ($record[$field] ?? null) !== null;
+        }
+        if ($addressGiven && (($record['city'] ?? null) === null || ($record['state'] ?? null) === null)) {
+            $messages['address'] = 'An insurance company address needs a city and a state';
+        }
+        foreach (['phone' => 'telecom phone', 'fax' => 'telecom fax'] as $field => $label) {
+            $number = $record[$field] ?? null;
+            if (is_string($number) && preg_match('/\d\d\d\D*\d\d\d\D*\d\d\d\d/', $number) !== 1) {
+                $messages[$field] = "The $label must be a 10-digit North American number";
+            }
+        }
+        return $messages;
     }
 
     /**
@@ -217,6 +253,8 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
         $data['name'] = self::primitiveText($fhirResource->getName());
         $data['cms_id'] = null;
         $data['alt_cms_id'] = null;
+        // R4 Organization.active defaults to true when absent.
+        $data['inactive'] = self::isFalse($fhirResource->getActive()) ? 1 : 0;
 
         $addresses = $fhirResource->getAddress();
         if (!empty($addresses)) {
@@ -247,17 +285,26 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
         }
 
         foreach ($fhirResource->getTelecom() as $contactPoint) {
-            if (self::primitiveText($contactPoint->getSystem()) === 'phone') {
-                $data['phone'] = self::primitiveText($contactPoint->getValue());
-                break;
+            if (!self::isCurrent($contactPoint)) {
+                continue;
+            }
+            // 'work' is what this service emitted for the phone before it used 'phone'.
+            $field = match (self::primitiveText($contactPoint->getSystem())) {
+                'phone', 'work' => 'phone',
+                'fax' => 'fax',
+                default => null,
+            };
+            if ($field !== null && !isset($data[$field])) {
+                $data[$field] = self::primitiveText($contactPoint->getValue());
             }
         }
 
         foreach ($fhirResource->getIdentifier() as $identifier) {
             if (self::primitiveText($identifier->getSystem()) === FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE) {
+                // The company holds two: the first is its CMS id, the second its alternate.
                 if ($data['cms_id'] === null) {
                     $data['cms_id'] = self::primitiveText($identifier->getValue());
-                } else {
+                } elseif ($data['alt_cms_id'] === null) {
                     $data['alt_cms_id'] = self::primitiveText($identifier->getValue());
                 }
             }
@@ -266,12 +313,38 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
     }
 
     /**
+     * Whether a contact point is still in use: not marked old, and its period not ended.
+     */
+    private static function isCurrent(FHIRContactPoint $contactPoint): bool
+    {
+        if (self::primitiveText($contactPoint->getUse()) === 'old') {
+            return false;
+        }
+        $end = UtilsService::getPeriodTimestamps($contactPoint->getPeriod())['end'];
+        return !is_int($end) || $end > time();
+    }
+
+    /**
+     * Whether a FHIR boolean, typed or as the bare value the serializer leaves, is false.
+     */
+    private static function isFalse(mixed $element): bool
+    {
+        if ($element instanceof FHIRBoolean) {
+            $element = $element->getValue();
+        }
+        return $element === false || $element === 'false';
+    }
+
+    /**
      * The text of a FHIR primitive as the R4 classes hold it: a typed element, or the bare
      * string FhirOrganizationSerializer::deserialize() leaves. Blank or absent is null.
      */
     private static function primitiveText(mixed $element): ?string
     {
-        if ($element instanceof FHIRString || $element instanceof FHIRUri || $element instanceof FHIRContactPointSystem) {
+        if (
+            $element instanceof FHIRString || $element instanceof FHIRUri
+            || $element instanceof FHIRContactPointSystem || $element instanceof FHIRContactPointUse
+        ) {
             $element = $element->getValue();
         }
         return is_string($element) && $element !== '' ? $element : null;

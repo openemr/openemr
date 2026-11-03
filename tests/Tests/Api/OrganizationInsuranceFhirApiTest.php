@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -140,14 +141,79 @@ class OrganizationInsuranceFhirApiTest extends TestCase
     }
 
     /**
+     * HL7's lowercase type code, the one an insurer reads back with, also makes an insurer; so
+     * does an inactive one, which stays inactive, and its phone reads back as a phone.
+     */
+    public function testPostInsurerWithTheHl7TypeCodeRoundTrips(): void
+    {
+        $name = self::NAME_PREFIX . " Lowercase";
+        $body = self::insurerBody($name, [
+            'active' => false,
+            'type' => [['coding' => [['system' => FhirCodeSystemConstants::HL7_ORGANIZATION_TYPE, 'code' => 'ins']]]],
+        ]);
+        $result = $this->testClient->post(self::ENDPOINT, $body);
+        $this->assertSame(Response::HTTP_CREATED, $result->getStatusCode(), "POST should return 201 Created: " . $result->getBody());
+        $row = $this->decodeJsonArray($result);
+        $this->assertIsString($row['uuid'] ?? null);
+
+        $inactive = QueryUtils::fetchSingleValue("SELECT `inactive` FROM `insurance_companies` WHERE `name` = ?", 'inactive', [$name]);
+        $this->assertEquals(1, $inactive, "The insurer should be an insurance company, stored inactive");
+
+        $resource = $this->decodeJsonArray($this->testClient->getOne(self::ENDPOINT, $row['uuid']));
+        $this->assertFalse($resource['active'] ?? null);
+        $telecoms = $resource['telecom'] ?? null;
+        $this->assertIsArray($telecoms);
+        $telecom = $telecoms[0] ?? null;
+        $this->assertIsArray($telecom);
+        $this->assertSame('phone', $telecom['system'] ?? null, "R4 has no 'work' contact point system");
+    }
+
+    /**
+     * @return array<string, array{array<string, mixed>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unstorableProvider(): array
+    {
+        $address = ['line' => ['4 Workbench Way'], 'city' => 'Testville', 'state' => 'CA', 'postalCode' => '90001'];
+        return [
+            'zip wider than the column' => [['address' => [['postalCode' => '12345-67890'] + $address]]],
+            'state wider than the column' => [['address' => [['state' => str_repeat('s', 36)] + $address]]],
+            'address without a state' => [['address' => [array_diff_key($address, ['state' => true])]]],
+            'phone that is not a NANP number' => [['telecom' => [['system' => 'phone', 'value' => '+44 20 7946 0958']]]],
+        ];
+    }
+
+    /**
+     * What the company's address or phone rows cannot hold answers 400, with nothing stored,
+     * rather than a 500 or a 201 that dropped it.
+     *
+     * @param array<string, mixed> $overrides
+     */
+    #[DataProvider('unstorableProvider')]
+    public function testPostInsurerWithUnstorablePartsReturnsBadRequest(array $overrides): void
+    {
+        $result = $this->testClient->post(self::ENDPOINT, self::insurerBody(self::NAME_PREFIX . " Unstorable", $overrides));
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $result->getStatusCode(), "POST should return 400: " . $result->getBody());
+
+        $stored = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS `stored` FROM `insurance_companies` WHERE `name` LIKE ?",
+            'stored',
+            [self::NAME_PREFIX . "%"]
+        );
+        $this->assertEquals(0, $stored, "Nothing should have been stored");
+    }
+
+    /**
      * The body FHIR clients send for an insurer: the explorer's "Create missing fixtures"
      * seed, plus a second address line, a country and a payer id.
      *
+     * @param array<string, mixed> $overrides top-level elements to replace
      * @return array<string, mixed>
      */
-    private static function insurerBody(string $name): array
+    private static function insurerBody(string $name, array $overrides = []): array
     {
-        return [
+        return $overrides + [
             'resourceType' => 'Organization',
             'active' => true,
             'name' => $name,

@@ -469,7 +469,8 @@ class InsuranceCompanyService extends BaseService
         $sql .= "     x12_receiver_id=?,";
         $sql .= "     x12_default_partner_id=?,";
         $sql .= "     alt_cms_id=?,";
-        $sql .= "     cqm_sop=?";
+        $sql .= "     cqm_sop=?,";
+        $sql .= "     inactive=?";
 
         // throws an exception if the record doesn't insert
         QueryUtils::sqlInsert(
@@ -485,6 +486,7 @@ class InsuranceCompanyService extends BaseService
                 $data["x12_default_partner_id"] ?? '',
                 $data["alt_cms_id"],
                 $data["cqm_sop"] ?? null,
+                is_array($data) ? ($data["inactive"] ?? 0) : 0,
             ]
         );
 
@@ -494,6 +496,13 @@ class InsuranceCompanyService extends BaseService
 
         if (($data["phone"] ?? '') !== '') {
             $this->phoneNumberService->insert($data, $freshId);
+        }
+
+        $fax = is_array($data) && is_string($data["fax"] ?? null) ? $data["fax"] : '';
+        if ($fax !== '') {
+            $faxNumberService = new PhoneNumberService();
+            $faxNumberService->type = PhoneType::FAX->value;
+            $faxNumberService->insert(['phone' => $fax], $freshId);
         }
 
         return $freshId;
