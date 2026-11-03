@@ -14,6 +14,7 @@ use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\Qdm\FormDirectory;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
@@ -48,9 +49,9 @@ abstract class AbstractQdmService
      * the condition-verification and allergyintolerance-verification lists), which the issue
      * screen offers for both. Any other status is kept, including the column's default, empty.
      *
-     * @param string $table lists or its alias, as it appears in the query
+     * @param string $table lists or its alias, as the service's own SQL writes it (never a value)
      */
-    public static function countedListEntry(string $table): string
+    protected static function countedListEntry(string $table): string
     {
         return "$table.`verification` NOT IN ('entered-in-error', 'refuted')";
     }
@@ -117,18 +118,18 @@ abstract class AbstractQdmService
      * SQL that is true unless the row's form was deleted from the visit: delete_form.php sets
      * forms.deleted = 1 and leaves the form's own rows in place. The form has to be the row's
      * patient's too, since form ids can repeat across patients (the procedure order and others
-     * pick theirs with an unlocked MAX() + 1). A row with no forms row is kept.
+     * pick theirs with an unlocked MAX() + 1). A row with no forms row is kept. This is the one
+     * rule for a counted form row: observations, vitals, orders and care plan items all use it.
      *
-     * @param string $formId  the column holding the row's form id, as it appears in the query
-     * @param string $pid     the column holding the row's patient, as it appears in the query
-     * @param string $formdir the form's directory, as forms.formdir records it
+     * @param string $formId the column holding the row's form id, as the service's own SQL writes it (never a value)
+     * @param string $pid    the column holding the row's patient, as the service's own SQL writes it (never a value)
      */
-    public static function notInDeletedForm(string $formId, string $pid, string $formdir): string
+    protected static function notInDeletedForm(string $formId, string $pid, FormDirectory $form): string
     {
         return "NOT EXISTS (
                     SELECT 1 FROM `forms`
                     WHERE `forms`.`form_id` = $formId AND `forms`.`pid` = $pid
-                      AND `forms`.`formdir` = '$formdir' AND `forms`.`deleted` = 1
+                      AND `forms`.`formdir` = '{$form->value}' AND `forms`.`deleted` = 1
                 )";
     }
 

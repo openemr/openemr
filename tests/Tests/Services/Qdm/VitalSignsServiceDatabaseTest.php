@@ -107,6 +107,21 @@ class VitalSignsServiceDatabaseTest extends TestCase
         $this->assertSame([[self::PID, 'LOINC:8480-6', 131.0]], $this->read(new QdmRequestOne((string)self::PID)));
     }
 
+    public function testVitalsAreCountedByTheSameFormRuleAsObservationsAndOrders(): void
+    {
+        // A reading with no forms row is kept, as an observation or order with none is. One filed in two
+        // forms rows (a C-CDA import of the same document again adds another) is read once, not twice.
+        $this->vitals(self::PID, '2026-03-02 09:00:00', ['bps' => '128'], forms: 0);
+        $this->vitals(self::PID, '2026-03-09 09:00:00', ['bps' => '131'], forms: 2);
+        // Control: another patient's deleted Vitals form with this reading's id hides nothing.
+        $this->vitals(self::PID, '2026-03-16 09:00:00', ['bps' => '135'], otherPatientsDeletedForm: true);
+
+        $this->assertSame(
+            [[self::PID, 'LOINC:8480-6', 128.0], [self::PID, 'LOINC:8480-6', 131.0], [self::PID, 'LOINC:8480-6', 135.0]],
+            $this->read(new QdmRequestOne((string)self::PID)),
+        );
+    }
+
     public function testADifferentReadingTheSameDayIsKept(): void
     {
         // CMS165 takes the lowest blood pressure of the most recent day: a second reading must not be lost.
@@ -194,8 +209,12 @@ class VitalSignsServiceDatabaseTest extends TestCase
         return new $class($request, new CodeTypesService());
     }
 
-    /** @param array<string, string> $values form_vitals column => value */
-    private function vitals(int $pid, string $date, array $values, bool $deleted = false): void
+    /**
+     * A Vitals form's reading, filed in $forms forms rows (kept, or all deleted from the visit).
+     *
+     * @param array<string, string> $values form_vitals column => value
+     */
+    private function vitals(int $pid, string $date, array $values, bool $deleted = false, int $forms = 1, bool $otherPatientsDeletedForm = false): void
     {
         $columns = array_keys($values);
         $id = QueryUtils::sqlInsert(
@@ -203,11 +222,17 @@ class VitalSignsServiceDatabaseTest extends TestCase
             . str_repeat(', ?', count($columns)) . ')',
             array_merge([$pid, $date], array_values($values)),
         );
-        QueryUtils::sqlInsert(
-            "INSERT INTO `forms` (`date`, `encounter`, `form_name`, `form_id`, `pid`, `user`, `groupname`, `authorized`, `deleted`, `formdir`)"
-            . " VALUES (?, 0, 'Vitals', ?, ?, 'test', 'Default', 1, ?, 'vitals')",
-            [$date, $id, $pid, $deleted ? 1 : 0],
-        );
+        $filings = array_fill(0, $forms, [$pid, $deleted]);
+        if ($otherPatientsDeletedForm) {
+            $filings[] = [self::OTHER_PID, true];
+        }
+        foreach ($filings as [$formPid, $formDeleted]) {
+            QueryUtils::sqlInsert(
+                "INSERT INTO `forms` (`date`, `encounter`, `form_name`, `form_id`, `pid`, `user`, `groupname`, `authorized`, `deleted`, `formdir`)"
+                . " VALUES (?, 0, 'Vitals', ?, ?, 'test', 'Default', 1, ?, 'vitals')",
+                [$date, $id, $formPid, $formDeleted ? 1 : 0],
+            );
+        }
     }
 
     /**

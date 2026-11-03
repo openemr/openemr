@@ -16,6 +16,7 @@ use OpenEMR\Cqm\Qdm\BaseTypes\{
     Quantity
 };
 use OpenEMR\Cqm\Qdm\LaboratoryTestPerformed;
+use OpenEMR\Services\Qdm\FormDirectory;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
@@ -39,7 +40,7 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
                     JOIN procedure_order O ON REP.procedure_order_id = O.procedure_order_id
                     JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
                 WHERE O.procedure_order_type = 'laboratory_test' AND O.activity != 0
-                AND " . self::notInDeletedForm('O.procedure_order_id', 'O.patient_id', 'procedure_order') . "
+                AND " . self::notInDeletedForm('O.procedure_order_id', 'O.patient_id', FormDirectory::ProcedureOrder) . "
                 ";
 
         return $sql;
