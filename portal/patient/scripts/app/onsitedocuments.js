@@ -1147,7 +1147,56 @@ var page = {
                     });
                 });
                 this.on("success", function (file, response) {
-                    let data = JSON.parse(response);
+                    // The result for the patient is shown once per request in successmultiple below; a bad body must not stop that.
+                    try {
+                        let data = (typeof response === 'string') ? JSON.parse(response) : response;
+                    } catch (err) {
+                        console.log('Portal upload: unreadable response');
+                    }
+                });
+                // Tell the patient what happened, once per upload request. Text comes from the template (translated) and is
+                // inserted as text only. "Submitted" is not "received": staff still have to confirm the document.
+                const uploadText = Object.assign({
+                    saved: 'Your upload was submitted. Our staff has not yet confirmed receipt. Please contact the office if confirmation does not arrive.',
+                    someFailed: 'Some files were not saved:',
+                    failed: 'Your upload was not saved. Please try again or contact the office.',
+                    unknown: 'We could not confirm that your upload was saved. Please try again or contact the office.'
+                }, window.portalUploadMessages || {});
+                const showUploadResult = function (kind, lines) {
+                    $('#uploadResult').remove();
+                    const box = $('<div id="uploadResult" role="status" aria-live="polite" tabindex="-1" class="alert mt-2"></div>')
+                        .addClass(kind === 'ok' ? 'alert-success' : 'alert-danger');
+                    lines.forEach(function (line) {
+                        box.append($('<p class="mb-1"></p>').text(line));
+                    });
+                    $('#hideUpload').before(box);
+                    box[0].focus();
+                };
+                this.on("successmultiple", function (files, response) {
+                    let list = null;
+                    try {
+                        list = (typeof response === 'string') ? JSON.parse(response) : response;
+                    } catch (err) {
+                        list = null;
+                    }
+                    if (!Array.isArray(list) || list.length < 1) {
+                        showUploadResult('error', [uploadText.unknown]);
+                        return;
+                    }
+                    const isSaved = function (r) { return !!r && r.ok === true && r.doc_id > 0; };
+                    const saved = list.filter(isSaved);
+                    const failed = list.filter(function (r) { return !isSaved(r); });
+                    if (saved.length > 0 && failed.length < 1) {
+                        showUploadResult('ok', [uploadText.saved]);
+                    } else if (saved.length > 0) {
+                        const names = failed.map(function (r) { return (r && r.name) ? r.name : ''; }).join(', ');
+                        showUploadResult('error', [uploadText.someFailed + ' ' + names, uploadText.saved]);
+                    } else {
+                        showUploadResult('error', [uploadText.failed]);
+                    }
+                });
+                this.on("errormultiple", function () {
+                    showUploadResult('error', [uploadText.failed]);
                 });
                 this.on("complete", function (file) {
                     this.removeFile(file);
