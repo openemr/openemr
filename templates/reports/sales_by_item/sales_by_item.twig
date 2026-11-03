@@ -1,0 +1,113 @@
+{% extends 'reports/sales_by_item/base.twig' %}
+
+{% block report_content %}
+    <div class="report-header">
+        <h2>{{ 'Sales by Item Report' | xlt }}</h2>
+        {% if from_date and to_date %}
+            <div class="report-date-range">
+                {{ 'Report Date Range:' | xlt }} {{ from_date }} - {{ to_date }}
+            </div>
+        {% endif %}
+    </div>
+
+    {% if report_data %}
+        {# Display report results #}
+        {% set show_details = report_data.show_details | default(false) %}
+        {% set rows = report_data.rows | default([]) %}
+
+        <div class="row mb-3">
+            <div class="col-12">
+                <strong>{{ 'Total Items:' | xlt }}</strong> {{ report_data.item_count | default(0) }} 
+                <span class="ms-3"></span>
+                <strong>{{ 'Total Quantity:' | xlt }}</strong> {{ report_data.total_quantity | default(0) }} 
+                <span class="ms-3"></span>
+                <strong>{{ 'Total Amount:' | xlt }}</strong> 
+                <span class="currency">${{ "%.2f" | format(report_data.total_amount | default(0)) }}</span>
+            </div>
+        </div>
+
+        {% if chart_category and (chart_category.data|length > 0) %}
+            <div class="charts-container row mb-3">
+                <div class="col-md-6">
+                    <div class="chart-wrapper">
+                        <div class="chart-title">{{ 'Sales by Category' | xlt }}</div>
+                        <canvas id="salesCategoryPie" class="chart-canvas"></canvas>
+                    </div>
+                </div>
+                {% if chart_top_items and (chart_top_items.datasets[0].data|length > 0) %}
+                    <div class="col-md-6">
+                        <div class="chart-wrapper">
+                            <div class="chart-title">{{ 'Top Items by Sales' | xlt }}</div>
+                            <canvas id="topItemsBar" class="chart-canvas"></canvas>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <script>
+                const catEl = document.getElementById('salesCategoryPie');
+                if (catEl && window.Chart) {
+                    const catData = {
+                        labels: {{ chart_category.labels|json_encode|raw }},
+                        datasets: [{
+                            label: {{ 'Amount'|xlt|json_encode|raw }},
+                            data: {{ chart_category.data|json_encode|raw }},
+                            backgroundColor: {{ chart_category.colors|json_encode|raw }}
+                        }]
+                    };
+                    new Chart(catEl, {
+                        type: 'pie',
+                        data: catData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: { position: 'bottom' },
+                                title: { display: true, text: {{ 'Sales by Category'|xlt|json_encode|raw }} }
+                            }
+                        }
+                    });
+                }
+
+                {% if chart_top_items and (chart_top_items.datasets[0].data|length > 0) %}
+                    const barEl = document.getElementById('topItemsBar');
+                    if (barEl && window.Chart) {
+                        const barData = {
+                            labels: {{ chart_top_items.labels|json_encode|raw }},
+                            datasets: [
+                                {
+                                    label: {{ 'Amount'|xlt|json_encode|raw }},
+                                    data: {{ chart_top_items.datasets[0].data|json_encode|raw }},
+                                    backgroundColor: {{ chart_top_items.datasets[0].backgroundColor|json_encode|raw }}
+                                },
+                                {
+                                    label: {{ 'Qty'|xlt|json_encode|raw }},
+                                    data: {{ chart_top_items.datasets[1].data|json_encode|raw }},
+                                    backgroundColor: {{ chart_top_items.datasets[1].backgroundColor|json_encode|raw }}
+                                }
+                            ]
+                        };
+                        new Chart(barEl, {
+                            type: 'bar',
+                            data: barData,
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: true,
+                                indexAxis: 'y',
+                                plugins: {
+                                    legend: { position: 'bottom' },
+                                    title: { display: true, text: {{ 'Top Items by Sales'|xlt|json_encode|raw }} }
+                                }
+                            }
+                        });
+                    }
+                {% endif %}
+            </script>
+        {% endif %}
+
+        {% include 'reports/sales_by_item/_results_table.twig' %}
+    {% else %}
+        <div class="alert alert-warning">
+            {{ 'No report data available.' | xlt }}
+        </div>
+    {% endif %}
+{% endblock %}
