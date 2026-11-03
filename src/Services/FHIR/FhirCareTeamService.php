@@ -19,6 +19,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCareTeam;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -610,9 +611,11 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                 $participant = new FHIRCareTeamParticipant();
 
                 // Set period if provider_since is available
-                if (!empty($dataRecordProvider['provider_since'])) {
+                $providerSince = $dataRecordProvider['provider_since'] ?? null;
+                if (is_string($providerSince) && $providerSince !== '') {
                     $period = new FHIRPeriod();
-                    $period->setStart($dataRecordProvider['provider_since']);
+                    // provider_since is a DATE; a date-only dateTime keeps its precision.
+                    $period->setStart(new FHIRDateTime($providerSince));
                     $participant->setPeriod($period);
                 }
 
