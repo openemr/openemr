@@ -1,0 +1,3 @@
+.env
+*_reporting_period/
+ecqm_*_reporting.sql
