@@ -62,34 +62,57 @@ class CoreFormToPortalUtility
      * Staff open a portal document's questionnaire from the Portal Dashboard to audit it, often
      * with no chart (or another patient's chart) open, so the session-patient check would refuse
      * it. A document keeps its embedded form's id in onsite_documents.encounter, but not which
-     * form table that id is from; each form table numbers its own rows. The document's template
-     * (onsite_documents.file_path holds its id) says so: only a {Questionnaire:...} directive
-     * embeds a questionnaire_assessments form. The form must also be live and of the same patient.
+     * form table that id is from; each form table numbers its own rows. What the document itself
+     * saved says so: its template_data records the embedded frame's src (the encounterForm
+     * entry), written with the document, so a later edit of its template does not change it.
+     * The form must also be live and of the same patient.
      */
     public static function questionnaireDocumentForm(int $formId): ?QuestionnaireDocumentForm
     {
         if ($formId <= 0) {
             return null;
         }
-        $row = QueryUtils::querySingleRow(
-            'SELECT od.pid, f.encounter FROM `onsite_documents` AS od'
-            . ' JOIN `document_templates` AS dt ON dt.id = od.file_path'
-            . " AND dt.template_content LIKE '%{Questionnaire:%'"
+        $rows = QueryUtils::fetchRecords(
+            'SELECT od.pid, od.template_data, f.encounter FROM `onsite_documents` AS od'
             . " JOIN `forms` AS f ON f.form_id = od.encounter AND f.formdir = 'questionnaire_assessments'"
             . ' AND f.pid = od.pid AND f.deleted = 0'
-            . ' WHERE od.encounter = ? LIMIT 1',
+            . ' WHERE od.encounter = ?',
             [$formId]
         );
-        if (!is_array($row)) {
-            return null;
+        foreach ($rows as $row) {
+            $pid = $row['pid'] ?? null;
+            if (!is_numeric($pid) || (int) $pid <= 0 || !self::embedsQuestionnaireForm($row['template_data'] ?? null)) {
+                continue;
+            }
+            $encounter = $row['encounter'] ?? null;
+            $encounter = is_numeric($encounter) && (int) $encounter > 0 ? (int) $encounter : 0;
+            return new QuestionnaireDocumentForm((int) $pid, $encounter);
         }
-        $pid = $row['pid'] ?? null;
-        $encounter = $row['encounter'] ?? null;
-        if (!is_numeric($pid) || (int) $pid <= 0) {
-            return null;
+        return null;
+    }
+
+    /**
+     * Did the document save a questionnaire_assessments frame? template_data is the JSON list of
+     * {name, value} elements the document page saves; encounterForm is its embedded frame's src.
+     */
+    private static function embedsQuestionnaireForm(mixed $templateData): bool
+    {
+        if (!is_string($templateData) || $templateData === '') {
+            return false;
         }
-        $encounter = is_numeric($encounter) && (int) $encounter > 0 ? (int) $encounter : 0;
-        return new QuestionnaireDocumentForm((int) $pid, $encounter);
+        $elements = json_decode($templateData, true);
+        if (!is_array($elements)) {
+            return false;
+        }
+        foreach ($elements as $element) {
+            if (!is_array($element) || ($element['name'] ?? null) !== 'encounterForm' || !is_string($element['value'] ?? null)) {
+                continue;
+            }
+            $path = parse_url($element['value'], PHP_URL_PATH);
+            return is_string($path)
+                && str_ends_with($path, '/interface/forms/questionnaire_assessments/questionnaire_assessments.php');
+        }
+        return false;
     }
 
     /**

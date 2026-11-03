@@ -2,7 +2,7 @@
 
 /**
  * CoreFormToPortalUtility::questionnaireDocumentForm() against the database: a questionnaire form
- * is a document's only when a questionnaire document of the form's own patient holds it.
+ * is a document's only when a document of the form's own patient saved a questionnaire frame.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -27,6 +27,12 @@ class CoreFormToPortalUtilityPortalDocumentFormTest extends TestCase
     private const FORM_ID = 990083;
     private const MARKER = 'portal-form-test';
 
+    /** The frame src a questionnaire document saves (the form id is bound by onsite_documents.encounter). */
+    private const QUESTIONNAIRE_FRAME = '/openemr/interface/forms/questionnaire_assessments/questionnaire_assessments.php'
+        . '?formname=PHQ-9&formOrigin=0&id=0&isPortal=1';
+
+    private const LBF_FRAME = '/openemr/interface/forms/LBF/new.php?formname=LBFtest&formOrigin=0&id=0&isPortal=1';
+
     protected function setUp(): void
     {
         $this->cleanUp();
@@ -40,7 +46,7 @@ class CoreFormToPortalUtilityPortalDocumentFormTest extends TestCase
     public function testTheFormOfThePatientsOwnQuestionnaireDocumentHasThatPatientAndItsEncounter(): void
     {
         $this->insertForm(self::PID, encounter: 77);
-        $this->insertDocument(self::PID, $this->insertTemplate('{Questionnaire:PHQ-9}'));
+        $this->insertDocument(self::PID, self::QUESTIONNAIRE_FRAME);
 
         $form = CoreFormToPortalUtility::questionnaireDocumentForm(self::FORM_ID);
         $this->assertNotNull($form);
@@ -57,7 +63,7 @@ class CoreFormToPortalUtilityPortalDocumentFormTest extends TestCase
     public function testAFormHeldByAnotherPatientsDocumentHasNone(): void
     {
         $this->insertForm(self::PID);
-        $this->insertDocument(self::OTHER_PID, $this->insertTemplate('{Questionnaire:PHQ-9}'));
+        $this->insertDocument(self::OTHER_PID, self::QUESTIONNAIRE_FRAME);
 
         $this->assertNull(CoreFormToPortalUtility::questionnaireDocumentForm(self::FORM_ID));
     }
@@ -66,15 +72,32 @@ class CoreFormToPortalUtilityPortalDocumentFormTest extends TestCase
     {
         // An LBF document's form id can equal a questionnaire's; each form table numbers its own rows.
         $this->insertForm(self::PID);
-        $this->insertDocument(self::PID, $this->insertTemplate('{EncounterDocument:LBFtest}'));
+        $this->insertDocument(self::PID, self::LBF_FRAME);
 
         $this->assertNull(CoreFormToPortalUtility::questionnaireDocumentForm(self::FORM_ID));
+    }
+
+    public function testADocumentThatSavedNoFrameHasNone(): void
+    {
+        $this->insertForm(self::PID);
+        $this->insertDocument(self::PID, null);
+
+        $this->assertNull(CoreFormToPortalUtility::questionnaireDocumentForm(self::FORM_ID));
+    }
+
+    public function testTheDocumentsOwnFrameDecidesWhateverItsTemplateNowSays(): void
+    {
+        // The document's template is edited after the document was saved; what it saved stands.
+        $this->insertForm(self::PID);
+        $this->insertDocument(self::PID, self::QUESTIONNAIRE_FRAME, filePath: $this->insertTemplate('{EncounterDocument:LBFtest}'));
+
+        $this->assertNotNull(CoreFormToPortalUtility::questionnaireDocumentForm(self::FORM_ID));
     }
 
     public function testADeletedFormHasNone(): void
     {
         $this->insertForm(self::PID, deleted: 1);
-        $this->insertDocument(self::PID, $this->insertTemplate('{Questionnaire:PHQ-9}'));
+        $this->insertDocument(self::PID, self::QUESTIONNAIRE_FRAME);
 
         $this->assertNull(CoreFormToPortalUtility::questionnaireDocumentForm(self::FORM_ID));
     }
@@ -89,21 +112,30 @@ class CoreFormToPortalUtilityPortalDocumentFormTest extends TestCase
         );
     }
 
-    private function insertTemplate(string $content): int
+    private function insertTemplate(string $content): string
     {
-        return QueryUtils::sqlInsert(
+        return (string) QueryUtils::sqlInsert(
             'INSERT INTO `document_templates` (`pid`, `profile`, `category`, `template_name`, `status`,'
             . " `send_date`, `size`, `mime`, `template_content`) VALUES (-1, ?, 'Test', ?, 'New', NOW(), ?, 'text/plain', ?)",
             [self::MARKER, self::MARKER . '-' . md5($content), strlen($content), $content]
         );
     }
 
-    private function insertDocument(int $pid, int $templateId): void
+    /**
+     * @param ?string $frameSrc The encounterForm src the document saved; null when it saved none.
+     */
+    private function insertDocument(int $pid, ?string $frameSrc, string $filePath = ''): void
     {
+        $elements = [['name' => 'patient_signature0', 'value' => '']];
+        if ($frameSrc !== null) {
+            $elements[] = ['name' => 'encounterForm', 'value' => $frameSrc];
+        }
+        $elements[] = ['name' => 'encounterFormId', 'value' => self::FORM_ID];
         QueryUtils::sqlInsert(
             'INSERT INTO `onsite_documents` (`pid`, `encounter`, `doc_type`, `patient_signed_status`, `accept_signed_status`,'
-            . " `authorizing_signator`, `denial_reason`, `file_name`, `file_path`) VALUES (?, ?, 'Consent', 0, 0, '', '', ?, ?)",
-            [$pid, self::FORM_ID, self::MARKER, (string) $templateId]
+            . " `authorizing_signator`, `denial_reason`, `file_name`, `file_path`, `template_data`)"
+            . " VALUES (?, ?, 'Consent', 0, 0, '', '', ?, ?, ?)",
+            [$pid, self::FORM_ID, self::MARKER, $filePath, json_encode($elements, JSON_THROW_ON_ERROR)]
         );
     }
 
