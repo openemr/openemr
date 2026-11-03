@@ -12,10 +12,14 @@
 namespace OpenEMR\Services\FHIR\Organization;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirPayloadReader;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\INonPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -170,10 +174,35 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
     }
 
     /**
-     * Parses a FHIR Organization Resource, returning the equivalent OpenEMR organization record.
+     * Stores the insurance company parseFhirResource() mapped, once the insurance company
+     * validator accepts it, and answers with its id and uuid, as a facility POST does.
+     */
+    protected function insertOpenEMRRecord(mixed $openEmrRecord): ProcessingResult
+    {
+        // FHIR carries none of these three; InsuranceCompanyService::insert() reads each one.
+        $record = FhirPayloadReader::stringKeyed($openEmrRecord)
+            + ['attn' => null, 'ins_type_code' => null, 'x12_receiver_id' => null];
+
+        $processingResult = $this->insuranceService->validate($record);
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+        $id = $this->insuranceService->insert($record);
+        $stored = $this->insuranceService->getOneById($id);
+        $processingResult->addData(['id' => $id, 'uuid' => is_array($stored) ? ($stored['uuid'] ?? null) : null]);
+        return $processingResult;
+    }
+
+    /**
+     * Parses a FHIR Organization Resource, returning the equivalent OpenEMR insurance company
+     * record, keyed as InsuranceCompanyService::insert() reads it.
      *
-     * @param  FHIROrganization|array $fhirResource The source FHIR resource
-     * @return array a mapped OpenEMR data record (array)
+     * The resource may come from FhirOrganizationSerializer::deserialize(), which leaves name,
+     * the address parts, the telecom parts and the identifier parts as the plain strings the
+     * request's JSON held, or from code that sets the typed elements: both are read.
+     *
+     * @param  mixed $fhirResource The source FHIR resource, an FHIROrganization
+     * @return array<string, mixed> a mapped OpenEMR data record
      */
     public function parseFhirResource($fhirResource = []): array
     {
@@ -185,7 +214,9 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
         $data = [];
 
         $data['uuid'] = $fhirResource->getId() ?? null;
-        $data['name'] = !empty($fhirResource->getName()) ? $fhirResource->getName()->getValue() : null;
+        $data['name'] = self::primitiveText($fhirResource->getName());
+        $data['cms_id'] = null;
+        $data['alt_cms_id'] = null;
 
         $addresses = $fhirResource->getAddress();
         if (!empty($addresses)) {
@@ -202,22 +233,47 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
                 }
             }
 
-            $lineValues = array_map(fn($val) => $val->getValue(), $activeAddress->getLine() ?? []);
-            $data['street'] = implode("\n", $lineValues) ?? null;
-            $data['postal_code'] = !empty($activeAddress->getPostalCode()) ? $activeAddress->getPostalCode()->getValue() : null;
-            $data['city'] = !empty($activeAddress->getCity()) ? $activeAddress->getCity()->getValue() : null;
-            $data['state'] = !empty($activeAddress->getState()) ? $activeAddress->getState()->getValue() : null;
+            $lineValues = array_values(array_filter(
+                array_map(self::primitiveText(...), $activeAddress->getLine()),
+                is_string(...)
+            ));
+            // an insurance company's address has two lines: a third or later line joins the second
+            $data['line1'] = $lineValues[0] ?? null;
+            $data['line2'] = count($lineValues) > 1 ? implode(", ", array_slice($lineValues, 1)) : null;
+            $data['zip'] = self::primitiveText($activeAddress->getPostalCode());
+            $data['city'] = self::primitiveText($activeAddress->getCity());
+            $data['state'] = self::primitiveText($activeAddress->getState());
+            $data['country'] = self::primitiveText($activeAddress->getCountry());
         }
 
-        foreach ($fhirResource['identifier'] as $identifier) {
-            if ($identifier['system'] == FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE) {
-                if (empty($data['cms_id'])) {
-                    $data['cms_id'] = $identifier['value'];
+        foreach ($fhirResource->getTelecom() as $contactPoint) {
+            if (self::primitiveText($contactPoint->getSystem()) === 'phone') {
+                $data['phone'] = self::primitiveText($contactPoint->getValue());
+                break;
+            }
+        }
+
+        foreach ($fhirResource->getIdentifier() as $identifier) {
+            if (self::primitiveText($identifier->getSystem()) === FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE) {
+                if ($data['cms_id'] === null) {
+                    $data['cms_id'] = self::primitiveText($identifier->getValue());
                 } else {
-                    $data['alt_cms_id'] = $identifier['value'];
+                    $data['alt_cms_id'] = self::primitiveText($identifier->getValue());
                 }
             }
         }
         return $data;
+    }
+
+    /**
+     * The text of a FHIR primitive as the R4 classes hold it: a typed element, or the bare
+     * string FhirOrganizationSerializer::deserialize() leaves. Blank or absent is null.
+     */
+    private static function primitiveText(mixed $element): ?string
+    {
+        if ($element instanceof FHIRString || $element instanceof FHIRUri || $element instanceof FHIRContactPointSystem) {
+            $element = $element->getValue();
+        }
+        return is_string($element) && $element !== '' ? $element : null;
     }
 }
