@@ -64,8 +64,10 @@ final class Values
     /**
      * Closed span of a measurement box.
      *
-     * A plain number, a trailing percent, or a mmHg suffix is one value.
-     * A hyphenated range is kept as both ends. Words are not a measurement.
+     * A plain number, including a leading minus, a trailing percent, or a
+     * mmHg suffix is one value. A hyphen between two numbers is a range,
+     * and both ends may be negative. The range counts only when the high
+     * end is not below the low end. Words are not a measurement.
      *
      * @return array{0: float, 1: float}|null
      */
@@ -80,11 +82,16 @@ final class Values
             return null;
         }
         $text = trim($stripped);
-        if (preg_match('/^(\d+(?:\.\d+)?)(?:\s*-\s*(\d+(?:\.\d+)?))?$/', $text, $matches) !== 1) {
+        if (preg_match('/^(-?\d+(?:\.\d+)?)$/', $text, $single) === 1) {
+            $number = (float) $single[1];
+
+            return [$number, $number];
+        }
+        if (preg_match('/^(-?\d+(?:\.\d+)?)\s*-\s*(-?\d+(?:\.\d+)?)$/', $text, $matches) !== 1) {
             return null;
         }
         $low = (float) $matches[1];
-        $high = array_key_exists(2, $matches) ? (float) $matches[2] : $low;
+        $high = (float) $matches[2];
         if ($high < $low) {
             return null;
         }

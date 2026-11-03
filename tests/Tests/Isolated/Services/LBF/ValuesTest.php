@@ -91,9 +91,15 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
             $this->assertSame([35.0, 35.0], Values::measurementSpan('35 mm Hg'));
             $this->assertSame([60.0, 65.0], Values::measurementSpan('60-65%'));
             $this->assertSame([45.0, 50.0], Values::measurementSpan('45-50mmHg'));
+            $this->assertSame([60.0, 65.0], Values::measurementSpan('60 - 65'));
+            $this->assertSame([-5.0, -5.0], Values::measurementSpan('-5'));
+            $this->assertSame([-5.0, -5.0], Values::measurementSpan('-5 mmHg'));
+            $this->assertSame([-10.0, -2.0], Values::measurementSpan('-10--2'));
+            $this->assertSame([-10.0, 0.0], Values::measurementSpan('-10 - 0'));
             $this->assertNull(Values::measurementSpan('WNL'));
             $this->assertNull(Values::measurementSpan('-'));
             $this->assertNull(Values::measurementSpan('65-60'));
+            $this->assertNull(Values::measurementSpan('-2--10'));
             $this->assertNull(Values::measurementSpan(''));
         }
 
