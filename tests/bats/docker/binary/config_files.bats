@@ -12,7 +12,13 @@ setup() {
 }
 
 @test "binary Dockerfile: COPY php-fpm.conf" {
-    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'php-fpm'
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'COPY php-fpm.conf'
+}
+
+@test "binary Dockerfile: copies entrypoint query CLI to /root" {
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'utilities/entrypoint_query.php'
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'utilities/EntrypointQuery.php'
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" '/root/entrypoint_query.php'
 }
 
 @test "binary Dockerfile: fetches tests via git clone not GitHub archive" {
