@@ -289,6 +289,11 @@ function parseUsWeightValue(value) {
         let feet = feetValue === '' ? 0 : Number(feetValue);
         let inches = inchesValue === '' ? 0 : Number(inchesValue);
         let total = Math.round(((feet * 12) + inches) * 100) / 100;
+        let current = parseFloat(totalInput.value);
+        if (!isNaN(current) && Math.round(current * 100) / 100 === total) {
+            // Unchanged: keep the stored height as it is (it may hold more than two decimals).
+            return;
+        }
         totalInput.value = String(total);
         let validation = validateVitalField(totalInput);
         feetInput.classList.toggle('error', !validation.valid);
