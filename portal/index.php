@@ -531,13 +531,13 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>
                 <div class="form-row my-3">
-                    <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Account Name'); ?></label>
+                    <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Account ID (cannot be changed)'); ?></label>
                     <div class="col-md">
                         <input class="form-control" name="uname" id="uname" type="text" readonly autocomplete="none" value="<?php echo attr($session->get('portal_username')); ?>" />
                     </div>
                 </div>
                 <div class="form-row my-3">
-                    <label class="col-md-2 col-form-label" for="login_uname"><?php echo xlt('Use Username'); ?></label>
+                    <label class="col-md-2 col-form-label" for="login_uname"><?php echo xlt('Choose your login username (minimum 8 characters)'); ?></label>
                     <div class="col-md">
                         <input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none" title="<?php echo xla('Please enter a username of a minimum of 8 characters. Recommended to include symbols and numbers but not required.'); ?>" placeholder="<?php echo xla('Must be a minimum of 8 characters'); ?>" pattern=".{8,80}" value="<?php echo attr($session->get('portal_login_username')); ?>" onblur="checkUserName()" />
                     </div>
@@ -656,7 +656,8 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
                 <?php } ?>
                 <div class="form-group">
                     <label for="uname"><?php echo xlt('Username') ?></label>
-                    <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required />
+                    <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required aria-describedby="unameHelp" />
+                    <small id="unameHelp" class="form-text text-muted"><?php echo xlt('The username you chose (not the Account ID)'); ?></small>
                 </div>
                     <div id="standard-auth-password" class="form-group">
                         <label for="pass"><?php echo xlt('Password') ?></label>
@@ -672,7 +673,8 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
                 <?php if ($globalsBag->getBoolean('enforce_signin_email')) { ?>
                     <div class="form-group">
                         <label for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
-                        <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
+                        <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" aria-describedby="passaddonHelp" />
+                        <small id="passaddonHelp" class="form-text text-muted"><?php echo xlt('The e-mail address the practice has on file for you'); ?></small>
                     </div>
                 <?php } ?>
                 <?php if ($globalsBag->get('language_menu_login')) { ?>
@@ -771,7 +773,10 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
             <?php } ?>
             <?php if (isset($_GET['w'])) { ?>
             // mdsupport - Would be good to include some clue about what went wrong!
-            bsAlert(<?php echo xlj('Something went wrong. Please try again.'); ?>);
+                <?php // One generic message for every failure so the page never reveals which credential was wrong. ?>
+            bsAlert(<?php echo $globalsBag->getBoolean('enforce_signin_email')
+                ? xlj('Something went wrong. Please check Username, Password and E-Mail Address and try again.')
+                : xlj('Something went wrong. Please check Username and Password and try again.'); ?>);
             <?php } ?>
             <?php if (isset($_GET['oe'])) { ?>
             // mdsupport - Would be good to include some clue about what went wrong!
