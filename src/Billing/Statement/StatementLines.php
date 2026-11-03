@@ -123,7 +123,7 @@ final class StatementLines
      * lines and the balance it would have added. The balance is still owed.
      *
      * @param array<string, mixed> $stmt
-     * @return list<array{encounter: int, id: int, dos: string, lines: list<array<string, mixed>>, amount: string}>
+     * @return list<array{encounter: int, id: int, dos: string, lines: list<mixed>, amount: string}>
      */
     public static function excluded(array $stmt): array
     {
@@ -131,39 +131,21 @@ final class StatementLines
         if (!is_array($kept) || !is_numeric($stmt['pid'] ?? null) || ($kept['pid'] ?? null) !== (int) $stmt['pid']) {
             return [];
         }
-        /** @var list<array{encounter: int, id: int, dos: string, lines: list<array<string, mixed>>, amount: string}> $encounters */
-        $encounters = is_array($kept['encounters'] ?? null) ? $kept['encounters'] : [];
-        return $encounters;
-    }
-
-    /**
-     * True when a module left every encounter off the statement, so there is nothing to send.
-     *
-     * @param array<string, mixed> $stmt
-     */
-    public static function onlyExcluded(array $stmt): bool
-    {
-        return self::excluded($stmt) !== [] && (!is_array($stmt['lines'] ?? null) || $stmt['lines'] === []);
-    }
-
-    /**
-     * The statement run's form_encounter ids without those of the encounters left off,
-     * so an encounter that wasn't on the statement isn't counted as statemented.
-     *
-     * @param array<string, mixed> $stmt
-     * @param array<mixed> $encounterIds form_encounter.id values
-     * @return array<mixed>
-     */
-    public static function withoutExcluded(array $stmt, array $encounterIds): array
-    {
-        $left = array_column(self::excluded($stmt), 'id');
-        if ($left === []) {
-            return $encounterIds;
+        $encounters = [];
+        foreach (is_array($kept['encounters'] ?? null) ? $kept['encounters'] : [] as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+            $encounter = $entry['encounter'] ?? null;
+            $id = $entry['id'] ?? null;
+            $dos = $entry['dos'] ?? null;
+            $lines = $entry['lines'] ?? null;
+            $amount = $entry['amount'] ?? null;
+            if (is_int($encounter) && is_int($id) && is_string($dos) && is_array($lines) && is_string($amount)) {
+                $encounters[] = ['encounter' => $encounter, 'id' => $id, 'dos' => $dos, 'lines' => array_values($lines), 'amount' => $amount];
+            }
         }
-        return array_values(array_filter(
-            $encounterIds,
-            static fn (mixed $id): bool => !is_numeric($id) || !in_array((int) $id, $left, true)
-        ));
+        return $encounters;
     }
 
     /**
@@ -199,8 +181,9 @@ final class StatementLines
     /**
      * Once something was left off this patient's statement, keeps the statement's header
      * from describing it: the lead encounter (provider, facility, billing note, notice
-     * count) moves to an encounter on the statement, and the due date and age come from
-     * the lines on it. A statement with nothing left off is not touched.
+     * count) moves to an encounter on the statement. The due date and age are the
+     * statement run's (StatementRun), from the checked invoices on the statement. A
+     * statement with nothing left off is not touched.
      *
      * @param array<string, mixed> $stmt
      */
@@ -222,16 +205,6 @@ final class StatementLines
                 $stmt['enc_bill_note'] = $row['billing_note'] ?? null;
                 $stmt['provider_id'] = $row['provider_id'] ?? null;
                 $stmt['dun_count'] = $row['stmt_count'] ?? null;
-            }
-        }
-        $dates = array_filter(
-            array_map(static fn (mixed $line): string => is_array($line) && is_string($line['dos'] ?? null) ? $line['dos'] : '', is_array($stmt['lines'] ?? null) ? $stmt['lines'] : []),
-            static fn (string $dos): bool => $dos !== ''
-        );
-        if ($dates !== []) {
-            $stmt['duedate'] = min($dates);
-            if (is_string($stmt['today'] ?? null)) {
-                $stmt['age'] = round((strtotime($stmt['today']) - strtotime($stmt['duedate'])) / (24 * 60 * 60));
             }
         }
     }

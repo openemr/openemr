@@ -24,30 +24,27 @@ final class StatementLinesExcludedTest extends TestCase
         $stmt = ['pid' => '7', 'lines' => [['dos' => '2026-08-01']], 'amount' => '100.00'];
 
         $this->assertSame([], StatementLines::excluded($stmt));
-        $this->assertFalse(StatementLines::onlyExcluded($stmt));
-        $this->assertSame([31, '32', 33], StatementLines::withoutExcluded($stmt, [31, '32', 33]));
     }
 
-    public function testAnEmptyStatementIsNotOnlyExcluded(): void
-    {
-        $this->assertFalse(StatementLines::onlyExcluded(['pid' => '7', 'lines' => [], 'amount' => '0.00']));
-    }
-
-    public function testTheEncountersLeftOffAreNotCountedAsStatemented(): void
+    public function testTheEncountersLeftOffAreKeptWithTheirIds(): void
     {
         $stmt = ['pid' => '7', 'lines' => [['dos' => '2026-08-01']], 'excluded' => self::kept(7, [32])];
 
-        $this->assertSame([31, 33], StatementLines::withoutExcluded($stmt, [31, '32', 33]));
-        $this->assertFalse(StatementLines::onlyExcluded($stmt));
         $this->assertSame([32], array_column(StatementLines::excluded($stmt), 'id'));
+        $this->assertSame([2], array_column(StatementLines::excluded($stmt), 'encounter'));
     }
 
-    public function testEverythingLeftOffMeansNothingToSend(): void
+    public function testAMalformedEntryIsNotReadAsLeftOff(): void
     {
-        $stmt = ['pid' => '7', 'lines' => [], 'amount' => '0.00', 'excluded' => self::kept(7, [31, 32])];
+        // A string id (not as StatementLines keeps it) and an entry that isn't an array.
+        $kept = ['pid' => 7, 'encounters' => [
+            ['encounter' => 1, 'id' => 31, 'dos' => '2026-07-01', 'lines' => [], 'amount' => '60.00'],
+            ['encounter' => 2, 'id' => '32', 'dos' => '2026-07-01', 'lines' => [], 'amount' => '60.00'],
+            'not an entry',
+        ]];
+        $stmt = ['pid' => 7, 'lines' => [], 'excluded' => $kept];
 
-        $this->assertTrue(StatementLines::onlyExcluded($stmt));
-        $this->assertSame([], StatementLines::withoutExcluded($stmt, ['31', 32]));
+        $this->assertSame([31], array_column(StatementLines::excluded($stmt), 'id'));
     }
 
     public function testAnotherPatientsExclusionsDoNotCarryOver(): void
@@ -57,8 +54,6 @@ final class StatementLinesExcludedTest extends TestCase
         $stmt = ['pid' => '8', 'lines' => [], 'excluded' => self::kept(7, [31])];
 
         $this->assertSame([], StatementLines::excluded($stmt));
-        $this->assertFalse(StatementLines::onlyExcluded($stmt));
-        $this->assertSame([31], StatementLines::withoutExcluded($stmt, [31]));
     }
 
     /**

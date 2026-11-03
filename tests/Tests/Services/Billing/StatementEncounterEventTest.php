@@ -14,11 +14,19 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\Billing;
 
+use OpenEMR\Billing\Statement\PatientCreditEncounters;
+use OpenEMR\Billing\Statement\StatementDelivery;
+use OpenEMR\Billing\Statement\StatementInvoices;
 use OpenEMR\Billing\Statement\StatementLines;
+use OpenEMR\Billing\Statement\StatementRun;
+use OpenEMR\Billing\Statement\StatementRunResult;
+use OpenEMR\Billing\Statement\StatementRunSteps;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Events\Billing\StatementEncounterEvent;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class StatementEncounterEventTest extends TestCase
 {
@@ -99,12 +107,6 @@ class StatementEncounterEventTest extends TestCase
         $this->assertSame(['Pat Parent', '1 Main St', 'Randolph, VT 05060'], $first->getRecipientLines());
         $this->assertFalse($first->isAddressedToPatient());
 
-        // The statement run doesn't count it as statemented.
-        $this->assertSame(
-            [$this->encounterIds[2]],
-            StatementLines::withoutExcluded($stmt, [$this->encounterIds[1], $this->encounterIds[2]])
-        );
-        $this->assertFalse(StatementLines::onlyExcluded($stmt));
     }
 
     public function testTheHeaderComesFromAnEncounterOnTheStatement(): void
@@ -120,8 +122,8 @@ class StatementEncounterEventTest extends TestCase
         $this->assertSame(2, $stmt['encounter']);
         $this->assertSame($this->encounterIds[2], $stmt['fid']);
         $this->assertSame('note 2', $stmt['enc_bill_note']);
-        $this->assertSame('2026-08-01', $stmt['duedate']);
-        $this->assertEquals(round((strtotime('2026-10-27') - strtotime('2026-08-01')) / 86400), $stmt['age']);
+        // The due date is the statement run's to move (StatementRun::run()).
+        $this->assertSame('2026-07-01', $stmt['duedate']);
     }
 
     public function testEverythingLeftOffLeavesNothingToSendOrCount(): void
@@ -135,8 +137,71 @@ class StatementEncounterEventTest extends TestCase
 
         $this->assertSame([], $stmt['lines']);
         $this->assertSame('0.00', $stmt['amount']);
-        $this->assertTrue(StatementLines::onlyExcluded($stmt));
-        $this->assertSame([], StatementLines::withoutExcluded($stmt, [$this->encounterIds[1], $this->encounterIds[2]]));
+        $this->assertSame([1, 2], array_column(StatementLines::excluded($stmt), 'encounter'));
+    }
+
+    public function testTheRunCountsOnlyTheInvoicesOnTheStatement(): void
+    {
+        $events = [];
+        $steps = new ListeningStatementRunSteps($this->leavingOff([1], $events));
+
+        $result = $this->runBothInvoices($steps);
+
+        $this->assertSame(1, $result->statementsWritten);
+        $this->assertSame([], $result->skippedLeftOff);
+        $this->assertCount(1, $steps->built);
+        $this->assertSame('60.00', $steps->built[0]['amount']);
+        $this->assertSame(2, $steps->built[0]['encounter']);
+        $this->assertSame('2026-08-01', $steps->built[0]['duedate'], 'the due date is the oldest invoice on the statement');
+        $this->assertEquals(round((strtotime('2026-10-27') - strtotime('2026-08-01')) / 86400), $steps->built[0]['age']);
+        $this->assertSame([0, 1], [$this->statementCount(1), $this->statementCount(2)]);
+    }
+
+    public function testTheRunSendsNothingWhenEveryInvoiceIsLeftOff(): void
+    {
+        $events = [];
+        $steps = new ListeningStatementRunSteps($this->leavingOff([1, 2], $events));
+
+        $result = $this->runBothInvoices($steps);
+
+        $this->assertSame(0, $result->statementsWritten);
+        $this->assertSame('', $result->output);
+        $this->assertSame(['Ann Patient'], $result->skippedLeftOff);
+        $this->assertSame([], $steps->built);
+        $this->assertSame([0, 0], [$this->statementCount(1), $this->statementCount(2)]);
+    }
+
+    public function testTheRunWithAListenerThatLeavesNothingOffCountsEveryInvoice(): void
+    {
+        $events = [];
+        $steps = new ListeningStatementRunSteps($this->leavingOff([], $events));
+
+        $result = $this->runBothInvoices($steps);
+
+        $this->assertCount(2, $events);
+        $this->assertSame(1, $result->statementsWritten);
+        $this->assertSame('160.00', $steps->built[0]['amount']);
+        $this->assertSame([1, 1], [$this->statementCount(1), $this->statementCount(2)]);
+    }
+
+    /**
+     * Both of the patient's invoices checked, run to print, counted as statemented.
+     */
+    private function runBothInvoices(ListeningStatementRunSteps $steps): StatementRunResult
+    {
+        return (new StatementRun($steps, new NullLogger()))->run(
+            StatementInvoices::forRun([$this->encounterIds[1], $this->encounterIds[2]]),
+            StatementDelivery::Print,
+            true,
+            false,
+            '2026-10-27'
+        );
+    }
+
+    private function statementCount(int $encounter): int
+    {
+        $row = QueryUtils::querySingleRow("SELECT stmt_count FROM form_encounter WHERE id = ?", [$this->encounterIds[$encounter]]);
+        return is_array($row) && is_numeric($row['stmt_count'] ?? null) ? (int) $row['stmt_count'] : -1;
     }
 
     /**
@@ -200,5 +265,58 @@ class StatementEncounterEventTest extends TestCase
             QueryUtils::sqlStatementThrowException("DELETE FROM $table WHERE pid = ?", [self::PID]);
         }
         $this->encounterIds = [];
+    }
+}
+
+/**
+ * The statement run's steps with the real lines, credits and counts, and the given
+ * dispatcher in place of the kernel's; the statement text is not built.
+ */
+final class ListeningStatementRunSteps implements StatementRunSteps
+{
+    /** @var list<array<string, mixed>> */
+    public array $built = [];
+
+    public function __construct(private readonly EventDispatcherInterface $dispatcher)
+    {
+    }
+
+    public function appendInvoice(array &$stmt, int $pid, int $encounter, string $serviceDate, int $notice): void
+    {
+        StatementLines::append($stmt, $pid, $encounter, $serviceDate, $notice, $this->dispatcher);
+    }
+
+    public function creditEncounters(int $pid, array $excludedEncounterIds): array
+    {
+        return PatientCreditEncounters::find($pid, $excludedEncounterIds);
+    }
+
+    public function buildStatement(array $stmt): string
+    {
+        $this->built[] = $stmt;
+        return 'statement|';
+    }
+
+    public function saveDocument(int $pid, string $statement): void
+    {
+    }
+
+    public function email(int $pid, string $statement): void
+    {
+    }
+
+    public function isPortalAuthorized(int $pid): bool
+    {
+        return false;
+    }
+
+    public function notifyPortal(int $pid, array $invoices, string $statement, string $invoiceId): bool
+    {
+        return false;
+    }
+
+    public function recordStatementRun(array $encounterIds): void
+    {
+        StatementInvoices::recordStatementRun($encounterIds, '2026-10-27');
     }
 }
