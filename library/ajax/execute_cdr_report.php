@@ -17,6 +17,7 @@ use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Reports\AMC\DateRangeValidator;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
@@ -53,6 +54,15 @@ if (!empty($_POST['execute_report_id'])) {
         //   need to send a manual data entry option (number of labs)
         $array_date['dateBegin'] = $_POST['date_begin'] ?? null;
         $array_date['dateTarget'] = $target_date;
+
+        $begin_date = is_string($array_date['dateBegin']) ? $array_date['dateBegin'] : null;
+        $end_date = is_string($array_date['dateTarget']) ? $array_date['dateTarget'] : null;
+        if (DateRangeValidator::isInverted($begin_date, $end_date)) {
+            http_response_code(400);
+            echo xlt('Begin Date cannot be later than End Date.');
+            exit;
+        }
+
         $options = ['labs_manual' => $_POST['labs'] ?? 0];
     } else {
         // For others, use the unmodified target date array and send an empty options array
