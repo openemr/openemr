@@ -1167,11 +1167,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/edi_270.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function is_auth_portal\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function is_clinic\\(\\) has parameter \\$code with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_receipts_report.php',

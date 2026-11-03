@@ -472,11 +472,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function is_auth_portal may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function is_clinic may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_receipts_report.php',

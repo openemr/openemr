@@ -37,11 +37,10 @@ use OpenEMR\Billing\InvoiceServiceDates;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Billing\Statement\PatientNetDue;
-use OpenEMR\Billing\Statement\StatementDelivery;
 use OpenEMR\Billing\Statement\StatementInvoices;
 use OpenEMR\Billing\Statement\StatementListRows;
 use OpenEMR\Billing\Statement\StatementPageServices;
-use OpenEMR\Billing\Statement\StatementPortal;
+use OpenEMR\Billing\Statement\StatementRunRequest;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -78,19 +77,11 @@ $eraname = '';
 $eracount = 0;
 $g_posting_adj_disable = OEGlobalsBag::getInstance()->getBoolean('posting_adj_disable') ? 'checked' : '';
 $posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
-$form_cb = false;
 
 /* Load dependencies only if we need them */
 if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
     /* Addition of onsite portal patient notify of invoice and reformatted invoice - sjpadgett 01/2017 */
     require_once("../../portal/lib/portal_mail.inc.php");
-    // The site's statement.inc.php calls this.
-    if (!function_exists('is_auth_portal')) {
-        function is_auth_portal($pid = 0): bool
-        {
-            return StatementPortal::authorize(is_numeric($pid) ? (int) $pid : 0);
-        }
-    }
 }
 
 $today = date("Y-m-d");
@@ -99,7 +90,10 @@ $statementServices = StatementPageServices::create(
     OEGlobalsBag::getInstance(),
     $session,
     ServiceContainer::getLogger(),
-    static fn(array $stmt): string => (string) make_statement($stmt),
+    static function (array $stmt): string {
+        $statement = make_statement($stmt);
+        return is_string($statement) ? $statement : '';
+    },
     is_string($STMT_TEMP_FILE) ? $STMT_TEMP_FILE : '',
     is_string($STMT_TEMP_FILE_PDF ?? null) ? $STMT_TEMP_FILE_PDF : '',
     defined('OPENEMR_PRINT_COMMAND') ? OPENEMR_PRINT_COMMAND : '',
@@ -107,63 +101,22 @@ $statementServices = StatementPageServices::create(
     function_exists('sendMail') ? sendMail(...) : null
 );
 
-// were any invoices selected?
-if (!empty($_REQUEST['form_cb'])) {
-    $form_cb = true;
-}
-// Print or download statements if requested.
-if (
-    (
-        (
-            !empty($_REQUEST['form_print']) ||
-            !empty($_REQUEST['form_download']) ||
-            !empty($_REQUEST['form_email']) ||
-            !empty($_REQUEST['form_pdf'])
-        ) || !empty($_REQUEST['form_portalnotify'])
-    ) && $form_cb
-) {
+// Print, download, email or portal-send the checked statements, if asked.
+$statementRun = StatementRunRequest::fromPost(CurrentRequest::get()->request);
+if ($statementRun !== null && $statementRun->checkedInvoices !== []) {
     if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
-
-    /** @var list<int> $checkedEncounterIds form_encounter.id of every checked invoice */
-    $checkedEncounterIds = [];
-    $checkedBoxes = $_REQUEST['form_cb'];
-    foreach (is_array($checkedBoxes) ? array_keys($checkedBoxes) : [] as $key) {
-        if (is_numeric($key)) {
-            $checkedEncounterIds[] = (int) $key;
-        }
-    }
-    $runRequest = CurrentRequest::get()->request;
-    $delivery = match (true) {
-        $runRequest->getString('form_portalnotify') !== '' => StatementDelivery::Portal,
-        $runRequest->getString('form_email') !== '' => StatementDelivery::Email,
-        $runRequest->getString('form_download') !== '' => StatementDelivery::Download,
-        $runRequest->getString('form_pdf') !== '' => StatementDelivery::Pdf,
-        default => StatementDelivery::Print,
-    };
-
     $alertmsg = $statementServices->runHandler->handle(
-        StatementInvoices::forRun($checkedEncounterIds),
-        $delivery,
-        $runRequest->getString('form_without') !== '',
+        StatementInvoices::forRun($statementRun->checkedInvoices),
+        $statementRun->delivery,
+        $statementRun->withoutUpdate,
         $statementTestMode,
-        InvoiceCategory::fromForm($runRequest->getString('form_category')) === InvoiceCategory::DuePt,
+        InvoiceCategory::fromForm(CurrentRequest::get()->request->getString('form_category')) === InvoiceCategory::DuePt,
         $today
     );
-} // end statements requested
-
-// let biller know no why statement was not generated
-if (
-    (
-        (
-            !empty($_REQUEST['form_print']) ||
-            !empty($_REQUEST['form_download']) ||
-            !empty($_REQUEST['form_email']) ||
-            !empty($_REQUEST['form_pdf'])
-        ) || !empty($_REQUEST['form_portalnotify'])
-    ) && !$form_cb
-) {
+} elseif ($statementRun !== null) {
+    // let biller know no why statement was not generated
     echo "<script> alert(" . xlj('No invoices were checked.') . ");\n</script>";
 }
 
