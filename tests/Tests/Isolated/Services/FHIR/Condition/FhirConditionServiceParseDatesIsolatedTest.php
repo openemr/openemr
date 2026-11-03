@@ -24,6 +24,9 @@ use PHPUnit\Framework\TestCase;
 #[Group('isolated')]
 class FhirConditionServiceParseDatesIsolatedTest extends TestCase
 {
+    /**
+     * @return array<mixed>
+     */
     private function parse(FHIRCondition $condition): array
     {
         // parseFhirResource() does not touch instance state, so skip the DB-backed constructor.
@@ -41,15 +44,19 @@ class FhirConditionServiceParseDatesIsolatedTest extends TestCase
 
         $this->assertArrayHasKey('begdate', $data);
         $this->assertArrayHasKey('enddate', $data);
+        $this->assertIsString($data['begdate']);
+        $this->assertIsString($data['enddate']);
         $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}$/', $data['begdate']);
         $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}$/', $data['enddate']);
     }
 
     public function testRawStringDatesAreStillParsed(): void
     {
-        $condition = new FHIRCondition();
-        $condition->setOnsetDateTime('2024-03-05');
-        $condition->setAbatementDateTime('2024-04-06');
+        // Client JSON reaches the parser through the constructor, which keeps the raw strings.
+        $condition = new FHIRCondition([
+            'onsetDateTime' => '2024-03-05',
+            'abatementDateTime' => '2024-04-06',
+        ]);
 
         $data = $this->parse($condition);
 
