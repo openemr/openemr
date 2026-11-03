@@ -98,8 +98,7 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
                     AND CAST(TRIM(o.`ob_value`) AS DECIMAL(12,$scale)) = CAST($value AS DECIMAL(12,$scale))
                 )";
         }
-        // Wrapped so that the patient filter executeQuery() appends applies to every vital.
-        return "SELECT `pid`, `date`, `code`, `value`, `unit` FROM (\n" . implode("\nUNION ALL\n", $selects) . "\n) AS vital_signs WHERE 1 = 1";
+        return implode("\nUNION ALL\n", $selects);
     }
 
     public function makeQdmModel(QdmRecord $recordObj): PhysicalExamPerformed

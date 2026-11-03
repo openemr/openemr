@@ -81,31 +81,21 @@ abstract class AbstractQdmService
         ]);
     }
 
-    public function getPatientIdColumn()
-    {
-        return 'pid';
-    }
-
     abstract public function getSqlStatement();
 
     abstract public function makeQdmModel(QdmRecord $recordObj);
 
     public function executeQuery()
     {
-        $sql = $this->getSqlStatement();
-
+        // The request's patient filter applies to the service's rows, by the pid column each row
+        // carries (QdmBuilder requires it). It is never spliced into the service's own SQL, so a
+        // WHERE, OR or GROUP BY anywhere in that SQL can't change which rows it filters.
+        $serviceSql = $this->getSqlStatement();
         $filterClause = $this->request->getFilter()->getFilterClause();
-        if ($this->getPatientIdColumn() !== 'pid') {
-            $filterClause = str_replace('pid', $this->getPatientIdColumn(), $filterClause);
+        if (!is_string($serviceSql) || !is_string($filterClause)) {
+            throw new \LogicException('A QDM service gives its SQL, and its request its filter, as strings.');
         }
-
-        // Apply the filter based on request type
-        // If there's already a "WHERE" clause, then add an "AND" otherwise add our WHERE clause.
-        if (strpos(strtolower((string) $sql), 'where')) {
-            $sql .= " AND ( " . $filterClause . " )";
-        } else {
-            $sql .= " WHERE ( " . $filterClause . " )";
-        }
+        $sql = "SELECT * FROM ( $serviceSql ) AS `qdm_rows` WHERE ( $filterClause )";
 
         // By default, we have no bound values
         $binds = false;
@@ -117,8 +107,7 @@ abstract class AbstractQdmService
             $result = sqlStatementThrowException($sql, $binds);
         } catch (SqlQueryException $exception) {
             error_log($exception->getMessage());
-            throw new \Exception("There is likely an error in Service query, must contain a patient ID. " .
-                " 'pid' not found and getPatientIdColumn() not implemented.");
+            throw new \Exception("There is likely an error in Service query: each row must carry its patient as 'pid'.");
         }
 
         return $result;

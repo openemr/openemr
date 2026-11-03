@@ -34,11 +34,6 @@ class DeviceAppliedService extends AbstractQdmService implements QdmServiceInter
         return $sql;
     }
 
-    public function getPatientIdColumn(): string
-    {
-        return 'O.patient_id';
-    }
-
     public function makeQdmModel(QdmRecord $recordObj): DeviceApplied
     {
         $record = $recordObj->getData();

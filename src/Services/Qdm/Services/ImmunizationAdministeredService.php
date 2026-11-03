@@ -19,11 +19,6 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class ImmunizationAdministeredService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getPatientIdColumn(): string
-    {
-        return 'patient_id';
-    }
-
     public function getSqlStatement(): string
     {
         // Leave out a dose marked Entered in Error on the immunization screen, as the patient

@@ -36,11 +36,6 @@ class InterventionService extends AbstractQdmService implements QdmServiceInterf
         return $sql;
     }
 
-    public function getPatientIdColumn(): string
-    {
-        return 'O.patient_id';
-    }
-
     public function makeQdmModel(QdmRecord $recordObj): InterventionPerformed
     {
         $record = $recordObj->getData();

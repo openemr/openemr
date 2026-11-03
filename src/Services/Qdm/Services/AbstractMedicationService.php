@@ -46,11 +46,6 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
         return $sql;
     }
 
-    public function getPatientIdColumn()
-    {
-        return 'patient_id';
-    }
-
     public function makeQdmModel(QdmRecord $recordObj)
     {
         $record = $recordObj->getData();

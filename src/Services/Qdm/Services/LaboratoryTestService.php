@@ -45,11 +45,6 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
         return $sql;
     }
 
-    public function getPatientIdColumn(): string
-    {
-        return 'O.patient_id';
-    }
-
     public function makeQdmModel(QdmRecord $recordObj): LaboratoryTestPerformed
     {
         $record = $recordObj->getData();
