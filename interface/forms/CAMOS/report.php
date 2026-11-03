@@ -15,7 +15,6 @@
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
-require_once("../../../library/api.inc.php");
 require_once("content_parser.php");
 
 function CAMOS_report($pid, $encounter, $cols, $id): void

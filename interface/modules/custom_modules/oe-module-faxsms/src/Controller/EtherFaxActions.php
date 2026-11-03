@@ -82,13 +82,25 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
     }
 
     /**
-     * @return string
+     * Count of inbound faxes waiting to be read, for the main menu badge.
+     *
+     * Read live from the EtherFax inbox (unread), the same thing the other
+     * fax vendors report, so the count is current without downloading the
+     * faxes. If the account cannot be reached or the inbox request fails,
+     * the count of received faxes still in the local queue is returned
+     * instead (sent faxes are not counted).
+     * A real unread count of 0 is returned as 0.
      */
     public function fetchReminderCount(): string
     {
-        // removed polling API to download pending faxes.
-        // this is better served in a background task.
-        return json_encode($this->fetchQueueCount());
+        if ($this->authenticate()) {
+            $unread = $this->client->getUnreadFaxCount();
+            if ($unread !== null) {
+                return (string)$unread;
+            }
+        }
+
+        return (string)$this->fetchQueueCount();
     }
 
     /**
@@ -416,10 +428,8 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
 
     /**
      * Rest Endpoint
-     *
-     * @return string|void
      */
-    public function getPending()
+    public function getPending(): string
     {
         if (!$this->authenticate()) {
             return $this->authErrorDefault;
@@ -490,7 +500,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
         exit();
     }
 
-    private function getTransactionTypeWord($transactionType)
+    private function getTransactionTypeWord($transactionType): string
     {
         $transactionTypes = [
             '0' => xlt('Received'),
@@ -515,7 +525,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
         return 'No';
     }
 
-    private function generateFaxForm($id, $recognized)
+    private function generateFaxForm($id, $recognized): string
     {
         if (empty($recognized)) {
             return '';
@@ -538,7 +548,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
         return $form;
     }
 
-    private function generateActionLinks($id, $record_id, $pid_assumed)
+    private function generateActionLinks($id, $record_id, $pid_assumed): string
     {
         return "<a role='button' href='#' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(json_encode([])) . ")\">
                 <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i>
@@ -560,7 +570,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
             </a>";
     }
 
-    private function generateDetailLink($id, $recognized)
+    private function generateDetailLink($id, $recognized): string
     {
         $showFlag = count($recognized);
         return $showFlag ? "<a role='button' href='#' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#" . text($id) . "\")'></a>" . text($showFlag) . ' ' . xlt("Items") : '';
@@ -680,7 +690,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
     /**
      * @return string
      */
-    public function getCallLogs()
+    public function getCallLogs(): string
     {
         return xlt('Not Implemented');
     }
@@ -772,8 +782,9 @@ SQL;
         $details_encoded = json_encode($details);
         $sentDate = date('Y-m-d H:i:s');
 
-        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`)
-        VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, 'application/pdf', ?)";
+        // direction defaults to 'inbound', so a sent fax must say so.
+        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`, `direction`)
+        VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, 'application/pdf', ?, 'outbound')";
 
         return sqlInsert($sql, [$uid, $account, $jobId, $sentDate, $callerId, $dialNumber, $details_encoded]);
     }
@@ -839,11 +850,14 @@ SQL;
     }
 
     /**
+     * Received faxes still in the local queue (not deleted). Sent faxes
+     * share the table and are left out.
+     *
      * @return int
      */
     public function fetchQueueCount(): int
     {
-        return (int)sqlQuery("SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0")['count'] ?? 0;
+        return (int)sqlQuery("SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0 AND direction = 'inbound'")['count'] ?? 0;
     }
 
     /**

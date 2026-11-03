@@ -1,0 +1,40 @@
+[
+    {
+        "resourceType": "Immunization",
+        "status": "completed",
+        "vaccineCode": {
+            "coding": [
+                {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "197",
+                    "display": "influenza, high-dose seasonal, quadrivalent, preservative free"
+                }
+            ],
+            "text": "influenza, high-dose seasonal, quadrivalent, preservative free"
+        },
+        "occurrenceDateTime": "2021-01-10",
+        "primarySource": true,
+        "lotNumber": "AAJN11K",
+        "expirationDate": "2099-02-15",
+        "site": {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/v3-ActSite",
+                    "code": "LA",
+                    "display": "left arm"
+                }
+            ]
+        },
+        "doseQuantity": {
+            "value": 5,
+            "unit": "mg",
+            "system": "http://unitsofmeasure.org",
+            "code": "mg"
+        },
+        "note": [
+            {
+                "text": "test-fixture immunization for influenza"
+            }
+        ]
+    }
+]

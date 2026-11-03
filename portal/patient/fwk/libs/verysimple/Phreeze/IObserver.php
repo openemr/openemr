@@ -2,9 +2,6 @@
 
 /** @package    verysimple::Phreeze */
 
-/**
- * import supporting libraries
- */
 define("OBSERVE_DEBUG", 1);
 define("OBSERVE_QUERY", 2);
 define("OBSERVE_INFO", 4);

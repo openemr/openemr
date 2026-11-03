@@ -52,13 +52,15 @@ require_once("../globals.php");
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\CheckoutDiscountReason;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -75,6 +77,14 @@ $facilityService = new FacilityService();
 $recorder = new Recorder();
 
 $currdecimals = OEGlobalsBag::getInstance()->get('currency_decimals');
+
+// Adjustment reasons a checkout discount can be recorded under, as on
+// Fees > Posting Payments. Nothing chosen keeps the memo "Discount".
+$discountReasons = CheckoutDiscountReason::choices(QueryUtils::fetchRecords(
+    "SELECT option_id, title FROM list_options WHERE list_id = 'adjreason' AND " .
+    "option_value = ? AND activity = 1 ORDER BY seq, title",
+    [CheckoutDiscountReason::CHARGE_ADJUSTMENT]
+));
 
 $details = empty($_GET['details']) ? 0 : 1;
 
@@ -254,6 +264,15 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         padding-left: 20px;
         }
 
+        /* The receipt's shaded cells keep the theme's text color, so the shade is
+           a light tint that reads on any theme's background (the Bootstrap
+           table-active tint). The theme's secondary color, used before, is
+           nearly black in Light and Solar, which made Total Charges and Balance
+           Due unreadable. */
+        :root {
+            --checkout-shade: rgba(0, 0, 0, 0.075);
+        }
+
         .mini_table {
             margin-top: 15px;
             width: 95%;
@@ -261,7 +280,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         }
 
         table.mini_table>tbody>tr>th {
-            background-color: var(--secondary);
+            background-color: var(--checkout-shade);
             text-align: center;
         }
 
@@ -296,11 +315,11 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         }
 
         body > div:nth-child(2) > div:nth-child(3) > div > table > thead > tr {
-            background-color: var(--secondary);
+            background-color: var(--checkout-shade);
         }
 
         body > div:nth-child(3) > div:nth-child(3) > div > table > thead {
-            background-color: var(--secondary);
+            background-color: var(--checkout-shade);
         }
 
         body > div:nth-child(3) > div:nth-child(3) > div > table:nth-child(1) > tbody > tr:nth-child(3) {
@@ -308,15 +327,15 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         }
 
         .bg-blue {
-            background-color:var(--secondary);
+            background-color: var(--checkout-shade);
         }
 
         .fac-name {
-            background-color:var(--secondary);
+            background-color: var(--checkout-shade);
             width: 99px;
         }
         .bg-color {
-            background-color: var(--secondary);
+            background-color: var(--checkout-shade);
             padding: 2px; font-weight: 600;
             -webkit-print-color-adjust: exact;
         }
@@ -683,7 +702,12 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                     $amount = sprintf('%01.2f', $total_discount);
                 }
             }
-            $memo = xl('Discount');
+            $memo = CheckoutDiscountReason::memo(
+                // all(), not get(): get() throws on an array value, and memo() handles any value.
+                CurrentRequest::get()->request->all()['form_discount_reason'] ?? null,
+                $discountReasons,
+                xl('Discount')
+            );
             $recorder->recordActivity([
                 'patientId' => $form_pid,
                 'encounterId' => $form_encounter,
@@ -1135,6 +1159,21 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                                     <input maxlength='8' name='form_discount' id='form_discount' onkeyup='computeTotals()' class= 'form-control' type='text' value='' />
                                 </div>
                             </div>
+                            <?php if ($discountReasons !== []) { ?>
+                            <div class="row oe-custom-line">
+                                <div class="col-3 offset-lg-3">
+                                    <label class="control-label" for="form_discount_reason"><?php echo xlt('Discount Reason'); ?>:</label>
+                                </div>
+                                <div class="col-3">
+                                    <select name='form_discount_reason' id='form_discount_reason' class='form-control'>
+                                        <option value=''><?php echo xlt('Discount'); ?></option>
+                                        <?php foreach ($discountReasons as $discountReason) { ?>
+                                        <option value='<?php echo attr($discountReason['id']); ?>'><?php echo text(xl_list_label($discountReason['title'])); ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <?php } ?>
                             <div class="row oe-custom-line">
                                 <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>

@@ -144,9 +144,7 @@ class FHIRCatalogEntryRelationType extends FHIRElement implements \JsonSerializa
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CatalogEntryRelationType xmlns="http://hl7.org/fhir"></CatalogEntryRelationType>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CatalogEntryRelationType xmlns="http://hl7.org/fhir"></CatalogEntryRelationType>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

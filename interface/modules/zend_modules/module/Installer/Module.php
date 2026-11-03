@@ -21,7 +21,7 @@ namespace Installer;
  */
 class Module
 {
-    public function getAutoloaderConfig()
+    public function getAutoloaderConfig(): array
     {
         return [
             // TODO: The zf3 autoloader should handle autoloading these classes by default but it's not right now

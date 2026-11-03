@@ -85,15 +85,7 @@ abstract class AbstractCqmReport implements RsReportIF
 
             if ($populationCriteria instanceof CqmPopulationCrtiteriaFactory) {
                 $initialPatientPopulationFilter = $populationCriteria->createInitialPatientPopulation();
-                if (!$initialPatientPopulationFilter instanceof CqmFilterIF) {
-                    throw new Exception("InitialPatientPopulation must be an instance of CqmFilterIF");
-                }
-
                 $denominator = $populationCriteria->createDenominator();
-                if (!$denominator instanceof CqmFilterIF) {
-                    throw new Exception("Denominator must be an instance of CqmFilterIF");
-                }
-
                 $numerators = $populationCriteria->createNumerators();
                 if (!is_array($numerators)) {
                     $tmpNumerators = [];
@@ -102,9 +94,6 @@ abstract class AbstractCqmReport implements RsReportIF
                 }
 
                 $exclusion = $populationCriteria->createExclusion();
-                if (!$exclusion instanceof CqmFilterIF) {
-                    throw new Exception("Exclusion must be an instance of CqmFilterIF");
-                }
 
                 //Denominator Exception added
                 $denomExept = false;
@@ -199,7 +188,10 @@ abstract class AbstractCqmReport implements RsReportIF
         return $this->_resultsArray;
     }
 
-    private function initNumeratorPopulations(array $numerators)
+    /**
+     * @return int[]
+     */
+    private function initNumeratorPopulations(array $numerators): array
     {
         $numeratorPatientPopulations = [];
         foreach ($numerators as $numerator) {

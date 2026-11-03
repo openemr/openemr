@@ -85,8 +85,8 @@ class Hcfa1500
         $hcfa_entries[] = new HCFAInfo(37, 42, 1, $icd_indicator);
 
         // Box 22. Medicaid Resubmission Code and Original Ref. No.
-        $hcfa_entries[] = new HCFAInfo(38, 50, 10, $claim->medicaidResubmissionCode());
-        $hcfa_entries[] = new HCFAInfo(38, 62, 15, $claim->medicaidOriginalReference());
+        $hcfa_entries[] = new HCFAInfo(38, 50, 10, $claim->resubmissionCode());
+        $hcfa_entries[] = new HCFAInfo(38, 62, 15, $claim->originalReferenceNumber());
 
         // Box 23. Prior Authorization Number
         $hcfa_entries[] = new HCFAInfo(40, 50, 28, $claim->priorAuth());
@@ -143,14 +143,14 @@ class Hcfa1500
         $hcfa_entries[] = new HCFAInfo($row_pos, $col_pos, 8, $diag);
     }
 
-    public function genHcfa1500($pid, $encounter, &$log)
+    public function genHcfa1500($pid, $encounter, &$log, ?string $payerId = null): string
     {
         $this->hcfa_data = '';
         $this->hcfa_proc_index = 0;
 
         $today = time();
 
-        $claim = new Claim($pid, $encounter, false);
+        $claim = new Claim($pid, $encounter, false, $payerId);
 
         $log .= "Generating HCFA claim $pid-$encounter for " .
             $claim->patientFirstName() . ' ' .
@@ -449,8 +449,8 @@ class Hcfa1500
         // Medicare forbids an entry here and other payers require one.
         // There is still confusion over this.
         if (
-            $claim->referrerLastName() || $claim->billingProviderLastName() &&
-            (!OEGlobalsBag::getInstance()->getBoolean('MedicareReferrerIsRenderer') || $claim->claimType() != 'MB')
+            ($claim->referrerLastName() || $claim->billingProviderLastName())
+            && (!OEGlobalsBag::getInstance()->getBoolean('MedicareReferrerIsRenderer') || $claim->claimType() != 'MB')
         ) {
             // Box 17a. Referring Provider Alternate Identifier
             // Commented this out because UPINs are obsolete, leaving the code as an

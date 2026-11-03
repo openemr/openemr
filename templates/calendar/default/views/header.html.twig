@@ -22,6 +22,6 @@
         <!-- Module Styles Ended -->
     {% endif %}
     <!-- the javascript used for the ajax_* style calendars -->
-    <script src="{{ webroot }}/library/js/calendarDirectSelect.js"></script>
+    <script src="{{ webroot }}/library/js/calendarDirectSelect.js?v={{ assetVersion|attr_url }}"></script>
 </head>
 <body class="{{ body_class|default('') }} calsearch_body w-100">

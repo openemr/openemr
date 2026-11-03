@@ -89,7 +89,7 @@ trait G10ApiTestTrait
 
     public static function teardownG10Test() {
         QueryUtils::sqlStatementThrowException("UPDATE globals SET `gl_value` = ? WHERE `gl_name` = ?"
-            , [GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value, self::$previousProfileValue]);
+            , [self::$previousProfileValue, GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value]);
     }
 
     private static function buildIdMap(array $testGroups): void
@@ -109,7 +109,7 @@ trait G10ApiTestTrait
     private static function getDisplayName(string $test_id): string
     {
         if (isset(self::$idMap[$test_id])) {
-            return (self::$idMap[$test_id]['short_id'] ?? '') . '.' . self::$idMap[$test_id]['title'] ?? ' Unknown Test';
+            return (self::$idMap[$test_id]['short_id'] ?? '') . '.' . (self::$idMap[$test_id]['title'] ?? ' Unknown Test');
         }
         return $test_id;
     }

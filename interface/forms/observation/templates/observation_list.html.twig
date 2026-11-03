@@ -333,7 +333,8 @@
             if (confirm({{ 'Are you sure you want to delete this observation? This action cannot be undone.'|xlj }})) {
                 // In real implementation, this would make an AJAX call to delete the observation
                 window.location.href = '{{ webroot }}/interface/forms/observation/delete.php?id=' + encodeURIComponent(id)
-                + '&form_id=' + encodeURIComponent(formId);
+                + '&form_id=' + encodeURIComponent(formId)
+                + '&csrf_token=' + encodeURIComponent({{ csrf_token|json_encode }});
             }
         }
 

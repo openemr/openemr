@@ -28,6 +28,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\Services\Questionnaire\QuestionnaireCanonical;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -262,9 +263,8 @@ class QuestionnaireResponseService extends BaseService
     /**
      * @param $search
      * @param $isAndCondition
-     * @return ProcessingResult
      */
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         $sqlSelectIds = "SELECT DISTINCT qr.questionnaire_response_uuid ";
         $sqlSelectData = " SELECT qr.*
@@ -342,7 +342,11 @@ class QuestionnaireResponseService extends BaseService
      * @param ?string  $form_response
      * @param bool  $add_report
      * @param array $scores
-     * @return array|false|int|mixed
+     * @return array{
+     *   id: mixed,
+     *   response_id: mixed,
+     *   new: bool,
+     * }
      * @throws Exception
      */
     public function saveQuestionnaireResponse(
@@ -356,7 +360,7 @@ class QuestionnaireResponseService extends BaseService
         $form_response = null,
         $add_report = false,
         $scores = []
-    ) {
+    ): array {
         $q_content = null;
         $q_title = null;
         $q_record_id = null;
@@ -440,18 +444,25 @@ class QuestionnaireResponseService extends BaseService
 
         $fhirResponseOb->setId(new FHIRId($qr_id));
         $serverConfig = new ServerConfig();
-        $fhirResponseOb->setQuestionnaire(new FHIRCanonical($serverConfig->getFhirUrl() . '/Questionnaire/' . $q_id));
+        $fhirResponseOb->setQuestionnaire(new FHIRCanonical(QuestionnaireCanonical::forResponse(
+            $this->getValue($fhirQuestionnaireOb->url),
+            $this->getValue($fhirQuestionnaireOb->version),
+            $serverConfig->getFhirUrl() . '/Questionnaire/' . $q_id
+        )));
+        // the FHIR reference uses the encounter uuid; the encounter column keeps the encounter id
+        $encounterReference = $encounter;
         if (is_numeric($encounter)) {
             $encounter_uuid = $this::getUuidById($encounter, 'form_encounter', 'encounter');
             if (empty($encounter_uuid)) {
                 $encounter = 0;
+                $encounterReference = 0;
             } else {
-                $encounter = UuidRegistry::uuidToString($encounter_uuid) ?: $encounter;
+                $encounterReference = UuidRegistry::uuidToString($encounter_uuid) ?: $encounter;
             }
         }
-        if (!empty($encounter)) {
+        if (!empty($encounterReference)) {
             $encRef = new FHIRReference();
-            $encRef->setReference(new FHIRString('fhir/Encounter/' . $encounter));
+            $encRef->setReference(new FHIRString('fhir/Encounter/' . $encounterReference));
             $fhirResponseOb->setEncounter($encRef);
         }
         $r_status = $fhirResponseOb->getStatus();
@@ -608,7 +619,7 @@ class QuestionnaireResponseService extends BaseService
      * @param array $flattenedArray
      * @return array
      */
-    function groupByItemsRecursively(array $flattenedArray): array
+    public function groupByItemsRecursively(array $flattenedArray): array
     {
         $grouped = [];
 
@@ -622,14 +633,10 @@ class QuestionnaireResponseService extends BaseService
                 // If the segment is numeric, treat it as an array index
                 if (is_numeric($segment)) {
                     $segment = (int)$segment;
-                    if (!isset($current[$segment])) {
-                        $current[$segment] = [];
-                    }
+                    $current[$segment] ??= [];
                     $current = &$current[$segment];
                 } else {
-                    if (!isset($current[$segment])) {
-                        $current[$segment] = [];
-                    }
+                    $current[$segment] ??= [];
                     $current = &$current[$segment];
                 }
             }
@@ -645,7 +652,7 @@ class QuestionnaireResponseService extends BaseService
      * @param $response
      * @return string
      */
-    function buildQuestionnaireResponseHtml($response): string
+    public function buildQuestionnaireResponseHtml($response): string
     {
         $html = '<div style="display: flex; flex-direction: column; flex-basis: 100%; line-height: 1.2 !important">';
         $html .= '<form class="form">';
@@ -669,7 +676,7 @@ class QuestionnaireResponseService extends BaseService
      * @param $flag
      * @return string
      */
-    function renderItem($item, $indentLevel = 0, $flag = 0): string
+    public function renderItem($item, $indentLevel = 0, $flag = 0): string
     {
         $html = '';
         // Render item text if it exists
@@ -707,26 +714,60 @@ class QuestionnaireResponseService extends BaseService
     }
 
     /**
-     * @param $answer
-     * @return string
+     * Display text for one QuestionnaireResponse answer; 'N/A' when it is not an answer array.
      */
-    function extractAnswerValue($answer)
+    public function extractAnswerValue(mixed $answer): string
     {
-        if (isset($answer['valueCoding'])) {
-            return $answer['valueCoding']['display'];
-        } elseif (isset($answer['valueDecimal'])) {
-            return $answer['valueDecimal'];
-        } elseif (isset($answer['valueString'])) {
-            return $answer['valueString'];
-        } elseif (isset($answer['valueBoolean'])) {
-            return $answer['valueBoolean'] ? 'Yes' : 'No';
-        } elseif (isset($answer['valueInteger'])) {
-            return $answer['valueInteger'];
-        } elseif (isset($answer['valueDate'])) {
-            return $answer['valueDate'];
-        } else {
-            return 'N/A';
+        return is_array($answer) ? self::answerText($answer) : 'N/A';
+    }
+
+    /**
+     * The text the encounter view shows for one answer, for each FHIR R4 answer type. A date, dateTime
+     * or time is shown as saved; a Coding by its display, else its code.
+     *
+     * @param array<mixed> $answer
+     */
+    public static function answerText(array $answer): string
+    {
+        $text = self::firstText($answer, 'valueString', 'valueDate', 'valueDateTime', 'valueTime', 'valueUri');
+        if ($text !== null) {
+            return $text;
         }
+        if (isset($answer['valueBoolean'])) {
+            return $answer['valueBoolean'] ? 'Yes' : 'No';
+        }
+        foreach (['valueInteger', 'valueDecimal'] as $key) {
+            $number = $answer[$key] ?? null;
+            if (is_int($number) || is_float($number)) {
+                return (string)$number;
+            }
+        }
+        $quantity = $answer['valueQuantity'] ?? null;
+        if (is_array($quantity) && (is_int($quantity['value'] ?? null) || is_float($quantity['value'] ?? null))) {
+            return trim($quantity['value'] . ' ' . (self::firstText($quantity, 'unit', 'code') ?? ''));
+        }
+        foreach (['valueCoding' => ['display', 'code'], 'valueReference' => ['display', 'reference'], 'valueAttachment' => ['title', 'url']] as $key => $fields) {
+            $value = $answer[$key] ?? null;
+            if (is_array($value)) {
+                return self::firstText($value, ...$fields) ?? ($key === 'valueAttachment' ? 'Attachment' : 'N/A');
+            }
+        }
+        return 'N/A';
+    }
+
+    /**
+     * The first of the keys whose value is a non-empty string.
+     *
+     * @param array<mixed> $values
+     */
+    private static function firstText(array $values, string ...$keys): ?string
+    {
+        foreach ($keys as $key) {
+            if (isset($values[$key]) && is_string($values[$key]) && $values[$key] !== '') {
+                return $values[$key];
+            }
+        }
+        return null;
     }
 
 

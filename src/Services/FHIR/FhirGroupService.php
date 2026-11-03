@@ -24,7 +24,7 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirGroupService extends FhirServiceBase implements IFhirExportableResourceService
+class FhirGroupService extends FhirServiceBase implements IFhirExportableResourceService, IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
@@ -43,7 +43,7 @@ class FhirGroupService extends FhirServiceBase implements IFhirExportableResourc
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),

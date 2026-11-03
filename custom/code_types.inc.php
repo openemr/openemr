@@ -538,10 +538,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
 {
     global $code_types, $code_external_tables;
 
-    // limit the number of results we have
-    if ($limit === null) {
-        $limit = 250;
-    }
+    $limit ??= 250;
     // Figure out the appropriate limit clause
     $limit_query = limit_query_string($limit, $start, $number, $return_only_one);
 
@@ -706,7 +703,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                             $sql_bind_array[] = "%" . $keyword . "%";
                         }
                     }
-                } else if (!empty($code_text_col)) {
+                } elseif (!empty($code_text_col)) {
                     // do only a prefix search on small character codes
                     $query .= " AND " . $table_dot . $code_text_col . " LIKE ? ";
                     $sql_bind_array[] = $search_term . "%";
@@ -771,7 +768,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
  * @param  string $desc_detail Can choose either the normal description('code_text') or the brief description('code_text_short').
  * @return string         Is of the form "description;description; etc.".
  */
-function lookup_code_descriptions($codes, $desc_detail = "code_text")
+function lookup_code_descriptions($codes, $desc_detail = "code_text"): string
 {
     global $code_types, $code_external_tables;
 
@@ -1025,15 +1022,16 @@ function multiple_code_set_search(?array $form_code_types, $search_term, $limit 
  * @param int $start Query start limit (for pagination)
  * @param int $number Query number returned (for pagination)
  * @param bool $return_only_one if true, then will only return one perfect matching item
- * @return mixed recordset/integer
  */
-function limit_query_string($limit = null, $start = null, $number = null, $return_only_one = false)
+function limit_query_string($limit = null, $start = null, $number = null, $return_only_one = false): string
 {
     if (!is_null($start) && !is_null($number)) {
         // For pagination of results
-        $limit_query = " LIMIT " . escape_limit($start) . ", " . escape_limit($number) . " ";
+        // The @param int docblocks are not enforced at every call site, so clamp
+        // rather than trust them: MySQL rejects a negative LIMIT or OFFSET.
+        $limit_query = " LIMIT " . max(0, (int)$number) . " OFFSET " . max(0, (int)$start) . " ";
     } elseif (!is_null($limit)) {
-        $limit_query = " LIMIT " . escape_limit($limit) . " ";
+        $limit_query = " LIMIT " . max(0, (int)$limit) . " ";
     } else {
         // No pagination and no limit
         $limit_query = '';

@@ -11,15 +11,21 @@ require_once("../globals.php");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Billing\HcpcsDrugDefaults;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $alertmsg = '';
 $drug_id = $_REQUEST['drug'];
+// Fee sheet defaults for the related HCPCS code; blank means not set.
+$billing_units = null;
+$ndc_uom = '';
+$ndc_quantity = null;
 $info_msg = "";
 $tmpl_line_no = 0;
 
@@ -225,6 +231,32 @@ if (!empty($_POST['form_save'])) {
             $alertmsg = xl('Cannot add this entry because it already exists!');
         }
     }
+
+    $request = CurrentRequest::get()->request;
+    $billingUnitsInput = trim($request->getString('form_billing_units'));
+    $ndc_uom = $request->getString('form_ndc_uom');
+    $ndcQuantityInput = trim($request->getString('form_ndc_quantity'));
+    $billing_units = $billingUnitsInput === '' ? null : filter_var(
+        $billingUnitsInput,
+        FILTER_VALIDATE_INT,
+        ['options' => ['min_range' => 1, 'max_range' => 2147483647]]
+    );
+    $ndc_quantity = $ndcQuantityInput === '' ? null : filter_var(
+        $ndcQuantityInput,
+        FILTER_VALIDATE_FLOAT,
+        ['options' => ['min_range' => 0.001, 'max_range' => 9999999.999]]
+    );
+    if ($alertmsg === '') {
+        if ($billing_units === false) {
+            $alertmsg = xl('Billing units must be a whole number greater than zero.');
+        } elseif ($ndc_uom !== '' && !array_key_exists($ndc_uom, HcpcsDrugDefaults::NDC_UOM_CHOICES)) {
+            $alertmsg = xl('Invalid NDC unit.');
+        } elseif ($ndc_quantity === false) {
+            $alertmsg = xl('NDC quantity must be a number greater than zero.');
+        } elseif (($ndc_uom === '') !== ($ndc_quantity === null)) {
+            $alertmsg = xl('NDC unit and NDC quantity must both be set or both be blank.');
+        }
+    }
 }
 
 if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg) {
@@ -247,6 +279,9 @@ if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg
                 "route = ?, " .
                 "cyp_factor = ?, " .
                 "related_code = ?, " .
+                "billing_units = ?, " .
+                "ndc_uom = ?, " .
+                "ndc_quantity = ?, " .
                 "dispensable = ?, " .
                 "allow_multiple = ?, " .
                 "allow_combining = ?, " .
@@ -266,6 +301,9 @@ if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg
                     trim((string) $_POST['form_route']),
                     trim((string) $_POST['form_cyp_factor']),
                     trim((string) $_POST['form_related_code']),
+                    $billing_units,
+                    $ndc_uom,
+                    $ndc_quantity,
                     (empty($_POST['form_dispensable'    ]) ? 0 : 1),
                     (empty($_POST['form_allow_multiple' ]) ? 0 : 1),
                     (empty($_POST['form_allow_combining']) ? 0 : 1),
@@ -289,8 +327,12 @@ if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg
             "INSERT INTO drugs ( " .
             "name, ndc_number, drug_code, on_order, reorder_point, max_level, form, " .
             "size, unit, route, cyp_factor, related_code, " .
+            "billing_units, ndc_uom, ndc_quantity, " .
             "dispensable, allow_multiple, allow_combining, active, consumable " .
             ") VALUES ( " .
+            "?, " .
+            "?, " .
+            "?, " .
             "?, " .
             "?, " .
             "?, " .
@@ -321,6 +363,9 @@ if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg
                 trim((string) $_POST['form_route']),
                 trim((string) $_POST['form_cyp_factor']),
                 trim((string) $_POST['form_related_code']),
+                $billing_units,
+                $ndc_uom,
+                $ndc_quantity,
                 (empty($_POST['form_dispensable'    ]) ? 0 : 1),
                 (empty($_POST['form_allow_multiple' ]) ? 0 : 1),
                 (empty($_POST['form_allow_combining']) ? 0 : 1),
@@ -434,8 +479,17 @@ if ($drug_id) {
     'route' => '',
     'cyp_factor' => '',
     'related_code' => '',
+    'billing_units' => null,
+    'ndc_uom' => '',
+    'ndc_quantity' => null,
     ];
 }
+$drugRow = is_array($row) ? $row : [];
+$billingUnitsValue = is_numeric($drugRow['billing_units'] ?? null) ? (string) $drugRow['billing_units'] : '';
+$ndcUomValue = is_string($drugRow['ndc_uom'] ?? null) ? $drugRow['ndc_uom'] : '';
+$ndcQuantityValue = is_numeric($drugRow['ndc_quantity'] ?? null)
+    ? rtrim(rtrim(number_format((float) $drugRow['ndc_quantity'], 3, '.', ''), '0'), '.')
+    : '';
 $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 ?>
 <h3 class="ml-1"><?php echo text($title);?></h3>
@@ -594,6 +648,29 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
         <label><?php echo xlt('Relate To'); ?>:</label>
         <input class="form-control w-100" type="text" size="50" name="form_related_code" value='<?php echo attr($row['related_code']) ?>'
              onclick='sel_related("?target_element=form_related_code")' title='<?php echo xla('Click to select related code'); ?>' data-toggle="tooltip" data-placement="top" readonly />
+    </div>
+
+    <div class="form-group mt-3 drugsonly">
+        <label><?php echo xlt('Billing Units'); ?>:</label>
+        <input class="form-control" type="number" min="1" step="1" name="form_billing_units" value='<?php echo attr($billingUnitsValue) ?>'
+             title='<?php echo xla('Default units when the related HCPCS code is added to a fee sheet'); ?>' data-toggle="tooltip" data-placement="top" />
+    </div>
+
+    <div class="form-group mt-3 drugsonly">
+        <label><?php echo xlt('NDC Unit'); ?>:</label>
+        <select class="form-control" name="form_ndc_uom"
+             title='<?php echo xla('NDC unit of measure for the related HCPCS code on a claim'); ?>' data-toggle="tooltip" data-placement="top">
+            <option value=''></option>
+            <?php foreach (HcpcsDrugDefaults::NDC_UOM_CHOICES as $uomKey => $uomLabel) { ?>
+                <option value='<?php echo attr($uomKey); ?>'<?php echo $uomKey === $ndcUomValue ? ' selected' : ''; ?>><?php echo text($uomLabel); ?></option>
+            <?php } ?>
+        </select>
+    </div>
+
+    <div class="form-group mt-3 drugsonly">
+        <label><?php echo xlt('NDC Quantity'); ?>:</label>
+        <input class="form-control" type="number" min="0" step="any" name="form_ndc_quantity" value='<?php echo attr($ndcQuantityValue) ?>'
+             title='<?php echo xla('NDC quantity for the related HCPCS code on a claim, in the NDC unit'); ?>' data-toggle="tooltip" data-placement="top" />
     </div>
 
     <div class="form-group mt-3">

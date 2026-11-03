@@ -13,7 +13,9 @@
 use OpenEMR\BC\FallbackRouter;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\RestControllers\ApiApplication;
+use Symfony\Component\HttpFoundation\Response;
 
 require_once "../vendor/autoload.php";
 
@@ -31,6 +33,13 @@ try {
 } catch (\Throwable $e) {
     // TODO: handle exceptions properly
     error_log($e->getMessage());
-    // should never get here, but if we do, we can return a generic error response
-    die("An error occurred while processing the request. Please check the logs for more details.");
+    // Only answer when nothing has gone out yet -- see the matching note in
+    // apis/dispatch.php. After headers are sent this text would be appended to a
+    // response the client is already parsing, corrupting a payload that was correct.
+    if (!headers_sent()) {
+        (new RequestTerminator())->error(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'An error occurred while processing the request. Please check the logs for more details.'
+        );
+    }
 }

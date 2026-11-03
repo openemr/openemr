@@ -20,23 +20,11 @@ namespace ESign;
 
 interface FactoryIF
 {
-    /**
-     * Returns an instance of ConfigurationIF
-     */
-    public function createConfiguration();
+    public function createConfiguration(): ConfigurationIF;
 
-    /**
-     * Returns an instance of SignableIF
-     */
-    public function createSignable();
+    public function createSignable(): SignableIF;
 
-    /**
-     * Returns an instance of ButtonIF
-     */
-    public function createButton();
+    public function createButton(): ButtonIF;
 
-    /**
-     * Returns an instance of LogIF
-     */
-    public function createLog();
+    public function createLog(): LogIF;
 }

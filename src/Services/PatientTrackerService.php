@@ -17,6 +17,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 
@@ -36,7 +37,7 @@ class PatientTrackerService extends BaseService
      * @param bool $allow_sec
      * @return string
      */
-    public static function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false)
+    public static function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false): string
     {
 
         $tracker_time_calc = strtotime((string) $tracker_to_time) - strtotime((string) $tracker_from_time);
@@ -180,9 +181,7 @@ class PatientTrackerService extends BaseService
         }
 
         $datetime = date("Y-m-d H:i:s");
-        if (is_null($room)) {
-            $room = '';
-        }
+        $room ??= '';
 
         #Check to see if there is an entry in the patient_tracker table.
         $tracker = sqlQuery("SELECT id, apptdate, appttime, eid, pid, original_user, encounter, lastseq," .
@@ -281,32 +280,45 @@ class PatientTrackerService extends BaseService
     }
 
     /**
-     * This is used to break apart the information contained in the notes field of
-     * list_options. Currently the color and alert time are the only items stored
-     * @param $option
-     * @return array
+     * An appointment status's Flow Board color and time alert, from the Notes
+     * of its Appointment Statuses list entry ("color|minutes", e.g. "#FEFDCF|10").
+     *
+     * A status with no Notes, or one no longer in the list, gets no color and
+     * no alert ("0", which both Flow Board pages treat as none) rather than
+     * breaking the board. An inactive status still has its
+     * color: inactive only stops it being picked for new appointments, and
+     * appointments already in it (e.g. set by MedEx) are still shown.
+     *
+     * @return array{color: string, time_alert: string} color without the leading "#"
      */
-    public static function collectApptStatusSettings($option)
+    public static function collectApptStatusSettings(mixed $option): array
     {
-        $color_settings = [];
-        $row = sqlQuery("SELECT notes FROM list_options WHERE " .
-            "list_id = 'apptstat' AND option_id = ? AND activity = 1", [$option]);
-        if (empty($row['notes'])) {
-            return $option;
+        $settings = ['color' => '', 'time_alert' => '0'];
+        if (!is_string($option) && !is_int($option)) {
+            return $settings;
+        }
+        $row = QueryUtils::querySingleRow(
+            "SELECT notes FROM list_options WHERE list_id = 'apptstat' AND option_id = ? ORDER BY activity DESC LIMIT 1",
+            [(string) $option]
+        );
+        $notes = is_array($row) && is_string($row['notes'] ?? null) ? trim($row['notes']) : '';
+        if ($notes === '') {
+            return $settings;
         }
 
-        [$color_settings['color'], $color_settings['time_alert']] = explode("|", (string) $row['notes']);
-        $color_settings['color'] = ltrim($color_settings['color'],'#');
-        return $color_settings;
+        $parts = explode('|', $notes, 2);
+        $settings['color'] = ltrim(trim($parts[0]), '#');
+        $minutes = trim($parts[1] ?? '');
+        $settings['time_alert'] = ctype_digit($minutes) ? $minutes : '0';
+        return $settings;
     }
 
     /**
      * This is used to collect the tracker elements for the Patient Flow Board Report
      * returns the elements in an array
      * @param $trackerid
-     * @return mixed
      */
-    public static function collect_Tracker_Elements($trackerid)
+    public static function collect_Tracker_Elements($trackerid): array
     {
         $res = sqlStatement("SELECT * FROM patient_tracker_element WHERE pt_tracker_id = ? ORDER BY LENGTH(seq), seq ", [$trackerid]);
         $returnval = [];
@@ -365,7 +377,7 @@ class PatientTrackerService extends BaseService
         }
     }
 
-    public static function getApptStatus($appointments)
+    public static function getApptStatus($appointments): array
     {
         $astat = [];
         $astat['count_all'] = count($appointments);

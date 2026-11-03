@@ -42,9 +42,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     protected function getOemrUiInstance($oemrSettings = []): OemrUI
     {
-        if (null === $this->oemrUI) {
-            $this->oemrUI = new OemrUI($oemrSettings);
-        }
+        $this->oemrUI ??= new OemrUI($oemrSettings);
 
         return $this->oemrUI;
     }

@@ -2,8 +2,6 @@
 
 /** @package    verysimple::HTTP */
 
-require_once("verysimple/Phreeze/ActionRouter.php");
-require_once("verysimple/HTTP/RequestUtil.php");
 
 /**
  * class for dealing with URLs
@@ -29,7 +27,7 @@ class UrlWriter extends ActionRouter
      *          the querystring variable delimiter (& or &amp; for generating valid html)
      * @return string URL
      */
-    public function Get($controller, $method, $params = "", $strip_api = true, $delim = "&")
+    public function Get($controller, $method, $params = "", $strip_api = true, $delim = "&"): string
     {
         $this->stripApi = $strip_api;
         $this->delim = $delim;

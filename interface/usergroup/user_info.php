@@ -38,7 +38,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 <?php Header::setupHeader(); ?>
 <title><?php echo xlt('Change Password'); ?></title>
 
-<script src="checkpwd_validation.js"></script>
+<script src="checkpwd_validation.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
 <script>
 //Validating password and display message if password field is empty - starts

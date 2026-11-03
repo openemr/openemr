@@ -10,10 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/** import supporting libraries */
-require_once("DAO/OnsiteDocumentDAO.php");
-require_once("OnsiteDocumentCriteria.php");
-
 /**
  * The OnsiteDocument class extends OnsiteDocumentDAO which provides the access
  * to the datastore.

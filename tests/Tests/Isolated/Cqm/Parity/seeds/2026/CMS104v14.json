@@ -1,0 +1,51 @@
+{
+    "patients": [
+        {
+            "note": "Nonelective admission in March 2026 with ischemic stroke as the principal diagnosis, antithrombotic at discharge: denominator and numerator.",
+            "birthDatetime": "1948-02-01T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Nonelective Inpatient Encounter",
+                    "relevantPeriod": [
+                        "2026-03-01T10:00:00.000+00:00",
+                        "2026-03-05T14:00:00.000+00:00"
+                    ],
+                    "diagnoses": [
+                        {
+                            "code": "Ischemic Stroke",
+                            "rank": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "MedicationDischarge",
+                    "valueSet": "Antithrombotic Therapy for Ischemic Stroke",
+                    "authorDatetime": "2026-03-05T12:00:00.000+00:00"
+                }
+            ]
+        },
+        {
+            "note": "The same admission in July 2026 with no antithrombotic at discharge: denominator, not numerator.",
+            "birthDatetime": "1941-10-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Nonelective Inpatient Encounter",
+                    "relevantPeriod": [
+                        "2026-07-10T10:00:00.000+00:00",
+                        "2026-07-14T14:00:00.000+00:00"
+                    ],
+                    "diagnoses": [
+                        {
+                            "code": "Ischemic Stroke",
+                            "rank": 1
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

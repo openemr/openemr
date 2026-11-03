@@ -144,9 +144,7 @@ class FHIRClinicalImpressionStatus extends FHIRElement implements \JsonSerializa
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ClinicalImpressionStatus xmlns="http://hl7.org/fhir"></ClinicalImpressionStatus>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ClinicalImpressionStatus xmlns="http://hl7.org/fhir"></ClinicalImpressionStatus>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

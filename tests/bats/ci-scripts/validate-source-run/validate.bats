@@ -116,6 +116,56 @@ teardown() {
     [[ "${output}" == *"::error::"*"docker-build-release.yml"* ]]
 }
 
+# --- multi-path EXPECTED_WORKFLOW_PATH (openemr/openemr#13973) ---
+# Recovery workflows can accept semantically-equivalent producers via a
+# comma-separated EXPECTED_WORKFLOW_PATH. build-release.yml (manual
+# dispatch) and build-release-on-tag.yml (auto-fires on tag creation)
+# both produce the same openemr-release-candidate-<version> artifact
+# shape; the multi-path form lets acceptance-only.yml recover from
+# either. Single-path callers (docker sibling) still work unchanged
+# (list-of-1 case).
+
+@test "multi-path: accepts first path in the list" {
+    RUN_JSON=$(make_run_json ".github/workflows/build-release.yml" "$(hours_ago 1)") \
+    SOURCE_RUN_ID="12345" \
+    EXPECTED_WORKFLOW_PATH=".github/workflows/build-release.yml,.github/workflows/build-release-on-tag.yml" \
+        run bash "${VALIDATE_SOURCE_RUN_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    [[ "${output}" == *"Confirming source run is a build-release.yml or build-release-on-tag.yml run"* ]]
+    [[ "${output}" == *"source run eligible"* ]]
+    [[ "${output}" == *"workflow=build-release.yml"* ]]
+    [[ "${output}" != *"::error::"* ]]
+}
+
+@test "multi-path: accepts second path in the list (openemr/openemr#13973 regression guard for 8.4.0 ship)" {
+    # Simulates the exact 8.4.0 ship bypass source run:
+    # source run produced by build-release-on-tag.yml (auto-fires on tag),
+    # recovery workflow accepts both dispatch + on-tag variants. Before
+    # the multi-path fix this failed with the "not '.github/workflows/
+    # build-release.yml'" error, leaving tag-triggered ship recovery
+    # with no path.
+    RUN_JSON=$(make_run_json ".github/workflows/build-release-on-tag.yml" "$(hours_ago 1)") \
+    SOURCE_RUN_ID="34745946547" \
+    EXPECTED_WORKFLOW_PATH=".github/workflows/build-release.yml,.github/workflows/build-release-on-tag.yml" \
+        run bash "${VALIDATE_SOURCE_RUN_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    [[ "${output}" == *"source run eligible"* ]]
+    [[ "${output}" == *"workflow=build-release-on-tag.yml"* ]]
+    [[ "${output}" != *"::error::"* ]]
+}
+
+@test "multi-path: rejects a path not in the list, error lists all accepted paths" {
+    RUN_JSON=$(make_run_json ".github/workflows/ci.yml" "$(hours_ago 1)") \
+    SOURCE_RUN_ID="12345" \
+    EXPECTED_WORKFLOW_PATH=".github/workflows/build-release.yml,.github/workflows/build-release-on-tag.yml" \
+        run bash "${VALIDATE_SOURCE_RUN_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::source run 12345 was produced by '.github/workflows/ci.yml', not any of:"* ]]
+    [[ "${output}" == *"'.github/workflows/build-release.yml'"* ]]
+    [[ "${output}" == *"'.github/workflows/build-release-on-tag.yml'"* ]]
+    [[ "${output}" == *"::error::this recovery workflow only accepts source runs from build-release.yml or build-release-on-tag.yml"* ]]
+}
+
 # --- candidate_tag coordinates binding ---
 
 @test "candidate_tag mismatch (wrong run id embedded) -> exit 1" {

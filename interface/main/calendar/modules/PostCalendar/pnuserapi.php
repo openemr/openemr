@@ -25,6 +25,7 @@ use OpenEMR\PostCalendar\LegacyInputNarrowing;
 use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
 use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
 use OpenEMR\PostCalendar\ViewModel\ViewType;
+use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 
 if (!defined('__POSTCALENDAR__')) {
@@ -61,7 +62,6 @@ if (!defined('__POSTCALENDAR__')) {
 //  Require utility classes
 //=========================================================================
 
-require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/group.inc.php");
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/encounter_events.inc.php");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
@@ -77,7 +77,7 @@ unset($pcModInfo, $pcDir);
  *  @return string generated html output
  *  @access public
  */
-function postcalendar_userapi_buildView($args)
+function postcalendar_userapi_buildView($args): string
 {
     $print = pnVarCleanFromInput('print');
     $show_days = pnVarCleanFromInput('show_days');
@@ -140,20 +140,13 @@ function postcalendar_userapi_buildView($args)
     //=================================================================
     $Date = postcalendar_getDate();
 
-    //=================================================================
-    //  get the current view
-    //=================================================================
-    if (!isset($viewtype)) {
-        $viewtype = 'month';
-    }
+    $viewtype ??= 'month';
 
     //=================================================================
     //  Find out what Template we're using
     //=================================================================
     $template_name = _SETTING_TEMPLATE;
-    if (!isset($template_name)) {
-        $template_name = 'default';
-    }
+    $template_name ??= 'default';
 
     //=================================================================
     //  Grab the current theme information
@@ -172,9 +165,9 @@ function postcalendar_userapi_buildView($args)
         //=================================================================
         //  Let's just finish setting things up
         //=================================================================
-        $the_year   = substr((string) $Date, 0, 4);
-        $the_month  = substr((string) $Date, 4, 2);
-        $the_day    = substr((string) $Date, 6, 2);
+        $the_year   = substr($Date, 0, 4);
+        $the_month  = substr($Date, 4, 2);
+        $the_day    = substr($Date, 6, 2);
         $last_day = Date_Calc::daysInMonth($the_month, $the_year);
 
         //=================================================================
@@ -605,7 +598,7 @@ function postcalendar_userapi_buildView($args)
 
             // monthSelector.php is the legacy jump-to-month dropdown.
             // The Twig template renders it via {{ monthSelectorHtml|raw }}.
-            $caldate = strtotime((string) $Date);
+            $caldate = strtotime($Date);
             $cMonth = $caldate !== false ? date('m', $caldate) : '';
             $cYear = $caldate !== false ? date('Y', $caldate) : '';
             $cDay = $caldate !== false ? date('d', $caldate) : '';
@@ -621,7 +614,7 @@ function postcalendar_userapi_buildView($args)
 
             // Month-screen page header — month name via Month::label() (translated +
             // statically-extractable), year via text(date('Y')).
-            $currentMonthLabelTs = strtotime((string) $Date);
+            $currentMonthLabelTs = strtotime($Date);
             $currentMonthLabel = $currentMonthLabelTs !== false
                 ? text(Month::from((int) date('n', $currentMonthLabelTs))->label())
                     . ' ' . text(date('Y', $currentMonthLabelTs))
@@ -654,7 +647,7 @@ function postcalendar_userapi_buildView($args)
             $chevLeft = $languageDirection === 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
             $chevRight = $languageDirection === 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
 
-            $caldate = strtotime((string) $Date);
+            $caldate = strtotime($Date);
             $cMonth = $caldate !== false ? date('m', $caldate) : '';
             $cYear = $caldate !== false ? date('Y', $caldate) : '';
             $cDay = $caldate !== false ? date('d', $caldate) : '';
@@ -670,7 +663,7 @@ function postcalendar_userapi_buildView($args)
 
             // Day-screen page header — legacy used dateformat(strtotime($atmp[0]), true)
             // which respects user language for day/month names and date ordering.
-            $dayHeaderTs = strtotime((string) $Date);
+            $dayHeaderTs = strtotime($Date);
             $dayHeaderLabel = $dayHeaderTs !== false ? dateformat($dayHeaderTs, true) : '';
 
             $intervalInt = LegacyInputNarrowing::intValue(
@@ -708,7 +701,7 @@ function postcalendar_userapi_buildView($args)
             $chevLeft = $languageDirection === 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
             $chevRight = $languageDirection === 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
 
-            $caldate = strtotime((string) $Date);
+            $caldate = strtotime($Date);
             $cMonth = $caldate !== false ? date('m', $caldate) : '';
             $cYear = $caldate !== false ? date('Y', $caldate) : '';
             $cDay = $caldate !== false ? date('d', $caldate) : '';
@@ -820,7 +813,7 @@ function postcalendar_userapi_buildView($args)
  *  @params int value -1 == hidden ; 0 == queued ; 1 == approved
  *  @return array $events[][]
  */
-function &postcalendar_userapi_pcQueryEventsFA($args)
+function &postcalendar_userapi_pcQueryEventsFA($args): array
 {
 
     $end = '0000-00-00';
@@ -834,9 +827,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $eventstatus = $event_status;
     }
 
-    if (!isset($start)) {
-        $start = Date_Calc::dateNow('%Y-%m-%d');
-    }
+    $start ??= Date_Calc::dateNow('%Y-%m-%d');
 
     [$sy, $sm, $sd] = explode('-', (string) $start);
 
@@ -852,7 +843,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     "a.pc_topic, a.pc_alldayevent, a.pc_location, a.pc_conttel, " .
     "a.pc_contname, a.pc_contemail, a.pc_website, a.pc_fee, a.pc_sharing, " .
     "a.pc_prefcatid, " .
-    "b.pc_catcolor, b.pc_catname, b.pc_catdesc, a.pc_pid, a.pc_aid, " .
+    "b.pc_catcolor, b.pc_catname, b.pc_catdesc, b.pc_cattype, a.pc_pid, a.pc_aid, " .
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.fname,' ',pd.lname) as patient_name, " .
     "concat(u2.fname, ' ', u2.lname) as owner_name,  " .
@@ -922,7 +913,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         // get the results from the query
         //RM include address
         $tmp = [];
-        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']] = $row;
+        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pccattype'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']] = $row;
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -967,6 +958,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $events[$i]['catcolor']    = $tmp['catcolor'];
         $events[$i]['catname']     = $tmp['catname'];
         $events[$i]['catdesc']     = $tmp['catdesc'];
+        $events[$i]['pccattype']   = CalendarRenderDataBuilder::categoryTypeToken($tmp['pccattype'] ?? null);
         $events[$i]['pid']         = $tmp['pid'];
         $events[$i]['patient_name'] = $tmp['patient_name'];
         $events[$i]['provider_name'] = $tmp['provider_name'];
@@ -1042,6 +1034,8 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $i++;
     }
 
+    $events = PatientService::annotateEventsWithPatientHasPicture($events);
+
     return $events;
 }
 
@@ -1058,7 +1052,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
  *  @params int value -1 == hidden ; 0 == queued ; 1 == approved
  *  @return array $events[][]
  */
-function &postcalendar_userapi_pcQueryEvents($args)
+function &postcalendar_userapi_pcQueryEvents($args): array
 {
     $end = '0000-00-00';
     extract($args);
@@ -1088,18 +1082,14 @@ function &postcalendar_userapi_pcQueryEvents($args)
         }
     }
 
-    if (!isset($eventstatus)) {
-        $eventstatus = 1;
-    }
+    $eventstatus ??= 1;
 
   // sanity check on eventstatus
     if ((int)$eventstatus < -1 || (int)$eventstatus > 1) {
         $eventstatus = 1;
     }
 
-    if (!isset($start)) {
-        $start = Date_Calc::dateNow('%Y-%m-%d');
-    }
+    $start ??= Date_Calc::dateNow('%Y-%m-%d');
 
     [$sy, $sm, $sd] = explode('-', (string) $start);
 
@@ -1115,7 +1105,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "a.pc_recurrspec, a.pc_topic, a.pc_alldayevent, a.pc_location, " .
     "a.pc_conttel, a.pc_contname, a.pc_contemail, a.pc_website, a.pc_fee, " .
     "a.pc_sharing, a.pc_prefcatid, b.pc_catcolor, b.pc_catname, " .
-    "b.pc_catdesc, a.pc_pid, a.pc_apptstatus, a.pc_aid, " .
+    "b.pc_catdesc, b.pc_cattype, a.pc_pid, a.pc_apptstatus, a.pc_aid, " .
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.lname,', ',pd.fname) as patient_name, " .
     "concat(u.fname, ' ', u.lname) as owner_name, " .
@@ -1284,6 +1274,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
             $tmp['catcolor'],
             $tmp['catname'],
             $tmp['catdesc'],
+            $tmp['pccattype'],
             $tmp['pid'],
             $tmp['apptstatus'],
             $tmp['aid'],
@@ -1336,6 +1327,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
         // Modified 06-2009 by BM to translate the category if applicable
         $events[$i]['catname']     = xl_appt_category($tmp['catname']);
         $events[$i]['catdesc']     = $tmp['catdesc'];
+        $events[$i]['pccattype']   = CalendarRenderDataBuilder::categoryTypeToken($tmp['pccattype'] ?? null);
         $events[$i]['pid']         = $tmp['pid'];
         $events[$i]['apptstatus']  = $tmp['apptstatus'];
         $events[$i]['pubpid']      = $tmp['pubpid'];
@@ -1466,11 +1458,13 @@ function &postcalendar_userapi_pcQueryEvents($args)
             : '';
     }
 
+    $events = PatientService::annotateEventsWithPatientHasPicture($events);
+
     return $events;
 }
 
 
-function getBlockTime($time)
+function getBlockTime($time): string
 {
 
     if ($time == 0 || strlen((string) $time) == 0) {
@@ -1509,9 +1503,9 @@ function &postcalendar_userapi_pcGetEvents($args)
     $patient_id ??= 0;
 
     $date = postcalendar_getDate();
-    $cy = substr((string) $date, 0, 4);
-    $cm = substr((string) $date, 4, 2);
-    $cd = substr((string) $date, 6, 2);
+    $cy = substr($date, 0, 4);
+    $cm = substr($date, 4, 2);
+    $cd = substr($date, 6, 2);
     if (isset($start) && isset($end)) {
         // parse start date
         [$sm, $sd, $sy] = explode('/', $start);
@@ -1547,9 +1541,7 @@ function &postcalendar_userapi_pcGetEvents($args)
         $a = ['listappsFlag' => true,'start' => $start_date,'end' => $end_date, 'patient_id' => $patient_id, 's_keywords' => $s_keywords];
         $events = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pcQueryEvents', $a);
     } elseif (!isset($events)) {
-        if (!isset($s_keywords)) {
-            $s_keywords = '';
-        }
+        $s_keywords ??= '';
 
         $providerID ??= '';
 
@@ -1597,9 +1589,9 @@ function calculateEvents($days, $events, $viewtype)
 {
   //
     $date = postcalendar_getDate();
-    $cy = substr((string) $date, 0, 4);
-    $cm = substr((string) $date, 4, 2);
-    $cd = substr((string) $date, 6, 2);
+    $cy = substr($date, 0, 4);
+    $cm = substr($date, 4, 2);
+    $cd = substr($date, 6, 2);
 
   // here the start_date value is set to whatever comes in
   // on postcalendar_getDate() which is not always the first

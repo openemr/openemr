@@ -1,51 +1,60 @@
 <?php
 
-// Copyright (C) 2009 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This module supports use of the gprelations table to maintain
-// many-to-many relationships (linkings) among the following other
-// tables.  For each, a corresponding type code is assigned:
-//
-//  1 documents
-//  2 form_encounter (visits)
-//  3 immunizations
-//  4 lists (issues)
-//  5 openemr_postcalendar_events (appointments)
-//  6 pnotes
-//  7 prescriptions
-//  8 transactions (e.g. referrals)
-//
-// By convention we require that type1 must be less than or equal to type2.
-//
-// As of this writing (2009-11-11), only documents-to-pnotes relations are
-// used. However expansion is anticipated, as well as the opportunity to
-// obsolete the issue_encounter table.
+/**
+ * Thin delegators kept for the existing call sites of library/gprelations.inc.php.
+ * The bodies live in GpRelationService; see the migration tracker, openemr/openemr#11674.
+ *
+ * Type codes for the gprelations table are documented in GpRelationService's docblock.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Marcello Costagliola <marcello.costagliola1@gmail.com>
+ * @copyright Copyright (C) 2009 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2026 Marcello Costagliola <marcello.costagliola1@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-function isGpRelation($type1, $id1, $type2, $id2)
+use OpenEMR\Services\GpRelationService;
+
+/**
+ * Whether a relation between the two given records already exists in gprelations.
+ */
+function isGpRelation($type1, $id1, $type2, $id2): bool
 {
-    $tmp = sqlQuery("SELECT count(*) AS count FROM gprelations WHERE " .
-    "type1 = ? AND id1 = ? AND " .
-    "type2 = ? AND id2 = ?", [$type1, $id1, $type2, $id2]);
-    return !empty($tmp['count']);
+    if (!is_int($type1) && !is_string($type1)) {
+        return false;
+    }
+    if (!is_int($id1) && !is_string($id1)) {
+        return false;
+    }
+    if (!is_int($type2) && !is_string($type2)) {
+        return false;
+    }
+    if (!is_int($id2) && !is_string($id2)) {
+        return false;
+    }
+    return GpRelationService::isGpRelation($type1, $id1, $type2, $id2);
 }
 
+/**
+ * Creates or removes a relation between the two given records. $set keeps the legacy signature
+ * (accepts anything) and is cast to bool, the exact translation of the original `if (!$set)`
+ * truthiness check.
+ */
 function setGpRelation($type1, $id1, $type2, $id2, $set = true): void
 {
-    if (isGpRelation($type1, $id1, $type2, $id2)) {
-        if (!$set) {
-            sqlStatement("DELETE FROM gprelations WHERE " .
-            "type1 = ? AND id1 = ? AND type2 = ? AND id2 = ?", [$type1, $id1, $type2, $id2]);
-        }
-    } else {
-        if ($set) {
-            sqlStatement("INSERT INTO gprelations " .
-            "( type1, id1, type2, id2 ) VALUES " .
-            "( ?, ?, ?, ? )", [$type1, $id1, $type2, $id2]);
-        }
+    if (!is_int($type1) && !is_string($type1)) {
+        return;
     }
+    if (!is_int($id1) && !is_string($id1)) {
+        return;
+    }
+    if (!is_int($type2) && !is_string($type2)) {
+        return;
+    }
+    if (!is_int($id2) && !is_string($id2)) {
+        return;
+    }
+    GpRelationService::setGpRelation($type1, $id1, $type2, $id2, (bool) $set);
 }

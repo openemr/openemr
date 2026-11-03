@@ -3,12 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("ICache.php");
-require_once("verysimple/Util/ExceptionThrower.php");
-
-/**
  * CacheRam is an implementation of a Cache that persists to ram for the current page load only
  *
  * @package verysimple::Phreeze

@@ -144,9 +144,7 @@ class FHIRLocationMode extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<LocationMode xmlns="http://hl7.org/fhir"></LocationMode>');
-        }
+        $sxe ??= new \SimpleXMLElement('<LocationMode xmlns="http://hl7.org/fhir"></LocationMode>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

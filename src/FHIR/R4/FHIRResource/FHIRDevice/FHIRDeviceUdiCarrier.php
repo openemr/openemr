@@ -334,9 +334,7 @@ http://hl7.org/fhir/NamingSystem/iccbba-other-di.
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceUdiCarrier xmlns="http://hl7.org/fhir"></DeviceUdiCarrier>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DeviceUdiCarrier xmlns="http://hl7.org/fhir"></DeviceUdiCarrier>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->deviceIdentifier)) {
             $this->deviceIdentifier->xmlSerialize(true, $sxe->addChild('deviceIdentifier'));

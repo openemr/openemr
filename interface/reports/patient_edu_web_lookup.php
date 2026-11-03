@@ -20,10 +20,18 @@
 //Include required scripts/libraries
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ListService;
+
+// Patient-education lookup is driven from the open-chart menu; align the
+// permission check with the surrounding `patients/med` chart views.
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Patient Education Web Lookup", xl("Patient Education Web Lookup"));
+}
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {

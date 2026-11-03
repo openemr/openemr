@@ -87,7 +87,7 @@ class Bootstrap
         return self::$instance;
     }
 
-    public function getAssetPath()
+    public function getAssetPath(): string
     {
         return OEGlobalsBag::getInstance()->getWebRoot() . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/assets/";
     }
@@ -97,7 +97,7 @@ class Bootstrap
         return $this->logger;
     }
 
-    public function getExporter()
+    public function getExporter(): EhiExporter
     {
         $xmlConfigPath = OEGlobalsBag::getInstance()->get('webserver_root') . DIRECTORY_SEPARATOR . 'Documentation' . DIRECTORY_SEPARATOR . 'EHI_Export';
         // . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml';
@@ -193,12 +193,12 @@ class Bootstrap
 //        }
     }
 
-    private function getPublicPath()
+    private function getPublicPath(): string
     {
         return self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
     }
 
-    public function getTemplatePath()
+    public function getTemplatePath(): string
     {
         return \dirname(__DIR__) . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR;
     }

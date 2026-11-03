@@ -182,9 +182,7 @@ class FHIRDocumentReferenceRelatesTo extends FHIRBackboneElement implements \Jso
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DocumentReferenceRelatesTo xmlns="http://hl7.org/fhir"></DocumentReferenceRelatesTo>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DocumentReferenceRelatesTo xmlns="http://hl7.org/fhir"></DocumentReferenceRelatesTo>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));

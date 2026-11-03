@@ -16,10 +16,10 @@
 
 require_once("../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Check authorization.
@@ -32,7 +32,11 @@ function generate_order_summary($orderid): void
 {
 
   // If requested, save checkbox selections as to which procedures are not sendable.
-    if ($_POST['bn_save']) {
+    if (($_POST['bn_save'] ?? '') !== '') {
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med write: Order Summary save", xl("Order Summary"));
+        }
         sqlStatement(
             "UPDATE procedure_order_code " .
             "SET do_not_send = 0 WHERE " .
@@ -160,6 +164,7 @@ function generate_order_summary($orderid): void
 </style>
 
 <form method='post' action='order_manifest.php?orderid=<?php echo attr_url($orderid); ?>'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession())); ?>" />
 
 <div class='ordsum table-responsive'>
     <table class='table table-active'>

@@ -23,7 +23,6 @@ require_once '../globals.php';
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Interface\Super\LoadCodesController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypes\Importer\LOINCImportService;
@@ -33,7 +32,7 @@ $kernel = OEGlobalsBag::getInstance()->getKernel();
 
 $controller = new LoadCodesController(
     $kernel->getEventDispatcher(),
-    (new TwigContainer(null, $kernel))->getTwig(),
+    ServiceContainer::getTwig(),
     SessionWrapperFactory::getInstance()->getActiveSession(),
     ServiceContainer::getLogger(),
     [

@@ -23,7 +23,6 @@ use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
@@ -116,8 +115,7 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         ServiceContainer::getLogger()->debug("verifyEmail function is using a email that failed validEmail test, so can not use");
         return true;
     }
-    $twigContainer = new TwigContainer(null, $globalsBag->getKernel());
-    $twig = $twigContainer->getTwig();
+    $twig = ServiceContainer::getTwig();
     $templateData = [];
     $template = 'verify-failed';
     $emailPrepSend = false;
@@ -433,8 +431,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
         }
     }
 
-    $twigContainer = new TwigContainer(null, $globalsBag->getKernel());
-    $twig = $twigContainer->getTwig();
+    $twig = ServiceContainer::getTwig();
     $fhirServerConfig = new ServerConfig();
 
     $data = [

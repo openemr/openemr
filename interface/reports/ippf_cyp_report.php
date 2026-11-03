@@ -13,7 +13,6 @@
  */
 
 require_once("../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -27,7 +26,7 @@ if (!empty($_POST)) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
-function formatcyp($amount)
+function formatcyp($amount): string
 {
     if ($amount) {
         return sprintf("%.2f", $amount);

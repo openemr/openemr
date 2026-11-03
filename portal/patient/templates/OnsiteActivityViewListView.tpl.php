@@ -122,14 +122,14 @@ echo "<script>var cuser='" . $this->cuser . "';</script>";
                 <td><%= _.escape(item.get('lname') || '') %></td>
                 <td><%= _.escape(item.get('narrative') || '') %></td>
                 <td><%= _.escape(item.get('activity') || '') %></td>
-                <td><%try {
-                        var args = JSON.parse(item.get('tableArgs') || '{}');
-                        if (args.form_paytotal) { %>$<%= _.escape(args.form_paytotal) %><% } else { %><%= _.escape(item.get('tableArgs') || '') %><% }
-                    } catch(e) { %><%= _.escape(item.get('tableArgs') || '') %><% }%>
+                <td><% if (item.get('activity') === 'profile') { %><%= _.escape('Demographic Profile Changes') %><% } else { try {
+                    var args = JSON.parse(item.get('tableArgs') || '{}');
+                    if (args.form_paytotal) { %>$<%= _.escape(args.form_paytotal) %><% } else { %><%= _.escape(item.get('tableArgs') || '') %><% }
+                    } catch (e) { %><%= _.escape(item.get('tableArgs') || '') %><% } } %>
                 </td>
                 <td><%= _.escape(item.get('pendingAction') || '') %></td>
                 <td><%= _.escape(item.get('status') || '') %></td>
-                <td><button class="delete-button btn btn-sm btn-link" data-update-id=<%= _.escape(item.get('id') || '') %> data-delete-id=<%= _.escape(item.get('tableArgs') || '') %>><i class="fa fa-trash text-danger"></i></button></td>
+                <td><button class="delete-button btn btn-sm btn-link" data-update-id="<%= _.escape(item.get('id') || '') %>" data-delete-id="<%= _.escape(item.get('tableArgs') || '') %>"><i class="fa fa-trash text-danger"></i></button></td>
 <!-- UNCOMMENT TO SHOW ADDITIONAL COLUMNS - Leave in place for future use
                 <td><%= _.escape(item.get('id') || '') %></td>
                 <td><%= _.escape(item.get('actionTaken') || '') %></td>

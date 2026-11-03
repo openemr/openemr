@@ -1455,6 +1455,62 @@ EOF
         return 1
     fi
 
+    # Prepare code-version bind-mount used only for the recreate below.
+    #
+    # openemr.sh's check_upgrade guard requires /root/docker-version to equal
+    # the code copy at ${OE_ROOT}/docker-version before it fires. In a normal
+    # production image both come from the same build so they always match; in
+    # a locally-built branch-cut PR image the /root/ copy is ahead (bumped by
+    # the PR) while the code copy came from a fresh git clone of the target
+    # branch that predates the PR merge. openemr.sh's setup writeback syncs
+    # them in the writable layer during Step 1, but the recreate in Step 3
+    # wipes the writable layer, so the code copy reverts to the git-cloned
+    # value and the guard fails again — the recreate boot skips the upgrade
+    # and the test asserts "Upgrade started: 0".
+    #
+    # The bind-mount pins the code-version file to the /root/ value across
+    # the recreate. We can't apply it during Step 1 because with the pin in
+    # place on a fresh install, the fresh-boot check_upgrade fires before
+    # openemr is configured (root == code from the pin, sites still at the
+    # git-cloned value → guard passes → run_upgrade → "Cannot upgrade -
+    # OpenEMR is not configured yet" → unhealthy container). Passing the
+    # override compose file only to the recreate's up command scopes the
+    # bind-mount to Step 3 alone.
+    log_info "Preparing code-version bind-mount for recreate..."
+    echo -n "${current_version}" > "${test_dir}/code-version-override"
+    # `start_period` extended in the recreate override to match the
+    # wait_for_healthy budget below (20m). The base compose file's
+    # 10m is right-sized for Step 1's fresh-install boot (Apache up in
+    # seconds, no upgrade path), but the recreate boot runs the full
+    # fsupgrade cascade + SQL upgrade + SSL/config setup before Apache
+    # starts. Without this extension the healthcheck's default retries
+    # (3 * 1m interval = 3m) would fire "unhealthy" ~13m after startup
+    # (10m start_period + 3m retries), which wait_for_healthy treats as
+    # an early-return failure -- so a wait_for_healthy timeout > 13m
+    # would silently be capped at 13m by Docker's own unhealthy verdict.
+    # 20m keeps the whole wait window within start_period, so failed
+    # checks never accumulate to unhealthy during the upgrade. See G40.
+    # Full healthcheck redeclared (rather than just the overridden
+    # start_period key) to sidestep any compose-version differences in
+    # partial-healthcheck merge behavior -- keys here must stay in sync
+    # with the base docker-compose.yml openemr healthcheck EXCEPT
+    # start_period (10m -> 20m for the upgrade cascade, per above).
+    cat > "${test_dir}/docker-compose.recreate.yml" <<EOF
+
+services:
+  openemr:
+    volumes:
+      - ${test_dir}/code-version-override:/var/www/localhost/htdocs/openemr/docker-version:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsSLo", "/dev/null", "http://localhost/"]
+      start_period: 20m
+      start_interval: 2s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+EOF
+    log_info "Bind-mount override pinned to: ${current_version}"
+
     # Step 4: Recreate container to trigger upgrade check.
     # A real upgrade always ships as a new image -> new container; recreating
     # (rather than restarting) also restores setup-removed files such as
@@ -1470,7 +1526,7 @@ EOF
     # shellcheck disable=SC2310  # rm may no-op if container was never created
     run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml rm -f openemr 2>&1 | tee -a "${LOG_FILE}" || true
     # shellcheck disable=SC2310  # Error handling is explicit via if/return
-    if ! run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml up -d openemr 2>&1 | tee -a "${LOG_FILE}"; then
+    if ! run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml -f docker-compose.recreate.yml up -d openemr 2>&1 | tee -a "${LOG_FILE}"; then
         log_test_result "${test_name}" "FAIL" "Failed to recreate container"
         # shellcheck disable=SC2310  # Cleanup should not fail the test
         run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml down --volumes >/dev/null 2>&1 || true
@@ -1482,9 +1538,37 @@ EOF
     # Wait a moment for container to recreate
     sleep 5
 
-    # Wait for container to be healthy again after recreate
+    # Wait for container to be healthy again after recreate.
+    #
+    # Timeout deliberately higher than the sibling wait_for_healthy calls
+    # in this file: this is the only path that runs the FULL upgrade
+    # cascade. Step 2 above sets sites/default/docker-version=1
+    # intentionally (worst-case starting point) so openemr.sh walks
+    # every fsupgrade-N.sh from 2 up to /root/docker-version, processes
+    # the SQL upgrade file, then sets up SSL/cert/config before Apache
+    # starts. That's the point of this test -- catch accidental
+    # regressions on ANY prior fsupgrade-N.sh script, not just the one
+    # the PR added. Total pre-Apache time grows linearly with N because
+    # each patch cycle adds one more fsupgrade-N.sh to walk (see G12 /
+    # G34 / G40 for the surrounding history). Patch-prep PR
+    # openemr/openemr#14072 (8.4.1 dev cycle on rel-840, adding
+    # fsupgrade-15.sh) was the first observation that the classic 600s
+    # window is now tight; total-time was 605s on the runner, missing
+    # the health check by 5s even though the upgrade + Apache start
+    # completed successfully. 1200s gives comfortable headroom for
+    # future fsupgrade-N additions without hiding a real slowdown --
+    # if the recreate ever exceeds 1200s that's a genuine regression
+    # worth investigating.
+    #
+    # Paired with `start_period: 20m` in the recreate healthcheck
+    # override written above. Both need to match: wait_for_healthy
+    # returns immediately on Docker `unhealthy` verdict, which the
+    # default healthcheck settings would produce ~13m after startup
+    # if pre-Apache time exceeded start_period. Keeping start_period
+    # >= wait_for_healthy's max_wait means Docker's verdict can only
+    # be "starting" or "healthy" for the whole wait window.
     # shellcheck disable=SC2310
-    if ! wait_for_healthy "${container_name}" 600; then
+    if ! wait_for_healthy "${container_name}" 1200; then
         log_test_result "${test_name}" "FAIL" "Container did not become healthy after recreate"
         docker logs "${container_name}" --tail 50 2>&1 | tee -a "${LOG_FILE}" || true
         cd "${test_dir}"

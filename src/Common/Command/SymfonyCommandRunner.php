@@ -34,9 +34,7 @@ class SymfonyCommandRunner
 
     public function getGlobalsBag(): OEGlobalsBag
     {
-        if (!isset($this->globalsBag)) {
-            $this->globalsBag = new OEGlobalsBag();
-        }
+        $this->globalsBag ??= new OEGlobalsBag();
         return $this->globalsBag;
     }
 
@@ -51,9 +49,7 @@ class SymfonyCommandRunner
     }
     public function getEventDispatcher(): EventDispatcherInterface
     {
-        if (!isset($this->eventDispatcher)) {
-            $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
-        }
+        $this->eventDispatcher ??= OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         return $this->eventDispatcher;
     }
 

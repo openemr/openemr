@@ -26,6 +26,7 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -41,7 +42,7 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements IResourceUSCIGProfileService, IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
@@ -220,7 +221,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements I
                     $values = [new TokenSearchValue(true)];
                     $modifier = SearchModifier::MISSING;
                     break;
-                } else if ($value->getSystem() == FhirCodeSystemConstants::LOINC) {
+                } elseif ($value->getSystem() == FhirCodeSystemConstants::LOINC) {
                     // remove the system as procedure service only cares about the code itself
                     $values[] = new TokenSearchValue($value->getCode());
                 } else {
@@ -271,9 +272,9 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements I
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
         if (!empty($dataRecordReport['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecordReport['date']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecordReport['date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         // Set profile (required, mustSupport)
         $this->addProfilesToMeta($fhirMeta, $dataRecordReport);

@@ -19,9 +19,6 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/lists.inc.php";
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php";
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
 require_once OEGlobalsBag::getInstance()->getSrcDir() . "/MedEx/API.php";
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
@@ -201,7 +198,7 @@ if ($_REQUEST['action'] == "new_recall") {
     }
 
     $query = "SELECT * FROM openemr_postcalendar_events WHERE pc_pid =? ORDER BY pc_eventDate DESC LIMIT 1";
-    $result2 = sqlQuery($query, [$targetPidInput]);
+    $result2 = sqlQuery($query, [\OpenEMR\Services\AppointmentService::calendarPid($targetPidInput)]);
     if ($result2) { //if they were never actually scheduled this would be blank
         $result['DOLV']     = oeFormatShortDate($result2['pc_eventDate']);
         $result['provider'] = $result2['pc_aid'];

@@ -9,7 +9,7 @@
 //
 class DiabetesDenominator implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Denominator";
     }

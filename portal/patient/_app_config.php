@@ -35,33 +35,12 @@ if (ini_get('asp_tags')) {
 }
 
 /**
- * INCLUDE PATH
- * Adjust the include path as necessary so PHP can locate required libraries
- */
-set_include_path(GlobalConfig::$APP_ROOT . '/libs/' . PATH_SEPARATOR . GlobalConfig::$APP_ROOT . '/fwk/libs' . PATH_SEPARATOR . get_include_path());
-
-/**
- * COMPOSER AUTOLOADER
- * Uncomment if Composer is being used to manage dependencies
- */
-// $loader = require 'vendor/autoload.php';
-// $loader->setUseIncludePath(true);
-
-/**
- * SESSION CLASSES
- * Any classes that will be stored in the session can be added here
- * and will be pre-loaded on every page
- */
-//require_once "App/SecureApp.php";
-
-/**
  * RENDER ENGINE
  * You can use any template system that implements
  * IRenderEngine for the view layer.
  * Phreeze provides pre-built
  * implementations for Smarty, Savant and plain PHP.
  */
-require_once 'verysimple/Phreeze/SavantRenderEngine.php';
 GlobalConfig::$TEMPLATE_ENGINE = 'SavantRenderEngine';
 GlobalConfig::$TEMPLATE_PATH = GlobalConfig::$APP_ROOT . '/templates/';
 
@@ -79,6 +58,7 @@ GlobalConfig::$ROUTE_MAP = [
     //   p_all - available to all
     //   p_limited - only the data that is pertinent to the patient is available
     //   p_none - not available for patients
+    //   p_staff - available only through an authenticated core staff session
     // permission setting for p_reg:
     //   true - permission for patient registration
     //   false - no permission for patient registration
@@ -114,7 +94,8 @@ GlobalConfig::$ROUTE_MAP = [
         'params' => [
             'id' => 2
         ],
-        'p_acl' => 'p_limited',
+        // Controller enforces portal ownership or staff demographics ACL.
+        'p_acl' => 'p_all',
         'p_reg' => false
     ],
     'PUT:api/patient/(:num)' => [
@@ -122,7 +103,8 @@ GlobalConfig::$ROUTE_MAP = [
         'params' => [
             'id' => 2
         ],
-        'p_acl' => 'p_limited',
+        // Controller enforces portal ownership or staff demographics ACL.
+        'p_acl' => 'p_all',
         'p_reg' => false
     ],
     'DELETE:api/patient/(:num)' => [
@@ -138,7 +120,8 @@ GlobalConfig::$ROUTE_MAP = [
         'params' => [
             'id' => 2
         ],
-        'p_acl' => 'p_limited',
+        // Controller enforces portal ownership or staff demographics ACL.
+        'p_acl' => 'p_all',
         'p_reg' => false
     ],
     'GET:api/portalpatient/(:num)' => [
@@ -146,7 +129,8 @@ GlobalConfig::$ROUTE_MAP = [
         'params' => [
             'id' => 2
         ],
-        'p_acl' => 'p_limited',
+        // Controller enforces portal ownership or staff demographics ACL.
+        'p_acl' => 'p_all',
         'p_reg' => false
     ],
 
@@ -199,24 +183,21 @@ GlobalConfig::$ROUTE_MAP = [
         'p_reg' => false
     ],
 
-    // OnsitePortalActivity
-    'GET:onsiteportalactivities' => [
-        'route' => 'OnsitePortalActivity.ListView',
-        'p_acl' => 'p_none',
-        'p_reg' => false
-    ],
+    // Portal review queue (PortalReviewController). These URLs used to be served by the
+    // OnsitePortalActivity and OnsiteActivityView Phreeze stacks; the JavaScript that calls
+    // them is unchanged.
     'GET:api/onsiteportalactivities' => [
-        'route' => 'OnsitePortalActivity.Query',
+        'route' => 'PortalReview.DocumentQuery',
         'p_acl' => 'p_all', // Secured this at downstream function level
         'p_reg' => false
     ],
     'POST:api/onsiteportalactivity' => [
-        'route' => 'OnsitePortalActivity.Create',
+        'route' => 'PortalReview.DocumentChange',
         'p_acl' => 'p_all', // Secured this at downstream function level
         'p_reg' => false
     ],
     'GET:api/onsiteportalactivity/(:num)' => [
-        'route' => 'OnsitePortalActivity.Read',
+        'route' => 'PortalReview.Read',
         'params' => [
             'id' => 2
         ],
@@ -224,7 +205,7 @@ GlobalConfig::$ROUTE_MAP = [
         'p_reg' => false
     ],
     'PUT:api/onsiteportalactivity/(:num)' => [
-        'route' => 'OnsitePortalActivity.Update',
+        'route' => 'PortalReview.DocumentChange',
         'params' => [
             'id' => 2
         ],
@@ -232,31 +213,29 @@ GlobalConfig::$ROUTE_MAP = [
         'p_reg' => false
     ],
     'DELETE:api/onsiteportalactivity/(:num)' => [
-        'route' => 'OnsitePortalActivity.Delete',
+        'route' => 'PortalReview.DocumentCancel',
         'params' => [
             'id' => 2
         ],
         'p_acl' => 'p_none',
         'p_reg' => false
     ],
-
-    // OnsiteActivityView
     'GET:onsiteactivityviews' => [
-        'route' => 'OnsiteActivityView.ListView',
-        'p_acl' => 'p_none',
+        'route' => 'PortalReview.ListView',
+        'p_acl' => 'p_staff',
         'p_reg' => false
     ],
     'GET:api/onsiteactivityviews' => [
-        'route' => 'OnsiteActivityView.Query',
-        'p_acl' => 'p_none',
+        'route' => 'PortalReview.Query',
+        'p_acl' => 'p_staff',
         'p_reg' => false
     ],
     'GET:api/onsiteactivityview/(:any)' => [
-        'route' => 'OnsiteActivityView.Read',
+        'route' => 'PortalReview.Read',
         'params' => [
             'id' => 2
         ],
-        'p_acl' => 'p_none',
+        'p_acl' => 'p_staff',
         'p_reg' => false
     ],
 

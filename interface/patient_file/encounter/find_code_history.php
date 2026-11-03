@@ -78,7 +78,7 @@ function get_history_codes($pid)
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php xlt("Find Code History"); ?></title>
+    <title><?php echo xlt("Find Code History"); ?></title>
     <meta charset="utf-8" />
     <?php Header::setupHeader(['opener']); ?>
     <script>

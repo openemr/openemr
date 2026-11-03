@@ -17,14 +17,15 @@
  */
 
 require_once("../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/lists.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Billing\HcpcsDrugDefaults;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -337,7 +338,7 @@ $opt_line_no = 0;
 // Given a string of multiple instances of code_type|code|selector,
 // make a description for each.
 // @TODO Instead should use a function from custom/code_types.inc.php and need to remove casing functions
-function getCodeDescriptions($codes)
+function getCodeDescriptions($codes): string
 {
     global $code_types;
     $arrcodes = explode('~', (string) $codes);
@@ -375,7 +376,7 @@ function getCodeDescriptions($codes)
         }
         $desc = str_replace('~', ' ', $desc);
         if (!empty($modifier ?? '')) {
-            $desc .= " " . xlt("Modifier") . ": " . $modifier;
+            $desc .= " " . xl("Modifier") . ": " . $modifier;
         }
         if ($s) {
             $s .= '~';
@@ -602,18 +603,10 @@ function writeFSLine($category, $option, $codes): void
         attr($option) . "' size='20' maxlength='63' class='optin' />";
     echo "</td>\n";
 
+    // displayCodes() draws the codes from the hidden fields, as it does after
+    // adding or deleting one, with a drug choice for HCPCS codes.
     echo "  <td align='left' class='optcell'>";
-    echo "   <div id='codelist_" . attr($opt_line_no) . "'>";
-    if (strlen((string) $descs)) {
-        $arrdescs = explode('~', (string) $descs);
-        $i = 0;
-        foreach ($arrdescs as $desc) {
-            echo "<a href='' onclick='return delete_code(" . attr($opt_line_no) . ",$i)' title='" . xla('Delete') . "'>";
-            echo "[x]&nbsp;</a>" . text($desc) . "<br />";
-            ++$i;
-        }
-    }
-    echo "</div>";
+    echo "   <div id='codelist_" . attr($opt_line_no) . "'></div>";
     echo "<a href='' onclick='return select_code(" . attr($opt_line_no) . ")'>";
     echo "[" . xlt('Add') . "]</a>";
 
@@ -621,6 +614,7 @@ function writeFSLine($category, $option, $codes): void
         attr($codes) . "' />";
     echo "<input type='hidden' name='opt[" . attr($opt_line_no) . "][descs]' value='" .
         attr($descs) . "' />";
+    echo "<script>displayCodes(" . (int) $opt_line_no . ");</script>";
     echo "</td>\n";
 
     echo " </tr>\n";
@@ -630,7 +624,7 @@ function writeFSLine($category, $option, $codes): void
 /**
  * Helper functions for writeITLine() and writeCTLine().
  */
-function ctGenCell($opt_line_no, $data_array, $name, $size, $maxlength, $title = '')
+function ctGenCell($opt_line_no, $data_array, $name, $size, $maxlength, $title = ''): string
 {
     $value = $data_array[$name] ?? '';
     $s = "  <td";
@@ -645,7 +639,7 @@ function ctGenCell($opt_line_no, $data_array, $name, $size, $maxlength, $title =
     return $s;
 }
 
-function ctGenCbox($opt_line_no, $data_array, $name, $title = '')
+function ctGenCbox($opt_line_no, $data_array, $name, $title = ''): string
 {
     $checked = empty($data_array[$name]) ? '' : 'checked ';
     $s = "  <td";
@@ -659,7 +653,7 @@ function ctGenCbox($opt_line_no, $data_array, $name, $title = '')
     return $s;
 }
 
-function ctSelector($opt_line_no, $data_array, $name, $option_array, $title = '')
+function ctSelector($opt_line_no, $data_array, $name, $option_array, $title = ''): string
 {
     $value = $data_array[$name] ?? '';
     $s = "  <td title='" . attr($title) . "'>";
@@ -824,11 +818,11 @@ function writeCTLine($ct_array): void
  */
 function writeITLine($it_array): void
 {
-    global $opt_line_no, $ISSUE_TYPE_CATEGORIES, $ISSUE_TYPE_STYLES;
+    global $opt_line_no;
     ++$opt_line_no;
     $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
     echo " <tr>\n";
-    echo ctSelector($opt_line_no, $it_array, 'category', $ISSUE_TYPE_CATEGORIES, xl('OpenEMR Application Category'));
+    echo ctSelector($opt_line_no, $it_array, 'category', IssueTypeRegistry::issueTypeCategories(), xl('OpenEMR Application Category'));
     echo ctGenCBox($opt_line_no, $it_array, 'active', xl('Is this active?'));
     echo ctGenCell($opt_line_no, $it_array, 'ordering', 4, 10, xl('Order{{Sequence}}'));
     echo ctGenCell($opt_line_no, $it_array, 'type', 15, 75, xl('Issue Type'));
@@ -853,7 +847,7 @@ function writeITLine($it_array): void
         $abbrStr = is_string($it_array['abbreviation'] ?? null) ? $it_array['abbreviation'] : '';
         echo "  <td align='center' class='translation'>" . text(xl_list_label($abbrStr)) . "</td>\n";
     }
-    echo ctSelector($opt_line_no, $it_array, 'style', $ISSUE_TYPE_STYLES, xl('Standard; Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields. ; Football Injury'));
+    echo ctSelector($opt_line_no, $it_array, 'style', IssueTypeRegistry::issueTypeStyles(), xl('Standard; Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields. ; Football Injury'));
     echo ctGenCBox($opt_line_no, $it_array, 'force_show', xl('Show this category on the patient summary screen even if no issues have been entered for this category.'));
 
     echo "<td>";
@@ -910,33 +904,76 @@ function writeITLine($it_array): void
         var current_sel_name = '';
         var current_sel_clin_term = '';
 
-        // Helper function to set the contents of a div.
-        // This is for Fee Sheet administration.
-        function setDivContent(id, content) {
-            if (document.getElementById) {
-                var x = document.getElementById(id);
-                x.innerHTML = '';
-                x.innerHTML = content;
-            } else if (document.all) {
-                var x = document.all[id];
-                x.innerHTML = content;
+        // The active inventory drugs related to each HCPCS code, so a Fee Sheet
+        // entry can say which product its line takes the NDC and units from.
+        var hcpcsDrugChoices = <?php echo json_encode($list_id == 'feesheet' ? HcpcsDrugDefaults::choicesByCode() : [], JSON_THROW_ON_ERROR); ?>;
+
+        // Given a line number, redisplay its descriptive list of codes.
+        // This is for Fee Sheet administration. The descriptions are plain
+        // text (code and drug names), so they're added as text, not HTML.
+        function displayCodes(lino) {
+            var f = document.forms[0];
+            var div = document.getElementById('codelist_' + lino);
+            div.textContent = '';
+            var descs = f['opt[' + lino + '][descs]'].value;
+            if (!descs.length) {
+                return;
+            }
+            var arrdescs = descs.split('~');
+            var arrcodes = f['opt[' + lino + '][codes]'].value.split('~');
+            for (let i = 0; i < arrdescs.length; ++i) {
+                var a = document.createElement('a');
+                a.href = '';
+                a.title = <?php echo xlj('Delete'); ?>;
+                a.onclick = function () {
+                    return delete_code(lino, i);
+                };
+                a.textContent = '[x]\u00a0';
+                div.append(a, arrdescs[i]);
+                var choice = drugChoice(lino, i, arrcodes[i] || '');
+                if (choice) {
+                    div.append(' ', choice);
+                }
+                div.append(document.createElement('br'));
             }
         }
 
-        // Given a line number, redisplay its descriptive list of codes.
-        // This is for Fee Sheet administration.
-        function displayCodes(lino) {
-            var f = document.forms[0];
-            var s = '';
-            var descs = f['opt[' + lino + '][descs]'].value;
-            if (descs.length) {
-                var arrdescs = descs.split('~');
-                for (var i = 0; i < arrdescs.length; ++i) {
-                    s += "<a href='' onclick='return delete_code(" + lino + "," + i + ")' title='<?php echo xla('Delete'); ?>'>";
-                    s += "[x]&nbsp;</a>" + arrdescs[i] + "<br />";
-                }
+        // A dropdown of the inventory drugs related to a Fee Sheet entry's HCPCS
+        // code ("HCPCS|J1010|<drug_id>"), or null when the code has none. "Default"
+        // leaves the choice to the fee sheet (the related drug in stock, then by name).
+        function drugChoice(lino, seqno, codestring) {
+            var parts = codestring.split('|');
+            if (parts[0] !== 'HCPCS') {
+                return null;
             }
-            setDivContent('codelist_' + lino, s);
+            var choices = hcpcsDrugChoices[parts[1].split(':')[0]];
+            if (!choices) {
+                return null;
+            }
+            var select = document.createElement('select');
+            select.className = 'form-control form-control-sm d-inline-block w-auto';
+            select.title = <?php echo xlj('Inventory drug for this code'); ?>;
+            select.add(new Option(<?php echo xlj('Drug: default'); ?>, ''));
+            for (const choice of choices) {
+                select.add(new Option(choice.label, choice.id));
+            }
+            select.value = parts[2] || '';
+            if (select.selectedIndex < 0) {
+                select.selectedIndex = 0;
+            }
+            select.onchange = function () {
+                set_drug(lino, seqno, select.value);
+            };
+            return select;
+        }
+
+        // Store the chosen drug as the selector of the entry's code.
+        function set_drug(lino, seqno, drugId) {
+            var celem = document.forms[0]['opt[' + lino + '][codes]'];
+            var arrcodes = celem.value.split('~');
+            var parts = arrcodes[seqno].split('|');
+            arrcodes[seqno] = parts[0] + '|' + parts[1] + '|' + drugId;
+            celem.value = arrcodes.join('~');
         }
 
         // Helper function to remove a Fee Sheet code.
@@ -1397,12 +1434,12 @@ function writeITLine($it_array): void
             // Get the selected list's elements.
             $total_rows = 0;
             if ($list_id) {
-                $sql_limits = 'ASC LIMIT 0, ' . escape_limit($records_per_page);
+                $sql_limits = 'ASC LIMIT 0, ' . (int) $records_per_page;
                 if ($list_from > 0) {
                     $list_from--;
                 }
                 if ($list_to > 0) {
-                    $sql_limits = " ASC LIMIT " . escape_limit($list_from) . (intval($list_to) > 0 ? ", " . escape_limit($list_to - $list_from) : "");
+                    $sql_limits = ' ASC LIMIT ' . ($list_to - $list_from) . ' OFFSET ' . $list_from;
                 }
 
                 if ($list_id == 'feesheet') {

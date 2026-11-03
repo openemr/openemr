@@ -697,9 +697,7 @@ class FHIRContractAsset extends FHIRBackboneElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContractAsset xmlns="http://hl7.org/fhir"></ContractAsset>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ContractAsset xmlns="http://hl7.org/fhir"></ContractAsset>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->scope)) {
             $this->scope->xmlSerialize(true, $sxe->addChild('scope'));

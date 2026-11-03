@@ -20,7 +20,7 @@ class Config_Mpdf
     /**
      * @return array<string, mixed>
      */
-    public static function getConfigMpdf()
+    public static function getConfigMpdf(): array
     {
         return [
             'tempDir' => (new CacheDirectory())->for('openemr-mpdf'),

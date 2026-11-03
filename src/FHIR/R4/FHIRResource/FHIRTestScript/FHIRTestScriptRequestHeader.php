@@ -182,9 +182,7 @@ class FHIRTestScriptRequestHeader extends FHIRBackboneElement implements \JsonSe
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TestScriptRequestHeader xmlns="http://hl7.org/fhir"></TestScriptRequestHeader>');
-        }
+        $sxe ??= new \SimpleXMLElement('<TestScriptRequestHeader xmlns="http://hl7.org/fhir"></TestScriptRequestHeader>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->field)) {
             $this->field->xmlSerialize(true, $sxe->addChild('field'));

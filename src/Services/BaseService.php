@@ -94,10 +94,8 @@ class BaseService implements BaseServiceInterface
 
     /**
      * Get the name of our base database table
-     *
-     * @return mixed
      */
-    public function getTable()
+    public function getTable(): string
     {
         return $this->table;
     }
@@ -171,7 +169,7 @@ class BaseService implements BaseServiceInterface
      * Build SQL Query for Selecting Fields
      *
      * @param array $map
-     * @return array
+     * @return ?array
      */
     public function queryFields($map = null, $data = null)
     {
@@ -197,9 +195,8 @@ class BaseService implements BaseServiceInterface
      * @param array $passed_in
      * @param array $options configuration options for building.
      *                  null_value defines what NULL should be stored as in the table, default is empty string ''
-     * @return array
      */
-    protected function buildInsertColumns($passed_in = [], $options = [])
+    protected function buildInsertColumns($passed_in = [], $options = []): array
     {
         $keyset = '';
         $bind = [];
@@ -249,9 +246,8 @@ class BaseService implements BaseServiceInterface
      * @param array $passed_in
      * @param array $options configuration options for building.
      *                       null_value defines what NULL should be stored as in the table, default is empty string ''
-     * @return array
      */
-    protected function buildUpdateColumns($passed_in = [], $options = [])
+    protected function buildUpdateColumns($passed_in = [], $options = []): array
     {
         $keyset = '';
         $bind = [];
@@ -320,15 +316,11 @@ class BaseService implements BaseServiceInterface
      *
      * @param $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
      * @param $map                  - Query information (where clause(s), join clause(s), order, data, etc).
-     * @return array of associative arrays
+     * @return ?array list of associative arrays, or for a limit of 1 the single row (null if none matched)
      */
-    public function selectHelper($sqlUpToFromStatement, $map)
+    public function selectHelper($sqlUpToFromStatement, $map): ?array
     {
-        $records = QueryUtils::selectHelper($sqlUpToFromStatement, $map);
-        if ($records !== null) {
-            $records = is_array($records) ? $records : [$records];
-        }
-        return $records;
+        return QueryUtils::selectHelper($sqlUpToFromStatement, $map);
     }
 
     /**
@@ -350,7 +342,7 @@ class BaseService implements BaseServiceInterface
      * @param $dateString              - The Date string which is to be verified
      * @return bool
      */
-    public static function isValidDate($dateString)
+    public static function isValidDate($dateString): bool
     {
         return (bool) strtotime((string) $dateString);
     }
@@ -361,7 +353,7 @@ class BaseService implements BaseServiceInterface
      * @param $condition              - Boolean to check AND | OR
      * @return string of (AND | OR) Operator
      */
-    public static function sqlCondition($condition)
+    public static function sqlCondition($condition): string
     {
         return (string) $condition ? ' AND ' : ' OR ';
     }
@@ -404,7 +396,7 @@ class BaseService implements BaseServiceInterface
      * @param string $date             - DateTime String
      * @return array processed prefix with value
      */
-    public static function processDateTime($date)
+    public static function processDateTime($date): array
     {
         $processedDate = [];
         $result = substr($date, 0, 2);
@@ -430,9 +422,9 @@ class BaseService implements BaseServiceInterface
      *
      * @param string $idField                   - Name of Primary Id Field
      * @param string $table                     - Name of Table
-     * @return string Generated Id
+     * @return int Generated Id
      */
-    public function getFreshId($idField, $table)
+    public function getFreshId($idField, $table): int
     {
         $resultId = sqlQuery("SELECT MAX($idField)+1 AS $idField FROM $table");
         return $resultId[$idField] === null ? 1 : intval($resultId[$idField]);
@@ -473,9 +465,8 @@ class BaseService implements BaseServiceInterface
      * @param array<string, ISearchField> $search Hashmap of string => ISearchField
      *                                             where the key is the field name of the search field
      * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
-     * @return ProcessingResult The results of the search.
      */
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         try {
@@ -539,7 +530,7 @@ class BaseService implements BaseServiceInterface
      * @return array Array of Code as Key mapped to an array containing the code,
      *                   code_type, description, and system (URI or OID if found)
      */
-    protected function addCoding($diagnosis)
+    protected function addCoding($diagnosis): array
     {
         if (empty($diagnosis)) {
             return [];
@@ -571,7 +562,7 @@ class BaseService implements BaseServiceInterface
      * @param string $primaryId                 - Name of Primary ID field
      * @return array Array UUIDs
      */
-    protected function splitAndProcessMultipleFields($fields, $table, $primaryId = "id")
+    protected function splitAndProcessMultipleFields($fields, $table, $primaryId = "id"): array
     {
         $fields = explode("|", $fields);
         $result = [];
@@ -585,7 +576,7 @@ class BaseService implements BaseServiceInterface
         return $result;
     }
 
-    protected function getSelectJoinClauses()
+    protected function getSelectJoinClauses(): string
     {
         $joins = $this->getSelectJoinTables();
         $clause = '';

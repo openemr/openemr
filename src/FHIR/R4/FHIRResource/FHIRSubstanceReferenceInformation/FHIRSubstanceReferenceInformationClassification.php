@@ -264,9 +264,7 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceReferenceInformationClassification xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationClassification>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceReferenceInformationClassification xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationClassification>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->domain)) {
             $this->domain->xmlSerialize(true, $sxe->addChild('domain'));

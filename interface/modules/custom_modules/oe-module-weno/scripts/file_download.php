@@ -12,7 +12,6 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\DownloadWenoPharmacies;
-use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
@@ -34,7 +33,6 @@ $encryption_key = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->g
 $baseurl = "https://online.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
 
 $pharmacyDownloadService = new DownloadWenoPharmacies();
-$pharmacyService = new PharmacyService();
 $wenoLog = new WenoLogService();
 
 $data = [
@@ -45,30 +43,24 @@ $data = [
 ];
 
 $logMessage = "User Initiated Daily Pharmacy Update";
-if ($data['Daily'] == 'N') {
+$isFullDirectory = ($data['Daily'] == 'N');
+if ($isFullDirectory) {
     $logMessage = "User Initiated Weekly Pharmacy Update";
-    $pharmacyService->removeWenoPharmacies();
+    // The existing directory is cleared by downloadAndImport() inside its
+    // import transaction, so a failed download leaves the current data intact.
 }
 
 $json_object = json_encode($data);
 $method = 'aes-256-cbc';
-
 $key = substr(hash('sha256', $encryption_key, true), 0, 32);
-
 $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
-
 $encrypted = base64_encode(openssl_encrypt($json_object, $method, $key, OPENSSL_RAW_DATA, $iv));
-
 $fileUrl = $baseurl . "?useremail=" . urlencode((string) $weno_username) . "&data=" . urlencode($encrypted);
-$storeLocation = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/weno_pharmacy.zip";
-$path_to_extract = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/";
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-
-$comment = "User Initiated Unscheduled Daily Pharmacy Import";
-if ($data['Daily'] == 'N') {
-    $comment = "User Initiated Unscheduled Weekly Pharmacy Import";
-}
+$comment = $isFullDirectory
+    ? "User Initiated Unscheduled Weekly Pharmacy Import"
+    : "User Initiated Unscheduled Daily Pharmacy Import";
 EventAuditLogger::getInstance()->newEvent(
     "pharmacy_log",
     $session->get('authUser'),
@@ -77,97 +69,25 @@ EventAuditLogger::getInstance()->newEvent(
     $comment
 );
 
-unlink($storeLocation);
-$wenoLog->insertWenoLog("Pharmacy Directory", 'Start File Download', $fileUrl);
-error_log('Start File Download');
+// No 'Start'/'End File Download' breadcrumb rows: they were the newest rows in
+// weno_download_log, so the widgets that read the last row saw a breadcrumb
+// instead of the import result. The debug log below covers the same ground.
+ServiceContainer::getLogger()->debug('Weno pharmacy file download started');
+$wenoLog->insertWenoLog("Pharmacy Directory", $logMessage);
 
-download_zipfile($fileUrl, $storeLocation);
+$count = $pharmacyDownloadService->downloadAndImport(
+    $fileUrl,
+    isFullRebuild: $isFullDirectory,
+    logContext: "Pharmacy Directory"
+);
 
-$wenoLog->insertWenoLog("Pharmacy Directory", 'End File Download');
-error_log('End File Download');
+ServiceContainer::getLogger()->debug('Weno pharmacy file download finished');
 
-$zip = new ZipArchive();
-$csvFile = '';
-if ($zip->open($storeLocation) === true) {
-    $zip->extractTo($path_to_extract);
-    $files = glob($path_to_extract . "/*.csv");
-    if ($files) {
-        foreach ($files as $file) {
-            if (stripos($file, 'weno_pharmacy_lite') !== false) {
-                $csvFile = $file;
-                break;
-            }
-        }
-        $zip->close();
-        //unlink($storeLocation); // TODO: keep for history
-    } else {
-        $rpt = file_get_contents($storeLocation);
-        $isError = $wenoLog->scrapeWenoErrorHtml($rpt);
-        if ($isError['is_error']) {
-            error_log('Pharmacy download failed: ' . errorLogEscape($isError['messageText']));
-            $wenoLog->insertWenoLog("Pharmacy Directory", errorLogEscape($isError['messageText']));
-            die(js_escape($isError['messageText']));
-        }
-        EventAuditLogger::getInstance()->newEvent("pharmacy_log", $session->get('authUser'), $session->get('authProvider'), 0, ($isError['messageText']));
-        $wenoLog->insertWenoLog("Pharmacy Directory", "Failed");
-        // no need to continue so send error to UI alert and die.
-        die(js_escape('Pharmacy download failed.'));
-    }
-    // process the csv file
-    // Number of rows imported or false if error
-    $wenoLog->insertWenoLog("Pharmacy Directory", $logMessage);
-    error_log($logMessage);
-
-    // The money shot!
-    $count = $pharmacyDownloadService->processWenoPharmacyCsv($csvFile, ($data['Daily'] == 'N'));
-
-    // remove csv downloaded csv files
-    foreach ($files as $file) {
-        if (is_file($file) && stripos($file, 'logsync.csv') === false) {
-            unlink($file);
-        }
-    }
-    // log success if it has count imports
-    if ($count !== false) {
-        EventAuditLogger::getInstance()->newEvent(
-            "pharmacy_log",
-            $session->get('authUser'),
-            $session->get('authProvider'),
-            1,
-            "User Initiated Pharmacy Download was Imported Successfully."
-        );
-        $wenoLog->insertWenoLog("Pharmacy Directory", "Success " . text($count) . " pharmacies Updated");
-        error_log("User Initiated Pharmacy Imported " . text($count) . " Pharmacies");
-    } else {
-        EventAuditLogger::getInstance()->newEvent(
-            "pharmacy_log",
-            $session->get('authUser'),
-            $session->get('authProvider'),
-            0,
-            "Pharmacy Import download failed."
-        );
-        $wenoLog->insertWenoLog("Pharmacy Directory", "Failed");
-        error_log("User Initialed Pharmacy Import Failed");
-    }
-} else {
-    EventAuditLogger::getInstance()->newEvent("pharmacy_log", $session->get('authUser'), $session->get('authProvider'), 0, "Pharmacy download zip open failed.");
-    error_log('Pharmacy download zip open failed.');
-    $wenoLog->insertWenoLog("Pharmacy Directory", "Pharmacy download zip open failed.");
-    // no need to continue so send error to UI alert and die.
-    die(js_escape('Pharmacy download zip open failed.'));
+if ($count === false) {
+    // downloadAndImport already wrote a precise failure status.
+    $last = $wenoLog->getLastPharmacyDownloadStatus();
+    $message = $last['status'] ?? 'Pharmacy download/import failed.';
+    die(js_escape($message));
 }
 
-function download_zipfile($fileUrl, $zipped_file): void
-{
-    $fp = fopen($zipped_file, 'w+');
-
-    $ch = curl_init($fileUrl);
-    curl_setopt($ch, CURLOPT_FILE, $fp);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 1000);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
-    curl_exec($ch);
-
-    curl_close($ch);
-    fclose($fp);
-}
+// Success status already logged by downloadAndImport.

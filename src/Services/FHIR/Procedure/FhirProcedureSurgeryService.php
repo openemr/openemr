@@ -14,13 +14,16 @@ namespace OpenEMR\Services\FHIR\Procedure;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProcedure;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirProcedureService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
@@ -32,7 +35,7 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\SurgeryService;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirProcedureSurgeryService extends FhirServiceBase
+class FhirProcedureSurgeryService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
@@ -56,7 +59,7 @@ class FhirProcedureSurgeryService extends FhirServiceBase
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -96,9 +99,9 @@ class FhirProcedureSurgeryService extends FhirServiceBase
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['date_modified'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date_modified']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date_modified'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
             $meta->addProfile($this->createProfile($profile));
@@ -142,7 +145,7 @@ class FhirProcedureSurgeryService extends FhirServiceBase
         }
 
         if (!empty($dataRecord['begdate'])) {
-            $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($dataRecord['begdate']));
+            $procedureResource->setPerformedDateTime(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['begdate'])));
         }
 
         if (!empty($dataRecord['comments'])) {

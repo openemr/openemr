@@ -31,12 +31,12 @@ class Allergy extends ClinicalType
     const INFLUENZA_IMMUN = 'med_allergy_flu_immun';
     const EGGS = 'subst_allergy_eggs';
 
-    public function getListType()
+    public function getListType(): string
     {
         return 'allergy';
     }
 
-    public function getListId()
+    public function getListId(): string
     {
         return 'Clinical_Rules_Allergy_Types';
     }

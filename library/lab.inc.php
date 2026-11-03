@@ -82,7 +82,7 @@ function getSelfPay($pid)
  * @param $prov_id
  * @return array
  */
-function getNPI($prov_id)
+function getNPI($prov_id): array
 {
     $sql = "SELECT `npi`, `upin` FROM `users` WHERE `id` = ?";
     $res = sqlQuery($sql, [$prov_id]);

@@ -12,15 +12,33 @@
  */
 
 require_once(__DIR__ . "/../../interface/globals.php");
-require_once(__DIR__ . "/../lists.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-//  IF there is a pid and type then will set the entry in lists_touch table
-if (!(empty($_POST['patient_id'])) && !(empty($_POST['type']))) {
-    setListTouch($_POST['patient_id'], $_POST['type']);
+$request = CurrentRequest::get()->request;
+$postedPatientId = $request->getString('patient_id', '');
+$type = $request->getString('type', '');
+
+//  IF there is a pid and type then will set the entry in lists_touch table.
+//  The "None known" marker is a clinical write; mirror the issue-write ACL
+//  the UI applies to the noneCheck checkbox, and bind the write to the active
+//  session patient so an authorized caller cannot stamp another patient's
+//  reviewed-list state.
+if ($postedPatientId !== '' && $type !== '') {
+    if (!AclMain::aclCheckIssue($type, '', 'write')) {
+        AccessDeniedHelper::deny('ACL check failed for issue write on lists_touch');
+    }
+    $sessionPidRaw = $session->get('pid');
+    $sessionPid = is_scalar($sessionPidRaw) ? (string) $sessionPidRaw : '';
+    if ($sessionPid === '' || $postedPatientId !== $sessionPid) {
+        AccessDeniedHelper::deny('lists_touch patient_id does not match the active session patient');
+    }
+    setListTouch($postedPatientId, $type);
 }

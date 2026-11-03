@@ -546,7 +546,10 @@ class TeleconferenceRoomController
         $uname = $patientData['fname'] . $patientData['id'];
         $login_uname = $patientAccessService->getUniqueTrustedUsernameForPid($pid);
         $login_uname ??= $uname;
-        $result = $patientAccessService->saveCredentials($pid, $pwd, $uname, $login_uname);
+        $forcedResetDisable = PatientAccessOnsiteService::forcedResetDisableForPolicy(
+            OEGlobalsBag::getInstance()->getString('portal_force_credential_reset', '0')
+        );
+        $result = $patientAccessService->saveCredentials($pid, $pwd, $uname, $login_uname, $forcedResetDisable);
 
         // TODO: @adunsulag we need to handle if the email credentials don't send, or if we want to bundle all of this
         // into a single email
@@ -1088,11 +1091,10 @@ class TeleconferenceRoomController
 
     /**
      * @param $queryVars
-     * @return mixed
      * @throws AccessDeniedException
      * @throws TelehealthProvisioningServiceRequestException
      */
-    public function renderWaitingRoom($queryVars)
+    public function renderWaitingRoom($queryVars): string
     {
         if ($this->isPatient) {
             $this->initalizeAppointmentForTelehealth($queryVars['eid']);
@@ -1202,11 +1204,10 @@ class TeleconferenceRoomController
 
     /**
      * @param $queryVars
-     * @return mixed
      * @throws AccessDeniedException
      * @throws TelehealthProvisioningServiceRequestException
      */
-    public function renderConferenceRoom($queryVars)
+    public function renderConferenceRoom($queryVars): string
     {
         $data = $this->isPatient ? $this->getPatientSettings($queryVars) : $this->getProviderSettings($queryVars);
 //        $apptRepo = new AppointmentService();
@@ -1241,11 +1242,10 @@ class TeleconferenceRoomController
 
     /**
      * @param $queryVars
-     * @return array
      * @throws AccessDeniedException
      * @throws TelehealthProvisioningServiceRequestException
      */
-    private function getProviderSettings($queryVars)
+    private function getProviderSettings($queryVars): array
     {
         $pid = $queryVars['pid'];
         if (empty($pid)) {
@@ -1326,10 +1326,9 @@ class TeleconferenceRoomController
 
     /**
      * @param $queryVars
-     * @return array
      * @throws TelehealthProvisioningServiceRequestException
      */
-    private function getPatientSettings($queryVars)
+    private function getPatientSettings($queryVars): array
     {
         $pid = $queryVars['pid'];
         if (empty($pid)) {
@@ -1447,7 +1446,7 @@ class TeleconferenceRoomController
      * @param $password
      * @return string
      */
-    private function getApiKeyForPassword($password)
+    private function getApiKeyForPassword($password): string
     {
         $decrypted = $this->telehealthUserRepo->decryptPassword($password);
         return TelehealthAuthUtils::getFormattedPassword($decrypted);

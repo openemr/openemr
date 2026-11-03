@@ -20,14 +20,14 @@ class RuleFilters
     public $ruleId;
     public $criteria = [];
 
-    function __construct()
+    public function __construct()
     {
     }
 
     /**
      * @param RuleCriteria $criteria
      */
-    function add($criteria)
+    public function add($criteria)
     {
         array_push($this->criteria, $criteria);
     }

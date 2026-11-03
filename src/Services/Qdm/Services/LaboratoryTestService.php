@@ -21,7 +21,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class LaboratoryTestService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT
                     O.patient_id AS pid,
@@ -44,12 +44,12 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
         return $sql;
     }
 
-    public function getPatientIdColumn()
+    public function getPatientIdColumn(): string
     {
         return 'O.patient_id';
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): LaboratoryTestPerformed
     {
         $record = $recordObj->getData();
         $result = 'Negative';

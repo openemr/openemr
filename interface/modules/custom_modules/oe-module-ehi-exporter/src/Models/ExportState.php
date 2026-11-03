@@ -65,7 +65,7 @@ class ExportState
         $this->keyFilterer = new ExportKeyDefinitionFilterer();
     }
 
-    public function getTempSysDir()
+    public function getTempSysDir(): string
     {
         if (!isset($this->tempDir)) {
             $this->tempDir = tempnam(sys_get_temp_dir(), 'ehi-export-');
@@ -127,17 +127,14 @@ class ExportState
         throw new \RuntimeException("Invalid item in queue");
     }
 
-    public function hasTableDefinitions()
+    public function hasTableDefinitions(): bool
     {
         return !$this->queue->isEmpty();
     }
 
     public function addTableDefinition(\OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition $tableDefinition)
     {
-        // should exist already, but double check
-        if (!isset($this->tableDefinitionsMap[$tableDefinition->table])) {
-            $this->tableDefinitionsMap[$tableDefinition->table] = $tableDefinition;
-        }
+        $this->tableDefinitionsMap[$tableDefinition->table] ??= $tableDefinition;
         if (!isset($this->inQueueList[$tableDefinition->table])) {
             $this->queue->enqueue($tableDefinition);
             $this->inQueueList[$tableDefinition->table] = $tableDefinition;
@@ -147,7 +144,7 @@ class ExportState
         }
     }
 
-    public function getKeyDataForTable(ExportTableDefinition $tableDefinition)
+    public function getKeyDataForTable(ExportTableDefinition $tableDefinition): array
     {
         $keyData = [
             'tables' => []
@@ -217,7 +214,7 @@ class ExportState
         }
     }
 
-    private function getDenormalizedKeys(\OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition $tableDefinition)
+    private function getDenormalizedKeys(\OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition $tableDefinition): array
     {
         // these columns are denormalized data and have the ids separated by a pipe (|)
         if ($tableDefinition->table === 'patient_data' || $tableDefinition->table == 'patient_history') {

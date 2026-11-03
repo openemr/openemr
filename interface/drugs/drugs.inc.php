@@ -16,7 +16,6 @@
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DrugSalesService;
-use PHPMailer\PHPMailer\PHPMailer;
 
 // Decision was made in June 2013 that a sale line item in the Fee Sheet may
 // come only from the specified warehouse. Set this to false if the decision
@@ -32,12 +31,9 @@ function send_drug_email($subject, $body): void
         return;
     }
 
-    $mail = new PHPMailer();
+    $mail = new MyMailer();
     $mail->From = $recipient;
     $mail->FromName = 'In-House Pharmacy';
-    $mail->isMail();
-    $mail->Host = "localhost";
-    $mail->Mailer = "mail";
     $mail->Body = $body;
     $mail->Subject = $subject;
     $mail->AddAddress($recipient);
@@ -98,7 +94,7 @@ function sellDrug(
 }
 
 // Determine if facility and warehouse restrictions are applicable for this user.
-function isUserRestricted($userid = 0)
+function isUserRestricted($userid = 0): bool
 {
     if (!$userid) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -112,7 +108,7 @@ function isUserRestricted($userid = 0)
 
 // Check if the user has access to the given facility.
 // Do not call this if user is not restricted!
-function isFacilityAllowed($facid, $userid = 0)
+function isFacilityAllowed($facid, $userid = 0): bool
 {
     if (!$userid) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -138,7 +134,7 @@ function isFacilityAllowed($facid, $userid = 0)
 
 // Check if the user has access to the given warehouse within the given facility.
 // Do not call this if user is not restricted!
-function isWarehouseAllowed($facid, $whid, $userid = 0)
+function isWarehouseAllowed($facid, $whid, $userid = 0): bool
 {
     if (!$userid) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();

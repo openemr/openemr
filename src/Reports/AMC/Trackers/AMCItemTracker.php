@@ -58,7 +58,7 @@ class AMCItemTracker
      * Our summary result is empty as we don't do summarizing here.
      * @return array
      */
-    public function getSummaryResult()
+    public function getSummaryResult(): array
     {
         return [];
     }

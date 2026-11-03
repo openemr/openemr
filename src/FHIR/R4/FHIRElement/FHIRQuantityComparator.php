@@ -144,9 +144,7 @@ class FHIRQuantityComparator extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<QuantityComparator xmlns="http://hl7.org/fhir"></QuantityComparator>');
-        }
+        $sxe ??= new \SimpleXMLElement('<QuantityComparator xmlns="http://hl7.org/fhir"></QuantityComparator>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

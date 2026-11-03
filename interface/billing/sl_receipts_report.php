@@ -24,7 +24,6 @@
 // TODO: Replace tables with BS4 grid classes for GSoC
 
 require_once('../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 // This determines if a particular procedure code corresponds to receipts
@@ -49,7 +48,7 @@ if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-function is_clinic($code)
+function is_clinic($code): bool
 {
     global $bcodes;
     $i = strpos((string) $code, ':');

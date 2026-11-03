@@ -22,7 +22,9 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Fo
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Factory.php';
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Log.php';
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -116,13 +118,25 @@ class Form_Controller extends Abstract_Controller
         }
 
         if ($valid) {
-            $factory = new Form_Factory($formId, $formDir, $encounterId);
-            $signable = $factory->createSignable();
-            if ($signable->sign($session->get('authUserID'), $lock, $amendment)) {
-                $message = xlt("Form signed successfully");
-                $status = self::STATUS_SUCCESS;
+            // Mirror the per-form write-ACL + session-bound (pid, encounter)
+            // gating the encounter forms list uses before exposing the sign
+            // button. Rejects direct submissions that target forms whose
+            // registry declares an aco_spec the caller does not hold, or that
+            // reference a form row outside the caller's active chart context.
+            $formIdInt = is_numeric($formId) ? (int) $formId : 0;
+            $encounterIdInt = is_numeric($encounterId) ? (int) $encounterId : 0;
+            $formDirStr = is_string($formDir) ? $formDir : '';
+            if (!$this->callerMaySignForm($formDirStr, $formIdInt, $encounterIdInt)) {
+                $message = xlt("You are not authorized to sign this form");
             } else {
-                $message = xlt("An error occurred signing the form");
+                $factory = new Form_Factory($formId, $formDir, $encounterId);
+                $signable = $factory->createSignable();
+                if ($signable->sign($session->get('authUserID'), $lock, $amendment)) {
+                    $message = xlt("Form signed successfully");
+                    $status = self::STATUS_SUCCESS;
+                } else {
+                    $message = xlt("An error occurred signing the form");
+                }
             }
         } else {
             $message = (isset($gMessage) && !empty($gMessage)) ? $gMessage : xlt("The password you entered is invalid");
@@ -141,5 +155,111 @@ class Form_Controller extends Abstract_Controller
 
         echo json_encode($response);
         exit;
+    }
+
+    /**
+     * Verify the caller may sign the referenced encounter form.
+     *
+     * Mirrors the pre-render checks performed by
+     * interface/patient_file/encounter/forms.php: the form row must belong to
+     * the caller's active session (pid, encounter), and if the form's registry
+     * entry declares an aco_spec the caller must hold the matching write ACL.
+     */
+    private function callerMaySignForm(string $formDir, int $formId, int $encounterId): bool
+    {
+        if ($formId <= 0 || $encounterId <= 0 || $formDir === '') {
+            return false;
+        }
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $pidRaw = $session->get('pid');
+        $encRaw = $session->get('encounter');
+        $therapyGroupRaw = $session->get('therapy_group');
+        $sessionPid = is_numeric($pidRaw) ? (int) $pidRaw : 0;
+        $sessionEncounter = is_numeric($encRaw) ? (int) $encRaw : 0;
+        $sessionTherapyGroup = is_numeric($therapyGroupRaw) ? (int) $therapyGroupRaw : 0;
+        if (
+            $sessionEncounter <= 0
+            || $sessionEncounter !== $encounterId
+            || ($sessionPid <= 0 && $sessionTherapyGroup <= 0)
+        ) {
+            return false;
+        }
+
+        $row = QueryUtils::querySingleRow(
+            'SELECT pid, encounter, formdir, therapy_group_id FROM forms WHERE id = ? LIMIT 1',
+            [$formId]
+        );
+        if (!is_array($row)) {
+            return false;
+        }
+        $rowPid = is_numeric($row['pid'] ?? null) ? (int) $row['pid'] : 0;
+        $rowEnc = is_numeric($row['encounter'] ?? null) ? (int) $row['encounter'] : 0;
+        $rowDir = is_string($row['formdir'] ?? null) ? $row['formdir'] : '';
+        $rowTherapyGroup = is_numeric($row['therapy_group_id'] ?? null) ? (int) $row['therapy_group_id'] : 0;
+        if ($rowEnc !== $sessionEncounter || $rowDir !== $formDir) {
+            return false;
+        }
+        if ($sessionPid > 0) {
+            // Patient session: form must match the patient and not be a group row.
+            if ($rowPid !== $sessionPid || $rowTherapyGroup !== 0) {
+                return false;
+            }
+        } else {
+            // Group therapy session: form must have no patient and match the group.
+            if ($rowPid !== 0 || $rowTherapyGroup !== $sessionTherapyGroup) {
+                return false;
+            }
+            // Group signing additionally requires write on groups/glog, matching
+            // the gate forms.php applies before exposing the group e-sign button.
+            if (!AclMain::aclCheckCore('groups', 'glog', '', 'write')) {
+                return false;
+            }
+        }
+
+        // Encounter calendar category write ACL — applies to both patient and
+        // group forms, mirrors $authPostCalendarCategoryWrite in forms.php.
+        $pcCatAcoRaw = AclMain::fetchPostCalendarCategoryACO(fetchCategoryIdByEncounter($encounterId));
+        if (is_string($pcCatAcoRaw) && $pcCatAcoRaw !== '') {
+            $pcCatAco = explode('|', $pcCatAcoRaw);
+            if (count($pcCatAco) >= 2 && !AclMain::aclCheckCore($pcCatAco[0], $pcCatAco[1], '', 'write')) {
+                return false;
+            }
+        }
+
+        // Mirror interface/patient_file/encounter/forms.php: LBF forms derive
+        // their ACL from layout_group_properties (user-configurable in the
+        // Layouts admin); non-LBF forms derive theirs from the forms registry.
+        if (str_starts_with($formDir, 'LBF')) {
+            $layoutGroup = QueryUtils::querySingleRow(
+                "SELECT grp_aco_spec FROM layout_group_properties WHERE " .
+                "grp_form_id = ? AND grp_group_id = '' AND grp_activity = 1",
+                [$formDir]
+            );
+            $layoutAcoSpecRaw = is_array($layoutGroup)
+                && isset($layoutGroup['grp_aco_spec'])
+                && is_string($layoutGroup['grp_aco_spec'])
+                ? $layoutGroup['grp_aco_spec']
+                : '';
+            if ($layoutAcoSpecRaw !== '') {
+                $layoutAcoSpec = explode('|', $layoutAcoSpecRaw);
+                if (count($layoutAcoSpec) >= 2 && !AclMain::aclCheckCore($layoutAcoSpec[0], $layoutAcoSpec[1], '', 'write')) {
+                    return false;
+                }
+            }
+        } else {
+            $registry = getRegistryEntryByDirectory($formDir, 'aco_spec');
+            $acoSpecRaw = is_array($registry) && isset($registry['aco_spec']) && is_string($registry['aco_spec'])
+                ? $registry['aco_spec']
+                : '';
+            if ($acoSpecRaw !== '') {
+                $acoSpec = explode('|', $acoSpecRaw);
+                if (count($acoSpec) >= 2 && !AclMain::aclCheckCore($acoSpec[0], $acoSpec[1], '', 'write')) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

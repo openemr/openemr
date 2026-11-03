@@ -186,9 +186,7 @@ class FHIRElement implements \JsonSerializable, \Stringable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Element xmlns="http://hl7.org/fhir"></Element>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Element xmlns="http://hl7.org/fhir"></Element>');
         if (0 < count($this->extension)) {
             foreach ($this->extension as $extension) {
                 $extension->xmlSerialize(true, $sxe->addChild('extension'));

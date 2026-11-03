@@ -123,7 +123,7 @@ class RealWorldTesting
                 $countSuccess++;
                 if (!empty($row['user_id'])) {
                     $countUser++;
-                } else if (!empty($row['patient_id'])) {
+                } elseif (!empty($row['patient_id'])) {
                     $countPatient++;
                 }
                 if (!empty($row['request'])) {

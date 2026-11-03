@@ -1457,6 +1457,27 @@
                 <foreignKey table="questionnaire_repository" column="id" />
             </column>
         </table>
+        <table name="task" comments="FHIR Tasks: work asked of someone for the patient, such as a referral or a questionnaire to complete">
+            <column name="patient_id" comments="FHIR Task.for: the patient the task is for">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="created_by" comments="The user who created the task">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The user who last updated the task">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+        <table name="task_input" comments="FHIR Task.input: what the task needs, one row per input">
+            <column name="task_id" comments="The task the input belongs to">
+                <foreignKey table="task" column="id" />
+            </column>
+        </table>
+        <table name="task_output" comments="FHIR Task.output: what the task produced, one row per output">
+            <column name="task_id" comments="The task the output belongs to">
+                <foreignKey table="task" column="id" />
+            </column>
+        </table>
 
         <table name="questionnaire_repository" comments="Holds questionnaires that providers or patients fill out for healthcare information collection and/or assessment.">
             <column name="id" comments="Unique identifier for the questionnaire record"/>

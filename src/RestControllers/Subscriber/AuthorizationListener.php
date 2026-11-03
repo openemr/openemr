@@ -9,7 +9,11 @@
  * We probably need to refactor this in the future to have a more robust policy decision point (PDP) and policy enforcement point (PEP) system.
  * This would allow for more flexibility in the authorization process and would allow for more complex authorization scenarios.
  *
- *
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\RestControllers\Subscriber;
@@ -59,10 +63,7 @@ class AuthorizationListener implements EventSubscriberInterface
 
     public function getGlobalsBag(): OEGlobalsBag
     {
-        // This method is intended to return the globals bag for the authorization listener.
-        if (!isset($this->globalsBag)) {
-            $this->globalsBag = new OEGlobalsBag();
-        }
+        $this->globalsBag ??= new OEGlobalsBag();
         return $this->globalsBag;
     }
 
@@ -74,12 +75,7 @@ class AuthorizationListener implements EventSubscriberInterface
     }
     public function getLogger(): LoggerInterface
     {
-        // This method is intended to return the logger for the authorization listener.
-        // Implementation details would depend on the specific requirements of the application.
-        if (!isset($this->logger)) {
-            // If the logger is not set, we can initialize it here.
-            $this->logger = ServiceContainer::getLogger();
-        }
+        $this->logger ??= ServiceContainer::getLogger();
         return $this->logger;
     }
 
@@ -92,11 +88,21 @@ class AuthorizationListener implements EventSubscriberInterface
             $this->addAuthorizationStrategy(new LocalApiAuthorizationController($this->getLogger(), $this->getGlobalsBag()));
             $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
             $skipAuthorizationStrategy->setSystemLogger($this->getLogger());
+            // The three /fhir/ routes below are discovery/conformance surfaces
+            // that FHIR R4 + SMART-on-FHIR + the Bulk Data IG expect clients
+            // to reach before holding an access token: CapabilityStatement at
+            // /metadata, SMART discovery at .well-known, and OperationDefinition
+            // resources whose canonicals are referenced from /metadata.
+            // Keep this list to those three — do not add convenience /api/
+            // endpoints here; their OpenAPI annotations declare
+            // openemr_auth as required and the runtime must match.
             $skipAuthorizationStrategy->addSkipRoute('/fhir/metadata');
             $skipAuthorizationStrategy->addSkipRoute('/fhir/.well-known/smart-configuration');
-            $skipAuthorizationStrategy->addSkipRoute('/fhir/OperationDefinition');
-            $skipAuthorizationStrategy->addSkipRoute('/api/version');
-            $skipAuthorizationStrategy->addSkipRoute('/api/product');
+            // Prefix form so /fhir/OperationDefinition/{op} named-operation
+            // descriptors (currently just $bulkdata-status) are reachable
+            // alongside the collection. Narrow this to OperationDefinition —
+            // addSkipRoute() exact-match is the default for everything else.
+            $skipAuthorizationStrategy->addSkipRoutePrefix('/fhir/OperationDefinition');
             $this->addAuthorizationStrategy($skipAuthorizationStrategy);
             // TODO: @adunsulag not sure I like instantiating the ServerConfig here, perhaps we need to do this in a different way?
             $serverConfig = new ServerConfig();
@@ -131,11 +137,33 @@ class AuthorizationListener implements EventSubscriberInterface
      * @return RestApiSecurityCheckEvent
      * @throws AccessDeniedException
      */
+    /**
+     * Routes that have no fine-grained resource/permission to gate on and
+     * are protected entirely by the Bearer strategy's api:oemr scope check.
+     * Listed here so the dispatcher's resource-level scope check (which would
+     * otherwise require a non-existent `user/version.s` scope) is skipped
+     * for them. Keep this list very narrow -- adding to it bypasses the
+     * dispatcher's authorization logic.
+     *
+     * @var list<string>
+     */
+    private const BEARER_ONLY_STANDARD_API_PATHS = [
+        '/api/version',
+        '/api/product',
+    ];
+
     public function onRestApiSecurityCheck(RestApiSecurityCheckEvent $event): RestApiSecurityCheckEvent
     {
         $request = $event->getRestRequest();
         if ($event->shouldSkipSecurityCheck()) {
             // If the event indicates that security checks should be skipped, we don't do any further processing.
+            return $event;
+        }
+        if (in_array($request->getRequestPathWithoutSite(), self::BEARER_ONLY_STANDARD_API_PATHS, true)) {
+            // Bearer strategy has already enforced api:oemr for /api/* routes
+            // on the way in; the resource-level check that would otherwise
+            // run would just produce a false 401 because no `user/version.*`
+            // or `user/product.*` scope is defined in the scope repository.
             return $event;
         }
         $restRequest = $event->getRestRequest();
@@ -209,10 +237,7 @@ class AuthorizationListener implements EventSubscriberInterface
 
     public function addAuthorizationStrategy(IAuthorizationStrategy $strategy): void
     {
-        if (!isset($this->authorizationStrategies)) {
-            // Initialize the authorization strategies if not already set.
-            $this->authorizationStrategies = [];
-        }
+        $this->authorizationStrategies ??= [];
         // This method is intended to add an authorization strategy.
         // Implementation details would depend on the specific requirements of the application.
         $this->authorizationStrategies[] = $strategy;

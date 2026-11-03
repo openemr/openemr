@@ -34,9 +34,6 @@ $pid = PatientSessionUtil::getPid();
 $encounter = EncounterSessionUtil::getEncounter();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
 
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
@@ -45,7 +42,7 @@ CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 if ($session->has('billencounter')) {
     $pid = $session->get('billpid');
     $encounter = $session->get('billencounter');
-    echo "<script src='" . $webroot . "/interface/main/tabs/js/include_opener.js'></script>";
+    echo "<script src='" . $webroot . "/interface/main/tabs/js/include_opener.js?v=" . attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')) . "'></script>";
 }
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
@@ -92,8 +89,8 @@ $sets = "pid = ?,
     is_hospitalized = ?,
     hospitalization_date_from = ?,
     hospitalization_date_to = ?,
-    medicaid_resubmission_code = ?,
-    medicaid_original_reference = ?,
+    resubmission_code = ?,
+    original_reference_number = ?,
     prior_auth_number = ?,
     replacement_claim = ?,
     icn_resubmission_number = ?,
@@ -128,8 +125,8 @@ if (empty($id)) {
             ($_POST["is_hospitalized"] ?? ''),
             ($_POST["hospitalization_date_from"] ?? ''),
             ($_POST["hospitalization_date_to"] ?? ''),
-            ($_POST["medicaid_resubmission_code"] ?? ''),
-            ($_POST["medicaid_original_reference"] ?? ''),
+            ($_POST["resubmission_code"] ?? ''),
+            ($_POST["original_reference_number"] ?? ''),
             ($_POST["prior_auth_number"] ?? ''),
             ($_POST["replacement_claim"] ?? ''),
             ($_POST["icn_resubmission_number"] ?? ''),
@@ -167,8 +164,8 @@ if (empty($id)) {
             ($_POST["is_hospitalized"] ?? ''),
             ($_POST["hospitalization_date_from"] ?? ''),
             ($_POST["hospitalization_date_to"] ?? ''),
-            ($_POST["medicaid_resubmission_code"] ?? ''),
-            ($_POST["medicaid_original_reference"] ?? ''),
+            ($_POST["resubmission_code"] ?? ''),
+            ($_POST["original_reference_number"] ?? ''),
             ($_POST["prior_auth_number"] ?? ''),
             ($_POST["replacement_claim"] ?? ''),
             ($_POST["icn_resubmission_number"] ?? ''),

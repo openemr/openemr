@@ -46,10 +46,10 @@ class GeneratorHCFA_PDF_IMG extends GeneratorHCFA_PDF implements
     {
         $log = '';
         $hcfa = new Hcfa1500();
-        $lines = $hcfa->genHcfa1500($claim->getPid(), $claim->getEncounter(), $log);
+        $lines = $hcfa->genHcfa1500($claim->getPid(), $claim->getEncounter(), $log, $claim->getSelectedPayerId());
         $hcfa_image = OEGlobalsBag::getInstance()->getKernel()->getImagesAbsolute() . "/cms1500.png";
         $this->appendToLog($log);
-        $alines = explode("\014", (string) $lines); // form feeds may separate pages
+        $alines = explode("\014", $lines); // form feeds may separate pages
         foreach ($alines as $tmplines) {
             if ($this->createNewPage) {
                 $this->pdf->ezNewPage();

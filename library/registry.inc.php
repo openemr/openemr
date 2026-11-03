@@ -3,20 +3,17 @@
 //these are the functions used to access the forms registry database
 //
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\InfoTxt;
 use OpenEMR\Core\OEGlobalsBag;
 
 function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 {
     $check = sqlQuery("select state from registry where directory=?", [$directory]);
     if ($check == false) {
-        $lines = @file(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/$directory/info.txt");
-        if ($lines) {
-            $name = $lines[0];
-            $category ??= $lines[1] ?? 'Miscellaneous';
-        } else {
-            $name = $directory;
-            $category = "Miscellaneous";
-        }
+        $info = InfoTxt::read(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/$directory/info.txt");
+        $name = $info->name ?? $directory;
+        $category = $info->category ?? 'Miscellaneous';
 
         return sqlInsert("insert into registry set
 			name=?,
@@ -46,6 +43,7 @@ function updateRegistered($id, $mod)
 function getRegistered($state = "1", $limit = "unlimited", $offset = "0", $encounterType = 'all')
 {
     $sql = "select * from registry where state like ? ";
+    $sqlBindArray = [$state];
     if ($encounterType !== 'all') {
         switch ($encounterType) {
             case 'patient':
@@ -58,19 +56,11 @@ function getRegistered($state = "1", $limit = "unlimited", $offset = "0", $encou
     }
     $sql .= "order by priority, name ";
     if ($limit != "unlimited") {
-        $sql .= " limit " . escape_limit($limit) . ", " . escape_limit($offset);
+        $sql .= " LIMIT ? OFFSET ?";
+        array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0));
     }
 
-    $res = sqlStatement($sql, [$state]);
-    if ($res) {
-        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-            $all[$iter] = $row;
-        }
-    } else {
-        return false;
-    }
-
-    return $all;
+    return QueryUtils::fetchRecords($sql, $sqlBindArray);
 }
 
 function getRegistryEntry($id, $cols = "*")
@@ -127,7 +117,7 @@ function isRegistered($directory, $state = 1): bool
     return false;
 }
 
-function getTherapyGroupCategories()
+function getTherapyGroupCategories(): array
 {
     return [''];
 }
@@ -135,14 +125,17 @@ function getTherapyGroupCategories()
 // This gets an array including both standard and LBF visit form types,
 // one row per form type, sorted by category, priority, is lbf, name.
 //
-function getFormsByCategory($state = '1', $lbfonly = false)
+function getFormsByCategory($state = '1', $lbfonly = false): array
 {
     global $attendant_type;
     $all = [];
     if (!$lbfonly) {
         // First get the traditional form types from the registry table.
+        // form_foreign_id identifies which questionnaire a questionnaire_assessments row
+        // stands for; every such row shares one directory, so callers that need to tell
+        // them apart have nothing else to key on.
         $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
-            "unpackaged, date, priority, aco_spec FROM registry WHERE ";
+            "unpackaged, date, priority, aco_spec, form_foreign_id FROM registry WHERE ";
         if (($attendant_type ?? 'pid') == 'pid') {
             $sql .= "patient_encounter = 1 AND ";
         } else {

@@ -23,6 +23,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRObservationStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
@@ -68,9 +69,7 @@ trait FhirObservationTrait
 
     public function getCodeTypesService(): CodeTypesService
     {
-        if (!isset($this->codeTypesService)) {
-            $this->codeTypesService = new CodeTypesService();
-        }
+        $this->codeTypesService ??= new CodeTypesService();
         return $this->codeTypesService;
     }
 
@@ -179,9 +178,9 @@ trait FhirObservationTrait
 
         // Set lastUpdated
         if (!empty($dataRecord['last_updated_time'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated_time']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated_time'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
 
         $observation->setMeta($meta);
@@ -202,7 +201,7 @@ trait FhirObservationTrait
             $performer = UtilsService::createRelativeReference($performerType, $performerUuid, $performerDisplay);
         } else {
             $performer = new FHIRReference();
-            $performer->addExtension(UtilsService::createDataMissingExtension());
+            $performer->addExtension(UtilsService::createDataAbsentReasonExtension());
         }
         $observation->addPerformer($performer);
     }
@@ -222,7 +221,7 @@ trait FhirObservationTrait
         $valueType = "string";
         if (is_string($value) && !empty($codeDescription) && str_contains($value, ':')) {
             $valueType = 'CodeableConcept';
-        } else if (is_numeric($value)) {
+        } elseif (is_numeric($value)) {
             $valueType = 'Quantity';
         }
 
@@ -243,7 +242,10 @@ trait FhirObservationTrait
                     $valueCoding = new FHIRCoding();
                     $valueCoding->setSystem(new FHIRUri($system));
                     $valueCoding->setCode(new FHIRCode($code));
-                    $valueCoding->setDisplay($codeDescription ?? $this->getCodeTypesService()->lookup_code_description($value));
+                    // The CodeableConcept branch is only selected when
+                    // $codeDescription is non-empty (see $valueType above), so
+                    // there is no description to look up here.
+                    $valueCoding->setDisplay($codeDescription);
                     $valueCC->addCoding($valueCoding);
                     $observation->setValueCodeableConcept($valueCC);
                     break;
@@ -265,7 +267,7 @@ trait FhirObservationTrait
                     $observation->setValueQuantity($valueQuantity);
                     break;
             }
-        } else if (empty($children)) {
+        } elseif (empty($children)) {
             // Set dataAbsentReason (mustSupport)
             // If no value and no children (not a panel), dataAbsentReason is required (us-core-2)
             $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
@@ -281,11 +283,11 @@ trait FhirObservationTrait
     {
         $obType = $dataRecord['ob_type'] ?? null;
         // Required survey category slice (mustSupport, min 1..1)
-        $catCode = $obType ?? 'survey';
+        $catCode = is_string($obType) && $obType !== '' ? $obType : 'survey';
         $observation->addCategory(UtilsService::createCodeableConcept([
             $catCode => [
                 'code' => $catCode,
-                'description' => $obType ?? 'Survey',
+                'description' => FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY_DISPLAYS[$catCode] ?? '',
                 'system' => FhirCodeSystemConstants::HL7_CATEGORY_OBSERVATION
             ]
         ]));
@@ -430,7 +432,7 @@ trait FhirObservationTrait
             // if the value is null we set dataAbsentReason
             if (empty($component['value'])) {
                 $comp->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
-            } else if (is_numeric($component['value'])) {
+            } elseif (is_numeric($component['value'])) {
                 $valueQuantity = new FHIRQuantity();
                 // must be an integer or decimal
                 $valueQuantity->setValue(floatval($component['value']));
@@ -444,7 +446,7 @@ trait FhirObservationTrait
                     }
                 }
                 $comp->setValueQuantity($valueQuantity);
-            } else if (!empty($component['value_code_description']) && str_contains((string) $component['value'], ':')) {
+            } elseif (!empty($component['value_code_description']) && str_contains((string) $component['value'], ':')) {
                 $parsedCode = $this->getCodeTypesService()->parseCode($component['value']);
                 $code = $parsedCode['code'];
                 $comp->setValueCodeableConcept(UtilsService::createCodeableConcept([
@@ -606,9 +608,7 @@ trait FhirObservationTrait
 
     public function getProvenanceService(): FhirProvenanceService
     {
-        if (!isset($this->fhirProvenanceService)) {
-            $this->fhirProvenanceService = new FhirProvenanceService();
-        }
+        $this->fhirProvenanceService ??= new FhirProvenanceService();
         return $this->fhirProvenanceService;
     }
 

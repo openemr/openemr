@@ -270,7 +270,7 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
         if (!empty($input->getOption('scopes'))) {
             $requestedScopes = array_map(trim(...), explode(',', (string) $input->getOption('scopes')));
             $scopeIdentifiers = array_unique($requestedScopes);
-        } else if (!empty($input->getOption('resources'))) {
+        } elseif (!empty($input->getOption('resources'))) {
             if (!empty($input->getOption('contexts'))) {
                 $requestedContexts = array_map(trim(...), explode(',', (string) $input->getOption('contexts')));
             }

@@ -39,7 +39,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
     <head>
         <title><!-- Insert your title here --></title>
         <?php Header::setupHeader('opener'); ?>
-        <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/ajax_functions_writer.js"></script>
+        <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/ajax_functions_writer.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
         <script>
         function delete_full_category(id){

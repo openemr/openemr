@@ -22,12 +22,12 @@ class ControllerBrowse extends BaseController
         parent::__construct();
     }
 
-    function _action_list()
+    public function _action_list()
     {
         $this->set_view("list.php");
     }
 
-    function _action_plans_config()
+    public function _action_plans_config()
     {
         $this->set_view("plans_config.php");
     }
@@ -35,7 +35,7 @@ class ControllerBrowse extends BaseController
     /**
      * @deprecated does not appear to be used
      */
-    function _action_getrows()
+    public function _action_getrows()
     {
         $rows = [];
 

@@ -2,12 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Usage of deprecated trait OpenEMR\\\\Common\\\\Logging\\\\SystemLoggerAwareTrait in class Carecoordination\\\\Model\\\\CcdaServiceDocumentRequestor\\:
-Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoidable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Usage of deprecated trait OpenEMR\\\\Common\\\\Logging\\\\SystemLoggerAwareTrait in class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\FhirUserClaim\\:
 Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoidable\\.$#',
     'count' => 1,

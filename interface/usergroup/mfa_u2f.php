@@ -9,13 +9,15 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once('../globals.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -31,12 +33,24 @@ $userid = $session->get('authUserID');
 $action = $_REQUEST['action'];
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
+
+// Validate the reg2 password gate before any HTML output so the redirect-back
+// to reg1 on bad password can send its Location header without depending on
+// output buffering being on.
+if ($action == 'reg2') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    $clearPass = CurrentRequest::get()->request->getString('clearPass', '');
+    if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $clearPass)) {
+        header("Location: mfa_u2f.php?action=reg1&error=auth");
+        exit();
+    }
+}
 ?>
 <html>
 <head>
 <?php Header::setupHeader(); ?>
 <title><?php echo xlt('U2F Registration'); ?></title>
-<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/u2f-api.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/u2f-api.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <script>
 
 function doregister() {
@@ -99,12 +113,18 @@ function docancel() {
         ///////////////////////////////////////////////////////////////////////
 
         if ($action == 'reg1') {
+            $error = CurrentRequest::get()->query->getString('error', '');
             [$request, $signs] = $u2f->getRegisterData();
             ?>
         <div class="row">
             <div class="col-sm-12">
                 <fieldset>
                     <legend><?php echo xlt('Register U2F Key for') . " " . text($user_full_name); ?></legend>
+                    <?php if ($error == "auth") { ?>
+                        <div class="alert alert-danger alert-msg login-failure m-1">
+                            <?php echo xlt('Invalid password'); ?>
+                        </div>
+                    <?php } ?>
                     <div class='col-sm-12'>
                         <p><?php echo xlt("Instructions");?>:
                             <ul>
@@ -121,6 +141,12 @@ function docancel() {
                             <input type='hidden' name='form_request' value='<?php echo attr(json_encode($request)); ?>'>
                             <input type='hidden' name='form_signs'   value='<?php echo attr(json_encode($signs)); ?>'>
                             <input type='hidden' name='form_registration' value=''>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="clearPass" class="col-sm-2 col-form-label"><?php echo xlt('Please enter your OpenEMR login password'); ?></label>
+                        <div class="col-sm-4">
+                            <input type='password' class='form-control' name='clearPass' id='clearPass' autocomplete='current-password'>
                         </div>
                     </div>
 
@@ -145,7 +171,8 @@ function docancel() {
         </div>
             <?php
         } elseif ($action == 'reg2') {
-            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+            // CSRF + password reprompt already validated above the HTML output;
+            // just complete the registration here.
             try {
                 $data = $u2f->doRegister(json_decode((string) $_POST['form_request']), json_decode((string) $_POST['form_registration']));
             } catch (\u2flib_server\Error $e) {

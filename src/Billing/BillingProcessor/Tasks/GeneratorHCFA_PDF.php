@@ -93,9 +93,9 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
         // Do the actual claim processing
         $log = 'HCFA PDF ' . $claim->action . ' ';
         $hcfa = new Hcfa1500();
-        $lines = $hcfa->genHcfa1500($claim->getPid(), $claim->getEncounter(), $log);
+        $lines = $hcfa->genHcfa1500($claim->getPid(), $claim->getEncounter(), $log, $claim->getSelectedPayerId());
         $this->appendToLog($log);
-        $alines = explode("\014", (string) $lines); // form feeds may separate pages
+        $alines = explode("\014", $lines); // form feeds may separate pages
         foreach ($alines as $tmplines) {
             // The first claim we don't create a new page.
             if ($this->createNewPage) {

@@ -23,7 +23,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
      * @param  array|bool $inputarr    binded variables array (optional)
      * @return ADORecordSet|false   returns false if error
      */
-    function Execute($sql, $inputarr = false, $insertNeedReturn = false)
+    public function Execute($sql, $inputarr = false, $insertNeedReturn = false)
     {
         $retval = parent::Execute($sql, $inputarr);
         if ($retval === false) {
@@ -61,7 +61,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
      * @param array|bool $inputarr binded variables array (optional)
      * @return ADORecordSet|false false if error
      */
-    function ExecuteNoLog($sql, $inputarr = false)
+    public function ExecuteNoLog($sql, $inputarr = false)
     {
         return parent::Execute($sql, $inputarr);
     }

@@ -32,9 +32,9 @@ class Therapy_Groups_Encounters
     /**
       * Get all encounters of specified group.
       * @param $gid
-      * @return ADORecordSet_mysqli
+      * @return list<array<string, mixed>>
       */
-    public function getGroupEncounters($gid)
+    public function getGroupEncounters($gid): array
     {
         $sql = "SELECT * FROM " . self::TABLE . " WHERE group_id = ? AND date >= CURDATE();";
         $result = sqlStatement($sql, [$gid]);

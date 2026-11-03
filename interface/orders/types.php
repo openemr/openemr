@@ -43,7 +43,7 @@ if ($popup && $_POST['form_save'] ?? '') {
     $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE procedure_type_id = ?", [$form_order]);
     $name = $ptrow['name'];
     ?>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/main/tabs/js/include_opener.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/main/tabs/js/include_opener.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script>
     if (opener.closed || ! opener.set_proc_type) {
         alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);

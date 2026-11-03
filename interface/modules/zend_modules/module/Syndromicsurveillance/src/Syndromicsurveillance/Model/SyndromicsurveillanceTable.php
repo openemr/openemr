@@ -13,6 +13,7 @@
 namespace Syndromicsurveillance\Model;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Hl7\Hl7Units;
 
 class SyndromicsurveillanceTable
 {
@@ -21,7 +22,7 @@ class SyndromicsurveillanceTable
     *
     * @return   codes       array       list of replrtable ICD9 codes
     */
-    function non_reported_codes()
+    public function non_reported_codes()
     {
         $query = "select id, concat('ICD9:',code) as name from codes where reportable = 1 ORDER BY name";
         return QueryUtils::fetchRecords($query);
@@ -32,7 +33,7 @@ class SyndromicsurveillanceTable
     *
     * @return   rows    Array   List of providers
     */
-    function getProviderList()
+    public function getProviderList()
     {
         global $encounter;
         global $pid;
@@ -84,7 +85,7 @@ class SyndromicsurveillanceTable
     * @return   records         array       return the list of patients having the reportable ICD9 codes
     * @return   count           integer     return the count of patients having the reportable ICD9 codes
     */
-    function fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end, $get_count = null)
+    public function fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end, $get_count = null)
     {
         $records = [];
         $query_string = [];
@@ -109,7 +110,10 @@ class SyndromicsurveillanceTable
         $query_string[] = $toDate;
 
         if ($code_selected) {
-            $query .= add_escape_custom(" AND c.id IN (" . implode(',', $code_selected) . ") ");
+            $codeIds = is_array($code_selected) ? array_map(static fn ($v): int => (int) $v, $code_selected) : [];
+            if ($codeIds !== []) {
+                $query .= " AND c.id IN (" . implode(',', $codeIds) . ") ";
+            }
         }
 
         $query .= " AND l.diagnosis LIKE 'ICD9:%'
@@ -123,7 +127,10 @@ class SyndromicsurveillanceTable
 					AND b.code_type = 'ICD9' AND b.activity = '1' AND b.pid = p.pid AND fe.encounter = b.encounter ";
 
         if ($code_selected) {
-            $query .= add_escape_custom(" AND c.id IN (" . implode(',', $code_selected) . ") ");
+            $codeIds = is_array($code_selected) ? array_map(static fn ($v): int => (int) $v, $code_selected) : [];
+            if ($codeIds !== []) {
+                $query .= " AND c.id IN (" . implode(',', $codeIds) . ") ";
+            }
         }
 
         $query .= " AND c.code = b.code
@@ -148,7 +155,9 @@ class SyndromicsurveillanceTable
             return count($result);
         }
 
-        $query      .= " LIMIT " . \Application\Plugin\CommonPlugin::escapeLimit($start) . "," . \Application\Plugin\CommonPlugin::escapeLimit($end);
+        $query .= " LIMIT ? OFFSET ?";
+        $query_string[] = is_numeric($end) ? (int) $end : 0;
+        $query_string[] = is_numeric($start) ? (int) $start : 0;
 
         return QueryUtils::fetchRecords($query, $query_string);
     }
@@ -165,7 +174,7 @@ class SyndromicsurveillanceTable
     *
     * @return   download the generated HL7
     */
-    function generate_hl7($fromDate, $toDate, $code_selected, $provider_selected, $start, $end)
+    public function generate_hl7($fromDate, $toDate, $code_selected, $provider_selected, $start, $end)
     {
         $records = [];
         $query_string = [];
@@ -194,8 +203,10 @@ class SyndromicsurveillanceTable
         $query_string[] = $toDate;
 
         if ($code_selected) {
-            $query .= " AND c.id IN (?) ";
-            $query_string[] = implode(',', $code_selected);
+            $codeIds = is_array($code_selected) ? array_map(static fn ($v): int => (int) $v, $code_selected) : [];
+            if ($codeIds !== []) {
+                $query .= " AND c.id IN (" . implode(',', $codeIds) . ") ";
+            }
         }
 
         $query .= " AND l.diagnosis LIKE 'ICD9:%'
@@ -213,8 +224,10 @@ class SyndromicsurveillanceTable
 				AND b.code_type = 'ICD9' AND b.activity = '1' AND b.pid = p.pid AND fe.encounter = b.encounter ";
 
         if ($code_selected) {
-            $query .= " AND c.id IN (?) ";
-            $query_string[] = implode(',', $code_selected);
+            $codeIds = is_array($code_selected) ? array_map(static fn ($v): int => (int) $v, $code_selected) : [];
+            if ($codeIds !== []) {
+                $query .= " AND c.id IN (" . implode(',', $codeIds) . ") ";
+            }
         }
 
         $query .= " AND c.code = b.code
@@ -417,7 +430,7 @@ class SyndromicsurveillanceTable
                     $row['code'] . "^^" . $row['table_code'] . "|" .    //3. Observation Identifier
                     "|" .    //4.
                     $row['ob_value'] . "|" .    //5. Observation Value
-                    $row['ob_unit'] . "^^UCUM|" .    //6. Units
+                    Hl7Units::obx6(is_string($row['ob_unit']) ? $row['ob_unit'] : '') . "|" .    //6. Units, coded as UCUM only when they are
                     "|" .    //7.
                     "|" .    //8.
                     "|" .    //9.
@@ -482,7 +495,7 @@ class SyndromicsurveillanceTable
     /*
     * date format conversion
     */
-    public function convert_to_yyyymmdd($date)
+    public function convert_to_yyyymmdd($date): string
     {
         $date   = str_replace('/', '-', $date);
         $arr    = explode('-', $date);
@@ -523,7 +536,7 @@ class SyndromicsurveillanceTable
     * param     string      Content in HL7 format
     * return    string      Formatted HL7 string
     */
-    function tr($a)
+    public function tr($a)
     {
         return (str_replace(' ', '^', $a));
     }

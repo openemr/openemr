@@ -26,7 +26,6 @@ global $ignoreAuth_onsite_portal;
 $globalsBag = OEGlobalsBag::getInstance();
 $srcdir = $globalsBag->getString('srcdir');
 require_once('../../interface/globals.php');
-require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/appointments.inc.php");
 
@@ -256,17 +255,11 @@ function portal_PrintCreditDetail(array $detail, $pat, bool $unassigned = false)
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
 }
 
-if (!isset($_REQUEST['form_from_date'])) {
-    $_REQUEST['form_from_date'] = '';
-}
+$_REQUEST['form_from_date'] ??= '';
 
-if (!isset($_REQUEST['form_to_date'])) {
-    $_REQUEST['form_to_date'] = '';
-}
+$_REQUEST['form_to_date'] ??= '';
 
-if (!isset($_REQUEST['form_refresh'])) {
-    $_REQUEST['form_refresh'] = '';
-}
+$_REQUEST['form_refresh'] ??= '';
 
 $ledger_begin_date = $globalsBag->getString('ledger_begin_date');
 if (str_starts_with($ledger_begin_date, 'Y')) {
@@ -624,7 +617,6 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
             echo xlt('No matches found. Try search again.');
             echo "</span>";
             echo '<script>document.getElementById("report_results").style.display="none";</script>';
-            echo '<script>document.getElementById("controls").style.display="none";</script>';
         }
         if ($_REQUEST['form_refresh'] != 'true') { ?>
                 <div class='text'>

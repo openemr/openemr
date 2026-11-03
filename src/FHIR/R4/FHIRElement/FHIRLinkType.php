@@ -144,9 +144,7 @@ class FHIRLinkType extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<LinkType xmlns="http://hl7.org/fhir"></LinkType>');
-        }
+        $sxe ??= new \SimpleXMLElement('<LinkType xmlns="http://hl7.org/fhir"></LinkType>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

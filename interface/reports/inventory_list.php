@@ -198,9 +198,7 @@ function zeroDays($product_id, $begdate, int $facility_id = 0, string $warehouse
     $res = sqlStatement($destroySql, array_merge([$begdate], $condbind));
     while ($row = sqlFetchArray($res)) {
         $thisdate = substr((string) $row['destroy_date'], 0, 10);
-        if (!isset($qtys[$thisdate])) {
-            $qtys[$thisdate] = 0;
-        }
+        $qtys[$thisdate] ??= 0;
         $qtys[$thisdate] += $row['on_hand'];
     }
 
@@ -218,9 +216,7 @@ function zeroDays($product_id, $begdate, int $facility_id = 0, string $warehouse
     $res = sqlStatement($salesSql, array_merge([$begdate], $condbind));
     while ($row = sqlFetchArray($res)) {
         $thisdate = $row['sale_date'];
-        if (!isset($qtys[$thisdate])) {
-            $qtys[$thisdate] = 0;
-        }
+        $qtys[$thisdate] ??= 0;
         $qtys[$thisdate] += $row['quantity'];
     }
 
@@ -238,9 +234,7 @@ function zeroDays($product_id, $begdate, int $facility_id = 0, string $warehouse
     $res = sqlStatement($xferSql, array_merge([$begdate], $condbind));
     while ($row = sqlFetchArray($res)) {
         $thisdate = (string) $row['sale_date'];
-        if (!isset($qtys[$thisdate])) {
-            $qtys[$thisdate] = 0;
-        }
+        $qtys[$thisdate] ??= 0;
         $qtys[$thisdate] -= $row['quantity'];
     }
 

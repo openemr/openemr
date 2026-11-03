@@ -27,84 +27,84 @@ class QRDAXml extends XmlWriterOemr
 {
     public $unique_id;
 
-    function __construct(public $nqf_code = '', $indent = '  ')
+    public function __construct(public $nqf_code = '', $indent = '  ')
     {
         parent::__construct($indent);
     }
 
 
-    function open_clinicaldocument()
+    public function open_clinicaldocument()
     {
         $this->push('ClinicalDocument', ['xmlns' => 'urn:hl7-org:v3', 'xmlns:voc' => 'urn:hl7-org:v3/voc', 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation' => 'urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/','xmlns:sdtc' => 'urn:hl7-org:sdtc']);
     }
 
-    function close_clinicaldocument()
+    public function close_clinicaldocument()
     {
         $this->pop();
     }
 
-    function self_realmcode()
+    public function self_realmcode()
     {
         $this->emptyelement('realmCode', ['code' => 'US']);
     }
 
-    function self_typeid()
+    public function self_typeid()
     {
         $this->emptyelement('typeId', ['root' => '2.16.840.1.113883.1.3', 'extension' => 'POCD_HD000040']);
     }
 
-    function self_templateid($id)
+    public function self_templateid($id)
     {
         $this->emptyelement('templateId', ['root' => $id]);
     }
 
-    function self_id()
+    public function self_id()
     {
         $this->emptyelement('id', ['root' => $this->unique_id]);
     }
 
-    function self_code()
+    public function self_code()
     {
         $this->emptyelement('code', [ 'code' => '55184-6', 'codeSystem' => '2.16.840.1.113883.6.1', 'codeSystemName' => 'LOINC', 'displayName' => 'Quality Reporting Document Architecture Calculated Summary Report']);
     }
 
-    function add_title($value)
+    public function add_title($value)
     {
         $this->element('title', $value);
     }
 
-    function self_efftime($value)
+    public function self_efftime($value)
     {
         $this->emptyelement('effectiveTime', ['value' => $value]);
     }
 
-    function self_confidentcode()
+    public function self_confidentcode()
     {
         $this->emptyelement('confidentialityCode', ['codeSystem' => '2.16.840.1.113883.5.25', 'code' => 'N', 'codeSystemName' => 'HL7Confidentiality']);
     }
 
-    function self_lang()
+    public function self_lang()
     {
         $this->emptyelement('languageCode', ['code' => 'en']);
     }
 
-    function self_setid($id)
+    public function self_setid($id)
     {
         $this->emptyelement('setId', ['root' => $id]);
     }
 
-    function self_version()
+    public function self_version()
     {
         $this->emptyelement('versionNumber', ['value' => 1]);
     }
 
 
-    function self_setpatientRoleid()
+    public function self_setpatientRoleid()
     {
         $this->emptyelement('id', ['nullFlavor' => 'NA']);
     }
 
-    function add_patientRole()
+    public function add_patientRole()
     {
         $this->push('patientRole');
 
@@ -113,48 +113,48 @@ class QRDAXml extends XmlWriterOemr
         $this->pop();
     }
 
-    function open_recordTarget()
+    public function open_recordTarget()
     {
         $this->push('recordTarget');
     }
 
-    function close_recordTarget()
+    public function close_recordTarget()
     {
         $this->pop();
     }
 
-    function open_author()
+    public function open_author()
     {
         $this->push('author');
     }
 
-    function close_author()
+    public function close_author()
     {
         $this->pop();
     }
 
-    function self_authorTime($value)
+    public function self_authorTime($value)
     {
         $this->emptyelement('time', ['value' => $value]);
     }
 
-    function open_assignAuthor()
+    public function open_assignAuthor()
     {
         $this->push('assignedAuthor');
     }
 
-    function close_assignAuthor()
+    public function close_assignAuthor()
     {
         $this->pop();
     }
 
-    function self_customId($id)
+    public function self_customId($id)
     {
         $this->emptyelement('id', ['root' => $id]);
     }
 
 
-    function add_authReprestOrginisation($facilArr)
+    public function add_authReprestOrginisation($facilArr)
     {
         $this->push('representedOrganization');
         $this->self_customTag('id', ['root' => '2.16.840.1.113883.19.5', 'extension' => '223344']);
@@ -169,32 +169,32 @@ class QRDAXml extends XmlWriterOemr
         $this->pop();
     }
 
-    function open_custodian()
+    public function open_custodian()
     {
         $this->push('custodian');
     }
 
-    function close_custodian()
+    public function close_custodian()
     {
         $this->pop();
     }
 
-    function open_assgnCustodian()
+    public function open_assgnCustodian()
     {
         $this->push('assignedCustodian');
     }
 
-    function close_assgnCustodian()
+    public function close_assgnCustodian()
     {
         $this->pop();
     }
 
-    function self_reprsntCustId()
+    public function self_reprsntCustId()
     {
         $this->emptyelement('id', ['root' => '2.16.840.1.113883.19.5']);
     }
 
-    function add_represtCustodianOrginisation($facilArr)
+    public function add_represtCustodianOrginisation($facilArr)
     {
         $this->push('representedCustodianOrganization');
         $this->self_reprsntCustId();
@@ -209,60 +209,60 @@ class QRDAXml extends XmlWriterOemr
         $this->pop();
     }
 
-    function open_infoRecipient()
+    public function open_infoRecipient()
     {
         $this->push('informationRecipient');
     }
 
-    function close_infoRecipient()
+    public function close_infoRecipient()
     {
         $this->pop();
     }
 
-    function self_intendedId()
+    public function self_intendedId()
     {
         $this->emptyelement('id', ['root' => '2.16.840.1.113883.3.249.7', 'extension' => 'CPC']);
     }
 
-    function add_indententRecipient()
+    public function add_indententRecipient()
     {
         $this->push('intendedRecipient');
         $this->self_intendedId();
         $this->pop();
     }
 
-    function open_legalAuthenticator()
+    public function open_legalAuthenticator()
     {
         $this->push('legalAuthenticator');
     }
 
-    function close_legalAuthenticator()
+    public function close_legalAuthenticator()
     {
         $this->pop();
     }
 
-    function self_legalSignCode()
+    public function self_legalSignCode()
     {
         $this->emptyelement('signatureCode', ['code' => 'S']);
     }
 
 
-    function open_assignedEntity()
+    public function open_assignedEntity()
     {
         $this->push('assignedEntity');
     }
 
-    function close_assignedEntity()
+    public function close_assignedEntity()
     {
         $this->pop();
     }
 
-    function self_represntOrgId()
+    public function self_represntOrgId()
     {
         $this->emptyelement('id', ['root' => '2.16.840.1.113883.19.5', 'extension' => '223344']);
     }
 
-    function add_represntOrgName($name)
+    public function add_represntOrgName($name)
     {
         $this->push('representedOrganization');
         $this->self_represntOrgId();
@@ -275,42 +275,42 @@ class QRDAXml extends XmlWriterOemr
         $this->pop();
     }
 
-    function open_participant_data($code_type)
+    public function open_participant_data($code_type)
     {
         $this->push('participant', ['typeCode' => $code_type]);
     }
 
-    function close_participant_data()
+    public function close_participant_data()
     {
         $this->pop();
     }
 
-    function open_assocEntityData($class_code)
+    public function open_assocEntityData($class_code)
     {
         $this->push('associatedEntity', ['classCode' => $class_code]);
     }
 
-    function close_assocEntityData()
+    public function close_assocEntityData()
     {
         $this->pop();
     }
 
-    function self_participantCodeDevice()
+    public function self_participantCodeDevice()
     {
         $this->emptyelement('code', ['code' => '129465004', 'displayName' => 'medical record, device', 'codeSystem' => '2.16.840.1.113883.6.96', 'codeSystemName' => 'SNOMED-CT']);
     }
 
-    function self_participantCodeLocation()
+    public function self_participantCodeLocation()
     {
         $this->emptyelement('code', ['code' => '394730007', 'displayName' => 'healthcare related organization', 'codeSystem' => '2.16.840.1.113883.6.96', 'codeSystemName' => 'SNOMED-CT']);
     }
 
-    function self_particpantIdInfo($arr)
+    public function self_particpantIdInfo($arr)
     {
         $this->emptyelement('id', $arr);
     }
 
-    function add_facilAddress($addrArr)
+    public function add_facilAddress($addrArr)
     {
 
         $this->push('addr', ["use" => "WP"]);
@@ -348,77 +348,77 @@ class QRDAXml extends XmlWriterOemr
         $this->pop();
     }
 
-    function open_mainComponent()
+    public function open_mainComponent()
     {
         $this->push('component');
     }
 
-    function close_mainComponent()
+    public function close_mainComponent()
     {
         $this->pop();
     }
 
-    function open_structuredBody()
+    public function open_structuredBody()
     {
         $this->push('structuredBody');
     }
 
-    function close_structuredBody()
+    public function close_structuredBody()
     {
         $this->pop();
     }
 
-    function open_loopComponent()
+    public function open_loopComponent()
     {
         $this->push('component');
     }
 
-    function close_loopComponent()
+    public function close_loopComponent()
     {
         $this->pop();
     }
 
-    function open_section()
+    public function open_section()
     {
         $this->push('section');
     }
 
-    function close_section()
+    public function close_section()
     {
         $this->pop();
     }
 
-    function self_codeCustom($arr)
+    public function self_codeCustom($arr)
     {
         $this->emptyelement('code', $arr);
     }
 
-    function open_text()
+    public function open_text()
     {
         $this->push('text');
     }
 
-    function close_text()
+    public function close_text()
     {
         $this->pop();
     }
 
-    function open_list()
+    public function open_list()
     {
         $this->push('list');
     }
 
-    function close_list()
+    public function close_list()
     {
         $this->pop();
     }
 
-    function add_item($value)
+    public function add_item($value)
     {
         $this->element('item', $value);
     }
 
-    function open_entry($code_type = '')
+    public function open_entry($code_type = '')
     {
         if ($code_type != "") {
             $this->push('entry', ['typeCode' => $code_type]);
@@ -427,22 +427,22 @@ class QRDAXml extends XmlWriterOemr
         }
     }
 
-    function close_entry()
+    public function close_entry()
     {
         $this->pop();
     }
 
-    function open_act($arr)
+    public function open_act($arr)
     {
         $this->push('act', $arr);
     }
 
-    function close_act()
+    public function close_act()
     {
         $this->pop();
     }
 
-    function add_entryEffectTime($arr)
+    public function add_entryEffectTime($arr)
     {
         $this->push('effectiveTime');
         $this->emptyelement('low', ['value' => $arr['low']]);
@@ -454,7 +454,7 @@ class QRDAXml extends XmlWriterOemr
     }
 
 
-    function open_customTag($ele, $arr = [])
+    public function open_customTag($ele, $arr = [])
     {
         if (count($arr) > 0) {
             $this->push($ele, $arr);
@@ -463,41 +463,41 @@ class QRDAXml extends XmlWriterOemr
         }
     }
 
-    function close_customTag()
+    public function close_customTag()
     {
         $this->pop();
     }
 
-    function add_trElementsTitles()
+    public function add_trElementsTitles()
     {
         $this->element('th', 'eMeasure Title');
         $this->element('th', 'Version neutral identifier');
         $this->element('th', 'Version specific identifier');
     }
 
-    function add_trElementsValues($arr = [])
+    public function add_trElementsValues($arr = [])
     {
         $this->element('td', $arr[0]);
         $this->element('td', $arr[1]);
         $this->element('td', $arr[2]);
     }
 
-    function innerContent($arr = [])
+    public function innerContent($arr = [])
     {
         $this->xml .= '<content styleCode="Bold">' . $arr['name'] . '</content>:' . trim((string) $arr['value']);
     }
 
-    function self_customTag($tag, $arr)
+    public function self_customTag($tag, $arr)
     {
         $this->emptyelement($tag, $arr);
     }
 
-    function textDispContent($content)
+    public function textDispContent($content)
     {
         $this->xml .= '<text>' . $content . '</text>';
     }
 
-    function add_providerName($nameArr)
+    public function add_providerName($nameArr)
     {
         $this->push('name');
         $this->element('given', $nameArr['fname']);
@@ -505,12 +505,12 @@ class QRDAXml extends XmlWriterOemr
         $this->pop();
     }
 
-    function add_facilName($facilName)
+    public function add_facilName($facilName)
     {
         $this->element('name', $facilName);
     }
 
-    function add_patientAddress($addrArr)
+    public function add_patientAddress($addrArr)
     {
         $this->push('addr', ['use' => 'WP']);
         if ($addrArr['street'] != "") {
@@ -547,7 +547,7 @@ class QRDAXml extends XmlWriterOemr
     }
 
 
-    function add_patName($nameArr)
+    public function add_patName($nameArr)
     {
         $this->push('name');
         $this->element('given', $nameArr['fname']);
@@ -555,7 +555,7 @@ class QRDAXml extends XmlWriterOemr
         $this->pop();
     }
 
-    function add_userAddress($addrArr)
+    public function add_userAddress($addrArr)
     {
 
         $this->push('addr', ['use' => 'WP']);
@@ -592,7 +592,7 @@ class QRDAXml extends XmlWriterOemr
         $this->pop();
     }
 
-    function add_entryTime($arr)
+    public function add_entryTime($arr)
     {
         $this->push('time');
         $this->emptyelement('low', ['value' => $arr['low']]);
@@ -603,7 +603,7 @@ class QRDAXml extends XmlWriterOemr
         $this->pop();
     }
 
-    function add_entryEffectTimeQRDA($arr)
+    public function add_entryEffectTimeQRDA($arr)
     {
         $this->push('effectiveTime');
         $this->emptyelement('low', ['value' => $arr['low']]);
@@ -616,7 +616,7 @@ class QRDAXml extends XmlWriterOemr
         $this->pop();
     }
 
-    function add_entryEffectTimeQRDAMed($arr)
+    public function add_entryEffectTimeQRDAMed($arr)
     {
         $arrPass = ['xsi:type' => 'IVL_TS'];
         $this->push('effectiveTime', $arrPass);

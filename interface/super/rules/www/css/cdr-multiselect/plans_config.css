@@ -14,7 +14,7 @@
  our animation centered, and no-repeating */
 .modal {
   /* stylelint-disable-next-line color-function-notation */
-  background: rgba(255, 255, 255, 80%) url('ajax_wait.gif') 50% 50% no-repeat;
+  background: rgb(255, 255, 255, 80%) url('ajax_wait.gif') 50% 50% no-repeat;
   display: none;
   height: 100%;
   left: 0;

@@ -24,7 +24,7 @@ abstract class RuleCriteriaFactory
 {
     public $strategyMap;
 
-    function __construct()
+    public function __construct()
     {
         $this->strategyMap[RuleCriteriaType::ageMin] = new RuleCriteriaAgeBuilder();
         $this->strategyMap[RuleCriteriaType::ageMax] = new RuleCriteriaAgeBuilder();
@@ -41,7 +41,7 @@ abstract class RuleCriteriaFactory
         $this->strategyMap[RuleCriteriaType::custom_bucket] = new RuleCriteriaDatabaseBuilder();
     }
 
-    function resolveCriteriaType($method, $methodDetail, $ruleValue)
+    public function resolveCriteriaType($method, $methodDetail, $ruleValue)
     {
         $strategyMap = $this->getStrategyMap();
         $criteriaType = null;
@@ -59,7 +59,7 @@ abstract class RuleCriteriaFactory
      *
      * @param RuleCriteria $criteria
      */
-    function build(
+    public function build(
         $ruleId,
         $guid,
         $inclusion,
@@ -100,7 +100,7 @@ abstract class RuleCriteriaFactory
      * @param string $ruleId
      * @param RuleCriteriaType $criteriaType
      */
-    function buildNewInstance($ruleId, $criteriaType)
+    public function buildNewInstance($ruleId, $criteriaType)
     {
         $strategyMap = $this->getStrategyMap();
         $builder = $this->getBuilderFor($criteriaType);
@@ -119,7 +119,7 @@ abstract class RuleCriteriaFactory
         return $criteria;
     }
 
-    function getStrategyMap()
+    public function getStrategyMap()
     {
         return $this->strategyMap;
     }
@@ -129,11 +129,11 @@ abstract class RuleCriteriaFactory
      * @param RuleCriteriaType $criteriaType
      * @return ?RuleCriteriaBuilder
      */
-    function getBuilderFor($criteriaType)
+    public function getBuilderFor($criteriaType)
     {
         $map = $this->getStrategyMap();
         return $map[$criteriaType->code];
     }
 
-    abstract function modify($criteria, $ruleId);
+    abstract public function modify($criteria, $ruleId);
 }

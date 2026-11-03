@@ -20,10 +20,8 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Backup", xl("Backup"));
@@ -88,7 +86,7 @@ function xmlTime($str, $default = '9999-12-31T23:59:59')
 // Utility function to get the value for a specified key from a string
 // whose format is key:value|key:value|...
 //
-function getTextListValue($string, $key)
+function getTextListValue($string, $key): string
 {
     $tmp = explode('|', (string) $string);
     foreach ($tmp as $value) {

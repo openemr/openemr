@@ -215,9 +215,7 @@ class FHIRElementDefinitionBinding extends FHIRBackboneElement implements \JsonS
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ElementDefinitionBinding xmlns="http://hl7.org/fhir"></ElementDefinitionBinding>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ElementDefinitionBinding xmlns="http://hl7.org/fhir"></ElementDefinitionBinding>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->strength)) {
             $this->strength->xmlSerialize(true, $sxe->addChild('strength'));

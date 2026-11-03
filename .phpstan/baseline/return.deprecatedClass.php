@@ -16,6 +16,20 @@ Since 2\\.40\\.0\\. This class will be remove in 3\\.0 without replacement\\. Vi
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Return type of method Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:importAction\\(\\) has typehint with deprecated class Laminas\\\\View\\\\Model\\\\JsonModel\\:
+Since 2\\.40\\.0\\. This class will be removed in 3\\.0 without replacement\\. Laminas\\\\View will no longer support
+            rendering strategies in 3\\.0$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Return type of method Carecoordination\\\\Controller\\\\CcdController\\:\\:importAction\\(\\) has typehint with deprecated class Laminas\\\\View\\\\Model\\\\JsonModel\\:
+Since 2\\.40\\.0\\. This class will be removed in 3\\.0 without replacement\\. Laminas\\\\View will no longer support
+            rendering strategies in 3\\.0$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Return type of method Installer\\\\Controller\\\\InstallerController\\:\\:DeleteAclAction\\(\\) has typehint with deprecated class Laminas\\\\View\\\\Model\\\\JsonModel\\:
 Since 2\\.40\\.0\\. This class will be removed in 3\\.0 without replacement\\. Laminas\\\\View will no longer support
             rendering strategies in 3\\.0$#',

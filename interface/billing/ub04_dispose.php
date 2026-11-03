@@ -14,35 +14,107 @@ require_once("../globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Http\RequestTerminator;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\PdfCreator;
+use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Dispatch a UB04 handler action based on the `handler` request parameter.
+ *
+ * Called from `ub04_form.php` (page render) and `ub04_submit.php` (AJAX
+ * endpoint). Returns early when no `handler` is present; otherwise gates on
+ * the `acct/bill` write role, validates the form token, requires the
+ * submitted pid to match the session patient (for pid-scoped handlers), and
+ * dispatches to one of:
+ *   - `edit_save`   -> saveTemplate() for the pid/encounter
+ *   - `payer_save`  -> savePayerTemplate() for a payer id (no pid context)
+ *   - `batch_save`  -> saveTemplate() in batch mode
+ *   - `reset_claim` -> BillingUtilities::updateClaim() clearing the claim
+ * Every dispatched branch terminates the request; the function returns void
+ * only when `handler` is absent.
+ */
 function ub04_dispose(): void
 {
-    $dispose = ($_POST['handler'] ?? null) ? $_POST['handler'] : ($_GET['handler'] ?? null);
-    if ($dispose) {
+    // State-changing handlers must arrive via POST -- GET dispatch would be
+    // reachable by cross-site navigation.
+    $request = CurrentRequest::get()->request;
+    $dispose = $request->getString('handler');
+    if ($dispose !== '') {
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        // All UB04 dispose actions mutate billing state or emit claim data;
+        // scope every branch to the acct/bill write role.
+        if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: UB04 Dispose", xl("UB04 Claim"));
+        }
+        $terminator = new RequestTerminator();
         if ($dispose == "edit_save") {
-            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'];
-            $pid = $_POST['pid'] ?? $_GET['pid'];
-            $encounter = $_POST['encounter'] ?? $_GET['encounter'];
-            $action = $_REQUEST['action'];
-            $ub04id = json_decode((string) $ub04id, true);
-            saveTemplate($encounter, $pid, $ub04id, $action);
+            $ub04id = $request->getString('ub04id');
+            $pid = $request->getInt('pid');
+            $encounter = $request->getInt('encounter');
+            $action = $request->getString('action');
+            if ($pid <= 0 || $encounter <= 0) {
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Missing pid or encounter.');
+            }
+            // Submitted pid must match the opened patient in session; reject
+            // any submission targeting a different patient than the one whose
+            // chart is currently active.
+            $sessionPid = PatientSessionUtil::getPid();
+            if ($sessionPid <= 0 || $pid !== $sessionPid) {
+                AccessDeniedHelper::deny("UB04 edit_save pid does not match session pid");
+            }
+            $decoded = $ub04id !== '' ? json_decode($ub04id, true) : null;
+            if (!is_array($decoded)) {
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Invalid UB04 payload.');
+            }
+            saveTemplate($encounter, $pid, $decoded, $action);
             exit();
         } elseif ($dispose == "payer_save") {
-            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'];
-            $payerid = $_POST['payerid'] ?? $_GET['payerid'];
+            $ub04id = $request->getString('ub04id');
+            $payerid = $request->getInt('payerid');
+            if ($ub04id === '' || $payerid <= 0) {
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Missing payer payload.');
+            }
             savePayerTemplate($payerid, $ub04id);
             exit("done");
         } elseif ($dispose == "batch_save") {
-            $pid = $_POST['pid'] ?? $_GET['pid'];
-            $encounter = $_POST['encounter'] ?? $_GET['encounter'];
-            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'];
+            $pid = $request->getInt('pid');
+            $encounter = $request->getInt('encounter');
+            $ub04id = $request->getString('ub04id');
+            if ($pid <= 0 || $encounter <= 0) {
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Missing pid or encounter.');
+            }
+            if ($ub04id === '') {
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Missing UB04 payload.');
+            }
+            // Mirror the edit_save branch: batch_save stores $ub04id directly
+            // as submitted_claim, and get_ub04_array() later expects an array.
+            // Reject a non-array JSON value here rather than persist it.
+            $decoded = json_decode($ub04id, true);
+            if (!is_array($decoded)) {
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Invalid UB04 payload.');
+            }
+            $sessionPid = PatientSessionUtil::getPid();
+            if ($sessionPid <= 0 || $pid !== $sessionPid) {
+                AccessDeniedHelper::deny("UB04 batch_save pid does not match session pid");
+            }
             saveTemplate($encounter, $pid, $ub04id, $dispose);
             exit("done");
         } elseif ($dispose == "reset_claim") {
-            $pid = $_POST['pid'] ?? $_GET['pid'];
-            $encounter = $_POST['encounter'] ?? $_GET['encounter'];
+            $pid = $request->getInt('pid');
+            $encounter = $request->getInt('encounter');
+            if ($pid <= 0 || $encounter <= 0) {
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Missing pid or encounter.');
+            }
+            $sessionPid = PatientSessionUtil::getPid();
+            if ($sessionPid <= 0 || $pid !== $sessionPid) {
+                AccessDeniedHelper::deny("UB04 reset_claim pid does not match session pid");
+            }
             // clear claim first otherwise get ub04 returns current version.
             //
             $flg = exist_ub04_claim($pid, $encounter, true);
@@ -217,14 +289,14 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $ub04id[4] = $claim->billingFacilityStreet();
     $ub04id[8] = $claim->billingFacilityCity() . ', ' . $claim->billingFacilityState() . ', ' . $claim->billingFacilityZip(); /* 1. BILLING PROVIDER CITY, STATE, ZIP */
     $tmp = $claim->billingContactPhone();
-    $ub04id[10] = substr((string) $tmp, 0, 3) . '-' . substr((string) $tmp, 3, 3) . '-' . substr((string) $tmp, 6);
+    $ub04id[10] = substr($tmp, 0, 3) . '-' . substr($tmp, 3, 3) . '-' . substr($tmp, 6);
     $ub04id[3] = $pid . ' ' . $encounter; /* 3a. PATIENT CONTROL NUMBER */
     $ub04id[6] = $pid; /* 3b. MEDICAL/HEALTH RECORD NUMBER */
     $ub04id[7] = ! empty($ub04id[7]) ? $ub04id[7] : '831'; /* 4. TYPE OF BILL */
     $ub04id[12] = $claim->facilityETIN(); /* 5. FEDERAL TAX NUMBER */
 
     $tmp = $claim->serviceDate();
-    $ub04id[13] = substr((string) $tmp, 4, 2) . substr((string) $tmp, 6, 2) . substr((string) $tmp, 2, 2); /* 6. STATEMENT COVERS PERIOD FROM DATE */
+    $ub04id[13] = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 2, 2); /* 6. STATEMENT COVERS PERIOD FROM DATE */
     $ub04id[14] = ''; /* 6. STATEMENT COVERS PERIOD TO DATE */
     // $ub04id[16] = ''; /* 8a. PATIENT IDENTIFIER */
     $tmp = $claim->patientLastName() . ', ' . $claim->patientFirstName();
@@ -309,7 +381,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
         }
         // @todo Deal with code modifiers $revcode2[$mcnt][modifier]
         $tmp = $claim->serviceDate();
-        $sdate = substr((string) $tmp, 4, 2) . substr((string) $tmp, 6, 2) . substr((string) $tmp, 2, 2);
+        $sdate = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 2, 2);
         $ub04id[$os] = $claim->procs[$mcnt]['revenue_code']; // 42. REVENUE CODE, Line 1-23 */
         $ub04id[++$os] = strtoupper((string) $revcode2[$mcnt]['code_text']); /* 43. REVENUE DESCRIPTION, Line 1-23 */
         $ub04id[++$os] = trim($revcode2[$mcnt]['code'] . ' ' . $revcode2[$mcnt]['modifier']); /* 44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 1-23 */

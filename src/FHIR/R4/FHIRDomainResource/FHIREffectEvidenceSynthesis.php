@@ -1302,9 +1302,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EffectEvidenceSynthesis xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesis>');
-        }
+        $sxe ??= new \SimpleXMLElement('<EffectEvidenceSynthesis xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesis>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));

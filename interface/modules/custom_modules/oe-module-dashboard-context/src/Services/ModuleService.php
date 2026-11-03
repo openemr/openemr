@@ -31,7 +31,7 @@ class ModuleService
      * @param string $col
      * @return array
      */
-    function getModuleRegistry($modId, string $col = '*'): array
+    public function getModuleRegistry($modId, string $col = '*'): array
     {
         $registry = [];
         $sql = "SELECT $col FROM modules WHERE mod_id = ? OR `mod_directory` = ?";

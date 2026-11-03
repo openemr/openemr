@@ -216,7 +216,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                         " (" . text($alert['due_status']) . ")" .
                                         "</span>";
                                     // should never be empty... but just in case
-                                } else if (!empty($alert['text'])) {
+                                } elseif (!empty($alert['text'])) {
                                     echo text($alert['text']);
                                 }
                                 //  need to add comment icon here if we have one
@@ -238,7 +238,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                             " (" . text($alert['due_status']) . ")" .
                                             "</span>";
                                         // should never be empty... but just in case
-                                    } else if (!empty($alert['text'])) {
+                                    } elseif (!empty($alert['text'])) {
                                         echo text($alert['text']);
                                     }
                                     //  need to add comment icon here if we have one

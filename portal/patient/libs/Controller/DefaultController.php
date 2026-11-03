@@ -2,9 +2,6 @@
 
 /** @package Openemr::Controller */
 
-/** import supporting libraries */
-require_once("AppBasePortalController.php");
-
 /**
  * DefaultController is the entry point to the application
  *

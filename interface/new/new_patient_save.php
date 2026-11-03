@@ -15,6 +15,8 @@
 require_once("../globals.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -23,6 +25,10 @@ use OpenEMR\Events\Patient\PatientCreatedEventNotifier;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
+if (!AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly'])) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: New Patient", xl("New Patient"));
+}
 
 // Validation for non-unique external patient identifier.
 if (!empty($_POST["pubpid"])) {
@@ -36,7 +42,6 @@ if (!empty($_POST["pubpid"])) {
     }
 }
 
-require_once("$srcdir/patient.inc.php");
 
 //here, we lock the patient data table while we find the most recent max PID
 //other interfaces can still read the data during this lock, however

@@ -13,8 +13,10 @@ namespace OpenEMR\Services\FHIR\DocumentReference;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContent;
@@ -25,6 +27,7 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
@@ -37,7 +40,7 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirClinicalNotesService extends FhirServiceBase
+class FhirClinicalNotesService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
@@ -56,7 +59,7 @@ class FhirClinicalNotesService extends FhirServiceBase
         $this->service = new ClinicalNotesService();
     }
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return $category == self::CATEGORY;
     }
@@ -70,7 +73,7 @@ class FhirClinicalNotesService extends FhirServiceBase
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -87,7 +90,7 @@ class FhirClinicalNotesService extends FhirServiceBase
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDocumentReference
     {
         $docReference = new FHIRDocumentReference();
         $this->populateMetaData($docReference, $dataRecord);
@@ -101,7 +104,7 @@ class FhirClinicalNotesService extends FhirServiceBase
         $docReference->addIdentifier($identifier);
 
         if (!empty($dataRecord['date'])) {
-            $docReference->setDate(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $docReference->setDate(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
         } else {
             $docReference->setDate(UtilsService::createDataMissingExtension());
         }
@@ -112,7 +115,7 @@ class FhirClinicalNotesService extends FhirServiceBase
             // we currently don't track anything dealing with start and end date for the context
             if (!empty($dataRecord['encounter_date'])) {
                 $period = new FHIRPeriod();
-                $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['encounter_date']));
+                $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['encounter_date'])));
                 $context->setPeriod($period);
             }
             $context->addEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['euuid']));

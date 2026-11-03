@@ -249,7 +249,7 @@ class Cat1 extends \Mustache_Engine
         return json_decode(json_encode($this->patient->get_data_elements('medication', 'order')), true);
     }
 
-    public function patient_care_experience()
+    public function patient_care_experience(): array
     {
         // TODO: @sjpadgett, @adunsulag, @ken.matrix need to implement this method with helper util
         return [];
@@ -301,7 +301,7 @@ class Cat1 extends \Mustache_Engine
         return json_decode(json_encode($this->patient->get_data_elements('participation')), true);
     }
 
-    public function provider_care_experience()
+    public function provider_care_experience(): array
     {
         // TODO: @sjpadgett, @adunsulag, @ken.matrix need to implement this method with helper util
         return [];

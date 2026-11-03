@@ -5,7 +5,7 @@
  */
 class Savant3_Plugin_plural extends Savant3_Plugin
 {
-    public function plural($string)
+    public function plural($string): string
     {
         $lastletter = substr((string) $string, - 1);
         if ($lastletter == 'y') {

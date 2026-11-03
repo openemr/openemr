@@ -59,8 +59,7 @@ $_GET['site'] = $args['site'];
 $ignoreAuth = 1;
 require_once($args['webdir'] . "/interface/globals.php");
 
-// Bring in the getDupScoreSQL() function.
-require_once("$srcdir/dupscore.inc.php");
+use OpenEMR\Common\Database\QueryUtils;
 
 $endtime = time() + 365 * 24 * 60 * 60; // a year from now
 if (!empty($args['maxmins'])) {
@@ -83,14 +82,14 @@ while (!$finished && time() < $endtime) {
     $query1 = "SELECT p1.pid, MAX(" . getDupScoreSQL() . ") AS dupscore" .
         " FROM patient_data AS p1, patient_data AS p2" .
         " WHERE p1.dupscore = -9 AND p2.pid < p1.pid" .
-        " GROUP BY p1.pid ORDER BY p1.pid LIMIT " . escape_limit($querylimit);
+        " GROUP BY p1.pid ORDER BY p1.pid LIMIT ?";
 
     // echo "$query1\n"; // debugging
 
-    $res1 = sqlStatementNoLog($query1);
-    while ($row1 = sqlFetchArray($res1)) {
+    $res1 = QueryUtils::fetchRecordsNoLog($query1, [$querylimit]);
+    foreach ($res1 as $row1) {
         $scores[$row1['pid']] = $row1['dupscore'];
-    };
+    }
     foreach ($scores as $pid => $score) {
         sqlStatementNoLog(
             "UPDATE patient_data SET dupscore = ? WHERE pid = ?",

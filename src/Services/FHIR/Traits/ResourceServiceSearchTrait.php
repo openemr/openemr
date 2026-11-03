@@ -13,11 +13,13 @@
 namespace OpenEMR\Services\FHIR\Traits;
 
 use InvalidArgumentException;
+use OpenEMR\Services\FHIR\INonPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldOrder;
+use OpenEMR\Services\Search\SearchParameterSyntaxException;
 
 trait ResourceServiceSearchTrait
 {
@@ -77,6 +79,15 @@ trait ResourceServiceSearchTrait
             } catch (InvalidArgumentException $exception) {
                 $message = "The search field argument was invalid, improperly formatted, or could not be parsed. "
                     . " Inner message: " . $exception->getMessage();
+                if ($exception instanceof SearchParameterSyntaxException) {
+                    throw new SearchParameterSyntaxException(
+                        $fhirSearchField,
+                        $message,
+                        $exception->getCode(),
+                        $exception,
+                        $exception->getClientMessage(),
+                    );
+                }
                 throw new SearchFieldException($fhirSearchField, $message, $exception->getCode(), $exception);
             }
         }
@@ -86,14 +97,26 @@ trait ResourceServiceSearchTrait
             $oeSearchParameters['_config']['_sort'] = $this->createSortParameter($fhirSearchParameters['_sort']);
         }
 
-        // we make sure if we are a resource that deals with patient data and we are in a patient bound context that
-        // we restrict the data to JUST that patient.
-        if (!empty($puuidBind) && $this instanceof IPatientCompartmentResourceService) {
-            $searchFactory = $this->getSearchFieldFactory();
-            $patientField = $this->getPatientContextSearchField();
-            // TODO: @adunsulag not sure if every service will already have a defined binding for the patient... I'm assuming for Patient compartments we would...
-            // yet we may need to extend the factory in the future to handle this.
-            $oeSearchParameters[$patientField->getName()] = $searchFactory->buildSearchField($patientField->getName(), [$puuidBind]);
+        // Patient-compartment enforcement. If a patient-scope bind is present,
+        // the service MUST declare IPatientCompartmentResourceService (or
+        // INonPatientCompartmentResourceService for opt-out). Non-declaring
+        // services throw so the outer getAll() logs a SearchFieldException
+        // and returns an empty result rather than returning another patient's
+        // data.
+        if (!empty($puuidBind)) {
+            if ($this instanceof IPatientCompartmentResourceService) {
+                $searchFactory = $this->getSearchFieldFactory();
+                $patientField = $this->getPatientContextSearchField();
+                $oeSearchParameters[$patientField->getName()] = $searchFactory->buildSearchField($patientField->getName(), [$puuidBind]);
+            } elseif (!($this instanceof INonPatientCompartmentResourceService)) {
+                throw new SearchFieldException(
+                    'patient',
+                    'Patient-scoped access to this resource is not permitted.'
+                );
+            }
+            // Non-patient-compartment services drop the bind (patient tokens
+            // legitimately reach these endpoints per FHIR spec; the bind is a
+            // no-op there).
         }
 
         return $oeSearchParameters;

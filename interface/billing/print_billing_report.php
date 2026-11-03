@@ -20,8 +20,6 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php';
-require_once OEGlobalsBag::getInstance()->getSrcDir() . '/forms.inc.php';
 require_once OEGlobalsBag::getInstance()->getSrcDir() . '/report.inc.php';
 
 $patient_data_array ??= [];

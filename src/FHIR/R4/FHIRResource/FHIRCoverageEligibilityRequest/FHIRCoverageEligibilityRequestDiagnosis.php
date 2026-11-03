@@ -176,9 +176,7 @@ class FHIRCoverageEligibilityRequestDiagnosis extends FHIRBackboneElement implem
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CoverageEligibilityRequestDiagnosis xmlns="http://hl7.org/fhir"></CoverageEligibilityRequestDiagnosis>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CoverageEligibilityRequestDiagnosis xmlns="http://hl7.org/fhir"></CoverageEligibilityRequestDiagnosis>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->diagnosisCodeableConcept)) {
             $this->diagnosisCodeableConcept->xmlSerialize(true, $sxe->addChild('diagnosisCodeableConcept'));

@@ -136,10 +136,8 @@ class eRxSOAP
      */
     public function getSiteId()
     {
-        if (null === $this->siteId) {
-            $this->siteId = $this->getStore()
-                ->selectFederalEin();
-        }
+        $this->siteId ??= $this->getStore()
+            ->selectFederalEin();
 
         return $this->siteId;
     }
@@ -150,10 +148,8 @@ class eRxSOAP
      */
     public function getAuthUserDetails()
     {
-        if (null === $this->authUserDetails) {
-            $this->authUserDetails = $this->getStore()
-                ->getUserById($this->getAuthUserId());
-        }
+        $this->authUserDetails ??= $this->getStore()
+            ->getUserById($this->getAuthUserId());
 
         return $this->authUserDetails;
     }
@@ -275,7 +271,7 @@ class eRxSOAP
      * @param  string  $process SOAP process to check against for elapsed TTL of current patient
      * @return bool True if TTL of current patient has elapsed for provided SOAP process, otherwise false
      */
-    public function elapsedTTL($process)
+    public function elapsedTTL($process): bool
     {
         $ttl = $this->getTTL($process);
         if (false === $ttl || 0 == $ttl) {
@@ -497,7 +493,7 @@ class eRxSOAP
      * Trigger Allergy History SOAP call to NewCrop for current patient and update local cached data
      * @return int Count of newly cached records
      */
-    public function insertUpdateAllergies()
+    public function insertUpdateAllergies(): int
     {
         $store = $this->getStore();
 
@@ -592,7 +588,7 @@ class eRxSOAP
      * Update eRx uploaded status for current patient allergies
      * @return bool True on success, false on failure
      */
-    public function updateUploadedErx()
+    public function updateUploadedErx(): bool
     {
         $patientFreeFormAllergyHistory = $this
             ->getPatientFreeFormAllergyHistory()
@@ -620,7 +616,7 @@ class eRxSOAP
      * Insert or update medications for current patient
      * @return int Count of newly cached records
      */
-    public function insertUpdateMedications()
+    public function insertUpdateMedications(): int
     {
         $store = $this->getStore();
 

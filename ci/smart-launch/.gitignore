@@ -1,0 +1,9 @@
+# Upstream tarball + extracted app contents staged by run.sh. Checked
+# out at CI time; never committed. stage/app/ itself is committed (as a
+# .gitkeep stub) so the directory exists before compose up — the compose
+# stack bind-mounts stage/app → /opt/oe-smart-questionnaire/app and
+# missing-source would make docker auto-create it as root, blocking the
+# host-side find -delete on subsequent runs.
+/stage/upstream.tar.gz
+/stage/app/*
+!/stage/app/.gitkeep

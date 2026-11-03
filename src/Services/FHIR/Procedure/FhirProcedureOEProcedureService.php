@@ -18,7 +18,9 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProcedure;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProcedure\FHIRProcedurePerformer;
 use OpenEMR\Services\CodeTypesService;
@@ -26,6 +28,7 @@ use OpenEMR\Services\FHIR\Enum\EventStatusEnum;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
@@ -43,7 +46,7 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirProcedureOEProcedureService extends FhirServiceBase
+class FhirProcedureOEProcedureService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
@@ -74,7 +77,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [
             'patient' => $this->getPatientContextSearchField(),
@@ -159,11 +162,11 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
 
         // Use report date if available, otherwise use order date
         if (!empty($report['date'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($report['date']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($report['date'])));
         } elseif (!empty($dataRecord['date_ordered'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
             $meta->addProfile($this->createProfile($profile));
@@ -261,10 +264,10 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         }
         // FIXED: Use report date if available, otherwise order date
         if (!empty($report['date'])) {
-            $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($report['date']));
+            $procedureResource->setPerformedDateTime(new FHIRDateTime(UtilsService::getLocalDateAsUTC($report['date'])));
         } elseif (!empty($dataRecord['date_ordered'])) {
             // Order placed but not yet performed
-            $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered']));
+            $procedureResource->setPerformedDateTime(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered'])));
         } else {
             if ($status == EventStatusEnum::IN_PROGRESS || $status == EventStatusEnum::COMPLETED) {
                 // we CAN'T by spec have in-progress or completed without a date

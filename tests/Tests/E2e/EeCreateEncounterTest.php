@@ -24,6 +24,4 @@ class EeCreateEncounterTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
     use EncounterAddTrait;
-
-    private $crawler;
 }

@@ -41,7 +41,7 @@ if ($session->get('patient_portal_onsite_two', 0)) {
 }
 ?>
 
-<script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
+<script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <script>
     $LAB.script("<?php echo $assets_static_relative; ?>/underscore/underscore-min.js").wait()
         .script("<?php echo $assets_static_relative; ?>/backbone/backbone-min.js")

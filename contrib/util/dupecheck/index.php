@@ -23,6 +23,7 @@ require_once("../../../interface/globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -39,18 +40,9 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Duplication Check", xl("Duplication Check"));
 }
 
-/* Use this code to identify duplicate patients in OpenEMR
- *
- */
+$parameters['sortby'] ??= "name";
 
-// establish some defaults
-if (! isset($parameters['sortby'])) {
-    $parameters['sortby'] = "name";
-}
-
-if (! isset($parameters['limit'])) {
-    $parameters['limit'] = 100;
-}
+$parameters['limit'] ??= 100;
 
 if (
     ! isset($parameters['match_name']) &&
@@ -148,12 +140,14 @@ if ($parameters['go'] == "Go") {
     };
 
     $sqlstmt .= $orderby;
+    $sqlBindArray = [];
     if ($parameters['limit']) {
-        $sqlstmt .= " LIMIT 0," . escape_limit($parameters['limit']);
+        $sqlstmt .= " LIMIT ?";
+        $sqlBindArray[] = is_numeric($parameters['limit']) ? (int) $parameters['limit'] : 100;
     }
 
-    $qResults = sqlStatement($sqlstmt);
-    while ($row = sqlFetchArray($qResults)) {
+    $qResults = QueryUtils::fetchRecords($sqlstmt, $sqlBindArray);
+    foreach ($qResults as $row) {
         if ($dupelist[$row['id']] == 1) {
             continue;
         }

@@ -144,9 +144,7 @@ class FHIRTypeRestfulInteraction extends FHIRElement implements \JsonSerializabl
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TypeRestfulInteraction xmlns="http://hl7.org/fhir"></TypeRestfulInteraction>');
-        }
+        $sxe ??= new \SimpleXMLElement('<TypeRestfulInteraction xmlns="http://hl7.org/fhir"></TypeRestfulInteraction>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

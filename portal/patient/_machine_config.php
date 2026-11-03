@@ -18,6 +18,7 @@
 
 /* */
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -47,10 +48,24 @@ if ($session->has('pid') && ($session->has('patient_portal_onsite_two') || $sess
         header('Location: ' . $landingpage);
         exit;
     }
+    // Core-user fallback: this branch runs for staff hitting /portal/patient/*
+    // without a portal-patient session (e.g. `Provider.Home` dashboard).
+    // Historically the branch ran with NO acl gate, so any authenticated
+    // staff account could reach portal-scoped controllers (OnsiteDocument
+    // CRUD, etc.) — which use `bootstrap_pid`-only patient binding and
+    // therefore leak data across patients when `bootstrap_pid` is empty.
+    // Require the same `patientportal/portal` ACL that `ProviderHome.tpl.php`
+    // enforces at the template layer, so the gate lives at the bootstrap
+    // choke point and covers every downstream controller uniformly.
+    if (!AclMain::aclCheckCore('patientportal', 'portal')) {
+        // Do not leak whether the section exists; behave the same as an
+        // unauthenticated visitor and bounce to the login landing.
+        SessionWrapperFactory::getInstance()->destroyCoreSession();
+        $landingpage = "index.php";
+        header('Location: ' . $landingpage);
+        exit;
+    }
 }
-
-require_once 'verysimple/Phreeze/ConnectionSetting.php';
-require_once("verysimple/HTTP/RequestUtil.php");
 
 /**
  * database connection settings

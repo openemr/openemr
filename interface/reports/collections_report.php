@@ -22,7 +22,6 @@
  */
 
 require_once("../globals.php");
-require_once("../../library/patient.inc.php");
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 use OpenEMR\Billing\InvoiceSummary;

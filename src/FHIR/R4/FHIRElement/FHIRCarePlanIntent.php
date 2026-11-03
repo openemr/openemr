@@ -144,9 +144,7 @@ class FHIRCarePlanIntent extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CarePlanIntent xmlns="http://hl7.org/fhir"></CarePlanIntent>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CarePlanIntent xmlns="http://hl7.org/fhir"></CarePlanIntent>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

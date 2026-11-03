@@ -34,6 +34,9 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
 }
 
 $authUploadTemplates = AclMain::aclCheckCore('admin', 'forms');
+if (!$authUploadTemplates) {
+    AccessDeniedHelper::deny('Not authorized to access document template management');
+}
 $templateService = new DocumentTemplateService();
 $patient = json_decode($_POST['upload_pid'] ?? '');
 $template_content = null;
@@ -121,9 +124,6 @@ if (($_POST['mode'] ?? null) === 'send') {
 
 if (($_POST['mode'] ?? null) === 'save') {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-save', dieOnFail: true);
-    if (!$authUploadTemplates) {
-        AccessDeniedHelper::deny('Not authorized to edit template');
-    }
     if ($_POST['docid']) {
         if (stripos((string)$_POST['content'], "<?php") === false) {
             $template = $templateService->updateTemplateContent($_POST['docid'], $_POST['content']);
@@ -138,9 +138,6 @@ if (($_POST['mode'] ?? null) === 'save') {
     }
 } elseif (($_POST['mode'] ?? null) === 'delete') {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-delete', dieOnFail: true);
-    if (!$authUploadTemplates) {
-        AccessDeniedHelper::deny('Not authorized to delete template');
-    }
     if ($_POST['docid']) {
         $template = $templateService->deleteTemplate($_POST['docid'], ($_POST['template'] ?? null));
         exit($template);
@@ -157,10 +154,6 @@ if (($_POST['mode'] ?? null) === 'save') {
 
 if (isset($_POST['blank-nav-button'])) {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
-    if (!$authUploadTemplates) {
-        xlt("Not Authorized to Upload Templates");
-        exit;
-    }
     $is_blank = isset($_POST['blank-nav-button']);
     $upload_name = $_POST['upload_name'] ?? '';
     $category = $_POST['template_category'] ?? '';
@@ -188,10 +181,6 @@ if (isset($_POST['blank-nav-button'])) {
 
 if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
-    if (!$authUploadTemplates) {
-        xlt("Not Authorized to Upload Templates");
-        exit;
-    }
     $id = 0;
     $q = $_POST['questionnaire'] ?? '';
     $l = $_POST['lform'] ?? '';
@@ -219,10 +208,6 @@ if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
 // templates file import
 if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['template_files']['name'][0] ?? '')) {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
-    if (!$authUploadTemplates) {
-        xlt("Not Authorized to Upload Templates");
-        exit;
-    }
     // so it is a template file import. create record(s).
     $import_files = $_FILES["template_files"];
     $total = count($_FILES['template_files']['name']);
@@ -263,10 +248,6 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
 
 if (isset($_POST['repository-submit']) && !empty($_POST['upload_name'] ?? '')) {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
-    if (!$authUploadTemplates) {
-        xlt("Not Authorized to Upload Templates");
-        exit;
-    }
     $selected_q = (int)($_POST['select_item'] ?? 0);
     $upload_name = $_POST['upload_name'] ?? '';
     $category = $_POST['template_category'] ?? '';

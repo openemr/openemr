@@ -34,7 +34,6 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcDir . '/patient.inc.php');
 require_once($srcDir . '/options.inc.php');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -222,7 +221,7 @@ if ($saveError === null && isset($_POST["mode"])) {
                         'modifier' => trimPost("HiddenModifier$CountRow"),
                         'payerType' => trimPost("HiddenIns$CountRow"),
                         'reasonCode' => trimPost("ReasonCode$CountRow"),
-                        'postUser' => trim((string) add_escape_custom($user_id)),
+                        'postUser' => trim(add_escape_custom($user_id)),
                         'sessionId' => trimPost('payment_id'),
                         'payAmount' => trimPost("Payment$CountRow"),
                         'adjustmentAmount' => '0.0',
@@ -255,7 +254,7 @@ if ($saveError === null && isset($_POST["mode"])) {
                         'code' => trimPost("HiddenCode$CountRow"),
                         'modifier' => trimPost("HiddenModifier$CountRow"),
                         'payerType' => trimPost("HiddenIns$CountRow"),
-                        'postUser' => trim((string) add_escape_custom($user_id)),
+                        'postUser' => trim(add_escape_custom($user_id)),
                         'sessionId' => trimPost('payment_id'),
                         'payAmount' => '0.0',
                         'adjustmentAmount' => trimPost("AdjAmount$CountRow"),
@@ -281,7 +280,7 @@ if ($saveError === null && isset($_POST["mode"])) {
                         'code' => trimPost("HiddenCode$CountRow"),
                         'modifier' => trimPost("HiddenModifier$CountRow"),
                         'payerType' => trimPost("HiddenIns$CountRow"),
-                        'postUser' => trim((string) add_escape_custom($user_id)),
+                        'postUser' => trim(add_escape_custom($user_id)),
                         'sessionId' => trimPost('payment_id'),
                         'payAmount' => '0.0',
                         'adjustmentAmount' => '0.0',
@@ -307,7 +306,7 @@ if ($saveError === null && isset($_POST["mode"])) {
                         'code' => trimPost("HiddenCode$CountRow"),
                         'modifier' => trimPost("HiddenModifier$CountRow"),
                         'payerType' => trimPost("HiddenIns$CountRow"),
-                        'postUser' => trim((string) add_escape_custom($user_id)),
+                        'postUser' => trim(add_escape_custom($user_id)),
                         'sessionId' => trimPost('payment_id'),
                         'payAmount' => strval(floatval(trimPost("Takeback$CountRow")) * -1),
                         'adjustmentAmount' => '0.0',
@@ -332,7 +331,7 @@ if ($saveError === null && isset($_POST["mode"])) {
                         'code' => trimPost("HiddenCode$CountRow"),
                         'modifier' => trimPost("HiddenModifier$CountRow"),
                         'payerType' => trimPost("HiddenIns$CountRow"),
-                        'postUser' => trim((string) add_escape_custom($user_id)),
+                        'postUser' => trim(add_escape_custom($user_id)),
                         'sessionId' => trimPost('payment_id'),
                         'payAmount' => '0.0',
                         'adjustmentAmount' => '0.0',

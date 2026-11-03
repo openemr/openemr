@@ -3,10 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-
-/**
  * ISqlFunction is an interface that defines a SQL function.
  * This can be used
  * to insert/update or query a database with a value that is not quoted,

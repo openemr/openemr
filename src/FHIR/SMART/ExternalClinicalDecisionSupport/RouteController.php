@@ -41,7 +41,7 @@ class RouteController
         $this->twig = $twig;
     }
 
-    public function supportsRequest($request)
+    public function supportsRequest($request): bool
     {
         // make sure the request matches the EXTERNAL_CDR_ACTION route either standalone or as a prefix
         $action = $request->get('action', '');
@@ -49,7 +49,7 @@ class RouteController
             str_starts_with((string) $action, self::EXTERNAL_CDR_ACTION . '/');
     }
 
-    public function parseRequest(Request $request)
+    public function parseRequest(Request $request): array
     {
         $parts = explode("/", (string) $request->query->get('action'));
 
@@ -78,9 +78,9 @@ class RouteController
 
         if ($mainActionChild == 'edit') {
             return $this->editAction($request);
-        } else if ($mainActionChild == 'save') {
+        } elseif ($mainActionChild == 'save') {
             return $this->saveAction($request);
-        } else if ($mainActionChild == 'cdr-info') {
+        } elseif ($mainActionChild == 'cdr-info') {
             return $this->cdrInfoAction($request);
         } else {
             return $this->notFoundAction($request);
@@ -140,7 +140,7 @@ class RouteController
         if ($status == 'success') {
             $saveMessage = xl("Save successful");
             $alertType = "success";
-        } else if (!empty($status)) { // everything else is treated as a failure
+        } elseif (!empty($status)) { // everything else is treated as a failure
             $alertType = "danger";
             $saveMessage = xl("Save failed.") . " " . xl("Check the system error logs for more information.");
         }
@@ -160,7 +160,7 @@ class RouteController
         return new Response($bodyContents);
     }
 
-    public function getRootParams()
+    public function getRootParams(): array
     {
         return [
             'nav' => [

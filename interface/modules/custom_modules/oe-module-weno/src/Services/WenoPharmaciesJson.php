@@ -16,7 +16,13 @@ use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 class WenoPharmaciesJson
 {
+    /** A full rebuild older than this forces the next run to rebuild. */
+    private const FULL_REBUILD_MAX_AGE_DAYS = 7;
+
     private readonly string $encrypted;
+
+    /** True when buildJson() asked Weno for a daily delta rather than the full directory. */
+    private bool $isDailyImport = false;
 
     public function __construct(private readonly CryptoInterface $cryptoGen)
     {
@@ -38,36 +44,78 @@ class WenoPharmaciesJson
 
     private function buildJson(): string
     {
-        $checkWenoDb = new PharmacyService();
-        $has_data = $checkWenoDb->checkWenoDb();
+        // Weno's flag is inverted from how we think about it: Daily = "N" asks
+        // for the whole directory, "Y" asks for that day's delta.
+        $needsFullRebuild = $this->needsFullRebuild();
+
         $jobJson = [
             "UserEmail" => $this->providerEmail(),
             "MD5Password" => $this->providerPassword(),
             "ExcludeNonWenoTest" => "N",
-            "Daily" => 'N'
+            "Daily" => $needsFullRebuild ? 'N' : 'Y',
         ];
-        if (date("l") != "Monday" && $has_data) {
-            $jobJson["Daily"] = "Y";
-        } elseif (date("l") != "Monday" && !$has_data) {
-            // get a weekly
-            $jobJson["Daily"] = "N"; // in case table was emptied unintentionally
-        }
+
+        // Remember which payload we asked for; the importer has to match it. A
+        // daily delta must upsert, a full directory rebuilds the table.
+        $this->isDailyImport = !$needsFullRebuild;
+
         return text(json_encode($jobJson));
     }
 
-    public function storePharmacyData(): ?string
+    /**
+     * Decide whether this run rebuilds the whole directory.
+     *
+     * Rebuild when any of these hold:
+     *   - the pharmacy table is empty (nothing to apply a delta to),
+     *   - it is Monday (the normal weekly rebase),
+     *   - no full rebuild has succeeded within FULL_REBUILD_MAX_AGE_DAYS.
+     *
+     * That last one is the recovery path. Deltas never remove pharmacies Weno
+     * dropped, so if Monday's rebuild failed the table drifts all week. Checking
+     * the log means the next run picks the rebuild back up instead of waiting
+     * for the following Monday.
+     */
+    private function needsFullRebuild(): bool
+    {
+        $wenoLog = new WenoLogService();
+
+        if (!(new PharmacyService())->checkWenoDb()) {
+            return true;
+        }
+
+        if (date("l") === "Monday") {
+            return true;
+        }
+
+        if ($wenoLog->isFullRebuildOverdue(self::FULL_REBUILD_MAX_AGE_DAYS)) {
+            $lastRebuild = $wenoLog->getLastFullRebuildDate() ?? 'never';
+            $wenoLog->insertWenoLog(
+                "Pharmacy Directory",
+                "Full rebuild overdue (last: " . $lastRebuild . ") - forcing a full directory download"
+            );
+            return true;
+        }
+
+        return false;
+    }
+
+    public function storePharmacyData(): int|false
     {
         $wenoLog = new WenoLogService();
         $downloadWenoPharmacies = new DownloadWenoPharmacies();
 
         $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode((string) $this->providerEmail()) . "&data=" . urlencode($this->encrypted);
-        $storageLocation = $storeLocation = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/";
-        $path_to_extract = $storageLocation;
-        $storeLocation .= "weno_pharmacy.zip";
-        $wenoLog->insertWenoLog("Pharmacy Directory", "'Background Initiated Download started", $url);
+        // Log the endpoint only. The query string carries the admin email and the
+        // encrypted credential payload, and weno_download_log.data_in_context is
+        // readable from the download log viewer.
+        $wenoLog->insertWenoLog("Pharmacy Directory", "Background Initiated Download started", $this->wenoPharmacyDirectoryLink());
         error_log('Background Initiated Pharmacy Download Started.');
-        $downloadWenoPharmacies->retrieveDataFile($url, $storageLocation);
-        return $downloadWenoPharmacies->extractFile($path_to_extract, $storeLocation);
+
+        // Match the import mode to the payload requested in buildJson(): a daily
+        // delta upserts against the unique NCPDP_safe key, a full directory
+        // rebuilds. Passing insert-only for a daily payload makes every repeated
+        // row a duplicate-key failure and rolls the whole import back.
+        return $downloadWenoPharmacies->downloadAndImport($url, !$this->isDailyImport, 'Pharmacy Directory');
     }
 
     private function providerEmail()

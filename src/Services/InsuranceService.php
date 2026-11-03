@@ -74,7 +74,7 @@ class InsuranceService extends BaseService
         return sqlQuery($sql, [$id, $type]);
     }
 
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT `insurance_data`.*,
                        `puuid`,
@@ -150,6 +150,29 @@ class InsuranceService extends BaseService
         }
 
         $processingResult = new ProcessingResult();
+
+        // When the caller supplied a pid (REST patient-compartment path), confirm
+        // the row keyed by $data['uuid'] actually belongs to that patient before
+        // writing. Without this check a leaked insurance uuid supplied under one
+        // patient's path could update a row on another patient's chart because
+        // the UPDATE below is keyed on uuid alone. Reported as not-found rather
+        // than forbidden so a uuid probe cannot confirm the existence of another
+        // patient's policy.
+        $callerPid = is_array($data) ? ($data['pid'] ?? null) : null;
+        $callerUuid = is_array($data) ? ($data['uuid'] ?? null) : null;
+        if (is_numeric($callerPid) && is_string($callerUuid) && $callerUuid !== '') {
+            $uuidBinaryCheck = UuidRegistry::uuidToBytes($callerUuid);
+            $rowPidRaw = QueryUtils::fetchSingleValue(
+                "SELECT pid FROM insurance_data WHERE uuid = ?",
+                'pid',
+                [$uuidBinaryCheck]
+            );
+            if (!is_numeric($rowPidRaw) || (int) $rowPidRaw !== (int) $callerPid) {
+                $notFound = new ProcessingResult();
+                $notFound->setValidationMessages(['uuid' => 'Insurance policy not found']);
+                return $notFound;
+            }
+        }
 
         $sql = " UPDATE insurance_data SET ";
         $sql .= "   provider=?,";
@@ -228,7 +251,7 @@ class InsuranceService extends BaseService
             $this->getEventDispatcher()->dispatch($serviceSavePostEvent, ServiceSaveEvent::EVENT_POST_SAVE);
             $processingResult = $this->getOne($data['uuid']);
         } else {
-            $processingResult->addProcessingError("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         }
         return $processingResult;
     }
@@ -325,7 +348,7 @@ class InsuranceService extends BaseService
             $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_POST_SAVE);
             $processingResult = $this->getOne($stringUuid);
         } else {
-            $processingResult->addProcessingError("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         }
 
         return $processingResult;
@@ -376,7 +399,7 @@ class InsuranceService extends BaseService
         return $result;
     }
 
-    public function getPoliciesOrganizedByTypeForPatientPid($pid)
+    public function getPoliciesOrganizedByTypeForPatientPid($pid): array
     {
         $insurancePolicies = $this->search(['pid' => $pid]);
         $result = [];
@@ -472,13 +495,22 @@ class InsuranceService extends BaseService
 
             // we have to do this in multiple steps due to the way the db constraint on the type and date are set
             $srcInsurance['type'] = $targetType;
-            $this->update($srcInsurance);
+            // Checked like the target update above: update() reports a failed
+            // write in its result rather than throwing, so an unchecked result
+            // would let a half-finished swap reach commitTransaction().
+            $srcUpdateResult = $this->update($srcInsurance);
+            if (!$srcUpdateResult instanceof ProcessingResult || $srcUpdateResult->hasErrors()) {
+                throw new \InvalidArgumentException("Failed to update insurance policy with uuid: $insuranceUuid");
+            }
 
             if (!empty($targetInsurance)) {
                 if (!empty($resetStartDate)) {
                     $targetInsurance["date"] = $resetStartDate;
                 }
-                $this->update($targetInsurance);
+                $targetDateResult = $this->update($targetInsurance);
+                if (!$targetDateResult instanceof ProcessingResult || $targetDateResult->hasErrors()) {
+                    throw new \InvalidArgumentException("Failed to update insurance policy with uuid: $insuranceUuid");
+                }
             }
             QueryUtils::commitTransaction();
             $transactionCommitted = true;

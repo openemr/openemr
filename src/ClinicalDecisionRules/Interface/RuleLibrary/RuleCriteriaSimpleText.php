@@ -18,26 +18,26 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
  */
 abstract class RuleCriteriaSimpleText extends RuleCriteria
 {
-    function __construct(public $title, public $value)
+    public function __construct(public $title, public $value)
     {
     }
 
-    function getRequirements()
+    public function getRequirements()
     {
         return $this->value;
     }
 
-    function getTitle()
+    public function getTitle()
     {
         return $this->title;
     }
 
-    function getView()
+    public function getView()
     {
         return "simple_text_criteria.php";
     }
 
-    function updateFromRequest()
+    public function updateFromRequest()
     {
         parent::updateFromRequest();
         $value = Common::post("fld_value");

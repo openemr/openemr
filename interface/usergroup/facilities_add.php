@@ -13,9 +13,9 @@
 require_once("../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
@@ -50,6 +50,5 @@ $args = [
     'mode' => 'add',
 ];
 
-$twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-$t = $twig->getTwig();
+$t = ServiceContainer::getTwig();
 echo $t->render("super/facilities/form.html.twig", $args);

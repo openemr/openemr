@@ -348,9 +348,7 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstancePolymer xmlns="http://hl7.org/fhir"></SubstancePolymer>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstancePolymer xmlns="http://hl7.org/fhir"></SubstancePolymer>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->class)) {
             $this->class->xmlSerialize(true, $sxe->addChild('class'));

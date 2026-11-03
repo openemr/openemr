@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -93,8 +95,11 @@ function addPortalMailboxMail(
  */
 function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search = ''): array
 {
+    $limitSql = "";
+    $limitBind = [];
     if ($limit) {
-        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
+        $limitSql = "LIMIT ? OFFSET ?";
+        $limitBind = [(is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0)];
     }
 
     $sql = "
@@ -118,13 +123,14 @@ function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search 
 	WHERE p.deleted != 0 AND p.owner = ? AND p.recipient_id = ?
 	$search
 	ORDER BY `date` desc
-	$limit
+	$limitSql
 	";
     $all = $row = [];
     $data = [$owner,$owner];
     if ($search) {
         $data = [$owner,$owner,$owner];
     }
+    array_push($data, ...$limitBind);
 
     $res = sqlStatement($sql, $data);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
@@ -143,8 +149,11 @@ function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search 
  */
 function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = ''): array
 {
+    $limitSql = "";
+    $limitBind = [];
     if ($limit) {
-        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
+        $limitSql = "LIMIT ? OFFSET ?";
+        $limitBind = [(is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0)];
     }
 
     $sql = "
@@ -168,13 +177,14 @@ function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = 
 	WHERE p.deleted != 1 AND p.owner = ? AND p.recipient_id = ?
 	$search
 	ORDER BY `date` desc
-	$limit
+	$limitSql
 	";
     $all = $row = [];
     $data = [$owner,$owner];
     if ($search) {
         $data = [$owner,$owner,$owner];
     }
+    array_push($data, ...$limitBind);
 
     $res = sqlStatement($sql, $data);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
@@ -193,8 +203,11 @@ function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = 
  */
 function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $search = ''): array
 {
+    $limitSql = "";
+    $limitBind = [];
     if ($limit) {
-        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
+        $limitSql = "LIMIT ? OFFSET ?";
+        $limitBind = [(is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0)];
     }
 
     $sql = "
@@ -219,15 +232,12 @@ function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $s
 	AND date_created > DATE_SUB(NOW(), INTERVAL 1 MONTH)
 	$search
 	ORDER BY `date` desc
-	$limit
+	$limitSql
 	";
-    $all = $row = [];
-    $res = sqlStatement($sql, [$owner]);
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-        $all[$iter] = $row;
-    }
+    $data = [$owner];
+    array_push($data, ...$limitBind);
 
-    return $all;
+    return QueryUtils::fetchRecords($sql, $data);
 }
 
 /**
@@ -239,8 +249,11 @@ function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $s
  */
 function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $search = ''): array
 {
+    $limitSql = "";
+    $limitBind = [];
     if ($limit) {
-        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
+        $limitSql = "LIMIT ? OFFSET ?";
+        $limitBind = [(is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0)];
     }
 
     $sql = "
@@ -268,15 +281,12 @@ function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $searc
 	AND p.message_status != 'Done'
 	$search
 	ORDER BY `date` desc
-	$limit
+	$limitSql
 	";
-    $all = $row = [];
-    $res = sqlStatement($sql, [$owner,$owner]);
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-        $all[$iter] = $row;
-    }
+    $data = [$owner,$owner];
+    array_push($data, ...$limitBind);
 
-    return $all;
+    return QueryUtils::fetchRecords($sql, $data);
 }
 
 /**
@@ -296,16 +306,33 @@ function updatePortalMailMessageStatus($id, $message_status, $owner): void
     }
 
     if ($message_status == "Delete") {
-        $stats = sqlQuery("Select * From onsite_mail Where id = ? AND `owner` = ?", [$id, $owner]);
+        // The UI archives a conversation by passing its mail_chain. Match the
+        // update scope so audit logging does not dereference an empty result
+        // after the archive itself has already succeeded.
+        $senderName = '';
+        $recipientName = '';
+        try {
+            $stats = QueryUtils::querySingleRow(
+                "SELECT sender_name, recipient_name FROM onsite_mail " .
+                "WHERE (mail_chain = ? OR id = ?) AND `owner` = ? " .
+                "ORDER BY id DESC LIMIT 1",
+                [$id, $id, $owner]
+            );
+            $senderName = $stats['sender_name'] ?? '';
+            $recipientName = $stats['recipient_name'] ?? '';
+        } catch (SqlQueryException) {
+            // Archiving has already succeeded; optional audit context must not turn it into a 500 response.
+        }
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $by = $session->get('authUser') ?: $session->get('ptName');
         $loguser = $session->get('authUser') ?: $session->get('portal_username');
-        $evt = "secure message soft delete by " . $by . " msg id: $id from " . $stats['sender_name'] . " to recipient: " . $stats['recipient_name'];
+        $evt = "secure message soft delete by " . $by . " msg id: $id from " . $senderName . " to recipient: " . $recipientName;
         $log_from = '';
-        $puser = '';
+        $puser = null;
         if ($session->get('patient_portal_onsite_two')) {
             $log_from = 'patient-portal';
-            $puser = $session->get('pid');
+            $sessionPid = $session->get('pid');
+            $puser = is_numeric($sessionPid) ? (int) $sessionPid : null;
         }
         EventAuditLogger::getInstance()->newEvent("delete", $loguser, 'Portal', 1, $evt, $puser, $log_from, '');
     }

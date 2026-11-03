@@ -14,6 +14,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -35,7 +36,6 @@ require_once(__DIR__ . '/../../globals.php');
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 
-require_once($srcdir . '/api.inc.php');
 require_once($srcdir . '/options.inc.php');
 
 $questionnaireService = new QuestionnaireService();
@@ -83,26 +83,19 @@ if ($isModule || $isPortal) {
     $questionnaireForm = $_GET['formname'] ?? $questionnaireForm;
 }
 
-// Questionnaires are database registry rows, not filesystem form directories. An
-// authenticated portal session authorizes the patient through the portal mechanism
+// An authenticated portal session authorizes the patient through the portal mechanism
 // ($ignoreAuth_onsite_portal), so the staff encounter-form ACL is applied only on the
-// staff/EHR path. On that path formname may still carry a specific questionnaire id
-// (dashboard launch), so resolve it to a real registry directory and fall back to
-// questionnaire_assessments; passing a numeric id straight to aclCheckForm() would look up a
-// non-existent directory and dereference the resulting false.
-if (!$isPortal) {
-    $formNameParam = $scalarString($_GET['formname'] ?? null, 'questionnaire_assessments');
-    $formDirectory = (getRegistryEntryByDirectory($formNameParam, 'directory') !== false)
-        ? $formNameParam
-        : 'questionnaire_assessments';
-    if (!AclMain::aclCheckForm($formDirectory)) {
-        $registryEntry = getRegistryEntryByDirectory($formDirectory, 'name');
-        $registryName = is_array($registryEntry) ? ($registryEntry['name'] ?? '') : '';
-        $formLabel = xl_form_title($registryName);
-        $formLabel = $formLabel !== '' ? $scalarString($formLabel) : $formDirectory;
-        AccessDeniedHelper::denyWithTemplate('ACL check failed for form: ' . $formLabel, $formLabel);
-    }
+// staff/EHR path. Every questionnaire is a questionnaire_assessments form, so that is the
+// ACL checked; formname (a questionnaire name or id on a dashboard launch) must not pick it.
+if (!$isPortal && !AclMain::aclCheckForm('questionnaire_assessments')) {
+    $registryEntry = getRegistryEntryByDirectory('questionnaire_assessments', 'name');
+    $registryName = is_array($registryEntry) ? ($registryEntry['name'] ?? '') : '';
+    $formLabel = xl_form_title($registryName);
+    $formLabel = $formLabel !== '' ? $scalarString($formLabel) : 'questionnaire_assessments';
+    AccessDeniedHelper::denyWithTemplate('ACL check failed for form: ' . $formLabel, $formLabel);
 }
+// The portal document form staff are auditing, once verified; null otherwise.
+$auditForm = null;
 
 try {
     if (!empty($_GET['id'])) {
@@ -120,7 +113,8 @@ try {
             $form = $fetchedForm;
         }
 
-        if ($form === []) {
+        // formFetch() answers false, not [], for a form outside the session patient.
+        if (!is_array($form) || $form === []) {
             throw new RuntimeException(xlt('Can not find encounter form.'));
         }
 
@@ -131,7 +125,13 @@ try {
             $nonNegativeInt($session->get('pid', 0)) ?? 0
         );
 
-        if (!$isPortal) {
+        // Staff auditing a portal document from the Portal Dashboard may have no chart open;
+        // the form is reachable there only as the document's own (see questionnaireDocumentForm()).
+        // Auditing is a Portal Dashboard task, so it takes the portal ACL that dashboard requires.
+        if (!$isPortal && $patientPortalOther && AclMain::aclCheckCore('patientportal', 'portal')) {
+            $auditForm = CoreFormToPortalUtility::questionnaireDocumentForm($formid);
+        }
+        if (!$isPortal && $auditForm === null) {
             EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'questionnaire_assessments');
         }
 
@@ -215,6 +215,46 @@ try {
         ['exception' => $e]
     );
     die("<p class='text-danger h5 m-3'>" . xlt('Can not continue') . '</p>');
+}
+
+$assessmentTitle = '';
+if ($mode !== 'new') {
+    $titlePid = $nonNegativeInt($session->get('pid', 0)) ?? 0;
+    $titleEncounter = $nonNegativeInt($session->get('encounter', 0)) ?? 0;
+    if ($auditForm !== null) {
+        $titlePid = $auditForm->pid;
+    }
+    // Resolve the saved encounter rather than the currently selected encounter.
+    if ($auditForm !== null) {
+        $titleEncounter = $auditForm->encounter;
+    } elseif ($mode === 'update') {
+        $formContext = QueryUtils::querySingleRow(
+            'SELECT encounter FROM forms WHERE form_id = ? AND formdir = ? AND pid = ? AND deleted = 0 LIMIT 1',
+            [$formid, 'questionnaire_assessments', $titlePid]
+        );
+        $titleEncounter = $nonNegativeInt($formContext['encounter'] ?? null) ?? 0;
+    }
+    $titlePatient = QueryUtils::querySingleRow('SELECT fname, mname, lname FROM patient_data WHERE pid = ?', [$titlePid]);
+    $patientName = trim(implode(' ', array_filter([
+        $scalarString($titlePatient['fname'] ?? null),
+        $scalarString($titlePatient['mname'] ?? null),
+        $scalarString($titlePatient['lname'] ?? null),
+    ], static fn (string $part): bool => $part !== '')));
+    $titleVisit = QueryUtils::querySingleRow(
+        'SELECT date FROM form_encounter WHERE pid = ? AND encounter = ? LIMIT 1',
+        [$titlePid, $titleEncounter]
+    );
+    $encounterDate = $scalarString($titleVisit['date'] ?? null);
+    $visitDate = $encounterDate !== '' ? $scalarString(oeFormatShortDate(substr($encounterDate, 0, 10))) : '';
+    // Whole sentences so translators can reorder the parts; named tokens (not sprintf) so a
+    // translation that drops or renames one shows the token instead of failing the page.
+    $titleTemplate = match (true) {
+        $patientName !== '' && $visitDate !== '' => xl('{form} for {patient} on {date}'),
+        $patientName !== '' => xl('{form} for {patient}'),
+        $visitDate !== '' => xl('{form} on {date}'),
+        default => '{form}',
+    };
+    $assessmentTitle = strtr($titleTemplate, ['{form}' => $formName, '{patient}' => $patientName, '{date}' => $visitDate]);
 }
 
 $topNote = true;
@@ -350,7 +390,7 @@ $formAction .= '&mode=' . urlencode($mode);
             }
 
             document.getElementById('questionnaire_response').value = JSON.stringify(
-                questionnaireRuntime.getQuestionnaireResponse()
+                questionnaireRuntime.getQuestionnaireResponse({ complete: true })
             );
             return true;
         }
@@ -405,9 +445,6 @@ $formAction .= '&mode=' . urlencode($mode);
         <?php if ($topNote && !$isPortal) { ?>
             <div>
                 <p class="text-center bg-light text-dark"><?php echo $loincText; ?></p>
-                <?php if ($copyright !== '') { ?>
-                    <p id="copyrightNotice"><?php echo text($copyright); ?></p>
-                <?php } ?>
             </div>
         <?php } ?>
 
@@ -443,7 +480,8 @@ $formAction .= '&mode=' . urlencode($mode);
                     } ?>
                 </select>
             </div>
-            <div class="input-group <?php echo $mode === 'new' ? 'isNew d-none' : ''; ?>">
+            <?php if ($mode === 'new') { ?>
+            <div class="input-group isNew">
                 <label class="font-weight-bold my-2" for="form_name"><?php echo xlt('Form Name'); ?>:</label>
                 <input
                     required
@@ -455,6 +493,10 @@ $formAction .= '&mode=' . urlencode($mode);
                     value="<?php echo attr($formName); ?>"
                 />
             </div>
+            <?php } else { ?>
+                <input type="hidden" id="form_name" name="form_name" value="<?php echo attr($formName); ?>" />
+                <h5 class="mt-2"><?php echo text($assessmentTitle); ?></h5>
+            <?php } ?>
         </div>
 
         <?php if ($mode !== 'new') { ?>

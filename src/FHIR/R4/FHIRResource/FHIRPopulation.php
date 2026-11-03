@@ -274,9 +274,7 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Population xmlns="http://hl7.org/fhir"></Population>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Population xmlns="http://hl7.org/fhir"></Population>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->ageRange)) {
             $this->ageRange->xmlSerialize(true, $sxe->addChild('ageRange'));

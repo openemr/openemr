@@ -11,14 +11,13 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/report.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -272,20 +271,20 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
 </p>
     <?php
         $sqlBindArray = [];
-        $res_query =    "select * from forms where " .
+        $resQuery =    "select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .
-                        "date between ? and ? " ;
+                        "date >= ? and date < DATE_ADD(?, INTERVAL 1 DAY) " ;
                 array_push($sqlBindArray, $startdate, $enddate);
     if ($form_pid) {
-        $res_query .= " and pid=? ";
+        $resQuery .= " and pid=? ";
         array_push($sqlBindArray, $form_pid);
     }
 
-        $res_query .=     " order by date DESC" ;
-        $res = sqlStatement($res_query, $sqlBindArray);
+        $resQuery .=     " order by date DESC" ;
+        $results = QueryUtils::fetchRecords($resQuery, $sqlBindArray);
 
     $pids = [];
-    while ($result = sqlFetchArray($res)) {
+    foreach ($results as $result) {
         if ($result["form_name"] == "New Patient Encounter") {
             $newpatient[] = $result["form_id"] . ":" . $result["encounter"];
             $pids[] = $result["pid"];

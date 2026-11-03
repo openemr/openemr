@@ -205,4 +205,16 @@ class PatientServiceTest extends TestCase
             $this->assertEquals("90210", $patientRecord["postal_code"]);
         }
     }
+
+    #[Test]
+    public function testGetDateColumnsClassifiesPatientDataColumns(): void
+    {
+        $columns = $this->patientService->getDateColumns();
+
+        $this->assertContains('DOB', $columns['date']);
+        $this->assertContains('date', $columns['datetime']);
+        $this->assertNotContains('DOB', $columns['datetime']);
+        $this->assertNotContains('fname', $columns['date']);
+        $this->assertNotContains('fname', $columns['datetime']);
+    }
 }

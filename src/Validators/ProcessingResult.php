@@ -93,7 +93,27 @@ class ProcessingResult
         array_push($this->internalErrors, $internalError);
     }
 
-    public function hasData()
+    /**
+     * Records one validation message against a field, keeping any already
+     * recorded for it. setValidationMessages() replaces the whole set, so it
+     * cannot be used to add a single message without knowing the others.
+     *
+     * Messages are stored as [field => [message, ...]], which keeps the
+     * [field => [key => message]] shape the validators produce.
+     */
+    public function addValidationError(string $field, string $message): void
+    {
+        // The property is untyped and setValidationMessages() accepts anything,
+        // so narrow to an array rather than assume one.
+        $messages = is_array($this->validationMessages) ? $this->validationMessages : [];
+        if (!isset($messages[$field]) || !is_array($messages[$field])) {
+            $messages[$field] = [];
+        }
+        $messages[$field][] = $message;
+        $this->validationMessages = $messages;
+    }
+
+    public function hasData(): bool
     {
         return !empty($this->data);
     }
@@ -181,7 +201,7 @@ class ProcessingResult
     /**
      * @return bool True if the instance contains either validation or internal errors.
      */
-    public function hasErrors()
+    public function hasErrors(): bool
     {
         return !$this->isValid() || $this->hasInternalErrors();
     }

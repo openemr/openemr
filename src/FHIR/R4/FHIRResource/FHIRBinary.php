@@ -216,9 +216,7 @@ class FHIRBinary extends FHIRResource implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Binary xmlns="http://hl7.org/fhir"></Binary>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Binary xmlns="http://hl7.org/fhir"></Binary>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->contentType)) {
             $this->contentType->xmlSerialize(true, $sxe->addChild('contentType'));

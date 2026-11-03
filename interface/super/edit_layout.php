@@ -76,7 +76,7 @@ while ($lrow = sqlFetchArray($lres)) {
     $validations[$lrow['option_id']] = xl_list_label($lrow['title']);
 }
 
-function nextGroupOrder($order)
+function nextGroupOrder($order): string
 {
     if ($order == '9') {
         $order = 'A';
@@ -96,7 +96,7 @@ function nextGroupOrder($order)
 /**
  * @param literal-string $name
  */
-function genGroupSelector(string $name, $layout_id, $default = '')
+function genGroupSelector(string $name, $layout_id, $default = ''): string
 {
     $res = sqlStatement(
         "SELECT grp_group_id, grp_title " .
@@ -143,7 +143,7 @@ function genGroupSelector(string $name, $layout_id, $default = '')
 // If there is a nonempty $parent then its ID will be the prefix for the
 // new ID and the sequence prefix will be computed within the parent.
 //
-function genGroupId($parent)
+function genGroupId($parent): string
 {
     global $layout_id;
     $results = sqlStatement(
@@ -203,7 +203,7 @@ function swapGroups($id1, $id2): void
     }
 }
 
-function tableNameFromLayout($layout_id)
+function tableNameFromLayout($layout_id): string
 {
     // Skip layouts that store data in vertical tables.
     if (str_starts_with((string) $layout_id, 'LBF') || str_starts_with((string) $layout_id, 'LBT') || $layout_id == "FACUSR") {
@@ -363,7 +363,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
 //   3 = There is already a column having the new name.
 //   4 = Old name is needed internally and cannot be changed.
 //
-function renameColumn($layout_id, $old_field_id, $new_field_id)
+function renameColumn($layout_id, $old_field_id, $new_field_id): int
 {
     $tablename = tableNameFromLayout($layout_id);
     if (!$tablename) {
@@ -746,7 +746,7 @@ $extra_html = '';
 // This is called to generate a select option list for fields within this form.
 // Used for selecting a field for testing in a skip condition.
 //
-function genFieldOptionList($current = '')
+function genFieldOptionList($current = ''): string
 {
     global $layout_id;
     $option_list = "<option value=''>-- " . xlt('Please Select') . " --</option>";
@@ -771,7 +771,6 @@ function writeFieldLine($linedata): void
 {
     global $fld_line_no, $sources, $lbfonly, $extra_html, $validations, $UOR;
     ++$fld_line_no;
-    $checked = $linedata['default_value'] ? " checked" : "";
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     //echo " <tr bgcolor='$bgcolor'>\n";
@@ -965,15 +964,11 @@ function writeFieldLine($linedata): void
         echo "  <td class='text-center optcell'>";
         echo "<textarea name='fld[" . attr($fld_line_no) . "][desc]' rows='3' cols='35' class='form-control form-control-sm optin'>" .
            text($linedata['description']) . "</textarea>";
-        echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][default]' value='" .
-         attr($linedata['default_value']) . "' />";
         echo "</td>\n";
     } else {
         echo "  <td class='text-center optcell'>";
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][desc]' value='" .
         attr($linedata['description']) . "' size='20' class='form-control form-control-sm optin' />";
-        echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][default]' value='" .
-        attr($linedata['default_value']) . "' />";
         echo "</td>\n";
       // if not english and showing layout labels, then show the translation of Description
         if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $session->get('language_choice') > 1) {
@@ -981,6 +976,11 @@ function writeFieldLine($linedata): void
             echo "<td class='text-center translation'>" . text(xl_layout_label($descStr)) . "</td>\n";
         }
     }
+    echo "  <td class='text-center optcell' title='" . xla('Value given to this field when a new record is created') . "'>";
+    echo "<input type='text' name='fld[" . attr($fld_line_no) . "][default]' value='" .
+        attr($linedata['default_value']) . "' size='10' maxlength='255' class='form-control form-control-sm optin' />";
+    echo "</td>\n";
+
     echo "  <td class='text-center optcell'>";
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][codes]' id='codes_fld[" . attr($fld_line_no) . "][codes]' value='" . attr($linedata['codes']) . "' title='" . xla('Code(s)') . "' onclick='select_clin_term_code(this)' size='10' maxlength='255' class='form-control form-control-sm optin' />";
     echo "</td>\n";
@@ -1150,7 +1150,7 @@ function writeFieldLine($linedata): void
 
 // Generates <optgroup> and <option> tags for all layouts.
 //
-function genLayoutOptions($title = '?', $default = '')
+function genLayoutOptions($title = '?', $default = ''): string
 {
     global $layouts;
     $s = "  <option value=''>" . text($title) . "</option>\n";
@@ -1707,6 +1707,7 @@ if ($layout_id) {
                 if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $language_choice > 1) { ?>
                     <th><?php echo xlt('Translation'); ?><span class='help' title='<?php echo xla('The translation of description in current language'); ?>'>&nbsp;(?)</span></th>
                 <?php } ?>
+          <th><?php echo xlt('Default'); ?><span class='help' title='<?php echo xla('Value given to this field when a new record is created'); ?>'>&nbsp;(?)</span></th>
           <th><?php echo xlt('Code(s)'); ?></th>
           <th style='width:1%'><?php echo xlt('?'); ?></th>
        </tr>
@@ -1787,6 +1788,7 @@ if ($layout_id) {
    <th><?php echo xlt('Data Cols'); ?></th>
    <th><?php echo xlt('Options'); ?></th>
    <th><?php echo xlt('Description'); ?></th>
+   <th><?php echo xlt('Default'); ?></th>
    <th><?php echo xlt('Code(s)'); ?></th>
   </tr>
  </thead>
@@ -1838,9 +1840,9 @@ foreach ($sorted_datatypes as $key => $value) {
    <td><input type="text" name="newbackuplistid" id="newbackuplistid" value="" size="8" maxlength="31" class="form-control form-control-sm listid" /></td>
    <td><input class='form-control form-control-sm' type="text" name="newtitlecols" id="newtitlecols" value="" size="3" maxlength="3" /> </td>
    <td><input class='form-control form-control-sm' type="text" name="newdatacols" id="newdatacols" value="" size="3" maxlength="3" /> </td>
-   <td><select name="newedit_options[]" id="newedit_options"  multiple class='form-control form-control-sm typeAddons'></select>
-       <input type="hidden"  name="newdefault" id="newdefault" value="" /> </td>
+   <td><select name="newedit_options[]" id="newedit_options"  multiple class='form-control form-control-sm typeAddons'></select> </td>
    <td><input type="text" class='form-control form-control-sm' name="newdesc" id="newdesc" value="" size="20" /> </td>
+   <td><input type="text" class='form-control form-control-sm' name="newdefault" id="newdefault" value="" size="10" maxlength="255" title="<?php echo xla('Value given to this field when a new record is created'); ?>" /> </td>
    <td><input type='text' class='form-control form-control-sm' name="newcodes" id="newcodes" value="" onclick='select_clin_term_code(this)' size='10' maxlength='255' /> </td>
   </tr>
   <tr>

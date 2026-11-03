@@ -7,7 +7,9 @@
  * @link    https://www.open-emr.org
  *
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2022 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -118,6 +120,9 @@ class FhirQuestionnaireRestController
             // RestConfig::authorization_check("patients", "med");
             $result = $this->getAll($request->getQueryParams());
         }
+        if ($result instanceof ResponseInterface) {
+            return $result;
+        }
         return RestControllerHelper::returnSingleObjectResponse($result);
     }
 
@@ -130,26 +135,131 @@ class FhirQuestionnaireRestController
      * @param  HttpRestRequest $request
      * @return ResponseInterface
      */
+    #[OA\Get(
+        path: '/fhir/Questionnaire/{uuid}',
+        description: 'Returns a single Questionnaire resource.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the Questionnaire resource.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: 'Standard Response',
+                content: new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
+                            ),
+                        ],
+                        example: [
+                            'id' => '95e8d830-3068-48cf-930a-2fefb18c2bcf',
+                            'meta' => ['versionId' => '1', 'lastUpdated' => '2021-09-14T09:13:51'],
+                            'resourceType' => 'Questionnaire',
+                            'status' => 'active',
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function one(HttpRestRequest $request, string $id): ResponseInterface
     {
-        if ($request->isPatientRequest()) {
-            // only allow access to data of binded patient
-            $processingResult = $this->questionnaireResourceService->getOne($request->getPatientUUIDString());
-        } else {
-            $processingResult = $this->questionnaireResourceService->getOne($id);
-        }
+        // Questionnaire is definitional, not patient data -- the service implements
+        // INonPatientCompartmentResourceService. Binding the lookup to the request's patient
+        // uuid would search for a Questionnaire whose id happens to equal that patient's, which
+        // never matches; there is nothing to scope here.
+        $processingResult = $this->questionnaireResourceService->getOne($id);
+
         return RestControllerHelper::getResponseForProcessingResult($processingResult);
     }
 
-    public function create(HttpRestRequest $request): ResponseInterface
+    /**
+     * Creates a new FHIR Questionnaire resource.
+     * Routed via FhirGenericRestController::post(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    // @codeCoverageIgnoreStart
+    #[OA\Post(
+        path: '/fhir/Questionnaire',
+        description: 'Creates a new Questionnaire resource.',
+        tags: ['fhir'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '201', description: 'Questionnaire resource created'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function post(array $fhirJson): void
     {
-        return RestControllerHelper::getEmptyResponse();
+        // Implementation lives in FhirGenericRestController::post()
     }
 
-    public function update(HttpRestRequest $request, string $id): ResponseInterface
+    /**
+     * Updates an existing FHIR Questionnaire resource.
+     * Routed via FhirGenericRestController::put(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    #[OA\Put(
+        path: '/fhir/Questionnaire/{uuid}',
+        description: 'Modifies a Questionnaire resource.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the Questionnaire resource.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', description: 'Questionnaire resource updated'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function put(string $fhirId, array $fhirJson): void
     {
-        return RestControllerHelper::getEmptyResponse();
+        // Implementation lives in FhirGenericRestController::put()
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * Queries for FHIR encounter resources using various search parameters.
@@ -160,11 +270,15 @@ class FhirQuestionnaireRestController
      *
      * @param  array   $searchParams
      * @param  ?string $puuidBind    - Optional variable to only allow visibility of the patient with this puuid.
-     * @return FHIRBundle FHIR bundle with query results, if found
+     * @return FHIRBundle|ResponseInterface FHIR bundle with query results, or a 400 OperationOutcome for a search value that didn't parse
      */
-    private function getAll(array $searchParams, ?string $puuidBind = null): FHIRBundle
+    private function getAll(array $searchParams, ?string $puuidBind = null): FHIRBundle|ResponseInterface
     {
         $processingResult = $this->questionnaireResourceService->getAll($searchParams, $puuidBind);
+        $searchError = RestControllerHelper::getFhirSearchErrorPsrResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [

@@ -1255,9 +1255,7 @@ class FHIRLibrary extends FHIRDomainResource implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Library xmlns="http://hl7.org/fhir"></Library>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Library xmlns="http://hl7.org/fhir"></Library>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));

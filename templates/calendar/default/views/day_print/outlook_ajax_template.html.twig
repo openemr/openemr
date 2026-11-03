@@ -49,9 +49,41 @@
         #datePicker .tdMonthName-small { text-align: center; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
         #datePicker .tdMonthDay-small { background-color: #ffffff; border: none; }
         #datePicker .currentDate { border: 1px solid blue; background-color: blue; color: lightblue; }
-        #times { border-right: 1px solid #999; }
-        #times table { border-collapse: collapse; width: 100%; margin: 0; padding: 0; }
-        #times table td { border: 0; border-top: 1px solid #999; margin: 0; padding: 0; font-size: 10pt; }
+        #times,
+        .calendar-times-col {
+            border-right: 1px solid #999;
+            box-sizing: border-box;
+            max-width: 3.25rem !important;
+            min-width: 3.25rem !important;
+            overflow: hidden;
+            vertical-align: top;
+            width: 3.25rem !important;
+        }
+        #times table,
+        .calendar-times-table {
+            border-collapse: collapse;
+            margin: 0;
+            padding: 0;
+            table-layout: fixed;
+            width: 100%;
+        }
+        #times table td,
+        .calendar-times-table td {
+            border: 0;
+            border-top: 1px solid #999;
+            font-size: 10pt;
+            margin: 0;
+            overflow: hidden;
+            padding: 0;
+            text-overflow: clip;
+            white-space: nowrap;
+        }
+        .calendar-times-inner {
+            box-sizing: border-box;
+            max-width: 100%;
+            overflow: hidden;
+            width: 100%;
+        }
         .timeslot { height: {{ timeslotCss }}; margin: 0; padding: 0; }
         .schedule { background-color: pink; vertical-align: top; padding: 0; margin: 0; border-right: 1px solid black; }
         .event_in       { position: absolute; background-color: white;     width: 100%; font-size: 0.8em; color: #ddd; border-top: 1px dashed #ddd; }
@@ -93,9 +125,9 @@
 <div id="bigCal">
 <table border="0" cellpadding="1" cellspacing="0" width="100%">
     <tr>
-        <td id="times" style="width:2em;">
-            <div>
-                <table>
+        <td id="times" class="calendar-times-col">
+            <div class="calendar-times-inner">
+                <table class="calendar-times-table">
                     <td class="timeslot" style="text-align: center; background-color:#ddd;">&nbsp;</td>
                     {% for slot in timeRows %}
                         <tr>

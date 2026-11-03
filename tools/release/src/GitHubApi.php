@@ -67,6 +67,33 @@ class GitHubApi
     }
 
     /**
+     * True when an endpoint responds 2xx, false when it 404s.
+     *
+     * Any other failure rethrows. "The ref does not exist" and "we could
+     * not find out" must stay distinguishable, or a rate-limit tickle or
+     * brief 5xx reads as a definitive absence — the same G19 confusion
+     * docker-validate-release-targets.yml grew its own 404 grep to avoid.
+     *
+     * A genuine 404 costs the full runGh() retry budget, because the retry
+     * loop cannot tell it apart from a transient failure until the
+     * attempts are spent. Callers should ask about refs that usually
+     * exist, so that cost lands on the negative branch only.
+     */
+    public function exists(string $endpoint): bool
+    {
+        try {
+            $this->runGh(['api', '--silent', "/repos/{$this->repo}{$endpoint}"]);
+            return true;
+        } catch (\RuntimeException $e) {
+            $message = $e->getMessage();
+            if (str_contains($message, 'HTTP 404') || str_contains($message, 'Not Found')) {
+                return false;
+            }
+            throw $e;
+        }
+    }
+
+    /**
      * Find a milestone number by its name.
      *
      * Search open milestones first, then closed.
@@ -199,9 +226,7 @@ class GitHubApi
                 if (str_starts_with($pr['author'], 'app/')) {
                     $pr['author'] = substr($pr['author'], 4) . '[bot]';
                 }
-                if (!isset($seen[$pr['number']])) {
-                    $seen[$pr['number']] = $pr;
-                }
+                $seen[$pr['number']] ??= $pr;
             }
         }
 

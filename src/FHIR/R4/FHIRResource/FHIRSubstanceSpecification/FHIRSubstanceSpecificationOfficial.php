@@ -214,9 +214,7 @@ class FHIRSubstanceSpecificationOfficial extends FHIRBackboneElement implements 
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceSpecificationOfficial xmlns="http://hl7.org/fhir"></SubstanceSpecificationOfficial>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceSpecificationOfficial xmlns="http://hl7.org/fhir"></SubstanceSpecificationOfficial>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->authority)) {
             $this->authority->xmlSerialize(true, $sxe->addChild('authority'));

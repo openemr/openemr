@@ -106,6 +106,40 @@ class ParseERATest extends TestCase
         ]);
     }
 
+    /**
+     * Minimal 835 whose 1000A payer loop is built from the given N1*PR segment
+     * and an optional REF segment, for exercising payer identification.
+     */
+    private function getPayerLoopFixture(string $n1pr, ?string $ref = null): string
+    {
+        $segments = [
+            'ISA*00*          *00*          *ZZ*PAYER          *ZZ*RECEIVER       *260101*1200*^*00501*000000001*0*P*:~',
+            'GS*HP*PAYER*RECEIVER*20260101*1200*1*X*005010X221A1~',
+            'ST*835*0001~',
+            'BPR*I*75.00*C*NON************20260101~',
+            'TRN*1*12345*1234567890~',
+            'DTM*405*20260101~',
+            $n1pr,
+        ];
+
+        if ($ref !== null) {
+            $segments[] = $ref;
+        }
+
+        return implode("\n", array_merge($segments, [
+            'N1*PE*TEST PROVIDER*XX*1234567890~',
+            'LX*1~',
+            'CLP*CLAIM001*1*100.00*75.00*0*MC*12345~',
+            'NM1*QC*1*DOE*JOHN****MI*123456789~',
+            'SVC*HC:99213*100.00*75.00~',
+            'DTM*472*20260101~',
+            'CAS*CO*45*25.00~',
+            sprintf('SE*%d*0001~', $ref === null ? 13 : 14),
+            'GE*1*1~',
+            'IEA*1*000000001~',
+        ]));
+    }
+
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
@@ -252,5 +286,59 @@ class ParseERATest extends TestCase
 
         $this->assertIsFloat($adj['amount']);
         $this->assertSame(100.0, $adj['amount']);
+    }
+
+    // -------------------------------------------------------------------------
+    // Payer identification — REF*2U overrides N104
+    // -------------------------------------------------------------------------
+
+    /**
+     * With no REF*2U present, payer_id comes from N104.
+     */
+    public function testPayerIdFallsBackToN104(): void
+    {
+        $out = $this->parseFixture($this->getPayerLoopFixture('N1*PR*TEST PAYER*XV*N104ID~'));
+        $this->assertSame('N104ID', $out['payer_id']);
+    }
+
+    /**
+     * REF*2U overwrites the N104 value, as the N1*PR handler documents.
+     */
+    public function testRef2uOverridesN104(): void
+    {
+        $out = $this->parseFixture(
+            $this->getPayerLoopFixture('N1*PR*TEST PAYER*XV*N104ID~', 'REF*2U*REFPAYERID~')
+        );
+        $this->assertSame('REFPAYERID', $out['payer_id']);
+    }
+
+    /**
+     * Regression test.
+     *
+     * The qualifier check was written as trim($seg[1] == '2U'), so trim()
+     * received the boolean result of the comparison rather than the segment
+     * value. A padded qualifier compares false under PHP 8 string semantics,
+     * trim(false) is '', and the override silently never happened — leaving
+     * whatever N104 carried as the payer id.
+     */
+    public function testPaddedRef2uQualifierStillOverridesN104(): void
+    {
+        $out = $this->parseFixture(
+            $this->getPayerLoopFixture('N1*PR*TEST PAYER*XV*N104ID~', 'REF* 2U *REFPAYERID~')
+        );
+        $this->assertSame('REFPAYERID', $out['payer_id']);
+    }
+
+    /**
+     * A REF carrying some other qualifier is ignored, leaving N104 in place.
+     * REF*EV is deliberately not used here: it is claimed by an earlier branch
+     * that rejects it inside a loop.
+     */
+    public function testNonPayerRefQualifierIsIgnored(): void
+    {
+        $out = $this->parseFixture(
+            $this->getPayerLoopFixture('N1*PR*TEST PAYER*XV*N104ID~', 'REF*TJ*SOMEOTHERID~')
+        );
+        $this->assertSame('N104ID', $out['payer_id']);
     }
 }

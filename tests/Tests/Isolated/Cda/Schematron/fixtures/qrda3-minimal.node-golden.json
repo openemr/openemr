@@ -1,0 +1,60 @@
+{
+    "errorCount": 3,
+    "warningCount": 0,
+    "ignoredCount": 1,
+    "errors": [
+        {
+            "type": "error",
+            "test": "@extension='2017-06-01'",
+            "simplifiedTest": null,
+            "description": "SHALL contain exactly one [1..1] templateId (CONF:3338-17284) such that it SHALL contain exactly one [1..1] @root=\"2.16.840.1.113883.10.20.27.2.1\" (CONF:3338-17285). SHALL contain exactly one [1..1] @extension=\"2017-06-01\" (CONF:3338-21171).",
+            "line": 52,
+            "path": "/ClinicalDocument[1]/component[1]/structuredBody[1]/component[1]/section[1]/templateId[1]",
+            "patternId": "QRDA_Category_III_Measure-pattern-extension-check",
+            "ruleId": "QRDA_Category_III_Measure-extension-check",
+            "assertionId": "a-3338-17284-extension-error",
+            "context": "cda:section/cda:templateId[@root='2.16.840.1.113883.10.20.27.2.1']",
+            "xml": "<templateId root=\"2.16.840.1.113883.10.20.27.2.1\" extension=\"2022-05-01\" xmlns=\"urn:hl7-org:v3\"/>"
+        },
+        {
+            "type": "error",
+            "test": "count(cda:templateId[@root='2.16.840.1.113883.10.20.27.1.1'][@extension='2017-06-01'])=1",
+            "simplifiedTest": null,
+            "description": "SHALL contain exactly one [1..1] templateId (CONF:3338-17208) such that it SHALL contain exactly one [1..1] @root=\"2.16.840.1.113883.10.20.27.1.1\" (CONF:3338-17209). SHALL contain exactly one [1..1] @extension=\"2017-06-01\" (CONF:3338-21319).",
+            "line": 8,
+            "path": "/ClinicalDocument[1]",
+            "patternId": "QRDA_Category_III_Report-pattern-errors",
+            "ruleId": "QRDA_Category_III_Report-errors",
+            "assertionId": "a-3338-17208-error",
+            "context": "cda:ClinicalDocument",
+            "xml": "<ClinicalDocument xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:hl7-org:v3\" xmlns:voc=\"urn:hl7-org:v3/voc\" xmlns:sdtc=\"urn:hl7-org:sdtc\">\n    <realmCode code=\"US\"/>\n    <typeId root..."
+        },
+        {
+            "type": "error",
+            "test": "count(cda:legalAuthenticator)=1",
+            "simplifiedTest": null,
+            "description": "SHALL contain exactly one [1..1] legalAuthenticator (CONF:3338-17225).",
+            "line": 8,
+            "path": "/ClinicalDocument[1]",
+            "patternId": "QRDA_Category_III_Report-pattern-errors",
+            "ruleId": "QRDA_Category_III_Report-errors",
+            "assertionId": "a-3338-17225-error",
+            "context": "cda:ClinicalDocument",
+            "xml": "<ClinicalDocument xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:hl7-org:v3\" xmlns:voc=\"urn:hl7-org:v3/voc\" xmlns:sdtc=\"urn:hl7-org:sdtc\">\n    <realmCode code=\"US\"/>\n    <typeId root..."
+        }
+    ],
+    "warnings": [],
+    "ignored": [
+        {
+            "errorMessage": "Assertion skipped or malformed.",
+            "type": "error",
+            "test": "string-length(normalize-space(@value)) <= 8 or (parent::node()[parent::node()[parent::node()[cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.17.3.8.1'][@extension='2016-03-01']]]]]) or ($timeZoneExists=(contains(normalize-space(@value), '-') or contains(normalize-space(@value), '+'))) or @nullFlavor",
+            "simplifiedTest": null,
+            "description": "A Coordinated Universal Time (UTC time) offset should not be used anywhere in a QRDA Category III file or, if a UTC time offset is needed anywhere, then it *must* be specified *everywhere* a time field is provided. (CONF: CMS_0122)",
+            "patternId": "p-validate_TZ-errors",
+            "ruleId": "r-validate_TZ-errors",
+            "assertionId": "a-CMS_0122-error",
+            "context": "//cda:time[@value] | //cda:effectiveTime[@value] | //cda:time/cda:low[@value] | //cda:time/cda:high[@value] | //cda:effectiveTime/cda:low[@value] | //cda:effectiveTime/cda:high[@value]"
+        }
+    ]
+}

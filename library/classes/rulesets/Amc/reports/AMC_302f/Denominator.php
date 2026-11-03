@@ -10,7 +10,7 @@
 
 class AMC_302f_Denominator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_302f Denominator";
     }

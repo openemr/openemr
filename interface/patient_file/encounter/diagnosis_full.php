@@ -17,9 +17,17 @@ $pid = $session->get('pid', 0);
 $userauthorized = $session->get('userauthorized', 0);
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
+if (
+    !AclMain::aclCheckCore('encounters', 'coding_a')
+    && !AclMain::aclCheckCore('encounters', 'coding')
+) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/coding: Billing", xl("Billing"));
+}
 
 $mode = $_GET['mode'] ?? null;
 $id   = $_GET['id'] ?? null;
@@ -30,6 +38,12 @@ $tback = '';
 
 if (isset($mode)) {
     CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+    if (
+        !AclMain::aclCheckCore('encounters', 'coding_a', '', 'write')
+        && !AclMain::aclCheckCore('encounters', 'coding', '', 'write')
+    ) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/coding write: Billing", xl("Billing"));
+    }
 
     if ($mode == "add") {
         BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $session->get('authUserID'));

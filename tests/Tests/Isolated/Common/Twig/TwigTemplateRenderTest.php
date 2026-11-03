@@ -20,12 +20,25 @@
 namespace OpenEMR\Tests\Isolated\Common\Twig;
 
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\PostOutcome;
+use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailabilityController;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PostCalendar\PostCalendarTwigExtension;
+use OpenEMR\Services\Patient\DuplicatePatientColumn;
+use OpenEMR\Services\Patient\DuplicatePatientGroup;
+use OpenEMR\Services\Patient\DuplicatePatientRow;
+use OpenEMR\Services\Patient\PatientMergeResult;
+use OpenEMR\Tests\Isolated\Controllers\Interface\Super\FakeAvailabilityLookups;
+use OpenEMR\Tests\Isolated\Controllers\Interface\Super\FakeAvailabilityService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 use Twig\TwigFunction;
 
 #[Group('isolated')]
@@ -34,13 +47,103 @@ class TwigTemplateRenderTest extends TestCase
 {
     private static ?Environment $twig = null;
 
+    /**
+     * The rendering globals as they were before this class first touched them.
+     *
+     * Captured at the first mutation rather than in setUpBeforeClass(), because PHPUnit resolves
+     * data providers before any class fixture runs and this provider has to set them to build the
+     * duplicate-report columns.
+     *
+     * @var array<string, array{present: bool, value: mixed}>|null
+     */
+    private static ?array $globalsSnapshot = null;
+
+    /** Mirrors DuplicatePatientService::HIGHLIGHT_THRESHOLD; kept local so fixtures stay stable. */
+    private const HIGHLIGHT = 17;
+
+    /**
+     * Stand-in for the release value version.php assigns to v_js_includes.
+     *
+     * Pinned so fixtures render a stable cache-buster: a template that drops
+     * `?v={{ assetVersion|attr_url }}` shows up as a fixture diff rather than
+     * rendering an empty `?v=` that asserts nothing.
+     */
+    private const ASSET_VERSION = 82;
+
     protected function setUp(): void
     {
-        $GLOBALS['fileroot'] ??= self::fileroot();
-        $GLOBALS['date_display_format'] ??= 0;
-        // Bypass database-dependent translation lookups so xl() returns the
-        // original string and xlt()/xla() apply only escaping.
-        $GLOBALS['disable_translation'] = true;
+        self::applyRenderingGlobals();
+        self::applyAssetVersion();
+    }
+
+    /**
+     * PHPUnit runs these tests in the same process as everything else, so the globals this class
+     * needs must not outlive it.
+     */
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$globalsSnapshot === null) {
+            return;
+        }
+
+        $globals = OEGlobalsBag::getInstance();
+        foreach (self::$globalsSnapshot as $key => $original) {
+            if ($original['present']) {
+                $globals->set($key, $original['value']);
+                continue;
+            }
+            $globals->remove($key);
+            // The singleton reads $GLOBALS as its source of truth, so restoring a key to "absent"
+            // has to clear it there too -- remove() alone only empties the bag's own array.
+            unset($GLOBALS[$key]);
+        }
+
+        self::$globalsSnapshot = null;
+        self::$twig = null;
+    }
+
+    /**
+     * Set the globals rendering needs, remembering what they were the first time round.
+     *
+     * fileroot and date_display_format keep any value the surrounding suite already established;
+     * disable_translation is forced so xl() returns the source string and xlt()/xla() apply only
+     * escaping, rather than reaching for the translation tables.
+     */
+    private static function applyRenderingGlobals(): void
+    {
+        $globals = OEGlobalsBag::getInstance();
+
+        if (self::$globalsSnapshot === null) {
+            self::$globalsSnapshot = [];
+            foreach (['fileroot', 'date_display_format', 'disable_translation', 'v_js_includes'] as $key) {
+                self::$globalsSnapshot[$key] = [
+                    'present' => $globals->has($key),
+                    'value' => $globals->get($key),
+                ];
+            }
+        }
+
+        if (!$globals->has('fileroot')) {
+            $globals->set('fileroot', self::fileroot());
+        }
+        if (!$globals->has('date_display_format')) {
+            $globals->set('date_display_format', 0);
+        }
+        $globals->set('disable_translation', true);
+    }
+
+    /**
+     * Pin the asset cache-buster to ASSET_VERSION.
+     *
+     * Deliberately not folded into applyRenderingGlobals(): renderCaseProvider() calls that, and
+     * PHPUnit resolves every data provider before any test runs, so setting v_js_includes there
+     * pins it for the whole process before this class's tests -- and before unrelated ones.
+     * TwigExtensionIsolatedTest::testGetGlobals asserts assetVersion is null and would fail.
+     * applyRenderingGlobals() still snapshots the key, so tearDownAfterClass restores it.
+     */
+    private static function applyAssetVersion(): void
+    {
+        OEGlobalsBag::getInstance()->set('v_js_includes', self::ASSET_VERSION);
     }
 
     /**
@@ -91,6 +194,10 @@ class TwigTemplateRenderTest extends TestCase
      */
     public static function renderCaseProvider(): iterable
     {
+        // Data providers run before setUp(), and building the duplicate-report columns calls xl().
+        // Without this, xl() reaches for the translation tables and fails in an isolated run.
+        self::applyRenderingGlobals();
+
         $fixtureDir = __DIR__ . '/fixtures/render';
 
         yield 'portal/partial/_nav_icon local link (defaults)' => [
@@ -198,6 +305,34 @@ class TwigTemplateRenderTest extends TestCase
                 'resNotNull'          => true,
             ],
             $fixtureDir . '/appointments-future-empty.html',
+        ];
+
+        // The dashboard preference/care-team cards render the Edit pencil with
+        // linkMethod 'javascript': the href stays '#' and the expression goes
+        // in an onclick. A literal 'javascript:' href would be stripped to '#'
+        // by |safe_href and lose the behavior entirely.
+        yield 'patient/card/appointments edit button via javascript linkMethod' => [
+            'patient/card/appointments.html.twig',
+            [
+                'title'               => 'Appointments',
+                'id'                  => 'appointments_ps_expand',
+                'initiallyCollapsed'  => false,
+                'btnLabel'            => 'Edit',
+                'btnClass'            => 'js-card-toggle-edit',
+                'btnLink'             => 'event.preventDefault();',
+                'linkMethod'          => 'javascript',
+                'appts'               => [],
+                'recurrAppts'         => [],
+                'pastAppts'           => [],
+                'displayAppts'        => false,
+                'displayRecurrAppts'  => false,
+                'displayPastAppts'    => false,
+                'extraApptDate'       => '',
+                'therapyGroupCategories' => [],
+                'auth'                => true,
+                'resNotNull'          => false,
+            ],
+            $fixtureDir . '/appointments-edit-javascript-link.html',
         ];
 
         // Calendar render cases — see CalendarRenderDataBuilder for the
@@ -397,6 +532,142 @@ class TwigTemplateRenderTest extends TestCase
             $fixtureDir . '/load-codes-no-rxcui.html',
         ];
 
+        // Merge Patients page. The template has two mutually exclusive states -- the chart-picker
+        // form and the report of a merge that has already run -- and the form itself changes
+        // depending on whether the duplicate manager supplied both charts.
+        yield 'patient_file/merge_patients empty form' => [
+            'patient_file/merge_patients.html.twig',
+            [
+                'csrfToken'            => 'test-csrf-token',
+                'pid1'                 => 0,
+                'pid2'                 => 0,
+                'targetPid'            => 0,
+                'sourcePid'            => 0,
+                'targetLabel'          => 'Click to select',
+                'sourceLabel'          => 'Click to select',
+                'dryRun'               => false,
+                'requireIdentityMatch' => true,
+                'mergeResult'          => null,
+            ],
+            $fixtureDir . '/merge-patients-empty-form.html',
+        ];
+
+        yield 'patient_file/merge_patients prefilled from duplicate manager' => [
+            'patient_file/merge_patients.html.twig',
+            [
+                'csrfToken'            => 'test-csrf-token',
+                'pid1'                 => 7,
+                'pid2'                 => 12,
+                'targetPid'            => 7,
+                'sourcePid'            => 12,
+                'targetLabel'          => "O'Brien, Mary (7)",
+                'sourceLabel'          => 'Obrien, Mary (12)',
+                'dryRun'               => true,
+                // The duplicate manager has already vetted SSN/DOB, so the page does not warn
+                // about them and the merge will not enforce them.
+                'requireIdentityMatch' => false,
+                'mergeResult'          => null,
+            ],
+            $fixtureDir . '/merge-patients-prefilled.html',
+        ];
+
+        // Once a merge has run the controller renders the report state alone -- the form variables
+        // are deliberately absent, because the source chart it would point at no longer exists.
+        yield 'patient_file/merge_patients successful merge' => [
+            'patient_file/merge_patients.html.twig',
+            [
+                'mergeResult' => PatientMergeResult::completed([
+                    'Changing patient ID for document scan.pdf',
+                    'DELETE FROM `history_data` WHERE `pid` = ? (1)',
+                    'UPDATE `billing` SET `pid` = ? WHERE `pid` = ? (4)',
+                    'Merge complete.',
+                ]),
+            ],
+            $fixtureDir . '/merge-patients-complete.html',
+        ];
+
+        yield 'patient_file/merge_patients aborted merge' => [
+            'patient_file/merge_patients.html.twig',
+            [
+                'mergeResult' => PatientMergeResult::failed(
+                    ['Changing patient ID for document scan.pdf'],
+                    'Target and source DOB do not match'
+                ),
+            ],
+            $fixtureDir . '/merge-patients-aborted.html',
+        ];
+
+        // Duplicate Patient Management report. The empty case covers the page chrome an install
+        // with no duplicates sees; the populated case covers group separation, the two different
+        // action menus, and both highlight styles.
+        $dupActions = [
+            'markUnique' => 'U',
+            'recompute' => 'R',
+            'mergeKeep' => 'MK',
+            'mergeDiscard' => 'MD',
+        ];
+
+        yield 'patient_file/manage_dup_patients no duplicates' => [
+            'patient_file/manage_dup_patients.html.twig',
+            [
+                'csrfToken' => 'test-csrf-token',
+                'siteId' => 'default',
+                'columns' => DuplicatePatientColumn::defaults(),
+                'groups' => [],
+                'actions' => $dupActions,
+            ],
+            $fixtureDir . '/manage-dup-patients-empty.html',
+        ];
+
+        yield 'patient_file/manage_dup_patients two groups' => [
+            'patient_file/manage_dup_patients.html.twig',
+            [
+                'csrfToken' => 'test-csrf-token',
+                'siteId' => 'default',
+                'columns' => DuplicatePatientColumn::defaults(),
+                'groups' => self::renderedGroups([
+                    new DuplicatePatientGroup(
+                        1,
+                        DuplicatePatientRow::forPrimary(self::duplicatePatientRow([
+                            'pid' => '7',
+                            'pubpid' => 'PUB7',
+                            'dupscore' => '20',
+                        ]), self::HIGHLIGHT),
+                        [
+                            DuplicatePatientRow::forMatch(self::duplicatePatientRow([
+                                'pid' => '9',
+                                'pubpid' => 'PUB9',
+                                'dupscore' => '20',
+                                'myscore' => '20',
+                            ]), 7, self::HIGHLIGHT),
+                        ]
+                    ),
+                    new DuplicatePatientGroup(
+                        2,
+                        DuplicatePatientRow::forPrimary(self::duplicatePatientRow([
+                            'pid' => '21',
+                            'pubpid' => 'PUB21',
+                            'dupscore' => '13',
+                            'lname' => "O'Brien",
+                            'fname' => 'Sean',
+                        ]), self::HIGHLIGHT),
+                        [
+                            DuplicatePatientRow::forMatch(self::duplicatePatientRow([
+                                'pid' => '22',
+                                'pubpid' => 'PUB22',
+                                'dupscore' => '13',
+                                'myscore' => '14',
+                                'lname' => "O'Brian",
+                                'fname' => 'Sean',
+                            ]), 21, self::HIGHLIGHT),
+                        ]
+                    ),
+                ]),
+                'actions' => $dupActions,
+            ],
+            $fixtureDir . '/manage-dup-patients-groups.html',
+        ];
+
         $reasonCodeStatii = [
             '' => ['code' => '', 'description' => 'Select a status code'],
             'negated' => ['code' => 'negated', 'description' => 'Negated'],
@@ -432,6 +703,49 @@ class TwigTemplateRenderTest extends TestCase
             '/forms/care_plan/templates/partials/_actions.html.twig',
             ['rowIndex' => 1],
             $fixtureDir . '/care-plan-actions.html',
+        ];
+
+        yield 'reports/portal_lockout_tracker empty state' => [
+            'reports/portal_lockout_tracker/report.html.twig',
+            [
+                'showOnlyAutoBlocked' => false,
+                'formRefresh' => false,
+                'rows' => [],
+                'formCsrfToken' => 'test-csrf-token',
+                'counterCsrfToken' => 'test-counter-csrf-token',
+                'ajaxUrl' => '/library/ajax/login_counter_ip_tracker.php',
+            ],
+            $fixtureDir . '/portal-lockout-tracker-empty.html',
+        ];
+
+        yield 'reports/portal_lockout_tracker populated' => [
+            'reports/portal_lockout_tracker/report.html.twig',
+            [
+                'showOnlyAutoBlocked' => true,
+                'formRefresh' => true,
+                'rows' => [
+                    [
+                        'pid' => 42,
+                        'portal_login_username' => 'locked.user@example.com',
+                        'portal_fail_counter' => 7,
+                        'portal_last_fail' => '2026-01-05 09:00:00',
+                        'autoBlocked' => true,
+                        'autoBlockEnd' => '2026-01-05 10:00:00',
+                    ],
+                    [
+                        'pid' => 43,
+                        'portal_login_username' => 'someone',
+                        'portal_fail_counter' => 2,
+                        'portal_last_fail' => null,
+                        'autoBlocked' => false,
+                        'autoBlockEnd' => null,
+                    ],
+                ],
+                'formCsrfToken' => 'test-csrf-token',
+                'counterCsrfToken' => 'test-counter-csrf-token',
+                'ajaxUrl' => '/library/ajax/login_counter_ip_tracker.php',
+            ],
+            $fixtureDir . '/portal-lockout-tracker-populated.html',
         ];
 
         yield 'forms/care_plan report' => [
@@ -496,6 +810,108 @@ class TwigTemplateRenderTest extends TestCase
             ],
             $fixtureDir . '/care-plan-card-populated.html',
         ];
+
+        // Questionnaire availability manager. The view comes from the controller itself,
+        // fed by in-memory fakes, so the fixtures cover the real view model as well as the
+        // markup: the grid alone, the limits panel open, a limit being edited, and an empty
+        // repository.
+        yield 'super/questionnaire_availability grid' => [
+            'super/questionnaire_availability.html.twig',
+            self::availabilityView(null, null, new PostOutcome(notices: ['Saved 2 change(s)'])),
+            $fixtureDir . '/questionnaire-availability-grid.html',
+        ];
+
+        yield 'super/questionnaire_availability limits panel' => [
+            'super/questionnaire_availability.html.twig',
+            self::availabilityView(50, null, new PostOutcome()),
+            $fixtureDir . '/questionnaire-availability-limits.html',
+        ];
+
+        yield 'super/questionnaire_availability editing a limit' => [
+            'super/questionnaire_availability.html.twig',
+            self::availabilityView(null, 4, new PostOutcome(errors: ['Another rule already has exactly these limits'])),
+            $fixtureDir . '/questionnaire-availability-edit-limit.html',
+        ];
+
+        yield 'super/questionnaire_availability empty repository' => [
+            'super/questionnaire_availability.html.twig',
+            self::availabilityView(null, null, new PostOutcome(), new FakeAvailabilityService()),
+            $fixtureDir . '/questionnaire-availability-empty.html',
+        ];
+    }
+
+    /**
+     * The availability manager's template variables, built by its controller from fakes.
+     *
+     * @return array<string, mixed>
+     */
+    private static function availabilityView(
+        ?int $selectedId,
+        ?int $editId,
+        PostOutcome $outcome,
+        ?FakeAvailabilityService $service = null,
+    ): array {
+        $session = new Session(new MockArraySessionStorage());
+        $session->set('csrf_private_key', 'render-test-key');
+        $controller = new QuestionnaireAvailabilityController(
+            $service ?? FakeAvailabilityService::sample(),
+            new FakeAvailabilityLookups(),
+            new Environment(new ArrayLoader()),
+            $session,
+            new NullLogger(),
+        );
+
+        return $controller->buildView($selectedId, $editId, $outcome);
+    }
+
+    /**
+     * Render each group's cells against core's default columns, the way the controller does.
+     *
+     * @param list<DuplicatePatientGroup> $groups
+     *
+     * @return list<DuplicatePatientGroup>
+     *
+     * @codeCoverageIgnore Only reached from the data provider, which runs before instrumentation.
+     */
+    private static function renderedGroups(array $groups): array
+    {
+        $columns = DuplicatePatientColumn::defaults();
+        foreach ($groups as $group) {
+            foreach ($group->getRows() as $row) {
+                $row->renderCells($columns);
+            }
+        }
+
+        return $groups;
+    }
+
+    /**
+     * A patient_data row shaped the way DuplicatePatientRow expects.
+     *
+     * @param array<string, mixed> $overrides
+     *
+     * @return array<string, mixed>
+     *
+     * @codeCoverageIgnore Only reached from the data provider, which runs before instrumentation.
+     */
+    private static function duplicatePatientRow(array $overrides = []): array
+    {
+        return array_merge([
+            'pid' => '1',
+            'pubpid' => 'PUB1',
+            'dupscore' => '13',
+            'lname' => 'Nakamura',
+            'fname' => 'Aiko',
+            'mname' => 'R',
+            'DOB' => '1984-11-02',
+            'sex' => 'Female',
+            'email' => 'aiko@example.com',
+            'phone_home' => '555-1000',
+            'phone_biz' => '',
+            'phone_cell' => '555-2000',
+            'regdate' => '2020-04-01',
+            'street' => '12 Elm St',
+        ], $overrides);
     }
 
     /**
@@ -512,9 +928,8 @@ class TwigTemplateRenderTest extends TestCase
             return self::$twig;
         }
 
-        $GLOBALS['fileroot'] ??= self::fileroot();
-        $GLOBALS['date_display_format'] ??= 0;
-        $GLOBALS['disable_translation'] = true;
+        self::applyRenderingGlobals();
+        self::applyAssetVersion();
 
         // Also load interface/ so encounter form templates resolve under the same
         // names they use in production, e.g. /forms/care_plan/templates/x.html.twig.

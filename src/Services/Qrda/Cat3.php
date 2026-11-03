@@ -92,7 +92,7 @@ class Cat3 extends \Mustache_Engine
         return $xml;
     }
 
-    protected function agg_results($measure_id, $cache_entries, $population_sets)
+    protected function agg_results($measure_id, $cache_entries, $population_sets): AggregateCount
     {
         $aggregate_count = new AggregateCount($measure_id);
         foreach ($cache_entries as $cache_entry) {
@@ -108,7 +108,7 @@ class Cat3 extends \Mustache_Engine
         return json_decode(json_encode($measure_results));
     }
 
-    public function cpcplus()
+    public function cpcplus(): bool
     {
         return $this->submission_program == 'CPCPLUS';
         /**

@@ -191,9 +191,7 @@ class FHIRMedicinalProductIngredientSubstance extends FHIRBackboneElement implem
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductIngredientSubstance xmlns="http://hl7.org/fhir"></MedicinalProductIngredientSubstance>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductIngredientSubstance xmlns="http://hl7.org/fhir"></MedicinalProductIngredientSubstance>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));

@@ -123,8 +123,132 @@ YAML;
 - branch: rel-810
   docker_tags: 8.1.1,latest
   openemr_version_ref: v8_1_1
+  gate_with_acceptance: true
 YAML;
         self::assertSame($expected, $this->readTarget());
+    }
+
+    public function testPriorPatchRowOnSameBranchLosesLatestOnPatchShip(): void
+    {
+        // Mirrors the real 8.4.1-on-rel-840 finalize state that exposed
+        // G41: prior patch row (8.4.0) on the SAME rel branch was still
+        // carrying `latest`. Pre-fix, Step 1's skip condition was
+        // `$row['branch'] === $relBranch` which incorrectly protected
+        // the prior-patch row too, leaving both rows claiming `latest`
+        // (Docker Hub can only point `latest` at one image; whichever
+        // orchestrator tick runs last wins).
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.5.0,dev
+  openemr_version_ref: master
+
+- branch: rel-840
+  docker_tags: 8.4.1,next
+  openemr_version_ref: rel-840
+
+- branch: rel-840
+  docker_tags: 8.4.0,latest
+  openemr_version_ref: v8_4_0
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.4.1', 'rel-840');
+        (new PostReleaseTargetsMutator())->apply($context);
+
+        $parsed = Yaml::parse($this->readTarget());
+        self::assertIsArray($parsed);
+        // Collect all latest-claimers across the file.
+        $latestClaimers = [];
+        foreach ($parsed as $row) {
+            self::assertIsArray($row);
+            $tags = $row['docker_tags'] ?? '';
+            self::assertIsString($tags);
+            if (str_contains($tags, 'latest')) {
+                $tagsList = $row['docker_tags'];
+                self::assertIsString($tagsList);
+                $ref = $row['openemr_version_ref'] ?? '';
+                self::assertIsString($ref);
+                $latestClaimers[] = $ref . ' (' . $tagsList . ')';
+            }
+        }
+        self::assertSame(
+            ['v8_4_1 (8.4.1,latest)'],
+            $latestClaimers,
+            'only the just-shipped 8.4.1 row may carry latest after finalize; prior patch row must lose it',
+        );
+    }
+
+    public function testPriorPatchRowSameBranchStripIsIdempotent(): void
+    {
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.5.0,dev
+  openemr_version_ref: master
+
+- branch: rel-840
+  docker_tags: 8.4.1,next
+  openemr_version_ref: rel-840
+
+- branch: rel-840
+  docker_tags: 8.4.0,latest
+  openemr_version_ref: v8_4_0
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.4.1', 'rel-840');
+        $mutator = new PostReleaseTargetsMutator();
+        $first = $mutator->apply($context);
+        self::assertTrue($first->changed());
+        $second = $mutator->apply($context);
+        self::assertFalse($second->changed(), 'second run must be a no-op even for the same-branch prior-patch strip case');
+    }
+
+    public function testDuplicateLatestClaimsAreStrippedEvenWhenShippedRowAlreadyHasLatest(): void
+    {
+        // Rabbit-caught corner (2026-09-18): if the shipped row already
+        // has `latest` (say the rel row was manually set or a prior run
+        // half-completed) AND a prior-patch row on the same branch also
+        // still has `latest`, the mutator must still strip the prior
+        // row. Pre-fix historical code had an `if (!$relAlreadyLatest)`
+        // short-circuit at the top of Step 1 that skipped the whole
+        // strip loop when the rel row already claimed `latest` -- which
+        // paired with the pre-G41 branch-match skip to hide this
+        // duplicate case. The G41 skip fix + short-circuit-drop together
+        // close it.
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.5.0,dev
+  openemr_version_ref: master
+
+- branch: rel-840
+  docker_tags: 8.4.1,latest
+  openemr_version_ref: v8_4_1
+
+- branch: rel-840
+  docker_tags: 8.4.0,latest
+  openemr_version_ref: v8_4_0
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.4.1', 'rel-840');
+        $result = (new PostReleaseTargetsMutator())->apply($context);
+        self::assertTrue($result->changed(), 'duplicate latest claim on prior row must be cleaned up');
+
+        $parsed = Yaml::parse($this->readTarget());
+        self::assertIsArray($parsed);
+        $latestClaimers = [];
+        foreach ($parsed as $row) {
+            self::assertIsArray($row);
+            $tags = $row['docker_tags'] ?? '';
+            self::assertIsString($tags);
+            if (str_contains($tags, 'latest')) {
+                $ref = $row['openemr_version_ref'] ?? '';
+                self::assertIsString($ref);
+                $latestClaimers[] = $ref;
+            }
+        }
+        self::assertSame(
+            ['v8_4_1'],
+            $latestClaimers,
+            'only the just-shipped row may retain `latest` after duplicate cleanup',
+        );
     }
 
     public function testCommentsArePreservedOnSlotShuffleRows(): void
@@ -237,7 +361,9 @@ YAML;
         // Legacy rel-NMP shapes (e.g. rel-704) don't fit the modern
         // rel-NN0 regex. isVersionTagFor() must still treat v7_0_X as
         // the "active" tag for rel-704 so re-running on already-mutated
-        // input is a no-op (idempotency requirement).
+        // input is a no-op (idempotency requirement). Also legacy rel
+        // branches predate the acceptance-package infrastructure so
+        // the G44 gate_with_acceptance backfill correctly skips them.
         $input = <<<'YAML'
 - branch: master
   docker_tags: 8.2.0,dev,next
@@ -254,9 +380,74 @@ YAML;
         $first = $mutator->apply($context);
         self::assertFalse(
             $first->changed(),
-            'already-shipped rel-704 should be a no-op (active row recognised via v7_0_X tag)',
+            'already-shipped rel-704 should be a no-op (active row recognised via v7_0_X tag; legacy branch skipped by acceptance-gate backfill)',
         );
         self::assertSame($input, $this->readTarget());
+    }
+
+    public function testBackfillsGateWithAcceptanceOnPromotedRowWhenMissing(): void
+    {
+        // G44 backfill (2026-09-20): pre-G44 PatchPrepReleaseTargetsMutator
+        // template omitted gate_with_acceptance from the inserted dev
+        // row. Any patch release whose dev row was created by pre-G44
+        // patch-prep reaches finalize without the field. This backfill
+        // ensures the shipped row has it -- so docker-release-
+        // orchestrator fires docker-build-release.yml with
+        // gate_with_acceptance=true (gated path with acceptance-gate
+        // matrix), not the non-gated path that skips acceptance.
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.5.0,dev
+  openemr_version_ref: master
+  gate_with_acceptance: true
+
+- branch: rel-840
+  docker_tags: 8.4.1,next
+  openemr_version_ref: rel-840
+
+- branch: rel-840
+  docker_tags: 8.4.0,latest
+  openemr_version_ref: v8_4_0
+  gate_with_acceptance: true
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.4.1', 'rel-840');
+        (new PostReleaseTargetsMutator())->apply($context);
+
+        $output = $this->readTarget();
+        // The promoted row (8.4.1,latest / v8_4_1) must now carry gate_with_acceptance.
+        self::assertMatchesRegularExpression(
+            '/- branch: rel-840\s+docker_tags: 8\.4\.1,latest\s+openemr_version_ref: v8_4_1\s+gate_with_acceptance: true/',
+            $output,
+        );
+    }
+
+    public function testBackfillIsIdempotentWhenGateWithAcceptanceAlreadyPresent(): void
+    {
+        // Branch-cut-inserted rows already carry gate_with_acceptance
+        // (BranchCutReleaseTargetsMutator's template includes it).
+        // Backfill must be a no-op in that case.
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.2.0,dev
+  openemr_version_ref: master
+  gate_with_acceptance: true
+
+- branch: rel-810
+  docker_tags: 8.1.1,next
+  openemr_version_ref: rel-810
+  gate_with_acceptance: true
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', 'rel-810');
+        $mutator = new PostReleaseTargetsMutator();
+        $first = $mutator->apply($context);
+        self::assertTrue($first->changed(), 'first run should still promote next -> latest + pin ref');
+
+        // Second run on the mutated state: no-op (backfill idempotent,
+        // shuffle already done).
+        $second = $mutator->apply($context);
+        self::assertFalse($second->changed(), 'second run must be a no-op even with the G44 backfill step in the mix');
     }
 
     public function testSkipsWhenTargetRelBranchHasNoLiveRow(): void

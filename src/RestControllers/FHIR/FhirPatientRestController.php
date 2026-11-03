@@ -44,9 +44,7 @@ class FhirPatientRestController
     }
     public function getOEGlobals(): OEGlobalsBag
     {
-        if (!isset($this->oeGlobalsBag)) {
-            $this->oeGlobalsBag = new OEGlobalsBag();
-        }
+        $this->oeGlobalsBag ??= new OEGlobalsBag();
         return $this->oeGlobalsBag;
     }
 
@@ -730,6 +728,10 @@ class FhirPatientRestController
     public function getAll(array $searchParams, ?string $puuidBind = null): Response
     {
         $processingResult = $this->getFhirPatientService()->getAll($searchParams, $puuidBind);
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [

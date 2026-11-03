@@ -319,9 +319,7 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductManufacturingBusinessOperation xmlns="http://hl7.org/fhir"></MedicinalProductManufacturingBusinessOperation>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductManufacturingBusinessOperation xmlns="http://hl7.org/fhir"></MedicinalProductManufacturingBusinessOperation>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->operationType)) {
             $this->operationType->xmlSerialize(true, $sxe->addChild('operationType'));

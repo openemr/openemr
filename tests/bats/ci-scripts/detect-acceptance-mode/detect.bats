@@ -16,6 +16,9 @@
 #   - push/pull_request with no relevant change
 #   - emit_to_version's X.Y.Z validation
 #   - DISPATCH_TO_VERSION overriding the PR-title preferred value
+#   - emit_expected_version + read_tree_version (openemr/openemr#13753):
+#     build_locally=true reads version.php; build_locally=false mirrors
+#     to_version; missing/malformed version.php fails loud
 #
 # What's NOT covered
 #   - actual GitHub Actions expression rendering — the tests set the
@@ -37,7 +40,7 @@ teardown() {
 
 # --- workflow_call gate ---
 
-@test "workflow_call gate happy path (both artifacts + to_version) -> build_locally=true, to_version=input" {
+@test "workflow_call gate happy path (both artifacts + to_version) -> build_locally=true, expected_version=to_version" {
     export EVENT_NAME="workflow_dispatch"
     export CALLER_TARBALL_ARTIFACT="my-tarball"
     export CALLER_ZIP_ARTIFACT="my-zip"
@@ -49,6 +52,40 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
     [[ "${emitted}" == *"to_version=8.2.1"* ]]
+    # workflow_call gate: expected_version MUST equal to_version, NOT be
+    # read from the checkout's version.php (seeded here at 8.4.99). The
+    # caller-supplied tarball was built with --release-version=to_version
+    # so the running artifact self-reports to_version verbatim. Reading
+    # from the checkout was the openemr/openemr#13761 regression that
+    # made the 8.4.0 ship's acceptance-gate fail (expected=8.5.0 vs
+    # actual=8.4.0); guard against reintroduction.
+    [[ "${emitted}" == *"expected_version=8.2.1"* ]]
+    [[ "${emitted}" != *"expected_version=8.4.99"* ]]
+}
+
+@test "workflow_call gate: expected_version pins to_version even when checkout version.php differs (8.4.0 ship regression guard)" {
+    # Simulates the exact 8.4.0 ship failure: build-release-on-tag fires
+    # against a v8_4_0 tag but its inherited github.ref is master, so
+    # actions/checkout lands on master, whose version.php reads e.g.
+    # 8.5.0-dev. Without the fix, emit_expected_version("true") reads
+    # master's 8.5.0-dev -> ACCEPTANCE_EXPECTED_VERSION=8.5.0 while the
+    # tarball self-reports 8.4.0 -> every acceptance-gate cell fails.
+    export EVENT_NAME="workflow_dispatch"
+    export CALLER_TARBALL_ARTIFACT="release-candidate-8.4.0-tarball"
+    export CALLER_ZIP_ARTIFACT="release-candidate-8.4.0-zip"
+    export DISPATCH_TO_VERSION="8.4.0"
+    # Checkout carries master's next-cycle version.php (would resolve to
+    # 8.5.0 under read_tree_version) — deliberately distinct from
+    # DISPATCH_TO_VERSION to catch any regression that re-couples
+    # expected_version to the checkout instead of to_version.
+    seed_version_php 8 5 0
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"to_version=8.4.0"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.0"* ]]
+    [[ "${emitted}" != *"expected_version=8.5.0"* ]]
 }
 
 @test "workflow_call gate half-set (only tarball) -> exit 1 with both-or-neither error" {
@@ -101,6 +138,9 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
     [[ "${emitted}" == *"to_version=8.2.1"* ]]
+    # build_locally=true: expected_version reads version.php (seeded 8.4.99).
+    # Independent of the PR-title-parsed to_version.
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 @test "release-prep branch on pull_request without parseable title -> to_version=99.99.99" {
@@ -117,6 +157,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
     [[ "${emitted}" == *"to_version=99.99.99"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 @test "release-prep branch on push event -> build_locally=true, to_version resolved" {
@@ -130,6 +171,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
     [[ "${emitted}" == *"to_version=99.99.99"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 # --- workflow_dispatch ---
@@ -145,6 +187,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
     [[ "${emitted}" == *"to_version=99.99.99"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 @test "workflow_dispatch with DISPATCH_BUILD_LOCALLY=false + DISPATCH_TO_VERSION=8.2.5 -> honors both" {
@@ -158,6 +201,9 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=false"* ]]
     [[ "${emitted}" == *"to_version=8.2.5"* ]]
+    # build_locally=false: expected_version mirrors to_version
+    # (label=actual on shipped-tarball path).
+    [[ "${emitted}" == *"expected_version=8.2.5"* ]]
 }
 
 # --- non-push/pull_request fallback ---
@@ -171,6 +217,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=false"* ]]
     [[ "${emitted}" == *"to_version=8.2.0"* ]]
+    [[ "${emitted}" == *"expected_version=8.2.0"* ]]
 }
 
 # --- branch-creation event (BASE=000...) ---
@@ -187,6 +234,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=false"* ]]
     [[ "${emitted}" == *"to_version=8.2.0"* ]]
+    [[ "${emitted}" == *"expected_version=8.2.0"* ]]
 }
 
 # --- diff-based detection ---
@@ -204,6 +252,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
     [[ "${emitted}" == *"to_version=99.99.99"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 @test "git diff failure surfaces loudly with ::error:: (not silently masked by grep)" {
@@ -242,6 +291,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=false"* ]]
     [[ "${emitted}" == *"to_version=8.2.0"* ]]
+    [[ "${emitted}" == *"expected_version=8.2.0"* ]]
 }
 
 @test "pull_request with build.xml change -> build_locally=true" {
@@ -256,6 +306,7 @@ teardown() {
     local emitted
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 @test "pull_request with .gitattributes change -> build_locally=true" {
@@ -270,6 +321,7 @@ teardown() {
     local emitted
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 # --- emit_to_version validator ---
@@ -301,6 +353,91 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"to_version=8.3.0"* ]]
     [[ "${emitted}" != *"to_version=8.2.1"* ]]
+    # build_locally=true: expected_version tracks the checkout's
+    # version.php (seeded 8.4.99), independent of the label choice.
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
+}
+
+# --- emit_expected_version + read_tree_version (openemr/openemr#13753) ---
+#
+# The build_locally acceptance path historically used `TO_VERSION` as
+# the expected value for the post-install / post-upgrade version-display
+# and version-api acceptance groups. But `TO_VERSION` on that path is a
+# cosmetic 99.99.99 label — PackageAssembler does not bake it into the
+# packaged codebase, so the DB `version` table (populated by
+# sql_upgrade.php from what's actually in version.php) can never equal
+# the label. Assertions therefore couldn't pass. `expected_version` is
+# read from the checkout's version.php on build_locally=true, so the
+# assertions have a chance of matching.
+
+@test "read_tree_version reads seeded version.php (build_locally=true, dispatch)" {
+    # Override the setup default (8.4.99) to prove the value flows
+    # from the file, not a constant baked into the script.
+    seed_version_php 9 1 2
+    export EVENT_NAME="workflow_dispatch"
+    export DISPATCH_BUILD_LOCALLY="true"
+    export DISPATCH_TO_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"to_version=99.99.99"* ]]
+    [[ "${emitted}" == *"expected_version=9.1.2"* ]]
+    [[ "${output}" == *"resolved expected_version=9.1.2"* ]]
+}
+
+@test "read_tree_version: missing version.php -> exit 1 (build_locally path)" {
+    # Simulate a checkout where version.php is somehow absent — the
+    # script must fail loud rather than emit an empty or bogus
+    # expected_version.
+    rm -f version.php
+    export EVENT_NAME="workflow_dispatch"
+    export DISPATCH_BUILD_LOCALLY="true"
+    export DISPATCH_TO_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::read_tree_version: cannot read version.php"* ]]
+    # Must NOT have emitted expected_version.
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" != *"expected_version="* ]]
+}
+
+@test "read_tree_version: missing \$v_patch line -> exit 1 (build_locally path)" {
+    # Malformed version.php: has $v_major and $v_minor but not $v_patch.
+    # Must fail loud, not emit a partial value.
+    cat > version.php <<'PHP'
+<?php
+$v_major = '8';
+$v_minor = '4';
+PHP
+    export EVENT_NAME="workflow_dispatch"
+    export DISPATCH_BUILD_LOCALLY="true"
+    export DISPATCH_TO_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::read_tree_version: failed to parse"* ]]
+    [[ "${output}" == *"patch=''"* ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" != *"expected_version="* ]]
+}
+
+@test "read_tree_version NOT called on build_locally=false (missing version.php ok)" {
+    # Build_locally=false path must not require version.php — the
+    # expected_version mirrors to_version, which is either the
+    # shipped-version default or a dispatch input. Removing
+    # version.php then running a build_locally=false path must not
+    # trip read_tree_version.
+    rm -f version.php
+    export EVENT_NAME="schedule"
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"build_locally=false"* ]]
+    [[ "${emitted}" == *"to_version=8.2.0"* ]]
+    [[ "${emitted}" == *"expected_version=8.2.0"* ]]
 }
 
 # --- from_version derivation from sql/*-to-*_upgrade.sql (openemr/openemr#13573) ---
@@ -326,7 +463,17 @@ teardown() {
 
 @test "empty DISPATCH_FROM_VERSION -> derives from checkout's sql/*-to-*_upgrade.sql (rel-830 shape)" {
     # rel-830 shape: upgrade files include 8_2_0-to-8_3_0, so the
-    # max from-version is 8.2.0.
+    # candidates are {8.1.0, 8.1.1, 8.2.0}. All three are in the
+    # default shipped manifest -> matched={8.1.0, 8.1.1, 8.2.0}.
+    #
+    # This test hits the schedule fallback path where TO defaults
+    # to the hardcoded "8.2.0". The exclude-to_version filter (see
+    # the derive_from_version comment on why) removes 8.2.0 from
+    # matched -> max becomes 8.1.1. Before that filter the test
+    # asserted 8.2.0 (which was the degenerate from=to case, only
+    # ever hit when TO happened to also be the max candidate); the
+    # filter converts this into a real 8.1.1 -> 8.2.0 upgrade
+    # transition.
     seed_sql_upgrade_fixtures \
         8_1_0-to-8_1_1 \
         8_1_1-to-8_2_0 \
@@ -337,7 +484,9 @@ teardown() {
     [[ ${status} -eq 0 ]]
     local emitted
     emitted="$(read_output)"
-    [[ "${emitted}" == *"from_version=8.2.0"* ]]
+    [[ "${emitted}" == *"to_version=8.2.0"* ]]
+    [[ "${emitted}" == *"from_version=8.1.1"* ]]
+    [[ "${emitted}" != *"from_version=8.2.0"* ]]
 }
 
 @test "empty DISPATCH_FROM_VERSION -> derives from checkout's sql/*-to-*_upgrade.sql (master shape)" {
@@ -355,6 +504,82 @@ teardown() {
     local emitted
     emitted="$(read_output)"
     [[ "${emitted}" == *"from_version=8.3.0"* ]]
+}
+
+@test "empty DISPATCH_FROM_VERSION + to_version equals highest matched candidate -> picks next-highest (excludes to_version)" {
+    # Real-recovery / recovery-path-smoketest scenario: an
+    # already-shipped version is passed as to_version (e.g. 8.4.0),
+    # and both the sql/ candidates AND the shipped manifest contain
+    # 8.4.0. Without the exclude-to_version filter,
+    # derive_from_version would pick from=8.4.0 (=to_version) and
+    # the resulting upgrade test would be a degenerate 8.4.0 ->
+    # 8.4.0 no-op. Filter ensures from = next-highest shipped that
+    # isn't to_version. Openemr/openemr#13991 nightly smoketest is
+    # the primary consumer.
+    seed_sql_upgrade_fixtures \
+        8_2_0-to-8_3_0 \
+        8_3_0-to-8_4_0 \
+        8_4_0-to-8_5_0
+    export MOCK_SHIPPED_VERSIONS=$'8.2.0\n8.3.0\n8.4.0'
+    # Reach derive_from_version via the workflow_call gate path
+    # (CALLER_*_ARTIFACT set + DISPATCH_TO_VERSION set).
+    export EVENT_NAME="workflow_call"
+    export CALLER_TARBALL_ARTIFACT="mock-artifact"
+    export CALLER_ZIP_ARTIFACT="mock-artifact"
+    export DISPATCH_TO_VERSION="8.4.0"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"to_version=8.4.0"* ]]
+    [[ "${emitted}" == *"from_version=8.3.0"* ]]
+    [[ "${emitted}" != *"from_version=8.4.0"* ]]
+}
+
+@test "empty DISPATCH_FROM_VERSION + only candidate equals to_version -> exit 1 with actionable error" {
+    # Edge case: the only shipped candidate matches to_version.
+    # After exclude-to_version filter, matched is empty; must fail
+    # loudly (there's no valid upgrade path to test) rather than
+    # silently degenerate. Contrived setup -- in practice sql/
+    # always has many historic upgrade files.
+    seed_sql_upgrade_fixtures 8_4_0-to-8_5_0
+    export MOCK_SHIPPED_VERSIONS=$'8.4.0'
+    export EVENT_NAME="workflow_call"
+    export CALLER_TARBALL_ARTIFACT="mock-artifact"
+    export CALLER_ZIP_ARTIFACT="mock-artifact"
+    export DISPATCH_TO_VERSION="8.4.0"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::"* ]]
+    [[ "${output}" == *"after excluding to_version (8.4.0)"* ]]
+    [[ "${output}" == *"no from-version remains"* ]]
+}
+
+@test "empty DISPATCH_FROM_VERSION + to_version not in candidates -> unchanged (filter is no-op)" {
+    # Real ship scenario (unchanged behavior): to_version is a NEW
+    # release (not yet in shipped manifest). Filter has nothing to
+    # remove; derivation picks the highest matched candidate as
+    # before. This is what real 8.5.0 ships look like today.
+    seed_sql_upgrade_fixtures \
+        8_2_0-to-8_3_0 \
+        8_3_0-to-8_4_0 \
+        8_4_0-to-8_5_0
+    export MOCK_SHIPPED_VERSIONS=$'8.2.0\n8.3.0\n8.4.0'
+    export EVENT_NAME="workflow_call"
+    export CALLER_TARBALL_ARTIFACT="mock-artifact"
+    export CALLER_ZIP_ARTIFACT="mock-artifact"
+    # to_version=8.5.0 is the version being shipped -- NOT yet in
+    # the shipped manifest.
+    export DISPATCH_TO_VERSION="8.5.0"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"to_version=8.5.0"* ]]
+    [[ "${emitted}" == *"from_version=8.4.0"* ]]
 }
 
 @test "explicit DISPATCH_FROM_VERSION overrides derivation" {

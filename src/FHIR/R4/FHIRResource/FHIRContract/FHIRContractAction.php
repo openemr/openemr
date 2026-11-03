@@ -962,9 +962,7 @@ class FHIRContractAction extends FHIRBackboneElement implements \JsonSerializabl
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContractAction xmlns="http://hl7.org/fhir"></ContractAction>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ContractAction xmlns="http://hl7.org/fhir"></ContractAction>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->doNotPerform)) {
             $this->doNotPerform->xmlSerialize(true, $sxe->addChild('doNotPerform'));

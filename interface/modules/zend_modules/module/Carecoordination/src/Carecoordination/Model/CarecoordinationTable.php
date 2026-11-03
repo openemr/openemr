@@ -22,6 +22,7 @@ use DOMDocument;
 use Exception;
 use OpenEMR\Common\Command\Trait\CommandLineDebugStylerTrait;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
@@ -463,7 +464,6 @@ class CarecoordinationTable
      */
     public function insert_patient($audit_master_id, $document_id)
     {
-        require_once(__DIR__ . "/../../../../../../../../library/patient.inc.php");
         $pid = 0;
         $a = 1;
         $b = 1;
@@ -984,7 +984,7 @@ class CarecoordinationTable
      * @param $ymd
      * @return string
      */
-    public function formatDate($unformatted_date, $ymd = 1)
+    public function formatDate($unformatted_date, $ymd = 1): string
     {
         $day = substr((string) $unformatted_date, 6, 2);
         $month = substr((string) $unformatted_date, 4, 2);
@@ -1059,9 +1059,8 @@ class CarecoordinationTable
 
     /**
      * @param $lab_array
-     * @return array
      */
-    public function buildLabArray($lab_array)
+    public function buildLabArray($lab_array): array
     {
         // nothing to build if we are empty here.
         if (empty($lab_array)) {
@@ -1070,17 +1069,14 @@ class CarecoordinationTable
         $groupResults = [];
         foreach ($lab_array as $result) {
             $formattedDate = date('Y-m-d H:i:s', strtotime((string) $result['date']));
-            if (!isset($groupResults[$formattedDate])) {
-                // Initialize a new group for this date
-                $groupResults[$formattedDate] = [
-                    'date' => $formattedDate,
-                    'proc_text' => $result['proc_text'],
-                    'proc_code' => $result['proc_code'],
-                    'extension' => $result['extension'],
-                    'status' => $result['status'],
-                    'results' => []
-                ];
-            }
+            $groupResults[$formattedDate] ??= [
+                'date' => $formattedDate,
+                'proc_text' => $result['proc_text'],
+                'proc_code' => $result['proc_code'],
+                'extension' => $result['extension'],
+                'status' => $result['status'],
+                'results' => []
+            ];
             $groupResults[$formattedDate]['results'][] = [
                 'result_date' => $result['results_date'] ?? '',
                 'result_text' => $result['results_text'] ?? '',
@@ -1920,11 +1916,16 @@ class CarecoordinationTable
                             }
                         }
                     }
-                } elseif (str_starts_with((string) $key, 'patient_data')) {
+                } elseif (is_string($key) && str_starts_with($key, 'patient_data')) {
                     if ($val == 'update') {
-                        $var_name = substr((string) $key, 0, -4);
+                        $var_name = substr($key, 0, -4);
                         $field_name = substr($var_name, 13);
-                        $patient_data_fields .= $field_name . '=?,';
+                        try {
+                            $escaped = escape_sql_column_name($field_name, ['patient_data'], false, true);
+                        } catch (SqlQueryException) {
+                            continue;
+                        }
+                        $patient_data_fields .= "$escaped=?,";
                         array_push($patient_data_values, $data[$var_name]);
                     }
                 }
@@ -2087,7 +2088,7 @@ class CarecoordinationTable
      * @param $type
      * @return string[]
      */
-    public function getCCDAComponents($type)
+    public function getCCDAComponents($type): array
     {
         $components = ['schematron' => 'Errors'];
         $query = "select * from ccda_components where ccda_type = ?";
@@ -2173,7 +2174,7 @@ class CarecoordinationTable
      * @return string Cleaned XML content.
      * @throws Exception If the input XML is invalid or cannot be parsed.
      */
-    function cleanCcdaXmlContent(string $xmlContent, bool $replaceBr = false): string
+    public function cleanCcdaXmlContent(string $xmlContent, bool $replaceBr = false): string
     {
         // Handle <br/> tags if required
         if ($replaceBr) {

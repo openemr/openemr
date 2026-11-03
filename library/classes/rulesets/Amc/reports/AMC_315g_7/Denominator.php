@@ -23,7 +23,7 @@ class AMC_315g_7_Denominator implements AmcFilterIF, IAmcItemizedReport
         $this->actionData = new AmcItemizedActionData();
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_315g_7 Denominator";
     }

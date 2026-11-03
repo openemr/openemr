@@ -474,9 +474,7 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CoverageEligibilityRequestItem xmlns="http://hl7.org/fhir"></CoverageEligibilityRequestItem>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CoverageEligibilityRequestItem xmlns="http://hl7.org/fhir"></CoverageEligibilityRequestItem>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->supportingInfoSequence)) {
             foreach ($this->supportingInfoSequence as $supportingInfoSequence) {

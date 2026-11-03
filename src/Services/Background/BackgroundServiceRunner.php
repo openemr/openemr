@@ -314,8 +314,15 @@ class BackgroundServiceRunner
     private function resolveSpawner(): BackgroundServiceProcessSpawner
     {
         if ($this->spawner === null) {
-            $projectDir = OEGlobalsBag::getInstance()->getProjectDir();
-            $this->spawner = new SymfonyBackgroundServiceSpawner($projectDir, $this->logger);
+            $globals = OEGlobalsBag::getInstance();
+            // Children must bootstrap the same site as this process; OE_SITE_DIR
+            // is sites/<site_id> for whichever site this process was started for.
+            $siteDir = $globals->getString('OE_SITE_DIR');
+            $this->spawner = new SymfonyBackgroundServiceSpawner(
+                $globals->getProjectDir(),
+                $this->logger,
+                site: $siteDir === '' ? null : basename($siteDir),
+            );
         }
         return $this->spawner;
     }

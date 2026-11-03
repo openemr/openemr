@@ -15,12 +15,12 @@ use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
 class DeviceRecommendedService extends AbstractCarePlanService implements QdmServiceInterface
 {
-    public function getCarePlanType()
+    public function getCarePlanType(): string
     {
         return parent::CARE_PLAN_TYPE_DEVICE_RECOMMENDED;
     }
 
-    public function getModelClass()
+    public function getModelClass(): string
     {
         return DeviceRecommended::class;
     }

@@ -38,6 +38,25 @@ final readonly class CalendarRenderDataBuilder
     }
 
     /**
+     * Category type carried on the calendar event id.
+     *
+     * The edit dialog uses 0 for a patient visit and 1 for a provider
+     * appointment. Database values arrive as ints. An empty value opens
+     * the patient tab.
+     */
+    public static function categoryTypeToken(mixed $value): string
+    {
+        if (is_int($value)) {
+            return (string) $value;
+        }
+        if (is_string($value) && preg_match('/^[0-9]+$/', $value) === 1) {
+            return $value;
+        }
+
+        return '';
+    }
+
+    /**
      * Build the render-data array for `month_print/outlook_ajax_template.html.twig`.
      *
      * Inputs are the same shape pnuserapi.php already assembles for
@@ -641,6 +660,8 @@ final readonly class CalendarRenderDataBuilder
             ];
         }
 
+        $selectableFacilities = self::selectableFacilities($facilities, $pcFacility);
+
         return [
             'viewtype'                => 'month',
             'Date'                    => $dateYmd,
@@ -658,10 +679,10 @@ final readonly class CalendarRenderDataBuilder
             'nextMonthName'           => $nextMonthName,
             'currentMiniCal'          => $currentMini,
             'monthSelectorHtml'       => $monthSelectorHtml,
-            'showFacilitySelect'      => count($facilities) > 1,
+            'showFacilitySelect'      => self::showFacilitySelect($selectableFacilities, $showAllFacilitiesOption),
             'showAllFacilitiesOption' => $showAllFacilitiesOption,
             'pc_facility'             => $pcFacility,
-            'facilities'              => self::sanitizeFacilityColors($facilities),
+            'facilities'              => self::sanitizeFacilityColors($selectableFacilities),
             'provinfo'                => $provinfo,
             'selectedUsernames'       => $selectedUsernames,
             'providersGrid'           => $providersGrid,
@@ -742,7 +763,7 @@ final readonly class CalendarRenderDataBuilder
                 $facilityRow
             );
 
-            $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
+            $pccattype = self::categoryTypeToken($event['pccattype'] ?? null);
 
             $decorated[] = [
                 'eid'                 => $eidRaw,
@@ -829,6 +850,11 @@ final readonly class CalendarRenderDataBuilder
             ? substr($eventDate, 0, 4) . substr($eventDate, 5, 2) . substr($eventDate, 8, 2)
             : '';
 
+        // Clinic-wide holiday (catid 6) or closed (catid 7) blocks new appointments
+        // in provider columns via full-height event overlays. Surface the same
+        // flag so the time gutter can refuse newEvt / direct-select create.
+        $isHolidayDay = $this->dayHasHolidayOrClosed($aEvents[$eventDate] ?? []);
+
         $providersGrid = [];
         foreach ($providers as $provider) {
             $providerIdRaw = $provider['id'] ?? null;
@@ -872,6 +898,8 @@ final readonly class CalendarRenderDataBuilder
             ];
         }
 
+        $selectableFacilities = self::selectableFacilities($facilities, $pcFacility);
+
         return [
             'viewtype'                => 'day',
             'Date'                    => $dateYmd,
@@ -889,14 +917,16 @@ final readonly class CalendarRenderDataBuilder
             'nextMonthName'           => $nextMonthName,
             'currentMiniCal'          => $currentMini,
             'monthSelectorHtml'       => $monthSelectorHtml,
-            'showFacilitySelect'      => count($facilities) > 1,
+            'showFacilitySelect'      => self::showFacilitySelect($selectableFacilities, $showAllFacilitiesOption),
             'showAllFacilitiesOption' => $showAllFacilitiesOption,
             'pc_facility'             => $pcFacility,
-            'facilities'              => self::sanitizeFacilityColors($facilities),
+            'facilities'              => self::sanitizeFacilityColors($selectableFacilities),
             'provinfo'                => $provinfo,
             'selectedUsernames'       => $selectedUsernames,
             'timeRows'                => $timeRows,
             'timeslotCss'             => $timeslotCss,
+            'timeslotHeightVal'       => $timeslotHeightVal,
+            'isHolidayDay'            => $isHolidayDay,
             'providers'               => $providersGrid,
             'webroot'                 => $webroot,
         ];
@@ -967,6 +997,19 @@ final readonly class CalendarRenderDataBuilder
         $timeslotCss = $timeslotHeightVal . $timeslotHeightUnit;
         $timeRows = $this->buildTimeRows($times, $isTwelveHourFormat);
 
+        // Week time gutter uses the focused Date for newEvt(); block when that day is a holiday.
+        $focusDateKey = null;
+        foreach (array_keys($aEvents) as $columnDate) {
+            $columnYmd = substr($columnDate, 0, 4) . substr($columnDate, 5, 2) . substr($columnDate, 8, 2);
+            if ($columnYmd === $dateYmd) {
+                $focusDateKey = $columnDate;
+                break;
+            }
+        }
+        $isHolidayDay = $focusDateKey !== null
+            ? $this->dayHasHolidayOrClosed($aEvents[$focusDateKey] ?? [])
+            : false;
+
         $providersGrid = [];
         foreach ($providers as $provider) {
             $providerIdRaw = $provider['id'] ?? null;
@@ -1019,6 +1062,7 @@ final readonly class CalendarRenderDataBuilder
                     'dayHeaderLabel'  => date('D m/d', $columnTs),
                     'classForWeekend' => $isWeekend ? 'weekend-day' : 'work-day',
                     'isCurrentDay'    => $columnYmd === $dateYmd,
+                    'isHolidayDay'    => $this->dayHasHolidayOrClosed($dateEvents),
                     'events'          => $columnEvents,
                 ];
             }
@@ -1031,6 +1075,8 @@ final readonly class CalendarRenderDataBuilder
                 'dayColumns' => $dayColumns,
             ];
         }
+
+        $selectableFacilities = self::selectableFacilities($facilities, $pcFacility);
 
         return [
             'viewtype'                => 'week',
@@ -1049,14 +1095,16 @@ final readonly class CalendarRenderDataBuilder
             'nextMonthName'           => $nextMonthName,
             'currentMiniCal'          => $currentMini,
             'monthSelectorHtml'       => $monthSelectorHtml,
-            'showFacilitySelect'      => count($facilities) > 1,
+            'showFacilitySelect'      => self::showFacilitySelect($selectableFacilities, $showAllFacilitiesOption),
             'showAllFacilitiesOption' => $showAllFacilitiesOption,
             'pc_facility'             => $pcFacility,
-            'facilities'              => self::sanitizeFacilityColors($facilities),
+            'facilities'              => self::sanitizeFacilityColors($selectableFacilities),
             'provinfo'                => $provinfo,
             'selectedUsernames'       => $selectedUsernames,
             'timeRows'                => $timeRows,
             'timeslotCss'             => $timeslotCss,
+            'timeslotHeightVal'       => $timeslotHeightVal,
+            'isHolidayDay'            => $isHolidayDay,
             'providers'               => $providersGrid,
             'webroot'                 => $webroot,
         ];
@@ -1178,7 +1226,7 @@ final readonly class CalendarRenderDataBuilder
                 $facilityRow
             );
 
-            $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
+            $pccattype = self::categoryTypeToken($event['pccattype'] ?? null);
 
             $entry = [
                 'eid'                => $eidRaw,
@@ -1326,7 +1374,7 @@ final readonly class CalendarRenderDataBuilder
                 $facilityRow
             );
 
-            $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
+            $pccattype = self::categoryTypeToken($event['pccattype'] ?? null);
 
             $entry = [
                 'eid'                => $eidRaw,
@@ -1422,6 +1470,63 @@ final readonly class CalendarRenderDataBuilder
     }
 
     /**
+     * The facilities the calendar offers: the active ones, plus the selected one even if it has
+     * since been deactivated, so the picker still shows what the calendar is filtered on.
+     *
+     * Rows without an `inactive` key count as active.
+     *
+     * @param  list<array<string, mixed>> $facilities
+     * @return list<array<string, mixed>>
+     */
+    private static function selectableFacilities(array $facilities, int $pcFacility): array
+    {
+        $result = [];
+        foreach ($facilities as $facility) {
+            $id = $facility['id'] ?? null;
+            $isSelected = is_numeric($id) && (int) $id === $pcFacility;
+            if (self::isInactiveFacility($facility) && !$isSelected) {
+                continue;
+            }
+            $result[] = $facility;
+        }
+        return $result;
+    }
+
+    /**
+     * Whether the calendar shows its facility picker: when there is more than one facility to
+     * choose from, or when the only one left is the selected facility, since deactivated, and
+     * "All Facilities" is offered to clear that selection.
+     *
+     * @param  list<array<string, mixed>> $selectableFacilities
+     */
+    private static function showFacilitySelect(array $selectableFacilities, bool $showAllFacilitiesOption): bool
+    {
+        if (count($selectableFacilities) > 1) {
+            return true;
+        }
+        if (!$showAllFacilitiesOption) {
+            return false;
+        }
+        foreach ($selectableFacilities as $facility) {
+            if (self::isInactiveFacility($facility)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether a facility row is marked inactive; the database hands the flag back as an int or a string.
+     *
+     * @param  array<string, mixed> $facility
+     */
+    private static function isInactiveFacility(array $facility): bool
+    {
+        $inactive = $facility['inactive'] ?? 0;
+        return $inactive === 1 || $inactive === '1';
+    }
+
+    /**
      * Sanitize the `color` field of each facility row so the templates
      * can safely embed it into inline style attributes.
      *
@@ -1509,6 +1614,26 @@ final readonly class CalendarRenderDataBuilder
         }
 
         return $event;
+    }
+
+    /**
+     * True when the day carries a clinic holiday (catid 6) or closed (catid 7)
+     * event. Those categories paint full-column overlays that block creating
+     * appointments on provider schedules; the time gutter needs the same signal.
+     *
+     * @param  list<array<string, mixed>> $events
+     */
+    private function dayHasHolidayOrClosed(array $events): bool
+    {
+        foreach ($events as $event) {
+            $catidRaw = $event['catid'] ?? 0;
+            $catid = is_int($catidRaw) || is_string($catidRaw) ? (int) $catidRaw : 0;
+            if ($catid === 6 || $catid === 7) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

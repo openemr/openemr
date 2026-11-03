@@ -9,7 +9,7 @@
 //
 class NQF_0421_Exclusion implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Exclusion";
     }

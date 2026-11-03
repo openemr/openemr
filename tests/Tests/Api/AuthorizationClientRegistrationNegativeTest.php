@@ -25,6 +25,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\AuthorizationController;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -174,5 +175,105 @@ class AuthorizationClientRegistrationNegativeTest extends TestCase
             "scope" => "openid",
         ], 'text/plain');
         $this->assertRejected($status, $body, "non-JSON content type");
+    }
+
+    /**
+     * 5. A jwks_uri pointing at loopback / RFC1918 / cloud-metadata /
+     *    non-http scheme must be rejected before it is persisted to the
+     *    oauth_clients table. Covers each of the primary rejection categories
+     *    (scheme, loopback, private-network, cloud metadata) end-to-end
+     *    through the HTTP response, not just the validator unit.
+     *
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unsafeJwksUriProvider(): array
+    {
+        return [
+            'loopback name'    => ['http://localhost/jwks'],
+            'loopback ipv4'    => ['http://127.0.0.1/jwks'],
+            'loopback ipv6'    => ['http://[::1]/jwks'],
+            'private ipv4'     => ['http://10.0.0.1/jwks'],
+            'private ipv4 192.168' => ['http://192.168.1.1/jwks'],
+            'aws metadata ip'  => ['http://169.254.169.254/latest/meta-data/'],
+            'gcp metadata name' => ['http://metadata.google.internal/'],
+            'file scheme'      => ['file:///etc/passwd'],
+            'gopher scheme'    => ['gopher://example.com/'],
+        ];
+    }
+
+    #[DataProvider('unsafeJwksUriProvider')]
+    public function testUnsafeJwksUriIsRejected(string $jwksUri): void
+    {
+        [$status, $body] = $this->registerWith([
+            "application_type" => "private",
+            "redirect_uris" => ["http://localhost:8080/oauth2/callback"],
+            "client_name" => "Outbound URL Rejection Test",
+            "token_endpoint_auth_method" => "private_key_jwt",
+            "contacts" => ["test@open-emr.org"],
+            "scope" => "openid",
+            "jwks_uri" => $jwksUri,
+        ]);
+        $this->assertRejected($status, $body, "unsafe jwks_uri: $jwksUri");
+    }
+
+    /**
+     * 6. A confidential (private) client requesting a privileged-context scope
+     *    in colon form (e.g. system:Patient.read, user:Patient.read,
+     *    patient:Patient.read) must be rejected. The colon delimiter is
+     *    reserved for SMART launch contexts (api:oemr, site:default, etc.);
+     *    every permission-bearing context must use the slash delimiter.
+     *
+     *    ScopeEntity::createFromString throws InvalidArgumentException at
+     *    parse time; validateScopesAgainstServerApprovedScopes catches the
+     *    invalid scope and raises OAuthServerException::invalidScope, which
+     *    clientRegistration() converts to a 4xx HTTP response.
+     */
+    public function testColonFormPrivilegedScopeIsRejected(): void
+    {
+        [$status, $body] = $this->registerWith([
+            "application_type" => "private",
+            "redirect_uris" => ["http://localhost:8080/oauth2/callback"],
+            "client_name" => "Colon System Client",
+            "token_endpoint_auth_method" => "private_key_jwt",
+            "contacts" => ["test@open-emr.org"],
+            "jwks" => ["keys" => [[
+                "kty" => "RSA",
+                "n" => "sXchDaQebHnPiGvyDOAT4saGEUetSyo9MKLOoWFsueri23bOdgWp4Dy1WlUzewbgBHod5pcM9H95GQRV3JDXboIRROSBigeC5yjU1hGzHHyXss8UDprecbAYxknTcQkhslANGRUZmdTOQ5ZTsSt1RwbGSKcNIGVpxKn5Fz-3wZ_wMg-BiTL7uKb1YnLBLK6zTOevD5rG-oJ2Xh0Rj_5Fk-oxaGdD1CInGGm4L5rNe6ULiNyk3z8hE0PBBJnpP4-VfXlOFA3zJPBSjA3W9CXCTn5H6DVoI9FUeS29H0Kzu9jGXm2y7pMBpUvL15pw",
+                "e" => "AQAB",
+                "kid" => "colon-poc",
+                "alg" => "RS256",
+                "use" => "sig",
+            ]]],
+            "scope" => "openid api:fhir system:Patient.read",
+        ]);
+        $this->assertRejected($status, $body, "colon-form system: scope");
+    }
+
+    public function testColonFormUserScopeIsRejected(): void
+    {
+        [$status, $body] = $this->registerWith([
+            "application_type" => "private",
+            "redirect_uris" => ["http://localhost:8080/oauth2/callback"],
+            "client_name" => "Colon User Client",
+            "token_endpoint_auth_method" => "client_secret_basic",
+            "contacts" => ["test@open-emr.org"],
+            "scope" => "openid user:Patient.read",
+        ]);
+        $this->assertRejected($status, $body, "colon-form user: scope");
+    }
+
+    public function testColonFormPatientScopeIsRejected(): void
+    {
+        [$status, $body] = $this->registerWith([
+            "application_type" => "private",
+            "redirect_uris" => ["http://localhost:8080/oauth2/callback"],
+            "client_name" => "Colon Patient Client",
+            "token_endpoint_auth_method" => "client_secret_basic",
+            "contacts" => ["test@open-emr.org"],
+            "scope" => "openid patient:Patient.read",
+        ]);
+        $this->assertRejected($status, $body, "colon-form patient: scope");
     }
 }

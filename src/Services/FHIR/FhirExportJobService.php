@@ -37,10 +37,9 @@ class FhirExportJobService
      * @param $jobUuidString The unique identifier for the job in string format
      * @param $clientId The api client the job belongs to
      * @param $userId The user that created the job request
-     * @return ExportJob
      * @throws \InvalidArgumentException if the $jobId, $clientId, or $userId is invalid
      */
-    public function getJobForUuid($jobUuidString, $clientId, $userId)
+    public function getJobForUuid($jobUuidString, $clientId, $userId): ExportJob
     {
         $sql = "SELECT `id`, `uuid`, `start_time`, `resource_include_time`, `output_format`, `resources`, "
             . "`client_id`, `user_id`, `access_token_id`, `status`, `request_uri`, `output`, `errors` "

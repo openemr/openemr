@@ -100,9 +100,7 @@ class SMARTAuthorizationController
 
     public function getPatientContextSearchController(): PatientContextSearchController
     {
-        if (!isset($this->patientContextSearchController)) {
-            $this->patientContextSearchController = new PatientContextSearchController(new PatientService(), $this->logger);
-        }
+        $this->patientContextSearchController ??= new PatientContextSearchController(new PatientService(), $this->logger);
         return $this->patientContextSearchController;
     }
 
@@ -140,12 +138,12 @@ class SMARTAuthorizationController
         if (false !== stripos($end_point, self::PATIENT_SELECT_CONFIRM_ENDPOINT)) {
             // session is maintained
             return $this->patientSelectConfirm($request);
-        } else if (false !== stripos($end_point, self::PATIENT_SELECT_PATH)) {
+        } elseif (false !== stripos($end_point, self::PATIENT_SELECT_PATH)) {
             // session is maintained
             return $this->patientSelect($request);
-        } else if (false !== stripos($end_point, self::EHR_SMART_LAUNCH_AUTOSUBMIT)) {
+        } elseif (false !== stripos($end_point, self::EHR_SMART_LAUNCH_AUTOSUBMIT)) {
             return $this->ehrLaunchAutoSubmit($request);
-        } else if (false !== stripos($end_point, self::SMART_STYLE_URL)) {
+        } elseif (false !== stripos($end_point, self::SMART_STYLE_URL)) {
             return $this->smartAppStyles();
         } else {
             $this->logger->error("SMARTAuthorizationController->dispatchRoute() called with invalid route. verify isValidRoute configured properly", ['end_point' => $end_point]);
@@ -441,9 +439,7 @@ class SMARTAuthorizationController
 
     public function getLogoService(): LogoService
     {
-        if (!isset($this->logoService)) {
-            $this->logoService = new LogoService();
-        }
+        $this->logoService ??= new LogoService();
         return $this->logoService;
     }
 }

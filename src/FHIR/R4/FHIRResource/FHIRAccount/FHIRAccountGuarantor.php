@@ -214,9 +214,7 @@ class FHIRAccountGuarantor extends FHIRBackboneElement implements \JsonSerializa
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AccountGuarantor xmlns="http://hl7.org/fhir"></AccountGuarantor>');
-        }
+        $sxe ??= new \SimpleXMLElement('<AccountGuarantor xmlns="http://hl7.org/fhir"></AccountGuarantor>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->party)) {
             $this->party->xmlSerialize(true, $sxe->addChild('party'));

@@ -144,9 +144,7 @@ class FHIRStatus extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<status xmlns="http://hl7.org/fhir"></status>');
-        }
+        $sxe ??= new \SimpleXMLElement('<status xmlns="http://hl7.org/fhir"></status>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

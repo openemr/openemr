@@ -161,7 +161,7 @@ class eRxPage
      * Check for required PHP extensions, return array of messages for missing extensions
      * @return array Array of messages for missing extensions
      */
-    public function checkForMissingExtensions()
+    public function checkForMissingExtensions(): array
     {
         $extensions = [
             'XML',
@@ -183,9 +183,13 @@ class eRxPage
 
     /**
      * Construct the XML document
-     * @return eRxPage This object is returned for method chaining
+     * @return array{
+     *   demographics: mixed,
+     *   empty: mixed,
+     *   warning: mixed,
+     * }
      */
-    public function buildXML()
+    public function buildXML(): array
     {
         $XMLBuilder = $this->getXMLBuilder();
         $NCScript = $XMLBuilder->getNCScript();

@@ -17,7 +17,6 @@
 require_once('../../globals.php');
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
-require_once($srcdir . '/lists.inc.php');
 require_once($webserver_root . '/custom/code_types.inc.php');
 require_once($srcdir . '/options.inc.php');
 
@@ -25,6 +24,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -34,8 +34,7 @@ use OpenEMR\Services\ListService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $pid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid', 0);
-/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
-$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
 // Check if user has permission for any issue type.
 $auth = false;

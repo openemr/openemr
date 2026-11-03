@@ -28,8 +28,6 @@ use OpenEMR\Core\OEGlobalsBag;
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 
-require_once("$srcdir/api.inc.php");
-
 formHeader("Form: ankleinjury");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();

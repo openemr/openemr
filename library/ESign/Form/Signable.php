@@ -15,6 +15,7 @@
 
 namespace ESign;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/DbRow/Signable.php';
@@ -88,9 +89,9 @@ class Form_Signable extends DbRow_Signable implements SignableIF
      * specific table. Then we get the row of data from the specific
      * form_* table.
      *
-     * @see \ESign\SignableIF::getData()
+     * @see SignableIF::getData()
      */
-    public function getData()
+    public function getData(): array
     {
       // Use default standards based on formdir value
       // Exceptions are specified in formdir_keys list
@@ -120,20 +121,17 @@ class Form_Signable extends DbRow_Signable implements SignableIF
             escape_table_name($tbl),
             escape_sql_column_name($id, [$tbl])
         );
+        $sqlBindArray = [ $this->_formId ];
         if ($limit <> '*') {
-            $sql .= ' LIMIT ' . escape_limit($limit);
+            $sql .= ' LIMIT ?';
+            $sqlBindArray[] = (is_numeric($limit) ? (int) $limit : 0);
         }
 
-        $rs = sqlStatement($sql, [ $this->_formId ]);
-        if (sqlNumRows($rs) == 1) { // maintain legacy hash
-            $frs = sqlFetchArray($rs);
-        } else {
-            $frs = [];
-            while ($fr = sqlFetchArray($rs)) {
-                array_push($frs, $fr);
-            }
+        $rows = QueryUtils::fetchRecords($sql, $sqlBindArray);
+        if (count($rows) == 1) { // maintain legacy hash
+            return $rows[0];
         }
 
-        return $frs;
+        return $rows;
     }
 }

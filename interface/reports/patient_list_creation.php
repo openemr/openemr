@@ -20,7 +20,6 @@
  */
 
 require_once "../globals.php";
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 require_once "../drugs/drugs.inc.php";
 
@@ -592,9 +591,7 @@ if (!empty($_POST['form_refresh'])) {
     // Set all unset fields if the search option is set to copy (inherit), point to the source
     if (isset($search_options[$srch_option]["copy"])) {
         foreach ($search_options[$search_options[$srch_option]["copy"]] as $srch_copy_key => $srch_copy_item) {
-            if (!isset($search_options[$srch_option][$srch_copy_key])) {
-                $search_options[$srch_option][$srch_copy_key] = $srch_copy_item;
-            }
+            $search_options[$srch_option][$srch_copy_key] ??= $srch_copy_item;
         }
     }
     $srch_option_pointer = $search_options[$srch_option]["copy"] ?? $srch_option;
@@ -667,7 +664,7 @@ if (!empty($_POST['form_refresh'])) {
             if ($srch_option == "allergs") {
                 $sqlstmt .= "allergy";
                 $search_options[$srch_option]["cols"]["lists_title"]["heading"] = xl("Allergy");
-            } else if ($srch_option == "probs") {
+            } elseif ($srch_option == "probs") {
                 $sqlstmt .= "medical_problem";
                 $search_options[$srch_option]["cols"]["lists_title"]["heading"] = xl("Problem");
             } else { // meds
@@ -815,7 +812,7 @@ if (!empty($_POST['form_refresh'])) {
         if ($srch_option_pointer == "diagnosis_check") {
             $whr_stmt .= " AND li.diagnosis LIKE ?";
             array_push($sqlBindArray, $procedure_diagnosis);
-        } else if ($srch_option == "procs" || $srch_option == "results") {
+        } elseif ($srch_option == "procs" || $srch_option == "results") {
             $whr_stmt .= " AND (pr_ord.order_diagnosis LIKE ? OR pr_code.diagnoses LIKE ?)";
             array_push($sqlBindArray, $procedure_diagnosis, $procedure_diagnosis);
         }
@@ -951,7 +948,7 @@ if (!empty($_POST['form_refresh'])) {
                     $width = $search_options[$srch_option]["cols"][$report_col]["width"];
                     if (str_contains($width, '%')) {
                         echo 'width="' . attr($width) . '" ';
-                    } else if ($width == 'nowrap') {
+                    } elseif ($width == 'nowrap') {
                         echo 'width="1%" style="white-space: nowrap;" ';
                     } else {
                         echo 'colspan="' . attr($width) . '" ';

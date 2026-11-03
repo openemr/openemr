@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Kyle Wiering <kyle@softwareadvice.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Kyle Wiering <kyle@softwareadvice.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -98,6 +100,26 @@ class EventAuditLogger implements AuditLoggerInterface
         private readonly BreakglassCheckerInterface $breakglassChecker,
         private readonly ClockInterface $clock,
     ) {
+    }
+
+    /** @var ?positive-int */
+    private ?int $requestPatientId = null;
+
+    /**
+     * Attribute this request's patient-record SQL events to $pid instead of
+     * the session's open chart. Entry points that act on a patient other than
+     * the open chart call this once they have authorized that patient. Writing
+     * the pid into the session instead would switch the user's open chart.
+     * Null falls back to the session.
+     *
+     * @throws \InvalidArgumentException when $pid is not positive
+     */
+    public function setRequestPatientId(?int $pid): void
+    {
+        if ($pid !== null && $pid < 1) {
+            throw new \InvalidArgumentException('Patient id must be positive');
+        }
+        $this->requestPatientId = $pid;
     }
 
     /**
@@ -551,10 +573,7 @@ class EventAuditLogger implements AuditLoggerInterface
         /* If the event is a patient-record, then note the patient id */
         $pid = 0;
         if ($eventCategory === EventCategory::PatientRecord) {
-            $sessionPid = $this->session->get('pid');
-            if ($sessionPid !== null && $sessionPid != '') {
-                $pid = $sessionPid;
-            }
+            $pid = $this->patientRecordPatientId();
         }
 
         $event = $eventCategory->value . "-" . $querytype;
@@ -562,6 +581,24 @@ class EventAuditLogger implements AuditLoggerInterface
         $group = $this->session->get('authProvider') ?? "";
         $success = (int)($outcome !== false);
         $this->recordLogItem($success, $event, $user, $group, $comments, $pid, $category);
+    }
+
+    /**
+     * The patient set for this request, else the session's open chart, else 0.
+     */
+    private function patientRecordPatientId(): int
+    {
+        if ($this->requestPatientId !== null) {
+            return $this->requestPatientId;
+        }
+        $sessionPid = $this->session->get('pid');
+        if (is_int($sessionPid) && $sessionPid > 0) {
+            return $sessionPid;
+        }
+        if (is_string($sessionPid) && ctype_digit($sessionPid)) {
+            return (int) $sessionPid;
+        }
+        return 0;
     }
 
     /**

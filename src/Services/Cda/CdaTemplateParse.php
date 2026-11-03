@@ -43,6 +43,7 @@ class CdaTemplateParse
         $components_oids = [
             '2.16.840.1.113883.10.20.22.4.7' => 'allergy',
             '2.16.840.1.113883.10.20.22.2.6.1' => 'allergy',
+            '2.16.840.1.113883.10.20.22.2.6' => 'allergy',
             '2.16.840.1.113883.10.20.22.2.1' => 'medication',
             '2.16.840.1.113883.10.20.22.2.1.1' => 'medication',
             '2.16.840.1.113883.10.20.22.2.5.1' => 'medical_problem',
@@ -51,9 +52,11 @@ class CdaTemplateParse
             '2.16.840.1.113883.10.20.22.2.2.1' => 'immunization',
             '2.16.840.1.113883.3.88.11.83.145' => 'procedure',
             '2.16.840.1.113883.10.20.22.2.7.1' => 'procedure',
+            '2.16.840.1.113883.10.20.22.2.7' => 'procedure',
             '2.16.840.1.113883.10.20.22.2.3.1' => 'labResult',
             '2.16.840.1.113883.10.20.22.2.3' => 'labResult',
             '2.16.840.1.113883.10.20.22.2.4.1' => 'VitalSign',
+            '2.16.840.1.113883.10.20.22.2.4' => 'VitalSign',
             '2.16.840.1.113883.10.20.22.2.17' => 'socialHistory',
             '2.16.840.1.113883.3.88.11.83.127' => 'encounter',
             '2.16.840.1.113883.10.20.22.2.22.1' => 'encounter',
@@ -1050,13 +1053,16 @@ class CdaTemplateParse
                         $this->templateData['field_name_value_array']['procedure_result'][$i]['results_value'] = $value['observation']['value']['displayName'] ?? null;
                         $this->templateData['field_name_value_array']['procedure_result'][$i]['results_unit'] = $value['observation']['value']['unit'] ?: 'UNK';
                     } else {
-                        $this->templateData['field_name_value_array']['procedure_result'][$i]['results_value'] = $value['observation']['value']['value'] ?? null;
-                        $this->templateData['field_name_value_array']['procedure_result'][$i]['results_unit'] = $value['observation']['value']['unit'] ?: 'UNK';
+                        $quantity = self::quantity($value['observation']['value'] ?? null);
+                        $this->templateData['field_name_value_array']['procedure_result'][$i]['results_value'] = $quantity['value'];
+                        $this->templateData['field_name_value_array']['procedure_result'][$i]['results_unit'] = $quantity['unit'] ?: 'UNK';
                     }
                     if (!empty($value['observation']['referenceRange']['observationRange']['text'])) {
                         $this->templateData['field_name_value_array']['procedure_result'][$i]['results_range'] = $value['observation']['referenceRange']['observationRange']['text'];
                     } else {
-                        $this->templateData['field_name_value_array']['procedure_result'][$i]['results_range'] = ($value['observation']['referenceRange']['observationRange']['value']['low']['value'] ?? '') . ' ' . ($value['observation']['referenceRange']['observationRange']['value']['high']['value'] ?? '') . ' ' . ($value['observation']['referenceRange']['observationRange']['value']['low']['unit'] ?? '');
+                        $low = self::quantity($value['observation']['referenceRange']['observationRange']['value']['low'] ?? null);
+                        $high = self::quantity($value['observation']['referenceRange']['observationRange']['value']['high'] ?? null);
+                        $this->templateData['field_name_value_array']['procedure_result'][$i]['results_range'] = ($low['value'] ?? '') . ' ' . ($high['value'] ?? '') . ' ' . $low['unit'];
                     }
 
                     $this->templateData['entry_identification_array']['procedure_result'][$i] = $i;
@@ -1064,6 +1070,36 @@ class CdaTemplateParse
                 }
             }
         }
+    }
+
+    /**
+     * A physical quantity's number and unit. A unit that isn't UCUM comes as nullFlavor="OTH"
+     * with the number and the unit's text in a translation, as in HL7's "Results Unit Non-UCUM"
+     * example; that is how OpenEMR's own export sends one.
+     *
+     * @return array{value: ?string, unit: string}
+     */
+    private static function quantity(mixed $pq): array
+    {
+        if (!is_array($pq)) {
+            return ['value' => null, 'unit' => ''];
+        }
+        $unit = is_string($pq['unit'] ?? null) ? $pq['unit'] : '';
+        if (is_string($pq['value'] ?? null)) {
+            return ['value' => $pq['value'], 'unit' => $unit];
+        }
+        // One translation comes as that translation, several as a list; take the first with a number.
+        $translations = $pq['translation'] ?? null;
+        if (is_array($translations) && !array_is_list($translations)) {
+            $translations = [$translations];
+        }
+        foreach (is_array($translations) ? $translations : [] as $translation) {
+            if (is_array($translation) && is_string($translation['value'] ?? null)) {
+                $text = $translation['originalText'] ?? null;
+                return ['value' => $translation['value'], 'unit' => is_string($text) ? trim($text) : ''];
+            }
+        }
+        return ['value' => null, 'unit' => $unit];
     }
 
     public function fetchQrdaLabResultData($entry)
@@ -1162,6 +1198,12 @@ class CdaTemplateParse
 
     public function fetchVitalSignData($vital_sign_data)
     {
+        $components = self::withIntervalStartTimes(self::organizerComponents($vital_sign_data));
+        $organizer = is_array($vital_sign_data) ? ($vital_sign_data['organizer'] ?? null) : null;
+        if (is_array($vital_sign_data) && is_array($organizer)) {
+            $organizer['component'] = $components;
+            $vital_sign_data['organizer'] = $organizer;
+        }
         if (!empty($vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'])) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['vital_sign'])) {
@@ -1178,12 +1220,16 @@ class CdaTemplateParse
                 '8867-4' => 'pulse',
                 '8302-2' => 'height',
                 '2710-2' => 'oxygen_saturation',
+                '59408-5' => 'oxygen_saturation',
                 '9279-1' => 'respiration',
                 '3141-9' => 'weight',
                 '39156-5' => 'BMI'
             ];
 
-            for ($j = 0; $j < 9; $j++) {
+            // Every component: OpenEMR's own export writes thirteen, with respiration, temperature and
+            // oxygen saturation after the ninth.
+            $count = count($components);
+            for ($j = 0; $j < $count; $j++) {
                 $code = $vital_sign_data['organizer']['component'][$j]['observation']['code']['code'] ?? null;
                 if (!empty($vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'])) {
                     $this->templateData['field_name_value_array']['vital_sign'][$i]['bps'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][0]['observation']['value']['value'] ?? null;
@@ -1197,6 +1243,53 @@ class CdaTemplateParse
 
             $this->templateData['entry_identification_array']['vital_sign'][$i] = $i;
         }
+    }
+
+    /**
+     * Each component whose time is the start of an interval (effectiveTime/low), which C-CDA
+     * allows in place of a value, given that start as its time's value, which is what the
+     * import reads.
+     *
+     * @param list<mixed> $components
+     * @return list<mixed>
+     */
+    private static function withIntervalStartTimes(array $components): array
+    {
+        foreach ($components as $k => $component) {
+            if (!is_array($component) || !is_array($component['observation'] ?? null)) {
+                continue;
+            }
+            $observation = $component['observation'];
+            $time = $observation['effectiveTime'] ?? null;
+            if (!is_array($time) || ($time['value'] ?? '') !== '' || !is_array($time['low'] ?? null)) {
+                continue;
+            }
+            $start = $time['low']['value'] ?? null;
+            if (!is_string($start) || $start === '') {
+                continue;
+            }
+            $time['value'] = $start;
+            $observation['effectiveTime'] = $time;
+            $component['observation'] = $observation;
+            $components[$k] = $component;
+        }
+        return $components;
+    }
+
+    /**
+     * A vital signs organizer's components as a list. The XML reader returns a single
+     * component as that component rather than as a list of one.
+     *
+     * @return list<mixed>
+     */
+    private static function organizerComponents(mixed $entry): array
+    {
+        $organizer = is_array($entry) ? ($entry['organizer'] ?? null) : null;
+        $components = is_array($organizer) ? ($organizer['component'] ?? null) : null;
+        if (!is_array($components)) {
+            return [];
+        }
+        return array_key_exists('observation', $components) ? [$components] : array_values($components);
     }
 
     public function fetchPhysicalExamPerformedData($entry)

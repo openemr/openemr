@@ -142,7 +142,7 @@ trait DatabaseQueryTrait
      *   join?: string,
      *   limit?: int,
      * } $map
-     * @return array
+     * @return ?array list of rows, or for a limit of 1 the single row (null if none matched)
      */
     protected function selectHelper($sqlUpToFromStatement, $map)
     {
@@ -198,11 +198,4 @@ trait DatabaseQueryTrait
         return QueryUtils::querySingleRow($sql, $params, $log);
     }
 
-    /**
-     * @return int
-     */
-    protected function escapeLimit(string|int $limit)
-    {
-        return QueryUtils::escapeLimit($limit);
-    }
 }

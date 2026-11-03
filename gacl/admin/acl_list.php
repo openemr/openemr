@@ -29,7 +29,7 @@ switch ($getAction) {
         $gacl_api->debug_text('Delete!');
 
         if (is_array ($_GET['delete_acl']) AND !empty($_GET['delete_acl'])) {
-            foreach($_GET['delete_acl'] as $id) {
+            foreach ($_GET['delete_acl'] as $id) {
                 $gacl_api->del_acl($id);
             }
         }
@@ -207,8 +207,7 @@ switch ($getAction) {
             }
 
             // grab ARO and AXO groups
-            foreach ( ['aro', 'axo'] as $type )
-            {
+            foreach ( ['aro', 'axo'] as $type ) {
                 $query = '
 					SELECT	a.acl_id,g.name
 					FROM	'. $gacl_api->_db_table_prefix . $type .'_groups_map a
@@ -248,7 +247,7 @@ switch ($getAction) {
         $smarty->assign('filter_return_value', ($_GET['filter_return_value'] ?? null));
         $smarty->assign('filter_return_value_escaped', attr($_GET['filter_return_value'] ?? null));
 
-        foreach(['aco','aro','axo','acl'] as $type) {
+        foreach (['aco','aro','axo','acl'] as $type) {
             //
             //Grab all sections for select box
             //

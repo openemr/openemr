@@ -2,9 +2,6 @@
 
 /** @package    verysimple::Phreeze */
 
-require_once("verysimple/HTTP/RequestUtil.php");
-require_once("verysimple/Util/UrlWriterMode.php");
-require_once("verysimple/Phreeze/IRouter.php");
 
 /**
  * class for dealing with URLs
@@ -35,7 +32,7 @@ class ActionRouter implements IRouter
     /**
      * @inheritdocs
      */
-    public function GetUri()
+    public function GetUri(): string
     {
         return implode('/', RequestUtil::GetUrlParts($this->_appRoot));
     }
@@ -60,7 +57,7 @@ class ActionRouter implements IRouter
     /**
      * @inheritdocs
      */
-    public function GetUrl($controller, $method, $params = '', $requestMethod = '')
+    public function GetUrl($controller, $method, $params = '', $requestMethod = ''): string
     {
         $format = str_replace("{delim}", $this->delim, self::$_format);
 
@@ -93,7 +90,7 @@ class ActionRouter implements IRouter
     /**
      * @inheritdocs
      */
-    public function GetRoute($uri = "")
+    public function GetRoute($uri = ""): array
     {
         if ($uri == "") {
             $action = RequestUtil::Get('action');

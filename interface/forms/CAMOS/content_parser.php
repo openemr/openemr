@@ -16,7 +16,6 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 if (!defined('CAMOS_CONTENT_PARSER_SKIP_INCLUDES')) {
-    require_once(__DIR__ . "/../../../library/api.inc.php");
     require_once(__DIR__ . "/../../forms/vitals/C_FormVitals.class.php");
 }
 
@@ -30,7 +29,7 @@ function addAppt(string $days, string $time): int
     $sql = "insert into openemr_postcalendar_events (pc_pid, pc_eventDate," .
     "pc_comments, pc_aid,pc_startTime) values (?, date_add(current_date(), interval " . $intervalDays .
     " day),'from CAMOS', ?, ?)";
-    return QueryUtils::sqlInsert($sql, [$session->get('pid'), $session->get('authUserID'), $time]);
+    return QueryUtils::sqlInsert($sql, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($session->get('pid')), $session->get('authUserID'), $time]);
 }
 function addVitals(string $weight, string $height, string $systolic, string $diastolic, string $pulse, string $temp): void
 {

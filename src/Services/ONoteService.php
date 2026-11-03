@@ -83,10 +83,12 @@ class ONoteService
      */
     public function getNotes($activity, $offset, $limit)
     {
+        $limitInt = is_numeric($limit) ? (int) $limit : 0;
+        $offsetInt = is_numeric($offset) ? (int) $offset : 0;
         if (($activity == 0) || ($activity == 1)) {
-            return QueryUtils::fetchRecords("SELECT * FROM `onotes` WHERE `activity` = ? ORDER BY `date` DESC LIMIT " . escape_limit($limit) . " OFFSET " . escape_limit($offset), [$activity]);
+            return QueryUtils::fetchRecords("SELECT * FROM `onotes` WHERE `activity` = ? ORDER BY `date` DESC LIMIT ? OFFSET ?", [$activity, $limitInt, $offsetInt]);
         }
-        return QueryUtils::fetchRecords("SELECT * FROM `onotes` ORDER BY `date` DESC LIMIT " . escape_limit($limit) . " OFFSET " . escape_limit($offset));
+        return QueryUtils::fetchRecords("SELECT * FROM `onotes` ORDER BY `date` DESC LIMIT ? OFFSET ?", [$limitInt, $offsetInt]);
     }
 
     public function countNotes($active)

@@ -457,6 +457,42 @@ class BackgroundServicesCommandTest extends TestCase
         $this->assertMatchesRegularExpression('/svc.*yes\s+no/s', $tester->getDisplay());
     }
 
+    public function testCrontabLinesNameTheSite(): void
+    {
+        $command = new BackgroundServicesCommandStub([
+            self::makeService('svc5', 'Five Min', executeInterval: 5),
+        ]);
+        $tester = $this->createTester($command);
+
+        $tester->execute(['action' => 'crontab', '--site' => 'clinic2']);
+
+        $this->assertStringContainsString("background:services run --name='svc5' --site='clinic2'", $tester->getDisplay());
+    }
+
+    public function testCrontabLinesDefaultToDefaultSite(): void
+    {
+        $command = new BackgroundServicesCommandStub([
+            self::makeService('svc5', 'Five Min', executeInterval: 5),
+        ]);
+        $tester = $this->createTester($command);
+
+        $tester->execute(['action' => 'crontab']);
+
+        $this->assertStringContainsString("--site='default'", $tester->getDisplay());
+    }
+
+    public function testRunAcceptsSiteOption(): void
+    {
+        // bin/console consumes --site to pick the site before bootstrap; the
+        // command must accept it rather than fail with "option does not exist".
+        $command = new BackgroundServicesCommandStub([]);
+        $tester = $this->createTester($command);
+
+        $exitCode = $tester->execute(['action' => 'run', '--site' => 'clinic2']);
+
+        $this->assertSame(Command::SUCCESS, $exitCode);
+    }
+
     public function testMinutesToCronSubHour(): void
     {
         $command = new BackgroundServicesCommandStub([

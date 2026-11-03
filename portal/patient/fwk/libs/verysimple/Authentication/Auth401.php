@@ -20,7 +20,7 @@ class Auth401
      * @param string $realm message to output as "Basic realm" text/message (default "Login Required")
      * @param bool $terminate true to terminate php after outputting headers (default true)
      */
-    static function OutputHeaders($realm = "Login Required", $terminate = true)
+    public static function OutputHeaders($realm = "Login Required", $terminate = true)
     {
         header("WWW-Authenticate: Basic realm=\"" . $realm . "\"");
         header("Status: 401 Unauthorized");
@@ -35,7 +35,7 @@ class Auth401
      *
      * @return string
      */
-    static function GetUsername()
+    public static function GetUsername()
     {
         return $_SERVER ["PHP_AUTH_USER"] ?? "";
     }
@@ -45,7 +45,7 @@ class Auth401
      *
      * @return string
      */
-    static function GetPassword()
+    public static function GetPassword()
     {
         return $_SERVER ["PHP_AUTH_PW"] ?? "";
     }

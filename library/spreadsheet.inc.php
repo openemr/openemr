@@ -12,8 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . '/api.inc.php');
-require_once(__DIR__ . '/forms.inc.php');
 require_once(__DIR__ . '/../interface/forms/fee_sheet/codes.php');
 
 use OpenEMR\Common\Forms\FormActionBarSettings;
@@ -30,21 +28,21 @@ $celltypes = [
 ];
 
 // encode a string from a form field for database writing.
-function form2db($fldval)
+function form2db($fldval): string
 {
     $fldval = trim((string) $fldval);
     return $fldval;
 }
 
 // Get the actual string from a form field.
-function form2real($fldval)
+function form2real($fldval): string
 {
     $fldval = trim((string) $fldval);
     return $fldval;
 }
 
 // encode a plain string for html display.
-function real2form($fldval)
+function real2form($fldval): string
 {
     return attr($fldval);
 }

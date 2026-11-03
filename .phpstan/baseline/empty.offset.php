@@ -32,6 +32,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'drug_id\' on array\\{drug_id\\: 0, warehouse_id\\: \'\'\\} in empty\\(\\) always exists and is always falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/inventory_list.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset \'id\' on non\\-empty\\-array\\<mixed, mixed\\> in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/person_search_ajax.php',

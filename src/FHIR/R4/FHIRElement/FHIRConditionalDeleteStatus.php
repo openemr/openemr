@@ -144,9 +144,7 @@ class FHIRConditionalDeleteStatus extends FHIRElement implements \JsonSerializab
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ConditionalDeleteStatus xmlns="http://hl7.org/fhir"></ConditionalDeleteStatus>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ConditionalDeleteStatus xmlns="http://hl7.org/fhir"></ConditionalDeleteStatus>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

@@ -91,7 +91,7 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated_time']);
     }
 
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [
             'patient' => $this->getPatientContextSearchField(),
@@ -253,7 +253,7 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
     }
     // end AI Generated
 
-    public function getSupportedVersions()
+    public function getSupportedVersions(): array
     {
         return [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1,'6.1.0', self::PROFILE_VERSION_7_0_0, self::PROFILE_VERSION_8_0_0];
     }

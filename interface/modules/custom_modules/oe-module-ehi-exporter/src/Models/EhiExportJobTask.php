@@ -62,7 +62,7 @@ class EhiExportJobTask
         return $this->ehi_task_id;
     }
 
-    public function isCompleted()
+    public function isCompleted(): bool
     {
         return $this->status == 'completed';
     }
@@ -92,12 +92,12 @@ class EhiExportJobTask
     {
         return $this->pids;
     }
-    public function hasPatientIds()
+    public function hasPatientIds(): bool
     {
         return !empty($this->pids);
     }
 
-    public function getJSON()
+    public function getJSON(): array
     {
         $data = [
             'status' => $this->status
@@ -116,7 +116,7 @@ class EhiExportJobTask
             $data['hash'] = $this->document->get_hash();
             $data['downloadLink'] = $this->exportedResult->downloadLink;
             $data['downloadName'] = $this->document->get_name();
-        } else if ($this->status == 'failed') {
+        } elseif ($this->status == 'failed') {
             $data['errorMessage'] = $this->error_message;
         }
         return $data;

@@ -45,7 +45,7 @@ pnModAPILoad(__POSTCALENDAR__, 'user');
  * This is a standard function to provide an overview of all of the items
  * available from the module.
  */
-function postcalendar_user_view()
+function postcalendar_user_view(): string
 {
     // get the vars that were passed in
     [$Date, $print, $viewtype, $jumpday, $jumpmonth, $jumpyear] = pnVarCleanFromInput(
@@ -59,9 +59,7 @@ function postcalendar_user_view()
 
     $Date = postcalendar_getDate();
 
-    if (!isset($viewtype)) {
-        $viewtype = _SETTING_DEFAULT_VIEW;
-    }
+    $viewtype ??= _SETTING_DEFAULT_VIEW;
 
     // added to allow the view & providers to remain as the user last saw it -- JRM
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -76,10 +74,8 @@ function postcalendar_user_view()
     }
 
     $displayResult = postcalendar_user_display(['viewtype' => $viewtype,'Date' => $Date,'print' => $print]);
-    $footer = postcalendar_footer();
     $displayStr = is_string($displayResult) ? $displayResult : '';
-    $footerStr = is_string($footer) ? $footer : '';
-    return $displayStr . $footerStr;
+    return $displayStr . postcalendar_footer();
 }
 
 /**
@@ -126,7 +122,7 @@ function postcalendar_user_display($args)
 /**
  * search events
  */
-function postcalendar_user_search()
+function postcalendar_user_search(): string
 {
     $tpl = CalendarRenderer::create();
     $k = pnVarCleanFromInput('pc_keywords') ?? '';

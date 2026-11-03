@@ -7,6 +7,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/export_qrda_xml.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\!\\= between int and \\*NEVER\\* will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\!\\= between int\\<min, \\-1\\>\\|int\\<1, max\\> and 0 will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/clinical_instructions/save.php',
