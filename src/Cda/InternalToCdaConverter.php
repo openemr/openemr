@@ -4949,8 +4949,10 @@ class InternalToCdaConverter
             $policyCodeSystem !== '' ? $policyCodeSystem : '2.16.840.1.113883.3.221.5',
             $policyCodeSystemName !== '' ? $policyCodeSystemName : 'Source of Payment Typology',
         );
-        // CONF:1198-32852: the policy code SHALL carry at least one translation (Payer value set). No mapping
-        // to that value set exists in the input, so an unknown translation is stated as nullFlavor.
+        // CONF:1198-32852: the policy code SHALL carry at least one translation (Payer value set). The outer code
+        // is already a Source of Payment Typology code, but the builder writes the same default (72) for every
+        // policy, so copying it here would only repeat that default. The per-payer value is the insurance
+        // company's cqm_sop; until the payer input carries it, the translation is stated as nullFlavor.
         $payerTranslation = $this->createElement('translation');
         $payerTranslation->setAttribute('nullFlavor', 'UNK');
         $payerCodeEl->appendChild($payerTranslation);
