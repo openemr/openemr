@@ -11,6 +11,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance\FHIRAllergyIntoleranceReaction;
@@ -112,7 +113,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
         if (!empty($dataRecord['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['modifydate']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['modifydate'])));
         } else {
             $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }

@@ -16,7 +16,9 @@ use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationReferenceRange;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
@@ -215,7 +217,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['report_date'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['report_date']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['report_date'])));
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
@@ -230,7 +232,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $observation->setId($id);
 
         if (!empty($dataRecord['report_date'])) {
-            $observation->setEffectiveDateTime(UtilsService::getLocalDateAsUTC($dataRecord['report_date']));
+            $observation->setEffectiveDateTime(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['report_date'])));
         } else {
             $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }

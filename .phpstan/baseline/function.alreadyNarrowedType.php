@@ -317,34 +317,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceBase.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirTaskService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_object\\(\\) with OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\ISearchField will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationAdvanceDirectiveService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Organization/FhirOrganizationAddressBookService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\> will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureOEProcedureService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/ServiceRequest/FhirServiceRequestProcedureOrderService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/ServiceRequest/FhirServiceRequestReferralService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',

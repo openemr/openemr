@@ -59677,11 +59677,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/EncounterService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$abatementDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCondition\\:\\:setAbatementDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$code of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCoding\\:\\:setCode\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
@@ -59713,11 +59708,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$onsetDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCondition\\:\\:setOnsetDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
 ];
@@ -59738,11 +59728,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$profile of method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionEncounterDiagnosisService\\:\\:getProfileForVersions\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$recordedDate of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCondition\\:\\:setRecordedDate\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
 ];
@@ -59777,11 +59762,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$valueDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRExtension\\:\\:setValueDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$versionId of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setVersionId\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRId, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
@@ -59795,11 +59775,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$puuidBind of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:getAll\\(\\) expects string\\|null, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$abatementDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCondition\\:\\:setAbatementDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionHealthConcernService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$code of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCoding\\:\\:setCode\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode, string given\\.$#',
@@ -59828,11 +59803,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionHealthConcernService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$onsetDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCondition\\:\\:setOnsetDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionHealthConcernService.php',
 ];
@@ -59853,11 +59823,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$profile of method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionHealthConcernService\\:\\:getProfileForVersions\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionHealthConcernService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$recordedDate of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCondition\\:\\:setRecordedDate\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionHealthConcernService.php',
 ];
@@ -59892,11 +59857,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionHealthConcernService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$valueDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRExtension\\:\\:setValueDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionHealthConcernService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$versionId of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setVersionId\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRId, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionHealthConcernService.php',
@@ -59915,11 +59875,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\.\\.\\.\\$arrays of function array_merge expects array, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionHealthConcernService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$abatementDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCondition\\:\\:setAbatementDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemListItemService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$code of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCoding\\:\\:setCode\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode, string given\\.$#',
@@ -59948,11 +59903,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemListItemService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$onsetDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCondition\\:\\:setOnsetDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemListItemService.php',
 ];
@@ -59973,11 +59923,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$profile of method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionProblemListItemService\\:\\:getProfileForVersions\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemListItemService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$recordedDate of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCondition\\:\\:setRecordedDate\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemListItemService.php',
 ];
@@ -60008,11 +59953,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRId\\:\\:setValue\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemListItemService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$valueDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRExtension\\:\\:setValueDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemListItemService.php',
 ];
@@ -60068,7 +60008,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportClinicalNotesService.php',
 ];
 $ignoreErrors[] = [
@@ -60138,7 +60078,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportLaboratoryService.php',
 ];
 $ignoreErrors[] = [
@@ -60232,11 +60172,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirClinicalNotesService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$date of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRDocumentReference\\:\\:setDate\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirClinicalNotesService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$diagnosisCodes of static method OpenEMR\\\\Services\\\\FHIR\\\\UtilsService\\:\\:createCodeableConcept\\(\\) expects array, mixed given\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirClinicalNotesService.php',
@@ -60248,7 +60183,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirClinicalNotesService.php',
 ];
 $ignoreErrors[] = [
@@ -60264,11 +60199,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$profile of method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\FhirClinicalNotesService\\:\\:getProfileForVersions\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirClinicalNotesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$start of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod\\:\\:setStart\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirClinicalNotesService.php',
 ];
 $ignoreErrors[] = [
@@ -60402,18 +60332,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirDocumentReferenceAdvanceCareDirectiveService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$date of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRDocumentReference\\:\\:setDate\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirDocumentReferenceAdvanceCareDirectiveService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$fhirApiURL of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:__construct\\(\\) expects string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirDocumentReferenceAdvanceCareDirectiveService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirDocumentReferenceAdvanceCareDirectiveService.php',
 ];
 $ignoreErrors[] = [
@@ -60428,11 +60353,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$profile of method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\FhirDocumentReferenceAdvanceCareDirectiveService\\:\\:getProfileForVersions\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirDocumentReferenceAdvanceCareDirectiveService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$start of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod\\:\\:setStart\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirDocumentReferenceAdvanceCareDirectiveService.php',
 ];
@@ -60463,11 +60383,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of static method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\Enum\\\\DocumentReferenceCategoryEnum\\:\\:tryFrom\\(\\) expects int\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirDocumentReferenceAdvanceCareDirectiveService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$valueDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRExtension\\:\\:setValueDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirDocumentReferenceAdvanceCareDirectiveService.php',
 ];
@@ -60572,11 +60487,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirPatientDocumentReferenceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$date of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRDocumentReference\\:\\:setDate\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirPatientDocumentReferenceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$diagnosisCodes of static method OpenEMR\\\\Services\\\\FHIR\\\\UtilsService\\:\\:createCodeableConcept\\(\\) expects array, mixed given\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirPatientDocumentReferenceService.php',
@@ -60588,7 +60498,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 4,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirPatientDocumentReferenceService.php',
 ];
 $ignoreErrors[] = [
@@ -60604,11 +60514,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$profile of method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\FhirPatientDocumentReferenceService\\:\\:getProfileForVersions\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirPatientDocumentReferenceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$start of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod\\:\\:setStart\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirPatientDocumentReferenceService.php',
 ];
 $ignoreErrors[] = [
@@ -60748,7 +60653,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirAllergyIntoleranceService.php',
 ];
 $ignoreErrors[] = [
@@ -60813,11 +60718,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$fhirApiURL of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:__construct\\(\\) expects string\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirAppointmentService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirAppointmentService.php',
 ];
@@ -60887,11 +60787,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCarePlanService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$end of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod\\:\\:setEnd\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCarePlanService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$formStatus of method OpenEMR\\\\Services\\\\FHIR\\\\FhirCarePlanService\\:\\:mapCarePlanStatus\\(\\) expects string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCarePlanService.php',
@@ -60908,7 +60803,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCarePlanService.php',
 ];
 $ignoreErrors[] = [
@@ -60934,11 +60829,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$scheduledString of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRCarePlan\\\\FHIRCarePlanDetail\\:\\:setScheduledString\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRString, mixed given\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCarePlanService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$start of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod\\:\\:setStart\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCarePlanService.php',
 ];
 $ignoreErrors[] = [
@@ -61008,7 +60898,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCareTeamService.php',
 ];
 $ignoreErrors[] = [
@@ -61147,18 +61037,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$end of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod\\:\\:setEnd\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$insuranceType of method OpenEMR\\\\Services\\\\FHIR\\\\FhirCoverageService\\:\\:mapCoverageOrder\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
 $ignoreErrors[] = [
@@ -61183,11 +61068,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$relationship of method OpenEMR\\\\Services\\\\FHIR\\\\FhirCoverageService\\:\\:mapRelationship\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$start of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod\\:\\:setStart\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
@@ -61268,7 +61148,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
 ];
 $ignoreErrors[] = [
@@ -61527,11 +61407,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$start of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod\\:\\:setStart\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$status of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIREncounter\\:\\:setStatus\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIREncounterStatus, OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
@@ -61683,7 +61558,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirGoalService.php',
 ];
 $ignoreErrors[] = [
@@ -61818,7 +61693,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirImmunizationService.php',
 ];
 $ignoreErrors[] = [
@@ -61898,7 +61773,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirLocationService.php',
 ];
 $ignoreErrors[] = [
@@ -61983,7 +61858,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMediaService.php',
 ];
 $ignoreErrors[] = [
@@ -62093,7 +61968,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationRequestService.php',
 ];
 $ignoreErrors[] = [
@@ -62172,11 +62047,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationRequestService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$valueDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRExtension\\:\\:setValueDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationRequestService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$versionId of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setVersionId\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRId, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationRequestService.php',
@@ -62208,7 +62078,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationService.php',
 ];
 $ignoreErrors[] = [
@@ -62392,11 +62262,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$end of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod\\:\\:setEnd\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$family of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRHumanName\\:\\:setFamily\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRString, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
@@ -62413,7 +62278,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
 ];
 $ignoreErrors[] = [
@@ -62523,7 +62388,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPersonService.php',
 ];
 $ignoreErrors[] = [
@@ -62558,7 +62423,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerRoleService.php',
 ];
 $ignoreErrors[] = [
@@ -62598,7 +62463,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerService.php',
 ];
 $ignoreErrors[] = [
@@ -62818,7 +62683,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirRelatedPersonService.php',
 ];
 $ignoreErrors[] = [
@@ -62897,11 +62762,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirSpecimenService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$collectedDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRSpecimen\\\\FHIRSpecimenCollection\\:\\:setCollectedDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirSpecimenService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$deleted of method OpenEMR\\\\Services\\\\FHIR\\\\FhirSpecimenService\\:\\:mapDeletedToFhirStatus\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirSpecimenService.php',
@@ -62912,18 +62772,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirSpecimenService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$end of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod\\:\\:setEnd\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirSpecimenService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$fhirApiURL of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:__construct\\(\\) expects string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirSpecimenService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirSpecimenService.php',
 ];
 $ignoreErrors[] = [
@@ -62948,11 +62803,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$search of static method OpenEMR\\\\Services\\\\Search\\\\FhirSearchWhereClauseBuilder\\:\\:build\\(\\) expects array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>, array given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirSpecimenService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$start of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod\\:\\:setStart\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirSpecimenService.php',
 ];
@@ -63033,7 +62883,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Group/FhirPatientProviderGroupService.php',
 ];
 $ignoreErrors[] = [
@@ -63068,11 +62918,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$display of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCoding\\:\\:setDisplay\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRString, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/MedicationDispense/FhirMedicationDispenseLocalDispensaryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/MedicationDispense/FhirMedicationDispenseLocalDispensaryService.php',
 ];
@@ -63198,7 +63043,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationAdvanceDirectiveService.php',
 ];
 $ignoreErrors[] = [
@@ -63353,7 +63198,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationCareExperiencePreferenceService.php',
 ];
 $ignoreErrors[] = [
@@ -63523,7 +63368,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationEmployerService.php',
 ];
 $ignoreErrors[] = [
@@ -63718,7 +63563,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationHistorySdohService.php',
 ];
 $ignoreErrors[] = [
@@ -63887,11 +63732,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationLaboratoryService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$effectiveDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:setEffectiveDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationLaboratoryService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$fhirApiURL of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:__construct\\(\\) expects string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationLaboratoryService.php',
@@ -63903,7 +63743,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 4,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationLaboratoryService.php',
 ];
 $ignoreErrors[] = [
@@ -64078,7 +63918,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationObservationFormService.php',
 ];
 $ignoreErrors[] = [
@@ -64233,7 +64073,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationPatientService.php',
 ];
 $ignoreErrors[] = [
@@ -64398,7 +64238,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationQuestionnaireItemService.php',
 ];
 $ignoreErrors[] = [
@@ -64543,7 +64383,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationSocialHistoryService.php',
 ];
 $ignoreErrors[] = [
@@ -64693,7 +64533,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationTreatmentInterventionPreferenceService.php',
 ];
 $ignoreErrors[] = [
@@ -64863,7 +64703,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
 ];
 $ignoreErrors[] = [
@@ -64968,7 +64808,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Organization/FhirOrganizationFacilityService.php',
 ];
 $ignoreErrors[] = [
@@ -65043,7 +64883,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Organization/FhirOrganizationInsuranceService.php',
 ];
 $ignoreErrors[] = [
@@ -65098,7 +64938,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Organization/FhirOrganizationProcedureProviderService.php',
 ];
 $ignoreErrors[] = [
@@ -65163,17 +65003,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureOEProcedureService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$performedDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProcedure\\:\\:setPerformedDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRExtension given\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureOEProcedureService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$performedDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProcedure\\:\\:setPerformedDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureOEProcedureService.php',
 ];
 $ignoreErrors[] = [
@@ -65233,16 +65068,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$lastUpdated of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRMeta\\:\\:setLastUpdated\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInstant, string given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureSurgeryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$note of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProcedure\\:\\:addNote\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRAnnotation, array\\<string, mixed\\> given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureSurgeryService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$performedDateTime of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProcedure\\:\\:setPerformedDateTime\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime, string given\\.$#',
+    'message' => '#^Parameter \\#1 \\$note of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProcedure\\:\\:addNote\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRAnnotation, array\\<string, mixed\\> given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureSurgeryService.php',
 ];

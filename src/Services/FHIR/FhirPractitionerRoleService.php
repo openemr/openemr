@@ -7,6 +7,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitionerRole;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
@@ -88,7 +89,7 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['role_last_updated'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['role_last_updated']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['role_last_updated'])));
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }

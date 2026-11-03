@@ -27,6 +27,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -181,7 +182,7 @@ class FhirEncounterService extends FhirServiceBase implements
                 )
             );
             $period = new FHIRPeriod();
-            $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
             $participant->setPeriod($period);
 
             $participantType = UtilsService::createCodeableConcept([
@@ -206,7 +207,7 @@ class FhirEncounterService extends FhirServiceBase implements
                 )
             );
             $period = new FHIRPeriod();
-            $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
             $participant->setPeriod($period);
 
             $participantType = UtilsService::createCodeableConcept([
@@ -224,7 +225,7 @@ class FhirEncounterService extends FhirServiceBase implements
         // period - must support
         if (!empty($dataRecord['date'])) {
             $period = new FHIRPeriod();
-            $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
             $encounterResource->setPeriod($period);
         }
 

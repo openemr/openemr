@@ -16,6 +16,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRRelatedPerson;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\ContactRelationService;
@@ -95,7 +96,7 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['last_updated'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated'])));
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }

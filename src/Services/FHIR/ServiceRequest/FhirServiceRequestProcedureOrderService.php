@@ -1197,7 +1197,6 @@ class FhirServiceRequestProcedureOrderService extends FhirServiceBase implements
     /** A local date and time from the database, as FHIR's UTC form. */
     private static function utc(string $localDateTime): string
     {
-        $utc = UtilsService::getLocalDateAsUTC($localDateTime);
-        return is_string($utc) ? $utc : $localDateTime;
+        return UtilsService::getLocalDateAsUTC($localDateTime);
     }
 }

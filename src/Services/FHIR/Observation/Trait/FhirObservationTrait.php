@@ -23,6 +23,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRObservationStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
@@ -177,7 +178,7 @@ trait FhirObservationTrait
 
         // Set lastUpdated
         if (!empty($dataRecord['last_updated_time'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated_time']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated_time'])));
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
