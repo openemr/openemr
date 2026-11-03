@@ -294,7 +294,8 @@ function pull_tax($lineid, &$aTaxes)
  * @param string $description
  * @param int $quantity
  * @param float $charge
- * @param string &$aTotals
+ * @param array<int, float|int> &$aTotals the receipt's running totals: quantity, price, charge, adjustment,
+ *     total, then each tax
  * @param string $lineid
  * @param string $billtime
  * @param string $postdate
@@ -307,7 +308,7 @@ function ippfReceiptDetailLine(
     string $description,
     int $quantity,
     float $charge,
-    string &$aTotals = '',
+    array &$aTotals,
     string $lineid = '',
     string $billtime = '',
     string $postdate = '',
@@ -350,17 +351,11 @@ function ippfReceiptDetailLine(
     if ($price == $tmp) {
         $price = $tmp;
     }
-    if (is_array($aTotals)) {
-        $aTotals[0] += $quantity;
-        $aTotals[1] += $price;
-        $aTotals[2] += $charge;
-        $aTotals[3] += $adjust;
-        $aTotals[4] += $total;
-        // Accumulate columns 5 and beyond for taxes.
-        $i = 5;
-        foreach ($aTaxes as $tax) {
-            $aTotals[$i++] += $tax;
-        }
+    // Add the line to the receipt's totals: quantity, price, charge, adjustment and
+    // total, then each of its taxes from column 5 on.
+    $lineTaxes = is_array($aTaxes) ? array_values($aTaxes) : [];
+    foreach ([$quantity, $price, $charge, $adjust, $total, ...$lineTaxes] as $i => $amount) {
+        $aTotals[$i] = ($aTotals[$i] ?? 0) + (is_numeric($amount) ? $amount + 0 : 0);
     }
 
     if (!$details) {
@@ -826,7 +821,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
         [$patient_id, $encounter]
     );
     while ($inrow = sqlFetchArray($inres)) {
-        $billtime = $inrow['billed'] ? $inrow['bill_date'] : '';
+        $billtime = $inrow['billed'] ? ($inrow['bill_date'] ?? '') : '';
         $tmpname = $inrow['name'];
         if ($tmpname !== $inrow['selector']) {
             $tmpname .= ' / ' . $inrow['selector'];
@@ -842,7 +837,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
             'P:' . $inrow['sale_id'],
             $billtime,
             $svcdate,
-            $inrow['title']
+            $inrow['title'] ?? ''
         );
     }
 
@@ -858,18 +853,18 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
     while ($inrow = sqlFetchArray($inres)) {
         // Write the line item if it allows fees or is not a diagnosis.
         if (!empty($code_types[$inrow['code_type']]['fee']) || empty($code_types[$inrow['code_type']]['diag'])) {
-            $billtime = $inrow['billed'] ? $inrow['bill_date'] : '';
+            $billtime = $inrow['billed'] ? ($inrow['bill_date'] ?? '') : '';
             ippfReceiptDetailLine(
                 $inrow['code_type'],
                 $inrow['code'],
                 $inrow['code_text'],
-                $inrow['units'],
-                $inrow['fee'],
+                $inrow['units'] ?? 0,
+                $inrow['fee'] ?? 0,
                 $aTotals,
                 'S:' . $inrow['id'],
                 $billtime,
                 $svcdate,
-                $inrow['title']
+                $inrow['title'] ?? ''
             );
         }
     }
@@ -889,7 +884,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
             $aTotals,
             '',
             $arow['post_time'],
-            $arow['post_date']
+            $arow['post_date'] ?? ''
         );
     }
     ?>
@@ -905,7 +900,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
     if ($details) {
         echo " <tr>\n";
         echo "  <td colspan='3' align='right'><b>" . xlt('Sub-Total') . "</b></td>\n";
-        echo "  <td align='center'>" . text($aTotals[0]) . "</td>\n";
+        echo "  <td align='center'>" . text((string) $aTotals[0]) . "</td>\n";
         echo "  <td align='right'>" . text(oeFormatMoney($aTotals[1])) . "</td>\n";
         // Optional charge amount.
         if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_charges'))) {
@@ -941,7 +936,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
     foreach ($aInvTaxes as $taxid => $taxarr) {
         foreach ($taxarr as $taxlineid => $tax) {
             if ($tax) {
-                ippfReceiptDetailLine('TAX', $taxid, $aTaxNames[$taxid], 1, $tax, $aTotals);
+                ippfReceiptDetailLine('TAX', $taxid, $aTaxNames[$taxid] ?? '', 1, $tax, $aTotals);
                 $aInvTaxes[$taxid][$taxlineid] = 0;
             }
         }
