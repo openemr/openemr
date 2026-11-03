@@ -107,17 +107,19 @@ class VitalSignsServiceDatabaseTest extends TestCase
         $this->assertSame([[self::PID, 'LOINC:8480-6', 131.0]], $this->read(new QdmRequestOne((string)self::PID)));
     }
 
-    public function testVitalsAreCountedByTheSameFormRuleAsObservationsAndOrders(): void
+    public function testAReadingCountsOnceWhileAVitalsFormFilingItIsKept(): void
     {
-        // A reading with no forms row is kept, as an observation or order with none is. One filed in two
-        // forms rows (a C-CDA import of the same document again adds another) is read once, not twice.
-        $this->vitals(self::PID, '2026-03-02 09:00:00', ['bps' => '128'], forms: 0);
-        $this->vitals(self::PID, '2026-03-09 09:00:00', ['bps' => '131'], forms: 2);
+        // A C-CDA import of the same document again files the same reading in another Vitals form: it is
+        // read once, and still read when one of the two forms is deleted from the visit.
+        $this->vitals(self::PID, '2026-03-02 09:00:00', ['bps' => '128'], forms: 2);
+        $this->vitals(self::PID, '2026-03-09 09:00:00', ['bps' => '131'], deletedCopies: 1);
+        // A reading no Vitals form files is what the patient delete leaves behind: not read.
+        $this->vitals(self::PID, '2026-03-16 09:00:00', ['bps' => '135'], forms: 0);
         // Control: another patient's deleted Vitals form with this reading's id hides nothing.
-        $this->vitals(self::PID, '2026-03-16 09:00:00', ['bps' => '135'], otherPatientsDeletedForm: true);
+        $this->vitals(self::PID, '2026-03-23 09:00:00', ['bps' => '138'], otherPatientsDeletedForm: true);
 
         $this->assertSame(
-            [[self::PID, 'LOINC:8480-6', 128.0], [self::PID, 'LOINC:8480-6', 131.0], [self::PID, 'LOINC:8480-6', 135.0]],
+            [[self::PID, 'LOINC:8480-6', 128.0], [self::PID, 'LOINC:8480-6', 131.0], [self::PID, 'LOINC:8480-6', 138.0]],
             $this->read(new QdmRequestOne((string)self::PID)),
         );
     }
@@ -210,11 +212,12 @@ class VitalSignsServiceDatabaseTest extends TestCase
     }
 
     /**
-     * A Vitals form's reading, filed in $forms forms rows (kept, or all deleted from the visit).
+     * A Vitals form's reading, filed in $forms forms rows (kept, or with $deleted all deleted from the
+     * visit), plus $deletedCopies deleted ones, plus another patient's deleted one if asked.
      *
      * @param array<string, string> $values form_vitals column => value
      */
-    private function vitals(int $pid, string $date, array $values, bool $deleted = false, int $forms = 1, bool $otherPatientsDeletedForm = false): void
+    private function vitals(int $pid, string $date, array $values, bool $deleted = false, int $forms = 1, int $deletedCopies = 0, bool $otherPatientsDeletedForm = false): void
     {
         $columns = array_keys($values);
         $id = QueryUtils::sqlInsert(
@@ -222,7 +225,7 @@ class VitalSignsServiceDatabaseTest extends TestCase
             . str_repeat(', ?', count($columns)) . ')',
             array_merge([$pid, $date], array_values($values)),
         );
-        $filings = array_fill(0, $forms, [$pid, $deleted]);
+        $filings = array_merge(array_fill(0, $forms, [$pid, $deleted]), array_fill(0, $deletedCopies, [$pid, true]));
         if ($otherPatientsDeletedForm) {
             $filings[] = [self::OTHER_PID, true];
         }

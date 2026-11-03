@@ -5,8 +5,8 @@
  * deleted in the order form (activity 0), and an order or care plan item whose form was deleted
  * from the visit (forms.deleted = 1), is left out by DeviceAppliedService, ProcedureService,
  * InterventionService, LaboratoryTestService and the AbstractCarePlanService services (here
- * InterventionOrderedService). One with no forms row, or whose form id another patient's deleted
- * form shares, is kept. A lab test or procedure is read with the results of its own line of the
+ * InterventionOrderedService). One with no forms row, a kept forms row beside a deleted one, or
+ * a form id another patient's deleted form shares, is kept. A lab test or procedure is read with the results of its own line of the
  * order, and without a result, or report, marked Error.
  *
  * @package   OpenEMR
@@ -85,10 +85,13 @@ class OrderServicesDatabaseTest extends TestCase
         $this->order($type, 'form-deleted', form: 'deleted');
         $this->order($type, 'no-form');
         // Control: another patient's deleted form with this order's id hides nothing.
-        $shared = $this->order($type, 'shared-id', form: 'kept');
+        $shared = $this->order($type, 'shared-id');
         $this->form('procedure_order', $shared, self::OTHER_PID, deleted: true);
+        // One kept form is enough: a deleted second copy of the form doesn't hide the order.
+        $copied = $this->order($type, 'one-copy-kept', form: 'kept');
+        $this->form('procedure_order', $copied, self::PID, deleted: true);
 
-        $this->assertSame(['kept', 'no-form', 'shared-id'], $this->codes($service, 'procedure_code'));
+        $this->assertSame(['kept', 'no-form', 'one-copy-kept', 'shared-id'], $this->codes($service, 'procedure_code'));
     }
 
     public function testADeviceOrderDeletedInTheOrderFormIsNotRead(): void
@@ -109,7 +112,6 @@ class OrderServicesDatabaseTest extends TestCase
         $this->carePlanItem(self::CARE_PLAN_FORM + 2, 'no-form');
         // Control: another patient's deleted care plan form with the same id hides nothing.
         $this->carePlanItem(self::CARE_PLAN_FORM + 3, 'shared-id');
-        $this->form('care_plan', self::CARE_PLAN_FORM + 3, self::PID, deleted: false);
         $this->form('care_plan', self::CARE_PLAN_FORM + 3, self::OTHER_PID, deleted: true);
 
         $this->assertSame(['kept', 'no-form', 'shared-id'], $this->codes(InterventionOrderedService::class, 'code'));

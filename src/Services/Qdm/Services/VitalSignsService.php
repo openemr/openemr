@@ -89,7 +89,7 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
             $selects[] = "SELECT v.`pid`, v.`date`, 'LOINC:$loinc' AS `code`, $value AS `value`, '$unit' AS `unit`
                 FROM `form_vitals` AS v
                 WHERE $isNumber
-                AND " . self::notInDeletedForm('v.`id`', 'v.`pid`', FormDirectory::Vitals) . "
+                AND " . self::countedFormRow('v.`id`', 'v.`pid`', FormDirectory::Vitals) . "
                 AND NOT EXISTS (
                     SELECT 1 FROM `form_observation` AS o
                     WHERE o.`pid` = v.`pid` AND o.`ob_type` = '" . AbstractObservationService::OB_TYPE_PHYSICAL_EXAM . "'

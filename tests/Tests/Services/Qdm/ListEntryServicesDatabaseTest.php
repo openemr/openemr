@@ -33,10 +33,12 @@ use PHPUnit\Framework\TestCase;
 
 class ListEntryServicesDatabaseTest extends TestCase
 {
-    // A synthetic patient; no patient_data row is needed, and every row made here is removed.
+    // Synthetic patients; no patient_data rows are needed, and every row made here is removed.
     private const PID = 990615;
+    private const OTHER_PID = 990622;
     private const ENCOUNTER_KEPT = 99061501;
     private const ENCOUNTER_REFUTED = 99061502;
+    private const ENCOUNTER_OTHER_PATIENT = 99062201;
 
     protected function setUp(): void
     {
@@ -45,9 +47,10 @@ class ListEntryServicesDatabaseTest extends TestCase
 
     protected function tearDown(): void
     {
-        QueryUtils::sqlStatementThrowException('DELETE FROM `issue_encounter` WHERE `pid` = ?', [self::PID]);
-        QueryUtils::sqlStatementThrowException('DELETE FROM `form_encounter` WHERE `pid` = ?', [self::PID]);
-        QueryUtils::sqlStatementThrowException('DELETE FROM `lists` WHERE `pid` = ?', [self::PID]);
+        $pids = [self::PID, self::OTHER_PID];
+        QueryUtils::sqlStatementThrowException('DELETE FROM `issue_encounter` WHERE `pid` IN (?, ?)', $pids);
+        QueryUtils::sqlStatementThrowException('DELETE FROM `form_encounter` WHERE `pid` IN (?, ?)', $pids);
+        QueryUtils::sqlStatementThrowException('DELETE FROM `lists` WHERE `pid` IN (?, ?)', $pids);
         $this->assertSame(0, $this->rowsLeft(), 'the synthetic rows are removed');
     }
 
@@ -99,6 +102,8 @@ class ListEntryServicesDatabaseTest extends TestCase
         $refuted = $this->entry('medical_problem', 'diagnosis', 'ICD10:J45.909', 'refuted');
         $this->visit(self::ENCOUNTER_KEPT, [$kept, $wrong]);
         $this->visit(self::ENCOUNTER_REFUTED, [$refuted]);
+        // Control: another patient's visit is not this patient's, whatever the query's shape.
+        $this->visit(self::ENCOUNTER_OTHER_PATIENT, [], self::OTHER_PID);
 
         $result = (new EncounterService(new QdmRequestOne((string)self::PID), new CodeTypesService()))->executeQuery();
         $this->assertInstanceOf(\ADORecordSet::class, $result);
@@ -173,16 +178,16 @@ class ListEntryServicesDatabaseTest extends TestCase
     }
 
     /** @param list<int> $issues */
-    private function visit(int $encounter, array $issues): void
+    private function visit(int $encounter, array $issues, int $pid = self::PID): void
     {
         QueryUtils::sqlInsert(
             "INSERT INTO `form_encounter` (`date`, `reason`, `pid`, `encounter`, `pc_catid`) VALUES ('2026-03-10 09:00:00', 'test visit', ?, ?, 5)",
-            [self::PID, $encounter],
+            [$pid, $encounter],
         );
         foreach ($issues as $issue) {
             QueryUtils::sqlInsert(
                 'INSERT INTO `issue_encounter` (`pid`, `list_id`, `encounter`, `resolved`) VALUES (?, ?, ?, 0)',
-                [self::PID, $issue, $encounter],
+                [$pid, $issue, $encounter],
             );
         }
     }
@@ -191,7 +196,7 @@ class ListEntryServicesDatabaseTest extends TestCase
     {
         $count = 0;
         foreach (['lists', 'form_encounter', 'issue_encounter'] as $table) {
-            $n = QueryUtils::fetchSingleValue("SELECT COUNT(*) AS n FROM `$table` WHERE `pid` = ?", 'n', [self::PID]);
+            $n = QueryUtils::fetchSingleValue("SELECT COUNT(*) AS n FROM `$table` WHERE `pid` IN (?, ?)", 'n', [self::PID, self::OTHER_PID]);
             $this->assertIsNumeric($n);
             $count += (int)$n;
         }

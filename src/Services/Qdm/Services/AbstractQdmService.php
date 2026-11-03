@@ -107,30 +107,31 @@ abstract class AbstractQdmService
         try {
             $result = sqlStatementThrowException($sql, $binds);
         } catch (SqlQueryException $exception) {
-            error_log($exception->getMessage());
-            throw new \Exception("There is likely an error in Service query: each row must carry its patient as 'pid'.");
+            throw new \Exception('A QDM service query failed.', 0, $exception);
         }
 
         return $result;
     }
 
     /**
-     * SQL that is true unless the row's form was deleted from the visit: delete_form.php sets
-     * forms.deleted = 1 and leaves the form's own rows in place. The form has to be the row's
-     * patient's too, since form ids can repeat across patients (the procedure order and others
-     * pick theirs with an unlocked MAX() + 1). A row with no forms row is kept. This is the one
-     * rule for a counted form row: observations, vitals, orders and care plan items all use it.
+     * Which rows of an encounter form the measures count, as SQL: the one rule for a counted form row,
+     * which observations, vitals, orders and care plan items all use. A row is left out when every
+     * forms row filing it is deleted: delete_form.php sets forms.deleted = 1, and for most forms
+     * leaves the form's own rows in place. One kept forms row is enough, as when a C-CDA import has
+     * filed the same vitals twice and one copy was deleted from the visit. A row no forms row files is
+     * kept, unless its form is always filed (FormDirectory::alwaysFiled()). The forms row has to be the
+     * row's patient's, since form ids can repeat across patients: the Observation form and the C-CDA
+     * import pick theirs with an unlocked MAX() + 1.
      *
      * @param string $formId the column holding the row's form id, as the service's own SQL writes it (never a value)
      * @param string $pid    the column holding the row's patient, as the service's own SQL writes it (never a value)
      */
-    protected static function notInDeletedForm(string $formId, string $pid, FormDirectory $form): string
+    protected static function countedFormRow(string $formId, string $pid, FormDirectory $form): string
     {
-        return "NOT EXISTS (
-                    SELECT 1 FROM `forms`
-                    WHERE `forms`.`form_id` = $formId AND `forms`.`pid` = $pid
-                      AND `forms`.`formdir` = '{$form->value}' AND `forms`.`deleted` = 1
-                )";
+        $filings = "SELECT 1 FROM `forms`
+                    WHERE `forms`.`form_id` = $formId AND `forms`.`pid` = $pid AND `forms`.`formdir` = '{$form->value}'";
+        $kept = "EXISTS ($filings AND `forms`.`deleted` = 0)";
+        return $form->alwaysFiled() ? $kept : "(NOT EXISTS ($filings AND `forms`.`deleted` = 1) OR $kept)";
     }
 
     /**

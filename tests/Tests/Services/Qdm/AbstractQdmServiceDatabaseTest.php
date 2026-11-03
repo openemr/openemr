@@ -56,9 +56,9 @@ class AbstractQdmServiceDatabaseTest extends TestCase
      */
     public static function serviceQueries(): \Generator
     {
-        // No WHERE of its own, and a NOT EXISTS in a join's ON clause, the shape notInDeletedForm() gives:
-        // a filter added after a WHERE found anywhere in the text would land in that ON clause, and the
-        // LEFT JOIN would then keep every patient's visits.
+        // No WHERE of its own, and a NOT EXISTS in a join's ON clause: a filter added after a WHERE found
+        // anywhere in the text would land in that ON clause, and the LEFT JOIN would then keep every
+        // patient's visits. EncounterService's query has the same shape, its only WHERE in a subquery.
         yield 'a WHERE only inside a join' => ["SELECT FE.pid, FE.encounter
             FROM form_encounter FE
             LEFT JOIN procedure_order O ON O.encounter_id = FE.encounter AND NOT EXISTS (
@@ -67,7 +67,7 @@ class AbstractQdmServiceDatabaseTest extends TestCase
         // An AND added after it would bind to the second alternative only.
         yield 'an OR at the top level' => ["SELECT pid, encounter FROM form_encounter
             WHERE reason = '" . self::REASON . "' OR reason = 'another reason'"];
-        // A filter added after it would be a syntax error.
+        // An AND added after it would land in the GROUP BY, grouping by a condition instead of filtering.
         yield 'a GROUP BY' => ["SELECT pid, MAX(encounter) AS encounter FROM form_encounter
             WHERE reason = '" . self::REASON . "' GROUP BY pid"];
     }

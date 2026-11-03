@@ -66,7 +66,7 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
     public static function countedObservation(string $table): string
     {
         return "COALESCE($table.`activity`, 1) <> 0
-                AND " . self::notInDeletedForm("$table.`form_id`", "$table.`pid`", FormDirectory::Observation);
+                AND " . self::countedFormRow("$table.`form_id`", "$table.`pid`", FormDirectory::Observation);
     }
 
     public function makeResult($record)

@@ -29,7 +29,7 @@ class DeviceAppliedService extends AbstractQdmService implements QdmServiceInter
                 FROM procedure_order O
                     JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
                 WHERE O.procedure_order_type = 'device' AND O.activity != 0
-                AND " . self::notInDeletedForm('O.procedure_order_id', 'O.patient_id', FormDirectory::ProcedureOrder) . "
+                AND " . self::countedFormRow('O.procedure_order_id', 'O.patient_id', FormDirectory::ProcedureOrder) . "
                 ";
 
         return $sql;
