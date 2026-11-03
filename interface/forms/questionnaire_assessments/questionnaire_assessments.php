@@ -94,8 +94,8 @@ if (!$isPortal && !AclMain::aclCheckForm('questionnaire_assessments')) {
     $formLabel = $formLabel !== '' ? $scalarString($formLabel) : 'questionnaire_assessments';
     AccessDeniedHelper::denyWithTemplate('ACL check failed for form: ' . $formLabel, $formLabel);
 }
-// The patient of the portal document staff are auditing, once verified; null otherwise.
-$auditPid = null;
+// The portal document form staff are auditing, once verified; null otherwise.
+$auditForm = null;
 
 try {
     if (!empty($_GET['id'])) {
@@ -113,7 +113,8 @@ try {
             $form = $fetchedForm;
         }
 
-        if ($form === []) {
+        // formFetch() answers false, not [], for a form outside the session patient.
+        if (!is_array($form) || $form === []) {
             throw new RuntimeException(xlt('Can not find encounter form.'));
         }
 
@@ -126,10 +127,11 @@ try {
 
         // Staff auditing a portal document from the Portal Dashboard may have no chart open;
         // the form is reachable there only as the document's own (see questionnaireDocumentForm()).
-        if (!$isPortal && $patientPortalOther) {
-            $auditPid = CoreFormToPortalUtility::questionnaireDocumentForm($formid)?->pid;
+        // Auditing is a Portal Dashboard task, so it takes the portal ACL that dashboard requires.
+        if (!$isPortal && $patientPortalOther && AclMain::aclCheckCore('patientportal', 'portal')) {
+            $auditForm = CoreFormToPortalUtility::questionnaireDocumentForm($formid);
         }
-        if (!$isPortal && $auditPid === null) {
+        if (!$isPortal && $auditForm === null) {
             EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'questionnaire_assessments');
         }
 
@@ -217,10 +219,15 @@ try {
 
 $assessmentTitle = '';
 if ($mode !== 'new') {
-    $titlePid = $auditPid ?? $nonNegativeInt($session->get('pid', 0)) ?? 0;
+    $titlePid = $nonNegativeInt($session->get('pid', 0)) ?? 0;
     $titleEncounter = $nonNegativeInt($session->get('encounter', 0)) ?? 0;
+    if ($auditForm !== null) {
+        $titlePid = $auditForm->pid;
+    }
     // Resolve the saved encounter rather than the currently selected encounter.
-    if ($mode === 'update') {
+    if ($auditForm !== null) {
+        $titleEncounter = $auditForm->encounter;
+    } elseif ($mode === 'update') {
         $formContext = QueryUtils::querySingleRow(
             'SELECT encounter FROM forms WHERE form_id = ? AND formdir = ? AND pid = ? AND deleted = 0 LIMIT 1',
             [$formid, 'questionnaire_assessments', $titlePid]

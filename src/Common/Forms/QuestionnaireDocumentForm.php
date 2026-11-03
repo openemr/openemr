@@ -17,10 +17,11 @@ namespace OpenEMR\Common\Forms;
 final readonly class QuestionnaireDocumentForm
 {
     /**
-     * @param int $pid       The document's patient, which is also the form's.
-     * @param int $encounter The form's encounter; 0 when the document has none.
+     * @param int  $pid       The document's patient, which is also the form's.
+     * @param int  $encounter The form's encounter; 0 when the document has none.
+     * @param bool $locked    A document holding the form is locked (charted history): view, don't change.
      */
-    public function __construct(public int $pid, public int $encounter)
+    public function __construct(public int $pid, public int $encounter, public bool $locked)
     {
         if ($pid <= 0) {
             throw new \DomainException('A portal document form must belong to a patient');

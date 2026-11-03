@@ -88,20 +88,23 @@ if (($_REQUEST['formOrigin'] ?? null) == 2) {
 if (!$isPortal && !AclMain::aclCheckForm('questionnaire_assessments')) {
     AccessDeniedHelper::deny('questionnaire_assessments/save.php: questionnaire_assessments form ACL not granted');
 }
-// Staff saving a portal document's questionnaire while auditing it from the Portal Dashboard:
-// the response and the form row belong to the document's patient and the form's own encounter,
-// not to whichever chart and encounter are open (if any). The session is left as it is.
+// Every staff save of an existing form is checked. Auditing from the Portal Dashboard (with the
+// portal ACL that dashboard requires): the response and the form row belong to the document's
+// patient and the form's own encounter, not to whichever chart and encounter are open (if any),
+// and the session is left as it is. Otherwise the form must be the session patient's own.
 $auditForm = null;
-if (!$isPortal && $patientPortalOther && $mode === 'update' && $formid > 0) {
-    $auditForm = CoreFormToPortalUtility::questionnaireDocumentForm($formid);
-}
-if ($auditForm !== null) {
-    $pid = $auditForm->pid;
-    $encounter = $auditForm->encounter;
-} elseif (!$isPortal && $patientPortalOther && $mode === 'update' && $formid > 0) {
-    // No document holds this form now: save it only as the session patient's own, as the
-    // questionnaire page would show it.
-    EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'questionnaire_assessments');
+if (!$isPortal && $formid > 0) {
+    if ($patientPortalOther && $mode === 'update' && AclMain::aclCheckCore('patientportal', 'portal')) {
+        $auditForm = CoreFormToPortalUtility::questionnaireDocumentForm($formid);
+    }
+    if ($auditForm === null) {
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'questionnaire_assessments');
+    } elseif ($auditForm->locked) {
+        AccessDeniedHelper::deny('questionnaire_assessments/save.php: the portal document holding this form is locked');
+    } else {
+        $pid = $auditForm->pid;
+        $encounter = $auditForm->encounter;
+    }
 }
 
 if ($mode !== 'new' && !$isRegistering) {

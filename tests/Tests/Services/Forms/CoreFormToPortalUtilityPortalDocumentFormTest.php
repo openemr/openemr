@@ -50,7 +50,16 @@ class CoreFormToPortalUtilityPortalDocumentFormTest extends TestCase
 
         $form = CoreFormToPortalUtility::questionnaireDocumentForm(self::FORM_ID);
         $this->assertNotNull($form);
-        $this->assertSame([self::PID, 77], [$form->pid, $form->encounter]);
+        $this->assertSame([self::PID, 77, false], [$form->pid, $form->encounter, $form->locked]);
+    }
+
+    public function testAFormHeldByALockedDocumentIsReportedLocked(): void
+    {
+        $this->insertForm(self::PID);
+        $this->insertDocument(self::PID, self::QUESTIONNAIRE_FRAME);
+        $this->insertDocument(self::PID, self::QUESTIONNAIRE_FRAME, denialReason: 'Locked');
+
+        $this->assertTrue(CoreFormToPortalUtility::questionnaireDocumentForm(self::FORM_ID)?->locked);
     }
 
     public function testAFormWithNoDocumentHasNone(): void
@@ -124,7 +133,7 @@ class CoreFormToPortalUtilityPortalDocumentFormTest extends TestCase
     /**
      * @param ?string $frameSrc The encounterForm src the document saved; null when it saved none.
      */
-    private function insertDocument(int $pid, ?string $frameSrc, string $filePath = ''): void
+    private function insertDocument(int $pid, ?string $frameSrc, string $filePath = '', string $denialReason = ''): void
     {
         $elements = [['name' => 'patient_signature0', 'value' => '']];
         if ($frameSrc !== null) {
@@ -134,8 +143,8 @@ class CoreFormToPortalUtilityPortalDocumentFormTest extends TestCase
         QueryUtils::sqlInsert(
             'INSERT INTO `onsite_documents` (`pid`, `encounter`, `doc_type`, `patient_signed_status`, `accept_signed_status`,'
             . " `authorizing_signator`, `denial_reason`, `file_name`, `file_path`, `template_data`)"
-            . " VALUES (?, ?, 'Consent', 0, 0, '', '', ?, ?, ?)",
-            [$pid, self::FORM_ID, self::MARKER, $filePath, json_encode($elements, JSON_THROW_ON_ERROR)]
+            . " VALUES (?, ?, 'Consent', 0, 0, '', ?, ?, ?, ?)",
+            [$pid, self::FORM_ID, $denialReason, self::MARKER, $filePath, json_encode($elements, JSON_THROW_ON_ERROR)]
         );
     }
 

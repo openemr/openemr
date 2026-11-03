@@ -65,7 +65,8 @@ class CoreFormToPortalUtility
      * form table that id is from; each form table numbers its own rows. What the document itself
      * saved says so: its template_data records the embedded frame's src (the encounterForm
      * entry), written with the document, so a later edit of its template does not change it.
-     * The form must also be live and of the same patient.
+     * The form must also be live and of the same patient. Every matching document then has the
+     * form's patient; if any of them is locked (charted history), the form is reported locked.
      */
     public static function questionnaireDocumentForm(int $formId): ?QuestionnaireDocumentForm
     {
@@ -73,22 +74,30 @@ class CoreFormToPortalUtility
             return null;
         }
         $rows = QueryUtils::fetchRecords(
-            'SELECT od.pid, od.template_data, f.encounter FROM `onsite_documents` AS od'
+            'SELECT od.pid, od.template_data, od.denial_reason, f.encounter FROM `onsite_documents` AS od'
             . " JOIN `forms` AS f ON f.form_id = od.encounter AND f.formdir = 'questionnaire_assessments'"
             . ' AND f.pid = od.pid AND f.deleted = 0'
             . ' WHERE od.encounter = ?',
             [$formId]
         );
+        $found = null;
+        $locked = false;
         foreach ($rows as $row) {
-            $pid = $row['pid'] ?? null;
-            if (!is_numeric($pid) || (int) $pid <= 0 || !self::embedsQuestionnaireForm($row['template_data'] ?? null)) {
+            $pid = self::positiveInt($row['pid'] ?? null);
+            if ($pid === null || !self::embedsQuestionnaireForm($row['template_data'] ?? null)) {
                 continue;
             }
-            $encounter = $row['encounter'] ?? null;
-            $encounter = is_numeric($encounter) && (int) $encounter > 0 ? (int) $encounter : 0;
-            return new QuestionnaireDocumentForm((int) $pid, $encounter);
+            $found ??= ['pid' => $pid, 'encounter' => self::positiveInt($row['encounter'] ?? null) ?? 0];
+            $locked = $locked || ($row['denial_reason'] ?? null) === DocumentTemplateService::DENIAL_STATUS_LOCKED;
         }
-        return null;
+        return $found === null ? null : new QuestionnaireDocumentForm($found['pid'], $found['encounter'], $locked);
+    }
+
+    /** A positive integer column value (an int, or a digit string from the driver), else null. */
+    private static function positiveInt(mixed $value): ?int
+    {
+        $int = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        return is_int($int) ? $int : null;
     }
 
     /**
