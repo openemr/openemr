@@ -874,6 +874,13 @@ $GLOBALS_METADATA = [
             xl('Option to support inventory and sales of products')
         ],
 
+        'restrict_sales_to_default_warehouse' => [
+            xl('Restrict Drug Sales to Default Warehouse'),
+            'bool',                           // data type
+            '1',                              // default = true (matches legacy hardcoded behaviour)
+            xl('When enabled, dispensing is restricted to lots in the user’s default warehouse; users without a default warehouse are not restricted. When disabled, off-site lots can be dispensed but are flagged with a warning in the lot picker.')
+        ],
+
         'disable_chart_tracker' => [
             xl('Disable Chart Tracker'),
             'bool',                           // data type

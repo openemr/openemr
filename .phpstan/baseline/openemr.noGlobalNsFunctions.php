@@ -587,11 +587,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/drugs/add_edit_lot.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function send_email may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function generateEmptyTd may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
@@ -614,32 +609,22 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Function isFacilityAllowed may not be defined in the global namespace\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function isProductSelectable may not be defined in the global namespace\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function isUserRestricted may not be defined in the global namespace\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function isWarehouseAllowed may not be defined in the global namespace\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function send_drug_email may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function array_key_exists_default may not be defined in the global namespace\\.$#',

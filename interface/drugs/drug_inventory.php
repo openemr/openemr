@@ -8,7 +8,7 @@
  // of the License, or (at your option) any later version.
 
 require_once("../globals.php");
-require_once("drugs.inc.php");
+require_once("inventory_acl.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
