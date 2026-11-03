@@ -27,6 +27,9 @@ class ProcedureProviderFixtureManager extends BaseFixtureManager
     /** @var list<array<string, mixed>> Installed provider records, each with its assigned ppid */
     private array $installedProviders = [];
 
+    /** @var list<int> */
+    private array $installedProviderIds = [];
+
     /**
      * Initialize the fixture manager for procedure providers
      */
@@ -50,6 +53,7 @@ class ProcedureProviderFixtureManager extends BaseFixtureManager
         foreach ($this->getFixturesFromFile() as $fixture) {
             $fixture['ppid'] = $this->insertProcedureProvider($fixture);
             $this->installedProviders[] = $fixture;
+            $this->installedProviderIds[] = $fixture['ppid'];
             $insertCount++;
         }
 
@@ -116,18 +120,20 @@ class ProcedureProviderFixtureManager extends BaseFixtureManager
     }
 
     /**
-     * Delete all test fixture provider records from the database
-     *
-     * Removes every procedure_providers row whose name carries the fixture prefix.
+     * Delete the provider records installed by this manager.
      *
      * @throws \OpenEMR\Common\Database\SqlQueryException If the database deletion fails
      */
     protected function removeInstalledFixtures(): void
     {
-        QueryUtils::sqlStatementThrowException(
-            'DELETE FROM procedure_providers WHERE name LIKE ?',
-            [self::FIXTURE_PREFIX . '-%']
-        );
+        if ($this->installedProviderIds !== []) {
+            $placeholders = implode(',', array_fill(0, count($this->installedProviderIds), '?'));
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM procedure_providers WHERE ppid IN ($placeholders)",
+                $this->installedProviderIds
+            );
+        }
         $this->installedProviders = [];
+        $this->installedProviderIds = [];
     }
 }

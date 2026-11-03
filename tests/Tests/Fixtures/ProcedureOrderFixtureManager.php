@@ -285,36 +285,22 @@ class ProcedureOrderFixtureManager extends BaseFixtureManager
      */
     protected function removeInstalledFixtures(): void
     {
-        $fixturePrefix = self::FIXTURE_PREFIX . '-%';
-
         try {
-            QueryUtils::sqlStatementThrowException(
-                <<<'SQL'
-                DELETE FROM procedure_order_code
-                WHERE procedure_order_id IN (
-                    SELECT procedure_order_id FROM procedure_order WHERE control_id LIKE ?
-                )
-                SQL,
-                [$fixturePrefix]
-            );
-
-            QueryUtils::sqlStatementThrowException(
-                <<<'SQL'
-                DELETE FROM forms
-                WHERE formdir = 'procedure_order'
-                  AND form_id IN (
-                    SELECT procedure_order_id FROM procedure_order WHERE control_id LIKE ?
-                  )
-                SQL,
-                [$fixturePrefix]
-            );
-
-            QueryUtils::sqlStatementThrowException(
-                <<<'SQL'
-                DELETE FROM procedure_order WHERE control_id LIKE ?
-                SQL,
-                [$fixturePrefix]
-            );
+            if ($this->installedOrderIds !== []) {
+                $placeholders = implode(',', array_fill(0, count($this->installedOrderIds), '?'));
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM procedure_order_code WHERE procedure_order_id IN ($placeholders)",
+                    $this->installedOrderIds
+                );
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM forms WHERE formdir = 'procedure_order' AND form_id IN ($placeholders)",
+                    $this->installedOrderIds
+                );
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM procedure_order WHERE procedure_order_id IN ($placeholders)",
+                    $this->installedOrderIds
+                );
+            }
 
             $this->installedOrderIds = [];
         } finally {
