@@ -547,7 +547,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         try {
             return json_decode($context, true);
         } catch (\Throwable $exception) {
-            $this->getSystemLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
+            $this->auditLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
                 , 'tokenId' => $restRequest->getAccessTokenId()]);
         }
         return [];

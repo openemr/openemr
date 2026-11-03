@@ -10212,11 +10212,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Model/User.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function Zip\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/document_downloads_action.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function LBFgcac_default_ab_location\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sites/default/LBF/LBFgcac.plugin.php',
@@ -16028,16 +16023,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\UtilsService\\:\\:createOperationOutcomeSuccess\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\UtilsService\\:\\:getLocalDateAsUTC\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\UtilsService\\:\\:getLocalTimestampAsUTCDate\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
 ];
