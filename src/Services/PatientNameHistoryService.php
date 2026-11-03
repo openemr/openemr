@@ -69,9 +69,14 @@ class PatientNameHistoryService extends BaseService
             previous_name_middle = ? AND
             previous_name_last = ? AND
             previous_name_suffix = ? AND
-            previous_name_enddate = ?
+            previous_name_enddate <=> ?
         ";
-        $go_flag = QueryUtils::fetchSingleValue($sql, 'pid', $insertData);
+        // An empty end date is stored as NULL (see buildInsertColumns()), so compare it as one.
+        $lookup = $insertData;
+        if (($lookup['previous_name_enddate'] ?? '') === '') {
+            $lookup['previous_name_enddate'] = null;
+        }
+        $go_flag = QueryUtils::fetchSingleValue($sql, 'pid', $lookup);
         // return false which calling routine should understand as existing name record
         if (!empty($go_flag)) {
             return false;

@@ -45,15 +45,14 @@ echo "<script>var form=" . js_escape($form) . "</script>";
                         body: new FormData(this)
                     }
                 ).then(data => data.json()).then(data => {
-                    let ele = opener.document.getElementById('form_name_history');
-                    if (data !== false) {
-                        let newOption = new Option(data.name, data.id, true, true);
-                        ele.append(newOption);
-                    } else {
-                        let message = xl("Previous name history already exist. Try again or Cancel.");
-                        dialog.alert(message);
+                    // Only a saved name comes back with an id; keep the dialog open otherwise.
+                    if (!data || !data.id) {
+                        dialog.alert(data && data.error ? data.error : xl("Previous name history already exist. Try again or Cancel."));
+                        return;
                     }
-                }).then(() => {
+                    let ele = opener.document.getElementById('form_name_history');
+                    let newOption = new Option(data.name, data.id, true, true);
+                    ele.append(newOption);
                     dlgclose();
                 });
             });
