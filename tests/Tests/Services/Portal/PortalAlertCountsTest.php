@@ -17,6 +17,8 @@ namespace OpenEMR\Tests\Services\Portal;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\PatientReview\ReviewActor;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -24,7 +26,8 @@ require_once __DIR__ . '/../../../../library/dated_reminder_functions.php';
 
 class PortalAlertCountsTest extends TestCase
 {
-    private const CHECKSUM_PREFIX = 'phpunit-portal-alert-counts-13961-';
+    /** A patient id no fixture uses. */
+    private const PID = 9913961;
 
     private mixed $savedAuthUser = null;
 
@@ -51,14 +54,26 @@ class PortalAlertCountsTest extends TestCase
     }
 
     #[Test]
-    public function countsOnlyAuditableWaitingActivityWithoutDoubleCountingPayments(): void
+    public function countsPendingReviewWithoutDoubleCountingPayments(): void
     {
         $before = GetPortalAlertCounts();
 
-        $this->insertActivity('payment', 'waiting', 1, 'payment');
-        $this->insertActivity('profile', 'waiting', 1, 'profile');
-        $this->insertActivity('payment', 'waiting', 0, 'not-auditable');
-        $this->insertActivity('payment', 'waiting-review', 1, 'not-exact-waiting');
+        $workflows = ReviewQueueFactory::portalWorkflows();
+        $patient = ReviewActor::patient(self::PID, 'phpunit-portal-alert-counts');
+        $staff = ReviewActor::user(1, 'admin');
+
+        $workflows->submitPayment(self::PID, '{}', '', false, $patient);
+        $workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $patient);
+        // An invoice waits on the patient, not on staff: not counted.
+        $workflows->requestInvoicePayment(self::PID, [], $staff);
+        // A charted document is no longer pending: not counted.
+        $documentId = QueryUtils::sqlInsert(
+            'INSERT INTO `onsite_documents` (`pid`, `doc_type`, `patient_signed_status`, `accept_signed_status`,'
+            . " `authorizing_signator`, `denial_reason`, `file_name`, `file_path`) VALUES (?, 'Consent', 0, 0, '', '', 'alert-counts-test', '')",
+            [self::PID]
+        );
+        $workflows->submitDocument(self::PID, $documentId, 'Consent', $patient);
+        $workflows->completeDocument(self::PID, $documentId, $staff);
 
         $after = GetPortalAlertCounts();
 
@@ -67,36 +82,17 @@ class PortalAlertCountsTest extends TestCase
         $this->assertSame(2, $this->countValue($after, 'total') - $this->countValue($before, 'total'));
     }
 
-    private function insertActivity(string $activity, string $status, int $requireAudit, string $suffix): void
-    {
-        QueryUtils::sqlInsert(
-            'INSERT INTO onsite_portal_activity ' .
-            '(date, patient_id, activity, require_audit, pending_action, action_taken, status, narrative, ' .
-            'table_action, table_args, action_user, action_taken_time, checksum) ' .
-            'VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [
-                9913961,
-                $activity,
-                $requireAudit,
-                '',
-                '',
-                $status,
-                'PHPUnit portal alert count fixture',
-                '',
-                '',
-                '',
-                null,
-                self::CHECKSUM_PREFIX . $suffix,
-            ],
-        );
-    }
-
     private function removeFixtures(): void
     {
-        QueryUtils::sqlStatementThrowException(
-            'DELETE FROM onsite_portal_activity WHERE checksum LIKE ?',
-            [self::CHECKSUM_PREFIX . '%'],
-        );
+        foreach (['patient_review_secret', 'patient_review_event'] as $table) {
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM ' . QueryUtils::escapeTableName($table)
+                . ' WHERE `request_id` IN (SELECT `id` FROM `patient_review_request` WHERE `pid` = ?)',
+                [self::PID]
+            );
+        }
+        QueryUtils::sqlStatementThrowException('DELETE FROM `patient_review_request` WHERE `pid` = ?', [self::PID]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM `onsite_documents` WHERE `pid` = ?', [self::PID]);
     }
 
     /**

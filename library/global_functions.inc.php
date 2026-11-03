@@ -829,7 +829,7 @@ function User_Id_Look($thisField): string
  * @param bool $create Whether to create new (true) or overwrite existing (false)
  * @return bool True on success, false on failure
  */
-function zip_content($source, $destination, $content = '', $create = true)
+function zip_content($source, $destination, $content = '', $create = true): bool
 {
     if (!extension_loaded('zip')) {
         return false;

@@ -143,3 +143,144 @@ UPDATE `list_options` SET `codes` = 'SNOMED-CT:454401000124105' WHERE `list_id` 
 #IfMissingColumn transactions uuid
 ALTER TABLE `transactions` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`, ADD UNIQUE KEY `uuid` (`uuid`);
 #EndIf
+
+-- FHIR Task inputs and outputs (part 3 of #14521): the system Task.code is from, what the work needs, and what it produced.
+-- Codes written before the system was kept were all task-code's, except the questionnaire task's.
+#IfMissingColumn task code_system
+ALTER TABLE `task` MODIFY COLUMN `code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.code: the code',
+  ADD COLUMN `code_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.code: its system, such as http://hl7.org/fhir/CodeSystem/task-code' AFTER `code`;
+UPDATE `task` SET `code_system` = 'http://hl7.org/fhir/uv/sdc/CodeSystem/temp' WHERE `code` = 'complete-questionnaire';
+UPDATE `task` SET `code_system` = 'http://hl7.org/fhir/CodeSystem/task-code' WHERE `code` IS NOT NULL AND `code_system` IS NULL;
+#EndIf
+
+#IfNotTable task_input
+CREATE TABLE `task_input` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `task_id` bigint(20) NOT NULL COMMENT 'task.id',
+  `seq` int(11) NOT NULL DEFAULT 0 COMMENT 'position in Task.input',
+  `type_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.input.type: coding system',
+  `type_code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.input.type: coding code',
+  `type_display` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.input.type: coding display',
+  `type_text` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.input.type: text',
+  `value_element` varchar(31) NOT NULL COMMENT 'which value[x] it is: valueReference, valueCanonical, valueUrl, valueString, valueMarkdown or valueCodeableConcept',
+  `value_type` varchar(63) DEFAULT NULL COMMENT 'valueReference: resource type',
+  `value_uuid` binary(16) DEFAULT NULL COMMENT 'valueReference: resource id',
+  `value_system` varchar(255) DEFAULT NULL COMMENT 'valueCodeableConcept: coding system',
+  `value_code` varchar(63) DEFAULT NULL COMMENT 'valueCodeableConcept: coding code',
+  `value_display` varchar(255) DEFAULT NULL COMMENT 'valueReference: its display; valueCodeableConcept: the display of its coding',
+  `value_text` text COMMENT 'the canonical, url, string or markdown; valueCodeableConcept: its text',
+  PRIMARY KEY (`id`),
+  KEY `task_id` (`task_id`, `seq`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable task_output
+CREATE TABLE `task_output` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `task_id` bigint(20) NOT NULL COMMENT 'task.id',
+  `seq` int(11) NOT NULL DEFAULT 0 COMMENT 'position in Task.output',
+  `type_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.output.type: coding system',
+  `type_code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.output.type: coding code',
+  `type_display` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.output.type: coding display',
+  `type_text` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.output.type: text',
+  `value_element` varchar(31) NOT NULL COMMENT 'which value[x] it is: valueReference, valueCanonical, valueUrl, valueString, valueMarkdown or valueCodeableConcept',
+  `value_type` varchar(63) DEFAULT NULL COMMENT 'valueReference: resource type',
+  `value_uuid` binary(16) DEFAULT NULL COMMENT 'valueReference: resource id',
+  `value_system` varchar(255) DEFAULT NULL COMMENT 'valueCodeableConcept: coding system',
+  `value_code` varchar(63) DEFAULT NULL COMMENT 'valueCodeableConcept: coding code',
+  `value_display` varchar(255) DEFAULT NULL COMMENT 'valueReference: its display; valueCodeableConcept: the display of its coding',
+  `value_text` text COMMENT 'the canonical, url, string or markdown; valueCodeableConcept: its text',
+  PRIMARY KEY (`id`),
+  KEY `task_id` (`task_id`, `seq`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- Appointments by patient compare pc_pid with text. A pc_pid of digits stored another way (05 from a
+-- REST URL, or with spaces) is written as the plain number, which the text comparison matches as the
+-- numeric one did. It runs on every upgrade, since a site may have added its own pc_pid index; once the
+-- rows are plain it changes nothing.
+#IfTable openemr_postcalendar_events
+UPDATE `openemr_postcalendar_events` SET `pc_pid` = CAST(TRIM(`pc_pid`) AS UNSIGNED) WHERE TRIM(`pc_pid`) REGEXP '^[0-9]+$' AND `pc_pid` NOT REGEXP '^(0|[1-9][0-9]*)$';
+#EndIf
+
+-- Appointments by patient filter pc_pid (a varchar, compared with text); the daily summary
+-- report's payments are filtered by billing.date. Both read the whole table without an index.
+#IfNotIndex openemr_postcalendar_events pc_pid
+CREATE INDEX `pc_pid` ON `openemr_postcalendar_events` (`pc_pid`);
+#EndIf
+
+#IfNotIndex billing date
+CREATE INDEX `date` ON `billing` (`date`);
+#EndIf
+
+-- Patient review queue: patient-submitted data (portal profile changes, online payments,
+-- documents, and patient-app FHIR writes) held for staff review. One row per submission, a single status column, an
+-- append-only history, and sensitive data kept apart from the payload. Replaces the
+-- onsite_portal_activity workflow, which is migrated onto these tables separately.
+#IfNotTable patient_review_request
+CREATE TABLE `patient_review_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) NOT NULL,
+  `pid` bigint(20) NOT NULL COMMENT 'pid from patient_data table',
+  `type` varchar(32) NOT NULL COMMENT 'profile, payment, document, invoice, fhir-write',
+  `resource_type` varchar(64) DEFAULT NULL COMMENT 'FHIR resource type when type is fhir-write, e.g. Condition; NULL otherwise',
+  `source` varchar(16) NOT NULL DEFAULT 'portal' COMMENT 'portal or api',
+  `client_id` varchar(80) DEFAULT NULL COMMENT 'oauth_clients.client_id when source is api',
+  `status` varchar(24) NOT NULL DEFAULT 'pending' COMMENT 'pending, awaiting_payment, approved, denied, cancelled, completed',
+  `summary` varchar(255) NOT NULL DEFAULT '' COMMENT 'Staff-facing description of the request',
+  `payload` longtext COMMENT 'The submitted data',
+  `payload_format` varchar(16) NOT NULL DEFAULT 'json' COMMENT 'json; php-serialized or text only for rows migrated from onsite_portal_activity',
+  `target_table` varchar(64) DEFAULT NULL COMMENT 'Table the request applies to, when known',
+  `target_id` varchar(64) DEFAULT NULL COMMENT 'Row id or uuid in target_table',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `reviewed_by` bigint(20) DEFAULT NULL COMMENT 'users.id of the staff user who decided the request',
+  `reviewed_at` datetime DEFAULT NULL,
+  `review_note` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  KEY `status_type` (`status`,`type`),
+  KEY `pid_type_status` (`pid`,`type`,`status`),
+  KEY `created_at` (`created_at`)
+) ENGINE=InnoDB COMMENT='Patient-submitted data awaiting staff review; one row per submission';
+#EndIf
+
+#IfNotTable patient_review_event
+CREATE TABLE `patient_review_event` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `request_id` bigint(20) NOT NULL COMMENT 'patient_review_request.id',
+  `from_status` varchar(24) DEFAULT NULL COMMENT 'NULL for the event that created the request',
+  `to_status` varchar(24) NOT NULL,
+  `actor_type` varchar(16) NOT NULL COMMENT 'patient, user or system',
+  `actor_id` bigint(20) DEFAULT NULL COMMENT 'pid for a patient, users.id for a user',
+  `created_at` datetime NOT NULL,
+  `note` text,
+  PRIMARY KEY (`id`),
+  KEY `request_id` (`request_id`)
+) ENGINE=InnoDB COMMENT='Append-only history of patient_review_request state changes';
+#EndIf
+
+#IfNotTable patient_review_secret
+CREATE TABLE `patient_review_secret` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `request_id` bigint(20) NOT NULL COMMENT 'patient_review_request.id',
+  `kind` varchar(32) NOT NULL COMMENT 'payment-card',
+  `ciphertext` longtext NOT NULL COMMENT 'Encrypted per the database_encryption setting; deleted when the request is no longer open',
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `request_kind` (`request_id`,`kind`)
+) ENGINE=InnoDB COMMENT='Sensitive data held only while a patient_review_request is open';
+#EndIf
+
+-- Copy the patient portal's review workflow out of onsite_portal_activity into the review queue.
+-- legacy_activity_id records which legacy row each request came from, so the copy runs once
+-- per row however often the upgrade is run. onsite_portal_activity itself is left in place and
+-- dropped in a later release.
+#IfMissingColumn patient_review_request legacy_activity_id
+ALTER TABLE `patient_review_request`
+  ADD COLUMN `legacy_activity_id` bigint(20) DEFAULT NULL COMMENT 'onsite_portal_activity.id this request was migrated from',
+  ADD UNIQUE KEY `legacy_activity_id` (`legacy_activity_id`);
+#EndIf
+
+#IfPatientReviewMigrationNeeded
+#EndIf

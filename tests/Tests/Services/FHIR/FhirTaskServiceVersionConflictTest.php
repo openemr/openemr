@@ -81,7 +81,7 @@ class FhirTaskServiceVersionConflictTest extends TestCase
         $service = new FhirTaskService();
         // Someone else's update lands between the version check and this one's UPDATE.
         $service->setTaskService(new class extends TaskService {
-            public function update(string $uuid, array $fields, ?int $userId, ?int $expectedVersion = null): bool
+            public function update(string $uuid, array $fields, ?int $userId, ?int $expectedVersion = null, ?array $inputs = null, ?array $outputs = null): bool
             {
                 return false;
             }

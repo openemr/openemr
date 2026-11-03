@@ -456,7 +456,7 @@ class UtilsService
         return (new \DateTime())->format(DATE_ATOM);
     }
 
-    public static function getLocalTimestampAsUTCDate($date)
+    public static function getLocalTimestampAsUTCDate($date): string
     {
         // make this assumption explicit that we are using the current timezone specified in PHP
         // when we use strtotime or gmdate we get bad behavior when dealing with DST
@@ -470,7 +470,7 @@ class UtilsService
         return $utcDate;
     }
 
-    public static function getLocalDateAsUTC($date)
+    public static function getLocalDateAsUTC($date): string
     {
         // make this assumption explicit that we are using the current timezone specified in PHP
         // when we use strtotime or gmdate we get bad behavior when dealing with DST
