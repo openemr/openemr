@@ -25,14 +25,21 @@ class PortalPrescriptionListTest extends TestCase
     /** A patient id no fixture uses. */
     private const PID = 9915041;
 
+    /** Every row this test adds has a drug name starting with this. */
+    private const DRUG_PREFIX = 'Portal Rx ';
+
     private const SESSION_KEYS = ['pid', 'patient_portal_onsite_two'];
 
     /** @var array<string, array{bool, mixed}> */
     private array $savedSession = [];
 
+    /** @var list<int> */
+    private array $insertedIds = [];
+
     protected function setUp(): void
     {
-        $this->removeFixtures();
+        // Rows an interrupted earlier run left behind: this patient's, with this test's names only.
+        $this->removeLeftovers();
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         foreach (self::SESSION_KEYS as $key) {
@@ -45,8 +52,11 @@ class PortalPrescriptionListTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->removeFixtures();
-        $this->assertSame(0, $this->countFixtures(), 'the test left prescriptions behind');
+        foreach ($this->insertedIds as $id) {
+            QueryUtils::sqlStatementThrowException('DELETE FROM `prescriptions` WHERE `id` = ?', [$id]);
+        }
+        $this->insertedIds = [];
+        $this->assertSame(0, $this->countLeftovers(), 'the test left prescriptions behind');
         foreach ($this->savedSession as $key => [$present, $value]) {
             if ($present) {
                 SessionUtil::setSession($key, $value);
@@ -95,7 +105,7 @@ class PortalPrescriptionListTest extends TestCase
 
     private function insertPrescription(string $drug, int $active, ?string $endDate): void
     {
-        QueryUtils::sqlInsert(
+        $this->insertedIds[] = QueryUtils::sqlInsert(
             'INSERT INTO `prescriptions` (`patient_id`, `drug`, `active`, `start_date`, `end_date`, `date_added`,'
             . " `date_modified`, `txDate`, `usage_category_title`, `request_intent_title`)"
             . " VALUES (?, ?, ?, CURDATE(), ?, NOW(), NOW(), CURDATE(), '', '')",
@@ -103,14 +113,21 @@ class PortalPrescriptionListTest extends TestCase
         );
     }
 
-    private function removeFixtures(): void
+    private function removeLeftovers(): void
     {
-        QueryUtils::sqlStatementThrowException('DELETE FROM `prescriptions` WHERE `patient_id` = ?', [self::PID]);
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM `prescriptions` WHERE `patient_id` = ? AND `drug` LIKE ?',
+            [self::PID, self::DRUG_PREFIX . '%']
+        );
     }
 
-    private function countFixtures(): int
+    private function countLeftovers(): int
     {
-        $count = QueryUtils::fetchSingleValue('SELECT COUNT(*) AS `n` FROM `prescriptions` WHERE `patient_id` = ?', 'n', [self::PID]);
+        $count = QueryUtils::fetchSingleValue(
+            'SELECT COUNT(*) AS `n` FROM `prescriptions` WHERE `patient_id` = ? AND `drug` LIKE ?',
+            'n',
+            [self::PID, self::DRUG_PREFIX . '%']
+        );
         return is_numeric($count) ? (int) $count : -1;
     }
 }
