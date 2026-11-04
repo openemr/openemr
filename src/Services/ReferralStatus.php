@@ -4,8 +4,8 @@
  * Where a referral stands (#14710). The Task that tracks it decides, when it has one: its
  * status is the referral's. A Reply Date also completes it, since the Counter-Referral
  * section records the answer. A referral is open until it is completed, or its Task is
- * cancelled or entered in error, and overdue while open a set number of days after its
- * Referral Date.
+ * cancelled, rejected, failed or entered in error, and overdue while open a set number of
+ * days after its Referral Date.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services;
 
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FHIR\FhirTaskWriteRules;
 
 final readonly class ReferralStatus
 {
@@ -28,9 +29,6 @@ final readonly class ReferralStatus
      * reads code_types from the database as its file loads.
      */
     public const FORM_ID = 'LBTref';
-
-    /** Task statuses after which nothing more is expected of the recipient. */
-    private const CLOSING_TASK_STATUSES = ['cancelled', 'entered-in-error'];
 
     private function __construct(
         public ReferralState $state,
@@ -52,7 +50,8 @@ final readonly class ReferralStatus
         $replyDate = self::value($replyDate);
         $state = match (true) {
             $replyDate !== null || $taskStatus === 'completed' => ReferralState::Completed,
-            in_array($taskStatus, self::CLOSING_TASK_STATUSES, true) => ReferralState::Closed,
+            // The Task's other final statuses: nothing more is expected of the recipient.
+            in_array($taskStatus, FhirTaskWriteRules::FINAL_STATUSES, true) => ReferralState::Closed,
             default => ReferralState::Open,
         };
         $referDate = self::value($referDate);

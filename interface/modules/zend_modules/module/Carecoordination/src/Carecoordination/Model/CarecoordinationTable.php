@@ -25,11 +25,13 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
+use OpenEMR\Services\Cda\CdaSocialHistoryWriter;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
 use OpenEMR\Services\Cda\CdaTemplateParse;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\SocialHistoryService;
 
 class CarecoordinationTable
 {
@@ -48,7 +50,7 @@ class CarecoordinationTable
     private $importService;
     public $conditionedXmlContent;
 
-    public function __construct()
+    public function __construct(private ?CdaSocialHistoryWriter $socialHistoryWriter = null)
     {
         $this->resetData();
         $this->codeService = new CodeTypesService();
@@ -63,6 +65,15 @@ class CarecoordinationTable
     public function getImportService(): CdaTemplateImportDispose
     {
         return $this->importService;
+    }
+
+    /**
+     * The writer given to the constructor, or one built on first use: the history service registers missing
+     * history uuids when it's constructed, so it's built only for a document that carries social history.
+     */
+    private function getSocialHistoryWriter(): CdaSocialHistoryWriter
+    {
+        return $this->socialHistoryWriter ??= new CdaSocialHistoryWriter(new SocialHistoryService());
     }
 
     /*
@@ -494,6 +505,7 @@ class CarecoordinationTable
         $arr_referral = [];
         $arr_observation_preformed = [];
         $arr_clinical_note = [];
+        $socialHistoryChanges = [];
 
         $pres = QueryUtils::fetchRecords("SELECT IFNULL(MAX(pid)+1,1) AS pid FROM patient_data");
         foreach ($pres as $prow) {
@@ -770,7 +782,9 @@ class CarecoordinationTable
                     '82581004' => 'Quit',
                     '228274009' => 'Never'
                 ];
-                $alcohol = explode("|", $newdata['social_history']['alcohol'] ?? '');
+                // note|status|date; a document may carry only one of the two.
+                $alcoholRecord = $newdata['social_history']['alcohol'] ?? '';
+                $alcohol = array_pad(explode("|", $alcoholRecord), 3, '');
                 $alcohol_date = !empty($alcohol[2]) ? $this->formatDate($alcohol[2], 1) : $alcohol[2];
 
                 $alcohol_date_value = fixDate($alcohol_date);
@@ -782,7 +796,8 @@ class CarecoordinationTable
 
                 $alcohol_value = $alcohol[0] . "|" . $alcohol[1] . "|" . $alcohol_date_value;
 
-                $tobacco = explode("|", $newdata['social_history']['smoking'] ?? '');
+                $smokingRecord = $newdata['social_history']['smoking'] ?? '';
+                $tobacco = array_pad(explode("|", $smokingRecord), 3, '');
                 $smoking_date = !empty($tobacco[2]) ? $this->formatDate($tobacco[2], 1) : $tobacco[2];
 
                 $smoking_date_value = fixDate($smoking_date);
@@ -794,24 +809,15 @@ class CarecoordinationTable
 
                 $smoking_value = $tobacco[0] . "|" . $tobacco[1] . "|" . $smoking_date_value;
 
-                $query_insert = "INSERT INTO history_data
-                         (
-                          pid,
-                          alcohol,
-                          tobacco,
-                          date
-                         )
-                         VALUES
-                         (
-                          ?,
-                          ?,
-                          ?,
-                          ?
-                         )";
-                QueryUtils::sqlStatementThrowException($query_insert, [$pid,
-                    $alcohol_value,
-                    $smoking_value,
-                    date('Y-m-d H:i:s')]);
+                // Only what the document carries; CdaSocialHistoryWriter keeps the rest of the patient's history.
+                $changes = [];
+                if ($smokingRecord !== '') {
+                    $changes['tobacco'] = $smoking_value;
+                }
+                if ($alcoholRecord !== '') {
+                    $changes['alcohol'] = $alcohol_value;
+                }
+                $socialHistoryChanges = $changes;
             } elseif ($table == 'procedure_result') {
                 if (!empty($newdata['procedure_result']['date'])) {
                     $proc_date = $this->formatDate($newdata['procedure_result']['date'], 1);
@@ -948,6 +954,11 @@ class CarecoordinationTable
             }
         }
 
+        // After the loop, as the other sections are: the patient_data entry, which comes last, can make $pid a
+        // patient imported before, and written in the loop the history went to a pid no patient had yet.
+        if ($socialHistoryChanges !== []) {
+            $this->getSocialHistoryWriter()->write($pid, $socialHistoryChanges);
+        }
         $this->importService->InsertImmunization(($arr_immunization['immunization'] ?? null), $pid, $this, 0);
         $this->importService->InsertPrescriptions(($arr_prescriptions['lists3'] ?? null), $pid, $this, 0);
         $this->importService->InsertAllergies(($arr_allergies['lists2'] ?? null), $pid, $this, 0);
@@ -1518,29 +1529,21 @@ class CarecoordinationTable
                                 $arr_vitals['vitals'][$q]['weight'] = $data['vital_sign-weight'][$i];
                                 $q++;
                             } elseif (substr((string) $key, 0, -4) == 'social_history') {
-                                $tobacco = $data['social_history-tobacco_note'][$i] . "|" .
-                                    $data['social_history-tobacco_status'][$i] . "|" .
-                                    ApplicationTable::fixDate($data['social_history-tobacco_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy') . "|" . $data['social_history-tobacco_snomed'][$i];
-                                $alcohol = $data['social_history-alcohol_note'][$i] . "|" .
-                                    $data['social_history-alcohol_status'][$i] . "|" .
-                                    ApplicationTable::fixDate($data['social_history-alcohol_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy');
-                                $query = "INSERT INTO history_data
-                                            ( pid,
-                                              tobacco,
-                                              alcohol,
-                                              date
-                                            )
-                                            VALUES
-                                            (
-                                              ?,
-                                              ?,
-                                              ?,
-                                              ?
-                                            )";
-                                QueryUtils::sqlStatementThrowException($query, [$data['pid'],
-                                    $tobacco,
-                                    $alcohol,
-                                    date('Y-m-d H:i:s')]);
+                                // Only what the document carries; CdaSocialHistoryWriter keeps the rest of the patient's history.
+                                // The screen has no tobacco note field, and a status radio with none checked posts nothing.
+                                $changes = CdaSocialHistoryWriter::reviewedChanges([
+                                    $data['social_history-tobacco_note'][$i] ?? null,
+                                    $data['social_history-tobacco_status'][$i] ?? null,
+                                    ApplicationTable::fixDate($data['social_history-tobacco_date'][$i] ?? '', 'yyyy-mm-dd', 'dd/mm/yyyy'),
+                                    $data['social_history-tobacco_snomed'][$i] ?? null,
+                                ], [
+                                    $data['social_history-alcohol_note'][$i] ?? null,
+                                    $data['social_history-alcohol_status'][$i] ?? null,
+                                    ApplicationTable::fixDate($data['social_history-alcohol_date'][$i] ?? '', 'yyyy-mm-dd', 'dd/mm/yyyy'),
+                                ]);
+                                if ($changes !== []) {
+                                    $this->getSocialHistoryWriter()->write($data['pid'], $changes);
+                                }
                             } elseif (substr((string) $key, 0, -4) == 'encounter') {
                                 $arr_encounter['encounter'][$k]['extension'] = $data['encounter-extension'][$i];
                                 $arr_encounter['encounter'][$k]['root'] = $data['encounter-root'][$i];

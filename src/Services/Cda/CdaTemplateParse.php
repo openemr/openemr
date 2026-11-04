@@ -1372,33 +1372,55 @@ class CdaTemplateParse
 
     public function fetchSocialHistoryData($social_history_data)
     {
-        if (!empty($social_history_data['observation']['value']['code'])) {
-            $social_history_array = [
-                '2.16.840.1.113883.10.20.22.4.78' => 'smoking'
-            ];
-            $i = 0;
-            $code = $social_history_data['observation']['templateId']['root'] ?? '';
-            if (!empty($this->templateData['field_name_value_array']['social_history'])) {
-                foreach ($this->templateData['field_name_value_array']['social_history'] as $key => $value) {
-                    if (!array_key_exists($social_history_array[$code], $value)) {
-                        $i = $key;
-                    } else {
-                        $i = count($this->templateData['field_name_value_array']['social_history']) + 1;
-                    }
-                }
-            }
-
-            if (!empty($this->templateData['field_name_value_array']['social_history'])) {
-                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['extension'] = $social_history_data['observation']['id']['extension'];
-                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['root'] = $social_history_data['observation']['id']['root'];
-                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['status'] = $social_history_data['observation']['value']['code'];
-                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['begdate'] = $social_history_data['observation']['effectiveTime']['low']['value'];
-                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['enddate'] = $social_history_data['observation']['effectiveTime']['high']['value'];
-                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['value'] = $social_history_data['observation']['value']['displayName'];
-            }
-
-            $this->templateData['entry_identification_array']['social_history'][$i] = $i;
+        $entry = CdaSocialHistoryEntry::read($social_history_data);
+        if ($entry === null) {
+            return;
         }
+        $field = $entry['field'];
+        $rows = $this->templateData['field_name_value_array']['social_history'] ?? [];
+        $rows = is_array($rows) ? $rows : [];
+        // One entry per document. The patient's history keeps one current value per field, and every version an
+        // import writes is dated when it's written, so older statuses would only be versions of the same moment:
+        // the field keeps its newest status, by the document's date; undated ones give way to dated ones.
+        $row = $rows[0] ?? [];
+        $row = is_array($row) ? $row : [];
+        if (strcmp(self::recordInstant($entry['record']), self::recordInstant($row[$field] ?? null)) >= 0) {
+            $row[$field] = $entry['record'];
+        }
+        $rows = [0 => $row];
+
+        // Each social history entry is identified by its own index, as every section's are.
+        $this->templateData['field_name_value_array']['social_history'] = $rows;
+        $this->templateData['entry_identification_array']['social_history'] = array_combine(array_keys($rows), array_keys($rows));
+    }
+
+    /**
+     * A social history record's date as a UTC instant that sorts as text (YmdHis), or '' when it has none or it
+     * doesn't parse. C-CDA writes YYYYMMDD[HHMM[SS[.S]]] with an optional +/-ZZZZ offset, so 20240121 and
+     * 202401201900-0800 can't be compared as written. A missing time is the start of the day. A missing offset
+     * means the sender's local time, which the document doesn't name, so it's read in OpenEMR's own time zone, as
+     * the rest of the import reads dates. An offset beyond +/-14:59 and a date PHP would roll over (20230229 to
+     * March 1) don't parse.
+     */
+    private static function recordInstant(mixed $record): string
+    {
+        $date = is_array($record) ? ($record['begdate'] ?? null) : null;
+        if (!is_string($date) || preg_match('/^(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?(?:\.\d+)?([+-]\d{4})?$/', $date, $m) !== 1) {
+            return '';
+        }
+        $part = static fn(int $i, string $default): string => ($m[$i] ?? '') !== '' ? $m[$i] : $default;
+        $text = $part(1, '') . '-' . $part(2, '01') . '-' . $part(3, '01') . ' ' . $part(4, '00') . ':' . $part(5, '00') . ':' . $part(6, '00');
+        $offset = $part(7, '');
+        if ($offset !== '' && ((int) substr($offset, 1, 2) > 14 || (int) substr($offset, 3, 2) > 59)) {
+            return '';
+        }
+        $zone = new \DateTimeZone($offset !== '' ? $offset : date_default_timezone_get());
+        $instant = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $text, $zone);
+        $problems = \DateTimeImmutable::getLastErrors();
+        if ($instant === false || ($problems !== false && ($problems['warning_count'] > 0 || $problems['error_count'] > 0))) {
+            return '';
+        }
+        return $instant->setTimezone(new \DateTimeZone('UTC'))->format('YmdHis');
     }
 
     public function encounter($component)

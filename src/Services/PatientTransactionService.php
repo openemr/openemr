@@ -160,7 +160,9 @@ class PatientTransactionService extends BaseService
     /**
      * The referral's FHIR Task and its reply, when the fhir_referral_tasks global is on (#14710), made
      * by the user of the service's session (setSession()), else of the active one. The referral is
-     * already committed, so a failure here is logged rather than thrown (afterSave()).
+     * already committed, so a failure here is logged rather than thrown (afterSave()). It passes no
+     * Reply Date the save loaded: the REST API never writes the Reply Date, so its save never undoes
+     * a reply (ReferralTaskService::createForReferral()).
      */
     private function createReferralTask(mixed $transactionId): void
     {

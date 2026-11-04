@@ -86,13 +86,21 @@ class ReferralTaskFhirApiTest extends TestCase
         foreach ($this->transactions as $id) {
             $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM transactions WHERE id = ?', 'uuid', [$id]);
             if (is_string($uuid)) {
+                foreach (QueryUtils::fetchTableColumn('SELECT uuid FROM task WHERE focus_uuid = ?', 'uuid', [$uuid]) as $taskUuid) {
+                    self::forgetUuid('task', $taskUuid);
+                }
                 QueryUtils::sqlStatementThrowException('DELETE FROM task WHERE focus_uuid = ?', [$uuid]);
+                self::forgetUuid('transactions', $uuid);
             }
             QueryUtils::sqlStatementThrowException('DELETE FROM lbt_data WHERE form_id = ?', [$id]);
             QueryUtils::sqlStatementThrowException('DELETE FROM transactions WHERE id = ?', [$id]);
         }
         foreach ($this->people as $person) {
+            self::forgetUuid('users', QueryUtils::fetchSingleValue('SELECT uuid FROM users WHERE id = ?', 'uuid', [$person['id']]));
             QueryUtils::sqlStatementThrowException('DELETE FROM users WHERE id = ?', [$person['id']]);
+        }
+        if (isset($this->patient)) {
+            self::forgetUuid('patient_data', UuidRegistry::uuidToBytes($this->patient['uuid']));
         }
         $this->fixtures->removeFixtures();
         $this->testClient->cleanupRevokeAuth();
@@ -186,7 +194,9 @@ class ReferralTaskFhirApiTest extends TestCase
             $referral = (new ReferralService(createMissingUuids: false))->getReferral($id);
             $this->assertIsArray($referral);
             $this->assertSame($taskStatus, $referral['task_status'] ?? null, "the pantry's Task $taskStatus");
-            $this->assertSame($label, ReferralStatus::ofReferral($referral, $today, 14)->label());
+            $status = ReferralStatus::ofReferral($referral, $today, 14);
+            $this->assertSame($label, $status->label());
+            $this->assertTrue($status->isOpen(), "the pantry's Task $taskStatus, not the cardiologist's rejection");
             $this->assertSame([$id => $taskStatus], (new ReferralService(createMissingUuids: false))->getTaskStatuses([$id]), 'and as the Transactions list finds it');
         }
     }
@@ -212,6 +222,31 @@ class ReferralTaskFhirApiTest extends TestCase
     }
 
     /**
+     * A recipient who rejected the referral has a Task too, so a referral that comes back to them makes
+     * none, and it stays closed with their rejection: nothing more is expected of them.
+     */
+    public function testARecipientWhoRejectedStaysClosedWhenTheReferralReturns(): void
+    {
+        $id = $this->saveReferral(['refer_date' => '2026-01-05', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
+        $pantry = $this->createTask($id);
+        $this->assertIsString($pantry);
+        (new TaskService())->update($pantry, ['status' => 'rejected'], null);
+        $this->sendTo($id, 'cardiologist');
+        $this->assertIsString($this->createTask($id));
+        $this->sendTo($id, 'pantry');
+
+        $this->assertNull($this->createTask($id), 'the pantry has a Task');
+        $referral = (new ReferralService(createMissingUuids: false))->getReferral($id);
+        $this->assertIsArray($referral);
+        $this->assertSame('rejected', $referral['task_status'] ?? null);
+        $this->assertSame('active', $this->read('ServiceRequest', $this->referralUuid($id))['status'] ?? null, 'the request stays in force');
+        $status = ReferralStatus::ofReferral($referral, new \DateTimeImmutable('2026-10-19'), 14);
+        $this->assertSame('Rejected', $status->label());
+        $this->assertFalse($status->isOpen());
+        $this->assertFalse($status->overdue);
+    }
+
+    /**
      * As the Transactions screen clears a field: its lbt_data row is deleted.
      */
     public function testClearingTheRecipientCancelsTheOpenTask(): void
@@ -233,6 +268,8 @@ class ReferralTaskFhirApiTest extends TestCase
 
     /**
      * @return array<string, array{string, int, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function changesAfterTheRead(): array
     {
@@ -445,7 +482,9 @@ class ReferralTaskFhirApiTest extends TestCase
         $referral = $this->referralUuid($id);
 
         $this->assertSame('active', $this->read('ServiceRequest', $referral)['status'] ?? null, 'requested');
-        foreach (['accepted' => 'active', 'completed' => 'completed', 'cancelled' => 'revoked', 'entered-in-error' => 'entered-in-error'] as $taskStatus => $requestStatus) {
+        // A recipient's refusal or failure is the Task's; the request stays in force.
+        $statuses = ['accepted' => 'active', 'rejected' => 'active', 'failed' => 'active', 'completed' => 'completed', 'cancelled' => 'revoked', 'entered-in-error' => 'entered-in-error'];
+        foreach ($statuses as $taskStatus => $requestStatus) {
             (new TaskService())->update($taskUuid, ['status' => $taskStatus], null);
             $this->assertSame($requestStatus, $this->read('ServiceRequest', $referral)['status'] ?? null, "Task $taskStatus");
         }
@@ -493,6 +532,10 @@ class ReferralTaskFhirApiTest extends TestCase
         $taskUuid = $this->createTask($referral);
         $this->assertIsString($taskUuid);
         (new TaskService())->update($taskUuid, ['status' => 'rejected'], null);
+        $accepted = $this->saveReferral(['refer_date' => '2026-01-05', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['cardiologist']['id'], 'body' => 'x']);
+        $acceptedTask = $this->createTask($accepted);
+        $this->assertIsString($acceptedTask);
+        (new TaskService())->update($acceptedTask, ['status' => 'accepted'], null);
         $other = $this->saveTransaction('LBTptreq', ['body' => 'x']);
         $today = new \DateTimeImmutable('2026-10-19');
 
@@ -503,12 +546,19 @@ class ReferralTaskFhirApiTest extends TestCase
                 $rows[(int)$row['id']] = $row;
             }
         }
-        $statuses = (new ReferralService(createMissingUuids: false))->getTaskStatuses([$referral, $other]);
-        $this->assertSame([$referral => 'rejected'], $statuses, 'one query, for referrals only');
+        $statuses = (new ReferralService(createMissingUuids: false))->getTaskStatuses([$referral, $accepted, $other]);
+        ksort($statuses);
+        $this->assertSame([$referral => 'rejected', $accepted => 'accepted'], $statuses, 'one query, for referrals only');
+        $open = ReferralStatus::ofTransaction($rows[$accepted] ?? null, $statuses, $today, 14);
+        $this->assertNotNull($open);
+        $this->assertSame('Accepted', $open->label());
+        $this->assertTrue($open->isOpen());
+        $this->assertTrue($open->overdue);
         $status = ReferralStatus::ofTransaction($rows[$referral] ?? null, $statuses, $today, 14);
         $this->assertNotNull($status);
         $this->assertSame('Rejected', $status->label());
-        $this->assertTrue($status->overdue);
+        $this->assertFalse($status->isOpen(), 'a rejected Task closes the referral');
+        $this->assertFalse($status->overdue);
         $this->assertNull(ReferralStatus::ofTransaction($rows[$other] ?? null, $statuses, $today, 14));
     }
 
@@ -675,6 +725,16 @@ class ReferralTaskFhirApiTest extends TestCase
             $value = $value[$key];
         }
         return $value;
+    }
+
+    /**
+     * Deleting a row leaves its uuid_registry row behind; this removes it.
+     */
+    private static function forgetUuid(string $table, mixed $uuid): void
+    {
+        if (is_string($uuid) && $uuid !== '') {
+            QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE table_name = ? AND uuid = ?', [$table, $uuid]);
+        }
     }
 
     /**

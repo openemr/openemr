@@ -32,6 +32,8 @@ class ReferralStatusTest extends TestCase
 
     /**
      * @return array<string, array{?string, ?string, ?string, int, ReferralState, string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function referrals(): array
     {
@@ -53,11 +55,15 @@ class ReferralStatusTest extends TestCase
             'task requested' => ['requested', null, '2026-10-10', 14, ReferralState::Open, 'Requested', false],
             'task accepted, old' => ['accepted', null, '2026-01-01', 14, ReferralState::Open, 'Accepted', true],
             'task in progress' => ['in-progress', null, '2026-10-10', 14, ReferralState::Open, 'In Progress', false],
-            'task rejected, still to act on' => ['rejected', null, '2026-01-01', 14, ReferralState::Open, 'Rejected', true],
+            'task on hold, still open' => ['on-hold', null, '2026-01-01', 14, ReferralState::Open, 'On Hold', true],
             'task completed' => ['completed', null, '2026-01-01', 14, ReferralState::Completed, 'Completed', false],
             'task completed and replied' => ['completed', '2026-10-12', '2026-01-01', 14, ReferralState::Completed, 'Completed', false],
             'task cancelled' => ['cancelled', null, '2026-01-01', 14, ReferralState::Closed, 'Cancelled', false],
             'task entered in error' => ['entered-in-error', null, '2026-01-01', 14, ReferralState::Closed, 'Entered in Error', false],
+            'task rejected' => ['rejected', null, '2026-01-01', 14, ReferralState::Closed, 'Rejected', false],
+            'task failed' => ['failed', null, '2026-01-01', 14, ReferralState::Closed, 'Failed', false],
+            'task rejected and replied' => ['rejected', '2026-10-12', '2026-01-01', 14, ReferralState::Completed, 'Replied', false],
+            'task failed and replied' => ['failed', '2026-10-12', '2026-01-01', 14, ReferralState::Completed, 'Replied', false],
         ];
     }
 

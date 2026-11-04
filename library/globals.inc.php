@@ -1177,7 +1177,7 @@ $GLOBALS_METADATA = [
             xl('Referrals Overdue After (Days)'),
             'num',
             '14',
-            xl('A referral not yet completed shows as overdue this many days after its Referral Date, on the Transactions screen and in the Referrals report. 0 turns this off.')
+            xl('A referral still open (not completed, and its Task not cancelled, rejected, failed or entered in error) shows as overdue this many days after its Referral Date, on the Transactions screen and in the Referrals report. 0 turns this off.')
         ],
 
     ],
@@ -3278,7 +3278,7 @@ $GLOBALS_METADATA = [
             xl('Track Referrals with FHIR Tasks'),
             'bool',
             '0',
-            xl('When a referral is saved, on the Transactions screen or through the REST API, create a FHIR Task for the one it is sent to (Refer To) if FHIR serves them as a Practitioner or Organization. The receiving system can then accept, reject or complete it through the FHIR API, or mark it failed, and each of those sends the one who made the referral (Refer By) an inbox message. When the referral records a Reply Date, the reply is filed in the patient\'s documents and completes the recipient\'s Task.')
+            xl('When a referral is saved, on the Transactions screen or through the REST API, create a FHIR Task for the one it is sent to (Refer To) if FHIR serves them as a Practitioner or Organization. The receiving system can then accept, reject, complete or cancel it through the FHIR API, or mark it failed, and each of those sends the one who made the referral (Refer By) an inbox message. When the referral records a Reply Date, the reply is filed in the patient\'s documents and completes the recipient\'s Task; clearing the Reply Date on the Transactions screen marks that Task entered in error and, when FHIR serves the recipient, gives them a new one.')
         ],
 
         GlobalConnectorsEnum::SMART_TEST_LAUNCHES_ENABLE->value => [
