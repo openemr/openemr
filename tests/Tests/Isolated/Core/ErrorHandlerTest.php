@@ -13,12 +13,18 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Core;
 
 use ErrorException;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use OpenEMR\Core\ErrorHandler;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\NullLogger;
+use RuntimeException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 use const E_DEPRECATED;
 use const E_USER_WARNING;
@@ -91,6 +97,60 @@ class ErrorHandlerTest extends TestCase
             restore_error_handler();
             error_reporting($old);
         }
+    }
+
+    private function createResponseHandler(bool $shouldDisplayErrors = false): ErrorHandler
+    {
+        $factory = new Psr17Factory();
+        return new ErrorHandler(new NullLogger(), $factory, $factory, $shouldDisplayErrors);
+    }
+
+    public function testHttpExceptionResponseHasStatusTextBody(): void
+    {
+        $response = $this->createResponseHandler()
+            ->buildResponse(new NotFoundHttpException('Controller not found: Some\Internal\Controller'));
+
+        self::assertSame(404, $response->getStatusCode());
+        self::assertSame('Not Found', (string) $response->getBody());
+    }
+
+    public function testHttpExceptionResponseKeepsHeaders(): void
+    {
+        $response = $this->createResponseHandler()
+            ->buildResponse(new MethodNotAllowedHttpException(['GET', 'POST']));
+
+        self::assertSame(405, $response->getStatusCode());
+        self::assertSame('GET, POST', $response->getHeaderLine('Allow'));
+        self::assertSame('Method Not Allowed', (string) $response->getBody());
+    }
+
+    public function testHttpExceptionWithUnknownStatusGetsGenericBody(): void
+    {
+        $response = $this->createResponseHandler()
+            ->buildResponse(new HttpException(499, 'Client closed request'));
+
+        self::assertSame(499, $response->getStatusCode());
+        self::assertSame('An error has occurred.', (string) $response->getBody());
+    }
+
+    public function testHttpExceptionResponseIncludesDetailWhenDisplayingErrors(): void
+    {
+        $response = $this->createResponseHandler(shouldDisplayErrors: true)
+            ->buildResponse(new BadRequestHttpException('Missing pid'));
+
+        self::assertSame(400, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        self::assertStringStartsWith("Bad Request\n", $body);
+        self::assertStringContainsString('Missing pid', $body);
+    }
+
+    public function testOtherExceptionResponseIsGeneric500(): void
+    {
+        $response = $this->createResponseHandler()
+            ->buildResponse(new RuntimeException('SELECT * FROM secrets'));
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame('An error has occurred.', (string) $response->getBody());
     }
 
     // handleException() cannot be unit tested because it calls exit() which

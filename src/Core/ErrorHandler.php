@@ -115,7 +115,11 @@ readonly class ErrorHandler
         exit();
     }
 
-    private function buildResponse(Throwable $e): ResponseInterface
+    /**
+     * Builds the HTTP response for an uncaught exception. Separate from
+     * handleException() so it can be tested without exiting the process.
+     */
+    public function buildResponse(Throwable $e): ResponseInterface
     {
         // Future scope: create a body based on request context (e.g. accept
         // headers, etc).
@@ -124,7 +128,17 @@ readonly class ErrorHandler
             foreach ($e->getHeaders() as $header => $value) {
                 $response = $response->withAddedHeader($header, $this->normalizeHeaderValue($header, $value));
             }
-            return $response;
+            // Send the status text so clients get a readable error. The
+            // exception message can hold internal details, so it is only
+            // shown when error display is on, like the 500 path below.
+            $message = $response->getReasonPhrase();
+            if ($message === '') {
+                $message = 'An error has occurred.';
+            }
+            if ($this->shouldDisplayErrors) {
+                $message .= "\n$e";
+            }
+            return $response->withBody($this->sf->createStream($message));
         }
 
         // Default: nondescript 500 error.
