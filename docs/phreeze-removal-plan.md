@@ -117,7 +117,8 @@ template engine. This plan removes it in three pull requests that can merge in a
 
 ### Services to reuse
 
-- `src/Services/PatientService.php`: `getFreshPid()` (to replace `max(pid)+1`), `databaseInsert`,
+- `src/Services/PatientService.php`: `databaseInsert` (which picks the pid itself; see the
+  registration note in commit 3), `databaseUpdate`,
   `databaseUpdate` (which also records the history that Phreeze's raw save skips), and `getOne`.
 - `src/Services/PatientReview/*`: the profile, document and payment review workflows, already used.
 - `src/Services/DocumentTemplates/DocumentTemplateRender.php`: `fetchTemplateDocument` and
@@ -224,10 +225,16 @@ Before any code moves, the first commits add the tests every later commit is che
 - Add a portal profile service in `src/Services/` that maps `patient_data` rows to and from the
   camelCase field set (one mapper for both directions, replacing `PatientMap`, `PatientReporter`
   and the inline snake_case→camelCase code in `PortalPatient.Read`). It uses
-  `PatientService::databaseUpdate`, `databaseInsert` and `getFreshPid`.
+  `PatientService::databaseUpdate` and `databaseInsert`.
 - Move the DEM `layout_options` exclude lookup and the portal-provider list out of
   `Patient.ListView` into that service.
 - Registration (pid 0) gets explicit empty defaults, replacing the `DESCRIBE patient_data` trick.
+- Registration stops guessing the new pid. Today `Patient.Create` stores `max(pid)+1` in
+  `verify_email.pid_holder` and inserts with that pid. If another patient takes that pid in
+  between, the insert fails on the unique `pid` key and the holder is left pointing at the other
+  patient's chart. Store the pid that `databaseInsert` returns, after the insert.
+  `databaseInsert` itself still picks the pid with `MAX(pid)+1` (`getFreshPid()`); making that
+  atomic is a core `PatientService` change outside this project.
 - Replace the `PatientControllerSecurityTest` placeholders with real tests.
 - Delete `Patient`, `PatientDAO`, `PatientMap`, `PatientCriteria`, `PatientCriteriaDAO` and
   `PatientReporter`.
@@ -242,7 +249,9 @@ Before any code moves, the first commits add the tests every later commit is che
   deleted class:
   - `index.php`: remove the `GlobalConfig::$CONNECTION_SETTING` check, and stop passing
     `$gc->GetPhreezer()` to `Dispatcher::Dispatch`.
-  - `_global_config.php`: remove `GetPhreezer()` and `$CONNECTION_SETTING`.
+  - `_global_config.php`: remove `GetPhreezer()` and `$CONNECTION_SETTING`, and the
+    `PHREEZE_VERSION` and `PHREEZE_PHAR` assigns in `GetRenderEngine()`, which read
+    `Phreezer::$Version` and `Phreezer::PharPath()` on every request. No template uses them.
   - `Dispatcher` and `PortalController`: drop the Phreezer parameter and the `$this->Phreezer`
     property.
 
