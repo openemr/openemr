@@ -1323,8 +1323,133 @@ class C_Document extends Controller
         $this->assign('demo_pid', $session->get('pid'));
         $this->assign('is_new_referer', $is_new_referer);
         $this->assign('new_title', xlt("New Documents"));
+        $this->assign('documents_default_view', OEGlobalsBag::getInstance()->getString('documents_default_view', 'tree'));
+        $this->assign('documents_view_key', 'oeDocumentsView:' . (string) $session->get('site_id') . ':' . (string) $session->get('authUserID'));
+        $this->assign('hide_encryption', OEGlobalsBag::getInstance()->getBoolean('hide_document_encryption'));
 
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "documents/" . $this->template_mod . "_list.html");
+    }
+
+    /**
+     * JSON data for the "Folders" view of the Documents page.
+     *
+     * Returns the document categories and the documents of one patient that the current user may
+     * open. It applies the same per-category access check and view filter event as the tree.
+     *
+     * @param string|null $patient_id pid of the patient, "00" for documents that belong to no patient
+     */
+    public function list_data_action(?string $patient_id = ""): string
+    {
+        if (!AclMain::aclCheckCore('patients', 'docs')) {
+            $this->throwAccessDenied("ACL check failed for patients/docs: Documents list data", xl("Documents"));
+        }
+        $globals = OEGlobalsBag::getInstance();
+        $webroot = $globals->getString('webroot');
+        $patientId = (string) $patient_id;
+        $separator = " \u{203A} ";
+
+        $categoryRows = [];
+        foreach (QueryUtils::fetchRecords("SELECT `id`, `name`, `parent`, `aco_spec` FROM `categories` ORDER BY `lft`") as $row) {
+            $categoryRows[(int) $row['id']] = $row;
+        }
+        $pathOf = static function (int $id) use ($categoryRows, $separator): string {
+            $names = [];
+            $guard = 0;
+            while (isset($categoryRows[$id]) && (int) $categoryRows[$id]['parent'] !== 0 && $guard++ < 32) {
+                array_unshift($names, xl_document_category($categoryRows[$id]['name']));
+                $id = (int) $categoryRows[$id]['parent'];
+            }
+            return implode($separator, $names);
+        };
+
+        // The root category is only the tree's anchor, so it is not listed.
+        $categories = [];
+        $accessible = [];
+        foreach ($categoryRows as $id => $row) {
+            if ((int) $row['parent'] === 0 || !AclMain::aclCheckAcoSpec($row['aco_spec'])) {
+                continue;
+            }
+            $accessible[$id] = true;
+            $categories[] = [
+                'id' => $id,
+                'name' => xl_document_category($row['name']),
+                'parent' => (int) $row['parent'],
+                'path' => $pathOf($id),
+            ];
+        }
+
+        $documents = [];
+        if (is_numeric($patientId)) {
+            $sql = "SELECT d.`id`, d.`name`, d.`docdate`, d.`date`, d.`size`, d.`mimetype`, c2d.`category_id`"
+                . " FROM `documents` AS d"
+                . " INNER JOIN `categories_to_documents` AS c2d ON c2d.`document_id` = d.`id`"
+                . " WHERE d.`deleted` = 0 AND ";
+            $binds = [];
+            if ((int) $patientId === 0) {
+                $sql .= "(d.`foreign_id` = 0 OR d.`foreign_id` IS NULL)";
+            } else {
+                $sql .= "d.`foreign_id` = ?";
+                $binds[] = (int) $patientId;
+            }
+            $sql .= " ORDER BY d.`docdate` DESC, d.`id` DESC";
+
+            $base = $webroot . '/controller.php?document';
+            $pidParam = '&patient_id=' . urlencode($patientId);
+            foreach (QueryUtils::fetchRecords($sql, $binds) as $row) {
+                $categoryId = (int) $row['category_id'];
+                if (!isset($accessible[$categoryId])) {
+                    continue;
+                }
+                $documentId = (int) $row['id'];
+                $viewUrl = $base . '&view' . $pidParam . '&doc_id=' . $documentId;
+
+                // Let listeners change the document link, as they can in the tree.
+                $htmlNode = new HTML_TreeNode([
+                    'text' => (string) $row['name'],
+                    'link' => $viewUrl,
+                    'icon' => 'file3.png',
+                    'expandedIcon' => 'folder-expanded.gif',
+                ]);
+                $filterEvent = new PatientDocumentTreeViewFilterEvent();
+                $filterEvent->setCategoryTreeNode($this->tree);
+                $filterEvent->setDocumentId($documentId);
+                $filterEvent->setDocumentName((string) $row['name']);
+                $filterEvent->setCategoryId($categoryId);
+                $filterEvent->setCategoryInfo($this->tree->get_node_info($categoryId));
+                $filterEvent->setPid($patientId);
+                $filterEvent->setHtmlTreeNode($htmlNode);
+                $filteredEvent = $globals->getKernel()->getEventDispatcher()->dispatch($filterEvent, PatientDocumentTreeViewFilterEvent::EVENT_NAME);
+                $filteredLink = $filteredEvent->getHtmlTreeNode()->link;
+                if (is_string($filteredLink) && $filteredLink !== '') {
+                    $viewUrl = $filteredLink;
+                }
+
+                $docDate = (string) ($row['docdate'] ?? '');
+                if ($docDate === '' || str_starts_with($docDate, '0000')) {
+                    $docDate = substr((string) ($row['date'] ?? ''), 0, 10);
+                }
+                $retrieveUrl = $base . '&retrieve' . $pidParam . '&document_id=' . $documentId;
+                $documents[] = [
+                    'id' => $documentId,
+                    'name' => (string) $row['name'],
+                    'category_id' => $categoryId,
+                    'path' => $pathOf($categoryId),
+                    'date' => $docDate,
+                    'size' => (int) ($row['size'] ?? 0),
+                    'mimetype' => (string) ($row['mimetype'] ?? ''),
+                    'view_url' => $viewUrl,
+                    'retrieve_url' => $retrieveUrl . '&as_file=false',
+                    'download_url' => $retrieveUrl . '&as_file=true',
+                ];
+            }
+        }
+
+        header('Content-Type: application/json; charset=utf-8');
+        header('X-Content-Type-Options: nosniff');
+        return json_encode(
+            ['categories' => $categories, 'documents' => $documents],
+            JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE
+        );
     }
 
     public function &array_recurse($array, $patient_id, $categories = [])

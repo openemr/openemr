@@ -1703,6 +1703,16 @@ $GLOBALS_METADATA = [
             xl('Expand All Document Categories by Default')
         ],
 
+        'documents_default_view' => [
+            xl('Documents Default View'),
+            [
+                'tree' => xl('Classic folder tree'),
+                'folders' => xl('Folders (only folders in use, with a document list)'),
+            ],
+            'tree',                           // default = classic folder tree
+            xl("Choose the view the Documents page opens in. A user's last choice is remembered in the browser.")
+        ],
+
         'patient_id_category_name' => [
             xl('Patient ID Category Name'),
             'text',                           // data type

@@ -36,7 +36,27 @@ border-radius: 4px 0 0 4px!important;
 	min-width: 20vw !important;
 }
 </style>
+<style>
+.doc-name {
+    overflow-wrap: anywhere;
+}
+.doc-preview-frame {
+    width: 100%;
+    height: 70vh;
+    border: 0;
+}
+#docDropArea {
+    cursor: pointer;
+}
+#docUploadPopover {
+    position: absolute;
+    z-index: 1050;
+    width: 26rem;
+    max-width: 90vw;
+}
+</style>
 <script src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js?v={assetVersionNumber}"></script>
+<script src="{$GLOBALS.webroot}/library/js/documents_folder_view.js?v={assetVersionNumber}"></script>
 <script src="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.js?v={assetVersionNumber}"></script>
 
 <script>
@@ -89,7 +109,113 @@ border-radius: 4px 0 0 4px!important;
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row mb-2" id="documentsViewBar">
+        <div class="col-12 d-flex flex-wrap align-items-center">
+            <div class="btn-group mr-3" role="group" aria-label="{xla t='Documents view'}">
+                <button type="button" class="btn btn-outline-primary btn-sm" id="docViewFolders" aria-pressed="false">{xlt t='Folders'}</button>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="docViewClassic" aria-pressed="true">{xlt t='Classic tree'}</button>
+            </div>
+            <div class="position-relative" id="docUploadWrap" hidden>
+                <button type="button" class="btn btn-primary btn-sm" id="docUploadBtn" aria-expanded="false" aria-controls="docUploadPopover">{xlt t='Upload'}</button>
+                <div class="card shadow" id="docUploadPopover" hidden>
+                    <div class="card-body">
+                        <h2 class="h6">{xlt t='Upload documents'}</h2>
+                        <div class="form-group">
+                            <label for="docUploadFolder" class="small mb-1">{xlt t='Folder'}</label>
+                            <select class="form-control form-control-sm" id="docUploadFolder"></select>
+                        </div>
+                        <div class="border rounded p-2 text-center text-muted mb-1" id="docDropArea" tabindex="0" role="button">{xlt t='Drop files here or click to choose files'}</div>
+                        <input type="file" class="d-none" id="docFileInput" multiple="multiple" />
+                        <div class="small mb-2" id="docFileNames"></div>
+                        <details class="mb-2">
+                            <summary>{xlt t='Advanced'}</summary>
+                            <div class="form-group mt-2">
+                                <label for="docDicomInput" class="small mb-1">{xlt t='Click below to Zip a Directory of image slices.'}</label>
+                                <input type="file" class="form-control-file" id="docDicomInput" multiple directory="" webkitdirectory="" moxdirectory="" />
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control form-control-sm" id="docDestination" placeholder="{xla t='Optional Destination or Dicom Study Name'}" title="{xla t='Leave Blank To Keep Original Filename'}" />
+                            </div>
+                            {if !$hide_encryption}
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="docEncrypted" />
+                                <label class="form-check-label small" for="docEncrypted">{xlt t='Is The File Encrypted?'}</label>
+                            </div>
+                            <input type="text" class="form-control form-control-sm mt-1" id="docPassphrase" placeholder="{xla t='Pass Phrase'}" title="{xla t='Pass phrase to decrypt document'}" />
+                            <p class="small mb-0"><i>{xlt t='Supports AES-256-CBC encryption/decryption only.'}</i></p>
+                            {/if}
+                        </details>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary btn-sm mr-2" id="docUploadCancel">{xlt t='Cancel'}</button>
+                            <button type="button" class="btn btn-primary btn-sm" id="docUploadSubmit">{xlt t='Upload'}</button>
+                        </div>
+                        <div role="status" class="small mt-2" id="docUploadStatus"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="documentsFolderView" hidden>
+        <div class="row">
+            <div class="col-lg-3 mb-3">
+                <div class="card">
+                    <div class="card-header">{xlt t='Folders'}</div>
+                    <div class="card-body p-2" id="docFolderTree"></div>
+                    <div class="card-footer p-1">
+                        <button type="button" class="btn btn-link btn-sm" id="docEmptyToggle"></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 mb-3">
+                <div class="card">
+                    <div class="card-header form-inline">
+                        <label class="sr-only" for="docSearch">{xlt t='Search'}</label>
+                        <input type="search" class="form-control form-control-sm mr-2 mb-1" id="docSearch" placeholder="{xla t='Search by name'}" />
+                        <label class="mr-1 mb-1 small" for="docSort">{xlt t='Sort'}</label>
+                        <select class="form-control form-control-sm mb-1" id="docSort">
+                            <option value="date_desc">{xlt t='Date, newest first'}</option>
+                            <option value="date_asc">{xlt t='Date, oldest first'}</option>
+                            <option value="name">{xlt t='Name'}</option>
+                            <option value="folder">{xlt t='Folder'}</option>
+                            <option value="type">{xlt t='Type'}</option>
+                        </select>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="px-3 py-2 small text-muted" id="docCrumb"></div>
+                        <table class="table table-sm table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">{xlt t='Name'}</th>
+                                    <th scope="col">{xlt t='Folder'}</th>
+                                    <th scope="col">{xlt t='Date'}</th>
+                                    <th scope="col">{xlt t='Size'}</th>
+                                    <th scope="col"><span class="sr-only">{xlt t='Actions'}</span></th>
+                                </tr>
+                            </thead>
+                            <tbody id="docRows"></tbody>
+                        </table>
+                        <p class="text-muted p-3 mb-0" id="docNoResults" hidden>{xlt t='No documents here. Pick another folder or clear the search.'}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-3">
+                <div class="card">
+                    <div class="card-header">{xlt t='Preview'}</div>
+                    <div class="card-body">
+                        <div class="font-weight-bold text-break" id="docPreviewTitle"></div>
+                        <div class="small text-muted text-break mb-2" id="docPreviewMeta"></div>
+                        <div class="mb-2">
+                            <button type="button" class="btn btn-primary btn-sm" id="docOpen" disabled="disabled">{xlt t='Open in new window'}</button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="docDownload" disabled="disabled">{xlt t='Download'}</button>
+                        </div>
+                        <div id="docPreviewBody" aria-live="polite"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="documentsClassic">
 		<div class="col-sm-3">
 			<div id="documents_list">
 				<fieldset>
@@ -120,6 +246,33 @@ border-radius: 4px 0 0 4px!important;
 	</div>
 </div><!--end of container div-->
 
+<script>
+window.oeDocumentsFolderViewConfig = {
+    webroot: {$GLOBALS.webroot|js_escape},
+    patientId: {$cur_pid|js_escape},
+    csrfToken: {$CSRF_TOKEN_FORM|js_escape},
+    dataUrl: {$GLOBALS.webroot|js_escape} + '/controller.php?document&list_data&patient_id=' + encodeURIComponent({$cur_pid|js_escape}),
+    storageKey: {$documents_view_key|js_escape},
+    defaultView: {$documents_default_view|js_escape},
+    forceClassic: {if !empty($activity)}true{else}false{/if},
+    i18n: {
+        allDocuments: {xlj t='All documents'},
+        showEmpty: {xlj t='Show %d empty folders'},
+        hideEmpty: {xlj t='Hide empty folders'},
+        selectDocument: {xlj t='Select a document to preview it'},
+        noPreview: {xlj t='No preview is available for this file type. Open it in a new window or download it.'},
+        loadFailed: {xlj t='The documents could not be loaded.'},
+        commonFolders: {xlj t='Folders in use'},
+        moreFolders: {xlj t='More folders'},
+        filesSelected: {xlj t='%d file(s) selected'},
+        chooseFiles: {xlj t='Choose at least one file.'},
+        chooseFolder: {xlj t='Choose a folder.'},
+        uploading: {xlj t='Uploading...'},
+        uploaded: {xlj t='Uploaded'},
+        uploadFailed: {xlj t='The upload failed.'}
+    }
+};
+</script>
 <script>
 const curpid = {$cur_pid|js_escape};
 const curpat = {$place_hld|js_escape};
