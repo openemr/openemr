@@ -16,12 +16,12 @@ namespace OpenEMR\Services;
 
 use Twig\Environment;
 
-final class ActiveMedicationSectionView
+final readonly class ActiveMedicationSectionView
 {
     /**
      * The Twig environment that renders the section template.
      */
-    public function __construct(private readonly Environment $twig)
+    public function __construct(private Environment $twig)
     {
     }
 

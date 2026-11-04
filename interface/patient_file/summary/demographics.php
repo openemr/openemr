@@ -1180,7 +1180,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 // MEDICATION CARD
                 if ($meds === 1) {
                     $medListService = new ActiveMedicationListService();
-                    $activeMeds = $medListService->getActiveList($carePlanCardPid);
+                    $includePrescriptions = !OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions')
+                        && AclMain::aclCheckCore('patients', 'rx');
+                    $activeMeds = $medListService->getActiveList($carePlanCardPid, $includePrescriptions);
                     $id = 'medication_ps_expand';
                     $viewArgs = [
                         'title' => xl('Medications'),
@@ -1190,7 +1192,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'initiallyCollapsed' => getUserSetting($id) == 0,
                         'linkMethod' => "javascript",
                         'list' => $activeMeds,
-                        'inactiveCount' => count($medListService->getInactiveList($carePlanCardPid, $activeMeds)),
+                        'inactiveCount' => count($medListService->getInactiveList($carePlanCardPid, $activeMeds, $includePrescriptions)),
                         'listTouched' => !empty(getListTouch($pid, 'medication')),
                         'auth' => true,
                         'btnLabel' => 'Edit',

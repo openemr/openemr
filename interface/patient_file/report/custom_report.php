@@ -449,8 +449,10 @@ function getContent()
                             echo "<hr />\n<div class='text medications'>\n";
                             echo "<h4>" . text(xl('Medications')) . ":</h4>\n";
                             $medListService = new ActiveMedicationListService();
-                            $activeMeds = $medListService->getActiveList($pid);
-                            $inactiveMeds = $medListService->getInactiveList($pid, $activeMeds);
+                            $includePrescriptions = !OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions')
+                                && AclMain::aclCheckCore('patients', 'rx');
+                            $activeMeds = $medListService->getActiveList($pid, $includePrescriptions);
+                            $inactiveMeds = $medListService->getInactiveList($pid, $activeMeds, $includePrescriptions);
                             $medDate = static fn (?string $d): string => ActiveMedicationListService::formatListDate(
                                 $d,
                                 static fn (string $raw) => oeFormatShortDate($raw)

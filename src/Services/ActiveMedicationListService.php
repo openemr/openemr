@@ -148,11 +148,13 @@ class ActiveMedicationListService extends BaseService
     }
 
     /**
-     * activity = 1 (or prescriptions.active = 1) and no end date, or end date today or later.
+     * activity = 1 and no end date, or an end date today or later.
+     * Outcome 1 is resolved and stays off this list. Prescription rows are
+     * included only when the caller says the user may see them.
      *
      * @return list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}>
      */
-    public function getActiveList(int $pid): array
+    public function getActiveList(int $pid, bool $includePrescriptions = true): array
     {
         $hideErx = $this->hideUploadedErx();
         $erx = self::erxExcludeSql('l.', $hideErx);
@@ -163,6 +165,7 @@ class ActiveMedicationListService extends BaseService
             . "FROM lists l "
             . "LEFT JOIN lists_medication m ON m.list_id = l.id "
             . "WHERE l.pid = ? AND l.type = 'medication' AND l.activity = 1 "
+            . "AND COALESCE(l.outcome, 0) != 1 "
             . $erx
             . "AND (l.enddate IS NULL OR l.enddate = '0000-00-00' "
             . "OR l.enddate = '0000-00-00 00:00:00' OR l.enddate >= CURDATE()) "
@@ -180,6 +183,10 @@ class ActiveMedicationListService extends BaseService
             . "ORDER BY start_date, id",
             [$pid]
         ) ?: [];
+        if (!$includePrescriptions) {
+            $prescriptions = [];
+        }
+
         return self::merge($issues, $prescriptions);
     }
 
@@ -192,7 +199,7 @@ class ActiveMedicationListService extends BaseService
      * @param list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}>|null $active
      * @return list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}>
      */
-    public function getInactiveList(int $pid, ?array $active = null): array
+    public function getInactiveList(int $pid, ?array $active = null, bool $includePrescriptions = true): array
     {
         $hideErx = $this->hideUploadedErx();
         $erx = self::erxExcludeSql('l.', $hideErx);
@@ -205,6 +212,7 @@ class ActiveMedicationListService extends BaseService
             . "WHERE l.pid = ? AND l.type = 'medication' "
             . $erx
             . "AND (COALESCE(l.activity, 0) != 1 "
+            . "OR COALESCE(l.outcome, 0) = 1 "
             . "OR (l.enddate IS NOT NULL AND l.enddate != '0000-00-00' "
             . "AND l.enddate != '0000-00-00 00:00:00' AND l.enddate < CURDATE())) "
             . "ORDER BY l.begdate, l.id",
@@ -222,8 +230,12 @@ class ActiveMedicationListService extends BaseService
             . "ORDER BY start_date, id",
             [$pid]
         ) ?: [];
+        if (!$includePrescriptions) {
+            $prescriptions = [];
+        }
         $merged = self::merge($issues, $prescriptions);
-        return self::excludeListedNames($merged, $active ?? $this->getActiveList($pid));
+
+        return self::excludeListedNames($merged, $active ?? $this->getActiveList($pid, $includePrescriptions));
     }
 
     /**
