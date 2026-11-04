@@ -99,30 +99,55 @@ describe('pure helpers', () => {
     });
 });
 
+describe('list height', () => {
+    test('is clamped to the allowed range and falls back for bad values', () => {
+        const api = load(window);
+        const limits = api.listHeightLimits;
+        expect(api.clampListHeight(limits.min - 500)).toBe(limits.min);
+        expect(api.clampListHeight(limits.max + 500)).toBe(limits.max);
+        expect(api.clampListHeight(300)).toBe(300);
+        expect(api.clampListHeight('abc')).toBe(limits.fallback);
+    });
+});
+
 describe('page wiring', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-    function setUp() {
+    function setUp(stored = {}) {
         document.body.innerHTML = `
             <div class="container-fluid">
                 <button type="button" id="docViewFolders"></button>
                 <button type="button" id="docViewClassic"></button>
                 <div id="docUploadWrap" hidden></div>
                 <div id="documentsFolderView" hidden>
-                    <div id="docFolderTree"></div>
-                    <button type="button" id="docEmptyToggle"></button>
-                    <input type="search" id="docSearch" />
-                    <select id="docSort">
-                        <option value="date_desc"></option><option value="name"></option>
-                    </select>
-                    <div id="docCrumb"></div>
-                    <table><tbody id="docRows"></tbody></table>
-                    <p id="docNoResults" hidden></p>
-                    <div id="docPreviewTitle"></div>
-                    <div id="docPreviewMeta"></div>
-                    <button type="button" id="docOpen" disabled></button>
-                    <button type="button" id="docDownload" disabled></button>
-                    <div id="docPreviewBody"></div>
+                    <div id="docFolderCol" class="col-lg-3">
+                        <div id="docFolderTree"></div>
+                        <button type="button" id="docEmptyToggle"></button>
+                    </div>
+                    <div id="docMainCol" class="col-lg-9">
+                        <div id="docListPane">
+                            <button type="button" id="docFolderToggle" aria-expanded="true"></button>
+                            <input type="search" id="docSearch" />
+                            <select id="docSort">
+                                <option value="date_desc"></option><option value="name"></option>
+                            </select>
+                            <div id="docCrumb"></div>
+                            <div id="docListBox">
+                                <table><tbody id="docRows"></tbody></table>
+                                <p id="docNoResults" hidden></p>
+                            </div>
+                            <div id="docResize" role="separator" aria-orientation="horizontal" tabindex="0"></div>
+                        </div>
+                        <div id="docPreviewCard">
+                            <button type="button" id="docOpen" disabled></button>
+                            <button type="button" id="docDownload" disabled></button>
+                            <button type="button" id="docMaximize" aria-pressed="false"></button>
+                            <button type="button" id="docMaxBack" hidden></button>
+                            <div id="docPreviewTitle"></div>
+                            <div id="docPreviewMeta"></div>
+                            <div id="docPreviewBody"></div>
+                        </div>
+                    </div>
                 </div>
                 <div id="documentsClassic"></div>
             </div>`;
@@ -131,6 +156,7 @@ describe('page wiring', () => {
             json: () => Promise.resolve({ categories, documents })
         }));
         window.localStorage.clear();
+        Object.keys(stored).forEach((key) => window.localStorage.setItem(key, stored[key]));
         window.oeDocumentsFolderViewConfig = {
             webroot: '/openemr',
             patientId: '7',
@@ -144,7 +170,9 @@ describe('page wiring', () => {
                 showEmpty: 'Show %d empty folders',
                 hideEmpty: 'Hide empty folders',
                 selectDocument: 'Select a document',
-                noPreview: 'No preview'
+                noPreview: 'No preview',
+                hideFolders: 'Hide folders',
+                showFolders: 'Show folders'
             }
         };
         new Function('window', src)(window);
@@ -237,5 +265,99 @@ describe('page wiring', () => {
         await flush();
         delete document.readyState;
         expect(window.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    test('the folder column can be hidden and the choice is remembered', async () => {
+        setUp();
+        await flush();
+        const toggle = document.getElementById('docFolderToggle');
+        expect(toggle.getAttribute('aria-expanded')).toBe('true');
+        toggle.click();
+        expect(document.getElementById('docFolderCol').hidden).toBe(true);
+        expect(document.getElementById('docMainCol').className).toContain('col-lg-12');
+        expect(toggle.getAttribute('aria-expanded')).toBe('false');
+        expect(toggle.textContent).toBe('Show folders');
+        expect(window.localStorage.getItem('oeDocumentsView:test:folders')).toBe('hidden');
+        toggle.click();
+        expect(document.getElementById('docFolderCol').hidden).toBe(false);
+        expect(document.getElementById('docMainCol').className).toContain('col-lg-9');
+        expect(window.localStorage.getItem('oeDocumentsView:test:folders')).toBe('shown');
+    });
+
+    test('a remembered hidden folder column is applied when the page loads', async () => {
+        setUp({ 'oeDocumentsView:test:folders': 'hidden' });
+        await flush();
+        expect(document.getElementById('docFolderCol').hidden).toBe(true);
+        expect(document.getElementById('docMainCol').className).toContain('col-lg-12');
+        expect(document.getElementById('docFolderToggle').textContent).toBe('Show folders');
+    });
+
+    test('the list height follows the keyboard, is clamped and is remembered', async () => {
+        setUp();
+        await flush();
+        const handle = document.getElementById('docResize');
+        const limits = window.OeDocumentsFolderView.listHeightLimits;
+        const press = (key) => handle.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+        expect(Number(handle.getAttribute('aria-valuenow'))).toBe(limits.fallback);
+        press('ArrowDown');
+        expect(Number(handle.getAttribute('aria-valuenow'))).toBe(limits.fallback + limits.step);
+        press('ArrowUp');
+        press('ArrowUp');
+        expect(Number(handle.getAttribute('aria-valuenow'))).toBe(limits.fallback - limits.step);
+        press('Home');
+        expect(Number(handle.getAttribute('aria-valuenow'))).toBe(limits.min);
+        press('ArrowUp');
+        expect(Number(handle.getAttribute('aria-valuenow'))).toBe(limits.min);
+        press('End');
+        expect(Number(handle.getAttribute('aria-valuenow'))).toBe(limits.max);
+        press('ArrowDown');
+        expect(Number(handle.getAttribute('aria-valuenow'))).toBe(limits.max);
+        expect(document.getElementById('docListBox').style.getPropertyValue('--doc-list-height')).toBe(limits.max + 'px');
+        expect(window.localStorage.getItem('oeDocumentsView:test:listHeight')).toBe(String(limits.max));
+    });
+
+    test('maximizing the preview hides the list and folders, Back and Escape restore', async () => {
+        setUp();
+        await flush();
+        const maximize = document.getElementById('docMaximize');
+        const back = document.getElementById('docMaxBack');
+        maximize.click();
+        expect(document.getElementById('docListPane').hidden).toBe(true);
+        expect(document.getElementById('docFolderCol').hidden).toBe(true);
+        expect(maximize.hidden).toBe(true);
+        expect(back.hidden).toBe(false);
+        expect(maximize.getAttribute('aria-pressed')).toBe('true');
+        back.click();
+        expect(document.getElementById('docListPane').hidden).toBe(false);
+        expect(document.getElementById('docFolderCol').hidden).toBe(false);
+        expect(maximize.hidden).toBe(false);
+        expect(back.hidden).toBe(true);
+        maximize.click();
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        expect(document.getElementById('docListPane').hidden).toBe(false);
+        expect(back.hidden).toBe(true);
+    });
+
+    test('hidden folders stay hidden after leaving the maximized preview', async () => {
+        setUp();
+        await flush();
+        document.getElementById('docFolderToggle').click();
+        document.getElementById('docMaximize').click();
+        document.getElementById('docMaxBack').click();
+        expect(document.getElementById('docFolderCol').hidden).toBe(true);
+        expect(document.getElementById('docMainCol').className).toContain('col-lg-12');
+    });
+
+    test('long names are cut with an ellipsis and keep the full name in the title', async () => {
+        setUp();
+        await flush();
+        const rows = Array.from(document.querySelectorAll('#docRows tr'));
+        expect(rows.length).toBeGreaterThan(0);
+        rows.forEach((row) => {
+            const cell = row.querySelector('td.doc-name');
+            expect(cell).not.toBeNull();
+            expect(cell.title).toBe(row.getAttribute('data-document-name'));
+            expect(row.querySelector('td.doc-folder').title).not.toBe('');
+        });
     });
 });

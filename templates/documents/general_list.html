@@ -37,13 +37,50 @@ border-radius: 4px 0 0 4px!important;
 }
 </style>
 <style>
-.doc-name {
-    overflow-wrap: anywhere;
+.doc-table {
+    table-layout: fixed;
+}
+.doc-table .doc-col-name { width: 40%; }
+.doc-table .doc-col-folder { width: 28%; }
+.doc-table .doc-col-date { width: 12%; }
+.doc-table .doc-col-size { width: 9%; }
+.doc-table .doc-col-actions { width: 11%; }
+.doc-name,
+.doc-folder {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.doc-list-box {
+    height: var(--doc-list-height, 280px);
+    overflow-y: auto;
+}
+.doc-list-box thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: var(--light, #f8f9fa);
+}
+.doc-resize {
+    height: 10px;
+    margin: 2px 0 6px 0;
+    cursor: row-resize;
+    border-radius: 5px;
+    background-color: var(--light, #e9ecef);
+    touch-action: none;
+}
+.doc-resize:hover,
+.doc-resize:focus {
+    background-color: var(--secondary, #6c757d);
 }
 .doc-preview-frame {
     width: 100%;
-    height: 70vh;
+    height: calc(100vh - 360px);
+    min-height: 420px;
     border: 0;
+}
+.doc-maximized .doc-preview-frame {
+    height: calc(100vh - 170px);
 }
 #docDropArea {
     cursor: pointer;
@@ -157,7 +194,7 @@ border-radius: 4px 0 0 4px!important;
     </div>
     <div id="documentsFolderView" hidden>
         <div class="row">
-            <div class="col-lg-3 mb-3">
+            <div class="col-lg-3 mb-3" id="docFolderCol">
                 <div class="card">
                     <div class="card-header">{xlt t='Folders'}</div>
                     <div class="card-body p-2" id="docFolderTree"></div>
@@ -166,48 +203,56 @@ border-radius: 4px 0 0 4px!important;
                     </div>
                 </div>
             </div>
-            <div class="col-lg-5 mb-3">
-                <div class="card">
-                    <div class="card-header form-inline">
-                        <label class="sr-only" for="docSearch">{xlt t='Search'}</label>
-                        <input type="search" class="form-control form-control-sm mr-2 mb-1" id="docSearch" placeholder="{xla t='Search by name'}" />
-                        <label class="mr-1 mb-1 small" for="docSort">{xlt t='Sort'}</label>
-                        <select class="form-control form-control-sm mb-1" id="docSort">
-                            <option value="date_desc">{xlt t='Date, newest first'}</option>
-                            <option value="date_asc">{xlt t='Date, oldest first'}</option>
-                            <option value="name">{xlt t='Name'}</option>
-                            <option value="folder">{xlt t='Folder'}</option>
-                            <option value="type">{xlt t='Type'}</option>
-                        </select>
+            <div class="col-lg-9 mb-3" id="docMainCol">
+                <div id="docListPane">
+                    <div class="card">
+                        <div class="card-header form-inline">
+                            <button type="button" class="btn btn-outline-secondary btn-sm mr-2 mb-1" id="docFolderToggle" aria-controls="docFolderCol" aria-expanded="true">{xlt t='Hide folders'}</button>
+                            <label class="sr-only" for="docSearch">{xlt t='Search'}</label>
+                            <input type="search" class="form-control form-control-sm mr-2 mb-1" id="docSearch" placeholder="{xla t='Search by name'}" />
+                            <label class="mr-1 mb-1 small" for="docSort">{xlt t='Sort'}</label>
+                            <select class="form-control form-control-sm mb-1" id="docSort">
+                                <option value="date_desc">{xlt t='Date, newest first'}</option>
+                                <option value="date_asc">{xlt t='Date, oldest first'}</option>
+                                <option value="name">{xlt t='Name'}</option>
+                                <option value="folder">{xlt t='Folder'}</option>
+                                <option value="type">{xlt t='Type'}</option>
+                            </select>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="px-3 py-2 small text-muted" id="docCrumb"></div>
+                            <div class="doc-list-box" id="docListBox">
+                                <table class="table table-sm table-hover mb-0 doc-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" class="doc-col-name">{xlt t='Name'}</th>
+                                            <th scope="col" class="doc-col-folder">{xlt t='Folder'}</th>
+                                            <th scope="col" class="doc-col-date">{xlt t='Date'}</th>
+                                            <th scope="col" class="doc-col-size">{xlt t='Size'}</th>
+                                            <th scope="col" class="doc-col-actions"><span class="sr-only">{xlt t='Actions'}</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="docRows"></tbody>
+                                </table>
+                                <p class="text-muted p-3 mb-0" id="docNoResults" hidden>{xlt t='No documents here. Pick another folder or clear the search.'}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body p-0">
-                        <div class="px-3 py-2 small text-muted" id="docCrumb"></div>
-                        <table class="table table-sm table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th scope="col">{xlt t='Name'}</th>
-                                    <th scope="col">{xlt t='Folder'}</th>
-                                    <th scope="col">{xlt t='Date'}</th>
-                                    <th scope="col">{xlt t='Size'}</th>
-                                    <th scope="col"><span class="sr-only">{xlt t='Actions'}</span></th>
-                                </tr>
-                            </thead>
-                            <tbody id="docRows"></tbody>
-                        </table>
-                        <p class="text-muted p-3 mb-0" id="docNoResults" hidden>{xlt t='No documents here. Pick another folder or clear the search.'}</p>
-                    </div>
+                    <div class="doc-resize" id="docResize" role="separator" aria-orientation="horizontal" tabindex="0" aria-label="{xla t='Resize the document list'}"></div>
                 </div>
-            </div>
-            <div class="col-lg-4 mb-3">
-                <div class="card">
-                    <div class="card-header">{xlt t='Preview'}</div>
+                <div class="card" id="docPreviewCard">
+                    <div class="card-header d-flex flex-wrap align-items-center justify-content-between">
+                        <span>{xlt t='Preview'}</span>
+                        <span>
+                            <button type="button" class="btn btn-primary btn-sm" id="docOpen" disabled="disabled">{xlt t='Open in new window'}</button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="docDownload" disabled="disabled">{xlt t='Download'}</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="docMaximize" aria-pressed="false">{xlt t='Maximize preview'}</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="docMaxBack" hidden>{xlt t='Back'}</button>
+                        </span>
+                    </div>
                     <div class="card-body">
                         <div class="font-weight-bold text-break" id="docPreviewTitle"></div>
                         <div class="small text-muted text-break mb-2" id="docPreviewMeta"></div>
-                        <div class="mb-2">
-                            <button type="button" class="btn btn-primary btn-sm" id="docOpen" disabled="disabled">{xlt t='Open in new window'}</button>
-                            <button type="button" class="btn btn-secondary btn-sm" id="docDownload" disabled="disabled">{xlt t='Download'}</button>
-                        </div>
                         <div id="docPreviewBody" aria-live="polite"></div>
                     </div>
                 </div>
@@ -269,7 +314,9 @@ window.oeDocumentsFolderViewConfig = {
         chooseFolder: {xlj t='Choose a folder.'},
         uploading: {xlj t='Uploading...'},
         uploaded: {xlj t='Uploaded'},
-        uploadFailed: {xlj t='The upload failed.'}
+        uploadFailed: {xlj t='The upload failed.'},
+        hideFolders: {xlj t='Hide folders'},
+        showFolders: {xlj t='Show folders'}
     }
 };
 </script>

@@ -172,7 +172,22 @@
         return 'other';
     }
 
+    var LIST_MIN = 120;
+    var LIST_MAX = 640;
+    var LIST_DEFAULT = 280;
+    var LIST_STEP = 40;
+
+    function clampListHeight(value) {
+        var number = Number(value);
+        if (!isFinite(number)) {
+            return LIST_DEFAULT;
+        }
+        return Math.min(LIST_MAX, Math.max(LIST_MIN, Math.round(number)));
+    }
+
     root.OeDocumentsFolderView = {
+        clampListHeight: clampListHeight,
+        listHeightLimits: {min: LIST_MIN, max: LIST_MAX, step: LIST_STEP, fallback: LIST_DEFAULT},
         buildFolderTree: buildFolderTree,
         countEmptyFolders: countEmptyFolders,
         findFolder: findFolder,
@@ -207,7 +222,16 @@
             previewMeta: el('docPreviewMeta'),
             previewBody: el('docPreviewBody'),
             open: el('docOpen'),
-            download: el('docDownload')
+            download: el('docDownload'),
+            folderCol: el('docFolderCol'),
+            mainCol: el('docMainCol'),
+            folderToggle: el('docFolderToggle'),
+            listPane: el('docListPane'),
+            listBox: el('docListBox'),
+            resize: el('docResize'),
+            previewCard: el('docPreviewCard'),
+            maximize: el('docMaximize'),
+            maxBack: el('docMaxBack')
         };
         if (!view.classic || !view.folders || !view.tree || !view.rows) {
             return;
@@ -323,8 +347,12 @@
                     tr.className = 'table-active';
                     tr.setAttribute('aria-selected', 'true');
                 }
-                tr.appendChild(make('td', 'text-break doc-name', item.name));
-                tr.appendChild(make('td', 'text-break', item.path));
+                var nameCell = make('td', 'doc-name', item.name);
+                nameCell.title = item.name;
+                tr.appendChild(nameCell);
+                var folderCell = make('td', 'doc-folder', item.path);
+                folderCell.title = item.path;
+                tr.appendChild(folderCell);
                 tr.appendChild(make('td', 'text-nowrap', item.date));
                 tr.appendChild(make('td', 'text-nowrap', formatSize(item.size)));
                 tr.appendChild(make('td', 'doc-row-actions'));
@@ -436,6 +464,155 @@
             }
             if (folders && !state.loaded) {
                 load();
+            }
+        }
+
+        // ---- layout: folder column, list height, maximized preview ----
+        function storedValue(suffix) {
+            try {
+                return root.localStorage.getItem(cfg.storageKey + suffix);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function storeValue(suffix, value) {
+            try {
+                root.localStorage.setItem(cfg.storageKey + suffix, value);
+            } catch (e) {
+                // storage can be blocked; the choice is then simply not remembered
+            }
+        }
+
+        function foldersWanted() {
+            return !view.folderToggle || view.folderToggle.getAttribute('aria-expanded') !== 'false';
+        }
+
+        function applyColumns(maximized) {
+            var showFolders = foldersWanted() && !maximized;
+            if (view.folderCol) {
+                view.folderCol.hidden = !showFolders;
+            }
+            if (view.mainCol) {
+                view.mainCol.className = showFolders ? 'col-lg-9 mb-3' : 'col-lg-12 mb-3';
+            }
+        }
+
+        function setFoldersShown(shown, remember) {
+            if (view.folderToggle) {
+                view.folderToggle.setAttribute('aria-expanded', shown ? 'true' : 'false');
+                view.folderToggle.textContent = shown ? i18n.hideFolders : i18n.showFolders;
+            }
+            applyColumns(isMaximized());
+            if (remember) {
+                storeValue(':folders', shown ? 'shown' : 'hidden');
+            }
+        }
+
+        function setListHeight(value, remember) {
+            if (!view.listBox) {
+                return LIST_DEFAULT;
+            }
+            var height = clampListHeight(value);
+            view.listBox.style.setProperty('--doc-list-height', height + 'px');
+            if (view.resize) {
+                view.resize.setAttribute('aria-valuemin', String(LIST_MIN));
+                view.resize.setAttribute('aria-valuemax', String(LIST_MAX));
+                view.resize.setAttribute('aria-valuenow', String(height));
+            }
+            if (remember) {
+                storeValue(':listHeight', String(height));
+            }
+            return height;
+        }
+
+        function currentListHeight() {
+            var now = view.resize ? Number(view.resize.getAttribute('aria-valuenow')) : LIST_DEFAULT;
+            return isFinite(now) && now > 0 ? now : LIST_DEFAULT;
+        }
+
+        function isMaximized() {
+            return view.maxBack ? !view.maxBack.hidden : false;
+        }
+
+        function setMaximized(on) {
+            if (!view.previewCard || !view.maximize || !view.maxBack) {
+                return;
+            }
+            view.folders.classList.toggle('doc-maximized', on);
+            if (view.listPane) {
+                view.listPane.hidden = on;
+            }
+            view.maximize.hidden = on;
+            view.maximize.setAttribute('aria-pressed', on ? 'true' : 'false');
+            view.maxBack.hidden = !on;
+            applyColumns(on);
+        }
+
+        function wireLayout() {
+            setFoldersShown(storedValue(':folders') !== 'hidden', false);
+            setListHeight(storedValue(':listHeight') === null ? LIST_DEFAULT : storedValue(':listHeight'), false);
+            if (view.folderToggle) {
+                view.folderToggle.addEventListener('click', function () {
+                    setFoldersShown(!foldersWanted(), true);
+                });
+            }
+            if (view.maximize) {
+                view.maximize.addEventListener('click', function () {
+                    setMaximized(true);
+                });
+            }
+            if (view.maxBack) {
+                view.maxBack.addEventListener('click', function () {
+                    setMaximized(false);
+                });
+            }
+            doc.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && isMaximized()) {
+                    setMaximized(false);
+                }
+            });
+            if (view.resize) {
+                view.resize.addEventListener('keydown', function (event) {
+                    var height = currentListHeight();
+                    if (event.key === 'ArrowUp') {
+                        height -= LIST_STEP;
+                    } else if (event.key === 'ArrowDown') {
+                        height += LIST_STEP;
+                    } else if (event.key === 'Home') {
+                        height = LIST_MIN;
+                    } else if (event.key === 'End') {
+                        height = LIST_MAX;
+                    } else {
+                        return;
+                    }
+                    event.preventDefault();
+                    setListHeight(height, true);
+                });
+                view.resize.addEventListener('pointerdown', function (event) {
+                    var startY = event.clientY;
+                    var startHeight = currentListHeight();
+                    event.preventDefault();
+                    if (typeof view.resize.setPointerCapture === 'function' && event.pointerId !== undefined) {
+                        try {
+                            view.resize.setPointerCapture(event.pointerId);
+                        } catch (e) {
+                            // capture is optional; moves are still seen while the pointer stays over the handle
+                        }
+                    }
+                    var move = function (moveEvent) {
+                        setListHeight(startHeight + (moveEvent.clientY - startY), false);
+                    };
+                    var stop = function () {
+                        view.resize.removeEventListener('pointermove', move);
+                        view.resize.removeEventListener('pointerup', stop);
+                        view.resize.removeEventListener('pointercancel', stop);
+                        storeValue(':listHeight', String(currentListHeight()));
+                    };
+                    view.resize.addEventListener('pointermove', move);
+                    view.resize.addEventListener('pointerup', stop);
+                    view.resize.addEventListener('pointercancel', stop);
+                });
             }
         }
 
@@ -654,6 +831,7 @@
 
         // A forced classic page is the result of a classic action (upload or view), not a choice,
         // so it never overwrites what the user picked.
+        wireLayout();
         var wanted = cfg.forceClassic ? 'classic' : (storedView() || cfg.defaultView);
         setView(wanted === 'folders' ? 'folders' : 'classic', false);
     }
