@@ -40,6 +40,7 @@ use OpenEMR\Billing\Statement\PatientNetDue;
 use OpenEMR\Billing\Statement\StatementInvoices;
 use OpenEMR\Billing\Statement\StatementListRows;
 use OpenEMR\Billing\Statement\StatementPageServices;
+use OpenEMR\Billing\Statement\StatementRunOnce;
 use OpenEMR\Billing\Statement\StatementRunRequest;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -56,11 +57,8 @@ require_once("../globals.php");
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcDir . '/appointments.inc.php');
+// The site's statement layout; it also sets $STMT_TEMP_FILE and $STMT_TEMP_FILE_PDF.
 require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/statement.inc.php');
-// statement.inc.php sets $STMT_TEMP_FILE
-if (!isset($STMT_TEMP_FILE)) {
-    throw new \RuntimeException('$STMT_TEMP_FILE must be set by statement.inc.php');
-}
 require_once($srcDir . '/../controllers/C_Document.class.php');
 require_once($srcDir . '/documents.php');
 require_once($srcDir . '/options.inc.php');
@@ -86,19 +84,13 @@ if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
 
 $today = date("Y-m-d");
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$statementServices = StatementPageServices::create(
+$statementServices = StatementPageServices::forSite(
     OEGlobalsBag::getInstance(),
     $session,
     ServiceContainer::getLogger(),
-    static function (array $stmt): string {
-        $statement = make_statement($stmt);
-        return is_string($statement) ? $statement : '';
-    },
-    is_string($STMT_TEMP_FILE) ? $STMT_TEMP_FILE : '',
-    is_string($STMT_TEMP_FILE_PDF ?? null) ? $STMT_TEMP_FILE_PDF : '',
-    defined('OPENEMR_PRINT_COMMAND') ? OPENEMR_PRINT_COMMAND : '',
-    $today,
-    function_exists('sendMail') ? sendMail(...) : null
+    $STMT_TEMP_FILE ?? null,
+    $STMT_TEMP_FILE_PDF ?? null,
+    $today
 );
 
 // Print, download, email or portal-send the checked statements, if asked.
@@ -107,14 +99,19 @@ if ($statementRun !== null && $statementRun->checkedInvoices !== []) {
     if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
-    $alertmsg = $statementServices->runHandler->handle(
-        StatementInvoices::forRun($statementRun->checkedInvoices),
-        $statementRun->delivery,
-        $statementRun->withoutUpdate,
-        $statementTestMode,
-        InvoiceCategory::fromForm(CurrentRequest::get()->request->getString('form_category')) === InvoiceCategory::DuePt,
-        $today
-    );
+    if (!$statementServices->runOnce->claim(CurrentRequest::get()->request->getString(StatementRunOnce::FORM_FIELD) ?: StatementRunOnce::newId())) {
+        // A refresh or Back resubmitted a run that was already done.
+        $alertmsg = xl('These statements were already sent. Search again to send more.');
+    } else {
+        $alertmsg = $statementServices->runHandler->handle(
+            StatementInvoices::forRun($statementRun->checkedInvoices),
+            $statementRun->delivery,
+            $statementRun->withoutUpdate,
+            $statementTestMode,
+            InvoiceCategory::fromForm(CurrentRequest::get()->request->getString('form_category')) === InvoiceCategory::DuePt,
+            $today
+        );
+    }
 } elseif ($statementRun !== null) {
     // let biller know no why statement was not generated
     echo "<script> alert(" . xlj('No invoices were checked.') . ");\n</script>";
@@ -336,6 +333,7 @@ if ($searchRequest->getString('form_search') === 'Search') {
         <div class="col-lg">
             <form id="formSearch" action="" enctype='multipart/form-data' method='post'>
                 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"/>
+                <input type="hidden" name="<?php echo attr(StatementRunOnce::FORM_FIELD); ?>" value="<?php echo attr(StatementRunOnce::newId()); ?>"/>
                 <fieldset id="payment-allocate" class="oe-show-hide px-2">
                     <legend>
                         &nbsp;<?php echo xlt('Post Item'); ?><i id="payment-info-do-not-remove"> </i>
@@ -619,6 +617,9 @@ if ($searchRequest->getString('form_search') === 'Search') {
                             $listRows = $searchCriteria->category === InvoiceCategory::DuePt
                                 ? StatementListRows::net($invoiceRows, $searchRequest->getString('form_show_nothing_due') !== '', PatientNetDue::nothingDue(...))
                                 : StatementListRows::asListed($invoiceRows);
+                            // A patient's portal and email flags are looked up once, not for each of their invoices.
+                            $portalByPid = [];
+                            $emailableByPid = [];
                             foreach ($listRows->rows as $invoice) {
                                 $svcdate = $invoice->serviceDate();
                                 ?>
@@ -658,7 +659,7 @@ if ($searchRequest->getString('form_search') === 'Search') {
                                                     . xlt('credit') . ' ' . text(FormatMoney::getBucks($invoice->netDue)) . "</span>";
                                             } ?>
                                             <?php
-                                            if ($statementServices->portal->listsAsPortalUser($invoice->pid)) {
+                                            if ($portalByPid[$invoice->pid] ??= $statementServices->portal->listsAsPortalUser($invoice->pid)) {
                                                 echo(' PPt');
                                                 echo("<input type='hidden' name='form_invpids[" . attr((string) $invoice->id) . "][" . attr((string) $invoice->pid) . "]' />");
                                                 $is_portal = true;
@@ -666,7 +667,7 @@ if ($searchRequest->getString('form_search') === 'Search') {
                                         </td>
                                     <?php } ?>
                                     <td class="detail text-left">
-                                        <?php echo $statementServices->email->listsAsEmailable($invoice->pid) ? xlt("YES") : xlt("NO"); ?>
+                                        <?php echo ($emailableByPid[$invoice->pid] ??= $statementServices->email->listsAsEmailable($invoice->pid)) ? xlt("YES") : xlt("NO"); ?>
                                     </td>
                                 </tr>
                                 <?php

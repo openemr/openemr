@@ -15,14 +15,16 @@ declare(strict_types=1);
 namespace OpenEMR\Billing\Statement;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
-use OpenEMR\Core\OEGlobalsBag;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final readonly class StatementEmail
 {
-    public function __construct(private LoggerInterface $logger)
+    /**
+     * @param string $sender the patient_reminder_sender_email global
+     */
+    public function __construct(private LoggerInterface $logger, private SessionInterface $session, private string $sender)
     {
     }
 
@@ -35,25 +37,18 @@ final readonly class StatementEmail
     public function send(int $pid, string $statement): void
     {
         if (trim(strip_tags($statement)) === '') {
-            throw new \InvalidArgumentException('Statement message has no text content');
+            throw new \InvalidArgumentException(xl('The statement has no text'));
         }
 
-        $patient = QueryUtils::querySingleRow('SELECT * FROM `patient_data` WHERE `pid` = ?', [$pid]);
-        $patient = is_array($patient) ? $patient : [];
-        $email = is_string($patient['email'] ?? null) ? $patient['email'] : '';
-        $sender = OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email');
-        if (($patient['hipaa_allowemail'] ?? '') !== 'YES' || $email === '' || $sender === '') {
-            throw new \RuntimeException(xl('Email is not allowed or not configured for this patient'));
+        $patient = self::patient($pid);
+        $reason = $this->whyNotEmailable($patient);
+        if ($reason !== null) {
+            throw new \RuntimeException($reason);
         }
-        if (!ValidationUtils::isValidEmail($email)) {
-            throw new \RuntimeException(xl('Patient email address is invalid'));
-        }
-        if (!ValidationUtils::isValidEmail($sender)) {
-            throw new \RuntimeException(xl('Sender email address is not configured or invalid'));
-        }
+        $email = self::text($patient, 'email');
+        $sender = $this->sender;
 
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $facilityId = $session->get('pc_facility');
+        $facilityId = $this->session->get('pc_facility');
         $facility = $facilityId
             ? QueryUtils::querySingleRow('SELECT * FROM facility WHERE id = ?', [$facilityId])
             : QueryUtils::querySingleRow('SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1');
@@ -77,19 +72,42 @@ final readonly class StatementEmail
     }
 
     /**
-     * The statement list's Email column: the patient allows email and the portal,
-     * has the HIPAA notice and a valid address.
+     * The statement list's Email column: send() would email this patient. It uses the
+     * same check, so the column and an Email run agree.
      */
     public function listsAsEmailable(int $pid): bool
     {
-        $patient = QueryUtils::querySingleRow('SELECT * FROM `patient_data` WHERE `pid` = ?', [$pid]);
-        if (!is_array($patient)) {
-            return false;
+        return $this->whyNotEmailable(self::patient($pid)) === null;
+    }
+
+    /**
+     * Why the patient can't be emailed, for the biller, or null when they can: they
+     * allow email (HIPAA), have a valid address, and the site has a valid sender.
+     *
+     * @param array<mixed> $patient
+     */
+    private function whyNotEmailable(array $patient): ?string
+    {
+        $email = self::text($patient, 'email');
+        if (($patient['hipaa_allowemail'] ?? '') !== 'YES' || $email === '' || $this->sender === '') {
+            return xl('Email is not allowed or not configured for this patient');
         }
-        return ($patient['hipaa_allowemail'] ?? '') === 'YES'
-            && ($patient['allow_patient_portal'] ?? '') === 'YES'
-            && ($patient['hipaa_notice'] ?? '') === 'YES'
-            && ValidationUtils::isValidEmail(self::text($patient, 'email'));
+        if (!ValidationUtils::isValidEmail($email)) {
+            return xl('Patient email address is invalid');
+        }
+        if (!ValidationUtils::isValidEmail($this->sender)) {
+            return xl('Sender email address is not configured or invalid');
+        }
+        return null;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private static function patient(int $pid): array
+    {
+        $patient = QueryUtils::querySingleRow('SELECT * FROM `patient_data` WHERE `pid` = ?', [$pid]);
+        return is_array($patient) ? $patient : [];
     }
 
     /**

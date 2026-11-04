@@ -16,6 +16,7 @@ namespace OpenEMR\Billing\Statement;
 
 use Mpdf\Mpdf;
 use OpenEMR\Pdf\Config_Mpdf;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessException;
 use Symfony\Component\Process\Process;
 
@@ -34,19 +35,21 @@ final readonly class StatementFileOutput implements StatementOutput
         private bool $htmlStatements,
         private bool $rightToLeft,
         private string $printCommand,
+        private LoggerInterface $logger,
     ) {
     }
 
-    public function download(string $batchFile): void
+    public function download(string $batchFile): never
     {
         self::send($batchFile);
     }
 
-    public function downloadPdf(string $batchFile, ?array $onlyPatient): void
+    public function downloadPdf(string $batchFile, ?array $onlyPatient): never
     {
+        $safeName = $onlyPatient === null ? '' : convert_safe_file_dir_name($onlyPatient['firstName']);
         $pdfFile = $onlyPatient === null
             ? $this->pdfFile
-            : $this->temporaryDir . '/Stmt_' . (preg_replace('/[^A-Za-z0-9_.-]/', '_', $onlyPatient['firstName']) ?? '') . '_' . $onlyPatient['pid'] . '.pdf';
+            : $this->temporaryDir . '/Stmt_' . (is_string($safeName) ? $safeName : '') . '_' . $onlyPatient['pid'] . '.pdf';
         $batch = file_get_contents($batchFile);
         $batch = $batch === false ? '' : $batch;
         if ($this->htmlStatements) {
@@ -67,23 +70,29 @@ final readonly class StatementFileOutput implements StatementOutput
      * words become the program and its arguments, and the batch file is the last argument.
      * No shell runs it, so the file name can't be read as shell syntax.
      */
-    public function print(string $batchFile): ?string
+    public function print(string $batchFile): bool
     {
         $words = preg_split('/\s+/', trim($this->printCommand), -1, PREG_SPLIT_NO_EMPTY);
         if ($words === false || $words === []) {
-            return 'no print command is set (OPENEMR_PRINT_COMMAND in the site\'s config.php)';
+            $this->logger->error('Statements not printed: no print command is set (OPENEMR_PRINT_COMMAND in the site\'s config.php)');
+            return false;
         }
         $process = new Process([...$words, $batchFile]);
         try {
             $process->run();
         } catch (ProcessException $e) {
-            return $e->getMessage();
+            $this->logger->error('Statements not printed: the print command could not run', ['command' => $words[0], 'exception' => $e]);
+            return false;
         }
         if ($process->isSuccessful()) {
-            return null;
+            return true;
         }
-        $error = trim($process->getErrorOutput());
-        return $error !== '' ? $error : $words[0] . ' exited with status ' . $process->getExitCode();
+        $this->logger->error('Statements not printed: the print command failed', [
+            'command' => $words[0],
+            'exitCode' => $process->getExitCode(),
+            'stderr' => trim($process->getErrorOutput()),
+        ]);
+        return false;
     }
 
     /**

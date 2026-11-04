@@ -63,23 +63,23 @@ class StatementRunHandlerTest extends TestCase
 
     public function testAFailedPrintSaysSoAndWhereTheStatementsAre(): void
     {
-        $this->output->printError = 'lpr: The printer or class does not exist.';
+        $this->output->printWorks = false;
 
         $message = $this->handle([self::invoice(1, 11)], StatementDelivery::Print);
 
-        $this->assertSame('Printing failed: lpr: The printer or class does not exist. The statements are in '
+        $this->assertSame('Printing failed; the details are in the error log. The statements are in '
             . $this->batchFile . '. The invoices were updated.', $message);
         $this->assertSame([[11]], $this->steps->recorded);
     }
 
     public function testAFailedPrintWithoutUpdateLeavesOutTheInvoices(): void
     {
-        $this->output->printError = 'lpr exited with status 1';
+        $this->output->printWorks = false;
         $this->steps->emptyFor = [2];
 
         $message = $this->handle([self::invoice(1, 11), self::invoice(2, 21)], StatementDelivery::Print, withoutUpdate: true);
 
-        $this->assertSame('Printing failed: lpr exited with status 1 The statements are in ' . $this->batchFile
+        $this->assertSame('Printing failed; the details are in the error log. The statements are in ' . $this->batchFile
             . '. No statement for Ann Patient2: the amount due does not meet the minimum amount to print set in Globals.', $message);
     }
 
@@ -102,8 +102,13 @@ class StatementRunHandlerTest extends TestCase
 
     public function testDownloadsHandTheBatchOn(): void
     {
-        $this->handle([self::invoice(1, 11)], StatementDelivery::Download);
-        $this->handle([self::invoice(1, 11)], StatementDelivery::Pdf);
+        foreach ([StatementDelivery::Download, StatementDelivery::Pdf] as $delivery) {
+            try {
+                $this->handle([self::invoice(1, 11)], $delivery);
+                $this->fail('a download ends the request');
+            } catch (DownloadSent) {
+            }
+        }
 
         $this->assertSame([
             ['download', $this->batchFile],
@@ -152,40 +157,36 @@ class StatementRunHandlerTest extends TestCase
         $this->assertSame([], $this->output->calls);
     }
 
-    public function testAnEmailRunIsPrintedTooAndItsFailuresFollowThePrintMessage(): void
+    public function testAnEmailRunOnlyEmailsAndListsItsFailures(): void
     {
-        $this->steps->emailFails = true;
+        $this->steps->emailFailsFor = [1];
+
+        $message = $this->handle([self::invoice(1, 11), self::invoice(2, 21), self::invoice(3, 31)], StatementDelivery::Email);
+
+        $this->assertSame('Emailed 2 statements and updating invoices. Not emailed: Ann Patient1: Patient email address is invalid.', $message);
+        $this->assertSame([], $this->output->calls, 'nothing goes to the printer');
+        $this->assertSame([[21], [31]], $this->steps->recorded);
+    }
+
+    public function testAnEmailRunWithNoFailures(): void
+    {
+        $this->assertSame('Emailed 1 statements and updating invoices.', $this->handle([self::invoice(1, 11)], StatementDelivery::Email));
+        $this->assertSame(
+            'Emailed 1 statements; invoices will not be updated.',
+            $this->handle([self::invoice(1, 11)], StatementDelivery::Email, withoutUpdate: true)
+        );
+    }
+
+    public function testAnEmailRunWhereNothingWentOut(): void
+    {
+        $this->steps->emailFailsFor = [1];
+        $this->steps->emptyFor = [2];
 
         $message = $this->handle([self::invoice(1, 11), self::invoice(2, 21)], StatementDelivery::Email);
 
-        $this->assertSame('Now printing 2 statements and updating invoices. Not emailed: Ann Patient1: Patient email address is invalid;'
-            . ' Ann Patient2: Patient email address is invalid.', $message);
-        $this->assertSame([['print', $this->batchFile]], $this->output->calls);
-    }
-
-    public function testAnEmailRunWithNoFailuresSaysOnlyThatItsPrinting(): void
-    {
-        $message = $this->handle([self::invoice(1, 11)], StatementDelivery::Email);
-
-        $this->assertSame('Now printing 1 statements and updating invoices.', $message);
-    }
-
-    public function testAnEmailRunsFailuresAreKeptWhenThePrintFailsOrIsSkipped(): void
-    {
-        $this->steps->emailFails = true;
-        $this->steps->emptyFor = [2];
-        $this->output->printError = 'lpr exited with status 1';
-
-        $message = $this->handle([self::invoice(1, 11), self::invoice(2, 21)], StatementDelivery::Email, withoutUpdate: true);
-
-        $this->assertSame('Printing failed: lpr exited with status 1 The statements are in ' . $this->batchFile . '.'
-            . ' Not emailed: Ann Patient1: Patient email address is invalid.'
+        $this->assertSame('Not emailed: Ann Patient1: Patient email address is invalid.'
             . ' No statement for Ann Patient2: the amount due does not meet the minimum amount to print set in Globals.', $message);
-
-        $message = $this->handle([self::invoice(1, 11)], StatementDelivery::Email, test: true);
-
-        $this->assertSame('Printing skipped; see test output in ' . $this->batchFile
-            . ' Not emailed: Ann Patient1: Patient email address is invalid.', $message);
+        $this->assertSame([], $this->steps->recorded);
     }
 
     public function testAPortalRun(): void
@@ -238,7 +239,8 @@ final class HandlerTestSteps implements StatementRunSteps
 {
     /** @var array<int, float> */
     public array $owed = [];
-    public bool $emailFails = false;
+    /** @var list<int> pids whose email fails */
+    public array $emailFailsFor = [];
     public bool $portalAuthorized = true;
     public bool $portalFails = false;
     /** @var list<int> pids whose statement the print rules leave empty */
@@ -269,7 +271,7 @@ final class HandlerTestSteps implements StatementRunSteps
 
     public function email(int $pid, string $statement): void
     {
-        if ($this->emailFails) {
+        if (in_array($pid, $this->emailFailsFor, true)) {
             throw new \RuntimeException('Patient email address is invalid');
         }
     }
@@ -295,21 +297,30 @@ final class RecordingStatementOutput implements StatementOutput
     /** @var list<list<mixed>> */
     public array $calls = [];
 
-    public function download(string $batchFile): void
+    public bool $printWorks = true;
+
+    public function download(string $batchFile): never
     {
         $this->calls[] = ['download', $batchFile];
+        throw new DownloadSent();
     }
 
-    public function downloadPdf(string $batchFile, ?array $onlyPatient): void
+    public function downloadPdf(string $batchFile, ?array $onlyPatient): never
     {
         $this->calls[] = ['downloadPdf', $batchFile, $onlyPatient];
+        throw new DownloadSent();
     }
 
-    public ?string $printError = null;
-
-    public function print(string $batchFile): ?string
+    public function print(string $batchFile): bool
     {
         $this->calls[] = ['print', $batchFile];
-        return $this->printError;
+        return $this->printWorks;
     }
+}
+
+/**
+ * Stands in for the end of the request that a real download makes.
+ */
+final class DownloadSent extends \RuntimeException
+{
 }

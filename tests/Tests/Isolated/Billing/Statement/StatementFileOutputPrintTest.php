@@ -16,13 +16,16 @@ namespace OpenEMR\Tests\Isolated\Billing\Statement;
 
 use OpenEMR\Billing\Statement\StatementFileOutput;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
 
 class StatementFileOutputPrintTest extends TestCase
 {
     private string $dir;
+    private PrintTestLogger $logger;
 
     protected function setUp(): void
     {
+        $this->logger = new PrintTestLogger();
         $this->dir = sys_get_temp_dir() . '/stmt-print-' . bin2hex(random_bytes(4));
         mkdir($this->dir);
     }
@@ -45,44 +48,53 @@ class StatementFileOutputPrintTest extends TestCase
         file_put_contents($script, "#!/bin/sh\nprintf '%s\\n' \"\$@\" > " . escapeshellarg($this->dir . '/args') . "\n");
         chmod($script, 0700);
 
-        $error = self::fileOutput($script . '  -P HPLaserjet6P   -o cpi=10')->print($batch);
-
-        $this->assertNull($error);
+        $this->assertTrue($this->fileOutput($script . '  -P HPLaserjet6P   -o cpi=10')->print($batch));
         $this->assertSame("-P\nHPLaserjet6P\n-o\ncpi=10\n" . $batch . "\n", file_get_contents($this->dir . '/args'));
+        $this->assertSame([], $this->logger->records);
     }
 
-    public function testACommandThatFailsReportsItsErrorOutput(): void
+    public function testACommandThatFailsLogsItsErrorOutput(): void
     {
         $script = $this->dir . '/print.sh';
         file_put_contents($script, "#!/bin/sh\necho 'lpr: The printer or class does not exist.' >&2\nexit 1\n");
         chmod($script, 0700);
 
-        $this->assertSame('lpr: The printer or class does not exist.', self::fileOutput($script)->print($this->dir . '/batch'));
+        $this->assertFalse($this->fileOutput($script)->print($this->dir . '/batch'));
+        $this->assertSame([[
+            'Statements not printed: the print command failed',
+            ['command' => $script, 'exitCode' => 1, 'stderr' => 'lpr: The printer or class does not exist.'],
+        ]], $this->logger->records);
     }
 
-    public function testACommandThatFailsSilentlyReportsItsExitStatus(): void
+    public function testAMissingProgramIsLoggedNotThrown(): void
     {
-        $this->assertSame('false exited with status 1', self::fileOutput('false')->print($this->dir . '/batch'));
-    }
-
-    public function testAMissingProgramIsReportedNotThrown(): void
-    {
-        $error = self::fileOutput($this->dir . '/no-such-lpr -P x')->print($this->dir . '/batch');
-
-        $this->assertNotNull($error);
-        $this->assertNotSame('', $error);
+        $this->assertFalse($this->fileOutput($this->dir . '/no-such-lpr -P x')->print($this->dir . '/batch'));
+        $this->assertCount(1, $this->logger->records);
+        $this->assertStringStartsWith('Statements not printed: ', $this->logger->records[0][0]);
     }
 
     public function testNoPrintCommand(): void
     {
+        $this->assertFalse($this->fileOutput('  ')->print($this->dir . '/batch'));
         $this->assertSame(
-            "no print command is set (OPENEMR_PRINT_COMMAND in the site's config.php)",
-            self::fileOutput('  ')->print($this->dir . '/batch'),
+            [["Statements not printed: no print command is set (OPENEMR_PRINT_COMMAND in the site's config.php)", []]],
+            $this->logger->records
         );
     }
 
-    private static function fileOutput(string $printCommand): StatementFileOutput
+    private function fileOutput(string $printCommand): StatementFileOutput
     {
-        return new StatementFileOutput('', '', false, false, $printCommand);
+        return new StatementFileOutput('', '', false, false, $printCommand, $this->logger);
+    }
+}
+
+final class PrintTestLogger extends AbstractLogger
+{
+    /** @var list<array{string, array<mixed>}> */
+    public array $records = [];
+
+    public function log($level, string|\Stringable $message, array $context = []): void
+    {
+        $this->records[] = [(string) $message, $context];
     }
 }

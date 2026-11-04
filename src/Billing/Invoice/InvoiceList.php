@@ -53,6 +53,8 @@ final class InvoiceList
     {
         $records = QueryUtils::fetchRecords(sprintf(self::QUERY, $condition), $binds);
         $rows = [];
+        // Insurance levels per patient and service date: a patient's invoices often share a date.
+        $payerCounts = [];
         foreach ($records as $record) {
             $row = [];
             foreach ($record as $column => $value) {
@@ -60,7 +62,9 @@ final class InvoiceList
                     $row[$column] = $value;
                 }
             }
-            $listed = InvoiceListRow::fromQueryRow($row, self::payerCount($row), $category, $fromEra, $onlyWithDebt);
+            $key = (is_scalar($row['pid'] ?? null) ? (string) $row['pid'] : '') . '|' . (is_scalar($row['date'] ?? null) ? (string) $row['date'] : '');
+            $payerCount = $payerCounts[$key] ??= self::payerCount($row);
+            $listed = InvoiceListRow::fromQueryRow($row, $payerCount, $category, $fromEra, $onlyWithDebt);
             if ($listed !== null) {
                 $rows[] = $listed;
             }

@@ -39,68 +39,58 @@ final readonly class StatementRunHandler
         $result = $this->run->run($invoices, $delivery, !$test && !$withoutUpdate, $skipNothingDue, $today);
         file_put_contents($this->batchFile, $result->output);
 
-        $message = $result->emailFailures === [] ? '' : implode('; ', $result->emailFailures);
-        if ($result->portalError === StatementRunResult::PORTAL_NOT_AUTHORIZED) {
-            $message = xl('Notification FAILED: Not Portal Authorized');
-        } elseif ($result->portalError === StatementRunResult::PORTAL_FAILED) {
-            $message = xl('Notification FAILED');
-        }
         // Patients who got no statement: nothing due after their credits, or under the print minimum.
         $skipped = $result->skippedNothingDue === [] ? '' : xl('No statement for') . ' ' . implode(', ', $result->skippedNothingDue)
             . ': ' . xl('nothing is due after their credits.');
         if ($result->skippedBelowMinimum !== []) {
-            $skipped = trim($skipped . ' ' . xl('No statement for') . ' ' . implode(', ', $result->skippedBelowMinimum)
+            $skipped = self::join($skipped, xl('No statement for') . ' ' . implode(', ', $result->skippedBelowMinimum)
                 . ': ' . xl('the amount due does not meet the minimum amount to print set in Globals.'));
         }
 
-        if ($result->statementsWritten === 0 && $skipped !== '' && $delivery !== StatementDelivery::Portal) {
+        if ($delivery === StatementDelivery::Portal) {
+            return match ($result->portalError) {
+                StatementRunResult::PORTAL_NOT_AUTHORIZED => xl('Notification FAILED: Not Portal Authorized'),
+                StatementRunResult::PORTAL_FAILED => xl('Notification FAILED'),
+                default => xl('Sending Invoice to Patient Portal Completed'),
+            };
+        }
+        if ($delivery === StatementDelivery::Email) {
+            // An email run only emails; nothing goes to the printer.
+            $notEmailed = $result->emailFailures === [] ? '' : xl('Not emailed') . ': ' . implode('; ', $result->emailFailures) . '.';
+            $emailed = $result->statementsWritten === 0 && ($notEmailed !== '' || $skipped !== '') ? '' : xl('Emailed') . ' '
+                . $result->statementsWritten . ' ' . self::invoiceUpdate($withoutUpdate, $test);
+            return self::join($emailed, $notEmailed, $skipped);
+        }
+        if ($result->statementsWritten === 0 && $skipped !== '') {
             // Every checked patient was skipped: say so rather than hand back an empty file.
             return $skipped;
         }
-        // An email run's failures, "patient: reason" each; master's page dropped them for the print message.
-        $notEmailed = $result->emailFailures === [] ? '' : xl('Not emailed') . ': ' . implode('; ', $result->emailFailures) . '.';
         return match ($delivery) {
-            StatementDelivery::Download => $this->download($message),
-            StatementDelivery::Pdf => $this->downloadPdf($message, $result->onlyPatient),
-            StatementDelivery::Portal => $message === '' ? xl('Sending Invoice to Patient Portal Completed') : $message,
-            // An email run is sent to the printer too, as it always has been; its email failures follow the print message.
-            StatementDelivery::Print, StatementDelivery::Email => $this->print($result->statementsWritten, $withoutUpdate, $test, $skipped, $notEmailed),
+            StatementDelivery::Download => $this->output->download($this->batchFile),
+            StatementDelivery::Pdf => $this->output->downloadPdf($this->batchFile, $result->onlyPatient),
+            StatementDelivery::Print => $this->print($result->statementsWritten, $withoutUpdate, $test, $skipped),
         };
     }
 
-    private function download(string $message): string
-    {
-        $this->output->download($this->batchFile);
-        return $message;
-    }
-
-    /**
-     * @param ?array{firstName: string, pid: int} $onlyPatient
-     */
-    private function downloadPdf(string $message, ?array $onlyPatient): string
-    {
-        $this->output->downloadPdf($this->batchFile, $onlyPatient);
-        return $message;
-    }
-
-    /**
-     * @param string $emailFailures "Not emailed: ..." for an email run with failures, '' for none
-     */
-    private function print(int $written, bool $withoutUpdate, bool $test, string $skipped, string $emailFailures): string
+    private function print(int $written, bool $withoutUpdate, bool $test, string $skipped): string
     {
         if ($test) {
-            return self::join(xl('Printing skipped; see test output in') . ' ' . $this->batchFile, $emailFailures, $skipped);
+            return self::join(xl('Printing skipped; see test output in') . ' ' . $this->batchFile, $skipped);
         }
-        $error = $this->output->print($this->batchFile);
-        if ($error !== null) {
+        if (!$this->output->print($this->batchFile)) {
             // The run already wrote the batch, and updated the invoices unless told not to.
-            $message = xl('Printing failed') . ': ' . $error . ' ' . xl('The statements are in') . ' ' . $this->batchFile . '.'
-                . ($withoutUpdate ? '' : ' ' . xl('The invoices were updated.'));
-            return self::join($message, $emailFailures, $skipped);
+            return self::join(
+                xl('Printing failed; the details are in the error log.') . ' ' . xl('The statements are in') . ' ' . $this->batchFile . '.'
+                . ($withoutUpdate ? '' : ' ' . xl('The invoices were updated.')),
+                $skipped
+            );
         }
-        $message = xl('Now printing') . ' ' . $written . ' '
-            . ($withoutUpdate ? xl('statements; invoices will not be updated.') : xl('statements and updating invoices.'));
-        return self::join($message, $emailFailures, $skipped);
+        return self::join(xl('Now printing') . ' ' . $written . ' ' . self::invoiceUpdate($withoutUpdate, $test), $skipped);
+    }
+
+    private static function invoiceUpdate(bool $withoutUpdate, bool $test): string
+    {
+        return $withoutUpdate || $test ? xl('statements; invoices will not be updated.') : xl('statements and updating invoices.');
     }
 
     private static function join(string ...$parts): string

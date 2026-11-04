@@ -19,19 +19,20 @@ interface StatementOutput
     /**
      * Send the batch file to the browser as a download. The request ends there.
      */
-    public function download(string $batchFile): void;
+    public function download(string $batchFile): never;
 
     /**
      * Send the batch to the browser as a PDF download. The request ends there.
      *
      * @param ?array{firstName: string, pid: int} $onlyPatient names the file after the patient when the run was one patient's
      */
-    public function downloadPdf(string $batchFile, ?array $onlyPatient): void;
+    public function downloadPdf(string $batchFile, ?array $onlyPatient): never;
 
     /**
-     * Send the batch file to the printer.
+     * Send the batch file to the printer. A failure's details are logged, not returned:
+     * they can hold server paths and printer errors the biller shouldn't see.
      *
-     * @return ?string why it couldn't be printed, or null when the print command succeeded
+     * @return bool whether the print command succeeded
      */
-    public function print(string $batchFile): ?string;
+    public function print(string $batchFile): bool;
 }

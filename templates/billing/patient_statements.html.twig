@@ -25,6 +25,7 @@
 {% block content %}
 <form id="statement-form" method="post" action="patient_statements.php" onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+    <input type="hidden" name="{{ runIdField|attr }}" value="{{ runId|attr }}" />
     <fieldset class="px-2">
         <legend>{{ "Find Invoices"|xlt }}</legend>
         <div class="form-row">

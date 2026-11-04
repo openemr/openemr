@@ -24,7 +24,49 @@ final readonly class StatementPageServices
         public StatementPortal $portal,
         public StatementEmail $email,
         public StatementRunHandler $runHandler,
+        public StatementRunOnce $runOnce,
     ) {
+    }
+
+    /**
+     * The services for a statements page, from what the site's statement.inc.php
+     * (make_statement(), $STMT_TEMP_FILE, $STMT_TEMP_FILE_PDF), config.php
+     * (OPENEMR_PRINT_COMMAND) and, with the portal on, portal_mail.inc.php
+     * (sendMail()) define. Both pages load those files first.
+     *
+     * @param mixed $batchFile $STMT_TEMP_FILE
+     * @param mixed $pdfFile $STMT_TEMP_FILE_PDF
+     * @param string $today Y-m-d
+     * @throws \RuntimeException when statement.inc.php doesn't set $STMT_TEMP_FILE or define make_statement()
+     */
+    public static function forSite(
+        OEGlobalsBag $globals,
+        SessionInterface $session,
+        LoggerInterface $logger,
+        mixed $batchFile,
+        mixed $pdfFile,
+        string $today,
+    ): self {
+        if (!is_string($batchFile) || $batchFile === '') {
+            throw new \RuntimeException('$STMT_TEMP_FILE must be set by statement.inc.php');
+        }
+        if (!function_exists('make_statement')) {
+            throw new \RuntimeException('make_statement() must be defined by statement.inc.php');
+        }
+        return self::create(
+            $globals,
+            $session,
+            $logger,
+            static function (array $stmt): string {
+                $statement = make_statement($stmt);
+                return is_string($statement) ? $statement : '';
+            },
+            $batchFile,
+            is_string($pdfFile) ? $pdfFile : '',
+            defined('OPENEMR_PRINT_COMMAND') ? OPENEMR_PRINT_COMMAND : '',
+            $today,
+            function_exists('sendMail') ? sendMail(...) : null
+        );
     }
 
     /**
@@ -52,11 +94,16 @@ final readonly class StatementPageServices
             $session,
             $sendMail
         );
-        $email = new StatementEmail($logger);
+        $email = new StatementEmail($logger, $session, $globals->getString('patient_reminder_sender_email'));
         $htmlStatements = $globals->getString('statement_appearance') === '1';
         $rightToLeft = $session->get('language_direction') === 'rtl';
         $steps = new PageStatementRunSteps($buildStatement, $email, $portal, $htmlStatements, $rightToLeft, $today);
-        $output = new StatementFileOutput($pdfFile, $globals->getString('temporary_files_dir'), $htmlStatements, $rightToLeft, $printCommand);
-        return new self($portal, $email, new StatementRunHandler(new StatementRun($steps, $logger), $output, $batchFile));
+        $output = new StatementFileOutput($pdfFile, $globals->getString('temporary_files_dir'), $htmlStatements, $rightToLeft, $printCommand, $logger);
+        return new self(
+            $portal,
+            $email,
+            new StatementRunHandler(new StatementRun($steps, $logger), $output, $batchFile),
+            new StatementRunOnce($session),
+        );
     }
 }

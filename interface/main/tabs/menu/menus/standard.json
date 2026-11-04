@@ -457,7 +457,7 @@
             {
                 "label": "Patient Statements",
                 "menu_id": "stmt",
-                "target": "bil",
+                "target": "stm",
                 "url": "/interface/billing/patient_statements.php",
                 "children": [],
                 "requirement": 0,

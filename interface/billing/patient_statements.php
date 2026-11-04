@@ -25,6 +25,7 @@ use OpenEMR\Billing\Statement\PatientNetDue;
 use OpenEMR\Billing\Statement\StatementInvoices;
 use OpenEMR\Billing\Statement\StatementListRows;
 use OpenEMR\Billing\Statement\StatementPageServices;
+use OpenEMR\Billing\Statement\StatementRunOnce;
 use OpenEMR\Billing\Statement\StatementRunRequest;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -39,9 +40,6 @@ $srcDir = $globals->getSrcDir();
 require_once($srcDir . '/appointments.inc.php');
 // The site's statement layout; it also sets $STMT_TEMP_FILE and $STMT_TEMP_FILE_PDF.
 require_once($globals->getString('OE_SITE_DIR') . '/statement.inc.php');
-if (!isset($STMT_TEMP_FILE) || !is_string($STMT_TEMP_FILE) || $STMT_TEMP_FILE === '') {
-    throw new \RuntimeException('$STMT_TEMP_FILE must be set by statement.inc.php');
-}
 require_once($srcDir . '/../controllers/C_Document.class.php');
 require_once($srcDir . '/documents.php');
 require_once($srcDir . '/options.inc.php');
@@ -57,19 +55,13 @@ if ($globals->getBoolean('portal_onsite_two_enable')) {
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $post = CurrentRequest::get()->request;
 $today = date('Y-m-d');
-$services = StatementPageServices::create(
+$services = StatementPageServices::forSite(
     $globals,
     $session,
     ServiceContainer::getLogger(),
-    static function (array $stmt): string {
-        $statement = make_statement($stmt);
-        return is_string($statement) ? $statement : '';
-    },
-    $STMT_TEMP_FILE,
-    is_string($STMT_TEMP_FILE_PDF ?? null) ? $STMT_TEMP_FILE_PDF : '',
-    defined('OPENEMR_PRINT_COMMAND') ? OPENEMR_PRINT_COMMAND : '',
-    $today,
-    function_exists('sendMail') ? sendMail(...) : null
+    $STMT_TEMP_FILE ?? null,
+    $STMT_TEMP_FILE_PDF ?? null,
+    $today
 );
 
 // Due Pt unless the biller asked for All (to resend or reprint any invoice).
@@ -96,6 +88,9 @@ if ($run !== null || $searched) {
 if ($run !== null) {
     if ($run->checkedInvoices === []) {
         $message = xl('No invoices were checked.');
+    } elseif (!$services->runOnce->claim($post->getString(StatementRunOnce::FORM_FIELD) ?: StatementRunOnce::newId())) {
+        // A refresh or Back resubmitted a run that was already done.
+        $message = xl('These statements were already sent. Search again to send more.');
     } else {
         // A download hands the file to the browser and ends the request here.
         $message = $services->runHandler->handle(
@@ -124,8 +119,11 @@ if ($searched) {
             ? StatementListRows::net($invoices, $showNothingDue, PatientNetDue::nothingDue(...))
             : StatementListRows::asListed($invoices);
         $hiddenPatients = $list->hiddenPatients;
-        $rows = array_map(static function (InvoiceListRow $invoice) use ($services, &$anyPortal): array {
-            $portal = $services->portal->listsAsPortalUser($invoice->pid);
+        // A patient's portal and email flags are looked up once, not for each of their invoices.
+        $portalByPid = [];
+        $emailableByPid = [];
+        $rows = array_map(static function (InvoiceListRow $invoice) use ($services, &$anyPortal, &$portalByPid, &$emailableByPid): array {
+            $portal = $portalByPid[$invoice->pid] ??= $services->portal->listsAsPortalUser($invoice->pid);
             $anyPortal = $anyPortal || $portal;
             return [
                 'id' => $invoice->id,
@@ -147,7 +145,7 @@ if ($searched) {
                 'inCollections' => $invoice->inCollections,
                 'netDue' => $invoice->netDue === null ? null : FormatMoney::getBucks($invoice->netDue),
                 'portal' => $portal,
-                'emailable' => $services->email->listsAsEmailable($invoice->pid),
+                'emailable' => $emailableByPid[$invoice->pid] ??= $services->email->listsAsEmailable($invoice->pid),
             ];
         }, $list->rows);
     }
@@ -166,6 +164,8 @@ echo ServiceContainer::getTwig()->render('billing/patient_statements.html.twig',
         'help_file_name' => '',
     ],
     'csrfToken' => CsrfUtils::collectCsrfToken(session: $session),
+    'runIdField' => StatementRunOnce::FORM_FIELD,
+    'runId' => StatementRunOnce::newId(),
     'filters' => [
         'category' => $category->value,
         'name' => $post->getString('form_name'),
