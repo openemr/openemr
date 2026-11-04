@@ -1177,7 +1177,7 @@ $GLOBALS_METADATA = [
             xl('Referrals Overdue After (Days)'),
             'num',
             '14',
-            xl('A referral not yet completed shows as overdue this many days after its Referral Date, on the Transactions screen and in the Referrals report. 0 turns this off.')
+            xl('A referral still open (not completed, and its Task not cancelled, rejected, failed or entered in error) shows as overdue this many days after its Referral Date, on the Transactions screen and in the Referrals report. 0 turns this off.')
         ],
 
     ],

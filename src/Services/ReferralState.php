@@ -2,7 +2,7 @@
 
 /**
  * Where a referral stands (#14710): open, completed (answered), or closed without an answer
- * (its Task cancelled or entered in error). ReferralStatus decides which.
+ * (its Task cancelled, rejected, failed or entered in error). ReferralStatus decides which.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
