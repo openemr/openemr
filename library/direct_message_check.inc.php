@@ -27,6 +27,7 @@
 require_once(__DIR__ . "/documents.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\DirectMessaging\PhiMailCheckException;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -193,14 +194,14 @@ function phimail_check(): void
             } elseif (str_starts_with($ret, "STATUS")) {
                 //Format STATUS message-id status-code [additional-information]
                 $val = explode(" ", trim($ret), 4);
-                $sql = 'SELECT * from direct_message_log WHERE msg_id = ?';
                 try {
-                    $res = sqlStatementNoLog($sql, [$val[1]], true);
+                    $rows = QueryUtils::fetchRecordsNoLog('SELECT * FROM direct_message_log WHERE msg_id = ?', [$val[1]]);
                 } catch (SqlQueryException $e) {
                     $fail("database problem", $e);
                 }
 
-                if (($msg = sqlFetchArray($res)) === false) {
+                $msg = $rows[0] ?? null;
+                if ($msg === null) {
                     //no match, so log it and move on (should never happen)
                     phimail_logit(0, "NO MATCH: " . $ret);
                     $ret = phimail_write_expect_OK($fp, "OK\n");
@@ -228,19 +229,24 @@ function phimail_check(): void
 
                 $val[3] ??= "";
 
-                $sql = "UPDATE direct_message_log SET status=?, status_ts=NOW(), status_info=? WHERE msg_type='S' AND msg_id=?";
+                $sql = <<<'SQL'
+                    UPDATE direct_message_log SET status = ?, status_ts = NOW(), status_info = ?
+                    WHERE msg_type = 'S' AND msg_id = ?
+                    SQL;
                 try {
-                    sqlStatementNoLog($sql, [$status, $val[3], $val[1]], true);
+                    QueryUtils::sqlStatementThrowException($sql, [$status, $val[3], $val[1]], noLog: true);
                 } catch (SqlQueryException $e) {
                     $fail("database problem updating: " . $val[1], $e);
                 }
 
                 if (!$success) {
                     //notify local user of failure
-                    $sql = "SELECT username FROM users WHERE id = ?";
-                    $res2 = sqlStatementNoLog($sql, [$msg['user_id']]);
-                    $fail_user = ($res2 === false || ($user_row = sqlFetchArray($res2)) === false) ?
-                        xl('unknown (see log)') : $user_row['username'];
+                    try {
+                        $users = QueryUtils::fetchRecordsNoLog('SELECT username FROM users WHERE id = ?', [$msg['user_id']]);
+                    } catch (SqlQueryException $e) {
+                        $fail("database problem looking up sender of: " . $val[1], $e);
+                    }
+                    $fail_user = $users[0]['username'] ?? xl('unknown (see log)');
                     $fail_notice = xl('Sent by:') . ' ' . $fail_user . '(' . $msg['user_id'] . ') ' . xl('on') . ' ' . $msg['create_ts']
                         . "\n" . xl('Sent to:') . ' ' . $msg['recipient'] . "\n" . xl('Server message:') . ' ' . $ret;
                     phimail_notify(xl('Direct Messaging Send Failure.'), $fail_notice);
@@ -398,9 +404,16 @@ function phimail_check(): void
                 $ret2 = phimail_write_expect_OK($fp, "DONE\n"); //we'll check for failure after logging.
 
                 //logging only after successful download, storage, and acknowledgement of message
-                $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,user_id) " .
-                    "VALUES ('R', ?, ?, ?, 'R', NOW(), ?)";
-                $res = sqlStatementNoLog($sql, [$msg_id, $sender, $recipient, phimail_service_userID()]);
+                $sql = <<<'SQL'
+                    INSERT INTO direct_message_log (msg_type, msg_id, sender, recipient, status, status_ts, user_id)
+                    VALUES ('R', ?, ?, ?, 'R', NOW(), ?)
+                    SQL;
+                $serviceUserId = phimail_service_userID();
+                try {
+                    QueryUtils::sqlStatementThrowException($sql, [$msg_id, $sender, $recipient, $serviceUserId], noLog: true);
+                } catch (SqlQueryException $e) {
+                    $fail("database problem logging received message: " . $msg_id, $e);
+                }
 
                 phimail_logit(1, $ret);
 
@@ -571,17 +584,9 @@ function phimail_extension($mime): string
 
 function phimail_service_userID($name = 'phimail-service')
 {
-    $sql = "SELECT id FROM users WHERE username=?";
-    if (
-        ($r = sqlStatementNoLog($sql, [$name])) === false ||
-        ($u = sqlFetchArray($r)) === false
-    ) {
-        $user = 1; //default if we don't have a service user
-    } else {
-        $user = $u['id'];
-    }
+    $users = QueryUtils::fetchRecordsNoLog('SELECT id FROM users WHERE username = ?', [$name]);
 
-    return ($user);
+    return $users[0]['id'] ?? 1; //default if we don't have a service user
 }
 
 /**
