@@ -1350,14 +1350,14 @@ class C_Document extends Controller
 
         $categoryRows = [];
         foreach (QueryUtils::fetchRecords("SELECT `id`, `name`, `parent`, `aco_spec` FROM `categories` ORDER BY `lft`") as $row) {
-            $categoryRows[(int) $row['id']] = $row;
+            $categoryRows[self::listDataInt($row['id'] ?? null)] = $row;
         }
         $pathOf = static function (int $id) use ($categoryRows, $separator): string {
             $names = [];
             $guard = 0;
-            while (isset($categoryRows[$id]) && (int) $categoryRows[$id]['parent'] !== 0 && $guard++ < 32) {
-                array_unshift($names, xl_document_category($categoryRows[$id]['name']));
-                $id = (int) $categoryRows[$id]['parent'];
+            while (isset($categoryRows[$id]) && self::listDataInt($categoryRows[$id]['parent'] ?? null) !== 0 && $guard++ < 32) {
+                array_unshift($names, xl_document_category(self::listDataString($categoryRows[$id]['name'] ?? null)));
+                $id = self::listDataInt($categoryRows[$id]['parent'] ?? null);
             }
             return implode($separator, $names);
         };
@@ -1366,18 +1366,22 @@ class C_Document extends Controller
         $categories = [];
         $accessible = [];
         foreach ($categoryRows as $id => $row) {
-            if ((int) $row['parent'] === 0 || !AclMain::aclCheckAcoSpec($row['aco_spec'])) {
+            if (self::listDataInt($row['parent'] ?? null) === 0 || !AclMain::aclCheckAcoSpec(self::listDataString($row['aco_spec'] ?? null))) {
                 continue;
             }
             $accessible[$id] = true;
             $categories[] = [
                 'id' => $id,
-                'name' => xl_document_category($row['name']),
-                'parent' => (int) $row['parent'],
+                'name' => xl_document_category(self::listDataString($row['name'] ?? null)),
+                'parent' => self::listDataInt($row['parent'] ?? null),
                 'path' => $pathOf($id),
             ];
         }
 
+        $tree = $this->tree;
+        if (!$tree instanceof CategoryTree) {
+            throw new \LogicException('The document category tree is not available.');
+        }
         $documents = [];
         if (is_numeric($patientId)) {
             $sql = "SELECT d.`id`, d.`name`, d.`docdate`, d.`date`, d.`size`, d.`mimetype`, c2d.`category_id`"
@@ -1396,47 +1400,49 @@ class C_Document extends Controller
             $base = $webroot . '/controller.php?document';
             $pidParam = '&patient_id=' . urlencode($patientId);
             foreach (QueryUtils::fetchRecords($sql, $binds) as $row) {
-                $categoryId = (int) $row['category_id'];
+                $categoryId = self::listDataInt($row['category_id'] ?? null);
                 if (!isset($accessible[$categoryId])) {
                     continue;
                 }
-                $documentId = (int) $row['id'];
+                $documentId = self::listDataInt($row['id'] ?? null);
+                $documentName = self::listDataString($row['name'] ?? null);
                 $viewUrl = $base . '&view' . $pidParam . '&doc_id=' . $documentId;
 
                 // Let listeners change the document link, as they can in the tree.
                 $htmlNode = new HTML_TreeNode([
-                    'text' => (string) $row['name'],
+                    'text' => $documentName,
                     'link' => $viewUrl,
                     'icon' => 'file3.png',
                     'expandedIcon' => 'folder-expanded.gif',
                 ]);
                 $filterEvent = new PatientDocumentTreeViewFilterEvent();
-                $filterEvent->setCategoryTreeNode($this->tree);
+                $filterEvent->setCategoryTreeNode($tree);
                 $filterEvent->setDocumentId($documentId);
-                $filterEvent->setDocumentName((string) $row['name']);
+                $filterEvent->setDocumentName($documentName);
                 $filterEvent->setCategoryId($categoryId);
-                $filterEvent->setCategoryInfo($this->tree->get_node_info($categoryId));
+                $categoryInfo = $tree->get_node_info($categoryId);
+                $filterEvent->setCategoryInfo(is_array($categoryInfo) ? $categoryInfo : []);
                 $filterEvent->setPid($patientId);
                 $filterEvent->setHtmlTreeNode($htmlNode);
                 $filteredEvent = $globals->getKernel()->getEventDispatcher()->dispatch($filterEvent, PatientDocumentTreeViewFilterEvent::EVENT_NAME);
                 $filteredLink = $filteredEvent->getHtmlTreeNode()->link;
-                if (is_string($filteredLink) && $filteredLink !== '') {
+                if ($filteredLink !== '') {
                     $viewUrl = $filteredLink;
                 }
 
-                $docDate = (string) ($row['docdate'] ?? '');
+                $docDate = self::listDataString($row['docdate'] ?? null);
                 if ($docDate === '' || str_starts_with($docDate, '0000')) {
-                    $docDate = substr((string) ($row['date'] ?? ''), 0, 10);
+                    $docDate = substr(self::listDataString($row['date'] ?? null), 0, 10);
                 }
                 $retrieveUrl = $base . '&retrieve' . $pidParam . '&document_id=' . $documentId;
                 $documents[] = [
                     'id' => $documentId,
-                    'name' => (string) $row['name'],
+                    'name' => $documentName,
                     'category_id' => $categoryId,
                     'path' => $pathOf($categoryId),
                     'date' => $docDate,
-                    'size' => (int) ($row['size'] ?? 0),
-                    'mimetype' => (string) ($row['mimetype'] ?? ''),
+                    'size' => self::listDataInt($row['size'] ?? null),
+                    'mimetype' => self::listDataString($row['mimetype'] ?? null),
                     'view_url' => $viewUrl,
                     'retrieve_url' => $retrieveUrl . '&as_file=false',
                     'download_url' => $retrieveUrl . '&as_file=true',
@@ -1450,6 +1456,16 @@ class C_Document extends Controller
             ['categories' => $categories, 'documents' => $documents],
             JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE
         );
+    }
+
+    private static function listDataString(mixed $value): string
+    {
+        return is_scalar($value) ? (string) $value : '';
+    }
+
+    private static function listDataInt(mixed $value): int
+    {
+        return is_numeric($value) ? (int) $value : 0;
     }
 
     public function &array_recurse($array, $patient_id, $categories = [])
