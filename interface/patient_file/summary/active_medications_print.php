@@ -52,8 +52,10 @@ if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
 
 $ptname = ActiveMedicationListService::patientName($patient);
 $svc = new ActiveMedicationListService();
-$active = $svc->getActiveList($pid);
-$inactive = $svc->getInactiveList($pid, $active);
+$includePrescriptions = !\OpenEMR\Core\OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions')
+    && AclMain::aclCheckCore('patients', 'rx');
+$active = $svc->getActiveList($pid, $includePrescriptions);
+$inactive = $svc->getInactiveList($pid, $active, $includePrescriptions);
 $formatMedDate = static fn (?string $d): string => ActiveMedicationListService::formatListDate(
     $d,
     static fn (string $raw) => oeFormatShortDate($raw)
