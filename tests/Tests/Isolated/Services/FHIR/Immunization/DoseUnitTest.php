@@ -35,6 +35,7 @@ class DoseUnitTest extends TestCase
             'mg/1cc is no unit' => ['mg/1cc', null],
             'mg/5cc is no unit' => ['mg/5cc', null],
             'an option id is no unit' => ['9', null],
+            'an option id with a no-break space is no unit' => ["9\u{00A0}", null],
             'blank is no unit' => ['', null],
         ];
     }
