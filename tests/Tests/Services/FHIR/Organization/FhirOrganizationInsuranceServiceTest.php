@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\FHIR\Organization;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
@@ -24,6 +25,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationInsuranceService;
 use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;
+use OpenEMR\Services\PhoneNumberService;
+use OpenEMR\Services\PhoneType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -31,7 +34,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * A database test because the service's constructors read the database (InsuranceCompanyService
  * registers missing uuids, BaseService reads the table's columns); parsing itself reads and
- * writes nothing.
+ * writes nothing. The one insert test's rows are rolled back; tearDown removes any left behind.
  */
 class FhirOrganizationInsuranceServiceTest extends TestCase
 {
@@ -56,6 +59,23 @@ class FhirOrganizationInsuranceServiceTest extends TestCase
         'fax' => '(555) 200-9999',
         'phone' => '(555) 200-3003',
     ];
+
+    protected function tearDown(): void
+    {
+        $rows = QueryUtils::fetchRecords(
+            "SELECT `id`, `uuid` FROM `insurance_companies` WHERE `name` LIKE ?",
+            [self::NAME . "%"]
+        );
+        foreach ($rows as $row) {
+            QueryUtils::fetchRecordsNoLog("DELETE FROM `addresses` WHERE `foreign_id` = ?", [$row['id']]);
+            QueryUtils::fetchRecordsNoLog("DELETE FROM `phone_numbers` WHERE `foreign_id` = ?", [$row['id']]);
+            QueryUtils::fetchRecordsNoLog(
+                "DELETE FROM `uuid_registry` WHERE `table_name` = 'insurance_companies' AND `uuid` = ?",
+                [$row['uuid']]
+            );
+            QueryUtils::fetchRecordsNoLog("DELETE FROM `insurance_companies` WHERE `id` = ?", [$row['id']]);
+        }
+    }
 
     /**
      * @return array<string, array{\Closure(): FHIROrganization}>
@@ -129,6 +149,83 @@ class FhirOrganizationInsuranceServiceTest extends TestCase
     }
 
     /**
+     * A blank phone doesn't stop the search for one in use, and a phone whose period ends later
+     * is still in use.
+     */
+    #[Test]
+    public function aBlankPhoneIsPassedOverAndAFutureEndIsInUse(): void
+    {
+        $service = new FhirOrganizationInsuranceService();
+        $blankFirst = FhirOrganizationSerializer::deserialize([
+            'resourceType' => 'Organization',
+            'name' => self::NAME,
+            'telecom' => [['system' => 'phone', 'value' => ''], ['system' => 'phone', 'value' => '(555) 200-0004']],
+        ]);
+        $endingLater = FhirOrganizationSerializer::deserialize([
+            'resourceType' => 'Organization',
+            'name' => self::NAME,
+            'telecom' => [['system' => 'phone', 'value' => '(555) 200-0005', 'period' => ['end' => '2999-01-01']]],
+        ]);
+
+        $this->assertSame(
+            ['(555) 200-0004', '(555) 200-0005'],
+            [$service->parseFhirResource($blankFirst)['phone'] ?? null, $service->parseFhirResource($endingLater)['phone'] ?? null]
+        );
+    }
+
+    /**
+     * A failure after the company row is written (here the fax insert) rolls back the company,
+     * its address, its phone number and its uuid.
+     */
+    #[Test]
+    public function aFailureAfterTheCompanyRowLeavesNothingStored(): void
+    {
+        $failingFax = new class extends PhoneNumberService {
+            public function insert(mixed $data, mixed $foreignId, ?PhoneType $type = null): int
+            {
+                throw new \RuntimeException('test-fixture: the fax insert failed');
+            }
+        };
+        $uuidsBefore = $this->uuidRegistryCount();
+        $phonesBefore = $this->phoneCount();
+
+        try {
+            (new FhirOrganizationInsuranceService(null, $failingFax))->insert(self::deserialized());
+            $this->fail("The failing insert should have thrown");
+        } catch (\RuntimeException $exception) {
+            $this->assertSame('test-fixture: the fax insert failed', $exception->getMessage());
+        }
+
+        $this->assertSame([], $this->storedIds(), "The company row should have been rolled back");
+        $this->assertSame($uuidsBefore, $this->uuidRegistryCount(), "The company's uuid should have been rolled back");
+        $this->assertSame($phonesBefore, $this->phoneCount(), "The phone should have been rolled back");
+        $orphans = QueryUtils::fetchRecords(
+            "SELECT a.`id` FROM `addresses` a LEFT JOIN `insurance_companies` i ON i.`id` = a.`foreign_id` "
+            . "WHERE i.`id` IS NULL AND a.`line1` = ? AND a.`city` = ?",
+            ['4 Workbench Way', 'Testville']
+        );
+        $this->assertSame([], $orphans, "The address should have been rolled back");
+    }
+
+    /**
+     * @return list<array<mixed>>
+     */
+    private function storedIds(): array
+    {
+        return QueryUtils::fetchRecords("SELECT `id` FROM `insurance_companies` WHERE `name` LIKE ?", [self::NAME . "%"]);
+    }
+
+    private function uuidRegistryCount(): int
+    {
+        return count(QueryUtils::fetchRecords("SELECT `uuid` FROM `uuid_registry` WHERE `table_name` = 'insurance_companies'"));
+    }
+
+    private function phoneCount(): int
+    {
+        return count(QueryUtils::fetchRecords("SELECT `id` FROM `phone_numbers`"));
+    }
+
+    /**
      * @return array<string, array{list<array<string, mixed>>, string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
@@ -145,7 +242,7 @@ class FhirOrganizationInsuranceServiceTest extends TestCase
                 'Laterville',
             ],
             'one whose end is still to come, as current' => [
-                [self::endedAddress('Endedtown', '2020-01-01'), self::endedAddress('Futureville', '2999-01-01')],
+                [self::endedAddress('Endedtown', '2020-01-01'), ['city' => 'Testville', 'state' => 'CA'], self::endedAddress('Futureville', '2999-01-01')],
                 'Futureville',
             ],
         ];
