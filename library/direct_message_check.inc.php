@@ -34,6 +34,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
 use OpenEMR\Services\SoftwareVersion;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Connect to a phiMail Direct Messaging server
@@ -178,6 +179,9 @@ function phimail_check(): void
         $fail(xl('could not connect to server') . ' ' . $err);
     }
 
+    // Downloaded bodies and attachments hold message content (PHI). Track
+    // them so a failed check cannot leave them in the temp directory.
+    $tempFiles = [];
     try {
         $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
         if ($ret !== true) {
@@ -304,6 +308,7 @@ function phimail_check(): void
                 if ($body === false) {
                     $fail("M4 read body failed");
                 }
+                $tempFiles[] = $body;
 
                 $att2 = fgets($fp);
                 if ($att2 != $att) { //safety for mismatch on attachments
@@ -369,6 +374,7 @@ function phimail_check(): void
                     if ($attdata === false) {
                         $fail("M10 read attachment " . ($attnum + 1) . " failed");
                     }
+                    $tempFiles[] = $attdata;
 
                     $attinfo[$attnum]['file'] = $attdata;
 
@@ -479,6 +485,8 @@ function phimail_check(): void
         }
     } finally {
         phimail_close($fp);
+        // A no-op for files already stored or deleted.
+        (new Filesystem())->remove($tempFiles);
     }
 }
 

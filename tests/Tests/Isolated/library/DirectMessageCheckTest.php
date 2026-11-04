@@ -23,6 +23,8 @@ use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 
 #[BackupGlobals(true)]
@@ -32,6 +34,9 @@ final class DirectMessageCheckTest extends TestCase
 
     /** @var list<array{int, string}> success flag and comments of each audit row */
     private array $auditRows = [];
+
+    /** Where phimail_read_blob() downloads message bodies and attachments */
+    private string $tempDir;
 
     public static function setUpBeforeClass(): void
     {
@@ -48,6 +53,10 @@ final class DirectMessageCheckTest extends TestCase
         $globals->set('phimail_enable', true);
         $globals->set('phimail_username', 'test-user');
         $globals->set('phimail_password', 'stored-password');
+
+        $this->tempDir = sys_get_temp_dir() . '/phimail-test-' . uniqid('', true);
+        (new Filesystem())->mkdir($this->tempDir);
+        $globals->set('temporary_files_dir', $this->tempDir);
 
         $crypto = $this->createStub(CryptoInterface::class);
         $crypto->method('decryptFromDatabase')->willReturn('test-password');
@@ -68,6 +77,7 @@ final class DirectMessageCheckTest extends TestCase
     {
         self::setAuditLoggerInstances([]);
         ServiceContainer::reset();
+        (new Filesystem())->remove($this->tempDir);
     }
 
     public function testDisabledServiceFailsAfterAuditing(): void
@@ -132,6 +142,33 @@ final class DirectMessageCheckTest extends TestCase
 
         self::assertSame([[0, $reason]], $this->auditRows);
         self::assertSame('closed', $this->serverResult($server));
+    }
+
+    public function testFailedMessageDownloadDeletesTheTempBody(): void
+    {
+        // The reply to SHOW 0: OK, headers, a blank line, the MIME type, the
+        // body length, then the 5-byte body directly followed by an
+        // attachment count of 2, which does not match the 1 that MAIL announced.
+        $show = <<<'REPLY'
+            OK
+            Subject: test
+
+            text/plain
+            5
+            hello2
+            REPLY;
+        $server = $this->startServer(['OK', 'OK', 'MAIL to@example.org from@example.org 1 msg-1', $show]);
+
+        try {
+            phimail_check();
+            self::fail('phimail_check() returned normally from a failed download.');
+        } catch (PhiMailCheckException $e) {
+            self::assertSame('M5 attachment mismatch', $e->getMessage());
+        }
+
+        self::assertSame([[0, 'M5 attachment mismatch']], $this->auditRows);
+        self::assertSame('closed', $this->serverResult($server));
+        self::assertCount(0, (new Finder())->in($this->tempDir)->files(), 'downloaded body left in the temp directory');
     }
 
     public function testNoMessagesCompletesNormally(): void
