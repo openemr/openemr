@@ -58,27 +58,11 @@ class GlobalConfig
     /** @var string root url of the application */
     public static $WEB_ROOT;
 
-    /** @var ConnectionSetting object containing settings for the DB connection **/
-    public static $CONNECTION_SETTING;
-
-    /** @var bool setting to true will convert all NULL values to an empty string (set to false with caution!)  **/
-    public static $CONVERT_NULL_TO_EMPTYSTRING = true;
-
-    /** @var ICache (optional) object for level 2 caching (for example memcached) **/
-    public static $LEVEL_2_CACHE;
-
-    /** @var string if level 2 cache is specified, a temp path for writing files */
-    public static $LEVEL_2_CACHE_TEMP_PATH;
-
-    /** @var int if level 2 cache is specified, the timeout in seconds*/
-    public static $LEVEL_2_CACHE_TIMEOUT = 15;
-
     private static $INSTANCE;
     private static $IS_INITIALIZED = false;
 
     private $context;
     private $router;
-    private $phreezer;
     private $render_engine;
 
     /** prevents external construction */
@@ -98,9 +82,6 @@ class GlobalConfig
     {
         if (!self::$IS_INITIALIZED) {
             RequestUtil::NormalizeUrlRewrite();
-
-            PortalController::$SmartyViewPrefix = '';
-            PortalController::$DefaultRedirectMode = 'header';
 
             self::$IS_INITIALIZED = true;
         }
@@ -169,33 +150,6 @@ class GlobalConfig
     }
 
     /**
-     * Returns the Phreezer persistence layer
-     * @return Phreezer
-     */
-    public function GetPhreezer()
-    {
-        if ($this->phreezer == null) {
-            if (!self::$CONVERT_NULL_TO_EMPTYSTRING) {
-                DatabaseConfig::$CONVERT_NULL_TO_EMPTYSTRING = false;
-            }
-
-            if (self::$DEBUG_MODE) {
-                $observer = new ObserveToSmarty($this->GetRenderEngine());
-                $this->phreezer = new Phreezer(self::$CONNECTION_SETTING, $observer);
-            } else {
-                $this->phreezer = new Phreezer(self::$CONNECTION_SETTING);
-            }
-
-            if (self::$LEVEL_2_CACHE) {
-                $this->phreezer->SetLevel2CacheProvider(self::$LEVEL_2_CACHE, self::$LEVEL_2_CACHE_TEMP_PATH);
-                $this->phreezer->ValueCacheTimeout = self::$LEVEL_2_CACHE_TIMEOUT;
-            }
-        }
-
-        return $this->phreezer;
-    }
-
-    /**
      * @return IRenderEngine
      */
     public function GetRenderEngine()
@@ -208,8 +162,6 @@ class GlobalConfig
             }
             $this->render_engine = $engine;
             $this->render_engine->assign("ROOT_URL", self::$ROOT_URL);
-            $this->render_engine->assign("PHREEZE_VERSION", Phreezer::$Version);
-            $this->render_engine->assign("PHREEZE_PHAR", Phreezer::PharPath());
         }
 
         return $this->render_engine;

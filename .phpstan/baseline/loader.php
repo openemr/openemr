@@ -48,7 +48,6 @@ return ['includes' => [
     __DIR__ . '/encapsedStringPart.nonString.php',
     __DIR__ . '/equal.alwaysFalse.php',
     __DIR__ . '/equal.alwaysTrue.php',
-    __DIR__ . '/equal.invalid.php',
     __DIR__ . '/expr.resultUnused.php',
     __DIR__ . '/foreach.emptyArray.php',
     __DIR__ . '/foreach.nonIterable.php',

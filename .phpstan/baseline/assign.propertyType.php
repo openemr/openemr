@@ -347,21 +347,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/_app_config.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property ConnectionSetting\\:\\:\\$DBName \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_machine_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property ConnectionSetting\\:\\:\\$Password \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_machine_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property ConnectionSetting\\:\\:\\$Username \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_machine_config.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Static property GlobalConfig\\:\\:\\$WEB_ROOT \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/_machine_config.php',
@@ -382,26 +367,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property DataAdapter\\:\\:\\$_num_retries \\(used\\) does not accept int\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property DataAdapter\\:\\:\\$DRIVER_INSTANCE \\(instance\\) does not accept DataDriverMySQLi\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property DataAdapter\\:\\:\\$DRIVER_INSTANCE \\(instance\\) does not accept IDataDriver\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property DataPage\\:\\:\\$ObjectInstance \\(Phreezable\\) does not accept object\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property GenericRouter\\:\\:\\$matchedRoute \\(array\\) does not accept null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
@@ -410,21 +375,6 @@ $ignoreErrors[] = [
     'message' => '#^Property GenericRouter\\:\\:\\$uri \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property DataSet\\:\\:\\$CountSQL \\(string\\) does not accept array\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Phreezer\\:\\:\\$DataAdapter \\(DataAdapter\\) does not accept mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Phreezer\\:\\:\\$LockFilePath \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Static property VerySimpleStringUtil\\:\\:\\$CONTROL_CODE_CHARS \\(characters\\) does not accept array\\<string, string\\>\\.$#',

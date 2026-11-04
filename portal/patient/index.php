@@ -25,10 +25,6 @@ require_once("_global_config.php");
 require_once("_app_config.php");
 require_once("_machine_config.php"); // This include auth any framework calls
 
-if (!GlobalConfig::$CONNECTION_SETTING) {
-    throw new Exception('GlobalConfig::$CONNECTION_SETTING is not configured.  Are you missing _machine_config.php?');
-}
-
 // the global config is used for all dependency injection
 $gc = GlobalConfig::GetInstance();
 
@@ -59,7 +55,6 @@ try {
         PortalSessionPidGuard::assertRequestKeysMatchSession($_POST, $_GET, $_REQUEST);
     }
     Dispatcher::Dispatch(
-        $gc->GetPhreezer(),
         $gc->GetRenderEngine(),
         '',
         $gc->GetContext(),

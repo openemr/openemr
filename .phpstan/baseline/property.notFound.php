@@ -212,21 +212,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property DataSet\\:\\:\\$_total\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property KeyMap\\:\\:\\$ColumnName\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property KeyMap\\:\\:\\$TableName\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property Savant3\\:\\:\\$url\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/SavantRenderEngine.php',

@@ -68,22 +68,6 @@ if ($session->has('pid') && ($session->has('patient_portal_onsite_two') || $sess
 }
 
 /**
- * database connection settings
- */
-GlobalConfig::$CONNECTION_SETTING = new ConnectionSetting();
-GlobalConfig::$CONNECTION_SETTING->ConnectionString = $globalsBag->get('host') . ":" . $globalsBag->get('port');
-GlobalConfig::$CONNECTION_SETTING->DBName = $globalsBag->get('dbase');
-GlobalConfig::$CONNECTION_SETTING->Username = $globalsBag->get('login');
-GlobalConfig::$CONNECTION_SETTING->Password = $globalsBag->get('pass');
-GlobalConfig::$CONNECTION_SETTING->Type = "MySQLi";
-GlobalConfig::$CONNECTION_SETTING->Charset = "utf8mb4";
-
-GlobalConfig::$CONNECTION_SETTING->Multibyte = true;
-// Turn off STRICT SQL
-GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone = '" .
-    (new DateTime())->format("P") . "'";
-
-/**
  * the root url of the application with trailing slash, for example http://localhost/patient/
  * default is relative base address
  */
@@ -92,16 +76,4 @@ if ($globalsBag->getBoolean('portal_onsite_two_basepath')) {
     GlobalConfig::$ROOT_URL = GlobalConfig::$WEB_ROOT . '/portal/patient/';
 } else {
     GlobalConfig::$ROOT_URL = $globalsBag->get('web_root') . '/portal/patient/';
-}
-
-
-/**
- * timezone
- */
-// date_default_timezone_set("UTC");
-
-// if Multibyte support is specified then we need to check if multibyte functions are available
-// if you receive this error then either install multibyte extensions or set Multibyte to false
-if (GlobalConfig::$CONNECTION_SETTING->Multibyte && !function_exists('mb_strlen')) {
-    die('<html>Multibyte extensions are not installed but Multibyte is set to true in _machine_config.php</html>');
 }

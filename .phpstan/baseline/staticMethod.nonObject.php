@@ -21,15 +21,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call static method GetFieldMaps\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call static method GetKeyMaps\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

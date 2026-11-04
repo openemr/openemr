@@ -63,15 +63,13 @@ class Dispatcher
      * Processes user input and executes the specified controller method, ensuring
      * that the controller dependencies are all injected properly
      *
-     * @param Phreezer $phreezer
-     *          Object persistence engine
      * @param IRenderEngine $renderEngine
      *          rendering engine
      * @param string $action (optional) the user requested action (if not provided will use router->GetRoute())
      * @param Context $context (optional) a context object for persisting state
      * @param IRouter $router (optional) router object for reading/writing URLs (if not provided, GenericRouter will be used)
      */
-    public static function Dispatch($phreezer, $renderEngine, $action = '', $context = null, $router = null): bool
+    public static function Dispatch($renderEngine, $action = '', $context = null, $router = null): bool
     {
         if ($router == null) {
             $router = new GenericRouter();
@@ -87,7 +85,7 @@ class Dispatcher
                 include_once $controller_file;
             }
 
-            $controller = new $controller_class($phreezer, $renderEngine, $context, $router);
+            $controller = new $controller_class($renderEngine, $context, $router);
             $controller->$method_param();
 
             return true;
@@ -142,7 +140,7 @@ class Dispatcher
         }
 
         // create an instance of the controller class
-        $controller = new $controller_class($phreezer, $renderEngine, $context, $router);
+        $controller = new $controller_class($renderEngine, $context, $router);
 
         // we have a valid instance, just verify there is a matching method
         if (
