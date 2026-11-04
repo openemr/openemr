@@ -66,12 +66,12 @@ border-radius: 4px 0 0 4px!important;
     margin: 2px 0 6px 0;
     cursor: row-resize;
     border-radius: 5px;
-    background-color: var(--light, #e9ecef);
+    background-color: rgba(128, 128, 128, 0.3);
     touch-action: none;
 }
 .doc-resize:hover,
 .doc-resize:focus {
-    background-color: var(--secondary, #6c757d);
+    background-color: rgba(128, 128, 128, 0.65);
 }
 .doc-preview-frame {
     width: 100%;
@@ -207,7 +207,7 @@ border-radius: 4px 0 0 4px!important;
                 <div id="docListPane">
                     <div class="card">
                         <div class="card-header form-inline">
-                            <button type="button" class="btn btn-outline-secondary btn-sm mr-2 mb-1" id="docFolderToggle" aria-controls="docFolderCol" aria-expanded="true">{xlt t='Hide folders'}</button>
+                            <button type="button" class="btn btn-secondary btn-sm mr-2 mb-1" id="docFolderToggle" aria-controls="docFolderCol" aria-expanded="true">{xlt t='Hide folders'}</button>
                             <label class="sr-only" for="docSearch">{xlt t='Search'}</label>
                             <input type="search" class="form-control form-control-sm mr-2 mb-1" id="docSearch" placeholder="{xla t='Search by name'}" />
                             <label class="mr-1 mb-1 small" for="docSort">{xlt t='Sort'}</label>
@@ -246,8 +246,8 @@ border-radius: 4px 0 0 4px!important;
                         <span>
                             <button type="button" class="btn btn-primary btn-sm" id="docOpen" disabled="disabled">{xlt t='Open in new window'}</button>
                             <button type="button" class="btn btn-secondary btn-sm" id="docDownload" disabled="disabled">{xlt t='Download'}</button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm" id="docMaximize" aria-pressed="false">{xlt t='Maximize preview'}</button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm" id="docMaxBack" hidden>{xlt t='Back'}</button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="docMaximize" aria-pressed="false">{xlt t='Maximize preview'}</button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="docMaxBack" hidden>{xlt t='Back'}</button>
                         </span>
                     </div>
                     <div class="card-body">
