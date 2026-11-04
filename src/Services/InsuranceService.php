@@ -148,7 +148,35 @@ class InsuranceService extends BaseService
         if (!$validationResult->isValid()) {
             return $validationResult;
         }
+        return $this->writeUpdate($data);
+    }
 
+    /**
+     * Updates a policy from a document import (see insertImported()), checked in the import
+     * context. Like update(), it writes every column, so pass the stored row with the
+     * document's values over it: what the caller leaves out is written as NULL.
+     *
+     * @param array<mixed> $data
+     */
+    public function updateImported(array $data): ProcessingResult
+    {
+        $validationResult = $this->coverageValidator->validate($data, CoverageValidator::DATABASE_IMPORT_CONTEXT);
+        if (!$validationResult->isValid()) {
+            return $validationResult;
+        }
+        if (!is_string($data['uuid'] ?? null)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => 'Coverage UUID must be provided']);
+            return $processingResult;
+        }
+        return $this->writeUpdate($data);
+    }
+
+    /**
+     * The update statement, for a record the caller has validated.
+     */
+    private function writeUpdate(mixed $data): ProcessingResult
+    {
         $processingResult = new ProcessingResult();
 
         // When the caller supplied a pid (REST patient-compartment path), confirm
@@ -352,6 +380,39 @@ class InsuranceService extends BaseService
         }
 
         return $processingResult;
+    }
+
+    /**
+     * Inserts a policy that a document import brings in, such as a QRDA Category I document's
+     * Patient Characteristic Payer: the patient, the policy type, the payer and its dates.
+     *
+     * Checked in CoverageValidator's import context, which asks only for those. The document has
+     * no policy number, plan name or subscriber, so those columns keep their defaults (NULL)
+     * rather than a value it doesn't state. insert() keeps the full rules for every other caller.
+     *
+     * @param array<mixed> $data pid, type, provider, date (Y-m-d) and date_end (Y-m-d or null)
+     */
+    public function insertImported(array $data): ProcessingResult
+    {
+        $validationResult = $this->coverageValidator->validate($data, CoverageValidator::DATABASE_IMPORT_CONTEXT);
+        if (!$validationResult->isValid()) {
+            return $validationResult;
+        }
+
+        $uuid = UuidRegistry::getRegistryForTable(self::COVERAGE_TABLE)->createUuid();
+        $data['uuid'] = $uuid;
+        $serviceSaveEvent = new ServiceSaveEvent($this, $data);
+        $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_PRE_SAVE);
+        $data = $serviceSaveEvent->getSaveData();
+
+        $dateEnd = $data['date_end'] ?? null;
+        $data['id'] = QueryUtils::sqlInsert(
+            "INSERT INTO `insurance_data` (`uuid`, `pid`, `type`, `provider`, `date`, `date_end`) VALUES (?, ?, ?, ?, ?, ?)",
+            [$uuid, $data['pid'], $data['type'], $data['provider'], $data['date'], $dateEnd === '' ? null : $dateEnd]
+        );
+        $this->getEventDispatcher()->dispatch(new ServiceSaveEvent($this, $data), ServiceSaveEvent::EVENT_POST_SAVE);
+
+        return $this->getOne(UuidRegistry::uuidToString($uuid));
     }
 
     /**

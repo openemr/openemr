@@ -2226,40 +2226,66 @@ class CdaTemplateImportDispose
         }
         $data = [];
         $payer = $payer[1]; // will only be one payer per patient.
+        if (!is_array($payer)) {
+            return;
+        }
+        // A Source of Payment Typology code is digits. An entry without one (a nullFlavor) names no
+        // payer, so there is nothing to link and no policy to save.
+        $code = $payer['code'] ?? null;
+        if (!is_string($code) || preg_match('/^\d+$/', $code) !== 1) {
+            ServiceContainer::getLogger()->info('QRDA import: the payer entry has no payer code, so no policy is saved', ['pid' => $pid]);
+            return;
+        }
+        $date = self::documentDate($payer['low_date'] ?? null);
+        if ($date === null) {
+            ServiceContainer::getLogger()->info('QRDA import: the payer entry has no start date, so no policy is saved', ['pid' => $pid]);
+            return;
+        }
         $insuranceData = new InsuranceService();
+        $hasPrimary = false;
+        $stored = null;
+        if ($insuranceData->doesInsuranceTypeHaveEntry($pid, 'primary')) {
+            $hasPrimary = true;
+            $stored = $insuranceData->search(['type' => 'primary', 'pid' => $pid])->getData()[0] ?? null;
+        }
+        if (is_array($stored) && self::hasEnteredDetails($stored)) {
+            // Someone entered or completed this policy: the document's payer doesn't replace theirs.
+            ServiceContainer::getLogger()->info('QRDA import: the patient\'s primary policy was entered in OpenEMR, so it is kept', ['pid' => $pid]);
+            return;
+        }
 
-        $res_ins = QueryUtils::fetchRecords("SELECT `id`, `uuid` FROM `insurance_companies` WHERE `cqm_sop` = ? AND `inactive` = 0 ORDER BY `id` DESC LIMIT 1", [$payer['code'] ?? '1']);
+        $res_ins = QueryUtils::fetchRecords("SELECT `id`, `uuid` FROM `insurance_companies` WHERE `cqm_sop` = ? AND `inactive` = 0 ORDER BY `id` DESC LIMIT 1", [$code]);
         $res_ins_cur = $res_ins[0] ?? [];
         if (empty($res_ins_cur['id'])) {
-            $data["name"] = 'QRDA Insurance Company Payer ' . $payer['code'] ?? '1';
-            $data["ins_type_code"] = $payer['code'] ?? '1';
+            $data["name"] = 'QRDA Insurance Company Payer ' . $code;
+            $data["ins_type_code"] = $code;
             $data["city"] = 'QRDA City';
             $data["state"] = 'QRDA State';
             $data["zip"] = '33333';
-            $data["cqm_sop"] = $payer['code'] ?? 1;
+            $data["cqm_sop"] = $code;
             $insuranceCompany = new InsuranceCompanyService();
             $ins_id = $insuranceCompany->insert($data);
         } else {
             $ins_id = $res_ins_cur['id'];
         }
-        unset($data["name"]);
-        unset($data["ins_type_code"]);
-        $data["provider"] = $ins_id;
-        $data["date"] = $payer['low_date'] ?? null;
-        $data["type"] = 'primary';
-        $data['pid'] = $pid;
-        $data["plan_name"] = 'QRDA Payer';
-        $data["policy_number"] = $payer['code'] ?? '1';
+        // The document names the payer and when its coverage starts, and sometimes ends. It has no
+        // policy number, plan name or subscriber, so none is stored.
+        $policy = [
+            'pid' => $pid,
+            'type' => 'primary',
+            'provider' => $ins_id,
+            'date' => $date,
+            'date_end' => self::documentDate($payer['high_date'] ?? null),
+        ];
 
         $id_data = null;
-        if ($insuranceData->doesInsuranceTypeHaveEntry($pid, 'primary')) {
-            $insuranceEntry = $insuranceData->search(['type' => 'primary', 'pid' => $pid]);
-            if ($insuranceEntry->hasData()) {
-                $data['uuid'] = $insuranceEntry->getData()[0]['uuid'];
-                $id_data = $insuranceData->update($data);
-            }
-        } else {
-            $id_data = $insuranceData->insert($data);
+        if (!$hasPrimary) {
+            $id_data = $insuranceData->insertImported($policy);
+        } elseif (is_array($stored)) {
+            // A policy an earlier import saved: it takes this document's payer and period. The
+            // update writes every column, so the document's values go over the stored row (as
+            // FhirCoverageService::updateOpenEMRRecord() does) and the rest stays as stored.
+            $id_data = $insuranceData->updateImported(array_merge($stored, $policy));
         }
         if ($id_data === null || !$id_data->isValid()) {
             ServiceContainer::getLogger()->error(
@@ -2269,6 +2295,32 @@ class CdaTemplateImportDispose
                 ]
             );
         }
+    }
+
+    /**
+     * Whether a stored policy has a policy number or a subscriber, which an import never stores:
+     * someone entered or completed it in OpenEMR.
+     *
+     * @param array<mixed> $policy
+     */
+    private static function hasEnteredDetails(array $policy): bool
+    {
+        return !in_array($policy['policy_number'] ?? null, [null, ''], true)
+            || !in_array($policy['subscriber_lname'] ?? null, [null, ''], true);
+    }
+
+    /**
+     * The calendar date an HL7 timestamp (YYYYMMDD[HHMM[SS[.S]]][+/-ZZZZ]) begins with, as Y-m-d,
+     * or null when it doesn't begin with a full date (the coverage validator refuses one that
+     * doesn't exist). The date is the one the document writes, not moved into the server's
+     * time zone.
+     */
+    private static function documentDate(mixed $timestamp): ?string
+    {
+        if (!is_string($timestamp) || preg_match('/^(\d{4})(\d{2})(\d{2})/', $timestamp, $parts) !== 1) {
+            return null;
+        }
+        return $parts[1] . '-' . $parts[2] . '-' . $parts[3];
     }
 
     /**

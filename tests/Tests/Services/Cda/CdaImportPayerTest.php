@@ -1,10 +1,11 @@
 <?php
 
 /**
- * A QRDA Category I import's payer (the Patient Characteristic Payer entry, a Source of Payment
- * Typology code and a start date) is meant to become the patient's primary policy, but
- * InsertPayers() saves none: the coverage validator refuses its insert, which has no subscriber,
- * and the import only logs that.
+ * A QRDA Category I import's payer (the Patient Characteristic Payer entry: a Source of Payment
+ * Typology code and the coverage's dates) becomes the patient's primary policy, holding only what
+ * the document says: the payer and the dates, with no policy number, plan name or subscriber.
+ * Before, InsertPayers() saved none, since the coverage validator refused an insert with no
+ * subscriber and the import only logged that.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -20,9 +21,21 @@ namespace OpenEMR\Tests\Services\Cda;
 use Carecoordination\Model\CarecoordinationTable;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
+use OpenEMR\Services\Cda\CdaTemplateParse;
+use OpenEMR\Services\Cda\XmlExtended;
+use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\FhirCoverageService;
+use OpenEMR\Services\InsuranceService;
+use OpenEMR\Services\Qdm\QdmRequestOne;
+use OpenEMR\Services\Qdm\Services\PatientService as QdmPatientService;
+use OpenEMR\Validators\CoverageValidator;
+use OpenEMR\Validators\ProcessingResult;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class CdaImportPayerTest extends TestCase
 {
@@ -32,12 +45,23 @@ class CdaImportPayerTest extends TestCase
     private const SOP_CODE = '9999';
     private const COMPANY_NAME = 'QRDA Insurance Company Payer ' . self::SOP_CODE;
 
+    // The columns a document import leaves at their defaults: it carries none of them.
+    private const NOT_IN_THE_DOCUMENT = [
+        'plan_name', 'policy_number', 'group_number', 'subscriber_lname', 'subscriber_mname', 'subscriber_fname',
+        'subscriber_relationship', 'subscriber_ss', 'subscriber_DOB', 'subscriber_street', 'subscriber_postal_code',
+        'subscriber_city', 'subscriber_state', 'subscriber_country', 'subscriber_phone', 'subscriber_employer',
+        'subscriber_employer_street', 'subscriber_employer_postal_code', 'subscriber_employer_state',
+        'subscriber_employer_country', 'subscriber_employer_city', 'copay', 'subscriber_sex',
+    ];
+
     private CdaTemplateImportDispose $dispose;
     private CarecoordinationTable&MockObject $table;
+    private int $lastCompanyBefore;
 
     protected function setUp(): void
     {
         $this->assertSame(0, $this->rowsLeft(), 'no rows for the synthetic patient or company before the test');
+        $this->lastCompanyBefore = self::number(QueryUtils::fetchSingleValue('SELECT COALESCE(MAX(`id`), 0) AS n FROM `insurance_companies`', 'n'));
         QueryUtils::sqlInsert(
             'INSERT INTO `patient_data` (`pid`, `pubpid`, `fname`, `lname`, `DOB`, `sex`, `street`, `city`, `state`, `postal_code`, `date`)'
             . ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
@@ -54,15 +78,19 @@ class CdaImportPayerTest extends TestCase
             [self::PID]
         );
         QueryUtils::sqlStatementThrowException('DELETE FROM `insurance_data` WHERE `pid` = ?', [self::PID]);
+        // The placeholder companies the import made during the test: this test's code's, and on
+        // master's code one for an entry without a code.
+        $made = "SELECT `id` FROM `insurance_companies` WHERE `id` > ? AND `name` LIKE 'QRDA Insurance Company Payer%'";
+        QueryUtils::sqlStatementThrowException("DELETE FROM `addresses` WHERE `foreign_id` IN ($made)", [$this->lastCompanyBefore]);
         QueryUtils::sqlStatementThrowException(
-            'DELETE FROM `addresses` WHERE `foreign_id` IN (SELECT `id` FROM `insurance_companies` WHERE `name` = ?)',
-            [self::COMPANY_NAME]
+            "DELETE FROM `uuid_registry` WHERE `table_name` = 'insurance_companies' AND `uuid` IN"
+            . " (SELECT `uuid` FROM `insurance_companies` WHERE `id` IN ($made))",
+            [$this->lastCompanyBefore]
         );
         QueryUtils::sqlStatementThrowException(
-            "DELETE FROM `uuid_registry` WHERE `table_name` = 'insurance_companies' AND `uuid` IN (SELECT `uuid` FROM `insurance_companies` WHERE `name` = ?)",
-            [self::COMPANY_NAME]
+            "DELETE FROM `insurance_companies` WHERE `id` > ? AND `name` LIKE 'QRDA Insurance Company Payer%'",
+            [$this->lastCompanyBefore]
         );
-        QueryUtils::sqlStatementThrowException('DELETE FROM `insurance_companies` WHERE `name` = ?', [self::COMPANY_NAME]);
         QueryUtils::sqlStatementThrowException(
             "DELETE FROM `uuid_registry` WHERE `table_name` = 'patient_data' AND `uuid` IN (SELECT `uuid` FROM `patient_data` WHERE `pid` = ?)",
             [self::PID]
@@ -82,37 +110,251 @@ class CdaImportPayerTest extends TestCase
         );
     }
 
-    public function testImportingAgainKeepsTheStoredPolicysSubscriber(): void
+    public function testACypressDocumentsPayerReachesTheEcqmPatient(): void
     {
-        // A primary policy entered by staff, with its subscriber, before the document is imported.
+        $document = file_get_contents(__DIR__ . '/../../ECQM/test_patient_qrda/BH Adult_1.xml');
+        $this->assertIsString($document);
+        $xml = (new XmlExtended())->fromString($document);
+        $this->assertIsArray($xml);
+        // The Patient Data section, cut to its payer entry: the other entries' parsing isn't this test's.
+        $entries = self::at($xml, 'component', 'structuredBody', 'component', 2, 'section', 'entry');
+        $this->assertIsArray($entries);
+        $payerEntries = array_values(array_filter(
+            $entries,
+            fn($entry): bool => self::at($entry, 'observation', 'templateId', 'root') === '2.16.840.1.113883.10.20.24.3.55'
+        ));
+        $this->assertCount(1, $payerEntries);
+        $parsed = (new CdaTemplateParse($document))->parseQRDAPatientDataSection(['section' => ['entry' => $payerEntries]]);
+        $payers = self::at($parsed, 'field_name_value_array', 'payer');
+        $this->assertIsArray($payers);
+        // <effectiveTime><low value='19850122163900'/><high nullFlavor='UNK'/></effectiveTime>, code 1 (Medicare)
+        $this->assertSame([1 => ['status' => 'completed', 'code' => '1', 'low_date' => '19850122163900', 'high_date' => null]], $payers);
+
+        // The document's entry with this test's own payer code, so the company it makes is this test's to remove.
+        $payers[1]['code'] = self::SOP_CODE;
+        $this->dispose->InsertPayers($payers, self::PID, $this->table, 0);
+
+        $this->assertSame([['type' => 'primary', 'date' => '1985-01-22', 'cqm_sop' => self::SOP_CODE]], $this->policies());
+        $this->assertNull($this->storedPolicy()['date_end'], 'an unknown end date (nullFlavor) is none');
+        $qdmPatients = (new QdmPatientService(new QdmRequestOne((string) self::PID), new CodeTypesService()))->executeQuery();
+        $this->assertInstanceOf(\ADORecordSet::class, $qdmPatients);
+        $patient = QueryUtils::fetchArrayFromResultSet($qdmPatients);
+        $this->assertIsArray($patient);
+        $this->assertSame(
+            ['payer_eff_date' => '1985-01-22', 'payer_code' => (int) self::SOP_CODE],
+            ['payer_eff_date' => $patient['payer_eff_date'] ?? null, 'payer_code' => self::number($patient['payer_code'] ?? null)],
+            "the eCQM patient's payer (Patient Characteristic Payer) is the document's"
+        );
+    }
+
+    public function testTheImportedPolicyHoldsOnlyWhatTheDocumentSays(): void
+    {
+        $this->dispose->InsertPayers([1 => $this->payer('20240115083000-0500', '20241231')], self::PID, $this->table, 0);
+
+        $row = $this->storedPolicy();
+        $this->assertIsNumeric($row['provider']);
+        $this->assertSame($this->companyId(), (string) $row['provider'], "the provider is the company carrying the document's payer code");
+        $this->assertSame('2024-01-15', $row['date']);
+        $this->assertSame('2024-12-31', $row['date_end'], "the document's end date");
+        foreach (self::NOT_IN_THE_DOCUMENT as $column) {
+            $this->assertNull($row[$column], "$column isn't in the document, so none is stored");
+        }
+        $this->assertSame('TRUE', $row['accept_assignment'], 'the column default');
+        $this->assertSame('', $row['policy_type'], 'the column default');
+    }
+
+    #[DataProvider('enteredPolicies')]
+    public function testImportingAgainLeavesAPolicyEnteredInOpenEmr(?string $policyNumber, ?string $subscriber): void
+    {
+        // A primary policy entered in OpenEMR before the document is imported.
         QueryUtils::sqlInsert(
-            "INSERT INTO `insurance_data` (`uuid`, `pid`, `type`, `provider`, `policy_number`, `date`, `subscriber_lname`, `subscriber_fname`,"
-            . " `subscriber_relationship`, `subscriber_DOB`, `subscriber_sex`) VALUES (?, ?, 'primary', 0, 'STAFF-1', '2023-01-01', 'Payertest', 'Sam', 'spouse', '1958-02-02', 'Male')",
-            [UuidRegistry::getRegistryForTable('insurance_data')->createUuid(), self::PID]
+            "INSERT INTO `insurance_data` (`uuid`, `pid`, `type`, `provider`, `plan_name`, `policy_number`, `date`, `date_end`, `subscriber_lname`,"
+            . " `subscriber_fname`, `subscriber_relationship`, `subscriber_DOB`, `subscriber_sex`)"
+            . " VALUES (?, ?, 'primary', 0, 'Staff Plan', ?, '2023-01-01', '2026-06-30', ?, ?, ?, ?, ?)",
+            [
+                UuidRegistry::getRegistryForTable('insurance_data')->createUuid(), self::PID, $policyNumber, $subscriber,
+                ...($subscriber === null ? [null, null, null, null] : ['Sam', 'spouse', '1958-02-02', 'Male']),
+            ]
+        );
+        $entered = $this->storedPolicy();
+
+        $this->dispose->InsertPayers([1 => $this->payer('19850122163900', '20201231')], self::PID, $this->table, 0);
+
+        $this->assertSame(
+            $entered,
+            $this->storedPolicy(),
+            "a document's payer doesn't replace a policy entered in OpenEMR: its payer, dates, number, plan and subscriber stay"
+        );
+        $this->assertSame(0, $this->companiesMade(), 'no placeholder company for a policy not saved');
+    }
+
+    /**
+     * @return array<string, array{?string, ?string}>
+     * @codeCoverageIgnore
+     */
+    public static function enteredPolicies(): array
+    {
+        return [
+            'a policy number and a subscriber' => ['STAFF-1', 'Payertest'],
+            'a policy number only' => ['STAFF-1', null],
+            'a subscriber only' => [null, 'Payertest'],
+        ];
+    }
+
+    public function testImportingAgainUpdatesTheImportedPolicyToTheDocumentsPeriod(): void
+    {
+        $this->dispose->InsertPayers([1 => $this->payer('20240115', '20241231')], self::PID, $this->table, 0);
+        $first = $this->storedPolicy();
+        $this->assertSame(['2024-01-15', '2024-12-31'], [$first['date'], $first['date_end']]);
+
+        $this->dispose->InsertPayers([1 => $this->payer('20240115', '20241231')], self::PID, $this->table, 0);
+        $this->assertSame($first, $this->storedPolicy(), 'the same document again changes nothing');
+
+        // A later document whose coverage has no end yet: its period replaces the earlier one.
+        $this->dispose->InsertPayers([1 => $this->payer('20250301')], self::PID, $this->table, 0);
+        $this->assertSame(
+            array_replace($first, ['date' => '2025-03-01', 'date_end' => null]),
+            $this->storedPolicy(),
+            "the later document's period, on the same policy; the rest as stored"
         );
 
-        $this->dispose->InsertPayers([1 => $this->payer('20240115')], self::PID, $this->table, 0);
+        // The first document again: its period, not a mix of the two.
+        $this->dispose->InsertPayers([1 => $this->payer('20240115', '20241231')], self::PID, $this->table, 0);
+        $this->assertSame($first, $this->storedPolicy(), 'back to the first document\'s period');
+    }
 
-        $row = QueryUtils::fetchRecords(
-            'SELECT `subscriber_lname`, `subscriber_fname`, `subscriber_relationship`, `subscriber_DOB` FROM `insurance_data` WHERE `pid` = ? AND `policy_number` = ?',
-            [self::PID, 'STAFF-1']
+    #[DataProvider('payerCodes')]
+    public function testAnEntryWithoutAPayerCodeSavesNothing(?string $code): void
+    {
+        $this->dispose->InsertPayers([1 => ['code' => $code] + $this->payer('20240115')], self::PID, $this->table, 0);
+
+        $this->assertSame([], $this->policies(), 'no policy');
+        $this->assertSame(0, $this->companiesMade(), 'no company (master made a placeholder with no payer code for it)');
+    }
+
+    /**
+     * @return array<string, array{?string}>
+     * @codeCoverageIgnore
+     */
+    public static function payerCodes(): array
+    {
+        return [
+            'none' => [null],
+            'a nullFlavor, which the import stages as blank' => [''],
+            'not a code' => ['UNK'],
+        ];
+    }
+
+    #[DataProvider('documentDates')]
+    public function testThePolicyStartsOnTheDateTheDocumentWrites(string $lowDate, ?string $stored, int $companiesMade): void
+    {
+        $this->dispose->InsertPayers([1 => $this->payer($lowDate)], self::PID, $this->table, 0);
+
+        $this->assertSame(
+            $stored === null ? [] : [['type' => 'primary', 'date' => $stored, 'cqm_sop' => self::SOP_CODE]],
+            $this->policies()
+        );
+        $this->assertSame($companiesMade, $this->companiesMade());
+    }
+
+    /**
+     * @return array<string, array{string, ?string, int}>
+     * @codeCoverageIgnore
+     */
+    public static function documentDates(): array
+    {
+        return [
+            'a date' => ['20240115', '2024-01-15', 1],
+            'a timestamp with an offset' => ['20240115083000-0500', '2024-01-15', 1],
+            // the day the document writes, not that moment in the server's time zone (2024-01-14 in UTC)
+            'an offset ahead of the server' => ['20240115000000+1400', '2024-01-15', 1],
+            'fractional seconds' => ['20240115083000.123-0500', '2024-01-15', 1],
+            'a year only: no start date, no policy, no company' => ['2024', null, 0],
+            'a month only: no start date, no policy, no company' => ['202401', null, 0],
+            'not a date: no policy, no company' => ['unknown', null, 0],
+            // eight digits, so the payer's company is made before the validator refuses the date
+            'no such day: refused, no policy' => ['20240230', null, 1],
+        ];
+    }
+
+    public function testAnEndBeforeTheStartIsRefused(): void
+    {
+        $this->dispose->InsertPayers([1 => $this->payer('20240115', '20231231')], self::PID, $this->table, 0);
+
+        $this->assertSame([], $this->policies());
+    }
+
+    public function testTheImportContextAsksOnlyForWhatADocumentCarries(): void
+    {
+        $validator = new CoverageValidator();
+        $payerOnly = ['pid' => self::PID, 'type' => 'primary', 'provider' => 7, 'date' => '2024-01-15', 'date_end' => null];
+
+        $this->assertTrue($validator->validate($payerOnly, CoverageValidator::DATABASE_IMPORT_CONTEXT)->isValid());
+        foreach (['pid', 'type', 'provider', 'date'] as $field) {
+            $without = $payerOnly;
+            unset($without[$field]);
+            $this->assertSame(
+                [$field],
+                array_keys($this->messages($validator->validate($without, CoverageValidator::DATABASE_IMPORT_CONTEXT))),
+                "$field is required"
+            );
+        }
+        $this->assertArrayHasKey(
+            'date',
+            $this->messages($validator->validate(['date' => '20240115'] + $payerOnly, CoverageValidator::DATABASE_IMPORT_CONTEXT))
+        );
+        $this->assertArrayHasKey(
+            'type',
+            $this->messages($validator->validate(['type' => 'quaternary'] + $payerOnly, CoverageValidator::DATABASE_IMPORT_CONTEXT))
+        );
+        $this->assertArrayHasKey(
+            'uuid',
+            $this->messages($validator->validate(['uuid' => '550e8400-e29b-41d4-a716-446655440000'] + $payerOnly, CoverageValidator::DATABASE_IMPORT_CONTEXT)),
+            'a uuid names a stored policy'
         );
         $this->assertSame(
-            [['subscriber_lname' => 'Payertest', 'subscriber_fname' => 'Sam', 'subscriber_relationship' => 'spouse', 'subscriber_DOB' => '1958-02-02']],
-            $row,
-            "importing a payer doesn't clear the subscriber staff entered on the patient's policy"
+            ['uuid' => 'Coverage UUID must be provided'],
+            $this->messages((new InsuranceService())->updateImported($payerOnly)),
+            'an update names the policy'
         );
+    }
+
+    public function testRestAndFhirInsertsStillAskForTheSubscriber(): void
+    {
+        $this->dispose->InsertPayers([1 => $this->payer('20240115')], self::PID, $this->table, 0);
+        $payerOnly = ['pid' => self::PID, 'type' => 'secondary', 'provider' => $this->companyId(), 'date' => '2024-02-01', 'date_end' => null];
+
+        // the REST API's insert, and the validator's insert context it uses
+        $restInsert = (new InsuranceService())->insert($payerOnly);
+        foreach (['policy_number', 'subscriber_lname', 'subscriber_fname', 'subscriber_relationship', 'subscriber_DOB', 'subscriber_street'] as $field) {
+            $this->assertArrayHasKey($field, $this->messages($restInsert), "the REST insert still requires $field");
+        }
+
+        // FHIR Coverage's create, with no relationship (so nothing is filled in from the patient)
+        $fhirCoverageService = new FhirCoverageService();
+        $fhirCoverageService->setLogger($this->createMock(LoggerInterface::class));
+        $fhirInsert = $fhirCoverageService->insert(new FHIRCoverage([
+            'status' => 'active',
+            'subscriberId' => 'MEMBER-1',
+            'order' => 2,
+            'beneficiary' => ['reference' => 'Patient/' . $this->patientUuid()],
+            'payor' => [['reference' => 'Organization/' . $this->companyUuid()]],
+            'period' => ['start' => '2024-02-01'],
+        ]));
+        $this->assertArrayHasKey('subscriber_lname', $this->messages($fhirInsert), 'a FHIR create still requires the subscriber');
+
+        $this->assertCount(1, $this->policies(), 'neither saved a policy');
     }
 
     /**
      * A payer as the import hands it to InsertPayers(): the Source of Payment Typology code, the
      * entry's status and its effectiveTime as written in the document.
      *
-     * @return array{code: string, status: string, low_date: string, high_date: null}
+     * @return array{code: string, status: string, low_date: string, high_date: ?string}
      */
-    private function payer(string $lowDate): array
+    private function payer(string $lowDate, ?string $highDate = null): array
     {
-        return ['code' => self::SOP_CODE, 'status' => 'active', 'low_date' => $lowDate, 'high_date' => null];
+        return ['code' => self::SOP_CODE, 'status' => 'active', 'low_date' => $lowDate, 'high_date' => $highDate];
     }
 
     /**
@@ -121,10 +363,81 @@ class CdaImportPayerTest extends TestCase
     private function policies(): array
     {
         return QueryUtils::fetchRecords(
-            'SELECT `i`.`type`, `i`.`date`, `c`.`cqm_sop` FROM `insurance_data` AS `i`'
+            // cqm_sop is an INT column: read as text so the value compares the same with or without bound values
+            'SELECT `i`.`type`, `i`.`date`, CAST(`c`.`cqm_sop` AS CHAR) AS `cqm_sop` FROM `insurance_data` AS `i`'
             . ' JOIN `insurance_companies` AS `c` ON `c`.`id` = `i`.`provider` WHERE `i`.`pid` = ? ORDER BY `i`.`id`',
             [self::PID]
         );
+    }
+
+    /**
+     * The patient's one policy, every column.
+     *
+     * @return array<mixed>
+     */
+    private function storedPolicy(): array
+    {
+        $rows = QueryUtils::fetchRecords('SELECT * FROM `insurance_data` WHERE `pid` = ?', [self::PID]);
+        $this->assertCount(1, $rows);
+        return $rows[0];
+    }
+
+    /**
+     * The placeholder companies the import made during the test.
+     */
+    private function companiesMade(): int
+    {
+        return self::number(QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS n FROM `insurance_companies` WHERE `id` > ? AND `name` LIKE 'QRDA Insurance Company Payer%'",
+            'n',
+            [$this->lastCompanyBefore]
+        ));
+    }
+
+    private function companyId(): string
+    {
+        $id = QueryUtils::fetchSingleValue('SELECT `id` FROM `insurance_companies` WHERE `cqm_sop` = ?', 'id', [self::SOP_CODE]);
+        $this->assertIsNumeric($id);
+        return (string) $id;
+    }
+
+    private function companyUuid(): string
+    {
+        $uuid = QueryUtils::fetchSingleValue('SELECT `uuid` FROM `insurance_companies` WHERE `cqm_sop` = ?', 'uuid', [self::SOP_CODE]);
+        $this->assertIsString($uuid);
+        return UuidRegistry::uuidToString($uuid);
+    }
+
+    private function patientUuid(): string
+    {
+        $uuid = QueryUtils::fetchSingleValue('SELECT `uuid` FROM `patient_data` WHERE `pid` = ?', 'uuid', [self::PID]);
+        $this->assertIsString($uuid);
+        return UuidRegistry::uuidToString($uuid);
+    }
+
+    /**
+     * The value at a path of keys in nested arrays, or null where the path leaves them.
+     */
+    private static function at(mixed $value, string|int ...$path): mixed
+    {
+        foreach ($path as $key) {
+            if (!is_array($value)) {
+                return null;
+            }
+            $value = $value[$key] ?? null;
+        }
+        return $value;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function messages(ProcessingResult $result): array
+    {
+        $this->assertFalse($result->isValid());
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        return $messages;
     }
 
     private function rowsLeft(): int
