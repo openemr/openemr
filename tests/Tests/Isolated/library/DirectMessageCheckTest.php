@@ -265,11 +265,12 @@ final class DirectMessageCheckTest extends TestCase
     private function startServer(array $replies): Process
     {
         $server = new Process([PHP_BINARY, self::SERVER, ...$replies]);
-        $server->setTimeout(30);
+        $server->setTimeout(60);
         $server->start();
         $port = null;
-        $server->waitUntil(function (string $type, string $output) use (&$port): bool {
-            if (preg_match('/^port (\d+)$/m', $output, $m) === 1) {
+        // Match against all output so far, since a line can arrive split across chunks
+        $server->waitUntil(function () use ($server, &$port): bool {
+            if (preg_match('/^port (\d+)\R/m', $server->getOutput(), $m) === 1) {
                 $port = $m[1];
             }
             return $port !== null;

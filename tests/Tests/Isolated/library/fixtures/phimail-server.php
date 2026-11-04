@@ -28,9 +28,12 @@ if ($address === false) {
     fwrite(STDERR, 'could not read the listening address' . PHP_EOL);
     exit(1);
 }
-echo 'port ', substr($address, strrpos($address, ':') + 1), PHP_EOL;
+// Write past any output buffer, so the test sees the port before the accept wait starts
+fwrite(STDOUT, 'port ' . substr($address, strrpos($address, ':') + 1) . PHP_EOL);
+fflush(STDOUT);
 
-$conn = stream_socket_accept($server, 10);
+// Allow for slow CI runners, where coverage tooling loads in this process too
+$conn = stream_socket_accept($server, 30);
 if ($conn === false) {
     fwrite(STDERR, 'no client connected' . PHP_EOL);
     exit(1);
