@@ -25,6 +25,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirPayloadReader;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -47,6 +48,8 @@ use OpenEMR\Validators\ProcessingResult;
 class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
+
+    private const ADDRESS_NEEDS_CITY_AND_STATE = 'An insurance company address needs a city and a state';
 
     /**
      * @var InsuranceCompanyService
@@ -198,6 +201,22 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
     }
 
     /**
+     * Refuses an address sent only as text or a district before the resource is parsed: the
+     * company's address row holds neither, so parseFhirResource() maps such an address to
+     * nothing, and it would be dropped behind a 201. Otherwise inserts as FhirServiceBase does.
+     */
+    public function insert(FHIRDomainResource $fhirResource): ProcessingResult
+    {
+        $address = $fhirResource instanceof FHIROrganization ? self::activeAddress($fhirResource) : null;
+        if ($address !== null && self::onlyTextOrDistrict($address)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['address' => self::ADDRESS_NEEDS_CITY_AND_STATE]);
+            return $processingResult;
+        }
+        return parent::insert($fhirResource);
+    }
+
+    /**
      * Stores the insurance company parseFhirResource() mapped, once the insurance company
      * validator accepts it, and answers with its id and uuid, as a facility POST does.
      */
@@ -255,7 +274,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
             $addressGiven = $addressGiven || ($record[$field] ?? null) !== null;
         }
         if ($addressGiven && (($record['city'] ?? null) === null || ($record['state'] ?? null) === null)) {
-            $messages['address'] = 'An insurance company address needs a city and a state';
+            $messages['address'] = self::ADDRESS_NEEDS_CITY_AND_STATE;
         }
         foreach (['phone' => 'telecom phone', 'fax' => 'telecom fax'] as $field => $label) {
             $number = $record[$field] ?? null;
@@ -370,6 +389,23 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
             }
         }
         return $current ?? $lastEnded;
+    }
+
+    /**
+     * Whether an address carries text or a district and none of the parts an insurance company's
+     * address row holds: lines, city, state, postal code and country.
+     */
+    private static function onlyTextOrDistrict(FHIRAddress $address): bool
+    {
+        $storedParts = [
+            self::primitiveText($address->getCity()),
+            self::primitiveText($address->getState()),
+            self::primitiveText($address->getPostalCode()),
+            self::primitiveText($address->getCountry()),
+            ...array_map(self::primitiveText(...), $address->getLine()),
+        ];
+        $otherParts = [self::primitiveText($address->getText()), self::primitiveText($address->getDistrict())];
+        return array_filter($storedParts, is_string(...)) === [] && array_filter($otherParts, is_string(...)) !== [];
     }
 
     /**
