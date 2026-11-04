@@ -47,8 +47,8 @@ class CheckoutReceiptTest extends PantherTestCase
 
     private int $pid = 0;
     private int $encounter = 0;
-    private bool $ippfSet = false;
-    private ?string $savedApplication = null;
+    /** @var array<string, ?string> each global the test set, with its value before (null: no row) */
+    private array $savedGlobals = [];
 
     #[Test]
     #[Depends('testLoginAuthorized')]
@@ -132,7 +132,7 @@ class CheckoutReceiptTest extends PantherTestCase
                 $this->assertStringContainsString($text, $page);
             }
             // Five lines (15.00, 100.00, 5.00, 0.00 and the 10.00 adjustment): quantity, price,
-            // adjustment column (line adjustments are on by default) and total; then the
+            // adjustment column (line items, set by useIppf()) and total; then the
             // unmatched 2.00 tax line, after the Sub-Total, makes Total Charges 112.00.
             $rows = $this->receiptRows();
             $this->assertContains(['Sub-Total', '5', '120.00', '', '10.00', '110.00'], $rows);
@@ -204,12 +204,17 @@ class CheckoutReceiptTest extends PantherTestCase
         $this->fail('The receipt has no Total Charges line');
     }
 
+    /**
+     * Specific Application: IPPF, with its Adjustments at Checkout setting at its default, line items
+     * (the IPPF settings have no row on a site installed without IPPF, which reads as Invoice Level Only).
+     */
     private function useIppf(): void
     {
-        $value = QueryUtils::fetchSingleValue("SELECT gl_value FROM globals WHERE gl_name = 'specific_application' AND gl_index = 0", 'gl_value');
-        $this->savedApplication = is_string($value) ? $value : null;
-        $this->ippfSet = true;
-        QueryUtils::sqlStatementThrowException("REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('specific_application', 0, '2')");
+        foreach (['specific_application' => '2', 'gbl_checkout_line_adjustments' => '1'] as $name => $value) {
+            $before = QueryUtils::fetchSingleValue('SELECT gl_value FROM globals WHERE gl_name = ? AND gl_index = 0', 'gl_value', [$name]);
+            $this->savedGlobals[$name] = is_string($before) ? $before : null;
+            QueryUtils::sqlStatementThrowException('REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES (?, 0, ?)', [$name, $value]);
+        }
     }
 
     private function insertVisit(): void
@@ -249,18 +254,14 @@ class CheckoutReceiptTest extends PantherTestCase
 
     private function cleanUpFixtureData(): void
     {
-        if ($this->ippfSet) {
-            if ($this->savedApplication === null) {
-                QueryUtils::sqlStatementThrowException("DELETE FROM globals WHERE gl_name = 'specific_application' AND gl_index = 0");
+        foreach ($this->savedGlobals as $name => $before) {
+            if ($before === null) {
+                QueryUtils::sqlStatementThrowException('DELETE FROM globals WHERE gl_name = ? AND gl_index = 0', [$name]);
             } else {
-                QueryUtils::sqlStatementThrowException(
-                    "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('specific_application', 0, ?)",
-                    [$this->savedApplication]
-                );
+                QueryUtils::sqlStatementThrowException('REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES (?, 0, ?)', [$name, $before]);
             }
-            $this->ippfSet = false;
-            $this->savedApplication = null;
         }
+        $this->savedGlobals = [];
         $pids = QueryUtils::fetchTableColumn('SELECT pid FROM patient_data WHERE pubpid = ?', 'pid', [self::FIXTURE_MARKER]);
         foreach ($pids as $pid) {
             foreach (['ar_activity', 'billing', 'drug_sales'] as $table) {
