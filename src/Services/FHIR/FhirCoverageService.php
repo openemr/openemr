@@ -195,11 +195,12 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             $coverageResource->setBeneficiary($patient);
         }
 
+        // A blank relationship (the legacy forms and the XML import store '' for none) is none, as NULL is.
+        $subscriberRelationship = $dataRecord['subscriber_relationship'] ?? null;
+        $hasRelationship = is_string($subscriberRelationship) && $subscriberRelationship !== '';
+
         // Dependent (Must Support) - for non-self relationships
-        if (
-            isset($dataRecord['subscriber_relationship']) &&
-            strtolower($dataRecord['subscriber_relationship']) !== 'self'
-        ) {
+        if ($hasRelationship && strtolower($subscriberRelationship) !== 'self') {
             $dependent = new FHIRString();
             $dependent->setValue('1');
             $coverageResource->setDependent($dependent);
@@ -207,8 +208,8 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
 
         // Relationship (Must Support) - relationship to subscriber, which US Core requires (1..1).
         // A policy stored without one (a document import names no subscriber) says it is unknown.
-        if (isset($dataRecord['subscriber_relationship'])) {
-            $relationship = $this->mapRelationship($dataRecord['subscriber_relationship']);
+        if ($hasRelationship) {
+            $relationship = $this->mapRelationship($subscriberRelationship);
             $coverageResource->setRelationship($relationship);
         } else {
             // UtilsService declares no return type here; it builds a FHIRCodeableConcept

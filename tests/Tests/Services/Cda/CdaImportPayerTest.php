@@ -173,16 +173,7 @@ class CdaImportPayerTest extends TestCase
         $this->dispose->InsertPayers([1 => $this->payer('20240115')], self::PID, $this->table, 0);
         $uuid = UuidRegistry::uuidToString($this->storedPolicy()['uuid']);
 
-        $fhirCoverageService = new FhirCoverageService();
-        $fhirCoverageService->setLogger($this->createMock(LoggerInterface::class));
-        $read = $fhirCoverageService->getOne($uuid);
-        $this->assertTrue($read->isValid());
-        $data = $read->getData();
-        $this->assertIsArray($data);
-        $resource = $data[0] ?? null;
-        $this->assertInstanceOf(FHIRCoverage::class, $resource);
-        $coverage = json_decode((string) json_encode($resource), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertIsArray($coverage);
+        $coverage = $this->coverageRead($uuid);
 
         $this->assertSame('active', $coverage['status'] ?? null);
         $this->assertSame(['reference' => 'Patient/' . $this->patientUuid()], $coverage['beneficiary'] ?? null);
@@ -210,6 +201,42 @@ class CdaImportPayerTest extends TestCase
             ['coding' => [['system' => 'http://terminology.hl7.org/CodeSystem/data-absent-reason', 'code' => 'unknown', 'display' => 'Unknown']]],
             $coverage['relationship'] ?? null
         );
+    }
+
+    /**
+     * @param array<mixed> $relationship the relationship the read is expected to carry
+     */
+    #[DataProvider('storedRelationships')]
+    public function testAStoredRelationshipReadsAsItIsAndABlankOneAsUnknown(?string $stored, array $relationship, ?string $dependent): void
+    {
+        // A policy with a payer (FHIR serves only those), its relationship as stored.
+        $this->dispose->InsertPayers([1 => $this->payer('20240115')], self::PID, $this->table, 0);
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `insurance_data` SET `subscriber_relationship` = ? WHERE `pid` = ?',
+            [$stored, self::PID]
+        );
+
+        $coverage = $this->coverageRead(UuidRegistry::uuidToString($this->storedPolicy()['uuid']));
+
+        $this->assertSame($relationship, $coverage['relationship'] ?? null);
+        $this->assertSame($dependent, $coverage['dependent'] ?? null);
+    }
+
+    /**
+     * @return array<string, array{?string, array<mixed>, ?string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function storedRelationships(): array
+    {
+        $unknown = ['coding' => [['system' => 'http://terminology.hl7.org/CodeSystem/data-absent-reason', 'code' => 'unknown', 'display' => 'Unknown']]];
+        $relationship = 'http://terminology.hl7.org/CodeSystem/subscriber-relationship';
+        return [
+            'none' => [null, $unknown, null],
+            'blank, as the legacy forms and the XML import store none' => ['', $unknown, null],
+            'self' => ['self', ['coding' => [['system' => $relationship, 'code' => 'self', 'display' => 'Self']]], null],
+            'spouse' => ['spouse', ['coding' => [['system' => $relationship, 'code' => 'spouse', 'display' => 'Spouse']]], '1'],
+        ];
     }
 
     /**
@@ -467,6 +494,26 @@ class CdaImportPayerTest extends TestCase
         $rows = QueryUtils::fetchRecords('SELECT * FROM `insurance_data` WHERE `pid` = ?', [self::PID]);
         $this->assertCount(1, $rows);
         return $rows[0];
+    }
+
+    /**
+     * The FHIR Coverage read of a stored policy, as JSON.
+     *
+     * @return array<mixed>
+     */
+    private function coverageRead(string $uuid): array
+    {
+        $fhirCoverageService = new FhirCoverageService();
+        $fhirCoverageService->setLogger($this->createMock(LoggerInterface::class));
+        $read = $fhirCoverageService->getOne($uuid);
+        $this->assertTrue($read->isValid());
+        $data = $read->getData();
+        $this->assertIsArray($data);
+        $resource = $data[0] ?? null;
+        $this->assertInstanceOf(FHIRCoverage::class, $resource);
+        $coverage = json_decode((string) json_encode($resource), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($coverage);
+        return $coverage;
     }
 
     /**
