@@ -216,7 +216,7 @@ for callers.
 Before any code moves, the first commits add the tests every later commit is checked against.
 
 **Commit 1: tests that record today's behaviour**
-- DB tests (no E2E) that record the JSON from `api/onsitedocuments`, `api/onsitedocument/{id}` (read,
+- HTTP contract tests in the `webui` suite (no E2E) that record the JSON from `api/onsitedocuments`, `api/onsitedocument/{id}` (read,
   create, update, delete), `api/patientdata`, `api/patient/{id}` and `api/portalpatient/{id}`.
   The pages and the Backbone front end are checked by hand at the end (see Checks for PR 3).
 
@@ -307,7 +307,7 @@ Before any code moves, the first commits add the tests every later commit is che
   its attribution.
 - Add a CHANGELOG entry, and remove every baseline entry for the deleted files.
 
-**Checks for PR 3**: the commit 1 DB tests pass after every commit. Also run PHPStan, the
+**Checks for PR 3**: the commit 1 contract tests pass after every commit. Also run PHPStan, the
 isolated tests and the Twig fixtures, and click through by hand: portal profile and documents,
 registration, staff review list, document review and "Commit to Chart", module mode from Patient
 Documents, and the Portal Dashboard.
@@ -318,6 +318,6 @@ Decided on 2026-11-04:
 
 1. CSRF ships on its own, before PR 3 (#15033). PR 3 carries the check into the new router.
 2. Templates move to Twig, with render tests.
-3. Commit 1 adds DB-backed tests only, no E2E. The pages are checked by hand at the end.
+3. Commit 1 adds HTTP contract tests (`webui` suite) and no E2E. The pages are checked by hand at the end.
 4. Replacing the Backbone front end stays out of scope, as the plan proposed. This one was not
    asked separately; raise it if it should change.
