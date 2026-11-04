@@ -120,7 +120,11 @@ if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST
 if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility") {
     // Since it's an edit, add in the facility ID
     $values["id"] = trim($_POST['fid'] ?? '');
-    $facilityService->updateFacility($values);
+    // A deleted facility must not report success or rename linked users.
+    if ($facilityService->updateFacility($values) === false) {
+        $echoFacilitySaveDialogResult(false, xl('The facility save did not finish.'));
+        exit();
+    }
 
     // Update facility name for all users with this facility.
     // This is necessary because some provider based code uses facility name for lookups instead of facility id.
