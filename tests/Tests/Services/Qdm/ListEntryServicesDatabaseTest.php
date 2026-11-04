@@ -152,6 +152,28 @@ class ListEntryServicesDatabaseTest extends TestCase
         $this->assertSame(['I10', 'E11.9', '44054006'], $codes, 'every diagnosis that counts, on the one encounter');
     }
 
+    public function testAnotherPatientsProblemLinkedUnderTheVisitsNumberIsNotItsDiagnosis(): void
+    {
+        // A link names its patient as well as the problem and the encounter; one that names another
+        // patient under this visit's encounter number doesn't give this visit that patient's problem.
+        $own = $this->entry('medical_problem', 'diagnosis', 'ICD10:I10', 'confirmed');
+        $others = $this->entry('medical_problem', 'diagnosis', 'ICD10:E11.9', 'confirmed', self::OTHER_PID);
+        $this->visit(self::ENCOUNTER_KEPT, [$own]);
+        QueryUtils::sqlInsert(
+            'INSERT INTO `issue_encounter` (`pid`, `list_id`, `encounter`, `resolved`) VALUES (?, ?, ?, 0)',
+            [self::OTHER_PID, $others, self::ENCOUNTER_KEPT],
+        );
+
+        $result = (new EncounterService(new QdmRequestOne((string)self::PID), new CodeTypesService()))->executeQuery();
+        $this->assertInstanceOf(\ADORecordSet::class, $result);
+        $diagnoses = [];
+        while (is_array($row = QueryUtils::fetchArrayFromResultSet($result))) {
+            $diagnoses[] = $row['diagnosis'] ?? null;
+        }
+
+        $this->assertSame(['ICD10:I10'], $diagnoses);
+    }
+
     /** @return list<string> the diagnosis column of each row the service reads, sorted */
     private function diagnoses(AbstractQdmService $service): array
     {
@@ -168,12 +190,12 @@ class ListEntryServicesDatabaseTest extends TestCase
     }
 
     /** @return int the new lists row's id */
-    private function entry(string $type, string $subtype, string $code, string $verification): int
+    private function entry(string $type, string $subtype, string $code, string $verification, int $pid = self::PID): int
     {
         return QueryUtils::sqlInsert(
             "INSERT INTO `lists` (`date`, `type`, `subtype`, `title`, `begdate`, `diagnosis`, `activity`, `pid`, `user`, `groupname`, `verification`)"
             . " VALUES ('2026-03-02 09:00:00', ?, ?, 'test entry', '2026-01-05 00:00:00', ?, 1, ?, 'test', 'Default', ?)",
-            [$type, $subtype, $code, self::PID, $verification],
+            [$type, $subtype, $code, $pid, $verification],
         );
     }
 

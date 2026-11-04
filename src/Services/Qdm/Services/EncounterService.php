@@ -23,8 +23,9 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
     public function getSqlStatement(): string
     {
         // Get the encounter, and also collect the duration of the encounter using the appointment category.
-        // One row per visit, carrying the diagnoses of every problem linked to it that counts, joined with
-        // ';' as explodeAndMakeCodeArray() splits them (one problem's diagnosis can hold several that way).
+        // One row per visit, carrying the diagnoses of every problem of the visit's patient linked to it that
+        // counts, joined with ';' as explodeAndMakeCodeArray() splits them (one problem's diagnosis can hold
+        // several that way).
         $sql = "SELECT
                     FE.encounter,
                     FE.pid,
@@ -36,7 +37,7 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                         SELECT GROUP_CONCAT(LISTS.diagnosis ORDER BY LISTS.id SEPARATOR ';')
                         FROM issue_encounter IE
                         JOIN lists LISTS ON IE.list_id = LISTS.id
-                        WHERE IE.encounter = FE.encounter AND " . self::countedListEntry('LISTS') . "
+                        WHERE IE.encounter = FE.encounter AND IE.pid = FE.pid AND " . self::countedListEntry('LISTS') . "
                     ) AS diagnosis,
                     L.codes AS discharge_dispo_code,
                     C.pc_duration
