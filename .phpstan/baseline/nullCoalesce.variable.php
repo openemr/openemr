@@ -577,11 +577,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/messaging/messages.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$format on left side of \\?\\?\\= always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_date.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$errors on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',

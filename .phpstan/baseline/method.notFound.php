@@ -222,11 +222,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/smtp/sasl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:htmlAttribs\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_image.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:IsTerminated\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',

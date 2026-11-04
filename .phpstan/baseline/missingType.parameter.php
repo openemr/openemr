@@ -25072,111 +25072,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Savant3_Plugin_image\\:\\:image\\(\\) has parameter \\$attr with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_image.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Savant3_Plugin_plural\\:\\:plural\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_plural.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Savant3_Plugin_studlycaps\\:\\:studlycaps\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_studlycaps.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method html2text\\:\\:__construct\\(\\) has parameter \\$html with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/class.html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function iterate_over_node\\(\\) has parameter \\$node with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function next_child_name\\(\\) has parameter \\$node with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function prev_child_name\\(\\) has parameter \\$node with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Html2TextException\\:\\:__construct\\(\\) has parameter \\$message with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Html2TextException\\:\\:__construct\\(\\) has parameter \\$more_info with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:__construct\\(\\) has parameter \\$conditions with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:__construct\\(\\) has parameter \\$limit with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:__construct\\(\\) has parameter \\$offset with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_check_count\\(\\) has parameter \\$array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_check_count\\(\\) has parameter \\$char with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_check_count\\(\\) has parameter \\$depth with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_check_count\\(\\) has parameter \\$preferred with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:parse\\(\\) has parameter \\$conditions with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:parse\\(\\) has parameter \\$limit with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:parse\\(\\) has parameter \\$offset with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method thumbnail\\:\\:imageCreateFromFile\\(\\) has parameter \\$filename with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/thumbnail.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method thumbnail\\:\\:imageCreateFromFile\\(\\) has parameter \\$imageType with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/thumbnail.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AuthenticationException\\:\\:__construct\\(\\) has parameter \\$code with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Authentication/AuthenticationException.php',
@@ -25297,11 +25192,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method CacheMemCache\\:\\:Get\\(\\) has parameter \\$flags with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method CacheNoCache\\:\\:Get\\(\\) has parameter \\$flags with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheNoCache.php',
@@ -25412,21 +25302,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/IRouter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method MockRouter\\:\\:GetUrlParam\\(\\) has parameter \\$paramKey with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MockRouter\\:\\:GetUrl\\(\\) has parameter \\$requestMethod with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MockRouter\\:\\:SetUrlParam\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method ObserveToBrowser\\:\\:Observe\\(\\) has parameter \\$ltype with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToBrowser.php',
@@ -25435,41 +25310,6 @@ $ignoreErrors[] = [
     'message' => '#^Method ObserveToBrowser\\:\\:Observe\\(\\) has parameter \\$obj with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToBrowser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ObserveToFile\\:\\:FormatTrace\\(\\) has parameter \\$join with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToFile.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ObserveToFile\\:\\:FormatTrace\\(\\) has parameter \\$show_lines with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToFile.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ObserveToFile\\:\\:FormatTrace\\(\\) has parameter \\$tb with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToFile.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ObserveToFile\\:\\:Observe\\(\\) has parameter \\$ltype with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToFile.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ObserveToFile\\:\\:Observe\\(\\) has parameter \\$obj with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToFile.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ObserveToFile\\:\\:__construct\\(\\) has parameter \\$eventtype with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToFile.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ObserveToFile\\:\\:__construct\\(\\) has parameter \\$filepath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToFile.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method ObserveToSmarty\\:\\:Observe\\(\\) has parameter \\$ltype with no type specified\\.$#',
@@ -25485,11 +25325,6 @@ $ignoreErrors[] = [
     'message' => '#^Method ObserveToSmarty\\:\\:__construct\\(\\) has parameter \\$_smarty with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToSmarty.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PHPRenderEngine\\:\\:get\\(\\) has parameter \\$key with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PHPRenderEngine.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Phreezable\\:\\:GetObject\\(\\) has parameter \\$camelCase with no type specified\\.$#',
@@ -25590,11 +25425,6 @@ $ignoreErrors[] = [
     'message' => '#^Method VerySimpleStringUtil\\:\\:EncodeSpecialCharacters\\(\\) has parameter \\$replaceSmartQuotes with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MemCacheProxy\\:\\:Get\\(\\) has parameter \\$flags with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/MemCacheProxy.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method PatientController\\:\\:startupQuery\\(\\) has parameter \\$pid with no type specified\\.$#',

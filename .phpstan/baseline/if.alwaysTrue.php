@@ -293,11 +293,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
 ];

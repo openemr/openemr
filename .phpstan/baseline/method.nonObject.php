@@ -3217,16 +3217,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getAttribute\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method item\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method GetOrder\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
@@ -3573,7 +3563,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method Get\\(\\) on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
 ];
 $ignoreErrors[] = [
@@ -3588,23 +3578,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method Get\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method Query\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method ToObjectArray\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method GetOneToMany\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserDAO.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method assign\\(\\) on mixed\\.$#',
@@ -3680,11 +3655,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method eprint\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/templates/_FormsHeader.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method eprint\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/templates/_Header.tpl.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method eprint\\(\\) on mixed\\.$#',
