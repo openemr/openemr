@@ -1674,7 +1674,7 @@ class CdaTemplateParse
                 if ($vital !== null || !self::hasVital($this->templateData, $i, $vitals_array[$code])) {
                     $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital;
                 }
-                $this->templateData['field_name_value_array']['vital_sign'][$i]['vital_column'] = $vitals_array[$code] ?? '';
+                $this->templateData['field_name_value_array']['vital_sign'][$i]['vital_column'] = $vitals_array[$code];
             } else {
                 // log missed exam
                 $this->logger->warning('Missed Physical Exam code (likely vital)', ['code' => $code]);
