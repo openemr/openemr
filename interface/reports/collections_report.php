@@ -13,11 +13,13 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019-2022 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

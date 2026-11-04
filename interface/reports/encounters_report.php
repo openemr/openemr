@@ -11,9 +11,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2007-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

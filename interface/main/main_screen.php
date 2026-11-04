@@ -449,12 +449,12 @@ if ($is_expired) {
 } elseif (!empty($_POST['patientID'])) {
     // Patient is open, so add this to the list of tabs, at the end
     $patientID = (int) $_POST['patientID'];
-    $_notes = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
+    $dashboardQuery = ['set_pid' => $patientID];
     if (!empty($_POST['encounterID'])) {
-        $encounterID = (int) $_POST['encounterID'];
-        $_notes = $_notes . "&set_encounterid=" . attr_url($encounterID);
+        $dashboardQuery['set_encounterid'] = (int) $_POST['encounterID'];
     }
-    $_notes = $_notes . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session));
+    $dashboardQuery['csrf_token_form'] = CsrfUtils::collectCsrfToken(session: $session);
+    $_notes = '../patient_file/summary/demographics.php?' . http_build_query($dashboardQuery);
     $_tabs[] = [
         'notes' => $_notes,
         'id' => "pat",

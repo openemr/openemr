@@ -25,11 +25,11 @@ require_once dirname(__DIR__, 6) . '/vendor/autoload.php';
 // child process from attempting a translation database lookup.
 $GLOBALS['disable_translation'] = true;
 
-$requestedPid = filter_var($argv[1] ?? null, FILTER_VALIDATE_INT);
-if ($requestedPid === false) {
-    fwrite(STDERR, "Expected the requested patient ID.\n");
-    exit(2);
+$requestedPidArg = $argv[1] ?? null;
+if (!is_string($requestedPidArg) || !ctype_digit($requestedPidArg)) {
+    throw new InvalidArgumentException('Expected the requested patient ID');
 }
+$requestedPid = (int) $requestedPidArg;
 
 $session = new Session(new MockArraySessionStorage());
 $session->set('pid', 11);

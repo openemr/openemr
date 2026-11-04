@@ -5,7 +5,9 @@
  *
  * @package OpenEMR
  * @author Brady Miller <brady.g.miller@gmail.com>
+ * @author Michael A. Smith <michael@opencoreemr.com>
  * @copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -555,8 +557,11 @@ var SelectPatient = function (eObj) {
         dlgclose("srchDone", parts[0]);
     <?php } else { ?>
         top.restoreSession();
-        document.location.href = "../../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(parts[0])
-            + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
+        const params = new URLSearchParams({
+            set_pid: parts[0],
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
+        });
+        document.location.href = "../../patient_file/summary/demographics.php?" + params;
     <?php } ?>
 
     return true;

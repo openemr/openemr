@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -205,9 +207,11 @@ if ($imauthorized && $see_auth > 1) {
         echo "<tr><td valign='top'>";
         // Clicking the patient name will load both frames for that patient,
         // as demographics.php takes care of loading the bottom frame.
-        echo "<a href='$rootDir/patient_file/summary/demographics.php?set_pid=" .
-        attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session)) .
-        "' target='RTop' onclick='top.restoreSession()'>";
+        $patientUrl = $rootDir . '/patient_file/summary/demographics.php?' . http_build_query([
+            'set_pid' => $ppid,
+            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+        ]);
+        echo "<a href='" . attr($patientUrl) . "' target='RTop' onclick='top.restoreSession()'>";
 
         echo "<span class='font-weight-bold'>" . text($name["fname"]) . " " .
         text($name["lname"]) . "</span></a><br />" .

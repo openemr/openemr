@@ -663,8 +663,8 @@ if ($searchRequest->getString('form_search') === 'Search') {
             // Tabs only
             top.restoreSession();
             let encurl = 'patient_file/history/encounters.php?billing=1&issue=0&pagesize=20&pagestart=0';
-            let paturl = "patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(pid)
-                + "&csrf_token_form=" + encodeURIComponent(top.csrf_token_js);
+            const patParams = new URLSearchParams({set_pid: pid, csrf_token_form: top.csrf_token_js});
+            let paturl = 'patient_file/summary/demographics.php?' + patParams;
             parent.left_nav.loadFrame('pat2', 'pat', paturl);
             // need a little time so can force a billing view
             setTimeout(function(){parent.left_nav.loadFrame('enc2', 'enc', encurl);}, 3000);

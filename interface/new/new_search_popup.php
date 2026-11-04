@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2010-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -267,13 +269,16 @@ $simpleSearch = $_GET['simple_search'] ?? null;
         <?php
         // The layout loads just the demographics frame here, which in turn
         // will set the pid and load all the other frames.
-        $newPage = "../patient_file/summary/demographics.php?set_pid=";
+        $newPage = '../patient_file/summary/demographics.php';
         $target = "document";
         ?>
         objID = eObj.id;
         var parts = objID.split("~");
-        opener.<?php echo $target; ?>.location.href = '<?php echo $newPage; ?>' + encodeURIComponent(parts[0])
-            + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
+        const params = new URLSearchParams({
+            set_pid: parts[0],
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
+        });
+        opener.<?php echo $target; ?>.location.href = <?php echo js_escape($newPage); ?> + '?' + params;
         dlgclose();
         return true;
     }

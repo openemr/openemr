@@ -1010,14 +1010,12 @@ function myLocalJS(SessionInterface $session): void
             }
             else {
                 top.restoreSession();
+                const params = new URLSearchParams({set_pid: newpid});
                 if (enc > 0) {
-                    top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc)
-                        + "&csrf_token_form=" + encodeURIComponent(top.csrf_token_js);
+                    params.set('set_encounterid', enc);
                 }
-                else {
-                    top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid)
-                        + "&csrf_token_form=" + encodeURIComponent(top.csrf_token_js);
-                }
+                params.set('csrf_token_form', top.csrf_token_js);
+                top.RTop.location = <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot() . '/interface/patient_file/summary/demographics.php?'); ?> + params;
             }
         }
 

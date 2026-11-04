@@ -19,6 +19,7 @@ use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -89,7 +90,7 @@ final class PatientSessionUtilLinkSwitchTest extends TestCase
 
     public function testRequireCsrfLetsTheCurrentChartReopen(): void
     {
-        $request = Request::create('/demographics.php', 'GET', ['set_pid' => (string) self::SESSION_PID]);
+        $request = Request::create('/demographics.php', 'GET', ['set_pid' => self::SESSION_PID]);
 
         PatientSessionUtil::requireCsrfForLinkSwitch($request, self::SESSION_PID);
         $this->addToAssertionCount(1);
@@ -109,7 +110,7 @@ final class PatientSessionUtilLinkSwitchTest extends TestCase
     public function testRequireCsrfAcceptsAnArrayTokenWhenReopeningTheCurrentChart(): void
     {
         $request = Request::create('/demographics.php', 'GET', [
-            'set_pid' => (string) self::SESSION_PID,
+            'set_pid' => self::SESSION_PID,
             'csrf_token_form' => ['not', 'a', 'string'],
         ]);
 
@@ -150,13 +151,12 @@ final class PatientSessionUtilLinkSwitchTest extends TestCase
      */
     public function testDemographicsChecksTheTokenBeforeSwitching(): void
     {
-        $source = file_get_contents(dirname(__DIR__, 5) . '/interface/patient_file/summary/demographics.php');
-        $this->assertIsString($source);
-        $guardAt = strpos($source, 'PatientSessionUtil::requireCsrfForLinkSwitch($request, $setPid, $setEncounterId);');
-        $switchAt = strpos($source, 'setpid($setPid);');
-        $this->assertNotFalse($guardAt);
-        $this->assertNotFalse($switchAt);
-        $this->assertLessThan($switchAt, $guardAt);
+        $source = (new Filesystem())->readFile(dirname(__DIR__, 5) . '/interface/patient_file/summary/demographics.php');
+        $parts = explode('PatientSessionUtil::requireCsrfForLinkSwitch($request, $setPid, $setEncounterId);', $source);
+        $this->assertCount(2, $parts, 'demographics.php should call the guard exactly once');
+        [$beforeGuard, $afterGuard] = $parts;
+        $this->assertStringNotContainsString('setpid($setPid);', $beforeGuard);
+        $this->assertStringContainsString('setpid($setPid);', $afterGuard);
     }
 
     private function token(string $kind): mixed

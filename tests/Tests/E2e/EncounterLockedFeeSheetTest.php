@@ -15,7 +15,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -95,8 +97,10 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
             // opening them from the dashboard does, so the main menu's
             // encounter items are enabled.
             $this->client->executeScript(
-                'navigateTab(webroot_url + "/interface/patient_file/summary/demographics.php?set_pid=" + arguments[0]'
-                . ' + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), "pat");',
+                <<<'JS'
+                const params = new URLSearchParams({set_pid: arguments[0], csrf_token_form: csrf_token_js});
+                navigateTab(webroot_url + '/interface/patient_file/summary/demographics.php?' + params, 'pat');
+                JS,
                 [$this->pid]
             );
             $this->client->wait(30)->until(
