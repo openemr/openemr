@@ -257,7 +257,8 @@ class FhirCoverageServiceCrudTest extends TestCase
 
     /**
      * Coverage.type comes from the policy's insurer: its CQM Source of Payment, a code of the
-     * Payer Type value set US Core binds the type to, and then the ActCode for its insurance type.
+     * Payer Type value set US Core binds the type to, when it has one, else the ActCode for its
+     * insurance type.
      *
      * @param list<string> $expected each coding as "system|code|display"
      */
@@ -287,14 +288,25 @@ class FhirCoverageServiceCrudTest extends TestCase
             'Medicaid' => [3, null, [$public]],
             'Medicare Part B' => [2, null, [$public]],
             'Veterans Administration Plan' => [24, null, [$public]],
+            'HMO Medicare Risk' => [15, null, [$public]],
             'Commercial Insurance Co.' => [17, null, [$plan]],
+            'Workers Compensation Health Plan' => [
+                25,
+                null,
+                ["http://terminology.hl7.org/CodeSystem/v3-ActCode|WCBPOL|worker's compensation"],
+            ],
+            'Automobile Medical' => [16, null, ['http://terminology.hl7.org/CodeSystem/v3-ActCode|AUTOPOL|automobile']],
+            'Disability' => [
+                18,
+                null,
+                ['http://terminology.hl7.org/CodeSystem/v3-ActCode|DIS|disability insurance policy'],
+            ],
+            'Self Pay, sent as its source of payment' => [8, null, ['https://nahdo.org/sopt|81|']],
             'no insurance type' => [null, null, [$plan]],
-            'HMO Medicare Risk' => [15, null, [$plan]],
-            'Medicaid, with the Medicaid source of payment' => [3, 2, ['https://nahdo.org/sopt|2|', $public]],
-            'Medicare Part B, with the Medicare source of payment' => [2, 1, ['https://nahdo.org/sopt|1|', $public]],
-            'HMO Medicare Risk, with the Medicare HMO source of payment' => [15, 111, ['https://nahdo.org/sopt|111|', $public]],
+            'Medicaid, with the Medicaid source of payment' => [3, 2, ['https://nahdo.org/sopt|2|']],
+            'Medicare Part B, with a Medicare source of payment' => [2, 11, ['https://nahdo.org/sopt|11|']],
             // a QRDA import stores the payer's source of payment code in both columns
-            'private insurance, as an import stores it' => [5, 5, ['https://nahdo.org/sopt|5|', $plan]],
+            'private insurance, as an import stores it' => [5, 5, ['https://nahdo.org/sopt|5|']],
         ];
     }
 
@@ -323,12 +335,16 @@ class FhirCoverageServiceCrudTest extends TestCase
      */
     public static function typeCodeAsReadProvider(): array
     {
-        $public = 'http://terminology.hl7.org/CodeSystem/v3-ActCode|PUBLICPOL|public healthcare';
         $plan = 'http://terminology.hl7.org/CodeSystem/v3-ActCode|HIP|health insurance plan policy';
         return [
-            'strings' => ['3', '2', ['https://nahdo.org/sopt|2|', $public]],
-            'corrections' => [null, '41', ['https://nahdo.org/sopt|41|', $public]],
-            'self-pay' => ['8', '81', ['https://nahdo.org/sopt|81|', $plan]],
+            'strings' => ['3', '2', ['https://nahdo.org/sopt|2|']],
+            'Medicaid as a string' => [
+                '3',
+                null,
+                ['http://terminology.hl7.org/CodeSystem/v3-ActCode|PUBLICPOL|public healthcare'],
+            ],
+            'Self Pay as a string' => ['8', null, ['https://nahdo.org/sopt|81|']],
+            'self-pay source of payment on a commercial insurer' => ['17', '81', ['https://nahdo.org/sopt|81|']],
             'blank and zero' => ['', '0', [$plan]],
             'unusable' => ['Medicaid', ' ', [$plan]],
             'absent' => [null, null, [$plan]],

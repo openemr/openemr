@@ -18,6 +18,9 @@ enum CoverageTypeActCode: string
 {
     case HealthInsurancePlan = 'HIP';
     case PublicHealthcare = 'PUBLICPOL';
+    case Automobile = 'AUTOPOL';
+    case WorkersCompensation = 'WCBPOL';
+    case Disability = 'DIS';
 
     /**
      * The code system's display for the code.
@@ -27,6 +30,9 @@ enum CoverageTypeActCode: string
         return match ($this) {
             self::HealthInsurancePlan => 'health insurance plan policy',
             self::PublicHealthcare => 'public healthcare',
+            self::Automobile => 'automobile',
+            self::WorkersCompensation => "worker's compensation",
+            self::Disability => 'disability insurance policy',
         };
     }
 }

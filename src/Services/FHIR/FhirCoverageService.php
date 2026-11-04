@@ -70,9 +70,9 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
 
     // insurance_companies.ins_type_code to the ActCode coverage type, for an insurer with no CQM
     // Source of Payment. The keys are the ids of the insurance_type_codes table, and each comment is
-    // that row's type. The programs this map called PUBLICPOL before its keys were corrected
-    // (Medicare, Medicaid, TRICARE, CHAMPVA, other federal), Title V and the VA are PUBLICPOL; the
-    // rest keep the HIP it gave them.
+    // that row's type. Public programs are PUBLICPOL, workers' compensation WCBPOL (FECA is the
+    // federal employees'), automobile AUTOPOL and disability DIS. Self Pay (8) is no plan: it is sent
+    // as its Source of Payment, 81. The rest keep the HIP every type had before.
     private const INS_TYPE_CODE_MAP = [
         1 => CoverageTypeActCode::HealthInsurancePlan,      // Other HCFA
         2 => CoverageTypeActCode::PublicHealthcare,         // Medicare Part B
@@ -80,27 +80,29 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         4 => CoverageTypeActCode::PublicHealthcare,         // ChampUSVA
         5 => CoverageTypeActCode::PublicHealthcare,         // ChampUS
         6 => CoverageTypeActCode::HealthInsurancePlan,      // Blue Cross Blue Shield
-        7 => CoverageTypeActCode::HealthInsurancePlan,      // FECA
-        8 => CoverageTypeActCode::HealthInsurancePlan,      // Self Pay
+        7 => CoverageTypeActCode::WorkersCompensation,      // FECA
         9 => CoverageTypeActCode::HealthInsurancePlan,      // Central Certification
         10 => CoverageTypeActCode::HealthInsurancePlan,     // Other Non-Federal Programs
         11 => CoverageTypeActCode::HealthInsurancePlan,     // Preferred Provider Organization (PPO)
         12 => CoverageTypeActCode::HealthInsurancePlan,     // Point of Service (POS)
         13 => CoverageTypeActCode::HealthInsurancePlan,     // Exclusive Provider Organization (EPO)
         14 => CoverageTypeActCode::HealthInsurancePlan,     // Indemnity Insurance
-        15 => CoverageTypeActCode::HealthInsurancePlan,     // Health Maintenance Organization (HMO) Medicare Risk
-        16 => CoverageTypeActCode::HealthInsurancePlan,     // Automobile Medical
+        15 => CoverageTypeActCode::PublicHealthcare,        // Health Maintenance Organization (HMO) Medicare Risk
+        16 => CoverageTypeActCode::Automobile,              // Automobile Medical
         17 => CoverageTypeActCode::HealthInsurancePlan,     // Commercial Insurance Co.
-        18 => CoverageTypeActCode::HealthInsurancePlan,     // Disability
+        18 => CoverageTypeActCode::Disability,              // Disability
         19 => CoverageTypeActCode::HealthInsurancePlan,     // Health Maintenance Organization
         20 => CoverageTypeActCode::HealthInsurancePlan,     // Liability
         21 => CoverageTypeActCode::HealthInsurancePlan,     // Liability Medical
         22 => CoverageTypeActCode::PublicHealthcare,        // Other Federal Program
         23 => CoverageTypeActCode::PublicHealthcare,        // Title V
         24 => CoverageTypeActCode::PublicHealthcare,        // Veterans Administration Plan
-        25 => CoverageTypeActCode::HealthInsurancePlan,     // Workers Compensation Health Plan
+        25 => CoverageTypeActCode::WorkersCompensation,     // Workers Compensation Health Plan
         26 => CoverageTypeActCode::HealthInsurancePlan,     // Mutually Defined
     ];
+
+    private const SELF_PAY_INSURANCE_TYPE = 8;
+    private const SELF_PAY_SOURCE_OF_PAYMENT = 81;
 
     public function __construct()
     {
@@ -186,7 +188,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         $status->setValue($statusValue);
         $coverageResource->setStatus($status);
 
-        // Type (Required) - uses ins_type_code from insurance_companies
+        // Type (Required) - from the insurer's cqm_sop or ins_type_code
         $coverageType = $this->mapCoverageType($dataRecord);
         $coverageResource->setType($coverageType);
 
@@ -363,9 +365,9 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
      * Map the insurer's type codes to the FHIR Coverage type CodeableConcept.
      *
      * US Core binds Coverage.type to the Payer Type value set, the Source of Payment Typology, of
-     * which the insurer's CQM Source of Payment (insurance_companies.cqm_sop) is a code. When it is
-     * set, it is the first coding, and its category gives the ActCode coding that follows, as in US
-     * Core's own Coverage example. Without it, the ActCode comes from insurance_companies.ins_type_code.
+     * which the insurer's CQM Source of Payment (insurance_companies.cqm_sop) is a code: when it is
+     * set, it is the type's one coding. Otherwise insurance_companies.ins_type_code gives an ActCode
+     * coding, or, for Self Pay, the Source of Payment for self-pay.
      *
      * @param array $dataRecord
      * @return FHIRCodeableConcept
@@ -375,19 +377,23 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         $coverageType = new FHIRCodeableConcept();
 
         $sourceOfPayment = ValidationUtils::validateInt($dataRecord['cqm_sop'] ?? null, 1);
+        $insuranceTypeCode = ValidationUtils::validateInt($dataRecord['ins_type_code'] ?? null, 1);
+        if ($sourceOfPayment === false && $insuranceTypeCode === self::SELF_PAY_INSURANCE_TYPE) {
+            $sourceOfPayment = self::SELF_PAY_SOURCE_OF_PAYMENT;
+        }
+
         if ($sourceOfPayment !== false) {
             $coverageType->addCoding(UtilsService::createCoding(
                 (string) $sourceOfPayment,
                 null,
                 FhirCodeSystemConstants::SOURCE_OF_PAYMENT_TYPOLOGY
             ));
-            $actCode = self::actCodeForSourceOfPayment($sourceOfPayment);
-        } else {
-            $insuranceTypeCode = ValidationUtils::validateInt($dataRecord['ins_type_code'] ?? null, 1);
-            $actCode = $insuranceTypeCode === false
-                ? CoverageTypeActCode::HealthInsurancePlan
-                : (self::INS_TYPE_CODE_MAP[$insuranceTypeCode] ?? CoverageTypeActCode::HealthInsurancePlan);
+            return $coverageType;
         }
+
+        $actCode = $insuranceTypeCode === false
+            ? CoverageTypeActCode::HealthInsurancePlan
+            : (self::INS_TYPE_CODE_MAP[$insuranceTypeCode] ?? CoverageTypeActCode::HealthInsurancePlan);
         $coverageType->addCoding(UtilsService::createCoding(
             $actCode->value,
             $actCode->display(),
@@ -395,21 +401,6 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         ));
 
         return $coverageType;
-    }
-
-    /**
-     * The ActCode for a Source of Payment Typology code, from its category, the code's first digit:
-     * 1 Medicare, 2 Medicaid, 3 other government and 4 departments of corrections are public
-     * programs; 5 private insurance, 7 managed care unspecified, 8 no payment and 9 other are not.
-     */
-    private static function actCodeForSourceOfPayment(int $code): CoverageTypeActCode
-    {
-        $category = $code;
-        while ($category >= 10) {
-            $category = intdiv($category, 10);
-        }
-
-        return $category <= 4 ? CoverageTypeActCode::PublicHealthcare : CoverageTypeActCode::HealthInsurancePlan;
     }
 
     /**
