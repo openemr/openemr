@@ -11,10 +11,13 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
+use OpenEMR\Services\PortalDocuments\OnsiteDocumentListQuery;
+use OpenEMR\Services\PortalDocuments\OnsiteDocumentRepository;
+use OpenEMR\Services\PortalDocuments\OnsiteDocumentSort;
+use OpenEMR\Services\PortalDocuments\PortalDocumentNotFoundException;
 use OpenEMR\Services\Utils\TranslationService;
 
 /**
@@ -102,90 +105,53 @@ class OnsiteDocumentController extends AppBasePortalController
     }
 
     /**
-     * API Method queries for OnsiteDocument records and render as JSON
-     * Basically the CRUD for the History table.
-     * Or custom searches.
+     * API Method lists one patient's portal documents and renders them as JSON.
      */
     public function Query()
     {
         try {
-            $criteria = new OnsiteDocumentCriteria();
             $pid = RequestUtil::Get('patientId');
-
-            // only allow patient to see themself
+            // A portal patient lists only their own documents.
             $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            // only allow patient to delete themselves
             if (!empty($bootstrapPid)) {
                 $pid = $bootstrapPid;
             }
-            // An empty pid would drop the filter and list every patient's documents.
             $pid = filter_var($pid, FILTER_VALIDATE_INT);
             if (!is_int($pid) || $pid <= 0) {
                 throw new InvalidArgumentException('A patient is required');
             }
             PortalPatientAccessGuard::assertCanReadDocuments($pid);
 
-            $criteria->Pid_Equals = $pid;
-            $recid = RequestUtil::Get('recid');
-            if ($recid > 0) {
-                $criteria->Id_Equals = $recid;
-            }
-
-            $exc = RequestUtil::Get('showActive');
-            if ($exc != 'true') {
-                $criteria->DenialReason_IsNotLike = 'Locked';
-            }
-
-            $filter = RequestUtil::Get('filter');
-            if ($filter) {
-                $criteria->AddFilter(
-                    new CriteriaFilter('Id,Pid,Facility,Provider,Encounter,CreateDate,DocType,PatientSignedStatus,PatientSignedTime,AuthorizeSignedTime,
-						AcceptSignedStatus,AuthorizingSignator,ReviewDate,DenialReason,AuthorizedSignature,PatientSignature,FullDocument,FileName,FilePath', '%' . $filter . '%')
-                );
-            }
-
-            // generic query filtering: request input may only drive equality
-            // (_Equals) filters, never arbitrary criteria properties (CWE-915)
-            $this->ApplyRequestEqualsFilters($criteria);
-            // Those filters include pid, so pin it back to the patient checked above.
-            $criteria->Pid_Equals = $pid;
-
-            $output = new stdClass();
-
-            // if a sort order was specified then specify in the criteria
-            $output->orderBy = RequestUtil::Get('orderBy');
-            $output->orderBy = $output->orderBy ?: 'DenialReason';
-            $output->orderDesc = RequestUtil::Get('orderDesc') != '';
-            if ($output->orderBy) {
-                $criteria->SetOrder($output->orderBy, $output->orderDesc);
-                $output->orderBy = 'ReviewDate';
-                $criteria->SetOrder($output->orderBy, $output->orderDesc);
-            }
-
+            $recid = filter_var(RequestUtil::Get('recid'), FILTER_VALIDATE_INT);
             $page = RequestUtil::Get('page');
-
-            if (!empty($page)) {
-                // if page is specified, use this instead (at the expense of one extra count query)
-                $pagesize = $this->GetDefaultPageSize();
-
-                $onsitedocuments = $this->Phreezer->Query('OnsiteDocument', $criteria)->GetDataPage($page, $pagesize);
-                $output->rows = $onsitedocuments->ToObjectArray(true, $this->SimpleObjectParams());
-                $output->totalResults = $onsitedocuments->TotalResults;
-                $output->totalPages = $onsitedocuments->TotalPages;
-                $output->pageSize = $onsitedocuments->PageSize;
-                $output->currentPage = $onsitedocuments->CurrentPage;
-            } else {
-                // return all results
-                $onsitedocuments = $this->Phreezer->Query('OnsiteDocument', $criteria);
-                $output->rows = $onsitedocuments->ToObjectArray(true, $this->SimpleObjectParams());
-                $output->totalResults = count($output->rows);
-                $output->totalPages = 1;
-                $output->pageSize = $output->totalResults;
-                $output->currentPage = 1;
+            $page = empty($page) ? null : filter_var($page, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+            if ($page === false) {
+                throw new InvalidArgumentException('The page must be a positive number');
             }
+            $orderBy = RequestUtil::Get('orderBy');
+            $filter = RequestUtil::Get('filter');
 
+            $result = self::documents()->list(new OnsiteDocumentListQuery(
+                pid: $pid,
+                recordId: is_int($recid) && $recid > 0 ? $recid : null,
+                includeLocked: RequestUtil::Get('showActive') === 'true',
+                filter: is_string($filter) ? $filter : '',
+                orderBy: OnsiteDocumentSort::fromRequest(is_string($orderBy) ? $orderBy : ''),
+                orderDesc: RequestUtil::Get('orderDesc') != '',
+                page: $page,
+                pageSize: OnsiteDocumentListQuery::DEFAULT_PAGE_SIZE,
+            ));
 
-            $this->RenderJSON($output, $this->JSONPCallback());
+            $this->RenderJSON([
+                // The list is always sorted by review date last, and has always reported that.
+                'orderBy' => 'ReviewDate',
+                'orderDesc' => RequestUtil::Get('orderDesc') != '',
+                'rows' => $result->rows,
+                'totalResults' => $result->totalResults,
+                'totalPages' => $result->totalPages,
+                'pageSize' => $result->pageSize,
+                'currentPage' => $result->currentPage,
+            ], $this->JSONPCallback());
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
@@ -197,25 +163,21 @@ class OnsiteDocumentController extends AppBasePortalController
     public function Read()
     {
         try {
-            $pk = $this->GetRouter()->GetUrlParam('id');
-            $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
-            if (!$onsitedocument instanceof OnsiteDocument) {
-                throw new NotFoundException('Portal document not found');
+            $document = self::documents()->find(self::documentId($this->GetRouter()->GetUrlParam('id')));
+            if ($document === null) {
+                throw new PortalDocumentNotFoundException();
             }
-            PortalPatientAccessGuard::assertCanReadDocuments($onsitedocument->Pid);
+            PortalPatientAccessGuard::assertCanReadDocuments($document['pid']);
 
-            $isLegacy = stripos((string) $onsitedocument->FullDocument, 'portal_version') === false;
-            if (!empty($onsitedocument->TemplateData) && !$isLegacy) {
-                $templateRender = new DocumentTemplateRender($onsitedocument->Pid, $onsitedocument->Provider, $onsitedocument->Encounter);
-                // use original template saved in create/insert or get new raw template so same version stay with edits.
-                // document data will save separately then repopulate this document on edit fetch.
-                $prepared_doc = $templateRender->doRender(null, $onsitedocument->FullDocument, $onsitedocument->TemplateData);
-                $onsitedocument->FullDocument = $prepared_doc;
-            } else {
-                // Is legacy document.
+            $fullDocument = $document['fullDocument'];
+            $isLegacy = !is_string($fullDocument) || stripos($fullDocument, 'portal_version') === false;
+            if (!empty($document['templateData']) && !$isLegacy) {
+                // Fill the template saved at create time with the saved answers, so a document
+                // keeps the template version it was started on.
+                $templateRender = new DocumentTemplateRender($document['pid'], $document['provider'], $document['encounter']);
+                $document['fullDocument'] = $templateRender->doRender(null, $document['fullDocument'], $document['templateData']);
             }
-            // Send back to UI collection.
-            $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
+            $this->RenderJSON($document, $this->JSONPCallback());
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
@@ -223,7 +185,6 @@ class OnsiteDocumentController extends AppBasePortalController
 
     /**
      * API Method inserts a new OnsiteDocument record and render response as JSON
-     *
      */
     public function Create()
     {
@@ -234,54 +195,51 @@ class OnsiteDocumentController extends AppBasePortalController
                 throw new Exception('The request body does not contain valid JSON');
             }
 
-            $onsitedocument = new OnsiteDocument($this->Phreezer);
-
-            // only allow patient to add to themselves
+            // A portal patient adds documents only for themselves.
             $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            $onsitedocument->Pid = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'pid');
-            PortalPatientAccessGuard::assertCanAddDocument($onsitedocument->Pid);
+            $document = [
+                'pid' => !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'pid'),
+            ];
+            PortalPatientAccessGuard::assertCanAddDocument($document['pid']);
 
-            $onsitedocument->Facility = $this->SafeGetVal($json, 'facility');
-            $onsitedocument->Provider = $this->SafeGetVal($json, 'provider');
-            $onsitedocument->Encounter = $this->SafeGetVal($json, 'encounter');
-            $onsitedocument->CreateDate = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'createDate')));
-            $onsitedocument->DocType = $this->SafeGetVal($json, 'docType');
-            $onsitedocument->PatientSignedStatus = $this->SafeGetVal($json, 'patientSignedStatus');
-            $onsitedocument->PatientSignedTime = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'patientSignedTime')));
-            $onsitedocument->AuthorizeSignedTime = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'authorizeSignedTime')));
-            $onsitedocument->AcceptSignedStatus = $this->SafeGetVal($json, 'acceptSignedStatus');
-            $onsitedocument->AuthorizingSignator = $this->SafeGetVal($json, 'authorizingSignator');
-            $onsitedocument->ReviewDate = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'reviewDate')));
-            $onsitedocument->DenialReason = $this->SafeGetVal($json, 'denialReason');
-            $onsitedocument->AuthorizedSignature = $this->SafeGetVal($json, 'authorizedSignature');
-            $onsitedocument->PatientSignature = $this->SafeGetVal($json, 'patientSignature');
-            $onsitedocument->FullDocument = null; // Prevent unauth'ed templates from interface.
-            $onsitedocument->FileName = $this->SafeGetVal($json, 'fileName', '');
-            $onsitedocument->FilePath = $this->SafeGetVal($json, 'filePath', '');
-            $onsitedocument->TemplateData = $this->SafeGetVal($json, 'templateData', null);
+            $document += [
+                'facility' => $this->SafeGetVal($json, 'facility'),
+                'provider' => $this->SafeGetVal($json, 'provider'),
+                'encounter' => $this->SafeGetVal($json, 'encounter'),
+                'createDate' => date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'createDate'))),
+                'docType' => $this->SafeGetVal($json, 'docType'),
+                'patientSignedStatus' => $this->SafeGetVal($json, 'patientSignedStatus'),
+                'patientSignedTime' => date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'patientSignedTime'))),
+                'authorizeSignedTime' => date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'authorizeSignedTime'))),
+                'acceptSignedStatus' => $this->SafeGetVal($json, 'acceptSignedStatus'),
+                'authorizingSignator' => $this->SafeGetVal($json, 'authorizingSignator'),
+                'reviewDate' => date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'reviewDate'))),
+                'denialReason' => $this->SafeGetVal($json, 'denialReason'),
+                'authorizedSignature' => $this->SafeGetVal($json, 'authorizedSignature'),
+                'patientSignature' => $this->SafeGetVal($json, 'patientSignature'),
+                'fullDocument' => null, // The template comes from the server, never from the request.
+                'fileName' => $this->SafeGetVal($json, 'fileName', ''),
+                'filePath' => $this->SafeGetVal($json, 'filePath', ''),
+                'templateData' => $this->SafeGetVal($json, 'templateData', null),
+            ];
             $version = $this->SafeGetVal($json, 'version');
 
-            $onsitedocument->Validate();
-            $errors = $onsitedocument->GetValidationErrors();
-
-            if (count($errors ?? []) > 0) {
+            $errors = OnsiteDocumentRepository::validate($document);
+            if ($errors !== []) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
-            } else {
-                // fetch and save original template so the same version will stay with edits.
-                // TODO It may be useful to also store a rendered version for reports etc.
-                // TODO In this case doc can be populated from JS.
-                $templateRender = new DocumentTemplateRender($onsitedocument->Pid, $onsitedocument->Provider, $onsitedocument->Encounter);
-                // Add raw template to table for this version.
-                $template_raw = $templateRender->fetchTemplateDocument($onsitedocument->FilePath)['template_content'];
-                // if versioned then is new templating.
-                if ($version == 'New') {
-                    $template_raw .= "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
-                }
-                $onsitedocument->FullDocument = $template_raw; // persist original for life of document.
-
-                $onsitedocument->Save();
-                $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
+                return;
             }
+
+            // Save the template as it is now, so the document keeps this version through its edits.
+            $templateRender = new DocumentTemplateRender($document['pid'], $document['provider'], $document['encounter']);
+            $template = $templateRender->fetchTemplateDocument($document['filePath'])['template_content'];
+            if ($version == 'New') {
+                $template .= "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
+            }
+            $document['fullDocument'] = $template;
+
+            $id = self::documents()->insert($document);
+            $this->RenderJSON(self::inColumnOrder(['id' => $id] + $document), $this->JSONPCallback());
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
@@ -292,7 +250,6 @@ class OnsiteDocumentController extends AppBasePortalController
      */
     public function Update()
     {
-        $is_portal = GlobalConfig::$PORTAL;
         try {
             $json = json_decode(RequestUtil::GetBody());
 
@@ -301,14 +258,14 @@ class OnsiteDocumentController extends AppBasePortalController
             if (!$json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
-            $pk = $this->GetRouter()->GetUrlParam('id');
+            $pk = self::documentId($this->GetRouter()->GetUrlParam('id'));
             PortalPatientAccessGuard::assertCanWriteDocuments(self::documentOwner($pk));
-            $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
+            $document = self::documents()->find($pk) ?? throw new PortalDocumentNotFoundException();
             // Check the loaded document too, in case it moved to another patient after the lookup.
-            $owner = $onsitedocument->Pid;
+            $owner = $document['pid'];
             PortalPatientAccessGuard::assertCanWriteDocuments($owner);
 
-            $existing_template = $onsitedocument->FullDocument;
+            $existing_template = $document['fullDocument'];
 
             $hasVersion = stripos((string) $existing_template, 'portal_version') !== false;
             if ($this->SafeGetVal($json, 'type') == 'flattened') {
@@ -348,37 +305,35 @@ class OnsiteDocumentController extends AppBasePortalController
             // A portal patient's document stays theirs. Staff may move it only to a patient
             // whose documents they may also change.
             $bootstrapPid = $globalsBag->get('bootstrap_pid');
-            $onsitedocument->Pid = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'pid', $owner);
-            PortalPatientAccessGuard::assertCanWriteDocuments($onsitedocument->Pid);
+            $document['pid'] = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'pid', $owner);
+            PortalPatientAccessGuard::assertCanWriteDocuments($document['pid']);
             // Set values from API interface.
-            $onsitedocument->Facility = $this->SafeGetVal($json, 'facility', $onsitedocument->Facility);
-            $onsitedocument->Provider = $this->SafeGetVal($json, 'provider', $onsitedocument->Provider);
-            $onsitedocument->Encounter = $this->SafeGetVal($json, 'encounter', $onsitedocument->Encounter);
-            $onsitedocument->CreateDate = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'createDate', $onsitedocument->CreateDate)));
-            $onsitedocument->DocType = $this->SafeGetVal($json, 'docType', $onsitedocument->DocType);
-            $onsitedocument->PatientSignedStatus = $this->SafeGetVal($json, 'patientSignedStatus', $onsitedocument->PatientSignedStatus);
-            $onsitedocument->PatientSignedTime = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'patientSignedTime', $onsitedocument->PatientSignedTime)));
-            $onsitedocument->AuthorizeSignedTime = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'authorizeSignedTime', $onsitedocument->AuthorizeSignedTime)));
-            $onsitedocument->AcceptSignedStatus = $this->SafeGetVal($json, 'acceptSignedStatus', $onsitedocument->AcceptSignedStatus);
-            $onsitedocument->AuthorizingSignator = $this->SafeGetVal($json, 'authorizingSignator', $onsitedocument->AuthorizingSignator);
-            $onsitedocument->ReviewDate = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'reviewDate', $onsitedocument->ReviewDate)));
-            $onsitedocument->DenialReason = $this->SafeGetVal($json, 'denialReason', $onsitedocument->DenialReason);
-            $onsitedocument->AuthorizedSignature = $this->SafeGetVal($json, 'authorizedSignature', $onsitedocument->AuthorizedSignature);
-            $onsitedocument->PatientSignature = $this->SafeGetVal($json, 'patientSignature', $onsitedocument->PatientSignature);
-            $onsitedocument->FullDocument = $existing_template; // retain original template that was populated during create save.
-            $onsitedocument->FileName = $this->SafeGetVal($json, 'fileName', $onsitedocument->FileName);
-            $onsitedocument->FilePath = $this->SafeGetVal($json, 'filePath', $onsitedocument->FilePath);
-            $onsitedocument->TemplateData = $this->SafeGetVal($json, 'templateData', $onsitedocument->TemplateData);
-            $version = $this->SafeGetVal($json, 'version');
+            $document['facility'] = $this->SafeGetVal($json, 'facility', $document['facility']);
+            $document['provider'] = $this->SafeGetVal($json, 'provider', $document['provider']);
+            $document['encounter'] = $this->SafeGetVal($json, 'encounter', $document['encounter']);
+            $document['createDate'] = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'createDate', $document['createDate'])));
+            $document['docType'] = $this->SafeGetVal($json, 'docType', $document['docType']);
+            $document['patientSignedStatus'] = $this->SafeGetVal($json, 'patientSignedStatus', $document['patientSignedStatus']);
+            $document['patientSignedTime'] = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'patientSignedTime', $document['patientSignedTime'])));
+            $document['authorizeSignedTime'] = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'authorizeSignedTime', $document['authorizeSignedTime'])));
+            $document['acceptSignedStatus'] = $this->SafeGetVal($json, 'acceptSignedStatus', $document['acceptSignedStatus']);
+            $document['authorizingSignator'] = $this->SafeGetVal($json, 'authorizingSignator', $document['authorizingSignator']);
+            $document['reviewDate'] = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'reviewDate', $document['reviewDate'])));
+            $document['denialReason'] = $this->SafeGetVal($json, 'denialReason', $document['denialReason']);
+            $document['authorizedSignature'] = $this->SafeGetVal($json, 'authorizedSignature', $document['authorizedSignature']);
+            $document['patientSignature'] = $this->SafeGetVal($json, 'patientSignature', $document['patientSignature']);
+            $document['fullDocument'] = $existing_template; // retain original template that was populated during create save.
+            $document['fileName'] = $this->SafeGetVal($json, 'fileName', $document['fileName']);
+            $document['filePath'] = $this->SafeGetVal($json, 'filePath', $document['filePath']);
+            $document['templateData'] = $this->SafeGetVal($json, 'templateData', $document['templateData']);
 
-            $onsitedocument->Validate();
-            $errors = $onsitedocument->GetValidationErrors();
-            if (count($errors) > 0) {
+            $errors = OnsiteDocumentRepository::validate($document);
+            if ($errors !== []) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
-            } else {
-                $onsitedocument->Save();
-                $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
+                return;
             }
+            self::documents()->update($pk, $document);
+            $this->RenderJSON($document, $this->JSONPCallback());
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
@@ -390,19 +345,16 @@ class OnsiteDocumentController extends AppBasePortalController
     public function Delete()
     {
         try {
-            // TODO: if a soft delete is preferred, change this to update the deleted flag instead of hard-deleting
-            $pk = $this->GetRouter()->GetUrlParam('id');
-            $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
-            if (!$onsitedocument instanceof OnsiteDocument) {
-                throw new NotFoundException('Portal document not found');
+            $pk = self::documentId($this->GetRouter()->GetUrlParam('id'));
+            $document = self::documents()->find($pk);
+            if ($document === null) {
+                throw new PortalDocumentNotFoundException();
             }
-            PortalPatientAccessGuard::assertCanWriteDocuments($onsitedocument->Pid);
+            PortalPatientAccessGuard::assertCanWriteDocuments($document['pid']);
 
-            $onsitedocument->Delete();
+            self::documents()->delete($pk);
 
-            $output = new stdClass();
-
-            $this->RenderJSON($output, $this->JSONPCallback());
+            $this->RenderJSON(new stdClass(), $this->JSONPCallback());
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
@@ -411,57 +363,34 @@ class OnsiteDocumentController extends AppBasePortalController
     /**
      * The pid that owns a portal document.
      *
-     * @throws NotFoundException when no document has that id
+     * @throws PortalDocumentNotFoundException when no document has that id
      */
-    private static function documentOwner(mixed $documentId): int
+    private static function documentOwner(int $documentId): int
     {
-        $owner = QueryUtils::fetchSingleValue('SELECT `pid` FROM `onsite_documents` WHERE `id` = ?', 'pid', [$documentId]);
-        if (!is_numeric($owner)) {
-            throw new NotFoundException('Portal document not found');
-        }
-
-        return intval($owner);
+        return self::documents()->owner($documentId) ?? throw new PortalDocumentNotFoundException();
     }
 
-    // TODO Eventually remove but I want to keep around for a bit as it's a pretty clever routine.
-    // TODO I may find a use for it!
-    /* private function diff($old, $new): array
-     {
-         $matrix = array();
-         $maxlen = 0;
-         foreach ($old as $oindex => $ovalue) {
-             $nkeys = array_keys($new, $ovalue);
-             foreach ($nkeys as $nindex) {
-                 $matrix[$oindex][$nindex] = isset($matrix[$oindex - 1][$nindex - 1]) ?
-                     $matrix[$oindex - 1][$nindex - 1] + 1 : 1;
-                 if ($matrix[$oindex][$nindex] > $maxlen) {
-                     $maxlen = $matrix[$oindex][$nindex];
-                     $omax = $oindex + 1 - $maxlen;
-                     $nmax = $nindex + 1 - $maxlen;
-                 }
-             }
-         }
-         if ($maxlen == 0) {
-             return array(array('d' => $old, 'i' => $new));
-         }
-         return array_merge(
-             $this->diff(array_slice($old, 0, $omax), array_slice($new, 0, $nmax)),
-             array_slice($new, $nmax, $maxlen),
-             $this->diff(array_slice($old, $omax + $maxlen), array_slice($new, $nmax + $maxlen))
-         );
-     }
+    private static function documentId(mixed $id): int
+    {
+        $id = filter_var($id, FILTER_VALIDATE_INT);
+        if (!is_int($id) || $id <= 0) {
+            throw new PortalDocumentNotFoundException();
+        }
 
-     private function htmlDiff($old, $new): string
-     {
-         $ret = '';
-         $diff = $this->diff(preg_split("/[\s]+/", $old), preg_split("/[\s]+/", $new));
-         foreach ($diff as $k) {
-             if (is_array($k)) {
-                 $ret .= (!empty($k['i']) ? attr(implode(' ', $k['i'])) : '');
-             } else {
-                 $ret .= $k . ' ';
-             }
-         }
-         return $ret;
-     }*/
+        return $id;
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     * @return array<string, mixed>
+     */
+    private static function inColumnOrder(array $document): array
+    {
+        return array_merge(array_intersect_key(OnsiteDocumentRepository::COLUMNS, $document), $document);
+    }
+
+    private static function documents(): OnsiteDocumentRepository
+    {
+        return new OnsiteDocumentRepository();
+    }
 }

@@ -21,7 +21,7 @@ use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
@@ -70,17 +70,17 @@ final class OnsiteDocumentControllerAccessTest extends TestCase
         return [
             'documents page' => ['ListView', [['assertCanReadDocuments', '$pid']]],
             'list' => ['Query', [['assertCanReadDocuments', '$pid']]],
-            'read' => ['Read', [['assertCanReadDocuments', '$onsitedocument->Pid']]],
-            'create' => ['Create', [['assertCanAddDocument', '$onsitedocument->Pid']]],
+            'read' => ['Read', [['assertCanReadDocuments', '$document[\'pid\']']]],
+            'create' => ['Create', [['assertCanAddDocument', '$document[\'pid\']']]],
             'update' => ['Update', [
                 // before loading: the owner on file
                 ['assertCanWriteDocuments', 'self::documentOwner($pk)'],
                 // after loading, in case the document moved in between
                 ['assertCanWriteDocuments', '$owner'],
                 // the patient the document is saved under
-                ['assertCanWriteDocuments', '$onsitedocument->Pid'],
+                ['assertCanWriteDocuments', '$document[\'pid\']'],
             ]],
-            'delete' => ['Delete', [['assertCanWriteDocuments', '$onsitedocument->Pid']]],
+            'delete' => ['Delete', [['assertCanWriteDocuments', '$document[\'pid\']']]],
         ];
     }
 
@@ -114,40 +114,37 @@ final class OnsiteDocumentControllerAccessTest extends TestCase
 
         $this->assertCount(1, $owners);
         $this->assertInstanceOf(Assign::class, $owners[0]);
-        $this->assertSame('$onsitedocument->Pid', (new Standard())->prettyPrintExpr($owners[0]->expr));
+        $this->assertSame('$document[\'pid\']', (new Standard())->prettyPrintExpr($owners[0]->expr));
     }
 
-    public function testQueryPinsThePatientAfterTheRequestFilters(): void
+    public function testQueryListsOnlyTheCheckedPatient(): void
     {
         $finder = new NodeFinder();
         $statements = $this->method('Query')->stmts ?? [];
-        $applyLine = null;
-        $pinLines = [];
-        foreach ($finder->find($statements, static fn(Node $node): bool => $node instanceof MethodCall || $node instanceof Assign) as $node) {
-            if (
-                $node instanceof MethodCall
+
+        $requestFilters = $finder->find(
+            $statements,
+            static fn(Node $node): bool => $node instanceof MethodCall
                 && $node->name instanceof Identifier
-                && $node->name->toString() === 'ApplyRequestEqualsFilters'
-            ) {
-                $applyLine = $node->getStartLine();
-            }
-            if (
-                $node instanceof Assign
-                && $node->var instanceof PropertyFetch
-                && $node->var->name instanceof Identifier
-                && $node->var->name->toString() === 'Pid_Equals'
-                && $node->expr instanceof Variable
-                && $node->expr->name === 'pid'
-            ) {
-                $pinLines[] = $node->getStartLine();
+                && $node->name->toString() === 'ApplyRequestEqualsFilters',
+        );
+        $this->assertSame([], $requestFilters, 'request keys such as pid=… must not become list filters');
+
+        $query = $finder->findFirst(
+            $statements,
+            static fn(Node $node): bool => $node instanceof New_
+                && $node->class instanceof Name
+                && $node->class->getLast() === 'OnsiteDocumentListQuery',
+        );
+        $this->assertInstanceOf(New_::class, $query, 'Query builds a document list query');
+        $pid = null;
+        foreach ($query->args as $arg) {
+            if ($arg instanceof Arg && $arg->name instanceof Identifier && $arg->name->toString() === 'pid') {
+                $pid = $arg->value;
             }
         }
-
-        $this->assertIsInt($applyLine, 'Query applies the request filters');
-        $this->assertNotEmpty(
-            array_filter($pinLines, static fn(int $line): bool => $line > $applyLine),
-            'a request key such as pid=… must not replace the checked patient',
-        );
+        $this->assertInstanceOf(Variable::class, $pid, 'the list query names its patient');
+        $this->assertSame('pid', $pid->name, 'the list is for the patient the guard checked');
     }
 
     private function method(string $name): ClassMethod

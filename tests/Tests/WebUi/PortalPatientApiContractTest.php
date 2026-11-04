@@ -256,6 +256,16 @@ final class PortalPatientApiContractTest extends TestCase
     }
 
     #[Test]
+    public function documentListFilterMatchesText(): void
+    {
+        $id = $this->createDocument();
+        $base = '/portal/patient/api/onsitedocuments?patientId=' . self::$pid . '&showActive=true&filter=';
+
+        $this->assertContains((string) $id, $this->documentIds($this->json($this->get($base . 'Hipaa'))));
+        $this->assertSame([], $this->documentIds($this->json($this->get($base . rawurlencode("zz' OR '1'='1")))));
+    }
+
+    #[Test]
     public function documentListRequiresAPatientAndIgnoresAPidKey(): void
     {
         $this->createDocument();
