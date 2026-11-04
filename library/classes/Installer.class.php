@@ -1549,12 +1549,6 @@ $config = 1; /////////////
             return false;
         }
 
-        // Write the sql configuration file
-        $this->logger->debug('Writing configuration file');
-        if (! $this->write_configuration_file()) {
-            return false;
-        }
-
         // Load the version information, globals settings,
         // initial user, and set up gacl access controls.
         // (applicable if not cloning from another database)
@@ -1592,6 +1586,25 @@ $config = 1; /////////////
             if (! $this->on_care_coordination()) {
                 return false;
             }
+        }
+
+        // Write the sql configuration file last so that the "$config = 1"
+        // marker — the signal every entrypoint uses to decide whether
+        // auto_configure.php needs to run — is only persisted after the
+        // schema load, admin user, ACL groups, additional service users,
+        // and care-coordination hookup have ALL committed. A container
+        // killed mid-install (e.g. a Kubernetes startup-probe timeout
+        // while quick_install is still executing) then restarts with
+        // $config = 0 and the entrypoint re-runs the install cleanly,
+        // which drops+recreates tables in load_dumpfiles() rather than
+        // leaving behind a half-seeded database. Previously this file was
+        // written right after load_dumpfiles(), so a crash between there
+        // and install_gacl() left sqlconf.php advertising "configured"
+        // while gacl_groups_aro_map had no admin row — manifesting as a
+        // flaky AclMain::aclCheckCore() failure in Kubernetes CI.
+        $this->logger->debug('Writing configuration file');
+        if (! $this->write_configuration_file()) {
+            return false;
         }
 
         return true;

@@ -695,6 +695,94 @@ class InstallerTest extends TestCase
         $this->assertTrue($result);
     }
 
+    /**
+     * quick_install() must only persist the "$config = 1" marker to
+     * sites/default/sqlconf.php — via write_configuration_file() — AFTER
+     * every seeding step (schema load, version, globals, initial user,
+     * gacl install, additional users, care coordination) has committed.
+     *
+     * The flex / release entrypoint reads $config to decide whether
+     * auto_configure.php needs to run. If write_configuration_file()
+     * fires before install_gacl() / add_initial_user() and the container
+     * is killed in between (e.g. a Kubernetes startup-probe timeout),
+     * the restarted container sees $config = 1, skips auto_configure,
+     * and signals Ready on top of a half-seeded database where admin
+     * exists in `users` but no row maps admin to the Administrators
+     * group in gacl_groups_aro_map. aclCheckCore('patients', 'demo',
+     * 'admin') then returns false and AclMainTest flakes.
+     */
+    public function testQuickInstallWritesConfigurationFileAfterSeedingSteps(): void
+    {
+        $mockInstaller = $this->createMockInstaller([], [
+            'add_initial_user',
+            'add_version_info',
+            'create_database',
+            'create_database_user',
+            'disconnect',
+            'grant_privileges',
+            'igroup_is_valid',
+            'install_additional_users',
+            'install_gacl',
+            'insert_globals',
+            'iuser_is_valid',
+            'load_dumpfiles',
+            'login_is_valid',
+            'on_care_coordination',
+            'password_is_valid',
+            'root_database_connection',
+            'user_database_connection',
+            'user_password_is_valid',
+            'write_configuration_file',
+        ]);
+
+        $mockInstaller->method('login_is_valid')->willReturn(true);
+        $mockInstaller->method('iuser_is_valid')->willReturn(true);
+        $mockInstaller->method('user_password_is_valid')->willReturn(true);
+        $mockInstaller->method('igroup_is_valid')->willReturn(true);
+        $mockInstaller->method('password_is_valid')->willReturn(true);
+        $mockInstaller->method('root_database_connection')->willReturn(true);
+        $mockInstaller->method('user_database_connection')->willReturnOnConsecutiveCalls(false, true);
+        $mockInstaller->method('disconnect')->willReturn(true);
+        $mockInstaller->method('create_database')->willReturn(true);
+        $mockInstaller->method('create_database_user')->willReturn(true);
+        $mockInstaller->method('grant_privileges')->willReturn(true);
+
+        $callOrder = [];
+        $track = static function (string $name) use (&$callOrder): bool {
+            $callOrder[] = $name;
+            return true;
+        };
+        $mockInstaller->method('load_dumpfiles')->willReturnCallback(static function () use ($track): string {
+            $track('load_dumpfiles');
+            return "ok";
+        });
+        $mockInstaller->method('add_version_info')->willReturnCallback(static fn(): bool => $track('add_version_info'));
+        $mockInstaller->method('insert_globals')->willReturnCallback(static fn(): bool => $track('insert_globals'));
+        $mockInstaller->method('add_initial_user')->willReturnCallback(static fn(): bool => $track('add_initial_user'));
+        $mockInstaller->method('install_gacl')->willReturnCallback(static fn(): bool => $track('install_gacl'));
+        $mockInstaller->method('install_additional_users')->willReturnCallback(static fn(): bool => $track('install_additional_users'));
+        $mockInstaller->method('on_care_coordination')->willReturnCallback(static fn(): bool => $track('on_care_coordination'));
+        $mockInstaller->method('write_configuration_file')->willReturnCallback(static fn(): bool => $track('write_configuration_file'));
+
+        $this->assertTrue($mockInstaller->quick_install());
+
+        // write_configuration_file() must run exactly once, and must run
+        // after every seeding step. This locks the ordering so a future
+        // refactor can't silently reintroduce the Kubernetes AclMain flake.
+        $writeIndex = array_search('write_configuration_file', $callOrder, true);
+        $this->assertNotFalse($writeIndex, 'write_configuration_file() was not invoked');
+
+        foreach (['load_dumpfiles', 'add_version_info', 'insert_globals', 'add_initial_user', 'install_gacl', 'install_additional_users', 'on_care_coordination'] as $seedingStep) {
+            $seedIndex = array_search($seedingStep, $callOrder, true);
+            $this->assertNotFalse($seedIndex, "$seedingStep was not invoked");
+            $this->assertGreaterThan(
+                $seedIndex,
+                $writeIndex,
+                "write_configuration_file() must run after $seedingStep — otherwise a container killed between $seedingStep and write_configuration_file leaves sqlconf.php advertising 'configured' on top of a half-seeded database"
+            );
+        }
+    }
+
     public function testQuickInstallFailsOnLoginValidation(): void
     {
         $mockInstaller = $this->createMockInstaller([], ['login_is_valid']);
