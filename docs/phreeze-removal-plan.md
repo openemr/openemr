@@ -1,6 +1,7 @@
 # Removing Phreeze from the patient portal
 
-Status: plan. Branch `remove-phreeze`, based on master `3b309e05ac` (2026-11-03).
+Status: PR 1 (#15021) and PR 2 (#15020) merged; PR 3 built on branch `replace-phreeze`. See
+[Outcome of PR 3](#outcome-of-pr-3) for how it differs from the plan below.
 
 Phreeze is the LGPL PHP framework that serves everything under `/portal/patient/`. It provides the
 routing (`Dispatcher`, `GenericRouter`), the controller base (`PortalController`), the ORM
@@ -321,3 +322,31 @@ Decided on 2026-11-04:
 3. Commit 1 adds HTTP contract tests (`webui` suite) and no E2E. The pages are checked by hand at the end.
 4. Replacing the Backbone front end stays out of scope, as the plan proposed. This one was not
    asked separately; raise it if it should change.
+
+## Outcome of PR 3
+
+PR 3 was built as planned, with these differences:
+
+- **Commit 1** is HTTP contract tests in the `webui` suite (`PortalPatientApiContractTest`), run as
+  staff against the live app. A capture of every page and API response before and after each step
+  (a local script, not committed) confirmed the output matched, apart from the changes below.
+- **Commit 6** has no commit of its own. The CSRF check shipped in #15033, which PR 3 builds on;
+  commit 5 keeps it in the new entry point and moves its test.
+- **`_machine_config.php`** stays a script rather than becoming a class: it loads
+  `interface/globals.php`, which has to run at file scope.
+- **No CHANGELOG entry.** The CHANGELOG is written by the release tooling.
+- **`UnserializeAllowedClassesTest`**, which only tested `ConnectionSetting`, is deleted in commit 8
+  rather than commit 4.
+
+Behaviour changes in PR 3:
+
+- The documents list's free-text filter works; it crashed on master.
+- Other `*_Equals` request keys no longer filter the documents list. The pages never sent them.
+- Paging figures in the documents list are numbers instead of strings.
+- Self-registration creates the chart through `PatientService::databaseInsert` (uuid, events) and
+  stores the pid it returns in `verify_email.pid_holder` after the insert.
+- Registration's empty profile is one row of empty fields, not one row per `patient_data` column.
+- Commit to Chart saves through `PatientService::databaseUpdate` (update stamp, events).
+- Refused and failed API calls send their JSON error as `application/json`; JSONP is gone.
+- Escaping fixes (bug 5): `cuser` and `webRoot` JS values, the provider select values and the
+  documents page's `csrf_token_form` inputs.

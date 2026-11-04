@@ -1,22 +1,18 @@
 <?php
 
 /**
- * @package Patient
+ * Session bootstrap for portal/patient: uses the portal patient's (or registering visitor's)
+ * session, or else the staff session, which must hold the patientportal/portal ACL. Loads
+ * interface/globals.php, so it has to be required at file scope from portal/patient/index.php.
  *
- * MACHINE-SPECIFIC CONFIGURATION SETTINGS
+ * Began as the Phreeze package's machine configuration; none of that code remains.
  *
- * The configuration settings in this file can be changed to suit the
- * machine on which the app is running (ex. local, staging or production).
- *
- * This file should not be added to version control, rather a template
- * file should be added instead and then copied for each install
- *
- * From phreeze package
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
- *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-/* */
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
