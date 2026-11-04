@@ -20,7 +20,11 @@ use PHPUnit\Framework\TestCase;
 
 class Hl7UnitsTest extends TestCase
 {
-    /** @return array<string, array{string, string, string}> unit, then OBX-6 and RXA-7 */
+    /**
+     * @return array<string, array{string, string, string}> unit, then OBX-6 and RXA-7
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
     public static function units(): array
     {
         return [
@@ -31,6 +35,7 @@ class Hl7UnitsTest extends TestCase
             'grams, which is g in UCUM' => ['grams', '^grams', 'g^grams^UCUM^^^'],
             'an option id, not a unit' => ['9', '9^^UCUM', '^9^^^^'],
             'mg/1cc' => ['mg/1cc', '^mg/1cc', '^mg/1cc^^^^'],
+            'an exponent past the integer range' => ['L4000000000000000000', '^L4000000000000000000', '^L4000000000000000000^^^^'],
             'no unit' => ['', '', ''],
             'a UCUM unit with spaces around it' => [' mL ', 'mL^^UCUM', 'mL^mL^UCUM^^^'],
             'free text with spaces around it' => [' bpm ', '^bpm', '^bpm^^^^'],

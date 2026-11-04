@@ -11,7 +11,9 @@
  */
 
 use OpenEMR\Common\Session\PortalPatientAccessGuard;
-use OpenEMR\Common\Session\PortalSessionPidGuard;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
 /**
  * PatientController is the controller class for the Patient object.
@@ -36,72 +38,6 @@ class PortalPatientController extends AppBasePortalController
     }
 
     /**
-     * Displays a list view of Patient objects
-     */
-    public function ListView()
-    {
-        $rid = $pid = $user = $encounter = 0;
-        if (isset($_GET['id'])) {
-            $rid = (int) $_GET['id'];
-        }
-
-        if (isset($_GET['pid'])) {
-            $pid = (int) $_GET['pid'];
-        }
-
-        if (isset($_GET['user'])) {
-            $user = $_GET['user'];
-        }
-
-        if (isset($_GET['enc'])) {
-            $encounter = $_GET['enc'];
-        }
-
-        $this->Assign('recid', $rid);
-        $this->Assign('cpid', $pid);
-        $this->Assign('cuser', $user);
-        $this->Assign('encounter', $encounter);
-        $this->Render();
-    }
-
-    /**
-     * API Method queries for Patient records and render as JSON
-     */
-    public function Query()
-    {
-        try {
-            $criteria = new PatientCriteria();
-            // Bind to the validated bootstrap pid; a null/empty value would
-            // cause PatientReporter to skip its zero-pid branch and return
-            // every patient row.
-            $criteria->Pid_Equals = PortalSessionPidGuard::requireBootstrapPid();
-
-            $output = new stdClass();
-
-            // if a sort order was specified then specify in the criteria
-            $output->orderBy = RequestUtil::Get('orderBy');
-            $output->orderDesc = RequestUtil::Get('orderDesc') != '';
-            if ($output->orderBy) {
-                $criteria->SetOrder($output->orderBy, $output->orderDesc);
-            }
-
-            $page = RequestUtil::Get('page');
-
-            // return all results
-            $patientdata = $this->Phreezer->Query('PatientReporter', $criteria);
-            $output->rows = $patientdata->ToObjectArray(true, $this->SimpleObjectParams());
-            $output->totalResults = count($output->rows);
-            $output->totalPages = 1;
-            $output->pageSize = $output->totalResults;
-            $output->currentPage = 1;
-
-            $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (\Throwable $ex) {
-            $this->RenderExceptionJSON($ex);
-        }
-    }
-
-    /**
      * API Method retrieves a single Patient record and render as JSON
      */
     public function Read()
@@ -114,9 +50,8 @@ class PortalPatientController extends AppBasePortalController
                 throw new Exception('Not found');
             }
             PortalPatientAccessGuard::assertCanRead($patient->Pid);
-            $appsql = new ApplicationTable();
-            $edata = $appsql->getPortalAudit($patient->Pid, 'review');
-            $changed = !empty($edata['table_args']) ? unserialize($edata['table_args'], ['allowed_classes' => false]) : [];
+            $pending = ReviewQueueFactory::portalWorkflows()->pendingProfileChange($patient->Pid);
+            $changed = $pending->payload ?? [];
             $newv = [];
             foreach ($changed as $key => $val) {
                 $newv[lcfirst(ucwords((string) preg_replace_callback("/(\_(.))/", fn($match): string => strtoupper($match[2]), strtolower((string) $key))))] = $val;
@@ -231,67 +166,17 @@ class PortalPatientController extends AppBasePortalController
             $this->RenderExceptionJSON($ex);
         }
     }
-    public function SaveAudit($p)
-    {
-        $appsql = new ApplicationTable();
-        $ja = $p->GetArray();
-        $ja['note'] = $p->Note;
-        try {
-            $audit =  [];
-            // date("Y-m-d H:i:s");
-            $audit['patient_id'] = $ja['pid'];
-            $audit['activity'] = "profile";
-            $audit['require_audit'] = "1";
-            $audit['pending_action'] = "review";
-            $audit['action_taken'] = "";
-            $audit['status'] = "waiting";
-            $audit['narrative'] = "Patient request changes to demographics.";
-            $audit['table_action'] = "";
-            $audit['table_args'] = $ja; // edited record
-            $audit['action_user'] = "0";
-            $audit['action_taken_time'] = "";
-            $audit['checksum'] = "0";
-
-            // returns false for new audit
-            $edata = $appsql->getPortalAudit($ja['pid'], 'review');
-            if ($edata) {
-                if (empty($edata['id'])) {
-                    throw new Exception("Invalid ID on Save!");
-                }
-                $audit['date'] = $edata['date'] ?? null;
-                $appsql->portalAudit('update', $edata['id'], $audit);
-            } else {
-                $appsql->portalAudit('insert', '', $audit);
-            }
-        } catch (\Throwable $ex) {
-            $this->RenderExceptionJSON($ex);
-        }
-    }
     /**
-     * API Method deletes an existing Patient record and render response as JSON
+     * Holds the patient's edit for staff review. A second edit before review replaces the first.
      */
-    public function Delete()
+    public function SaveAudit(Patient $p): void
     {
-        try {
-            // TODO: if a soft delete is preferred, change this to update the deleted flag instead of hard-deleting
-
-            $pk = $this->GetRouter()->GetUrlParam('id');
-            $patient = $this->Phreezer->Get('Patient', $pk);
-            if (!($patient instanceof Patient)) {
-                throw new Exception('Not found');
-            }
-            PortalSessionPidGuard::assertOwnedBySession(
-                $patient->Pid,
-                PortalSessionPidGuard::requireBootstrapPid(),
-            );
-
-            $patient->Delete();
-
-            $output = new stdClass();
-
-            $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (\Throwable $ex) {
-            $this->RenderExceptionJSON($ex);
-        }
+        $changes = $p->GetArray();
+        $changes['note'] = $p->Note;
+        ReviewQueueFactory::portalWorkflows()->submitProfileChange(
+            $p->Pid,
+            $changes,
+            SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession()),
+        );
     }
 }

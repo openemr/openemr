@@ -19,7 +19,9 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCareTeam;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCareTeam\FHIRCareTeamParticipant;
@@ -119,9 +121,9 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         $fhirMeta->addProfile(self::USCGI_PROFILE_URI);
 
         if (!empty($dataRecord['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $careTeamResource->setMeta($fhirMeta);
 
@@ -609,9 +611,11 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                 $participant = new FHIRCareTeamParticipant();
 
                 // Set period if provider_since is available
-                if (!empty($dataRecordProvider['provider_since'])) {
+                $providerSince = $dataRecordProvider['provider_since'] ?? null;
+                if (is_string($providerSince) && $providerSince !== '') {
                     $period = new FHIRPeriod();
-                    $period->setStart($dataRecordProvider['provider_since']);
+                    // provider_since is a DATE; a date-only dateTime keeps its precision.
+                    $period->setStart(new FHIRDateTime($providerSince));
                     $participant->setPeriod($period);
                 }
 

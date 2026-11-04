@@ -307,11 +307,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/IRouter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#3 \\$params \\(string\\) of method MockRouter\\:\\:GetUrl\\(\\) is incompatible with type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#3 \\$params \\(string\\) of method PortalController\\:\\:Redirect\\(\\) is incompatible with type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',

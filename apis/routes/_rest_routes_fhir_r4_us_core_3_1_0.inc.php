@@ -410,7 +410,7 @@ return [
             // only allow access to data of binded patient
             $return = $controller->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::request_authorization_check($request, "admin", "super");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = $controller->getAll($getParams);
         }
 
@@ -423,7 +423,7 @@ return [
             // only allow access to data of binded patient
             $return = $controller->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::request_authorization_check($request, "admin", "super");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = $controller->getOne($uuid);
         }
 

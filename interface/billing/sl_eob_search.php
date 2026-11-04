@@ -29,13 +29,19 @@
 
 
 use Mpdf\Mpdf;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\EraFilenameValidator;
 use OpenEMR\Billing\InvoiceServiceDates;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Billing\Statement\PatientCreditEncounters;
+use OpenEMR\Billing\Statement\PatientNetDue;
+use OpenEMR\Billing\Statement\StatementDelivery;
+use OpenEMR\Billing\Statement\StatementInvoices;
 use OpenEMR\Billing\Statement\StatementLines;
-use OpenEMR\Billing\Statement\StatementRecipient;
+use OpenEMR\Billing\Statement\StatementRun;
+use OpenEMR\Billing\Statement\StatementRunResult;
+use OpenEMR\Billing\Statement\StatementRunSteps;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -50,6 +56,8 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Pdf\Config_Mpdf;
+use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use Symfony\Component\Process\Process;
 
 require_once("../globals.php");
@@ -82,7 +90,6 @@ $form_cb = false;
 if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
     /* Addition of onsite portal patient notify of invoice and reformatted invoice - sjpadgett 01/2017 */
     require_once("../../portal/lib/portal_mail.inc.php");
-    require_once("../../portal/lib/appsql.class.php");
 
     function is_auth_portal($pid = 0): bool
     {
@@ -137,32 +144,18 @@ if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
         return true;
     }
 
-    function SavePatientAudit($pid, $invs)
+    /**
+     * Asks the patient to pay these invoices online. A newer request replaces the one still
+     * waiting on the patient.
+     */
+    function SavePatientAudit($pid, $invs): bool
     {
-        $appsql = new ApplicationTable();
-        try {
-            $audit = [];
-            $audit['patient_id'] = $pid;
-            $audit['activity'] = "invoice";
-            $audit['require_audit'] = "0";
-            $audit['pending_action'] = "payment";
-            $audit['action_taken'] = "";
-            $audit['status'] = "waiting transaction";
-            $audit['narrative'] = "Request patient online payment.";
-            $audit['table_action'] = '';
-            $audit['table_args'] = json_encode($invs);
-            $audit['action_user'] = $pid;
-            $audit['action_taken_time'] = "";
-            $audit['checksum'] = "";
-            $edata = $appsql->getPortalAudit($pid, 'payment', 'invoice', "waiting transaction", 0);
-            if ($edata['id'] > 0) {
-                $appsql->portalAudit('update', $edata['id'], $audit);
-            } else {
-                $appsql->portalAudit('insert', '', $audit);
-            }
-        } catch (\Throwable $ex) {
-            return $ex;
+        $patientId = filter_var($pid, FILTER_VALIDATE_INT);
+        if (!is_int($patientId) || $patientId <= 0 || !is_array($invs)) {
+            return false;
         }
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        ReviewQueueFactory::portalWorkflows()->requestInvoicePayment($patientId, $invs, SessionReviewActor::staff($session));
 
         return true;
     }
@@ -377,264 +370,144 @@ if (
         CsrfUtils::csrfNotVerified();
     }
 
-    $fhprint = fopen($STMT_TEMP_FILE, 'w');
-
-    $sqlBindArray = [];
-    $where = "";
     /** @var list<int> $checkedEncounterIds form_encounter.id of every checked invoice */
     $checkedEncounterIds = [];
-    foreach ($_REQUEST['form_cb'] as $key => $value) {
-        $where .= " OR f.id = ?";
-        array_push($sqlBindArray, $key);
+    $checkedBoxes = $_REQUEST['form_cb'];
+    foreach (is_array($checkedBoxes) ? array_keys($checkedBoxes) : [] as $key) {
         if (is_numeric($key)) {
             $checkedEncounterIds[] = (int) $key;
         }
     }
+    $runRequest = CurrentRequest::get()->request;
+    $delivery = match (true) {
+        $runRequest->getString('form_portalnotify') !== '' => StatementDelivery::Portal,
+        $runRequest->getString('form_email') !== '' => StatementDelivery::Email,
+        $runRequest->getString('form_download') !== '' => StatementDelivery::Download,
+        $runRequest->getString('form_pdf') !== '' => StatementDelivery::Pdf,
+        default => StatementDelivery::Print,
+    };
 
-    if (!empty($where)) {
-        $where = substr($where, 4);
-        $where = '( ' . $where . ' ) AND';
-    }
+    $statementFile = is_string($STMT_TEMP_FILE) ? $STMT_TEMP_FILE : '';
+    // The run's database work and the site's statement layout, email and portal.
+    $steps = new class ($statementFile, $today) implements StatementRunSteps {
+        public function __construct(private readonly string $portalTemplateFile, private readonly string $today)
+        {
+        }
 
-    $res = sqlStatement("SELECT " .
-        "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note as enc_billing_note, " .
-        "p.fname, p.mname, p.lname, p.street, p.street_line_2, p.city, p.state, p.postal_code, p.billing_note as pat_billing_note, " .
-        "p.guardiansname, p.guardianaddress, p.guardiancity, p.guardianstate, p.guardianpostalcode, f.provider_id " .
-        "FROM form_encounter AS f, patient_data AS p " .
-        "WHERE $where " .
-        "p.pid = f.pid " .
-        "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter", $sqlBindArray);
+        public function appendInvoice(array &$stmt, int $pid, int $encounter, string $serviceDate, int $notice): void
+        {
+            StatementLines::append($stmt, $pid, $encounter, $serviceDate, $notice);
+        }
 
-    $stmt = [];
-    $stmt_count = 0;
+        public function creditEncounters(int $pid, array $excludedEncounterIds): array
+        {
+            return PatientCreditEncounters::find($pid, $excludedEncounterIds);
+        }
 
-    $flagT = true;
-    $aPatientFirstName = '';
-    $aPatientID = null;
-    $multiplePatients = false;
-    $usePatientNamePdf = false;
+        public function buildStatement(array $stmt): string
+        {
+            return (string) make_statement($stmt);
+        }
 
-    // get pids for delimits
-    // need to only use summary invoice for multi visits
-    $inv_pid = [];
-    $inv_count = -1;
-    if (!empty($_REQUEST['form_portalnotify'])) {
-        foreach ($_REQUEST['form_invpids'] as $key => $v) {
-            if ($_REQUEST['form_cb'][$key]) {
-                array_push($inv_pid, key($v));
+        public function saveDocument(int $pid, string $statement): void
+        {
+            $d = new Document();
+            $invoice_category_id = 0;
+            $catrow = QueryUtils::querySingleRow("SELECT id FROM categories WHERE name = ?", ['Invoices']);
+            if (!empty($catrow['id'])) {
+                $invoice_category_id = $catrow['id'];
             }
-        }
-    }
-    $rcnt = 0;
-    while ($row = sqlFetchArray($res)) {
-        $rows[] = $row;
-        if (empty($inv_pid[$rcnt])) {
-            array_push($inv_pid, $row['pid']);
-        }
-        $rcnt++;
-    }
-    // Invoices whose statement count and date are bumped once their patient's
-    // statement is actually produced; a Due Pt run that nets to nothing leaves
-    // them untouched.
-    $pendingStatementUpdates = [];
-    $recordStatementRun = function (array $encounterIds) use ($today): void {
-        foreach ($encounterIds as $encounterId) {
-            QueryUtils::sqlStatementThrowException(
-                "UPDATE form_encounter SET last_stmt_date = ?, stmt_count = stmt_count + 1 WHERE id = ?",
-                [$today, $encounterId]
+            // even if click download pdf the file content in $statement is text
+            // set mimetype and fileext based on statement appearance
+            $isPdf = (OEGlobalsBag::getInstance()->get('statement_appearance') == 1);
+            $fileext = $isPdf ? '.pdf' : '.txt';
+            $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
+            $mimetype = $isPdf ? 'pdf' : 'text/plain';
+            if ($isPdf) {
+                $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                if ($session->get('language_direction') === 'rtl') {
+                    $pdf2->SetDirectionality('rtl');
+                }
+                $pdf2->WriteHTML($statement);
+                $statement = $pdf2->Output('', 'S');
+            }
+            $d->createDocument(
+                (string) $pid,
+                $invoice_category_id, // TBD: Make sure not 0
+                $inv_filename,
+                $mimetype,
+                $statement
             );
+        }
+
+        public function email(int $pid, string $statement): void
+        {
+            if ($statement === '') {
+                throw new InvalidArgumentException('Statement message has no text content');
+            }
+            emailLogin($pid, $statement);
+        }
+
+        public function isPortalAuthorized(int $pid): bool
+        {
+            return function_exists('is_auth_portal') && is_auth_portal($pid);
+        }
+
+        public function notifyPortal(int $pid, array $invoices, string $statement, string $invoiceId): bool
+        {
+            // notify_portal() reads the statement from the file.
+            file_put_contents($this->portalTemplateFile, $statement);
+            $sent = function_exists('notify_portal') && notify_portal($pid, $invoices, $this->portalTemplateFile, $invoiceId);
+            file_put_contents($this->portalTemplateFile, '');
+            return $sent;
+        }
+
+        public function recordStatementRun(array $encounterIds): void
+        {
+            StatementInvoices::recordStatementRun($encounterIds, $this->today);
         }
     };
 
-    // This loops once for each invoice/encounter.
-    //
-    for ($rcnt = 0; $row = $rows[$rcnt] ?? null; $rcnt++) {
-        $svcdate = substr((string) $row['date'], 0, 10);
-        $duedate = $svcdate; // TBD?
-        $duncount = $row['stmt_count'];
-        $enc_note = $row['enc_billing_note'];
+    $result = (new StatementRun($steps, ServiceContainer::getLogger()))->run(
+        StatementInvoices::forRun($checkedEncounterIds),
+        $delivery,
+        !$DEBUG && empty($_REQUEST['form_without']),
+        $_REQUEST['form_category'] == 'Due Pt',
+        $today
+    );
+    file_put_contents($statementFile, $result->output);
 
-        if ($flagT) {
-            $flagT = false;
-            $aPatientFirstName = $row['fname'];
-            $aPatientID = $row['pid'];
-            $usePatientNamePdf = true;
-        } elseif (!$multiplePatients) {
-            if ($aPatientID != $row['pid']) {
-                $multiplePatients = true;
-                $aPatientFirstName = '';
-                $aPatientID = null;
-                $usePatientNamePdf = false;
-            }
-        }
-
-        // If this is a new patient then print the pending statement
-        // and start a new one.  This is an associative array:
-        //
-        //  cid     = same as pid
-        //  pid     = OpenEMR patient ID
-        //  patient = patient name
-        //  amount  = total amount due
-        //  adjust  = adjustments (already applied to amount)
-        //  duedate = due date of the oldest included invoice
-        //  age     = number of days from duedate to today
-        //  to      = array of addressee name/address lines
-        //  lines   = array of:
-        //    dos     = date of service "yyyy-mm-dd"
-        //    desc    = description
-        //    amount  = charge less adjustments
-        //    paid    = amount paid
-        //    notice  = 1 for first notice, 2 for second, etc.
-        //    detail  = array of details, see InvoiceSummary.php
-        //
-        if (empty($stmt['cid']) || ($stmt['cid'] != $row['pid'])) {
-            if (!empty($stmt)) {
-                ++$stmt_count;
-            }
-            $stmt['fid'] = $row['id'];
-            $stmt['cid'] = $row['pid'];
-            $stmt['pid'] = $row['pid'];
-            $stmt['dun_count'] = $row['stmt_count'];
-            $stmt['bill_note'] = $row['pat_billing_note'];
-            $stmt['enc_bill_note'] = $row['enc_billing_note'];
-            $stmt['bill_level'] = $row['last_level_billed'];
-            $stmt['level_closed'] = $row['last_level_closed'];
-            $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
-            $stmt['encounter'] = $row['encounter'];
-            $stmt['provider_id'] = $row['provider_id'];
-            // To the guardian (guarantor) in the patient's demographics when there is one,
-            // at their address when it is filled in; otherwise to the patient.
-            $stmt['to'] = StatementRecipient::lines(is_array($row) ? $row : []);
-            $stmt['lines'] = [];
-            $stmt['amount'] = '0.00';
-            $stmt['ins_paid'] = 0;
-            $stmt['today'] = $today;
-            $stmt['duedate'] = $duedate;
-        } else {
-            // Report the oldest due date.
-            if ($duedate < $stmt['duedate']) {
-                $stmt['duedate'] = $duedate;
-            }
-        }
-
-        // Recompute age at each invoice.
-        $stmt['age'] = round((strtotime($today) - strtotime((string) $stmt['duedate'])) / (24 * 60 * 60));
-
-        $rowPid = is_numeric($row['pid']) ? (int) $row['pid'] : 0;
-        $rowEncounter = is_numeric($row['encounter']) ? (int) $row['encounter'] : 0;
-        StatementLines::append($stmt, $rowPid, $rowEncounter, $svcdate, (is_numeric($duncount) ? (int) $duncount : 0) + 1);
-
-        // Record that this statement was run, once it is produced below.
-        if (!$DEBUG && empty($_REQUEST['form_without'])) {
-            $pendingStatementUpdates[] = $row['id'];
-        }
-        $inv_count += 1;
-
-        if ($inv_pid[$inv_count] != ($inv_pid[$inv_count + 1] ?? null)) {
-            // This was the patient's last checked invoice. Bring in the patient's
-            // other encounters that hold a credit (overpaid, never listed as due, so
-            // never checked) as their own dated lines, so the amount due nets them
-            // instead of billing the open encounters in full and collecting the
-            // overpayment a second time. Their statement counts are left alone.
-            foreach (PatientCreditEncounters::find($rowPid, $checkedEncounterIds) as $credit) {
-                StatementLines::append($stmt, $rowPid, $credit['encounter'], substr($credit['date'], 0, 10), $credit['stmt_count'] + 1);
-            }
-        }
-        if (!empty($_REQUEST['form_portalnotify'])) {
-            if (!is_auth_portal($stmt['pid'])) {
-                $alertmsg = xlt('Notification FAILED: Not Portal Authorized');
-                break;
-            }
-            $pvoice[] = $stmt;
-            // we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
-            if ($inv_pid[$inv_count] != $inv_pid[$inv_count + 1]) {
-                fwrite($fhprint, (string) make_statement($stmt));
-                if (!notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE, $stmt['pid'] . "-" . $stmt['encounter'])) {
-                    $alertmsg = xlt('Notification FAILED');
-                    break;
-                }
-                // Count the invoices as statemented only once the portal has the statement.
-                $recordStatementRun($pendingStatementUpdates);
-                $pendingStatementUpdates = [];
-
-                $pvoice = [];
-                flush();
-                ftruncate($fhprint, 0);
-            } else {
-                continue;
-            }
-        } else {
-            if ($inv_pid[$inv_count] != ($inv_pid[$inv_count + 1] ?? null)) {
-                $amountDue = is_numeric($stmt['amount'] ?? null) ? (float) $stmt['amount'] : 0.0;
-                if ($_REQUEST['form_category'] == 'Due Pt' && $amountDue <= 0) {
-                    // Nothing is due once the patient's credits are netted against the
-                    // checked invoices, so no statement goes out and its invoices are
-                    // not counted as statemented.
-                    $stmt = [];
-                    $pendingStatementUpdates = [];
-                } else {
-                    $recordStatementRun($pendingStatementUpdates);
-                    $pendingStatementUpdates = [];
-                    $tmp = make_statement($stmt);
-                    if (!empty($_REQUEST['form_email']) && $tmp !== '') {
-                        try {
-                            emailLogin($inv_pid[$inv_count], $tmp);
-                        } catch (RuntimeException $e) {
-                            $alertmsg = $e->getMessage();
-                        }
-                    }
-                    if (empty($tmp)) {
-                        $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . text($inv_pid[$inv_count]) . " " . xlt("Encounter") . ":" . text($stmt['encounter']) . "\n";
-                        $tmp .= "<br />\n\014<br /><br />";
-                    }
-                    fwrite($fhprint, (string) $tmp);
-                    // now save it to pt documents
-                    $d = new Document();
-                    $doc_pid = $inv_pid[$inv_count];
-                    $invoice_category_id = 0;
-                    $catrow = QueryUtils::querySingleRow("SELECT id FROM categories WHERE name = ?", ['Invoices']);
-                    if (!empty($catrow['id'])) {
-                        $invoice_category_id = $catrow['id'];
-                    }
-                    // even if click download pdf the file content in $tmp is text
-                    // set mimetype and fileext based on statement appearance
-                    $isPdf = (OEGlobalsBag::getInstance()->get('statement_appearance') == 1);
-                    $fileext = $isPdf ? '.pdf' : '.txt';
-                    $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
-                    $mimetype = $isPdf ? 'pdf' : 'text/plain';
-                    if ($isPdf) {
-                        $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
-                        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-                        if ($session->get('language_direction') === 'rtl') {
-                            $pdf2->SetDirectionality('rtl');
-                        }
-                        $pdf2->WriteHTML($tmp);
-                        $tmp = $pdf2->Output('', 'S');
-                    }
-                    $invoice = $d->createDocument(
-                        $doc_pid,
-                        $invoice_category_id, // TBD: Make sure not 0
-                        $inv_filename,
-                        $mimetype,
-                        $tmp
-                    );
-                }
-            }
-        }
-    } // end while
-
-    if (!empty($stmt)) {
-        ++$stmt_count;
+    if ($result->emailFailures !== []) {
+        $alertmsg = implode('; ', $result->emailFailures);
     }
-
-    fclose($fhprint);
-    sleep(1);
+    if ($result->portalError === StatementRunResult::PORTAL_NOT_AUTHORIZED) {
+        $alertmsg = xlt('Notification FAILED: Not Portal Authorized');
+    } elseif ($result->portalError === StatementRunResult::PORTAL_FAILED) {
+        $alertmsg = xlt('Notification FAILED');
+    }
+    $statementsWritten = $result->statementsWritten;
+    $skippedNothingDue = $result->skippedNothingDue;
+    $skippedMessage = $skippedNothingDue === [] ? '' : xl('No statement for') . ' ' . implode(', ', $skippedNothingDue)
+        . ': ' . xl('nothing is due after their credits.');
+    if ($result->skippedBelowMinimum !== []) {
+        $skippedMessage = trim($skippedMessage . ' ' . xl('No statement for') . ' ' . implode(', ', $result->skippedBelowMinimum)
+            . ': ' . xl('the amount due does not meet the minimum amount to print set in Globals.'));
+    }
     // Download or print the file, as selected
-    if (!empty($_REQUEST['form_download'])) {
+    if ($statementsWritten === 0 && $skippedMessage !== '' && $delivery !== StatementDelivery::Portal) {
+        // Every checked patient was skipped: say so rather than hand back an empty file.
+        $alertmsg = $skippedMessage;
+    } elseif ($delivery === StatementDelivery::Download) {
         upload_file_to_client($STMT_TEMP_FILE);
-    } elseif ($_REQUEST['form_pdf']) {
-        upload_file_to_client_pdf($STMT_TEMP_FILE, $aPatientFirstName, $aPatientID, $usePatientNamePdf);
-    } elseif ($_REQUEST['form_portalnotify']) {
+    } elseif ($delivery === StatementDelivery::Pdf) {
+        upload_file_to_client_pdf(
+            $STMT_TEMP_FILE,
+            $result->onlyPatient['firstName'] ?? '',
+            $result->onlyPatient['pid'] ?? null,
+            $result->onlyPatient !== null
+        );
+    } elseif ($delivery === StatementDelivery::Portal) {
         if ($alertmsg == "") {
             $alertmsg = xl('Sending Invoice to Patient Portal Completed');
         }
@@ -644,9 +517,12 @@ if (
         } else {
             (new Process([OPENEMR_PRINT_COMMAND, (string) $STMT_TEMP_FILE]))->run();
             if ($_REQUEST['form_without']) {
-                $alertmsg = xl('Now printing') . ' ' . $stmt_count . ' ' . xl('statements; invoices will not be updated.');
+                $alertmsg = xl('Now printing') . ' ' . $statementsWritten . ' ' . xl('statements; invoices will not be updated.');
             } else {
-                $alertmsg = xl('Now printing') . ' ' . $stmt_count . ' ' . xl('statements and updating invoices.');
+                $alertmsg = xl('Now printing') . ' ' . $statementsWritten . ' ' . xl('statements and updating invoices.');
+            }
+            if ($skippedMessage !== '') {
+                $alertmsg .= ' ' . $skippedMessage;
             }
         } // end not debug
     } // end not form_download
@@ -706,6 +582,9 @@ if ($searchRequest->getString('form_search') === 'Search') {
     }
     if ($lastStatementBefore !== '') {
         $searchFilters[] = xl('Last statement before') . ' ' . $shortDate($lastStatementBefore);
+    }
+    if ($searchRequest->getString('form_show_nothing_due') !== '') {
+        $searchFilters[] = xl('Showing patients with nothing due after credits');
     }
 }
 ?>
@@ -915,6 +794,10 @@ if ($searchRequest->getString('form_search') === 'Search') {
                             <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>:</label>
                             <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>:</label>
                             <input <?php echo (!empty($_REQUEST['only_with_debt'])) ? 'checked=checked' : ''; ?> type="checkbox" name="only_with_debt" id="only_with_debt" />
+                        </div>
+                        <div class="form-group col-lg">
+                            <label class="control-label" for="form_show_nothing_due" title="<?php echo xla('Due Pt: also list patients whose credits on other visits cover what they owe (no statement goes out for them)'); ?>"><?php echo xlt('Show Nothing Due'); ?>:</label>
+                            <input <?php echo $searchRequest->getString('form_show_nothing_due') !== '' ? 'checked=checked' : ''; ?> type="checkbox" name="form_show_nothing_due" id="form_show_nothing_due" value="1" />
                         </div>
                     </div>
                 </fieldset>
@@ -1216,6 +1099,9 @@ if ($searchRequest->getString('form_search') === 'Search') {
                             // Sort values for the column headers (sl_eob_search_sort.js): raw, not display-formatted.
                             $sortValue = static fn(mixed $value): string => is_scalar($value) ? (string) $value : '';
 
+                            // First pass: the invoices to list. The second pass draws them once
+                            // each patient's net is known.
+                            $listRows = [];
                             while ($row = sqlFetchArray($t_res)) {
                                 $balance = sprintf("%.2f", $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments']);
                                 //new filter only patients with debt.
@@ -1267,6 +1153,47 @@ if ($searchRequest->getString('form_search') === 'Search') {
                                     continue;
                                 }
 
+                                $listRows[] = [
+                                    'row' => $row,
+                                    'balance' => $balance,
+                                    'in_collections' => $in_collections,
+                                    'duncount' => $duncount,
+                                    'isduept' => $isduept,
+                                ];
+                            }
+
+                            // A Due Pt run nets each patient's credits on other visits against
+                            // the checked invoices and sends nothing when that leaves nothing
+                            // due, so those patients are hidden unless asked for, and unchecked.
+                            // Only the invoices the list pre-checks count, as in a default run.
+                            $nothingDue = [];
+                            if ($searchRequest->getString('form_category') === 'Due Pt') {
+                                $checkedIds = [];
+                                foreach ($listRows as $listRow) {
+                                    $listPid = $listRow['row']['pid'] ?? null;
+                                    $listId = $listRow['row']['id'] ?? null;
+                                    if ($listRow['isduept'] !== '' && is_numeric($listPid) && is_numeric($listId)) {
+                                        $checkedIds[(int) $listPid][] = (int) $listId;
+                                    }
+                                }
+                                $nothingDue = PatientNetDue::nothingDue($checkedIds);
+                            }
+                            $showNothingDue = $searchRequest->getString('form_show_nothing_due') !== '';
+                            $hiddenNothingDue = [];
+
+                            foreach ($listRows as ['row' => $row, 'balance' => $balance, 'in_collections' => $in_collections, 'duncount' => $duncount, 'isduept' => $isduept]) {
+                                $listPid = is_numeric($row['pid']) ? (int) $row['pid'] : 0;
+                                // Only the invoices a run would include (pre-checked) are covered;
+                                // an unchecked one, e.g. in collections, stays listed as before.
+                                $netDue = $isduept !== '' ? ($nothingDue[$listPid] ?? null) : null;
+                                if ($netDue !== null) {
+                                    if (!$showNothingDue) {
+                                        $hiddenNothingDue[$listPid] = true;
+                                        continue;
+                                    }
+                                    $isduept = '';
+                                }
+
                                 $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
 
                                 $svcdate = substr((string) $row['date'], 0, 10);
@@ -1304,6 +1231,10 @@ if ($searchRequest->getString('form_search') === 'Search') {
                                             <?php
                                             if ($in_collections) {
                                                 echo "<span class='font-weight-bold text-danger'>IC</span>";
+                                            }
+                                            if ($netDue !== null) {
+                                                echo " <span class='badge badge-info' title='" . xla('Credits on other visits cover what is owed; no statement goes out') . "'>"
+                                                    . xlt('credit') . ' ' . text(FormatMoney::getBucks($netDue)) . "</span>";
                                             } ?>
                                             <?php
                                             if (function_exists('is_auth_portal') ? is_auth_portal($row['pid']) : false) {
@@ -1325,7 +1256,14 @@ if ($searchRequest->getString('form_search') === 'Search') {
                                     </td>
                                 </tr>
                                 <?php
-                            } // end while
+                            } // end foreach
+                            if ($hiddenNothingDue !== []) { ?>
+                                <tr id="nothing-due-hidden">
+                                    <td colspan="12" class="text-muted">
+                                        <?php echo xlt('Hidden, nothing due after credits') . ': ' . text((string) count($hiddenNothingDue)) . ' ' . xlt('patient(s). Their credits on other visits cover what they owe, so no statement goes out. Tick Show Nothing Due to list them.'); ?>
+                                    </td>
+                                </tr>
+                            <?php }
                         } // end search/print logic
                         ?>
                         </table>

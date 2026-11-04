@@ -58,7 +58,7 @@ class ControllerLog extends BaseController
         $form_end_date = DateTimeToYYYYMMDDHHMMSS(Common::get('form_end_date', ''));
 
         $records = $this->getLogRecordsFromRequest($form_begin_date, $form_end_date);
-        $writer = Writer::createFromString();
+        $writer = Writer::fromString();
         $writer->addFormatter(new EscapeFormula());
         $writer->insertOne(self::HEADERS);
         foreach ($records as $record) {

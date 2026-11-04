@@ -6423,6 +6423,7 @@
             <child catalog="openemr" column="patient_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="questionnaire_response"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="rule_patient_data"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="shared_attributes"/>
+            <child catalog="openemr" column="patient_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="task"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="therapy_groups_participant_attendance"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="therapy_groups_participants"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="transactions"/>
@@ -7957,6 +7958,114 @@
             <column ascending="true" name="lists_id"/>
          </index>
       </table>
+      <table catalog="openemr" name="task" numRows="0" remarks="FHIR Tasks: work asked of someone for the patient, such as a referral or a questionnaire to complete" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5">
+            <child catalog="openemr" column="task_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="task_input"/>
+            <child catalog="openemr" column="task_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="task_output"/>
+         </column>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="1" name="uuid" nullable="true" remarks="" size="16" type="BINARY" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="'requested'" digits="0" id="2" name="status" nullable="false" remarks="FHIR Task.status code" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="3" name="status_reason" nullable="true" remarks="FHIR Task.statusReason, as text" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="4" name="business_status" nullable="true" remarks="FHIR Task.businessStatus, as text" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="'order'" digits="0" id="5" name="intent" nullable="false" remarks="FHIR Task.intent code" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="6" name="priority" nullable="true" remarks="FHIR Task.priority code" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="7" name="code" nullable="true" remarks="FHIR Task.code: the code" size="63" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="8" name="code_system" nullable="true" remarks="FHIR Task.code: its system, such as http://hl7.org/fhir/CodeSystem/task-code" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="9" name="description" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="10" name="patient_id" nullable="true" remarks="FHIR Task.for: the patient the task is for" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
+         </column>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="11" name="focus_type" nullable="true" remarks="FHIR Task.focus: resource type" size="63" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="12" name="focus_uuid" nullable="true" remarks="FHIR Task.focus: resource id" size="16" type="BINARY" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="13" name="owner_type" nullable="true" remarks="FHIR Task.owner: resource type" size="63" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="14" name="owner_uuid" nullable="true" remarks="FHIR Task.owner: resource id" size="16" type="BINARY" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="15" name="requester_type" nullable="true" remarks="FHIR Task.requester: resource type" size="63" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="16" name="requester_uuid" nullable="true" remarks="FHIR Task.requester: resource id" size="16" type="BINARY" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="17" name="part_of_uuid" nullable="true" remarks="FHIR Task.partOf: the parent task.uuid" size="16" type="BINARY" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="18" name="authored_on" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="current_timestamp()" digits="0" id="19" name="last_modified" nullable="false" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="20" name="created_by" nullable="true" remarks="The user who created the task" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="users"/>
+         </column>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="21" name="updated_by" nullable="true" remarks="The user who last updated the task" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="users"/>
+         </column>
+         <column autoUpdated="false" defaultValue="1" digits="0" id="22" name="version" nullable="false" remarks="FHIR meta.versionId: 1 on create, raised by each update (If-Match)" size="10" type="INT" typeCode="4"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="focus_uuid" unique="false">
+            <column ascending="true" name="focus_uuid"/>
+         </index>
+         <index name="owner_uuid" unique="false">
+            <column ascending="true" name="owner_uuid"/>
+         </index>
+         <index name="part_of_uuid" unique="false">
+            <column ascending="true" name="part_of_uuid"/>
+         </index>
+         <index name="patient_id" unique="false">
+            <column ascending="true" name="patient_id"/>
+         </index>
+         <index name="status" unique="false">
+            <column ascending="true" name="status"/>
+         </index>
+         <index name="uuid" unique="true">
+            <column ascending="true" name="uuid"/>
+         </index>
+      </table>
+      <table catalog="openemr" name="task_input" numRows="0" remarks="FHIR Task.input: what the task needs, one row per input" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="task_id" nullable="false" remarks="The task the input belongs to" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="task"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="seq" nullable="false" remarks="position in Task.input" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="3" name="type_system" nullable="true" remarks="FHIR Task.input.type: coding system" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="4" name="type_code" nullable="true" remarks="FHIR Task.input.type: coding code" size="63" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="5" name="type_display" nullable="true" remarks="FHIR Task.input.type: coding display" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="6" name="type_text" nullable="true" remarks="FHIR Task.input.type: text" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="value_element" nullable="false" remarks="which value[x] it is: valueReference, valueCanonical, valueUrl, valueString, valueMarkdown or valueCodeableConcept" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="8" name="value_type" nullable="true" remarks="valueReference: resource type" size="63" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="9" name="value_uuid" nullable="true" remarks="valueReference: resource id" size="16" type="BINARY" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="10" name="value_system" nullable="true" remarks="valueCodeableConcept: coding system" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="11" name="value_code" nullable="true" remarks="valueCodeableConcept: coding code" size="63" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="12" name="value_display" nullable="true" remarks="valueReference: its display; valueCodeableConcept: the display of its coding" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="13" name="value_text" nullable="true" remarks="the canonical, url, string or markdown; valueCodeableConcept: its text" size="65535" type="TEXT" typeCode="-1"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="task_id" unique="false">
+            <column ascending="true" name="task_id"/>
+            <column ascending="true" name="seq"/>
+         </index>
+      </table>
+      <table catalog="openemr" name="task_output" numRows="0" remarks="FHIR Task.output: what the task produced, one row per output" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="task_id" nullable="false" remarks="The task the output belongs to" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="task"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="seq" nullable="false" remarks="position in Task.output" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="3" name="type_system" nullable="true" remarks="FHIR Task.output.type: coding system" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="4" name="type_code" nullable="true" remarks="FHIR Task.output.type: coding code" size="63" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="5" name="type_display" nullable="true" remarks="FHIR Task.output.type: coding display" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="6" name="type_text" nullable="true" remarks="FHIR Task.output.type: text" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="value_element" nullable="false" remarks="which value[x] it is: valueReference, valueCanonical, valueUrl, valueString, valueMarkdown or valueCodeableConcept" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="8" name="value_type" nullable="true" remarks="valueReference: resource type" size="63" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="9" name="value_uuid" nullable="true" remarks="valueReference: resource id" size="16" type="BINARY" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="10" name="value_system" nullable="true" remarks="valueCodeableConcept: coding system" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="11" name="value_code" nullable="true" remarks="valueCodeableConcept: coding code" size="63" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="12" name="value_display" nullable="true" remarks="valueReference: its display; valueCodeableConcept: the display of its coding" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="13" name="value_text" nullable="true" remarks="the canonical, url, string or markdown; valueCodeableConcept: its text" size="65535" type="TEXT" typeCode="-1"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="task_id" unique="false">
+            <column ascending="true" name="task_id"/>
+            <column ascending="true" name="seq"/>
+         </index>
+      </table>
       <table catalog="openemr" name="template_users" remarks="" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="tu_id" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="1" name="tu_user_id" nullable="true" remarks="" size="10" type="INT" typeCode="4"/>
@@ -8171,6 +8280,8 @@
             <child catalog="openemr" column="audit_user_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="questionnaire_response"/>
             <child catalog="openemr" column="creator_user_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="questionnaire_response"/>
             <child catalog="openemr" column="user_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="shared_attributes"/>
+            <child catalog="openemr" column="created_by" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="task"/>
+            <child catalog="openemr" column="updated_by" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="task"/>
             <child catalog="openemr" column="user_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="therapy_groups_counselors"/>
             <child catalog="openemr" column="user_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="voids"/>
          </column>

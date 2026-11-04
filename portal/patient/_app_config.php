@@ -107,14 +107,6 @@ GlobalConfig::$ROUTE_MAP = [
         'p_acl' => 'p_all',
         'p_reg' => false
     ],
-    'DELETE:api/patient/(:num)' => [
-        'route' => 'Patient.Delete',
-        'params' => [
-            'id' => 2
-        ],
-        'p_acl' => 'p_limited',
-        'p_reg' => false
-    ],
     'PUT:api/portalpatient/(:num)' => [
         'route' => 'PortalPatient.Update',
         'params' => [
@@ -137,14 +129,6 @@ GlobalConfig::$ROUTE_MAP = [
     // OnsiteDocument
     'GET:onsitedocuments' => [
         'route' => 'OnsiteDocument.ListView',
-        'p_acl' => 'p_all', // Secured this at downstream function level
-        'p_reg' => false
-    ],
-    'GET:onsitedocument/(:num)' => [
-        'route' => 'OnsiteDocument.SingleView',
-        'params' => [
-            'id' => 1
-        ],
         'p_acl' => 'p_all', // Secured this at downstream function level
         'p_reg' => false
     ],
@@ -183,24 +167,21 @@ GlobalConfig::$ROUTE_MAP = [
         'p_reg' => false
     ],
 
-    // OnsitePortalActivity
-    'GET:onsiteportalactivities' => [
-        'route' => 'OnsitePortalActivity.ListView',
-        'p_acl' => 'p_none',
-        'p_reg' => false
-    ],
+    // Portal review queue (PortalReviewController). These URLs used to be served by the
+    // OnsitePortalActivity and OnsiteActivityView Phreeze stacks; the JavaScript that calls
+    // them is unchanged.
     'GET:api/onsiteportalactivities' => [
-        'route' => 'OnsitePortalActivity.Query',
+        'route' => 'PortalReview.DocumentQuery',
         'p_acl' => 'p_all', // Secured this at downstream function level
         'p_reg' => false
     ],
     'POST:api/onsiteportalactivity' => [
-        'route' => 'OnsitePortalActivity.Create',
+        'route' => 'PortalReview.DocumentChange',
         'p_acl' => 'p_all', // Secured this at downstream function level
         'p_reg' => false
     ],
     'GET:api/onsiteportalactivity/(:num)' => [
-        'route' => 'OnsitePortalActivity.Read',
+        'route' => 'PortalReview.Read',
         'params' => [
             'id' => 2
         ],
@@ -208,61 +189,31 @@ GlobalConfig::$ROUTE_MAP = [
         'p_reg' => false
     ],
     'PUT:api/onsiteportalactivity/(:num)' => [
-        'route' => 'OnsitePortalActivity.Update',
+        'route' => 'PortalReview.DocumentChange',
         'params' => [
             'id' => 2
         ],
         'p_acl' => 'p_all', // Secured this at downstream function level
         'p_reg' => false
     ],
-    'DELETE:api/onsiteportalactivity/(:num)' => [
-        'route' => 'OnsitePortalActivity.Delete',
-        'params' => [
-            'id' => 2
-        ],
-        'p_acl' => 'p_none',
-        'p_reg' => false
-    ],
-
-    // OnsiteActivityView
     'GET:onsiteactivityviews' => [
-        'route' => 'OnsiteActivityView.ListView',
+        'route' => 'PortalReview.ListView',
         'p_acl' => 'p_staff',
         'p_reg' => false
     ],
     'GET:api/onsiteactivityviews' => [
-        'route' => 'OnsiteActivityView.Query',
+        'route' => 'PortalReview.Query',
         'p_acl' => 'p_staff',
         'p_reg' => false
     ],
     'GET:api/onsiteactivityview/(:any)' => [
-        'route' => 'OnsiteActivityView.Read',
+        'route' => 'PortalReview.Read',
         'params' => [
             'id' => 2
         ],
         'p_acl' => 'p_staff',
         'p_reg' => false
     ],
-
-    // User no route no problem. leaving for now. 01/23/21
-    /*'GET:users' => array(
-        'route' => 'User.ListView',
-        'p_acl' => 'p_none',
-        'p_reg' => false
-    ),
-    'GET:api/users' => array(
-        'route' => 'User.Query',
-        'p_acl' => 'p_all', // Secured this at downstream function level
-        'p_reg' => true // Secured this at downstream function level
-    ),
-    'GET:api/user/(:num)' => array(
-        'route' => 'User.Read',
-        'params' => array(
-            'id' => 2
-        ),
-        'p_acl' => 'p_none',
-        'p_reg' => false
-    ),*/
 
     // catch any broken API urls
     'GET:api/(:any)' => [

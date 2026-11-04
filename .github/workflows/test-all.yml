@@ -43,8 +43,10 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v7
       with:
-        # For PRs, checkout the PR head ref to access commit trailers
-        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        # A PR's merge commit, the default: the steps below run its ci/ scripts and
+        # read its ci/ configs, which are the ones the tests run with. The PR's own
+        # commits are its ancestors, so the trailer check still finds them; the PR
+        # head alone can predate a script a step needs (ci/codecov_flags.sh).
         # Fetch enough history to find the merge base with the target branch
         fetch-depth: 0
 
