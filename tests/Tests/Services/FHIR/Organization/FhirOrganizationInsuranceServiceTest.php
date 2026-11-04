@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\FHIR\Organization;
 
+use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
@@ -170,6 +171,55 @@ class FhirOrganizationInsuranceServiceTest extends TestCase
         $this->assertSame(
             ['(555) 200-0004', '(555) 200-0005'],
             [$service->parseFhirResource($blankFirst)['phone'] ?? null, $service->parseFhirResource($endingLater)['phone'] ?? null]
+        );
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function periodEndProvider(): array
+    {
+        // whether a period with this end is still in use at 2026-11-04 15:00 UTC, the test's clock
+        return [
+            'a year past' => ['2020', false],
+            'this year' => ['2026', true],
+            'last month' => ['2026-10', false],
+            'this month' => ['2026-11', true],
+            'yesterday' => ['2026-11-03', false],
+            'today' => ['2026-11-04', true],
+            'an hour ago' => ['2026-11-04T14:00:00Z', false],
+            'in an hour' => ['2026-11-04T16:00:00Z', true],
+            // not a date (a lenient parse rolls it over to January 2026): no end, so in use
+            'a month that does not exist' => ['2025-13', true],
+        ];
+    }
+
+    /**
+     * A period's end is read at the precision it is given in, for the phone and the address alike:
+     * a year, a month or a date ends with its last second.
+     */
+    #[Test]
+    #[DataProvider('periodEndProvider')]
+    public function aPeriodEndIsReadAtItsPrecision(string $end, bool $inUse): void
+    {
+        $clock = new FrozenClock(new \DateTimeImmutable('2026-11-04T15:00:00Z'));
+        $service = new FhirOrganizationInsuranceService(null, new PhoneNumberService(), $clock);
+        $organization = FhirOrganizationSerializer::deserialize([
+            'resourceType' => 'Organization',
+            'name' => self::NAME,
+            'telecom' => [['system' => 'phone', 'value' => '(555) 200-0006', 'period' => ['end' => $end]]],
+            'address' => [
+                ['city' => 'Testville', 'state' => 'CA'],
+                ['city' => 'Endville', 'state' => 'CA', 'period' => ['start' => '2019-01-01', 'end' => $end]],
+            ],
+        ]);
+
+        $record = $service->parseFhirResource($organization);
+        $this->assertSame(
+            $inUse ? ['(555) 200-0006', 'Endville'] : [null, 'Testville'],
+            [$record['phone'] ?? null, $record['city'] ?? null]
         );
     }
 

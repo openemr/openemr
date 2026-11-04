@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Services\FHIR\Organization;
 
+use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
@@ -19,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
@@ -45,6 +47,7 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Clock\ClockInterface;
 
 class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPatientCompartmentResourceService
 {
@@ -57,12 +60,21 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
      */
     private $insuranceService;
 
+    /**
+     * Today, for whether an address or contact point has ended.
+     */
+    private readonly ClockInterface $clock;
+
     public function __construct(
         $fhirApiURL = null,
         private readonly PhoneNumberService $phoneNumberService = new PhoneNumberService(),
+        ?ClockInterface $clock = null,
     ) {
         parent::__construct($fhirApiURL);
         $this->insuranceService = new InsuranceCompanyService();
+        // SystemClock built directly, as HolidayService does: its fromSystemTimezone() is flagged
+        // in favour of the service container, which service classes don't use.
+        $this->clock = $clock ?? new SystemClock(new \DateTimeZone(date_default_timezone_get()));
     }
 
     /**
@@ -208,7 +220,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
      */
     public function insert(FHIRDomainResource $fhirResource): ProcessingResult
     {
-        $address = $fhirResource instanceof FHIROrganization ? self::activeAddress($fhirResource) : null;
+        $address = $fhirResource instanceof FHIROrganization ? self::activeAddress($fhirResource, $this->clock->now()) : null;
         if ($address !== null && self::onlyTextOrDistrict($address)) {
             $processingResult = new ProcessingResult();
             $processingResult->setValidationMessages(['address' => self::ADDRESS_NEEDS_CITY_AND_STATE]);
@@ -319,6 +331,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
         }
 
         $data = [];
+        $now = $this->clock->now();
 
         $data['uuid'] = $fhirResource->getId() ?? null;
         $data['name'] = self::primitiveText($fhirResource->getName());
@@ -327,7 +340,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
         // R4 Organization.active defaults to true when absent.
         $data['inactive'] = self::isFalse($fhirResource->getActive()) ? 1 : 0;
 
-        $activeAddress = self::activeAddress($fhirResource);
+        $activeAddress = self::activeAddress($fhirResource, $now);
         if ($activeAddress !== null) {
             $lineValues = array_values(array_filter(
                 array_map(self::primitiveText(...), $activeAddress->getLine()),
@@ -343,7 +356,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
         }
 
         foreach ($fhirResource->getTelecom() as $contactPoint) {
-            if (!self::isCurrent($contactPoint)) {
+            if (!self::isCurrent($contactPoint, $now)) {
                 continue;
             }
             // 'work' is what this service emitted for the phone before it used 'phone'.
@@ -375,13 +388,13 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
      * address has ended, the one that ended last. Before, an ended address listed after the
      * current one replaced it whenever an ended one came first.
      */
-    private static function activeAddress(FHIROrganization $organization): ?FHIRAddress
+    private static function activeAddress(FHIROrganization $organization, \DateTimeImmutable $now): ?FHIRAddress
     {
         $current = null;
         $lastEnded = null;
         $lastEnd = null;
         foreach ($organization->getAddress() as $address) {
-            $end = self::endedAt($address->getPeriod());
+            $end = self::endedAt($address->getPeriod(), $now);
             if ($end === null) {
                 $current = $address;
             } elseif ($lastEnd === null || $end > $lastEnd) {
@@ -412,22 +425,41 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
     /**
      * Whether a contact point is still in use: not marked old, and its period not ended.
      */
-    private static function isCurrent(FHIRContactPoint $contactPoint): bool
+    private static function isCurrent(FHIRContactPoint $contactPoint, \DateTimeImmutable $now): bool
     {
         if (self::primitiveText($contactPoint->getUse()) === 'old') {
             return false;
         }
-        return self::endedAt($contactPoint->getPeriod()) === null;
+        return self::endedAt($contactPoint->getPeriod(), $now) === null;
     }
 
     /**
-     * When a period ended; null while it hasn't: no end, an end that doesn't parse, or an end
-     * still to come.
+     * When a period ended, read at the precision its end is given in: a year ends with its last
+     * second, a month with its last day, a date with that day, a dateTime (with its seconds and
+     * zone, as FHIR gives it) when it says. Null while it hasn't ended: no end, an end that isn't
+     * a FHIR date or dateTime, or one still to come. A date without a zone is read in the clock's.
      */
-    private static function endedAt(?FHIRPeriod $period): ?int
+    private static function endedAt(?FHIRPeriod $period, \DateTimeImmutable $now): ?int
     {
-        $end = UtilsService::getPeriodTimestamps($period)['end'];
-        return is_int($end) && $end <= time() ? $end : null;
+        $end = $period?->getEnd();
+        if ($end instanceof FHIRDateTime) {
+            $end = $end->getValue();
+        }
+        if (!is_string($end)) {
+            return null;
+        }
+        // each precision's format, and the span from its first moment to the next one's
+        $precisions = [['!Y', 'P1Y'], ['!Y-m', 'P1M'], ['!Y-m-d', 'P1D'], ['Y-m-d\\TH:i:sP', null], ['Y-m-d\\TH:i:s.uP', null]];
+        foreach ($precisions as [$format, $span]) {
+            $parsed = \DateTimeImmutable::createFromFormat($format, $end, $now->getTimezone());
+            $errors = \DateTimeImmutable::getLastErrors();
+            if ($parsed === false || ($errors !== false && $errors['warning_count'] > 0)) {
+                continue;
+            }
+            $last = $span === null ? $parsed : $parsed->add(new \DateInterval($span))->sub(new \DateInterval('PT1S'));
+            return $last <= $now ? $last->getTimestamp() : null;
+        }
+        return null;
     }
 
     /**
