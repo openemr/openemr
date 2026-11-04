@@ -141,6 +141,12 @@ $data = [
 try {
     $sdohService = new HistorySdohService();
     if ($rec_id) {
+        // The page-level gate at :28 accepts `addonly` for *creating* new SDOH
+        // assessments; updating an existing record requires `write` to match
+        // the ACL contract (addonly = "may view and add but not modify").
+        if (!AclMain::aclCheckCore('patients', 'med', '', ['write'])) {
+            AccessDeniedHelper::deny('Unauthorized update of existing SDOH record');
+        }
         $data['updated_by'] = $uid;
         $result = $sdohService->update($rec_id, $data);
         if (!$result->isValid()) {
