@@ -18,10 +18,13 @@
 
 namespace OpenEMR\Services;
 
+use DateTimeImmutable;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
+use OpenEMR\Services\Insurance\EffectiveInsurance;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
 use OpenEMR\Services\Search\{
     CompositeSearchField,
     DateSearchField,
@@ -424,6 +427,29 @@ class InsuranceService extends BaseService
             }
         }
         return $organizedResults;
+    }
+
+    /**
+     * The policies in force for a patient on a day: at most one per level,
+     * primary first, by the rule in EffectiveInsuranceRule. That is the
+     * claim's rule (Claim::loadPayerInfo()) with three differences, which its
+     * docblock lists. A level with nothing in force is left out and the others
+     * are still returned, so a current secondary behind an ended primary comes
+     * back on its own.
+     *
+     * getEffectiveInsurances() in library/patient.inc.php answers the same
+     * question, but stops at the first level with nothing in force.
+     *
+     * @param DateTimeImmutable $day the day asked about (date of service, order or document); its time is ignored
+     * @return list<EffectiveInsurance>
+     */
+    public function getEffectiveInsurances(int $pid, DateTimeImmutable $day): array
+    {
+        $rows = QueryUtils::fetchRecords(
+            "SELECT `id`, `uuid`, `type`, `provider`, `date`, `date_end` FROM `insurance_data` WHERE `pid` = ?",
+            [$pid]
+        );
+        return EffectiveInsuranceRule::choose($rows, $day);
     }
 
     public function swapInsurance($pid, string $targetType, string $insuranceUuid): ProcessingResult
