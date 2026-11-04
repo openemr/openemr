@@ -593,8 +593,9 @@ class FhirObservationVitalsServiceCrudTest extends TestCase
     public function testALaboratoryResultWithAVitalSignCodeIsNotWrittenAsAVital(): void
     {
         // 2708-6 is both a pulse-oximetry vital sign and an arterial blood gas result. The
-        // category says which one this is, and laboratory writes are not implemented yet, so
-        // it is refused -- not stored in form_vitals and read back as a vital sign.
+        // category says which one this is, so it goes to the laboratory write, which needs the
+        // order it was reported against; with no basedOn it is refused -- not stored in
+        // form_vitals and read back as a vital sign.
         $payload = $this->observationPayload('8867-4');
         $payload['category'] = self::categoryConcept('laboratory');
         $payload['code'] = [
@@ -605,8 +606,8 @@ class FhirObservationVitalsServiceCrudTest extends TestCase
         $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
         $this->assertFalse($result->isValid());
         $this->assertStringContainsString(
-            'laboratory',
-            $this->stringValue($this->arrayValue($result->getValidationMessages())['code'] ?? null)
+            'ServiceRequest',
+            $this->stringValue($this->arrayValue($result->getValidationMessages())['basedOn'] ?? null)
         );
         $this->assertSame(0, $this->countVitalsRows());
     }

@@ -273,9 +273,11 @@ class FhirObservationRestController
      */
     #[OA\Post(
         path: '/fhir/Observation',
-        description: 'Creates a new Observation resource. Only vital sign Observations are writable; '
+        description: 'Creates a new Observation resource. Vital sign and laboratory Observations are writable; '
             . 'Observations whose code belongs to a category OpenEMR derives from other records '
-            . '(social history, SDOH, patient and employer demographics) are rejected rather than dropped.',
+            . '(social history, SDOH, patient and employer demographics) are rejected rather than dropped. '
+            . 'A laboratory result must reference its order in basedOn (one ServiceRequest for the same patient), '
+            . 'and its LOINC code must be one of the order\'s codes.',
         tags: ['fhir'],
         requestBody: new OA\RequestBody(
             required: true,
@@ -307,7 +309,8 @@ class FhirObservationRestController
     #[OA\Put(
         path: '/fhir/Observation/{uuid}',
         description: 'Modifies an Observation resource. The uuid identifies one vital sign on one '
-            . 'vitals record, so Observation.code must match the code that uuid was issued for.',
+            . 'vitals record, or one laboratory result, so Observation.code must match the code that uuid was issued for. '
+            . 'A laboratory result keeps its patient, order and dates; its value, status, range, interpretation and note change.',
         tags: ['fhir'],
         parameters: [
             new OA\Parameter(
