@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Core;
 
 use ErrorException;
-use Nyholm\Psr7\Factory\Psr17Factory;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\ErrorHandler;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -101,8 +101,14 @@ class ErrorHandlerTest extends TestCase
 
     private function createResponseHandler(bool $shouldDisplayErrors = false): ErrorHandler
     {
-        $factory = new Psr17Factory();
-        return new ErrorHandler(new NullLogger(), $factory, $factory, $shouldDisplayErrors);
+        // The production factories, so known codes get their standard reason phrase.
+        ServiceContainer::reset();
+        return new ErrorHandler(
+            new NullLogger(),
+            ServiceContainer::getResponseFactory(),
+            ServiceContainer::getStreamFactory(),
+            $shouldDisplayErrors,
+        );
     }
 
     public function testHttpExceptionResponseHasStatusTextBody(): void
