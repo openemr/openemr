@@ -157,7 +157,20 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
             $organizationResource->setName(UtilsService::createDataMissingExtension());
         }
 
-        $organizationResource->addAddress(UtilsService::createAddressFromRecord($dataRecord));
+        // createAddressFromRecord() reads postal_code and country_code; an insurance company's
+        // address has zip and country. A country alone isn't an address: the admin page stores
+        // its default, USA, for a company saved without one. A company with no address has none to add.
+        $streetParts = array_filter(
+            [$dataRecord['line1'] ?? null, $dataRecord['line2'] ?? null, $dataRecord['city'] ?? null, $dataRecord['state'] ?? null, $dataRecord['zip'] ?? null],
+            static fn(mixed $part): bool => is_string($part) && $part !== ''
+        );
+        $address = UtilsService::createAddressFromRecord($dataRecord + [
+            'postal_code' => $dataRecord['zip'] ?? null,
+            'country_code' => $streetParts !== [] ? ($dataRecord['country'] ?? null) : null,
+        ]);
+        if ($address !== null) {
+            $organizationResource->addAddress($address);
+        }
 
         $contactPoints = ['work_number' => 'phone', 'fax_number' => 'fax'];
         foreach ($contactPoints as $field => $contact) {

@@ -15,7 +15,10 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\Address\AddressData;
+use OpenEMR\Services\AddressService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirPayloadReader;
 use OpenEMR\Services\PhoneType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -99,8 +102,9 @@ class OrganizationInsuranceFhirApiTest extends TestCase
         $this->assertSame(['4 Workbench Way', 'Suite 200'], $address['line'] ?? null);
         $this->assertSame('Testville', $address['city'] ?? null);
         $this->assertSame('CA', $address['state'] ?? null);
+        $this->assertSame('90001', $address['postalCode'] ?? null);
+        $this->assertSame('US', $address['country'] ?? null);
 
-        // the read side doesn't map an insurance company's zip to postalCode, so read the stored row
         $stored = QueryUtils::querySingleRow(
             "SELECT `line1`, `line2`, `city`, `state`, `zip`, `country` FROM `addresses` WHERE `foreign_id` = ?",
             [$row['id']]
@@ -175,6 +179,40 @@ class OrganizationInsuranceFhirApiTest extends TestCase
         $telecom = $telecoms[0] ?? null;
         $this->assertIsArray($telecom);
         $this->assertSame('phone', $telecom['system'] ?? null, "R4 has no 'work' contact point system");
+    }
+
+    /**
+     * An insurer stored without an address reads back with no address, not an address list
+     * holding null; so does one whose address row holds only the country the admin page
+     * stores by default.
+     */
+    public function testInsurerWithoutAddressReadsBackWithoutOne(): void
+    {
+        $body = self::insurerBody(self::NAME_PREFIX . " No Address");
+        unset($body['address']);
+        $row = $this->postInsurer($body);
+        $this->assertArrayNotHasKey('address', $this->readBack($row['uuid']));
+
+        (new AddressService())->insert(new AddressData('', '', '', '', '', 'USA'), $row['id']);
+        $this->assertArrayNotHasKey('address', $this->readBack($row['uuid']), "A country alone isn't an address");
+    }
+
+    /**
+     * What a GET answers, posted back under another name, stores the same insurer: its address
+     * (postal code and country included) and both numbers survive the round trip.
+     */
+    public function testReadThenPostKeepsTheInsurer(): void
+    {
+        $original = $this->postInsurer(self::insurerBody(self::NAME_PREFIX . " Original"));
+        $originalResource = $this->readBack($original['uuid']);
+
+        $copyBody = FhirPayloadReader::stringKeyed($originalResource);
+        unset($copyBody['id'], $copyBody['meta'], $copyBody['text']);
+        $copyBody['name'] = self::NAME_PREFIX . " Copy";
+        $copy = $this->postInsurer($copyBody);
+
+        $this->assertSame(self::comparable($originalResource), self::comparable($this->readBack($copy['uuid'])));
+        $this->assertSame($this->storedParts($original['id']), $this->storedParts($copy['id']));
     }
 
     /**
@@ -278,6 +316,76 @@ class OrganizationInsuranceFhirApiTest extends TestCase
                 'postalCode' => '90001',
                 'country' => 'US',
             ]],
+        ];
+    }
+
+    /**
+     * Posts an insurer that should be created.
+     *
+     * @param array<string, mixed> $body
+     * @return array{id: int, uuid: string}
+     */
+    private function postInsurer(array $body): array
+    {
+        $result = $this->testClient->post(self::ENDPOINT, $body);
+        $this->assertSame(Response::HTTP_CREATED, $result->getStatusCode(), "POST should return 201 Created: " . $result->getBody());
+        $row = $this->decodeJsonArray($result);
+        $id = $row['id'] ?? null;
+        $uuid = $row['uuid'] ?? null;
+        $this->assertIsInt($id, "POST should answer with the stored company's id");
+        $this->assertIsString($uuid, "POST should answer with the stored company's uuid");
+        return ['id' => $id, 'uuid' => $uuid];
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    private function readBack(string $uuid): array
+    {
+        $readBack = $this->testClient->getOne(self::ENDPOINT, $uuid);
+        $this->assertSame(Response::HTTP_OK, $readBack->getStatusCode());
+        return $this->decodeJsonArray($readBack);
+    }
+
+    /**
+     * A read-back Organization without what differs between two stored companies: id, meta,
+     * narrative, name, and the address period the read side dates from the request.
+     *
+     * @param array<array-key, mixed> $resource
+     * @return array<array-key, mixed>
+     */
+    private static function comparable(array $resource): array
+    {
+        unset($resource['id'], $resource['meta'], $resource['text'], $resource['name']);
+        $addresses = is_array($resource['address'] ?? null) ? $resource['address'] : [];
+        $resource['address'] = array_map(
+            static function (mixed $address): mixed {
+                if (is_array($address)) {
+                    unset($address['period']);
+                }
+                return $address;
+            },
+            $addresses
+        );
+        return $resource;
+    }
+
+    /**
+     * The company's stored address and its numbers' parts by type.
+     *
+     * @return array{array<mixed>|false, list<array<mixed>>}
+     */
+    private function storedParts(int $companyId): array
+    {
+        return [
+            QueryUtils::querySingleRow(
+                "SELECT `line1`, `line2`, `city`, `state`, `zip`, `country` FROM `addresses` WHERE `foreign_id` = ?",
+                [$companyId]
+            ),
+            QueryUtils::fetchRecords(
+                "SELECT `type`, `country_code`, `area_code`, `prefix`, `number` FROM `phone_numbers` WHERE `foreign_id` = ? ORDER BY `type`",
+                [$companyId]
+            ),
         ];
     }
 
