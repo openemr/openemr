@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Controllers\Portal\Patient;
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -45,9 +47,15 @@ final readonly class ProviderController
             );
         }
 
+        if (!AclMain::aclCheckCore('patientportal', 'portal')) {
+            AccessDeniedHelper::deny('Unauthorized access to provider home');
+        }
+        $globalsBag = OEGlobalsBag::getInstance();
+
         return new Response($this->pages->render('ProviderHome', [
-            'cpid' => OEGlobalsBag::getInstance()->get('pid'),
+            'cpid' => $globalsBag->get('pid'),
             'cuser' => $session->get('authUserID'),
+            'pdf_language' => $globalsBag->getString('pdf_language'),
         ]));
     }
 

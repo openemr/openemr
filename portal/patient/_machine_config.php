@@ -52,7 +52,7 @@ if ($session->has('pid') && ($session->has('patient_portal_onsite_two') || $sess
     // staff account could reach portal-scoped controllers (OnsiteDocument
     // CRUD, etc.) — which use `bootstrap_pid`-only patient binding and
     // therefore leak data across patients when `bootstrap_pid` is empty.
-    // Require the same `patientportal/portal` ACL that `ProviderHome.tpl.php`
+    // Require the same `patientportal/portal` ACL that `ProviderController::Home()`
     // enforces at the template layer, so the gate lives at the bootstrap
     // choke point and covers every downstream controller uniformly.
     if (!AclMain::aclCheckCore('patientportal', 'portal')) {

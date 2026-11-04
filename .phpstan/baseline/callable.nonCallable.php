@@ -38,11 +38,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/ParseERA.php',
 ];

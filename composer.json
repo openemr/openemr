@@ -195,9 +195,7 @@
         },
         "classmap": [
             "library/classes",
-            "portal/lib/appsql.class.php",
-            "portal/patient/fwk/libs/savant",
-            "portal/patient/fwk/libs/verysimple"
+            "portal/lib/appsql.class.php"
         ],
         "files": [
             "library/amc.php",

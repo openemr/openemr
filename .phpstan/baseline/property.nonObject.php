@@ -1897,16 +1897,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$message on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/templates/DefaultErrorFatal.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$stacktrace on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/templates/DefaultErrorFatal.tpl.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$cuser on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/templates/OnsiteActivityViewListView.tpl.php',
@@ -2020,41 +2010,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$users_list on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/templates/PatientListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$cpid on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/ProviderHome.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$cuser on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/ProviderHome.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$title on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/ProviderHome.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$title on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/_FormsHeader.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ROOT_URL on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/templates/_modalFormHeader.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$register on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/_modalFormHeader.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$title on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/_modalFormHeader.tpl.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$EOF on mixed\\.$#',

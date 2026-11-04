@@ -16,10 +16,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call static method compile\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

@@ -67,21 +67,19 @@ final readonly class PatientController
     {
         $query = $request->query;
         $globalsBag = OEGlobalsBag::getInstance();
-        $pid = (int) $query->getString('pid');
         // A portal patient sees only themselves.
-        $bootstrapPid = $globalsBag->get('bootstrap_pid');
-        if (!empty($bootstrapPid)) {
-            $pid = (int) $bootstrapPid;
-        }
+        $pid = self::sessionPid() ?? (int) $query->getString('pid');
         $register = $query->get('register', 0);
 
         // Registration has no chart yet.
-        if (!empty($globalsBag->get('bootstrap_register'))) {
+        if ($globalsBag->getBoolean('bootstrap_register')) {
             $pid = 0;
             $register = true;
         } else {
             PortalPatientAccessGuard::assertCanRead($pid);
         }
+        $row = $this->profiles->profileRow($pid);
+        $srcDir = $globalsBag->getString('srcdir');
 
         return new Response($this->pages->render('PatientListView', [
             'recid' => (int) $query->getString('id'),
@@ -89,10 +87,55 @@ final readonly class PatientController
             'cuser' => $query->get('user', 0),
             'encounter' => $query->get('enc', 0),
             'register' => $register,
-            'trow' => $this->profiles->profileRow($pid),
+            'trow' => $row,
             'exclude' => $this->profiles->excludedFieldContainers(),
             'users_list' => $this->profiles->portalProviders(),
+            'select_lists' => self::selectLists($srcDir, $row),
+            'datetimepicker_js' => self::scriptOutput($srcDir . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'),
         ]));
+    }
+
+    /**
+     * The profile form's list-backed selects, by field, set to the row's values.
+     *
+     * @param array<string, mixed> $row the profile row
+     * @return array<string, string> field => select HTML
+     */
+    private static function selectLists(string $srcDir, array $row): array
+    {
+        require_once $srcDir . '/options.inc.php';
+
+        // field => [list id, title, extra class]
+        $lists = [
+            'title' => ['titles', xl('Title'), 'form-control'],
+            'sex' => ['sex', xl('Sex'), ''],
+            'status' => ['marital', xl('Marital Status'), 'form-control'],
+            'state' => ['state', xl('State'), 'form-control'],
+            'race' => ['race', xl('Race'), 'form-control'],
+            'ethnicity' => ['ethnicity', xl('Ethnicity'), 'form-control'],
+            'religion' => ['religious_affiliation', xl('Religion'), 'form-control'],
+        ];
+        $selects = [];
+        foreach ($lists as $field => [$listId, $title, $class]) {
+            $selects[$field] = generate_select_list($field, $listId, $row[$field] ?? null, $title, 'Unassigned', $class);
+        }
+
+        return $selects;
+    }
+
+    /**
+     * What a PHP script that writes JavaScript (such as a localisation file) prints.
+     */
+    private static function scriptOutput(string $path): string
+    {
+        ob_start();
+        try {
+            require $path;
+        } finally {
+            $output = ob_get_clean();
+        }
+
+        return $output === false ? '' : $output;
     }
 
     /**
@@ -102,14 +145,10 @@ final readonly class PatientController
     {
         try {
             $globalsBag = OEGlobalsBag::getInstance();
-            $pid = $request->query->getString('patientId');
             // A portal patient sees only themselves.
-            $bootstrapPid = $globalsBag->get('bootstrap_pid');
-            if (!empty($bootstrapPid)) {
-                $pid = $bootstrapPid;
-            }
+            $pid = self::sessionPid() ?? $request->query->getString('patientId');
             // Registration (no chart yet) gets one row of empty fields.
-            if (!empty($globalsBag->get('bootstrap_register'))) {
+            if ($globalsBag->getBoolean('bootstrap_register')) {
                 $rows = [$this->profiles->profileRow(0)];
             } else {
                 PortalPatientAccessGuard::assertCanRead($pid);
@@ -127,7 +166,7 @@ final readonly class PatientController
                 'pageSize' => count($rows),
                 'currentPage' => 1,
             ]);
-        } catch (\Throwable $ex) {
+        } catch (\RuntimeException | \LogicException $ex) {
             return PortalJson::exception($ex);
         }
     }
@@ -143,7 +182,7 @@ final readonly class PatientController
             PortalPatientAccessGuard::assertCanRead($record['pid']);
 
             return PortalJson::ok($record);
-        } catch (\Throwable $ex) {
+        } catch (\RuntimeException | \LogicException $ex) {
             return PortalJson::exception($ex);
         }
     }
@@ -159,8 +198,10 @@ final readonly class PatientController
             if ($session->get('pid') !== true && $session->get('register') !== true) {
                 throw new \RuntimeException('Unauthorized');
             }
-            if (empty($session->get('fnameRegistration')) || empty($session->get('lnameRegistration')) || empty($session->get('dobRegistration')) || empty($session->get('emailRegistration')) || empty($session->get('token_id_holder'))) {
-                throw new \RuntimeException('Something went wrong');
+            foreach (['fnameRegistration', 'lnameRegistration', 'dobRegistration', 'emailRegistration', 'token_id_holder'] as $required) {
+                if (!self::isFilled($session->get($required))) {
+                    throw new \RuntimeException('Something went wrong');
+                }
             }
 
             $record = PortalProfileService::applyRequest(
@@ -190,7 +231,7 @@ final readonly class PatientController
             );
 
             return PortalJson::ok($patient);
-        } catch (\Throwable $ex) {
+        } catch (\RuntimeException | \LogicException $ex) {
             return PortalJson::exception($ex);
         }
     }
@@ -215,7 +256,7 @@ final readonly class PatientController
             self::closeProfileReview($saved['pid']);
 
             return PortalJson::ok($saved);
-        } catch (\Throwable $ex) {
+        } catch (\RuntimeException | \LogicException $ex) {
             return PortalJson::exception($ex);
         }
     }
@@ -241,6 +282,24 @@ final readonly class PatientController
                 'exception' => $e,
             ]);
         }
+    }
+
+    /**
+     * The portal patient's pid when the caller is one, so their requests stay on their own record.
+     */
+    private static function sessionPid(): ?int
+    {
+        $pid = filter_var(OEGlobalsBag::getInstance()->get('bootstrap_pid'), FILTER_VALIDATE_INT);
+
+        return is_int($pid) && $pid > 0 ? $pid : null;
+    }
+
+    /**
+     * What empty() treated as filled: anything but null, false, 0, '', '0' and [].
+     */
+    private static function isFilled(mixed $value): bool
+    {
+        return !in_array($value, [null, false, 0, 0.0, '', '0', []], true);
     }
 
     private static function positiveId(mixed $id): int

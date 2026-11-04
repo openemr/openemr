@@ -19,12 +19,15 @@ namespace OpenEMR\Controllers\Portal\Patient;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Session\PortalPatientAccessGuard;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Portal\Routing\PortalPrincipal;
 use OpenEMR\Portal\Routing\PrincipalKind;
 use OpenEMR\Portal\Routing\RouteMatch;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\PortalDocuments\OnsiteDocumentListQuery;
 use OpenEMR\Services\PortalDocuments\OnsiteDocumentRepository;
 use OpenEMR\Services\PortalDocuments\OnsiteDocumentSort;
@@ -58,24 +61,77 @@ final readonly class OnsiteDocumentController
         $pid = self::sessionPid() ?? (int) $query->getString('pid');
         PortalPatientAccessGuard::assertCanReadDocuments($pid);
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $globals = OEGlobalsBag::getInstance();
+        // The page acts as the session's user: `-patient-` for a portal patient, else the staff id.
+        $cuser = $session->get('sessionUser') ?? $session->get('authUserID');
+        $isModule = $query->get('is_module', 0);
+        $isPortal = $caller->kind === PrincipalKind::Staff ? 0 : 1;
+        $catid = $query->get('catid', '');
+        $siteId = $session->get('site_id');
+        $siteId = is_string($siteId) ? $siteId : '';
+
         return new Response($this->pages->render('OnsiteDocumentListView', [
             'language_defs' => TranslationService::getLanguageDefinitionsForSession(),
             'doc_edit' => $query->get('edit', 0),
             'recid' => $query->get('recid', 0),
             'help_id' => $help_id,
             'cpid' => $pid,
-            'cuser' => $query->get('user', 0),
+            'cuser' => $cuser,
+            'pt_name' => $session->get('ptName', $pid),
             'encounter' => $query->get('enc', 0),
             'docid' => $query->get('docid', ''),
-            'is_module' => $query->get('is_module', 0),
-            'is_portal' => $caller->kind === PrincipalKind::Staff ? 0 : 1,
-            'save_catid' => $query->get('catid', ''),
+            'is_module' => $isModule,
+            'is_portal' => $isPortal,
+            'save_catid' => $catid,
+            'category_name' => self::categoryName($catid),
             'new_filename' => $query->get('new', ''),
             'auto_render' => $query->get('auto_render_id', 0),
             'audit_render' => $query->get('audit_render_id', 0),
             'referer_flag' => $query->get('referer_flag', 0),
             'auto_render_name' => $query->get('auto_render_name', 0),
+            'allow_portal_uploads' => $globals->getBoolean('allow_portal_uploads'),
+            // The encounter forms the page may load, by directory: a whitelist, for security.
+            'form_names_whitelist' => CoreFormToPortalUtility::getListPortalCompliantEncounterForms(),
+            'template_menu' => self::isFilled($isModule) || $isPortal === 1
+                ? (new DocumentTemplateService())->renderPortalTemplateMenu($pid, $cuser, true)
+                : '',
+            'datetimepicker_js' => self::datetimepickerTranslations($globals->getString('srcdir')),
+            'portal_home_url' => '../home.php?site=' . urlencode($siteId === '' ? 'default' : $siteId),
+            // The patient's Exit link when the page opened a document for them has always dropped
+            // the 'default' fallback.
+            'exit_url' => '../home.php?site=' . urlencode($siteId),
         ]));
+    }
+
+    /**
+     * The name of the documents category the page charts to, if it was given one that has a name.
+     */
+    private static function categoryName(mixed $catid): ?string
+    {
+        if (!self::isFilled($catid)) {
+            return null;
+        }
+        $name = QueryUtils::fetchSingleValue('SELECT `name` FROM `categories` WHERE `id` = ?', 'name', [$catid]);
+
+        return is_string($name) && self::isFilled($name) ? $name : null;
+    }
+
+    /**
+     * The date picker's translations, as the script that sets the page's datepicker_* variables.
+     */
+    private static function datetimepickerTranslations(string $srcdir): string
+    {
+        ob_start();
+        try {
+            require $srcdir . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php';
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            throw $e;
+        }
+        $script = ob_get_clean();
+
+        return is_string($script) ? $script : '';
     }
 
     /**

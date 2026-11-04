@@ -26,10 +26,11 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Controllers\Portal\Patient\PortalErrorPages;
 use OpenEMR\Controllers\Portal\Patient\PortalJson;
 use OpenEMR\Controllers\Portal\Patient\PortalPatientApp;
-use OpenEMR\Controllers\Portal\Patient\SavantPageRenderer;
+use OpenEMR\Controllers\Portal\Patient\TwigPageRenderer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Portal\Routing\PortalPrincipal;
 use OpenEMR\Portal\Routing\PortalRequestPath;
+use OpenEMR\Services\VersionService;
 use Symfony\Component\HttpFoundation\Response;
 
 require_once(__DIR__ . "/../../vendor/autoload.php");
@@ -44,7 +45,15 @@ $portalRootUrl = ($globalsBag->getBoolean('portal_onsite_two_basepath')
     ? $globalsBag->getString('qualified_site_addr')
     : $globalsBag->getString('web_root')) . '/portal/patient/';
 $request = CurrentRequest::get();
-$pages = new SavantPageRenderer(__DIR__ . '/templates/', $portalRootUrl);
+$pages = new TwigPageRenderer(ServiceContainer::getTwig(), [
+    'ROOT_URL' => $portalRootUrl,
+    'web_root' => $globalsBag->getString('web_root'),
+    'assets_static_relative' => $globalsBag->getString('assets_static_relative'),
+    'v_js_includes' => $globalsBag->getString('v_js_includes'),
+    'is_portal_session' => $session->has('patient_portal_onsite_two') && (bool) $session->get('patient_portal_onsite_two'),
+    'software_version' => (new VersionService())->getSoftwareVersion(),
+    'current_year' => date('Y'),
+]);
 $path = PortalRequestPath::of($request, $globalsBag->getString('web_root') . '/portal/patient/');
 
 try {

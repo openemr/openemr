@@ -88,7 +88,7 @@ final class PortalBootstrapCoreSessionRejectionIsolatedTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/AclMain::aclCheckCore\(\s*[\'"]patientportal[\'"]\s*,\s*[\'"]portal[\'"]/',
             $this->machineConfigContent,
-            '_machine_config.php must call AclMain::aclCheckCore("patientportal", "portal") on the core-fallback branch — the same ACL enforced by ProviderHome.tpl.php',
+            '_machine_config.php must call AclMain::aclCheckCore("patientportal", "portal") on the core-fallback branch — the same ACL enforced by ProviderController::Home()',
         );
     }
 

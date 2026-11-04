@@ -59,7 +59,7 @@ final readonly class PortalPatientController
             }
 
             return PortalJson::ok($newv);
-        } catch (\Throwable $ex) {
+        } catch (\RuntimeException | \LogicException $ex) {
             return PortalJson::exception($ex);
         }
     }
@@ -78,7 +78,7 @@ final readonly class PortalPatientController
 
             $fields = self::UPDATE_FIELDS;
             // A registration date is only kept up to date once the chart has one.
-            if (!empty($record['regdate'])) {
+            if (self::isFilled($record['regdate'] ?? null)) {
                 $fields[] = 'regdate';
             }
             $record = PortalProfileService::applyRequest($record, $json, $fields);
@@ -97,9 +97,17 @@ final readonly class PortalPatientController
             );
 
             return PortalJson::ok($record);
-        } catch (\Throwable $ex) {
+        } catch (\RuntimeException | \LogicException $ex) {
             return PortalJson::exception($ex);
         }
+    }
+
+    /**
+     * What empty() treated as filled: anything but null, false, 0, '', '0' and [].
+     */
+    private static function isFilled(mixed $value): bool
+    {
+        return !in_array($value, [null, false, 0, 0.0, '', '0', []], true);
     }
 
     private static function positiveId(mixed $id): int

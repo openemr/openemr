@@ -1,11 +1,9 @@
-<?php
-
-echo "<!-- footer -->\n"; ?>
+<!-- footer -->
 <div class="container">
     <hr id="footer-hr" />
     <footer>
         <p class="muted text-sm-center">
-            <small><?php echo xlt('Patient Portal') . " v" . text((string) (new OpenEMR\Services\VersionService())->getSoftwareVersion()); ?> Copyright &copy; <?php echo date('Y'); ?> By
+            <small>{{ 'Patient Portal'|xlt }} v{{ software_version|text }} Copyright &copy; {{ current_year|text }} By
                 sjpadgett@gmail.com License GPLv3
             </small>
         </p>

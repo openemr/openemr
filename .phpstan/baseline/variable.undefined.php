@@ -1718,16 +1718,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/templates/DefaultError404.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../portal/patient/templates/DefaultErrorFatal.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../portal/patient/templates/OnsiteActivityViewListView.tpl.php',
 ];
@@ -1740,21 +1730,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$this might not be defined\\.$#',
     'count' => 14,
     'path' => __DIR__ . '/../../portal/patient/templates/PatientListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../portal/patient/templates/ProviderHome.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/templates/_FormsHeader.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../portal/patient/templates/_modalFormHeader.tpl.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$form_pid might not be defined\\.$#',

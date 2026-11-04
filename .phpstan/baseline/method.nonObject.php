@@ -3218,31 +3218,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method assign\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/DefaultError404.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method display\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/DefaultError404.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method assign\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/DefaultErrorFatal.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method display\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/DefaultErrorFatal.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method eprint\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/templates/DefaultErrorFatal.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method assign\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/templates/OnsiteActivityViewListView.tpl.php',
 ];
@@ -3270,31 +3245,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method display\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/templates/PatientListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method assign\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/templates/ProviderHome.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method display\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/ProviderHome.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method eprint\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/ProviderHome.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method eprint\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/_FormsHeader.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method eprint\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/templates/_modalFormHeader.tpl.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method Execute\\(\\) on mixed\\.$#',
