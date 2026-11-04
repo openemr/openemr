@@ -14,6 +14,7 @@
 // script is brought in as require_once in index.php when applicable
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -40,6 +41,9 @@ if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag-
     header('HTTP/1.1 401 Unauthorized');
     die();
 }
+
+// The emailed verify link can open in a fresh session; the patient API iframe needs a CSRF key.
+CsrfUtils::setupCsrfKey($session);
 
 SessionUtil::unsetSession('itsme');
 SessionUtil::setSession('authUser', 'portal-user');
