@@ -54,6 +54,8 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcdir . "/options.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once($srcdir . "/appointment_status.inc.php");
+// FeeSheet::getBasicUnits() for the product lines on the checkout form and the receipt.
+require_once($srcdir . "/FeeSheet.class.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\SLEOB;

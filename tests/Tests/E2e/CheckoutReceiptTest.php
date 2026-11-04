@@ -14,6 +14,8 @@
  * with no charge category, an adjustment with no posting date, a line marked
  * billed in the Billing Manager (no bill date) and a tax that is no longer an
  * active tax rate each arrive as null; its totals are checked against the lines.
+ * The IPPF page also never loaded FeeSheet, which its product lines call, so a
+ * receipt with a product sale stopped before reaching them.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
