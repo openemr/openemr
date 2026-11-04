@@ -61,6 +61,28 @@ class StatementRunHandlerTest extends TestCase
         $this->assertSame([[11], [21]], $this->steps->recorded);
     }
 
+    public function testAFailedPrintSaysSoAndWhereTheStatementsAre(): void
+    {
+        $this->output->printError = 'lpr: The printer or class does not exist.';
+
+        $message = $this->handle([self::invoice(1, 11)], StatementDelivery::Print);
+
+        $this->assertSame('Printing failed: lpr: The printer or class does not exist. The statements are in '
+            . $this->batchFile . '. The invoices were updated.', $message);
+        $this->assertSame([[11]], $this->steps->recorded);
+    }
+
+    public function testAFailedPrintWithoutUpdateLeavesOutTheInvoices(): void
+    {
+        $this->output->printError = 'lpr exited with status 1';
+        $this->steps->emptyFor = [2];
+
+        $message = $this->handle([self::invoice(1, 11), self::invoice(2, 21)], StatementDelivery::Print, withoutUpdate: true);
+
+        $this->assertSame('Printing failed: lpr exited with status 1 The statements are in ' . $this->batchFile
+            . '. No statement for Ann Patient2: the amount due does not meet the minimum amount to print set in Globals.', $message);
+    }
+
     public function testWithoutUpdateSaysTheInvoicesWontBeUpdated(): void
     {
         $message = $this->handle([self::invoice(1, 11)], StatementDelivery::Print, withoutUpdate: true);
@@ -257,8 +279,11 @@ final class RecordingStatementOutput implements StatementOutput
         $this->calls[] = ['downloadPdf', $batchFile, $onlyPatient];
     }
 
-    public function print(string $batchFile): void
+    public ?string $printError = null;
+
+    public function print(string $batchFile): ?string
     {
         $this->calls[] = ['print', $batchFile];
+        return $this->printError;
     }
 }

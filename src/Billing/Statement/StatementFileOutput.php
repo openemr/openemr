@@ -16,6 +16,7 @@ namespace OpenEMR\Billing\Statement;
 
 use Mpdf\Mpdf;
 use OpenEMR\Pdf\Config_Mpdf;
+use Symfony\Component\Process\Exception\ExceptionInterface as ProcessException;
 use Symfony\Component\Process\Process;
 
 final readonly class StatementFileOutput implements StatementOutput
@@ -61,9 +62,28 @@ final readonly class StatementFileOutput implements StatementOutput
         self::send($pdfFile);
     }
 
-    public function print(string $batchFile): void
+    /**
+     * The print command is a command line, such as 'lpr -P HPLaserjet6P -o cpi=10': its
+     * words become the program and its arguments, and the batch file is the last argument.
+     * No shell runs it, so the file name can't be read as shell syntax.
+     */
+    public function print(string $batchFile): ?string
     {
-        (new Process([$this->printCommand, $batchFile]))->run();
+        $words = preg_split('/\s+/', trim($this->printCommand), -1, PREG_SPLIT_NO_EMPTY);
+        if ($words === false || $words === []) {
+            return 'no print command is set (OPENEMR_PRINT_COMMAND in the site\'s config.php)';
+        }
+        $process = new Process([...$words, $batchFile]);
+        try {
+            $process->run();
+        } catch (ProcessException $e) {
+            return $e->getMessage();
+        }
+        if ($process->isSuccessful()) {
+            return null;
+        }
+        $error = trim($process->getErrorOutput());
+        return $error !== '' ? $error : $words[0] . ' exited with status ' . $process->getExitCode();
     }
 
     /**

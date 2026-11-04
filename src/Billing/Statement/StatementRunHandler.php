@@ -86,7 +86,13 @@ final readonly class StatementRunHandler
         if ($test) {
             return xl('Printing skipped; see test output in') . ' ' . $this->batchFile;
         }
-        $this->output->print($this->batchFile);
+        $error = $this->output->print($this->batchFile);
+        if ($error !== null) {
+            // The run already wrote the batch, and updated the invoices unless told not to.
+            $message = xl('Printing failed') . ': ' . $error . ' ' . xl('The statements are in') . ' ' . $this->batchFile . '.'
+                . ($withoutUpdate ? '' : ' ' . xl('The invoices were updated.'));
+            return $skipped === '' ? $message : $message . ' ' . $skipped;
+        }
         $message = xl('Now printing') . ' ' . $written . ' '
             . ($withoutUpdate ? xl('statements; invoices will not be updated.') : xl('statements and updating invoices.'));
         return $skipped === '' ? $message : $message . ' ' . $skipped;

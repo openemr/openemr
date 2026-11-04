@@ -30,6 +30,8 @@ interface StatementOutput
 
     /**
      * Send the batch file to the printer.
+     *
+     * @return ?string why it couldn't be printed, or null when the print command succeeded
      */
-    public function print(string $batchFile): void;
+    public function print(string $batchFile): ?string;
 }
