@@ -29,6 +29,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -237,7 +239,7 @@ class UtilsService
                 $date = new \DateTime('now', new \DateTimeZone(date('P')));
             }
             // TODO: look into why we use RFC3339_EXTENDED here instead of DATE_ATOM like other places
-            $addressPeriod->setStart($date->format(\DateTime::RFC3339_EXTENDED));
+            $addressPeriod->setStart(new FHIRDateTime($date->format(\DateTime::RFC3339_EXTENDED)));
         } else {
             // we should always have a start period, but if we don't, we will go one year before
             $start = new \DateTime();
@@ -257,7 +259,7 @@ class UtilsService
             // if we have an end date we need to set our use to be old
             // TODO: when FHIR R4 5.0.1 is the standard, it has proposed to go off the 'end' date instead of the use column for an old address
             // for ONC R4 3.1.1 we have to populate the use column as old (which removes the fact that the address was a 'home' or a 'work' address)
-            $addressPeriod->setEnd($date->format(\DateTime::RFC3339_EXTENDED));
+            $addressPeriod->setEnd(new FHIRDateTime($date->format(\DateTime::RFC3339_EXTENDED)));
             $address->setUse(new FHIRAddressUse(['value' => ContactAddress::USE_OLD]));
         }
 
@@ -303,11 +305,11 @@ class UtilsService
         return null;
     }
 
-    public static function createFhirMeta($version, $date): FHIRMeta
+    public static function createFhirMeta(string $version, string $date): FHIRMeta
     {
         $meta = new FHIRMeta();
-        $meta->setVersionId($version);
-        $meta->setLastUpdated($date);
+        $meta->setVersionId(new FHIRId($version));
+        $meta->setLastUpdated(new FHIRInstant($date));
         return $meta;
     }
 

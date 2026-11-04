@@ -468,13 +468,25 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            const passInput = document.getElementById('pass');
-            const toggle = document.getElementById('password-icon');
-            toggle.addEventListener('click', function () {
-                const isPassword = passInput.getAttribute('type') === 'password';
-                passInput.setAttribute('type', isPassword ? 'text' : 'password');
-                this.classList.toggle('fa-eye');
-                this.classList.toggle('fa-eye-slash');
+            // Show/hide toggle for every password field that has a .password-toggle icon.
+            document.querySelectorAll('.password-toggle').forEach(function (toggle) {
+                const input = document.getElementById(toggle.dataset.target);
+                if (!input) {
+                    return;
+                }
+                const flip = function () {
+                    const isPassword = input.getAttribute('type') === 'password';
+                    input.setAttribute('type', isPassword ? 'text' : 'password');
+                    toggle.classList.toggle('fa-eye');
+                    toggle.classList.toggle('fa-eye-slash');
+                };
+                toggle.addEventListener('click', flip);
+                toggle.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        flip();
+                    }
+                });
             });
         });
     </script>
@@ -531,13 +543,13 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>
                 <div class="form-row my-3">
-                    <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Account Name'); ?></label>
+                    <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Account ID (cannot be changed)'); ?></label>
                     <div class="col-md">
                         <input class="form-control" name="uname" id="uname" type="text" readonly autocomplete="none" value="<?php echo attr($session->get('portal_username')); ?>" />
                     </div>
                 </div>
                 <div class="form-row my-3">
-                    <label class="col-md-2 col-form-label" for="login_uname"><?php echo xlt('Use Username'); ?></label>
+                    <label class="col-md-2 col-form-label" for="login_uname"><?php echo xlt('Choose your login username (minimum 8 characters)'); ?></label>
                     <div class="col-md">
                         <input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none" title="<?php echo xla('Please enter a username of a minimum of 8 characters. Recommended to include symbols and numbers but not required.'); ?>" placeholder="<?php echo xla('Must be a minimum of 8 characters'); ?>" pattern=".{8,80}" value="<?php echo attr($session->get('portal_login_username')); ?>" onblur="checkUserName()" />
                     </div>
@@ -545,9 +557,19 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
                 <div class="form-row my-3">
                     <label class="col-md-2 col-form-label" for="pass"><?php echo empty($session->get('onetime')) ? xlt('Current Password') : ''; ?></label>
                     <div class="col-md">
-                        <input class="form-control" name="pass" id="pass" <?php echo ($session->get('onetime')) ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($session->get('onetime') ?? '');
-                        SessionUtil::setSession('password_update', ($session->get('onetime') ? 2 : 1));
-                        SessionUtil::unsetSession('onetime'); ?>" required />
+                        <?php $showCurrentPasswordToggle = !(bool) $session->get('onetime'); ?>
+                        <div class="input-group">
+                            <input class="form-control" name="pass" id="pass" <?php echo ($session->get('onetime')) ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($session->get('onetime') ?? '');
+                            SessionUtil::setSession('password_update', ($session->get('onetime') ? 2 : 1));
+                            SessionUtil::unsetSession('onetime'); ?>" required />
+                            <?php if ($showCurrentPasswordToggle) { ?>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-eye password-toggle" data-target="pass" role="button" tabindex="0" title="<?php echo xla('Show or hide password'); ?>" aria-label="<?php echo xla('Show or hide password'); ?>" style="cursor: pointer;"></i>
+                                    </span>
+                                </div>
+                            <?php } ?>
+                        </div>
                     </div>
                 </div>
                 <?php if ($session->get('pin', null)) { ?>
@@ -561,13 +583,27 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
                 <div class="form-row my-3">
                     <label class="col-md-2 col-form-label" for="pass_new"><?php echo xlt('New Password'); ?></label>
                     <div class="col-md">
-                        <input class="form-control" name="pass_new" id="pass_new" type="password" required placeholder="<?php echo xla('Min length is 8 with upper,lowercase,numbers mix'); ?>" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
+                        <div class="input-group">
+                            <input class="form-control" name="pass_new" id="pass_new" type="password" required placeholder="<?php echo xla('Min length is 8 with upper,lowercase,numbers mix'); ?>" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <i class="fa fa-eye password-toggle" data-target="pass_new" role="button" tabindex="0" title="<?php echo xla('Show or hide password'); ?>" aria-label="<?php echo xla('Show or hide password'); ?>" style="cursor: pointer;"></i>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="form-row my-3">
                     <label class="col-md-2 col-form-label" for="pass_new_confirm"><?php echo xlt('Confirm New Password'); ?></label>
                     <div class="col-md">
-                        <input class="form-control" name="pass_new_confirm" id="pass_new_confirm" type="password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
+                        <div class="input-group">
+                            <input class="form-control" name="pass_new_confirm" id="pass_new_confirm" type="password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <i class="fa fa-eye password-toggle" data-target="pass_new_confirm" role="button" tabindex="0" title="<?php echo xla('Show or hide password'); ?>" aria-label="<?php echo xla('Show or hide password'); ?>" style="cursor: pointer;"></i>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <?php if ($globalsBag->getBoolean('enforce_signin_email')) { ?>
@@ -656,7 +692,8 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
                 <?php } ?>
                 <div class="form-group">
                     <label for="uname"><?php echo xlt('Username') ?></label>
-                    <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required />
+                    <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required aria-describedby="unameHelp" />
+                    <small id="unameHelp" class="form-text text-muted"><?php echo xlt('The username you chose (not the Account ID)'); ?></small>
                 </div>
                     <div id="standard-auth-password" class="form-group">
                         <label for="pass"><?php echo xlt('Password') ?></label>
@@ -664,7 +701,7 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
                             <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none" />
                             <div class="input-group-append">
                                 <span class="input-group-text">
-                                    <i class="fa fa-eye" id="password-icon" style="cursor: pointer;"></i>
+                                    <i class="fa fa-eye password-toggle" data-target="pass" role="button" tabindex="0" title="<?php echo xla('Show or hide password'); ?>" aria-label="<?php echo xla('Show or hide password'); ?>" style="cursor: pointer;"></i>
                                 </span>
                             </div>
                         </div>
@@ -672,7 +709,8 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
                 <?php if ($globalsBag->getBoolean('enforce_signin_email')) { ?>
                     <div class="form-group">
                         <label for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
-                        <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
+                        <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" aria-describedby="passaddonHelp" />
+                        <small id="passaddonHelp" class="form-text text-muted"><?php echo xlt('The e-mail address the practice has on file for you'); ?></small>
                     </div>
                 <?php } ?>
                 <?php if ($globalsBag->get('language_menu_login')) { ?>
@@ -771,7 +809,10 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
             <?php } ?>
             <?php if (isset($_GET['w'])) { ?>
             // mdsupport - Would be good to include some clue about what went wrong!
-            bsAlert(<?php echo xlj('Something went wrong. Please try again.'); ?>);
+                <?php // One generic message for every failure so the page never reveals which credential was wrong. ?>
+            bsAlert(<?php echo $globalsBag->getBoolean('enforce_signin_email')
+                ? xlj('Something went wrong. Please check Username, Password and E-Mail Address and try again.')
+                : xlj('Something went wrong. Please check Username and Password and try again.'); ?>);
             <?php } ?>
             <?php if (isset($_GET['oe'])) { ?>
             // mdsupport - Would be good to include some clue about what went wrong!

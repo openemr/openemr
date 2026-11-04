@@ -24,7 +24,7 @@ final class PortalPatientAccessGuard
      */
     public static function assertCanRead(mixed $patientPid): void
     {
-        self::assertAccess($patientPid);
+        self::assertAccess($patientPid, 'demo', '', 'Portal demographics review access denied');
     }
 
     /**
@@ -32,21 +32,50 @@ final class PortalPatientAccessGuard
      */
     public static function assertCanWrite(mixed $patientPid): void
     {
-        self::assertAccess($patientPid, true);
+        self::assertAccess($patientPid, 'demo', 'write', 'Portal demographics review access denied');
     }
 
     /**
-     * Pure predicate for the common staff ACL decision.
+     * Assert that the active session may read the selected patient's portal documents.
      */
-    public static function isStaffAccessAllowed(bool $hasPortalAccess, bool $hasDemographicsAccess): bool
+    public static function assertCanReadDocuments(mixed $patientPid): void
     {
-        return $hasPortalAccess && $hasDemographicsAccess;
+        self::assertAccess($patientPid, 'docs', '', 'Portal document access denied');
+    }
+
+    /**
+     * Assert that the active session may add a portal document for the selected patient.
+     * Staff with add-only document access may add, as they may upload a document.
+     */
+    public static function assertCanAddDocument(mixed $patientPid): void
+    {
+        self::assertAccess($patientPid, 'docs', ['write', 'addonly'], 'Portal document access denied');
+    }
+
+    /**
+     * Assert that the active session may change or delete the selected patient's portal documents.
+     */
+    public static function assertCanWriteDocuments(mixed $patientPid): void
+    {
+        self::assertAccess($patientPid, 'docs', 'write', 'Portal document access denied');
+    }
+
+    /**
+     * Pure predicate for the common staff ACL decision: the portal ACL plus the patient-level ACL
+     * (demographics or documents) for the record.
+     */
+    public static function isStaffAccessAllowed(bool $hasPortalAccess, bool $hasPatientRecordAccess): bool
+    {
+        return $hasPortalAccess && $hasPatientRecordAccess;
     }
 
     /**
      * Enforce portal ownership or the required clinic staff ACLs.
+     *
+     * @param 'demo'|'docs' $patientsAcl the `patients` ACL the staff user needs for this record
+     * @param string|list<string> $accessType '' for read, or the write access types accepted
      */
-    private static function assertAccess(mixed $patientPid, bool $write = false): void
+    private static function assertAccess(mixed $patientPid, string $patientsAcl, string|array $accessType, string $denial): void
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($session->has('patient_portal_onsite_two')) {
@@ -57,12 +86,11 @@ final class PortalPatientAccessGuard
             return;
         }
 
-        $accessType = $write ? 'write' : '';
         if (!self::isStaffAccessAllowed(
             AclMain::aclCheckCore('patientportal', 'portal'),
-            AclMain::aclCheckCore('patients', 'demo', '', $accessType),
+            AclMain::aclCheckCore('patients', $patientsAcl, '', $accessType),
         )) {
-            AccessDeniedHelper::deny('Portal demographics review access denied');
+            AccessDeniedHelper::deny($denial);
         }
     }
 }

@@ -90,14 +90,17 @@ class ServiceRequestReferralFhirApiTest extends TestCase
         foreach ($this->referrals as $referral) {
             QueryUtils::sqlStatementThrowException('DELETE FROM lbt_data WHERE form_id = ?', [$referral['id']]);
             QueryUtils::sqlStatementThrowException('DELETE FROM transactions WHERE id = ?', [$referral['id']]);
+            self::forgetUuid('transactions', $referral['uuid']);
         }
         foreach ($this->people as $person) {
             QueryUtils::sqlStatementThrowException('DELETE FROM users WHERE id = ?', [$person['id']]);
+            self::forgetUuid('users', $person['uuid']);
         }
         foreach ($this->orderUuids as $orderUuid) {
             $orderId = QueryUtils::fetchSingleValue('SELECT procedure_order_id FROM procedure_order WHERE uuid = ?', 'procedure_order_id', [UuidRegistry::uuidToBytes($orderUuid)]);
             QueryUtils::sqlStatementThrowException('DELETE FROM procedure_order_code WHERE procedure_order_id = ?', [$orderId]);
             QueryUtils::sqlStatementThrowException('DELETE FROM procedure_order WHERE procedure_order_id = ?', [$orderId]);
+            self::forgetUuid('procedure_order', $orderUuid);
         }
         $this->fixtures->removeFixtures();
         $this->testClient->cleanupRevokeAuth();
@@ -469,6 +472,14 @@ class ServiceRequestReferralFhirApiTest extends TestCase
             throw new \RuntimeException('the fixture patient has no uuid or pid');
         }
         return ['uuid' => $uuid, 'pid' => $pid];
+    }
+
+    /**
+     * Deleting a row leaves its uuid_registry row behind; this removes it.
+     */
+    private static function forgetUuid(string $table, string $uuid): void
+    {
+        QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE table_name = ? AND uuid = ?', [$table, UuidRegistry::uuidToBytes($uuid)]);
     }
 
     /**

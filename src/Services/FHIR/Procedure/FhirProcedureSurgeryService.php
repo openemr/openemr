@@ -14,7 +14,9 @@ namespace OpenEMR\Services\FHIR\Procedure;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProcedure;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\CodeTypesService;
@@ -97,9 +99,9 @@ class FhirProcedureSurgeryService extends FhirServiceBase implements IPatientCom
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['date_modified'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date_modified']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date_modified'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
             $meta->addProfile($this->createProfile($profile));
@@ -143,7 +145,7 @@ class FhirProcedureSurgeryService extends FhirServiceBase implements IPatientCom
         }
 
         if (!empty($dataRecord['begdate'])) {
-            $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($dataRecord['begdate']));
+            $procedureResource->setPerformedDateTime(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['begdate'])));
         }
 
         if (!empty($dataRecord['comments'])) {

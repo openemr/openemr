@@ -18,7 +18,9 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProcedure;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProcedure\FHIRProcedurePerformer;
 use OpenEMR\Services\CodeTypesService;
@@ -160,11 +162,11 @@ class FhirProcedureOEProcedureService extends FhirServiceBase implements IPatien
 
         // Use report date if available, otherwise use order date
         if (!empty($report['date'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($report['date']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($report['date'])));
         } elseif (!empty($dataRecord['date_ordered'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
             $meta->addProfile($this->createProfile($profile));
@@ -262,10 +264,10 @@ class FhirProcedureOEProcedureService extends FhirServiceBase implements IPatien
         }
         // FIXED: Use report date if available, otherwise order date
         if (!empty($report['date'])) {
-            $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($report['date']));
+            $procedureResource->setPerformedDateTime(new FHIRDateTime(UtilsService::getLocalDateAsUTC($report['date'])));
         } elseif (!empty($dataRecord['date_ordered'])) {
             // Order placed but not yet performed
-            $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered']));
+            $procedureResource->setPerformedDateTime(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered'])));
         } else {
             if ($status == EventStatusEnum::IN_PROGRESS || $status == EventStatusEnum::COMPLETED) {
                 // we CAN'T by spec have in-progress or completed without a date
