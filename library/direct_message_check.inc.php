@@ -26,6 +26,7 @@
 
 require_once(__DIR__ . "/documents.php");
 
+use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
@@ -168,9 +169,14 @@ function phimail_check(): void
     }
 
     // Record the failure in the audit log, then throw so the background
-    // service runner reports the run as an error.
+    // service runner reports the run as an error. A failed audit write is
+    // logged on its own so it cannot replace the original cause.
     $fail = static function (string $text, ?\Throwable $previous = null): never {
-        phimail_logit(0, $text);
+        try {
+            phimail_logit(0, $text);
+        } catch (DbalException $auditError) {
+            ServiceContainer::getLogger()->error('phimail_logit could not write the audit row', ['exception' => $auditError]);
+        }
         throw new PhiMailCheckException($text, 0, $previous);
     };
 
@@ -414,8 +420,8 @@ function phimail_check(): void
                     INSERT INTO direct_message_log (msg_type, msg_id, sender, recipient, status, status_ts, user_id)
                     VALUES ('R', ?, ?, ?, 'R', NOW(), ?)
                     SQL;
-                $serviceUserId = phimail_service_userID();
                 try {
+                    $serviceUserId = phimail_service_userID();
                     QueryUtils::sqlStatementThrowException($sql, [$msg_id, $sender, $recipient, $serviceUserId], noLog: true);
                 } catch (SqlQueryException $e) {
                     $fail("database problem logging received message: " . $msg_id, $e);
@@ -528,6 +534,12 @@ function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check
  */
 function phimail_read_blob($fp, $len): string|false
 {
+    // Reject a malformed length before creating the temp file
+    $length = filter_var($len, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+    if ($length === false) {
+        phimail_logit(0, "M17 invalid blob length");
+        return false;
+    }
 
     $fpath = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
     if (!@file_exists($fpath)) {
@@ -548,7 +560,7 @@ function phimail_read_blob($fp, $len): string|false
         return false;
     }
 
-    $bytes_left = $len;
+    $bytes_left = $length;
     $chunk_size = 1024;
     while (!feof($fp) && $bytes_left > 0) {
         if ($bytes_left < $chunk_size) {
@@ -560,7 +572,7 @@ function phimail_read_blob($fp, $len): string|false
             @fclose($ff);
             @unlink($fn);
             phimail_logit(0, "M15 failure " . ($chunk === false ? "reading" : "writing")
-                . " blob chunk after " . ($len - $bytes_left) . " bytes");
+                . " blob chunk after " . ($length - $bytes_left) . " bytes");
             return false;
         }
 
@@ -633,9 +645,9 @@ function phimail_store($name, $mime_type, $fn)
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()
             ->addListener(IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE, $allowMimeTypeFunction);
     }
-    // Collect phimail user id
-    $user = phimail_service_userID();
     try {
+        // Collect phimail user id inside the try, so the finally removes the bypass listener if the lookup fails
+        $user = phimail_service_userID();
         // Import the document
         $phimail_direct_message_check_allowed_mimetype = $mime_type;
         $filesize = filesize($fn);

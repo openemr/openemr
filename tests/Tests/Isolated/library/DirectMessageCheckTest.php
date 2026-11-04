@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\library;
 
+use Doctrine\DBAL\ConnectionException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\DirectMessaging\PhiMailCheckException;
@@ -34,6 +35,9 @@ final class DirectMessageCheckTest extends TestCase
 
     /** @var list<array{int, string}> success flag and comments of each audit row */
     private array $auditRows = [];
+
+    /** Thrown by the audit logger in place of writing a row, when set */
+    private ?\Throwable $auditFailure = null;
 
     /** Where phimail_read_blob() downloads message bodies and attachments */
     private string $tempDir;
@@ -67,6 +71,9 @@ final class DirectMessageCheckTest extends TestCase
             function (string $event, string $user, int $group, int $success, string $comments): void {
                 self::assertSame('direct-message-check', $event);
                 self::assertSame('phimail-service', $user);
+                if ($this->auditFailure instanceof \Throwable) {
+                    throw $this->auditFailure;
+                }
                 $this->auditRows[] = [$success, $comments];
             }
         );
@@ -92,6 +99,16 @@ final class DirectMessageCheckTest extends TestCase
         }
 
         self::assertSame([[0, 'could not connect to server C1']], $this->auditRows);
+    }
+
+    public function testFailedAuditWriteKeepsTheCheckFailure(): void
+    {
+        OEGlobalsBag::getInstance()->set('phimail_enable', false);
+        $this->auditFailure = new ConnectionException('audit database is down');
+
+        $this->expectException(PhiMailCheckException::class);
+        $this->expectExceptionMessage('could not connect to server C1');
+        phimail_check();
     }
 
     public function testUnreachableServerFailsAfterAuditing(): void
@@ -169,6 +186,29 @@ final class DirectMessageCheckTest extends TestCase
         self::assertSame([[0, 'M5 attachment mismatch']], $this->auditRows);
         self::assertSame('closed', $this->serverResult($server));
         self::assertCount(0, (new Finder())->in($this->tempDir)->files(), 'downloaded body left in the temp directory');
+    }
+
+    public function testMalformedBodyLengthFailsWithoutATempFile(): void
+    {
+        $show = <<<'REPLY'
+            OK
+            Subject: test
+
+            text/plain
+            bogus
+            REPLY;
+        $server = $this->startServer(['OK', 'OK', 'MAIL to@example.org from@example.org 0 msg-1', $show]);
+
+        try {
+            phimail_check();
+            self::fail('phimail_check() returned normally from a malformed body length.');
+        } catch (PhiMailCheckException $e) {
+            self::assertSame('M4 read body failed', $e->getMessage());
+        }
+
+        self::assertSame([[0, 'M17 invalid blob length'], [0, 'M4 read body failed']], $this->auditRows);
+        self::assertSame('closed', $this->serverResult($server));
+        self::assertCount(0, (new Finder())->in($this->tempDir)->files(), 'temp file created for a malformed length');
     }
 
     public function testNoMessagesCompletesNormally(): void
